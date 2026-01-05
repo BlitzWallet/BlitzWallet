@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   View,
   StyleSheet,
@@ -45,6 +51,8 @@ import {
   requestManualClawback,
   listClawbackableTransfers,
   getUserSwapHistory,
+  satsToDollars,
+  dollarsToSats,
 } from '../../functions/spark/flashnet';
 
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
@@ -62,6 +70,7 @@ import { formatBalanceAmount } from '../../functions';
 import customUUID from '../../functions/customUUID';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 
@@ -93,17 +102,18 @@ export default function SwapsPage() {
   const [isSwapping, setIsSwapping] = useState(false);
   const [isLoadingPool, setIsLoadingPool] = useState(true);
   const [poolInfo, setPoolInfo] = useState(null);
-  // const [simulationResult, setSimulationResult] = useState(null);
+  const [simulationResult, setSimulationResult] = useState(null);
   const [error, setError] = useState(null);
   const [priceImpact, setPriceImpact] = useState(null);
   const [confirmedSwap, setConfirmedSwap] = useState(null);
   const [lastEditedField, setLastEditedField] = useState('from');
   const [showKeyboard, setShowKeyboard] = useState(false);
+  const [showReviewScreen, setShowReviewScreen] = useState(false);
   const animationRef = useRef(null);
 
   // Animated values for font sizes
-  const fromAmountFontSize = useSharedValue(SIZES.xLarge);
-  const toAmountFontSize = useSharedValue(SIZES.xLarge);
+  const fromAmountFontSize = useSharedValue(SIZES.large);
+  const toAmountFontSize = useSharedValue(SIZES.large);
   const fromAmountScale = useSharedValue(1);
   const toAmountScale = useSharedValue(1);
   const fromAmountOpacity = useSharedValue(1);
@@ -159,11 +169,12 @@ export default function SwapsPage() {
   const clearPageStates = () => {
     setFromAmount('');
     setToAmount('');
-    // setSimulationResult(null);
+    setSimulationResult(null);
     setPriceImpact(null);
     setError(null);
     setLastEditedField('from');
-    setShowKeyboard(false);
+    setShowReviewScreen(false);
+    // setShowKeyboard(false);
     isInitialMount.current = true;
   };
 
@@ -215,7 +226,7 @@ export default function SwapsPage() {
         simulateSwapAmount(fromAmount, 'from', uuid);
       } else {
         setToAmount('');
-        // setSimulationResult(null);
+        setSimulationResult(null);
         setPriceImpact(null);
         setError('');
       }
@@ -226,7 +237,7 @@ export default function SwapsPage() {
         simulateSwapAmount(toAmount, 'to', uuid);
       } else {
         setFromAmount('');
-        // setSimulationResult(null);
+        setSimulationResult(null);
         setPriceImpact(null);
         setError('');
       }
@@ -284,7 +295,7 @@ export default function SwapsPage() {
       }
 
       if (result.didWork && result.simulation) {
-        // setSimulationResult(result.simulation);
+        setSimulationResult(result.simulation);
         setPriceImpact(parseFloat(result.simulation.priceImpact));
 
         let outputAmount;
@@ -350,10 +361,10 @@ export default function SwapsPage() {
     setFromAmount('');
     setToAmount('');
 
-    setLastEditedField(lastEditedField === 'from' ? 'to' : 'from');
+    setLastEditedField('from');
     currentRequetId.current = null;
 
-    // setSimulationResult(null);
+    setSimulationResult(null);
     setPriceImpact(null);
     setError(null);
   };
@@ -370,6 +381,16 @@ export default function SwapsPage() {
     }
   };
 
+  const handleBackPressAndroid = useCallback(() => {
+    if (showReviewScreen) {
+      setShowReviewScreen(false);
+      return false;
+    }
+
+    navigate.goBack();
+  }, [showReviewScreen]);
+  useHandleBackPressNew(handleBackPressAndroid);
+
   const setPercentage = percent => {
     const balance = fromAsset === 'BTC' ? btcBalance : dollarBalanceToken;
     const amount = (balance * percent)
@@ -382,7 +403,7 @@ export default function SwapsPage() {
 
   const handleInputPress = direction => {
     setLastEditedField(direction);
-    setShowKeyboard(true);
+    // setShowKeyboard(true);
   };
 
   const handleKeyboardInput = value => {
@@ -393,21 +414,21 @@ export default function SwapsPage() {
     }
   };
 
-  const dismissKeyboard = () => {
-    setShowKeyboard(false);
-  };
+  // const dismissKeyboard = () => {
+  //   setShowKeyboard(false);
+  // };
 
   // Calculate dynamic font size based on text length
   const getAmountFontSize = amount => {
-    if (!amount) return SIZES.xLarge;
+    if (!amount) return SIZES.large;
 
     const length = amount.toString().length;
 
-    if (length <= 6) return SIZES.xLarge;
-    if (length <= 9) return SIZES.large;
-    if (length <= 12) return SIZES.medium;
-    if (length <= 15) return SIZES.smedium;
-    return SIZES.smedium;
+    if (length <= 6) return SIZES.large;
+    if (length <= 9) return SIZES.medium;
+    if (length <= 12) return SIZES.smedium;
+    if (length <= 15) return SIZES.small;
+    return SIZES.xSmall;
   };
 
   // Update animated font sizes when amounts change
@@ -459,6 +480,12 @@ export default function SwapsPage() {
       return;
     }
 
+    // Show review screen
+    setShowReviewScreen(true);
+  };
+
+  const handleAcceptReview = () => {
+    // Check for high price impact
     const showConfirmScreen = priceImpact > 5;
 
     if (!showConfirmScreen) {
@@ -510,7 +537,7 @@ export default function SwapsPage() {
             flatnet_sats_per_dollar,
         );
         setConfirmedSwap({ ...result.swap, realReceivedAmount, realFeeAmount });
-
+        setShowReviewScreen(false);
         const userSwaps = await getUserSwapHistory(currentWalletMnemoinc, 5);
 
         const swap = userSwaps.swaps.find(
@@ -737,10 +764,8 @@ export default function SwapsPage() {
             }}
             content={t('screens.inAccount.swapsPage.swapConfimred')}
           />
-
-          {/* Main Details Card */}
+          {/* 
           <View style={styles.detailsCard}>
-            {/* You Sent Section */}
             <View
               style={[
                 styles.card,
@@ -771,7 +796,6 @@ export default function SwapsPage() {
               />
             </View>
 
-            {/* Divider with Arrow */}
             <View
               style={[
                 styles.dividerContainer,
@@ -791,7 +815,6 @@ export default function SwapsPage() {
               />
             </View>
 
-            {/* You Received Section */}
             <View
               style={[
                 styles.card,
@@ -821,9 +844,9 @@ export default function SwapsPage() {
                 })}
               />
             </View>
-          </View>
+          </View> */}
           {/* Transaction Details */}
-          <View
+          {/* <View
             style={[
               styles.transactionDetails,
               { borderTopColor: backgroundOffset },
@@ -846,7 +869,7 @@ export default function SwapsPage() {
                 />
               </View>
             )}
-          </View>
+          </View> */}
 
           {/* Action Buttons */}
           <CustomButton
@@ -880,398 +903,659 @@ export default function SwapsPage() {
     );
   }
 
+  // Review Screen
+  if (showReviewScreen) {
+    const isBtcToUsdb = fromAsset === 'BTC';
+
+    const fee = isBtcToUsdb
+      ? satsToDollars(
+          simulationResult.feePaidAssetIn,
+          poolInfo.currentPriceAInB,
+        )
+      : dollarsToSats(
+          simulationResult.feePaidAssetIn / 1000000,
+          poolInfo.currentPriceAInB,
+        );
+
+    const exchangeRate = isBtcToUsdb
+      ? `${displayCorrectDenomination({
+          amount: 1,
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'sats',
+          },
+          forceCurrency: 'USD',
+          convertAmount: false,
+        })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+          amount: Number(satsToDollars(1, poolInfo.currentPriceAInB)).toFixed(
+            6,
+          ),
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'fiat',
+          },
+          forceCurrency: 'USD',
+          convertAmount: false,
+        })}`
+      : `${displayCorrectDenomination({
+          amount: 1,
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'fiat',
+          },
+          forceCurrency: 'USD',
+          convertAmount: false,
+        })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+          amount: Number(dollarsToSats(1, poolInfo.currentPriceAInB)).toFixed(
+            2,
+          ),
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'sats',
+          },
+          forceCurrency: 'USD',
+          convertAmount: false,
+        })}`;
+
+    const formattedBitcoinPrice = displayCorrectDenomination({
+      amount: Number(swapUSDPriceDollars).toFixed(2),
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: 'fiat',
+      },
+      forceCurrency: 'USD',
+      convertAmount: false,
+    });
+
+    const formattedFee = displayCorrectDenomination({
+      amount: Number(fee).toFixed(isBtcToUsdb ? 3 : 0),
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: isBtcToUsdb ? 'fiat' : 'sats',
+      },
+      forceCurrency: 'USD',
+      convertAmount: false,
+    });
+
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          containerStyles={{ marginBottom: 0 }}
+          customBackFunction={() => setShowReviewScreen(false)}
+          label={t('constants.review')}
+        />
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: 'center',
+            paddingTop: 40,
+          }}
+        >
+          <View style={styles.contentWrapper}>
+            <View style={[styles.cardContainer, { marginBottom: 20 }]}>
+              <View
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: theme
+                      ? backgroundOffset
+                      : COLORS.darkModeText,
+                  },
+                ]}
+              >
+                <View style={[styles.cardHeader, { marginBottom: 5 }]}>
+                  <ThemeText
+                    styles={styles.label}
+                    content={t('screens.inAccount.swapsPage.yourAreConverting')}
+                  />
+                </View>
+
+                <View style={styles.assetRow}>
+                  <ThemeText
+                    styles={[styles.reviewAmount, { fontSize: SIZES.large }]}
+                    content={`${formatBalanceAmount(
+                      fromAmount,
+                      false,
+                      masterInfoObject,
+                    )} ${fromAsset === 'BTC' ? 'SAT' : 'USD'}`}
+                  />
+                </View>
+              </View>
+
+              {/* Swap Button */}
+              <TouchableOpacity
+                style={[
+                  styles.swapButton,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                ]}
+                activeOpacity={1}
+              >
+                <ArrowDownUp
+                  size={22}
+                  color={
+                    theme && darkModeType
+                      ? COLORS.lightModeText
+                      : COLORS.darkModeText
+                  }
+                />
+              </TouchableOpacity>
+
+              <View
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: theme
+                      ? backgroundOffset
+                      : COLORS.darkModeText,
+                  },
+                ]}
+              >
+                <View style={[styles.cardHeader, { marginBottom: 5 }]}>
+                  <ThemeText
+                    styles={styles.label}
+                    content={t('screens.inAccount.swapsPage.youWillReceive')}
+                  />
+                </View>
+
+                <View style={[styles.assetRow]}>
+                  <ThemeText
+                    styles={[styles.reviewAmount, { fontSize: SIZES.large }]}
+                    content={`${formatBalanceAmount(
+                      toAmount,
+                      false,
+                      masterInfoObject,
+                    )} ${toAsset === 'BTC' ? 'SAT' : 'USD'}`}
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Rate card */}
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                  marginBottom: 20,
+                },
+              ]}
+            >
+              <View style={styles.reviewSection}>
+                <ThemeText
+                  styles={[styles.reviewLabel, { opacity: 0.6 }]}
+                  content={t('screens.inAccount.swapsPage.exchangeRate')}
+                />
+                <ThemeText
+                  styles={styles.reviewAmount}
+                  content={exchangeRate}
+                />
+              </View>
+
+              <View
+                style={{
+                  width: '100%',
+                  height: 1,
+                  backgroundColor: backgroundColor,
+                  marginVertical: 10,
+                }}
+              />
+
+              <View style={styles.reviewSection}>
+                <ThemeText
+                  styles={[styles.reviewLabel, { opacity: 0.6 }]}
+                  content={t('screens.inAccount.swapsPage.bitcoinPrice')}
+                />
+                <ThemeText
+                  styles={styles.reviewAmount}
+                  content={`${APPROXIMATE_SYMBOL} ${formattedBitcoinPrice}`}
+                />
+              </View>
+            </View>
+
+            {/* Fee card */}
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+              ]}
+            >
+              <View style={styles.reviewSection}>
+                <ThemeText
+                  styles={[styles.reviewLabel, { opacity: 0.6 }]}
+                  content={t('screens.inAccount.swapsPage.swapFee')}
+                />
+                <ThemeText
+                  styles={styles.reviewAmount}
+                  content={`${APPROXIMATE_SYMBOL} ${formattedFee}`}
+                />
+              </View>
+            </View>
+
+            <View style={{ marginTop: 'auto' }} />
+
+            {/* Accept Button */}
+            <CustomButton
+              useLoading={isSwapping}
+              buttonStyles={{
+                ...CENTER,
+                marginTop: 40,
+              }}
+              actionFunction={handleAcceptReview}
+              textContent={t('constants.accept')}
+            />
+            <ThemeText
+              styles={styles.disclaimer}
+              content={t('screens.inAccount.swapsPage.swapDisclaimer')}
+            />
+          </View>
+        </ScrollView>
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar />
+      <CustomSettingsTopBar label={'Convert'} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
       >
-        <Pressable
+        {/* <Pressable
           style={{ flexGrow: 1, alignItems: 'center' }}
-          onPress={dismissKeyboard}
-        >
-          <View style={styles.contentWrapper}>
-            {isLoadingPool && (
-              <View style={styles.loadingContainer}>
-                <FullLoadingScreen
-                  textStyles={styles.loadingText}
-                  text={t('screens.inAccount.swapsPage.loadingPool')}
-                />
-              </View>
-            )}
+          // onPress={dismissKeyboard}
+        > */}
+        <View style={styles.contentWrapper}>
+          {isLoadingPool && (
+            <View style={styles.loadingContainer}>
+              <FullLoadingScreen
+                textStyles={styles.loadingText}
+                text={t('screens.inAccount.swapsPage.loadingPool')}
+              />
+            </View>
+          )}
 
-            {!isLoadingPool && poolInfo && (
-              <>
-                <View style={styles.cardContainer}>
-                  <View
-                    style={[
-                      styles.card,
-                      {
-                        backgroundColor: theme
-                          ? backgroundOffset
-                          : COLORS.darkModeText,
-                      },
-                    ]}
-                  >
-                    <View style={styles.cardHeader}>
-                      <ThemeText
-                        styles={styles.label}
-                        content={t('screens.inAccount.swapsPage.fromBalance', {
-                          amount: displayCorrectDenomination({
-                            amount: displayBalance,
-                            masterInfoObject: {
-                              ...masterInfoObject,
-                              userBalanceDenomination:
-                                fromAsset === 'BTC' ? 'sats' : 'fiat',
-                            },
-                            forceCurrency: 'USD',
-                            fiatStats,
-                            convertAmount: fromAsset === 'BTC',
-                          }),
-                        })}
-                      />
-                      {isSimulating && lastEditedField === 'to' && (
-                        <FullLoadingScreen
-                          showText={false}
-                          containerStyles={{ flex: 0 }}
-                          size="small"
-                        />
-                      )}
-                    </View>
-
-                    <View style={styles.assetRow}>
-                      <View style={styles.assetInfo}>
-                        <View
-                          style={[
-                            styles.iconContainer,
-                            {
-                              backgroundColor: theme
-                                ? backgroundColor
-                                : fromAsset === 'BTC'
-                                ? COLORS.bitcoinOrange
-                                : COLORS.dollarGreen,
-                            },
-                          ]}
-                        >
-                          {fromAsset === 'BTC' ? (
-                            <ThemeImage
-                              styles={{ width: 25, height: 25 }}
-                              lightModeIcon={ICONS.bitcoinIcon}
-                              darkModeIcon={ICONS.bitcoinIcon}
-                              lightsOutIcon={ICONS.bitcoinIcon}
-                            />
-                          ) : (
-                            <ThemeImage
-                              styles={{ width: 25, height: 25 }}
-                              lightModeIcon={ICONS.dollarIcon}
-                              darkModeIcon={ICONS.dollarIcon}
-                              lightsOutIcon={ICONS.dollarIcon}
-                            />
-                          )}
-                        </View>
-                        <ThemeText
-                          styles={styles.assetText}
-                          content={fromAssetLabel}
-                        />
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => handleInputPress('from')}
-                        activeOpacity={0.2}
-                        style={{ opacity: fromAmount ? 1 : 0.5 }}
-                      >
-                        <Animated.Text
-                          style={[
-                            styles.amountInput,
-                            {
-                              color: theme
-                                ? COLORS.darkModeText
-                                : COLORS.lightModeText,
-                            },
-                            fromAmountAnimatedStyle,
-                          ]}
-                        >
-                          {formatBalanceAmount(
-                            fromAmount,
-                            false,
-                            masterInfoObject,
-                          ) || '0'}{' '}
-                          {fromAsset === 'BTC' ? 'SAT' : 'USD'}
-                        </Animated.Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  {/* Swap Button */}
-                  <TouchableOpacity
-                    style={[
-                      styles.swapButton,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.primary,
-                      },
-                    ]}
-                    onPress={handleSwapAssets}
-                    activeOpacity={0.7}
-                    disabled={isSwapping || isLoadingPool}
-                  >
-                    <ArrowDownUp
-                      size={22}
-                      color={
-                        theme && darkModeType
-                          ? COLORS.lightModeText
-                          : COLORS.darkModeText
-                      }
-                    />
-                  </TouchableOpacity>
-
-                  <View
-                    style={[
-                      styles.card,
-                      {
-                        backgroundColor: theme
-                          ? backgroundOffset
-                          : COLORS.darkModeText,
-                      },
-                    ]}
-                  >
-                    <View style={styles.cardHeader}>
-                      <ThemeText
-                        styles={styles.label}
-                        content={t('screens.inAccount.swapsPage.toBalance')}
-                      />
-                      {isSimulating && lastEditedField === 'from' && (
-                        <FullLoadingScreen
-                          showText={false}
-                          containerStyles={{ flex: 0 }}
-                          size="small"
-                        />
-                      )}
-                    </View>
-
-                    <View style={styles.assetRow}>
-                      <View style={styles.assetInfo}>
-                        <View
-                          style={[
-                            styles.iconContainer,
-                            {
-                              backgroundColor: theme
-                                ? backgroundColor
-                                : fromAsset === 'USD'
-                                ? COLORS.bitcoinOrange
-                                : COLORS.dollarGreen,
-                            },
-                          ]}
-                        >
-                          {fromAsset !== 'BTC' ? (
-                            <ThemeImage
-                              styles={{ width: 25, height: 25 }}
-                              lightModeIcon={ICONS.bitcoinIcon}
-                              darkModeIcon={ICONS.bitcoinIcon}
-                              lightsOutIcon={ICONS.bitcoinIcon}
-                            />
-                          ) : (
-                            <ThemeImage
-                              styles={{ width: 25, height: 25 }}
-                              lightModeIcon={ICONS.dollarIcon}
-                              darkModeIcon={ICONS.dollarIcon}
-                              lightsOutIcon={ICONS.dollarIcon}
-                            />
-                          )}
-                        </View>
-                        <ThemeText
-                          styles={styles.assetText}
-                          content={toAssetLabel}
-                        />
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => handleInputPress('to')}
-                        activeOpacity={0.2}
-                        style={{ opacity: toAmount ? 1 : 0.5 }}
-                      >
-                        <Animated.Text
-                          style={[
-                            styles.amountInput,
-                            {
-                              color: theme
-                                ? COLORS.darkModeText
-                                : COLORS.lightModeText,
-                            },
-                            toAmountAnimatedStyle,
-                          ]}
-                        >
-                          {formatBalanceAmount(
-                            toAmount,
-                            false,
-                            masterInfoObject,
-                          ) || '0'}{' '}
-                          {toAsset === 'BTC' ? 'SAT' : 'USD'}
-                        </Animated.Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-
-                <ThemeText
-                  styles={styles.dollarPrice}
-                  content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
-                    amount: Number(swapUSDPriceDollars).toFixed(2),
-                    forceCurrency: 'USD',
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: 'fiat',
-                    },
-                    convertAmount: false,
-                  })}`}
-                />
-
-                <View style={styles.quickButtons}>
-                  <TouchableOpacity
-                    style={[
-                      styles.quickButton,
-                      { backgroundColor: backgroundOffset },
-                    ]}
-                    onPress={() => setPercentage(0.25)}
-                    activeOpacity={0.7}
-                    disabled={isSwapping || isLoadingPool}
-                  >
-                    <ThemeText
-                      styles={styles.quickButtonText}
-                      content={'25%'}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.quickButton,
-                      { backgroundColor: backgroundOffset },
-                    ]}
-                    onPress={() => setPercentage(0.5)}
-                    activeOpacity={0.7}
-                    disabled={isSwapping || isLoadingPool}
-                  >
-                    <ThemeText
-                      styles={styles.quickButtonText}
-                      content={'50%'}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.quickButton,
-                      { backgroundColor: backgroundOffset },
-                    ]}
-                    onPress={() => setPercentage(0.75)}
-                    activeOpacity={0.7}
-                    disabled={isSwapping || isLoadingPool}
-                  >
-                    <ThemeText
-                      styles={styles.quickButtonText}
-                      content={'75%'}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.quickButton,
-                      { backgroundColor: backgroundOffset },
-                    ]}
-                    onPress={() => setPercentage(1)}
-                    activeOpacity={0.7}
-                    disabled={isSwapping || isLoadingPool}
-                  >
-                    <ThemeText
-                      styles={styles.quickButtonText}
-                      content={'100%'}
-                    />
-                  </TouchableOpacity>
-                </View>
-
-                {error && (
-                  <View
-                    style={[
-                      styles.errorContainer,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundOffset
-                            : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    <ThemeImage
-                      styles={{ width: 22, height: 22 }}
-                      lightModeIcon={ICONS.warningWhite}
-                      darkModeIcon={ICONS.warningWhite}
-                      lightsOutIcon={ICONS.warningWhite}
-                    />
-                    <ThemeText styles={styles.errorText} content={error} />
-                  </View>
-                )}
-                <View style={{ marginTop: 'auto' }} />
-
-                <CustomButton
-                  buttonStyles={{
-                    marginTop: 20,
-                    opacity: canSwap || isSwapping ? 1 : 0.5,
-                  }}
-                  useLoading={isSwapping || isLoadingPool}
-                  textContent={t(
-                    'screens.inAccount.swapsPage.swapMessageButton',
+          {!isLoadingPool && poolInfo && (
+            <>
+              <View style={styles.cardContainer}>
+                <View
+                  style={[
+                    styles.card,
                     {
-                      fromAsset,
-                      toAsset,
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
                     },
-                  )}
-                  actionFunction={executeSwapAction}
-                  disabled={!canSwap}
-                />
-                {!showKeyboard && (
-                  <>
+                  ]}
+                >
+                  <View style={styles.cardHeader}>
                     <ThemeText
-                      styles={styles.disclaimer}
-                      content={t('screens.inAccount.swapsPage.swapDisclaimer')}
+                      styles={styles.label}
+                      content={t('screens.inAccount.swapsPage.fromBalance', {
+                        amount: displayCorrectDenomination({
+                          amount: displayBalance,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination:
+                              fromAsset === 'BTC' ? 'sats' : 'fiat',
+                          },
+                          forceCurrency: 'USD',
+                          fiatStats,
+                          convertAmount: fromAsset === 'BTC',
+                        }),
+                      })}
                     />
-                  </>
-                )}
-              </>
-            )}
+                    {isSimulating && lastEditedField === 'to' && (
+                      <FullLoadingScreen
+                        showText={false}
+                        containerStyles={{ flex: 0 }}
+                        size="small"
+                      />
+                    )}
+                  </View>
 
-            {!isLoadingPool && !poolInfo && (
-              <View style={styles.errorStateContainer}>
-                <ThemeText
-                  styles={styles.errorStateTitle}
-                  content={t(
-                    'screens.inAccount.swapsPage.serviceUnavailableHead',
-                  )}
-                />
-                <ThemeText
-                  styles={styles.errorStateMessage}
-                  content={t(
-                    'screens.inAccount.swapsPage.serviceUnavailableDesc',
-                  )}
-                />
-                <CustomButton
-                  buttonStyles={{ marginTop: 20 }}
-                  textContent={t('constants.retry')}
-                  actionFunction={loadPoolInfo}
-                />
+                  <View style={styles.assetRow}>
+                    <View style={styles.assetInfo}>
+                      <View
+                        style={[
+                          styles.iconContainer,
+                          {
+                            backgroundColor: theme
+                              ? backgroundColor
+                              : fromAsset === 'BTC'
+                              ? COLORS.bitcoinOrange
+                              : COLORS.dollarGreen,
+                          },
+                        ]}
+                      >
+                        {fromAsset === 'BTC' ? (
+                          <ThemeImage
+                            styles={{ width: 20, height: 20 }}
+                            lightModeIcon={ICONS.bitcoinIcon}
+                            darkModeIcon={ICONS.bitcoinIcon}
+                            lightsOutIcon={ICONS.bitcoinIcon}
+                          />
+                        ) : (
+                          <ThemeImage
+                            styles={{ width: 20, height: 20 }}
+                            lightModeIcon={ICONS.dollarIcon}
+                            darkModeIcon={ICONS.dollarIcon}
+                            lightsOutIcon={ICONS.dollarIcon}
+                          />
+                        )}
+                      </View>
+                      <ThemeText
+                        styles={styles.assetText}
+                        content={fromAssetLabel}
+                      />
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleInputPress('from')}
+                      activeOpacity={0.2}
+                      style={{ opacity: fromAmount ? 1 : 0.5 }}
+                    >
+                      <Animated.Text
+                        style={[
+                          styles.amountInput,
+                          {
+                            color: theme
+                              ? COLORS.darkModeText
+                              : COLORS.lightModeText,
+                          },
+                          fromAmountAnimatedStyle,
+                        ]}
+                      >
+                        {formatBalanceAmount(
+                          fromAmount,
+                          false,
+                          masterInfoObject,
+                        ) || '0'}{' '}
+                        {fromAsset === 'BTC' ? 'SAT' : 'USD'}
+                      </Animated.Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Swap Button */}
+                <TouchableOpacity
+                  style={[
+                    styles.swapButton,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                    },
+                  ]}
+                  onPress={handleSwapAssets}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ArrowDownUp
+                    size={22}
+                    color={
+                      theme && darkModeType
+                        ? COLORS.lightModeText
+                        : COLORS.darkModeText
+                    }
+                  />
+                </TouchableOpacity>
+
+                <View
+                  style={[
+                    styles.card,
+                    {
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}
+                >
+                  <View style={styles.cardHeader}>
+                    <ThemeText
+                      styles={styles.label}
+                      content={t('screens.inAccount.swapsPage.toBalance')}
+                    />
+                    {isSimulating && lastEditedField === 'from' && (
+                      <FullLoadingScreen
+                        showText={false}
+                        containerStyles={{ flex: 0 }}
+                        size="small"
+                      />
+                    )}
+                  </View>
+
+                  <View style={styles.assetRow}>
+                    <View style={styles.assetInfo}>
+                      <View
+                        style={[
+                          styles.iconContainer,
+                          {
+                            backgroundColor: theme
+                              ? backgroundColor
+                              : fromAsset === 'USD'
+                              ? COLORS.bitcoinOrange
+                              : COLORS.dollarGreen,
+                          },
+                        ]}
+                      >
+                        {fromAsset !== 'BTC' ? (
+                          <ThemeImage
+                            styles={{ width: 20, height: 20 }}
+                            lightModeIcon={ICONS.bitcoinIcon}
+                            darkModeIcon={ICONS.bitcoinIcon}
+                            lightsOutIcon={ICONS.bitcoinIcon}
+                          />
+                        ) : (
+                          <ThemeImage
+                            styles={{ width: 20, height: 20 }}
+                            lightModeIcon={ICONS.dollarIcon}
+                            darkModeIcon={ICONS.dollarIcon}
+                            lightsOutIcon={ICONS.dollarIcon}
+                          />
+                        )}
+                      </View>
+                      <ThemeText
+                        styles={styles.assetText}
+                        content={toAssetLabel}
+                      />
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleInputPress('to')}
+                      activeOpacity={0.2}
+                      style={{ opacity: toAmount ? 1 : 0.5 }}
+                    >
+                      <Animated.Text
+                        style={[
+                          styles.amountInput,
+                          {
+                            color: theme
+                              ? COLORS.darkModeText
+                              : COLORS.lightModeText,
+                          },
+                          toAmountAnimatedStyle,
+                        ]}
+                      >
+                        {formatBalanceAmount(
+                          toAmount,
+                          false,
+                          masterInfoObject,
+                        ) || '0'}{' '}
+                        {toAsset === 'BTC' ? 'SAT' : 'USD'}
+                      </Animated.Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
-            )}
-          </View>
-        </Pressable>
+
+              <ThemeText
+                styles={styles.dollarPrice}
+                content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+                  amount: Number(swapUSDPriceDollars).toFixed(2),
+                  forceCurrency: 'USD',
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'fiat',
+                  },
+                  convertAmount: false,
+                })}`}
+              />
+
+              <ThemeText
+                styles={{ fontSize: SIZES.smedium, marginBottom: 5 }}
+                content={'% to convert'}
+              />
+              <View style={styles.quickButtons}>
+                <TouchableOpacity
+                  style={[
+                    styles.quickButton,
+                    {
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}
+                  onPress={() => setPercentage(0.25)}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ThemeText styles={styles.quickButtonText} content={'25%'} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.quickButton,
+                    {
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}
+                  onPress={() => setPercentage(0.5)}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ThemeText styles={styles.quickButtonText} content={'50%'} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.quickButton,
+                    {
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}
+                  onPress={() => setPercentage(0.75)}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ThemeText styles={styles.quickButtonText} content={'75%'} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.quickButton,
+                    {
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}
+                  onPress={() => setPercentage(1)}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ThemeText styles={styles.quickButtonText} content={'100%'} />
+                </TouchableOpacity>
+              </View>
+
+              {error && (
+                <View
+                  style={[
+                    styles.errorContainer,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundOffset
+                          : COLORS.primary,
+                    },
+                  ]}
+                >
+                  <ThemeImage
+                    styles={{ width: 22, height: 22 }}
+                    lightModeIcon={ICONS.warningWhite}
+                    darkModeIcon={ICONS.warningWhite}
+                    lightsOutIcon={ICONS.warningWhite}
+                  />
+                  <ThemeText styles={styles.errorText} content={error} />
+                </View>
+              )}
+              <View style={{ marginTop: 'auto' }} />
+            </>
+          )}
+
+          {!isLoadingPool && !poolInfo && (
+            <View style={styles.errorStateContainer}>
+              <ThemeText
+                styles={styles.errorStateTitle}
+                content={t(
+                  'screens.inAccount.swapsPage.serviceUnavailableHead',
+                )}
+              />
+              <ThemeText
+                styles={styles.errorStateMessage}
+                content={t(
+                  'screens.inAccount.swapsPage.serviceUnavailableDesc',
+                )}
+              />
+              <CustomButton
+                buttonStyles={{ marginTop: 20 }}
+                textContent={t('constants.retry')}
+                actionFunction={loadPoolInfo}
+              />
+            </View>
+          )}
+        </View>
+        {/* </Pressable> */}
       </ScrollView>
 
-      {showKeyboard && (
-        <HandleKeyboardRender
-          lastEditedField={lastEditedField}
-          fromAsset={fromAsset}
-          toAsset={toAsset}
-          handleKeyboardInput={handleKeyboardInput}
-          fromAmount={fromAmount}
-          toAmount={toAmount}
-        />
-      )}
+      {/* {true && ( */}
+      <HandleKeyboardRender
+        lastEditedField={lastEditedField}
+        fromAsset={fromAsset}
+        toAsset={toAsset}
+        handleKeyboardInput={handleKeyboardInput}
+        setFromAmount={setFromAmount}
+        fromAmount={fromAmount}
+        toAmount={toAmount}
+      />
+      <CustomButton
+        buttonStyles={{
+          ...CENTER,
+          opacity: canSwap || isSwapping ? 1 : 0.5,
+        }}
+        useLoading={isSwapping || isLoadingPool}
+        textContent={t('constants.review')}
+        actionFunction={executeSwapAction}
+        disabled={!canSwap}
+      />
+      <ThemeText
+        styles={styles.disclaimer}
+        content={t('screens.inAccount.swapsPage.swapDisclaimer')}
+      />
+      {/* )} */}
     </GlobalThemeView>
   );
 }
@@ -1281,45 +1565,36 @@ function HandleKeyboardRender({
   toAsset,
   fromAsset,
   handleKeyboardInput,
+  setFromAmount,
   fromAmount,
   toAmount,
 }) {
-  const [amount, setAmount] = useState(
-    lastEditedField === 'from' ? fromAmount : toAmount,
-  );
-  const fromAmountRef = useRef(fromAmount);
-  const toAmountRef = useRef(toAmount);
-  const amountRef = useRef(amount);
+  // const [amount, setAmount] = useState(
+  //   lastEditedField === 'from' ? fromAmount : toAmount,
+  // );
+  // const fromAmountRef = useRef(fromAmount);
+  // const toAmountRef = useRef(toAmount);
+  // const amountRef = useRef(amount);
 
-  useEffect(() => {
-    amountRef.current = amount;
-  }, [amount]);
+  // useEffect(() => {
+  //   amountRef.current = amount;
+  // }, [amount]);
 
-  useEffect(() => {
-    fromAmountRef.current = fromAmount;
-  }, [fromAmount]);
+  // useEffect(() => {
+  //   fromAmountRef.current = fromAmount;
+  // }, [fromAmount]);
 
-  useEffect(() => {
-    toAmountRef.current = toAmount;
-  }, [toAmount]);
+  // useEffect(() => {
+  //   toAmountRef.current = toAmount;
+  // }, [toAmount]);
 
-  useEffect(() => {
-    handleKeyboardInput(amount);
-  }, [amount]);
+  // useEffect(() => {
+  //   handleKeyboardInput(amount);
+  // }, [amount]);
 
-  useEffect(() => {
-    if (
-      lastEditedField === 'from' &&
-      fromAmountRef.current !== amountRef.current
-    ) {
-      setAmount(fromAmountRef.current);
-    } else if (
-      lastEditedField === 'to' &&
-      toAmountRef.current !== amountRef.current
-    ) {
-      setAmount(toAmountRef.current);
-    }
-  }, [lastEditedField]);
+  // useEffect(() => {
+  //   setAmount('');
+  // }, [fromAsset]);
 
   return (
     <CustomNumberKeyboard
@@ -1328,13 +1603,13 @@ function HandleKeyboardRender({
         (lastEditedField === 'to' && toAsset === 'USD')
       }
       usingForBalance={true}
-      setInputValue={setAmount}
+      setInputValue={setFromAmount}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: { flexGrow: 1, paddingTop: 20 },
+  scrollContainer: { flexGrow: 1, paddingTop: 10, alignItems: 'center' },
   contentWrapper: {
     width: WINDOWWIDTH,
     maxWidth: 600,
@@ -1355,17 +1630,18 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: COLORS.white,
     borderRadius: 16,
-    padding: 20,
+    padding: 15,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   label: {
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
   },
   assetRow: {
     flexDirection: 'row',
@@ -1378,8 +1654,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
@@ -1387,22 +1663,22 @@ const styles = StyleSheet.create({
   assetText: {
     fontSize: SIZES.large,
     fontWeight: '500',
+    includeFontPadding: false,
   },
   amountInput: {
     fontWeight: '500',
     textAlign: 'right',
     minWidth: 100,
-    color: COLORS.lightModeText,
+    includeFontPadding: false,
   },
   cardContainer: {
-    gap: 10,
+    gap: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
   },
   swapButton: {
-    width: 52,
-    height: 52,
+    width: 40,
+    height: 40,
     borderRadius: 26,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
@@ -1414,12 +1690,10 @@ const styles = StyleSheet.create({
   quickButtons: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 8,
   },
   quickButton: {
     flex: 1,
-    backgroundColor: COLORS.white,
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
   },
@@ -1447,15 +1721,15 @@ const styles = StyleSheet.create({
     fontSize: SIZES.xSmall,
     opacity: HIDDEN_OPACITY,
     marginTop: 12,
-    lineHeight: 16,
-    maxWidth: 250,
+    maxWidth: 300,
     ...CENTER,
   },
   dollarPrice: {
     textAlign: 'center',
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
-    marginBottom: 12,
+    marginTop: 12,
+    marginBottom: 5,
     lineHeight: 16,
     maxWidth: 250,
     ...CENTER,
@@ -1502,7 +1776,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 15,
+    gap: 8,
     position: 'relative',
   },
   detailSection: {
@@ -1551,5 +1825,19 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     opacity: 0.6,
     flexShrink: 1,
+  },
+
+  reviewLabel: {
+    fontSize: SIZES.smedium,
+    includeFontPadding: false,
+  },
+  reviewAmount: {
+    fontSize: SIZES.smedium,
+    includeFontPadding: false,
+  },
+  reviewSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
