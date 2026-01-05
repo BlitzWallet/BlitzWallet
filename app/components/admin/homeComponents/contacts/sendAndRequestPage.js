@@ -550,7 +550,8 @@ export default function SendAndRequestPage(props) {
                 containerFunction={() => {
                   if (!isAmountFocused) return;
                   setInputDenomination(prev => {
-                    const newPrev = prev === 'sats' ? 'fiat' : 'sats';
+                    const newPrev =
+                      prev === 'sats' || prev === 'hidden' ? 'fiat' : 'sats';
                     return newPrev;
                   });
                   setAmountValue(

@@ -1,6 +1,5 @@
-import {useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
 export default function NumberInputSendPage({
   setPaymentInfo,
@@ -8,8 +7,8 @@ export default function NumberInputSendPage({
   fiatStats,
   selectedLRC20Asset,
   seletctedToken,
+  inputDenomination,
 }) {
-  const {masterInfoObject} = useGlobalContextProvider();
   const [amount, setAmount] = useState(paymentInfo?.sendAmount);
   const decimals = seletctedToken?.tokenMetadata?.decimals;
 
@@ -65,8 +64,7 @@ export default function NumberInputSendPage({
   return (
     <CustomNumberKeyboard
       showDot={
-        (masterInfoObject.userBalanceDenomination === 'fiat' &&
-          selectedLRC20Asset === 'Bitcoin') ||
+        (inputDenomination === 'fiat' && selectedLRC20Asset === 'Bitcoin') ||
         selectedLRC20Asset !== 'Bitcoin'
       }
       setInputValue={setAmount}

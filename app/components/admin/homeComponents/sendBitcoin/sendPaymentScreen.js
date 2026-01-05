@@ -69,6 +69,7 @@ import {
   dollarsToSats,
   satsToDollars,
 } from '../../../../functions/spark/flashnet';
+import convertTextInputValue from '../../../../functions/textInputConvertValue';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -116,6 +117,10 @@ export default function SendPaymentScreen(props) {
 
   const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
+  const [inputDenomination, setInputDenomination] = useState(
+    masterInfoObject.userBalanceDenomination,
+  );
+  const inputDenominationRef = useRef(inputDenomination);
   const [paymentDescription, setPaymentDescription] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(
     sparkInformation.didConnect
@@ -133,8 +138,7 @@ export default function SendPaymentScreen(props) {
   const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
 
   const isBTCdenominated =
-    masterInfoObject.userBalanceDenomination === 'hidden' ||
-    masterInfoObject.userBalanceDenomination === 'sats';
+    inputDenomination === 'hidden' || inputDenomination === 'sats';
 
   const enabledLRC20 = showTokensInformation;
   const defaultToken = enabledLRC20
@@ -188,7 +192,8 @@ export default function SendPaymentScreen(props) {
     : Number(sendingAmount);
 
   const fiatValueConvertedSendAmount =
-    (convertedSendAmount / flatnet_sats_per_dollar) * Math.pow(10, 6);
+    satsToDollars(convertedSendAmount, poolInfoRef.currentPriceAInB) *
+    Math.pow(10, 6);
 
   const paymentFee =
     (paymentInfo?.paymentFee || 0) +
@@ -278,6 +283,10 @@ export default function SendPaymentScreen(props) {
     determinePaymentMethodRef.current = determinePaymentMethod;
   }, [determinePaymentMethod]);
 
+  useEffect(() => {
+    inputDenominationRef.current = inputDenomination;
+  }, [inputDenomination]);
+
   const needsToChoosePaymentMethod =
     determinePaymentMethod === 'user-choice' &&
     !selectedPaymentMethod &&
@@ -354,20 +363,6 @@ export default function SendPaymentScreen(props) {
 
   const isUsingFastPay = canUseFastPay && canSendPayment && !canEditAmount;
 
-  console.log(
-    isUsingFastPay,
-    canUseFastPay,
-    needsToChoosePaymentMethod,
-    'fast pay settings',
-    sparkInformation.didConnect,
-    Object.keys(paymentInfo || {}).length > 0,
-    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled,
-    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
-      convertedSendAmount,
-    !isUsingLRC20,
-    !needsToChoosePaymentMethod,
-  );
-
   const uiState = useMemo(() => {
     if (canEditAmount && !isSendingPayment.current) {
       return 'EDIT_AMOUNT'; // Show number pad + description input
@@ -439,7 +434,10 @@ export default function SendPaymentScreen(props) {
         goBackFunction: errorMessageNavigation,
         setPaymentInfo,
         liquidNodeInformation,
-        masterInfoObject,
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: inputDenominationRef.current,
+        },
         // setWebViewArgs,
         // webViewRef,
         navigate,
@@ -746,18 +744,42 @@ export default function SendPaymentScreen(props) {
 
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={sendingAmount}
-            inputDenomination={masterInfoObject.userBalanceDenomination}
-            activeOpacity={!sendingAmount ? 0.5 : 1}
-            customCurrencyCode={
-              isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
-            }
-          />
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+              if (!isAmountFocused) return;
+              if (isUsingLRC20) return;
+              if (uiState !== 'EDIT_AMOUNT') return;
+              setInputDenomination(prev => {
+                const newPrev =
+                  prev === 'sats' || prev === 'hidden' ? 'fiat' : 'sats';
+                return newPrev;
+              });
 
-          {/* Alternate denomination display */}
-          {/* {isUsingLRC20 && (
+              setPaymentInfo(prev => {
+                return {
+                  ...prev,
+                  sendAmount: convertTextInputValue(
+                    sendingAmount,
+                    fiatStats,
+                    inputDenomination,
+                  ),
+                };
+              });
+            }}
+          >
+            <FormattedBalanceInput
+              maxWidth={0.9}
+              amountValue={sendingAmount}
+              inputDenomination={inputDenomination}
+              activeOpacity={!sendingAmount ? 0.5 : 1}
+              customCurrencyCode={
+                isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
+              }
+            />
+
+            {/* Alternate denomination display */}
+            {/* {isUsingLRC20 && (
           <FormattedSatText
             neverHideBalance={true}
             containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
@@ -770,20 +792,22 @@ export default function SendPaymentScreen(props) {
             )}
           />
         )} */}
-          {!isUsingLRC20 && (
-            <FormattedSatText
-              containerStyles={{ opacity: !sendingAmount ? HIDDEN_OPACITY : 1 }}
-              neverHideBalance={true}
-              styles={{ includeFontPadding: false, ...styles.satValue }}
-              globalBalanceDenomination={
-                masterInfoObject.userBalanceDenomination === 'sats' ||
-                masterInfoObject.userBalanceDenomination === 'hidden'
-                  ? 'fiat'
-                  : 'sats'
-              }
-              balance={convertedSendAmount}
-            />
-          )}
+            {!isUsingLRC20 && (
+              <FormattedSatText
+                containerStyles={{
+                  opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
+                }}
+                neverHideBalance={true}
+                styles={{ includeFontPadding: false, ...styles.satValue }}
+                globalBalanceDenomination={
+                  inputDenomination === 'sats' || inputDenomination === 'hidden'
+                    ? 'fiat'
+                    : 'sats'
+                }
+                balance={convertedSendAmount}
+              />
+            )}
+          </TouchableOpacity>
 
           {/* Send max button for edit mode */}
           {!useAltLayout && uiState === 'EDIT_AMOUNT' && showSendMax && (
@@ -900,6 +924,7 @@ export default function SendPaymentScreen(props) {
                   // usd_multiplier_coefiicent={usd_multiplier_coefiicent}
                   min_usd_swap_amount={min_usd_swap_amount}
                   hasSufficientBalance={hasSufficientBalance}
+                  inputDenomination={inputDenomination}
                 />
               </View>
             )}
@@ -911,6 +936,7 @@ export default function SendPaymentScreen(props) {
                 fiatStats={fiatStats}
                 selectedLRC20Asset={selectedLRC20Asset}
                 seletctedToken={seletctedToken}
+                inputDenomination={inputDenomination}
               />
             )}
 
@@ -948,6 +974,7 @@ export default function SendPaymentScreen(props) {
                 // usd_multiplier_coefiicent={usd_multiplier_coefiicent}
                 min_usd_swap_amount={min_usd_swap_amount}
                 hasSufficientBalance={hasSufficientBalance}
+                inputDenomination={inputDenomination}
               />
             )}
           </>

@@ -46,6 +46,7 @@ export default function AcceptButtonSendPage({
   // usd_multiplier_coefiicent,
   min_usd_swap_amount,
   hasSufficientBalance,
+  inputDenomination,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -306,7 +307,10 @@ export default function AcceptButtonSendPage({
         goBackFunction: errorMessageNavigation,
         setPaymentInfo,
         liquidNodeInformation,
-        masterInfoObject,
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: inputDenomination,
+        },
         navigate,
         // maxZeroConf:
         //   minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
