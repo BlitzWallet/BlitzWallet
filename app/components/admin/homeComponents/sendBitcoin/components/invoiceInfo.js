@@ -56,6 +56,7 @@ export default function InvoiceInfo({
         </View>
       ) : (
         <ThemeText
+          styles={{ includeFontPadding: false }}
           CustomNumberOfLines={2}
           content={
             paymentInfo?.type === InputTypes.LNURL_PAY

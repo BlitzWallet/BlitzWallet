@@ -23,6 +23,7 @@ export default async function processBolt11Invoice(input, context) {
     bitcoinBalance,
     dollarBalanceSat,
     min_usd_swap_amount,
+    convertedSendAmount,
   } = context;
 
   crashlyticsLogReport('Handling decode bolt11 invoices');
@@ -45,9 +46,21 @@ export default async function processBolt11Invoice(input, context) {
       );
   }
 
-  const amountMsat = comingFromAccept
+  if (usablePaymentMethod === 'USD' && !input.data.amountMsat) {
+    throw new Error(
+      t('wallet.sendPages.sendPaymentScreen.zeroAmountInvoiceDollarPayments'),
+    );
+  }
+
+  const enteredAmount = enteredPaymentInfo.amount
     ? enteredPaymentInfo.amount * 1000
-    : input.data.amountMsat || 0;
+    : convertedSendAmount * 1000;
+
+  const amountMsat =
+    comingFromAccept || paymentInfo.sendAmount
+      ? enteredAmount
+      : input.data.amountMsat || 0;
+
   const fiatValue =
     !!amountMsat &&
     Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
