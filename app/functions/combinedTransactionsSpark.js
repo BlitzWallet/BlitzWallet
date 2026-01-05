@@ -238,7 +238,12 @@ export default function getFormattedHomepageTxsForSpark(props) {
         sparkInformation.tokens?.[paymentDetails.LRC20Token];
 
       // Early continue conditions
-      if (!enabledLRC20 && isLRC20Payment) continue;
+      if (
+        !enabledLRC20 &&
+        isLRC20Payment &&
+        paymentDetails.LRC20Token !== USDB_TOKEN_ID
+      )
+        continue;
       if (isLRC20Payment && !hasSavedTokenData) continue;
       if (paymentStatus === TRANSACTION_CONSTANTS.FAILED) continue;
       if (
