@@ -599,6 +599,8 @@ export default function SwapsPage() {
                 direction: 'INCOMING',
                 isLRC20Payment: true,
                 LRC20Token: USDB_TOKEN_ID,
+                showSwapLabel: true,
+                currentPriceAInB: result.swap.executionPrice,
               },
             };
             outgoingTransfer = {
@@ -623,6 +625,8 @@ export default function SwapsPage() {
                 time: Date.now(),
                 createdAt: Date.now(),
                 direction: 'OUTGOING',
+                showSwapLabel: true,
+                currentPriceAInB: result.swap.executionPrice,
               },
             };
           } else {
@@ -648,6 +652,8 @@ export default function SwapsPage() {
                 time: Date.now() + 1000,
                 createdAt: Date.now() + 1000,
                 direction: 'INCOMING',
+                showSwapLabel: true,
+                currentPriceAInB: result.swap.executionPrice,
               },
             };
             outgoingTransfer = {
@@ -674,6 +680,8 @@ export default function SwapsPage() {
                 direction: 'OUTGOING',
                 isLRC20Payment: true,
                 LRC20Token: USDB_TOKEN_ID,
+                showSwapLabel: true,
+                currentPriceAInB: result.swap.executionPrice,
               },
             };
           }
