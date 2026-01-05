@@ -120,7 +120,13 @@ export const UserSatAmount = memo(function UserSatAmount({
             balance={displayBalance}
             useSizing={true}
             globalBalanceDenomination={
-              mode === 'total' ? undefined : mode === 'sats' ? 'sats' : 'fiat'
+              masterInfoObject.userBalanceDenomination === 'hidden'
+                ? masterInfoObject.userBalanceDenomination
+                : mode === 'total'
+                ? undefined
+                : mode === 'sats'
+                ? 'sats'
+                : 'fiat'
             }
             forceCurrency={mode === 'usd' ? 'USD' : null}
             useBalance={mode === 'usd'}

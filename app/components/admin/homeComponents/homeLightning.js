@@ -44,6 +44,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { BalanceDots } from './homeLightning/balanceDots';
 import { useUserBalanceContext } from '../../../../context-store/userBalanceContext';
 import { useFlashnet } from '../../../../context-store/flashnetContext';
+import { formatBalanceAmount } from '../../../functions';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -58,8 +59,12 @@ export default function HomeLightning() {
     // numberOfCachedTxs
   } = useSparkWallet();
   const { poolInfoRef } = useFlashnet();
-  const { bitcoinBalance, dollarBalanceSat, totalSatValue } =
-    useUserBalanceContext();
+  const {
+    bitcoinBalance,
+    dollarBalanceSat,
+    totalSatValue,
+    dollarBalanceToken,
+  } = useUserBalanceContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { theme, darkModeType, toggleTheme } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -378,7 +383,9 @@ export default function HomeLightning() {
             <FormattedSatText
               styles={styles.navbarBalanceText}
               globalBalanceDenomination={
-                scrollPosition === 'total'
+                masterInfoObject.userBalanceDenomination === 'hidden'
+                  ? masterInfoObject.userBalanceDenomination
+                  : scrollPosition === 'total'
                   ? masterInfoObject.userBalanceDenomination
                   : scrollPosition === 'sats'
                   ? 'sats'
@@ -389,9 +396,14 @@ export default function HomeLightning() {
                   ? totalSatValue
                   : scrollPosition === 'sats'
                   ? bitcoinBalance
-                  : dollarBalanceSat
+                  : formatBalanceAmount(
+                      dollarBalanceToken,
+                      false,
+                      masterInfoObject,
+                    )
               }
               forceCurrency={scrollPosition !== 'usd' ? '' : 'USD'}
+              useBalance={scrollPosition === 'usd'}
               useSizing={true}
             />
           </Animated.View>
