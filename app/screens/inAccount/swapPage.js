@@ -1588,7 +1588,6 @@ function HandleKeyboardRender({
   toAsset,
   fromAsset,
   handleKeyboardInput,
-  setFromAmount,
   fromAmount,
   toAmount,
 }) {
@@ -1616,8 +1615,12 @@ function HandleKeyboardRender({
   }, [amount]);
 
   useEffect(() => {
-    setAmount('');
-  }, [fromAsset]);
+    if (fromAmount !== amountRef.current && lastEditedField === 'from') {
+      setAmount(fromAmount);
+    } else if (toAmount !== amountRef.current && lastEditedField === 'to') {
+      setAmount(toAmount);
+    }
+  }, [fromAmount, toAmount, lastEditedField]);
 
   return (
     <CustomNumberKeyboard
