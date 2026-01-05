@@ -742,8 +742,8 @@ export default function SwapsPage() {
   }, [theme, darkModeType]);
 
   const hasEnoughBalance =
-    (fromAsset === 'BTC' && fromAmount <= bitcoinBalance) ||
-    (fromAsset === 'USD' && fromAmount <= dollarBalanceToken);
+    (fromAsset === 'BTC' && Number(fromAmount) <= Number(bitcoinBalance)) ||
+    (fromAsset === 'USD' && Number(fromAmount) <= Number(dollarBalanceToken));
 
   const canSwap =
     fromAmount &&
@@ -970,7 +970,7 @@ export default function SwapsPage() {
           convertAmount: false,
         })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
           amount: Number(dollarsToSats(1, poolInfo.currentPriceAInB)).toFixed(
-            2,
+            0,
           ),
           masterInfoObject: {
             ...masterInfoObject,
