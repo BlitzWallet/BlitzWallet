@@ -236,6 +236,8 @@ export default function getFormattedHomepageTxsForSpark(props) {
       const isLRC20Payment = paymentDetails.isLRC20Payment;
       const hasSavedTokenData =
         sparkInformation.tokens?.[paymentDetails.LRC20Token];
+      const showSwapConversion =
+        paymentDetails.performSwaptoUSD && !paymentDetails.completedSwaptoUSD;
 
       // Early continue conditions
       if (
@@ -256,10 +258,17 @@ export default function getFormattedHomepageTxsForSpark(props) {
         isFlashnetTransfer(currentTransaction.sparkID)
       )
         continue;
-      if (scrollPosition === 'sats' && isLRC20Payment) continue;
       if (
-        scrollPosition === 'usd' &&
-        (!isLRC20Payment || paymentDetails.LRC20Token !== USDB_TOKEN_ID)
+        (scrollPosition === 'sats' && isLRC20Payment) ||
+        (scrollPosition === 'sats' && showSwapConversion)
+      )
+        continue;
+
+      if (
+        (scrollPosition === 'usd' &&
+          isLRC20Payment &&
+          paymentDetails.LRC20Token !== USDB_TOKEN_ID) ||
+        (scrollPosition === 'usd' && !isLRC20Payment && !showSwapConversion)
       )
         continue;
 
@@ -304,6 +313,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
           sparkInformation={sparkInformation}
           isLRC20Payment={isLRC20Payment}
           poolInfoRef={poolInfoRef}
+          showSwapConversion={showSwapConversion}
         />
       );
 
@@ -376,6 +386,7 @@ export const UserTransaction = memo(function UserTransaction({
   sparkInformation,
   isLRC20Payment,
   poolInfoRef,
+  showSwapConversion,
 }) {
   const { t } = useTranslation();
 
@@ -487,10 +498,6 @@ export const UserTransaction = memo(function UserTransaction({
     transaction.details.direction,
     t,
   ]);
-
-  const showSwapConversion =
-    transaction.details.performSwaptoUSD &&
-    !transaction.details.completedSwaptoUSD;
 
   return (
     <TouchableOpacity
