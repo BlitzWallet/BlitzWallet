@@ -66,7 +66,13 @@ export default function ExpandedTx(props) {
     );
   }, [decodedAddedContacts, sendingContactUUID]);
 
-  const transactionPaymentType = sendingContactUUID
+  const showConversionLine =
+    transaction?.details?.showSwapLabel &&
+    !!transaction?.details?.currentPriceAInB;
+
+  const transactionPaymentType = showConversionLine
+    ? t('constants.swap')
+    : sendingContactUUID
     ? t('screens.inAccount.expandedTxPage.contactPaymentType')
     : transaction.details.isGift
     ? t('constants.gift')
@@ -78,10 +84,6 @@ export default function ExpandedTx(props) {
   const paymentDate = new Date(transaction.details.time);
   const amount = transaction?.details?.amount;
   const description = transaction.details.description || '';
-
-  const showConversionLine =
-    transaction.details.LRC20Token === USDB_TOKEN_ID &&
-    !!transaction.details.currentPriceAInB;
 
   // const month = paymentDate.toLocaleString('default', { month: 'short' });
   // const day = paymentDate.getDate();
@@ -422,7 +424,7 @@ export default function ExpandedTx(props) {
                   })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
                     amount: Number(
                       dollarsToSats(1, transaction.details.currentPriceAInB),
-                    ).toFixed(2),
+                    ).toFixed(0),
                     masterInfoObject: {
                       ...masterInfoObject,
                       userBalanceDenomination: 'sats',
