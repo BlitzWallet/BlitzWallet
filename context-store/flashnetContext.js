@@ -53,6 +53,7 @@ export function FlashnetProvider({ children }) {
   const poolIntervalRef = useRef(null);
   const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
   const flatnet_sats_per_dollar_ref = useRef(0);
+  const triggeredSwapsRef = useRef(new Set());
 
   const flatnet_sats_per_dollar = poolInfo?.currentPriceAInB || SATS_PER_DOLLAR;
 
@@ -92,6 +93,15 @@ export function FlashnetProvider({ children }) {
       const MAX_RETRIES = 7;
       const RETRY_DELAY = 2000;
       console.log('Auto-swap triggered for sparkRequestID:', sparkRequestID);
+      if (triggeredSwapsRef.current.has(sparkRequestID)) {
+        console.warn(
+          'Auto-swap already triggered for sparkRequestID:',
+          sparkRequestID,
+        );
+        return;
+      } else {
+        triggeredSwapsRef.current.add(sparkRequestID);
+      }
 
       // Get the lightning request
       const lightningRequest = await getSingleSparkLightningRequest(
