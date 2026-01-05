@@ -424,6 +424,31 @@ export const updateSparkTransactionDetails = async (
   }
 };
 
+export const getPendingAutoSwaps = async () => {
+  try {
+    await ensureSparkDatabaseReady();
+
+    const query = `
+      SELECT * FROM ${LIGHTNING_REQUEST_IDS_TABLE_NAME}
+      WHERE json_extract(details, '$.finalSparkID') IS NOT NULL
+        AND (json_extract(details, '$.performSwaptoUSD') = 1
+             OR json_extract(details, '$.performSwaptoUSD') IS NULL)
+        AND (json_extract(details, '$.completedSwaptoUSD') IS NULL 
+             OR json_extract(details, '$.completedSwaptoUSD') = 0)
+    `;
+
+    const result = await sqlLiteDB.getAllAsync(query);
+
+    return result.map(row => ({
+      ...row,
+      details: row.details ? JSON.parse(row.details) : {},
+    }));
+  } catch (error) {
+    console.error('Error fetching pending auto swaps:', error);
+    return [];
+  }
+};
+
 // export const updateSingleSparkTransaction = async (saved_spark_id, updates) => {
 //   // updates should be an object like { status: 'COMPLETED' }
 //   // saved_spark_id needs to match that of the stored transaction and then you can update the saved_id

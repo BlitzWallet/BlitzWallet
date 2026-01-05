@@ -16,6 +16,7 @@ import {
   minFlashnetSwapAmounts,
   checkClawbackEligibility,
   requestManualClawback,
+  dollarsToSats,
 } from '../app/functions/spark/flashnet';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
@@ -28,12 +29,15 @@ import {
 import { USDB_TOKEN_ID } from '../app/constants';
 import {
   bulkUpdateSparkTransactions,
+  deleteUnpaidSparkLightningTransaction,
   flashnetAutoSwapsEventListener,
+  getPendingAutoSwaps,
   getSingleSparkLightningRequest,
   HANDLE_FLASHNET_AUTO_SWAP,
   updateSparkTransactionDetails,
 } from '../app/functions/spark/transactions';
 import {
+  isFlashnetTransfer,
   loadSavedTransferIds,
   setFlashnetTransfer,
 } from '../app/functions/spark/handleFlashnetTransferIds';
@@ -44,7 +48,6 @@ import { listClawbackableTransfers } from '../app/functions/spark/flashnet';
 
 const FlashnetContext = createContext(null);
 
-// Need to add function that checks to see if we had any swaps that did not complete and therefore we should rety thenm
 export function FlashnetProvider({ children }) {
   const { showToast } = useToast();
   const { SATS_PER_DOLLAR } = useNodeContext();
@@ -53,6 +56,7 @@ export function FlashnetProvider({ children }) {
   const { sparkInformation, sparkInfoRef } = useSparkWallet();
   const [poolInfo, setPoolInfo] = useState({});
   const [swapLimits, setSwapLimits] = useState({ usd: 1, btc: 1000 });
+  const swapLimitsRef = useRef(swapLimits);
   const poolInfoRef = useRef({});
   const poolIntervalRef = useRef(null);
   const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
@@ -60,9 +64,11 @@ export function FlashnetProvider({ children }) {
   const triggeredSwapsRef = useRef(new Set());
 
   const refundMonitorIntervalRef = useRef(null);
+  const swapMonitorIntervalRef = useRef(null);
   const { authResetkey } = useAuthContext();
 
-  const REFUND_MONITOR_INTERVAL = 25_000; // conservative, non-aggressive
+  const REFUND_MONITOR_INTERVAL = 25_000;
+  const SWAP_MONITOR_INTERVAL = 30_000;
 
   const flatnet_sats_per_dollar = poolInfo?.currentPriceAInB || SATS_PER_DOLLAR;
 
@@ -73,6 +79,10 @@ export function FlashnetProvider({ children }) {
   useEffect(() => {
     poolInfoRef.current = poolInfo;
   }, [poolInfo]);
+
+  useEffect(() => {
+    swapLimitsRef.current = swapLimits;
+  }, [swapLimits]);
 
   useEffect(() => {
     flatnet_sats_per_dollar_ref.current = flatnet_sats_per_dollar;
@@ -112,6 +122,11 @@ export function FlashnetProvider({ children }) {
         triggeredSwapsRef.current.add(sparkRequestID);
       }
 
+      await updateSparkTransactionDetails(sparkRequestID, {
+        swapExecuting: true,
+        lastSwapAttempt: Date.now(),
+      });
+
       // Get the lightning request
       const lightningRequest = await getSingleSparkLightningRequest(
         sparkRequestID,
@@ -124,12 +139,20 @@ export function FlashnetProvider({ children }) {
 
       if (!lightningRequest) {
         console.error('Lightning request not found');
+        triggeredSwapsRef.current.delete(sparkRequestID);
+        await updateSparkTransactionDetails(sparkRequestID, {
+          swapExecuting: false,
+        });
         return;
       }
 
       // Check if we have the finalSparkID
       if (!lightningRequest.details?.finalSparkID) {
         console.error('No finalSparkID found in lightning request');
+        triggeredSwapsRef.current.delete(sparkRequestID);
+        await updateSparkTransactionDetails(sparkRequestID, {
+          swapExecuting: false,
+        });
         return;
       }
 
@@ -141,6 +164,10 @@ export function FlashnetProvider({ children }) {
 
       if (!txDetails) {
         console.error('Transaction details not found');
+        triggeredSwapsRef.current.delete(sparkRequestID);
+        await updateSparkTransactionDetails(sparkRequestID, {
+          swapExecuting: false,
+        });
         return;
       }
 
@@ -153,11 +180,16 @@ export function FlashnetProvider({ children }) {
         // Retry logic
         if (retryCount < MAX_RETRIES) {
           setTimeout(() => {
+            triggeredSwapsRef.current.delete(sparkRequestID);
             handleAutoSwap(sparkRequestID, retryCount + 1);
           }, RETRY_DELAY);
           return;
         } else {
           console.error('Max retries reached, payment still not settled');
+          triggeredSwapsRef.current.delete(sparkRequestID);
+          await updateSparkTransactionDetails(sparkRequestID, {
+            swapExecuting: false,
+          });
           return;
         }
       }
@@ -168,22 +200,27 @@ export function FlashnetProvider({ children }) {
       // Get the amount in sats
       const amountSats = txDetails.totalValue;
 
-      if (!amountSats || amountSats <= 0) {
+      if (
+        !amountSats ||
+        amountSats <= 0 ||
+        amountSats < swapLimitsRef.current.btc
+      ) {
         console.error('Invalid amount for swap');
+        triggeredSwapsRef.current.delete(sparkRequestID);
+        deleteUnpaidSparkLightningTransaction(sparkRequestID);
         return;
       }
 
       // Check if we have pool info
       const currentPoolInfo = poolInfoRef.current;
-      if (!currentPoolInfo) {
+      if (!currentPoolInfo || !currentPoolInfo.lpPublicKey) {
         console.error('Pool info not available');
+        triggeredSwapsRef.current.delete(sparkRequestID);
+        await updateSparkTransactionDetails(sparkRequestID, {
+          swapExecuting: false,
+        });
         return;
       }
-
-      // showToast({
-      //   duration: 7000,
-      //   type: 'handleSwap',
-      // });
 
       console.log('Executing auto-swap:', {
         amount: amountSats,
@@ -201,17 +238,22 @@ export function FlashnetProvider({ children }) {
       );
 
       if (result.didWork && result.swap) {
-        updateSparkTransactionDetails(lightningRequest.sparkID, {
+        setFlashnetTransfer(txDetails.id);
+        await updateSparkTransactionDetails(lightningRequest.sparkID, {
           completedSwaptoUSD: true,
+          swapExecuting: false,
         });
+
         console.log('Auto-swap completed successfully:', {
           amountOut: result.swap.amountOut,
           executionPrice: result.swap.executionPrice,
         });
 
         const realFeeAmount = Math.round(
-          (parseFloat(result.swap.feeAmount) / Math.pow(10, 6)) *
-            flatnet_sats_per_dollar_ref.current,
+          dollarsToSats(
+            result.swap.feeAmount / Math.pow(10, 6),
+            result.swap.executionPrice,
+          ),
         );
 
         const userSwaps = await getUserSwapHistory(
@@ -233,7 +275,6 @@ export function FlashnetProvider({ children }) {
 
         // clear funding and ln payment from tx list
         setFlashnetTransfer(swap.inboundTransferId);
-        setFlashnetTransfer(txDetails.id);
 
         const tx = {
           id: swap.outboundTransferId,
@@ -258,10 +299,137 @@ export function FlashnetProvider({ children }) {
         bulkUpdateSparkTransactions([tx], 'fullUpdate-tokens');
       } else {
         console.error('Auto-swap failed:', result.error);
+
+        // Mark as failed but not executing, so it can be retried
+        await updateSparkTransactionDetails(sparkRequestID, {
+          swapExecuting: false,
+        });
+
+        triggeredSwapsRef.current.delete(sparkRequestID);
       }
     } catch (error) {
       console.error('Error in auto-swap handler:', error);
+      // Mark as failed but not executing
+      try {
+        await updateSparkTransactionDetails(sparkRequestID, {
+          swapExecuting: false,
+        });
+      } catch (updateError) {
+        console.error('Failed to update swap status:', updateError);
+      }
+
+      triggeredSwapsRef.current.delete(sparkRequestID);
     }
+  };
+
+  // Monitor for stuck/failed swaps that need retry
+  const runPendingSwapsMonitor = async () => {
+    try {
+      if (appState !== 'active') return;
+      if (!sparkInformation.didConnect) return;
+      if (!currentWalletMnemoincRef.current) return;
+      if (!poolInfoRef.current?.lpPublicKey) return;
+
+      console.log('[Pending Swaps Monitor] Checking for stuck swaps...');
+
+      const pendingSwaps = await getPendingAutoSwaps();
+
+      if (!pendingSwaps || pendingSwaps.length === 0) {
+        return;
+      }
+
+      console.log(
+        `[Pending Swaps Monitor] Found ${pendingSwaps.length} pending swap(s)`,
+      );
+
+      for (const swapRequest of pendingSwaps) {
+        const sparkID = swapRequest.sparkID;
+        const details = swapRequest.details || {};
+        const finalSparkID = details.finalSparkID;
+
+        // Skip if already in our triggered set (currently processing)
+        if (triggeredSwapsRef.current.has(sparkID)) {
+          console.log(
+            `[Pending Swaps Monitor] Swap ${sparkID} already processing`,
+          );
+          continue;
+        }
+
+        // Handle payments already swapped but have not been removed from db yet
+        if (details.completedSwaptoUSD || isFlashnetTransfer(finalSparkID)) {
+          console.warn(
+            `[Pending Swaps Monitor] Blocking already completed swaps`,
+          );
+          continue;
+        }
+
+        // Handle swaps marked as executing (potential orphaned state from app closure)
+        if (details.swapExecuting) {
+          const lastAttempt = details.lastSwapAttempt || 0;
+          const timeSinceAttempt = Date.now() - lastAttempt;
+          const EXECUTION_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+
+          console.log(
+            `[Pending Swaps Monitor] Swap ${sparkID} marked as executing`,
+          );
+
+          if (isFlashnetTransfer(finalSparkID)) {
+            console.log(
+              `[Pending Swaps Monitor] Swap ${sparkID} was already completed, marking as such`,
+            );
+            await updateSparkTransactionDetails(sparkID, {
+              completedSwaptoUSD: true,
+              swapExecuting: false,
+            });
+            continue;
+          }
+
+          // If it's been executing for too long, it's orphaned - reset and retry
+          if (timeSinceAttempt > EXECUTION_TIMEOUT) {
+            console.log(
+              `[Pending Swaps Monitor] Swap ${sparkID} execution timeout, resetting and retrying`,
+            );
+            await updateSparkTransactionDetails(sparkID, {
+              swapExecuting: false,
+            });
+          } else {
+            // Still within execution window, skip for now
+            console.log(
+              `[Pending Swaps Monitor] Swap ${sparkID} still within execution window`,
+            );
+            continue;
+          }
+        }
+
+        console.log(`[Pending Swaps Monitor] Retrying swap ${sparkID}`);
+
+        // Trigger the swap
+        handleAutoSwap(sparkID);
+
+        // Add delay between retries to avoid overwhelming the system
+        await new Promise(res => setTimeout(res, 1000));
+      }
+    } catch (err) {
+      console.error('[Pending Swaps Monitor] error:', err);
+    }
+  };
+
+  const startPendingSwapsMonitor = () => {
+    if (swapMonitorIntervalRef.current) return;
+
+    runPendingSwapsMonitor(); // immediate pass
+
+    swapMonitorIntervalRef.current = setInterval(
+      runPendingSwapsMonitor,
+      SWAP_MONITOR_INTERVAL,
+    );
+  };
+
+  const stopPendingSwapsMonitor = () => {
+    if (!swapMonitorIntervalRef.current) return;
+
+    clearInterval(swapMonitorIntervalRef.current);
+    swapMonitorIntervalRef.current = null;
   };
 
   const runRefundMonitor = async () => {
@@ -351,6 +519,20 @@ export function FlashnetProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (
+      appState === 'active' &&
+      sparkInformation.didConnect &&
+      poolInfo?.lpPublicKey
+    ) {
+      startPendingSwapsMonitor();
+    } else {
+      stopPendingSwapsMonitor();
+    }
+
+    return stopPendingSwapsMonitor;
+  }, [appState, sparkInformation.didConnect, poolInfo?.lpPublicKey]);
+
+  useEffect(() => {
     if (appState === 'active' && sparkInformation.didConnect) {
       startRefundMonitor();
     } else {
@@ -416,6 +598,7 @@ export function FlashnetProvider({ children }) {
 
   useEffect(() => {
     stopRefundMonitor();
+    stopPendingSwapsMonitor();
   }, [authResetkey]);
 
   const contextValue = useMemo(() => {
