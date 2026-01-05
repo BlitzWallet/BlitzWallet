@@ -14,6 +14,8 @@ import {
   swapBitcoinToToken,
   getUserSwapHistory,
   minFlashnetSwapAmounts,
+  checkClawbackEligibility,
+  requestManualClawback,
 } from '../app/functions/spark/flashnet';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
@@ -37,6 +39,8 @@ import {
 } from '../app/functions/spark/handleFlashnetTransferIds';
 import { useToast } from './toastManager';
 import { decode } from 'bolt11';
+import { useAuthContext } from './authContext';
+import { listClawbackableTransfers } from '../app/functions/spark/flashnet';
 
 const FlashnetContext = createContext(null);
 
@@ -54,6 +58,11 @@ export function FlashnetProvider({ children }) {
   const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
   const flatnet_sats_per_dollar_ref = useRef(0);
   const triggeredSwapsRef = useRef(new Set());
+
+  const refundMonitorIntervalRef = useRef(null);
+  const { authResetkey } = useAuthContext();
+
+  const REFUND_MONITOR_INTERVAL = 25_000; // conservative, non-aggressive
 
   const flatnet_sats_per_dollar = poolInfo?.currentPriceAInB || SATS_PER_DOLLAR;
 
@@ -255,6 +264,75 @@ export function FlashnetProvider({ children }) {
     }
   };
 
+  const runRefundMonitor = async () => {
+    try {
+      // Hard guards — never trust effects alone
+      if (appState !== 'active') return;
+      if (!sparkInformation.didConnect) return;
+      if (!currentWalletMnemoincRef.current) return;
+
+      const refundableTransfers = await listClawbackableTransfers(
+        currentWalletMnemoincRef.current,
+        50,
+      );
+
+      if (
+        !refundableTransfers?.didWork ||
+        !refundableTransfers.resposne?.transfers.length
+      )
+        return;
+
+      const uniqueTransfers = Array.from(
+        new Map(
+          refundableTransfers.resposne.transfers.map(t => [t.id, t]),
+        ).values(),
+      );
+
+      for (const transfer of uniqueTransfers) {
+        const transferId = transfer.id;
+
+        const eligibility = await checkClawbackEligibility(
+          currentWalletMnemoincRef.current,
+          transferId,
+        );
+
+        if (eligibility.didWork && eligibility.response) {
+          console.warn('[Flashnet Refund Monitor] Refundable', transferId);
+
+          const response = await requestManualClawback(
+            currentWalletMnemoincRef.current,
+            transferId,
+            transfer.lpIdentityPublicKey,
+          );
+
+          if (response.didWork && response.accepted) {
+            await new Promise(res => setTimeout(res, 500));
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[Flashnet Refund Monitor] error:', err);
+    }
+  };
+
+  const startRefundMonitor = () => {
+    if (refundMonitorIntervalRef.current) return;
+
+    runRefundMonitor(); // immediate pass
+
+    refundMonitorIntervalRef.current = setInterval(
+      runRefundMonitor,
+      REFUND_MONITOR_INTERVAL,
+    );
+  };
+
+  const stopRefundMonitor = () => {
+    if (!refundMonitorIntervalRef.current) return;
+
+    clearInterval(refundMonitorIntervalRef.current);
+    refundMonitorIntervalRef.current = null;
+  };
+
   // Set up the auto-swap event listener
   useEffect(() => {
     flashnetAutoSwapsEventListener.on(
@@ -271,6 +349,16 @@ export function FlashnetProvider({ children }) {
       );
     };
   }, []);
+
+  useEffect(() => {
+    if (appState === 'active' && sparkInformation.didConnect) {
+      startRefundMonitor();
+    } else {
+      stopRefundMonitor();
+    }
+
+    return stopRefundMonitor;
+  }, [appState, sparkInformation.didConnect]);
 
   useEffect(() => {
     // Stop any existing interval first
@@ -325,6 +413,10 @@ export function FlashnetProvider({ children }) {
   const swapUSDPriceDollars = useMemo(() => {
     return (poolInfo?.currentPriceAInB * 100000000) / 1000000;
   }, [poolInfo?.currentPriceAInB]);
+
+  useEffect(() => {
+    stopRefundMonitor();
+  }, [authResetkey]);
 
   const contextValue = useMemo(() => {
     return {

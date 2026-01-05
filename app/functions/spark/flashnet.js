@@ -1217,30 +1217,29 @@ export const checkClawbackStatus = async (mnemonic, internalRequestId) => {
  * @param {Array<{transferId: string, poolId: string}>} transfers - Transfers to recover
  * @returns {Promise<object>} Batch clawback results
  */
-export const requestBatchClawback = async (mnemonic, transfers) => {
+export const requestBatchClawback = async (mnemonic, transferIds, poolId) => {
   try {
-    const results = await Promise.allSettled(
-      transfers.map(({ transferId, poolId }) =>
-        requestManualClawback(mnemonic, transferId, poolId),
-      ),
-    );
+    const runtime = await selectSparkRuntime(mnemonic);
 
-    const successful = results.filter(
-      r => r.status === 'fulfilled' && r.value.didWork,
-    ).length;
-    const failed = results.length - successful;
+    console.log(runtime, mnemonic, transferIds, poolId);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.requestBatchClawback,
+        { mnemonic, transferIds, poolId },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to check clawback status',
+      );
+    } else {
+      const client = getFlashnetClient(mnemonic);
+      const result = await client.clawbackMultiple(transferIds, poolId);
 
-    return {
-      didWork: true,
-      totalRequests: results.length,
-      successful,
-      failed,
-      results: results.map((r, i) => ({
-        transferId: transfers[i].transferId,
-        status: r.status,
-        result: r.status === 'fulfilled' ? r.value : { error: r.reason },
-      })),
-    };
+      return {
+        didWork: true,
+        result,
+      };
+    }
   } catch (error) {
     console.error(
       'Batch clawback error:',

@@ -75,6 +75,7 @@ export const OPERATION_TYPES = {
   requestClawback: 'requestClawback',
   checkClawbackEligibility: 'checkClawbackEligibility',
   checkClawbackStatus: 'checkClawbackStatus',
+  requestBatchClawback: 'requestBatchClawback',
   listClawbackableTransfers: 'listClawbackableTransfers',
 };
 
@@ -109,6 +110,7 @@ const mediumOperations = [
   OPERATION_TYPES.getTokenTransactions,
   OPERATION_TYPES.setPrivacyEnabled,
   OPERATION_TYPES.simulateSwap,
+  OPERATION_TYPES.requestBatchClawback,
 ];
 
 const rejectIfNotConnectedToInternet = [
