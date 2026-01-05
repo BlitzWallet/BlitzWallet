@@ -3,31 +3,24 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { CENTER, ICONS } from '../../../../constants';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 
 export default function SelectReceiveAsset({ endReceiveType }) {
   const navigate = useNavigation();
-  const [selectedBalance, setSelectedBalance] = useState(endReceiveType);
 
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
-  const handleBalanceSelection = term => {
-    setSelectedBalance(term);
-  };
-
-  const selectSendingBalance = () => {
+  const selectSendingBalance = term => {
     navigate.popTo(
       'ReceiveBTC',
       {
-        endReceiveType: selectedBalance,
+        endReceiveType: term,
         receiveAmount: 0,
         description: '',
       },
@@ -44,7 +37,7 @@ export default function SelectReceiveAsset({ endReceiveType }) {
       />
 
       <TouchableOpacity
-        onPress={() => handleBalanceSelection('BTC')}
+        onPress={() => selectSendingBalance('BTC')}
         style={styles.containerRow}
       >
         <View
@@ -69,13 +62,13 @@ export default function SelectReceiveAsset({ endReceiveType }) {
           />
         </View>
         <CheckMarkCircle
-          isActive={selectedBalance === 'BTC'}
+          isActive={endReceiveType === 'BTC'}
           containerSize={25}
           switchDarkMode={true}
         />
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => handleBalanceSelection('USD')}
+        onPress={() => selectSendingBalance('USD')}
         style={styles.containerRow}
       >
         <View
@@ -101,19 +94,11 @@ export default function SelectReceiveAsset({ endReceiveType }) {
           />
         </View>
         <CheckMarkCircle
-          isActive={selectedBalance === 'USD'}
+          isActive={endReceiveType === 'USD'}
           containerSize={25}
           switchDarkMode={true}
         />
       </TouchableOpacity>
-      <CustomButton
-        actionFunction={selectSendingBalance}
-        buttonStyles={{
-          marginTop: 'auto',
-          opacity: !selectedBalance ? 0.5 : 1,
-        }}
-        textContent={t('constants.continue')}
-      />
     </View>
   );
 }

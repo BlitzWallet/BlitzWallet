@@ -31,15 +31,11 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
   const { backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
-  const handleBalanceSelection = term => {
-    setSelectedBalance(term);
-  };
-
-  const selectSendingBalance = () => {
+  const selectSendingBalance = term => {
     navigate.popTo(
       'ConfirmPaymentScreen',
       {
-        selectedPaymentMethod: selectedBalance,
+        selectedPaymentMethod: term,
       },
       { merge: true },
     );
@@ -56,7 +52,7 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
       />
 
       <TouchableOpacity
-        onPress={() => handleBalanceSelection('BTC')}
+        onPress={() => selectSendingBalance('BTC')}
         style={styles.containerRow}
       >
         <View
@@ -92,7 +88,7 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
         />
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => handleBalanceSelection('USD')}
+        onPress={() => selectSendingBalance('USD')}
         style={styles.containerRow}
       >
         <View
@@ -135,14 +131,6 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
           switchDarkMode={true}
         />
       </TouchableOpacity>
-      <CustomButton
-        actionFunction={selectSendingBalance}
-        buttonStyles={{
-          marginTop: 'auto',
-          opacity: !selectedBalance ? 0.5 : 1,
-        }}
-        textContent={t('constants.continue')}
-      />
     </View>
   );
 }
