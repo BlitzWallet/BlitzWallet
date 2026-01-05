@@ -72,16 +72,15 @@ export async function transformTxToPaymentObject(
       deleteUnpaidSparkLightningTransaction(foundInvoice.sparkID);
     }
 
-    const description = isSwapPayment
-      ? i18next.t('screens.inAccount.swapsPage.swapDirection_btcusd')
-      : numTxsBeingRestored < 20
-      ? invoice
-        ? decode(invoice).tags.find(tag => tag.tagName === 'description')
-            ?.data ||
-          foundInvoice?.description ||
-          ''
-        : foundInvoice?.description || ''
-      : '';
+    const description =
+      numTxsBeingRestored < 20
+        ? invoice
+          ? decode(invoice).tags.find(tag => tag.tagName === 'description')
+              ?.data ||
+            foundInvoice?.description ||
+            ''
+          : foundInvoice?.description || ''
+        : '';
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
