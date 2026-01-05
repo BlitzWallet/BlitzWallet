@@ -13,7 +13,7 @@
     "receive": "Receive",
     "accept": "Accept",
     "total_balance": "Total Balance",
-    "sat_balance": "SAT Balance",
+    "sat_balance": "Bitcoin Balance",
     "usd_balance": "Dollar Balance",
     "amount": "Amount",
     "sent": "Sent",
@@ -1296,6 +1296,7 @@
       "selectionTitle": "Choose Network",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
+      "flashnet": "BTC <> USD",
       "pageTitle": "{{type}} Transfers"
     },
 
@@ -1816,11 +1817,11 @@
         "fullSwapError": "An unexpected error occurred during the swap. Please try again.",
         "checkSwapMessage": "High price impact",
         "__COMMENT__": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
-        "swapConfimred": "Swap Confirmed",
+        "swapConfimred": "Swap Successful",
         "youSent": "You sent",
         "youReceived": "You received",
         "newSwap": "New Swap",
-        "loadingPool": "Loading pool information...",
+        "loadingPool": "Loading swap information...",
         "fromBalance": "I have {{amount}}",
         "toBalance": "I want",
         "min": "MIN",
@@ -1834,8 +1835,13 @@
         "serviceUnavailableDesc": "Unable to connect to swap service. Please check your connection and try again.",
         "swapDirection_usdbtc": "USD → BTC",
         "swapDirection_btcusd": "BTC → USD",
-        "paymentDescription_outgoing": "{{swapDirection}} – Outgoing",
-        "paymentDescription_incoming": "{{swapDirection}} – Incoming"
+        "paymentDescription_outgoing": "{{swapDirection}}",
+        "paymentDescription_incoming": "{{swapDirection}}",
+        "yourAreConverting": "You are converting",
+        "youWillReceive": "You will receive",
+        "bitcoinPrice": "Bitcoin Price",
+        "swapFee": "Swap Fee",
+        "exchangeRate": "Exchange Rate"
       }
     }
   },

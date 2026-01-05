@@ -13,7 +13,7 @@
     "receive": "Recibir",
     "accept": "Aceptar",
     "total_balance": "Saldo total",
-    "sat_balance": "Saldo SAT",
+    "sat_balance": "Saldo Bitcoin",
     "usd_balance": "Saldo en dólares",
     "amount": "Cantidad",
     "sent": "Enviado",
@@ -1130,6 +1130,7 @@
       "selectionTitle": "Elegir red",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
+      "flashnet": "BTC <> USD",
       "pageTitle": "Transferencias de {{type}}"
     },
 
@@ -1644,11 +1645,11 @@
         "swapLiquidityError": "\n\nIntenta intercambiar una cantidad menor o espera más liquidez.",
         "fullSwapError": "Ocurrió un error inesperado durante el swap. Por favor, inténtalo de nuevo.",
         "checkSwapMessage": "Alto impacto en el precio",
-        "swapConfimred": "Swap confirmado",
+        "swapConfimred": "Swap exitoso",
         "youSent": "Enviaste",
         "youReceived": "Recibiste",
         "newSwap": "Nuevo swap",
-        "loadingPool": "Cargando información del pool...",
+        "loadingPool": "Cargando información del swap...",
         "fromBalance": "Tengo {{amount}}",
         "toBalance": "Quiero",
         "min": "MIN",
@@ -1662,8 +1663,13 @@
         "serviceUnavailableDesc": "No se pudo conectar al servicio de swap. Verifica tu conexión e inténtalo de nuevo.",
         "swapDirection_usdbtc": "USD → BTC",
         "swapDirection_btcusd": "BTC → USD",
-        "paymentDescription_outgoing": "{{swapDirection}} – Saliente",
-        "paymentDescription_incoming": "{{swapDirection}} – Entrante"
+        "paymentDescription_outgoing": "{{swapDirection}}",
+        "paymentDescription_incoming": "{{swapDirection}}",
+        "yourAreConverting": "Estás convirtiendo",
+        "youWillReceive": "Recibirás",
+        "bitcoinPrice": "Precio de Bitcoin",
+        "swapFee": "Comisión de swap",
+        "exchangeRate": "Tipo de cambio"
       }
     }
   },

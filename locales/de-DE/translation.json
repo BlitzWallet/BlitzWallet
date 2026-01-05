@@ -13,7 +13,7 @@
     "receive": "Empfangen",
     "accept": "Akzeptieren",
     "total_balance": "Gesamtguthaben",
-    "sat_balance": "SAT-Guthaben",
+    "sat_balance": "Bitcoin-Guthaben",
     "usd_balance": "Dollar-Kontostand",
     "amount": "Betrag",
     "sent": "Gesendet",
@@ -1279,6 +1279,7 @@
       "selectionTitle": "Netzwerk wählen",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
+      "flashnet": "BTC <> USD",
       "pageTitle": "{{type}}-Übertragungen"
     },
     "viewRoostockSwaps": {
@@ -1798,11 +1799,11 @@
         "swapLiquidityError": "\n\nVersuche, einen kleineren Betrag zu tauschen oder auf mehr Liquidität zu warten.",
         "fullSwapError": "Während des Swaps ist ein unerwarteter Fehler aufgetreten. Bitte versuche es erneut.",
         "checkSwapMessage": "Hoher Preiseinfluss",
-        "swapConfimred": "Swap bestätigt",
+        "swapConfimred": "Swap erfolgreich",
         "youSent": "Du hast gesendet",
         "youReceived": "Du hast erhalten",
         "newSwap": "Neuer Swap",
-        "loadingPool": "Pool-Informationen werden geladen...",
+        "loadingPool": "Swap-Informationen werden geladen...",
         "fromBalance": "Ich habe {{amount}}",
         "toBalance": "Ich möchte",
         "min": "MIN",
@@ -1816,8 +1817,13 @@
         "serviceUnavailableDesc": "Verbindung zum Swap-Dienst nicht möglich. Bitte überprüfe deine Verbindung und versuche es erneut.",
         "swapDirection_usdbtc": "USD → BTC",
         "swapDirection_btcusd": "BTC → USD",
-        "paymentDescription_outgoing": "{{swapDirection}} – Ausgehend",
-        "paymentDescription_incoming": "{{swapDirection}} – Eingehend"
+        "paymentDescription_outgoing": "{{swapDirection}}",
+        "paymentDescription_incoming": "{{swapDirection}}",
+        "yourAreConverting": "Du wandelst um",
+        "youWillReceive": "Du erhältst",
+        "bitcoinPrice": "Bitcoin-Preis",
+        "swapFee": "Swap-Gebühr",
+        "exchangeRate": "Wechselkurs"
       }
     }
   },

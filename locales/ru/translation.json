@@ -13,7 +13,7 @@
     "receive": "Получить",
     "accept": "Принять",
     "total_balance": "Общий баланс",
-    "sat_balance": "SAT Balance",
+    "sat_balance": "Bitcoin Balance",
     "usd_balance": "Баланс в долларах",
     "amount": "Сумма",
     "sent": "Отправлено",
@@ -1274,6 +1274,7 @@
       "selectionTitle": "Выберите сеть",
       "liquid": "Жидкость",
       "rootstock": "Корневище",
+      "flashnet": "BTC <> USD",
       "pageTitle": "{{type}} Переводы"
     },
     "viewRoostockSwaps": {
@@ -1787,11 +1788,11 @@
         "swapLiquidityError": "\n\nПопробуйте обменять меньшую сумму или подождите появления ликвидности.",
         "fullSwapError": "Во время обмена произошла непредвиденная ошибка. Пожалуйста, попробуйте снова.",
         "checkSwapMessage": "Высокое влияние на цену",
-        "swapConfimred": "Обмен подтверждён",
+        "swapConfimred": "Своп выполнен успешно",
         "youSent": "Вы отправили",
         "youReceived": "Вы получили",
         "newSwap": "Новый обмен",
-        "loadingPool": "Загрузка информации о пуле...",
+        "loadingPool": "Загрузка информации о свопе...",
         "fromBalance": "У меня есть {{amount}}",
         "toBalance": "Я хочу",
         "min": "МИН",
@@ -1805,8 +1806,13 @@
         "serviceUnavailableDesc": "Не удалось подключиться к сервису обмена. Проверьте соединение и попробуйте снова.",
         "swapDirection_usdbtc": "USD → BTC",
         "swapDirection_btcusd": "BTC → USD",
-        "paymentDescription_outgoing": "{{swapDirection}} – Исходящий",
-        "paymentDescription_incoming": "{{swapDirection}} – Входящий"
+        "paymentDescription_outgoing": "{{swapDirection}}",
+        "paymentDescription_incoming": "{{swapDirection}}",
+        "yourAreConverting": "Вы конвертируете",
+        "youWillReceive": "Вы получите",
+        "bitcoinPrice": "Цена биткоина",
+        "swapFee": "Комиссия свопа",
+        "exchangeRate": "Обменный курс"
       }
     }
   },

@@ -13,7 +13,7 @@
     "receive": "Ta emot",
     "accept": "Acceptera",
     "total_balance": "Totalt saldo",
-    "sat_balance": "SAT Balans",
+    "sat_balance": "Bitcoin Balans",
     "usd_balance": "Dollarsaldo",
     "amount": "Belopp",
     "sent": "Skickad",
@@ -1274,6 +1274,7 @@
       "selectionTitle": "Välj nätverk",
       "liquid": "Vätska",
       "rootstock": "Rotstock",
+      "flashnet": "BTC <> USD",
       "pageTitle": "{{type}} Överföringar"
     },
     "viewRoostockSwaps": {
@@ -1779,11 +1780,11 @@
         "swapLiquidityError": "\n\nFörsök att byta ett mindre belopp eller vänta på mer likviditet.",
         "fullSwapError": "Ett oväntat fel uppstod under bytet. Försök igen.",
         "checkSwapMessage": "Hög prisinverkan",
-        "swapConfimred": "Swap bekräftad",
+        "swapConfimred": "Swap genomförd",
         "youSent": "Du skickade",
         "youReceived": "Du tog emot",
         "newSwap": "Ny swap",
-        "loadingPool": "Laddar poolinformation...",
+        "loadingPool": "Laddar swap-information...",
         "fromBalance": "Jag har {{amount}}",
         "toBalance": "Jag vill",
         "min": "MIN",
@@ -1797,8 +1798,13 @@
         "serviceUnavailableDesc": "Det gick inte att ansluta till swap-tjänsten. Kontrollera din anslutning och försök igen.",
         "swapDirection_usdbtc": "USD → BTC",
         "swapDirection_btcusd": "BTC → USD",
-        "paymentDescription_outgoing": "{{swapDirection}} – Utgående",
-        "paymentDescription_incoming": "{{swapDirection}} – Inkommande"
+        "paymentDescription_outgoing": "{{swapDirection}}",
+        "paymentDescription_incoming": "{{swapDirection}}",
+        "yourAreConverting": "Du konverterar",
+        "youWillReceive": "Du kommer att få",
+        "bitcoinPrice": "Bitcoin-pris",
+        "swapFee": "Swapavgift",
+        "exchangeRate": "Växelkurs"
       }
     }
   },
