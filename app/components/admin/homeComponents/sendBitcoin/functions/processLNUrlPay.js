@@ -3,7 +3,7 @@ import { SATSPERBITCOIN } from '../../../../../constants';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { getLNAddressForLiquidPayment } from './payments';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
-import { InputTypes } from 'bitcoin-address-parser';
+import { InputTypes, parseInput } from 'bitcoin-address-parser';
 import { getBolt11InvoiceForContact } from '../../../../../functions/contacts';
 import {
   getLightningPaymentQuote,
@@ -156,12 +156,13 @@ export default async function processLNUrlPay(input, context) {
 
     if (needBtcFee && !hasBtcFee) {
       btcPromiseIndex = promises.length;
+      const decoded = await parseInput(invoice);
       promises.push(
         sparkPaymenWrapper({
           getFee: true,
           address: invoice,
           amountSats: Number(enteredPaymentInfo.amount),
-          paymentType: 'lightning',
+          paymentType: !!decoded.data.usingSparkAddress ? 'spark' : 'lightning',
           masterInfoObject,
           mnemonic: currentWalletMnemoinc,
           sendWebViewRequest,
