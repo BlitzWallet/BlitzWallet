@@ -13,7 +13,7 @@ export default function SelectReceiveAsset({ endReceiveType }) {
   const navigate = useNavigation();
 
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
   const selectSendingBalance = term => {
@@ -44,7 +44,11 @@ export default function SelectReceiveAsset({ endReceiveType }) {
           style={[
             styles.iconContainer,
             {
-              backgroundColor: theme ? backgroundColor : COLORS.bitcoinOrange,
+              backgroundColor: theme
+                ? darkModeType
+                  ? backgroundColor
+                  : backgroundOffset
+                : COLORS.bitcoinOrange,
             },
           ]}
         >
@@ -75,7 +79,11 @@ export default function SelectReceiveAsset({ endReceiveType }) {
           style={[
             styles.iconContainer,
             {
-              backgroundColor: theme ? backgroundColor : COLORS.dollarGreen,
+              backgroundColor: theme
+                ? darkModeType
+                  ? backgroundColor
+                  : backgroundOffset
+                : COLORS.dollarGreen,
             },
           ]}
         >

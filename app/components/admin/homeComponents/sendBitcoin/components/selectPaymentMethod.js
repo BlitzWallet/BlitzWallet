@@ -28,7 +28,7 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
   const [selectedBalance, setSelectedBalance] = useState('');
 
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
   const selectSendingBalance = term => {
@@ -46,9 +46,7 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
     <View style={styles.innerContainer}>
       <ThemeText
         styles={{ fontWeight: 500, fontSize: SIZES.large }}
-        content={`Please select how you’d like to fund your ${displayCorrectDenomination(
-          { amount: convertedSendAmount, masterInfoObject, fiatStats },
-        )} payment.`}
+        content={t('wallet.sendPages.selectPaymentMethod.header')}
       />
 
       <TouchableOpacity
@@ -59,7 +57,11 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
           style={[
             styles.iconContainer,
             {
-              backgroundColor: theme ? backgroundColor : COLORS.bitcoinOrange,
+              backgroundColor: theme
+                ? darkModeType
+                  ? backgroundColor
+                  : backgroundOffset
+                : COLORS.bitcoinOrange,
             },
           ]}
         >
@@ -71,14 +73,17 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
           />
         </View>
         <View style={styles.textContainer}>
-          <ThemeText styles={styles.balanceTitle} content={'Bitcoin'} />
+          <ThemeText
+            styles={styles.balanceTitle}
+            content={t('constants.sat_balance')}
+          />
           <ThemeText
             styles={styles.amountText}
             content={`${displayCorrectDenomination({
               amount: bitcoinBalance,
               masterInfoObject,
               fiatStats,
-            })} balance`}
+            })}`}
           />
         </View>
         <CheckMarkCircle
@@ -95,7 +100,11 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
           style={[
             styles.iconContainer,
             {
-              backgroundColor: theme ? backgroundColor : COLORS.dollarGreen,
+              backgroundColor: theme
+                ? darkModeType
+                  ? backgroundColor
+                  : backgroundOffset
+                : COLORS.dollarGreen,
             },
           ]}
         >
@@ -109,7 +118,7 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
         <View style={styles.textContainer}>
           <ThemeText
             styles={styles.balanceTitle}
-            content={t('constants.dollars_upper')}
+            content={t('constants.usd_balance')}
           />
           <ThemeText
             styles={styles.amountText}
@@ -122,7 +131,7 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
               forceCurrency: 'USD',
               convertAmount: false,
               fiatStats,
-            })} balance`}
+            })}`}
           />
         </View>
         <CheckMarkCircle

@@ -135,8 +135,16 @@ export default function SelectLRC20Token({ setIsKeyboardActive }) {
             {tokenIdentifier === 'Bitcoin' ? (
               <View>
                 <ThemeImage
-                  styles={{ width: 15, height: 20 }}
-                  lightModeIcon={ICONS.bitcoinReceiveIcon}
+                  styles={{
+                    width: 15,
+                    height: 20,
+                    tintColor:
+                      theme && darkModeType
+                        ? COLORS.lightModeText
+                        : COLORS.darkModeText,
+                  }}
+                  source={ICONS.bitcoinIcon}
+                  disableTint={true}
                 />
               </View>
             ) : imageUri ? (
