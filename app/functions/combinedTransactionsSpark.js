@@ -545,40 +545,9 @@ export const UserTransaction = memo(function UserTransaction({
         />
       </View>
       {!isFailedPayment && (
-        <View
-          style={{
-            alignSelf: showSwapConversion ? 'center' : 'flex-start',
-          }}
-        >
-          <FormattedSatText
-            neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
-            containerStyles={styles.amountContainer}
-            frontText={
-              userBalanceDenomination !== 'hidden'
-                ? transaction.details.direction ===
-                  TRANSACTION_CONSTANTS.INCOMING
-                  ? '+'
-                  : '-'
-                : ''
-            }
-            balance={
-              isLRC20Payment
-                ? formatTokensNumber(
-                    transaction.details.amount,
-                    token?.decimals,
-                  )
-                : transaction.details.amount
-            }
-            globalBalanceDenomination={
-              showSwapConversion ? 'sats' : userBalanceDenomination
-            }
-            useCustomLabel={isLRC20Payment}
-            customLabel={token?.tokenTicker?.slice(0, 3)}
-            useMillionDenomination={true}
-          />
-          {showSwapConversion && (
+        <View>
+          {showSwapConversion ? (
             <FormattedSatText
-              styles={{ fontSize: SIZES.small }}
               neverHideBalance={
                 frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
               }
@@ -593,6 +562,32 @@ export const UserTransaction = memo(function UserTransaction({
               }
               useCustomLabel={true}
               customLabel={'USD'}
+              useMillionDenomination={true}
+            />
+          ) : (
+            <FormattedSatText
+              neverHideBalance={
+                frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+              }
+              containerStyles={styles.amountContainer}
+              frontText={
+                userBalanceDenomination !== 'hidden'
+                  ? transaction.details.direction ===
+                    TRANSACTION_CONSTANTS.INCOMING
+                    ? '+'
+                    : '-'
+                  : ''
+              }
+              balance={
+                isLRC20Payment
+                  ? formatTokensNumber(
+                      transaction.details.amount,
+                      token?.decimals,
+                    )
+                  : transaction.details.amount
+              }
+              useCustomLabel={isLRC20Payment}
+              customLabel={token?.tokenTicker?.slice(0, 3)}
               useMillionDenomination={true}
             />
           )}
