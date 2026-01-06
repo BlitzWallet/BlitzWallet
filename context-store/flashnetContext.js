@@ -21,7 +21,6 @@ import {
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
 import { useActiveCustodyAccount } from './activeAccount';
-import { useNodeContext } from './nodeContext';
 import {
   getSingleTxDetails,
   getSparkPaymentStatus,
@@ -50,17 +49,16 @@ const FlashnetContext = createContext(null);
 
 export function FlashnetProvider({ children }) {
   const { showToast } = useToast();
-  const { SATS_PER_DOLLAR } = useNodeContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { appState } = useAppStatus();
   const { sparkInformation, sparkInfoRef } = useSparkWallet();
   const [poolInfo, setPoolInfo] = useState({});
-  const [swapLimits, setSwapLimits] = useState({ usd: 1, btc: 1000 });
+  const [swapLimits, setSwapLimits] = useState({ usd: 1, bitcoin: 1000 });
   const swapLimitsRef = useRef(swapLimits);
   const poolInfoRef = useRef({});
   const poolIntervalRef = useRef(null);
   const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
-  const flatnet_sats_per_dollar_ref = useRef(0);
+
   const triggeredSwapsRef = useRef(new Set());
 
   const refundMonitorIntervalRef = useRef(null);
@@ -69,8 +67,6 @@ export function FlashnetProvider({ children }) {
 
   const REFUND_MONITOR_INTERVAL = 25_000;
   const SWAP_MONITOR_INTERVAL = 30_000;
-
-  const flatnet_sats_per_dollar = poolInfo?.currentPriceAInB || SATS_PER_DOLLAR;
 
   useEffect(() => {
     currentWalletMnemoincRef.current = currentWalletMnemoinc;
@@ -83,10 +79,6 @@ export function FlashnetProvider({ children }) {
   useEffect(() => {
     swapLimitsRef.current = swapLimits;
   }, [swapLimits]);
-
-  useEffect(() => {
-    flatnet_sats_per_dollar_ref.current = flatnet_sats_per_dollar;
-  }, [flatnet_sats_per_dollar]);
 
   const togglePoolInfo = poolInfo => {
     setPoolInfo(poolInfo);
@@ -203,7 +195,7 @@ export function FlashnetProvider({ children }) {
       if (
         !amountSats ||
         amountSats <= 0 ||
-        amountSats < swapLimitsRef.current.btc
+        amountSats < swapLimitsRef.current.bitcoin
       ) {
         console.error('Invalid amount for swap');
         triggeredSwapsRef.current.delete(sparkRequestID);
@@ -606,17 +598,10 @@ export function FlashnetProvider({ children }) {
       poolInfo,
       togglePoolInfo,
       poolInfoRef: poolInfoRef.current,
-      flatnet_sats_per_dollar,
       swapLimits,
       swapUSDPriceDollars,
     };
-  }, [
-    poolInfo,
-    togglePoolInfo,
-    flatnet_sats_per_dollar,
-    swapLimits,
-    swapUSDPriceDollars,
-  ]);
+  }, [poolInfo, togglePoolInfo, swapLimits, swapUSDPriceDollars]);
 
   return (
     <FlashnetContext.Provider value={contextValue}>

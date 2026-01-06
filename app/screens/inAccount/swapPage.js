@@ -79,7 +79,6 @@ export default function SwapsPage() {
   const {
     poolInfo: globalPoolInfo,
     togglePoolInfo,
-    flatnet_sats_per_dollar,
     swapUSDPriceDollars,
     swapLimits,
   } = useFlashnet();
@@ -126,19 +125,6 @@ export default function SwapsPage() {
   const tokenInformation = sparkInformation?.tokens?.[USDB_TOKEN_ID];
 
   const btcBalance = sparkInformation?.balance || 0;
-
-  const convertedFromAmount =
-    fromAsset === 'BTC'
-      ? fromAmount
-      : formatBalanceAmount(fromAmount, false, masterInfoObject);
-  const covertedToAmount =
-    toAsset === 'BTC'
-      ? confirmedSwap?.realReceivedAmount
-      : formatBalanceAmount(
-          confirmedSwap?.realReceivedAmount / flatnet_sats_per_dollar,
-          false,
-          masterInfoObject,
-        );
 
   const displayBalance =
     fromAsset === 'BTC'

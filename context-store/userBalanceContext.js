@@ -4,13 +4,14 @@ import { useSparkWallet } from './sparkContext';
 import { useFlashnet } from './flashnetContext';
 import { USDB_TOKEN_ID } from '../app/constants';
 import formatTokensNumber from '../app/functions/lrc20/formatTokensBalance';
+import { dollarsToSats } from '../app/functions/spark/flashnet';
 
 // Create a context for the WebView ref
 const UserBalanceContext = createContext(null);
 
 export const UserBalanceProvider = ({ children }) => {
   const { sparkInformation } = useSparkWallet();
-  const { flatnet_sats_per_dollar } = useFlashnet();
+  const { poolInfo } = useFlashnet();
 
   const usdbTokenInfo = sparkInformation?.tokens?.[USDB_TOKEN_ID];
 
@@ -25,7 +26,10 @@ export const UserBalanceProvider = ({ children }) => {
 
   const bitcoinBalance = sparkInformation.balance;
 
-  const dollarBalanceSat = dollarBalanceToken * flatnet_sats_per_dollar;
+  const dollarBalanceSat = dollarsToSats(
+    dollarBalanceToken,
+    poolInfo.currentPriceAInB,
+  );
 
   const totalSatValue = bitcoinBalance + dollarBalanceSat;
 
