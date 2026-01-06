@@ -45,6 +45,7 @@ import { useToast } from './toastManager';
 import { decode } from 'bolt11';
 import { useAuthContext } from './authContext';
 import { listClawbackableTransfers } from '../app/functions/spark/flashnet';
+import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 
 const FlashnetContext = createContext(null);
 
@@ -100,9 +101,25 @@ export function FlashnetProvider({ children }) {
     );
 
     if (result?.didWork && result.pool) {
+      setLocalStorageItem('swapPoolInfo', JSON.stringify(result.pool));
       setPoolInfo(result.pool);
     }
   };
+
+  useEffect(() => {
+    async function loadSavedPoolInfo() {
+      const savedPoolInfo = JSON.parse(
+        await getLocalStorageItem('swapPoolInfo'),
+      );
+      console.log('saved pool info', savedPoolInfo);
+      if (savedPoolInfo) {
+        setPoolInfo(savedPoolInfo);
+      }
+    }
+    if (Object.keys(poolInfo).length) return;
+    if (appState !== 'active') return;
+    loadSavedPoolInfo();
+  }, [appState]);
 
   const handleAutoSwap = async (sparkRequestID, retryCount = 0) => {
     try {
