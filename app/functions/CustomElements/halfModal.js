@@ -60,7 +60,8 @@ export default function CustomHalfModal(props) {
   const navigation = useNavigation();
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const { bottomPadding, topPadding } = useGlobalInsets();
@@ -394,7 +395,7 @@ export default function CustomHalfModal(props) {
       style={styles.keyboardAvoidingView}
     >
       <TouchableOpacity
-        style={styles.backdrop}
+        style={[styles.backdrop, { backgroundColor: transparentOveraly }]}
         activeOpacity={1}
         onPress={handleBackPressFunction}
       />
@@ -464,7 +465,6 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: COLORS.halfModalBackgroundColor,
   },
   topBarContainer: {
     borderTopLeftRadius: 20,

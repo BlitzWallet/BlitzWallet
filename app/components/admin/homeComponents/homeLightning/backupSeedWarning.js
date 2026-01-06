@@ -18,7 +18,8 @@ export default function BackupSeedWarning() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor, transparentOveraly } =
+    GetThemeColors();
 
   const navigateToSettings = () => {
     navigate.reset({
@@ -41,7 +42,7 @@ export default function BackupSeedWarning() {
     });
   };
   return (
-    <View style={styles.overlay}>
+    <View style={[styles.overlay, { backgroundColor: transparentOveraly }]}>
       <View
         style={[
           styles.card,
@@ -96,7 +97,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.halfModalBackgroundColor,
   },
   warningIcon: {
     width: 45,

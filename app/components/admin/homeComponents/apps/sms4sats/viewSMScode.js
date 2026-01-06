@@ -1,22 +1,22 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {COLORS, ICONS} from '../../../../../constants';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { COLORS, ICONS } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {SIZES} from '../../../../../constants/theme';
+import { SIZES } from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {useNavigation} from '@react-navigation/native';
-import {parsePhoneNumberWithError} from 'libphonenumber-js';
-import {countrymap} from './receiveCountryCodes';
-import {useCallback, useMemo} from 'react';
-import {copyToClipboard} from '../../../../../functions';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
+import { countrymap } from './receiveCountryCodes';
+import { useCallback, useMemo } from 'react';
+import { copyToClipboard } from '../../../../../functions';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
 
 export default function ViewSmsReceiveCode(props) {
-  const {showToast} = useToast();
-  const {backgroundOffset} = GetThemeColors();
+  const { showToast } = useToast();
+  const { backgroundOffset, transparentOveraly } = GetThemeColors();
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const country = props.route?.params?.country || 'N/A';
   const code = props.route?.params?.code || 'N/A';
@@ -39,9 +39,10 @@ export default function ViewSmsReceiveCode(props) {
     copyToClipboard(code, showToast);
   }, [code]);
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: transparentOveraly }]}>
       <View
-        style={[styles.contentContainer, {backgroundColor: backgroundOffset}]}>
+        style={[styles.contentContainer, { backgroundColor: backgroundOffset }]}
+      >
         <View style={styles.topBar}>
           <ThemeText
             styles={styles.codeHeaderText}
@@ -69,7 +70,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.halfModalBackgroundColor,
   },
   contentContainer: {
     padding: 10,
