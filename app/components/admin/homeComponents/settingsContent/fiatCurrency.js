@@ -24,6 +24,7 @@ import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
 import { useKeysContext } from '../../../../../context-store/keys';
 import GetThemeColors from '../../../../hooks/themeColors';
+import { keyboardGoBack } from '../../../../functions/customNavigation';
 
 export default function FiatCurrencyPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -126,6 +127,7 @@ export default function FiatCurrencyPage() {
           maxWidth: MAX_CONTENT_WIDTH,
           alignSelf: 'center',
         }}
+        keyboardShouldPersistTaps="always"
         contentContainerStyle={{
           flexGrow: 1,
           paddingTop: 20,
@@ -171,7 +173,7 @@ export default function FiatCurrencyPage() {
 
       toggleFiatStats(response.fiatRateResponse);
       toggleMasterInfoObject({ fiatCurrency: selectedCurrency });
-      navigate.goBack();
+      keyboardGoBack(navigate);
     } catch (err) {
       setIsLoading(false);
       console.log(err);
