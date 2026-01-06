@@ -19,7 +19,10 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 
-export default function SelectPaymentMethod({ convertedSendAmount }) {
+export default function SelectPaymentMethod({
+  convertedSendAmount,
+  handleBackPressFunction,
+}) {
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
 
   const { masterInfoObject } = useGlobalContextProvider();
@@ -32,14 +35,15 @@ export default function SelectPaymentMethod({ convertedSendAmount }) {
   const { t } = useTranslation();
 
   const selectSendingBalance = term => {
-    navigate.popTo(
-      'ConfirmPaymentScreen',
-      {
-        selectedPaymentMethod: term,
-      },
-      { merge: true },
+    handleBackPressFunction(() =>
+      navigate.popTo(
+        'ConfirmPaymentScreen',
+        {
+          selectedPaymentMethod: term,
+        },
+        { merge: true },
+      ),
     );
-    return;
   };
 
   return (

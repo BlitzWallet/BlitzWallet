@@ -24,7 +24,10 @@ import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useNavigation } from '@react-navigation/native';
 
-export default function SelectLRC20Token({ setIsKeyboardActive }) {
+export default function SelectLRC20Token({
+  setIsKeyboardActive,
+  handleBackPressFunction,
+}) {
   const navigate = useNavigation();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
   const [searchInput, setSearchInput] = useState('');
@@ -41,12 +44,14 @@ export default function SelectLRC20Token({ setIsKeyboardActive }) {
   };
 
   const selectToken = token => {
-    navigate.popTo(
-      'ConfirmPaymentScreen',
-      {
-        masterTokenInfo: token,
-      },
-      { merge: true },
+    handleBackPressFunction(() =>
+      navigate.popTo(
+        'ConfirmPaymentScreen',
+        {
+          masterTokenInfo: token,
+        },
+        { merge: true },
+      ),
     );
     return;
   };

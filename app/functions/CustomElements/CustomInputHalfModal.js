@@ -44,24 +44,26 @@ export default function CustomInputHalfModal(props) {
           ).toFixed(2),
         );
   const handleSubmit = () => {
-    if (props?.passedParams) {
-      navigate.popTo(props.returnLocation, {
-        ...props?.passedParams,
-        amount: !amountValue ? 0 : localSatAmount,
-        type: props.type,
-      });
-    } else {
-      navigate.popTo(
-        props.returnLocation,
-        {
+    props.handleBackPressFunction(() => {
+      if (props?.passedParams) {
+        navigate.popTo(props.returnLocation, {
+          ...props?.passedParams,
           amount: !amountValue ? 0 : localSatAmount,
-          type: props?.type,
-        },
-        {
-          merge: true,
-        },
-      );
-    }
+          type: props.type,
+        });
+      } else {
+        navigate.popTo(
+          props.returnLocation,
+          {
+            amount: !amountValue ? 0 : localSatAmount,
+            type: props?.type,
+          },
+          {
+            merge: true,
+          },
+        );
+      }
+    });
   };
 
   return (

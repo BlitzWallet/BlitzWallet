@@ -9,7 +9,10 @@ import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircl
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 
-export default function SelectReceiveAsset({ endReceiveType }) {
+export default function SelectReceiveAsset({
+  endReceiveType,
+  handleBackPressFunction,
+}) {
   const navigate = useNavigation();
 
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -17,16 +20,17 @@ export default function SelectReceiveAsset({ endReceiveType }) {
   const { t } = useTranslation();
 
   const selectSendingBalance = term => {
-    navigate.popTo(
-      'ReceiveBTC',
-      {
-        endReceiveType: term,
-        receiveAmount: 0,
-        description: '',
-      },
-      { merge: true },
+    handleBackPressFunction(() =>
+      navigate.popTo(
+        'ReceiveBTC',
+        {
+          endReceiveType: term,
+          receiveAmount: 0,
+          description: '',
+        },
+        { merge: true },
+      ),
     );
-    return;
   };
 
   return (

@@ -68,19 +68,26 @@ export default function CustomHalfModal(props) {
 
   const translateY = useSharedValue(screenDimensions.height);
 
-  const handleBackPressFunction = useCallback(() => {
-    if (didHandleBackpress.current) return;
-    didHandleBackpress.current = true;
-    const keyboardVisible = Keyboard.isVisible();
-    Keyboard.dismiss();
-    slideOut();
-    setTimeout(
-      () => {
-        navigation.goBack();
-      },
-      keyboardVisible ? KEYBOARDTIMEOUT : 200,
-    );
-  }, [navigation]);
+  const handleBackPressFunction = useCallback(
+    customBackFunction => {
+      if (didHandleBackpress.current) return;
+      didHandleBackpress.current = true;
+      const keyboardVisible = Keyboard.isVisible();
+      Keyboard.dismiss();
+      slideOut();
+      setTimeout(
+        () => {
+          if (customBackFunction && typeof customBackFunction === 'function') {
+            customBackFunction();
+          } else {
+            navigation.goBack();
+          }
+        },
+        keyboardVisible ? KEYBOARDTIMEOUT : 200,
+      );
+    },
+    [navigation],
+  );
 
   useHandleBackPressNew(handleBackPressFunction);
 
@@ -244,11 +251,13 @@ export default function CustomHalfModal(props) {
             didWarnSpark={props?.route?.params?.didWarnSpark}
             didWarnLiquid={props?.route?.params?.didWarnLiquid}
             didWarnRootstock={props?.route?.params?.didWarnRootstock}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'customInputText':
         return (
           <CustomInputHalfModal
+            handleBackPressFunction={handleBackPressFunction}
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
@@ -318,6 +327,7 @@ export default function CustomHalfModal(props) {
       case 'SelectLRC20Token':
         return (
           <SelectLRC20Token
+            handleBackPressFunction={handleBackPressFunction}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
@@ -328,6 +338,7 @@ export default function CustomHalfModal(props) {
         return (
           <SelectPaymentMethod
             convertedSendAmount={props?.route?.params?.convertedSendAmount}
+            handleBackPressFunction={handleBackPressFunction}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
@@ -349,6 +360,7 @@ export default function CustomHalfModal(props) {
         return (
           <SelectReceiveAsset
             endReceiveType={props?.route?.params?.endReceiveType}
+            handleBackPressFunction={handleBackPressFunction}
             theme={theme}
             darkModeType={darkModeType}
           />

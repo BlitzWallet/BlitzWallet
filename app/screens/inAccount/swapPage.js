@@ -108,7 +108,6 @@ export default function SwapsPage() {
   const [lastEditedField, setLastEditedField] = useState('from');
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [showReviewScreen, setShowReviewScreen] = useState(false);
-  const animationRef = useRef(null);
 
   // Animated values for font sizes
   const fromAmountFontSize = useSharedValue(SIZES.large);
@@ -740,10 +739,6 @@ export default function SwapsPage() {
             'fullUpdate',
           );
         }
-
-        requestAnimationFrame(() => {
-          animationRef.current?.play();
-        });
       } else {
         const errorInfo = handleFlashnetError({
           ...result.details,
@@ -844,7 +839,6 @@ export default function SwapsPage() {
           }}
         >
           <LottieView
-            ref={animationRef}
             source={confirmAnimation}
             loop={false}
             style={{
