@@ -48,7 +48,7 @@ export default function FiatCurrencyPage() {
 
   const filteredList = currencies.filter(currency => {
     if (
-      currency.info.name.toLowerCase().startsWith(textInput.toLowerCase()) ||
+      currency.info.name.toLowerCase().includes(textInput.toLowerCase()) ||
       currency.id.toLowerCase().startsWith(textInput.toLowerCase())
     )
       return currency;
