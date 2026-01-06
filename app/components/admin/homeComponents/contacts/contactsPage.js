@@ -7,7 +7,7 @@ import {
   ICONS,
   SIZES,
 } from '../../../../constants';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
 import {
@@ -59,6 +59,7 @@ export default function ContactsPage({ navigation }) {
     toggleGlobalContactsInformation,
     giftCardsList,
   } = useGlobalContacts();
+  const scrollViewRef = useRef(null);
   const { serverTimeOffset } = useServerTime();
   const getServerTime = useServerTimeOnly();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
@@ -69,6 +70,19 @@ export default function ContactsPage({ navigation }) {
   const navigate = useNavigation();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = myProfile?.didEditProfile;
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!navigation) return;
+      const listenerID = navigation?.addListener('tabPress', () => {
+        if (scrollViewRef.current) {
+          scrollViewRef.current.scrollTo({ y: 0, animated: true });
+        }
+      });
+
+      return navigation?.removeListener?.('click', listenerID);
+    }, [navigation]),
+  );
 
   // Use custom hooks for processed data
   const contactInfoList = useProcessedContacts(
@@ -363,6 +377,7 @@ export default function ContactsPage({ navigation }) {
       )}
       {hasContacts && didEditProfile ? (
         <ScrollView
+          ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={scrollContentStyle}
           style={memoizedStyles.contactsPageWithContactsScrollview}
