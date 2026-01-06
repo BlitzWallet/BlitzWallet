@@ -534,7 +534,15 @@ export default function SendAndRequestPage(props) {
         }}
       >
         <View style={styles.replacementContainer}>
-          <NavBarWithBalance showBalance={paymentType === 'send'} />
+          {paymentType === 'send' ? (
+            <NavBarWithBalance showBalance={paymentType === 'send'} />
+          ) : (
+            <CustomSettingsTopBar
+              label={t('constants.request')}
+              containerStyles={{ marginBottom: 0 }}
+            />
+          )}
+
           <>
             <ScrollView
               showsVerticalScrollIndicator={false}
