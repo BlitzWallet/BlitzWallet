@@ -142,14 +142,14 @@ export default function SwapsPage() {
 
   // Load pool information on mount
   useEffect(() => {
-    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.didConnectToFlashnet) return;
     if (Object.keys(globalPoolInfo).length) {
       setPoolInfo(globalPoolInfo);
       setIsLoadingPool(false);
     } else {
       loadPoolInfo();
     }
-  }, [sparkInformation.didConnect]);
+  }, [sparkInformation.didConnectToFlashnet]);
 
   const clearPageStates = () => {
     setFromAmount('');

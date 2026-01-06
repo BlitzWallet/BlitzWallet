@@ -109,6 +109,7 @@ const SparkWalletProvider = ({ children }) => {
     identityPubKey: '',
     sparkAddress: '',
     didConnect: null,
+    didConnectToFlashnet: null,
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
   const [pendingNavigation, setPendingNavigation] = useState(null);
@@ -1016,6 +1017,7 @@ const SparkWalletProvider = ({ children }) => {
       identityPubKey: '',
       sparkAddress: '',
       didConnect: null,
+      didConnectToFlashnet: null,
     });
     setPendingNavigation(null);
     if (!internalRefresh) {

@@ -26,10 +26,8 @@ export const UserBalanceProvider = ({ children }) => {
 
   const bitcoinBalance = sparkInformation.balance;
 
-  const dollarBalanceSat = dollarsToSats(
-    dollarBalanceToken,
-    poolInfo.currentPriceAInB,
-  );
+  const dollarBalanceSat =
+    dollarsToSats(dollarBalanceToken, poolInfo.currentPriceAInB) || 0;
 
   const totalSatValue = bitcoinBalance + dollarBalanceSat;
 

@@ -169,13 +169,36 @@ const initializeWallet = async mnemonic => {
     },
   });
 
-  const flashnetAPI = new FlashnetClient(wallet, { autoAuthenticate: true });
-  await flashnetAPI.initialize();
-
-  flashnetClients[sha256Hash(mnemonic)] = flashnetAPI;
-
   console.log('did initialize wallet');
   return wallet;
+};
+
+export const initializeFlashnet = async mnemonic => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.initializeFlashnet,
+        {
+          mnemonic,
+        },
+      );
+
+      return response.didWork;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const flashnetAPI = new FlashnetClient(wallet, {
+        autoAuthenticate: true,
+      });
+      await flashnetAPI.initialize();
+
+      flashnetClients[sha256Hash(mnemonic)] = flashnetAPI;
+      return true;
+    }
+  } catch (err) {
+    console.log('Error initializing flashnet', err);
+    return false;
+  }
 };
 
 export const setPrivacyEnabled = async mnemonic => {

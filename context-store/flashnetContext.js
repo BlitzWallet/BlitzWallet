@@ -24,6 +24,7 @@ import { useActiveCustodyAccount } from './activeAccount';
 import {
   getSingleTxDetails,
   getSparkPaymentStatus,
+  initializeFlashnet,
 } from '../app/functions/spark';
 import { USDB_TOKEN_ID } from '../app/constants';
 import {
@@ -51,7 +52,8 @@ export function FlashnetProvider({ children }) {
   const { showToast } = useToast();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { appState } = useAppStatus();
-  const { sparkInformation, sparkInfoRef } = useSparkWallet();
+  const { sparkInformation, sparkInfoRef, setSparkInformation } =
+    useSparkWallet();
   const [poolInfo, setPoolInfo] = useState({});
   const [swapLimits, setSwapLimits] = useState({ usd: 1, bitcoin: 1000 });
   const swapLimitsRef = useRef(swapLimits);
@@ -63,6 +65,9 @@ export function FlashnetProvider({ children }) {
 
   const refundMonitorIntervalRef = useRef(null);
   const swapMonitorIntervalRef = useRef(null);
+
+  const flashnetRetryIntervalRef = useRef(null);
+  const flashnetRetryDelayRef = useRef(5_000);
   const { authResetkey } = useAuthContext();
 
   const REFUND_MONITOR_INTERVAL = 25_000;
@@ -85,7 +90,7 @@ export function FlashnetProvider({ children }) {
   };
 
   const refreshPool = async () => {
-    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.didConnectToFlashnet) return;
     if (appState !== 'active') return;
 
     const result = await findBestPool(
@@ -318,7 +323,7 @@ export function FlashnetProvider({ children }) {
   const runPendingSwapsMonitor = async () => {
     try {
       if (appState !== 'active') return;
-      if (!sparkInformation.didConnect) return;
+      if (!sparkInformation.didConnectToFlashnet) return;
       if (!currentWalletMnemoincRef.current) return;
       if (!poolInfoRef.current?.lpPublicKey) return;
 
@@ -428,7 +433,7 @@ export function FlashnetProvider({ children }) {
     try {
       // Hard guards — never trust effects alone
       if (appState !== 'active') return;
-      if (!sparkInformation.didConnect) return;
+      if (!sparkInformation.didConnectToFlashnet) return;
       if (!currentWalletMnemoincRef.current) return;
 
       const refundableTransfers = await listClawbackableTransfers(
@@ -513,7 +518,7 @@ export function FlashnetProvider({ children }) {
   useEffect(() => {
     if (
       appState === 'active' &&
-      sparkInformation.didConnect &&
+      sparkInformation.didConnectToFlashnet &&
       poolInfo?.lpPublicKey
     ) {
       startPendingSwapsMonitor();
@@ -522,17 +527,126 @@ export function FlashnetProvider({ children }) {
     }
 
     return stopPendingSwapsMonitor;
-  }, [appState, sparkInformation.didConnect, poolInfo?.lpPublicKey]);
+  }, [appState, sparkInformation.didConnectToFlashnet, poolInfo?.lpPublicKey]);
 
   useEffect(() => {
-    if (appState === 'active' && sparkInformation.didConnect) {
+    if (appState === 'active' && sparkInformation.didConnectToFlashnet) {
       startRefundMonitor();
     } else {
       stopRefundMonitor();
     }
 
     return stopRefundMonitor;
-  }, [appState, sparkInformation.didConnect]);
+  }, [appState, sparkInformation.didConnectToFlashnet]);
+
+  useEffect(() => {
+    const INITIAL_RETRY_DELAY = 5_000; // 5 seconds
+    const MAX_RETRY_DELAY = 120_000; // 2 minutes
+
+    const attemptFlashnetConnection = async () => {
+      try {
+        if (
+          sparkInformation.didConnect === true &&
+          sparkInformation.didConnectToFlashnet === false &&
+          appState === 'active' &&
+          currentWalletMnemoincRef.current
+        ) {
+          console.log(
+            `[Flashnet Retry] Attempting to initialize Flashnet... (delay: ${flashnetRetryDelayRef.current}ms)`,
+          );
+
+          const result = await initializeFlashnet(
+            currentWalletMnemoincRef.current,
+          );
+
+          if (result === true) {
+            console.log('[Flashnet Retry] Successfully initialized Flashnet');
+            setSparkInformation(prev => ({
+              ...prev,
+              didConnectToFlashnet: true,
+            }));
+
+            // Reset delay on success
+            flashnetRetryDelayRef.current = INITIAL_RETRY_DELAY;
+
+            if (flashnetRetryIntervalRef.current) {
+              clearTimeout(flashnetRetryIntervalRef.current);
+              flashnetRetryIntervalRef.current = null;
+            }
+          } else {
+            console.warn(
+              `[Flashnet Retry] Failed to initialize, will retry in ${
+                flashnetRetryDelayRef.current / 1000
+              }s...`,
+            );
+
+            // Schedule next retry with exponential backoff
+            if (flashnetRetryIntervalRef.current) {
+              clearTimeout(flashnetRetryIntervalRef.current);
+            }
+
+            flashnetRetryIntervalRef.current = setTimeout(() => {
+              attemptFlashnetConnection();
+            }, flashnetRetryDelayRef.current);
+
+            // Double the delay for next time, capped at MAX_RETRY_DELAY
+            flashnetRetryDelayRef.current = Math.min(
+              flashnetRetryDelayRef.current * 2,
+              MAX_RETRY_DELAY,
+            );
+          }
+        }
+      } catch (error) {
+        console.error('[Flashnet Retry] Error during initialization:', error);
+
+        // Schedule retry on error as well
+        if (flashnetRetryIntervalRef.current) {
+          clearTimeout(flashnetRetryIntervalRef.current);
+        }
+
+        flashnetRetryIntervalRef.current = setTimeout(() => {
+          attemptFlashnetConnection();
+        }, flashnetRetryDelayRef.current);
+
+        flashnetRetryDelayRef.current = Math.min(
+          flashnetRetryDelayRef.current * 2,
+          MAX_RETRY_DELAY,
+        );
+      }
+    };
+
+    if (
+      sparkInformation.didConnect === true &&
+      sparkInformation.didConnectToFlashnet === false &&
+      appState === 'active'
+    ) {
+      // Reset delay when starting fresh
+      flashnetRetryDelayRef.current = INITIAL_RETRY_DELAY;
+
+      // Immediate first attempt
+      attemptFlashnetConnection();
+    } else {
+      // Clean up timeout if conditions no longer met
+      if (flashnetRetryIntervalRef.current) {
+        clearTimeout(flashnetRetryIntervalRef.current);
+        flashnetRetryIntervalRef.current = null;
+      }
+
+      // Reset delay when stopping
+      flashnetRetryDelayRef.current = INITIAL_RETRY_DELAY;
+    }
+
+    return () => {
+      if (flashnetRetryIntervalRef.current) {
+        clearTimeout(flashnetRetryIntervalRef.current);
+        flashnetRetryIntervalRef.current = null;
+      }
+    };
+  }, [
+    sparkInformation.didConnect,
+    sparkInformation.didConnectToFlashnet,
+    appState,
+  ]);
 
   useEffect(() => {
     // Stop any existing interval first
@@ -542,7 +656,7 @@ export function FlashnetProvider({ children }) {
     }
 
     // Only start polling when conditions are correct
-    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.didConnectToFlashnet) return;
     if (appState !== 'active') return;
 
     // Run immediately on activation
@@ -559,10 +673,10 @@ export function FlashnetProvider({ children }) {
         poolIntervalRef.current = null;
       }
     };
-  }, [appState, sparkInformation.didConnect]);
+  }, [appState, sparkInformation.didConnectToFlashnet]);
 
   useEffect(() => {
-    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.didConnectToFlashnet) return;
     async function getLimits() {
       const [usdLimits, bitconLimits] = await Promise.all([
         minFlashnetSwapAmounts(
@@ -582,7 +696,7 @@ export function FlashnetProvider({ children }) {
       }
     }
     getLimits();
-  }, [sparkInformation.didConnect]);
+  }, [sparkInformation.didConnectToFlashnet]);
 
   const swapUSDPriceDollars = useMemo(() => {
     return (poolInfo?.currentPriceAInB * 100000000) / 1000000;

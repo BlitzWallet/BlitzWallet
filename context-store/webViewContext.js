@@ -59,7 +59,7 @@ export const OPERATION_TYPES = {
   createTokensInvoice: 'createTokensInvoice',
 
   // Flashnet
-  initFlashnet: 'initFlashnet',
+  initializeFlashnet: 'initializeFlashnet',
   listFlashnetPools: 'listFlashnetPools',
   findBestPool: 'findBestPool',
   getPoolDetails: 'getPoolDetails',
@@ -88,7 +88,7 @@ const longOperations = [
   OPERATION_TYPES.sendLightningPayment,
   OPERATION_TYPES.sendBitcoinPayment,
   OPERATION_TYPES.initWallet,
-  OPERATION_TYPES.initFlashnet,
+  OPERATION_TYPES.initializeFlashnet,
   OPERATION_TYPES.executeSwap,
   OPERATION_TYPES.swapBitcoinToToken,
   OPERATION_TYPES.swapTokenToBitcoin,
