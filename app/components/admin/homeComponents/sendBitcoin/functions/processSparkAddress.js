@@ -84,10 +84,12 @@ export default async function processSparkAddress(input, context) {
       // Determine which operations are needed
       const needUsdPath =
         usablePaymentMethod === 'USD' ||
-        (!usablePaymentMethod && dollarBalanceSat >= amountMsat / 1000);
+        ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
+          dollarBalanceSat >= amountMsat / 1000);
       const needBtcPath =
         usablePaymentMethod === 'BTC' ||
-        (!usablePaymentMethod && bitcoinBalance >= amountMsat / 1000);
+        ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
+          bitcoinBalance >= amountMsat / 1000);
 
       // Check if we have cached values
       const hasCachedQuote =

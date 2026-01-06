@@ -124,11 +124,13 @@ export default async function processLNUrlPay(input, context) {
     // Now that we have the invoice, determine which fee estimates are needed
     const needUsdFee =
       (usablePaymentMethod === 'USD' ||
-        (!usablePaymentMethod && dollarBalanceSat >= amountMsat / 1000)) &&
+        ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
+          dollarBalanceSat >= amountMsat / 1000)) &&
       amountMsat / 1000 >= min_usd_swap_amount;
     const needBtcFee =
       usablePaymentMethod === 'BTC' ||
-      (!usablePaymentMethod && bitcoinBalance >= amountMsat / 1000);
+      ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
+        bitcoinBalance >= amountMsat / 1000);
 
     // Check if we have cached values
     const hasUsdQuote =

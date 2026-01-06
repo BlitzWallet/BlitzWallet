@@ -70,11 +70,13 @@ export default async function processBolt11Invoice(input, context) {
   if (amountMsat) {
     const needUsdFee =
       (usablePaymentMethod === 'USD' ||
-        (!usablePaymentMethod && dollarBalanceSat >= amountMsat / 1000)) &&
+        ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
+          dollarBalanceSat >= amountMsat / 1000)) &&
       amountMsat / 1000 >= min_usd_swap_amount;
     const needBtcFee =
       usablePaymentMethod === 'BTC' ||
-      (!usablePaymentMethod && bitcoinBalance >= amountMsat / 1000);
+      ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
+        bitcoinBalance >= amountMsat / 1000);
 
     const hasUsdQuote =
       typeof paymentInfo.swapPaymentQuote === 'object' &&
