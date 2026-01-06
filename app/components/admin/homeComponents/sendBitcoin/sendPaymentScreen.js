@@ -14,6 +14,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
+import usePaymentValidation from './functions/paymentValidation';
 import decodeSendAddress from './functions/decodeSendAdress';
 import { useNavigation } from '@react-navigation/native';
 // import {useWebView} from '../../../../../context-store/webViewContext';
@@ -43,6 +44,7 @@ import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
 import SelectLRC20Token from './components/selectLRC20Token';
+import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
@@ -90,9 +92,10 @@ export default function SendPaymentScreen(props) {
     btcAdress,
   });
 
-  const { poolInfoRef, flatnet_sats_per_dollar, swapLimits } = useFlashnet();
+  const { poolInfoRef, swapLimits } = useFlashnet();
   const { t } = useTranslation();
-  const { bitcoinBalance, dollarBalanceSat } = useUserBalanceContext();
+  const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
+    useUserBalanceContext();
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { screenDimensions } = useAppStatus();
@@ -115,6 +118,7 @@ export default function SendPaymentScreen(props) {
   const convertedSendAmountRef = useRef(null);
   const determinePaymentMethodRef = useRef(null);
 
+  const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
   const [inputDenomination, setInputDenomination] = useState(
@@ -196,11 +200,10 @@ export default function SendPaymentScreen(props) {
     Math.pow(10, 6);
 
   const paymentFee =
-    (paymentInfo?.paymentFee || 0) +
-    (paymentInfo?.supportFee || 0) +
-    (paymentInfo?.swapPaymentQuote?.satFee ||
-      paymentInfo?.swapPaymentQuote?.estimatedLightningFee ||
-      0);
+    !selectedPaymentMethod || selectedPaymentMethod === 'BTC'
+      ? (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0)
+      : paymentInfo?.swapPaymentQuote?.fee +
+          paymentInfo?.swapPaymentQuote?.estimatedLightningFee || 0;
 
   console.log(paymentInfo, 'payment info');
 
@@ -290,7 +293,8 @@ export default function SendPaymentScreen(props) {
   const needsToChoosePaymentMethod =
     determinePaymentMethod === 'user-choice' &&
     !selectedPaymentMethod &&
-    !useFullTokensDisplay;
+    !useFullTokensDisplay &&
+    !didSelectPaymentMethod;
 
   const canEditAmount = paymentInfo?.canEditPayment === true;
 
@@ -338,11 +342,57 @@ export default function SendPaymentScreen(props) {
     isUsingLRC20,
   ]);
 
+  const uiState = useMemo(() => {
+    if (canEditAmount && !isSendingPayment.current) {
+      return 'EDIT_AMOUNT'; // Show number pad + description input
+    }
+
+    if (
+      (needsToChoosePaymentMethod || !didSelectPaymentMethod) &&
+      !isSendingPayment.current &&
+      !isBitcoinPayment &&
+      !isUsingLRC20
+    ) {
+      return 'CHOOSE_METHOD'; // Show info screen with button to select method
+    }
+
+    return 'CONFIRM_PAYMENT'; // Show swipe button
+  }, [
+    canEditAmount,
+    needsToChoosePaymentMethod,
+    didSelectPaymentMethod,
+    isBitcoinPayment,
+    isUsingLRC20,
+  ]);
+
+  const paymentValidation = usePaymentValidation({
+    paymentInfo,
+    convertedSendAmount,
+    paymentFee,
+    determinePaymentMethod,
+    selectedPaymentMethod,
+    bitcoinBalance,
+    dollarBalanceSat,
+    dollarBalanceToken,
+    min_usd_swap_amount,
+    swapLimits,
+    isUsingLRC20,
+    seletctedToken,
+    minLNURLSatAmount,
+    maxLNURLSatAmount,
+    isDecoding,
+    canEditAmount,
+    t,
+    masterInfoObject,
+    fiatStats,
+    inputDenomination,
+  });
+  console.log(paymentValidation);
+
   const canSendPayment =
-    hasSufficientBalance &&
-    !needsToChoosePaymentMethod &&
-    !isDecoding &&
-    sendingAmount != 0;
+    paymentValidation.canProceed &&
+    sendingAmount !== 0 &&
+    uiState === 'CONFIRM_PAYMENT';
 
   const minLNURLSatAmount = isLNURLPayment
     ? paymentInfo?.data?.minSendable / 1000
@@ -362,18 +412,6 @@ export default function SendPaymentScreen(props) {
     !needsToChoosePaymentMethod;
 
   const isUsingFastPay = canUseFastPay && canSendPayment && !canEditAmount;
-
-  const uiState = useMemo(() => {
-    if (canEditAmount && !isSendingPayment.current) {
-      return 'EDIT_AMOUNT'; // Show number pad + description input
-    }
-
-    if (needsToChoosePaymentMethod && !isSendingPayment.current) {
-      return 'CHOOSE_METHOD'; // Show info screen with button to select method
-    }
-
-    return 'CONFIRM_PAYMENT'; // Show swipe button
-  }, [canEditAmount, needsToChoosePaymentMethod]);
 
   const errorMessageNavigation = useCallback(
     reason => {
@@ -480,7 +518,7 @@ export default function SendPaymentScreen(props) {
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     refreshDecode,
-    selectedPaymentMethod,
+    // selectedPaymentMethod,
   ]);
 
   // Fast pay auto-trigger
@@ -674,13 +712,27 @@ export default function SendPaymentScreen(props) {
     fiatValueConvertedSendAmount,
   ]);
 
-  const handleSelectPaymentMethod = useCallback(() => {
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'SelectPaymentMethod',
-      convertedSendAmount,
-    });
-  }, [navigate, convertedSendAmount]);
+  const handleSelectPaymentMethod = useCallback(
+    showNextScreen => {
+      if (showNextScreen) {
+        if (!paymentValidation.isValid) {
+          const errorMessage = paymentValidation.getErrorMessage(
+            paymentValidation.primaryError,
+          );
+          navigate.navigate('ErrorScreen', { errorMessage });
+          return;
+        }
 
+        setDidSelectPaymentMethod(true);
+      } else {
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'SelectPaymentMethod',
+          convertedSendAmount,
+        });
+      }
+    },
+    [navigate, convertedSendAmount, paymentValidation],
+  );
   const handleSelectTokenPress = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'SelectLRC20Token',
@@ -798,7 +850,10 @@ export default function SendPaymentScreen(props) {
                   opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
                 }}
                 neverHideBalance={true}
-                styles={{ includeFontPadding: false, ...styles.satValue }}
+                styles={{
+                  includeFontPadding: false,
+                  ...styles.satValue,
+                }}
                 globalBalanceDenomination={
                   inputDenomination === 'sats' || inputDenomination === 'hidden'
                     ? 'fiat'
@@ -839,7 +894,7 @@ export default function SendPaymentScreen(props) {
           )}
 
           {/* Invoice info */}
-          {uiState !== 'EDIT_AMOUNT' && (
+          {uiState === 'CONFIRM_PAYMENT' && (
             <InvoiceInfo
               paymentInfo={paymentInfo}
               contactInfo={contactInfo}
@@ -848,11 +903,45 @@ export default function SendPaymentScreen(props) {
               darkModeType={darkModeType}
             />
           )}
+          {uiState === 'CHOOSE_METHOD' && (
+            <ChoosePaymentMethod
+              theme={theme}
+              darkModeType={darkModeType}
+              determinePaymentMethod={determinePaymentMethod}
+              handleSelectPaymentMethod={handleSelectPaymentMethod}
+              bitcoinBalance={bitcoinBalance}
+              dollarBalanceToken={dollarBalanceToken}
+              masterInfoObject={masterInfoObject}
+              fiatStats={fiatStats}
+              uiState={uiState}
+              t={t}
+            />
+          )}
         </ScrollView>
 
         {/* EDIT_AMOUNT State - Show input controls */}
         {uiState === 'EDIT_AMOUNT' && (
           <>
+            {!(
+              enabledLRC20 &&
+              paymentInfo.type === 'spark' &&
+              canEditAmount &&
+              useFullTokensDisplay
+            ) &&
+              !isBitcoinPayment && (
+                <ChoosePaymentMethod
+                  theme={theme}
+                  darkModeType={darkModeType}
+                  determinePaymentMethod={determinePaymentMethod}
+                  handleSelectPaymentMethod={handleSelectPaymentMethod}
+                  bitcoinBalance={bitcoinBalance}
+                  dollarBalanceToken={dollarBalanceToken}
+                  masterInfoObject={masterInfoObject}
+                  fiatStats={fiatStats}
+                  uiState={uiState}
+                  t={t}
+                />
+              )}
             <CustomSearchInput
               onFocusFunction={() => setIsAmountFocused(false)}
               onBlurFunction={() => setIsAmountFocused(true)}
@@ -925,6 +1014,8 @@ export default function SendPaymentScreen(props) {
                   min_usd_swap_amount={min_usd_swap_amount}
                   hasSufficientBalance={hasSufficientBalance}
                   inputDenomination={inputDenomination}
+                  paymentValidation={paymentValidation}
+                  setDidSelectPaymentMethod={setDidSelectPaymentMethod}
                 />
               </View>
             )}
@@ -975,6 +1066,8 @@ export default function SendPaymentScreen(props) {
                 min_usd_swap_amount={min_usd_swap_amount}
                 hasSufficientBalance={hasSufficientBalance}
                 inputDenomination={inputDenomination}
+                paymentValidation={paymentValidation}
+                setDidSelectPaymentMethod={setDidSelectPaymentMethod}
               />
             )}
           </>
@@ -983,8 +1076,11 @@ export default function SendPaymentScreen(props) {
         {/* SELECT_PAYMENT method state - show button to take user to select half modal */}
         {uiState === 'CHOOSE_METHOD' && (
           <CustomButton
-            buttonStyles={{ ...CENTER }}
-            actionFunction={handleSelectPaymentMethod}
+            buttonStyles={{
+              ...CENTER,
+              opacity: paymentValidation.isValid ? 1 : HIDDEN_OPACITY,
+            }}
+            actionFunction={() => handleSelectPaymentMethod(true)}
             textContent={t('constants.review')}
           />
         )}

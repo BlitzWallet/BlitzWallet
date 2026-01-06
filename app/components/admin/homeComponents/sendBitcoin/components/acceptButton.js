@@ -13,6 +13,7 @@ import {
   SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
 } from '../../../../../constants';
 import { InputTypes } from 'bitcoin-address-parser';
+import { HIDDEN_OPACITY } from '../../../../../constants/theme';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
@@ -47,6 +48,8 @@ export default function AcceptButtonSendPage({
   min_usd_swap_amount,
   hasSufficientBalance,
   inputDenomination,
+  paymentValidation,
+  setDidSelectPaymentMethod,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -65,59 +68,59 @@ export default function AcceptButtonSendPage({
   //   );
   // }, [isLiquidPayment, convertedSendAmount, minMaxLiquidSwapAmounts]);
 
-  const isLNURLAmountValid = useMemo(() => {
-    if (paymentInfo?.type !== InputTypes.LNURL_PAY) return true;
-    return (
-      convertedSendAmount >= minLNURLSatAmount &&
-      convertedSendAmount <= maxLNURLSatAmount
-    );
-  }, [
-    paymentInfo?.type,
-    convertedSendAmount,
-    minLNURLSatAmount,
-    maxLNURLSatAmount,
-  ]);
+  // const isLNURLAmountValid = useMemo(() => {
+  //   if (paymentInfo?.type !== InputTypes.LNURL_PAY) return true;
+  //   return (
+  //     convertedSendAmount >= minLNURLSatAmount &&
+  //     convertedSendAmount <= maxLNURLSatAmount
+  //   );
+  // }, [
+  //   paymentInfo?.type,
+  //   convertedSendAmount,
+  //   minLNURLSatAmount,
+  //   maxLNURLSatAmount,
+  // ]);
 
-  const isBitcoinAmountValid = useMemo(() => {
-    if (paymentInfo?.type !== InputTypes.BITCOIN_ADDRESS) return true;
-    return convertedSendAmount >= SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT;
-  }, [paymentInfo?.type, convertedSendAmount]);
+  // const isBitcoinAmountValid = useMemo(() => {
+  //   if (paymentInfo?.type !== InputTypes.BITCOIN_ADDRESS) return true;
+  //   return convertedSendAmount >= SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT;
+  // }, [paymentInfo?.type, convertedSendAmount]);
 
-  const showNoSwapAvailableForBitcoinError = useMemo(() => {
-    if (paymentInfo?.type !== InputTypes.BITCOIN_ADDRESS) return false;
+  // const showNoSwapAvailableForBitcoinError = useMemo(() => {
+  //   if (paymentInfo?.type !== InputTypes.BITCOIN_ADDRESS) return false;
 
-    return (
-      dollarBalanceSat >= convertedSendAmount &&
-      bitcoinBalance < convertedSendAmount
-    );
-  }, [
-    paymentInfo?.type,
-    convertedSendAmount,
-    dollarBalanceSat,
-    bitcoinBalance,
-  ]);
+  //   return (
+  //     dollarBalanceSat >= convertedSendAmount &&
+  //     bitcoinBalance < convertedSendAmount
+  //   );
+  // }, [
+  //   paymentInfo?.type,
+  //   convertedSendAmount,
+  //   dollarBalanceSat,
+  //   bitcoinBalance,
+  // ]);
 
-  const isLRC20Valid = useMemo(() => {
-    if (!isLRC20Payment) return true;
-    return (
-      // sparkInformation.balance >= 10 &&
-      seletctedToken?.balance >=
-      paymentInfo?.sendAmount * 10 ** seletctedToken?.tokenMetadata?.decimals
-    );
-  }, [isLRC20Payment, sparkInformation?.balance, seletctedToken, paymentInfo]);
+  // const isLRC20Valid = useMemo(() => {
+  //   if (!isLRC20Payment) return true;
+  //   return (
+  //     // sparkInformation.balance >= 10 &&
+  //     seletctedToken?.balance >=
+  //     paymentInfo?.sendAmount * 10 ** seletctedToken?.tokenMetadata?.decimals
+  //   );
+  // }, [isLRC20Payment, sparkInformation?.balance, seletctedToken, paymentInfo]);
 
-  const isBalanceFragmentationIssue = useMemo(() => {
-    const hasSufficientTotalBalance =
-      bitcoinBalance + dollarBalanceSat > convertedSendAmount;
+  // const isBalanceFragmentationIssue = useMemo(() => {
+  //   const hasSufficientTotalBalance =
+  //     bitcoinBalance + dollarBalanceSat > convertedSendAmount;
 
-    return hasSufficientTotalBalance && !hasSufficientBalance;
-  }, [
-    bitcoinBalance,
-    dollarBalanceSat,
-    convertedSendAmount,
-    selectedPaymentMethod,
-    hasSufficientBalance,
-  ]);
+  //   return hasSufficientTotalBalance && !hasSufficientBalance;
+  // }, [
+  //   bitcoinBalance,
+  //   dollarBalanceSat,
+  //   convertedSendAmount,
+  //   selectedPaymentMethod,
+  //   hasSufficientBalance,
+  // ]);
 
   // const buttonOpacity = useMemo(() => {
   //   return canSendPayment &&
@@ -153,152 +156,158 @@ export default function AcceptButtonSendPage({
   //   });
   // };
 
-  const handleBitcoinAmountError = () => {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: t('wallet.sendPages.acceptButton.onchainError', {
-        amount: displayCorrectDenomination({
-          amount: SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
-          fiatStats,
-          masterInfoObject,
-        }),
-      }),
-    });
-  };
+  // const handleBitcoinAmountError = () => {
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage: t('wallet.sendPages.acceptButton.onchainError', {
+  //       amount: displayCorrectDenomination({
+  //         amount: SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
+  //         fiatStats,
+  //         masterInfoObject,
+  //       }),
+  //     }),
+  //   });
+  // };
 
-  const handleShowNoSwapAvailableForBitcoinError = () => {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: t(
-        'wallet.sendPages.acceptButton.noSwapForBTCPaymentsError',
-      ),
-    });
-  };
+  // const handleShowNoSwapAvailableForBitcoinError = () => {
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage: t(
+  //       'wallet.sendPages.acceptButton.noSwapForBTCPaymentsError',
+  //     ),
+  //   });
+  // };
 
-  const handleBalanceFragmentationError = () => {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: t(
-        'wallet.sendPages.acceptButton.balanceFragmentationError',
-        {
-          amount: displayCorrectDenomination({
-            amount:
-              selectedPaymentMethod === 'BTC'
-                ? min_usd_swap_amount
-                : swapLimits.bitcoin,
-            masterInfoObject,
-            fiatStats,
-          }),
-        },
-      ),
-    });
-  };
+  // const handleBalanceFragmentationError = () => {
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage: t(
+  //       'wallet.sendPages.acceptButton.balanceFragmentationError',
+  //       {
+  //         amount: displayCorrectDenomination({
+  //           amount:
+  //             selectedPaymentMethod === 'BTC'
+  //               ? min_usd_swap_amount
+  //               : swapLimits.bitcoin,
+  //           masterInfoObject,
+  //           fiatStats,
+  //         }),
+  //       },
+  //     ),
+  //   });
+  // };
 
-  const handleLNURLPayError = () => {
-    const isMinError = convertedSendAmount < minLNURLSatAmount;
-    const errorAmount = isMinError ? minLNURLSatAmount : maxLNURLSatAmount;
+  // const handleLNURLPayError = () => {
+  //   const isMinError = convertedSendAmount < minLNURLSatAmount;
+  //   const errorAmount = isMinError ? minLNURLSatAmount : maxLNURLSatAmount;
 
-    navigate.navigate('ErrorScreen', {
-      errorMessage: t('wallet.sendPages.acceptButton.lnurlPayError', {
-        overFlowType: isMinError
-          ? t('constants.minimum')
-          : t('constants.maximum'),
-        amount: displayCorrectDenomination({
-          amount: errorAmount,
-          fiatStats,
-          masterInfoObject,
-        }),
-      }),
-    });
-  };
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage: t('wallet.sendPages.acceptButton.lnurlPayError', {
+  //       overFlowType: isMinError
+  //         ? t('constants.minimum')
+  //         : t('constants.maximum'),
+  //       amount: displayCorrectDenomination({
+  //         amount: errorAmount,
+  //         fiatStats,
+  //         masterInfoObject,
+  //       }),
+  //     }),
+  //   });
+  // };
 
-  const handleLRC20Error = () => {
-    navigate.navigate('ErrorScreen', {
-      errorMessage:
-        sparkInformation.balance >= 10
-          ? t('wallet.sendPages.acceptButton.balanceError')
-          : t('wallet.sendPages.acceptButton.lrc20FeeError', {
-              amount: displayCorrectDenomination({
-                amount: 10,
-                masterInfoObject,
-                fiatStats,
-              }),
-              balance: displayCorrectDenomination({
-                amount: sparkInformation.balance,
-                masterInfoObject,
-                fiatStats,
-              }),
-            }),
-    });
-  };
+  // const handleLRC20Error = () => {
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage:
+  //       sparkInformation.balance >= 10
+  //         ? t('wallet.sendPages.acceptButton.balanceError')
+  //         : t('wallet.sendPages.acceptButton.lrc20FeeError', {
+  //             amount: displayCorrectDenomination({
+  //               amount: 10,
+  //               masterInfoObject,
+  //               fiatStats,
+  //             }),
+  //             balance: displayCorrectDenomination({
+  //               amount: sparkInformation.balance,
+  //               masterInfoObject,
+  //               fiatStats,
+  //             }),
+  //           }),
+  //   });
+  // };
 
-  const handleInsufficientBalanceError = () => {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: t('wallet.sendPages.acceptButton.balanceError'),
-    });
-  };
+  // const handleInsufficientBalanceError = () => {
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage: t('wallet.sendPages.acceptButton.balanceError'),
+  //   });
+  // };
 
-  const handleNoSendAmountError = () => {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: t('wallet.sendPages.acceptButton.noSendAmountError'),
-    });
-  };
+  // const handleNoSendAmountError = () => {
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage: t('wallet.sendPages.acceptButton.noSendAmountError'),
+  //   });
+  // };
 
-  const validatePaymentAmount = () => {
-    if (!paymentInfo?.sendAmount) {
-      handleNoSendAmountError();
-      return false;
-    }
+  // const validatePaymentAmount = () => {
+  //   if (!paymentInfo?.sendAmount) {
+  //     handleNoSendAmountError();
+  //     return false;
+  //   }
 
-    // if (!isLiquidAmountValid) {
-    //   handleLiquidAmountError();
-    //   return false;
-    // }
+  //   // if (!isLiquidAmountValid) {
+  //   //   handleLiquidAmountError();
+  //   //   return false;
+  //   // }
 
-    if (!isBitcoinAmountValid) {
-      handleBitcoinAmountError();
-      return false;
-    }
+  //   if (!isBitcoinAmountValid) {
+  //     handleBitcoinAmountError();
+  //     return false;
+  //   }
 
-    if (showNoSwapAvailableForBitcoinError) {
-      handleShowNoSwapAvailableForBitcoinError();
-      return false;
-    }
+  //   if (showNoSwapAvailableForBitcoinError) {
+  //     handleShowNoSwapAvailableForBitcoinError();
+  //     return false;
+  //   }
 
-    if (paymentInfo?.type === InputTypes.LNURL_PAY && !isLNURLAmountValid) {
-      handleLNURLPayError();
-      return false;
-    }
+  //   if (paymentInfo?.type === InputTypes.LNURL_PAY && !isLNURLAmountValid) {
+  //     handleLNURLPayError();
+  //     return false;
+  //   }
 
-    if (!isLRC20Valid) {
-      handleLRC20Error();
-      return false;
-    }
+  //   if (!isLRC20Valid) {
+  //     handleLRC20Error();
+  //     return false;
+  //   }
 
-    if (selectedPaymentMethod === 'user-choice') {
-      navigate.navigate('CustomHalfModal', {
-        wantedContent: 'SelectPaymentMethod',
-        convertedSendAmount,
-      });
-      return false;
-    }
+  //   if (selectedPaymentMethod === 'user-choice') {
+  //     navigate.navigate('CustomHalfModal', {
+  //       wantedContent: 'SelectPaymentMethod',
+  //       convertedSendAmount,
+  //     });
+  //     return false;
+  //   }
 
-    if (isBalanceFragmentationIssue) {
-      handleBalanceFragmentationError();
-      return false;
-    }
+  //   if (isBalanceFragmentationIssue) {
+  //     handleBalanceFragmentationError();
+  //     return false;
+  //   }
 
-    if (!canSendPayment && !!paymentInfo?.sendAmount) {
-      handleInsufficientBalanceError();
-      return false;
-    }
+  //   if (!canSendPayment && !!paymentInfo?.sendAmount) {
+  //     handleInsufficientBalanceError();
+  //     return false;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
   const handleEnterSendAmount = async () => {
-    if (!validatePaymentAmount()) {
+    if (!paymentValidation.isValid) {
+      const errorMessage = paymentValidation.getErrorMessage(
+        paymentValidation.primaryError,
+      );
+
+      navigate.navigate('ErrorScreen', { errorMessage });
       return;
     }
 
     setIsGeneratingInvoice(true);
+    setDidSelectPaymentMethod(true);
 
     try {
       await decodeSendAddress({
@@ -331,7 +340,7 @@ export default function AcceptButtonSendPage({
         t,
         sendWebViewRequest,
         globalContactsInformation,
-        usablePaymentMethod: selectedPaymentMethod,
+        usablePaymentMethod: selectedPaymentMethod || 'BTC',
         bitcoinBalance,
         dollarBalanceSat,
         convertedSendAmount: convertedSendAmount,
@@ -353,9 +362,10 @@ export default function AcceptButtonSendPage({
       height: useAltLayout ? 50 : 'unset',
       flexShrink: useAltLayout ? 1 : 0,
       width: useAltLayout ? '100%' : 'auto',
+      opacity: paymentValidation.isValid ? 1 : HIDDEN_OPACITY,
       ...CENTER,
     };
-  }, [useAltLayout]);
+  }, [useAltLayout, paymentValidation]);
 
   return (
     <CustomButton
