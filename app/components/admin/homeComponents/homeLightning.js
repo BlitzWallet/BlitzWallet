@@ -9,7 +9,7 @@ import { UserSatAmount } from './homeLightning/userSatAmount';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import { NavBar } from './navBar';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useUpdateHomepageTransactions } from '../../../hooks/updateHomepageTransactions';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -51,7 +51,7 @@ const MemoizedUserSatAmount = memo(UserSatAmount);
 const MemoizedSendRecieveBTNs = memo(SendRecieveBTNs);
 const MemoizedLRC20Assets = memo(LRC20Assets);
 
-export default function HomeLightning() {
+export default function HomeLightning({ navigation }) {
   const {
     sparkInformation,
     showTokensInformation,
@@ -70,6 +70,7 @@ export default function HomeLightning() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage } =
     useAppStatus();
+  const scrollViewRef = useRef(null);
   const { topPadding, bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
@@ -125,6 +126,19 @@ export default function HomeLightning() {
       toggleDidGetToHomepage(true);
     }, 250);
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!navigation) return;
+      const listenerID = navigation?.addListener('tabPress', () => {
+        if (scrollViewRef.current) {
+          scrollViewRef.current.scrollTo({ y: 0, animated: true });
+        }
+      });
+
+      return navigation?.removeListener?.('click', listenerID);
+    }, [navigation]),
+  );
 
   const handleStateUpdate = useCallback(
     newObj => {
@@ -344,6 +358,7 @@ export default function HomeLightning() {
       {enabledLRC20 && <View style={topPaddingForLRC20PageMemeStyles} />}
 
       <Animated.ScrollView
+        ref={scrollViewRef}
         refreshControl={refreshControl}
         onScroll={onScroll}
         scrollEventThrottle={16}
