@@ -1,10 +1,10 @@
-import {StyleSheet, TextInput, View} from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import ThemeText from '../textTheme';
-import {useCallback, useState} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import GetThemeColors from '../../../hooks/themeColors';
 import CustomToggleSwitch from '../switch';
-import {COLORS, FONT, SIZES} from '../../../constants';
-import {useGlobalThemeContext} from '../../../../context-store/theme';
+import { COLORS, FONT, SIZES } from '../../../constants';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
 
 export default function TextInputWithSliderSettingsItem({
   sliderTitle = '',
@@ -16,12 +16,47 @@ export default function TextInputWithSliderSettingsItem({
   switchStateValue,
   switchPage,
 }) {
-  const {theme} = useGlobalThemeContext();
+  const { theme } = useGlobalThemeContext();
   const [inputValue, setInputValue] = useState(undefined);
-  const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
+  const [isFocused, setIsFocused] = useState(false);
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+
   const resetInputValue = useCallback(() => {
     setInputValue(String(defaultTextInputValue));
   }, [defaultTextInputValue]);
+
+  const handleEndEditing = useCallback(() => {
+    if (!inputValue) {
+      resetInputValue();
+      return;
+    }
+    if (inputValue == defaultTextInputValue) {
+      resetInputValue();
+      return;
+    }
+    if (!handleSubmit) {
+      resetInputValue();
+      return;
+    }
+    handleSubmit(inputValue, resetInputValue);
+  }, [inputValue, defaultTextInputValue, handleSubmit, resetInputValue]);
+
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        if (isFocused) {
+          handleEndEditing();
+          setIsFocused(false);
+        }
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, [isFocused, handleEndEditing]);
+
   return (
     <View
       style={[
@@ -29,9 +64,11 @@ export default function TextInputWithSliderSettingsItem({
         {
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
         },
-      ]}>
+      ]}
+    >
       <View
-        style={[styles.sliderContianer, {borderBottomColor: backgroundColor}]}>
+        style={[styles.sliderContianer, { borderBottomColor: backgroundColor }]}
+      >
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.titleStyle}
@@ -43,7 +80,7 @@ export default function TextInputWithSliderSettingsItem({
           stateValue={switchStateValue}
         />
       </View>
-      <View style={[styles.sliderContianer, {borderBottomWidth: 0}]}>
+      <View style={[styles.sliderContianer, { borderBottomWidth: 0 }]}>
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.titleStyle}
@@ -55,22 +92,10 @@ export default function TextInputWithSliderSettingsItem({
           defaultValue={String(defaultTextInputValue)}
           onChangeText={setInputValue}
           keyboardType="number-pad"
-          onEndEditing={() => {
-            if (!inputValue) {
-              resetInputValue();
-              return;
-            }
-            if (inputValue == defaultTextInputValue) {
-              resetInputValue();
-              return;
-            }
-            if (!handleSubmit) {
-              resetInputValue();
-              return;
-            }
-            handleSubmit(inputValue, resetInputValue);
-          }}
-          style={[styles.textInput, {backgroundColor, color: textColor}]}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onEndEditing={handleEndEditing}
+          style={[styles.textInput, { backgroundColor, color: textColor }]}
         />
       </View>
       <View style={styles.textContainer}>
@@ -89,7 +114,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     justifyContent: 'center',
   },
-  titleStyle: {includeFontPadding: false, flex: 1, marginRight: 5},
+  titleStyle: { includeFontPadding: false, flex: 1, marginRight: 5 },
   sliderContianer: {
     flexDirection: 'row',
     alignItems: 'center',
