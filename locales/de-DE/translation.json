@@ -912,12 +912,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Rechnungsdetails werden vorbereitet",
-        "alreadyPaidInvoiceError": "Sie haben diese Rechnung bereits bezahlt",
+        "alreadyPaidInvoiceError": "Diese Rechnung wurde bereits bezahlt.",
         "descriptionPlaceholder": "Zahlungsbeschreibung...",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung",
         "connectToSparkMessage": "Verbindung zu deiner Wallet wird hergestellt.",
         "switchTokenText": "Anderen Token verwenden",
-        "zeroAmountInvoiceDollarPayments": "Rechnungen mit Betrag null werden für Dollar-zu-Bitcoin-Zahlungen nicht unterstützt."
+        "zeroAmountInvoiceDollarPayments": "Rechnungen mit Betrag null können nicht mit USD bezahlt werden. Bitte verwende BTC.",
+        "decodingPayment": "Zahlungsinformationen werden dekodiert...",
+        "selectPaymentMethod": "Bitte wähle eine Zahlungsmethode aus, um fortzufahren."
+      },
+      "selectPaymentMethod": {
+        "header": "Bitte wähle aus, wie du deine Zahlung finanzieren möchtest."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adressen sollten nur Text enthalten. Bitte überprüfen Sie und versuchen Sie es erneut.",
@@ -931,14 +936,14 @@
         "lnurlAuthStartMeessage": "LNURL-Authentifizierung wird gestartet",
         "lnurlFailedAuthMessage": "LNURL-Authentifizierung fehlgeschlagen",
         "lnurlConfirmMessage": "LNURL erfolgreich authentifiziert",
-        "lnurlPayInvoiceError": "Rechnung konnte nicht von LNURL abgerufen werden, bitte versuchen Sie es erneut.",
+        "lnurlPayInvoiceError": "Fehler beim Erstellen der Rechnung für die LNURL-Zahlung. Bitte versuche es erneut.",
         "lnurlWithdrawlStart": "Rechnung für Auszahlung wird generiert",
         "lnurlWithdrawlInvoiceError": "Rechnung für LNURL-Auszahlung konnte nicht generiert werden",
         "waitingForLnurlWithdrawl": "Warten auf Zahlung...",
         "lnurlWithdrawlSuccess": "Auszahlung erfolgreich! Ihre Zahlung ist unterwegs.",
         "invoiceDetails": "Details werden geladen",
         "timeoutError": "Der Vorgang hat zu lange gedauert. Bitte versuchen Sie es erneut.",
-        "payingToSameAddress": "Das Senden an deine eigene {{addressType}}-Adresse ist nicht erlaubt."
+        "payingToSameAddress": "Du kannst keine {{addressType}}-Zahlung an dich selbst senden."
       },
       "errorScreen": {
         "ok": "OK",
@@ -959,14 +964,15 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Bitte geben Sie einen Sendebetrag ein",
-        "noSwapForBTCPaymentsError": "Nicht genügend Bitcoin vorhanden. Du hast zwar genug Dollar, aber On-Chain-Zahlungen müssen in Bitcoin gesendet werden. Bitte tausche deine Dollar auf der Swap-Seite in Bitcoin.",
-        "balanceFragmentationError": "Deine USD- und Bitcoin-Guthaben sind jeweils zu niedrig, und der Mindesttauschbetrag beträgt {{amount}}. Bitte nutze den manuellen Tausch, um deine Guthaben zusammenzuführen.",
-        "liquidError": "{{overFlowType}} Sendebetrag {{amount}}",
-        "onchainError": "Mindest-On-Chain-Sendebetrag ist {{amount}}",
-        "lnurlPayError": "{{overFlowType}} Sendebetrag {{amount}}",
-        "lrc20FeeError": "Sie benötigen {{amount}}, um Token zu senden. Ihr Guthaben beträgt {{balance}}. Bitte empfangen Sie zuerst etwas Bitcoin.",
-        "balanceError": "Nicht genügend Guthaben, um den Sendebetrag und die Gebühren zu decken"
+        "noSendAmountError": "Bitte gib einen Betrag zum Senden ein.",
+        "noSwapForBTCPaymentsError": "Bitcoin-On-Chain-Zahlungen können nur mit BTC bezahlt werden, nicht mit USD. Swaps sind für On-Chain-Zahlungen nicht verfügbar.",
+        "balanceFragmentationError": "Dein Guthaben ist auf BTC und USD aufgeteilt. Um diese Zahlung abzuschließen, konsolidiere deine Mittel oder passe die Zahlungsmethode an.",
+        "liquidError": "{{overFlowType}} Liquid-Zahlungsbetrag beträgt {{amount}}",
+        "onchainError": "Bitcoin-On-Chain-Zahlungen erfordern einen Mindestbetrag von {{amount}}",
+        "lnurlPayError": "Der Zahlungsbetrag muss zwischen dem {{overFlowType}} von {{amount}} liegen",
+        "lrc20FeeError": "Du benötigst mindestens {{amount}}, um die Transaktionsgebühr zu bezahlen. Aktuelles Guthaben: {{balance}}",
+        "balanceError": "Unzureichendes Guthaben, um diese Zahlung abzuschließen",
+        "swapMinimumError": "{{currency1}}-zu-{{currency2}}-Swaps erfordern einen Mindestbetrag von {{amount}}"
       }
     },
     "switchOption": {

@@ -907,12 +907,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Préparation des détails de la facture",
-        "alreadyPaidInvoiceError": "Vous avez déjà payé cette facture",
+        "alreadyPaidInvoiceError": "Cette facture a déjà été payée.",
         "descriptionPlaceholder": "Description du paiement...",
         "fallbackErrorMessage": "Erreur de décodage de la facture",
         "connectToSparkMessage": "Connexion à votre portefeuille.",
         "switchTokenText": "Utiliser un autre jeton",
-        "zeroAmountInvoiceDollarPayments": "Les factures à montant zéro ne sont pas prises en charge pour les paiements de dollars vers Bitcoin."
+        "zeroAmountInvoiceDollarPayments": "Les factures à montant zéro ne peuvent pas être payées en USD. Veuillez utiliser BTC.",
+        "decodingPayment": "Décodage des informations de paiement...",
+        "selectPaymentMethod": "Veuillez sélectionner un mode de paiement pour continuer."
+      },
+      "selectPaymentMethod": {
+        "header": "Veuillez sélectionner comment vous souhaitez financer votre paiement."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Les adresses ne doivent contenir que du texte. Veuillez vérifier et réessayer.",
@@ -926,14 +931,14 @@
         "lnurlAuthStartMeessage": "Démarrage de l'authentification LNURL",
         "lnurlFailedAuthMessage": "Échec de l'authentification de LNURL",
         "lnurlConfirmMessage": "LNURL authentifié avec succès",
-        "lnurlPayInvoiceError": "Impossible de récupérer la facture de LNURL, veuillez réessayer.",
+        "lnurlPayInvoiceError": "Impossible de générer la facture pour le paiement LNURL. Veuillez réessayer.",
         "lnurlWithdrawlStart": "Générer une facture pour le retrait",
         "lnurlWithdrawlInvoiceError": "Impossible de générer une facture pour le retrait de lnurl",
         "waitingForLnurlWithdrawl": "En attente de paiement...",
         "lnurlWithdrawlSuccess": "Retrait réussi ! Votre paiement est en cours d'acheminement.",
         "invoiceDetails": "Détails du chargement",
         "timeoutError": "Le processus a pris trop de temps pour se terminer. Veuillez réessayer.",
-        "payingToSameAddress": "L'envoi à votre propre adresse {{addressType}} n'est pas autorisé."
+        "payingToSameAddress": "Vous ne pouvez pas envoyer un paiement {{addressType}} à vous-même."
       },
       "errorScreen": {
         "ok": "OK",
@@ -954,14 +959,15 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Veuillez saisir un montant d'envoi",
-        "noSwapForBTCPaymentsError": "Pas assez de Bitcoin. Vous avez suffisamment de dollars, mais les paiements on-chain doivent être envoyés en Bitcoin. Veuillez échanger vos dollars en Bitcoin sur la page d’échange.",
-        "balanceFragmentationError": "Vos soldes en USD et en Bitcoin sont individuellement trop faibles, et l’échange minimum est de {{amount}}. Veuillez utiliser l’échange manuel pour regrouper vos fonds.",
-        "liquidError": "{{overFlowType}} envoyer le montant {{amount}}",
-        "onchainError": "Le paiement minimum à une adresse bitcoin est de {{amount}}",
-        "lnurlPayError": "{{overFlowType}} envoyer le montant {{amount}}",
-        "lrc20FeeError": "Vous avez besoin de {{amount}} pour envoyer des jetons. Votre solde est de {{balance}}. Veuillez d'abord recevoir des bitcoins.",
-        "balanceError": "Pas assez de fonds pour couvrir le montant de l'envoi et les frais"
+        "noSendAmountError": "Veuillez saisir un montant à envoyer.",
+        "noSwapForBTCPaymentsError": "Les paiements Bitcoin on-chain ne peuvent être effectués qu’en BTC, pas en USD. Les swaps ne sont pas disponibles pour les paiements on-chain.",
+        "balanceFragmentationError": "Votre solde est réparti entre BTC et USD. Pour finaliser ce paiement, consolidez vos fonds ou ajustez le mode de paiement.",
+        "liquidError": "Le montant du paiement Liquid {{overFlowType}} est de {{amount}}",
+        "onchainError": "Les paiements Bitcoin on-chain nécessitent un minimum de {{amount}}",
+        "lnurlPayError": "Le montant du paiement doit être compris dans le {{overFlowType}} de {{amount}}",
+        "lrc20FeeError": "Vous avez besoin d’au moins {{amount}} pour payer les frais de transaction. Solde actuel : {{balance}}",
+        "balanceError": "Solde insuffisant pour finaliser ce paiement",
+        "swapMinimumError": "Les swaps {{currency1}} vers {{currency2}} nécessitent un minimum de {{amount}}"
       }
     },
     "switchOption": {

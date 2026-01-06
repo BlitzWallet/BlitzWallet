@@ -919,12 +919,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparing invoice details",
-        "alreadyPaidInvoiceError": "You have already paid this invoice",
+        "alreadyPaidInvoiceError": "This invoice has already been paid",
         "descriptionPlaceholder": "Payment description...",
         "fallbackErrorMessage": "Error decoding invoice",
         "connectToSparkMessage": "Connecting to your wallet.",
         "switchTokenText": "Use Different Token",
-        "zeroAmountInvoiceDollarPayments": "Zero-amount invoices are not supported for Dollar to Bitcoin payments."
+        "zeroAmountInvoiceDollarPayments": "Zero amount invoices cannot be paid with USD. Please use BTC.",
+        "decodingPayment": "Decoding payment information...",
+        "selectPaymentMethod": "Please select a payment method to continue"
+      },
+      "selectPaymentMethod": {
+        "header": "Please select how you’d like to fund your payment."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Invalid format: Addresses should be text only. Please check and try again.",
@@ -938,14 +943,14 @@
         "lnurlAuthStartMeessage": "Starting LNURL auth",
         "lnurlFailedAuthMessage": "Failed to authenticate LNURL",
         "lnurlConfirmMessage": "LNURL successfully authenticated",
-        "lnurlPayInvoiceError": "Unable to retrieve invoice from LNURL. Please try again.",
+        "lnurlPayInvoiceError": "Failed to generate invoice for LNURL payment. Please try again.",
         "lnurlWithdrawlStart": "Generating invoice for withdrawal",
         "lnurlWithdrawlInvoiceError": "Unable to generate invoice for LNURL withdrawal",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
         "invoiceDetails": "Loading details",
         "timeoutError": "The process took too long to complete. Please try again.",
-        "payingToSameAddress": "Sending to your own {{addressType}} address is not allowed."
+        "payingToSameAddress": "You cannot send a {{addressType}} payment to yourself"
       },
 
       "errorScreen": {
@@ -968,14 +973,15 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Please enter a send amount",
-        "noSwapForBTCPaymentsError": "Not enough Bitcoin. You have enough dollars, but on-chain payments must be sent in Bitcoin. Please swap your dollars to Bitcoin on the swap page.",
-        "balanceFragmentationError": "Your USD and Bitcoin balances are too low individually, and the minimum swap is {{amount}}. Please use the manual swap to combine your funds.",
-        "liquidError": "{{overFlowType}} send amount {{amount}}",
-        "onchainError": "Minimum payment to a Bitcoin address is {{amount}}",
-        "lnurlPayError": "{{overFlowType}} send amount {{amount}}",
-        "lrc20FeeError": "You need {{amount}} to send tokens. Your balance is {{balance}}. Please receive some Bitcoin first.",
-        "balanceError": "Not enough funds to cover sending amount and fees"
+        "noSendAmountError": "Please enter an amount to send",
+        "noSwapForBTCPaymentsError": "Bitcoin on-chain payments can only be paid with BTC, not USD. Swaps are not available for on-chain payments.",
+        "balanceFragmentationError": "Your balance is split between BTC and USD. To complete this payment, consolidate your funds or adjust the payment method.",
+        "liquidError": "{{overFlowType}} liquid payment amount is {{amount}}",
+        "onchainError": "Bitcoin on-chain payments require a minimum of {{amount}}",
+        "lnurlPayError": "Payment amount must be between the {{overFlowType}} of {{amount}}",
+        "lrc20FeeError": "You need at least {{amount}} to pay the transaction fee. Current balance: {{balance}}",
+        "balanceError": "Insufficient balance to complete this payment",
+        "swapMinimumError": "{{currency1}} to {{currency2}} swaps require a minimum of {{amount}}"
       }
     },
     "switchOption": {

@@ -919,12 +919,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparazione dei dettagli della fattura",
-        "alreadyPaidInvoiceError": "Hai già pagato questa fattura",
+        "alreadyPaidInvoiceError": "Questa fattura è già stata pagata.",
         "descriptionPlaceholder": "Descrizione pagamento...",
         "fallbackErrorMessage": "Errore nel decodificare la fattura",
         "connectToSparkMessage": "Connessione al tuo portafoglio.",
         "switchTokenText": "Usa un token diverso",
-        "zeroAmountInvoiceDollarPayments": "Le fatture con importo zero non sono supportate per i pagamenti da dollari a Bitcoin."
+        "zeroAmountInvoiceDollarPayments": "Le fatture con importo zero non possono essere pagate in USD. Usa BTC.",
+        "decodingPayment": "Decodifica delle informazioni di pagamento...",
+        "selectPaymentMethod": "Seleziona un metodo di pagamento per continuare."
+      },
+      "selectPaymentMethod": {
+        "header": "Seleziona come desideri finanziare il pagamento."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Gli indirizzi devono essere solo testo. Controlla e riprova.",
@@ -938,14 +943,14 @@
         "lnurlAuthStartMeessage": "Avvio autenticazione LNURL",
         "lnurlFailedAuthMessage": "Autenticazione LNURL fallita",
         "lnurlConfirmMessage": "LNURL autenticato con successo",
-        "lnurlPayInvoiceError": "Impossibile recuperare la fattura da LNURL, riprova.",
+        "lnurlPayInvoiceError": "Impossibile generare la fattura per il pagamento LNURL. Riprova.",
         "lnurlWithdrawlStart": "Generazione fattura per prelievo",
         "lnurlWithdrawlInvoiceError": "Impossibile generare fattura per prelievo LNURL",
         "waitingForLnurlWithdrawl": "In attesa di pagamento...",
         "LnurlwithDrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo.",
         "invoiceDetails": "Caricamento dei dettagli",
         "timeoutError": "Il processo ha richiesto troppo tempo. Riprova.",
-        "payingToSameAddress": "Non è consentito inviare al proprio indirizzo {{addressType}}."
+        "payingToSameAddress": "Non puoi inviare un pagamento {{addressType}} a te stesso."
       },
 
       "errorScreen": {
@@ -968,14 +973,15 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Inserisci un importo da inviare",
-        "noSwapForBTCPaymentsError": "Bitcoin insufficienti. Hai abbastanza dollari, ma i pagamenti on-chain devono essere inviati in Bitcoin. Per favore, converti i tuoi dollari in Bitcoin nella pagina di swap.",
-        "balanceFragmentationError": "I tuoi saldi in USD e Bitcoin sono troppo bassi singolarmente e lo swap minimo è di {{amount}}. Utilizza lo swap manuale per unire i tuoi fondi.",
-        "liquidError": "Importo invio {{overFlowType}} {{amount}}",
-        "onchainError": "L'importo minimo da inviare on-chain è {{amount}}",
-        "lnurlPayError": "Importo invio {{overFlowType}} {{amount}}",
-        "lrc20FeeError": "Ti servono {{amount}} per inviare token. Il tuo saldo è {{balance}}. Ricevi prima qualche Bitcoin.",
-        "balanceError": "Fondi insufficienti per coprire importo da inviare e commissioni"
+        "noSendAmountError": "Inserisci un importo da inviare.",
+        "noSwapForBTCPaymentsError": "I pagamenti Bitcoin on-chain possono essere effettuati solo in BTC, non in USD. Gli swap non sono disponibili per i pagamenti on-chain.",
+        "balanceFragmentationError": "Il tuo saldo è diviso tra BTC e USD. Per completare il pagamento, consolida i fondi o modifica il metodo di pagamento.",
+        "liquidError": "L’importo del pagamento Liquid {{overFlowType}} è {{amount}}",
+        "onchainError": "I pagamenti Bitcoin on-chain richiedono un minimo di {{amount}}",
+        "lnurlPayError": "L’importo del pagamento deve rientrare nel {{overFlowType}} di {{amount}}",
+        "lrc20FeeError": "Hai bisogno di almeno {{amount}} per pagare la commissione di transazione. Saldo attuale: {{balance}}",
+        "balanceError": "Saldo insufficiente per completare questo pagamento",
+        "swapMinimumError": "Gli swap da {{currency1}} a {{currency2}} richiedono un minimo di {{amount}}"
       }
     },
     "switchOption": {

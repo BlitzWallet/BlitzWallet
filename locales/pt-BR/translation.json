@@ -917,12 +917,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparando detalhes da fatura",
-        "alreadyPaidInvoiceError": "Você já pagou esta fatura",
+        "alreadyPaidInvoiceError": "Esta fatura já foi paga.",
         "descriptionPlaceholder": "Descrição do pagamento...",
         "fallbackErrorMessage": "Erro ao decodificar a fatura",
         "connectToSparkMessage": "Conectando à sua carteira.",
         "switchTokenText": "Usar um token diferente",
-        "zeroAmountInvoiceDollarPayments": "Faturas com valor zero não são suportadas para pagamentos de dólares para Bitcoin."
+        "zeroAmountInvoiceDollarPayments": "Faturas com valor zero não podem ser pagas em USD. Use BTC.",
+        "decodingPayment": "Decodificando informações de pagamento...",
+        "selectPaymentMethod": "Selecione um método de pagamento para continuar."
+      },
+      "selectPaymentMethod": {
+        "header": "Selecione como deseja financiar seu pagamento."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
@@ -936,14 +941,14 @@
         "lnurlAuthStartMeessage": "Iniciando autenticação LNURL",
         "lnurlFailedAuthMessage": "Falha ao autenticar LNURL",
         "lnurlConfirmMessage": "LNURL autenticado com sucesso",
-        "lnurlPayInvoiceError": "Não foi possível recuperar os dados da fatura a partir do LNURL, tente novamente.",
+        "lnurlPayInvoiceError": "Falha ao gerar a fatura para pagamento LNURL. Tente novamente.",
         "lnurlWithdrawlStart": "Gerando fatura para saque",
         "lnurlWithdrawlInvoiceError": "Não foi possível gerar a fatura para retirada a partir do lnurl",
         "waitingForLnurlWithdrawl": "Aguardando pagamento...",
         "lnurlWithdrawlSuccess": "Saque realizado com sucesso! Seu pagamento está a caminho.",
         "invoiceDetails": "Carregando detalhes",
         "timeoutError": "O processo demorou muito para ser concluído. Tente novamente.",
-        "payingToSameAddress": "Não é permitido enviar para o seu próprio endereço {{addressType}}."
+        "payingToSameAddress": "Você não pode enviar um pagamento {{addressType}} para si mesmo."
       },
 
       "errorScreen": {
@@ -966,14 +971,15 @@
         "sendMaxShort": "Máx"
       },
       "acceptButton": {
-        "noSendAmountError": "Por favor, insira uma quantia para envio",
-        "noSwapForBTCPaymentsError": "Bitcoin insuficiente. Você tem dólares suficientes, mas pagamentos on-chain devem ser enviados em Bitcoin. Por favor, troque seus dólares por Bitcoin na página de swap.",
-        "balanceFragmentationError": "Seus saldos em USD e Bitcoin são individualmente muito baixos, e o valor mínimo de troca é {{amount}}. Use a troca manual para combinar seus fundos.",
-        "liquidError": " A quantia {{overFlowType}} para envio é {{amount}}",
-        "onchainError": "A quantia mínima de envio para um endereço bitcoin é {{amount}}",
-        "lnurlPayError": "A quantia {{overFlowType}} para envio é {{amount}}",
-        "lrc20FeeError": "Você precisa {{amount}} para enviar tokens. Seu saldo é {{balance}}. Por favor, deposite alguns Bitcoins primeiro.",
-        "balanceError": "Fundos insuficientes para cobrir o valor de envio e as taxas"
+        "noSendAmountError": "Informe um valor para enviar.",
+        "noSwapForBTCPaymentsError": "Pagamentos on-chain de Bitcoin só podem ser feitos com BTC, não USD. Swaps não estão disponíveis para pagamentos on-chain.",
+        "balanceFragmentationError": "Seu saldo está dividido entre BTC e USD. Para concluir este pagamento, consolide seus fundos ou ajuste o método de pagamento.",
+        "liquidError": "O valor do pagamento Liquid {{overFlowType}} é {{amount}}",
+        "onchainError": "Pagamentos on-chain de Bitcoin exigem um mínimo de {{amount}}",
+        "lnurlPayError": "O valor do pagamento deve estar dentro do {{overFlowType}} de {{amount}}",
+        "lrc20FeeError": "Você precisa de pelo menos {{amount}} para pagar a taxa da transação. Saldo atual: {{balance}}",
+        "balanceError": "Saldo insuficiente para concluir este pagamento",
+        "swapMinimumError": "Swaps de {{currency1}} para {{currency2}} exigem um mínimo de {{amount}}"
       }
     },
     "switchOption": {

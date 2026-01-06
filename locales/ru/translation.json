@@ -907,12 +907,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Подготовка деталей счета-фактуры",
-        "alreadyPaidInvoiceError": "Вы уже оплатили этот счет",
+        "alreadyPaidInvoiceError": "Этот счёт уже был оплачен.",
         "descriptionPlaceholder": "Описание оплаты...",
         "fallbackErrorMessage": "Ошибка декодирования счета",
         "connectToSparkMessage": "Подключение к вашему кошельку.",
         "switchTokenText": "Используйте другой токен",
-        "zeroAmountInvoiceDollarPayments": "Счета с нулевой суммой не поддерживаются для платежей из долларов в биткоины."
+        "zeroAmountInvoiceDollarPayments": "Счета с нулевой суммой нельзя оплачивать в USD. Используйте BTC.",
+        "decodingPayment": "Декодирование платёжной информации...",
+        "selectPaymentMethod": "Пожалуйста, выберите способ оплаты, чтобы продолжить."
+      },
+      "selectPaymentMethod": {
+        "header": "Пожалуйста, выберите, как вы хотите профинансировать платёж."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Адреса должны быть только текстовыми. Пожалуйста, проверьте и попробуйте еще раз.",
@@ -926,14 +931,14 @@
         "lnurlAuthStartMeessage": "Запуск аутентификации LNURL",
         "lnurlFailedAuthMessage": "Не удалось пройти аутентификацию LNURL",
         "lnurlConfirmMessage": "LNURL успешно аутентифицирован",
-        "lnurlPayInvoiceError": "Невозможно получить счет-фактуру из LNURL, попробуйте еще раз.",
+        "lnurlPayInvoiceError": "Не удалось создать счёт для LNURL-платежа. Повторите попытку.",
         "lnurlWithdrawlStart": "Формирование счета за снятие денег",
         "lnurlWithdrawlInvoiceError": "Невозможно создать счет-фактуру для вывода средств из lnurl",
         "waitingForLnurlWithdrawl": "Жду оплаты...",
         "lnurlWithdrawlSuccess": "Вывод средств прошел успешно! Ваш платеж уже в пути.",
         "invoiceDetails": "Детали загрузки",
         "timeoutError": "Процесс занял слишком много времени. Пожалуйста, попробуйте еще раз.",
-        "payingToSameAddress": "Отправка на собственный адрес {{addressType}} запрещена."
+        "payingToSameAddress": "Вы не можете отправить платёж {{addressType}} самому себе."
       },
       "errorScreen": {
         "ok": "OK",
@@ -954,14 +959,15 @@
         "sendMaxShort": "Макс"
       },
       "acceptButton": {
-        "noSendAmountError": "Пожалуйста, введите сумму отправки",
-        "noSwapForBTCPaymentsError": "Недостаточно биткоинов. У вас достаточно долларов, но ончейн-платежи должны отправляться в биткоинах. Пожалуйста, обменяйте доллары на биткоины на странице обмена.",
-        "balanceFragmentationError": "Ваши балансы в USD и биткоинах по отдельности слишком малы, а минимальная сумма обмена составляет {{amount}}. Пожалуйста, используйте ручной обмен, чтобы объединить средства.",
-        "liquidError": "{{overFlowType}} отправить сумму {{amount}}",
-        "onchainError": "Минимальный платеж на биткойн-адрес составляет {{amount}}",
-        "lnurlPayError": "{{overFlowType}} отправить сумму {{amount}}",
-        "lrc20FeeError": "Вам нужно {{amount}}, чтобы отправить токены. Ваш баланс составляет {{balance}}. Пожалуйста, сначала получите немного биткойнов.",
-        "balanceError": "Недостаточно средств для покрытия суммы пересылки и сборов"
+        "noSendAmountError": "Пожалуйста, введите сумму для отправки.",
+        "noSwapForBTCPaymentsError": "On-chain-платежи Bitcoin могут быть оплачены только в BTC, а не в USD. Свопы недоступны для on-chain-платежей.",
+        "balanceFragmentationError": "Ваш баланс разделён между BTC и USD. Чтобы завершить платёж, объедините средства или измените способ оплаты.",
+        "liquidError": "Сумма Liquid-платежа {{overFlowType}} составляет {{amount}}",
+        "onchainError": "On-chain-платежи Bitcoin требуют минимальной суммы {{amount}}",
+        "lnurlPayError": "Сумма платежа должна находиться в пределах {{overFlowType}} {{amount}}",
+        "lrc20FeeError": "Для оплаты комиссии требуется минимум {{amount}}. Текущий баланс: {{balance}}",
+        "balanceError": "Недостаточно средств для завершения платежа",
+        "swapMinimumError": "Свопы {{currency1}} в {{currency2}} требуют минимальной суммы {{amount}}"
       }
     },
     "switchOption": {

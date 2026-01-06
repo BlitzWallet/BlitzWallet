@@ -907,12 +907,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Förbereda fakturauppgifter",
-        "alreadyPaidInvoiceError": "Du har redan betalat den här fakturan",
+        "alreadyPaidInvoiceError": "Den här fakturan har redan betalats.",
         "descriptionPlaceholder": "Betalningsbeskrivning...",
         "fallbackErrorMessage": "Felavkodning av faktura",
         "connectToSparkMessage": "Ansluta till din plånbok.",
         "switchTokenText": "Använd en annan symbol",
-        "zeroAmountInvoiceDollarPayments": "Fakturor med nollbelopp stöds inte för betalningar från dollar till Bitcoin."
+        "zeroAmountInvoiceDollarPayments": "Fakturor med nollbelopp kan inte betalas med USD. Använd BTC.",
+        "decodingPayment": "Avkodar betalningsinformation...",
+        "selectPaymentMethod": "Välj en betalningsmetod för att fortsätta."
+      },
+      "selectPaymentMethod": {
+        "header": "Välj hur du vill finansiera din betalning."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adresser ska endast vara text. Vänligen kontrollera och försök igen.",
@@ -926,14 +931,14 @@
         "lnurlAuthStartMeessage": "Starta LNURL auth",
         "lnurlFailedAuthMessage": "Misslyckades med att autentisera LNURL",
         "lnurlConfirmMessage": "LNURL framgångsrikt autentiserad",
-        "lnurlPayInvoiceError": "Det gick inte att hämta fakturan från LNURL, vänligen försök igen.",
+        "lnurlPayInvoiceError": "Misslyckades med att skapa faktura för LNURL-betalning. Försök igen.",
         "lnurlWithdrawlStart": "Generera faktura för uttag",
         "lnurlWithdrawlInvoiceError": "Det går inte att generera faktura för lnurl-uttag",
         "waitingForLnurlWithdrawl": "Väntar på betalning...",
         "lnurlWithdrawlSuccess": "Uttag framgångsrikt! Din betalning är på väg.",
         "invoiceDetails": "Detaljer om lastning",
         "timeoutError": "Processen tog för lång tid att slutföra. Vänligen försök igen.",
-        "payingToSameAddress": "Det är inte tillåtet att skicka till din egen {{addressType}} -adress."
+        "payingToSameAddress": "Du kan inte skicka en {{addressType}}-betalning till dig själv."
       },
       "errorScreen": {
         "ok": "OK",
@@ -954,14 +959,15 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Vänligen ange ett sändningsbelopp",
-        "noSwapForBTCPaymentsError": "Inte tillräckligt med Bitcoin. Du har tillräckligt med dollar, men on-chain-betalningar måste skickas i Bitcoin. Vänligen växla dina dollar till Bitcoin på växlingssidan.",
-        "balanceFragmentationError": "Dina USD- och Bitcoin-saldon är var för sig för låga, och minsta växlingsbelopp är {{amount}}. Använd manuell växling för att slå ihop dina medel.",
-        "liquidError": "{{overFlowType}} skicka belopp {{amount}}",
-        "onchainError": "Minsta betalning till en bitcoin-adress är {{amount}}",
-        "lnurlPayError": "{{overFlowType}} skicka belopp {{amount}}",
-        "lrc20FeeError": "Du behöver {{amount}} för att skicka tokens. Ditt saldo är {{balance}}. Vänligen ta emot lite Bitcoin först.",
-        "balanceError": "Inte tillräckligt med medel för att täcka sändningsbelopp och avgifter"
+        "noSendAmountError": "Ange ett belopp att skicka.",
+        "noSwapForBTCPaymentsError": "Bitcoin on-chain-betalningar kan endast betalas med BTC, inte USD. Swaps är inte tillgängliga för on-chain-betalningar.",
+        "balanceFragmentationError": "Ditt saldo är uppdelat mellan BTC och USD. För att slutföra betalningen, slå ihop dina medel eller justera betalningsmetoden.",
+        "liquidError": "Beloppet för Liquid-betalning {{overFlowType}} är {{amount}}",
+        "onchainError": "Bitcoin on-chain-betalningar kräver ett minimum på {{amount}}",
+        "lnurlPayError": "Betalningsbeloppet måste ligga inom {{overFlowType}} på {{amount}}",
+        "lrc20FeeError": "Du behöver minst {{amount}} för att betala transaktionsavgiften. Nuvarande saldo: {{balance}}",
+        "balanceError": "Otillräckligt saldo för att slutföra betalningen",
+        "swapMinimumError": "Swaps från {{currency1}} till {{currency2}} kräver ett minimum på {{amount}}"
       }
     },
     "switchOption": {
