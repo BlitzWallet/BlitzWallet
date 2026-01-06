@@ -18,7 +18,7 @@ export default function displayCorrectDenomination({
     const localBalanceDenomination = masterInfoObject.userBalanceDenomination;
     const currencyText = forceCurrency
       ? forceCurrency
-      : fiatStats?.coin || 'USD';
+      : masterInfoObject.fiatCurrency || 'USD';
 
     if (useCustomLabel) {
       const formattedBalance = formatBalanceAmount(

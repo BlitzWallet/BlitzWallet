@@ -18,7 +18,6 @@ import formatBalanceAmount from '../formatNumber';
 import ThemeText from './textTheme';
 import { formatCurrency } from '../formatCurrency';
 import { useMemo, useState } from 'react';
-import { useNodeContext } from '../../../context-store/nodeContext';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { HIDDEN_OPACITY } from '../../constants/theme';
 
@@ -37,8 +36,8 @@ export default function FormattedBalanceInput({
   const [labelWidth, setLabelWidth] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const { masterInfoObject } = useGlobalContextProvider();
-  const { fiatStats } = useNodeContext();
-  const currencyText = fiatStats.coin || 'USD';
+
+  const currencyText = masterInfoObject.fiatCurrency || 'USD';
   const showSymbol = masterInfoObject.satDisplay != 'word';
 
   const currencyInfo = useMemo(
