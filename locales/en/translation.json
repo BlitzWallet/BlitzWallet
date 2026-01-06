@@ -1744,7 +1744,9 @@
           "header": "Enter gift link",
           "desc": "Paste the gift link you received or scan the QR code to claim your gift",
           "inputPlaceholder": "Enter gift link",
-          "claim": "Claim"
+          "claim": "Claim",
+          "noGiftLinkError": "We couldn’t find a gift link. Please scan or paste the link you received.",
+          "invliadGiftFormat": "Invalid gift link. Please copy the full link and try again."
         },
         "reclaimPage": {
           "header": "Reclaim your gift",

@@ -1743,7 +1743,9 @@
           "header": "Inserisci il link del regalo",
           "desc": "Incolla il link ricevuto o scansiona il QR per riscattare il regalo",
           "inputPlaceholder": "Inserisci il link del regalo",
-          "claim": "Riscatta"
+          "claim": "Riscatta",
+          "noGiftLinkError": "Impossibile trovare un link regalo. Scansiona o incolla il link ricevuto.",
+          "invliadGiftFormat": "Link regalo non valido. Copia il link completo e riprova."
         },
 
         "reclaimPage": {

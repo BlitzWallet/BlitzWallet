@@ -1708,7 +1708,9 @@
           "header": "Ange länk till gåvan",
           "desc": "Klistra in länken till gåvan du fick eller skanna QR-koden för att hämta din gåva",
           "inputPlaceholder": "Ange länk till gåvan",
-          "claim": "Anspråk"
+          "claim": "Anspråk",
+          "noGiftLinkError": "Vi kunde inte hitta någon presentlänk. Skanna eller klistra in länken du fick.",
+          "invliadGiftFormat": "Ogiltig presentlänk. Kopiera hela länken och försök igen."
         },
         "reclaimPage": {
           "header": "Återta din gåva",

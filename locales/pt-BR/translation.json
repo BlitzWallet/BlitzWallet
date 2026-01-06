@@ -1740,7 +1740,9 @@
           "header": "Insira o link do vale-bitcoin",
           "desc": "Cole o link recebido ou leia o código QR para resgatar o valor",
           "inputPlaceholder": "Insira o link do vale-bitcoin",
-          "claim": "Resgatar"
+          "claim": "Resgatar",
+          "noGiftLinkError": "Não foi possível encontrar um link de presente. Escaneie ou cole o link que você recebeu.",
+          "invliadGiftFormat": "Link de presente inválido. Copie o link completo e tente novamente."
         },
 
         "reclaimPage": {

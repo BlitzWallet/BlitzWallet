@@ -1570,7 +1570,9 @@
           "header": "Ingresa el enlace del regalo",
           "desc": "Pega el enlace que recibiste o escanea el código QR para reclamar tu regalo",
           "inputPlaceholder": "Ingresa el enlace del regalo",
-          "claim": "Reclamar"
+          "claim": "Reclamar",
+          "noGiftLinkError": "No pudimos encontrar un enlace de regalo. Escanea o pega el enlace que recibiste.",
+          "invliadGiftFormat": "Enlace de regalo no válido. Copia el enlace completo e inténtalo de nuevo."
         },
 
         "reclaimPage": {

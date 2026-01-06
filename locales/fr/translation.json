@@ -1708,7 +1708,9 @@
           "header": "Saisir le lien du cadeau",
           "desc": "Collez le lien du cadeau que vous avez reçu ou scannez le code QR pour réclamer votre cadeau.",
           "inputPlaceholder": "Saisir le lien du cadeau",
-          "claim": "Réclamation"
+          "claim": "Réclamation",
+          "noGiftLinkError": "Impossible de trouver un lien cadeau. Veuillez scanner ou coller le lien que vous avez reçu.",
+          "invliadGiftFormat": "Lien cadeau invalide. Veuillez copier le lien complet et réessayer."
         },
         "reclaimPage": {
           "header": "Récupérez votre don",

@@ -1724,7 +1724,9 @@
           "header": "Geschenklink eingeben",
           "desc": "Füge den erhaltenen Link ein oder scanne den QR-Code, um dein Geschenk einzulösen",
           "inputPlaceholder": "Geschenklink eingeben",
-          "claim": "Einlösen"
+          "claim": "Einlösen",
+          "noGiftLinkError": "Wir konnten keinen Geschenkl-Link finden. Bitte scanne oder füge den erhaltenen Link ein.",
+          "invliadGiftFormat": "Ungültiger Geschenkl-Link. Bitte kopiere den vollständigen Link und versuche es erneut."
         },
 
         "reclaimPage": {
