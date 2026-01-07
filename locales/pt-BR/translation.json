@@ -974,7 +974,7 @@
         "noSendAmountError": "Informe um valor para enviar.",
         "noSwapForBTCPaymentsError": "Pagamentos on-chain de Bitcoin só podem ser feitos com BTC, não USD. Swaps não estão disponíveis para pagamentos on-chain.",
         "balanceFragmentationError": "Seu saldo está dividido entre BTC e USD. Para concluir este pagamento, consolide seus fundos ou ajuste o método de pagamento.",
-        "liquidError": "O valor do pagamento Liquid {{overFlowType}} é {{amount}}",
+        "liquidError": "A quantia {{overFlowType}} para envio é {{amount}}",
         "onchainError": "Pagamentos on-chain de Bitcoin exigem um mínimo de {{amount}}",
         "lnurlPayError": "O valor do pagamento deve estar dentro do {{overFlowType}} de {{amount}}",
         "lrc20FeeError": "Você precisa de pelo menos {{amount}} para pagar a taxa da transação. Saldo atual: {{balance}}",
