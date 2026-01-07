@@ -9,7 +9,11 @@ import {
   setPrivacyEnabled,
 } from './spark';
 import handleBalanceCache from './spark/handleBalanceCache';
-import { cleanStalePendingSparkLightningTransactions } from './spark/transactions';
+import {
+  cleanStalePendingSparkLightningTransactions,
+  SPARK_TX_UPDATE_ENVENT_NAME,
+  sparkTransactionsEventEmitter,
+} from './spark/transactions';
 
 export async function initWallet({
   setSparkInformation,
@@ -127,61 +131,68 @@ export async function initializeSparkSession({
     //   );
     // }
 
-    let didLoadCorrectBalance = false;
-    let runCount = 0;
-    let maxRunCount = 2;
-    let initialBalanceResponse = balance;
-    let correctBalance = 0;
+    // check to see if the balance returnd by spark matched our saved balance
+    const response = await handleBalanceCache({
+      isCheck: true,
+      passedBalance: Number(balance.balance),
+      mnemonic,
+    });
+    console.log(response, 'cached balance resposne');
 
-    while (runCount < maxRunCount && !didLoadCorrectBalance) {
-      runCount += 1;
-      let currentBalance = 0;
-
-      if (runCount === 1) {
-        currentBalance = Number(initialBalanceResponse.balance);
-      } else {
-        const retryResponse = await getSparkBalance(
-          mnemonic,
-          sendWebViewRequest,
-        );
-        currentBalance = Number(retryResponse.balance);
-      }
-
-      const response = await handleBalanceCache({
-        isCheck: true,
-        passedBalance: currentBalance,
-        mnemonic,
-      });
-
-      if (response.didWork) {
-        correctBalance = response.balance;
-        didLoadCorrectBalance = true;
-      } else {
-        console.log('Waiting for correct balance resposne');
-        await new Promise(res => setTimeout(res, 2000));
-      }
+    // cached balance is not the same as spark returend balance
+    if (!response.didWork) {
+      sparkTransactionsEventEmitter.emit(
+        SPARK_TX_UPDATE_ENVENT_NAME,
+        'fullUpdate-waitBalance',
+      );
     }
 
-    const finalBalanceToUse = didLoadCorrectBalance
-      ? correctBalance
-      : Number(initialBalanceResponse.balance);
-    console.log(
-      didLoadCorrectBalance,
-      runCount,
-      initialBalanceResponse,
-      correctBalance,
-      finalBalanceToUse,
-      'balancasldfkjasdlfkjasdf',
-    );
-    if (!didLoadCorrectBalance) {
-      await handleBalanceCache({
-        isCheck: false,
-        passedBalance: finalBalanceToUse,
-        mnemonic,
-      });
-    }
+    // let didLoadCorrectBalance = false;
+    // let runCount = 0;
+    // let maxRunCount = 2;
+    // let initialBalanceResponse = balance;
+    // let correctBalance = 0;
+
+    // while (runCount < maxRunCount && !didLoadCorrectBalance) {
+    //   runCount += 1;
+    //   let currentBalance = 0;
+
+    //   if (runCount === 1) {
+    //     currentBalance = Number(initialBalanceResponse.balance);
+    //   } else {
+    //     const retryResponse = await getSparkBalance(
+    //       mnemonic,
+    //       sendWebViewRequest,
+    //     );
+    //     currentBalance = Number(retryResponse.balance);
+    //   }
+
+    //   const response = await handleBalanceCache({
+    //     isCheck: true,
+    //     passedBalance: currentBalance,
+    //     mnemonic,
+    //   });
+
+    //   if (response.didWork) {
+    //     correctBalance = response.balance;
+    //     didLoadCorrectBalance = true;
+    //   } else {
+    //     console.log('Waiting for correct balance resposne');
+    //     await new Promise(res => setTimeout(res, 2000));
+    //   }
+    // }
+
+    // const finalBalanceToUse = Number(balance.balance);
+
+    // if (!didLoadCorrectBalance) {
+    //   await handleBalanceCache({
+    //     isCheck: false,
+    //     passedBalance: finalBalanceToUse,
+    //     mnemonic,
+    //   });
+    // }
     const storageObject = {
-      balance: finalBalanceToUse,
+      balance: Number(balance.balance),
       tokens: balance.tokensObj,
       identityPubKey,
       sparkAddress: sparkAddress.response,
