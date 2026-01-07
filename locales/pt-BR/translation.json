@@ -1846,7 +1846,7 @@
         "swapDirection_btcusd": "BTC → USD",
         "paymentDescription_outgoing": "{{swapDirection}}",
         "paymentDescription_incoming": "{{swapDirection}}",
-        "yourAreConverting": "Você está convertendo",
+        "yourAreConverting": "Você está enviando",
         "youWillReceive": "Você receberá",
         "bitcoinPrice": "Preço do Bitcoin",
         "swapFee": "Taxa",
