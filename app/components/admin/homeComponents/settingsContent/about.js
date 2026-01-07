@@ -50,7 +50,7 @@ export default function AboutPage() {
         <ThemeText content={t('settings.about.text4')} />
       </Text>
       <ThemeText
-        content={'Blitz Wallet'}
+        content={t('settings.about.blitzWallet')}
         styles={{ ...styles.sectionHeader }}
       />
       <ThemeText

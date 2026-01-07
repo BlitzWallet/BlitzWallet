@@ -1261,7 +1261,9 @@ export default function SwapsPage() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={'Convert'} />
+      <CustomSettingsTopBar
+        label={t('screens.inAccount.swapsPage.convertHead')}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -1500,7 +1502,9 @@ export default function SwapsPage() {
 
               <ThemeText
                 styles={{ fontSize: SIZES.smedium, marginBottom: 5 }}
-                content={'% to convert'}
+                content={t(
+                  'screens.inAccount.swapsPage.percentConvertSelector',
+                )}
               />
               <View style={styles.quickButtons}>
                 <TouchableOpacity

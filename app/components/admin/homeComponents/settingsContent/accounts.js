@@ -104,7 +104,11 @@ const AccountRow = React.memo(
                 <View>
                   <ThemeText
                     styles={[styles.accountText, isActive && styles.activeText]}
-                    content={account.name}
+                    content={
+                      account.name === 'Main Wallet'
+                        ? t('settings.accounts.mainWalletPlace')
+                        : account.name
+                    }
                   />
                   {isActive && (
                     <ThemeText
