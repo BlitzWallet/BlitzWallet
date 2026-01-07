@@ -1854,7 +1854,7 @@
         "minBTCError": "O valor mínimo de BTC é {{min}}. Aumente o valor para continuar.",
         "minUSDError": "O valor mínimo de USD é {{min}}. Aumente o valor para continuar.",
         "simulationError": "Não foi possível calcular esta troca no momento. Tente novamente.",
-        "swapInProgressError": "Um swap já está em andamento. Aguarde.",
+        "swapInProgressError": "Uma troca já está em andamento. Aguarde.",
         "insufficientBalance": "O valor é maior que o saldo disponível. Insira um valor menor.",
         "simulationInProgress": "Aguarde, o swap ainda está sendo calculado."
       }
