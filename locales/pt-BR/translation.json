@@ -1178,7 +1178,8 @@
       "showTechnicals": "Mostrar detalhes técnicos",
       "hideTechnicals": "Ocultar detalhes técnicos",
       "backendHash": "Hash de backend",
-      "expectedHash": "Hash esperado"
+      "expectedHash": "Hash esperado",
+      "blitzWallet": "Blitz Wallet"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1269,7 +1270,8 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Buscar conta existente"
+      "inputPlaceholder": "Buscar conta existente",
+      "mainWalletPlace": "Carteira Blitz"
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1856,7 +1858,9 @@
         "simulationError": "Não foi possível calcular esta troca no momento. Tente novamente.",
         "swapInProgressError": "Uma troca já está em andamento. Aguarde.",
         "insufficientBalance": "O valor é maior que o saldo disponível. Insira um valor menor.",
-        "simulationInProgress": "Aguarde, a troca ainda está sendo calculada."
+        "simulationInProgress": "Aguarde, a troca ainda está sendo calculada.",
+        "convertHead": "Converter",
+        "percentConvertSelector": "% para converter"
       }
     }
   },

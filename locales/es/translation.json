@@ -1020,7 +1020,8 @@
       "showTechnicals": "Mostrar detalles técnicos",
       "hideTechnicals": "Ocultar detalles técnicos",
       "backendHash": "Hash del backend",
-      "expectedHash": "Hash esperado"
+      "expectedHash": "Hash esperado",
+      "blitzWallet": "Blitz Wallet"
     },
     "displayOptions": {
       "appearance": "Apariencia",
@@ -1107,7 +1108,8 @@
       "descriptionText": "Los datos de fallos nos ayudan a mejorar la estabilidad y el rendimiento de nuestra aplicación.\n\nCuando ocurre un fallo, la información del dispositivo registrada automáticamente incluye:\n\n• Sistema operativo: versión del SO, orientación del dispositivo y estado de jailbreak\n• Detalles del dispositivo: modelo, orientación y RAM disponible\n• Información del fallo: fecha del fallo y versión de la aplicación"
     },
     "accounts": {
-      "inputPlaceholder": "Buscar cuenta existente"
+      "inputPlaceholder": "Buscar cuenta existente",
+      "mainWalletPlace": "Billetera principal"
     },
     "resetWallet": {
       "header": "¿Estás seguro?",
@@ -1685,7 +1687,9 @@
         "simulationError": "No pudimos calcular este swap en este momento. Inténtalo de nuevo.",
         "swapInProgressError": "Ya hay un swap en progreso. Por favor, espera.",
         "insufficientBalance": "El monto es mayor que tu saldo disponible. Ingresa un monto menor.",
-        "simulationInProgress": "Por favor espera, el swap aún se está calculando."
+        "simulationInProgress": "Por favor espera, el swap aún se está calculando.",
+        "convertHead": "Convertir",
+        "percentConvertSelector": "% a convertir"
       }
     }
   },

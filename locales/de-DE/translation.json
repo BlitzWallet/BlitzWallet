@@ -1166,7 +1166,8 @@
       "showTechnicals": "Technische Details anzeigen",
       "hideTechnicals": "Technische Details ausblenden",
       "backendHash": "Backend-Hash",
-      "expectedHash": "Erwarteter Hash"
+      "expectedHash": "Erwarteter Hash",
+      "blitzWallet": "Blitz Wallet"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1256,7 +1257,8 @@
       "descriptionText": "Absturzdaten helfen uns, die Stabilität und Leistung unserer Anwendung zu verbessern.\n\nWenn ein Absturz auftritt, werden automatisch folgende Geräteinformationen aufgezeichnet:\n\n• Betriebssystem: OS-Version, Geräteausrichtung und Jailbreak-Status\n• Gerätedetails: Modell, Ausrichtung und verfügbarer RAM\n• Absturzinformationen: Datum des Absturzes und App-Version"
     },
     "accounts": {
-      "inputPlaceholder": "Kontoname"
+      "inputPlaceholder": "Kontoname",
+      "mainWalletPlace": "Haupt-Wallet"
     },
     "resetWallet": {
       "header": "Sind Sie sicher?",
@@ -1839,7 +1841,9 @@
         "simulationError": "Dieser Swap kann derzeit nicht berechnet werden. Bitte versuche es erneut.",
         "swapInProgressError": "Ein Swap wird bereits durchgeführt. Bitte warte.",
         "insufficientBalance": "Der Betrag übersteigt dein verfügbares Guthaben. Bitte gib einen kleineren Betrag ein.",
-        "simulationInProgress": "Bitte warten, der Swap wird noch berechnet."
+        "simulationInProgress": "Bitte warten, der Swap wird noch berechnet.",
+        "convertHead": "Umwandeln",
+        "percentConvertSelector": "% zum Umwandeln"
       }
     }
   },
