@@ -31,6 +31,8 @@ const GIFT_DEEPLINK_REGEX =
 const CONTACT_UNIVERSAL_LINK_REGEX =
   /^https?:\/\/(blitzwalletapp\.com|blitzwallet\.app|blitz-wallet\.com)\/u\/[A-Za-z0-9_-]+\/?$/;
 
+const FLASHNET_ERROR_CODE_REGEX = /\bFSAG-\d{4}(?:T\d+)?\b/;
+
 const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
 const NOSTR_RELAY_URL = 'wss://relay.getalbypro.com/blitz';
 
@@ -39,6 +41,7 @@ const BITCOIN_SATS_ICON = '\u20BF';
 const HIDDEN_BALANCE_TEXT = `E`;
 const BITCOIN_SAT_TEXT = 'SAT';
 const INFINITY_SYMBOL = '\u221E';
+const APPROXIMATE_SYMBOL = '≈';
 
 const ECASH_TX_STORAGE_KEY = 'CASHU_TRANSACTIONS';
 const AUTO_CHANNEL_REBALANCE_STORAGE_KEY = 'ACR_STORAGE_KEY';
@@ -109,6 +112,9 @@ const FORCE_RESET_SPAARK_STATE_MS = 6 * 60 * 1000;
 const DEFAULT_PAYMENT_EXPIRY_SEC = 60 * 60 * 12;
 
 const SCREEN_DIMENSIONS = Dimensions.get('screen');
+
+const USDB_TOKEN_ID =
+  'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87';
 
 export {
   COLORS,
@@ -186,4 +192,7 @@ export {
   BACKGROUND_THRESHOLD_MS,
   FORCE_RESET_SPAARK_STATE_MS,
   DEFAULT_PAYMENT_EXPIRY_SEC,
+  USDB_TOKEN_ID,
+  APPROXIMATE_SYMBOL,
+  FLASHNET_ERROR_CODE_REGEX,
 };

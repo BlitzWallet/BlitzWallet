@@ -3,8 +3,12 @@ import { SATSPERBITCOIN } from '../../../../../constants';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { getLNAddressForLiquidPayment } from './payments';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
-import { InputTypes } from 'bitcoin-address-parser';
+import { InputTypes, parseInput } from 'bitcoin-address-parser';
 import { getBolt11InvoiceForContact } from '../../../../../functions/contacts';
+import {
+  getLightningPaymentQuote,
+  USD_ASSET_ADDRESS,
+} from '../../../../../functions/spark/flashnet';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -19,6 +23,11 @@ export default async function processLNUrlPay(input, context) {
     fromPage,
     contactInfo,
     globalContactsInformation,
+    usablePaymentMethod,
+    bitcoinBalance,
+    dollarBalanceSat,
+    convertedSendAmount,
+    min_usd_swap_amount,
   } = context;
   crashlyticsLogReport('Beiging decode LNURL pay');
 
@@ -38,11 +47,19 @@ export default async function processLNUrlPay(input, context) {
     );
   }
 
-  const amountMsat = comingFromAccept
+  const enteredAmount = enteredPaymentInfo.amount
     ? enteredPaymentInfo.amount * 1000
-    : input.data.minSendable;
+    : convertedSendAmount * 1000;
+
+  const amountMsat =
+    comingFromAccept || paymentInfo.sendAmount
+      ? enteredAmount
+      : input.data.minSendable;
+
   const fiatValue =
     Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
+
+  let swapPaymentQuote = {};
   let paymentFee = 0;
   let supportFee = 0;
   let invoice = '';
@@ -56,7 +73,9 @@ export default async function processLNUrlPay(input, context) {
       const [tag, value] = item;
       if (tag === 'text/plain') return true;
     }) || [];
-  if (comingFromAccept) {
+
+  if (comingFromAccept || paymentInfo.sendAmount) {
+    // Generate invoice first (must be sequential with retries)
     let numberOfTries = 0;
     let maxRetries = 3;
     while (!invoice && numberOfTries < maxRetries) {
@@ -67,7 +86,7 @@ export default async function processLNUrlPay(input, context) {
         if (fromPage === 'contacts' && !contactInfo?.isLNURLPayment) {
           invoiceResponse = await getBolt11InvoiceForContact(
             contactInfo.uniqueName,
-            Number(enteredPaymentInfo.amount),
+            Number(enteredAmount / 1000),
             description,
             true,
             undefined,
@@ -76,7 +95,7 @@ export default async function processLNUrlPay(input, context) {
         } else {
           invoiceResponse = await getLNAddressForLiquidPayment(
             input,
-            Number(enteredPaymentInfo.amount),
+            Number(enteredAmount / 1000),
             description,
           );
         }
@@ -101,28 +120,91 @@ export default async function processLNUrlPay(input, context) {
       throw new Error(
         t('wallet.sendPages.handlingAddressErrors.lnurlPayInvoiceError'),
       );
-    if (paymentInfo.paymentFee && paymentInfo.supportFee) {
-      paymentFee = paymentInfo.paymentFee;
-      supportFee = paymentInfo.supportFee;
-    } else {
-      const fee = await sparkPaymenWrapper({
-        getFee: true,
-        address: invoice,
-        amountSats: Number(enteredPaymentInfo.amount),
-        paymentType: 'lightning',
-        masterInfoObject,
-        mnemonic: currentWalletMnemoinc,
-        sendWebViewRequest,
-      });
 
-      if (!fee.didWork) throw new Error(fee.error);
-      paymentFee = fee.fee;
-      supportFee = fee.supportFee;
+    // Now that we have the invoice, determine which fee estimates are needed
+    const needUsdFee =
+      (usablePaymentMethod === 'USD' ||
+        ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
+          dollarBalanceSat >= amountMsat / 1000)) &&
+      amountMsat / 1000 >= min_usd_swap_amount;
+    const needBtcFee =
+      usablePaymentMethod === 'BTC' ||
+      ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
+        bitcoinBalance >= amountMsat / 1000);
+
+    // Check if we have cached values
+    const hasUsdQuote =
+      typeof paymentInfo.swapPaymentQuote === 'object' &&
+      Object.keys(paymentInfo.swapPaymentQuote).length;
+    const hasBtcFee = !!paymentInfo.paymentFee;
+
+    // Build parallel operations
+    const promises = [];
+    let usdPromiseIndex = -1;
+    let btcPromiseIndex = -1;
+
+    if (needUsdFee && !hasUsdQuote) {
+      usdPromiseIndex = promises.length;
+      promises.push(
+        getLightningPaymentQuote(
+          currentWalletMnemoinc,
+          invoice,
+          USD_ASSET_ADDRESS,
+        ),
+      );
+    }
+
+    if (needBtcFee && !hasBtcFee) {
+      btcPromiseIndex = promises.length;
+      const decoded = await parseInput(invoice);
+      promises.push(
+        sparkPaymenWrapper({
+          getFee: true,
+          address: invoice,
+          amountSats: Number(enteredPaymentInfo.amount),
+          paymentType: !!decoded.data.usingSparkAddress ? 'spark' : 'lightning',
+          masterInfoObject,
+          mnemonic: currentWalletMnemoinc,
+          sendWebViewRequest,
+        }),
+      );
+    }
+
+    // Execute fee estimates in parallel
+    if (promises.length > 0) {
+      const results = await Promise.all(promises);
+
+      // Process USD quote result
+      if (usdPromiseIndex !== -1) {
+        const paymentQuote = results[usdPromiseIndex];
+        if (!paymentQuote.didWork) throw new Error(paymentQuote.error);
+        swapPaymentQuote = paymentQuote.quote;
+        paymentFee = paymentQuote.quote.fee;
+        supportFee = 0;
+      }
+
+      // Process BTC fee result
+      if (btcPromiseIndex !== -1) {
+        const fee = results[btcPromiseIndex];
+        if (!fee.didWork) throw new Error(fee.error);
+        paymentFee = fee.fee;
+        supportFee = fee.supportFee;
+      }
+    } else {
+      if (needUsdFee && hasUsdQuote) {
+        paymentFee = paymentInfo.swapPaymentQuote.fee;
+        supportFee = 0;
+        swapPaymentQuote = paymentInfo.swapPaymentQuote;
+      }
+      if (needBtcFee && hasBtcFee) {
+        paymentFee = paymentInfo.paymentFee;
+        supportFee = paymentInfo.supportFee;
+      }
     }
   }
 
   return {
-    data: comingFromAccept
+    data: enteredAmount
       ? {
           ...input.data,
           message: enteredPaymentInfo.description || defaultLNURLDescription[1],
@@ -131,15 +213,16 @@ export default async function processLNUrlPay(input, context) {
       : input.data,
     paymentFee,
     supportFee,
+    swapPaymentQuote: swapPaymentQuote,
     type: InputTypes.LNURL_PAY,
     paymentNetwork: 'lightning',
-    sendAmount: comingFromAccept
+    sendAmount: enteredAmount
       ? `${
           masterInfoObject.userBalanceDenomination != 'fiat'
             ? `${Math.round(amountMsat / 1000)}`
             : fiatValue
         }`
       : '',
-    canEditPayment: !comingFromAccept,
+    canEditPayment: !invoice,
   };
 }

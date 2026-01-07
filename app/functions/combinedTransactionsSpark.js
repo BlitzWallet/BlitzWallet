@@ -1,5 +1,6 @@
 import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
 import {
+  APPROXIMATE_SYMBOL,
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   CENTER,
   COLORS,
@@ -7,6 +8,7 @@ import {
   ICONS,
   SIZES,
   SKELETON_ANIMATION_SPEED,
+  USDB_TOKEN_ID,
 } from '../constants';
 import { ThemeText } from './CustomElements';
 import FormattedSatText from './CustomElements/satTextDisplay';
@@ -18,6 +20,8 @@ import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
 import { Image } from 'expo-image';
 import { getTimeDisplay } from './contacts';
+import { isFlashnetTransfer } from './spark/handleFlashnetTransferIds';
+import { satsToDollars } from './spark/flashnet';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -169,6 +173,8 @@ export default function getFormattedHomepageTxsForSpark(props) {
     // numberOfCachedTxs,
     didGetToHomepage,
     enabledLRC20,
+    scrollPosition,
+    poolInfoRef,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -230,18 +236,39 @@ export default function getFormattedHomepageTxsForSpark(props) {
       const isLRC20Payment = paymentDetails.isLRC20Payment;
       const hasSavedTokenData =
         sparkInformation.tokens?.[paymentDetails.LRC20Token];
+      const showSwapConversion =
+        paymentDetails.performSwaptoUSD && !paymentDetails.completedSwaptoUSD;
 
       // Early continue conditions
-      if (!enabledLRC20 && isLRC20Payment) continue;
-      if (isLRC20Payment && !hasSavedTokenData) continue;
       if (
-        paymentStatus === TRANSACTION_CONSTANTS.FAILED &&
-        paymentDetails.direction === TRANSACTION_CONSTANTS.INCOMING
+        !enabledLRC20 &&
+        isLRC20Payment &&
+        paymentDetails.LRC20Token !== USDB_TOKEN_ID
       )
         continue;
+      if (isLRC20Payment && !hasSavedTokenData) continue;
+      if (paymentStatus === TRANSACTION_CONSTANTS.FAILED) continue;
       if (
         transactionPaymentType === TRANSACTION_CONSTANTS.LIGHTNING &&
         currentTransaction.status === TRANSACTION_CONSTANTS.LIGHTNING_INITIATED
+      )
+        continue;
+      if (
+        frompage === TRANSACTION_CONSTANTS.HOME &&
+        isFlashnetTransfer(currentTransaction.sparkID)
+      )
+        continue;
+      if (
+        (scrollPosition === 'sats' && isLRC20Payment) ||
+        (scrollPosition === 'sats' && showSwapConversion)
+      )
+        continue;
+
+      if (
+        (scrollPosition === 'usd' &&
+          isLRC20Payment &&
+          paymentDetails.LRC20Token !== USDB_TOKEN_ID) ||
+        (scrollPosition === 'usd' && !isLRC20Payment && !showSwapConversion)
       )
         continue;
 
@@ -285,6 +312,8 @@ export default function getFormattedHomepageTxsForSpark(props) {
           isFailedPayment={isFailedPayment}
           sparkInformation={sparkInformation}
           isLRC20Payment={isLRC20Payment}
+          poolInfoRef={poolInfoRef}
+          showSwapConversion={showSwapConversion}
         />
       );
 
@@ -356,6 +385,8 @@ export const UserTransaction = memo(function UserTransaction({
   isFailedPayment,
   sparkInformation,
   isLRC20Payment,
+  poolInfoRef,
+  showSwapConversion,
 }) {
   const { t } = useTranslation();
 
@@ -441,7 +472,6 @@ export const UserTransaction = memo(function UserTransaction({
               : '90deg',
         },
       ],
-      marginLeft: -5,
     }),
     [
       showPendingTransactionStatusIcon,
@@ -515,25 +545,53 @@ export const UserTransaction = memo(function UserTransaction({
         />
       </View>
       {!isFailedPayment && (
-        <FormattedSatText
-          neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
-          containerStyles={styles.amountContainer}
-          frontText={
-            userBalanceDenomination !== 'hidden'
-              ? transaction.details.direction === TRANSACTION_CONSTANTS.INCOMING
-                ? '+'
-                : '-'
-              : ''
-          }
-          balance={
-            isLRC20Payment
-              ? formatTokensNumber(transaction.details.amount, token?.decimals)
-              : transaction.details.amount
-          }
-          useCustomLabel={isLRC20Payment}
-          customLabel={token?.tokenTicker?.slice(0, 3)}
-          useMillionDenomination={true}
-        />
+        <View>
+          {showSwapConversion ? (
+            <FormattedSatText
+              neverHideBalance={
+                frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+              }
+              containerStyles={styles.amountContainer}
+              frontText={APPROXIMATE_SYMBOL}
+              balance={
+                satsToDollars(
+                  transaction.details.amount,
+                  poolInfoRef.currentPriceAInB,
+                ) *
+                (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
+              }
+              useCustomLabel={true}
+              customLabel={'USD'}
+              useMillionDenomination={true}
+            />
+          ) : (
+            <FormattedSatText
+              neverHideBalance={
+                frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+              }
+              containerStyles={styles.amountContainer}
+              frontText={
+                userBalanceDenomination !== 'hidden'
+                  ? transaction.details.direction ===
+                    TRANSACTION_CONSTANTS.INCOMING
+                    ? '+'
+                    : '-'
+                  : ''
+              }
+              balance={
+                isLRC20Payment
+                  ? formatTokensNumber(
+                      transaction.details.amount,
+                      token?.decimals,
+                    )
+                  : transaction.details.amount
+              }
+              useCustomLabel={isLRC20Payment}
+              customLabel={token?.tokenTicker?.slice(0, 3)}
+              useMillionDenomination={true}
+            />
+          )}
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -551,6 +609,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginRight: 5,
+    marginLeft: -5,
     alignItems: 'center',
     justifyContent: 'center',
   },

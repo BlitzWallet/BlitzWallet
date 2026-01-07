@@ -20,7 +20,8 @@ export default function SparkErrorScreen(props) {
   const { accountMnemoinc } = useKeysContext();
   const { setSparkInformation } = useSparkWallet();
   const { showToast } = useToast();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
   const errorMessage = props.route.params.errorMessage;
@@ -67,7 +68,9 @@ export default function SparkErrorScreen(props) {
     }
   };
   return (
-    <View style={styles.globalContainer}>
+    <View
+      style={[styles.globalContainer, { backgroundColor: transparentOveraly }]}
+    >
       <View
         style={[
           styles.content,
@@ -119,7 +122,6 @@ export default function SparkErrorScreen(props) {
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -150,6 +150,8 @@ import rotateLeftBlue from '../assets/icons/rotate-left-blue.png';
 import giftCardIcon from '../assets/icons/giftCardIcon.png';
 import transferArrows from '../assets/icons/transferArrows.png';
 import transferArrowsWhite from '../assets/icons/transferArrowsWhite.png';
+import dollarIcon from '../assets/icons/dollarIcon.png';
+import bitcoinIcon from '../assets/icons/bitcoinIcon.png';
 
 export default {
   editIcon,
@@ -304,4 +306,6 @@ export default {
   giftCardIcon,
   transferArrows,
   transferArrowsWhite,
+  dollarIcon,
+  bitcoinIcon,
 };

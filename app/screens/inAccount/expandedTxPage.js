@@ -6,11 +6,12 @@ import {
   Platform,
 } from 'react-native';
 import {
+  APPROXIMATE_SYMBOL,
   CENTER,
   COLORS,
-  ICONS,
   SIZES,
   TOKEN_TICKER_MAX_LENGTH,
+  USDB_TOKEN_ID,
 } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -18,7 +19,6 @@ import Icon from '../../functions/CustomElements/Icon';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
-import ThemeImage from '../../functions/CustomElements/themeImage';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useSparkWallet } from '../../../context-store/sparkContext';
@@ -30,10 +30,7 @@ import { formatLocalTimeShort } from '../../functions/timeFormatter';
 import { useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
 import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
-import {
-  keyboardGoBack,
-  keyboardNavigate,
-} from '../../functions/customNavigation';
+import { keyboardNavigate } from '../../functions/customNavigation';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../context-store/context';
@@ -41,6 +38,8 @@ import ContactProfileImage from '../../components/admin/homeComponents/contacts/
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
+import { dollarsToSats } from '../../functions/spark/flashnet';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -67,7 +66,13 @@ export default function ExpandedTx(props) {
     );
   }, [decodedAddedContacts, sendingContactUUID]);
 
-  const transactionPaymentType = sendingContactUUID
+  const showConversionLine =
+    transaction?.details?.showSwapLabel &&
+    !!transaction?.details?.currentPriceAInB;
+
+  const transactionPaymentType = showConversionLine
+    ? t('constants.swap')
+    : sendingContactUUID
     ? t('screens.inAccount.expandedTxPage.contactPaymentType')
     : transaction.details.isGift
     ? t('constants.gift')
@@ -83,6 +88,8 @@ export default function ExpandedTx(props) {
   // const month = paymentDate.toLocaleString('default', { month: 'short' });
   // const day = paymentDate.getDate();
   // const year = paymentDate.getFullYear();
+
+  console.log(transaction);
 
   const handleSave = async memoText => {
     try {
@@ -288,16 +295,10 @@ export default function ExpandedTx(props) {
     <GlobalThemeView useStandardWidth={true} styles={styles.container}>
       <View style={styles.content}>
         {/* Header */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => keyboardGoBack(navigate)}
-        >
-          <ThemeImage
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-        </TouchableOpacity>
+        <CustomSettingsTopBar
+          containerStyles={{ marginBottom: 0 }}
+          shouldDismissKeyboard={true}
+        />
 
         <KeyboardAwareScrollView
           showsVerticalScrollIndicator={false}
@@ -350,11 +351,7 @@ export default function ExpandedTx(props) {
               containerStyles={styles.amountContainer}
               neverHideBalance={true}
               styles={styles.primaryAmount}
-              balance={
-                isLRC20Payment && formattedTokensBalance >= 1
-                  ? formattedTokensBalance
-                  : amount
-              }
+              balance={isLRC20Payment ? formattedTokensBalance : amount}
               useCustomLabel={isLRC20Payment}
               customLabel={selectedToken?.tokenMetadata?.tokenTicker}
               useMillionDenomination={true}
@@ -367,21 +364,6 @@ export default function ExpandedTx(props) {
                 neverHideBalance={true}
                 styles={styles.secondaryAmount}
                 balance={amount}
-              />
-            )}
-
-            {isLRC20Payment && formattedTokensBalance < 1 && (
-              <FormattedSatText
-                containerStyles={styles.secondaryAmountContainer}
-                neverHideBalance={true}
-                styles={styles.secondaryAmount}
-                balance={formatTokensNumber(
-                  transaction.details.amount,
-                  selectedToken?.tokenMetadata?.decimals,
-                )}
-                useCustomLabel={isLRC20Payment}
-                customLabel={selectedToken?.tokenMetadata?.tokenTicker}
-                useMillionDenomination={true}
               />
             )}
 
@@ -427,6 +409,30 @@ export default function ExpandedTx(props) {
               )}
 
               {renderLRC20TokenRow()}
+
+              {showConversionLine &&
+                renderInfoRow(
+                  t('constants.rate'),
+                  `${displayCorrectDenomination({
+                    amount: 1,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'fiat',
+                    },
+                    forceCurrency: 'USD',
+                    convertAmount: false,
+                  })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+                    amount: Number(
+                      dollarsToSats(1, transaction.details.currentPriceAInB),
+                    ).toFixed(0),
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'sats',
+                    },
+                    forceCurrency: 'USD',
+                  })}`,
+                  true,
+                )}
 
               {isPending &&
                 transaction.paymentType === 'bitcoin' &&

@@ -6,6 +6,7 @@ import { CENTER, ICONS, WEBSITE_REGEX } from '../../../../constants';
 import {
   COLORS,
   FONT,
+  HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../constants/theme';
@@ -24,8 +25,22 @@ export default function ClaimGiftHome({ theme }) {
   const { t } = useTranslation();
 
   const handleClaimGift = () => {
-    if (!enteredLink) return;
-    if (!WEBSITE_REGEX.test(enteredLink)) return;
+    if (!enteredLink) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t(
+          'screens.inAccount.giftPages.claimHome.noGiftLinkError',
+        ),
+      });
+      return;
+    }
+    if (!WEBSITE_REGEX.test(enteredLink)) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t(
+          'screens.inAccount.giftPages.claimHome.invliadGiftFormat',
+        ),
+      });
+      return;
+    }
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'ClaimGiftScreen',
       url: enteredLink,
@@ -136,6 +151,7 @@ export default function ClaimGiftHome({ theme }) {
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             marginBottom: bottomPadding + 80,
+            opacity: !enteredLink || WEBSITE_REGEX.test(enteredLink) ? 0.7 : 1,
           },
         ]}
       >

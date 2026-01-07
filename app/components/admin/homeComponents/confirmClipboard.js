@@ -5,27 +5,33 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {COLORS, FONT, SIZES} from '../../../constants';
-import {useNavigation} from '@react-navigation/native';
+import { COLORS, FONT, SIZES } from '../../../constants';
+import { useNavigation } from '@react-navigation/native';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import GetThemeColors from '../../../hooks/themeColors';
-import {ThemeText} from '../../../functions/CustomElements';
-import {useGlobalThemeContext} from '../../../../context-store/theme';
-import {useTranslation} from 'react-i18next';
+import { ThemeText } from '../../../functions/CustomElements';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 
 export default function ClipboardCopyPopup(props) {
   const didCopy = props.route.params.didCopy;
   const customText = props.route.params.customText;
   const navigate = useNavigation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundColor, backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
+  const { t } = useTranslation();
 
   useHandleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={navigate.goBack}>
-      <View style={styles.globalContainer}>
+      <View
+        style={[
+          styles.globalContainer,
+          { backgroundColor: transparentOveraly },
+        ]}
+      >
         <TouchableWithoutFeedback>
           <View
             style={[
@@ -33,7 +39,8 @@ export default function ClipboardCopyPopup(props) {
               {
                 backgroundColor: theme ? backgroundOffset : backgroundColor,
               },
-            ]}>
+            ]}
+          >
             <ThemeText
               styles={styles.headerText}
               content={
@@ -65,7 +72,6 @@ export default function ClipboardCopyPopup(props) {
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
     alignItems: 'center',
     justifyContent: 'center',
   },

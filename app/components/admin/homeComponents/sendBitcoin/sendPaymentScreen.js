@@ -4,8 +4,9 @@ import {
   ICONS,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
+  USDB_TOKEN_ID,
 } from '../../../../constants';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
   CustomKeyboardAvoidingView,
@@ -13,6 +14,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
+import usePaymentValidation from './functions/paymentValidation';
 import decodeSendAddress from './functions/decodeSendAdress';
 import { useNavigation } from '@react-navigation/native';
 // import {useWebView} from '../../../../../context-store/webViewContext';
@@ -42,6 +44,7 @@ import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
 import SelectLRC20Token from './components/selectLRC20Token';
+import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
@@ -61,8 +64,17 @@ import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { useKeysContext } from '../../../../../context-store/keys';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import CustomButton from '../../../../functions/CustomElements/button';
+import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import {
+  dollarsToSats,
+  satsToDollars,
+} from '../../../../functions/spark/flashnet';
+import convertTextInputValue from '../../../../functions/textInputConvertValue';
 
 export default function SendPaymentScreen(props) {
+  console.log('CONFIRM SEND PAYMENT SCREEN');
   const navigate = useNavigation();
   const {
     btcAdress,
@@ -73,13 +85,17 @@ export default function SendPaymentScreen(props) {
     errorMessage,
     contactInfo,
     masterTokenInfo = {},
+    selectedPaymentMethod = '',
   } = props.route.params;
 
   const paramsRef = useRef({
     btcAdress,
   });
 
+  const { poolInfoRef, swapLimits } = useFlashnet();
   const { t } = useTranslation();
+  const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
+    useUserBalanceContext();
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { screenDimensions } = useAppStatus();
@@ -88,6 +104,7 @@ export default function SendPaymentScreen(props) {
     useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
+
   const { globalContactsInformation } = useGlobalContacts();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
@@ -98,8 +115,16 @@ export default function SendPaymentScreen(props) {
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
   const progressAnimationRef = useRef(null);
   const hasTriggeredFastPay = useRef(false);
+  const convertedSendAmountRef = useRef(null);
+  const determinePaymentMethodRef = useRef(null);
 
+  const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
+  const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
+  const [inputDenomination, setInputDenomination] = useState(
+    masterInfoObject.userBalanceDenomination,
+  );
+  const inputDenominationRef = useRef(inputDenomination);
   const [paymentDescription, setPaymentDescription] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(
     sparkInformation.didConnect
@@ -109,14 +134,46 @@ export default function SendPaymentScreen(props) {
   const [refreshDecode, setRefreshDecode] = useState(0);
   const isSendingPayment = useRef(null);
 
+  // Payment type flags
+  const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
+  const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
+  const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
+  const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
+  const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
+
   const isBTCdenominated =
-    masterInfoObject.userBalanceDenomination === 'hidden' ||
-    masterInfoObject.userBalanceDenomination === 'sats';
+    inputDenomination === 'hidden' || inputDenomination === 'sats';
 
   const enabledLRC20 = showTokensInformation;
   const defaultToken = enabledLRC20
     ? masterInfoObject?.defaultSpendToken || 'Bitcoin'
     : 'Bitcoin';
+
+  const tokensObject = sparkInformation?.tokens ?? {};
+  const tokensList = useMemo(() => {
+    return Object.entries(tokensObject)
+      .filter(token => {
+        const [key, value] = token;
+        return !!value?.balance;
+      })
+      .map(item => item[0]);
+  }, [tokensObject]);
+
+  const useFullTokensDisplay =
+    (tokensList.length >= 2 ||
+      (tokensList.length === 1 && !tokensList.includes(USDB_TOKEN_ID))) &&
+    isSparkPayment &&
+    paymentInfo?.data?.expectedToken !== USDB_TOKEN_ID &&
+    !contactInfo;
+
+  const showSendMax = !dollarBalanceSat && !bitcoinBalance;
+
+  // finds the true min swap amount
+  const min_usd_swap_amount = useMemo(() => {
+    return Math.round(
+      dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB),
+    );
+  }, [poolInfoRef.currentPriceAInB, swapLimits]);
 
   const selectedLRC20Asset = masterTokenInfo?.tokenName || defaultToken;
   const seletctedToken =
@@ -129,7 +186,6 @@ export default function SendPaymentScreen(props) {
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
-  const canEditPaymentAmount = paymentInfo?.canEditPayment;
 
   const fiatValue = fiatStats?.value || 1;
 
@@ -139,21 +195,204 @@ export default function SendPaymentScreen(props) {
       : Math.round((SATSPERBITCOIN / fiatValue) * Number(sendingAmount))
     : Number(sendingAmount);
 
+  const fiatValueConvertedSendAmount =
+    satsToDollars(convertedSendAmount, poolInfoRef.currentPriceAInB) *
+    Math.pow(10, 6);
+
   const paymentFee =
-    (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
+    !selectedPaymentMethod || selectedPaymentMethod === 'BTC'
+      ? (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0)
+      : paymentInfo?.swapPaymentQuote?.fee +
+          paymentInfo?.swapPaymentQuote?.estimatedLightningFee || 0;
 
-  const canSendPayment = !isUsingLRC20
-    ? Number(sparkBalance) >= Number(convertedSendAmount) + paymentFee &&
-      sendingAmount != 0
-    : sparkBalance >= paymentFee &&
-      sendingAmount != 0 &&
-      tokenBalance >= sendingAmount * 10 ** tokenDecimals;
+  console.log(paymentInfo, 'payment info');
 
-  const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
-  const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
-  const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
-  const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
-  const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
+  const determinePaymentMethod = useMemo(() => {
+    // If using LRC20, payment method is not relevant
+    if (isUsingLRC20) return 'BTC';
+
+    if (isBitcoinPayment) return 'BTC';
+
+    // If user already selected a method, use it
+    if (selectedPaymentMethod) return selectedPaymentMethod;
+
+    // Check user balances
+    const hasBTCBalance = sparkBalance >= convertedSendAmount + paymentFee;
+    const hasUSDBalance = dollarBalanceSat >= convertedSendAmount + paymentFee;
+
+    // Check swap limits
+    const meetsUSDMinimum = convertedSendAmount >= min_usd_swap_amount;
+    const meetsBTCMinimum = convertedSendAmount >= swapLimits.bitcoin;
+
+    if (!Object.keys(paymentInfo).length) return;
+
+    // If payment is Spark
+    if (paymentInfo.type === 'spark') {
+      // If using full token display (multiple tokens), always use BTC
+      if (useFullTokensDisplay) return 'BTC';
+
+      // Receiver expects BTC
+      if (paymentInfo.data.expectedReceive === 'sats') {
+        // BTC → BTC Spark (no swap needed)
+        const canPayBTCtoBTC = hasBTCBalance;
+
+        // USD → BTC Spark (requires swap, check minimums)
+        const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
+
+        if (canPayBTCtoBTC && canPayUSDtoBTC) {
+          return 'user-choice'; // User can choose
+        }
+        return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : 'BTC';
+      }
+      // Receiver expects USD
+      else {
+        // USD → USD Spark (no swap needed)
+        const canPayUSDtoUSD = hasUSDBalance;
+
+        // BTC → USD Spark (requires swap, check minimums)
+        const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
+
+        if (canPayUSDtoUSD && canPayBTCtoUSD) {
+          return 'user-choice'; // User can choose
+        }
+        return canPayUSDtoUSD ? 'USD' : canPayBTCtoUSD ? 'BTC' : 'USD';
+      }
+    }
+
+    // (always receive as BTC)
+    // BTC → BTC (no swap)
+    const canPayBTCtoBTC = hasBTCBalance;
+
+    // USD → BTC (requires swap, check minimums)
+    const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
+
+    if (canPayBTCtoBTC && canPayUSDtoBTC) {
+      return 'user-choice'; // User can choose
+    }
+    return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : 'BTC';
+  }, [
+    isUsingLRC20,
+    isBitcoinPayment,
+    selectedPaymentMethod,
+    paymentInfo,
+    sparkBalance,
+    dollarBalanceSat,
+    convertedSendAmount,
+    min_usd_swap_amount,
+    useFullTokensDisplay,
+  ]);
+
+  useEffect(() => {
+    determinePaymentMethodRef.current = determinePaymentMethod;
+  }, [determinePaymentMethod]);
+
+  useEffect(() => {
+    inputDenominationRef.current = inputDenomination;
+  }, [inputDenomination]);
+
+  const needsToChoosePaymentMethod =
+    determinePaymentMethod === 'user-choice' &&
+    !selectedPaymentMethod &&
+    !useFullTokensDisplay &&
+    !didSelectPaymentMethod;
+
+  const canEditAmount = paymentInfo?.canEditPayment === true;
+
+  // Check if user has sufficient balance
+  const hasSufficientBalance = useMemo(() => {
+    if (!sendingAmount) return false;
+    if (isUsingLRC20) return true;
+    if (!determinePaymentMethod) return false;
+
+    const totalCost = convertedSendAmount + paymentFee;
+    const receiverExpectsCurrency = paymentInfo.data.expectedReceive || 'sats';
+
+    // Check if we need a swap and if it meets minimums
+    const needsSwap =
+      (determinePaymentMethod === 'USD' &&
+        receiverExpectsCurrency === 'sats') ||
+      (determinePaymentMethod === 'BTC' &&
+        receiverExpectsCurrency === 'tokens');
+
+    if (needsSwap) {
+      if (determinePaymentMethod === 'USD') {
+        // USD → BTC swap
+        if (convertedSendAmount < min_usd_swap_amount) return false;
+      } else {
+        // BTC → USD swap
+        if (convertedSendAmount < swapLimits.bitcoin) return false;
+      }
+    }
+
+    if (determinePaymentMethod === 'USD') {
+      return dollarBalanceSat >= totalCost;
+    } else {
+      return sparkBalance >= totalCost;
+    }
+  }, [
+    sendingAmount,
+    convertedSendAmount,
+    paymentFee,
+    determinePaymentMethod,
+    paymentInfo?.data?.expectedCurrency,
+    dollarBalanceSat,
+    sparkBalance,
+    min_usd_swap_amount,
+    swapLimits.bitcoin,
+    isUsingLRC20,
+  ]);
+
+  const uiState = useMemo(() => {
+    if (canEditAmount && !isSendingPayment.current) {
+      return 'EDIT_AMOUNT'; // Show number pad + description input
+    }
+
+    if (
+      (needsToChoosePaymentMethod || !didSelectPaymentMethod) &&
+      !isSendingPayment.current &&
+      !isBitcoinPayment &&
+      !isUsingLRC20
+    ) {
+      return 'CHOOSE_METHOD'; // Show info screen with button to select method
+    }
+
+    return 'CONFIRM_PAYMENT'; // Show swipe button
+  }, [
+    canEditAmount,
+    needsToChoosePaymentMethod,
+    didSelectPaymentMethod,
+    isBitcoinPayment,
+    isUsingLRC20,
+  ]);
+
+  const paymentValidation = usePaymentValidation({
+    paymentInfo,
+    convertedSendAmount,
+    paymentFee,
+    determinePaymentMethod,
+    selectedPaymentMethod,
+    bitcoinBalance,
+    dollarBalanceSat,
+    dollarBalanceToken,
+    min_usd_swap_amount,
+    swapLimits,
+    isUsingLRC20,
+    seletctedToken,
+    minLNURLSatAmount,
+    maxLNURLSatAmount,
+    isDecoding,
+    canEditAmount,
+    t,
+    masterInfoObject,
+    fiatStats,
+    inputDenomination,
+  });
+  console.log(paymentValidation);
+
+  const canSendPayment =
+    paymentValidation.canProceed &&
+    sendingAmount !== 0 &&
+    uiState === 'CONFIRM_PAYMENT';
 
   const minLNURLSatAmount = isLNURLPayment
     ? paymentInfo?.data?.minSendable / 1000
@@ -162,22 +401,17 @@ export default function SendPaymentScreen(props) {
     ? paymentInfo?.data?.maxSendable / 1000
     : 0;
 
-  const isUsingFastPay =
-    sparkInformation.didConnect &&
-    Object.keys(paymentInfo || {}).length > 0 &&
-    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled &&
-    canSendPayment &&
-    !canEditPaymentAmount &&
-    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
-      convertedSendAmount &&
-    !isUsingLRC20;
+  // Fast pay logic
   const canUseFastPay =
     sparkInformation.didConnect &&
     Object.keys(paymentInfo || {}).length > 0 &&
     masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled &&
     masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
       convertedSendAmount &&
-    !isUsingLRC20;
+    !isUsingLRC20 &&
+    !needsToChoosePaymentMethod;
+
+  const isUsingFastPay = canUseFastPay && canSendPayment && !canEditAmount;
 
   const errorMessageNavigation = useCallback(
     reason => {
@@ -196,9 +430,7 @@ export default function SendPaymentScreen(props) {
   );
 
   useEffect(() => {
-    const currentParams = {
-      btcAdress,
-    };
+    const currentParams = { btcAdress };
     const prevParams = paramsRef.current;
 
     const hasParamsChanged =
@@ -211,7 +443,7 @@ export default function SendPaymentScreen(props) {
       isSendingPayment.current = null;
       setPaymentDescription('');
       setLoadingMessage(
-        sparkInformation.didConnect
+        !!sparkInformation.didConnect && !!sparkInformation.identityPubKey
           ? t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage')
           : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
       );
@@ -219,18 +451,31 @@ export default function SendPaymentScreen(props) {
       setRefreshDecode(x => x + 1);
       paramsRef.current = currentParams;
     }
-  }, [btcAdress, sparkInformation.didConnect, t]);
+  }, [
+    btcAdress,
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    t,
+  ]);
+
+  useEffect(() => {
+    convertedSendAmountRef.current = convertedSendAmount;
+  }, [convertedSendAmount]);
 
   useEffect(() => {
     async function decodePayment() {
       crashlyticsLogReport('Starting decode address');
+      setIsDecoding(true);
       await decodeSendAddress({
         fiatStats,
         btcAdress: paramsRef.current.btcAdress,
         goBackFunction: errorMessageNavigation,
         setPaymentInfo,
         liquidNodeInformation,
-        masterInfoObject,
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: inputDenominationRef.current,
+        },
         // setWebViewArgs,
         // webViewRef,
         navigate,
@@ -250,14 +495,61 @@ export default function SendPaymentScreen(props) {
         contactInfo,
         globalContactsInformation,
         accountMnemoinc,
+        usablePaymentMethod: determinePaymentMethodRef.current,
+        bitcoinBalance,
+        dollarBalanceSat,
+        convertedSendAmount: convertedSendAmountRef.current,
+        poolInfoRef,
+        swapLimits,
+        // usd_multiplier_coefiicent,
+        min_usd_swap_amount,
       });
+      setIsDecoding(false);
     }
-    if (!sparkInformation.didConnect) return;
+
+    if (!sparkInformation.didConnect || !sparkInformation.identityPubKey)
+      return;
+    if (isSendingPayment.current) return;
 
     requestAnimationFrame(() => {
       decodePayment();
     });
-  }, [sparkInformation.didConnect, refreshDecode]);
+  }, [
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    refreshDecode,
+    // selectedPaymentMethod,
+  ]);
+
+  // Fast pay auto-trigger
+  useEffect(() => {
+    if (
+      !isUsingFastPay ||
+      hasTriggeredFastPay.current ||
+      isSendingPayment.current
+    )
+      return;
+
+    setShowProgressAnimation(true);
+
+    if (progressAnimationRef.current) {
+      requestAnimationFrame(() => {
+        progressAnimationRef.current.startAtBeginning();
+      });
+    }
+
+    const fastPayTrigger = setTimeout(() => {
+      hasTriggeredFastPay.current = true;
+      if (progressAnimationRef.current) {
+        progressAnimationRef.current.startProgress();
+      }
+      sendPayment();
+    }, 250);
+
+    return () => {
+      clearTimeout(fastPayTrigger);
+    };
+  }, [isUsingFastPay]);
 
   const sendPayment = useCallback(async () => {
     if (!canSendPayment) return;
@@ -272,8 +564,6 @@ export default function SendPaymentScreen(props) {
         selectedLRC20Asset?.toLowerCase() !== 'bitcoin',
       );
 
-      console.log(formattedSparkPaymentInfo, 'manual spark information');
-
       const memo =
         paymentInfo.type === InputTypes.BOLT11
           ? enteredPaymentInfo?.description ||
@@ -285,6 +575,7 @@ export default function SendPaymentScreen(props) {
       const paymentObject = {
         getFee: false,
         ...formattedSparkPaymentInfo,
+        isUsingLRC20,
         amountSats: isUsingLRC20
           ? paymentInfo?.sendAmount * 10 ** tokenDecimals
           : paymentInfo?.type === 'Bitcoin'
@@ -296,12 +587,17 @@ export default function SendPaymentScreen(props) {
         userBalance: sparkBalance,
         sparkInformation: sparkInfoRef.current,
         feeQuote: paymentInfo.feeQuote,
+        swapPaymentQuote: paymentInfo.swapPaymentQuote,
         usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
         seletctedToken: selectedLRC20Asset,
         mnemonic: currentWalletMnemoinc,
         sendWebViewRequest,
         contactInfo,
         fromMainSendScreen: true,
+        usablePaymentMethod: determinePaymentMethod,
+        paymentInfo,
+        fiatValueConvertedSendAmount,
+        poolInfoRef,
       };
 
       const paymentResponse = await sparkPaymenWrapper(paymentObject);
@@ -412,35 +708,31 @@ export default function SendPaymentScreen(props) {
     publishMessageFunc,
     navigate,
     errorMessageNavigation,
+    determinePaymentMethod,
+    fiatValueConvertedSendAmount,
   ]);
 
-  useEffect(() => {
-    if (
-      !isUsingFastPay ||
-      hasTriggeredFastPay.current ||
-      isSendingPayment.current
-    )
-      return;
+  const handleSelectPaymentMethod = useCallback(
+    showNextScreen => {
+      if (showNextScreen) {
+        if (!paymentValidation.isValid) {
+          const errorMessage = paymentValidation.getErrorMessage(
+            paymentValidation.primaryError,
+          );
+          navigate.navigate('ErrorScreen', { errorMessage });
+          return;
+        }
 
-    hasTriggeredFastPay.current = true;
-
-    requestAnimationFrame(() => {
-      sendPayment();
-    });
-  }, [isUsingFastPay, sendPayment]);
-
-  // useEffect(() => {
-  //   // unmounting started websocket if it exists
-  //   const unsubscribe = navigate.addListener('beforeRemove', () => {
-  //     console.log('Really leaving the screen, closing websocket');
-  //     if (paymentInfo?.websocket?.readyState === WebSocket.OPEN) {
-  //       paymentInfo.websocket.close();
-  //     }
-  //   });
-
-  //   return unsubscribe;
-  // }, [navigate, paymentInfo]);
-
+        setDidSelectPaymentMethod(true);
+      } else {
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'SelectPaymentMethod',
+          convertedSendAmount,
+        });
+      }
+    },
+    [navigate, convertedSendAmount, paymentValidation],
+  );
   const handleSelectTokenPress = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'SelectLRC20Token',
@@ -457,29 +749,17 @@ export default function SendPaymentScreen(props) {
 
   useHandleBackPressNew(handleBackpress);
 
-  console.log('CONFIRM SEND PAYMENT SCREEN');
-  console.log(minLNURLSatAmount, maxLNURLSatAmount, selectedLRC20Asset);
-  console.log(
-    canSendPayment,
-    'can send payment',
-    sparkBalance,
-    sendingAmount,
-    paymentFee,
-    sendingAmount,
-    paymentInfo,
-    enteredPaymentInfo,
-  );
-
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
-  )
+  ) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CustomSettingsTopBar />
         <FullLoadingScreen text={loadingMessage} />
       </GlobalThemeView>
     );
+  }
 
   if (errorMessage) {
     return <ErrorWithPayment reason={errorMessage} />;
@@ -496,11 +776,14 @@ export default function SendPaymentScreen(props) {
           seletctedToken={seletctedToken}
           selectedLRC20Asset={selectedLRC20Asset}
           backFunction={handleBackpress}
+          useFrozen={true}
         />
 
+        {/* Token selector for Spark LRC20 payments */}
         {enabledLRC20 &&
           paymentInfo.type === 'spark' &&
-          canEditPaymentAmount && (
+          canEditAmount &&
+          useFullTokensDisplay && (
             <TouchableOpacity onPress={handleSelectTokenPress}>
               <ThemeText
                 styles={styles.selectTokenText}
@@ -512,17 +795,43 @@ export default function SendPaymentScreen(props) {
           )}
 
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={sendingAmount}
-            inputDenomination={masterInfoObject.userBalanceDenomination}
-            activeOpacity={!sendingAmount ? 0.5 : 1}
-            customCurrencyCode={
-              isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
-            }
-          />
+          {/* Amount display */}
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+              if (!isAmountFocused) return;
+              if (isUsingLRC20) return;
+              if (uiState !== 'EDIT_AMOUNT') return;
+              setInputDenomination(prev => {
+                const newPrev =
+                  prev === 'sats' || prev === 'hidden' ? 'fiat' : 'sats';
+                return newPrev;
+              });
 
-          {/* {isUsingLRC20 && (
+              setPaymentInfo(prev => {
+                return {
+                  ...prev,
+                  sendAmount: convertTextInputValue(
+                    sendingAmount,
+                    fiatStats,
+                    inputDenomination,
+                  ),
+                };
+              });
+            }}
+          >
+            <FormattedBalanceInput
+              maxWidth={0.9}
+              amountValue={sendingAmount}
+              inputDenomination={inputDenomination}
+              activeOpacity={!sendingAmount ? 0.5 : 1}
+              customCurrencyCode={
+                isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
+              }
+            />
+
+            {/* Alternate denomination display */}
+            {/* {isUsingLRC20 && (
           <FormattedSatText
             neverHideBalance={true}
             containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
@@ -535,21 +844,28 @@ export default function SendPaymentScreen(props) {
             )}
           />
         )} */}
-          {!isUsingLRC20 && (
-            <FormattedSatText
-              containerStyles={{ opacity: !sendingAmount ? HIDDEN_OPACITY : 1 }}
-              neverHideBalance={true}
-              styles={{ includeFontPadding: false, ...styles.satValue }}
-              globalBalanceDenomination={
-                masterInfoObject.userBalanceDenomination === 'sats' ||
-                masterInfoObject.userBalanceDenomination === 'hidden'
-                  ? 'fiat'
-                  : 'sats'
-              }
-              balance={convertedSendAmount}
-            />
-          )}
-          {!useAltLayout && canEditPaymentAmount && (
+            {!isUsingLRC20 && (
+              <FormattedSatText
+                containerStyles={{
+                  opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
+                }}
+                neverHideBalance={true}
+                styles={{
+                  includeFontPadding: false,
+                  ...styles.satValue,
+                }}
+                globalBalanceDenomination={
+                  inputDenomination === 'sats' || inputDenomination === 'hidden'
+                    ? 'fiat'
+                    : 'sats'
+                }
+                balance={convertedSendAmount}
+              />
+            )}
+          </TouchableOpacity>
+
+          {/* Send max button for edit mode */}
+          {!useAltLayout && uiState === 'EDIT_AMOUNT' && showSendMax && (
             <SendMaxComponent
               fiatStats={fiatStats}
               sparkInformation={sparkInformation}
@@ -565,16 +881,20 @@ export default function SendPaymentScreen(props) {
             />
           )}
 
-          {!canEditPaymentAmount && (
+          {/* Fee info for fixed amount */}
+          {uiState === 'CONFIRM_PAYMENT' && (
             <SendTransactionFeeInfo
               paymentFee={paymentFee}
               isLightningPayment={isLightningPayment}
               isLiquidPayment={isLiquidPayment}
               isBitcoinPayment={isBitcoinPayment}
               isSparkPayment={isSparkPayment}
+              isDecoding={isDecoding}
             />
           )}
-          {!canEditPaymentAmount && (
+
+          {/* Invoice info */}
+          {uiState === 'CONFIRM_PAYMENT' && (
             <InvoiceInfo
               paymentInfo={paymentInfo}
               contactInfo={contactInfo}
@@ -583,9 +903,45 @@ export default function SendPaymentScreen(props) {
               darkModeType={darkModeType}
             />
           )}
+          {uiState === 'CHOOSE_METHOD' && (
+            <ChoosePaymentMethod
+              theme={theme}
+              darkModeType={darkModeType}
+              determinePaymentMethod={determinePaymentMethod}
+              handleSelectPaymentMethod={handleSelectPaymentMethod}
+              bitcoinBalance={bitcoinBalance}
+              dollarBalanceToken={dollarBalanceToken}
+              masterInfoObject={masterInfoObject}
+              fiatStats={fiatStats}
+              uiState={uiState}
+              t={t}
+            />
+          )}
         </ScrollView>
-        {canEditPaymentAmount && (
+
+        {/* EDIT_AMOUNT State - Show input controls */}
+        {uiState === 'EDIT_AMOUNT' && (
           <>
+            {!(
+              enabledLRC20 &&
+              paymentInfo.type === 'spark' &&
+              canEditAmount &&
+              useFullTokensDisplay
+            ) &&
+              !isBitcoinPayment && (
+                <ChoosePaymentMethod
+                  theme={theme}
+                  darkModeType={darkModeType}
+                  determinePaymentMethod={determinePaymentMethod}
+                  handleSelectPaymentMethod={handleSelectPaymentMethod}
+                  bitcoinBalance={bitcoinBalance}
+                  dollarBalanceToken={dollarBalanceToken}
+                  masterInfoObject={masterInfoObject}
+                  fiatStats={fiatStats}
+                  uiState={uiState}
+                  t={t}
+                />
+              )}
             <CustomSearchInput
               onFocusFunction={() => setIsAmountFocused(false)}
               onBlurFunction={() => setIsAmountFocused(true)}
@@ -609,20 +965,21 @@ export default function SendPaymentScreen(props) {
 
             {useAltLayout && (
               <View style={styles.maxAndAcceptContainer}>
-                <SendMaxComponent
-                  fiatStats={fiatStats}
-                  sparkInformation={sparkInformation}
-                  paymentInfo={paymentInfo}
-                  setPaymentInfo={setPaymentInfo}
-                  masterInfoObject={masterInfoObject}
-                  paymentFee={paymentFee}
-                  paymentType={paymentInfo?.paymentNetwork}
-                  // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-                  selectedLRC20Asset={selectedLRC20Asset}
-                  seletctedToken={seletctedToken}
-                  useAltLayout={useAltLayout}
-                />
-
+                {showSendMax && (
+                  <SendMaxComponent
+                    fiatStats={fiatStats}
+                    sparkInformation={sparkInformation}
+                    paymentInfo={paymentInfo}
+                    setPaymentInfo={setPaymentInfo}
+                    masterInfoObject={masterInfoObject}
+                    paymentFee={paymentFee}
+                    paymentType={paymentInfo?.paymentNetwork}
+                    // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+                    selectedLRC20Asset={selectedLRC20Asset}
+                    seletctedToken={seletctedToken}
+                    useAltLayout={useAltLayout}
+                  />
+                )}
                 <AcceptButtonSendPage
                   isLiquidPayment={isLiquidPayment}
                   canSendPayment={canSendPayment}
@@ -646,6 +1003,19 @@ export default function SendPaymentScreen(props) {
                   sendWebViewRequest={sendWebViewRequest}
                   globalContactsInformation={globalContactsInformation}
                   canUseFastPay={canUseFastPay}
+                  selectedPaymentMethod={determinePaymentMethod}
+                  bitcoinBalance={bitcoinBalance}
+                  dollarBalanceSat={dollarBalanceSat}
+                  needsToChoosePaymentMethod={needsToChoosePaymentMethod}
+                  isDecoding={isDecoding}
+                  poolInfoRef={poolInfoRef}
+                  swapLimits={swapLimits}
+                  // usd_multiplier_coefiicent={usd_multiplier_coefiicent}
+                  min_usd_swap_amount={min_usd_swap_amount}
+                  hasSufficientBalance={hasSufficientBalance}
+                  inputDenomination={inputDenomination}
+                  paymentValidation={paymentValidation}
+                  setDidSelectPaymentMethod={setDidSelectPaymentMethod}
                 />
               </View>
             )}
@@ -657,6 +1027,7 @@ export default function SendPaymentScreen(props) {
                 fiatStats={fiatStats}
                 selectedLRC20Asset={selectedLRC20Asset}
                 seletctedToken={seletctedToken}
+                inputDenomination={inputDenomination}
               />
             )}
 
@@ -684,14 +1055,39 @@ export default function SendPaymentScreen(props) {
                 sendWebViewRequest={sendWebViewRequest}
                 globalContactsInformation={globalContactsInformation}
                 canUseFastPay={canUseFastPay}
+                selectedPaymentMethod={determinePaymentMethod}
+                bitcoinBalance={bitcoinBalance}
+                dollarBalanceSat={dollarBalanceSat}
+                needsToChoosePaymentMethod={needsToChoosePaymentMethod}
+                isDecoding={isDecoding}
+                poolInfoRef={poolInfoRef}
+                swapLimits={swapLimits}
+                // usd_multiplier_coefiicent={usd_multiplier_coefiicent}
+                min_usd_swap_amount={min_usd_swap_amount}
+                hasSufficientBalance={hasSufficientBalance}
+                inputDenomination={inputDenomination}
+                paymentValidation={paymentValidation}
+                setDidSelectPaymentMethod={setDidSelectPaymentMethod}
               />
             )}
           </>
         )}
 
-        {!canEditPaymentAmount && (
+        {/* SELECT_PAYMENT method state - show button to take user to select half modal */}
+        {uiState === 'CHOOSE_METHOD' && (
+          <CustomButton
+            buttonStyles={{
+              ...CENTER,
+              opacity: paymentValidation.isValid ? 1 : HIDDEN_OPACITY,
+            }}
+            actionFunction={() => handleSelectPaymentMethod(true)}
+            textContent={t('constants.review')}
+          />
+        )}
+
+        {/* CONFIRM_PAYMENT State - Show swipe button or progress animation */}
+        {uiState === 'CONFIRM_PAYMENT' && (
           <View style={styles.buttonContainer}>
-            {/* Show slider progress animation instead of swipe button when processing */}
             {showProgressAnimation || isUsingFastPay ? (
               <SliderProgressAnimation
                 ref={progressAnimationRef}
@@ -730,7 +1126,9 @@ export default function SendPaymentScreen(props) {
           </View>
         )}
       </View>
-      {!isAmountFocused && (
+
+      {/* Emoji bar for description input */}
+      {!isAmountFocused && uiState === 'EDIT_AMOUNT' && (
         <EmojiQuickBar
           description={paymentDescription}
           onEmojiSelect={handleEmoji}
@@ -746,12 +1144,6 @@ const styles = StyleSheet.create({
     width: WINDOWWIDTH,
     ...CENTER,
   },
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
   balanceScrollContainer: {
     flexGrow: 1,
     alignItems: 'center',
@@ -773,5 +1165,9 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     paddingVertical: 10,
     textAlign: 'center',
+  },
+  selectMethodButton: {
+    width: INSET_WINDOW_WIDTH,
+    marginBottom: 20,
   },
 });

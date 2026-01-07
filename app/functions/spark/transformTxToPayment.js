@@ -1,7 +1,12 @@
 import { decode } from 'bolt11';
 import { getSparkPaymentStatus, sparkPaymentType } from '.';
 import calculateProgressiveBracketFee from './calculateSupportFee';
-import { deleteSparkContactTransaction } from './transactions';
+import {
+  deleteSparkContactTransaction,
+  deleteUnpaidSparkLightningTransaction,
+  updateSparkTransactionDetails,
+} from './transactions';
+import i18next from 'i18next';
 
 export async function transformTxToPaymentObject(
   tx,
@@ -52,10 +57,20 @@ export async function transformTxToPaymentObject(
       paymentAmount,
       'lightning',
     );
-
     const foundInvoiceDetails = foundInvoice
       ? JSON.parse(foundInvoice.details)
       : undefined;
+
+    const isSwapPayment = foundInvoice && foundInvoiceDetails.performSwaptoUSD;
+
+    if (isSwapPayment) {
+      updateSparkTransactionDetails(foundInvoice.sparkID, {
+        performSwaptoUSD: true,
+        finalSparkID: tx.transfer ? tx.transfer.sparkId : tx.id,
+      });
+    } else if (foundInvoice) {
+      deleteUnpaidSparkLightningTransaction(foundInvoice.sparkID);
+    }
 
     const description =
       numTxsBeingRestored < 20
@@ -69,10 +84,15 @@ export async function transformTxToPaymentObject(
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
-      paymentStatus: status === 'completed' || preimage ? 'completed' : status,
+      paymentStatus: isSwapPayment
+        ? 'pending'
+        : status === 'completed' || preimage
+        ? 'completed'
+        : status,
       paymentType: 'lightning',
       accountId: accountId,
       details: {
+        ...foundInvoiceDetails,
         fee: paymentFee,
         totalFee: paymentFee + supportFee,
         supportFee: supportFee,

@@ -26,7 +26,8 @@ import { useAppStatus } from '../../../../../../context-store/appStatus';
 export default function ConfirmPinForLoginMode() {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
   const [pinSettings, setPinSettings] = useState({
     enteredPin: [null, null, null, null],
     savedPin: [null, null, null, null],
@@ -118,7 +119,9 @@ export default function ConfirmPinForLoginMode() {
   }, [pinSettings]);
 
   return (
-    <View style={styles.globalContainer}>
+    <View
+      style={[styles.globalContainer, { backgroundColor: transparentOveraly }]}
+    >
       <TouchableWithoutFeedback onPress={handleBackPressFunction}>
         <View style={styles.container} />
       </TouchableWithoutFeedback>
@@ -243,7 +246,6 @@ export default function ConfirmPinForLoginMode() {
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
     justifyContent: 'flex-end',
   },
   container: { flex: 1 },

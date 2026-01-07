@@ -66,6 +66,7 @@ import {
   createBalancePoller,
   createRestorePoller,
 } from '../app/functions/pollingManager';
+import { USDB_TOKEN_ID } from '../app/constants';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -108,6 +109,7 @@ const SparkWalletProvider = ({ children }) => {
     identityPubKey: '',
     sparkAddress: '',
     didConnect: null,
+    didConnectToFlashnet: null,
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
   const [pendingNavigation, setPendingNavigation] = useState(null);
@@ -143,9 +145,12 @@ const SparkWalletProvider = ({ children }) => {
   const currentPollingMnemonicRef = useRef(null);
   const isInitialRender = useRef(true);
   const authResetKeyRef = useRef(authResetkey);
+
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
-      ? !!Object.keys(sparkInformation.tokens || {}).length
+      ? !!Object.keys(sparkInformation.tokens || {}).filter(
+          token => token !== USDB_TOKEN_ID,
+        ).length
       : masterInfoObject.enabledBTKNTokens;
 
   const didRunInitialRestore = useRef(false);
@@ -235,25 +240,35 @@ const SparkWalletProvider = ({ children }) => {
       if (!changeSparkConnectionState.state) {
         setSparkInformation(prev => ({ ...prev, didConnect: false }));
       } else {
+        let alreadyRanConnection = false;
         if (!sparkInfoRef.current.identityPubKey && shouldRunNormalConnection) {
-          initializeSparkSession({
-            setSparkInformation,
-            mnemonic: currentMnemonicRef.current,
-          });
+          await resetSparkState(true);
+          connectToSparkWallet();
+          alreadyRanConnection = true;
         } else {
           setSparkInformation(prev => ({
             ...prev,
             didConnect: !!prev.identityPubKey,
           }));
         }
+
         const runtime = await selectSparkRuntime(currentMnemonicRef.current);
         if (runtime === 'native') {
-          await addListeners('full');
+          if (!alreadyRanConnection) {
+            await resetSparkState(true);
+            connectToSparkWallet();
+          }
         }
       }
     }
     handleWalletStateChange();
-  }, [changeSparkConnectionState, didGetToHomepage, shouldRunNormalConnection]);
+  }, [
+    changeSparkConnectionState,
+    didGetToHomepage,
+    shouldRunNormalConnection,
+    resetSparkState,
+    connectToSparkWallet,
+  ]);
 
   useEffect(() => {
     if (!sparkInfoRef.current?.tokens) return;
@@ -501,7 +516,38 @@ const SparkWalletProvider = ({ children }) => {
         balancePollingTimeoutRef.current = poller;
         poller.start();
       } else {
-        const balanceResponse = await getSparkBalance(mnemonic);
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY = 2000;
+        let balanceResponse = await getSparkBalance(mnemonic);
+
+        const shouldRetry = balanceResponse => {
+          return (
+            balanceResponse.didWork &&
+            !Object.entries(balanceResponse.tokensObj).find(item => {
+              const [key, value] = item;
+              console.log(key, value, 'key value');
+              return !!value.balance;
+            }) &&
+            (updateType === 'fullUpdate-tokens' || updateType === 'fullUpdate')
+          );
+        };
+
+        if (shouldRetry(balanceResponse)) {
+          console.log('Invalid balance returned retrying balance:');
+
+          for (let index = 0; index < MAX_RETRIES; index++) {
+            balanceResponse = await getSparkBalance(mnemonic);
+            if (shouldRetry(balanceResponse)) {
+              console.log(
+                'Invalid balance returned retrying balance, waiting for timeout',
+              );
+              await new Promise(res => setTimeout(res, RETRY_DELAY));
+              continue;
+            } else {
+              break;
+            }
+          }
+        }
 
         const newBalance = balanceResponse.didWork
           ? Number(balanceResponse.balance)
@@ -525,9 +571,15 @@ const SparkWalletProvider = ({ children }) => {
               : prev.tokens,
           }));
         } else if (updateType === 'fullUpdate-tokens') {
+          handleBalanceCache({
+            isCheck: false,
+            passedBalance: newBalance,
+            mnemonic,
+          });
           setSparkInformation(prev => ({
             ...prev,
             transactions: txs || prev.transactions,
+            balance: newBalance,
             tokens: balanceResponse.didWork
               ? balanceResponse.tokensObj
               : prev.tokens,
@@ -593,6 +645,18 @@ const SparkWalletProvider = ({ children }) => {
       if (new Date(details.time).getTime() < sessionTimeRef.current) {
         console.log(
           'created before session time was set, skipping confirm tx page navigation',
+        );
+        return;
+      }
+
+      if (parsedTx?.paymentStatus?.toLowerCase() === 'failed') {
+        console.log('This payment is of type failed, do not navigate here');
+        return;
+      }
+
+      if (details.performSwaptoUSD) {
+        console.log(
+          'This payment is being used to perform a swap, do not navigate here.',
         );
         return;
       }
@@ -914,7 +978,7 @@ const SparkWalletProvider = ({ children }) => {
     currentPollingMnemonicRef.current = null;
   };
 
-  const resetSparkState = useCallback(async () => {
+  const resetSparkState = useCallback(async (internalRefresh = false) => {
     // Reset refs to initial values
     await removeListeners(true);
     clearMnemonicCache();
@@ -953,10 +1017,13 @@ const SparkWalletProvider = ({ children }) => {
       identityPubKey: '',
       sparkAddress: '',
       didConnect: null,
+      didConnectToFlashnet: null,
     });
     setPendingNavigation(null);
-    setDidRunNormalConnection(false);
-    setNormalConnectionTimeout(false);
+    if (!internalRefresh) {
+      setDidRunNormalConnection(false);
+      setNormalConnectionTimeout(false);
+    }
   }, []);
 
   useEffect(() => {

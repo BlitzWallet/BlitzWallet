@@ -100,8 +100,6 @@
 //     flex: 1,
 //     alignItems: 'center',
 //     justifyContent: 'center',
-
-//     backgroundColor: COLORS.halfModalBackgroundColor,
 //   },
 //   innerContainer: {
 //     width: '90%',

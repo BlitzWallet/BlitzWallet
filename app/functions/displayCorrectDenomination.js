@@ -1,6 +1,7 @@
 import { BITCOIN_SAT_TEXT, BITCOIN_SATS_ICON } from '../constants';
 import { formatCurrency } from './formatCurrency';
 import formatBalanceAmount from './formatNumber';
+import formatTokensLabel from './lrc20/formatTokensLabel';
 import numberConverter from './numberConverter';
 
 export default function displayCorrectDenomination({
@@ -10,10 +11,14 @@ export default function displayCorrectDenomination({
   useCustomLabel = false,
   customLabel = '',
   useMillionDenomination = false,
+  forceCurrency = null,
+  convertAmount = true,
 }) {
   try {
     const localBalanceDenomination = masterInfoObject.userBalanceDenomination;
-    const currencyText = fiatStats?.coin || 'USD';
+    const currencyText = forceCurrency
+      ? forceCurrency
+      : masterInfoObject.fiatCurrency || 'USD';
 
     if (useCustomLabel) {
       const formattedBalance = formatBalanceAmount(
@@ -21,20 +26,22 @@ export default function displayCorrectDenomination({
         useMillionDenomination,
         masterInfoObject,
       );
-      const labelText = customLabel?.toUpperCase()?.slice(0, 10) || '';
+      const labelText = formatTokensLabel(customLabel);
       return `${formattedBalance} ${labelText}`;
     }
 
-    const formattedBalance = formatBalanceAmount(
-      numberConverter(
-        amount,
-        localBalanceDenomination,
-        localBalanceDenomination === 'fiat' ? 2 : 0,
-        fiatStats,
-      ),
-      useMillionDenomination,
-      masterInfoObject,
-    );
+    const formattedBalance = convertAmount
+      ? formatBalanceAmount(
+          numberConverter(
+            amount,
+            localBalanceDenomination,
+            localBalanceDenomination === 'fiat' ? 2 : 0,
+            fiatStats,
+          ),
+          useMillionDenomination,
+          masterInfoObject,
+        )
+      : amount;
 
     const showSymbol = masterInfoObject.satDisplay === 'symbol';
     const showSats =

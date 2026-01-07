@@ -5,26 +5,25 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {COLORS} from '../../../constants';
-import {useNavigation} from '@react-navigation/native';
+import { COLORS } from '../../../constants';
+import { useNavigation } from '@react-navigation/native';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import GetThemeColors from '../../../hooks/themeColors';
-import {ThemeText} from '../../../functions/CustomElements';
-import {useGlobalThemeContext} from '../../../../context-store/theme';
-import {useTranslation} from 'react-i18next';
+import { ThemeText } from '../../../functions/CustomElements';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 
 export default function ErrorScreen(props) {
-  const {textColor, backgroundColor, backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { textColor, backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
+  const { t } = useTranslation();
   const errorMessage = props.route.params.errorMessage;
-
   const navigationFunction = props.route.params?.navigationFunction;
   const customNavigator = props.route.params?.customNavigator;
   const useTranslationString = props.route.params?.useTranslationString;
   const height = props.route.params?.height;
-
   const navigate = useNavigation();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   useHandleBackPressNew();
 
   const handleNaviagation = () => {
@@ -37,43 +36,52 @@ export default function ErrorScreen(props) {
   };
 
   return (
-    <View style={styles.globalContainer}>
+    <TouchableWithoutFeedback onPress={handleNaviagation}>
       <View
         style={[
-          styles.content,
-          {
-            backgroundColor: theme ? backgroundOffset : backgroundColor,
-            maxHeight: height || 200,
-          },
-        ]}>
-        <ScrollView>
-          <ThemeText
-            styles={styles.headerText}
-            content={useTranslationString ? t(errorMessage) : errorMessage}
-          />
-        </ScrollView>
-        <View
-          style={{
-            ...styles.border,
-            backgroundColor:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-        />
-        <TouchableOpacity onPress={handleNaviagation}>
-          <ThemeText
-            styles={styles.cancelButton}
-            content={t('wallet.sendPages.errorScreen.ok')}
-          />
-        </TouchableOpacity>
+          styles.globalContainer,
+          { backgroundColor: transparentOveraly },
+        ]}
+      >
+        <TouchableWithoutFeedback onPress={() => {}}>
+          <View
+            style={[
+              styles.content,
+              {
+                backgroundColor: theme ? backgroundOffset : backgroundColor,
+                maxHeight: height || 200,
+              },
+            ]}
+          >
+            <ScrollView>
+              <ThemeText
+                styles={styles.headerText}
+                content={useTranslationString ? t(errorMessage) : errorMessage}
+              />
+            </ScrollView>
+            <View
+              style={{
+                ...styles.border,
+                backgroundColor:
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              }}
+            />
+            <TouchableOpacity onPress={handleNaviagation}>
+              <ThemeText
+                styles={styles.cancelButton}
+                content={t('wallet.sendPages.errorScreen.ok')}
+              />
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
     alignItems: 'center',
     justifyContent: 'center',
   },

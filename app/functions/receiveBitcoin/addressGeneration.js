@@ -12,6 +12,7 @@ import { getRootstockAddress } from '../boltz/rootstock/submarineSwap';
 import { formatBip21Address } from '../spark/handleBip21SparkAddress';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import sha256Hash from '../hash';
+import { createTokensInvoice } from '../spark';
 // import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
@@ -66,15 +67,26 @@ export async function initializeAddressProcess(wolletInfo) {
       isReceivingSwap: false,
       hasGlobalError: false,
     }));
+    wolletInfo.setInitialSendAmount(0);
 
     // Lightning
     if (selectedRecieveOption.toLowerCase() === 'lightning') {
+      const realAmount =
+        wolletInfo.endReceiveType === 'BTC'
+          ? wolletInfo.receivingAmount
+          : Math.max(
+              wolletInfo.receivingAmount,
+              wolletInfo.swapLimits?.bitcoin,
+            );
+      wolletInfo.setInitialSendAmount(realAmount);
       const response = await sparkReceivePaymentWrapper({
         paymentType: 'lightning',
-        amountSats: wolletInfo.receivingAmount,
+        amountSats: realAmount,
         memo: wolletInfo.description,
         mnemoinc: wolletInfo.currentWalletMnemoinc,
         sendWebViewRequest,
+        performSwaptoUSD: wolletInfo.endReceiveType === 'USD',
+        includeSparkAddress: wolletInfo.endReceiveType !== 'USD',
       });
 
       if (!response.didWork) {
@@ -138,18 +150,28 @@ export async function initializeAddressProcess(wolletInfo) {
     // Spark
     else if (selectedRecieveOption.toLowerCase() === 'spark') {
       let sparkAddress = '';
+      if (wolletInfo.endReceiveType === 'BTC') {
+        if (wolletInfo.sparkInformation.sparkAddress) {
+          sparkAddress = wolletInfo.sparkInformation.sparkAddress;
+        } else {
+          const response = await sparkReceivePaymentWrapper({
+            paymentType: 'spark',
+            amountSats: wolletInfo.receivingAmount,
+            memo: wolletInfo.description,
+            mnemoinc: wolletInfo.currentWalletMnemoinc,
+            sendWebViewRequest,
+          });
 
-      if (wolletInfo.sparkInformation.sparkAddress) {
-        sparkAddress = wolletInfo.sparkInformation.sparkAddress;
+          if (!response.didWork) {
+            throw new Error('errormessages.sparkInvoiceError');
+          }
+
+          sparkAddress = response.invoice;
+        }
       } else {
-        const response = await sparkReceivePaymentWrapper({
-          paymentType: 'spark',
-          amountSats: wolletInfo.receivingAmount,
-          memo: wolletInfo.description,
-          mnemoinc: wolletInfo.currentWalletMnemoinc,
-          sendWebViewRequest,
-        });
-
+        const response = await createTokensInvoice(
+          wolletInfo.currentWalletMnemoinc,
+        );
         if (!response.didWork) {
           throw new Error('errormessages.sparkInvoiceError');
         }

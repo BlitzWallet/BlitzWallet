@@ -49,7 +49,7 @@ export default function formatBalanceAmount(
 
     // SPACE MODE
     if (useSpaces) {
-      const [intRaw, decRaw] = String(numericValue).split('.');
+      const [intRaw, decRaw] = String(inputStr).split('.');
       const grouped = intRaw.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
       if (decRaw) {
@@ -65,7 +65,7 @@ export default function formatBalanceAmount(
     const formatted = new Intl.NumberFormat(i18next.language || 'en', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
-    }).format(numericValue);
+    }).format(inputStr);
 
     // If user is typing a decimal point, append it
     if (hasTrailingDecimal && !formatted.includes('.')) {

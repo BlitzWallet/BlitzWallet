@@ -6,20 +6,23 @@ import {
   SIZES,
 } from '../../constants/index';
 import ThemeImage from './themeImage';
-import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../lrc20/formatTokensBalance';
 import FormattedSatText from './satTextDisplay';
 import { useNavigation } from '@react-navigation/native';
+import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
+import { useRef } from 'react';
 
 export default function NavBarWithBalance({
   backFunction,
   seletctedToken,
   selectedLRC20Asset = 'Bitcoin',
   showBalance = true,
+  useFrozen = false,
 }) {
+  const { totalSatValue } = useUserBalanceContext();
+  const balanceRef = useRef(seletctedToken?.balance || totalSatValue);
   const naivigate = useNavigation();
-  const { sparkInformation } = useSparkWallet();
-  const balance = seletctedToken?.balance || sparkInformation.balance;
+  const balance = seletctedToken?.balance || totalSatValue;
 
   const formattedTokensBalance =
     selectedLRC20Asset !== 'Bitcoin'
@@ -59,6 +62,8 @@ export default function NavBarWithBalance({
                 ? Number(formattedTokensBalance).toFixed(
                     formattedTokensBalance < 1 ? 4 : 2,
                   )
+                : useFrozen
+                ? balanceRef.current
                 : balance
             }
             useCustomLabel={

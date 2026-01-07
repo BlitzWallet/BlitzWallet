@@ -29,6 +29,7 @@ const COLORS = {
   lightsOutBackgroundOffset: '#1B1B1B',
 
   halfModalBackgroundColor: 'rgba(0, 0, 0, 0.3)',
+  halfModalBackgroundColorLightsout: 'rgba(0, 0, 0, 0.6)',
   opaicityGray: '#767676b8',
   cameraOverlay: '#0000002e',
   cancelRed: '#e20000',
@@ -66,6 +67,9 @@ const COLORS = {
   walletHomeLightModeOffset: '#E4E4E4',
   walletHomeDarkModeOffset: '#002146',
   walletHomeLightsOutOffset: '#0d0d0d',
+
+  bitcoinOrange: '#FFAC30',
+  dollarGreen: '#60D263',
 };
 
 const FONT = {

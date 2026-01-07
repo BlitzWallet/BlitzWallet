@@ -77,7 +77,8 @@ export default function TotalTipsScreen(props) {
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
   const [paymentUpdate, setPaymentUpdate] = useState({
     isSending: false,
     errorMessage: '',
@@ -290,7 +291,9 @@ export default function TotalTipsScreen(props) {
   const ContainerWrapper = useCallback(
     ({ children }) => {
       return (
-        <View style={styles.container}>
+        <View
+          style={[styles.container, { backgroundColor: transparentOveraly }]}
+        >
           <View
             style={{
               ...styles.contentContainer,
@@ -303,7 +306,14 @@ export default function TotalTipsScreen(props) {
         </View>
       );
     },
-    [theme, darkModeType, backgroundOffset, backgroundColor, viewHeight],
+    [
+      theme,
+      darkModeType,
+      backgroundOffset,
+      backgroundColor,
+      viewHeight,
+      transparentOveraly,
+    ],
   );
 
   if (paymentUpdate.isSending) {
@@ -443,7 +453,6 @@ export default function TotalTipsScreen(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
     alignItems: 'center',
     justifyContent: 'center',
   },

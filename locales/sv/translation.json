@@ -13,7 +13,8 @@
     "receive": "Ta emot",
     "accept": "Acceptera",
     "total_balance": "Totalt saldo",
-    "sat_balance": "SAT Balans",
+    "sat_balance": "Bitcoin Balans",
+    "usd_balance": "Dollarsaldo",
     "amount": "Belopp",
     "sent": "Skickad",
     "received": "Mottagna",
@@ -91,13 +92,7 @@
     "enabled": "Aktiverad",
     "disabled": "Inaktiverad",
     "unlimited": "Obegränsad",
-    "custom": {
-      "": {
-        "": {
-          "": "Anpassad..."
-        }
-      }
-    },
+    "custom": "Anpassad...",
     "enable": "Aktivera",
     "disable": "Avaktivera",
     "paidLower": "betalda",
@@ -123,7 +118,11 @@
     "manage": "Hantera",
     "reclaim": "Utgått",
     "optionalFlag": "(Valfritt)",
-    "gift": "Gåva"
+    "gift": "Gåva",
+    "bitcoin_upper": "Bitcoin",
+    "dollars_upper": "Dollar",
+    "rate": "Kurs",
+    "swap": "Swap"
   },
   "languages": {
     "english": "English",
@@ -908,11 +907,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Förbereda fakturauppgifter",
-        "alreadyPaidInvoiceError": "Du har redan betalat den här fakturan",
+        "alreadyPaidInvoiceError": "Den här fakturan har redan betalats.",
         "descriptionPlaceholder": "Betalningsbeskrivning...",
         "fallbackErrorMessage": "Felavkodning av faktura",
         "connectToSparkMessage": "Ansluta till din plånbok.",
-        "switchTokenText": "Använd en annan symbol"
+        "switchTokenText": "Använd en annan symbol",
+        "zeroAmountInvoiceDollarPayments": "Fakturor med nollbelopp kan inte betalas med USD. Använd BTC.",
+        "decodingPayment": "Avkodar betalningsinformation...",
+        "selectPaymentMethod": "Välj en betalningsmetod för att fortsätta."
+      },
+      "selectPaymentMethod": {
+        "header": "Välj hur du vill finansiera din betalning."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adresser ska endast vara text. Vänligen kontrollera och försök igen.",
@@ -926,14 +931,14 @@
         "lnurlAuthStartMeessage": "Starta LNURL auth",
         "lnurlFailedAuthMessage": "Misslyckades med att autentisera LNURL",
         "lnurlConfirmMessage": "LNURL framgångsrikt autentiserad",
-        "lnurlPayInvoiceError": "Det gick inte att hämta fakturan från LNURL, vänligen försök igen.",
+        "lnurlPayInvoiceError": "Misslyckades med att skapa faktura för LNURL-betalning. Försök igen.",
         "lnurlWithdrawlStart": "Generera faktura för uttag",
         "lnurlWithdrawlInvoiceError": "Det går inte att generera faktura för lnurl-uttag",
         "waitingForLnurlWithdrawl": "Väntar på betalning...",
         "lnurlWithdrawlSuccess": "Uttag framgångsrikt! Din betalning är på väg.",
         "invoiceDetails": "Detaljer om lastning",
         "timeoutError": "Processen tog för lång tid att slutföra. Vänligen försök igen.",
-        "payingToSameAddress": "Det är inte tillåtet att skicka till din egen {{addressType}} -adress."
+        "payingToSameAddress": "Du kan inte skicka en {{addressType}}-betalning till dig själv."
       },
       "errorScreen": {
         "ok": "OK",
@@ -954,12 +959,15 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Vänligen ange ett sändningsbelopp",
-        "liquidError": "{{overFlowType}} skicka belopp {{amount}}",
-        "onchainError": "Minsta betalning till en bitcoin-adress är {{amount}}",
-        "lnurlPayError": "{{overFlowType}} skicka belopp {{amount}}",
-        "lrc20FeeError": "Du behöver {{amount}} för att skicka tokens. Ditt saldo är {{balance}}. Vänligen ta emot lite Bitcoin först.",
-        "balanceError": "Inte tillräckligt med medel för att täcka sändningsbelopp och avgifter"
+        "noSendAmountError": "Ange ett belopp att skicka.",
+        "noSwapForBTCPaymentsError": "Bitcoin on-chain-betalningar kan endast betalas med BTC, inte USD. Swaps är inte tillgängliga för on-chain-betalningar.",
+        "balanceFragmentationError": "Ditt saldo är uppdelat mellan BTC och USD. För att slutföra betalningen, slå ihop dina medel eller justera betalningsmetoden.",
+        "liquidError": "Beloppet för Liquid-betalning {{overFlowType}} är {{amount}}",
+        "onchainError": "Bitcoin on-chain-betalningar kräver ett minimum på {{amount}}",
+        "lnurlPayError": "Betalningsbeloppet måste ligga inom {{overFlowType}} på {{amount}}",
+        "lrc20FeeError": "Du behöver minst {{amount}} för att betala transaktionsavgiften. Nuvarande saldo: {{balance}}",
+        "balanceError": "Otillräckligt saldo för att slutföra betalningen",
+        "swapMinimumError": "Swaps från {{currency1}} till {{currency2}} kräver ett minimum på {{amount}}"
       }
     },
     "switchOption": {
@@ -1274,6 +1282,7 @@
       "selectionTitle": "Välj nätverk",
       "liquid": "Vätska",
       "rootstock": "Rotstock",
+      "flashnet": "BTC <> USD",
       "pageTitle": "{{type}} Överföringar"
     },
     "viewRoostockSwaps": {
@@ -1328,11 +1337,16 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet tillhandahåller gratis verktyg med öppen källkod för Bitcoin-gemenskapen.\n\nFör att stödja projektets långsiktiga hållbarhet kommer en liten transaktionsavgift att tillämpas på varje betalning.\n\nNär avgifter är aktiva kommer de att visas här.",
+      "description": "Blitz Wallet tillhandahåller gratis verktyg med öppen källkod för Bitcoin-gemenskapen.\n\nFör att stödja projektets långsiktiga hållbarhet tillämpas en liten transaktionsavgift på varje betalning.\n\nAvgiftsfördelningen visas nedan.",
       "upTo": "Upp till",
       "fixedFee": "Fast arvode",
       "percent": "Procent",
-      "noLimit": "Ingen gräns"
+      "noLimit": "Ingen gräns",
+      "transactionType": "Transaktionstyp",
+      "swapsType": "BTC <> USD-växlingar",
+      "swapsFee": "{{poolFee}} % poolavgift + {{blitzFee}} % Blitz-avgift",
+      "othersType": "Övrigt",
+      "othersFee": "Nätverksavgifter"
     },
     "nip5": {
       "noNameError": "Namnet får inte vara tomt.",
@@ -1540,7 +1554,8 @@
         "paymentStatus": "Betalningsstatus",
         "confReqired": "Confs krävs",
         "detailsBTN": "Tekniska detaljer",
-        "contactPaymentType": "Kontakt"
+        "contactPaymentType": "Kontakt",
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
       },
       "explorePage": {
         "timeLeft": "({{time}} vänster)",
@@ -1561,19 +1576,29 @@
         "onchainFeeMessage": "Betalningar som tas emot till Bitcoin-adresser har en nätverksavgift och 0,1% Spark-avgift.\n\nOm du skickar pengar till dig själv betalar du nätverksavgiften två gånger - en gång för att skicka dem och en gång för att hämta ut dem.\n\nOm någon annan skickar pengar till dig betalar du bara nätverksavgiften en gång för att göra anspråk på dem.",
         "liquidFeeMessage": "Betalningar som mottagits till Liquid-adresser måste överföras till Spark.\n\nDenna process inkluderar en låsningsavgift på cirka {{fee}}, en kravavgift på cirka {{claimFee}} och en serviceavgift på 0,1% från Boltz baserat på det belopp du skickar.",
         "rootstockFeeMessage": "Betalningar som mottagits till Rootstock-adresser måste överföras till Spark.\n\nDenna process inkluderar en låsningsavgift på cirka {{fee}} och en serviceavgift på 0,1% från Boltz baserat på det belopp du skickar.",
+        "lightningConvertMessage": "Att ta emot dollar via Lightning kräver att Bitcoin konverteras till USD. En avgift på {{convertFee}} % tillämpas, och den aktuella växelkursen är {{satExchangeRate}} per {{dollarAmount}}.",
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
+        "receiveAsHeader": "Ta emot som",
+        "receiveAs_spark_BTC": "Bitcoin eller token",
+        "receiveAs_lightning_BTC": "Behåll i Bitcoin",
+        "receiveAs_spark_USD": "Dollar",
+        "receiveAs_lightning_USD": "Konvertera till dollar",
+        "amount_USD_MIN": "Min. {{swapAmountSat}}",
         "invoiceDescription_lightningInvoice": "Blixtfaktura",
         "invoiceDescription_lightningAddress": "Adress för blixtnedslag",
         "invoiceDescription_bitcoinAddress": "Bitcoin-adress",
         "invoiceDescription_liquidAddress": "Flytande adress",
         "invoiceDescription_sparkAddress": "Spark-adress",
         "invoiceDescription_rootstockAddress": "Rotstockens adress",
-        "header_lightning": "Bitcoin via Lightning",
+        "header_lightning_btc": "Bitcoin via Lightning",
+        "header_lightning_usd": "Dollar via Lightning",
         "header_bitcoin": "Bitcoin",
-        "header_spark": "Bitcoin/Tokens via Spark",
+        "header_spark_btc": "Bitcoin/Token via Spark",
+        "header_spark_usd": "Dollar via Spark",
         "header_liquid": "Bitcoin via Liquid",
-        "header_rootstock": "Bitcoin via Rootstock"
+        "header_rootstock": "Bitcoin via Rootstock",
+        "selectReceiveAssetHead": "Välj tillgång att ta emot"
       },
       "settingsContent": {
         "about": "Om",
@@ -1683,7 +1708,9 @@
           "header": "Ange länk till gåvan",
           "desc": "Klistra in länken till gåvan du fick eller skanna QR-koden för att hämta din gåva",
           "inputPlaceholder": "Ange länk till gåvan",
-          "claim": "Anspråk"
+          "claim": "Anspråk",
+          "noGiftLinkError": "Vi kunde inte hitta någon presentlänk. Skanna eller klistra in länken du fick.",
+          "invliadGiftFormat": "Ogiltig presentlänk. Kopiera hela länken och försök igen."
         },
         "reclaimPage": {
           "header": "Återta din gåva",
@@ -1738,12 +1765,72 @@
           "giftBalanceMessage_3": "Avslutar de sista stegen...",
           "claimingGiftMessage4": "Anspråk på gåva..."
         }
+      },
+      "swapsPage": {
+        "noPoolFoundBackup": "BTC/USDB-pool hittades inte",
+        "loadPoolError": "Misslyckades med att ladda poolinformation",
+        "noPoolsFoundError": "Inga pooler hittades för {{tokenAAddress}}/{{tokenBAddress}}",
+        "highPriceImpact": "Hög prisinverkan: {{priceImpact}}",
+        "slippageError": "Priset ändrades för mycket. Försök att öka slippage-toleransen.",
+        "noLiquidity": "Otillräcklig likviditet. Försök med ett mindre belopp eller en annan pool.",
+        "authenticationError": "Autentisering misslyckades. Anslut igen.",
+        "noPoolError": "Poolen finns inte.",
+        "automaticRecovery": "Medel återställdes automatiskt.",
+        "semiRecovered": "Vissa medel kräver manuell återställning.",
+        "willRecover": "Medlen kommer att återbetalas automatiskt.",
+        "failedSimulation": "Simuleringen misslyckades",
+        "swapAmountCalculatorFailed": "Misslyckades med att beräkna swap-belopp",
+        "invalidAmount": "Ange ett giltigt belopp",
+        "priceImpact": "Prisinverkan: {{impact}}%\n Vill du fortsätta bytet?",
+        "swapFailedBackupError": "Swap misslyckades",
+        "swapAutomaticRecovery": "\n\nDina medel har återställts automatiskt.",
+        "swapPartialRecovery": "\n\nVissa medel återställdes automatiskt ({{count}}).",
+        "swapFutureRecovery": "\n\nDina medel kommer att återbetalas automatiskt.",
+        "swapSlippageError": "\n\nFörsök att öka slippage-toleransen eller vänta på bättre marknadsförhållanden.",
+        "swapLiquidityError": "\n\nFörsök att byta ett mindre belopp eller vänta på mer likviditet.",
+        "fullSwapError": "Ett oväntat fel uppstod under bytet. Försök igen.",
+        "checkSwapMessage": "Hög prisinverkan",
+        "swapConfimred": "Swap genomförd",
+        "youSent": "Du skickade",
+        "youReceived": "Du tog emot",
+        "newSwap": "Ny swap",
+        "loadingPool": "Laddar swap-information...",
+        "fromBalance": "Jag har {{amount}}",
+        "toBalance": "Jag vill",
+        "min": "MIN",
+        "half": "HALV",
+        "max": "MAX",
+        "swappingMessageButton": "Byter...",
+        "loadingMessageButton": "Laddar...",
+        "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
+        "swapDisclaimer": "Swap-tjänster tillhandahålls via tredjeparts-API:er.",
+        "serviceUnavailableHead": "Tjänsten är inte tillgänglig",
+        "serviceUnavailableDesc": "Det gick inte att ansluta till swap-tjänsten. Kontrollera din anslutning och försök igen.",
+        "swapDirection_usdbtc": "USD → BTC",
+        "swapDirection_btcusd": "BTC → USD",
+        "paymentDescription_outgoing": "{{swapDirection}}",
+        "paymentDescription_incoming": "{{swapDirection}}",
+        "yourAreConverting": "Du konverterar",
+        "youWillReceive": "Du kommer att få",
+        "bitcoinPrice": "Bitcoin-pris",
+        "swapFee": "Swapavgift",
+        "exchangeRate": "Växelkurs",
+        "minBTCError": "Minsta BTC-belopp är {{min}}. Öka beloppet för att fortsätta.",
+        "minUSDError": "Minsta USD-belopp är {{min}}. Öka beloppet för att fortsätta.",
+        "simulationError": "Det gick inte att beräkna denna swap just nu. Försök igen.",
+        "swapInProgressError": "En swap pågår redan. Vänligen vänta.",
+        "insufficientBalance": "Beloppet är större än ditt tillgängliga saldo. Ange ett mindre belopp.",
+        "simulationInProgress": "Vänligen vänta, swapen beräknas fortfarande."
       }
     }
   },
   "toastmessages": {
     "confirmCopy": "Kopieras till urklipp",
-    "failedCopy": "Misslyckades med att kopiera"
+    "failedCopy": "Misslyckades med att kopiera",
+    "handleSwap": {
+      "title": "Swap-betalning mottagen",
+      "desc": "Ditt saldo uppdateras inom kort"
+    }
   },
   "errormessages": {
     "nointernet": "Återanslut till internet för att använda den här funktionen",
@@ -1836,5 +1923,49 @@
       "payment": "{{name}} betalade dig {{amount}}",
       "giftCard": "{{name}} skickade ett presentkort till dig på {{giftCardName}} "
     }
+  },
+
+  "flashnetUserMessages": {
+    "FSAG-1000": "Begäran klarade inte valideringskontrollerna.",
+    "FSAG-1001": "Ett obligatoriskt fält saknas i begäran.",
+    "FSAG-1002": "Ett eller flera fält har ogiltigt format.",
+    "FSAG-1003": "Ett värde ligger utanför det tillåtna intervallet.",
+    "FSAG-1004": "Detta värde finns redan och måste vara unikt.",
+
+    "FSAG-2001": "Begärans signatur kunde inte verifieras.",
+    "FSAG-2002": "Token-identiteten matchar inte den förväntade publika nyckeln.",
+    "FSAG-2003": "Autentisering krävs för denna åtgärd.",
+    "FSAG-2004": "Din session har gått ut eller token är ogiltig.",
+    "FSAG-2005": "Begärans nonce är ogiltig eller har redan använts.",
+    "FSAG-2101": "Den angivna publika nyckeln är ogiltig.",
+
+    "FSAG-3001": "Ett tillfälligt serviceproblem uppstod. Försök igen.",
+    "FSAG-3002": "Ett tillfälligt serviceproblem uppstod. Försök igen.",
+    "FSAG-3101": "Ett databasfel uppstod. Försök igen.",
+    "FSAG-3201": "Avvecklingstjänsten är tillfälligt otillgänglig.",
+    "FSAG-3201T1": "Avvecklingstjänsten är tillfälligt otillgänglig.",
+    "FSAG-3201T2": "Tidsgränsen för avvecklingsbegäran överskreds.",
+    "FSAG-3202": "En beroende tjänst är tillfälligt otillgänglig.",
+    "FSAG-3301": "AMM-processorn kunde inte ta emot begäran.",
+    "FSAG-3302": "AMM-processorn nådde tidsgränsen vid behandling av begäran.",
+    "FSAG-3401": "Ett internt bearbetningsfel uppstod.",
+    "FSAG-3402": "Ett internt bearbetningsfel uppstod.",
+
+    "FSAG-4001": "Den angivna poolen finns inte.",
+    "FSAG-4002": "Det angivna värd-namnområdet finns inte.",
+    "FSAG-4101": "Din autentiseringssession hittades inte eller har gått ut.",
+    "FSAG-4102": "Autentiseringsflödet följdes inte korrekt.",
+    "FSAG-4201": "Poolen har inte tillräcklig likviditet för att slutföra bytet.",
+    "FSAG-4202": "Priset rörde sig mer än din tillåtna slippage-tolerans.",
+    "FSAG-4203": "Denna åtgärd kan inte utföras i poolens nuvarande tillstånd.",
+    "FSAG-4204": "Du har inte tillräckligt med LP-token för att slutföra uttaget.",
+    "FSAG-4301": "Avgiftskonfigurationen är ogiltig.",
+    "FSAG-4401": "Denna Spark-överföring har redan använts i en åtgärd.",
+
+    "FSAG-5001": "Ett internt fel uppstod vid behandling av begäran.",
+    "FSAG-5002": "Denna funktion är ännu inte tillgänglig.",
+    "FSAG-5003": "Ett internt fel uppstod. Kontakta support om problemet kvarstår.",
+    "FSAG-5004": "Ett systemkonfigurationsfel uppstod.",
+    "FSAG-5100": "Ett oväntat serverfel uppstod."
   }
 }

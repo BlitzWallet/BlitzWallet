@@ -21,7 +21,7 @@ import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import {
   bulkUpdateSparkTransactions,
   deleteSparkTransaction,
-  // deleteUnpaidSparkLightningTransaction,
+  deleteUnpaidSparkLightningTransaction,
   getAllPendingSparkPayments,
   getAllSparkTransactions,
   getAllSparkContactInvoices,
@@ -676,42 +676,57 @@ async function processLightningTransaction(
 
   if (!IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID)) {
     // Process invoice matching with retry logic
-    const matchResult = await findMatchingInvoice(
-      possibleOptions,
-      txStateUpdate.sparkID,
-      mnemonic,
-      sendWebViewRequest,
+    const tx = await getSingleTxDetails(mnemonic, txStateUpdate.sparkID);
+
+    if (!tx) return false;
+
+    const userRequest = tx.userRequest;
+
+    if (!userRequest?.id) return false;
+
+    const savedInvoice = possibleOptions.find(
+      item => item.sparkID === userRequest?.id,
     );
 
-    // if (matchResult.savedInvoice) {
-    //   await deleteUnpaidSparkLightningTransaction(
-    //     matchResult.savedInvoice.sparkID,
-    //   );
-    // }
-
-    const savedDetails = matchResult.savedInvoice?.details
-      ? JSON.parse(matchResult.savedInvoice.details)
+    const savedDetails = savedInvoice?.details
+      ? JSON.parse(savedInvoice.details)
       : {};
+
+    if (
+      savedInvoice &&
+      (!savedDetails.performSwaptoUSD ||
+        (savedDetails.performSwaptoUSD && savedDetails.completedSwaptoUSD))
+    ) {
+      console.log(
+        'Deleting lightning payment that was swapped to USD or a nomral LN payment that is now used',
+      );
+      deleteUnpaidSparkLightningTransaction(savedInvoice.sparkID);
+    }
+
+    if (savedDetails.performSwaptoUSD && !savedDetails.completedSwaptoUSD)
+      return false;
+
+    const isSendRequest = userRequest?.typename === 'LightningSendRequest';
+    const invoice = userRequest
+      ? isSendRequest
+        ? userRequest?.encodedInvoice
+        : userRequest.invoice?.encodedInvoice
+      : '';
+    const preimage = userRequest ? userRequest?.paymentPreimage || '' : '';
 
     return {
       useTempId: true,
       tempId: txStateUpdate.sparkID,
-      id: matchResult.matchedUnpaidInvoice
-        ? matchResult.matchedUnpaidInvoice.transfer.sparkId
-        : txStateUpdate.sparkID,
-      paymentStatus: 'completed',
-      // getSparkPaymentStatus(
-      //   matchResult.matchedUnpaidInvoice.status,
-      // ),
+      id: tx.id ? tx.id : txStateUpdate.sparkID,
+      paymentStatus: getSparkPaymentStatus(tx.status),
       paymentType: 'lightning',
       accountId: txStateUpdate.accountId,
       details: {
         ...savedDetails,
-        description: matchResult.savedInvoice?.description || '',
-        address:
-          matchResult.matchedUnpaidInvoice?.invoice?.encodedInvoice || '',
-        preimage: matchResult.matchedUnpaidInvoice?.paymentPreimage || '',
-        shouldNavigate: matchResult.savedInvoice?.shouldNavigate ?? 0,
+        description: savedInvoice?.description || '',
+        address: invoice,
+        preimage: preimage,
+        shouldNavigate: savedInvoice?.shouldNavigate ?? 0,
         isLNURL: savedDetails?.isLNURL || false,
       },
     };
@@ -763,70 +778,6 @@ async function processLightningTransaction(
       preimage: preimage,
     },
   };
-}
-
-async function findMatchingInvoice(
-  possibleOptions,
-  sparkID,
-  mnemonic,
-  sendWebViewRequest,
-) {
-  const BATCH_SIZE = 3;
-
-  for (let i = 0; i < possibleOptions.length; i += BATCH_SIZE) {
-    const batch = possibleOptions.slice(i, i + BATCH_SIZE);
-
-    const batchPromises = batch.map(async invoice => {
-      const paymentDetails = await getPaymentDetailsWithRetry(
-        invoice.sparkID,
-        undefined,
-        mnemonic,
-        sendWebViewRequest,
-      );
-      if (paymentDetails?.transfer?.sparkId === sparkID) {
-        return { invoice, paymentDetails };
-      }
-      return null;
-    });
-
-    const results = await Promise.all(batchPromises);
-    const match = results.find(result => result !== null);
-
-    if (match) {
-      return {
-        savedInvoice: match.invoice,
-        matchedUnpaidInvoice: match.paymentDetails,
-      };
-    }
-  }
-
-  return { savedInvoice: null, matchedUnpaidInvoice: null };
-}
-
-async function getPaymentDetailsWithRetry(
-  lightningInvoiceId,
-  maxAttempts = 2,
-  mnemonic,
-  sendWebViewRequest,
-) {
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      const result = await getSparkLightningPaymentStatus({
-        lightningInvoiceId,
-        mnemonic,
-      });
-      if (result?.transfer !== undefined) {
-        return result;
-      }
-      if (attempt < maxAttempts - 1) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    } catch (error) {
-      if (attempt === maxAttempts - 1) throw error;
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
-  return null;
 }
 
 async function processBitcoinTransactions(
@@ -976,8 +927,7 @@ async function processSparkTransactions(
   let updatedTxs = [];
   for (const txStateUpdate of sparkTxs) {
     const details = JSON.parse(txStateUpdate.details);
-
-    if (details.isGift) {
+    if (IS_SPARK_ID.test(txStateUpdate.sparkID)) {
       const findTxResponse = await getSingleTxDetails(
         mnemonic,
         txStateUpdate.sparkID,
@@ -985,7 +935,10 @@ async function processSparkTransactions(
 
       if (!findTxResponse) continue;
 
-      includesGift = true;
+      if (details.isGift) {
+        includesGift = true;
+      }
+
       updatedTxs.push({
         id: txStateUpdate.sparkID,
         paymentStatus: getSparkPaymentStatus(findTxResponse.status),

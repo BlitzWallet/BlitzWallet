@@ -4,6 +4,7 @@ import {
   getSparkAddress,
   getSparkBalance,
   getSparkIdentityPubKey,
+  initializeFlashnet,
   initializeSparkWallet,
   setPrivacyEnabled,
 } from './spark';
@@ -20,25 +21,32 @@ export async function initWallet({
 }) {
   try {
     crashlyticsLogReport('Trying to connect to nodes');
-    const [didConnectToSpark, balance] = await Promise.all([
+    const [
+      didConnectToSpark,
+      // balance
+    ] = await Promise.all([
       initializeSparkWallet(mnemonic),
-      handleBalanceCache({
-        isCheck: false,
-        mnemonic: mnemonic,
-        returnBalanceOnly: true,
-      }),
+      // handleBalanceCache({
+      //   isCheck: false,
+      //   mnemonic: mnemonic,
+      //   returnBalanceOnly: true,
+      // }),
     ]);
 
-    if (balance) {
-      setSparkInformation(prev => ({
-        ...prev,
-        didConnect: true,
-        balance: balance,
-      }));
-    }
+    // if (balance) {
+    //   setSparkInformation(prev => ({
+    //     ...prev,
+    //     didConnect: true,
+    //     balance: balance,
+    //   }));
+    // }
 
     if (didConnectToSpark.isConnected) {
       crashlyticsLogReport('Loading node balances for session');
+      setSparkInformation(prev => ({
+        ...prev,
+        didConnect: true,
+      }));
       const didSetSpark = await initializeSparkSession({
         setSparkInformation,
         // globalContactsInformation,
@@ -76,11 +84,13 @@ export async function initializeSparkSession({
   try {
     // Clean DB state but do not hold up process
     cleanStalePendingSparkLightningTransactions();
-    const [balance, sparkAddress, identityPubKey] = await Promise.all([
-      getSparkBalance(mnemonic),
-      getSparkAddress(mnemonic),
-      getSparkIdentityPubKey(mnemonic),
-    ]);
+    const [balance, sparkAddress, identityPubKey, flashnetResponse] =
+      await Promise.all([
+        getSparkBalance(mnemonic),
+        getSparkAddress(mnemonic),
+        getSparkIdentityPubKey(mnemonic),
+        initializeFlashnet(mnemonic),
+      ]);
 
     setPrivacyEnabled(mnemonic);
     const transactions = await getCachedSparkTransactions(null, identityPubKey);
@@ -94,6 +104,7 @@ export async function initializeSparkSession({
         identityPubKey,
         sparkAddress: sparkAddress.response,
         didConnect: true,
+        didConnectToFlashnet: flashnetResponse,
       };
       await new Promise(res => setTimeout(res, 500));
       setSparkInformation(prev => ({ ...prev, ...storageObject }));
@@ -175,6 +186,7 @@ export async function initializeSparkSession({
       identityPubKey,
       sparkAddress: sparkAddress.response,
       didConnect: true,
+      didConnectToFlashnet: flashnetResponse,
     };
     console.log('Spark storage object', storageObject);
     await new Promise(res => setTimeout(res, 500));

@@ -1,3 +1,4 @@
+import { IS_SPARK_ID } from '../../constants';
 import {
   getCachedSparkTransactions,
   getSparkTokenTransactions,
@@ -20,7 +21,11 @@ export async function getLRC20Transactions({
 
     const lastSavedTokenTx = (savedTxs || []).find(tx => {
       const parsed = JSON.parse(tx?.details);
-      return parsed?.isLRC20Payment;
+      return (
+        parsed?.isLRC20Payment &&
+        tx.paymentType === 'spark' &&
+        !IS_SPARK_ID.test(tx.sparkID)
+      );
     });
 
     const lastSavedTransactionId = lastSavedTokenTx
@@ -67,7 +72,6 @@ export async function getLRC20Transactions({
           ),
         )
       ) {
-        console.log('Transaction already saved');
         continue;
       }
 
@@ -97,6 +101,8 @@ export async function getLRC20Transactions({
       newTxs.push(tx);
     }
 
+    newTxs = markFlashnetTransfersAsFailed(newTxs);
+
     // using restore flag on initial run since we know the balance updated, otherwise we need to recheck the balance. On any new txs the fullUpdate reloads the wallet balance
     await bulkUpdateSparkTransactions(
       newTxs,
@@ -107,4 +113,58 @@ export async function getLRC20Transactions({
   } finally {
     isRunning = false;
   }
+}
+
+// We do not want to show failed flashnet swaps on homepage
+function markFlashnetTransfersAsFailed(transactions, timeWindowMs = 5000) {
+  const flashnetIndices = new Set();
+
+  // Group transactions by amount AND token
+  const byAmountAndToken = {};
+  transactions.forEach((tx, index) => {
+    const amount = tx.details.amount;
+    const token = tx.details.LRC20Token;
+    const key = `${amount}-${token}`;
+
+    if (!byAmountAndToken[key]) {
+      byAmountAndToken[key] = [];
+    }
+    byAmountAndToken[key].push({ tx, index });
+  });
+
+  // Check each amount+token group for flashnet patterns
+  Object.values(byAmountAndToken).forEach(group => {
+    if (group.length < 2) return;
+
+    // Check all pairs in this amount+token group
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        const tx1 = group[i].tx;
+        const tx2 = group[j].tx;
+
+        const timeDiff = Math.abs(tx1.details.time - tx2.details.time);
+        const oppositeDirs =
+          (tx1.details.direction === 'INCOMING' &&
+            tx2.details.direction === 'OUTGOING') ||
+          (tx1.details.direction === 'OUTGOING' &&
+            tx2.details.direction === 'INCOMING');
+
+        // If same amount, same token, opposite directions, and within time window = flashnet
+        if (oppositeDirs && timeDiff <= timeWindowMs) {
+          flashnetIndices.add(group[i].index);
+          flashnetIndices.add(group[j].index);
+        }
+      }
+    }
+  });
+
+  return transactions.map((tx, index) => {
+    if (flashnetIndices.has(index)) {
+      return {
+        ...tx,
+        paymentStatus: 'failed',
+      };
+    }
+    return tx;
+  });
 }

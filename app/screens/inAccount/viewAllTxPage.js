@@ -13,10 +13,12 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import getFormattedHomepageTxsForSpark from '../../functions/combinedTransactionsSpark';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
+import { useFlashnet } from '../../../context-store/flashnetContext';
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
   const { sparkInformation, showTokensInformation } = useSparkWallet();
+  const { poolInfoRef } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [txs, setTxs] = useState([]);
@@ -48,6 +50,7 @@ export default function ViewAllTxPage() {
       userBalanceDenomination,
       didGetToHomepage: true,
       enabledLRC20,
+      poolInfoRef,
     });
 
     setTxs(txs);

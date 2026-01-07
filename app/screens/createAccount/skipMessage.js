@@ -1,11 +1,11 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {COLORS, ICONS, SIZES} from '../../constants';
-import {ThemeText} from '../../functions/CustomElements';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { COLORS, ICONS, SIZES } from '../../constants';
+import { ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
-import {useNavigation} from '@react-navigation/native';
-import {backArrow} from '../../constants/styles';
-import {useEffect, useRef, useState} from 'react';
-import {useTranslation} from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { backArrow } from '../../constants/styles';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import Animated, {
   runOnJS,
@@ -13,15 +13,17 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {MAX_CONTENT_WIDTH} from '../../constants/theme';
+import { MAX_CONTENT_WIDTH } from '../../constants/theme';
+import GetThemeColors from '../../hooks/themeColors';
 
 export default function SkipCreateAccountPathMessage() {
+  const { transparentOveraly } = GetThemeColors();
   const blurViewAnimation = useSharedValue(0);
   const isInitialLoad = useRef(true);
   const navigate = useNavigation();
   const [goBack, setGoGack] = useState(false);
   const goToPinRef = useRef(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const handleBackPressFunction = () => {
     setGoGack(true);
@@ -30,15 +32,15 @@ export default function SkipCreateAccountPathMessage() {
 
   useEffect(() => {
     if (isInitialLoad.current) {
-      blurViewAnimation.value = withTiming(1, {duration: 500});
+      blurViewAnimation.value = withTiming(1, { duration: 500 });
       isInitialLoad.current = false;
     }
     if (goBack) {
-      blurViewAnimation.value = withTiming(0, {duration: 500}, isFinished => {
+      blurViewAnimation.value = withTiming(0, { duration: 500 }, isFinished => {
         if (isFinished) {
           runOnJS(navigate.goBack)();
           if (goToPinRef.current) {
-            runOnJS(navigate.navigate)('PinSetup', {isInitialLoad: true});
+            runOnJS(navigate.navigate)('PinSetup', { isInitialLoad: true });
           }
         }
       });
@@ -51,20 +53,21 @@ export default function SkipCreateAccountPathMessage() {
 
   return (
     <Animated.View style={[styles.absolute, animatedStyle]}>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: transparentOveraly }]}>
         <View style={styles.contentContainer}>
           <TouchableOpacity
             onPress={() => setGoGack(true)}
-            style={{marginLeft: 'auto', marginBottom: 10}}>
+            style={{ marginLeft: 'auto', marginBottom: 10 }}
+          >
             <Image style={[backArrow]} source={ICONS.xSmallIcon} />
           </TouchableOpacity>
 
           <ThemeText
-            styles={{marginBottom: 20, textAlign: 'center'}}
+            styles={{ marginBottom: 20, textAlign: 'center' }}
             content={t('createAccount.skipMessage.header')}
           />
           <ThemeText
-            styles={{marginBottom: 30, textAlign: 'center'}}
+            styles={{ marginBottom: 30, textAlign: 'center' }}
             content={t('createAccount.skipMessage.subHeader')}
           />
           <CustomButton
@@ -92,7 +95,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.halfModalBackgroundColor,
   },
   absolute: {
     width: '100%',

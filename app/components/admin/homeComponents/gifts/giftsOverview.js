@@ -92,7 +92,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
 
       const timeRemaining = formatTimeRemaining(expireTime);
 
-      const useState = timeRemaining.time <= 0;
+      const isExpired = timeRemaining.time <= 0;
       // Only show outstanding and claimed gifts here, put expired gifts on reclaim page to make it easier for user
       // if (timeRemaining.time <= 0 && state === 'Expired') return null;
       return (
@@ -122,7 +122,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
             {state !== 'Claimed' && state !== 'Reclaimed' && (
               <TouchableOpacity
                 onPress={async () => {
-                  if (useState) {
+                  if (isExpired) {
                     await copyToClipboard(uuid, showToast);
                   } else {
                     await handleGiftCardShare({
@@ -141,10 +141,10 @@ export default function GiftsOverview({ theme, darkModeType }) {
                 }}
               >
                 <ThemeImage
-                  lightModeIcon={useState ? ICONS.clipboardBlue : ICONS.share}
-                  darkModeIcon={useState ? ICONS.clipboardBlue : ICONS.share}
+                  lightModeIcon={isExpired ? ICONS.clipboardBlue : ICONS.share}
+                  darkModeIcon={isExpired ? ICONS.clipboardBlue : ICONS.share}
                   lightsOutIcon={
-                    useState ? ICONS.clipboardLight : ICONS.shareWhite
+                    isExpired ? ICONS.clipboardLight : ICONS.shareWhite
                   }
                 />
               </TouchableOpacity>
@@ -164,7 +164,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
               <ThemeText
                 styles={styles.state}
                 content={
-                  useState
+                  isExpired
                     ? t(
                         `screens.inAccount.giftPages.giftsOverview.${state.toLowerCase()}`,
                       )

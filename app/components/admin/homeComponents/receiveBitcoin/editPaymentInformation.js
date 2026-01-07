@@ -89,7 +89,8 @@ export default function EditReceivePaymentInformation(props) {
             containerFunction={() => {
               if (isKeyboardFocused) return;
               setInputDenomination(prev => {
-                const newPrev = prev === 'sats' ? 'fiat' : 'sats';
+                const newPrev =
+                  prev === 'sats' || prev === 'hidden' ? 'fiat' : 'sats';
 
                 return newPrev;
               });

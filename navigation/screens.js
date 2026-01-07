@@ -78,6 +78,7 @@ import {
   SettingsIndex,
   TechnicalTransactionDetails,
   ViewAllTxPage,
+  SwapsPage,
 } from '../app/screens/inAccount';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
@@ -99,6 +100,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CameraModal', component: CameraModal },
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },
   { name: 'ShowProfileQr', component: ShowProfileQr },
+  { name: 'SwapsPage', component: SwapsPage },
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
   {

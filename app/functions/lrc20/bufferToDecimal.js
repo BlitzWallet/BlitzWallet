@@ -7,6 +7,5 @@ export default function tokenBufferAmountToDecimal(buffer) {
 
   const decimal = BigInt('0x' + hex);
 
-  console.log('Decimal value:', decimal.toString()); // 10
   return decimal;
 }

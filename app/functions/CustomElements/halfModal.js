@@ -50,6 +50,8 @@ import Animated, {
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
+import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
+import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 
 export default function CustomHalfModal(props) {
@@ -58,7 +60,8 @@ export default function CustomHalfModal(props) {
   const navigation = useNavigation();
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const { bottomPadding, topPadding } = useGlobalInsets();
@@ -66,19 +69,26 @@ export default function CustomHalfModal(props) {
 
   const translateY = useSharedValue(screenDimensions.height);
 
-  const handleBackPressFunction = useCallback(() => {
-    if (didHandleBackpress.current) return;
-    didHandleBackpress.current = true;
-    const keyboardVisible = Keyboard.isVisible();
-    Keyboard.dismiss();
-    slideOut();
-    setTimeout(
-      () => {
-        navigation.goBack();
-      },
-      keyboardVisible ? KEYBOARDTIMEOUT : 200,
-    );
-  }, [navigation]);
+  const handleBackPressFunction = useCallback(
+    customBackFunction => {
+      if (didHandleBackpress.current) return;
+      didHandleBackpress.current = true;
+      const keyboardVisible = Keyboard.isVisible();
+      Keyboard.dismiss();
+      slideOut();
+      setTimeout(
+        () => {
+          if (customBackFunction && typeof customBackFunction === 'function') {
+            customBackFunction();
+          } else {
+            navigation.goBack();
+          }
+        },
+        keyboardVisible ? KEYBOARDTIMEOUT : 200,
+      );
+    },
+    [navigation],
+  );
 
   useHandleBackPressNew(handleBackPressFunction);
 
@@ -242,11 +252,13 @@ export default function CustomHalfModal(props) {
             didWarnSpark={props?.route?.params?.didWarnSpark}
             didWarnLiquid={props?.route?.params?.didWarnLiquid}
             didWarnRootstock={props?.route?.params?.didWarnRootstock}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'customInputText':
         return (
           <CustomInputHalfModal
+            handleBackPressFunction={handleBackPressFunction}
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
@@ -316,6 +328,18 @@ export default function CustomHalfModal(props) {
       case 'SelectLRC20Token':
         return (
           <SelectLRC20Token
+            handleBackPressFunction={handleBackPressFunction}
+            isKeyboardActive={isKeyboardActive}
+            setIsKeyboardActive={setIsKeyboardActive}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
+      case 'SelectPaymentMethod':
+        return (
+          <SelectPaymentMethod
+            convertedSendAmount={props?.route?.params?.convertedSendAmount}
+            handleBackPressFunction={handleBackPressFunction}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
@@ -329,6 +353,15 @@ export default function CustomHalfModal(props) {
             claimType={props?.route?.params?.claimType}
             expertMode={props?.route?.params?.expertMode}
             customGiftIndex={props?.route?.params?.customGiftIndex}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
+      case 'SelectReceiveAsset':
+        return (
+          <SelectReceiveAsset
+            endReceiveType={props?.route?.params?.endReceiveType}
+            handleBackPressFunction={handleBackPressFunction}
             theme={theme}
             darkModeType={darkModeType}
           />
@@ -362,7 +395,7 @@ export default function CustomHalfModal(props) {
       style={styles.keyboardAvoidingView}
     >
       <TouchableOpacity
-        style={styles.backdrop}
+        style={[styles.backdrop, { backgroundColor: transparentOveraly }]}
         activeOpacity={1}
         onPress={handleBackPressFunction}
       />
@@ -432,7 +465,6 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: COLORS.halfModalBackgroundColor,
   },
   topBarContainer: {
     borderTopLeftRadius: 20,

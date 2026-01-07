@@ -23,7 +23,8 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 export default function SubmarineSwapDisplay(props) {
   const swapData = props.route.params.swap;
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, transparentOveraly } =
+    GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
   const { signer } = useRootstockProvider();
@@ -52,7 +53,11 @@ export default function SubmarineSwapDisplay(props) {
     <View
       style={[
         styles.container,
-        { paddingTop: topPadding, paddingBottom: bottomPadding },
+        {
+          paddingTop: topPadding,
+          paddingBottom: bottomPadding,
+          backgroundColor: transparentOveraly,
+        },
       ]}
     >
       <View
@@ -187,7 +192,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.halfModalBackgroundColor,
   },
   closePopup: {
     alignSelf: 'flex-end',

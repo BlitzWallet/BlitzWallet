@@ -36,7 +36,11 @@ import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import GiftConfirmation from './giftConfirmationScreen';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGifts } from '../../../../../context-store/giftContext';
@@ -380,7 +384,10 @@ export default function CreateGift(props) {
             </View>
           </KeyboardAwareScrollView>
           <CustomButton
-            buttonStyles={styles.buttonContainer}
+            buttonStyles={[
+              styles.buttonContainer,
+              { opacity: !convertedSatAmount ? HIDDEN_OPACITY : 1 },
+            ]}
             textContent={t('screens.inAccount.giftPages.createGift.button')}
             actionFunction={createGift}
           />

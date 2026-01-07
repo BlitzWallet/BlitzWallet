@@ -17,6 +17,8 @@ import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../hooks/themeColors';
 import displayCorrectDenomination from '../functions/displayCorrectDenomination';
 import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
+import { ArrowUpDown } from 'lucide-react-native';
+import { useGlobalThemeContext } from '../../context-store/theme';
 
 export function Toast({
   toast,
@@ -25,6 +27,7 @@ export function Toast({
   sparkInformation,
   masterInfoObject,
 }) {
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { topPadding } = useGlobalInsets();
   const { t } = useTranslation();
   const { backgroundColor } = GetThemeColors();
@@ -89,6 +92,8 @@ export function Toast({
         return [...baseStyle, styles.clipboardToast];
       case 'confirmTx':
         return [...baseStyle, styles.clipboardToast];
+      case 'handleSwap':
+        return [...baseStyle, styles.clipboardToast];
       case 'error':
         return [...baseStyle, styles.errorToast];
       case 'warning':
@@ -143,6 +148,13 @@ export function Toast({
                 darkModeIcon={ICONS.aboutIcon}
                 lightsOutIcon={ICONS.aboutIconBlack}
               />
+            ) : toast.type === 'handleSwap' ? (
+              <ArrowUpDown
+                style={{ marginRight: 15 }}
+                color={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+              />
             ) : (
               <ThemeText styles={styles.toastIcon} content={getIconForType()} />
             )}
@@ -167,6 +179,19 @@ export function Toast({
                         useMillionDenomination: true,
                       }),
                     })}
+                  />
+                </View>
+              ) : toast.type === 'handleSwap' ? (
+                <View>
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={[styles.paymentReceivedTitle, { fontWeight: 500 }]}
+                    content={t('toastmessages.handleSwap.title')}
+                  />
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.paymentReceivedTitle}
+                    content={t('toastmessages.handleSwap.desc')}
                   />
                 </View>
               ) : (

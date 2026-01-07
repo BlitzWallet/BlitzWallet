@@ -13,7 +13,8 @@
     "receive": "Receive",
     "accept": "Accept",
     "total_balance": "Total Balance",
-    "sat_balance": "SAT Balance",
+    "sat_balance": "Bitcoin Balance",
+    "usd_balance": "Dollar Balance",
     "amount": "Amount",
     "sent": "Sent",
     "received": "Received",
@@ -117,7 +118,11 @@
     "manage": "Manage",
     "reclaim": "Expired",
     "optionalFlag": "(Optional)",
-    "gift": "Gift"
+    "gift": "Gift",
+    "bitcoin_upper": "Bitcoin",
+    "dollars_upper": "Dollars",
+    "rate": "Rate",
+    "swap": "Swap"
   },
 
   "languages": {
@@ -914,11 +919,17 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparing invoice details",
-        "alreadyPaidInvoiceError": "You have already paid this invoice",
+        "alreadyPaidInvoiceError": "This invoice has already been paid",
         "descriptionPlaceholder": "Payment description...",
         "fallbackErrorMessage": "Error decoding invoice",
         "connectToSparkMessage": "Connecting to your wallet.",
-        "switchTokenText": "Use Different Token"
+        "switchTokenText": "Use Different Token",
+        "zeroAmountInvoiceDollarPayments": "Zero amount invoices cannot be paid with USD. Please use BTC.",
+        "decodingPayment": "Decoding payment information...",
+        "selectPaymentMethod": "Please select a payment method to continue"
+      },
+      "selectPaymentMethod": {
+        "header": "Please select how you’d like to fund your payment."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Invalid format: Addresses should be text only. Please check and try again.",
@@ -932,14 +943,14 @@
         "lnurlAuthStartMeessage": "Starting LNURL auth",
         "lnurlFailedAuthMessage": "Failed to authenticate LNURL",
         "lnurlConfirmMessage": "LNURL successfully authenticated",
-        "lnurlPayInvoiceError": "Unable to retrieve invoice from LNURL. Please try again.",
+        "lnurlPayInvoiceError": "Failed to generate invoice for LNURL payment. Please try again.",
         "lnurlWithdrawlStart": "Generating invoice for withdrawal",
         "lnurlWithdrawlInvoiceError": "Unable to generate invoice for LNURL withdrawal",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
         "invoiceDetails": "Loading details",
         "timeoutError": "The process took too long to complete. Please try again.",
-        "payingToSameAddress": "Sending to your own {{addressType}} address is not allowed."
+        "payingToSameAddress": "You cannot send a {{addressType}} payment to yourself"
       },
 
       "errorScreen": {
@@ -962,12 +973,15 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Please enter a send amount",
-        "liquidError": "{{overFlowType}} send amount {{amount}}",
-        "onchainError": "Minimum payment to a Bitcoin address is {{amount}}",
-        "lnurlPayError": "{{overFlowType}} send amount {{amount}}",
-        "lrc20FeeError": "You need {{amount}} to send tokens. Your balance is {{balance}}. Please receive some Bitcoin first.",
-        "balanceError": "Not enough funds to cover sending amount and fees"
+        "noSendAmountError": "Please enter an amount to send",
+        "noSwapForBTCPaymentsError": "Bitcoin on-chain payments can only be paid with BTC, not USD. Swaps are not available for on-chain payments.",
+        "balanceFragmentationError": "Your balance is split between BTC and USD. To complete this payment, consolidate your funds or adjust the payment method.",
+        "liquidError": "{{overFlowType}} liquid payment amount is {{amount}}",
+        "onchainError": "Bitcoin on-chain payments require a minimum of {{amount}}",
+        "lnurlPayError": "Payment amount must be between the {{overFlowType}} of {{amount}}",
+        "lrc20FeeError": "You need at least {{amount}} to pay the transaction fee. Current balance: {{balance}}",
+        "balanceError": "Insufficient balance to complete this payment",
+        "swapMinimumError": "{{currency1}} to {{currency2}} swaps require a minimum of {{amount}}"
       }
     },
     "switchOption": {
@@ -1290,6 +1304,7 @@
       "selectionTitle": "Choose Network",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
+      "flashnet": "BTC <> USD",
       "pageTitle": "{{type}} Transfers"
     },
 
@@ -1346,11 +1361,16 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet provides free and open-source tools for the Bitcoin community.\n\nTo support the long-term sustainability of the project, a small transaction fee will be applied to each payment.\n\nOnce fees are active, they will be displayed here.",
+      "description": "Blitz Wallet provides free and open-source tools for the Bitcoin community.\n\nTo support the long-term sustainability of the project, a small transaction fee will be applied to each payment.\n\nThe breakdown of fees is below.",
       "upTo": "Up To",
       "fixedFee": "Fixed Fee",
       "percent": "Percent",
-      "noLimit": "No limit"
+      "noLimit": "No limit",
+      "transactionType": "Transaction Type",
+      "swapsType": "BTC <> USD Swaps",
+      "swapsFee": "{{poolFee}}% pool fee + {{blitzFee}}% Blitz fee",
+      "othersType": "All other",
+      "othersFee": "Network Fees"
     },
 
     "nip5": {
@@ -1562,7 +1582,8 @@
         "paymentStatus": "Payment status",
         "confReqired": "Confs required",
         "detailsBTN": "Technical details",
-        "contactPaymentType": "Contact"
+        "contactPaymentType": "Contact",
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
@@ -1585,19 +1606,29 @@
         "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and a 0.1% Spark fee.\n\nIf you send money to yourself, you'll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you'll only pay the network fee once to claim it.",
         "liquidFeeMessage": "Payments received to Liquid addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
         "rootstockFeeMessage": "Payments received to Rootstock addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
+        "lightningConvertMessage": "Receiving dollars from Lightning requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is {{satExchangeRate}} per {{dollarAmount}}.",
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
+        "receiveAsHeader": "Receive as",
+        "receiveAs_spark_BTC": "Bitcoin or Tokens",
+        "receiveAs_lightning_BTC": "Keep in Bitcoin",
+        "receiveAs_spark_USD": "Dollars",
+        "receiveAs_lightning_USD": "Convert to dollars",
+        "amount_USD_MIN": "Min {{swapAmountSat}}",
         "invoiceDescription_lightningInvoice": "Lightning invoice",
         "invoiceDescription_lightningAddress": "Lightning address",
         "invoiceDescription_bitcoinAddress": "Bitcoin address",
         "invoiceDescription_liquidAddress": "Liquid address",
         "invoiceDescription_sparkAddress": "Spark address",
         "invoiceDescription_rootstockAddress": "Rootstock address",
-        "header_lightning": "Bitcoin via Lightning",
+        "header_lightning_btc": "Bitcoin via Lightning",
+        "header_lightning_usd": "Dollars via Lightning",
         "header_bitcoin": "Bitcoin",
-        "header_spark": "Bitcoin/Tokens via Spark",
+        "header_spark_btc": "Bitcoin/Tokens via Spark",
+        "header_spark_usd": "Dollars via Spark",
         "header_liquid": "Bitcoin via Liquid",
-        "header_rootstock": "Bitcoin via Rootstock"
+        "header_rootstock": "Bitcoin via Rootstock",
+        "selectReceiveAssetHead": "Select the asset to receive"
       },
 
       "settingsContent": {
@@ -1713,7 +1744,9 @@
           "header": "Enter gift link",
           "desc": "Paste the gift link you received or scan the QR code to claim your gift",
           "inputPlaceholder": "Enter gift link",
-          "claim": "Claim"
+          "claim": "Claim",
+          "noGiftLinkError": "We couldn’t find a gift link. Please scan or paste the link you received.",
+          "invliadGiftFormat": "Invalid gift link. Please copy the full link and try again."
         },
         "reclaimPage": {
           "header": "Reclaim your gift",
@@ -1768,13 +1801,74 @@
           "giftBalanceMessage_3": "Finishing up the last steps...",
           "claimingGiftMessage4": "Claiming Gift..."
         }
+      },
+      "swapsPage": {
+        "noPoolFoundBackup": "BTC/USDB pool not found",
+        "loadPoolError": "Failed to load pool information",
+        "noPoolsFoundError": "No pools found for {{tokenAAddress}}/{{tokenBAddress}}",
+        "highPriceImpact": "High price impact: {{priceImpact}}",
+        "slippageError": "Price moved too much. Try increasing slippage tolerance.",
+        "noLiquidity": "Not enough liquidity. Try a smaller amount or different pool.",
+        "authenticationError": "Authentication failed. Please reconnect.",
+        "noPoolError": "Pool does not exist.",
+        "automaticRecovery": "Funds recovered automatically.",
+        "semiRecovered": "Some funds need manual recovery.",
+        "willRecover": "Funds will be returned automatically.",
+        "failedSimulation": "Simulation failed",
+        "swapAmountCalculatorFailed": "'Failed to calculate swap amount",
+        "invalidAmount": "Please enter a valid amount",
+        "priceImpact": "Price Impact: {{impact}}%\n Do you still want to swap?",
+        "swapFailedBackupError": "Swap failed",
+        "swapAutomaticRecovery": "\n\nYour funds have been automatically recovered.",
+        "swapPartialRecovery": "\n\nSome funds recovered automatically ({{count}}).",
+        "swapFutureRecovery": "\n\nYour funds will be automatically refunded.",
+        "swapSlippageError": "\n\nTry increasing slippage tolerance or waiting for better market conditions.",
+        "swapLiquidityError": "\n\nTry swapping a smaller amount or waiting for more liquidity.",
+        "fullSwapError": "An unexpected error occurred during the swap. Please try again.",
+        "checkSwapMessage": "High price impact",
+        "__COMMENT__": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
+        "swapConfimred": "Swap Successful",
+        "youSent": "You sent",
+        "youReceived": "You received",
+        "newSwap": "New Swap",
+        "loadingPool": "Loading swap information...",
+        "fromBalance": "I have {{amount}}",
+        "toBalance": "I want",
+        "min": "MIN",
+        "half": "HALF",
+        "max": "MAX",
+        "swappingMessageButton": "Swapping...",
+        "loadingMessageButton": "Loading...",
+        "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
+        "swapDisclaimer": "Swap services are available through third-party API providers.",
+        "serviceUnavailableHead": "Service Unavailable",
+        "serviceUnavailableDesc": "Unable to connect to swap service. Please check your connection and try again.",
+        "swapDirection_usdbtc": "USD → BTC",
+        "swapDirection_btcusd": "BTC → USD",
+        "paymentDescription_outgoing": "{{swapDirection}}",
+        "paymentDescription_incoming": "{{swapDirection}}",
+        "yourAreConverting": "You are converting",
+        "youWillReceive": "You will receive",
+        "bitcoinPrice": "Bitcoin Price",
+        "swapFee": "Swap Fee",
+        "exchangeRate": "Exchange Rate",
+        "minBTCError": "Minimum BTC amount is {{min}}. Please increase the amount to continue.",
+        "minUSDError": "Minimum USD amount is {{min}}. Please increase the amount to continue.",
+        "simulationError": "We couldn’t calculate this swap right now. Please try again.",
+        "swapInProgressError": "A swap is already in progress. Please wait.",
+        "insufficientBalance": "The amount is greater than your available balance. Please enter a smaller amount.",
+        "simulationInProgress": "Please wait, the swap is still being calculated."
       }
     }
   },
 
   "toastmessages": {
     "confirmCopy": "Copied to clipboard",
-    "failedCopy": "Failed to copy"
+    "failedCopy": "Failed to copy",
+    "handleSwap": {
+      "title": "Swap payment received",
+      "desc": "Your balance will update shortly"
+    }
   },
 
   "errormessages": {
@@ -1870,5 +1964,49 @@
       "payment": "{{name}} paid you {{amount}}",
       "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
     }
+  },
+
+  "flashnetUserMessages": {
+    "FSAG-1000": "The request failed validation checks.",
+    "FSAG-1001": "A required field is missing from your request.",
+    "FSAG-1002": "One or more fields have an invalid format.",
+    "FSAG-1003": "A value is outside the acceptable range.",
+    "FSAG-1004": "This value already exists and must be unique.",
+
+    "FSAG-2001": "Your request signature could not be verified.",
+    "FSAG-2002": "The token identity doesn't match the expected public key.",
+    "FSAG-2003": "Authentication is required for this operation.",
+    "FSAG-2004": "Your session has expired or the token is invalid.",
+    "FSAG-2005": "The request nonce is invalid or has already been used.",
+    "FSAG-2101": "The provided public key is invalid.",
+
+    "FSAG-3001": "A temporary service issue occurred. Please try again.",
+    "FSAG-3002": "A temporary service issue occurred. Please try again.",
+    "FSAG-3101": "A database error occurred. Please try again.",
+    "FSAG-3201": "The settlement service is temporarily unavailable.",
+    "FSAG-3201T1": "The settlement service is temporarily unavailable.",
+    "FSAG-3201T2": "The settlement request timed out.",
+    "FSAG-3202": "A dependent service is temporarily unavailable.",
+    "FSAG-3301": "The AMM processor couldn't receive your request.",
+    "FSAG-3302": "The AMM processor timed out while processing your request.",
+    "FSAG-3401": "An internal processing error occurred.",
+    "FSAG-3402": "An internal processing error occurred.",
+
+    "FSAG-4001": "The specified pool does not exist.",
+    "FSAG-4002": "The specified host namespace does not exist.",
+    "FSAG-4101": "Your authentication session was not found or has expired.",
+    "FSAG-4102": "The authentication flow was not followed correctly.",
+    "FSAG-4201": "The pool doesn't have enough liquidity to complete this swap.",
+    "FSAG-4202": "The price moved more than your allowed slippage tolerance.",
+    "FSAG-4203": "This operation cannot be performed while the pool is in its current phase.",
+    "FSAG-4204": "You don't have enough LP tokens to complete this withdrawal.",
+    "FSAG-4301": "The fee configuration is invalid.",
+    "FSAG-4401": "This Spark transfer has already been used in an operation.",
+
+    "FSAG-5001": "An internal error occurred while processing your request.",
+    "FSAG-5002": "This feature is not yet available.",
+    "FSAG-5003": "An internal error occurred. Please contact support if this persists.",
+    "FSAG-5004": "A system configuration error occurred.",
+    "FSAG-5100": "An unexpected error occurred on the server."
   }
 }

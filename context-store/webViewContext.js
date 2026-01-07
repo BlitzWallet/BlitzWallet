@@ -29,6 +29,7 @@ import { useActiveCustodyAccount } from './activeAccount';
 import { useAuthContext } from './authContext';
 
 export const OPERATION_TYPES = {
+  // Spark
   initWallet: 'initializeSparkWallet',
   getIdentityKey: 'getSparkIdentityPubKey',
   getBalance: 'getSparkBalance',
@@ -54,6 +55,28 @@ export const OPERATION_TYPES = {
   removeListeners: 'removeWalletEventListener',
   setPrivacyEnabled: 'setPrivacyEnabled',
   getSingleTxDetails: 'getSingleTxDetails',
+  createSatsInvoice: 'createSatsInvoice',
+  createTokensInvoice: 'createTokensInvoice',
+
+  // Flashnet
+  initializeFlashnet: 'initializeFlashnet',
+  listFlashnetPools: 'listFlashnetPools',
+  findBestPool: 'findBestPool',
+  getPoolDetails: 'getPoolDetails',
+  listAllPools: 'listAllPools',
+  minFlashnetSwapAmounts: 'minFlashnetSwapAmounts',
+  simulateSwap: 'simulateSwap',
+  executeSwap: 'executeSwap',
+  swapBitcoinToToken: 'swapBitcoinToToken',
+  swapTokenToBitcoin: 'swapTokenToBitcoin',
+  getLightningPaymentQuote: 'getLightningPaymentQuote',
+  payLightningWithToken: 'payLightningWithToken',
+  getUserSwapHistory: 'getUserSwapHistory',
+  requestClawback: 'requestClawback',
+  checkClawbackEligibility: 'checkClawbackEligibility',
+  checkClawbackStatus: 'checkClawbackStatus',
+  requestBatchClawback: 'requestBatchClawback',
+  listClawbackableTransfers: 'listClawbackableTransfers',
 };
 
 const longOperations = [
@@ -65,6 +88,12 @@ const longOperations = [
   OPERATION_TYPES.sendLightningPayment,
   OPERATION_TYPES.sendBitcoinPayment,
   OPERATION_TYPES.initWallet,
+  OPERATION_TYPES.initializeFlashnet,
+  OPERATION_TYPES.executeSwap,
+  OPERATION_TYPES.swapBitcoinToToken,
+  OPERATION_TYPES.swapTokenToBitcoin,
+  OPERATION_TYPES.payLightningWithToken,
+  OPERATION_TYPES.requestClawback,
 ];
 
 const mediumOperations = [
@@ -80,6 +109,8 @@ const mediumOperations = [
   OPERATION_TYPES.getSingleTxDetails,
   OPERATION_TYPES.getTokenTransactions,
   OPERATION_TYPES.setPrivacyEnabled,
+  OPERATION_TYPES.simulateSwap,
+  OPERATION_TYPES.requestBatchClawback,
 ];
 
 const rejectIfNotConnectedToInternet = [

@@ -14,14 +14,19 @@ import SkeletonTextPlaceholder from '../../../../functions/CustomElements/skelet
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import { formatBalanceAmount } from '../../../../functions';
 
 export const UserSatAmount = memo(function UserSatAmount({
   isConnectedToTheInternet,
   theme,
   darkModeType,
   sparkInformation,
+  mode,
 }) {
   // const didMount = useRef(null);
+  const { bitcoinBalance, dollarBalanceToken, totalSatValue } =
+    useUserBalanceContext();
 
   const { masterInfoObject, toggleMasterInfoObject, setMasterInfoObject } =
     useGlobalContextProvider();
@@ -30,11 +35,17 @@ export const UserSatAmount = memo(function UserSatAmount({
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
   // const [balanceWidth, setBalanceWidth] = useState(0);
-  const userBalance = sparkInformation.balance;
+
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
   const { t } = useTranslation();
   const [layout, setlayout] = useState({ height: 45, width: 87 });
 
+  const displayBalance =
+    mode === 'total'
+      ? totalSatValue
+      : mode === 'sats'
+      ? bitcoinBalance
+      : formatBalanceAmount(dollarBalanceToken, false, masterInfoObject);
   // useEffect(() => {
   //   didMount.current = true;
   //   return () => (didMount.current = false);
@@ -50,13 +61,14 @@ export const UserSatAmount = memo(function UserSatAmount({
   // );
 
   const handleBalanceChange = useCallback(() => {
+    if (mode !== 'total') return;
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('errormessages.nointernet'),
       });
       return;
     }
-    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
 
     if (masterInfoObject.userBalanceDenomination === 'sats')
       handleDBStateChange(
@@ -85,7 +97,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   }, [
     isConnectedToTheInternet,
     masterInfoObject.userBalanceDenomination,
-    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
   ]);
 
   return (
@@ -93,20 +105,31 @@ export const UserSatAmount = memo(function UserSatAmount({
       // onLayout={handleLayout}
       style={styles.balanceContainer}
       onPress={handleBalanceChange}
+      activeOpacity={mode === 'total' ? 0.2 : 1}
     >
       <SkeletonTextPlaceholder
         highlightColor={backgroundColor}
         backgroundColor={COLORS.opaicityGray}
         speed={SKELETON_ANIMATION_SPEED}
-        enabled={!sparkInformation.didConnect}
+        enabled={!sparkInformation.identityPubKey}
         layout={layout}
       >
         <View onLayout={event => setlayout(event.nativeEvent.layout)}>
           <FormattedSatText
-            useSpaces={sparkInformation.didConnect || userBalance}
             styles={styles.valueText}
-            balance={userBalance || 0}
+            balance={displayBalance}
             useSizing={true}
+            globalBalanceDenomination={
+              masterInfoObject.userBalanceDenomination === 'hidden'
+                ? masterInfoObject.userBalanceDenomination
+                : mode === 'total'
+                ? undefined
+                : mode === 'sats'
+                ? 'sats'
+                : 'fiat'
+            }
+            forceCurrency={mode === 'usd' ? 'USD' : null}
+            useBalance={mode === 'usd'}
           />
         </View>
       </SkeletonTextPlaceholder>
@@ -117,7 +140,7 @@ export const UserSatAmount = memo(function UserSatAmount({
 const styles = StyleSheet.create({
   balanceContainer: {
     justifyContent: 'center',
-    marginBottom: 20,
+    // marginBottom: 20,
     position: 'relative',
     width: INSET_WINDOW_WIDTH,
     minHeight: 45,

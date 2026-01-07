@@ -38,6 +38,14 @@ export default function AdvancedGiftClaim() {
   const handleClaim = async () => {
     const num = parseInt(giftNumber);
     if (!giftNumber || num < 1 || num > currentGiftIndex) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t(
+          'screens.inAccount.giftPages.advancedMode.invalidGiftNum',
+          {
+            currentGiftIndex,
+          },
+        ),
+      });
       return;
     }
     setGiftNumber('');

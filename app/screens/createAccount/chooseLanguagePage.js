@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     maxWidth: MAX_CONTENT_WIDTH,
     backgroundColor: COLORS.darkModeText,
-    height: 46,
     borderRadius: 8,
     ...CENTER,
   },

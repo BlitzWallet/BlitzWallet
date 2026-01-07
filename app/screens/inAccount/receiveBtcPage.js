@@ -11,10 +11,12 @@ import {
   ICONS,
   COLORS,
   SKELETON_ANIMATION_SPEED,
+  APPROXIMATE_SYMBOL,
+  HIDDEN_BALANCE_TEXT,
 } from '../../constants';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { copyToClipboard } from '../../functions';
+import { copyToClipboard, formatBalanceAmount } from '../../functions';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { ButtonsContainer } from '../../components/admin/homeComponents/receiveBitcoin';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -47,11 +49,14 @@ import Animated, {
 import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useSparkWallet } from '../../../context-store/sparkContext';
+import { useFlashnet } from '../../../context-store/flashnetContext';
+import { satsToDollars } from '../../functions/spark/flashnet';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
+  const { swapLimits, poolInfoRef } = useFlashnet();
   const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
@@ -63,9 +68,12 @@ export default function ReceivePaymentHome(props) {
     useActiveCustodyAccount();
   const [contentHeight, setContentHeight] = useState(0);
   const { startLiquidEventListener } = useLiquidEvent();
-  const initialSendAmount = props.route.params?.receiveAmount || 0;
+  const userReceiveAmount = props.route.params?.receiveAmount || 0;
+  const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
+
   const paymentDescription = props.route.params?.description;
   const requestUUID = props.route.params?.uuid;
+  const endReceiveType = props?.route.params.endReceiveType || 'BTC';
   useHandleBackPressNew();
   const selectedRecieveOption =
     props.route.params?.selectedRecieveOption || 'Lightning';
@@ -104,11 +112,12 @@ export default function ReceivePaymentHome(props) {
 
       if (
         prevRequstInfo.current &&
-        initialSendAmount === prevRequstInfo.current.initialSendAmount &&
+        userReceiveAmount === prevRequstInfo.current.userReceiveAmount &&
         selectedRecieveOption.toLowerCase() ===
           prevRequstInfo.current.selectedRecieveOption.toLowerCase() &&
         paymentDescription === prevRequstInfo.current.paymentDescription &&
-        !addressStateRef.current.errorMessageText.text
+        !addressStateRef.current.errorMessageText.text &&
+        endReceiveType === prevRequstInfo.current.endReceiveType
       ) {
         // This checks if we had a previous requst
         // And all other formation is the same
@@ -118,15 +127,18 @@ export default function ReceivePaymentHome(props) {
 
       // Update prev request info to the new data
       prevRequstInfo.current = {
-        initialSendAmount,
+        userReceiveAmount,
         selectedRecieveOption,
         paymentDescription,
+        endReceiveType,
       };
       if (
-        !initialSendAmount &&
+        !userReceiveAmount &&
         selectedRecieveOption.toLowerCase() === 'lightning' &&
-        !isUsingAltAccount
+        !isUsingAltAccount &&
+        endReceiveType === 'BTC'
       ) {
+        setInitialSendAmount(0);
         setAddressState(prev => ({
           ...prev,
           generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
@@ -136,7 +148,7 @@ export default function ReceivePaymentHome(props) {
 
       await initializeAddressProcess({
         userBalanceDenomination: masterInfoObject.userBalanceDenomination,
-        receivingAmount: initialSendAmount,
+        receivingAmount: userReceiveAmount,
         description: paymentDescription,
         masterInfoObject,
         // minMaxSwapAmounts: minMaxLiquidSwapAmounts,
@@ -149,6 +161,10 @@ export default function ReceivePaymentHome(props) {
         currentWalletMnemoinc,
         sendWebViewRequest,
         sparkInformation,
+        endReceiveType,
+        swapLimits,
+        setInitialSendAmount,
+        userReceiveAmount,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener(60);
@@ -158,12 +174,19 @@ export default function ReceivePaymentHome(props) {
     }
     runAddressInit();
   }, [
-    initialSendAmount,
+    userReceiveAmount,
     paymentDescription,
     selectedRecieveOption,
     requestUUID,
+    endReceiveType,
   ]);
 
+  const headerContext =
+    selectedRecieveOption?.toLowerCase() === 'spark' ||
+    selectedRecieveOption?.toLowerCase() === 'lightning'
+      ? selectedRecieveOption?.toLowerCase() +
+        `_${endReceiveType?.toLowerCase()}`
+      : selectedRecieveOption?.toLowerCase();
   const handleShare = () => {
     if (!addressState.generatedAddress) return;
     if (addressState.isGeneratingInvoice) return;
@@ -201,7 +224,7 @@ export default function ReceivePaymentHome(props) {
           <ThemeText
             styles={styles.title}
             content={t('screens.inAccount.receiveBtcPage.header', {
-              context: selectedRecieveOption?.toLowerCase(),
+              context: headerContext,
             })}
           />
           <QrCode
@@ -214,6 +237,9 @@ export default function ReceivePaymentHome(props) {
             fiatStats={fiatStats}
             isUsingAltAccount={isUsingAltAccount}
             t={t}
+            endReceiveType={endReceiveType}
+            swapLimits={swapLimits}
+            poolInfoRef={poolInfoRef}
           />
 
           <ButtonsContainer
@@ -228,14 +254,17 @@ export default function ReceivePaymentHome(props) {
 
           <TouchableOpacity
             activeOpacity={
-              selectedRecieveOption.toLowerCase() !== 'lightning' &&
+              (selectedRecieveOption.toLowerCase() !== 'lightning' ||
+                (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                  endReceiveType === 'USD')) &&
               selectedRecieveOption.toLowerCase() !== 'spark'
                 ? 0.2
                 : 1
             }
             onPress={() => {
               if (
-                selectedRecieveOption.toLowerCase() === 'lightning' ||
+                (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                  endReceiveType !== 'USD') ||
                 selectedRecieveOption.toLowerCase() === 'spark'
               )
                 return;
@@ -276,6 +305,35 @@ export default function ReceivePaymentHome(props) {
                     }),
                   },
                 );
+              } else if (selectedRecieveOption.toLowerCase() === 'lightning') {
+                informationText = t(
+                  'screens.inAccount.receiveBtcPage.lightningConvertMessage',
+                  {
+                    convertFee: formatBalanceAmount(
+                      poolInfoRef.lpFeeBps / 100 + 1,
+                      false,
+                      masterInfoObject,
+                    ),
+                    satExchangeRate: displayCorrectDenomination({
+                      amount: Math.round(poolInfoRef.currentPriceAInB),
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'sats',
+                      },
+                      fiatStats,
+                    }),
+                    dollarAmount: displayCorrectDenomination({
+                      amount: 1,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'fiat',
+                      },
+                      fiatStats,
+                      forceCurrency: 'USD',
+                      convertAmount: false,
+                    }),
+                  },
+                );
               }
               navigate.navigate('InformationPopup', {
                 textContent: informationText,
@@ -291,7 +349,9 @@ export default function ReceivePaymentHome(props) {
                 styles={styles.feeTitleText}
                 content={t('constants.fee')}
               />
-              {selectedRecieveOption.toLowerCase() !== 'lightning' &&
+              {(selectedRecieveOption.toLowerCase() !== 'lightning' ||
+                (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                  endReceiveType === 'USD')) &&
                 selectedRecieveOption.toLowerCase() !== 'spark' && (
                   <ThemeImage
                     styles={styles.AboutIcon}
@@ -301,7 +361,9 @@ export default function ReceivePaymentHome(props) {
                   />
                 )}
             </View>
-            {selectedRecieveOption.toLowerCase() !== 'lightning' &&
+            {(selectedRecieveOption.toLowerCase() !== 'lightning' ||
+              (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                endReceiveType === 'USD')) &&
             selectedRecieveOption.toLowerCase() !== 'spark' ? (
               <ThemeText content={t('constants.veriable')} />
             ) : (
@@ -329,6 +391,9 @@ function QrCode(props) {
     fiatStats,
     isUsingAltAccount,
     t,
+    endReceiveType,
+    swapLimits,
+    poolInfoRef,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
@@ -337,7 +402,8 @@ function QrCode(props) {
   const isUsingLnurl =
     selectedRecieveOption.toLowerCase() === 'lightning' &&
     !initialSendAmount &&
-    !isUsingAltAccount;
+    !isUsingAltAccount &&
+    endReceiveType === 'BTC';
 
   const qrOpacity = useSharedValue(addressState.generatedAddress ? 1 : 0);
   const loadingOpacity = useSharedValue(isUsingLnurl ? 0 : 1);
@@ -417,6 +483,10 @@ function QrCode(props) {
     selectedRecieveOption?.toLowerCase() !== 'spark' &&
     selectedRecieveOption?.toLowerCase() !== 'rootstock';
 
+  const canConvert =
+    selectedRecieveOption?.toLowerCase() === 'spark' ||
+    selectedRecieveOption?.toLowerCase() === 'lightning';
+
   const showLongerAddress =
     (selectedRecieveOption?.toLowerCase() === 'bitcoin' ||
       selectedRecieveOption?.toLowerCase() === 'liquid') &&
@@ -429,11 +499,13 @@ function QrCode(props) {
     });
   };
 
-  // const editLNURL = () => {
-  //   navigate.navigate('CustomHalfModal', {
-  //     wantedContent: 'editLNURLOnReceive',
-  //   });
-  // };
+  const selectReceiveTypeAsset = () => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'SelectReceiveAsset',
+      endReceiveType,
+      sliderHight: 0.5,
+    });
+  };
 
   const qrData = isUsingLnurl
     ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
@@ -445,6 +517,22 @@ function QrCode(props) {
         ? 'lightningInvoice'
         : 'lightningAddress'
       : `${selectedRecieveOption.toLowerCase()}Address`;
+
+  const approximateUSDAmount = ` ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination(
+    {
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: 'fiat',
+      },
+      forceCurrency: 'USD',
+      fiatStats: fiatStats,
+      amount: (
+        satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
+        (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
+      ).toFixed(2),
+      convertAmount: false,
+    },
+  )}`;
 
   return (
     <View
@@ -508,17 +596,41 @@ function QrCode(props) {
         </View>
       </TouchableOpacity>
 
+      {canConvert && (
+        <QRInformationRow
+          title={t('screens.inAccount.receiveBtcPage.receiveAsHeader')}
+          info={t(
+            `screens.inAccount.receiveBtcPage.receiveAs_${selectedRecieveOption?.toLowerCase()}_${endReceiveType}`,
+          )}
+          lightModeIcon={ICONS.leftCheveronDark}
+          darkModeIcon={ICONS.leftCheveronLight}
+          lightsOutIcon={ICONS.leftCheveronLight}
+          showBoder={true}
+          rotateIcon={true}
+          actionFunction={selectReceiveTypeAsset}
+        />
+      )}
+
       {canUseAmount && (
         <QRInformationRow
           title={t('constants.amount')}
           info={
             !initialSendAmount
               ? t('screens.inAccount.receiveBtcPage.amountPlaceholder')
+              : endReceiveType === 'USD' &&
+                initialSendAmount === swapLimits.bitcoin
+              ? t('screens.inAccount.receiveBtcPage.amount_USD_MIN', {
+                  swapAmountSat: displayCorrectDenomination({
+                    masterInfoObject: masterInfoObject,
+                    fiatStats: fiatStats,
+                    amount: initialSendAmount,
+                  }),
+                }) + approximateUSDAmount
               : displayCorrectDenomination({
                   masterInfoObject: masterInfoObject,
                   fiatStats: fiatStats,
                   amount: initialSendAmount,
-                })
+                }) + (endReceiveType === 'USD' ? approximateUSDAmount : '')
           }
           lightModeIcon={ICONS.editIcon}
           darkModeIcon={ICONS.editIconLight}
@@ -571,6 +683,7 @@ function QRInformationRow({
   showBoder,
   actionFunction,
   showSkeleton = false,
+  rotateIcon = false,
 }) {
   const { backgroundColor } = GetThemeColors();
   return (
@@ -628,6 +741,7 @@ function QRInformationRow({
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 8,
+          transform: [{ rotate: rotateIcon ? '-90deg' : '0deg' }],
         }}
       >
         <ThemeImage
@@ -701,4 +815,13 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   infoTextContiner: { width: '100%', flexShrink: 1, marginRight: 10 },
+  dollarPrice: {
+    textAlign: 'center',
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_BALANCE_TEXT,
+    marginTop: 12,
+    lineHeight: 16,
+    maxWidth: 250,
+    ...CENTER,
+  },
 });

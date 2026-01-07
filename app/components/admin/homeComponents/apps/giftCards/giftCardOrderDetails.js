@@ -4,21 +4,21 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {CENTER, COLORS, FONT, SIZES} from '../../../../../constants';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {copyToClipboard} from '../../../../../functions';
+import { CENTER, COLORS, FONT, SIZES } from '../../../../../constants';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { copyToClipboard } from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {openInbox} from 'react-native-email-link';
+import { openInbox } from 'react-native-email-link';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
 
 export default function GiftCardOrderDetails(props) {
-  const {backgroundColor} = GetThemeColors();
-  const {showToast} = useToast();
-  const {t} = useTranslation();
+  const { backgroundColor, transparentOveraly } = GetThemeColors();
+  const { showToast } = useToast();
+  const { t } = useTranslation();
 
   const item = props.route.params?.item;
   const navigate = useNavigation();
@@ -26,7 +26,12 @@ export default function GiftCardOrderDetails(props) {
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
-      <View style={styles.globalContainer}>
+      <View
+        style={[
+          styles.globalContainer,
+          { backgroundColor: transparentOveraly },
+        ]}
+      >
         <TouchableWithoutFeedback>
           <View
             style={[
@@ -34,7 +39,8 @@ export default function GiftCardOrderDetails(props) {
               {
                 backgroundColor: backgroundColor,
               },
-            ]}>
+            ]}
+          >
             <ThemeText
               styles={styles.headerText}
               content={t('apps.giftCards.giftCardOrderDetails.title')}
@@ -48,7 +54,8 @@ export default function GiftCardOrderDetails(props) {
               style={styles.itemContainer}
               onPress={() => {
                 copyToClipboard(item.invoice, showToast);
-              }}>
+              }}
+            >
               <ThemeText CustomNumberOfLines={2} content={item.invoice} />
             </TouchableOpacity>
             <ThemeText
@@ -59,7 +66,8 @@ export default function GiftCardOrderDetails(props) {
               style={styles.itemContainer}
               onPress={() => {
                 copyToClipboard(JSON.stringify(item.id), showToast);
-              }}>
+              }}
+            >
               <ThemeText content={item.id} />
             </TouchableOpacity>
             <ThemeText
@@ -70,7 +78,8 @@ export default function GiftCardOrderDetails(props) {
               style={styles.itemContainer}
               onPress={() => {
                 copyToClipboard(item.uuid, showToast);
-              }}>
+              }}
+            >
               <ThemeText CustomNumberOfLines={1} content={item.uuid} />
             </TouchableOpacity>
             <CustomButton
@@ -100,7 +109,7 @@ export default function GiftCardOrderDetails(props) {
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
+
     alignItems: 'center',
     justifyContent: 'center',
   },
