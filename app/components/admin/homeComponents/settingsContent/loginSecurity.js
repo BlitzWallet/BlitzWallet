@@ -33,6 +33,7 @@ export default function LoginSecurity({ extraData }) {
   });
   const [useRandomPinLayout, setUseRandomPinLayout] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
+  const [showSecurityChoice, setShowSecurityChoice] = useState(false);
   const { accountMnemoinc } = useKeysContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -77,6 +78,7 @@ export default function LoginSecurity({ extraData }) {
           isPinEnabled: true,
           isBiometricEnabled: false,
         });
+        setShowSecurityChoice(false);
       } catch (err) {
         console.log('PIN switch error:', err);
         navigate.navigate('ErrorScreen', { errorMessage: err.message });
@@ -88,12 +90,13 @@ export default function LoginSecurity({ extraData }) {
 
   const toggleSecurityEnabled = useCallback(async () => {
     try {
-      setIsSwitching(true);
       if (!securityLoginSettings.isSecurityEnabled) {
-        navigate.navigate('ConfirmPinForLoginMode');
+        // Show choice when enabling security
+        setShowSecurityChoice(true);
         return;
       }
 
+      setIsSwitching(true);
       const success = await handleLoginSecuritySwitch(
         accountMnemoinc,
         '',
@@ -106,6 +109,7 @@ export default function LoginSecurity({ extraData }) {
         ...securityLoginSettings,
         isSecurityEnabled: false,
       });
+      setShowSecurityChoice(false);
     } catch (err) {
       console.log('Toggle switch error:', err);
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
@@ -127,6 +131,55 @@ export default function LoginSecurity({ extraData }) {
     } finally {
     }
   }, [useRandomPinLayout]);
+
+  const handleInitialSecurityChoice = useCallback(
+    async type => {
+      try {
+        setIsSwitching(true);
+        if (type === 'biometric') {
+          if (!(await hasHardware())) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('settings.loginSecurity.noBiometricsError'),
+            });
+            return;
+          }
+
+          if (!(await hasSavedProfile())) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('settings.loginSecurity.noBiometricProfileError'),
+            });
+            return;
+          }
+
+          const success = await handleLoginSecuritySwitch(
+            accountMnemoinc,
+            '',
+            'biometric',
+          );
+          if (!success)
+            throw new Error(t('settings.loginSecurity.biometricSignInError'));
+
+          await updateSecuritySettings({
+            isSecurityEnabled: true,
+            isBiometricEnabled: true,
+            isPinEnabled: false,
+          });
+          setShowSecurityChoice(false);
+        } else {
+          // Navigate to PIN setup
+          navigate.navigate('ConfirmPinForLoginMode');
+          return;
+        }
+      } catch (err) {
+        console.log('Initial security choice error:', err);
+        navigate.navigate('ErrorScreen', { errorMessage: err.message });
+        setShowSecurityChoice(false);
+      } finally {
+        setIsSwitching(false);
+      }
+    },
+    [securityLoginSettings],
+  );
 
   const toggleLoginSecurity = useCallback(
     async type => {
@@ -193,6 +246,35 @@ export default function LoginSecurity({ extraData }) {
         toggleSwitchStateValue={securityLoginSettings.isSecurityEnabled}
         containerStyles={styles.switchContainer}
       />
+
+      {showSecurityChoice && (
+        <View style={{ width: '90%', ...CENTER }}>
+          <ThemeText
+            styles={styles.infoHeaders}
+            content={t('settings.loginSecurity.text2')}
+          />
+          <TouchableOpacity
+            onPress={() => handleInitialSecurityChoice('pin')}
+            style={styles.toggleSecurityMode}
+          >
+            <ThemeText
+              styles={{ includeFontPadding: false }}
+              content={t('settings.loginSecurity.text3')}
+            />
+            <CheckMarkCircle isActive={false} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleInitialSecurityChoice('biometric')}
+            style={styles.toggleSecurityMode}
+          >
+            <ThemeText
+              styles={{ includeFontPadding: false }}
+              content={t('settings.loginSecurity.text4')}
+            />
+            <CheckMarkCircle isActive={false} />
+          </TouchableOpacity>
+        </View>
+      )}
 
       {securityLoginSettings.isSecurityEnabled && (
         <>
