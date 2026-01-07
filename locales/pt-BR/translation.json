@@ -1856,7 +1856,7 @@
         "simulationError": "Não foi possível calcular esta troca no momento. Tente novamente.",
         "swapInProgressError": "Uma troca já está em andamento. Aguarde.",
         "insufficientBalance": "O valor é maior que o saldo disponível. Insira um valor menor.",
-        "simulationInProgress": "Aguarde, o swap ainda está sendo calculado."
+        "simulationInProgress": "Aguarde, a troca ainda está sendo calculada."
       }
     }
   },
