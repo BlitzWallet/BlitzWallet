@@ -1829,7 +1829,7 @@
         "swapConfimred": "Troca realizada com sucesso",
         "youSent": "Você enviou",
         "youReceived": "Você recebeu",
-        "newSwap": "Novo swap",
+        "newSwap": "Nova troca",
         "loadingPool": "Carregando informações de swap...",
         "fromBalance": "Tenho {{amount}}",
         "toBalance": "Quero",
