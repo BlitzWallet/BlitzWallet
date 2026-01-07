@@ -1839,7 +1839,7 @@
         "swappingMessageButton": "Trocando...",
         "loadingMessageButton": "Carregando...",
         "swapMessageButton": "Trocar {{fromAsset}} → {{toAsset}}",
-        "swapDisclaimer": "Os serviços de swap são fornecidos por APIs de terceiros.",
+        "swapDisclaimer": "Os serviços de troca são fornecidos por APIs de terceiros.",
         "serviceUnavailableHead": "Serviço indisponível",
         "serviceUnavailableDesc": "Não foi possível conectar ao serviço de swap. Verifique sua conexão e tente novamente.",
         "swapDirection_usdbtc": "USD → BTC",
