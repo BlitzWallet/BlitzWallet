@@ -105,8 +105,8 @@ export async function transformTxToPaymentObject(
         createdTime: foundInvoiceDetails
           ? foundInvoiceDetails.createdTime
           : new Date(tx.createdTime).getTime(),
-        time: tx.updatedTime
-          ? new Date(tx.updatedTime).getTime()
+        time: tx.createdTime
+          ? new Date(tx.createdTime).getTime()
           : new Date().getTime(),
         direction: tx.transferDirection,
         description: description,
@@ -146,8 +146,8 @@ export async function transformTxToPaymentObject(
         supportFee: supportFee,
         amount: paymentAmount - paymentFee,
         address: sparkAddress,
-        time: tx.updatedTime
-          ? new Date(tx.updatedTime).getTime()
+        time: tx.createdTime
+          ? new Date(tx.createdTime).getTime()
           : new Date().getTime(),
         direction: tx.transferDirection,
         senderIdentityPublicKey: tx.senderIdentityPublicKey,
@@ -188,8 +188,8 @@ export async function transformTxToPaymentObject(
         supportFee: blitzFee,
         amount: paymentAmount - fee,
         address: tx.address || '',
-        time: tx.updatedTime
-          ? new Date(tx.updatedTime).getTime()
+        time: tx.createdTime
+          ? new Date(tx.createdTime).getTime()
           : new Date().getTime(),
         direction: tx.transferDirection,
         description: '',
