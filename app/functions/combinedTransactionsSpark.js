@@ -183,7 +183,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
   // if (!didGetToHomepage) {
   //   return null;
   // }
-
+  const shownTxs = new Set();
   const sparkTransactions = sparkInformation?.transactions;
   const sparkTransactionsLength = sparkTransactions?.length || 0;
 
@@ -246,6 +246,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
         paymentDetails.LRC20Token !== USDB_TOKEN_ID
       )
         continue;
+      if (shownTxs.has(currentTransaction.sparkID)) continue;
       if (isLRC20Payment && !hasSavedTokenData) continue;
       if (paymentStatus === TRANSACTION_CONSTANTS.FAILED) continue;
       if (
@@ -316,7 +317,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
           showSwapConversion={showSwapConversion}
         />
       );
-
+      shownTxs.add(uniuqeIDFromTx);
       formattedTxs.push({
         type: 'tx',
         item: styledTx,
