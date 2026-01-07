@@ -1830,7 +1830,7 @@
         "youSent": "Você enviou",
         "youReceived": "Você recebeu",
         "newSwap": "Nova troca",
-        "loadingPool": "Carregando informações de swap...",
+        "loadingPool": "Carregando...",
         "fromBalance": "Tenho {{amount}}",
         "toBalance": "Quero",
         "min": "MIN",
