@@ -1838,7 +1838,7 @@
         "max": "MAX",
         "swappingMessageButton": "Trocando...",
         "loadingMessageButton": "Carregando...",
-        "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
+        "swapMessageButton": "Trocar {{fromAsset}} → {{toAsset}}",
         "swapDisclaimer": "Os serviços de swap são fornecidos por APIs de terceiros.",
         "serviceUnavailableHead": "Serviço indisponível",
         "serviceUnavailableDesc": "Não foi possível conectar ao serviço de swap. Verifique sua conexão e tente novamente.",
