@@ -1742,7 +1742,7 @@
           "inputPlaceholder": "Insira o link do vale-bitcoin",
           "claim": "Resgatar",
           "noGiftLinkError": "Não foi possível encontrar um link de vale-bitcoin. Escaneie ou cole o link que você recebeu.",
-          "invliadGiftFormat": "Link de presente inválido. Copie o link completo e tente novamente."
+          "invliadGiftFormat": "Link de vale-bitcoin inválido. Copie o link completo e tente novamente."
         },
 
         "reclaimPage": {
