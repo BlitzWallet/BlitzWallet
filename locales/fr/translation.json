@@ -1159,7 +1159,8 @@
       "showTechnicals": "Afficher les détails techniques",
       "hideTechnicals": "Cacher les détails techniques",
       "backendHash": "Backend Hash",
-      "expectedHash": "Hash attendu"
+      "expectedHash": "Hash attendu",
+      "blitzWallet": "Blitz Wallet"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1251,7 +1252,8 @@
       "descriptionText": "Les données relatives aux accidents nous aident à améliorer la stabilité et les performances de notre application.\n\nLorsqu'une panne se produit, les informations relatives à l'appareil qui sont automatiquement enregistrées sont les suivantes :\n\n- Système d'exploitation : Version du système d'exploitation, orientation de l'appareil et état de jailbreak.\n- Détails de l'appareil : Modèle, orientation et mémoire vive disponible\n- Informations sur le crash : Date de la panne et version de l'application"
     },
     "accounts": {
-      "inputPlaceholder": "Rechercher un compte existant"
+      "inputPlaceholder": "Rechercher un compte existant",
+      "mainWalletPlace": "Portefeuille principal"
     },
     "resetWallet": {
       "header": "Êtes-vous sûr ?",
@@ -1820,7 +1822,9 @@
         "simulationError": "Nous n’avons pas pu calculer ce swap pour le moment. Veuillez réessayer.",
         "swapInProgressError": "Un swap est déjà en cours. Veuillez patienter.",
         "insufficientBalance": "Le montant dépasse votre solde disponible. Veuillez saisir un montant inférieur.",
-        "simulationInProgress": "Veuillez patienter, le swap est encore en cours de calcul."
+        "simulationInProgress": "Veuillez patienter, le swap est encore en cours de calcul.",
+        "convertHead": "Convertir",
+        "percentConvertSelector": "% à convertir"
       }
     }
   },

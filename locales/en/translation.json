@@ -1180,7 +1180,8 @@
       "showTechnicals": "Show Technical Details",
       "hideTechnicals": "Hide Technical Details",
       "backendHash": "Backend Hash",
-      "expectedHash": "Expected Hash"
+      "expectedHash": "Expected Hash",
+      "blitzWallet": "Blitz Wallet"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1273,7 +1274,8 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Search existing account"
+      "inputPlaceholder": "Search existing account",
+      "mainWalletPlace": "Main Wallet"
     },
     "resetWallet": {
       "header": "Are you sure?",
@@ -1857,7 +1859,9 @@
         "simulationError": "We couldn’t calculate this swap right now. Please try again.",
         "swapInProgressError": "A swap is already in progress. Please wait.",
         "insufficientBalance": "The amount is greater than your available balance. Please enter a smaller amount.",
-        "simulationInProgress": "Please wait, the swap is still being calculated."
+        "simulationInProgress": "Please wait, the swap is still being calculated.",
+        "convertHead": "Convert",
+        "percentConvertSelector": "% to convert"
       }
     }
   },

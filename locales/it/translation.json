@@ -1178,7 +1178,8 @@
       "showTechnicals": "Mostra dettagli tecnici",
       "hideTechnicals": "Nascondi dettagli tecnici",
       "backendHash": "Hash backend",
-      "expectedHash": "Hash previsto"
+      "expectedHash": "Hash previsto",
+      "blitzWallet": "Blitz Wallet"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1269,7 +1270,8 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Cerca account esistente"
+      "inputPlaceholder": "Cerca account esistente",
+      "mainWalletPlace": "Portafoglio principale"
     },
     "resetWallet": {
       "header": "Sei sicuro?",
@@ -1859,7 +1861,9 @@
         "simulationError": "Non è stato possibile calcolare questo swap al momento. Riprova.",
         "swapInProgressError": "È già in corso uno swap. Attendi.",
         "insufficientBalance": "L’importo è superiore al saldo disponibile. Inserisci un importo inferiore.",
-        "simulationInProgress": "Attendi, il calcolo dello swap è ancora in corso."
+        "simulationInProgress": "Attendi, il calcolo dello swap è ancora in corso.",
+        "convertHead": "Converti",
+        "percentConvertSelector": "% da convertire"
       }
     }
   },

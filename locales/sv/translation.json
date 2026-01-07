@@ -1159,7 +1159,8 @@
       "showTechnicals": "Visa tekniska detaljer",
       "hideTechnicals": "Dölj tekniska detaljer",
       "backendHash": "Backend Hash",
-      "expectedHash": "Förväntad Hash"
+      "expectedHash": "Förväntad Hash",
+      "blitzWallet": "Blitz Wallet"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1251,7 +1252,8 @@
       "descriptionText": "Kraschdata hjälper oss att förbättra stabiliteten och prestandan i vår applikation.\n\nNär en krasch inträffar registreras automatiskt följande enhetsinformation:\n\n- Operativsystem: OS-version, enhetens orientering och jailbreak-status\n- Detaljer om enheten: Modell, orientering och tillgängligt RAM-minne\n- Information om krasch: Datum för kraschen och appens version"
     },
     "accounts": {
-      "inputPlaceholder": "Sök befintligt konto"
+      "inputPlaceholder": "Sök befintligt konto",
+      "mainWalletPlace": "Huvudplånbok"
     },
     "resetWallet": {
       "header": "Är du säker?",
@@ -1820,7 +1822,9 @@
         "simulationError": "Det gick inte att beräkna denna swap just nu. Försök igen.",
         "swapInProgressError": "En swap pågår redan. Vänligen vänta.",
         "insufficientBalance": "Beloppet är större än ditt tillgängliga saldo. Ange ett mindre belopp.",
-        "simulationInProgress": "Vänligen vänta, swapen beräknas fortfarande."
+        "simulationInProgress": "Vänligen vänta, swapen beräknas fortfarande.",
+        "convertHead": "Konvertera",
+        "percentConvertSelector": "% att konvertera"
       }
     }
   },
