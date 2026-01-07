@@ -12,9 +12,9 @@
     "decline": "Recusar",
     "receive": "Receber",
     "accept": "Aceitar",
-    "total_balance": "Saldo total",
-    "sat_balance": "Saldo em Bitcion",
-    "usd_balance": "Saldo em dólares",
+    "total_balance": "Total na conta",
+    "sat_balance": "Saldo em Bitcoin",
+    "usd_balance": "Saldo em Dólares",
     "amount": "Quantia",
     "sent": "Você enviou",
     "received": "Você recebeu",
@@ -922,7 +922,7 @@
         "fallbackErrorMessage": "Erro ao decodificar a fatura",
         "connectToSparkMessage": "Conectando à sua carteira.",
         "switchTokenText": "Usar um token diferente",
-        "zeroAmountInvoiceDollarPayments": "Faturas com valor zero não podem ser pagas em USD. Use BTC.",
+        "zeroAmountInvoiceDollarPayments": "Faturas sem quantia definida não podem ser pagas em USD. Use BTC.",
         "decodingPayment": "Decodificando informações de pagamento...",
         "selectPaymentMethod": "Selecione um método de pagamento para continuar."
       },
@@ -971,15 +971,15 @@
         "sendMaxShort": "Máx"
       },
       "acceptButton": {
-        "noSendAmountError": "Informe um valor para enviar.",
-        "noSwapForBTCPaymentsError": "Pagamentos on-chain de Bitcoin só podem ser feitos com BTC, não USD. Swaps não estão disponíveis para pagamentos on-chain.",
-        "balanceFragmentationError": "Seu saldo está dividido entre BTC e USD. Para concluir este pagamento, consolide seus fundos ou ajuste o método de pagamento.",
+        "noSendAmountError": "Insira uma quantia para envio.",
+        "noSwapForBTCPaymentsError": "Pagamentos para endereços Bitcoin só podem ser feitos com BTC, não USD. Trocas não estão disponíveis para endereços Bitcoin.",
+        "balanceFragmentationError": "Seu saldo está distribuído entre BTC e USD. Para concluir este pagamento, consolide seus fundos ou ajuste o método de pagamento.",
         "liquidError": "A quantia {{overFlowType}} para envio é {{amount}}",
-        "onchainError": "Pagamentos on-chain de Bitcoin exigem um mínimo de {{amount}}",
+        "onchainError": "A quantia mínima de envio para um endereço bitcoin é {{amount}}",
         "lnurlPayError": "O valor do pagamento deve estar dentro do {{overFlowType}} de {{amount}}",
         "lrc20FeeError": "Você precisa de pelo menos {{amount}} para pagar a taxa da transação. Saldo atual: {{balance}}",
         "balanceError": "Saldo insuficiente para concluir este pagamento",
-        "swapMinimumError": "Swaps de {{currency1}} para {{currency2}} exigem um mínimo de {{amount}}"
+        "swapMinimumError": "Trocas de {{currency1}} para {{currency2}} exigem um mínimo de {{amount}}"
       }
     },
     "switchOption": {
@@ -1357,7 +1357,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "A Blitz Wallet oferece ferramentas gratuitas e de código aberto para a comunidade Bitcoin.\n\nPara apoiar a sustentabilidade de longo prazo do projeto, será aplicada uma pequena taxa de transação a cada pagamento.\n\nA discriminação das taxas está abaixo.",
+      "description": "A carteira Blitz oferece ferramentas gratuitas e de código aberto para a comunidade Bitcoin.\n\nPara apoiar a sustentabilidade de longo prazo do projeto, será aplicada uma pequena taxa em cada transação.\n\nConfira abaixo as taxas aplicadas.",
       "upTo": "Até",
       "fixedFee": "Taxa fixa",
       "percent": "Porcentagem",
