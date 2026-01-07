@@ -500,8 +500,6 @@ export function FlashnetProvider({ children }) {
   const startRefundMonitor = () => {
     if (refundMonitorIntervalRef.current) return;
 
-    runRefundMonitor(); // immediate pass
-
     refundMonitorIntervalRef.current = setInterval(
       runRefundMonitor,
       REFUND_MONITOR_INTERVAL,
@@ -547,13 +545,20 @@ export function FlashnetProvider({ children }) {
   }, [appState, sparkInformation.didConnectToFlashnet, poolInfo?.lpPublicKey]);
 
   useEffect(() => {
+    let refundMonitorTimeout;
     if (appState === 'active' && sparkInformation.didConnectToFlashnet) {
+      refundMonitorTimeout = setTimeout(runRefundMonitor, 1500);
       startRefundMonitor();
     } else {
       stopRefundMonitor();
     }
 
-    return stopRefundMonitor;
+    return () => {
+      if (refundMonitorTimeout) {
+        clearTimeout(refundMonitorTimeout);
+      }
+      stopRefundMonitor();
+    };
   }, [appState, sparkInformation.didConnectToFlashnet]);
 
   useEffect(() => {
@@ -676,15 +681,19 @@ export function FlashnetProvider({ children }) {
     if (!sparkInformation.didConnectToFlashnet) return;
     if (appState !== 'active') return;
 
-    // Run immediately on activation
-    refreshPool();
-
     // Start interval
     poolIntervalRef.current = setInterval(() => {
       refreshPool();
     }, 30_000);
 
+    // Run immediately on activation
+    const refreshPoolTimeout = setTimeout(refreshPool, 2000);
+
     return () => {
+      if (refreshPoolTimeout) {
+        clearTimeout(refreshPoolTimeout);
+      }
+
       if (poolIntervalRef.current) {
         clearInterval(poolIntervalRef.current);
         poolIntervalRef.current = null;
