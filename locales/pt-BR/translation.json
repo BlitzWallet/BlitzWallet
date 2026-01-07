@@ -13,8 +13,8 @@
     "receive": "Receber",
     "accept": "Aceitar",
     "total_balance": "Total na conta",
-    "sat_balance": "Saldo em Bitcoin",
-    "usd_balance": "Saldo em Dólares",
+    "sat_balance": "Saldo Bitcoin",
+    "usd_balance": "Saldo Dólar",
     "amount": "Quantia",
     "sent": "Você enviou",
     "received": "Você recebeu",
@@ -1859,8 +1859,8 @@
         "swapInProgressError": "Uma troca já está em andamento. Aguarde.",
         "insufficientBalance": "O valor é maior que o saldo disponível. Insira um valor menor.",
         "simulationInProgress": "Aguarde, a troca ainda está sendo calculada.",
-        "convertHead": "Converter",
-        "percentConvertSelector": "% para converter"
+        "convertHead": "Trocar",
+        "percentConvertSelector": "% a ser trocada"
       }
     }
   },
