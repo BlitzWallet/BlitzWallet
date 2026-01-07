@@ -1818,7 +1818,7 @@
         "swapAmountCalculatorFailed": "Falha ao calcular o valor da troca",
         "invalidAmount": "Insira um valor válido",
         "priceImpact": "Impacto no preço: {{impact}}%\n Deseja continuar com a troca?",
-        "swapFailedBackupError": "Falha no swap",
+        "swapFailedBackupError": "Falha na troca",
         "swapAutomaticRecovery": "\n\nSeus fundos foram recuperados automaticamente.",
         "swapPartialRecovery": "\n\nAlguns fundos foram recuperados automaticamente ({{count}}).",
         "swapFutureRecovery": "\n\nSeus fundos serão reembolsados automaticamente.",
