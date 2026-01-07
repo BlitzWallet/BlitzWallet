@@ -1285,7 +1285,7 @@ const SparkWalletProvider = ({ children }) => {
           isRestore: true, // This is a restore payment
         },
       };
-      await addSingleSparkTransaction(pendingTx, 'transactions');
+      await bulkUpdateSparkTransactions([pendingTx], 'transactions');
     };
 
     clearAllDepositIntervals();
