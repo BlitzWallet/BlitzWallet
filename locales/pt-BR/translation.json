@@ -1815,7 +1815,7 @@
         "semiRecovered": "Alguns fundos exigem recuperação manual.",
         "willRecover": "Os fundos serão devolvidos automaticamente.",
         "failedSimulation": "Falha na simulação",
-        "swapAmountCalculatorFailed": "Falha ao calcular o valor do swap",
+        "swapAmountCalculatorFailed": "Falha ao calcular o valor da troca",
         "invalidAmount": "Insira um valor válido",
         "priceImpact": "Impacto no preço: {{impact}}%\n Deseja continuar com o swap?",
         "swapFailedBackupError": "Falha no swap",
