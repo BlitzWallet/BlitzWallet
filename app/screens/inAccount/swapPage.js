@@ -841,6 +841,7 @@ export default function SwapsPage() {
           <LottieView
             source={confirmAnimation}
             loop={false}
+            autoPlay={true}
             style={{
               width: screenDimensions.width / 2,
               height: screenDimensions.width / 2,
