@@ -1865,7 +1865,7 @@
     "confirmCopy": "Copiado com sucesso",
     "failedCopy": "Falha ao copiar",
     "handleSwap": {
-      "title": "Pagamento de swap recebido",
+      "title": "Pagamento da troca recebido",
       "desc": "Seu saldo será atualizado em breve"
     }
   },
