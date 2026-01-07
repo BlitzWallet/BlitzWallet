@@ -17,6 +17,7 @@ import {
   checkClawbackEligibility,
   requestManualClawback,
   dollarsToSats,
+  currentPriceAinBToPriceDollars,
 } from '../app/functions/spark/flashnet';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
@@ -725,7 +726,7 @@ export function FlashnetProvider({ children }) {
   }, [sparkInformation.didConnectToFlashnet]);
 
   const swapUSDPriceDollars = useMemo(() => {
-    return (poolInfo?.currentPriceAInB * 100000000) / 1000000;
+    return currentPriceAinBToPriceDollars(poolInfo?.currentPriceAInB);
   }, [poolInfo?.currentPriceAInB]);
 
   useEffect(() => {

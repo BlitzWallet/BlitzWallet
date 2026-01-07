@@ -39,7 +39,8 @@ import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
-import { dollarsToSats } from '../../functions/spark/flashnet';
+import { currentPriceAinBToPriceDollars } from '../../functions/spark/flashnet';
+import { formatBalanceAmount } from '../../functions';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -413,23 +414,22 @@ export default function ExpandedTx(props) {
               {showConversionLine &&
                 renderInfoRow(
                   t('constants.rate'),
-                  `${displayCorrectDenomination({
-                    amount: 1,
+                  `${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+                    amount: formatBalanceAmount(
+                      Number(
+                        currentPriceAinBToPriceDollars(
+                          transaction.details.currentPriceAInB,
+                        ),
+                      ).toFixed(2),
+                      false,
+                      masterInfoObject,
+                    ),
                     masterInfoObject: {
                       ...masterInfoObject,
                       userBalanceDenomination: 'fiat',
                     },
                     forceCurrency: 'USD',
                     convertAmount: false,
-                  })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
-                    amount: Number(
-                      dollarsToSats(1, transaction.details.currentPriceAInB),
-                    ).toFixed(0),
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: 'sats',
-                    },
-                    forceCurrency: 'USD',
                   })}`,
                   true,
                 )}

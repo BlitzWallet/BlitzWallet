@@ -18,6 +18,7 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
+import { formatBalanceAmount } from '../../../../../functions';
 
 export default function SelectPaymentMethod({
   convertedSendAmount,
@@ -127,7 +128,11 @@ export default function SelectPaymentMethod({
           <ThemeText
             styles={styles.amountText}
             content={`${displayCorrectDenomination({
-              amount: Number(dollarBalanceToken).toFixed(2),
+              amount: formatBalanceAmount(
+                Number(dollarBalanceToken).toFixed(2),
+                false,
+                masterInfoObject,
+              ),
               masterInfoObject: {
                 ...masterInfoObject,
                 userBalanceDenomination: 'fiat',

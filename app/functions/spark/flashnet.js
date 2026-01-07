@@ -960,6 +960,15 @@ export function dollarsToSats(dollars, currentPriceAinB) {
   return (dollars * DOLLAR_DECIMALS) / currentPriceAinB;
 }
 
+/**
+ * Convert exchangeRate to fiat price
+ *@param {string|number} currentPriceAinB - Price of Bitcoin in dollars
+ * @returns {number} Amount in sats
+ */
+export function currentPriceAinBToPriceDollars(currentPriceAInB) {
+  return (currentPriceAInB * 100000000) / 1000000;
+}
+
 // ============================================
 // ERROR HANDLING UTILITIES
 // ============================================
