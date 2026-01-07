@@ -526,10 +526,14 @@ function QrCode(props) {
       },
       forceCurrency: 'USD',
       fiatStats: fiatStats,
-      amount: (
-        satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
-        (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
-      ).toFixed(2),
+      amount: formatBalanceAmount(
+        (
+          satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
+          (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
+        ).toFixed(2),
+        false,
+        masterInfoObject,
+      ),
       convertAmount: false,
     },
   )}`;

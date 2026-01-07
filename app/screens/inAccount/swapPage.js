@@ -1020,7 +1020,6 @@ export default function SwapsPage() {
             ...masterInfoObject,
             userBalanceDenomination: 'sats',
           },
-          forceCurrency: 'USD',
           convertAmount: false,
         })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
           amount: Number(satsToDollars(1, poolInfo.currentPriceAInB)).toFixed(
@@ -1049,7 +1048,6 @@ export default function SwapsPage() {
             ...masterInfoObject,
             userBalanceDenomination: 'sats',
           },
-          forceCurrency: 'USD',
         })}`;
 
     const formattedBitcoinPrice = displayCorrectDenomination({

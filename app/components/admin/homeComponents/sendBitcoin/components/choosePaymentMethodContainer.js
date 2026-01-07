@@ -10,6 +10,7 @@ import {
 } from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import { formatBalanceAmount } from '../../../../../functions';
 
 export default function ChoosePaymentMethod({
   theme,
@@ -42,7 +43,11 @@ export default function ChoosePaymentMethod({
           fiatStats,
         })
       : displayCorrectDenomination({
-          amount: Number(dollarBalanceToken).toFixed(2),
+          amount: formatBalanceAmount(
+            Number(dollarBalanceToken).toFixed(2),
+            false,
+            masterInfoObject,
+          ),
           masterInfoObject: {
             ...masterInfoObject,
             userBalanceDenomination: 'fiat',
