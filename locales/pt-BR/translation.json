@@ -1849,7 +1849,7 @@
         "yourAreConverting": "Você está convertendo",
         "youWillReceive": "Você receberá",
         "bitcoinPrice": "Preço do Bitcoin",
-        "swapFee": "Taxa de swap",
+        "swapFee": "Taxa",
         "exchangeRate": "Taxa de câmbio",
         "minBTCError": "O valor mínimo de BTC é {{min}}. Aumente o valor para continuar.",
         "minUSDError": "O valor mínimo de USD é {{min}}. Aumente o valor para continuar.",
