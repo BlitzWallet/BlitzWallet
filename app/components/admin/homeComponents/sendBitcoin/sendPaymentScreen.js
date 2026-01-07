@@ -117,6 +117,7 @@ export default function SendPaymentScreen(props) {
   const hasTriggeredFastPay = useRef(false);
   const convertedSendAmountRef = useRef(null);
   const determinePaymentMethodRef = useRef(null);
+  const didRequireChoiceRef = useRef(false);
 
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
@@ -296,7 +297,24 @@ export default function SendPaymentScreen(props) {
     !useFullTokensDisplay &&
     !didSelectPaymentMethod;
 
+  useEffect(() => {
+    if (needsToChoosePaymentMethod && !didRequireChoiceRef.current) {
+      didRequireChoiceRef.current = true;
+    }
+  }, [needsToChoosePaymentMethod]);
+
   const canEditAmount = paymentInfo?.canEditPayment === true;
+
+  // Fast pay logic
+  const canUseFastPay =
+    sparkInformation.didConnect &&
+    Object.keys(paymentInfo || {}).length > 0 &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
+      convertedSendAmount &&
+    !isUsingLRC20 &&
+    (!didRequireChoiceRef.current || didSelectPaymentMethod) &&
+    determinePaymentMethod !== 'user-choice';
 
   // Check if user has sufficient balance
   const hasSufficientBalance = useMemo(() => {
@@ -351,7 +369,8 @@ export default function SendPaymentScreen(props) {
       (needsToChoosePaymentMethod || !didSelectPaymentMethod) &&
       !isSendingPayment.current &&
       !isBitcoinPayment &&
-      !isUsingLRC20
+      !isUsingLRC20 &&
+      !canUseFastPay
     ) {
       return 'CHOOSE_METHOD'; // Show info screen with button to select method
     }
@@ -363,6 +382,7 @@ export default function SendPaymentScreen(props) {
     didSelectPaymentMethod,
     isBitcoinPayment,
     isUsingLRC20,
+    canUseFastPay,
   ]);
 
   const paymentValidation = usePaymentValidation({
@@ -394,24 +414,14 @@ export default function SendPaymentScreen(props) {
     sendingAmount !== 0 &&
     uiState === 'CONFIRM_PAYMENT';
 
+  const isUsingFastPay = canUseFastPay && canSendPayment && !canEditAmount;
+
   const minLNURLSatAmount = isLNURLPayment
     ? paymentInfo?.data?.minSendable / 1000
     : 0;
   const maxLNURLSatAmount = isLNURLPayment
     ? paymentInfo?.data?.maxSendable / 1000
     : 0;
-
-  // Fast pay logic
-  const canUseFastPay =
-    sparkInformation.didConnect &&
-    Object.keys(paymentInfo || {}).length > 0 &&
-    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled &&
-    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
-      convertedSendAmount &&
-    !isUsingLRC20 &&
-    !needsToChoosePaymentMethod;
-
-  const isUsingFastPay = canUseFastPay && canSendPayment && !canEditAmount;
 
   const errorMessageNavigation = useCallback(
     reason => {
@@ -442,11 +452,14 @@ export default function SendPaymentScreen(props) {
       setPaymentInfo({});
       isSendingPayment.current = null;
       setPaymentDescription('');
+      hasTriggeredFastPay.current = false;
+      didRequireChoiceRef.current = false;
       setLoadingMessage(
         !!sparkInformation.didConnect && !!sparkInformation.identityPubKey
           ? t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage')
           : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
       );
+      setDidSelectPaymentMethod(false);
       setShowProgressAnimation(false);
       setRefreshDecode(x => x + 1);
       paramsRef.current = currentParams;

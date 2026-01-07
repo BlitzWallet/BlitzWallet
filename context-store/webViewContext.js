@@ -246,7 +246,7 @@ export const WebViewProvider = ({ children }) => {
   const messageRateLimiter = useRef({
     count: 0,
     windowStart: Date.now(),
-    maxPerSecond: 10,
+    maxPerSecond: 20,
   });
 
   const blockAndResetWebview = shouldClearPending => {
