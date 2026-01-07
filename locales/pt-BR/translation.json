@@ -1826,7 +1826,7 @@
         "swapLiquidityError": "\n\nTente trocar um valor menor ou aguarde mais liquidez.",
         "fullSwapError": "Ocorreu um erro inesperado durante a troca. Tente novamente.",
         "checkSwapMessage": "Alto impacto no preço",
-        "swapConfimred": "Swap realizado com sucesso",
+        "swapConfimred": "Troca realizada com sucesso",
         "youSent": "Você enviou",
         "youReceived": "Você recebeu",
         "newSwap": "Novo swap",
