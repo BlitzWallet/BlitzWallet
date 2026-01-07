@@ -36,46 +36,45 @@ export default function ErrorScreen(props) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={handleNaviagation}>
+    <View
+      style={[styles.globalContainer, { backgroundColor: transparentOveraly }]}
+    >
+      <TouchableWithoutFeedback onPress={handleNaviagation}>
+        <View style={StyleSheet.absoluteFill} />
+      </TouchableWithoutFeedback>
+
       <View
         style={[
-          styles.globalContainer,
-          { backgroundColor: transparentOveraly },
+          styles.content,
+          {
+            backgroundColor: theme ? backgroundOffset : backgroundColor,
+            maxHeight: height || 200,
+          },
         ]}
       >
-        <TouchableWithoutFeedback onPress={() => {}}>
-          <View
-            style={[
-              styles.content,
-              {
-                backgroundColor: theme ? backgroundOffset : backgroundColor,
-                maxHeight: height || 200,
-              },
-            ]}
-          >
-            <ScrollView>
-              <ThemeText
-                styles={styles.headerText}
-                content={useTranslationString ? t(errorMessage) : errorMessage}
-              />
-            </ScrollView>
-            <View
-              style={{
-                ...styles.border,
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              }}
-            />
-            <TouchableOpacity onPress={handleNaviagation}>
-              <ThemeText
-                styles={styles.cancelButton}
-                content={t('wallet.sendPages.errorScreen.ok')}
-              />
-            </TouchableOpacity>
-          </View>
-        </TouchableWithoutFeedback>
+        <ScrollView>
+          <ThemeText
+            styles={styles.headerText}
+            content={useTranslationString ? t(errorMessage) : errorMessage}
+          />
+        </ScrollView>
+
+        <View
+          style={{
+            ...styles.border,
+            backgroundColor:
+              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+          }}
+        />
+
+        <TouchableOpacity onPress={handleNaviagation}>
+          <ThemeText
+            styles={styles.cancelButton}
+            content={t('wallet.sendPages.errorScreen.ok')}
+          />
+        </TouchableOpacity>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 }
 
