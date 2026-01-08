@@ -1844,7 +1844,10 @@
         "insufficientBalance": "Der Betrag übersteigt dein verfügbares Guthaben. Bitte gib einen kleineren Betrag ein.",
         "simulationInProgress": "Bitte warten, der Swap wird noch berechnet.",
         "convertHead": "Umwandeln",
-        "percentConvertSelector": "% zum Umwandeln"
+        "percentConvertSelector": "% zum Umwandeln",
+        "slippage": "Slippage",
+        "slippageDesc": "Slippage ist der prozentuale Preisunterschied, den du akzeptierst. Eine niedrige Slippage kann zu fehlgeschlagenen Transaktionen führen, während eine höhere Slippage dazu führen kann, dass du weniger als erwartet erhältst.",
+        "auto": "Auto"
       }
     }
   },

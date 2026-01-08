@@ -1825,7 +1825,10 @@
         "insufficientBalance": "Le montant dépasse votre solde disponible. Veuillez saisir un montant inférieur.",
         "simulationInProgress": "Veuillez patienter, le swap est encore en cours de calcul.",
         "convertHead": "Convertir",
-        "percentConvertSelector": "% à convertir"
+        "percentConvertSelector": "% à convertir",
+        "slippage": "Glissement",
+        "slippageDesc": "Le glissement est le pourcentage de variation de prix que vous êtes prêt à accepter. Un glissement faible peut entraîner des échecs de transaction, tandis qu’un glissement élevé peut entraîner la réception d’un montant inférieur à celui attendu.",
+        "auto": "Auto"
       }
     }
   },
