@@ -1860,7 +1860,7 @@
         "insufficientBalance": "O valor é maior que o saldo disponível. Insira um valor menor.",
         "simulationInProgress": "Aguarde, a troca ainda está sendo calculada.",
         "convertHead": "Trocar",
-        "percentConvertSelector": "% específica"
+        "percentConvertSelector": "% do saldo"
       }
     }
   },
