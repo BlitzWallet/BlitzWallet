@@ -1817,6 +1817,7 @@
         "newSwap": "Neuer Swap",
         "loadingPool": "Swap-Informationen werden geladen...",
         "fromBalance": "Ich habe {{amount}}",
+        "fromBalanceHidden": "Ich habe",
         "toBalance": "Ich möchte",
         "min": "MIN",
         "half": "HALB",

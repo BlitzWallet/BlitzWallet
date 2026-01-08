@@ -1663,6 +1663,7 @@
         "newSwap": "Nuevo swap",
         "loadingPool": "Cargando información del swap...",
         "fromBalance": "Tengo {{amount}}",
+        "fromBalanceHidden": "Tengo",
         "toBalance": "Quiero",
         "min": "MIN",
         "half": "MITAD",

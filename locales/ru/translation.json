@@ -1806,6 +1806,7 @@
         "newSwap": "Новый обмен",
         "loadingPool": "Загрузка информации о свопе...",
         "fromBalance": "У меня есть {{amount}}",
+        "fromBalanceHidden": "У меня есть",
         "toBalance": "Я хочу",
         "min": "МИН",
         "half": "ПОЛОВИНА",
