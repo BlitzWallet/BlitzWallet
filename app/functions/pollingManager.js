@@ -159,7 +159,10 @@ export const createBalancePoller = (
       onBalanceUpdate(newBalance);
     },
     abortController,
-    delays: [1000, 1500, 1500, 1500, 2000, 2000, 2000, 2000, 2000],
+    delays: [
+      1000, 1500, 1500, 1500, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
+      2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
+    ],
     initialBalance,
   });
 };

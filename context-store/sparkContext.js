@@ -19,7 +19,6 @@ import {
   sparkWallet,
 } from '../app/functions/spark';
 import {
-  addSingleSparkTransaction,
   bulkUpdateSparkTransactions,
   getAllSparkTransactions,
   getAllSparkContactInvoices,
@@ -124,6 +123,8 @@ const SparkWalletProvider = ({ children }) => {
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
     useState(0);
 
+  const pendingSparkTxIds = useRef(new Set());
+  const txObjectCache = useRef(new Map());
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
@@ -435,6 +436,60 @@ const SparkWalletProvider = ({ children }) => {
     [sendWebViewRequest],
   );
 
+  const getCachedTx = (tx, isPending) => {
+    const key = `${tx.sparkID}-${isPending}`;
+    const cached = txObjectCache.current.get(key);
+
+    if (cached) return cached;
+
+    const newTx = isPending ? { ...tx, isBalancePending: true } : tx;
+    txObjectCache.current.set(key, newTx);
+    return newTx;
+  };
+
+  const markNewTransactionsPending = (
+    txs,
+    prevLatestId,
+    pendingIds,
+    BUFFER_LIMIT = 15,
+  ) => {
+    let foundAnchor = false;
+    let lastNewIndex = -1;
+    let numSinceLastFound = 0;
+
+    for (let i = 0; i < txs.length; i++) {
+      const tx = txs[i];
+      const txId = tx.sparkID;
+
+      if (txId === prevLatestId) {
+        foundAnchor = true;
+      }
+
+      if (!foundAnchor || pendingIds.has(txId)) {
+        pendingIds.add(txId);
+        lastNewIndex = i;
+        numSinceLastFound = 0;
+      } else {
+        numSinceLastFound++;
+        if (numSinceLastFound > BUFFER_LIMIT) break;
+      }
+    }
+
+    if (lastNewIndex === -1 && pendingIds.size === 0) {
+      return { txs };
+    }
+
+    const result = [...txs];
+    for (let i = 0; i <= lastNewIndex; i++) {
+      const tx = txs[i];
+      if (pendingIds.has(tx.sparkID) && !tx.isBalancePending) {
+        result[i] = getCachedTx(tx, true);
+      }
+    }
+
+    return { txs: result };
+  };
+
   const handleUpdate = useCallback(async (...args) => {
     try {
       const [updateType = 'transactions', fee = 0, passedBalance = 0] = args;
@@ -466,11 +521,29 @@ const SparkWalletProvider = ({ children }) => {
         updateType === 'transactions' ||
         updateType === 'contactDetailsUpdate'
       ) {
-        setSparkInformation(prev => ({
-          ...prev,
-          transactions: txs || prev.transactions,
-        }));
+        setSparkInformation(prev => {
+          const latestKnownId = txs[0]?.sparkID;
+
+          const { txs: updatedTxs } = markNewTransactionsPending(
+            txs,
+            latestKnownId,
+            pendingSparkTxIds.current,
+          );
+
+          return {
+            ...prev,
+            transactions: updatedTxs,
+          };
+        });
       } else if (updateType === 'incomingPayment') {
+        // incomingPayment has authoritative balance - clear ALL pending flags
+        if (balancePollingAbortControllerRef.current) {
+          balancePollingAbortControllerRef.current.abort();
+          balancePollingAbortControllerRef.current = null;
+        }
+
+        pendingSparkTxIds.current.clear();
+
         handleBalanceCache({
           isCheck: false,
           passedBalance: Number(passedBalance),
@@ -491,16 +564,32 @@ const SparkWalletProvider = ({ children }) => {
 
         const pollingMnemonic = currentPollingMnemonicRef.current;
 
-        setSparkInformation(prev => ({
-          ...prev,
-          transactions: txs || prev.transactions,
-        }));
+        setSparkInformation(prev => {
+          const latestKnownId = prev.transactions[0]?.sparkID;
+
+          const { txs: updatedTxs } = markNewTransactionsPending(
+            txs,
+            latestKnownId,
+            pendingSparkTxIds.current,
+          );
+
+          return {
+            ...prev,
+            transactions: updatedTxs,
+          };
+        });
 
         const poller = createBalancePoller(
           mnemonic,
           currentMnemonicRef,
           balancePollingAbortControllerRef.current,
-          newBalance => {
+          async newBalance => {
+            pendingSparkTxIds.current.clear();
+
+            const freshTxs = await getAllSparkTransactions({
+              limit: null,
+              accountId: sparkInfoRef.current.identityPubKey,
+            });
             setSparkInformation(prev => {
               if (pollingMnemonic !== currentMnemonicRef.current) {
                 return prev;
@@ -513,6 +602,7 @@ const SparkWalletProvider = ({ children }) => {
               return {
                 ...prev,
                 balance: newBalance,
+                transactions: freshTxs, //removes all pending flags since we have the updated balance now
               };
             });
           },
@@ -520,8 +610,13 @@ const SparkWalletProvider = ({ children }) => {
         );
 
         balancePollingTimeoutRef.current = poller;
-        poller.start();
+        const response = await poller.start();
+        if (response.reason === 'aborted') return;
       } else {
+        if (balancePollingAbortControllerRef.current) {
+          balancePollingAbortControllerRef.current.abort();
+        }
+
         const MAX_RETRIES = 3;
         const RETRY_DELAY = 2000;
         let balanceResponse = await getSparkBalance(mnemonic);
@@ -529,9 +624,9 @@ const SparkWalletProvider = ({ children }) => {
         const shouldRetry = balanceResponse => {
           return (
             balanceResponse.didWork &&
+            Object.entries(balanceResponse.tokensObj).length &&
             !Object.entries(balanceResponse.tokensObj).find(item => {
               const [key, value] = item;
-              console.log(key, value, 'key value');
               return !!value.balance;
             }) &&
             (updateType === 'fullUpdate-tokens' || updateType === 'fullUpdate')
@@ -561,7 +656,7 @@ const SparkWalletProvider = ({ children }) => {
 
         if (updateType === 'paymentWrapperTx') {
           const updatedBalance = Math.round(newBalance - fee);
-
+          pendingSparkTxIds.current.clear();
           handleBalanceCache({
             isCheck: false,
             passedBalance: updatedBalance,
@@ -582,15 +677,26 @@ const SparkWalletProvider = ({ children }) => {
             passedBalance: newBalance,
             mnemonic,
           });
-          setSparkInformation(prev => ({
-            ...prev,
-            transactions: txs || prev.transactions,
-            balance: newBalance,
-            tokens: balanceResponse.didWork
-              ? balanceResponse.tokensObj
-              : prev.tokens,
-          }));
+          setSparkInformation(prev => {
+            const latestKnownId = txs[0]?.sparkID;
+
+            const { txs: updatedTxs } = markNewTransactionsPending(
+              txs,
+              latestKnownId,
+              pendingSparkTxIds.current,
+            );
+
+            return {
+              ...prev,
+              transactions: updatedTxs,
+              balance: newBalance,
+              tokens: balanceResponse.didWork
+                ? balanceResponse.tokensObj
+                : prev.tokens,
+            };
+          });
         } else if (updateType === 'fullUpdate') {
+          pendingSparkTxIds.current.clear();
           handleBalanceCache({
             isCheck: false,
             passedBalance: newBalance,
@@ -1056,6 +1162,8 @@ const SparkWalletProvider = ({ children }) => {
     currentPollingMnemonicRef.current = null;
     didRunInitialRestore.current = false;
     hasRestoreCompleted.current = false;
+    pendingSparkTxIds.current.clear();
+    txObjectCache.current.clear();
 
     // Reset state variables
     setSparkConnectionError(null);

@@ -240,16 +240,6 @@ export default function HomeLightning({ navigation }) {
     scrollPosition,
   ]);
 
-  // Memoize the list data
-  const listData = useMemo(() => {
-    return [
-      { type: 'navbar', key: 'navbar' },
-      { type: 'balance', key: 'balance' },
-      { type: 'buttons', key: 'buttons' },
-      ...(flatListDataForSpark || []),
-    ];
-  }, [flatListDataForSpark]);
-
   const handleRefresh = useCallback(async () => {
     crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
@@ -269,7 +259,7 @@ export default function HomeLightning({ navigation }) {
       if (!response) {
         sparkTransactionsEventEmitter.emit(
           SPARK_TX_UPDATE_ENVENT_NAME,
-          'fullUpdate',
+          'fullUpdate-waitBalance',
         );
       }
     } catch (err) {
