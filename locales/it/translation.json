@@ -1864,7 +1864,10 @@
         "insufficientBalance": "L’importo è superiore al saldo disponibile. Inserisci un importo inferiore.",
         "simulationInProgress": "Attendi, il calcolo dello swap è ancora in corso.",
         "convertHead": "Converti",
-        "percentConvertSelector": "% da convertire"
+        "percentConvertSelector": "% da convertire",
+        "slippage": "Slippage",
+        "slippageDesc": "Lo slippage è la percentuale di variazione del prezzo che sei disposto ad accettare. Uno slippage basso può causare il fallimento della transazione, mentre uno slippage alto può portare a ricevere un importo inferiore a quello previsto.",
+        "auto": "Auto"
       }
     }
   },

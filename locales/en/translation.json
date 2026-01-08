@@ -1862,7 +1862,10 @@
         "insufficientBalance": "The amount is greater than your available balance. Please enter a smaller amount.",
         "simulationInProgress": "Please wait, the swap is still being calculated.",
         "convertHead": "Convert",
-        "percentConvertSelector": "% to convert"
+        "percentConvertSelector": "% to convert",
+        "slippage": "Slippage",
+        "slippageDesc": "Slippage is the percentage of price movement you are willing to accept. Lower slippage may cause transaction failures, while higher slippage may result in receiving a fewer amount than expected.",
+        "auto": "Auto"
       }
     }
   },

@@ -1825,7 +1825,10 @@
         "insufficientBalance": "Beloppet är större än ditt tillgängliga saldo. Ange ett mindre belopp.",
         "simulationInProgress": "Vänligen vänta, swapen beräknas fortfarande.",
         "convertHead": "Konvertera",
-        "percentConvertSelector": "% att konvertera"
+        "percentConvertSelector": "% att konvertera",
+        "slippage": "Slippage",
+        "slippageDesc": "Slippage är den procentuella prisförändring du är villig att acceptera. Låg slippage kan leda till att transaktionen misslyckas, medan hög slippage kan innebära att du får mindre än förväntat.",
+        "auto": "Auto"
       }
     }
   },

@@ -1690,7 +1690,10 @@
         "insufficientBalance": "El monto es mayor que tu saldo disponible. Ingresa un monto menor.",
         "simulationInProgress": "Por favor espera, el swap aún se está calculando.",
         "convertHead": "Convertir",
-        "percentConvertSelector": "% a convertir"
+        "percentConvertSelector": "% a convertir",
+        "slippage": "Deslizamiento",
+        "slippageDesc": "El deslizamiento es el porcentaje de variación de precio que estás dispuesto a aceptar. Un deslizamiento bajo puede causar fallos en la transacción, mientras que uno alto puede resultar en recibir menos de lo esperado.",
+        "auto": "Auto"
       }
     }
   },

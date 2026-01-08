@@ -28,6 +28,7 @@ const DropdownMenu = ({
   disableDropdownPress = false,
   customFunction,
   translateLabelText = true,
+  globalContainerStyles = {},
 }) => {
   const { t } = useTranslation();
   const dropdownRef = useRef(null);
@@ -73,8 +74,11 @@ const DropdownMenu = ({
     showFlag && options.find(item => item.value === selectedValue)?.flagCode;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.selectorContainer} ref={dropdownRef}>
+    <View style={[styles.container, globalContainerStyles]}>
+      <View
+        style={[styles.selectorContainer, globalContainerStyles]}
+        ref={dropdownRef}
+      >
         <TouchableOpacity
           activeOpacity={disableDropdownPress ? 1 : 0.2}
           style={{
