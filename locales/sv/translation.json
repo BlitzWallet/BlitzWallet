@@ -1798,6 +1798,7 @@
         "newSwap": "Ny swap",
         "loadingPool": "Laddar swap-information...",
         "fromBalance": "Jag har {{amount}}",
+        "fromBalanceHidden": "Jag har",
         "toBalance": "Jag vill",
         "min": "MIN",
         "half": "HALV",

@@ -71,6 +71,7 @@ import customUUID from '../../functions/customUUID';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 
@@ -1288,21 +1289,21 @@ export default function SwapsPage() {
                   ]}
                 >
                   <View style={styles.cardHeader}>
-                    <ThemeText
+                    <FormattedSatText
+                      frontText={
+                        t('screens.inAccount.swapsPage.fromBalanceHidden') + ' '
+                      }
                       styles={styles.label}
-                      content={t('screens.inAccount.swapsPage.fromBalance', {
-                        amount: displayCorrectDenomination({
-                          amount: displayBalance,
-                          masterInfoObject: {
-                            ...masterInfoObject,
-                            userBalanceDenomination:
-                              fromAsset === 'BTC' ? 'sats' : 'fiat',
-                          },
-                          forceCurrency: 'USD',
-                          fiatStats,
-                          convertAmount: fromAsset === 'BTC',
-                        }),
-                      })}
+                      balance={displayBalance}
+                      globalBalanceDenomination={
+                        masterInfoObject.userBalanceDenomination === 'hidden'
+                          ? 'hidden'
+                          : fromAsset === 'BTC'
+                          ? 'sats'
+                          : 'fiat'
+                      }
+                      useBalance={fromAsset === 'USD'}
+                      forceCurrency={'USD'}
                     />
                     {isSimulating && lastEditedField === 'to' && (
                       <FullLoadingScreen
