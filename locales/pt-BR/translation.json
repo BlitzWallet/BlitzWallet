@@ -1606,7 +1606,7 @@
         "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é {{satExchangeRate}} por {{dollarAmount}}.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
-        "receiveAsHeader": "Receber como",
+        "receiveAsHeader": "Receber em",
         "receiveAs_spark_BTC": "Bitcoin ou tokens",
         "receiveAs_lightning_BTC": "Manter em Bitcoin",
         "receiveAs_spark_USD": "Dólares",
