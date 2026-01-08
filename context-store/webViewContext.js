@@ -77,6 +77,13 @@ export const OPERATION_TYPES = {
   checkClawbackStatus: 'checkClawbackStatus',
   requestBatchClawback: 'requestBatchClawback',
   listClawbackableTransfers: 'listClawbackableTransfers',
+
+  // Wallet optimizations
+  abortOptimization: 'abortOptimization',
+  isOptimizationRunning: 'isOptimizationRunning',
+  checkIfOptimizationNeeded: 'checkIfOptimizationNeeded',
+  runLeafOptimization: 'runLeafOptimization',
+  runTokenOptimization: 'runTokenOptimization',
 };
 
 const longOperations = [
@@ -94,6 +101,8 @@ const longOperations = [
   OPERATION_TYPES.swapTokenToBitcoin,
   OPERATION_TYPES.payLightningWithToken,
   OPERATION_TYPES.requestClawback,
+  OPERATION_TYPES.runLeafOptimization,
+  OPERATION_TYPES.runTokenOptimization,
 ];
 
 const mediumOperations = [
@@ -111,6 +120,7 @@ const mediumOperations = [
   OPERATION_TYPES.setPrivacyEnabled,
   OPERATION_TYPES.simulateSwap,
   OPERATION_TYPES.requestBatchClawback,
+  OPERATION_TYPES.checkIfOptimizationNeeded,
 ];
 
 const rejectIfNotConnectedToInternet = [

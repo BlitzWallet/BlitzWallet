@@ -246,6 +246,12 @@ export default function getFormattedHomepageTxsForSpark(props) {
         paymentDetails.LRC20Token !== USDB_TOKEN_ID
       )
         continue;
+
+      if (
+        paymentDetails.senderIdentityPublicKey ===
+        process.env.SPARK_IDENTITY_PUBKEY
+      )
+        continue;
       if (shownTxs.has(currentTransaction.sparkID)) continue;
       if (isLRC20Payment && !hasSavedTokenData) continue;
       if (paymentStatus === TRANSACTION_CONSTANTS.FAILED) continue;
@@ -588,7 +594,7 @@ export const UserTransaction = memo(function UserTransaction({
                   : transaction.details.amount
               }
               useCustomLabel={isLRC20Payment}
-              customLabel={token?.tokenTicker?.slice(0, 3)}
+              customLabel={token?.tokenTicker}
               useMillionDenomination={true}
             />
           )}

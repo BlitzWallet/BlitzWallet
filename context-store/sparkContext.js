@@ -67,6 +67,12 @@ import {
   createRestorePoller,
 } from '../app/functions/pollingManager';
 import { USDB_TOKEN_ID } from '../app/constants';
+import {
+  cleanupOptimization,
+  checkIfOptimizationNeeded,
+  runLeafOptimization,
+  runTokenOptimization,
+} from '../app/functions/spark/optimization';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -642,6 +648,13 @@ const SparkWalletProvider = ({ children }) => {
 
       const details = parsedTx?.details;
 
+      if (
+        details.senderIdentityPublicKey === process.env.SPARK_IDENTITY_PUBKEY
+      ) {
+        console.log('Refund from Spark, do not show tosat here');
+        return;
+      }
+
       if (new Date(details.time).getTime() < sessionTimeRef.current) {
         console.log(
           'created before session time was set, skipping confirm tx page navigation',
@@ -978,10 +991,46 @@ const SparkWalletProvider = ({ children }) => {
     currentPollingMnemonicRef.current = null;
   };
 
+  // optimizations for leaves and tokens
+  useEffect(() => {
+    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
+    if (!didGetToHomepage) return;
+    if (AppState.currentState !== 'active') return;
+
+    const runInitialOptimizationCheck = async () => {
+      if (!sparkInfoRef.current.identityPubKey) return;
+      if (AppState.currentState !== 'active') return;
+
+      const needed = await checkIfOptimizationNeeded(
+        currentMnemonicRef.current,
+      );
+
+      if (needed) {
+        console.log('Running initial optimization check...');
+        await runLeafOptimization(
+          currentMnemonicRef.current,
+          sparkInfoRef.current.identityPubKey,
+        );
+        await runTokenOptimization(
+          currentMnemonicRef.current,
+          sparkInfoRef.current.identityPubKey,
+        );
+      }
+    };
+
+    runInitialOptimizationCheck();
+  }, [
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    didGetToHomepage,
+  ]);
+
   const resetSparkState = useCallback(async (internalRefresh = false) => {
     // Reset refs to initial values
     await removeListeners(true);
     clearMnemonicCache();
+    cleanupOptimization(prevAccountMnemoincRef.current);
     prevAccountMnemoincRef.current = null;
     isRunningAddListeners.current = false;
     if (depositAddressIntervalRef.current) {

@@ -44,7 +44,7 @@ const getMnemonicHash = mnemonic => {
   return mnemonicHashCache.get(mnemonic);
 };
 
-const getWallet = async mnemonic => {
+export const getWallet = async mnemonic => {
   const hash = getMnemonicHash(mnemonic);
   let wallet = sparkWallet[hash];
 
