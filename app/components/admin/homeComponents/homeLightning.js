@@ -353,6 +353,16 @@ export default function HomeLightning({ navigation }) {
     };
   }, [backgroundColor, topPadding]);
 
+  // Memoized getItemLayout for consistent measurements
+  const getItemLayout = useCallback(
+    (data, index) => ({
+      length: screenWidth,
+      offset: screenWidth * index,
+      index,
+    }),
+    [screenWidth],
+  );
+
   return (
     <GlobalThemeView styles={globlThemeViewMemodStlyes}>
       {enabledLRC20 && <View style={topPaddingForLRC20PageMemeStyles} />}
@@ -428,11 +438,14 @@ export default function HomeLightning({ navigation }) {
         <View style={[styles.balanceSection, { backgroundColor }]}>
           <Animated.FlatList
             horizontal
-            pagingEnabled
+            pagingEnabled={true}
+            snapToAlignment="start"
+            decelerationRate="fast"
             showsHorizontalScrollIndicator={false}
+            getItemLayout={getItemLayout}
             contentContainerStyle={{
               paddingTop: 50,
-              paddingBottom: 20,
+              paddingBottom: 72,
             }}
             data={BALANCE_PAGES}
             keyExtractor={item => item.key}
@@ -552,7 +565,6 @@ const styles = StyleSheet.create({
   },
   balanceSection: {
     alignItems: 'center',
-    // paddingTop: 30,
   },
   buttonsContainer: {
     borderBottomLeftRadius: 30,
