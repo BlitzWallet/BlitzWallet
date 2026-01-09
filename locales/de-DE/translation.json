@@ -1,4 +1,4 @@
-{
+ {
   "constants": {
     "next": "Weiter",
     "skip_all": "Alle überspringen",
@@ -124,7 +124,6 @@
     "rate": "Kurs",
     "swap": "Swap"
   },
-
   "languages": {
     "english": "English",
     "spanish": "Español",
@@ -135,7 +134,6 @@
     "swedish": "Svenska",
     "russian": "русский"
   },
-
   "weekdays": {
     "Mon": "Montag",
     "Tue": "Dienstag",
@@ -145,7 +143,6 @@
     "Sat": "Samstag",
     "Sun": "Sonntag"
   },
-
   "months": {
     "Jan": "Januar",
     "Feb": "Februar",
@@ -160,7 +157,6 @@
     "Nov": "November",
     "Dec": "Dezember"
   },
-
   "timeLabels": {
     "minute": "Minute",
     "minutes": "Minuten",
@@ -175,7 +171,6 @@
     "monthly": "Monatlich",
     "yearly": "Jährlich"
   },
-
   "transactionLabelText": {
     "notSent": "Zahlung nicht gesendet",
     "txTime_just_now": "Gerade eben",
@@ -200,7 +195,6 @@
     "memo": "Notiz",
     "roostockSwap": "Rootstock-zu-Spark-Transfer"
   },
-
   "createAccount": {
     "chooseLanguage": {
       "title": "Sprache wählen"
@@ -265,7 +259,6 @@
       "btn": "Ich verstehe"
     }
   },
-
   "adminLogin": {
     "pinPage": {
       "isBiometricEnabledConfirmAction": "Wir konnten deine biometrischen Daten nicht verifizieren.\n\nMöchtest du alle Wallet-Daten löschen? Fahre nur fort, wenn deine Seed-Phrase sicher gesichert ist.",
@@ -275,7 +268,6 @@
       "biometricsHeader": "Mit Biometrie öffnen"
     }
   },
-
   "apps": {
     "appList": {
       "AI": "KI",
@@ -311,16 +303,16 @@
         "fee": "Gebühr: "
       },
       "durationSlider": {
+        "3": "Monat",
+        "8": "Quartal",
+        "30": "Jahr",
         "durationOption": "1 {{duration}}",
         "price": "Preis: ",
         "noDurations": "Keine verfügbaren Laufzeiten",
         "duration": "Dauer",
         "0.1": "Stunde",
         "0.5": "Tag",
-        "1.5": "Woche",
-        "3": "Monat",
-        "8": "Quartal",
-        "30": "Jahr"
+        "1.5": "Woche"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Sind Sie sicher, dass Sie dieses VPN entfernen möchten?",
@@ -840,7 +832,6 @@
       "addListing": "Shop hinzufügen"
     }
   },
-
   "wallet": {
     "halfModal": {
       "images": "Aus Bild",
@@ -1019,7 +1010,6 @@
       "loadingMessage": "Gespeicherte Transaktionen werden geladen"
     }
   },
-
   "contacts": {
     "contactsPage": {
       "contactsHeader": "Kontakte",
@@ -1134,7 +1124,6 @@
       "scanProfile": "Profil scannen"
     }
   },
-
   "settings": {
     "index": {
       "editProfile": "Profil bearbeiten",
@@ -1526,7 +1515,6 @@
           }
         }
       },
-
       "popups": {
         "confirmActionPage": {
           "defaultMessage": "Sind Sie sicher, dass Sie Ihre Wallet leeren möchten?",
@@ -1535,7 +1523,6 @@
       }
     }
   },
-
   "screens": {
     "inAccount": {
       "appStore": {
@@ -1547,7 +1534,6 @@
         "featuredApps": "Möchten Sie hier etwas Bestimmtes?",
         "comingSoon": "Diese Funktion ist vorübergehend nicht verfügbar. Wir arbeiten daran, sie so schnell wie möglich wiederherzustellen."
       },
-
       "confirmTxPage": {
         "failedToSend": "Senden fehlgeschlagen",
         "paymentErrorMessage": "Es gab ein Problem beim Senden dieser Zahlung, bitte versuchen Sie es erneut.",
@@ -1571,7 +1557,6 @@
         "timeLeft": "({{time}} verbleibend)",
         "title": "Blitz-Downloads"
       },
-
       "loadingScreen": {
         "loadingMessage1": "Bitte schließen Sie die App nicht",
         "loadingMessage2": "Wir richten alles ein",
@@ -1583,7 +1568,6 @@
         "dbInitError1": "Wir konnten Ihre App nicht einrichten.",
         "dbInitError2": "Bitte versuchen Sie es erneut. Wenn dieses Problem weiterhin besteht, können Sie Ihr Geld mithilfe Ihrer Seed-Phrase sicher zurückerhalten."
       },
-
       "receiveBtcPage": {
         "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1%.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
         "liquidFeeMessage": "Zahlungen, die an Liquid-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}}, eine Anspruchsgebühr von rund {{claimFee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
@@ -1611,9 +1595,8 @@
         "header_liquid": "Bitcoin über Liquid",
         "header_rootstock": "Bitcoin über Rootstock",
         "selectReceiveAssetHead": "Asset zum Empfangen auswählen",
-        "usd_convert_warning": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
+        "finalAmountDisclaimer": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
       },
-
       "settingsContent": {
         "about": "Über",
         "language": "Sprache",
@@ -1656,7 +1639,6 @@
       "viewAllTxPage": {
         "title": "Transaktionen"
       },
-
       "lrc20HalfModal": {
         "title": "Token suchen",
         "searchPlaceholder": "Token-Name...",
@@ -1682,11 +1664,9 @@
         "shareMessage": "Du hast ein Geschenk von {{amount}} erhalten! Hier einlösen:\n{{link}}",
         "fundGiftMessage": "Geschenk wird erstellt",
         "reclaimGiftMessage": "Geschenk wird zurückgeholt",
-
         "giftsHome": {
           "title": "Bitcoin-Geschenke"
         },
-
         "giftsOverview": {
           "noGiftsHead": "Noch keine Geschenke",
           "noGiftsDesc": "Erstelle dein erstes Geschenk, um Bitcoin mit Freunden und Familie zu teilen",
@@ -1696,7 +1676,6 @@
           "unclaimed": "Nicht eingelöst",
           "reclaimed": "Zurückgeholt"
         },
-
         "createGift": {
           "noAmountError": "Bitte gib einen Betrag ein, um dein Geschenk zu erstellen.",
           "connectError": "Wir konnten deine Geschenk-Wallet nicht einrichten.",
@@ -1712,7 +1691,6 @@
           "disclaimer": "Wenn Sie ein Geschenk erstellen, bleibt das Geld {{numDays}} Tage lang gesperrt. Wenn es in dieser Zeit niemand einlöst, können Sie zur Rückforderungsseite gehen, um es zurückzubekommen.",
           "durationText": "{{numDays}} Tage"
         },
-
         "giftConfirmation": {
           "header": "Geschenk erstellt!",
           "whatToDo": "Teile dieses Geschenk per QR-Code oder Link",
@@ -1723,7 +1701,6 @@
           "createAnother": "Weiteres erstellen",
           "done": "Fertig"
         },
-
         "claimHome": {
           "header": "Geschenklink eingeben",
           "desc": "Füge den erhaltenen Link ein oder scanne den QR-Code, um dein Geschenk einzulösen",
@@ -1732,7 +1709,6 @@
           "noGiftLinkError": "Wir konnten keinen Geschenkl-Link finden. Bitte scanne oder füge den erhaltenen Link ein.",
           "invliadGiftFormat": "Ungültiger Geschenkl-Link. Bitte kopiere den vollständigen Link und versuche es erneut."
         },
-
         "reclaimPage": {
           "header": "Geschenk zurückholen",
           "desc": "Gib die Geschenk-ID ein oder wähle sie aus, um ein abgelaufenes oder nicht eingelöstes Geschenk zurückzubekommen.",
@@ -1742,7 +1718,6 @@
           "noReclaimsMessage": "Du hast derzeit keine abgelaufenen Geschenke. Komm zurück, sobald ein Geschenk abgelaufen ist, um es zurückzuholen.",
           "advancedModeBTN": "Erweiterter Modus"
         },
-
         "advancedMode": {
           "header": "Erweiterter Modus",
           "currentIndexHead": "Aktueller Geschenk-Index",
@@ -1754,7 +1729,6 @@
           "restoreGiftBTN": "Geschenk wiederherstellen",
           "advancedWarning": "Diese erweiterte Funktion sollte nur verwendet werden, wenn der normale Rückforderungsprozess nicht funktioniert. Wenn Sie unsicher sind, probieren Sie zuerst die normale Rückforderungsseite."
         },
-
         "claimPage": {
           "parseError": "Die Geschenkinformationen konnten nicht gelesen werden.",
           "noGiftForReclaim": "Dieses Geschenk wurde nicht gefunden. Es wurde möglicherweise bereits eingelöst.",
@@ -1853,7 +1827,6 @@
       }
     }
   },
-
   "toastmessages": {
     "confirmCopy": "In die Zwischenablage kopiert",
     "failedCopy": "Kopieren fehlgeschlagen",
@@ -1862,7 +1835,6 @@
       "desc": "Dein Kontostand wird in Kürze aktualisiert"
     }
   },
-
   "errormessages": {
     "nointernet": "Bitte stellen Sie die Internetverbindung wieder her, um diese Funktion zu nutzen",
     "genericError": "Ein unerwarteter Fehler ist aufgetreten",
@@ -1916,7 +1888,6 @@
     "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen."
   },
-
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht",
     "message2": "Wir richten alles ein",
@@ -1928,11 +1899,9 @@
       "depositLabel": "Zahlung an Einzahlungsadresse"
     }
   },
-
   "share": {
     "contact": "Hi, füge mich auf Blitz hinzu!"
   },
-
   "swapMessages": {
     "liquid": "Liquid-zu-Spark-Transfer"
   },
@@ -1958,21 +1927,18 @@
       "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet"
     }
   },
-
   "flashnetUserMessages": {
     "FSAG-1000": "Die Anfrage hat die Validierungsprüfungen nicht bestanden.",
     "FSAG-1001": "Ein erforderliches Feld fehlt in deiner Anfrage.",
     "FSAG-1002": "Ein oder mehrere Felder haben ein ungültiges Format.",
     "FSAG-1003": "Ein Wert liegt außerhalb des zulässigen Bereichs.",
     "FSAG-1004": "Dieser Wert existiert bereits und muss eindeutig sein.",
-
     "FSAG-2001": "Die Signatur deiner Anfrage konnte nicht verifiziert werden.",
     "FSAG-2002": "Die Token-Identität stimmt nicht mit dem erwarteten öffentlichen Schlüssel überein.",
     "FSAG-2003": "Für diesen Vorgang ist eine Authentifizierung erforderlich.",
     "FSAG-2004": "Deine Sitzung ist abgelaufen oder das Token ist ungültig.",
     "FSAG-2005": "Der Anfrage-Nonce ist ungültig oder wurde bereits verwendet.",
     "FSAG-2101": "Der bereitgestellte öffentliche Schlüssel ist ungültig.",
-
     "FSAG-3001": "Ein temporäres Serviceproblem ist aufgetreten. Bitte versuche es erneut.",
     "FSAG-3002": "Ein temporäres Serviceproblem ist aufgetreten. Bitte versuche es erneut.",
     "FSAG-3101": "Ein Datenbankfehler ist aufgetreten. Bitte versuche es erneut.",
@@ -1984,7 +1950,6 @@
     "FSAG-3302": "Der AMM-Prozessor hat beim Verarbeiten deiner Anfrage ein Zeitlimit überschritten.",
     "FSAG-3401": "Ein interner Verarbeitungsfehler ist aufgetreten.",
     "FSAG-3402": "Ein interner Verarbeitungsfehler ist aufgetreten.",
-
     "FSAG-4001": "Der angegebene Pool existiert nicht.",
     "FSAG-4002": "Der angegebene Host-Namespace existiert nicht.",
     "FSAG-4101": "Deine Authentifizierungssitzung wurde nicht gefunden oder ist abgelaufen.",
@@ -1995,7 +1960,6 @@
     "FSAG-4204": "Du hast nicht genügend LP-Token für diese Auszahlung.",
     "FSAG-4301": "Die Gebührenkonfiguration ist ungültig.",
     "FSAG-4401": "Diese Spark-Übertragung wurde bereits in einem Vorgang verwendet.",
-
     "FSAG-5001": "Beim Verarbeiten deiner Anfrage ist ein interner Fehler aufgetreten.",
     "FSAG-5002": "Diese Funktion ist noch nicht verfügbar.",
     "FSAG-5003": "Ein interner Fehler ist aufgetreten. Bitte kontaktiere den Support, falls dies weiterhin besteht.",
