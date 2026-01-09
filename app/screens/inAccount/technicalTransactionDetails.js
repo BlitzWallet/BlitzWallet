@@ -1,13 +1,13 @@
 import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
-import { CENTER, ICONS } from '../../constants';
+import { CENTER } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { copyToClipboard } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import ThemeImage from '../../functions/CustomElements/themeImage';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useToast } from '../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
@@ -74,12 +74,7 @@ export default function TechnicalTransactionDetails(props) {
                 });
               }}
             >
-              <ThemeImage
-                styles={{ width: 20, height: 20 }}
-                lightModeIcon={ICONS.aboutIcon}
-                darkModeIcon={ICONS.aboutIcon}
-                lightsOutIcon={ICONS.aboutIconWhite}
-              />
+              <ThemeIcon size={20} iconName={'Info'} />
             </TouchableOpacity>
           )}
         </View>

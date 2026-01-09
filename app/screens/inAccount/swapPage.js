@@ -17,7 +17,6 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { ArrowDownUp } from 'lucide-react-native';
 import {
   APPROXIMATE_SYMBOL,
   CENTER,
@@ -73,6 +72,7 @@ import { useUserBalanceContext } from '../../../context-store/userBalanceContext
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 
@@ -851,113 +851,6 @@ export default function SwapsPage() {
             }}
             content={t('screens.inAccount.swapsPage.swapConfimred')}
           />
-          {/* 
-          <View style={styles.detailsCard}>
-            <View
-              style={[
-                styles.card,
-                {
-                  alignItems: 'center',
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
-                },
-              ]}
-            >
-              <ThemeText
-                styles={styles.detailLabel}
-                content={t('screens.inAccount.swapsPage.youSent')}
-              />
-              <ThemeText
-                styles={styles.detailAmount}
-                content={displayCorrectDenomination({
-                  amount: convertedFromAmount,
-                  masterInfoObject: {
-                    ...masterInfoObject,
-                    userBalanceDenomination: !isBtcToUsdb ? 'fiat' : 'sats',
-                  },
-                  fiatStats,
-                  forceCurrency: 'USD',
-                  convertAmount: !isBtcToUsdb ? false : true,
-                })}
-              />
-            </View>
-
-            <View
-              style={[
-                styles.dividerContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ transform: [{ rotate: '-90deg' }] }}
-                lightModeIcon={ICONS.arrow_small_left_white}
-                darkModeIcon={ICONS.arrow_small_left_white}
-                lightsOutIcon={ICONS.arrow_small_left_black}
-              />
-            </View>
-
-            <View
-              style={[
-                styles.card,
-                {
-                  alignItems: 'center',
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
-                },
-              ]}
-            >
-              <ThemeText
-                styles={styles.detailLabel}
-                content={t('screens.inAccount.swapsPage.youReceived')}
-              />
-              <ThemeText
-                styles={styles.detailAmount}
-                content={displayCorrectDenomination({
-                  amount: covertedToAmount,
-                  masterInfoObject: {
-                    ...masterInfoObject,
-                    userBalanceDenomination: isBtcToUsdb ? 'fiat' : 'sats',
-                  },
-                  fiatStats,
-                  forceCurrency: 'USD',
-                  convertAmount: isBtcToUsdb ? false : true,
-                })}
-              />
-            </View>
-          </View> */}
-          {/* Transaction Details */}
-          {/* <View
-            style={[
-              styles.transactionDetails,
-              { borderTopColor: backgroundOffset },
-            ]}
-          >
-            {!!confirmedSwap.realFeeAmount && (
-              <View style={styles.detailRow}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.detailRowLabel}
-                  content={t('constants.fee')}
-                />
-                <ThemeText
-                  styles={styles.detailRowValue}
-                  content={displayCorrectDenomination({
-                    amount: confirmedSwap.realFeeAmount,
-                    masterInfoObject,
-                    fiatStats,
-                  })}
-                />
-              </View>
-            )}
-          </View> */}
-
           {/* Action Buttons */}
           <CustomButton
             buttonStyles={{
@@ -1124,13 +1017,15 @@ export default function SwapsPage() {
                 ]}
                 activeOpacity={1}
               >
-                <ArrowDownUp
+                <ThemeIcon
                   size={22}
-                  color={
-                    theme && darkModeType
-                      ? COLORS.lightModeText
-                      : COLORS.darkModeText
-                  }
+                  iconName={'ArrowDownUp'}
+                  styles={{
+                    color:
+                      theme && darkModeType
+                        ? COLORS.lightModeText
+                        : COLORS.darkModeText,
+                  }}
                 />
               </TouchableOpacity>
 
@@ -1259,11 +1154,10 @@ export default function SwapsPage() {
                     styles={[styles.reviewLabel, { opacity: 0.6 }]}
                     content={t('screens.inAccount.swapsPage.slippage')}
                   />
-                  <ThemeImage
-                    lightModeIcon={ICONS.aboutIcon}
-                    darkModeIcon={ICONS.aboutIcon}
-                    lightsOutIcon={ICONS.aboutIconWhite}
-                    styles={{ width: 20, height: 20, marginLeft: 5 }}
+                  <ThemeIcon
+                    size={20}
+                    styles={{ marginLeft: 5 }}
+                    iconName={'Info'}
                   />
                 </TouchableOpacity>
                 <DropdownMenu
@@ -1443,13 +1337,15 @@ export default function SwapsPage() {
                   activeOpacity={0.7}
                   disabled={isSwapping || isLoadingPool}
                 >
-                  <ArrowDownUp
+                  <ThemeIcon
                     size={22}
-                    color={
-                      theme && darkModeType
-                        ? COLORS.lightModeText
-                        : COLORS.darkModeText
-                    }
+                    iconName={'ArrowDownUp'}
+                    styles={{
+                      color:
+                        theme && darkModeType
+                          ? COLORS.lightModeText
+                          : COLORS.darkModeText,
+                    }}
                   />
                 </TouchableOpacity>
 
@@ -1622,27 +1518,6 @@ export default function SwapsPage() {
                 </TouchableOpacity>
               </View>
 
-              {/* {error && (
-                <View
-                  style={[
-                    styles.errorContainer,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? backgroundOffset
-                          : COLORS.primary,
-                    },
-                  ]}
-                >
-                  <ThemeImage
-                    styles={{ width: 22, height: 22 }}
-                    lightModeIcon={ICONS.warningWhite}
-                    darkModeIcon={ICONS.warningWhite}
-                    lightsOutIcon={ICONS.warningWhite}
-                  />
-                  <ThemeText styles={styles.errorText} content={error} />
-                </View>
-              )} */}
               <View style={{ marginTop: 'auto' }} />
             </>
           )}
