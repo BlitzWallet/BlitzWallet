@@ -338,7 +338,7 @@ export default function CustomHalfModal(props) {
       case 'SelectPaymentMethod':
         return (
           <SelectPaymentMethod
-            convertedSendAmount={props?.route?.params?.convertedSendAmount}
+            selectedPaymentMethod={props?.route?.params?.selectedPaymentMethod}
             handleBackPressFunction={handleBackPressFunction}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}

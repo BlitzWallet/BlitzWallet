@@ -21,15 +21,13 @@ import { useUserBalanceContext } from '../../../../../../context-store/userBalan
 import { formatBalanceAmount } from '../../../../../functions';
 
 export default function SelectPaymentMethod({
-  convertedSendAmount,
+  selectedPaymentMethod,
   handleBackPressFunction,
 }) {
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
-
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
-  const [selectedBalance, setSelectedBalance] = useState('');
 
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
@@ -92,7 +90,10 @@ export default function SelectPaymentMethod({
           />
         </View>
         <CheckMarkCircle
-          isActive={selectedBalance === 'BTC'}
+          isActive={
+            selectedPaymentMethod === 'BTC' ||
+            selectedPaymentMethod === 'user-choice'
+          }
           containerSize={25}
           switchDarkMode={true}
         />
@@ -144,7 +145,7 @@ export default function SelectPaymentMethod({
           />
         </View>
         <CheckMarkCircle
-          isActive={selectedBalance === 'USD'}
+          isActive={selectedPaymentMethod === 'USD'}
           containerSize={25}
           switchDarkMode={true}
         />

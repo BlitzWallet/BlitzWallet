@@ -740,11 +740,11 @@ export default function SendPaymentScreen(props) {
       } else {
         navigate.navigate('CustomHalfModal', {
           wantedContent: 'SelectPaymentMethod',
-          convertedSendAmount,
+          selectedPaymentMethod: determinePaymentMethod,
         });
       }
     },
-    [navigate, convertedSendAmount, paymentValidation],
+    [navigate, paymentValidation, determinePaymentMethod],
   );
   const handleSelectTokenPress = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
