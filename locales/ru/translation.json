@@ -879,7 +879,7 @@
         "receive_amount": "получить сумму",
         "descriptionInputPlaceholder": "Описание...",
         "editAmount": "Количество редактирования",
-        "usdConversionMinimum": "Платежи, конвертируемые в доллары, требуют минимальной суммы:\n{{amount}}"
+        "minUSDSwap": "Платежи, конвертируемые в доллары, требуют минимальной суммы:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Другие методы получения",
