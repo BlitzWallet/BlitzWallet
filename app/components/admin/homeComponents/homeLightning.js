@@ -76,8 +76,11 @@ export default function HomeLightning({ navigation }) {
   const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
   const { backgroundColor } = GetThemeColors();
-  const balanceScrollX = useSharedValue(0);
   const screenWidth = useWindowDimensions().width;
+
+  const balanceScrollX = useSharedValue(0);
+  const balanceListRef = useRef(null);
+  const isSnappingRef = useRef(false);
 
   const scrollY = useSharedValue(0);
   const [navbarHeight, setNavbarHeight] = useState(0);
@@ -100,7 +103,7 @@ export default function HomeLightning({ navigation }) {
   const onBalanceScroll = useAnimatedScrollHandler({
     onScroll: event => {
       balanceScrollX.value = event.contentOffset.x;
-      runOnJS(updateScrollPosition)(event.contentOffset.x);
+      scheduleOnRN(updateScrollPosition, event.contentOffset.x);
     },
   });
 
@@ -272,6 +275,7 @@ export default function HomeLightning({ navigation }) {
     startRootstockEventListener,
     sparkInformation,
     currentWalletMnemoinc,
+    snapToNearestPage,
   ]);
 
   const handleNavbarLayout = useCallback(event => {
@@ -353,6 +357,33 @@ export default function HomeLightning({ navigation }) {
     [screenWidth],
   );
 
+  const snapToNearestPage = useCallback(
+    offsetX => {
+      if (!balanceListRef.current) return;
+      if (isSnappingRef.current) return;
+
+      const position = offsetX / screenWidth;
+      let page;
+
+      if (position < 0.5) {
+        page = 0;
+      } else if (position < 1.5) {
+        page = 1;
+      } else {
+        page = 2;
+      }
+      const targetOffset = page * screenWidth;
+
+      isSnappingRef.current = true;
+
+      balanceListRef.current.scrollToOffset({
+        offset: targetOffset,
+        animated: true,
+      });
+    },
+    [screenWidth],
+  );
+
   return (
     <GlobalThemeView styles={globlThemeViewMemodStlyes}>
       {enabledLRC20 && <View style={topPaddingForLRC20PageMemeStyles} />}
@@ -427,6 +458,7 @@ export default function HomeLightning({ navigation }) {
         {/* Balance pager (horizontal swipe) */}
         <View style={[styles.balanceSection, { backgroundColor }]}>
           <Animated.FlatList
+            ref={balanceListRef}
             horizontal
             pagingEnabled={true}
             snapToAlignment="start"
@@ -441,6 +473,15 @@ export default function HomeLightning({ navigation }) {
             keyExtractor={item => item.key}
             onScroll={onBalanceScroll}
             scrollEventThrottle={16}
+            onScrollBeginDrag={() => {
+              isSnappingRef.current = false;
+            }}
+            onScrollEndDrag={event => {
+              snapToNearestPage(event.nativeEvent.contentOffset.x);
+            }}
+            onMomentumScrollEnd={event => {
+              snapToNearestPage(event.nativeEvent.contentOffset.x);
+            }}
             renderItem={({ item }) => {
               return (
                 <View style={{ width: screenWidth, alignItems: 'center' }}>

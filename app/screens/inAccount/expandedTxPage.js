@@ -77,7 +77,7 @@ export default function ExpandedTx(props) {
         }
       });
 
-      if (activeTx.details.includes(selectedTx.sparkID)) {
+      if (activeTx.details?.includes(selectedTx.sparkID)) {
         setTransaction({ ...activeTx, details: JSON.parse(activeTx.details) });
       } else if (
         selectedTx?.paymentStatus !== activeTx.paymentStatus ||
