@@ -361,6 +361,7 @@ export default function CustomHalfModal(props) {
         return (
           <SelectReceiveAsset
             endReceiveType={props?.route?.params?.endReceiveType}
+            selectedRecieveOption={props?.route?.params?.selectedRecieveOption}
             handleBackPressFunction={handleBackPressFunction}
             theme={theme}
             darkModeType={darkModeType}

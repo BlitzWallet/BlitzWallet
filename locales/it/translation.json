@@ -1606,7 +1606,7 @@
         "onchainFeeMessage": "I pagamenti on-chain hanno una commissione di rete e una commissione Spark dello 0,1%.\n\nSe invii soldi a te stesso, pagherai la commissione di rete due volte — una per inviarli e una per reclamarli.\n\nSe qualcun altro ti invia fondi, pagherai la commissione di rete una sola volta per reclamarli.",
         "liquidFeeMessage": "I pagamenti ricevuti su indirizzi Liquid devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}}, una commissione di riscossione di circa {{claimFee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
         "rootstockFeeMessage": "I pagamenti ricevuti su indirizzi Rootstock devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
-        "lightningConvertMessage": "Ricevere dollari tramite Lightning richiede la conversione di Bitcoin in USD. Si applica una commissione del {{convertFee}} % e il tasso di cambio attuale è {{satExchangeRate}} per {{dollarAmount}}.",
+        "lightningConvertMessage": "Ricevere dollari tramite Lightning richiede la conversione di Bitcoin in USD. Si applica una commissione del {{convertFee}} % e il tasso di cambio attuale è:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generazione Fattura",
         "amountPlaceholder": "Qualsiasi importo",
         "receiveAsHeader": "Ricevi come",
@@ -1628,7 +1628,8 @@
         "header_spark_usd": "Dollari tramite Spark",
         "header_liquid": "Bitcoin tramite Liquid",
         "header_rootstock": "Bitcoin tramite Rootstock",
-        "selectReceiveAssetHead": "Seleziona l’asset da ricevere"
+        "selectReceiveAssetHead": "Seleziona l’asset da ricevere",
+        "finalAmountDisclaimer": "L'importo finale che riceverai può variare a causa delle variazioni di prezzo di mercato durante la conversione."
       },
 
       "settingsContent": {

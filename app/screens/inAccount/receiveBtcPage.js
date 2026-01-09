@@ -56,7 +56,7 @@ export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
-  const { swapLimits, poolInfoRef } = useFlashnet();
+  const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
   const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
@@ -318,12 +318,14 @@ export default function ReceivePaymentHome(props) {
                       masterInfoObject,
                     ),
                     satExchangeRate: displayCorrectDenomination({
-                      amount: Math.round(poolInfoRef.currentPriceAInB),
+                      amount: Number(swapUSDPriceDollars).toFixed(2),
                       masterInfoObject: {
                         ...masterInfoObject,
-                        userBalanceDenomination: 'sats',
+                        userBalanceDenomination: 'fiat',
                       },
                       fiatStats,
+                      forceCurrency: 'USD',
+                      convertAmount: false,
                     }),
                     dollarAmount: displayCorrectDenomination({
                       amount: 1,
@@ -506,6 +508,7 @@ function QrCode(props) {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'SelectReceiveAsset',
       endReceiveType,
+      selectedRecieveOption: selectedRecieveOption?.toLowerCase(),
       sliderHight: 0.5,
     });
   };

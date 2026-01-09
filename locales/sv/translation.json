@@ -1578,7 +1578,7 @@
         "onchainFeeMessage": "Betalningar som tas emot till Bitcoin-adresser har en nätverksavgift och 0,1% Spark-avgift.\n\nOm du skickar pengar till dig själv betalar du nätverksavgiften två gånger - en gång för att skicka dem och en gång för att hämta ut dem.\n\nOm någon annan skickar pengar till dig betalar du bara nätverksavgiften en gång för att göra anspråk på dem.",
         "liquidFeeMessage": "Betalningar som mottagits till Liquid-adresser måste överföras till Spark.\n\nDenna process inkluderar en låsningsavgift på cirka {{fee}}, en kravavgift på cirka {{claimFee}} och en serviceavgift på 0,1% från Boltz baserat på det belopp du skickar.",
         "rootstockFeeMessage": "Betalningar som mottagits till Rootstock-adresser måste överföras till Spark.\n\nDenna process inkluderar en låsningsavgift på cirka {{fee}} och en serviceavgift på 0,1% från Boltz baserat på det belopp du skickar.",
-        "lightningConvertMessage": "Att ta emot dollar via Lightning kräver att Bitcoin konverteras till USD. En avgift på {{convertFee}} % tillämpas, och den aktuella växelkursen är {{satExchangeRate}} per {{dollarAmount}}.",
+        "lightningConvertMessage": "Att ta emot dollar via Lightning kräver att Bitcoin konverteras till USD. En avgift på {{convertFee}} % tillämpas, och den aktuella växelkursen är:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
         "receiveAsHeader": "Ta emot som",
@@ -1600,7 +1600,8 @@
         "header_spark_usd": "Dollar via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Välj tillgång att ta emot"
+        "selectReceiveAssetHead": "Välj tillgång att ta emot",
+        "finalAmountDisclaimer": "Det slutliga beloppet du får kan variera på grund av marknadsprisförändringar under konverteringen."
       },
       "settingsContent": {
         "about": "Om",

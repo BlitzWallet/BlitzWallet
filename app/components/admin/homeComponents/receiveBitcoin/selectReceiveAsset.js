@@ -1,30 +1,38 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { CENTER, ICONS } from '../../../../constants';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import CustomButton from '../../../../functions/CustomElements/button';
+import { useState } from 'react';
 
 export default function SelectReceiveAsset({
   endReceiveType,
+  selectedRecieveOption,
   handleBackPressFunction,
 }) {
   const navigate = useNavigation();
-
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
+  const [selectedOption, setSeelctedOption] = useState(endReceiveType);
 
   const selectSendingBalance = term => {
     handleBackPressFunction(() =>
       navigate.popTo(
         'ReceiveBTC',
         {
-          endReceiveType: term,
+          endReceiveType: selectedOption,
           receiveAmount: 0,
           description: '',
         },
@@ -40,77 +48,94 @@ export default function SelectReceiveAsset({
         content={t('screens.inAccount.receiveBtcPage.selectReceiveAssetHead')}
       />
 
-      <TouchableOpacity
-        onPress={() => selectSendingBalance('BTC')}
-        style={styles.containerRow}
+      <ScrollView
+        style={{ marginVertical: 10 }}
+        showsVerticalScrollIndicator={false}
       >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.bitcoinOrange,
-            },
-          ]}
+        <TouchableOpacity
+          onPress={() => setSeelctedOption('BTC')}
+          style={styles.containerRow}
         >
-          <ThemeImage
-            styles={{ width: 25, height: 25 }}
-            lightModeIcon={ICONS.bitcoinIcon}
-            darkModeIcon={ICONS.bitcoinIcon}
-            lightsOutIcon={ICONS.bitcoinIcon}
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: theme
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : COLORS.bitcoinOrange,
+              },
+            ]}
+          >
+            <ThemeImage
+              styles={{ width: 25, height: 25 }}
+              lightModeIcon={ICONS.bitcoinIcon}
+              darkModeIcon={ICONS.bitcoinIcon}
+              lightsOutIcon={ICONS.bitcoinIcon}
+            />
+          </View>
+          <View style={styles.textContainer}>
+            <ThemeText
+              styles={styles.balanceTitle}
+              content={t('constants.bitcoin_upper')}
+            />
+          </View>
+          <CheckMarkCircle
+            isActive={selectedOption === 'BTC'}
+            containerSize={25}
+            switchDarkMode={true}
           />
-        </View>
-        <View style={styles.textContainer}>
-          <ThemeText
-            styles={styles.balanceTitle}
-            content={t('constants.bitcoin_upper')}
-          />
-        </View>
-        <CheckMarkCircle
-          isActive={endReceiveType === 'BTC'}
-          containerSize={25}
-          switchDarkMode={true}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => selectSendingBalance('USD')}
-        style={styles.containerRow}
-      >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.dollarGreen,
-            },
-          ]}
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setSeelctedOption('USD')}
+          style={styles.containerRow}
         >
-          <ThemeImage
-            styles={{ width: 25, height: 25 }}
-            lightModeIcon={ICONS.dollarIcon}
-            darkModeIcon={ICONS.dollarIcon}
-            lightsOutIcon={ICONS.dollarIcon}
-          />
-        </View>
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: theme
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : COLORS.dollarGreen,
+              },
+            ]}
+          >
+            <ThemeImage
+              styles={{ width: 25, height: 25 }}
+              lightModeIcon={ICONS.dollarIcon}
+              darkModeIcon={ICONS.dollarIcon}
+              lightsOutIcon={ICONS.dollarIcon}
+            />
+          </View>
 
-        <View style={styles.textContainer}>
-          <ThemeText
-            styles={styles.balanceTitle}
-            content={t('constants.dollars_upper')}
+          <View style={styles.textContainer}>
+            <ThemeText
+              styles={styles.balanceTitle}
+              content={t('constants.dollars_upper')}
+            />
+          </View>
+          <CheckMarkCircle
+            isActive={selectedOption === 'USD'}
+            containerSize={25}
+            switchDarkMode={true}
           />
-        </View>
-        <CheckMarkCircle
-          isActive={endReceiveType === 'USD'}
-          containerSize={25}
-          switchDarkMode={true}
-        />
-      </TouchableOpacity>
+        </TouchableOpacity>
+
+        {selectedOption === 'USD' && selectedRecieveOption === 'lightning' && (
+          <ThemeText
+            styles={styles.disclaimerText}
+            content={t('screens.inAccount.receiveBtcPage.usd_convert_warning')}
+          />
+        )}
+      </ScrollView>
+      <CustomButton
+        actionFunction={selectSendingBalance}
+        buttonStyles={{ marginTop: 'auto' }}
+        textContent={t('constants.continue')}
+      />
     </View>
   );
 }
@@ -128,7 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 8,
-    paddingVertical: 15,
+    paddingVertical: 10,
   },
   textContainer: {
     width: '100%',
@@ -179,5 +204,11 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  disclaimerText: {
+    fontSize: SIZES.small,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    marginTop: 5,
   },
 });

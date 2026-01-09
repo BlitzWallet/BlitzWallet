@@ -1587,7 +1587,7 @@
         "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1%.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
         "liquidFeeMessage": "Zahlungen, die an Liquid-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}}, eine Anspruchsgebühr von rund {{claimFee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
         "rootstockFeeMessage": "Zahlungen, die an Rootstock-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
-        "lightningConvertMessage": "Der Empfang von Dollar über Lightning erfordert die Umwandlung von Bitcoin in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt {{satExchangeRate}} pro {{dollarAmount}}.",
+        "lightningConvertMessage": "Der Empfang von Dollar über Lightning erfordert die Umwandlung von Bitcoin in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
         "generatingInvoice": "Rechnung wird generiert",
         "amountPlaceholder": "Beliebiger Betrag",
         "receiveAsHeader": "Empfangen als",
@@ -1609,7 +1609,8 @@
         "header_spark_usd": "Dollar über Spark",
         "header_liquid": "Bitcoin über Liquid",
         "header_rootstock": "Bitcoin über Rootstock",
-        "selectReceiveAssetHead": "Asset zum Empfangen auswählen"
+        "selectReceiveAssetHead": "Asset zum Empfangen auswählen",
+        "finalAmountDisclaimer": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
       },
 
       "settingsContent": {
