@@ -246,6 +246,12 @@ export default function getFormattedHomepageTxsForSpark(props) {
         paymentDetails.LRC20Token !== USDB_TOKEN_ID
       )
         continue;
+
+      if (
+        paymentDetails.senderIdentityPublicKey ===
+        process.env.SPARK_IDENTITY_PUBKEY
+      )
+        continue;
       if (shownTxs.has(currentTransaction.sparkID)) continue;
       if (isLRC20Payment && !hasSavedTokenData) continue;
       if (paymentStatus === TRANSACTION_CONSTANTS.FAILED) continue;
@@ -425,7 +431,8 @@ export const UserTransaction = memo(function UserTransaction({
   }, [frompage, navigate, transaction]);
 
   const showPendingTransactionStatusIcon =
-    transaction.paymentStatus === TRANSACTION_CONSTANTS.PENDING;
+    transaction.paymentStatus === TRANSACTION_CONSTANTS.PENDING ||
+    transaction.isBalancePending;
   const paymentDescription = transaction.details?.description?.trim();
   const isDefaultDescription =
     paymentDescription === BLITZ_DEFAULT_PAYMENT_DESCRIPTION;
@@ -588,7 +595,7 @@ export const UserTransaction = memo(function UserTransaction({
                   : transaction.details.amount
               }
               useCustomLabel={isLRC20Payment}
-              customLabel={token?.tokenTicker?.slice(0, 3)}
+              customLabel={token?.tokenTicker}
               useMillionDenomination={true}
             />
           )}

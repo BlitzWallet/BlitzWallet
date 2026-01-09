@@ -889,7 +889,8 @@
       "editPaymentInfo": {
         "receive_amount": "receive amount",
         "descriptionInputPlaceholder": "Description...",
-        "editAmount": "Edit amount"
+        "editAmount": "Edit amount",
+        "minUSDSwap": "Payments converted to dollars require a minimum amount of:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Other receiving methods",
@@ -940,12 +941,12 @@
         "unkonwDecodeError": "Unknown decoding error occurred",
         "invalidInputType": "Not a valid address type",
         "expiredLightningInvoice": "This Lightning invoice has expired",
-        "lnurlAuthStartMeessage": "Starting LNURL auth",
-        "lnurlFailedAuthMessage": "Failed to authenticate LNURL",
-        "lnurlConfirmMessage": "LNURL successfully authenticated",
-        "lnurlPayInvoiceError": "Failed to generate invoice for LNURL payment. Please try again.",
+        "lnurlAuthStartMeessage": "Starting Lightning login",
+        "lnurlFailedAuthMessage": "Failed to authenticate using Lightning",
+        "lnurlConfirmMessage": "Login successfull",
+        "lnurlPayInvoiceError": "Failed to generate invoice for this Lightning address payment. Please try again.",
         "lnurlWithdrawlStart": "Generating invoice for withdrawal",
-        "lnurlWithdrawlInvoiceError": "Unable to generate invoice for LNURL withdrawal",
+        "lnurlWithdrawlInvoiceError": "Unable to generate invoice for Lightning withdrawal",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
         "invoiceDetails": "Loading details",
@@ -1048,12 +1049,12 @@
       "searchPlaceholder": "Find a contact",
       "lnurlAddMessage": "You are about to add",
       "noProfilesFound": "No profiles match this search",
-      "startTypingMessage": "Search by LNURL (e.g. name@service.com) or Blitz username."
+      "startTypingMessage": "Search by a Lightning address (e.g. name@service.com) or a Blitz username."
     },
 
     "expandedContactPage": {
       "loadingContactError": "Unable to load contact, please try again.",
-      "requestLNURLError": "You can only request money from Blitz contacts, not LNURL addresses.",
+      "requestLNURLError": "You can only request money from Blitz contacts, not Lightning addresses.",
       "noTransactions": "Send or request a payment to see transaction history."
     },
     "expandedMessageHalfModal": {
@@ -1064,8 +1065,8 @@
       "navTitle": "Edit Profile",
       "nameInputDesc": "Name",
       "nameInputPlaceholder": "Enter your name",
-      "lnurlInputDesc": "LNURL Address",
-      "lnurlInputPlaceholder": "Enter your LNURL address",
+      "lnurlInputDesc": "Lightning Address",
+      "lnurlInputPlaceholder": "Enter your Lightning address",
       "uniqueNameInputDesc": "Username",
       "uniqueNameInputPlaceholder": "Enter your username",
       "bioInputDesc": "Bio",
@@ -1345,7 +1346,7 @@
       "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
-      "lnurl": "LNURL",
+      "lnurl": "Lightning address",
       "nostrZaps": "Nostr zaps",
       "nwc": "Nostr Wallet Connect",
       "pos": "Point-of-sale"
@@ -1500,7 +1501,7 @@
         "payingMessage": "Paying...",
         "notifyngMessage": "Notifiying...",
         "errorPaying": "Unable to pay Blitz contact. Try again later.",
-        "invalidName": "Name is not an LNURL or a Blitz user.",
+        "invalidName": "Name is not a Lightning Address or a Blitz user.",
         "removeEmployeeWarning": "Are you sure you want to remove this employee?",
         "startingPaymentProcessMessage": "Begining payment process, please do not leave this page or the app.",
         "goBack": "Go back",
@@ -1608,7 +1609,7 @@
         "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and a 0.1% Spark fee.\n\nIf you send money to yourself, you'll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you'll only pay the network fee once to claim it.",
         "liquidFeeMessage": "Payments received to Liquid addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
         "rootstockFeeMessage": "Payments received to Rootstock addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
-        "lightningConvertMessage": "Receiving dollars from Lightning requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is {{satExchangeRate}} per {{dollarAmount}}.",
+        "lightningConvertMessage": "Receiving dollars from Lightning requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
         "receiveAsHeader": "Receive as",
@@ -1630,7 +1631,8 @@
         "header_spark_usd": "Dollars via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Select the asset to receive"
+        "selectReceiveAssetHead": "Select the asset to receive",
+        "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion."
       },
 
       "settingsContent": {
@@ -1835,6 +1837,7 @@
         "newSwap": "New Swap",
         "loadingPool": "Loading swap information...",
         "fromBalance": "I have {{amount}}",
+        "fromBalanceHidden": "I have",
         "toBalance": "I want",
         "min": "MIN",
         "half": "HALF",
@@ -1861,7 +1864,10 @@
         "insufficientBalance": "The amount is greater than your available balance. Please enter a smaller amount.",
         "simulationInProgress": "Please wait, the swap is still being calculated.",
         "convertHead": "Convert",
-        "percentConvertSelector": "% to convert"
+        "percentConvertSelector": "% to convert",
+        "slippage": "Slippage",
+        "slippageDesc": "Slippage is the percentage of price movement you are willing to accept. Lower slippage may cause transaction failures, while higher slippage may result in receiving a fewer amount than expected.",
+        "auto": "Auto"
       }
     }
   },
@@ -1900,7 +1906,7 @@
     "fullDeeplinkError": "Unable to retrieve contact information. Please try again.",
     "processingDeepLinkError": "Failed to process link: {{error}}",
     "legacyContactError": "Contact has not updated their wallet yet. Please ask them to update their wallet to send this.",
-    "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid LNURL address.",
+    "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid Lightning address.",
     "explorePagenoDataError": "We were unable to retrieve Blitz user count.",
     "savingFileError": "Error saving file to document",
     "savingFilePermissionsError": "Error getting permissions",

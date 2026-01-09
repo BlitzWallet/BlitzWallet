@@ -56,7 +56,7 @@ export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
-  const { swapLimits, poolInfoRef } = useFlashnet();
+  const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
   const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
@@ -73,7 +73,10 @@ export default function ReceivePaymentHome(props) {
 
   const paymentDescription = props.route.params?.description;
   const requestUUID = props.route.params?.uuid;
-  const endReceiveType = props?.route.params.endReceiveType || 'BTC';
+  const endReceiveType =
+    props?.route.params.endReceiveType ||
+    props?.route.params.initialReceiveType ||
+    'BTC';
   useHandleBackPressNew();
   const selectedRecieveOption =
     props.route.params?.selectedRecieveOption || 'Lightning';
@@ -232,7 +235,7 @@ export default function ReceivePaymentHome(props) {
             selectedRecieveOption={selectedRecieveOption}
             navigate={navigate}
             addressState={addressState}
-            initialSendAmount={initialSendAmount}
+            initialSendAmount={initialSendAmount || userReceiveAmount}
             masterInfoObject={masterInfoObject}
             fiatStats={fiatStats}
             isUsingAltAccount={isUsingAltAccount}
@@ -246,7 +249,7 @@ export default function ReceivePaymentHome(props) {
             generatingInvoiceQRCode={addressState.isGeneratingInvoice}
             generatedAddress={addressState.generatedAddress}
             selectedRecieveOption={selectedRecieveOption}
-            initialSendAmount={initialSendAmount}
+            initialSendAmount={initialSendAmount || userReceiveAmount}
             isUsingAltAccount={isUsingAltAccount}
           />
 
@@ -315,12 +318,14 @@ export default function ReceivePaymentHome(props) {
                       masterInfoObject,
                     ),
                     satExchangeRate: displayCorrectDenomination({
-                      amount: Math.round(poolInfoRef.currentPriceAInB),
+                      amount: Number(swapUSDPriceDollars).toFixed(2),
                       masterInfoObject: {
                         ...masterInfoObject,
-                        userBalanceDenomination: 'sats',
+                        userBalanceDenomination: 'fiat',
                       },
                       fiatStats,
+                      forceCurrency: 'USD',
+                      convertAmount: false,
                     }),
                     dollarAmount: displayCorrectDenomination({
                       amount: 1,
@@ -490,12 +495,13 @@ function QrCode(props) {
   const showLongerAddress =
     (selectedRecieveOption?.toLowerCase() === 'bitcoin' ||
       selectedRecieveOption?.toLowerCase() === 'liquid') &&
-    initialSendAmount;
+    !!initialSendAmount;
 
   const editAmount = () => {
     navigate.navigate('EditReceivePaymentInformation', {
       from: 'receivePage',
       receiveType: selectedRecieveOption,
+      endReceiveType,
     });
   };
 
@@ -503,6 +509,7 @@ function QrCode(props) {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'SelectReceiveAsset',
       endReceiveType,
+      selectedRecieveOption: selectedRecieveOption?.toLowerCase(),
       sliderHight: 0.5,
     });
   };
@@ -622,7 +629,8 @@ function QrCode(props) {
             !initialSendAmount
               ? t('screens.inAccount.receiveBtcPage.amountPlaceholder')
               : endReceiveType === 'USD' &&
-                initialSendAmount === swapLimits.bitcoin
+                initialSendAmount === swapLimits.bitcoin &&
+                canConvert
               ? t('screens.inAccount.receiveBtcPage.amount_USD_MIN', {
                   swapAmountSat: displayCorrectDenomination({
                     masterInfoObject: masterInfoObject,
@@ -634,7 +642,10 @@ function QrCode(props) {
                   masterInfoObject: masterInfoObject,
                   fiatStats: fiatStats,
                   amount: initialSendAmount,
-                }) + (endReceiveType === 'USD' ? approximateUSDAmount : '')
+                }) +
+                (endReceiveType === 'USD' && canConvert
+                  ? approximateUSDAmount
+                  : '')
           }
           lightModeIcon={ICONS.editIcon}
           darkModeIcon={ICONS.editIconLight}

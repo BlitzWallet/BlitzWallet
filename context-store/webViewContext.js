@@ -77,6 +77,13 @@ export const OPERATION_TYPES = {
   checkClawbackStatus: 'checkClawbackStatus',
   requestBatchClawback: 'requestBatchClawback',
   listClawbackableTransfers: 'listClawbackableTransfers',
+
+  // Wallet optimizations
+  abortOptimization: 'abortOptimization',
+  isOptimizationRunning: 'isOptimizationRunning',
+  checkIfOptimizationNeeded: 'checkIfOptimizationNeeded',
+  runLeafOptimization: 'runLeafOptimization',
+  runTokenOptimization: 'runTokenOptimization',
 };
 
 const longOperations = [
@@ -94,6 +101,8 @@ const longOperations = [
   OPERATION_TYPES.swapTokenToBitcoin,
   OPERATION_TYPES.payLightningWithToken,
   OPERATION_TYPES.requestClawback,
+  OPERATION_TYPES.runLeafOptimization,
+  OPERATION_TYPES.runTokenOptimization,
 ];
 
 const mediumOperations = [
@@ -111,6 +120,7 @@ const mediumOperations = [
   OPERATION_TYPES.setPrivacyEnabled,
   OPERATION_TYPES.simulateSwap,
   OPERATION_TYPES.requestBatchClawback,
+  OPERATION_TYPES.checkIfOptimizationNeeded,
 ];
 
 const rejectIfNotConnectedToInternet = [
@@ -371,6 +381,10 @@ export const WebViewProvider = ({ children }) => {
       prevConnectionStatus.current = isConnectedToTheInternet;
     } else if (appState === 'active') {
       console.log('App returned to foreground');
+      // clear any active timeouts to prevent timeout from switching to rn
+      Object.values(activeTimeoutsRef.current).forEach(t =>
+        clearTimeout(t.timeoutId),
+      );
 
       // Wait for internet connection before proceeding
       if (!isConnectedToTheInternet) {
@@ -379,10 +393,6 @@ export const WebViewProvider = ({ children }) => {
         previousAppState.current = appState;
         prevConnectionStatus.current = isConnectedToTheInternet;
 
-        // clear any active timeouts to prevent timeout from switching to rn
-        Object.values(activeTimeoutsRef.current).forEach(t =>
-          clearTimeout(t.timeoutId),
-        );
         return;
       }
 

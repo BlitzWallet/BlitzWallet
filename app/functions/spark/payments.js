@@ -33,6 +33,11 @@ import {
   payLightningWithToken,
   USD_ASSET_ADDRESS,
 } from './flashnet';
+import {
+  abortOptimization,
+  isOptimizationRunning,
+  scheduleOptimization,
+} from '../spark/optimization';
 import { setFlashnetTransfer } from './handleFlashnetTransferIds';
 import {
   addSingleUnpaidSparkLightningTransaction,
@@ -65,6 +70,15 @@ export const sparkPaymenWrapper = async ({
 }) => {
   try {
     console.log('Begining spark payment');
+
+    if (!getFee && (await isOptimizationRunning(mnemonic))) {
+      console.log(
+        'Optimization in progress, aborting immediately for payment...',
+      );
+      await abortOptimization(mnemonic);
+      // Small delay to ensure abort completes
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
     // if (!sparkWallet[sha256Hash(mnemonic)])
     //   throw new Error('sparkWallet not initialized');
     const supportFee = 0;
@@ -515,6 +529,11 @@ export const sparkPaymenWrapper = async ({
     // Only save immediately if we have identityPubKey (otherwise the tx will not show up)
     if (sparkInformation.identityPubKey) {
       await bulkUpdateSparkTransactions([response], 'paymentWrapperTx', 0);
+    }
+
+    if (!getFee) {
+      console.log('Scheduling post-payment optimization...');
+      scheduleOptimization(mnemonic, sparkInformation.identityPubKey, 2000);
     }
     return {
       didWork: true,

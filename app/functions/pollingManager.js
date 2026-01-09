@@ -144,8 +144,8 @@ export const createBalancePoller = (
       sameValueIndex++;
 
       if (
-        (hasIncreasedAtLeastOnce && sameValueIndex >= 2) ||
-        sameValueIndex >= 3
+        (hasIncreasedAtLeastOnce && sameValueIndex >= 4) ||
+        (!hasIncreasedAtLeastOnce && sameValueIndex >= 3)
       ) {
         return true;
       }
@@ -159,7 +159,10 @@ export const createBalancePoller = (
       onBalanceUpdate(newBalance);
     },
     abortController,
-    delays: [1000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000],
+    delays: [
+      1000, 1500, 1500, 1500, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
+      2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
+    ],
     initialBalance,
   });
 };

@@ -71,8 +71,18 @@ import customUUID from '../../functions/customUUID';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
+import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
+
+const SLIPPAGE_DROPDOWN_OPTIONS = [
+  { label: '0.1%', value: '0.1' },
+  { label: '0.5%', value: '0.5' },
+  { label: '1%', value: '1' },
+  { label: '3%', value: '3' },
+  { label: '5%', value: '5' },
+];
 
 export default function SwapsPage() {
   const navigate = useNavigation();
@@ -108,6 +118,7 @@ export default function SwapsPage() {
   const [lastEditedField, setLastEditedField] = useState('from');
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [showReviewScreen, setShowReviewScreen] = useState(false);
+  const [slippagePercent, setSlippagePercent] = useState('');
 
   // Animated values for font sizes
   const fromAmountFontSize = useSharedValue(SIZES.large);
@@ -550,6 +561,10 @@ export default function SwapsPage() {
     });
   };
 
+  const handleDropdownToggle = value => {
+    setSlippagePercent(value.value);
+  };
+
   const performSwap = async () => {
     setIsSwapping(true);
     setError(null);
@@ -585,11 +600,13 @@ export default function SwapsPage() {
             tokenAddress: USD_ASSET_ADDRESS,
             amountSats: amountInSmallestUnits,
             poolId: poolInfo.lpPublicKey,
+            maxSlippageBps: (slippagePercent || 5) * 100,
           })
         : await swapTokenToBitcoin(currentWalletMnemoinc, {
             tokenAddress: USD_ASSET_ADDRESS,
             tokenAmount: amountInSmallestUnits,
             poolId: poolInfo.lpPublicKey,
+            maxSlippageBps: (slippagePercent || 5) * 100,
           });
 
       console.log('Execure swap response', result);
@@ -1222,6 +1239,7 @@ export default function SwapsPage() {
                   backgroundColor: theme
                     ? backgroundOffset
                     : COLORS.darkModeText,
+                  marginBottom: 20,
                 },
               ]}
             >
@@ -1233,6 +1251,64 @@ export default function SwapsPage() {
                 <ThemeText
                   styles={styles.reviewAmount}
                   content={`${APPROXIMATE_SYMBOL} ${formattedFee}`}
+                />
+              </View>
+            </View>
+
+            {/* Fee card */}
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+              ]}
+            >
+              <View style={styles.reviewSection}>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigate.navigate('InformationPopup', {
+                      textContent: t(
+                        'screens.inAccount.swapsPage.slippageDesc',
+                      ),
+                      buttonText: t('constants.iunderstand'),
+                    });
+                  }}
+                  style={styles.slippageInfoContainer}
+                >
+                  <ThemeText
+                    styles={[styles.reviewLabel, { opacity: 0.6 }]}
+                    content={t('screens.inAccount.swapsPage.slippage')}
+                  />
+                  <ThemeImage
+                    lightModeIcon={ICONS.aboutIcon}
+                    darkModeIcon={ICONS.aboutIcon}
+                    lightsOutIcon={ICONS.aboutIconWhite}
+                    styles={{ width: 20, height: 20, marginLeft: 5 }}
+                  />
+                </TouchableOpacity>
+                <DropdownMenu
+                  placeholder={t('screens.inAccount.swapsPage.auto')}
+                  options={SLIPPAGE_DROPDOWN_OPTIONS}
+                  selectedValue={
+                    slippagePercent ? `${slippagePercent}%` : undefined
+                  }
+                  globalContainerStyles={{
+                    width: 'unset',
+                    flexShrink: 1,
+                  }}
+                  onSelect={handleDropdownToggle}
+                  showVerticalArrowsAbsolute={true}
+                  customButtonStyles={{
+                    width: 'unset',
+                    minWidth: 'unset',
+                    flex: 0,
+                    marginLeft: 'auto',
+                    backgroundColor,
+                  }}
+                  showClearIcon={false}
                 />
               </View>
             </View>
@@ -1288,21 +1364,21 @@ export default function SwapsPage() {
                   ]}
                 >
                   <View style={styles.cardHeader}>
-                    <ThemeText
+                    <FormattedSatText
+                      frontText={
+                        t('screens.inAccount.swapsPage.fromBalanceHidden') + ' '
+                      }
                       styles={styles.label}
-                      content={t('screens.inAccount.swapsPage.fromBalance', {
-                        amount: displayCorrectDenomination({
-                          amount: displayBalance,
-                          masterInfoObject: {
-                            ...masterInfoObject,
-                            userBalanceDenomination:
-                              fromAsset === 'BTC' ? 'sats' : 'fiat',
-                          },
-                          forceCurrency: 'USD',
-                          fiatStats,
-                          convertAmount: fromAsset === 'BTC',
-                        }),
-                      })}
+                      balance={displayBalance}
+                      globalBalanceDenomination={
+                        masterInfoObject.userBalanceDenomination === 'hidden'
+                          ? 'hidden'
+                          : fromAsset === 'BTC'
+                          ? 'sats'
+                          : 'fiat'
+                      }
+                      useBalance={fromAsset === 'USD'}
+                      forceCurrency={'USD'}
                     />
                     {isSimulating && lastEditedField === 'to' && (
                       <FullLoadingScreen
@@ -1934,5 +2010,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  slippageInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 5,
   },
 });

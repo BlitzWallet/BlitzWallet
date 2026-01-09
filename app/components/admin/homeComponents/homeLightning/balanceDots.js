@@ -68,8 +68,9 @@ const styles = StyleSheet.create({
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 12,
-    paddingBottom: 22,
+
+    position: 'absolute',
+    bottom: 42,
   },
 
   dot: {

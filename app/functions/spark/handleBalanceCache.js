@@ -27,7 +27,7 @@ export default async function handleBalanceCache({
       );
       return { didWork: true, balance: passedBalance };
     }
-    if (passedBalance * 1.1 >= cachedBalance) {
+    if (passedBalance == cachedBalance) {
       cachedBalances[mnemonicHash] = passedBalance;
       await setLocalStorageItem(
         SPARK_CACHED_BALANCE_KEY,

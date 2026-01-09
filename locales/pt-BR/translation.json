@@ -887,7 +887,8 @@
       "editPaymentInfo": {
         "receive_amount": "receber quantia",
         "descriptionInputPlaceholder": "Descrição (opcional)",
-        "editAmount": "Definir quantia"
+        "editAmount": "Definir quantia",
+        "usdConversionMinimum": "Pagamentos convertidos para dólares exigem um valor mínimo de:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Outros meios de recebimento",
@@ -1603,7 +1604,7 @@
         "onchainFeeMessage": "Os pagamentos recebidos em endereços Bitcoin têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
         "liquidFeeMessage": "Pagamentos recebidos em endereços Liquid precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
         "rootstockFeeMessage": "Pagamentos recebidos em endereços Rootstock precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
-        "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é {{satExchangeRate}} por {{dollarAmount}}.",
+        "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "receiveAsHeader": "Receber em",
@@ -1625,7 +1626,8 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Selecione o ativo a receber"
+        "selectReceiveAssetHead": "Selecione o ativo a receber",
+        "finalAmountDisclaimer": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão."
       },
 
       "settingsContent": {
@@ -1834,6 +1836,7 @@
         "newSwap": "Nova troca",
         "loadingPool": "Carregando...",
         "fromBalance": "Tenho {{amount}}",
+        "fromBalanceHidden": "Tenho",
         "toBalance": "Quero",
         "min": "MIN",
         "half": "METADE",
@@ -1861,6 +1864,11 @@
         "simulationInProgress": "Aguarde, a troca ainda está sendo calculada.",
         "convertHead": "Trocar",
         "percentConvertSelector": "% do saldo"
+        "convertHead": "Converter",
+        "percentConvertSelector": "% para converter",
+        "slippage": "Slippage",
+        "slippageDesc": "Slippage é a porcentagem de variação de preço que você está disposto a aceitar. Um slippage baixo pode causar falhas na transação, enquanto um slippage alto pode resultar em receber menos do que o esperado.",
+        "auto": "Auto"
       }
     }
   },

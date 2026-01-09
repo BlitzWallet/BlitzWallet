@@ -878,7 +878,8 @@
       "editPaymentInfo": {
         "receive_amount": "recevoir le montant",
         "descriptionInputPlaceholder": "Description...",
-        "editAmount": "Modifier le montant"
+        "editAmount": "Modifier le montant",
+        "usdConversionMinimum": "Les paiements convertis en dollars nécessitent un montant minimum de :\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Autres méthodes de réception",
@@ -1578,7 +1579,7 @@
         "onchainFeeMessage": "Les paiements reçus à des adresses Bitcoin sont soumis à une commission de réseau et à une commission d'étincelle de 0,1 %.\n\nSi vous vous envoyez de l'argent à vous-même, vous paierez deux fois les frais de réseau - une fois pour l'envoyer et une fois pour le réclamer.\n\nSi quelqu'un d'autre vous envoie de l'argent, vous ne paierez les frais de réseau qu'une seule fois pour le réclamer.",
         "liquidFeeMessage": "Les paiements reçus aux adresses Liquid doivent être transférés dans Spark.\n\nCe processus comprend des frais de blocage d'environ {{fee}}, des frais de réclamation d'environ {{claimFee}}, et des frais de service de 0,1 % de Boltz basés sur le montant que vous envoyez.",
         "rootstockFeeMessage": "Les paiements reçus aux adresses Rootstock doivent être transférés dans Spark.\n\nCe processus comprend des frais de blocage d'environ {{fee}}, et des frais de service de 0,1 % de Boltz basés sur le montant que vous envoyez.",
-        "lightningConvertMessage": "Recevoir des dollars via Lightning nécessite de convertir des bitcoins en USD. Des frais de {{convertFee}} % s’appliquent, et le taux de change actuel est de {{satExchangeRate}} par {{dollarAmount}}.",
+        "lightningConvertMessage": "Recevoir des dollars via Lightning nécessite de convertir des bitcoins en USD. Des frais de {{convertFee}} % s’appliquent, et le taux de change actuel est de:\n{{satExchangeRate}}.",
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
         "receiveAsHeader": "Recevoir en tant que",
@@ -1600,7 +1601,8 @@
         "header_spark_usd": "Dollars via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Sélectionnez l’actif à recevoir"
+        "selectReceiveAssetHead": "Sélectionnez l’actif à recevoir",
+        "finalAmountDisclaimer": "Le montant final que vous recevrez peut varier en raison des fluctuations du prix du marché pendant la conversion."
       },
       "settingsContent": {
         "about": "A propos de",
@@ -1798,6 +1800,7 @@
         "newSwap": "Nouveau swap",
         "loadingPool": "Chargement des informations de swap...",
         "fromBalance": "J’ai {{amount}}",
+        "fromBalanceHidden": "J’ai",
         "toBalance": "Je veux",
         "min": "MIN",
         "half": "MOITIÉ",
@@ -1824,7 +1827,10 @@
         "insufficientBalance": "Le montant dépasse votre solde disponible. Veuillez saisir un montant inférieur.",
         "simulationInProgress": "Veuillez patienter, le swap est encore en cours de calcul.",
         "convertHead": "Convertir",
-        "percentConvertSelector": "% à convertir"
+        "percentConvertSelector": "% à convertir",
+        "slippage": "Glissement",
+        "slippageDesc": "Le glissement est le pourcentage de variation de prix que vous êtes prêt à accepter. Un glissement faible peut entraîner des échecs de transaction, tandis qu’un glissement élevé peut entraîner la réception d’un montant inférieur à celui attendu.",
+        "auto": "Auto"
       }
     }
   },

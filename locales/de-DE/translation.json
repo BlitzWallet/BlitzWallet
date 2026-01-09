@@ -883,7 +883,8 @@
       "editPaymentInfo": {
         "receive_amount": "Empfangsbetrag",
         "descriptionInputPlaceholder": "Beschreibung...",
-        "editAmount": "Betrag bearbeiten"
+        "editAmount": "Betrag bearbeiten",
+        "usdConversionMinimum": "Zahlungen, die in Dollar umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Andere Empfangsmethoden",
@@ -1587,7 +1588,7 @@
         "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1%.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
         "liquidFeeMessage": "Zahlungen, die an Liquid-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}}, eine Anspruchsgebühr von rund {{claimFee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
         "rootstockFeeMessage": "Zahlungen, die an Rootstock-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
-        "lightningConvertMessage": "Der Empfang von Dollar über Lightning erfordert die Umwandlung von Bitcoin in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt {{satExchangeRate}} pro {{dollarAmount}}.",
+        "lightningConvertMessage": "Der Empfang von Dollar über Lightning erfordert die Umwandlung von Bitcoin in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
         "generatingInvoice": "Rechnung wird generiert",
         "amountPlaceholder": "Beliebiger Betrag",
         "receiveAsHeader": "Empfangen als",
@@ -1609,7 +1610,8 @@
         "header_spark_usd": "Dollar über Spark",
         "header_liquid": "Bitcoin über Liquid",
         "header_rootstock": "Bitcoin über Rootstock",
-        "selectReceiveAssetHead": "Asset zum Empfangen auswählen"
+        "selectReceiveAssetHead": "Asset zum Empfangen auswählen",
+        "finalAmountDisclaimer": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
       },
 
       "settingsContent": {
@@ -1817,6 +1819,7 @@
         "newSwap": "Neuer Swap",
         "loadingPool": "Swap-Informationen werden geladen...",
         "fromBalance": "Ich habe {{amount}}",
+        "fromBalanceHidden": "Ich habe",
         "toBalance": "Ich möchte",
         "min": "MIN",
         "half": "HALB",
@@ -1843,7 +1846,10 @@
         "insufficientBalance": "Der Betrag übersteigt dein verfügbares Guthaben. Bitte gib einen kleineren Betrag ein.",
         "simulationInProgress": "Bitte warten, der Swap wird noch berechnet.",
         "convertHead": "Umwandeln",
-        "percentConvertSelector": "% zum Umwandeln"
+        "percentConvertSelector": "% zum Umwandeln",
+        "slippage": "Slippage",
+        "slippageDesc": "Slippage ist der prozentuale Preisunterschied, den du akzeptierst. Eine niedrige Slippage kann zu fehlgeschlagenen Transaktionen führen, während eine höhere Slippage dazu führen kann, dass du weniger als erwartet erhältst.",
+        "auto": "Auto"
       }
     }
   },

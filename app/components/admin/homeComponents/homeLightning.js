@@ -240,16 +240,6 @@ export default function HomeLightning({ navigation }) {
     scrollPosition,
   ]);
 
-  // Memoize the list data
-  const listData = useMemo(() => {
-    return [
-      { type: 'navbar', key: 'navbar' },
-      { type: 'balance', key: 'balance' },
-      { type: 'buttons', key: 'buttons' },
-      ...(flatListDataForSpark || []),
-    ];
-  }, [flatListDataForSpark]);
-
   const handleRefresh = useCallback(async () => {
     crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
@@ -269,7 +259,7 @@ export default function HomeLightning({ navigation }) {
       if (!response) {
         sparkTransactionsEventEmitter.emit(
           SPARK_TX_UPDATE_ENVENT_NAME,
-          'fullUpdate',
+          'fullUpdate-waitBalance',
         );
       }
     } catch (err) {
@@ -353,6 +343,16 @@ export default function HomeLightning({ navigation }) {
     };
   }, [backgroundColor, topPadding]);
 
+  // Memoized getItemLayout for consistent measurements
+  const getItemLayout = useCallback(
+    (data, index) => ({
+      length: screenWidth,
+      offset: screenWidth * index,
+      index,
+    }),
+    [screenWidth],
+  );
+
   return (
     <GlobalThemeView styles={globlThemeViewMemodStlyes}>
       {enabledLRC20 && <View style={topPaddingForLRC20PageMemeStyles} />}
@@ -428,11 +428,14 @@ export default function HomeLightning({ navigation }) {
         <View style={[styles.balanceSection, { backgroundColor }]}>
           <Animated.FlatList
             horizontal
-            pagingEnabled
+            pagingEnabled={true}
+            snapToAlignment="start"
+            decelerationRate="fast"
             showsHorizontalScrollIndicator={false}
+            getItemLayout={getItemLayout}
             contentContainerStyle={{
               paddingTop: 50,
-              paddingBottom: 20,
+              paddingBottom: 72,
             }}
             data={BALANCE_PAGES}
             keyExtractor={item => item.key}
@@ -511,6 +514,7 @@ export default function HomeLightning({ navigation }) {
             theme={theme}
             darkModeType={darkModeType}
             isConnectedToTheInternet={isConnectedToTheInternet}
+            scrollPosition={scrollPosition}
           />
           {showTokensInformation && (
             <MemoizedLRC20Assets theme={theme} darkModeType={darkModeType} />
@@ -552,7 +556,6 @@ const styles = StyleSheet.create({
   },
   balanceSection: {
     alignItems: 'center',
-    // paddingTop: 30,
   },
   buttonsContainer: {
     borderBottomLeftRadius: 30,

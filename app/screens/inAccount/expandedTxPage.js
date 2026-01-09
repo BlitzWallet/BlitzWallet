@@ -27,7 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { formatLocalTimeShort } from '../../functions/timeFormatter';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
 import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
 import { keyboardNavigate } from '../../functions/customNavigation';
@@ -54,11 +54,36 @@ export default function ExpandedTx(props) {
   const { bottomPadding } = useGlobalInsets();
   const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
+  const isInitialRender = useRef(true);
 
   const [transaction, setTransaction] = useState(
     props.route.params.transaction,
   );
   const sendingContactUUID = transaction.details?.sendingUUID;
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
+    try {
+      const activeTx = sparkInformation.transactions.find(tx => {
+        return tx.id === props.route.params.transaction?.id;
+      });
+
+      if (
+        props.route.params.transaction?.paymentStatus !==
+          activeTx.paymentStatus ||
+        props.route.params.transaction?.isBalancePending !==
+          activeTx.isBalancePending
+      ) {
+        setTransaction({ ...activeTx, details: JSON.parse(activeTx.details) });
+      }
+    } catch (err) {
+      console.log('Error updating tx', err.message);
+    }
+  }, [sparkInformation.transactions]);
 
   const selectedContact = useMemo(() => {
     if (!decodedAddedContacts) return undefined;
@@ -80,7 +105,8 @@ export default function ExpandedTx(props) {
     : transaction.paymentType;
 
   const isFailedPayment = transaction.paymentStatus === 'failed';
-  const isPending = transaction.paymentStatus === 'pending';
+  const isPending =
+    transaction.paymentStatus === 'pending' || transaction.isBalancePending;
   const isSuccessful = !isFailedPayment && !isPending;
   const paymentDate = new Date(transaction.details.time);
   const amount = transaction?.details?.amount;

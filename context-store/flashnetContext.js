@@ -308,6 +308,7 @@ export function FlashnetProvider({ children }) {
             direction: 'INCOMING',
             isLRC20Payment: true,
             LRC20Token: USDB_TOKEN_ID,
+            showSwapLabel: true,
             currentPriceAInB: poolInfoRef.current?.currentPriceAInB,
           },
         };
