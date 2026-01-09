@@ -64,14 +64,16 @@ export default function NavBarWithBalance({
                   )
                 : useFrozen
                 ? balanceRef.current
-                : balance
+                : 4600000
             }
             useCustomLabel={
               seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin' &&
               seletctedToken?.tokenMetadata?.tokenTicker !== undefined
             }
             customLabel={seletctedToken?.tokenMetadata?.tokenTicker}
-            useMillionDenomination={true}
+            useMillionDenomination={
+              selectedLRC20Asset !== 'Bitcoin' ? true : false
+            }
             useSizing={true}
           />
         </View>
@@ -111,5 +113,6 @@ const styles = StyleSheet.create({
   headerText: {
     includeFontPadding: false,
     fontSize: SIZES.large,
+    textAlign: 'center',
   },
 });
