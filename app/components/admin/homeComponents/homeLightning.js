@@ -514,6 +514,7 @@ export default function HomeLightning({ navigation }) {
             theme={theme}
             darkModeType={darkModeType}
             isConnectedToTheInternet={isConnectedToTheInternet}
+            scrollPosition={scrollPosition}
           />
           {showTokensInformation && (
             <MemoizedLRC20Assets theme={theme} darkModeType={darkModeType} />

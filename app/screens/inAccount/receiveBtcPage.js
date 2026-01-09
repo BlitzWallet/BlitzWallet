@@ -73,7 +73,10 @@ export default function ReceivePaymentHome(props) {
 
   const paymentDescription = props.route.params?.description;
   const requestUUID = props.route.params?.uuid;
-  const endReceiveType = props?.route.params.endReceiveType || 'BTC';
+  const endReceiveType =
+    props?.route.params.endReceiveType ||
+    props?.route.params.initialReceiveType ||
+    'BTC';
   useHandleBackPressNew();
   const selectedRecieveOption =
     props.route.params?.selectedRecieveOption || 'Lightning';
