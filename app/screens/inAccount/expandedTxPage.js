@@ -68,15 +68,20 @@ export default function ExpandedTx(props) {
     }
 
     try {
+      const selectedTx = props.route.params.transaction;
       const activeTx = sparkInformation.transactions.find(tx => {
-        return tx.id === props.route.params.transaction?.id;
+        if (selectedTx.details?.performSwaptoUSD) {
+          return tx.details.includes(selectedTx.sparkID);
+        } else {
+          return tx.id === selectedTx?.id;
+        }
       });
 
-      if (
-        props.route.params.transaction?.paymentStatus !==
-          activeTx.paymentStatus ||
-        props.route.params.transaction?.isBalancePending !==
-          activeTx.isBalancePending
+      if (activeTx.details.includes(selectedTx.sparkID)) {
+        setTransaction({ ...activeTx, details: JSON.parse(activeTx.details) });
+      } else if (
+        selectedTx?.paymentStatus !== activeTx.paymentStatus ||
+        selectedTx?.isBalancePending !== activeTx.isBalancePending
       ) {
         setTransaction({ ...activeTx, details: JSON.parse(activeTx.details) });
       }

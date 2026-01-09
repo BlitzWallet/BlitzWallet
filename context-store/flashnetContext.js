@@ -310,6 +310,7 @@ export function FlashnetProvider({ children }) {
             LRC20Token: USDB_TOKEN_ID,
             showSwapLabel: true,
             currentPriceAInB: poolInfoRef.current?.currentPriceAInB,
+            ln_funding_id: txDetails.id,
           },
         };
         bulkUpdateSparkTransactions([tx], 'fullUpdate-tokens');
