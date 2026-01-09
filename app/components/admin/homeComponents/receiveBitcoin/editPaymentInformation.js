@@ -25,9 +25,12 @@ import customUUID from '../../../../functions/customUUID';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { useFlashnet } from '../../../../../context-store/flashnetContext';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
+  const { swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { isUsingAltAccount } = useActiveCustodyAccount();
   const { fiatStats } = useNodeContext();
@@ -39,6 +42,8 @@ export default function EditReceivePaymentInformation(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const fromPage = props.route.params.from;
   const receiveType = props.route.params.receiveType;
+
+  const endReceiveType = props.route.params.endReceiveType;
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination != 'fiat' ? 'sats' : 'fiat',
   );
@@ -55,7 +60,10 @@ export default function EditReceivePaymentInformation(props) {
     !isUsingAltAccount &&
     !localSatAmount;
 
-  console.log(disableDescription, 't');
+  const cannotRequset =
+    receiveType.toLowerCase() === 'lightning' &&
+    endReceiveType === 'USD' &&
+    localSatAmount < 1000;
 
   useHandleBackPressNew();
 
@@ -151,9 +159,12 @@ export default function EditReceivePaymentInformation(props) {
             <CustomButton
               buttonStyles={{
                 ...CENTER,
+                opacity: localSatAmount && cannotRequset ? HIDDEN_OPACITY : 1,
               }}
               actionFunction={handleSubmit}
-              textContent={t('constants.request')}
+              textContent={
+                !localSatAmount ? t('constants.back') : t('constants.request')
+              }
             />
           </>
         )}
@@ -170,6 +181,23 @@ export default function EditReceivePaymentInformation(props) {
   function handleSubmit() {
     const sendAmount = !Number(localSatAmount) ? 0 : Number(localSatAmount);
     crashlyticsLogReport(`Running in edit payment information submit function`);
+
+    if (!localSatAmount) {
+      navigate.goBack();
+    }
+
+    if (localSatAmount && cannotRequset) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
+          amount: displayCorrectDenomination({
+            amount: swapLimits.bitcoin,
+            masterInfoObject,
+            fiatStats,
+          }),
+        }),
+      });
+      return;
+    }
 
     if (fromPage === 'homepage') {
       navigate.replace('ReceiveBTC', {

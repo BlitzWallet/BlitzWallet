@@ -883,7 +883,8 @@
       "editPaymentInfo": {
         "receive_amount": "Empfangsbetrag",
         "descriptionInputPlaceholder": "Beschreibung...",
-        "editAmount": "Betrag bearbeiten"
+        "editAmount": "Betrag bearbeiten",
+        "usdConversionMinimum": "Zahlungen, die in Dollar umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Andere Empfangsmethoden",

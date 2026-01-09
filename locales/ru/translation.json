@@ -878,7 +878,8 @@
       "editPaymentInfo": {
         "receive_amount": "получить сумму",
         "descriptionInputPlaceholder": "Описание...",
-        "editAmount": "Количество редактирования"
+        "editAmount": "Количество редактирования",
+        "usdConversionMinimum": "Платежи, конвертируемые в доллары, требуют минимальной суммы:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Другие методы получения",

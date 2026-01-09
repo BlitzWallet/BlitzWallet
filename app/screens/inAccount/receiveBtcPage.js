@@ -501,6 +501,7 @@ function QrCode(props) {
     navigate.navigate('EditReceivePaymentInformation', {
       from: 'receivePage',
       receiveType: selectedRecieveOption,
+      endReceiveType,
     });
   };
 
