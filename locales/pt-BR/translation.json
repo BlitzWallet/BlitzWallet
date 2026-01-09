@@ -1864,8 +1864,8 @@
         "simulationInProgress": "Aguarde, a troca ainda está sendo calculada.",
         "convertHead": "Trocar",
         "percentConvertSelector": "% do saldo"
-        "convertHead": "Converter",
-        "percentConvertSelector": "% para converter",
+        "convertHead": "Trocar",
+        "percentConvertSelector": "% do saldo",
         "slippage": "Slippage",
         "slippageDesc": "Slippage é a diferença percentual na variação de preço que você está disposto a aceitar. Um slippage baixo pode causar falhas na transação, enquanto um slippage alto pode resultar em receber menos do que o esperado.",
         "auto": "Auto"
