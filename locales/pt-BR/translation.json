@@ -13,8 +13,8 @@
     "receive": "Receber",
     "accept": "Aceitar",
     "total_balance": "Total na conta",
-    "sat_balance": "Saldo em Bitcoin",
-    "usd_balance": "Saldo em Dólares",
+    "sat_balance": "Saldo Bitcoin",
+    "usd_balance": "Saldo Dólar",
     "amount": "Quantia",
     "sent": "Você enviou",
     "received": "Você recebeu",
@@ -1607,7 +1607,7 @@
         "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
-        "receiveAsHeader": "Receber como",
+        "receiveAsHeader": "Receber em",
         "receiveAs_spark_BTC": "Bitcoin ou tokens",
         "receiveAs_lightning_BTC": "Manter em Bitcoin",
         "receiveAs_spark_USD": "Dólares",
@@ -1761,7 +1761,7 @@
 
         "advancedMode": {
           "header": "Modo avançado",
-          "currentIndexHead": "Total de vales-bitcoin emitidos",
+          "currentIndexHead": "Índice atual - vales-bitcoin",
           "infoHead": "Como funcionam os vales-bitcoin",
           "infoDesc1": "Os vales-bitcoin Blitz usam carteiras separadas criadas a partir da sua carteira principal. Isso permite recuperar valores não resgatados enquanto mantém sua carteira principal protegida.",
           "infoDesc2": "O valor da maioria dos vales-bitcoin expirados podem ser recuperados na página Expirados. Se um vale-bitcoin não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um vale-bitcoin específico e verificar se ainda há fundos disponíveis.",
@@ -1862,6 +1862,8 @@
         "swapInProgressError": "Uma troca já está em andamento. Aguarde.",
         "insufficientBalance": "O valor é maior que o saldo disponível. Insira um valor menor.",
         "simulationInProgress": "Aguarde, a troca ainda está sendo calculada.",
+        "convertHead": "Trocar",
+        "percentConvertSelector": "% do saldo"
         "convertHead": "Converter",
         "percentConvertSelector": "% para converter",
         "slippage": "Slippage",
