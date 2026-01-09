@@ -1435,7 +1435,7 @@
         "onchainFeeMessage": "Los pagos en cadena tienen una tarifa de red y una tarifa de Spark del 0,1%.\n\nSi te envías dinero a ti mismo, pagarás la tarifa de red dos veces — una para enviar y otra para reclamar.\n\nSi otra persona te envía dinero, solo pagarás la tarifa de red una vez al reclamar.",
         "liquidFeeMessage": "Los pagos recibidos en direcciones Liquid deben transferirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}}, una tarifa de reclamación de alrededor de {{claimFee}} y una tarifa de servicio del 0.1% de Boltz según el monto que envíes.",
         "rootstockFeeMessage": "Los pagos recibidos en direcciones Rootstock deben transferirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}} y una tarifa de servicio del 0.1% de Boltz según el monto que envíes.",
-        "lightningConvertMessage": "Recibir dólares a través de Lightning requiere convertir Bitcoin a USD. Se aplica una comisión del {{convertFee}} %, y el tipo de cambio actual es {{satExchangeRate}} por {{dollarAmount}}.",
+        "lightningConvertMessage": "Recibir dólares a través de Lightning requiere convertir Bitcoin a USD. Se aplica una comisión del {{convertFee}} %, y el tipo de cambio actual es:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generando factura",
         "amountPlaceholder": "Cualquier monto",
         "receiveAsHeader": "Recibir como",
@@ -1457,7 +1457,8 @@
         "header_spark_usd": "Dólares vía Spark",
         "header_liquid": "Bitcoin vía Liquid",
         "header_rootstock": "Bitcoin vía Rootstock",
-        "selectReceiveAssetHead": "Selecciona el activo a recibir"
+        "selectReceiveAssetHead": "Selecciona el activo a recibir",
+        "finalAmountDisclaimer": "El monto final que recibas puede variar debido a cambios en el precio del mercado durante la conversión."
       },
       "settingsContent": {
         "about": "Acerca de",
