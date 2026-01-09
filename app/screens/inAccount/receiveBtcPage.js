@@ -232,7 +232,7 @@ export default function ReceivePaymentHome(props) {
             selectedRecieveOption={selectedRecieveOption}
             navigate={navigate}
             addressState={addressState}
-            initialSendAmount={initialSendAmount}
+            initialSendAmount={initialSendAmount || userReceiveAmount}
             masterInfoObject={masterInfoObject}
             fiatStats={fiatStats}
             isUsingAltAccount={isUsingAltAccount}
@@ -246,7 +246,7 @@ export default function ReceivePaymentHome(props) {
             generatingInvoiceQRCode={addressState.isGeneratingInvoice}
             generatedAddress={addressState.generatedAddress}
             selectedRecieveOption={selectedRecieveOption}
-            initialSendAmount={initialSendAmount}
+            initialSendAmount={initialSendAmount || userReceiveAmount}
             isUsingAltAccount={isUsingAltAccount}
           />
 
@@ -490,7 +490,7 @@ function QrCode(props) {
   const showLongerAddress =
     (selectedRecieveOption?.toLowerCase() === 'bitcoin' ||
       selectedRecieveOption?.toLowerCase() === 'liquid') &&
-    initialSendAmount;
+    !!initialSendAmount;
 
   const editAmount = () => {
     navigate.navigate('EditReceivePaymentInformation', {
@@ -622,7 +622,8 @@ function QrCode(props) {
             !initialSendAmount
               ? t('screens.inAccount.receiveBtcPage.amountPlaceholder')
               : endReceiveType === 'USD' &&
-                initialSendAmount === swapLimits.bitcoin
+                initialSendAmount === swapLimits.bitcoin &&
+                canConvert
               ? t('screens.inAccount.receiveBtcPage.amount_USD_MIN', {
                   swapAmountSat: displayCorrectDenomination({
                     masterInfoObject: masterInfoObject,
@@ -634,7 +635,10 @@ function QrCode(props) {
                   masterInfoObject: masterInfoObject,
                   fiatStats: fiatStats,
                   amount: initialSendAmount,
-                }) + (endReceiveType === 'USD' ? approximateUSDAmount : '')
+                }) +
+                (endReceiveType === 'USD' && canConvert
+                  ? approximateUSDAmount
+                  : '')
           }
           lightModeIcon={ICONS.editIcon}
           darkModeIcon={ICONS.editIconLight}
