@@ -493,14 +493,14 @@ export const updateSparkTxStatus = async (
   try {
     if (isUpdatingSparkTxStatus) {
       console.log('updateSparkTxStatus skipped: already running');
-      return;
+      return { shouldCheck: false };
     }
     isUpdatingSparkTxStatus = true;
     // Get all saved transactions
     console.log('running pending payments');
     const savedTxs = await getAllPendingSparkPayments(accountId);
 
-    if (!savedTxs.length) return { updated: [] };
+    if (!savedTxs.length) return { updated: [], shouldCheck: true };
     const txsByType = {
       lightning: savedTxs.filter(tx => tx.paymentType === 'lightning'),
       bitcoin: savedTxs.filter(tx => tx.paymentType === 'bitcoin'),
@@ -548,17 +548,17 @@ export const updateSparkTxStatus = async (
       ...sparkUpdates.updatedTxs,
     ];
 
-    if (!updatedTxs.length) return { updated: [] };
+    if (!updatedTxs.length) return { updated: [], shouldCheck: false };
 
     await bulkUpdateSparkTransactions(
       updatedTxs,
       sparkUpdates.includesGift ? 'fullUpdate-waitBalance' : 'txStatusUpdate',
     );
     console.log(`Updated transactions:`, updatedTxs);
-    return { updated: updatedTxs };
+    return { updated: updatedTxs, shouldCheck: false };
   } catch (error) {
     console.error('Error in spark restore:', error);
-    return { updated: [] };
+    return { updated: [], shouldCheck: true };
   } finally {
     isUpdatingSparkTxStatus = false;
   }
