@@ -381,6 +381,10 @@ export const WebViewProvider = ({ children }) => {
       prevConnectionStatus.current = isConnectedToTheInternet;
     } else if (appState === 'active') {
       console.log('App returned to foreground');
+      // clear any active timeouts to prevent timeout from switching to rn
+      Object.values(activeTimeoutsRef.current).forEach(t =>
+        clearTimeout(t.timeoutId),
+      );
 
       // Wait for internet connection before proceeding
       if (!isConnectedToTheInternet) {
@@ -389,10 +393,6 @@ export const WebViewProvider = ({ children }) => {
         previousAppState.current = appState;
         prevConnectionStatus.current = isConnectedToTheInternet;
 
-        // clear any active timeouts to prevent timeout from switching to rn
-        Object.values(activeTimeoutsRef.current).forEach(t =>
-          clearTimeout(t.timeoutId),
-        );
         return;
       }
 
