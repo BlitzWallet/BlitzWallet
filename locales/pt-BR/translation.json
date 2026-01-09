@@ -1627,7 +1627,7 @@
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Selecione o ativo a receber",
-        "finalAmountDisclaimer": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão."
+        "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão."
       },
 
       "settingsContent": {

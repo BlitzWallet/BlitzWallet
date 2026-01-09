@@ -1611,7 +1611,7 @@
         "header_liquid": "Bitcoin über Liquid",
         "header_rootstock": "Bitcoin über Rootstock",
         "selectReceiveAssetHead": "Asset zum Empfangen auswählen",
-        "finalAmountDisclaimer": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
+        "usd_convert_warning": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
       },
 
       "settingsContent": {
