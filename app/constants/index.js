@@ -33,6 +33,8 @@ const CONTACT_UNIVERSAL_LINK_REGEX =
 
 const FLASHNET_ERROR_CODE_REGEX = /\bFSAG-\d{4}(?:T\d+)?\b/;
 
+const FLASHNET_REFUND_REGEX = /via transfer ([\da-fA-F\-]+)/;
+
 const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
 const NOSTR_RELAY_URL = 'wss://relay.getalbypro.com/blitz';
 
@@ -195,4 +197,5 @@ export {
   USDB_TOKEN_ID,
   APPROXIMATE_SYMBOL,
   FLASHNET_ERROR_CODE_REGEX,
+  FLASHNET_REFUND_REGEX,
 };

@@ -593,6 +593,7 @@ export const WebViewProvider = ({ children }) => {
             // Check for WASM errors
             if (
               result?.error &&
+              typeof result.error === 'string' &&
               WASM_ERRORS.some(errMsg => result.error.includes(errMsg))
             ) {
               console.warn(
@@ -612,7 +613,11 @@ export const WebViewProvider = ({ children }) => {
         }
       } catch (err) {
         console.error('Error handling WebView message:', err);
-        if (err.message?.includes('Rejected stale message')) return;
+        if (
+          typeof err.message === 'string' &&
+          err.message === 'Rejected stale message'
+        )
+          return;
         resetWebViewState(true, true);
         forceReactNativeUse = true;
       }

@@ -762,30 +762,7 @@ export default function SwapsPage() {
           error: result.error,
         });
 
-        let errorMessage =
-          t(errorInfo.userMessage) ||
-          t('screens.inAccount.swapsPage.swapFailedBackupError');
-
-        if (errorInfo.clawback) {
-          if (errorInfo.clawback.allRecovered) {
-            errorMessage += t(
-              'screens.inAccount.swapsPage.swapAutomaticRecovery',
-            );
-          } else if (errorInfo.clawback.partialRecovered) {
-            errorMessage += t(
-              'screens.inAccount.swapsPage.swapPartialRecovery',
-              { count: errorInfo.clawback.recoveredCount },
-            );
-          }
-        } else if (errorInfo.autoRefund) {
-          errorMessage += t('screens.inAccount.swapsPage.swapFutureRecovery');
-        }
-
-        if (errorInfo.type === 'slippage') {
-          errorMessage += t('screens.inAccount.swapsPage.swapSlippageError');
-        } else if (errorInfo.type === 'insufficient_liquidity') {
-          errorMessage += t('screens.inAccount.swapsPage.swapLiquidityError');
-        }
+        console.log(errorInfo, 'error info');
 
         navigate.navigate('ErrorScreen', {
           errorMessage: errorInfo.userMessage || result.error,

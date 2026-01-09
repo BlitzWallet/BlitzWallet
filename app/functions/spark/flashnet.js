@@ -19,7 +19,11 @@ import {
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
 } from '../../../context-store/webViewContext';
-import { FLASHNET_ERROR_CODE_REGEX } from '../../constants';
+import {
+  FLASHNET_ERROR_CODE_REGEX,
+  FLASHNET_REFUND_REGEX,
+} from '../../constants';
+import { setFlashnetTransfer } from './handleFlashnetTransferIds';
 
 // ============================================
 // CONSTANTS
@@ -410,6 +414,16 @@ export const executeSwap = async (
           integratorFeeRateBps,
         },
       );
+      if (!response.didWork) {
+        if (assetInAddress === BTC_ASSET_ADDRESS) {
+          const id = getRefundTxidFromErrormessage(response.error);
+          if (id) {
+            setFlashnetTransfer(id);
+          }
+        }
+        const error = formatAndReturnWebviewError(response);
+        return error;
+      }
       return validateWebViewResponse(response, 'Not able to executeSwap');
     } else {
       const client = getFlashnetClient(mnemonic);
@@ -456,6 +470,11 @@ export const executeSwap = async (
   } catch (error) {
     const errorDetails = formatError(error, 'executeSwap');
     console.warn('Execute swap error:', errorDetails);
+
+    const id = getRefundTxidFromErrormessage(error.message);
+    if (id) {
+      setFlashnetTransfer(id);
+    }
 
     // Check for auto-clawback results
     if (isFlashnetError(error) && error.wasClawbackAttempted()) {
@@ -509,6 +528,15 @@ export const swapBitcoinToToken = async (
           maxSlippageBps,
         },
       );
+
+      if (!response.didWork) {
+        const id = getRefundTxidFromErrormessage(response.error);
+        if (id) {
+          setFlashnetTransfer(id);
+        }
+        const error = formatAndReturnWebviewError(response);
+        return error;
+      }
       return validateWebViewResponse(
         response,
         'Not able to swapBitcoinToToken',
@@ -577,6 +605,11 @@ export const swapTokenToBitcoin = async (
           maxSlippageBps,
         },
       );
+
+      if (!response.didWork) {
+        const error = formatAndReturnWebviewError(response);
+        return error;
+      }
       return validateWebViewResponse(
         response,
         'Not able to swapTokenToBitcoin',
@@ -1007,46 +1040,93 @@ export const handleFlashnetError = error => {
   // Check for specific error types
   if (flashnetError.isSlippageError()) {
     errorInfo.type = 'slippage';
-    errorInfo.userMessage = 'screens.inAccount.swapPages.slippageError';
+    errorInfo.userMessage = 'screens.inAccount.swapsPage.slippageError';
   } else if (flashnetError.isInsufficientLiquidityError()) {
     errorInfo.type = 'insufficient_liquidity';
-    errorInfo.userMessage = 'screens.inAccount.swapPages.noLiquidity';
+    errorInfo.userMessage = 'screens.inAccount.swapsPage.noLiquidity';
   } else if (flashnetError.isAuthError()) {
     errorInfo.type = 'authentication';
-    errorInfo.userMessage = 'screens.inAccount.swapPages.authenticationError';
+    errorInfo.userMessage = 'screens.inAccount.swapsPage.authenticationError';
   } else if (flashnetError.isPoolNotFoundError()) {
     errorInfo.type = 'pool_not_found';
-    errorInfo.userMessage = 'screens.inAccount.swapPages.noPoolError';
+    errorInfo.userMessage = 'screens.inAccount.swapsPage.noPoolError';
   }
+  errorInfo.userMessage = i18next.t(errorInfo.userMessage);
 
   // Check fund recovery status
-  if (flashnetError.wasClawbackAttempted?.()) {
-    errorInfo.clawback = {
-      attempted: true,
-      allRecovered: flashnetError.wereAllTransfersRecovered?.() || false,
-      partialRecovered:
-        flashnetError.werePartialTransfersRecovered?.() || false,
-      recoveredCount: flashnetError.getRecoveredTransferCount?.() || 0,
-    };
+  // if (flashnetError.wasClawbackAttempted?.()) {
+  //   errorInfo.clawback = {
+  //     attempted: true,
+  //     allRecovered: flashnetError.wereAllTransfersRecovered?.() || false,
+  //     partialRecovered:
+  //       flashnetError.werePartialTransfersRecovered?.() || false,
+  //     recoveredCount: flashnetError.getRecoveredTransferCount?.() || 0,
+  //   };
 
-    if (errorInfo.clawback.allRecovered) {
-      errorInfo.userMessage =
-        errorInfo.userMessage +
-        ' ' +
-        'screens.inAccount.swapPages.automaticRecovery';
-    } else if (errorInfo.clawback.partialRecovered) {
-      errorInfo.userMessage =
-        errorInfo.userMessage +
-        ' ' +
-        'screens.inAccount.swapPages.semiRecovered';
-    }
-  } else if (flashnetError.willAutoRefund?.()) {
-    errorInfo.autoRefund = true;
-    errorInfo.userMessage =
-      errorInfo.userMessage + ' ' + 'screens.inAccount.swapPages.willRecover';
-  }
+  //   if (errorInfo.clawback.allRecovered) {
+  //     errorInfo.userMessage =
+  //       i18next.t(errorInfo.userMessage) +
+  //       ' ' +
+  //       i18next.t('screens.inAccount.swapsPage.automaticRecovery');
+  //   } else if (errorInfo.clawback.partialRecovered) {
+  //     errorInfo.userMessage =
+  //       i18next.t(errorInfo.userMessage) +
+  //       ' ' +
+  //       i18next.t('screens.inAccount.swapsPage.semiRecovered');
+  //   }
+  // } else if (flashnetError.willAutoRefund?.()) {
+  //   errorInfo.autoRefund = true;
+  //   errorInfo.userMessage =
+  //     i18next.t(errorInfo.userMessage) +
+  //     ' ' +
+  //     i18next.t('screens.inAccount.swapsPage.willRecover');
+  // }
 
   return errorInfo;
+};
+
+/**
+ * Get refund txid from error message
+ * @param {string} error - The error to check
+ * @returns {txid|undefined} transaction id
+ */
+
+const getRefundTxidFromErrormessage = message => {
+  try {
+    const match = message.match(FLASHNET_REFUND_REGEX);
+
+    if (match) {
+      const transferID = match[1]; // first capture group
+      return transferID;
+    } else {
+      console.log('No transfer ID found');
+    }
+  } catch (err) {
+    console.log('error getting txid from error message', err);
+  }
+};
+
+/**
+ * Format and return errormessage from webview
+ * @param {Object} error - The error to check
+ * @returns {Object} error response
+ */
+
+const formatAndReturnWebviewError = receivedError => {
+  try {
+    if (receivedError.formatted) {
+      console.log(receivedError.formatted.errorCode);
+      const error = handleFlashnetError(receivedError.formatted);
+
+      return {
+        didWork: false,
+        error: receivedError.error,
+        details: error,
+      };
+    }
+  } catch (err) {
+    console.log('error getting txid from error message', err);
+  }
 };
 
 // ============================================

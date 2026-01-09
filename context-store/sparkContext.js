@@ -73,6 +73,7 @@ import {
   runLeafOptimization,
   runTokenOptimization,
 } from '../app/functions/spark/optimization';
+import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -800,6 +801,11 @@ const SparkWalletProvider = ({ children }) => {
       handledNavigatedTxs.current.add(parsedTx.sparkID);
 
       const details = parsedTx?.details;
+
+      if (isFlashnetTransfer(parsedTx.sparkID)) {
+        console.log('Failed swap refund, do not show tosat here');
+        return;
+      }
 
       if (
         details.senderIdentityPublicKey === process.env.SPARK_IDENTITY_PUBKEY
