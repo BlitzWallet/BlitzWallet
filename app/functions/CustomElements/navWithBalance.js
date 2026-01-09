@@ -64,7 +64,7 @@ export default function NavBarWithBalance({
                   )
                 : useFrozen
                 ? balanceRef.current
-                : 4600000
+                : balance
             }
             useCustomLabel={
               seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin' &&
