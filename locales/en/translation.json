@@ -889,7 +889,8 @@
       "editPaymentInfo": {
         "receive_amount": "receive amount",
         "descriptionInputPlaceholder": "Description...",
-        "editAmount": "Edit amount"
+        "editAmount": "Edit amount",
+        "minUSDSwap": "Payments converted to dollars require a minimum amount of:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Other receiving methods",

@@ -738,7 +738,8 @@
       "editPaymentInfo": {
         "receive_amount": "monto a recibir",
         "descriptionInputPlaceholder": "Descripción...",
-        "editAmount": "Editar monto"
+        "editAmount": "Editar monto",
+        "usdConversionMinimum": "Los pagos convertidos a dólares requieren un monto mínimo de:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Otros métodos de recepción",

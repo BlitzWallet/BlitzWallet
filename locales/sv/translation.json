@@ -878,7 +878,8 @@
       "editPaymentInfo": {
         "receive_amount": "ta emot belopp",
         "descriptionInputPlaceholder": "Beskrivning...",
-        "editAmount": "Redigera belopp"
+        "editAmount": "Redigera belopp",
+        "usdConversionMinimum": "Betalningar som konverteras till dollar kräver ett minimibelopp på:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Andra mottagningsmetoder",

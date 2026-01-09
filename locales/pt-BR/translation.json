@@ -887,7 +887,8 @@
       "editPaymentInfo": {
         "receive_amount": "receber quantia",
         "descriptionInputPlaceholder": "Descrição (opcional)",
-        "editAmount": "Definir quantia"
+        "editAmount": "Definir quantia",
+        "usdConversionMinimum": "Pagamentos convertidos para dólares exigem um valor mínimo de:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Outros meios de recebimento",
