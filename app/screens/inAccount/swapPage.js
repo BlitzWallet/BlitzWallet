@@ -512,20 +512,6 @@ export default function SwapsPage() {
       return;
     }
 
-    if (!simulationResult || !Object.keys(simulationResult).length) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('screens.inAccount.swapsPage.simulationError'),
-      });
-      return;
-    }
-
-    if (isSwapping) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('screens.inAccount.swapsPage.swapInProgressError'),
-      });
-      return;
-    }
-
     if (isSimulating) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('screens.inAccount.swapsPage.simulationInProgress'),
@@ -536,6 +522,19 @@ export default function SwapsPage() {
     if (!hasEnoughBalance) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('screens.inAccount.swapsPage.insufficientBalance'),
+      });
+      return;
+    }
+    if (!simulationResult || !Object.keys(simulationResult).length) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.simulationError'),
+      });
+      return;
+    }
+
+    if (isSwapping) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.swapInProgressError'),
       });
       return;
     }
