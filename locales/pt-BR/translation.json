@@ -1609,7 +1609,7 @@
         "amountPlaceholder": "Qualquer valor",
         "receiveAsHeader": "Receber em",
         "receiveAs_spark_BTC": "Bitcoin ou tokens",
-        "receiveAs_lightning_BTC": "Manter em Bitcoin",
+        "receiveAs_lightning_BTC": "Bitcoin",
         "receiveAs_spark_USD": "Dólares",
         "receiveAs_lightning_USD": "Converter para dólares",
         "amount_USD_MIN": "Mín. {{swapAmountSat}}",
