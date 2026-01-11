@@ -1371,11 +1371,12 @@ export default function SwapsPage() {
                         style={[
                           styles.iconContainer,
                           {
-                            backgroundColor: theme
-                              ? backgroundColor
-                              : fromAsset === 'BTC'
-                              ? COLORS.bitcoinOrange
-                              : COLORS.dollarGreen,
+                            backgroundColor:
+                              theme && darkModeType
+                                ? backgroundColor
+                                : fromAsset === 'BTC'
+                                ? COLORS.bitcoinOrange
+                                : COLORS.dollarGreen,
                           },
                         ]}
                       >
@@ -1482,11 +1483,12 @@ export default function SwapsPage() {
                         style={[
                           styles.iconContainer,
                           {
-                            backgroundColor: theme
-                              ? backgroundColor
-                              : fromAsset === 'USD'
-                              ? COLORS.bitcoinOrange
-                              : COLORS.dollarGreen,
+                            backgroundColor:
+                              theme && darkModeType
+                                ? backgroundColor
+                                : fromAsset === 'USD'
+                                ? COLORS.bitcoinOrange
+                                : COLORS.dollarGreen,
                           },
                         ]}
                       >
