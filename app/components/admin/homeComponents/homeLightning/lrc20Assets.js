@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { Image as ExpoImage } from 'expo-image';
 import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 
 // Token item component with image fetching
 function TokenItem({
@@ -93,10 +94,8 @@ function TokenItem({
         />
       </View>
 
-      <ThemeText
-        CustomNumberOfLines={1}
-        styles={styles.tokenNameText}
-        content={formatBalanceAmount(
+      <FormattedSatText
+        balance={formatBalanceAmount(
           formatTokensNumber(
             details?.balance || 0,
             details?.tokenMetadata?.decimals || 0,
@@ -104,6 +103,8 @@ function TokenItem({
           true,
           masterInfoObject,
         )}
+        useBalance={true}
+        useCustomLabel={true}
       />
     </TouchableOpacity>
   );
