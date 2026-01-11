@@ -73,9 +73,10 @@ export default function ChoosePaymentMethod({
           style={[
             styles.iconContainer,
             {
-              backgroundColor: theme
-                ? backgroundColor
-                : COLORS[iconBackgroundColor],
+              backgroundColor:
+                theme && darkModeType
+                  ? backgroundColor
+                  : COLORS[iconBackgroundColor],
             },
           ]}
         >
