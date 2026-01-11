@@ -5,9 +5,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image } from 'expo-image';
-import { CENTER, COLORS, ICONS } from '../../app/constants';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+
+import { Gift, Home, Store, Users2 } from 'lucide-react-native';
+
+import { CENTER, COLORS } from '../../app/constants';
 import GetThemeColors from '../../app/hooks/themeColors';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useGlobalContacts } from '../../context-store/globalContacts';
@@ -19,7 +21,7 @@ const Tab = createBottomTabNavigator();
 
 export const TAB_ITEM_HEIGHT = 60;
 const OVERLAY_HEIGHT = 50;
-const OVERLAY_WIDTH = 60;
+const ICON_SIZE = 26;
 
 function MyTabBar({ state, descriptors, navigation, showShop }) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -27,17 +29,22 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
   const { showTokensInformation } = useSparkWallet();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
-  const firstRender = useRef(true);
-  const containerWidth = showShop ? 280 : 210;
 
-  const overlayTranslateX = useSharedValue(70); //position 1
-  const tabWidth = containerWidth / (showShop ? 4 : 3);
+  const firstRender = useRef(true);
+
+  const containerWidth = showShop ? 280 : 210;
+  const adjustedWidth = containerWidth - 2 * 2;
+  const tabWidth = adjustedWidth / (showShop ? 4 : 3);
+
+  const overlayTranslateX = useSharedValue(0);
 
   useEffect(() => {
     if (firstRender.current) {
+      overlayTranslateX.value = state.index * tabWidth;
       firstRender.current = false;
       return;
     }
+
     overlayTranslateX.value = withTiming(state.index * tabWidth, {
       duration: 150,
     });
@@ -47,7 +54,7 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
     transform: [{ translateX: overlayTranslateX.value }],
   }));
 
-  const memorizedTabContainerStyles = useMemo(
+  const containerStyle = useMemo(
     () => ({
       bottom: bottomPadding,
       ...styles.tabsContainer,
@@ -55,72 +62,76 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
     [bottomPadding],
   );
 
-  // Get base icon source based on label and focused state
-  const getIconSource = (label, isFocused) => {
+  const activeColor =
+    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+
+  const inactiveColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+
+  const renderIcon = (label, focused, color) => {
+    const props = {
+      size: ICON_SIZE,
+      color,
+      strokeWidth: focused ? 2.4 : 2,
+    };
+
     switch (label) {
       case 'Contacts':
-        return isFocused
-          ? ICONS.contactsIconSelectedWhite
-          : ICONS.contactsIconWhite;
+        return <Users2 {...props} />;
       case 'Home':
-        return isFocused ? ICONS.wallet_white : ICONS.adminHomeWallet_white;
+        return <Home {...props} />;
       case 'App Store':
-        return isFocused ? ICONS.appStoreFilled_white : ICONS.appStore_white;
-      default: // Gifts
-        return isFocused ? ICONS.giftFilledWhite : ICONS.giftWhite;
+        return <Store {...props} />;
+      default:
+        return <Gift {...props} />;
     }
   };
 
-  // Get tint color based on theme
-  const getTintColor = () => {
-    return theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
-  };
-
   return (
-    <View style={memorizedTabContainerStyles}>
+    <View style={containerStyle}>
       <View
         style={[
           styles.tabsInnerContainer,
           {
-            backgroundColor:
-              showTokensInformation && state.index === 1
-                ? backgroundColor
-                : backgroundOffset,
             width: containerWidth,
+            backgroundColor: theme
+              ? darkModeType
+                ? 'rgba(0, 0, 0, 0.95)'
+                : 'rgba(0, 37, 78, 0.95)'
+              : 'rgba(235, 235, 235, 0.95)',
+            borderWidth: 2,
+            borderColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
         ]}
       >
-        {/* Animated overlay */}
-        {tabWidth > 0 && (
-          <Animated.View
+        {/* Animated selection overlay */}
+        <Animated.View
+          style={[
+            styles.overlayContainer,
+            overlayAnimatedStyle,
+            { width: tabWidth },
+          ]}
+        >
+          <View
             style={[
-              styles.overlayContainer,
-              overlayAnimatedStyle,
-              { width: tabWidth, alignItems: 'center' },
+              styles.overlay,
+              {
+                backgroundColor:
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              },
             ]}
-          >
-            <View
-              style={[
-                styles.overlay,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'rgba(0, 122, 255, 0.1)',
-                },
-              ]}
-            />
-          </Animated.View>
-        )}
+          />
+        </Animated.View>
 
-        {/* Tabs */}
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
+
           const label =
             options.tabBarLabel ??
             options.title ??
             (route.name === 'ContactsPageInit' ? 'Contacts' : route.name);
-          const isFocused = state.index === index;
+
+          const focused = state.index === index;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -128,34 +139,29 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
               target: route.key,
               canPreventDefault: true,
             });
-            if (!isFocused && !event.defaultPrevented) {
+
+            if (!focused && !event.defaultPrevented) {
               navigation.navigate(route.name, route.params);
             }
           };
 
-          const icon = getIconSource(label, isFocused);
-          const tintColor = getTintColor();
+          const iconColor = focused ? activeColor : inactiveColor;
 
           return (
             <TouchableOpacity
-              key={index}
+              key={route.key}
               onPress={onPress}
               activeOpacity={0.7}
               style={styles.tabItemContainer}
             >
-              <View style={styles.iconAndLabelContainer}>
-                <Image source={icon} style={[styles.icon, { tintColor }]} />
+              <View style={styles.iconWrapper}>
+                {renderIcon(label, focused, iconColor)}
+
                 {label === 'Contacts' &&
                   hasUnlookedTransactions &&
-                  !isFocused && (
+                  !focused && (
                     <View
-                      style={{
-                        ...styles.hasMessageDot,
-                        backgroundColor:
-                          theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.primary,
-                      }}
+                      style={[styles.unreadDot, { backgroundColor: iconColor }]}
                     />
                   )}
               </View>
@@ -197,46 +203,43 @@ const styles = StyleSheet.create({
   tabsContainer: {
     width: '100%',
     position: 'absolute',
-    zIndex: 1,
+    zIndex: 10,
   },
   tabsInnerContainer: {
-    width: 250,
     flexDirection: 'row',
     borderRadius: 30,
     marginHorizontal: 20,
-    position: 'relative',
     overflow: 'hidden',
     ...CENTER,
   },
   overlayContainer: {
     position: 'absolute',
     top: 0,
-    height: '100%',
+    bottom: 0,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   overlay: {
-    width: OVERLAY_WIDTH,
+    width: '80%',
     height: OVERLAY_HEIGHT,
     borderRadius: 25,
   },
   tabItemContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     minHeight: TAB_ITEM_HEIGHT,
-  },
-  iconAndLabelContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 18,
-    minWidth: 44,
-    minHeight: 44,
   },
-  icon: { width: 26, height: 26 },
-  hasMessageDot: {
+  iconWrapper: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  unreadDot: {
     position: 'absolute',
-    top: 17,
-    right: 16,
+    top: 6,
+    right: 6,
     width: 8,
     height: 8,
     borderRadius: 4,
