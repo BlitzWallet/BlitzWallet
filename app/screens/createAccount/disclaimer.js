@@ -9,10 +9,10 @@ import { useTranslation } from 'react-i18next';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useState } from 'react';
-import Icon from '../../functions/CustomElements/Icon';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { useKeysContext } from '../../../context-store/keys';
 import { createAccountMnemonic } from '../../functions';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 export default function DislaimerPage({ navigation: { navigate }, route }) {
   const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
@@ -137,11 +137,10 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
           style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}
         >
           {termsAccepted && (
-            <Icon
-              width={10}
-              height={10}
-              color={COLORS.darkModeText}
-              name={'expandedTxCheck'}
+            <ThemeIcon
+              size={12}
+              colorOverride={COLORS.darkModeText}
+              iconName={'Check'}
             />
           )}
         </View>

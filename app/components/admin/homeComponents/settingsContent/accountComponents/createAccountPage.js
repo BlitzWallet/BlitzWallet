@@ -31,7 +31,6 @@ import {
 } from '../../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import SuggestedWordContainer from '../../../../login/suggestedWords';
 import isValidMnemonic from '../../../../../functions/isValidMnemonic';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
@@ -41,6 +40,7 @@ import { handleRestoreFromText } from '../../../../../functions/seed';
 import getClipboardText from '../../../../../functions/getClipboardText';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
@@ -392,11 +392,12 @@ export default function CreateCustodyAccountPage(props) {
                 });
               }}
             >
-              <Icon
-                color={
+              <ThemeIcon
+                size={20}
+                colorOverride={
                   theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
                 }
-                name={'errorIcon'}
+                iconName={'CircleAlert'}
               />
             </TouchableOpacity>
           )}

@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import { COLORS } from '../../constants';
-import Icon from './Icon';
+import ThemeIcon from './themeIcon';
 
 export default function CheckMarkCircle({
   isActive,
@@ -39,11 +39,10 @@ export default function CheckMarkCircle({
       }}
     >
       {isActive && (
-        <Icon
-          width={containerSize / 2}
-          height={containerSize / 2}
-          color={COLORS.darkModeText}
-          name={'expandedTxCheck'}
+        <ThemeIcon
+          colorOverride={COLORS.darkModeText}
+          size={Math.round(containerSize / 1.5)}
+          iconName={'Check'}
         />
       )}
     </View>

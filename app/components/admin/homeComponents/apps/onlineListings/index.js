@@ -31,7 +31,6 @@ import {
   SHOPS_DIRECTORY_KEY,
 } from '../../../../../constants';
 import { SIZES } from '../../../../../constants/theme';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import { useNavigation } from '@react-navigation/native';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
@@ -286,11 +285,10 @@ export default function ViewOnlineListings({ removeUserLocal }) {
           }}
         >
           {userLocal === 'WW' ? (
-            <Icon
-              width={15}
-              height={15}
-              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              name={'globeIcon'}
+            <ThemeIcon
+              size={15}
+              colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              iconName={'Globe'}
             />
           ) : (
             <CountryFlag isoCode={userLocal} size={20} />
@@ -364,9 +362,12 @@ const BusinessCard = React.memo(
             <CountryFlag isoCode={item.country.code} size={20} />
           ) : (
             <View style={[styles.flagContainer, { backgroundColor }]}>
-              <Icon
-                color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                name={'globeIcon'}
+              <ThemeIcon
+                size={15}
+                colorOverride={
+                  theme ? COLORS.darkModeText : COLORS.lightModeText
+                }
+                iconName={'Globe'}
               />
             </View>
           )}
@@ -410,11 +411,10 @@ const BusinessCard = React.memo(
           ]}
           onPress={handleWebsitePress}
         >
-          <Icon
-            color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-            width={15}
-            height={15}
-            name={'globeIcon'}
+          <ThemeIcon
+            size={15}
+            colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
+            iconName={'Globe'}
           />
           <ThemeText
             content={t('apps.onlineListings.visitWebsite')}

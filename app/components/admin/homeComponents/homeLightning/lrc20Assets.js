@@ -17,7 +17,6 @@ import { formatBalanceAmount } from '../../../../functions';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { Image as ExpoImage } from 'expo-image';
-import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
@@ -66,13 +65,12 @@ function TokenItem({
             transition={100}
           />
         ) : (
-          <Icon
-            name={'coins'}
-            width={15}
-            height={15}
-            color={
+          <ThemeIcon
+            colorOverride={
               theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText
             }
+            size={15}
+            iconName={'Coins'}
           />
         )}
       </View>

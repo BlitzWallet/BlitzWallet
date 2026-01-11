@@ -27,7 +27,6 @@ import {
 import { HIDDEN_OPACITY, SHADOWS } from '../../../../../constants/theme';
 import ExampleGPTSearchCard from './exampleSearchCards';
 import saveChatGPTChat from './functions/saveChat';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { AI_MODEL_COST } from './contants/AIModelCost';
@@ -89,11 +88,10 @@ const ChatMessage = ({
               source={ICONS.logoIcon}
             />
           ) : (
-            <Icon
-              name="AiAppIcon"
-              color={COLORS.lightModeText}
-              width={15}
-              height={15}
+            <ThemeIcon
+              colorOverride={COLORS.lightModeText}
+              size={15}
+              iconName={'Bot'}
             />
           )}
         </View>
@@ -548,17 +546,15 @@ export default function ChatGPTHome(props) {
             },
           ]}
         >
-          <Icon
-            width={30}
-            height={30}
-            color={
+          <ThemeIcon
+            colorOverride={
               theme
                 ? darkModeType
                   ? COLORS.lightsOutBackground
                   : COLORS.darkModeBackground
                 : COLORS.lightModeBackground
             }
-            name={'arrow'}
+            iconName={'ArrowUp'}
           />
         </TouchableOpacity>
       </View>

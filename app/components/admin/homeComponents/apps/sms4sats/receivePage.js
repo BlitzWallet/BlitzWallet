@@ -34,7 +34,6 @@ import { useKeysContext } from '../../../../../../context-store/keys';
 import { KEYBOARDTIMEOUT } from '../../../../../constants/styles';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import CountryFlag from 'react-native-country-flag';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
@@ -408,11 +407,10 @@ export default function SMSMessagingReceivedPage(props) {
           }}
         >
           {userLocal.iso === 'WW' ? (
-            <Icon
-              width={15}
-              height={15}
-              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              name={'globeIcon'}
+            <ThemeIcon
+              size={15}
+              colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              iconName={'Globe'}
             />
           ) : (
             <CountryFlag isoCode={userLocal.iso} size={20} />

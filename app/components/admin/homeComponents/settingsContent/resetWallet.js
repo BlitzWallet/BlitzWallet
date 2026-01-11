@@ -6,7 +6,6 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
-import Icon from '../../../../functions/CustomElements/Icon';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -18,6 +17,7 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import factoryResetWallet from '../../../../functions/factoryResetWallet';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function ResetPage(props) {
   const [wantsToReset, setWantsToReset] = useState(false);
@@ -133,11 +133,10 @@ export default function ResetPage(props) {
                 ]}
               >
                 {wantsToReset && (
-                  <Icon
-                    width={14}
-                    height={14}
-                    color={checkColor}
-                    name={'expandedTxCheck'}
+                  <ThemeIcon
+                    colorOverride={checkColor}
+                    size={15}
+                    iconName={'Check'}
                   />
                 )}
               </View>
@@ -146,39 +145,6 @@ export default function ResetPage(props) {
                 content={t('settings.resetWallet.seedAndPinOpt')}
               />
             </TouchableOpacity>
-
-            {/* <TouchableOpacity
-              onPress={() => handleSelectedItems('localStoredItems')}
-              style={styles.optionRow}
-              activeOpacity={0.7}
-            >
-              <View
-                style={[
-                  styles.checkbox,
-                  {
-                    backgroundColor: selectedOptions.localStoredItems
-                      ? checkBackground
-                      : 'transparent',
-                    borderColor: selectedOptions.localStoredItems
-                      ? checkBackground
-                      : textColor,
-                  },
-                ]}
-              >
-                {selectedOptions.localStoredItems && (
-                  <Icon
-                    width={14}
-                    height={14}
-                    color={checkColor}
-                    name={'expandedTxCheck'}
-                  />
-                )}
-              </View>
-              <ThemeText
-                styles={styles.optionLabel}
-                content={t('settings.resetWallet.localData')}
-              />
-            </TouchableOpacity> */}
           </View>
         </View>
 
