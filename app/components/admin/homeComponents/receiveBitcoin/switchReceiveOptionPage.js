@@ -10,7 +10,6 @@ import {
 import { CENTER, FONT, ICONS, SIZES } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useTranslation } from 'react-i18next';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useEffect, useState } from 'react';
@@ -28,6 +27,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 const MAIN_PAYMENTS = [
   ['Lightning', 'Instant'],
@@ -109,7 +109,7 @@ export default function SwitchReceiveOptionPage({
     return {
       transform: [
         {
-          rotate: `${-90 + rotateAnim.value * 180}deg`,
+          rotate: `${rotateAnim.value * 180}deg`,
         },
       ],
     };
@@ -165,7 +165,7 @@ export default function SwitchReceiveOptionPage({
                 name === 'Lightning'
                   ? 'lightningReceiveIcon'
                   : name === 'Bitcoin'
-                  ? 'bitcoinReceiveIcon'
+                  ? 'bitcoinIcon'
                   : name === 'Spark'
                   ? 'sparkAsteriskWhite'
                   : name === 'Liquid'
@@ -242,15 +242,7 @@ export default function SwitchReceiveOptionPage({
           })}
         />
         <Animated.View style={[arrowStyle, { marginLeft: 5 }]}>
-          <ThemeImage
-            styles={{
-              width: 15,
-              height: 15,
-            }}
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon size={15} iconName={'ArrowDown'} />
         </Animated.View>
       </TouchableOpacity>
 

@@ -5,12 +5,10 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
-  ICONS,
   SIZES,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
 } from '../../../../constants';
@@ -46,11 +44,12 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function CreateGift(props) {
   const { saveGiftToCloud, deleteGiftFromCloudAndLocal } = useGifts();
   const [duration, setDuration] = useState({ label: '7 Days', value: '7' });
-  const { theme } = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { sparkInformation } = useSparkWallet();
   const navigate = useNavigation();
   const { accountMnemoinc } = useKeysContext();
@@ -264,10 +263,11 @@ export default function CreateGift(props) {
             bottomOffset={100}
           >
             <View style={styles.iconContainer}>
-              <ThemeImage
-                lightModeIcon={ICONS.giftBlue}
-                darkModeIcon={ICONS.giftBlue}
-                lightsOutIcon={ICONS.gift}
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                iconName={'Gift'}
               />
             </View>
 

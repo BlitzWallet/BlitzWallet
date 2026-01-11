@@ -1,16 +1,9 @@
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
-  ICONS,
   SIZES,
   VALID_USERNAME_REGEX,
 } from '../../../../constants';
@@ -39,6 +32,7 @@ import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useProfileImage } from './hooks/useProfileImage';
 import EditProfileTextInput from './internalComponents/editProfileTextItems';
 import { areImagesSame } from './utils/imageComparison';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -111,8 +105,7 @@ export default function EditMyProfilePage(props) {
           }
           keyboardGoBack(navigate);
         }}
-        leftImageBlue={ICONS.trashIcon}
-        LeftImageDarkMode={ICONS.trashIconWhite}
+        iconNew="Trash2"
         leftImageFunction={() =>
           navigate.navigate('ConfirmActionPage', {
             confirmMessage: t('contacts.editMyProfilePage.deleateWarning'),
@@ -120,7 +113,6 @@ export default function EditMyProfilePage(props) {
             cancelFunction: () => deleteUser(false),
           })
         }
-        leftImageStyles={{ height: 25, width: 'unset', aspectRatio: 1 }}
         showLeftImage={!isEditingMyProfile}
       />
       <InnerContent
@@ -519,9 +511,10 @@ function InnerContent({
           </View>
           {(isEditingMyProfile || selectedAddedContact.isLNURL) && (
             <View style={styles.selectFromPhotos}>
-              <Image
-                source={hasImage ? ICONS.xSmallIconBlack : ICONS.ImagesIconDark}
-                style={{ width: 20, height: 20 }}
+              <ThemeIcon
+                colorOverride={COLORS.lightModeText}
+                size={20}
+                iconName={hasImage ? 'X' : 'Image'}
               />
             </View>
           )}

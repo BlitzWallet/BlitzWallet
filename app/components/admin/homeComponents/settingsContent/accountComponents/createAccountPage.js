@@ -17,7 +17,6 @@ import {
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
   SIZES,
 } from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -340,8 +339,7 @@ export default function CreateCustodyAccountPage(props) {
               ? t('settings.accountComponents.createAccountPage.editTitle')
               : t('settings.accountComponents.createAccountPage.createTitle')
           }
-          leftImageBlue={ICONS.trashIcon}
-          LeftImageDarkMode={ICONS.trashIconWhite}
+          iconNew="Trash2"
           showLeftImage={selectedAccount}
           leftImageFunction={() => {
             if (currentWalletMnemoinc === selectedAccount?.mnemoinc) {

@@ -1,17 +1,16 @@
 import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { ICONS } from '../../../../constants';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useRef, useState } from 'react';
 import { CENTER, KEYBOARDTIMEOUT } from '../../../../constants/styles';
 import { HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function ManualEnterSendAddress(props) {
   const navigate = useNavigation();
@@ -74,12 +73,7 @@ export default function ManualEnterSendAddress(props) {
             );
           }}
         >
-          <ThemeImage
-            styles={{ width: 20, height: 20 }}
-            lightsOutIcon={ICONS.aboutIconWhite}
-            lightModeIcon={ICONS.aboutIcon}
-            darkModeIcon={ICONS.aboutIcon}
-          />
+          <ThemeIcon size={20} iconName={'Info'} />
         </TouchableOpacity>
       </View>
       <CustomSearchInput

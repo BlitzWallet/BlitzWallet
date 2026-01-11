@@ -1,5 +1,4 @@
 import { StyleSheet, View } from 'react-native';
-import { ICONS } from '../../constants';
 import {
   AboutPage,
   LoginSecurity,
@@ -73,16 +72,8 @@ export default function SettingsContentIndex(props) {
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
               showLeftImage={selectedPage?.toLowerCase() === 'backup wallet'}
-              leftImageStyles={{ width: 25, height: 25 }}
-              leftImageBlue={
-                selectedPage?.toLowerCase() === 'backup wallet'
-                  ? ICONS.aboutIcon
-                  : ''
-              }
-              LeftImageDarkMode={
-                selectedPage?.toLowerCase() === 'backup wallet'
-                  ? ICONS.aboutIconWhite
-                  : ''
+              iconNew={
+                selectedPage?.toLowerCase() === 'backup wallet' ? 'Info' : ''
               }
               leftImageFunction={() => {
                 if (selectedPage?.toLowerCase() === 'backup wallet') {

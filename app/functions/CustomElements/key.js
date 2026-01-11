@@ -1,13 +1,14 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ICONS, SIZES} from '../../constants';
-import {ThemeText} from '.';
-import {useState} from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { COLORS, SIZES } from '../../constants';
+import { ThemeText } from '.';
+import { useState } from 'react';
 import GetThemeColors from '../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import ThemeIcon from './themeIcon';
 
-export default function KeyForKeyboard({num, addPin, isDot, frompage}) {
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
+export default function KeyForKeyboard({ num, addPin, isDot, frompage }) {
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset } = GetThemeColors();
   const [isPressed, setIsPressed] = useState(false);
 
   const handlePress = () => {
@@ -28,25 +29,24 @@ export default function KeyForKeyboard({num, addPin, isDot, frompage}) {
           : setTimeout(() => setIsPressed(false), 200)
       }
       onPress={handlePress}
-      style={styles.key}>
+      style={styles.key}
+    >
       <View
         style={[
           styles.keyDot,
-          {backgroundColor: isPressed ? backgroundOffset : 'transparent'},
-        ]}>
+          { backgroundColor: isPressed ? backgroundOffset : 'transparent' },
+        ]}
+      >
         {isDot && frompage !== 'sendSMSPage' && (
-          <Image
-            style={{width: 60, height: 60}}
-            source={theme ? ICONS.dotLight : ICONS.dotDark}
+          <ThemeIcon
+            colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
+            size={60}
+            iconName={'Dot'}
           />
         )}
-
         {!isDot &&
           (num === 'back' ? (
-            <Image
-              style={styles.backArrow}
-              source={theme ? ICONS.leftCheveronLight : ICONS.leftCheveronDark}
-            />
+            <ThemeIcon iconName={'ChevronLeft'} />
           ) : (
             <ThemeText styles={styles.keyText} content={`${num}`} />
           ))}
@@ -73,10 +73,5 @@ const styles = StyleSheet.create({
   keyText: {
     fontSize: SIZES.xLarge,
     includeFontPadding: false,
-  },
-  backArrow: {
-    width: 20,
-    height: 20,
-    resizeMode: 'contain',
   },
 });

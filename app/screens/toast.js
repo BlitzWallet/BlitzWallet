@@ -19,6 +19,7 @@ import displayCorrectDenomination from '../functions/displayCorrectDenomination'
 import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
 import { ArrowUpDown } from 'lucide-react-native';
 import { useGlobalThemeContext } from '../../context-store/theme';
+import ThemeIcon from '../functions/CustomElements/themeIcon';
 
 export function Toast({
   toast,
@@ -135,18 +136,22 @@ export function Toast({
         <View style={getToastStyle()}>
           <View style={styles.toastContent}>
             {toast.type === 'clipboard' ? (
-              <ThemeImage
-                styles={{ width: 25, height: 25, marginRight: 15 }}
-                lightModeIcon={ICONS.clipboardBlue}
-                darkModeIcon={ICONS.clipboardBlue}
-                lightsOutIcon={ICONS.clipboardDark}
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={25}
+                styles={{ marginRight: 15 }}
+                iconName={'Copy'}
               />
             ) : toast.type === 'confirmTx' ? (
-              <ThemeImage
-                styles={{ width: 25, height: 25, marginRight: 15 }}
-                lightModeIcon={ICONS.aboutIcon}
-                darkModeIcon={ICONS.aboutIcon}
-                lightsOutIcon={ICONS.aboutIconBlack}
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={25}
+                styles={{ marginRight: 15 }}
+                iconName={'Info'}
               />
             ) : toast.type === 'handleSwap' ? (
               <ArrowUpDown

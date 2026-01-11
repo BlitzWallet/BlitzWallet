@@ -18,7 +18,7 @@ import ConfirmExportPayments from '../../components/admin/homeComponents/exportT
 import ConfirmChatGPTPage from '../../components/admin/homeComponents/apps/chatGPT/components/confirmationPage';
 import AddContactsHalfModal from '../../components/admin/homeComponents/contacts/addContactsHalfModal';
 import GetThemeColors from '../../hooks/themeColors';
-import MyProfileQRCode from '../../components/admin/homeComponents/contacts/internalComponents/profilePageQrPopup';
+// import MyProfileQRCode from '../../components/admin/homeComponents/contacts/internalComponents/profilePageQrPopup';
 import ExpandedMessageHalfModal from '../../components/admin/homeComponents/contacts/expandedMessageHalfModal';
 // import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
@@ -202,8 +202,8 @@ export default function CustomHalfModal(props) {
           />
         );
 
-      case 'myProfileQRcode':
-        return <MyProfileQRCode theme={theme} />;
+      // case 'myProfileQRcode':
+      //   return <MyProfileQRCode theme={theme} />;
 
       case 'expandedContactMessage':
         return (
@@ -269,8 +269,8 @@ export default function CustomHalfModal(props) {
             passedParams={props?.route?.params?.passedParams}
           />
         );
-      case 'chooseLNURLCopyFormat':
-        return <ChooseLNURLCopyFormat />;
+      // case 'chooseLNURLCopyFormat':
+      //   return <ChooseLNURLCopyFormat />;
       case 'LRC20AssetSelectorHalfModal':
         return (
           <LRC20AssetSelectorHalfModal

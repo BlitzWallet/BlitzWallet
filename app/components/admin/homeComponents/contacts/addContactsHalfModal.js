@@ -13,7 +13,6 @@ import {
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
-  ICONS,
   SIZES,
   VALID_URL_REGEX,
   VALID_USERNAME_REGEX,
@@ -23,7 +22,6 @@ import useDebounce from '../../../../hooks/useDebounce';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { searchUsers } from '../../../../../db';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CustomButton from '../../../../functions/CustomElements/button';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
@@ -35,6 +33,7 @@ import { getCachedProfileImage } from '../../../../functions/cachedImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useTranslation } from 'react-i18next';
 import getDeepLinkUser from './internalComponents/getDeepLinkUser';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function AddContactsHalfModal({
   slideHeight,
@@ -285,10 +284,11 @@ export default function AddContactsHalfModal({
               zIndex: 1,
             }}
           >
-            <ThemeImage
-              darkModeIcon={ICONS.scanQrCodeBlue}
-              lightModeIcon={ICONS.scanQrCodeBlue}
-              lightsOutIcon={ICONS.scanQrCodeDark}
+            <ThemeIcon
+              colorOverride={
+                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              }
+              iconName={'ScanQrCode'}
             />
           </TouchableOpacity>
         }

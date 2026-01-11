@@ -1,16 +1,16 @@
-import {ChatGPTDrawer} from '../../../navigation/drawers';
+import { ChatGPTDrawer } from '../../../navigation/drawers';
 import {
-  ResturantHomepage,
+  // ResturantHomepage,
   ViewOnlineListings,
 } from '../../components/admin/homeComponents/apps';
 import SMSMessagingHome from '../../components/admin/homeComponents/apps/sms4sats/home';
-import {GlobalThemeView} from '../../functions/CustomElements';
-import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect} from 'react';
+import { GlobalThemeView } from '../../functions/CustomElements';
+import { useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect } from 'react';
 import VPNHome from '../../components/admin/homeComponents/apps/VPN/home';
-import {Keyboard} from 'react-native';
+import { Keyboard } from 'react-native';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {KEYBOARDTIMEOUT} from '../../constants/styles';
+import { KEYBOARDTIMEOUT } from '../../constants/styles';
 
 export default function AppStorePageIndex(props) {
   const targetPage = props.route.params.page;
@@ -38,9 +38,9 @@ export default function AppStorePageIndex(props) {
       />
     );
 
-  return (
-    <GlobalThemeView>
-      {targetPage.toLowerCase() === 'resturant' && <ResturantHomepage />}
-    </GlobalThemeView>
-  );
+  // return (
+  //   <GlobalThemeView>
+  //     {targetPage.toLowerCase() === 'resturant' && <ResturantHomepage />}
+  //   </GlobalThemeView>
+  // );
 }

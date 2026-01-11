@@ -33,7 +33,6 @@ import {
 import { SIZES } from '../../../../../constants/theme';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import { useNavigation } from '@react-navigation/native';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
@@ -43,6 +42,7 @@ import {
   setLocalStorageItem,
 } from '../../../../../functions';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 function useDebouncedValue(value, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -256,11 +256,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
             keyboardNavigate(() => navigate.popTo('HomeAdmin'));
           }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
         <ThemeText
           styles={styles.topbarText}

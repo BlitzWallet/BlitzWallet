@@ -11,6 +11,7 @@ import {
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { formatBalanceAmount } from '../../../../../functions';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function ChoosePaymentMethod({
   theme,
@@ -100,11 +101,12 @@ export default function ChoosePaymentMethod({
           />
           <ThemeText styles={styles.amountText} content={`${balance}`} />
         </View>
-        <ThemeImage
-          styles={{ width: 20, height: 20, transform: [{ rotate: '-90deg' }] }}
-          lightModeIcon={ICONS.leftCheveronIcon}
-          darkModeIcon={ICONS.leftCheveronIcon}
-          lightsOutIcon={ICONS.leftCheveronDark}
+        <ThemeIcon
+          colorOverride={
+            theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+          }
+          size={20}
+          iconName={'ChevronDown'}
         />
       </TouchableOpacity>
     </View>

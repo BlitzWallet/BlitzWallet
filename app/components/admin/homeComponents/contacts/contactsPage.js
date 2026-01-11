@@ -44,6 +44,7 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { TAB_ITEM_HEIGHT } from '../../../../../navigation/tabs';
 import { formatDisplayName } from './utils/formatListDisplayName';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function ContactsPage({ navigation }) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -689,12 +690,7 @@ const ContactElement = memo(
               styles={memoizedStyles.contactDateText}
               content={formattedDate}
             />
-            <ThemeImage
-              styles={memoizedStyles.contactArrowIcon}
-              darkModeIcon={ICONS.leftCheveronIcon}
-              lightModeIcon={ICONS.leftCheveronIcon}
-              lightsOutIcon={ICONS.left_cheveron_white}
-            />
+            <ThemeIcon size={20} iconName={'ChevronRight'} />
           </View>
 
           {!!formatMessage(firstMessage) && contact.isAdded && (
@@ -759,11 +755,10 @@ const AddContactRowItem = memo(
         key={'Add-contacts-row-item'}
       >
         <View style={imageContainerStyle}>
-          <ThemeImage
-            styles={memoizedStyles.addContactIcon}
-            lightModeIcon={ICONS.xSmallIconWhite}
-            darkModeIcon={ICONS.xSmallIconWhite}
-            lightsOutIcon={ICONS.xSmallIconWhite}
+          <ThemeIcon
+            colorOverride={COLORS.darkModeText}
+            size={25}
+            iconName={'Plus'}
           />
         </View>
         <View style={memoizedStyles.globalContainer}>

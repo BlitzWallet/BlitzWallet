@@ -1,4 +1,4 @@
-import {ConfirmLeaveChatGPT} from './homeComponents/apps';
+import { ConfirmLeaveChatGPT } from './homeComponents/apps';
 import AddChatGPTCredits from './homeComponents/apps/chatGPT/addCreditsPage';
 import CameraModal from './homeComponents/cameraModal';
 import ClipboardCopyPopup from './homeComponents/confirmClipboard';
@@ -6,7 +6,7 @@ import {
   ContactsPage,
   EditMyProfilePage,
   ExpandedContactsPage,
-  MyContactProfilePage,
+  // MyContactProfilePage,
   SendAndRequestPage,
 } from './homeComponents/contacts';
 import AddOrDeleteContactImage from './homeComponents/contacts/internalComponents/addOrDeleteImageScreen';
@@ -14,8 +14,8 @@ import ContactsPageLongPressActions from './homeComponents/contacts/internalComp
 import ErrorScreen from './homeComponents/errorScreen';
 import HomeLightning from './homeComponents/homeLightning';
 import HalfModalSendOptions from './homeComponents/homeLightning/halfModalSendOptions';
-import {SendRecieveBTNs} from './homeComponents/homeLightning/sendReciveBTNs';
-import {UserSatAmount} from './homeComponents/homeLightning/userSatAmount';
+import { SendRecieveBTNs } from './homeComponents/homeLightning/sendReciveBTNs';
+import { UserSatAmount } from './homeComponents/homeLightning/userSatAmount';
 
 import NavBar from './homeComponents/navBar';
 import {
@@ -61,7 +61,7 @@ export {
   HalfModalSendOptions,
   ExpandedContactsPage,
   EditMyProfilePage,
-  MyContactProfilePage,
+  // MyContactProfilePage,
   SendAndRequestPage,
   ErrorScreen,
   ConfirmLeaveChatGPT,

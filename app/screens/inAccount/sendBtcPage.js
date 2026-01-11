@@ -37,6 +37,7 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 import { CameraPageNavBar } from '../../functions/CustomElements/camera/cameraPageNavbar';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../functions/sendBitcoin/handlePreSendPageParsing';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -265,7 +266,10 @@ export default function SendPaymentHome({ pageViewPage, from }) {
                 disabled={isPhotoeLibraryOpen.current}
                 onPress={getPhoto}
               >
-                <Image style={backArrow} source={ICONS.ImagesIcon} />
+                <ThemeIcon
+                  colorOverride={COLORS.darkModeText}
+                  iconName={'Image'}
+                />
               </TouchableOpacity>
             </View>
           </View>

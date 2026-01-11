@@ -14,14 +14,12 @@ import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
   SIZES,
 } from '../../../../../../constants';
 import { formatCurrency } from '../../../../../../functions/formatCurrency';
-import ThemeImage from '../../../../../../functions/CustomElements/themeImage';
-import Icon from '../../../../../../functions/CustomElements/Icon';
 import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 
 export default function AddPOSItemsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -99,14 +97,7 @@ export default function AddPOSItemsPage() {
                   })
                 }
               >
-                <Icon
-                  color={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
-                  height={25}
-                  width={25}
-                  name={'editIcon'}
-                />
+                <ThemeIcon iconName={'SquarePen'} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
@@ -118,11 +109,7 @@ export default function AddPOSItemsPage() {
                   });
                 }}
               >
-                <ThemeImage
-                  lightModeIcon={ICONS.trashIcon}
-                  darkModeIcon={ICONS.trashIcon}
-                  lightsOutIcon={ICONS.trashIconWhite}
-                />
+                <ThemeIcon iconName={'Trash2'} />
               </TouchableOpacity>
             </View>
           </View>

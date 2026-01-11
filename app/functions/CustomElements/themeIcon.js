@@ -9,6 +9,7 @@ export default function ThemeIcon({
   styles,
   colorOverride,
   fill = null,
+  strokeWidth = 2,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
 
@@ -43,6 +44,16 @@ export default function ThemeIcon({
   }, [styles, iconColor]);
   if (!IconComponent) return;
   if (fill) {
-    return <IconComponent fill={fill} size={size} style={iconStyles} />;
-  } else return <IconComponent size={size} style={iconStyles} />;
+    return (
+      <IconComponent
+        strokeWidth={strokeWidth}
+        fill={fill}
+        size={size}
+        style={iconStyles}
+      />
+    );
+  } else
+    return (
+      <IconComponent strokeWidth={strokeWidth} size={size} style={iconStyles} />
+    );
 }

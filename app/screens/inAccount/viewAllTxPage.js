@@ -69,8 +69,7 @@ export default function ViewAllTxPage() {
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <CustomSettingsTopBar
         showLeftImage={true}
-        leftImageBlue={ICONS.share}
-        LeftImageDarkMode={ICONS.shareWhite}
+        iconNew="Share"
         label={t('screens.inAccount.viewAllTxPage.title')}
         leftImageFunction={() => {
           navigate.navigate('CustomHalfModal', {

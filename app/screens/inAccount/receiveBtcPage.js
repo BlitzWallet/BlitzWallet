@@ -8,7 +8,6 @@ import {
 import {
   CENTER,
   SIZES,
-  ICONS,
   COLORS,
   SKELETON_ANIMATION_SPEED,
   APPROXIMATE_SYMBOL,
@@ -22,7 +21,6 @@ import { ButtonsContainer } from '../../components/admin/homeComponents/receiveB
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../hooks/themeColors';
-import ThemeImage from '../../functions/CustomElements/themeImage';
 import { initializeAddressProcess } from '../../functions/receiveBitcoin/addressGeneration';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
@@ -51,6 +49,7 @@ import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar'
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { satsToDollars } from '../../functions/spark/flashnet';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -202,8 +201,7 @@ export default function ReceivePaymentHome(props) {
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         showLeftImage={true}
-        leftImageBlue={ICONS.share}
-        LeftImageDarkMode={ICONS.shareWhite}
+        iconNew="Share"
         leftImageFunction={handleShare}
         label={t('constants.receive')}
       />
@@ -358,11 +356,10 @@ export default function ReceivePaymentHome(props) {
                 (selectedRecieveOption.toLowerCase() === 'lightning' &&
                   endReceiveType === 'USD')) &&
                 selectedRecieveOption.toLowerCase() !== 'spark' && (
-                  <ThemeImage
-                    styles={styles.AboutIcon}
-                    lightModeIcon={ICONS.aboutIcon}
-                    darkModeIcon={ICONS.aboutIcon}
-                    lightsOutIcon={ICONS.aboutIconWhite}
+                  <ThemeIcon
+                    size={15}
+                    styles={{ marginLeft: 5 }}
+                    iconName={'Info'}
                   />
                 )}
             </View>
@@ -613,9 +610,7 @@ function QrCode(props) {
           info={t(
             `screens.inAccount.receiveBtcPage.receiveAs_${selectedRecieveOption?.toLowerCase()}_${endReceiveType}`,
           )}
-          lightModeIcon={ICONS.leftCheveronDark}
-          darkModeIcon={ICONS.leftCheveronLight}
-          lightsOutIcon={ICONS.leftCheveronLight}
+          iconName={'ChevronDown'}
           showBoder={true}
           rotateIcon={true}
           actionFunction={selectReceiveTypeAsset}
@@ -647,9 +642,7 @@ function QrCode(props) {
                   ? approximateUSDAmount
                   : '')
           }
-          lightModeIcon={ICONS.editIcon}
-          darkModeIcon={ICONS.editIconLight}
-          lightsOutIcon={ICONS.editIconLight}
+          iconName={'SquarePen'}
           showBoder={true}
           actionFunction={editAmount}
         />
@@ -665,18 +658,7 @@ function QrCode(props) {
               '...' +
               address.slice(address.length - 7)
         }
-        lightModeIcon={
-          // isUsingLnurl ? ICONS.editIcon :
-          ICONS.clipboardDark
-        }
-        darkModeIcon={
-          // isUsingLnurl ? ICONS.editIconLight :
-          ICONS.clipboardLight
-        }
-        lightsOutIcon={
-          // isUsingLnurl ? ICONS.editIconLight :
-          ICONS.clipboardLight
-        }
+        iconName={'Copy'}
         actionFunction={() => {
           if (addressState.isGeneratingInvoice) return;
           // if (isUsingLnurl) editLNURL();
@@ -699,6 +681,7 @@ function QRInformationRow({
   actionFunction,
   showSkeleton = false,
   rotateIcon = false,
+  iconName,
 }) {
   const { backgroundColor } = GetThemeColors();
   return (
@@ -756,15 +739,9 @@ function QRInformationRow({
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 8,
-          transform: [{ rotate: rotateIcon ? '-90deg' : '0deg' }],
         }}
       >
-        <ThemeImage
-          styles={{ width: 15, height: 15 }}
-          lightModeIcon={lightModeIcon}
-          darkModeIcon={darkModeIcon}
-          lightsOutIcon={lightsOutIcon}
-        />
+        <ThemeIcon size={15} iconName={iconName} />
       </View>
     </TouchableOpacity>
   );

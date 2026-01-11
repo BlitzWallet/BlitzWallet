@@ -29,6 +29,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
 import { detectQRCode } from '../../../functions/detectQrCode';
+import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 
 export default function CameraModal(props) {
   console.log('SCREEN OPTIONS PAGE');
@@ -139,7 +140,11 @@ export default function CameraModal(props) {
               />
             </TouchableOpacity>
             <TouchableOpacity onPress={getQRImage}>
-              <Image style={backArrow} source={ICONS.ImagesIcon} />
+              <ThemeIcon
+                size={30}
+                colorOverride={COLORS.darkModeText}
+                iconName={'Image'}
+              />
             </TouchableOpacity>
           </View>
         </View>

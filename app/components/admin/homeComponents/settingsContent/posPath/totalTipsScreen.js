@@ -9,7 +9,6 @@ import {
   CENTER,
   COLORS,
   EMAIL_REGEX,
-  ICONS,
   POINT_OF_SALE_PAYOUT_DESCRIPTION,
   SIZES,
 } from '../../../../../constants';
@@ -19,7 +18,6 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { formatDateToDayMonthYear } from '../../../../../functions/rotateAddressDateChecker';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useCallback, useMemo, useState } from 'react';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
@@ -43,6 +41,7 @@ import { getSingleContact } from '../../../../../../db';
 import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../../../../context-store/webViewContext';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function TotalTipsScreen(props) {
   const { sendWebViewRequest } = useWebView();
@@ -85,7 +84,6 @@ export default function TotalTipsScreen(props) {
     updateMessage: '',
     didComplete: false,
   });
-  const [viewTips, setViewTips] = useState(false);
 
   const sourtedTxs = useMemo(() => {
     try {
@@ -335,19 +333,8 @@ export default function TotalTipsScreen(props) {
   return (
     <ContainerWrapper>
       <View style={[styles.navBarButtons, { borderBottomColor: borderColor }]}>
-        <TouchableOpacity
-          onPress={() => {
-            if (viewTips) setViewTips(false);
-            else navigate.goBack();
-          }}
-        >
-          <ThemeImage
-            lightModeIcon={viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon}
-            darkModeIcon={viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon}
-            lightsOutIcon={
-              viewTips ? ICONS.arrow_small_left_white : ICONS.xSmallIconWhite
-            }
-          />
+        <TouchableOpacity onPress={navigate.goBack}>
+          <ThemeIcon iconName={'X'} />
         </TouchableOpacity>
         <ThemeText
           CustomNumberOfLines={1}
@@ -359,12 +346,7 @@ export default function TotalTipsScreen(props) {
           onPress={() => removeEmployee(name)}
           style={{ marginLeft: 15 }}
         >
-          <ThemeImage
-            styles={{ width: 23, height: 23 }}
-            lightModeIcon={ICONS.trashIcon}
-            darkModeIcon={ICONS.trashIcon}
-            lightsOutIcon={ICONS.trashIconWhite}
-          />
+          <ThemeIcon size={25} iconName={'Trash2'} />
         </TouchableOpacity>
       </View>
 
@@ -381,6 +363,9 @@ export default function TotalTipsScreen(props) {
           paddingBottom: 20,
           paddingTop: 10,
           backgroundColor: borderColor,
+          borderWidth: 2,
+          borderColor: backgroundOffset,
+          borderRadius: 8,
         }}
       >
         <View style={styles.attributeContainer}>

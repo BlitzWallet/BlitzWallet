@@ -1,19 +1,18 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
-  ICONS,
   NOSTR_RELAY_URL,
   NWC_SECURE_STORE_MNEMOINC,
   SIZES,
 } from '../../../../constants';
-import {useCallback, useState} from 'react';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {usePushNotification} from '../../../../../context-store/notificationManager';
+import { useCallback, useState } from 'react';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { usePushNotification } from '../../../../../context-store/notificationManager';
 import NostrWalletConnectNoNotifications from './nwc/noNotifications';
 import {
   CustomKeyboardAvoidingView,
@@ -21,27 +20,26 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import Icon from '../../../../functions/CustomElements/Icon';
-import {retrieveData} from '../../../../functions';
+import { retrieveData } from '../../../../functions';
 import NWCWalletSetup from './nwc/showSeedPage';
 import HasNoNostrAccounts from './nwc/hasNoAccounts';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function NosterWalletConnect() {
   const navigate = useNavigation();
-  const {masterInfoObject, toggleNWCInformation} = useGlobalContextProvider();
+  const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
 
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {getCurrentPushNotifiicationPermissions} = usePushNotification();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { getCurrentPushNotifiicationPermissions } = usePushNotification();
   const [currnetPushState, setCurrentPushState] = useState(null);
   const [hasSeenMnemoinc, setHasSeenMnemoinc] = useState('');
   const [accountName, setAccountName] = useState('');
-  const {backgroundOffset} = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const savedNWCAccounts = masterInfoObject.NWC;
   const notificationData = masterInfoObject.pushNotifications;
   const didViewWarningMessage = masterInfoObject.didViewNWCMessage;
@@ -50,7 +48,7 @@ export default function NosterWalletConnect() {
     notificationData.enabledServices.NWC &&
     currnetPushState;
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const loadCurrentNotificationPermission = async () => {
     const [resposne, NWCMnemoinc] = await Promise.all([
@@ -69,7 +67,7 @@ export default function NosterWalletConnect() {
   );
 
   const removePOSItem = itemUUID => {
-    const updatedAccounts = {...savedNWCAccounts.accounts};
+    const updatedAccounts = { ...savedNWCAccounts.accounts };
     delete updatedAccounts[itemUUID];
     toggleNWCInformation({
       accounts: updatedAccounts,
@@ -126,10 +124,11 @@ export default function NosterWalletConnect() {
               style={{
                 ...styles.contentItemContainer,
                 backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-              }}>
+              }}
+            >
               <View style={styles.contentItemTop}>
                 <ThemeText
-                  styles={{fontSize: SIZES.large}}
+                  styles={{ fontSize: SIZES.large }}
                   content={value.accountName}
                 />
                 <TouchableOpacity
@@ -139,17 +138,9 @@ export default function NosterWalletConnect() {
                       data: value,
                     })
                   }
-                  style={{marginLeft: 'auto', marginRight: 10}}>
-                  <Icon
-                    color={
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary
-                    }
-                    height={25}
-                    width={25}
-                    name={'editIcon'}
-                  />
+                  style={{ marginLeft: 'auto', marginRight: 10 }}
+                >
+                  <ThemeIcon iconName={'SquarePen'} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
@@ -157,17 +148,14 @@ export default function NosterWalletConnect() {
                       confirmFunction: () => removePOSItem(key),
                       confirmMessage: t('settings.nwc.confirmDelete'),
                     });
-                  }}>
-                  <ThemeImage
-                    lightModeIcon={ICONS.trashIcon}
-                    darkModeIcon={ICONS.trashIcon}
-                    lightsOutIcon={ICONS.trashIconWhite}
-                  />
+                  }}
+                >
+                  <ThemeIcon iconName={'Trash2'} />
                 </TouchableOpacity>
               </View>
 
               <ThemeText
-                styles={{marginTop: 10}}
+                styles={{ marginTop: 10 }}
                 CustomNumberOfLines={2}
                 content={connectionString}
               />
@@ -184,24 +172,25 @@ export default function NosterWalletConnect() {
           paddingTop: 10,
           width: INSET_WINDOW_WIDTH,
           ...CENTER,
-        }}>
+        }}
+      >
         <CustomSearchInput
           inputText={accountName}
           setInputText={setAccountName}
           placeholderText={t('settings.nwc.searchAccountPlaceholder')}
-          containerStyles={{marginBottom: CONTENT_KEYBOARD_OFFSET}}
+          containerStyles={{ marginBottom: CONTENT_KEYBOARD_OFFSET }}
         />
-        <ScrollView contentContainerStyle={{paddingBottom: 20}}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
           {nwcElements.length > 0 ? (
             nwcElements
           ) : (
             <ThemeText
-              styles={{textAlign: 'center', marginTop: 20}}
+              styles={{ textAlign: 'center', marginTop: 20 }}
               content={t('settings.nwc.noAccountsMessage')}
             />
           )}
         </ScrollView>
-        <View style={{...CENTER, paddingBottom: CONTENT_KEYBOARD_OFFSET}}>
+        <View style={{ ...CENTER, paddingBottom: CONTENT_KEYBOARD_OFFSET }}>
           <CustomButton
             actionFunction={() => {
               navigate.navigate('CreateNostrConnectAccount');
@@ -214,7 +203,7 @@ export default function NosterWalletConnect() {
   );
 }
 
-function CustomPageWrapper({children}) {
+function CustomPageWrapper({ children }) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={'NWC'} />
@@ -240,7 +229,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     marginRight: 'auto',
     marginLeft: 'auto',
-    transform: [{translateX: -12.5}],
+    transform: [{ translateX: -12.5 }],
     fontFamily: FONT.Title_Bold,
   },
   contentContainer: {

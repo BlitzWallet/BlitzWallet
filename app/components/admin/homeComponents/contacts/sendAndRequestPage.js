@@ -30,7 +30,6 @@ import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import { useServerTimeOnly } from '../../../../../context-store/serverTime';
 import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import Icon from '../../../../functions/CustomElements/Icon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
   COLORS,
@@ -57,6 +56,7 @@ import { receiveSparkLightningPayment } from '../../../../functions/spark';
 import { getBolt11InvoiceForContact } from '../../../../functions/contacts';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 const MAX_SEND_OPTIONS = [
   { label: '25%', value: '25' },
   { label: '50%', value: '50' },
@@ -642,12 +642,7 @@ export default function SendAndRequestPage(props) {
                           },
                         ]}
                       >
-                        <ThemeImage
-                          styles={styles.editIcon}
-                          lightModeIcon={ICONS.editIcon}
-                          darkModeIcon={ICONS.editIconLight}
-                          lightsOutIcon={ICONS.editIconLight}
-                        />
+                        <ThemeIcon size={18} iconName={'SquarePen'} />
                       </View>
                     </TouchableOpacity>
                     {giftOption.memo && (
@@ -802,9 +797,7 @@ export default function SendAndRequestPage(props) {
                 </View>
                 {isAmountFocused && (
                   <CustomNumberKeyboard
-                    showDot={
-                      masterInfoObject.userBalanceDenomination === 'fiat'
-                    }
+                    showDot={!isBTCdenominated}
                     frompage="sendContactsPage"
                     setInputValue={handleSearch}
                     usingForBalance={true}

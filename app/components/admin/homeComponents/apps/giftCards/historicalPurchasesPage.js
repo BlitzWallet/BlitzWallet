@@ -9,45 +9,47 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {CENTER, COLORS, ICONS} from '../../../../../constants';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {useNavigation} from '@react-navigation/native';
+import { CENTER, COLORS } from '../../../../../constants';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
+import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {openComposer} from 'react-native-email-link';
-import {copyToClipboard} from '../../../../../functions';
-import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import {useKeysContext} from '../../../../../../context-store/keys';
+import { openComposer } from 'react-native-email-link';
+import { copyToClipboard } from '../../../../../functions';
+import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import { useKeysContext } from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function HistoricalGiftCardPurchases() {
-  const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {showToast} = useToast();
-  const {t} = useTranslation();
+  const { decodedGiftCards, toggleGlobalAppDataInformation } =
+    useGlobalAppData();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { showToast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigation();
-  const {bottomPadding} = useGlobalInsets();
+  const { bottomPadding } = useGlobalInsets();
 
   useHandleBackPressNew();
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <TouchableOpacity
       onPress={() => {
         navigate.navigate('GiftCardOrderDetails', {
           item: item,
         });
       }}
-      style={styles.rowContainer}>
-      <Image style={styles.companyLogo} source={{uri: item.logo}} />
-      <View style={{flex: 1}}>
+      style={styles.rowContainer}
+    >
+      <Image style={styles.companyLogo} source={{ uri: item.logo }} />
+      <View style={{ flex: 1 }}>
         <ThemeText
           CustomNumberOfLines={1}
-          styles={{fontWeight: '500', marginBottom: 5}}
+          styles={{ fontWeight: '500', marginBottom: 5 }}
           content={item.name}
         />
         <ThemeText
@@ -65,12 +67,9 @@ export default function HistoricalGiftCardPurchases() {
             ),
             confirmFunction: () => removeGiftCardFromList(item.uuid),
           })
-        }>
-        <ThemeImage
-          lightModeIcon={ICONS.xSmallIcon}
-          darkModeIcon={ICONS.xSmallIcon}
-          lightsOutIcon={ICONS.xSmallIconWhite}
-        />
+        }
+      >
+        <ThemeIcon iconName={'X'} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -93,7 +92,7 @@ export default function HistoricalGiftCardPurchases() {
             data={decodedGiftCards.purchasedCards}
             renderItem={renderItem}
             keyExtractor={item => item.id.toString()} // Assuming each gift card has a unique 'id'
-            style={{width: '90%'}}
+            style={{ width: '90%' }}
             showsVerticalScrollIndicator={false}
             ListFooterComponent={
               <View
@@ -143,12 +142,12 @@ export default function HistoricalGiftCardPurchases() {
         purchasedCards: newCardsList,
       }),
     );
-    toggleGlobalAppDataInformation({giftCards: em}, true);
+    toggleGlobalAppDataInformation({ giftCards: em }, true);
   }
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {paddingBottom: 0, alignItems: 'center'},
+  globalContainer: { paddingBottom: 0, alignItems: 'center' },
   topBar: {
     marginBottom: 0,
   },
@@ -168,6 +167,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: INSET_WINDOW_WIDTH,
   },
-  companyLogo: {width: 55, height: 55, marginRight: 10, borderRadius: 10},
-  supportBTN: {width: 'auto', ...CENTER, position: 'absolute'},
+  companyLogo: { width: 55, height: 55, marginRight: 10, borderRadius: 10 },
+  supportBTN: { width: 'auto', ...CENTER, position: 'absolute' },
 });

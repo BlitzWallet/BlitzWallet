@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, COLORS, ICONS } from '../../../../constants';
+import { CENTER, COLORS } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -11,10 +11,10 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { openComposer } from 'react-native-email-link';
 import { useToast } from '../../../../../context-store/toastManager';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { copyToClipboard } from '../../../../functions';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../../../context-store/webViewContext';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function SparkErrorScreen(props) {
   const { accountMnemoinc } = useKeysContext();
@@ -83,11 +83,7 @@ export default function SparkErrorScreen(props) {
           onPress={navigate.goBack}
           style={{ marginLeft: 'auto' }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
+          <ThemeIcon iconName={'X'} />
         </TouchableOpacity>
         <ThemeText
           styles={styles.headerText}

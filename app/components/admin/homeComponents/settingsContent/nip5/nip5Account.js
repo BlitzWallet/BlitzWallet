@@ -2,7 +2,6 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
   NOSTR_NAME_REGEX,
 } from '../../../../../constants';
 import {
@@ -21,9 +20,9 @@ import { addNip5toCollection, isValidNip5Name } from '../../../../../../db';
 import { npubToHex } from '../../../../../functions/nostr';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useTranslation } from 'react-i18next';
 import { keyboardGoBack } from '../../../../../functions/customNavigation';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function Nip5VerificationPage() {
   const { showToast } = useToast();
@@ -152,12 +151,7 @@ export default function Nip5VerificationPage() {
                 copyToClipboard(`${inputs.name}@blitzwalletapp.com`, showToast);
               }}
             >
-              <ThemeImage
-                styles={{ width: 25, height: 25 }}
-                lightModeIcon={ICONS.clipboardBlue}
-                darkModeIcon={ICONS.clipboardBlue}
-                lightsOutIcon={ICONS.clipboardLight}
-              />
+              <ThemeIcon size={25} iconName={'Copy'} />
               <ThemeText
                 CustomNumberOfLines={1}
                 styles={styles.nip5AddressText}
@@ -224,5 +218,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     textAlign: 'center',
     flexShrink: 1,
+    marginLeft: 5,
   },
 });

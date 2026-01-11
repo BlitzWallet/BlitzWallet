@@ -39,6 +39,7 @@ import CountryFlag from 'react-native-country-flag';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useWebView } from '../../../../../../context-store/webViewContext';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 const imgEndpoint = endpoint => `https://sms4sats.com/${endpoint}`;
 
@@ -369,11 +370,7 @@ export default function SMSMessagingReceivedPage(props) {
             keyboardNavigate(() => navigate.goBack());
           }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
 
         <ThemeText

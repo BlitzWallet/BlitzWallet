@@ -34,11 +34,11 @@ import {
 } from '../../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../../functions/spark/transactions';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 import { HIDDEN_OPACITY } from '../../../../../constants/theme';
 import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function AccountPaymentPage(props) {
@@ -264,16 +264,9 @@ export default function AccountPaymentPage(props) {
         style={{ width: '100%' }}
         contentContainerStyle={{ paddingBottom: 10 }}
       >
-        <ThemeImage
-          styles={{
-            transform: [{ rotate: '90deg' }],
-            ...CENTER,
-            marginTop: 30,
-            marginBottom: 30,
-          }}
-          lightModeIcon={ICONS.exchangeIcon}
-          darkModeIcon={ICONS.exchangeIcon}
-          lightsOutIcon={ICONS.exchangeIconWhite}
+        <ThemeIcon
+          styles={{ marginTop: 40, marginBottom: 20, ...CENTER }}
+          iconName={'ArrowUpDown'}
         />
         <TouchableOpacity
           onPress={() => {
@@ -315,14 +308,10 @@ export default function AccountPaymentPage(props) {
         >
           <View style={{ flexShrink: 1 }}>
             <View style={styles.transferTextContainer}>
-              <ThemeImage
-                styles={{
-                  ...styles.transferTextIcon,
-                  transform: [{ rotate: '-90deg' }],
-                }}
-                lightModeIcon={ICONS.arrowFromRight}
-                darkModeIcon={ICONS.arrowFromRight}
-                lightsOutIcon={ICONS.arrowFromRightWhite}
+              <ThemeIcon
+                size={20}
+                styles={styles.transferTextIcon}
+                iconName={'Upload'}
               />
               <ThemeText content={t('constants.from')} />
             </View>
@@ -365,16 +354,7 @@ export default function AccountPaymentPage(props) {
                 )}
               />
             )}
-            <ThemeImage
-              styles={{
-                width: 20,
-                height: 20,
-                transform: [{ rotate: '180deg' }],
-              }}
-              lightModeIcon={ICONS.leftCheveronIcon}
-              darkModeIcon={ICONS.leftCheveronIcon}
-              lightsOutIcon={ICONS.leftCheveronLight}
-            />
+            <ThemeIcon size={20} iconName={'ChevronRight'} />
           </TouchableOpacity>
         </View>
         <View
@@ -384,14 +364,10 @@ export default function AccountPaymentPage(props) {
           }}
         >
           <View style={styles.transferTextContainer}>
-            <ThemeImage
-              styles={{
-                ...styles.transferTextIcon,
-                transform: [{ rotate: '90deg' }],
-              }}
-              lightModeIcon={ICONS.arrowToRight}
-              darkModeIcon={ICONS.arrowToRight}
-              lightsOutIcon={ICONS.arrowToRightLight}
+            <ThemeIcon
+              size={20}
+              styles={styles.transferTextIcon}
+              iconName={'Download'}
             />
             <ThemeText content={t('constants.to')} />
           </View>
@@ -418,16 +394,7 @@ export default function AccountPaymentPage(props) {
                     )
               }
             />
-            <ThemeImage
-              styles={{
-                width: 20,
-                height: 20,
-                transform: [{ rotate: '180deg' }],
-              }}
-              lightModeIcon={ICONS.leftCheveronIcon}
-              darkModeIcon={ICONS.leftCheveronIcon}
-              lightsOutIcon={ICONS.leftCheveronLight}
-            />
+            <ThemeIcon size={20} iconName={'ChevronRight'} />
           </TouchableOpacity>
         </View>
         <View
@@ -472,16 +439,11 @@ export default function AccountPaymentPage(props) {
           }}
         >
           <View style={styles.transferTextContainer}>
-            <View style={styles.transferTextIcon}>
-              <Icon
-                color={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                }
-                height={18}
-                width={18}
-                name={'editIcon'}
-              />
-            </View>
+            <ThemeIcon
+              size={20}
+              styles={styles.transferTextIcon}
+              iconName={'SquarePen'}
+            />
             <ThemeText content={t('constants.description')} />
           </View>
           <CustomSearchInput

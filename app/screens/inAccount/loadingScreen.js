@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, ICONS, PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
+import { COLORS, PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,6 @@ import { useGlobalAppData } from '../../../context-store/appData';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
 import { useNavigation } from '@react-navigation/native';
-import ThemeImage from '../../functions/CustomElements/themeImage';
 // import connectToLiquidNode from '../../functions/connectToLiquid';
 // import { initializeDatabase } from '../../functions/messaging/cachedMessages';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -23,6 +22,7 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 import { removeLocalStorageItem } from '../../functions/localStorage';
 import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 // import { initializeSparkDatabase } from '../../functions/spark/transactions';
 // import { getCachedSparkTransactions } from '../../functions/spark';
 // import { getLocalStorageItem, setLocalStorageItem } from '../../functions';
@@ -211,11 +211,7 @@ export default function ConnectingToNodeLoadingScreen({
             }
             style={styles.doomsday}
           >
-            <ThemeImage
-              lightModeIcon={ICONS.settingsIcon}
-              darkModeIcon={ICONS.settingsIcon}
-              lightsOutIcon={ICONS.settingsWhite}
-            />
+            <ThemeIcon iconName={'Settings'} />
           </TouchableOpacity>
         )}
         <LottieView

@@ -6,8 +6,7 @@ import {
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import { CENTER, ICONS } from '../../../../constants';
+import { CENTER } from '../../../../constants';
 import {
   COLORS,
   HIDDEN_OPACITY,
@@ -25,6 +24,7 @@ import {
   keyboardNavigate,
 } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function AdvancedGiftClaim() {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -102,10 +102,11 @@ export default function AdvancedGiftClaim() {
             />
           </View>
           <View style={[styles.indexIcon]}>
-            <ThemeImage
-              lightModeIcon={ICONS.giftBlue}
-              darkModeIcon={ICONS.giftBlue}
-              lightsOutIcon={ICONS.gift}
+            <ThemeIcon
+              colorOverride={
+                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              }
+              iconName={'Gift'}
             />
           </View>
         </View>
@@ -168,11 +169,10 @@ export default function AdvancedGiftClaim() {
                 },
               ]}
             >
-              <ThemeImage
-                styles={{ width: 22, height: 22 }}
-                lightModeIcon={ICONS.warningWhite}
-                darkModeIcon={ICONS.warningWhite}
-                lightsOutIcon={ICONS.warningWhite}
+              <ThemeIcon
+                colorOverride={COLORS.darkModeText}
+                size={22}
+                iconName={'TriangleAlert'}
               />
               <ThemeText
                 styles={styles.errorText}

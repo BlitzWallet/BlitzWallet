@@ -1,10 +1,4 @@
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  Share,
-} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Share } from 'react-native';
 import { COLORS, ICONS, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { BlitzSocialOptions } from '../../components/admin/homeComponents/settingsContent';
@@ -12,11 +6,8 @@ import { CENTER } from '../../constants/styles';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { useMemo } from 'react';
-import Icon from '../../functions/CustomElements/Icon';
 import ThemeImage from '../../functions/CustomElements/themeImage';
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useNodeContext } from '../../../context-store/nodeContext';
 import { useAppStatus } from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useGlobalContextProvider } from '../../../context-store/context';
@@ -24,9 +15,7 @@ import openWebBrowser from '../../functions/openWebBrowser';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../hooks/themeColors';
 import { useImageCache } from '../../../context-store/imageCache';
-import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
-import { Image } from 'expo-image';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { supportedLanguagesList } from '../../../locales/localeslist';
 import Animated, {
@@ -38,48 +27,39 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useToast } from '../../../context-store/toastManager';
 import { copyToClipboard } from '../../functions';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 const PREFERENCES = [
   {
     for: 'general',
     name: 'Display Currency',
     displayName: 'screens.inAccount.settingsContent.display currency',
-    icon: ICONS.currencyIcon,
-    iconWhite: ICONS.currencyIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'Coins',
   },
   {
     for: 'general',
     name: 'Language',
     displayName: 'screens.inAccount.settingsContent.language',
-    svgIcon: true,
-    svgName: 'languageIcon',
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'Languages',
   },
   {
     for: 'general',
     name: 'Display Options',
     displayName: 'screens.inAccount.settingsContent.display options',
-    icon: ICONS.colorIcon,
-    iconWhite: ICONS.colorIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'Palette',
   },
   {
     for: 'general',
     name: 'Fast Pay',
     displayName: 'screens.inAccount.settingsContent.fast pay',
-    svgIcon: true,
-    svgName: 'quickPayIcon',
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'ClockFading',
   },
 
   {
     for: 'general',
     name: 'Notifications',
     displayName: 'screens.inAccount.settingsContent.notifications',
-    icon: ICONS.notification,
-    iconWhite: ICONS.notificationWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'Bell',
   },
 ];
 
@@ -88,113 +68,54 @@ const OTHEROPTIONS = [
     for: 'general',
     name: 'About',
     displayName: 'screens.inAccount.settingsContent.about',
-    icon: ICONS.aboutIcon,
-    iconWhite: ICONS.aboutIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'Info',
   },
-  // {
-  //   for: 'general',
-  //   name: 'Edit Contact Profile',
-  //   displayName: 'screens.inAccount.settingsContent.edit contact profile',
-  //   icon: ICONS.contactsIconBlue,
-  //   iconWhite: ICONS.contactsIconWhite,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
-
   {
     for: 'general',
     name: 'Blitz Stats',
     displayName: 'screens.inAccount.settingsContent.blitz stats',
-    svgName: 'crashDebugIcon',
-    icon: ICONS.navigationIcon,
-    iconWhite: ICONS.navigationIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'ChartArea',
   },
   {
     for: 'Closing Account',
     name: 'Delete Wallet',
     displayName: 'screens.inAccount.settingsContent.delete wallet',
-    icon: ICONS.trashIcon,
-    iconWhite: ICONS.trashIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'Trash2',
   },
-
-  // {
-  //   for: 'general',
-  //   name: 'Support Our Work',
-  //   svgName: 'crashDebugIcon',
-  //   svgIcon: true,
-  //   svgName: 'developerSupportIcon',
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
-  // {
-  //   for: 'general',
-  //   name: 'Send On-chain',
-  //   svgIcon: true,
-  //   svgName: 'swapIcon',
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
-
-  // {
-  //   for: 'general',
-  //   name: 'Create Gift',
-  //   icon: ICONS.adminHomeWallet,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  //   usesStandAlonePath: true,
-  // },
 ];
 const SECURITYOPTIONS = [
   {
     for: 'Security & Customization',
     name: 'Login Mode',
     displayName: 'screens.inAccount.settingsContent.login mode',
-    icon: ICONS.faceIDIcon,
-    iconWhite: ICONS.faceIDIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'ScanFace',
   },
   {
     for: 'Security & Customization',
     name: 'Backup wallet',
     displayName: 'screens.inAccount.settingsContent.backup wallet',
-    icon: ICONS.keyIcon,
-    iconWhite: ICONS.keyIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'Lock',
   },
 ];
 
-// const EXPIRIMENTALFEATURES = [
-//   {
-//     for: 'Experimental features',
-//     name: 'Experimental',
-//     svgIcon: true,
-//     svgName: 'expirementalFeaturesIcon',
-//     arrowIcon: ICONS.leftCheveronIcon,
-//   },
-// ];
 const ADVANCEDOPTIONS = [
   {
     for: 'Closing Account',
     name: 'Spark Info',
     displayName: 'screens.inAccount.settingsContent.spark info',
-    icon: ICONS.nodeIcon,
-    iconWhite: ICONS.nodeIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'VectorSquare',
   },
   {
     for: 'general',
     name: 'Accounts',
     displayName: 'screens.inAccount.settingsContent.accounts',
-    icon: ICONS.group,
-    iconWhite: ICONS.groupWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'WalletCards',
   },
   {
     for: 'general',
     name: 'Nostr',
     displayName: 'screens.inAccount.settingsContent.nostr',
-    svgIcon: true,
-    svgName: 'linkIcon',
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'Link',
   },
   {
     for: 'Closing Account',
@@ -202,103 +123,35 @@ const ADVANCEDOPTIONS = [
     displayName: 'screens.inAccount.settingsContent.blitz fee details',
     icon: ICONS.receiptIcon,
     iconWhite: ICONS.receiptWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
   },
 
   {
     for: 'general',
     name: 'Crash Reports',
     displayName: 'screens.inAccount.settingsContent.crash reports',
-    svgIcon: true,
-    svgName: 'crashDebugIcon',
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'ShieldCheck',
   },
-
-  // {
-  //   for: 'general',
-  //   name: 'Node Info',
-  //   icon: ICONS.nodeIcon,
-  //   iconWhite: ICONS.nodeIconWhite,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
-  // {
-  //   for: 'Security & Customization',
-  //   name: 'Lsp',
-  //   icon: ICONS.linkIcon,
-  //   iconWhite: ICONS.chainLight,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
-  // {
-  //   for: 'Security & Customization',
-  //   name: 'Balance Info',
-  //   icon: ICONS.adminHomeWallet,
-  //   iconWhite: ICONS.adminHomeWallet_white,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
-  // {
-  //   for: 'Security & Customization',
-  //   name: 'Bank',
-  //   icon: ICONS.bankIcon,
-  //   iconWhite: ICONS.bankWhite,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
-  // {
-  //   for: 'general',
-  //   name: 'Channel Closure',
-  //   icon: ICONS.settingsBitcoinIcon,
-  //   iconWhite: ICONS.settingsBitcoinIconWhite,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
 
   {
     for: 'general',
     name: 'ViewAllSwaps',
     displayName: 'screens.inAccount.settingsContent.view all swaps',
-    icon: ICONS.transferArrows,
-    iconWhite: ICONS.transferArrowsWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
+    iconNew: 'SendToBack',
   },
-
-  // {
-  //   for: 'Closing Account',
-  //   name: 'Restore channels',
-  //   icon: ICONS.share,
-  //   iconWhite: ICONS.shareWhite,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
 ];
 const SETTINGSOPTIONS = [
   [...PREFERENCES],
   [...SECURITYOPTIONS],
   [...ADVANCEDOPTIONS],
   [...OTHEROPTIONS],
-  // [...EXPIRIMENTALFEATURES],
 ];
 const DOOMSDAYSETTINGS = [
-  //   [
-  //     //   // {
-  //     //   //   for: 'general',
-  //     //   //   name: 'On-Chain Funds',
-  //     //   //   icon: ICONS.settingsBitcoinIcon,
-  //     //   //   iconWhite: ICONS.settingsBitcoinIconWhite,
-  //     //   //   arrowIcon: ICONS.leftCheveronIcon,
-  //     //   // },
-  //     // {
-  //     //   for: 'general',
-  //     //   name: 'View Liquid Swaps',
-  //     //   icon: ICONS.liquidIcon,
-  //     //   iconWhite: ICONS.liquidIconWhite,
-  //     //   arrowIcon: ICONS.leftCheveronIcon,
-  //     // },
-  //   ],
   [
     {
       for: 'Security & Customization',
       name: 'Backup wallet',
       displayName: 'screens.inAccount.settingsContent.backup wallet',
-      icon: ICONS.keyIcon,
-      iconWhite: ICONS.keyIconWhite,
-      arrowIcon: ICONS.leftCheveronIcon,
+      iconNew: 'Lock',
     },
   ],
   [
@@ -306,17 +159,8 @@ const DOOMSDAYSETTINGS = [
       for: 'Closing Account',
       name: 'Delete Wallet',
       displayName: 'screens.inAccount.settingsContent.delete wallet',
-      icon: ICONS.trashIcon,
-      iconWhite: ICONS.trashIconWhite,
-      arrowIcon: ICONS.leftCheveronIcon,
+      iconNew: 'Trash2',
     },
-    // {
-    //   for: 'Closing Account',
-    //   name: 'Restore channels',
-    //   icon: ICONS.share,
-    //   iconWhite: ICONS.shareWhite,
-    //   arrowIcon: ICONS.leftCheveronIcon,
-    // },
   ],
 ];
 
@@ -456,13 +300,8 @@ export default function SettingsIndex(props) {
               });
             }}
           >
-            {element.svgIcon ? (
-              <Icon
-                color={theme && darkModeType ? COLORS.white : COLORS.primary}
-                width={20}
-                height={20}
-                name={element.svgName}
-              />
+            {element.iconNew ? (
+              <ThemeIcon iconName={element.iconNew} size={20} />
             ) : (
               <ThemeImage
                 styles={{ width: 20, height: 20 }}
@@ -498,16 +337,7 @@ export default function SettingsIndex(props) {
                 content={currentLangugage}
               />
             )}
-            <ThemeImage
-              styles={{
-                width: 20,
-                height: 20,
-                transform: [{ rotate: '180deg' }],
-              }}
-              lightsOutIcon={ICONS.left_cheveron_white}
-              darkModeIcon={ICONS.leftCheveronIcon}
-              lightModeIcon={ICONS.leftCheveronIcon}
-            />
+            <ThemeIcon size={20} iconName={'ChevronRight'} />
           </TouchableOpacity>
         );
       });
@@ -559,11 +389,7 @@ export default function SettingsIndex(props) {
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={styles.customTopbar}>
         <TouchableOpacity style={styles.goBackTopbar} onPress={navigate.goBack}>
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
 
         <View style={styles.headerTextContainer}>
@@ -598,11 +424,7 @@ export default function SettingsIndex(props) {
                 });
               }}
             >
-              <ThemeImage
-                lightModeIcon={ICONS.share}
-                darkModeIcon={ICONS.share}
-                lightsOutIcon={ICONS.shareWhite}
-              />
+              <ThemeIcon iconName={'Share'} />
             </TouchableOpacity>
           </Animated.View>
         )}
@@ -667,11 +489,11 @@ export default function SettingsIndex(props) {
                   },
                 ]}
               >
-                <ThemeImage
-                  styles={styles.buttonImage}
-                  lightModeIcon={ICONS.editIcon}
-                  darkModeIcon={ICONS.editIconLight}
-                  lightsOutIcon={ICONS.editIconLight}
+                <ThemeIcon
+                  colorOverride={theme ? COLORS.darkModeText : COLORS.primary}
+                  size={20}
+                  styles={{ marginRight: 10 }}
+                  iconName={'SquarePen'}
                 />
                 <ThemeText
                   styles={{ includeFontPadding: false }}
@@ -689,12 +511,13 @@ export default function SettingsIndex(props) {
                   },
                 ]}
               >
-                <ThemeImage
-                  styles={styles.buttonImage}
-                  lightModeIcon={ICONS.scanQrCodeDark}
-                  darkModeIcon={ICONS.scanQrCodeLight}
-                  lightsOutIcon={ICONS.scanQrCodeLight}
+                <ThemeIcon
+                  colorOverride={theme ? COLORS.darkModeText : COLORS.primary}
+                  size={20}
+                  styles={{ marginRight: 10 }}
+                  iconName={'ScanQrCode'}
                 />
+
                 <ThemeText
                   styles={{ includeFontPadding: false }}
                   content={t('settings.index.showQR')}
@@ -753,11 +576,13 @@ export default function SettingsIndex(props) {
                   theme && darkModeType ? COLORS.white : COLORS.primary,
               }}
             >
-              <Icon
-                color={theme && darkModeType ? COLORS.white : COLORS.primary}
-                width={30}
-                height={40}
-                name={'posICON'}
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.white : COLORS.primary
+                }
+                size={40}
+                strokeWidth={1.6}
+                iconName={'Calculator'}
               />
               <ThemeText
                 styles={{

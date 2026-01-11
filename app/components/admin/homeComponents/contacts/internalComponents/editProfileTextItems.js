@@ -1,9 +1,8 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, TextInput, View } from 'react-native';
-import { COLORS, FONT, SIZES, ICONS } from '../../../../../constants';
-
+import { COLORS, FONT, SIZES } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 /**
  * Reusable text input component for edit profile forms
@@ -78,12 +77,7 @@ export default function EditProfileTextInput({
             content={label}
           />
           <View onPress={onInfoPress}>
-            <ThemeImage
-              styles={styles.infoIcon}
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIconWhite}
-            />
+            <ThemeIcon size={20} styles={styles.infoIcon} iconName={'Info'} />
           </View>
         </TouchableOpacity>
       ) : (
