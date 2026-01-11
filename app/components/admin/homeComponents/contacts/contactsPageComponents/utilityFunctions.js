@@ -52,7 +52,7 @@ export function createFormattedDate(time, currentTime, t) {
     const daysDiff = getDaysDifference(currentDate, date);
     if (daysDiff === 1) {
       formattedTime = t('constants.yesterday');
-    } else if (daysDiff <= 7) {
+    } else if (daysDiff >= 2 && daysDiff <= 6) {
       formattedTime = daysOfWeek[date.getDay()];
     } else {
       formattedTime = formatLocalTimeNumeric(date);

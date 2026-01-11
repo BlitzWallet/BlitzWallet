@@ -206,6 +206,7 @@ export async function initializeAddressProcess(wolletInfo) {
       retryCount < 1 &&
       elapsedTime < 10000
     ) {
+      await new Promise(res => setTimeout(res, 2000));
       console.log(`Retrying request ${requestUUID} after ${elapsedTime}ms`);
 
       updateRetryCount(requestUUID, retryCount + 1);
