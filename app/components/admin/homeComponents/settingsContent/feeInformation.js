@@ -125,30 +125,37 @@ function FeeTable({ masterInfoObject }) {
         />
         <ThemeText styles={styles.headerCell} content={t('constants.fee')} />
       </View>
-
-      {/* Data Rows */}
-      {feeData.map((row, index) => (
-        <View
-          key={index}
-          style={[
-            styles.dataRow,
-            index === feeData.length - 1 && styles.lastRow,
-          ]}
-        >
-          <View style={styles.dataCell}>
-            <ThemeText styles={styles.cellText} content={row.transactionType} />
-          </View>
-          <View style={styles.dataCell}>
-            <ThemeText styles={styles.cellText} content={row.fee} />
-            {row.subFee && (
+      <View
+        style={[styles.dataRowContainer, { borderColor: backgroundOffset }]}
+      >
+        {/* Data Rows */}
+        {feeData.map((row, index) => (
+          <View
+            key={index}
+            style={[
+              styles.dataRow,
+              { borderColor: backgroundOffset },
+              index === feeData.length - 1 && styles.lastRow,
+            ]}
+          >
+            <View style={styles.dataCell}>
               <ThemeText
-                styles={[styles.cellText, styles.subFeeText]}
-                content={`(formula: ${row.subFee})`}
+                styles={styles.cellText}
+                content={row.transactionType}
               />
-            )}
+            </View>
+            <View style={styles.dataCell}>
+              <ThemeText styles={styles.cellText} content={row.fee} />
+              {row.subFee && (
+                <ThemeText
+                  styles={[styles.cellText, styles.subFeeText]}
+                  content={`(formula: ${row.subFee})`}
+                />
+              )}
+            </View>
           </View>
-        </View>
-      ))}
+        ))}
+      </View>
     </View>
   );
 }
@@ -181,11 +188,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomWidth: 2,
   },
   lastRow: {
     borderBottomWidth: 0,
+  },
+  dataRowContainer: {
+    borderWidth: 2,
+    borderBottomRightRadius: 8,
+    borderBottomLeftRadius: 8,
   },
   dataCell: {
     flex: 1,
