@@ -8,7 +8,7 @@ import ThemeIcon from './themeIcon';
 
 export default function KeyForKeyboard({ num, addPin, isDot, frompage }) {
   const { theme } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
   const [isPressed, setIsPressed] = useState(false);
 
   const handlePress = () => {
@@ -38,15 +38,11 @@ export default function KeyForKeyboard({ num, addPin, isDot, frompage }) {
         ]}
       >
         {isDot && frompage !== 'sendSMSPage' && (
-          <ThemeIcon
-            colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
-            size={60}
-            iconName={'Dot'}
-          />
+          <ThemeIcon colorOverride={textColor} size={60} iconName={'Dot'} />
         )}
         {!isDot &&
           (num === 'back' ? (
-            <ThemeIcon iconName={'ChevronLeft'} />
+            <ThemeIcon colorOverride={textColor} iconName={'ChevronLeft'} />
           ) : (
             <ThemeText styles={styles.keyText} content={`${num}`} />
           ))}
