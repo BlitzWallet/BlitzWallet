@@ -823,9 +823,7 @@ export default function SendAndRequestPage(props) {
                 actionFunction={handleSubmit}
                 textContent={
                   paymentType === 'send'
-                    ? switchTextToConfirm
-                      ? t('constants.confirm')
-                      : t('constants.review')
+                    ? t('constants.next')
                     : t('constants.request')
                 }
               />
