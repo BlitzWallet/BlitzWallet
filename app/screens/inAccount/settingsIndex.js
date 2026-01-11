@@ -490,7 +490,9 @@ export default function SettingsIndex(props) {
                 ]}
               >
                 <ThemeIcon
-                  colorOverride={theme ? COLORS.darkModeText : COLORS.primary}
+                  colorOverride={
+                    theme ? COLORS.darkModeText : COLORS.lightModeText
+                  }
                   size={20}
                   styles={{ marginRight: 10 }}
                   iconName={'SquarePen'}
@@ -512,7 +514,9 @@ export default function SettingsIndex(props) {
                 ]}
               >
                 <ThemeIcon
-                  colorOverride={theme ? COLORS.darkModeText : COLORS.primary}
+                  colorOverride={
+                    theme ? COLORS.darkModeText : COLORS.lightModeText
+                  }
                   size={20}
                   styles={{ marginRight: 10 }}
                   iconName={'ScanQrCode'}
