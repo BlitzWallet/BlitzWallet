@@ -162,7 +162,8 @@ export default function SendPaymentScreen(props) {
 
   const useFullTokensDisplay =
     (tokensList.length >= 2 ||
-      (tokensList.length === 1 && !tokensList.includes(USDB_TOKEN_ID))) &&
+      (tokensList.length === 1 && !tokensList.includes(USDB_TOKEN_ID)) ||
+      (masterInfoObject.enabledBTKNTokens && tokensList.length)) &&
     isSparkPayment &&
     paymentInfo?.data?.expectedToken !== USDB_TOKEN_ID &&
     !contactInfo;
