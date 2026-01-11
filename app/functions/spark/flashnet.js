@@ -11,6 +11,7 @@ import {
 } from '@flashnet/sdk';
 import {
   getFlashnetClient,
+  initializeFlashnet,
   selectSparkRuntime,
   validateWebViewResponse,
 } from '.';
@@ -173,7 +174,11 @@ export const findBestPool = async (
       };
     }
   } catch (error) {
+    const formatted = formatError(error, 'findBestPool');
     console.warn('Find best pool error:', formatError(error, 'findBestPool'));
+    if (formatted.message === 'Flashnet client not initialized') {
+      initializeFlashnet(mnemonic);
+    }
     return {
       didWork: false,
       error: error.message,

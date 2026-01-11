@@ -220,6 +220,7 @@ export const WebViewProvider = ({ children }) => {
   const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
   const didRunInit = useRef(null);
   const isWebviewReadyRef = useRef(null);
+  const didRunHandshakeRef = useRef(false);
   const didGetToHomepageRef = useRef(didGetToHomepage);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
@@ -406,8 +407,12 @@ export const WebViewProvider = ({ children }) => {
 
       if (justBecameActive || connectionJustRestored) {
         if (!nonceVerified.current && !isResetting.current) {
-          console.log('Background time exceeded threshold - reloading WebView');
-          blockAndResetWebview();
+          console.log(
+            'App became active or connection restored and webview is not varified and not resetting - reloading WebView',
+          );
+          if (didGetToHomepageRef.current) {
+            blockAndResetWebview();
+          }
         } else {
           // sometimes the webview becomes stale, if internet connection goes away make sure to reset webview but dont clear pending events so they are handled once webview is active again
           if (connectionJustRestored) {
@@ -506,6 +511,7 @@ export const WebViewProvider = ({ children }) => {
         if (message.type === 'handshake:reply' && message.pubW) {
           const resolve = pendingRequests.current[message.id];
           if (!resolve) {
+            // no need to handle anything here, will be handled with timeout
             console.error('Timeout: backend is unresponsive');
             return;
           }
@@ -937,7 +943,9 @@ export const WebViewProvider = ({ children }) => {
         publicKey: pubNHex,
       };
 
-      await sendWebViewRequestInternal('handshake:init', { pubN: pubNHex });
+      await sendWebViewRequestInternal('handshake:init', {
+        pubN: pubNHex,
+      });
     } catch (error) {
       console.warn('Handshake failed or timed out:', error.message);
       forceReactNativeUse = true;
@@ -975,9 +983,11 @@ export const WebViewProvider = ({ children }) => {
       if (savedVariable === 'true') {
         console.log('FORCE_REACT_NATIVE is set, skipping handshake');
         forceReactNativeUse = true;
+        didRunHandshakeRef.current = true;
         return;
       }
-      initHandshake();
+      await initHandshake();
+      didRunHandshakeRef.current = true;
     }
 
     const debouceID = setTimeout(() => {
@@ -1105,6 +1115,7 @@ export const WebViewProvider = ({ children }) => {
         sendWebViewRequest: sendWebViewRequestInternal,
         fileHash,
         changeSparkConnectionState,
+        didRunHandshakeRef,
       }}
     >
       {children}
