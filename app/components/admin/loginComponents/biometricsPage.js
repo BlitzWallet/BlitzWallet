@@ -17,8 +17,10 @@ import { useKeysContext } from '../../../../context-store/keys';
 import { useTranslation } from 'react-i18next';
 import RNRestart from 'react-native-restart';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
+import { useAppStatus } from '../../../../context-store/appStatus';
 
 export default function BiometricsLogin() {
+  const { appState } = useAppStatus();
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -96,8 +98,9 @@ export default function BiometricsLogin() {
         setIsAuthenticating(false);
       }
     }
+    if (appState !== 'active') return;
     loadPageInformation();
-  }, []);
+  }, [appState]);
 
   const handleFaceID = async () => {
     if (isAuthenticating && !isInitialRender.current) {

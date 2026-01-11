@@ -162,7 +162,8 @@ export default function SendPaymentScreen(props) {
 
   const useFullTokensDisplay =
     (tokensList.length >= 2 ||
-      (tokensList.length === 1 && !tokensList.includes(USDB_TOKEN_ID))) &&
+      (tokensList.length === 1 && !tokensList.includes(USDB_TOKEN_ID)) ||
+      (masterInfoObject.enabledBTKNTokens && tokensList.length)) &&
     isSparkPayment &&
     paymentInfo?.data?.expectedToken !== USDB_TOKEN_ID &&
     !contactInfo;
@@ -185,6 +186,8 @@ export default function SendPaymentScreen(props) {
   const tokenBalance = seletctedToken?.balance ?? 0;
   const sparkBalance = sparkInformation?.balance ?? 0;
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
+  const hasBothUSDAndBitcoinBalance =
+    Number(dollarBalanceToken) > 0.01 && !!bitcoinBalance;
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
 
@@ -270,6 +273,11 @@ export default function SendPaymentScreen(props) {
     if (canPayBTCtoBTC && canPayUSDtoBTC) {
       return 'user-choice'; // User can choose
     }
+
+    if (!hasBothUSDAndBitcoinBalance) {
+      return Number(dollarBalanceToken) > 0.01 ? 'USD' : 'BTC';
+    }
+
     return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : 'BTC';
   }, [
     isUsingLRC20,
@@ -278,9 +286,11 @@ export default function SendPaymentScreen(props) {
     paymentInfo,
     sparkBalance,
     dollarBalanceSat,
+    dollarBalanceToken,
     convertedSendAmount,
     min_usd_swap_amount,
     useFullTokensDisplay,
+    hasBothUSDAndBitcoinBalance,
   ]);
 
   useEffect(() => {
@@ -370,7 +380,8 @@ export default function SendPaymentScreen(props) {
       !isSendingPayment.current &&
       !isBitcoinPayment &&
       !isUsingLRC20 &&
-      !canUseFastPay
+      !canUseFastPay &&
+      hasBothUSDAndBitcoinBalance
     ) {
       return 'CHOOSE_METHOD'; // Show info screen with button to select method
     }
@@ -383,7 +394,14 @@ export default function SendPaymentScreen(props) {
     isBitcoinPayment,
     isUsingLRC20,
     canUseFastPay,
+    hasBothUSDAndBitcoinBalance,
   ]);
+  console.log(
+    hasBothUSDAndBitcoinBalance,
+    dollarBalanceSat,
+    bitcoinBalance,
+    dollarBalanceToken,
+  );
 
   const paymentValidation = usePaymentValidation({
     paymentInfo,
@@ -565,7 +583,14 @@ export default function SendPaymentScreen(props) {
   }, [isUsingFastPay]);
 
   const sendPayment = useCallback(async () => {
-    if (!canSendPayment) return;
+    if (!paymentValidation.isValid) {
+      const errorMessage = paymentValidation.getErrorMessage(
+        paymentValidation.primaryError,
+      );
+      navigate.navigate('ErrorScreen', { errorMessage });
+      return;
+    }
+
     if (isSendingPayment.current) return;
 
     isSendingPayment.current = true;
@@ -723,6 +748,7 @@ export default function SendPaymentScreen(props) {
     errorMessageNavigation,
     determinePaymentMethod,
     fiatValueConvertedSendAmount,
+    paymentValidation,
   ]);
 
   const handleSelectPaymentMethod = useCallback(

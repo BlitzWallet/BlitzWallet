@@ -47,7 +47,7 @@ export default function NavBarWithBalance({
           <ThemeImage
             styles={styles.walletIcon}
             lightModeIcon={ICONS.adminHomeWalletDark}
-            darkModeIcon={ICONS.adminHomeWallet}
+            darkModeIcon={ICONS.adminHomeWallet_white}
             lightsOutIcon={ICONS.adminHomeWallet_white}
           />
 

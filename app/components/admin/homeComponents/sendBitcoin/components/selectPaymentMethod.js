@@ -60,11 +60,12 @@ export default function SelectPaymentMethod({
           style={[
             styles.iconContainer,
             {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.bitcoinOrange,
+              backgroundColor:
+                theme && darkModeType
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : COLORS.bitcoinOrange,
             },
           ]}
         >
@@ -95,7 +96,7 @@ export default function SelectPaymentMethod({
             selectedPaymentMethod === 'user-choice'
           }
           containerSize={25}
-          switchDarkMode={true}
+          switchDarkMode={theme && darkModeType ? true : false}
         />
       </TouchableOpacity>
       <TouchableOpacity
@@ -106,11 +107,12 @@ export default function SelectPaymentMethod({
           style={[
             styles.iconContainer,
             {
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.dollarGreen,
+              backgroundColor:
+                theme && darkModeType
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : COLORS.dollarGreen,
             },
           ]}
         >
@@ -147,7 +149,7 @@ export default function SelectPaymentMethod({
         <CheckMarkCircle
           isActive={selectedPaymentMethod === 'USD'}
           containerSize={25}
-          switchDarkMode={true}
+          switchDarkMode={theme && darkModeType ? true : false}
         />
       </TouchableOpacity>
     </View>

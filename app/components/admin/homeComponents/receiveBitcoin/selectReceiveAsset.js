@@ -60,11 +60,12 @@ export default function SelectReceiveAsset({
             style={[
               styles.iconContainer,
               {
-                backgroundColor: theme
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.bitcoinOrange,
+                backgroundColor:
+                  theme && darkModeType
+                    ? darkModeType
+                      ? backgroundColor
+                      : backgroundOffset
+                    : COLORS.bitcoinOrange,
               },
             ]}
           >
@@ -84,7 +85,7 @@ export default function SelectReceiveAsset({
           <CheckMarkCircle
             isActive={selectedOption === 'BTC'}
             containerSize={25}
-            switchDarkMode={true}
+            switchDarkMode={theme && darkModeType ? true : false}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -95,11 +96,12 @@ export default function SelectReceiveAsset({
             style={[
               styles.iconContainer,
               {
-                backgroundColor: theme
-                  ? darkModeType
-                    ? backgroundColor
-                    : backgroundOffset
-                  : COLORS.dollarGreen,
+                backgroundColor:
+                  theme && darkModeType
+                    ? darkModeType
+                      ? backgroundColor
+                      : backgroundOffset
+                    : COLORS.dollarGreen,
               },
             ]}
           >
@@ -120,7 +122,7 @@ export default function SelectReceiveAsset({
           <CheckMarkCircle
             isActive={selectedOption === 'USD'}
             containerSize={25}
-            switchDarkMode={true}
+            switchDarkMode={theme && darkModeType ? true : false}
           />
         </TouchableOpacity>
 

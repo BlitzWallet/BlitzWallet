@@ -888,7 +888,7 @@
         "receive_amount": "receber quantia",
         "descriptionInputPlaceholder": "Descrição (opcional)",
         "editAmount": "Definir quantia",
-        "usdConversionMinimum": "Pagamentos convertidos para dólares exigem um valor mínimo de:\n{{amount}}"
+        "minUSDSwap": "Pagamentos convertidos para dólares exigem um valor mínimo de:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Outros meios de recebimento",
@@ -1180,7 +1180,7 @@
       "hideTechnicals": "Ocultar detalhes técnicos",
       "backendHash": "Hash de backend",
       "expectedHash": "Hash esperado",
-      "blitzWallet": "Blitz Wallet"
+      "blitzWallet": "Carteira Blitz"
     },
     "language": {
       "inputPlaceHolder": ""

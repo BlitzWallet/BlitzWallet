@@ -22,6 +22,7 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 import { removeLocalStorageItem } from '../../functions/localStorage';
 import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
+import { useWebView } from '../../../context-store/webViewContext';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 // import { initializeSparkDatabase } from '../../functions/spark/transactions';
 // import { getCachedSparkTransactions } from '../../functions/spark';
@@ -46,6 +47,7 @@ export default function ConnectingToNodeLoadingScreen({
     preloadedUserData,
     setPreLoadedUserData,
   } = useGlobalContextProvider();
+  const { didRunHandshakeRef } = useWebView();
   // const { contactsPrivateKey, publicKey } = useKeysContext();
   const {
     // setNumberOfCachedTxs,
@@ -106,6 +108,19 @@ export default function ConnectingToNodeLoadingScreen({
         );
         removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
         console.log('Process 1', new Date().getTime());
+        if (!didRunHandshakeRef.current) {
+          console.warn('Webview has not finished setting up: wait here');
+          const MAX_RUNS = 10;
+          let currentRun = 0;
+          while (!didRunHandshakeRef.current && currentRun < MAX_RUNS) {
+            console.log(
+              'Waiting for webview to finish. Retry number:',
+              currentRun,
+            );
+            currentRun += 1;
+            await new Promise(res => setTimeout(res, 1000));
+          }
+        }
         connectToSparkWallet();
 
         const privateKey = await privateKeyFromSeedWords(accountMnemoinc);

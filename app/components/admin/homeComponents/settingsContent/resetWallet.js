@@ -13,16 +13,16 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
-import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import factoryResetWallet from '../../../../functions/factoryResetWallet';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function ResetPage(props) {
   const [wantsToReset, setWantsToReset] = useState(false);
   const { screenDimensions } = useAppStatus();
-  const { sparkInformation } = useSparkWallet();
+  const { totalSatValue } = useUserBalanceContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { liquidNodeInformation } = useNodeContext();
   const [contentHeight, setContentHeight] = useState(0);
@@ -164,10 +164,7 @@ export default function ResetPage(props) {
             <FormattedSatText
               styles={styles.balanceAmount}
               neverHideBalance={true}
-              balance={
-                Number(sparkInformation.balance) +
-                liquidNodeInformation.userBalance
-              }
+              balance={totalSatValue + liquidNodeInformation.userBalance}
             />
           </View>
         )}

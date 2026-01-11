@@ -890,7 +890,7 @@
         "receive_amount": "importo ricevuto",
         "descriptionInputPlaceholder": "Descrizione...",
         "editAmount": "Modifica importo",
-        "usdConversionMinimum": "I pagamenti convertiti in dollari richiedono un importo minimo di:\n{{amount}}"
+        "minUSDSwap": "I pagamenti convertiti in dollari richiedono un importo minimo di:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Altri metodi di ricezione",
