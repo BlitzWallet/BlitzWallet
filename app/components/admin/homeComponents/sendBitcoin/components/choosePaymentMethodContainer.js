@@ -23,6 +23,7 @@ export default function ChoosePaymentMethod({
   fiatStats,
   uiState,
   t,
+  containerStyles = {},
 }) {
   const { backgroundColor } = GetThemeColors();
   const icon =
@@ -61,6 +62,7 @@ export default function ChoosePaymentMethod({
     <View
       style={[
         styles.paymentMethodContainer,
+        containerStyles,
         { marginTop: uiState === 'CHOOSE_METHOD' ? 30 : 5 },
       ]}
     >
