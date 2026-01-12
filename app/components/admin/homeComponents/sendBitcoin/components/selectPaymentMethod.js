@@ -23,6 +23,7 @@ import { formatBalanceAmount } from '../../../../../functions';
 export default function SelectPaymentMethod({
   selectedPaymentMethod,
   handleBackPressFunction,
+  fromPage,
 }) {
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -36,7 +37,7 @@ export default function SelectPaymentMethod({
   const selectSendingBalance = term => {
     handleBackPressFunction(() =>
       navigate.popTo(
-        'ConfirmPaymentScreen',
+        fromPage || 'ConfirmPaymentScreen',
         {
           selectedPaymentMethod: term,
         },

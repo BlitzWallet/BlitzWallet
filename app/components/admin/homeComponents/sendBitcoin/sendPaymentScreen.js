@@ -71,6 +71,7 @@ import {
   satsToDollars,
 } from '../../../../functions/spark/flashnet';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
+import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -85,6 +86,7 @@ export default function SendPaymentScreen(props) {
     contactInfo,
     masterTokenInfo = {},
     selectedPaymentMethod = '',
+    preSelectedPaymentMethod,
   } = props.route.params;
 
   const paramsRef = useRef({
@@ -133,6 +135,7 @@ export default function SendPaymentScreen(props) {
   );
   const [refreshDecode, setRefreshDecode] = useState(0);
   const isSendingPayment = useRef(null);
+  const userPaymentMethod = selectedPaymentMethod || preSelectedPaymentMethod;
 
   // Payment type flags
   const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
@@ -185,8 +188,6 @@ export default function SendPaymentScreen(props) {
   const tokenBalance = seletctedToken?.balance ?? 0;
   const sparkBalance = sparkInformation?.balance ?? 0;
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
-  const hasBothUSDAndBitcoinBalance =
-    Number(dollarBalanceToken) > 0.01 && !!bitcoinBalance;
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
 
@@ -203,94 +204,32 @@ export default function SendPaymentScreen(props) {
     Math.pow(10, 6);
 
   const paymentFee =
-    !selectedPaymentMethod || selectedPaymentMethod === 'BTC'
+    !userPaymentMethod || userPaymentMethod === 'BTC'
       ? (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0)
-      : paymentInfo?.swapPaymentQuote?.fee +
-          paymentInfo?.swapPaymentQuote?.estimatedLightningFee || 0;
+      : (paymentInfo?.swapPaymentQuote?.fee ||
+          paymentInfo?.swapPaymentQuote?.satFee) +
+        (paymentInfo?.swapPaymentQuote?.estimatedLightningFee || 0);
 
   console.log(paymentInfo, 'payment info');
 
-  const determinePaymentMethod = useMemo(() => {
-    // If using LRC20, payment method is not relevant
-    if (isUsingLRC20) return 'BTC';
-
-    if (isBitcoinPayment) return 'BTC';
-
-    // If user already selected a method, use it
-    if (selectedPaymentMethod) return selectedPaymentMethod;
-
-    // Check user balances
-    const hasBTCBalance = sparkBalance >= convertedSendAmount + paymentFee;
-    const hasUSDBalance = dollarBalanceSat >= convertedSendAmount + paymentFee;
-
-    // Check swap limits
-    const meetsUSDMinimum = convertedSendAmount >= min_usd_swap_amount;
-    const meetsBTCMinimum = convertedSendAmount >= swapLimits.bitcoin;
-
-    if (!Object.keys(paymentInfo).length) return;
-
-    // If payment is Spark
-    if (paymentInfo.type === 'spark') {
-      // If using full token display (multiple tokens), always use BTC
-      if (useFullTokensDisplay) return 'BTC';
-
-      // Receiver expects BTC
-      if (paymentInfo.data.expectedReceive === 'sats') {
-        // BTC → BTC Spark (no swap needed)
-        const canPayBTCtoBTC = hasBTCBalance;
-
-        // USD → BTC Spark (requires swap, check minimums)
-        const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
-
-        if (canPayBTCtoBTC && canPayUSDtoBTC) {
-          return 'user-choice'; // User can choose
-        }
-        return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : 'BTC';
-      }
-      // Receiver expects USD
-      else {
-        // USD → USD Spark (no swap needed)
-        const canPayUSDtoUSD = hasUSDBalance;
-
-        // BTC → USD Spark (requires swap, check minimums)
-        const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
-
-        if (canPayUSDtoUSD && canPayBTCtoUSD) {
-          return 'user-choice'; // User can choose
-        }
-        return canPayUSDtoUSD ? 'USD' : canPayBTCtoUSD ? 'BTC' : 'USD';
-      }
-    }
-
-    // (always receive as BTC)
-    // BTC → BTC (no swap)
-    const canPayBTCtoBTC = hasBTCBalance;
-
-    // USD → BTC (requires swap, check minimums)
-    const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
-
-    if (canPayBTCtoBTC && canPayUSDtoBTC) {
-      return 'user-choice'; // User can choose
-    }
-
-    if (!hasBothUSDAndBitcoinBalance) {
-      return Number(dollarBalanceToken) > 0.01 ? 'USD' : 'BTC';
-    }
-
-    return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : 'BTC';
-  }, [
-    isUsingLRC20,
-    isBitcoinPayment,
-    selectedPaymentMethod,
+  const {
+    determinePaymentMethod,
+    needsToChoosePaymentMethod,
+    hasBothUSDAndBitcoinBalance,
+  } = usePaymentMethodSelection({
     paymentInfo,
+    paymentFee,
     sparkBalance,
+    bitcoinBalance,
     dollarBalanceSat,
     dollarBalanceToken,
     convertedSendAmount,
     min_usd_swap_amount,
+    swapLimits,
+    isUsingLRC20,
     useFullTokensDisplay,
-    hasBothUSDAndBitcoinBalance,
-  ]);
+    selectedPaymentMethod: userPaymentMethod,
+  });
 
   useEffect(() => {
     determinePaymentMethodRef.current = determinePaymentMethod;
@@ -299,12 +238,6 @@ export default function SendPaymentScreen(props) {
   useEffect(() => {
     inputDenominationRef.current = inputDenomination;
   }, [inputDenomination]);
-
-  const needsToChoosePaymentMethod =
-    determinePaymentMethod === 'user-choice' &&
-    !selectedPaymentMethod &&
-    !useFullTokensDisplay &&
-    !didSelectPaymentMethod;
 
   useEffect(() => {
     if (needsToChoosePaymentMethod && !didRequireChoiceRef.current) {
@@ -380,6 +313,7 @@ export default function SendPaymentScreen(props) {
       !isBitcoinPayment &&
       !isUsingLRC20 &&
       !canUseFastPay &&
+      !preSelectedPaymentMethod &&
       hasBothUSDAndBitcoinBalance
     ) {
       return 'CHOOSE_METHOD'; // Show info screen with button to select method
@@ -394,6 +328,7 @@ export default function SendPaymentScreen(props) {
     isUsingLRC20,
     canUseFastPay,
     hasBothUSDAndBitcoinBalance,
+    preSelectedPaymentMethod,
   ]);
   console.log(
     hasBothUSDAndBitcoinBalance,
@@ -407,7 +342,7 @@ export default function SendPaymentScreen(props) {
     convertedSendAmount,
     paymentFee,
     determinePaymentMethod,
-    selectedPaymentMethod,
+    selectedPaymentMethod: userPaymentMethod,
     bitcoinBalance,
     dollarBalanceSat,
     dollarBalanceToken,
@@ -525,7 +460,8 @@ export default function SendPaymentScreen(props) {
         contactInfo,
         globalContactsInformation,
         accountMnemoinc,
-        usablePaymentMethod: determinePaymentMethodRef.current,
+        usablePaymentMethod:
+          userPaymentMethod || determinePaymentMethodRef.current,
         bitcoinBalance,
         dollarBalanceSat,
         convertedSendAmount: convertedSendAmountRef.current,

@@ -56,6 +56,12 @@ import { receiveSparkLightningPayment } from '../../../../functions/spark';
 import { getBolt11InvoiceForContact } from '../../../../functions/contacts';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
+import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import { dollarsToSats } from '../../../../functions/spark/flashnet';
+import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 const MAX_SEND_OPTIONS = [
   { label: '25%', value: '25' },
@@ -66,6 +72,8 @@ const MAX_SEND_OPTIONS = [
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
+  const { dollarBalanceSat, dollarBalanceToken } = useUserBalanceContext();
+  const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -89,6 +97,9 @@ export default function SendAndRequestPage(props) {
   const descriptionRef = useRef(null);
   const [isGettingMax, setIsGettingMax] = useState(false);
 
+  const selectedPaymentMethod =
+    props.route.params.selectedPaymentMethod || 'BTC';
+
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
   const fromPage = props.route.params.fromPage;
@@ -105,15 +116,6 @@ export default function SendAndRequestPage(props) {
         ? Math.round(amountValue)
         : Math.round((SATSPERBITCOIN / fiatStats?.value) * amountValue)) || 0,
     [amountValue, fiatStats, isBTCdenominated],
-  );
-
-  const canSendPayment = useMemo(
-    () => convertedSendAmount,
-    [
-      convertedSendAmount,
-      // minMaxLiquidSwapAmounts
-      paymentType,
-    ],
   );
 
   const switchTextToConfirm = useMemo(() => {
@@ -208,6 +210,44 @@ export default function SendAndRequestPage(props) {
     ],
   );
 
+  const min_usd_swap_amount = useMemo(() => {
+    return Math.round(
+      dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB),
+    );
+  }, [poolInfoRef.currentPriceAInB, swapLimits]);
+
+  const {
+    determinePaymentMethod,
+    needsToChoosePaymentMethod,
+    finalPaymentMethod,
+  } = usePaymentMethodSelection({
+    paymentInfo: {
+      paymentNetwork: giftOption ? 'lightning' : 'spark',
+      data: {
+        expectedReceive: 'sats',
+      },
+    },
+    convertedSendAmount,
+    paymentFee: 0,
+    sparkBalance: sparkInformation.balance,
+    bitcoinBalance: sparkInformation.balance,
+    dollarBalanceSat,
+    dollarBalanceToken,
+    min_usd_swap_amount,
+    swapLimits,
+    isUsingLRC20: false,
+    useFullTokensDisplay: false,
+    selectedPaymentMethod,
+  });
+
+  const handleSelectPaymentMethod = useCallback(() => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'SelectPaymentMethod',
+      selectedPaymentMethod: determinePaymentMethod,
+      fromPage: 'SendAndRequestPage',
+    });
+  }, [navigate, determinePaymentMethod]);
+
   useEffect(() => {
     if (!giftOption) {
       setAmountValue('');
@@ -230,6 +270,73 @@ export default function SendAndRequestPage(props) {
     setAmountValue(term);
   }, []);
 
+  const getValidationError = useMemo(() => {
+    if (!convertedSendAmount) {
+      return t('wallet.sendPages.acceptButton.noSendAmountError');
+    }
+
+    // Check if payment method selection is needed but not chosen
+    if (needsToChoosePaymentMethod && !selectedPaymentMethod) {
+      return t('wallet.sendPages.sendPaymentScreen.selectPaymentMethod');
+    }
+
+    const methodToCheck = finalPaymentMethod || selectedPaymentMethod;
+
+    // Validate swap limits when using USD
+    if (methodToCheck === 'USD') {
+      // USD → BTC requires meeting minimum swap amount
+      if (convertedSendAmount < min_usd_swap_amount) {
+        return t('wallet.sendPages.acceptButton.swapMinimumError', {
+          amount: displayCorrectDenomination({
+            amount: min_usd_swap_amount,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: inputDenomination,
+            },
+            fiatStats,
+          }),
+          currency1: t('constants.dollars_upper'),
+          currency2: t('constants.bitcoin_upper'),
+        });
+      }
+    }
+
+    // Validate balance sufficiency
+    const balanceToCheck =
+      methodToCheck === 'USD' ? dollarBalanceSat : sparkInformation.balance;
+
+    // Add approximate fee buffer (estimate ~2% for routing)
+    const estimatedFee = Math.ceil(convertedSendAmount * 0.015);
+    const totalNeeded = convertedSendAmount + estimatedFee;
+
+    if (balanceToCheck < totalNeeded) {
+      // Check if total balance across both would be sufficient
+      const totalBalance = dollarBalanceSat + sparkInformation.balance;
+
+      if (totalBalance >= totalNeeded) {
+        return t('wallet.sendPages.acceptButton.balanceFragmentationError');
+      }
+
+      return t('wallet.sendPages.acceptButton.balanceError');
+    }
+
+    return null;
+  }, [
+    convertedSendAmount,
+    needsToChoosePaymentMethod,
+    selectedPaymentMethod,
+    finalPaymentMethod,
+    min_usd_swap_amount,
+    dollarBalanceSat,
+    sparkInformation.balance,
+    inputDenomination,
+    masterInfoObject,
+    fiatStats,
+    t,
+  ]);
+
+  const canSendPayment = !getValidationError;
+
   const handleSubmit = useCallback(async () => {
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
@@ -238,8 +345,12 @@ export default function SendAndRequestPage(props) {
       return;
     }
     try {
-      if (!convertedSendAmount) return;
-      if (!canSendPayment) return;
+      if (!canSendPayment) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: getValidationError,
+        });
+        return;
+      }
       crashlyticsLogReport('Submitting send and request payment');
       setIsLoading(true);
 
@@ -366,6 +477,7 @@ export default function SendAndRequestPage(props) {
               uniqueName: selectedContact.uniqueName,
               uuid: selectedContact.uuid,
             },
+            preSelectedPaymentMethod: selectedPaymentMethod,
             fromPage: 'contacts',
             publishMessageFunc: () => {
               giftCardPurchaseAmountTracker({
@@ -440,6 +552,7 @@ export default function SendAndRequestPage(props) {
             uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
             uuid: selectedContact.uuid,
           },
+          preSelectedPaymentMethod: selectedPaymentMethod,
           fromPage: 'contacts',
           publishMessageFunc: txid =>
             publishMessage({
@@ -510,6 +623,8 @@ export default function SendAndRequestPage(props) {
     masterInfoObject,
     fiatStats,
     imageData,
+    getValidationError,
+    selectedPaymentMethod,
   ]);
 
   const memorizedContainerStyles = useMemo(() => {
@@ -583,7 +698,7 @@ export default function SendAndRequestPage(props) {
               />
 
               {/* Send Max Button */}
-              {paymentType === 'send' && !giftOption && !useAltLayout && (
+              {/* {paymentType === 'send' && !giftOption && !useAltLayout && (
                 <View>
                   <DropdownMenu
                     selectedValue={t(
@@ -598,7 +713,7 @@ export default function SendAndRequestPage(props) {
                     useIsLoading={isGettingMax}
                   />
                 </View>
-              )}
+              )} */}
 
               {giftOption && (
                 <>
@@ -714,6 +829,22 @@ export default function SendAndRequestPage(props) {
                         />
                       </TouchableOpacity>
                     )}
+                  {paymentType === 'send' && (
+                    <ChoosePaymentMethod
+                      theme={theme}
+                      darkModeType={darkModeType}
+                      determinePaymentMethod={determinePaymentMethod}
+                      handleSelectPaymentMethod={handleSelectPaymentMethod}
+                      bitcoinBalance={sparkInformation.balance}
+                      dollarBalanceToken={dollarBalanceToken}
+                      masterInfoObject={masterInfoObject}
+                      fiatStats={fiatStats}
+                      uiState="SELECT_INLINE"
+                      t={t}
+                      selectedMethod={selectedPaymentMethod}
+                      containerStyles={{ width: '100%' }}
+                    />
+                  )}
                   <CustomSearchInput
                     onFocusFunction={() => {
                       setIsAmountFocused(false);
@@ -816,7 +947,9 @@ export default function SendAndRequestPage(props) {
                 actionFunction={handleSubmit}
                 textContent={
                   paymentType === 'send'
-                    ? t('constants.next')
+                    ? switchTextToConfirm && canSendPayment
+                      ? t('constants.confirm')
+                      : t('constants.review')
                     : t('constants.request')
                 }
               />
