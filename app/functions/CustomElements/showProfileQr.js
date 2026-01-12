@@ -32,7 +32,7 @@ export default function ShowProfileQr() {
   const { cache } = useImageCache();
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
   const [activeType, setActiveType] = useState('blitz');
@@ -299,7 +299,7 @@ export default function ShowProfileQr() {
             }}
           >
             <ThemeIcon
-              colorOverride={COLORS.darkModeText}
+              colorOverride={textColor}
               size={20}
               styles={{ marginRight: 5 }}
               iconName={'ScanQrCode'}
