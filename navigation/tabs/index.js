@@ -33,7 +33,7 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
   const firstRender = useRef(true);
 
   const containerWidth = showShop ? 280 : 210;
-  const adjustedWidth = containerWidth - 2 * 2;
+  const adjustedWidth = containerWidth - 2 * 1;
   const tabWidth = adjustedWidth / (showShop ? 4 : 3);
 
   const overlayTranslateX = useSharedValue(0);
@@ -96,11 +96,15 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
             width: containerWidth,
             backgroundColor: theme
               ? darkModeType
-                ? 'rgba(0, 0, 0, 0.95)'
-                : 'rgba(0, 37, 78, 0.95)'
-              : 'rgba(235, 235, 235, 0.95)',
-            borderWidth: 2,
-            borderColor: theme ? backgroundOffset : COLORS.darkModeText,
+                ? backgroundColor
+                : backgroundOffset
+              : COLORS.darkModeText,
+            borderWidth: 1,
+            borderColor: theme
+              ? darkModeType
+                ? COLORS.tabsBorderLightsout
+                : COLORS.tabsBorderDim
+              : COLORS.tabsBorderLight,
           },
         ]}
       >
