@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../../constants';
+import { CENTER, COLORS, SIZES } from '../../../../../constants';
 import { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {

@@ -5,7 +5,7 @@ import { GlobalThemeView } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { CENTER, COLORS, ICONS } from '../../../../constants';
+import { CENTER, COLORS } from '../../../../constants';
 import ContactProfileImage from './internalComponents/profileImage';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';

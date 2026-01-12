@@ -9,9 +9,9 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
-import {copyToClipboard} from '../../../../../../functions';
-import {useNavigation} from '@react-navigation/native';
-import {CENTER, ICONS} from '../../../../../../constants';
+import { copyToClipboard } from '../../../../../../functions';
+import { useNavigation } from '@react-navigation/native';
+import { CENTER } from '../../../../../../constants';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import {
   INSET_WINDOW_WIDTH,
@@ -20,8 +20,8 @@ import {
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import writeAndShareFileToFilesystem from '../../../../../../functions/writeFileToFilesystem';
-import {useToast} from '../../../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { useToast } from '../../../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
 import customUUID from '../../../../../../functions/customUUID';
 import sha256Hash from '../../../../../../functions/hash';
@@ -48,11 +48,11 @@ export default function GeneratedVPNFile(props) {
   );
 }
 
-function VPNFileDisplay({generatedFile}) {
-  const {showToast} = useToast();
+function VPNFileDisplay({ generatedFile }) {
+  const { showToast } = useToast();
   const navigate = useNavigation();
-  const {backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
   console.log(generatedFile, typeof generatedFile);
 
   const configData =
@@ -70,7 +70,8 @@ function VPNFileDisplay({generatedFile}) {
       <TouchableOpacity
         onPress={() => {
           copyToClipboard(configData, showToast);
-        }}>
+        }}
+      >
         <QrCodeWrapper QRData={configData} />
       </TouchableOpacity>
 
@@ -79,7 +80,7 @@ function VPNFileDisplay({generatedFile}) {
           buttonStyles={styles.buttonContainer}
           textContent={t('constants.download')}
           actionFunction={() => {
-            downloadVPNFile({generatedFile: configData, navigate});
+            downloadVPNFile({ generatedFile: configData, navigate });
           }}
         />
         <CustomButton
@@ -102,7 +103,7 @@ function VPNFileDisplay({generatedFile}) {
   );
 }
 
-async function downloadVPNFile({generatedFile, navigate}) {
+async function downloadVPNFile({ generatedFile, navigate }) {
   const content = generatedFile;
   const fileHash = sha256Hash(content);
   const fileName = `blitzVPN-${fileHash?.slice(0, 8) || customUUID()}.conf`;
@@ -122,14 +123,14 @@ async function downloadVPNFile({generatedFile, navigate}) {
 }
 
 const styles = StyleSheet.create({
-  vpnQrContainer: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+  vpnQrContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   viewingAsPageStyle: {
     flex: 1,
     width: WINDOWWIDTH,
     ...CENTER,
   },
 
-  headerText: {marginBottom: 10},
+  headerText: { marginBottom: 10 },
   copyButtonsContainer: {
     maxWidth: 275,
     width: '100%',
@@ -138,6 +139,10 @@ const styles = StyleSheet.create({
     columnGap: 10,
     flexWrap: 'wrap',
   },
-  buttonContainer: {flexGrow: 1, minWidth: 90, maxWidth: '48%'},
-  instrucText: {marginTop: 20, textAlign: 'center', width: INSET_WINDOW_WIDTH},
+  buttonContainer: { flexGrow: 1, minWidth: 90, maxWidth: '48%' },
+  instrucText: {
+    marginTop: 20,
+    textAlign: 'center',
+    width: INSET_WINDOW_WIDTH,
+  },
 });
