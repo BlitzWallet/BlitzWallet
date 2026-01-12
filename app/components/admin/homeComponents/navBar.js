@@ -1,11 +1,11 @@
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { CENTER, ICONS } from '../../../constants';
+import { CENTER } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, WINDOWWIDTH } from '../../../constants/theme';
-import ThemeImage from '../../../functions/CustomElements/themeImage';
 import { memo } from 'react';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 import ProfileImageSettingsNavigator from '../../../functions/CustomElements/profileSettingsNavigator';
+import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 export const NavBar = memo(function NavBar({
   theme,
   darkModeType,
@@ -29,11 +29,7 @@ export const NavBar = memo(function NavBar({
         activeOpacity={0.5}
         style={styles.iconButton}
       >
-        <ThemeImage
-          darkModeIcon={ICONS.lightMode}
-          lightsOutIcon={ICONS.lightModeWhite}
-          lightModeIcon={ICONS.darkMode}
-        />
+        <ThemeIcon iconName={theme ? 'Sun' : 'Moon'} />
       </TouchableOpacity>
 
       {/* Center space for animated balance - invisible but takes up space */}
@@ -50,12 +46,7 @@ export const NavBar = memo(function NavBar({
           activeOpacity={0.5}
           style={styles.iconButton}
         >
-          <ThemeImage
-            styles={{ marginBottom: -3, width: 30, height: 30 }}
-            darkModeIcon={ICONS.warningBlue}
-            lightsOutIcon={ICONS.warningWhite}
-            lightModeIcon={ICONS.warningBlue}
-          />
+          <ThemeIcon iconName={'AlertTriangle'} />
         </TouchableOpacity>
       )}
       <View style={styles.iconButton}>

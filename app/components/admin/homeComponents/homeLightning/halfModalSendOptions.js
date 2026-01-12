@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
+import { CENTER, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import {
   navigateToSendUsingClipboard,
@@ -8,12 +8,12 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useRef } from 'react';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function HalfModalSendOptions(props) {
   const navigate = useNavigation();
@@ -22,20 +22,15 @@ export default function HalfModalSendOptions(props) {
   const { decodedAddedContacts } = useGlobalContacts();
   const { t } = useTranslation();
   const didCallImagePicker = useRef(null);
+  const { textColor } = GetThemeColors();
 
   const sendOptionElements = ['img', 'clipboard', 'manual'].map((item, key) => {
-    const lightIcon =
-      item === 'img'
-        ? ICONS.ImagesIcon
-        : item === 'clipboard'
-        ? ICONS.clipboardLight
-        : ICONS.editIconLight;
-    const darkIcon =
-      item === 'img'
-        ? ICONS.ImagesIconDark
-        : item === 'clipboard'
-        ? ICONS.clipboardDark
-        : ICONS.editIcon;
+    const iconName =
+      item === 'manual'
+        ? 'SquarePen'
+        : item === 'img'
+        ? 'ImageIcon'
+        : 'Clipboard';
 
     const itemText =
       item === 'img'
@@ -81,29 +76,14 @@ export default function HalfModalSendOptions(props) {
         }}
       >
         <View style={styles.optionRow}>
-          {item === 'manual' ? (
-            <View
-              style={{
-                ...styles.icon,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Icon
-                color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                height={30}
-                width={30}
-                name={'editIcon'}
-              />
-            </View>
-          ) : (
-            <ThemeImage
-              styles={styles.icon}
-              lightModeIcon={darkIcon}
-              darkModeIcon={lightIcon}
-              lightsOutIcon={lightIcon}
+          <View style={styles.icon}>
+            <ThemeIcon
+              colorOverride={textColor}
+              size={35}
+              iconName={iconName}
             />
-          )}
+          </View>
+
           <ThemeText styles={styles.optionText} content={itemText} />
         </View>
       </TouchableOpacity>
@@ -124,12 +104,13 @@ export default function HalfModalSendOptions(props) {
             }}
           >
             <View style={styles.optionRow}>
-              <ThemeImage
-                styles={styles.icon}
-                lightModeIcon={ICONS.contactsIcon}
-                darkModeIcon={ICONS.contactsIconLight}
-                lightsOutIcon={ICONS.contactsIconLight}
-              />
+              <View style={styles.icon}>
+                <ThemeIcon
+                  colorOverride={textColor}
+                  size={35}
+                  iconName={'UsersRound'}
+                />
+              </View>
               <ThemeText
                 styles={{ ...styles.optionText }}
                 content={t('wallet.halfModal.contacts')}

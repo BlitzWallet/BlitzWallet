@@ -1,9 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { COLORS, ICONS } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { SIZES } from '../../../../../constants/theme';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useNavigation } from '@react-navigation/native';
 import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import { countrymap } from './receiveCountryCodes';
@@ -11,6 +9,7 @@ import { useCallback, useMemo } from 'react';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function ViewSmsReceiveCode(props) {
   const { showToast } = useToast();
@@ -49,11 +48,7 @@ export default function ViewSmsReceiveCode(props) {
             content={t('apps.sms4sats.viewSMSReceiveCode.header')}
           />
           <TouchableOpacity onPress={navigate.goBack} style={styles.closeIcon}>
-            <ThemeImage
-              lightModeIcon={ICONS.xSmallIcon}
-              darkModeIcon={ICONS.xSmallIcon}
-              lightsOutIcon={ICONS.xSmallIconWhite}
-            />
+            <ThemeIcon iconName={'X'} />
           </TouchableOpacity>
         </View>
 

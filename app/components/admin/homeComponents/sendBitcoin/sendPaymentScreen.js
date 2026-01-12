@@ -1,7 +1,6 @@
 import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import {
   CENTER,
-  ICONS,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
   USDB_TOKEN_ID,

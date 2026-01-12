@@ -1,12 +1,11 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, COLORS, ICONS } from '../../../../constants';
+import { CENTER, COLORS } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useCallback } from 'react';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import { ArrowUpDown } from 'lucide-react-native';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export function SendRecieveBTNs({
   theme,
@@ -98,19 +97,24 @@ export function SendRecieveBTNs({
           }}
         >
           {btnType === 'swap' ? (
-            <ArrowUpDown
-              color={
+            <ThemeIcon
+              size={30}
+              iconName={`ArrowUpDown`}
+              colorOverride={
                 theme && darkModeType
                   ? COLORS.lightModeText
                   : COLORS.darkModeText
               }
-              size={30}
             />
           ) : (
-            <ThemeImage
-              darkModeIcon={ICONS.scanQrCodeLight}
-              lightsOutIcon={ICONS.scanQrCodeDark}
-              lightModeIcon={ICONS.scanQrCodeLight}
+            <ThemeIcon
+              size={30}
+              iconName={`ScanQrCode`}
+              colorOverride={
+                theme && darkModeType
+                  ? COLORS.lightModeText
+                  : COLORS.darkModeText
+              }
             />
           )}
         </View>

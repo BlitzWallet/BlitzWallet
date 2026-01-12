@@ -1,11 +1,10 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../../../../constants';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { CENTER, COLORS, FONT, SIZES } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { getDataFromCollection, updateMessage } from '../../../../../../db';
 import { sendPushNotification } from '../../../../../functions/messaging/publishMessage';
@@ -21,6 +20,7 @@ import { useGlobalContacts } from '../../../../../../context-store/globalContact
 import { getTransactionContent } from '../contactsPageComponents/transactionText';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 function ConfirmedOrSentTransaction({
   txParsed,
@@ -68,31 +68,17 @@ function ConfirmedOrSentTransaction({
   return (
     <View style={[styles.transactionContainer, { alignItems: 'center' }]}>
       {didDeclinePayment ? (
-        <Image
-          style={styles.icons}
-          source={
-            theme && darkModeType
-              ? ICONS.failedTransactionWhite
-              : ICONS.failedTransaction
+        <ThemeIcon
+          colorOverride={
+            theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
           }
+          styles={styles.icons}
+          iconName={'CircleX'}
         />
       ) : (
-        <ThemeImage
-          styles={{
-            ...styles.icons,
-            transform: [
-              {
-                rotate: didDeclinePayment
-                  ? '180deg'
-                  : isOutgoingPayment
-                  ? '90deg'
-                  : '270deg',
-              },
-            ],
-          }}
-          darkModeIcon={ICONS.smallArrowLeft}
-          lightModeIcon={ICONS.smallArrowLeft}
-          lightsOutIcon={ICONS.arrow_small_left_white}
+        <ThemeIcon
+          styles={styles.icons}
+          iconName={isOutgoingPayment ? 'ArrowUp' : 'ArrowDown'}
         />
       )}
 
@@ -425,19 +411,7 @@ export default function ContactsTransactionItem(props) {
         />
       ) : (
         <View style={styles.transactionContainer}>
-          <ThemeImage
-            styles={{
-              ...styles.icons,
-              transform: [
-                {
-                  rotate: '270deg',
-                },
-              ],
-            }}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon styles={styles.icons} iconName={'ArrowDown'} />
 
           <View style={{ width: '100%', flex: 1 }}>
             <ThemeText

@@ -7,8 +7,6 @@ import {
 } from '../../../../../constants/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import { ICONS } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useRootstockProvider } from '../../../../../../context-store/rootstockSwapContext';
@@ -19,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function SubmarineSwapDisplay(props) {
   const swapData = props.route.params.swap;
@@ -67,11 +66,7 @@ export default function SubmarineSwapDisplay(props) {
         ]}
       >
         <TouchableOpacity onPress={navigate.goBack} style={styles.closePopup}>
-          <ThemeImage
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
+          <ThemeIcon iconName={'X'} />
         </TouchableOpacity>
 
         <ScrollView

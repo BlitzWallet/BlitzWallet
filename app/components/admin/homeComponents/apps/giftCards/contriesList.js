@@ -24,10 +24,10 @@ import {
   keyboardNavigate,
 } from '../../../../../functions/customNavigation';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function CountryList(props) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -154,7 +154,11 @@ export default function CountryList(props) {
                   backgroundColor: backgroundOffset,
                 }}
               >
-                <Icon color={textColor} name={'globeIcon'} />
+                <ThemeIcon
+                  size={20}
+                  colorOverride={textColor}
+                  iconName={'Globe'}
+                />
               </View>
             ) : (
               <CountryFlag isoCode={item.code} size={25} />

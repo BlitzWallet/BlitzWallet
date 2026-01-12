@@ -9,12 +9,7 @@ import {
   View,
 } from 'react-native';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {
-  CENTER,
-  ICONS,
-  STARTING_INDEX_FOR_GIFTS_DERIVE,
-} from '../../../../constants';
+import { CENTER, STARTING_INDEX_FOR_GIFTS_DERIVE } from '../../../../constants';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -28,6 +23,7 @@ import { copyToClipboard, formatBalanceAmount } from '../../../../functions';
 import { useToast } from '../../../../../context-store/toastManager';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function GiftsOverview({ theme, darkModeType }) {
   const { showToast } = useToast();
@@ -140,13 +136,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
                   }
                 }}
               >
-                <ThemeImage
-                  lightModeIcon={isExpired ? ICONS.clipboardBlue : ICONS.share}
-                  darkModeIcon={isExpired ? ICONS.clipboardBlue : ICONS.share}
-                  lightsOutIcon={
-                    isExpired ? ICONS.clipboardLight : ICONS.shareWhite
-                  }
-                />
+                <ThemeIcon size={25} iconName={isExpired ? 'Copy' : 'Share'} />
               </TouchableOpacity>
             )}
           </View>
@@ -180,7 +170,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
   );
   return (
     <View style={styles.container}>
-      {giftsArray.length > 0 ? (
+      {giftsArray.length > 0 && false ? (
         <FlatList
           style={styles.flatlistStyle}
           contentContainerStyle={styles.flatListContent}
@@ -192,10 +182,11 @@ export default function GiftsOverview({ theme, darkModeType }) {
       ) : (
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.noGifts}>
-            <ThemeImage
-              lightModeIcon={ICONS.giftBlue}
-              darkModeIcon={ICONS.giftBlue}
-              lightsOutIcon={ICONS.gift}
+            <ThemeIcon
+              colorOverride={
+                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              }
+              iconName={'Gift'}
             />
           </View>
           <ThemeText
@@ -226,12 +217,8 @@ export default function GiftsOverview({ theme, darkModeType }) {
             },
           ]}
         >
-          <ThemeImage
-            styles={styles.buttonIcon}
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
+          <ThemeIcon styles={styles.buttonIcon} size={20} iconName={'Plus'} />
+
           <ThemeText
             styles={{ includeFontPadding: false }}
             content={t('screens.inAccount.giftPages.giftsOverview.createGift')}
@@ -310,6 +297,5 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginRight: 5,
-    transform: [{ rotate: '-45deg' }],
   },
 });

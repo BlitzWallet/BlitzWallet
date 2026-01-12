@@ -1,12 +1,12 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import { CENTER, ICONS } from '../../../../constants';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import { CENTER } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function NostrHome() {
   const navitate = useNavigation();
@@ -38,11 +38,9 @@ export default function NostrHome() {
             backgroundColor: theme ? backgroundColor : COLORS.primary,
           }}
         >
-          <ThemeImage
-            styles={{ transform: [{ rotate: '180deg' }] }}
-            lightModeIcon={ICONS.leftCheveronLight}
-            darkModeIcon={ICONS.leftCheveronLight}
-            lightsOutIcon={ICONS.leftCheveronLight}
+          <ThemeIcon
+            colorOverride={COLORS.darkModeText}
+            iconName={'ChevronRight'}
           />
         </TouchableOpacity>
       </View>
@@ -82,11 +80,9 @@ export default function NostrHome() {
             backgroundColor: theme ? backgroundColor : COLORS.primary,
           }}
         >
-          <ThemeImage
-            styles={{ transform: [{ rotate: '180deg' }] }}
-            lightModeIcon={ICONS.leftCheveronLight}
-            darkModeIcon={ICONS.leftCheveronLight}
-            lightsOutIcon={ICONS.leftCheveronLight}
+          <ThemeIcon
+            colorOverride={COLORS.darkModeText}
+            iconName={'ChevronRight'}
           />
         </TouchableOpacity>
       </View>

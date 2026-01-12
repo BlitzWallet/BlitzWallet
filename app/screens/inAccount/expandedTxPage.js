@@ -15,7 +15,6 @@ import {
 } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import Icon from '../../functions/CustomElements/Icon';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
@@ -41,6 +40,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { currentPriceAinBToPriceDollars } from '../../functions/spark/flashnet';
 import { formatBalanceAmount } from '../../functions';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -206,25 +206,16 @@ export default function ExpandedTx(props) {
   const statusColors = getStatusColors();
 
   const renderStatusIcon = () => {
-    const iconSize = isPending ? 40 : 25;
     const iconColor = isPending
       ? theme
         ? COLORS.darkModeText
         : backgroundColor
       : backgroundColor;
 
-    const iconName = isPending
-      ? 'pendingTxIcon'
-      : isFailedPayment
-      ? 'expandedTxClose'
-      : 'expandedTxCheck';
-
     return (
-      <Icon
-        width={iconSize}
-        height={iconSize}
-        color={iconColor}
-        name={iconName}
+      <ThemeIcon
+        colorOverride={iconColor}
+        iconName={isPending ? 'Clock' : isFailedPayment ? 'X' : 'Check'}
       />
     );
   };
@@ -597,11 +588,10 @@ const MemoSection = ({ initialDescription, onSave, t }) => {
           onPress={handleEdit}
           style={styles.editButton}
         >
-          <Icon
-            name="editIcon" // Replace with your actual edit icon name
-            width={18}
-            height={18}
-            color={theme ? COLORS.darkModeText : COLORS.primary}
+          <ThemeIcon
+            size={20}
+            colorOverride={theme ? COLORS.darkModeText : COLORS.primary}
+            iconName={'SquarePen'}
           />
         </TouchableOpacity>
       </View>

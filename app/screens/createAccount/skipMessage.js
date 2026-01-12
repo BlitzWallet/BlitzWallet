@@ -1,9 +1,8 @@
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, ICONS, SIZES } from '../../constants';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { COLORS } from '../../constants';
 import { ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
-import { backArrow } from '../../constants/styles';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
@@ -15,6 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { MAX_CONTENT_WIDTH } from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 export default function SkipCreateAccountPathMessage() {
   const { transparentOveraly } = GetThemeColors();
@@ -59,7 +59,7 @@ export default function SkipCreateAccountPathMessage() {
             onPress={() => setGoGack(true)}
             style={{ marginLeft: 'auto', marginBottom: 10 }}
           >
-            <Image style={[backArrow]} source={ICONS.xSmallIcon} />
+            <ThemeIcon iconName={'X'} />
           </TouchableOpacity>
 
           <ThemeText

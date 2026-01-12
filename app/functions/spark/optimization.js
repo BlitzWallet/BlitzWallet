@@ -253,5 +253,6 @@ export const scheduleOptimization = async (
  * Cleanup optimization state (call on logout/unmount)
  */
 export const cleanupOptimization = mnemoinc => {
+  if (!mnemoinc) return;
   abortOptimization(mnemoinc);
 };

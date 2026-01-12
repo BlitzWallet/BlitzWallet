@@ -1,14 +1,13 @@
-import {useState} from 'react';
-import {useGlobalThemeContext} from '../../../../context-store/theme';
+import { useState } from 'react';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
 import GetThemeColors from '../../../hooks/themeColors';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../../constants/theme';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import ThemeText from '../textTheme';
 import CustomToggleSwitch from '../switch';
-import ThemeImage from '../themeImage';
-import {ICONS} from '../../../constants';
 import FullLoadingScreen from '../loadingScreen';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import ThemeIcon from '../themeIcon';
 
 export default function SettingsItemWithSlider({
   settingsTitle = '',
@@ -23,8 +22,8 @@ export default function SettingsItemWithSlider({
   toggleSwitchStateValue,
   containerStyles = {},
 }) {
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const navigate = useNavigation();
 
   return (
@@ -35,7 +34,8 @@ export default function SettingsItemWithSlider({
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           ...containerStyles,
         },
-      ]}>
+      ]}
+    >
       <View
         style={{
           ...styles.sliderContianer,
@@ -43,7 +43,8 @@ export default function SettingsItemWithSlider({
           borderBottomWidth: showDescription ? 1 : 0,
           marginBottom: showDescription ? 20 : 0,
           paddingBottom: showDescription ? 10 : 0,
-        }}>
+        }}
+      >
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.settingsTitle}
@@ -70,13 +71,9 @@ export default function SettingsItemWithSlider({
                   buttonText: informationPopupBTNText,
                 });
               }}
-              style={styles.imageContainer}>
-              <ThemeImage
-                styles={styles.themeImage}
-                lightModeIcon={ICONS.aboutIcon}
-                darkModeIcon={ICONS.aboutIcon}
-                lightsOutIcon={ICONS.aboutIconWhite}
-              />
+              style={styles.imageContainer}
+            >
+              <ThemeIcon size={20} iconName={'Info'} />
             </TouchableOpacity>
           )}
 
@@ -140,7 +137,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     marginRight: 5,
   },
-  swtichContainer: {marginLeft: 'auto'},
+  swtichContainer: { marginLeft: 'auto' },
   loadingContainer: {
     alignItems: 'left',
     flex: 0,

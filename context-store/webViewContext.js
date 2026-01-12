@@ -967,7 +967,7 @@ export const WebViewProvider = ({ children }) => {
       if (!isWebViewReady) return;
       if (!verifiedPath) return;
       // blocking background init event from firing
-      if (appState !== 'active') return;
+      if (appState === 'background') return;
       if (didRunInit.current) return;
       didRunInit.current = true;
 

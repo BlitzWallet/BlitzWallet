@@ -6,13 +6,13 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
-import { COLORS, ICONS, SIZES } from '../../../../constants';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import { COLORS, SIZES } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function BackupSeedWarning() {
   const { t } = useTranslation();
@@ -50,12 +50,7 @@ export default function BackupSeedWarning() {
         ]}
       >
         <View style={styles.iconContainer}>
-          <ThemeImage
-            styles={styles.warningIcon}
-            darkModeIcon={ICONS.warningBlue}
-            lightsOutIcon={ICONS.warningWhite}
-            lightModeIcon={ICONS.warningBlue}
-          />
+          <ThemeIcon size={45} iconName={'AlertTriangle'} />
         </View>
 
         <ThemeText

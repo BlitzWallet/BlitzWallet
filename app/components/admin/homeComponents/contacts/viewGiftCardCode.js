@@ -7,24 +7,23 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {useEffect, useState} from 'react';
-import {useKeysContext} from '../../../../../context-store/keys';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { useEffect, useState } from 'react';
+import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {
   fetchAndCacheGiftCardData,
   saveGiftCardData,
 } from '../../../../functions/contacts/giftCardStorage';
-import {COLORS, ICONS, SIZES} from '../../../../constants';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { COLORS, SIZES } from '../../../../constants';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
-import {copyToClipboard} from '../../../../functions';
-import {useToast} from '../../../../../context-store/toastManager';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { copyToClipboard } from '../../../../functions';
+import { useToast } from '../../../../../context-store/toastManager';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 
 export default function ViewGiftCardCodePage({
@@ -32,14 +31,14 @@ export default function ViewGiftCardCodePage({
   isOutgoingPayment,
   message,
 }) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const [codeInformation, setCodeInformation] = useState(null);
   const isUserMarkedClaimed = codeInformation?.userMarkedClaimed;
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const navigate = useNavigation();
-  const {t} = useTranslation();
-  const {showToast} = useToast();
+  const { t } = useTranslation();
+  const { showToast } = useToast();
 
   useEffect(() => {
     async function getCardInformation() {
@@ -106,12 +105,13 @@ export default function ViewGiftCardCodePage({
                 ? 0
                 : 40,
           },
-        ]}>
+        ]}
+      >
         {/* Header with Logo, Name, and Claimed Toggle */}
         <View style={styles.headerSection}>
           <View style={styles.logoContainer}>
             <Image
-              source={{uri: codeInformation.logo}}
+              source={{ uri: codeInformation.logo }}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -145,7 +145,8 @@ export default function ViewGiftCardCodePage({
                     ? backgroundColor
                     : backgroundOffset
                   : backgroundOffset,
-              }}>
+              }}
+            >
               <View style={styles.claimedToggleContent}>
                 <ThemeText
                   styles={{
@@ -191,7 +192,8 @@ export default function ViewGiftCardCodePage({
                     : backgroundOffset
                   : COLORS.darkModeText,
               },
-            ]}>
+            ]}
+          >
             <ThemeText
               styles={styles.amountLabel}
               content={t('contacts.viewGiftCardCode.valueHeader')}
@@ -221,7 +223,8 @@ export default function ViewGiftCardCodePage({
                 onPress={() => {
                   copyToClipboard(codeInformation.uuid, showToast);
                 }}
-                style={styles.uuidTouchable}>
+                style={styles.uuidTouchable}
+              >
                 <ThemeText
                   styles={styles.uuid}
                   content={codeInformation.uuid}
@@ -243,7 +246,8 @@ export default function ViewGiftCardCodePage({
                     : backgroundOffset
                   : backgroundOffset,
               },
-            ]}>
+            ]}
+          >
             <ThemeText
               styles={styles.uuidLabel}
               content={t('contacts.viewGiftCardCode.cardUUID')}
@@ -252,7 +256,8 @@ export default function ViewGiftCardCodePage({
               onPress={() => {
                 copyToClipboard(codeInformation.uuid, showToast);
               }}
-              style={styles.uuidTouchable}>
+              style={styles.uuidTouchable}
+            >
               <ThemeText styles={styles.uuid} content={codeInformation.uuid} />
             </TouchableOpacity>
           </View>
@@ -270,7 +275,8 @@ export default function ViewGiftCardCodePage({
                     : backgroundOffset
                   : COLORS.darkModeText,
               },
-            ]}>
+            ]}
+          >
             <ThemeText
               styles={styles.messageLabel}
               content={t('contacts.viewGiftCardCode.messageLabel')}
@@ -291,16 +297,11 @@ export default function ViewGiftCardCodePage({
                       buttonText: t('constants.understandText'),
                     })
                   }
-                  style={styles.redeemTextContainer}>
+                  style={styles.redeemTextContainer}
+                >
                   <ThemeText
                     styles={styles.sectionTitle}
                     content={t('contacts.viewGiftCardCode.redeemHeader')}
-                  />
-                  <ThemeImage
-                    styles={styles.aboutIcon}
-                    lightModeIcon={ICONS.aboutIcon}
-                    darkModeIcon={ICONS.aboutIcon}
-                    lightsOutIcon={ICONS.aboutIconWhite}
                   />
                 </TouchableOpacity>
                 {codeInformation.claimData.claimLink && (
@@ -321,7 +322,8 @@ export default function ViewGiftCardCodePage({
                               : backgroundOffset
                             : COLORS.darkModeText,
                         },
-                      ]}>
+                      ]}
+                    >
                       {codeInformation.claimData.codes.map((code, index) => (
                         <View key={index} style={styles.codeItem}>
                           <ThemeText
@@ -357,7 +359,8 @@ export default function ViewGiftCardCodePage({
                   : backgroundOffset
                 : backgroundOffset,
             },
-          ]}>
+          ]}
+        >
           <ThemeText
             styles={styles.helpTitle}
             content={t('contacts.viewGiftCardCode.helpHeader')}
@@ -378,7 +381,8 @@ export default function ViewGiftCardCodePage({
                     ? backgroundColor
                     : 'rgba(0, 122, 255, 0.1)',
               },
-            ]}>
+            ]}
+          >
             <ThemeText
               styles={{
                 ...styles.emailText,

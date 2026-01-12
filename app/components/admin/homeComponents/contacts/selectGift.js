@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
   SATSPERBITCOIN,
   SIZES,
 } from '../../../../constants';
@@ -27,13 +26,13 @@ import { Image } from 'expo-image';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CountryFlag from 'react-native-country-flag';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function SelectGiftCardForContacts() {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -221,11 +220,7 @@ export default function SelectGiftCardForContacts() {
           onPress={navigate.goBack}
           style={{ marginRight: 'auto' }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>

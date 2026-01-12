@@ -127,7 +127,9 @@ export const DropdownProvider = ({ children }) => {
   });
 
   return (
-    <DropdownContext.Provider value={{ openDropdown, closeDropdown }}>
+    <DropdownContext.Provider
+      value={{ openDropdown, closeDropdown, dropdownState }}
+    >
       {children}
 
       {dropdownState.isOpen && (

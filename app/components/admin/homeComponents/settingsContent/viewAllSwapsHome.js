@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { ICONS, SIZES } from '../../../../constants';
+import { SIZES } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -15,8 +15,8 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import LiquidSwapsPage from './swapsComponents/liquidSwapsPage';
 import RoostockSwapsPage from './swapsComponents/rootstockSwaps';
 import GetThemeColors from '../../../../hooks/themeColors';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function ViewSwapsHome() {
   const [selectedPage, setSelectedPage] = useState(null);
@@ -59,12 +59,7 @@ export default function ViewSwapsHome() {
                 />
               </View>
               <View style={styles.arrow1}>
-                <ThemeImage
-                  styles={{ transform: [{ rotate: '180deg' }] }}
-                  lightModeIcon={ICONS.leftCheveronIcon}
-                  darkModeIcon={ICONS.leftCheveronIcon}
-                  lightsOutIcon={ICONS.leftCheveronLight}
-                />
+                <ThemeIcon iconName={'ChevronRight'} />
               </View>
             </TouchableOpacity>
 
@@ -89,12 +84,7 @@ export default function ViewSwapsHome() {
                 />
               </View>
               <View style={styles.arrow1}>
-                <ThemeImage
-                  styles={{ transform: [{ rotate: '180deg' }] }}
-                  lightModeIcon={ICONS.leftCheveronIcon}
-                  darkModeIcon={ICONS.leftCheveronIcon}
-                  lightsOutIcon={ICONS.leftCheveronLight}
-                />
+                <ThemeIcon iconName={'ChevronRight'} />
               </View>
             </TouchableOpacity>
           </View>

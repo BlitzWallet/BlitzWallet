@@ -1,13 +1,13 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Icon from './Icon';
+import ThemeIcon from './themeIcon';
 
 export default function CustomSendAndRequsetBTN({
   btnType,
   btnFunction,
   arrowColor,
   containerBackgroundColor,
-  height = 40,
-  width = 40,
+  height = 30,
+  width = 30,
   containerStyles,
   activeOpacity = 0.2,
 }) {
@@ -26,16 +26,10 @@ export default function CustomSendAndRequsetBTN({
           ...containerStyles,
         }}
       >
-        <Icon
-          name={'arrow'}
-          width={width}
-          height={height}
-          path={
-            btnType === 'receive'
-              ? 'M12 6V18M12 18L7 13M12 18L17 13'
-              : undefined
-          }
-          color={arrowColor}
+        <ThemeIcon
+          size={height}
+          iconName={`Arrow${btnType === 'send' ? 'Up' : 'Down'}`}
+          colorOverride={arrowColor}
         />
       </View>
     </TouchableOpacity>

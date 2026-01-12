@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import {
@@ -20,9 +19,8 @@ import {
   SIZES,
   WINDOWWIDTH,
 } from '../../../../constants/theme';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, ICONS } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -34,6 +32,7 @@ import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -153,12 +152,7 @@ export default function GiftConfirmation({
           ]}
         >
           <View style={styles.cardHeader}>
-            <ThemeImage
-              styles={{ width: 25, height: 25 }}
-              lightModeIcon={ICONS.giftBlue}
-              darkModeIcon={ICONS.giftBlue}
-              lightsOutIcon={ICONS.giftWhite}
-            />
+            <ThemeIcon size={25} iconName={'Gift'} />
             <ThemeText
               styles={styles.cardHeaderText}
               content={t(
@@ -237,11 +231,12 @@ export default function GiftConfirmation({
               style={styles.copyButton}
               activeOpacity={0.7}
             >
-              <ThemeImage
-                styles={{ width: 20, height: 20 }}
-                lightModeIcon={ICONS.clipboardBlue}
-                darkModeIcon={ICONS.clipboardBlue}
-                lightsOutIcon={ICONS.clipboardDark}
+              <ThemeIcon
+                size={20}
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                iconName={'Copy'}
               />
             </TouchableOpacity>
           </View>
@@ -255,10 +250,12 @@ export default function GiftConfirmation({
           style={styles.shareButton}
           activeOpacity={0.8}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.share}
-            darkModeIcon={ICONS.share}
-            lightsOutIcon={ICONS.shareBlack}
+          <ThemeIcon
+            size={20}
+            colorOverride={
+              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            }
+            iconName={'Share'}
           />
           <ThemeText
             styles={styles.shareButtonText}

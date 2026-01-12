@@ -1,8 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import { CENTER, ICONS, WEBSITE_REGEX } from '../../../../constants';
+import { CENTER, WEBSITE_REGEX } from '../../../../constants';
 import {
   COLORS,
   FONT,
@@ -17,8 +16,9 @@ import { useGifts } from '../../../../../context-store/giftContext';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
-export default function ReclaimGift({ theme }) {
+export default function ReclaimGift({ theme, darkModeType }) {
   const { expiredGiftsArray } = useGifts();
   const navigate = useNavigation();
   const { bottomPadding } = useGlobalInsets();
@@ -79,10 +79,11 @@ export default function ReclaimGift({ theme }) {
           <View style={styles.centerContent}>
             {/* Icon */}
             <View style={styles.iconContainer}>
-              <ThemeImage
-                lightModeIcon={ICONS.rotateLeftBlue}
-                darkModeIcon={ICONS.rotateLeftBlue}
-                lightsOutIcon={ICONS.rotateLeft}
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                iconName={'RotateCcw'}
               />
             </View>
 

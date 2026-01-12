@@ -1,10 +1,10 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, FONT, ICONS, SIZES } from '../../constants';
+import { COLORS } from '../../constants';
 import FullLoadingScreen from './loadingScreen';
 import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import ThemeImage from './themeImage';
 import { useMemo } from 'react';
+import ThemeIcon from './themeIcon';
 
 export default function CustomButton({
   buttonStyles,
@@ -92,15 +92,15 @@ export default function CustomButton({
           loadingColor={loadingColor}
         />
       ) : useArrow ? (
-        <ThemeImage
-          styles={styles.arrowStyles}
-          lightModeIcon={ICONS.leftCheveronIcon}
-          darkModeIcon={ICONS.leftCheveronIcon}
-          lightsOutIcon={
-            buttonStyles?.backgroundColor
-              ? ICONS.leftCheveronLight
-              : ICONS.leftCheveronDark
+        <ThemeIcon
+          colorOverride={
+            theme && darkModeType
+              ? buttonStyles?.backgroundColor
+                ? COLORS.darkModeText
+                : COLORS.lightModeText
+              : undefined
           }
+          iconName={'ChevronRight'}
         />
       ) : (
         <ThemeText

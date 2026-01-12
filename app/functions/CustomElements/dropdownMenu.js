@@ -1,7 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import ThemeImage from './themeImage';
-import { COLORS, ICONS } from '../../constants';
+import { COLORS } from '../../constants';
 import ThemeText from './textTheme';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -10,6 +9,7 @@ import CountryFlag from 'react-native-country-flag';
 import FullLoadingScreen from './loadingScreen';
 import { useDropdown } from '../../../context-store/dropdownContext';
 import { useFocusEffect } from '@react-navigation/native';
+import ThemeIcon from './themeIcon';
 
 const DropdownMenu = ({
   options,
@@ -32,7 +32,7 @@ const DropdownMenu = ({
 }) => {
   const { t } = useTranslation();
   const dropdownRef = useRef(null);
-  const { openDropdown, closeDropdown } = useDropdown();
+  const { openDropdown, closeDropdown, dropdownState } = useDropdown();
   const { theme } = useGlobalThemeContext();
   const { backgroundOffset } = GetThemeColors();
   const placeholderText = placeholder || t('constants.selectOption');
@@ -120,18 +120,7 @@ const DropdownMenu = ({
                 },
               ]}
             >
-              <ThemeImage
-                styles={styles.verticalTopArrow}
-                lightModeIcon={ICONS.leftCheveronDark}
-                darkModeIcon={ICONS.leftCheveronLight}
-                lightsOutIcon={ICONS.leftCheveronLight}
-              />
-              <ThemeImage
-                styles={styles.verticalBottomArrow}
-                lightModeIcon={ICONS.leftCheveronDark}
-                darkModeIcon={ICONS.leftCheveronLight}
-                lightsOutIcon={ICONS.leftCheveronLight}
-              />
+              <ThemeIcon size={20} iconName={'ChevronsUpDown'} />
             </View>
           )}
         </TouchableOpacity>
@@ -140,11 +129,7 @@ const DropdownMenu = ({
             style={styles.clearIconContainer}
             onPress={() => onSelect('')}
           >
-            <ThemeImage
-              lightModeIcon={ICONS.xSmallIcon}
-              darkModeIcon={ICONS.xSmallIcon}
-              lightsOutIcon={ICONS.xSmallIconWhite}
-            />
+            <ThemeIcon iconName={'X'} />
           </TouchableOpacity>
         )}
       </View>

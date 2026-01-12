@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, ICONS } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -17,7 +17,6 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { initWallet } from '../../../../functions/initiateWalletConnection';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import useCustodyAccountList from '../../../../hooks/useCustodyAccountsList';
@@ -29,6 +28,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 const AccountRow = React.memo(
   ({
@@ -122,12 +122,7 @@ const AccountRow = React.memo(
               <View style={styles.rightSection}>
                 {isActive && !isSpecialAccount && (
                   <Animated.View style={chevronStyle}>
-                    <ThemeImage
-                      styles={styles.chevron}
-                      lightModeIcon={ICONS.leftCheveronIcon}
-                      darkModeIcon={ICONS.leftCheveronIcon}
-                      lightsOutIcon={ICONS.left_cheveron_white}
-                    />
+                    <ThemeIcon size={25} iconName={'ChevronDown'} />
                   </Animated.View>
                 )}
 
@@ -157,11 +152,7 @@ const AccountRow = React.memo(
                 }
               }}
             >
-              <ThemeImage
-                lightModeIcon={ICONS.dotsBlue}
-                darkModeIcon={ICONS.dotsBlue}
-                lightsOutIcon={ICONS.dotsWhite}
-              />
+              <ThemeIcon iconName={'Menu'} />
             </TouchableOpacity>
           )}
         </View>
@@ -172,11 +163,10 @@ const AccountRow = React.memo(
               style={styles.expandedAction}
               onPress={() => onNavigateView(account)}
             >
-              <ThemeImage
+              <ThemeIcon
+                size={16}
                 styles={styles.actionIcon}
-                lightModeIcon={ICONS.keyIcon}
-                darkModeIcon={ICONS.keyIcon}
-                lightsOutIcon={ICONS.keyIconWhite}
+                iconName={'Lock'}
               />
               <ThemeText
                 styles={styles.actionText}
@@ -189,11 +179,10 @@ const AccountRow = React.memo(
                 style={styles.expandedAction}
                 onPress={() => onNavigateEdit(account)}
               >
-                <ThemeImage
+                <ThemeIcon
+                  size={16}
                   styles={styles.actionIcon}
-                  lightModeIcon={ICONS.settingsIcon}
-                  darkModeIcon={ICONS.settingsIcon}
-                  lightsOutIcon={ICONS.settingsWhite}
+                  iconName={'Settings'}
                 />
                 <ThemeText
                   styles={styles.actionText}
@@ -370,14 +359,7 @@ export default function CreateCustodyAccounts() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('constants.accounts')}
-        // showLeftImage={true}
-        // leftImageBlue={ICONS.plusIcon}
-        // LeftImageDarkMode={ICONS.plusIconWhite}
-        // lightsOutIcon={ICONS.plusIconWhite}
-        // leftImageFunction={handleNavigateAddAccount}
-      />
+      <CustomSettingsTopBar label={t('constants.accounts')} />
 
       <ScrollView
         stickyHeaderIndices={[0]}
@@ -406,14 +388,10 @@ export default function CreateCustodyAccounts() {
               ]}
               onPress={handleNavigateSwap}
             >
-              <ThemeImage
-                styles={[
-                  styles.actionButtonIcon,
-                  { transform: [{ rotate: '-90deg' }] },
-                ]}
-                lightModeIcon={ICONS.swapFillwhite}
-                darkModeIcon={ICONS.swapFillwhite}
-                lightsOutIcon={ICONS.swapFillwhite}
+              <ThemeIcon
+                size={20}
+                colorOverride={COLORS.darkModeText}
+                iconName={'ArrowUpDown'}
               />
               <ThemeText
                 CustomNumberOfLines={1}
@@ -432,14 +410,10 @@ export default function CreateCustodyAccounts() {
               ]}
               onPress={handleNavigateAddAccount}
             >
-              <ThemeImage
-                styles={[
-                  styles.actionButtonIcon,
-                  { transform: [{ rotate: '-45deg' }] },
-                ]}
-                lightModeIcon={ICONS.xSmallIconWhite}
-                darkModeIcon={ICONS.xSmallIconWhite}
-                lightsOutIcon={ICONS.xSmallIconWhite}
+              <ThemeIcon
+                colorOverride={COLORS.darkModeText}
+                size={20}
+                iconName={'Plus'}
               />
               <ThemeText
                 styles={styles.actionButtonText}
@@ -578,9 +552,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   actionIcon: {
-    width: 16,
-    height: 16,
-    opacity: 0.7,
+    opacity: 0.9,
   },
   actionText: {
     includeFontPadding: false,

@@ -19,10 +19,10 @@ import FormattedSatText from '../../../../../functions/CustomElements/satTextDis
 import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { Image as ExpoImage } from 'expo-image';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useNavigation } from '@react-navigation/native';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function SelectLRC20Token({
   setIsKeyboardActive,
@@ -161,15 +161,14 @@ export default function SelectLRC20Token({
                 transition={100}
               />
             ) : (
-              <Icon
-                name={'coins'}
-                width={25}
-                height={25}
-                color={
+              <ThemeIcon
+                colorOverride={
                   theme && darkModeType
                     ? COLORS.lightModeText
                     : COLORS.darkModeText
                 }
+                size={25}
+                iconName={'Coins'}
               />
             )}
           </View>

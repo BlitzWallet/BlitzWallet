@@ -12,15 +12,8 @@ import { useToast } from '../../../context-store/toastManager';
 import GlobalThemeView from './globalThemeView';
 import CustomSettingsTopBar from './settingsTopBar';
 import GetThemeColors from '../../hooks/themeColors';
-import {
-  CENTER,
-  EMAIL_REGEX,
-  ICONS,
-  SIZES,
-  VALID_URL_REGEX,
-} from '../../constants';
+import { CENTER, EMAIL_REGEX, SIZES, VALID_URL_REGEX } from '../../constants';
 import ThemeText from './textTheme';
-import ThemeImage from './themeImage';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
@@ -31,6 +24,7 @@ import { COLORS, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import getDeepLinkUser from '../../components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import { useNavigation } from '@react-navigation/native';
 import { getCachedProfileImage } from '../cachedImage';
+import ThemeIcon from './themeIcon';
 
 export default function ShowProfileQr() {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -38,7 +32,7 @@ export default function ShowProfileQr() {
   const { cache } = useImageCache();
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
   const [activeType, setActiveType] = useState('blitz');
@@ -163,8 +157,7 @@ export default function ShowProfileQr() {
       <CustomSettingsTopBar
         label={t('settings.index.showQR')}
         showLeftImage={true}
-        leftImageBlue={ICONS.share}
-        LeftImageDarkMode={ICONS.shareWhite}
+        iconNew="Share"
         leftImageFunction={handleShare}
       />
 
@@ -272,11 +265,11 @@ export default function ShowProfileQr() {
             ]}
             onPress={handleCopy}
           >
-            <ThemeImage
-              styles={{ width: 20, height: 20, marginRight: 5 }}
-              lightModeIcon={ICONS.clipboardLight}
-              darkModeIcon={ICONS.clipboardLight}
-              lightsOutIcon={ICONS.clipboardLight}
+            <ThemeIcon
+              colorOverride={COLORS.darkModeText}
+              size={20}
+              styles={{ marginRight: 5 }}
+              iconName={'Copy'}
             />
             <ThemeText
               styles={styles.copyText}
@@ -305,11 +298,11 @@ export default function ShowProfileQr() {
               });
             }}
           >
-            <ThemeImage
-              styles={{ width: 20, height: 20, marginRight: 5 }}
-              lightModeIcon={ICONS.scanQrCodeDark}
-              darkModeIcon={ICONS.scanQrCodeLight}
-              lightsOutIcon={ICONS.scanQrCodeLight}
+            <ThemeIcon
+              colorOverride={textColor}
+              size={20}
+              styles={{ marginRight: 5 }}
+              iconName={'ScanQrCode'}
             />
             <ThemeText
               styles={{ includeFontPadding: false }}

@@ -34,11 +34,11 @@ import { useKeysContext } from '../../../../../../context-store/keys';
 import { KEYBOARDTIMEOUT } from '../../../../../constants/styles';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import CountryFlag from 'react-native-country-flag';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useWebView } from '../../../../../../context-store/webViewContext';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 const imgEndpoint = endpoint => `https://sms4sats.com/${endpoint}`;
 
@@ -369,11 +369,7 @@ export default function SMSMessagingReceivedPage(props) {
             keyboardNavigate(() => navigate.goBack());
           }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
 
         <ThemeText
@@ -411,11 +407,10 @@ export default function SMSMessagingReceivedPage(props) {
           }}
         >
           {userLocal.iso === 'WW' ? (
-            <Icon
-              width={15}
-              height={15}
-              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              name={'globeIcon'}
+            <ThemeIcon
+              size={15}
+              colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              iconName={'Globe'}
             />
           ) : (
             <CountryFlag isoCode={userLocal.iso} size={20} />

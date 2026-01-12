@@ -6,7 +6,7 @@ import {
   ScrollView,
   Share,
 } from 'react-native';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
+import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo } from 'react';
 import ContactsTransactionItem from './internalComponents/contactsTransactions';
@@ -16,8 +16,6 @@ import {
 } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import Icon from '../../../../functions/CustomElements/Icon';
 import { queueSetCashedMessages } from '../../../../functions/messaging/cachedMessages';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
@@ -34,6 +32,7 @@ import {
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -142,11 +141,10 @@ export default function ExpandedContactsPage(props) {
             </View>
             {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
               <View style={styles.selectFromPhotos}>
-                <ThemeImage
-                  styles={{ width: 20, height: 20 }}
-                  darkModeIcon={ICONS.shareBlack}
-                  lightModeIcon={ICONS.shareBlack}
-                  lightsOutIcon={ICONS.shareBlack}
+                <ThemeIcon
+                  colorOverride={COLORS.lightModeText}
+                  size={20}
+                  iconName={'Share'}
                 />
               </View>
             )}
@@ -328,41 +326,31 @@ export default function ExpandedContactsPage(props) {
           style={styles.backButtonContainer}
           onPress={navigate.goBack}
         >
-          <ThemeImage
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
         {selectedContact && (
           <TouchableOpacity
             style={styles.starContianer}
             onPress={() => handleFavortie({ selectedContact })}
           >
-            <Icon
-              width={25}
-              height={25}
-              name={'didPinContactStar'}
-              color={
+            <ThemeIcon
+              colorOverride={
                 theme && darkModeType ? COLORS.darkModeText : COLORS.primary
               }
-              offsetColor={
+              fill={
                 selectedContact.isFavorite
                   ? theme && darkModeType
                     ? COLORS.darkModeText
                     : COLORS.primary
                   : backgroundColor
               }
+              iconName={'Star'}
             />
           </TouchableOpacity>
         )}
         {selectedContact && (
           <TouchableOpacity onPress={() => handleSettings({ selectedContact })}>
-            <ThemeImage
-              darkModeIcon={ICONS.settingsIcon}
-              lightModeIcon={ICONS.settingsIcon}
-              lightsOutIcon={ICONS.settingsWhite}
-            />
+            <ThemeIcon iconName={'Settings'} />
           </TouchableOpacity>
         )}
       </View>

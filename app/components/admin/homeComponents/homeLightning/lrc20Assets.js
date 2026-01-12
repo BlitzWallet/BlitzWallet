@@ -8,8 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { ThemeText } from '../../../../functions/CustomElements';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import { CENTER, ICONS } from '../../../../constants';
+import { CENTER } from '../../../../constants';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -18,9 +17,9 @@ import { formatBalanceAmount } from '../../../../functions';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { Image as ExpoImage } from 'expo-image';
-import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 // Token item component with image fetching
 function TokenItem({
@@ -67,13 +66,12 @@ function TokenItem({
             transition={100}
           />
         ) : (
-          <Icon
-            name={'coins'}
-            width={15}
-            height={15}
-            color={
+          <ThemeIcon
+            colorOverride={
               theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText
             }
+            size={15}
+            iconName={'Coins'}
           />
         )}
       </View>
@@ -159,7 +157,7 @@ export default function LRC20Assets() {
     return {
       transform: [
         {
-          rotate: `${-90 + rotate.value * 180}deg`,
+          rotate: `${rotate.value * 180}deg`,
         },
       ],
     };
@@ -232,15 +230,7 @@ export default function LRC20Assets() {
         />
 
         <Animated.View style={[{ marginLeft: 5 }, arrowStyle]}>
-          <ThemeImage
-            styles={{
-              width: 15,
-              height: 15,
-            }}
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon size={15} iconName={'ArrowDown'} />
         </Animated.View>
       </TouchableOpacity>
 

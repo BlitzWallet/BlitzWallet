@@ -5,7 +5,6 @@ import {
   CENTER,
   COLORS,
   HIDDEN_BALANCE_TEXT,
-  ICONS,
   SIZES,
   SKELETON_ANIMATION_SPEED,
   USDB_TOKEN_ID,
@@ -13,15 +12,14 @@ import {
 import { ThemeText } from './CustomElements';
 import FormattedSatText from './CustomElements/satTextDisplay';
 import { useTranslation } from 'react-i18next';
-import Icon from './CustomElements/Icon';
 import { memo, useMemo, useCallback } from 'react';
 import { crashlyticsLogReport } from './crashlyticsLogs';
 import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
-import { Image } from 'expo-image';
 import { getTimeDisplay } from './contacts';
 import { isFlashnetTransfer } from './spark/handleFlashnetTransferIds';
 import { satsToDollars } from './spark/flashnet';
+import ThemeIcon from './CustomElements/themeIcon';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -402,17 +400,6 @@ export const UserTransaction = memo(function UserTransaction({
     [currentTime, paymentDate],
   );
 
-  const paymentImage = useMemo(() => {
-    if (isFailedPayment) {
-      return darkModeType && theme
-        ? ICONS.failedTransactionWhite
-        : ICONS.failedTransaction;
-    }
-    return darkModeType && theme
-      ? ICONS.arrow_small_left_white
-      : ICONS.smallArrowLeft;
-  }, [darkModeType, theme, isFailedPayment]);
-
   const token = useMemo(
     () =>
       isLRC20Payment
@@ -468,26 +455,6 @@ export const UserTransaction = memo(function UserTransaction({
     [isFailedPayment, theme, darkModeType],
   );
 
-  const imageTransformStyle = useMemo(
-    () => ({
-      transform: [
-        {
-          rotate:
-            showPendingTransactionStatusIcon || isFailedPayment
-              ? '0deg'
-              : transaction.details.direction === TRANSACTION_CONSTANTS.INCOMING
-              ? '270deg'
-              : '90deg',
-        },
-      ],
-    }),
-    [
-      showPendingTransactionStatusIcon,
-      isFailedPayment,
-      transaction.details.direction,
-    ],
-  );
-
   // Pre-calculate description content
   const descriptionContent = useMemo(() => {
     if (isFailedPayment) return t('transactionLabelText.notSent');
@@ -518,21 +485,27 @@ export const UserTransaction = memo(function UserTransaction({
     >
       {showPendingTransactionStatusIcon ? (
         <View style={styles.icons}>
-          <Icon
-            width={27}
-            height={27}
-            color={darkModeType && theme ? COLORS.darkModeText : COLORS.primary}
-            name="pendingTxIcon"
+          <ThemeIcon iconName={'Clock'} />
+        </View>
+      ) : isFailedPayment ? (
+        <View style={styles.icons}>
+          <ThemeIcon
+            colorOverride={
+              theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
+            }
+            iconName={'CircleX'}
           />
         </View>
       ) : (
-        <Image
-          style={[styles.icons, imageTransformStyle]}
-          source={paymentImage}
-          contentFit="contain"
-          recyclingKey={String(paymentImage)}
-          transition={null}
-        />
+        <View style={styles.icons}>
+          <ThemeIcon
+            iconName={
+              transaction.details.direction === TRANSACTION_CONSTANTS.INCOMING
+                ? 'ArrowDown'
+                : 'ArrowUp'
+            }
+          />
+        </View>
       )}
       <View style={styles.transactionContent}>
         <ThemeText

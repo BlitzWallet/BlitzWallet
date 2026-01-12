@@ -32,6 +32,7 @@ import { useGlobalInsets } from '../../../../../../context-store/insetsProvider'
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function GiftCardPage() {
   const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
@@ -192,11 +193,7 @@ export default function GiftCardPage() {
           }}
           style={{ marginRight: 'auto' }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>

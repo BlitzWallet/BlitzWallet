@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import { CENTER, ICONS, WEBSITE_REGEX } from '../../../../constants';
+import { CENTER, WEBSITE_REGEX } from '../../../../constants';
 import {
   COLORS,
   FONT,
@@ -16,8 +15,9 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
-export default function ClaimGiftHome({ theme }) {
+export default function ClaimGiftHome({ theme, darkModeType }) {
   const navigate = useNavigation();
   const { bottomPadding } = useGlobalInsets();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
@@ -81,10 +81,11 @@ export default function ClaimGiftHome({ theme }) {
           <View style={styles.centerContent}>
             {/* Icon */}
             <View style={styles.iconContainer}>
-              <ThemeImage
-                lightModeIcon={ICONS.giftBlue}
-                darkModeIcon={ICONS.giftBlue}
-                lightsOutIcon={ICONS.gift}
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                iconName={'Gift'}
               />
             </View>
 
@@ -133,11 +134,7 @@ export default function ClaimGiftHome({ theme }) {
                 }
                 style={styles.qrButton}
               >
-                <ThemeImage
-                  lightModeIcon={ICONS.scanQrCodeBlue}
-                  darkModeIcon={ICONS.scanQrCodeBlue}
-                  lightsOutIcon={ICONS.scanQrCodeLight}
-                />
+                <ThemeIcon iconName={'ScanQrCode'} />
               </TouchableOpacity>
             </View>
           </View>

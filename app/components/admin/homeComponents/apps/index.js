@@ -7,7 +7,7 @@ import GiftCardOrderDetails from './giftCards/giftCardOrderDetails';
 import GiftCardPage from './giftCards/giftCardsPage';
 import HistoricalGiftCardPurchases from './giftCards/historicalPurchasesPage';
 import ViewOnlineListings from './onlineListings';
-import ResturantHomepage from './resturantService/home';
+// import ResturantHomepage from './resturantService/home';
 import ConfirmSMSPayment from './sms4sats/confirmationSlideUp';
 import ConfirmVPNPage from './VPN/components/confirmationSlideUp';
 import HistoricalVPNPurchases from './VPN/historicalPurchasesPage';
@@ -15,7 +15,7 @@ import GeneratedVPNFile from './VPN/pages/generatedFile';
 
 export {
   ConfirmLeaveChatGPT,
-  ResturantHomepage,
+  // ResturantHomepage,
   ConfirmSMSPayment,
   HistoricalVPNPurchases,
   GeneratedVPNFile,

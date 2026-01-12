@@ -30,7 +30,7 @@ import {
   EditMyProfilePage,
   ExpandedAddContactsPage,
   ExpandedContactsPage,
-  MyContactProfilePage,
+  // MyContactProfilePage,
   SelectGiftCardForContacts,
   SendAndRequestPage,
 } from '../app/components/admin/homeComponents/contacts';
@@ -118,7 +118,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     options: { gestureEnabled: false },
   },
   { name: 'ExpandedContactsPage', component: ExpandedContactsPage },
-  { name: 'MyContactProfilePage', component: MyContactProfilePage },
+  // { name: 'MyContactProfilePage', component: MyContactProfilePage },
   { name: 'EditMyProfilePage', component: EditMyProfilePage },
   { name: 'ExpandedAddContactsPage', component: ExpandedAddContactsPage },
   { name: 'SendAndRequestPage', component: SendAndRequestPage },

@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { CENTER, FONT, ICONS, SIZES } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import { useAppStatus } from '../../../context-store/appStatus';
+import ThemeIcon from './themeIcon';
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -18,6 +19,7 @@ export default function CustomSettingsTopBar({
   leftImageStyles = {},
   customBackFunction,
   customBackColor,
+  iconNew = '',
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
@@ -37,10 +39,7 @@ export default function CustomSettingsTopBar({
           navigate.goBack();
         }}
       >
-        <ThemeImage
-          source={customBackColor || ICONS.arrow_small_left_white}
-          disableTint={!!customBackColor}
-        />
+        <ThemeIcon colorOverride={customBackColor} iconName={'ArrowLeft'} />
       </TouchableOpacity>
       <ThemeText
         CustomNumberOfLines={1}
@@ -61,12 +60,16 @@ export default function CustomSettingsTopBar({
           }}
           onPress={leftImageFunction}
         >
-          <ThemeImage
-            styles={{ ...leftImageStyles }}
-            lightsOutIcon={LeftImageDarkMode}
-            darkModeIcon={leftImageBlue}
-            lightModeIcon={leftImageBlue}
-          />
+          {iconNew ? (
+            <ThemeIcon size={leftImageStyles?.height} iconName={iconNew} />
+          ) : (
+            <ThemeImage
+              styles={{ ...leftImageStyles }}
+              lightsOutIcon={LeftImageDarkMode}
+              darkModeIcon={leftImageBlue}
+              lightModeIcon={leftImageBlue}
+            />
+          )}
         </TouchableOpacity>
       )}
     </View>

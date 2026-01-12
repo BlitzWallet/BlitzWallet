@@ -1,11 +1,10 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
-import { COLORS, ICONS } from '../../constants';
+import { COLORS } from '../../constants';
 import ThemeText from './textTheme';
 import CustomButton from './button';
 import GetThemeColors from '../../hooks/themeColors';
-import ThemeImage from './themeImage';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import Animated, {
   useSharedValue,
@@ -13,6 +12,7 @@ import Animated, {
   runOnJS,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import ThemeIcon from './themeIcon';
 
 export default function InformationPopup(props) {
   const BlurViewAnimation = useSharedValue(0);
@@ -69,11 +69,7 @@ export default function InformationPopup(props) {
             onPress={() => setGoGack(true)}
             style={{ marginLeft: 'auto', marginBottom: 10 }}
           >
-            <ThemeImage
-              lightModeIcon={ICONS.xSmallIcon}
-              darkModeIcon={ICONS.xSmallIcon}
-              lightsOutIcon={ICONS.xSmallIconWhite}
-            />
+            <ThemeIcon iconName={'X'} />
           </TouchableOpacity>
 
           {textContent && (

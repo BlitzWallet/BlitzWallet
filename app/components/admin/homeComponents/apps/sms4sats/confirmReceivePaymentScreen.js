@@ -3,16 +3,15 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
-import { COLORS, ICONS } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useNavigation } from '@react-navigation/native';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../../functions';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function ConfirmSMSReceivePage(props) {
@@ -66,11 +65,7 @@ export default function ConfirmSMSReceivePage(props) {
         ]}
       >
         <TouchableOpacity style={styles.backBTN} onPress={navigate.goBack}>
-          <ThemeImage
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
+          <ThemeIcon iconName={'X'} />
         </TouchableOpacity>
         <ScrollView
           contentContainerStyle={{

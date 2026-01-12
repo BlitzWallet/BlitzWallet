@@ -70,6 +70,10 @@ const COLORS = {
 
   bitcoinOrange: '#FFAC30',
   dollarGreen: '#60D263',
+
+  tabsBorderLightsout: 'rgba(255,255,255,0.2)',
+  tabsBorderDim: 'rgba(255,255,255,0.1)',
+  tabsBorderLight: '#e5e7eb',
 };
 
 const FONT = {

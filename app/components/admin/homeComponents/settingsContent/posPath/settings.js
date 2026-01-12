@@ -32,7 +32,6 @@ import {
   SIZES,
 } from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
 import {
   keyboardGoBack,
@@ -41,6 +40,7 @@ import {
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { fiatCurrencies } from '../../../../../functions/currencyOptions';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
 export default function PosSettingsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -173,11 +173,7 @@ export default function PosSettingsPage() {
             keyboardGoBack(navigate);
           }}
         >
-          <ThemeImage
-            lightsOutIcon={ICONS.arrow_small_left_white}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-          />
+          <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
         <ThemeText
           CustomNumberOfLines={1}
@@ -195,11 +191,7 @@ export default function PosSettingsPage() {
             navigate.navigate('POSInstructionsPath');
           }}
         >
-          <ThemeImage
-            lightsOutIcon={ICONS.aboutIconWhite}
-            darkModeIcon={ICONS.aboutIcon}
-            lightModeIcon={ICONS.aboutIcon}
-          />
+          <ThemeIcon iconName={'Info'} />
         </TouchableOpacity>
         <TouchableOpacity
           style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
@@ -302,19 +294,15 @@ export default function PosSettingsPage() {
           style={{ marginRight: 5 }}
         >
           {showErrorIcon ? (
-            <Icon
-              color={
+            <ThemeIcon
+              size={20}
+              colorOverride={
                 theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
               }
-              name={'errorIcon'}
+              iconName={'CircleAlert'}
             />
           ) : (
-            <ThemeImage
-              styles={{ height: 20, width: 20 }}
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIconWhite}
-            />
+            <ThemeIcon size={20} iconName={'Info'} />
           )}
         </TouchableOpacity>
 
@@ -327,12 +315,7 @@ export default function PosSettingsPage() {
             marginLeft: 'auto',
           }}
         >
-          <ThemeImage
-            styles={{ transform: [{ rotate: '180deg' }] }}
-            lightModeIcon={ICONS.leftCheveronIcon}
-            darkModeIcon={ICONS.leftCheveronIcon}
-            lightsOutIcon={ICONS.left_cheveron_white}
-          />
+          <ThemeIcon iconName={'ChevronRight'} />
         </TouchableOpacity>
       </View>
 

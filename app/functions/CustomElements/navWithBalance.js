@@ -11,6 +11,7 @@ import FormattedSatText from './satTextDisplay';
 import { useNavigation } from '@react-navigation/native';
 import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
 import { useRef } from 'react';
+import ThemeIcon from './themeIcon';
 
 export default function NavBarWithBalance({
   backFunction,
@@ -38,11 +39,7 @@ export default function NavBarWithBalance({
           else naivigate.goBack();
         }}
       >
-        <ThemeImage
-          lightModeIcon={ICONS.smallArrowLeft}
-          darkModeIcon={ICONS.smallArrowLeft}
-          lightsOutIcon={ICONS.arrow_small_left_white}
-        />
+        <ThemeIcon iconName={'ArrowLeft'} />
       </TouchableOpacity>
 
       {showBalance && (
