@@ -683,7 +683,7 @@ function QRInformationRow({
   rotateIcon = false,
   iconName,
 }) {
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, textColor } = GetThemeColors();
   return (
     <TouchableOpacity
       style={[
@@ -741,7 +741,7 @@ function QRInformationRow({
           borderRadius: 8,
         }}
       >
-        <ThemeIcon size={15} iconName={iconName} />
+        <ThemeIcon colorOverride={textColor} size={15} iconName={iconName} />
       </View>
     </TouchableOpacity>
   );
