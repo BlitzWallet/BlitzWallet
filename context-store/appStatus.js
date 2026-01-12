@@ -32,6 +32,7 @@ const AppStatusProvider = ({ children }) => {
     useState(true);
   const [didGetToHomepage, setDidGetToHomePage] = useState(false);
   const [appState, setAppState] = useState(AppState.currentState);
+  const [isAppFocused, setIsAppFocused] = useState(true);
   const [screenDimensions, setScreenDimensions] = useState(() =>
     Dimensions.get('screen'),
   );
@@ -102,6 +103,31 @@ const AppStatusProvider = ({ children }) => {
 
     return () => {
       subscription?.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      setIsAppFocused(true);
+      return;
+    }
+
+    const handleFocus = () => {
+      console.log('Android AppState focus event');
+      setIsAppFocused(true);
+    };
+
+    const handleBlur = () => {
+      console.log('Android AppState blur event');
+      setIsAppFocused(false);
+    };
+
+    const focusListener = AppState.addEventListener('focus', handleFocus);
+    const blurListener = AppState.addEventListener('blur', handleBlur);
+
+    return () => {
+      focusListener?.remove();
+      blurListener?.remove();
     };
   }, []);
 
@@ -224,6 +250,7 @@ const AppStatusProvider = ({ children }) => {
       appState,
       screenDimensions,
       shouldResetStateRef,
+      isAppFocused,
       // lastConnectedTimeRef,
     }),
     [
@@ -235,6 +262,7 @@ const AppStatusProvider = ({ children }) => {
       appState,
       screenDimensions,
       shouldResetStateRef,
+      isAppFocused,
       // lastConnectedTimeRef,
     ],
   );

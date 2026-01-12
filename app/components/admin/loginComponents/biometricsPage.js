@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, AppState, Platform } from 'react-native';
 import { COLORS, ICONS, SIZES } from '../../../constants';
 import { Image } from 'expo-image';
 import { ThemeText } from '../../../functions/CustomElements';
@@ -20,7 +20,7 @@ import factoryResetWallet from '../../../functions/factoryResetWallet';
 import { useAppStatus } from '../../../../context-store/appStatus';
 
 export default function BiometricsLogin() {
-  const { appState } = useAppStatus();
+  const { appState, isAppFocused } = useAppStatus();
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -29,78 +29,115 @@ export default function BiometricsLogin() {
   const didNavigate = useRef(null);
   const numRetriesBiometric = useRef(0);
   const isInitialRender = useRef(true);
-  const isFocusedRef = useRef(true);
+  const authTimeoutRef = useRef(null);
   const [isAuthenticating, setIsAuthenticating] = useState(true);
 
   const isFocused = useIsFocused();
 
+  // Clear timeout on unmount
   useEffect(() => {
-    isFocusedRef.current = isFocused;
-  }, [isFocused]);
-
-  useEffect(() => {
-    async function loadPageInformation() {
-      try {
-        const [storedPin] = await Promise.all([retrieveData('pinHash')]);
-
-        let needsToBeMigrated;
-        try {
-          JSON.parse(storedPin.value);
-          needsToBeMigrated = true;
-        } catch (err) {
-          console.log('comparison value error', err);
-          needsToBeMigrated = false;
-        }
-
-        if (needsToBeMigrated) {
-          console.log('before login security switch');
-          if (didNavigate.current) return;
-
-          setIsAuthenticating(true);
-
-          const savedMnemonic = await retrieveData('encryptedMnemonic');
-          const migrationResponse = await handleLoginSecuritySwitch(
-            savedMnemonic.value,
-            '',
-            'biometric',
-          );
-          console.log('after login security switch');
-
-          if (migrationResponse) {
-            storeData('pinHash', sha256Hash(storedPin.value));
-            setAccountMnemonic(savedMnemonic.value);
-            didNavigate.current = true;
-            navigate.replace('ConnectingToNodeLoadingScreen');
-          } else {
-            setIsAuthenticating(false);
-            navigate.navigate('ConfirmActionPage', {
-              confirmMessage: t(
-                'adminLogin.pinPage.isBiometricEnabledConfirmAction',
-              ),
-              confirmFunction: async () => {
-                const deleted = await factoryResetWallet();
-                if (deleted) {
-                  RNRestart.restart();
-                } else {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: t('errormessages.deleteAccount'),
-                  });
-                }
-              },
-            });
-          }
-          return;
-        }
-
-        handleFaceID();
-      } catch (err) {
-        console.log('Load pin page information error', err);
-        setIsAuthenticating(false);
+    return () => {
+      if (authTimeoutRef.current) {
+        clearTimeout(authTimeoutRef.current);
+        authTimeoutRef.current = null;
       }
+    };
+  }, []);
+
+  // Handle focus changes with 500ms delay
+  useEffect(() => {
+    // Clear any existing timeout
+    if (authTimeoutRef.current) {
+      clearTimeout(authTimeoutRef.current);
+      authTimeoutRef.current = null;
     }
-    if (appState !== 'active') return;
-    loadPageInformation();
-  }, [appState]);
+
+    // Only proceed if app is active AND screen is focused AND Android focus events say we're focused
+    const isFullyFocused = appState === 'active' && isFocused && isAppFocused;
+
+    if (isFullyFocused) {
+      console.log(
+        'App fully focused (appState + isFocused + isAppFocused), starting 500ms timer...',
+      );
+
+      authTimeoutRef.current = setTimeout(() => {
+        console.log('500ms elapsed, triggering authentication');
+        loadPageInformation();
+      }, 500);
+    } else {
+      console.log(
+        'App not fully focused, canceling any pending authentication',
+      );
+    }
+
+    // Cleanup timeout if dependencies change before 500ms
+    return () => {
+      if (authTimeoutRef.current) {
+        clearTimeout(authTimeoutRef.current);
+        authTimeoutRef.current = null;
+      }
+    };
+  }, [appState, isFocused, isAppFocused]);
+
+  async function loadPageInformation() {
+    try {
+      const [storedPin] = await Promise.all([retrieveData('pinHash')]);
+
+      let needsToBeMigrated;
+      try {
+        JSON.parse(storedPin.value);
+        needsToBeMigrated = true;
+      } catch (err) {
+        console.log('comparison value error', err);
+        needsToBeMigrated = false;
+      }
+
+      if (needsToBeMigrated) {
+        console.log('before login security switch');
+        if (didNavigate.current) return;
+
+        setIsAuthenticating(true);
+
+        const savedMnemonic = await retrieveData('encryptedMnemonic');
+        const migrationResponse = await handleLoginSecuritySwitch(
+          savedMnemonic.value,
+          '',
+          'biometric',
+        );
+        console.log('after login security switch');
+
+        if (migrationResponse) {
+          storeData('pinHash', sha256Hash(storedPin.value));
+          setAccountMnemonic(savedMnemonic.value);
+          didNavigate.current = true;
+          navigate.replace('ConnectingToNodeLoadingScreen');
+        } else {
+          setIsAuthenticating(false);
+          navigate.navigate('ConfirmActionPage', {
+            confirmMessage: t(
+              'adminLogin.pinPage.isBiometricEnabledConfirmAction',
+            ),
+            confirmFunction: async () => {
+              const deleted = await factoryResetWallet();
+              if (deleted) {
+                RNRestart.restart();
+              } else {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t('errormessages.deleteAccount'),
+                });
+              }
+            },
+          });
+        }
+        return;
+      }
+
+      handleFaceID();
+    } catch (err) {
+      console.log('Load pin page information error', err);
+      setIsAuthenticating(false);
+    }
+  }
 
   const handleFaceID = async () => {
     if (isAuthenticating && !isInitialRender.current) {
@@ -108,7 +145,6 @@ export default function BiometricsLogin() {
       return;
     }
     if (didNavigate.current) return;
-    if (!isFocusedRef.current) return;
     isInitialRender.current = false;
 
     try {
