@@ -170,7 +170,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
   );
   return (
     <View style={styles.container}>
-      {giftsArray.length > 0 && false ? (
+      {giftsArray.length > 0 ? (
         <FlatList
           style={styles.flatlistStyle}
           contentContainerStyle={styles.flatListContent}
