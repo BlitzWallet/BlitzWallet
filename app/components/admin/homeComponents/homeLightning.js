@@ -5,6 +5,7 @@ import {
   RefreshControl,
   useWindowDimensions,
 } from 'react-native';
+import PagerView from 'react-native-pager-view';
 import { UserSatAmount } from './homeLightning/userSatAmount';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
@@ -31,7 +32,8 @@ import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   interpolate,
-  runOnJS,
+  useHandler,
+  useEvent,
 } from 'react-native-reanimated';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
 import { useActiveCustodyAccount } from '../../../../context-store/activeAccount';
@@ -50,6 +52,26 @@ const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
 const MemoizedSendRecieveBTNs = memo(SendRecieveBTNs);
 const MemoizedLRC20Assets = memo(LRC20Assets);
+
+const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
+
+// Custom hook for PagerView scroll handler
+function usePagerScrollHandler(handlers, dependencies) {
+  const { context, doDependenciesDiffer } = useHandler(handlers, dependencies);
+  const subscribeForEvents = ['onPageScroll'];
+
+  return useEvent(
+    event => {
+      'worklet';
+      const { onPageScroll } = handlers;
+      if (onPageScroll && event.eventName.endsWith('onPageScroll')) {
+        onPageScroll(event, context);
+      }
+    },
+    subscribeForEvents,
+    doDependenciesDiffer,
+  );
+}
 
 export default function HomeLightning({ navigation }) {
   const {
@@ -79,31 +101,27 @@ export default function HomeLightning({ navigation }) {
   const screenWidth = useWindowDimensions().width;
 
   const balanceScrollX = useSharedValue(0);
-  const balanceListRef = useRef(null);
-  const isSnappingRef = useRef(false);
+  const pagerRef = useRef(null);
 
   const scrollY = useSharedValue(0);
   const [navbarHeight, setNavbarHeight] = useState(0);
   const [scrollPosition, setScrollPosition] = useState('total');
 
-  const updateScrollPosition = useCallback(
-    offsetX => {
-      const position = offsetX / screenWidth;
-      if (position < 0.5) {
-        setScrollPosition('total');
-      } else if (position < 1.5) {
-        setScrollPosition('sats');
-      } else {
-        setScrollPosition('usd');
-      }
-    },
-    [screenWidth],
-  );
+  const updateScrollPosition = useCallback(page => {
+    if (page === 0) {
+      setScrollPosition('total');
+    } else if (page === 1) {
+      setScrollPosition('sats');
+    } else {
+      setScrollPosition('usd');
+    }
+  }, []);
 
-  const onBalanceScroll = useAnimatedScrollHandler({
-    onScroll: event => {
-      balanceScrollX.value = event.contentOffset.x;
-      scheduleOnRN(updateScrollPosition, event.contentOffset.x);
+  const onBalancePageScroll = usePagerScrollHandler({
+    onPageScroll: e => {
+      'worklet';
+      const scrollOffset = (e.position + e.offset) * screenWidth;
+      balanceScrollX.value = scrollOffset;
     },
   });
 
@@ -275,13 +293,21 @@ export default function HomeLightning({ navigation }) {
     startRootstockEventListener,
     sparkInformation,
     currentWalletMnemoinc,
-    snapToNearestPage,
   ]);
 
   const handleNavbarLayout = useCallback(event => {
     const { height } = event.nativeEvent.layout;
     setNavbarHeight(height);
   }, []);
+
+  const handlePageSelected = useCallback(
+    e => {
+      const page = e.nativeEvent.position;
+      console.log(page, 'page');
+      updateScrollPosition(page);
+    },
+    [updateScrollPosition],
+  );
 
   const colors = useMemo(
     () =>
@@ -346,43 +372,6 @@ export default function HomeLightning({ navigation }) {
       zIndex: 99,
     };
   }, [backgroundColor, topPadding]);
-
-  // Memoized getItemLayout for consistent measurements
-  const getItemLayout = useCallback(
-    (data, index) => ({
-      length: screenWidth,
-      offset: screenWidth * index,
-      index,
-    }),
-    [screenWidth],
-  );
-
-  const snapToNearestPage = useCallback(
-    offsetX => {
-      if (!balanceListRef.current) return;
-      if (isSnappingRef.current) return;
-
-      const position = offsetX / screenWidth;
-      let page;
-
-      if (position < 0.5) {
-        page = 0;
-      } else if (position < 1.5) {
-        page = 1;
-      } else {
-        page = 2;
-      }
-      const targetOffset = page * screenWidth;
-
-      isSnappingRef.current = true;
-
-      balanceListRef.current.scrollToOffset({
-        offset: targetOffset,
-        animated: true,
-      });
-    },
-    [screenWidth],
-  );
 
   return (
     <GlobalThemeView styles={globlThemeViewMemodStlyes}>
@@ -457,85 +446,66 @@ export default function HomeLightning({ navigation }) {
 
         {/* Balance pager (horizontal swipe) */}
         <View style={[styles.balanceSection, { backgroundColor }]}>
-          <Animated.FlatList
-            ref={balanceListRef}
-            horizontal
-            pagingEnabled={true}
-            snapToAlignment="start"
-            decelerationRate="fast"
-            showsHorizontalScrollIndicator={false}
-            getItemLayout={getItemLayout}
-            contentContainerStyle={{
-              paddingTop: 50,
-              paddingBottom: 72,
-            }}
-            data={BALANCE_PAGES}
-            keyExtractor={item => item.key}
-            onScroll={onBalanceScroll}
-            scrollEventThrottle={16}
-            onScrollBeginDrag={() => {
-              isSnappingRef.current = false;
-            }}
-            onScrollEndDrag={event => {
-              snapToNearestPage(event.nativeEvent.contentOffset.x);
-            }}
-            onMomentumScrollEnd={event => {
-              snapToNearestPage(event.nativeEvent.contentOffset.x);
-            }}
-            renderItem={({ item }) => {
-              return (
-                <View style={{ width: screenWidth, alignItems: 'center' }}>
-                  {item.type === 'total' && (
-                    <>
-                      <ThemeText
-                        content={t('constants.total_balance')}
-                        styles={styles.balanceLabel}
-                      />
-                      <MemoizedUserSatAmount
-                        isConnectedToTheInternet={isConnectedToTheInternet}
-                        theme={theme}
-                        darkModeType={darkModeType}
-                        sparkInformation={sparkInformation}
-                        mode="total"
-                      />
-                    </>
-                  )}
+          <AnimatedPagerView
+            ref={pagerRef}
+            style={styles.pagerView}
+            initialPage={0}
+            onPageSelected={handlePageSelected}
+            onPageScroll={onBalancePageScroll}
+          >
+            {BALANCE_PAGES.map(item => (
+              <View key={item.key} style={styles.pageContainer}>
+                {item.type === 'total' && (
+                  <>
+                    <ThemeText
+                      content={t('constants.total_balance')}
+                      styles={styles.balanceLabel}
+                    />
+                    <MemoizedUserSatAmount
+                      isConnectedToTheInternet={isConnectedToTheInternet}
+                      theme={theme}
+                      darkModeType={darkModeType}
+                      sparkInformation={sparkInformation}
+                      mode="total"
+                    />
+                  </>
+                )}
 
-                  {item.type === 'sats' && (
-                    <>
-                      <ThemeText
-                        content={t('constants.sat_balance')}
-                        styles={styles.balanceLabel}
-                      />
-                      <MemoizedUserSatAmount
-                        isConnectedToTheInternet={isConnectedToTheInternet}
-                        theme={theme}
-                        darkModeType={darkModeType}
-                        sparkInformation={sparkInformation}
-                        mode="sats"
-                      />
-                    </>
-                  )}
+                {item.type === 'sats' && (
+                  <>
+                    <ThemeText
+                      content={t('constants.sat_balance')}
+                      styles={styles.balanceLabel}
+                    />
+                    <MemoizedUserSatAmount
+                      isConnectedToTheInternet={isConnectedToTheInternet}
+                      theme={theme}
+                      darkModeType={darkModeType}
+                      sparkInformation={sparkInformation}
+                      mode="sats"
+                    />
+                  </>
+                )}
 
-                  {item.type === 'usd' && (
-                    <>
-                      <ThemeText
-                        content={t('constants.usd_balance')}
-                        styles={styles.balanceLabel}
-                      />
-                      <MemoizedUserSatAmount
-                        isConnectedToTheInternet={isConnectedToTheInternet}
-                        theme={theme}
-                        darkModeType={darkModeType}
-                        sparkInformation={sparkInformation}
-                        mode="usd"
-                      />
-                    </>
-                  )}
-                </View>
-              );
-            }}
-          />
+                {item.type === 'usd' && (
+                  <>
+                    <ThemeText
+                      content={t('constants.usd_balance')}
+                      styles={styles.balanceLabel}
+                    />
+                    <MemoizedUserSatAmount
+                      isConnectedToTheInternet={isConnectedToTheInternet}
+                      theme={theme}
+                      darkModeType={darkModeType}
+                      sparkInformation={sparkInformation}
+                      mode="usd"
+                    />
+                  </>
+                )}
+              </View>
+            ))}
+          </AnimatedPagerView>
+
           <BalanceDots
             scrollX={balanceScrollX}
             pageCount={BALANCE_PAGES.length}
@@ -594,9 +564,18 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     textTransform: 'uppercase',
+    includeFontPadding: false,
   },
   balanceSection: {
     alignItems: 'center',
+  },
+  pagerView: {
+    width: '100%',
+    height: 180,
+  },
+  pageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonsContainer: {
     borderBottomLeftRadius: 30,

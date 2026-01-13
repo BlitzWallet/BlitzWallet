@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     position: 'absolute',
-    bottom: 42,
+    bottom: 30,
   },
 
   dot: {
