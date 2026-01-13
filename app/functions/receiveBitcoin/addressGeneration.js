@@ -13,6 +13,11 @@ import { formatBip21Address } from '../spark/handleBip21SparkAddress';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import sha256Hash from '../hash';
 import { createTokensInvoice } from '../spark';
+import {
+  BTC_ASSET_ADDRESS,
+  simulateSwap,
+  USD_ASSET_ADDRESS,
+} from '../spark/flashnet';
 // import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
@@ -79,15 +84,26 @@ export async function initializeAddressProcess(wolletInfo) {
               wolletInfo.swapLimits?.bitcoin,
             );
       wolletInfo.setInitialSendAmount(realAmount);
-      const response = await sparkReceivePaymentWrapper({
-        paymentType: 'lightning',
-        amountSats: realAmount,
-        memo: wolletInfo.description,
-        mnemoinc: wolletInfo.currentWalletMnemoinc,
-        sendWebViewRequest,
-        performSwaptoUSD: wolletInfo.endReceiveType === 'USD',
-        includeSparkAddress: wolletInfo.endReceiveType !== 'USD',
-      });
+
+      const [response, swapResponse] = await Promise.all([
+        sparkReceivePaymentWrapper({
+          paymentType: 'lightning',
+          amountSats: realAmount,
+          memo: wolletInfo.description,
+          mnemoinc: wolletInfo.currentWalletMnemoinc,
+          sendWebViewRequest,
+          performSwaptoUSD: wolletInfo.endReceiveType === 'USD',
+          includeSparkAddress: wolletInfo.endReceiveType !== 'USD',
+        }),
+        wolletInfo.endReceiveType === 'USD'
+          ? simulateSwap(wolletInfo.currentWalletMnemoinc, {
+              poolId: wolletInfo.poolInfoRef.lpPublicKey,
+              assetInAddress: BTC_ASSET_ADDRESS,
+              assetOutAddress: USD_ASSET_ADDRESS,
+              amountIn: realAmount,
+            })
+          : Promise.resolve(null),
+      ]);
 
       if (!response.didWork) {
         throw new Error('errormessages.lightningInvoiceError');
@@ -97,6 +113,17 @@ export async function initializeAddressProcess(wolletInfo) {
         generatedAddress: response.invoice,
         fee: 0,
       };
+
+      if (swapResponse && swapResponse?.didWork) {
+        const showPriceImpact =
+          parseFloat(swapResponse.simulation.priceImpact) > 5;
+        if (showPriceImpact) {
+          stateTracker.errorMessageText = {
+            type: 'warning',
+            text: 'errormessages.priceImpact',
+          };
+        }
+      }
     }
     // Bitcoin
     else if (selectedRecieveOption.toLowerCase() === 'bitcoin') {

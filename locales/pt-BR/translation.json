@@ -1931,7 +1931,8 @@
     "receivedLiquid": "Pagamento Liquid recebido — sua troca está sendo iniciada. Pode levar até um minuto, então mantenha o aplicativo aberto.",
     "invalidData": "Os dados fornecidos não são válidos",
     "paymentError": "Ocorreu um erro ao processar seu pagamento. Tente novamente. Se ainda não funcionar, feche o app e abra-o novamente antes de tentar de novo.",
-    "paymentFeeError": "Não foi possível recuperar a taxa de pagamento. Tente novamente. Se o problema continuar, feche o app e abra-o novamente antes de tentar de novo."
+    "paymentFeeError": "Não foi possível recuperar a taxa de pagamento. Tente novamente. Se o problema continuar, feche o app e abra-o novamente antes de tentar de novo.",
+    "priceImpact": "Este pagamento é grande, portanto o valor final que você receber em dólares pode mudar."
   },
 
   "loadingScreen": {

@@ -1932,7 +1932,8 @@
     "receivedLiquid": "Liquid payment received — your swap is starting. It may take up to a minute, so please keep the app open.",
     "invalidData": "The data you entered isn’t valid",
     "paymentError": "Something went wrong while processing your payment. Please try again. If it still doesn’t work, close the app and reopen it before trying again.",
-    "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again."
+    "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again.",
+    "priceImpact": "This payment is large, so the final amount you receive in Dollars may change."
   },
 
   "loadingScreen": {

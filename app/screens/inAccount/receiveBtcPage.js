@@ -167,6 +167,7 @@ export default function ReceivePaymentHome(props) {
         swapLimits,
         setInitialSendAmount,
         userReceiveAmount,
+        poolInfoRef,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener(60);
@@ -417,7 +418,10 @@ function QrCode(props) {
     const newAddress = addressState.generatedAddress;
     const hasChanged = newAddress !== previousAddress.current;
 
-    if (addressState.errorMessageText?.text) {
+    if (
+      addressState.errorMessageText?.text &&
+      addressState.errorMessageText?.type !== 'warning'
+    ) {
       loadingOpacity.value = 0;
       qrOpacity.value = 0;
       return;
@@ -453,7 +457,7 @@ function QrCode(props) {
   }, [
     addressState.generatedAddress,
     addressState.isGeneratingInvoice,
-    addressState.errorMessageText?.text,
+    addressState.errorMessageText,
   ]);
 
   const handleFadeOutComplete = newAddress => {
@@ -552,7 +556,8 @@ function QrCode(props) {
         style={styles.qrCodeContainer}
       >
         <View style={styles.animatedQRContainer}>
-          {!addressState.errorMessageText?.text ? (
+          {!addressState.errorMessageText?.text ||
+          addressState.errorMessageText?.type === 'warning' ? (
             <>
               <Animated.View
                 style={{
@@ -602,6 +607,16 @@ function QrCode(props) {
             </View>
           )}
         </View>
+        {addressState.errorMessageText?.text &&
+          addressState.errorMessageText?.type === 'warning' && (
+            <ThemeText
+              styles={[
+                styles.errorText,
+                { marginTop: 10, marginBottom: 20, fontSize: SIZES.smedium },
+              ]}
+              content={t(addressState.errorMessageText.text)}
+            />
+          )}
       </TouchableOpacity>
 
       {canConvert && (
@@ -775,6 +790,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     textAlign: 'center',
     marginTop: 20,
+    includeFontPadding: false,
   },
 
   secondaryButton: {

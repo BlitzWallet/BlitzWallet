@@ -1934,7 +1934,8 @@
     "receivedLiquid": "Pagamento Liquid ricevuto: il tuo scambio sta iniziando. Potrebbe volerci fino a un minuto, quindi tieni l'app aperta.",
     "invalidData": "I dati forniti non sono validi",
     "paymentError": "Si è verificato un errore durante l'elaborazione del pagamento. Riprova. Se continua a non funzionare, chiudi l'app e riaprila prima di riprovare.",
-    "paymentFeeError": "Non siamo riusciti a recuperare la commissione di pagamento. Riprova. Se il problema persiste, chiudi l'app e riaprila prima di riprovare."
+    "paymentFeeError": "Non siamo riusciti a recuperare la commissione di pagamento. Riprova. Se il problema persiste, chiudi l'app e riaprila prima di riprovare.",
+    "priceImpact": "Questo pagamento è elevato, quindi l'importo finale che riceverai in dollari potrebbe cambiare."
   },
 
   "loadingScreen": {
