@@ -341,14 +341,27 @@ export const minFlashnetSwapAmounts = async (mnemonic, assetHex) => {
  */
 export const simulateSwap = async (
   mnemonic,
-  { poolId, assetInAddress, assetOutAddress, amountIn },
+  {
+    poolId,
+    assetInAddress,
+    assetOutAddress,
+    amountIn,
+    integratorFeeRateBps = 100,
+  },
 ) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.simulateSwap,
-        { mnemonic, poolId, assetInAddress, assetOutAddress, amountIn },
+        {
+          mnemonic,
+          poolId,
+          assetInAddress,
+          assetOutAddress,
+          amountIn,
+          integratorFeeRateBps,
+        },
       );
       return validateWebViewResponse(
         response,
@@ -362,6 +375,7 @@ export const simulateSwap = async (
         assetInAddress,
         assetOutAddress,
         amountIn: amountIn.toString(),
+        integratorBps: integratorFeeRateBps,
       });
 
       return {
@@ -441,6 +455,7 @@ export const executeSwap = async (
           assetInAddress,
           assetOutAddress,
           amountIn: amountIn.toString(),
+          integratorBps: integratorFeeRateBps,
         });
         calculatedMinOut = calculateMinOutput(
           simulation.amountOut,
@@ -455,7 +470,7 @@ export const executeSwap = async (
         assetOutAddress,
         amountIn: amountIn.toString(),
         minAmountOut: calculatedMinOut.toString(),
-        maxSlippageBps: 500,
+        maxSlippageBps,
         integratorFeeRateBps,
         integratorPublicKey: process.env.BLITZ_SPARK_PUBLICKEY,
       });
@@ -984,7 +999,7 @@ export const getCurrentPrice = async (mnemonic, poolId) => {
  */
 export function satsToDollars(sats, currentPriceAinB) {
   const DOLLAR_DECIMALS = 1_000_000;
-  return (sats * currentPriceAinB) / DOLLAR_DECIMALS;
+  return ((sats * currentPriceAinB) / DOLLAR_DECIMALS).toFixed(2);
 }
 
 /**
