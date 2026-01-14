@@ -31,6 +31,8 @@ import {
   executeSwap,
   getUserSwapHistory,
   payLightningWithToken,
+  satsToDollars,
+  SEND_AMOUNT_INCREASE_BUFFER,
   USD_ASSET_ADDRESS,
 } from './flashnet';
 import {
@@ -349,19 +351,34 @@ export const sparkPaymenWrapper = async ({
       let usedUSDB = false;
       if (needsSwap) {
         if (usablePaymentMethod === 'USD') {
+          const amountInWithBuffer = Math.min(
+            (swapPaymentQuote.amountIn * SEND_AMOUNT_INCREASE_BUFFER) /
+              Math.pow(10, 6),
+            satsToDollars(
+              swapPaymentQuote.dollarBalanceSat,
+              poolInfoRef.currentPriceAInB,
+            ),
+          );
+          const formatted = Math.round(amountInWithBuffer * Math.pow(10, 6));
           executionResponse = await executeSwap(mnemonic, {
             poolId: swapPaymentQuote.poolId,
             assetInAddress: swapPaymentQuote.assetInAddress,
             assetOutAddress: swapPaymentQuote.assetOutAddress,
-            amountIn: swapPaymentQuote.amountIn,
+            amountIn: formatted,
           });
           usedUSDB = true;
         } else {
+          const amountInWithBuffer = Math.min(
+            (swapPaymentQuote.amountIn * SEND_AMOUNT_INCREASE_BUFFER) /
+              Math.pow(10, 6),
+            swapPaymentQuote.bitcoinBalance,
+          );
+          const formatted = Math.round(amountInWithBuffer * Math.pow(10, 6));
           executionResponse = await executeSwap(mnemonic, {
             poolId: swapPaymentQuote.poolId,
             assetInAddress: swapPaymentQuote.assetInAddress,
             assetOutAddress: swapPaymentQuote.assetOutAddress,
-            amountIn: swapPaymentQuote.amountIn,
+            amountIn: formatted,
           });
         }
 
@@ -423,8 +440,13 @@ export const sparkPaymenWrapper = async ({
         }
 
         if (expectedReceiveType === 'tokens' && seletctedToken === 'Bitcoin') {
+          const originalSendAmount =
+            satsToDollars(amountSats, poolInfoRef.currentPriceAInB).toFixed(3) *
+            Math.pow(10, 6);
           const usdbAmount = isSwap
-            ? executionResponse.swap.amountOut
+            ? executionResponse.swap.amountOut >= originalSendAmount
+              ? originalSendAmount
+              : executionResponse.swap.amountOut
             : fiatValueConvertedSendAmount;
           useLRC20Format = true;
           sparkPayResponse = await sendSparkTokens({
@@ -442,9 +464,14 @@ export const sparkPaymenWrapper = async ({
             mnemonic,
           });
         } else {
+          const finalSatAmount = isSwap
+            ? executionResponse.swap.amountOut >= amountSats
+              ? amountSats
+              : executionResponse.swap.amountOut
+            : amountSats;
           sparkPayResponse = await sendSparkPayment({
             receiverSparkAddress: address,
-            amountSats,
+            amountSats: finalSatAmount,
             mnemonic,
           });
         }
