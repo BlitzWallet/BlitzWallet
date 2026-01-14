@@ -148,7 +148,7 @@ export default function ClaimGiftHome({ theme, darkModeType }) {
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             marginBottom: bottomPadding + 80,
-            opacity: !enteredLink || WEBSITE_REGEX.test(enteredLink) ? 0.7 : 1,
+            opacity: !enteredLink || !WEBSITE_REGEX.test(enteredLink) ? 0.7 : 1,
           },
         ]}
       >
