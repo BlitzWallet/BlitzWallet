@@ -7,20 +7,29 @@ import FormattedBalanceInput from './formattedBalanceInput';
 import FormattedSatText from './satTextDisplay';
 import CustomNumberKeyboard from './customNumberKeyboard';
 import CustomButton from './button';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import ThemeText from './textTheme';
 import { useTranslation } from 'react-i18next';
 import { HIDDEN_OPACITY } from '../../constants/theme';
+import { useFlashnet } from '../../../context-store/flashnetContext';
+import formatBalanceAmount from '../formatNumber';
+import { satsToDollars } from '../spark/flashnet';
 
 export default function CustomInputHalfModal(props) {
   const navigate = useNavigation();
+  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { fiatStats } = useNodeContext();
+  const { fiatStats: globalFiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
   const initialValue = useRef(0);
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination != 'fiat' ? 'sats' : 'fiat',
   );
+  const forceUSD = props.forceUSD;
+  const fiatStats = forceUSD
+    ? { value: swapUSDPriceDollars, coin: 'USD' }
+    : globalFiatStats;
+
   const { t } = useTranslation();
   const localSatAmount =
     inputDenomination === 'sats'
@@ -83,14 +92,10 @@ export default function CustomInputHalfModal(props) {
           content={props.message}
         />
       )}
-      <FormattedBalanceInput
-        maxWidth={0.9}
-        amountValue={amountValue}
-        inputDenomination={inputDenomination}
-        customTextInputContainerStyles={{
-          padding: 10,
-        }}
-        containerFunction={() => {
+      <TouchableOpacity
+        style={{ marginTop: 10 }}
+        activeOpacity={1}
+        onPress={() => {
           setInputDenomination(prev => {
             const newPrev = prev === 'sats' ? 'fiat' : 'sats';
 
@@ -98,17 +103,46 @@ export default function CustomInputHalfModal(props) {
           });
           setAmountValue(convertedValue() || '');
         }}
-      />
+      >
+        <FormattedBalanceInput
+          maxWidth={0.9}
+          amountValue={amountValue}
+          inputDenomination={inputDenomination}
+          forceCurrency={forceUSD ? 'USD' : ''}
+        />
 
-      <FormattedSatText
-        containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-        neverHideBalance={true}
-        styles={{ includeFontPadding: false, ...styles.satValue }}
-        globalBalanceDenomination={
-          inputDenomination === 'sats' ? 'fiat' : 'sats'
-        }
-        balance={localSatAmount}
-      />
+        {forceUSD ? (
+          <FormattedSatText
+            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
+            neverHideBalance={true}
+            styles={{ includeFontPadding: false, ...styles.satValue }}
+            globalBalanceDenomination={
+              inputDenomination === 'sats' ? 'fiat' : 'sats'
+            }
+            balance={
+              inputDenomination === 'sats'
+                ? formatBalanceAmount(
+                    satsToDollars(localSatAmount, poolInfoRef.currentPriceAInB),
+                    false,
+                    masterInfoObject,
+                  )
+                : localSatAmount
+            }
+            forceCurrency={'USD'}
+            useBalance={inputDenomination === 'sats'}
+          />
+        ) : (
+          <FormattedSatText
+            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
+            neverHideBalance={true}
+            styles={{ includeFontPadding: false, ...styles.satValue }}
+            globalBalanceDenomination={
+              inputDenomination === 'sats' ? 'fiat' : 'sats'
+            }
+            balance={localSatAmount}
+          />
+        )}
+      </TouchableOpacity>
       <CustomNumberKeyboard
         showDot={inputDenomination === 'fiat'}
         setInputValue={setAmountValue}

@@ -30,6 +30,7 @@ export default function FormattedBalanceInput({
   activeOpacity = 0.2,
   maxWidth = 0.95,
   customCurrencyCode = '',
+  forceCurrency = false,
 }) {
   const { screenDimensions } = useAppStatus();
   const [inputWidth, setInputWidth] = useState(0);
@@ -37,7 +38,7 @@ export default function FormattedBalanceInput({
   const [isScrolling, setIsScrolling] = useState(false);
   const { masterInfoObject } = useGlobalContextProvider();
 
-  const currencyText = masterInfoObject.fiatCurrency || 'USD';
+  const currencyText = forceCurrency || masterInfoObject.fiatCurrency || 'USD';
   const showSymbol = masterInfoObject.satDisplay != 'word';
 
   const currencyInfo = useMemo(
