@@ -15,6 +15,7 @@ import {
   GIFT_DERIVE_PATH_CUTOFF,
   SIZES,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
+  USDB_TOKEN_ID,
   WEBSITE_REGEX,
 } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -26,6 +27,7 @@ import {
   getSparkPaymentFeeEstimate,
   initializeSparkWallet,
   sendSparkPayment,
+  sendSparkTokens,
 } from '../../../../functions/spark';
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +43,8 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
 import { deriveSparkGiftMnemonic } from '../../../../functions/gift/deriveGiftWallet';
 import { deriveKeyFromMnemonic } from '../../../../functions/seed';
+import { dollarsToSats } from '../../../../functions/spark/flashnet';
+import { useFlashnet } from '../../../../../context-store/flashnetContext';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -50,6 +54,7 @@ export default function ClaimGiftScreen({
   expertMode,
   customGiftIndex,
 }) {
+  const { poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
   const { updateGiftList } = useGifts();
   const navigate = useNavigation();
@@ -69,6 +74,7 @@ export default function ClaimGiftScreen({
   const walletInitPromise = useRef(null);
   const walletInitResult = useRef(null);
   const isClaimingRef = useRef(false);
+  const denomination = giftDetails?.denomination || 'BTC';
 
   const handleError = useCallback(
     errorMessage => {
@@ -190,7 +196,19 @@ export default function ClaimGiftScreen({
       );
 
       let result = await getSparkBalance(seed);
-      if (result?.didWork && Number(result.balance) === expectedAmount) {
+
+      const handleBalanceCheck = result => {
+        if (!result?.didWork) return false;
+
+        const bitcoinCheck = Number(result.balance) === expectedAmount;
+        const dollarCheck =
+          Number(result.tokensObj?.[USDB_TOKEN_ID]?.balance) >=
+          expectedAmount * Math.pow(10, 6) * 0.95;
+
+        return denomination === 'BTC' ? bitcoinCheck : dollarCheck;
+      };
+
+      if (handleBalanceCheck(result)) {
         return result;
       }
 
@@ -207,7 +225,7 @@ export default function ClaimGiftScreen({
         result = await getSparkBalance(seed);
         if (!result?.didWork) continue;
 
-        if (Number(result.balance) === expectedAmount) {
+        if (handleBalanceCheck(result)) {
           return result;
         }
       }
@@ -215,7 +233,7 @@ export default function ClaimGiftScreen({
       if (
         shouldEnforceAmount &&
         expectedAmount !== undefined &&
-        Number(result?.balance) !== expectedAmount
+        !handleBalanceCheck(result)
       ) {
         throw new Error(
           t('screens.inAccount.giftPages.claimPage.balanceMismatchError'),
@@ -224,7 +242,7 @@ export default function ClaimGiftScreen({
 
       return result;
     },
-    [t, expertMode],
+    [t, expertMode, denomination],
   );
 
   const ensureWalletInitialized = useCallback(
@@ -258,16 +276,47 @@ export default function ClaimGiftScreen({
         claimType === 'claim',
       );
 
-      const formattedWalletBalance = walletBalance?.didWork
+      const bitcoinBalance = walletBalance?.didWork
         ? Number(walletBalance?.balance)
-        : giftAmount || 0;
+        : 0;
+      const dollarBalance = walletBalance?.didWork
+        ? Number(walletBalance?.tokensObj?.[USDB_TOKEN_ID]?.balance)
+        : 0;
 
-      const fees = await getSparkPaymentFeeEstimate(
-        formattedWalletBalance,
-        giftSeed,
-      );
+      let formattedWalletBalance;
+      let fees;
+      let fromBalance;
+      if (expertMode) {
+        if (!bitcoinBalance && !dollarBalance) {
+          throw new Error(
+            t('screens.inAccount.giftPages.claimPage.nobalanceErrorExpert'),
+          );
+        }
+        formattedWalletBalance = bitcoinBalance || dollarBalance;
+        fromBalance = bitcoinBalance ? 'BTC' : 'USD';
+        fees = await (denomination === 'USD'
+          ? Promise.resolve(0)
+          : getSparkPaymentFeeEstimate(formattedWalletBalance, giftSeed));
+      } else {
+        const dollarGiftAmount = giftAmount * Math.pow(10, 6);
+        formattedWalletBalance = walletBalance?.didWork
+          ? denomination === 'BTC'
+            ? bitcoinBalance
+            : dollarBalance
+          : giftAmount || 0;
 
-      const sendingAmount = formattedWalletBalance - fees;
+        fees = await (denomination === 'USD'
+          ? Promise.resolve(
+              dollarGiftAmount > formattedWalletBalance
+                ? dollarGiftAmount - formattedWalletBalance
+                : 0,
+            )
+          : getSparkPaymentFeeEstimate(formattedWalletBalance, giftSeed));
+        fromBalance = denomination;
+      }
+
+      const sendingAmount =
+        formattedWalletBalance - (fromBalance === 'USD' ? 0 : fees);
 
       if (sendingAmount <= 0) {
         if (claimType === 'reclaim' && !expertMode) {
@@ -285,7 +334,7 @@ export default function ClaimGiftScreen({
         );
       }
 
-      return sendingAmount;
+      return { sendingAmount, fees, fromBalance };
     },
     [
       getBalanceWithStatusRetry,
@@ -294,42 +343,54 @@ export default function ClaimGiftScreen({
       giftDetails.uuid,
       updateGiftList,
       t,
+      denomination,
     ],
   );
 
   // Extract transaction processing logic
   const processTransaction = useCallback(
-    async (paymentResponse, receivingAddress) => {
-      const tx = {
-        ...paymentResponse.response,
-        description:
-          claimType === 'reclaim'
-            ? t('screens.inAccount.giftPages.reclaimGiftMessage')
-            : giftDetails.description,
-        isGift: true,
+    async (paymentResponse, receivingAddress, sendingAmount, fees) => {
+      const data = paymentResponse.response;
+      const formattedToken = denomination === 'USD' ? USDB_TOKEN_ID : '';
+      const fee =
+        denomination === 'USD'
+          ? dollarsToSats(fees / Math.pow(10, 6), poolInfoRef.currentPriceAInB)
+          : fees;
+      let tx = {
+        id: denomination === 'USD' ? data : data.id,
+        paymentStatus: 'pending',
+        paymentType: 'spark',
+        accountId: sparkInformation.identityPubKey,
+        details: {
+          fee: fee,
+          totalFee: fee,
+          supportFee: fee,
+          amount: sendingAmount,
+          address: receivingAddress,
+          time:
+            denomination === 'USD'
+              ? new Date().getTime()
+              : new Date(data.updatedTime).getTime(),
+          direction: 'INCOMING',
+          description:
+            claimType === 'reclaim'
+              ? t('screens.inAccount.giftPages.reclaimGiftMessage')
+              : giftDetails.description,
+          senderIdentityPublicKey:
+            denomination === 'USD' ? '' : data.receiverIdentityPublicKey,
+          isLRC20Payment: denomination === 'USD',
+          LRC20Token: formattedToken,
+          isGift: true,
+        },
       };
 
-      const transaction = await transformTxToPaymentObject(
-        tx,
-        receivingAddress,
-        undefined,
-        false,
-        [],
-        undefined,
-        1,
-        true,
-      );
-
-      transaction.details.direction = 'INCOMING';
-      transaction.paymentStatus = 'pending';
-
-      if (!transaction.details.description) {
-        transaction.details.description = t(
+      if (!tx.details.description) {
+        tx.details.description = t(
           'screens.inAccount.giftPages.claimPage.defaultDesc',
         );
       }
 
-      await bulkUpdateSparkTransactions([transaction]);
+      await bulkUpdateSparkTransactions([tx]);
 
       if (!expertMode) {
         await deleteGift(giftDetails.uuid);
@@ -348,6 +409,7 @@ export default function ClaimGiftScreen({
       expertMode,
       updateGiftList,
       t,
+      denomination,
     ],
   );
 
@@ -364,20 +426,27 @@ export default function ClaimGiftScreen({
       await ensureWalletInitialized(giftDetails.giftSeed);
 
       const receivingAddress = sparkInformation.sparkAddress;
-      const sendingAmount = await calculatePaymentAmount(
+      const { sendingAmount, fees, fromBalance } = await calculatePaymentAmount(
         giftDetails.giftSeed,
-        giftDetails.amount,
+        denomination === 'BTC' ? giftDetails.amount : giftDetails.dollarAmount,
       );
 
       setClaimStatus(
         t('screens.inAccount.giftPages.claimPage.claimingGiftMessage4'),
       );
 
-      const paymentResponse = await sendSparkPayment({
-        receiverSparkAddress: receivingAddress,
-        amountSats: sendingAmount,
-        mnemonic: giftDetails.giftSeed,
-      });
+      const paymentResponse = await (fromBalance === 'BTC'
+        ? sendSparkPayment({
+            receiverSparkAddress: receivingAddress,
+            amountSats: sendingAmount,
+            mnemonic: giftDetails.giftSeed,
+          })
+        : sendSparkTokens({
+            tokenIdentifier: USDB_TOKEN_ID,
+            tokenAmount: sendingAmount,
+            receiverSparkAddress: receivingAddress,
+            mnemonic: giftDetails.giftSeed,
+          }));
 
       if (!paymentResponse.didWork) {
         throw new Error(
@@ -385,7 +454,12 @@ export default function ClaimGiftScreen({
         );
       }
 
-      await processTransaction(paymentResponse, receivingAddress);
+      await processTransaction(
+        paymentResponse,
+        receivingAddress,
+        sendingAmount,
+        fees,
+      );
       setDidClaim(true);
     } catch (err) {
       console.log('Error claiming gift:', err);
@@ -404,6 +478,7 @@ export default function ClaimGiftScreen({
     processTransaction,
     navigate,
     handleError,
+    denomination,
     t,
   ]);
 
@@ -486,9 +561,20 @@ export default function ClaimGiftScreen({
   const amountDisplay = expertMode
     ? customGiftIndex
     : displayCorrectDenomination({
-        amount: giftDetails.amount,
-        masterInfoObject,
+        amount:
+          denomination === 'BTC'
+            ? giftDetails.amount
+            : giftDetails?.dollarAmount,
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination:
+            denomination === 'USD'
+              ? 'fiat'
+              : masterInfoObject.userBalanceDenomination,
+        },
         fiatStats,
+        forceCurrency: denomination === 'USD' ? 'USD' : false,
+        convertAmount: denomination !== 'USD',
       });
 
   const headerText =
