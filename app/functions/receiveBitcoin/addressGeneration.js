@@ -115,6 +115,7 @@ export async function initializeAddressProcess(wolletInfo) {
       };
 
       if (swapResponse && swapResponse?.didWork) {
+        stateTracker.swapResponse = swapResponse.simulation;
         const showPriceImpact =
           parseFloat(swapResponse.simulation.priceImpact) > 5;
         if (showPriceImpact) {

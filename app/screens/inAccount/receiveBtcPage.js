@@ -535,10 +535,14 @@ function QrCode(props) {
       forceCurrency: 'USD',
       fiatStats: fiatStats,
       amount: formatBalanceAmount(
-        (
-          satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
-          (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
-        ).toFixed(2),
+        addressState?.swapResponse?.expectedOutput
+          ? (
+              addressState?.swapResponse?.expectedOutput / Math.pow(10, 6)
+            ).toFixed(2)
+          : (
+              satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
+              (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
+            ).toFixed(2),
         false,
         masterInfoObject,
       ),
@@ -660,6 +664,11 @@ function QrCode(props) {
           iconName={'SquarePen'}
           showBoder={true}
           actionFunction={editAmount}
+          showSkeleton={
+            addressState.isGeneratingInvoice &&
+            endReceiveType === 'USD' &&
+            canConvert
+          }
         />
       )}
       <QRInformationRow
