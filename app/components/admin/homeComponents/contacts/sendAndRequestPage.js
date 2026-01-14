@@ -305,8 +305,8 @@ export default function SendAndRequestPage(props) {
     const balanceToCheck =
       methodToCheck === 'USD' ? dollarBalanceSat : sparkInformation.balance;
 
-    // Add approximate fee buffer (estimate ~2% for routing)
-    const estimatedFee = Math.ceil(convertedSendAmount * 0.015);
+    // will need spark fee buffer eventualy
+    const estimatedFee = 0;
     const totalNeeded = convertedSendAmount + estimatedFee;
 
     if (balanceToCheck < totalNeeded) {
@@ -335,6 +335,7 @@ export default function SendAndRequestPage(props) {
     t,
   ]);
 
+  console.log(getValidationError);
   const canSendPayment = !getValidationError;
 
   const handleSubmit = useCallback(async () => {

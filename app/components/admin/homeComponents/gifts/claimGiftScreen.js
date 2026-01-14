@@ -200,10 +200,10 @@ export default function ClaimGiftScreen({
       const handleBalanceCheck = result => {
         if (!result?.didWork) return false;
 
-        const bitcoinCheck = Number(result.balance) === expectedAmount;
+        const bitcoinCheck = Number(result.balance) >= expectedAmount * 0.97;
         const dollarCheck =
           Number(result.tokensObj?.[USDB_TOKEN_ID]?.balance) >=
-          expectedAmount * Math.pow(10, 6) * 0.95;
+          expectedAmount * Math.pow(10, 6) * 0.97;
 
         return denomination === 'BTC' ? bitcoinCheck : dollarCheck;
       };
@@ -282,6 +282,7 @@ export default function ClaimGiftScreen({
       const dollarBalance = walletBalance?.didWork
         ? Number(walletBalance?.tokensObj?.[USDB_TOKEN_ID]?.balance)
         : 0;
+      const dollarGiftAmount = giftAmount * Math.pow(10, 6);
 
       let formattedWalletBalance;
       let fees;
@@ -298,7 +299,6 @@ export default function ClaimGiftScreen({
           ? Promise.resolve(0)
           : getSparkPaymentFeeEstimate(formattedWalletBalance, giftSeed));
       } else {
-        const dollarGiftAmount = giftAmount * Math.pow(10, 6);
         formattedWalletBalance = walletBalance?.didWork
           ? denomination === 'BTC'
             ? bitcoinBalance
@@ -333,8 +333,19 @@ export default function ClaimGiftScreen({
             : t('screens.inAccount.giftPages.claimPage.nobalanceError'),
         );
       }
+      const balanceDifference = expertMode
+        ? 0
+        : denomination === 'USD'
+        ? dollarGiftAmount > formattedWalletBalance
+          ? dollarGiftAmount - formattedWalletBalance
+          : 0
+        : giftAmount > formattedWalletBalance
+        ? giftAmount - formattedWalletBalance
+        : 0;
 
-      return { sendingAmount, fees, fromBalance };
+      const finalFee = fees + balanceDifference;
+
+      return { sendingAmount, fees: finalFee, fromBalance };
     },
     [
       getBalanceWithStatusRetry,

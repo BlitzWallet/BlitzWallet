@@ -131,8 +131,10 @@ export default async function processSparkAddress(input, context) {
       if (usdNeedsSwap) {
         const satAmount = amountMsat / 1000;
 
-        const amountToSendConversion =
-          satsToDollars(satAmount, poolInfoRef.currentPriceAInB) * 1.05;
+        const amountToSendConversion = satsToDollars(
+          satAmount,
+          poolInfoRef.currentPriceAInB,
+        );
         const usdBalanceConversion = satsToDollars(
           dollarBalanceSat,
           poolInfoRef.currentPriceAInB,
@@ -229,6 +231,8 @@ export default async function processSparkAddress(input, context) {
               assetOutAddress: BTC_ASSET_ADDRESS,
               amountIn: usdAmount,
               satFee,
+              bitcoinBalance,
+              dollarBalanceSat,
             };
           }
         }
@@ -261,6 +265,8 @@ export default async function processSparkAddress(input, context) {
               assetOutAddress: USD_ASSET_ADDRESS,
               amountIn: satAmount,
               satFee,
+              bitcoinBalance,
+              dollarBalanceSat,
             };
           }
         } else {

@@ -196,8 +196,12 @@ export default function CreateGift(props) {
         amountIn:
           paymentMethod === 'BTC'
             ? convertedSatAmount
-            : satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB) *
-              Math.pow(10, 6),
+            : Math.round(
+                satsToDollars(
+                  convertedSatAmount,
+                  poolInfoRef.currentPriceAInB,
+                ) * Math.pow(10, 6),
+              ),
       });
 
       simulationPromiseRef.current = swapPromise;
@@ -248,10 +252,11 @@ export default function CreateGift(props) {
       // If we have a simulation result, factor in the swap fee
       if (simulationResult && canPayUSDtoBTC) {
         const { simulation, paymentMethod } = simulationResult;
-        const totalUSDNeeded =
+        const totalUSDNeeded = Math.round(
           satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB) *
             Math.pow(10, 6) +
-          Number(simulation.feePaidAssetIn);
+            Number(simulation.feePaidAssetIn),
+        );
 
         if (totalUSDNeeded > dollarBalanceToken * Math.pow(10, 6)) {
           return null; // Can't afford with fees
@@ -392,7 +397,7 @@ export default function CreateGift(props) {
         dollarAmount: satsToDollars(
           convertedSatAmount,
           poolInfoRef.currentPriceAInB,
-        ),
+        ).toFixed(2),
         description: description || '',
         createdBy: masterInfoObject?.uuid,
         state: 'Unclaimed',
@@ -457,14 +462,18 @@ export default function CreateGift(props) {
                   bitcoinBalance,
                 )
               : Math.min(
-                  satsToDollars(
-                    convertedSatAmount,
-                    poolInfoRef.currentPriceAInB,
-                  ) *
-                    Math.pow(10, 6) +
-                    Number(simulation.feePaidAssetIn),
+                  Math.round(
+                    satsToDollars(
+                      convertedSatAmount,
+                      poolInfoRef.currentPriceAInB,
+                    ) *
+                      Math.pow(10, 6) +
+                      Number(simulation.feePaidAssetIn),
+                  ),
                   dollarBalanceToken * Math.pow(10, 6),
                 ),
+          dollarBalanceSat,
+          bitcoinBalance,
           satFee,
         };
       }
@@ -517,7 +526,6 @@ export default function CreateGift(props) {
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
     }
   };
-  console.log(simulationResult);
 
   const resetPageState = () => {
     setLoadingMessage('');
@@ -599,7 +607,10 @@ export default function CreateGift(props) {
                       amount:
                         giftDenomination === 'BTC'
                           ? amount
-                          : satsToDollars(amount, poolInfoRef.currentPriceAInB),
+                          : satsToDollars(
+                              amount,
+                              poolInfoRef.currentPriceAInB,
+                            ).toFixed(2),
                       masterInfoObject: {
                         ...masterInfoObject,
                         userBalanceDenomination:

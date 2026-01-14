@@ -122,7 +122,10 @@ export default function CustomInputHalfModal(props) {
             balance={
               inputDenomination === 'sats'
                 ? formatBalanceAmount(
-                    satsToDollars(localSatAmount, poolInfoRef.currentPriceAInB),
+                    satsToDollars(
+                      localSatAmount,
+                      poolInfoRef.currentPriceAInB,
+                    ).toFixed(2),
                     false,
                     masterInfoObject,
                   )

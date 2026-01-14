@@ -37,7 +37,8 @@ export const USD_ASSET_ADDRESS =
   '3206c93b24a4d18ea19d0a9a213204af2c7e74a6d16c7535cc5d33eca4ad1eca';
 
 // Default slippage tolerance
-export const DEFAULT_SLIPPAGE_BPS = 500; // 5%
+export const DEFAULT_SLIPPAGE_BPS = 300; // %
+export const SEND_AMOUNT_INCREASE_BUFFER = 1.03; // 3%
 export const DEFAULT_MAX_SLIPPAGE_BPS = 500; // 5% for lightning payments
 
 // ============================================
@@ -106,10 +107,11 @@ const formatError = (error, operation) => {
 /**
  * Calculate minimum output with slippage tolerance
  */
-const calculateMinOutput = (expectedOutput, slippageBps) => {
-  const output = BigInt(expectedOutput);
-  const factor = 10_000n - BigInt(slippageBps);
-  return (output * factor) / 10_000n;
+export const calculateMinOutput = (expectedOutput, slippageBps) => {
+  const amount = BigInt(expectedOutput);
+  const slippageFactor = BigInt(10000 - slippageBps);
+  const minAmount = (amount * slippageFactor) / 10000n;
+  return minAmount.toString();
 };
 
 // ============================================
@@ -999,7 +1001,7 @@ export const getCurrentPrice = async (mnemonic, poolId) => {
  */
 export function satsToDollars(sats, currentPriceAinB) {
   const DOLLAR_DECIMALS = 1_000_000;
-  return ((sats * currentPriceAinB) / DOLLAR_DECIMALS).toFixed(2);
+  return (sats * currentPriceAinB) / DOLLAR_DECIMALS;
 }
 
 /**
