@@ -349,15 +349,21 @@ export default function ClaimGiftScreen({
 
   // Extract transaction processing logic
   const processTransaction = useCallback(
-    async (paymentResponse, receivingAddress, sendingAmount, fees) => {
+    async (
+      paymentResponse,
+      receivingAddress,
+      sendingAmount,
+      fees,
+      paymentDenomination,
+    ) => {
       const data = paymentResponse.response;
-      const formattedToken = denomination === 'USD' ? USDB_TOKEN_ID : '';
+      const formattedToken = paymentDenomination === 'USD' ? USDB_TOKEN_ID : '';
       const fee =
-        denomination === 'USD'
+        paymentDenomination === 'USD'
           ? dollarsToSats(fees / Math.pow(10, 6), poolInfoRef.currentPriceAInB)
           : fees;
       let tx = {
-        id: denomination === 'USD' ? data : data.id,
+        id: paymentDenomination === 'USD' ? data : data.id,
         paymentStatus: 'pending',
         paymentType: 'spark',
         accountId: sparkInformation.identityPubKey,
@@ -368,7 +374,7 @@ export default function ClaimGiftScreen({
           amount: sendingAmount,
           address: receivingAddress,
           time:
-            denomination === 'USD'
+            paymentDenomination === 'USD'
               ? new Date().getTime()
               : new Date(data.updatedTime).getTime(),
           direction: 'INCOMING',
@@ -377,8 +383,8 @@ export default function ClaimGiftScreen({
               ? t('screens.inAccount.giftPages.reclaimGiftMessage')
               : giftDetails.description,
           senderIdentityPublicKey:
-            denomination === 'USD' ? '' : data.receiverIdentityPublicKey,
-          isLRC20Payment: denomination === 'USD',
+            paymentDenomination === 'USD' ? '' : data.receiverIdentityPublicKey,
+          isLRC20Payment: paymentDenomination === 'USD',
           LRC20Token: formattedToken,
           isGift: true,
         },
@@ -409,7 +415,6 @@ export default function ClaimGiftScreen({
       expertMode,
       updateGiftList,
       t,
-      denomination,
     ],
   );
 
@@ -459,6 +464,7 @@ export default function ClaimGiftScreen({
         receivingAddress,
         sendingAmount,
         fees,
+        fromBalance,
       );
       setDidClaim(true);
     } catch (err) {
