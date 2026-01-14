@@ -19,18 +19,29 @@ export async function getLRC20Transactions({
     isRunning = true;
     const savedTxs = await getCachedSparkTransactions(null, ownerPublicKeys[0]);
 
-    const lastSavedTokenTx = (savedTxs || []).find(tx => {
-      const parsed = JSON.parse(tx?.details);
-      return (
-        parsed?.isLRC20Payment &&
-        tx.paymentType === 'spark' &&
-        !IS_SPARK_ID.test(tx.sparkID)
-      );
-    });
+    // Find last saved completed token transaction
+    let lastSavedTransactionId = null;
+    if (savedTxs) {
+      for (const tx of savedTxs) {
+        if (
+          tx.paymentType !== 'spark' ||
+          IS_SPARK_ID.test(tx.sparkID) ||
+          tx.paymentStatus !== 'completed'
+        ) {
+          continue;
+        }
 
-    const lastSavedTransactionId = lastSavedTokenTx
-      ? lastSavedTokenTx.sparkID || lastSavedTokenTx.id || null
-      : null;
+        try {
+          const parsed = JSON.parse(tx.details || '{}');
+          if (parsed?.isLRC20Payment) {
+            lastSavedTransactionId = tx.sparkID;
+            break;
+          }
+        } catch {
+          continue;
+        }
+      }
+    }
 
     const tokenTxs = await getSparkTokenTransactions({
       ownerPublicKeys,
@@ -42,18 +53,58 @@ export async function getLRC20Transactions({
     if (!tokenTxs?.tokenTransactionsWithStatus) return;
     const tokenTransactions = tokenTxs.tokenTransactionsWithStatus;
 
-    const savedIds = new Set(savedTxs?.map(tx => tx.sparkID) || []);
+    // Build savedIds set - only include completed token txs and all non-token txs
+    const savedIds = new Set();
+    if (savedTxs) {
+      for (const tx of savedTxs) {
+        if (
+          tx.paymentType !== 'spark' ||
+          IS_SPARK_ID.test(tx.sparkID) ||
+          tx.paymentStatus !== 'completed'
+        ) {
+          continue;
+        }
 
-    let newTxs = [];
+        let parsed;
+        try {
+          parsed = JSON.parse(tx.details || '{}');
+        } catch {
+          // Parse failed, treat as non-token tx and add to set
+          savedIds.add(tx.sparkID);
+          continue;
+        }
+
+        const isLRC20Token = parsed?.isLRC20Payment;
+
+        // Add to set if: non-token tx
+        if (!isLRC20Token) {
+          savedIds.add(tx.sparkID);
+        }
+      }
+    }
+
+    const newTxs = [];
+    const ownerPubKey = ownerPublicKeys[0];
 
     for (const tokenTx of tokenTransactions) {
       const tokenOutput = tokenTx.tokenTransaction.tokenOutputs[0];
       const tokenIdentifier = tokenOutput?.tokenIdentifier;
+
+      if (!tokenIdentifier) continue;
+
+      // Convert token identifier to hex
       const tokenIdentifierHex = Buffer.from(
         Object.values(tokenIdentifier),
       ).toString('hex');
-      if (!tokenIdentifier) continue;
       const tokenbech32m = convertToBech32m(tokenIdentifierHex);
+
+      // Get transaction hash
+      const txHash = Buffer.from(
+        Object.values(tokenTx.tokenTransactionHash),
+      ).toString('hex');
+
+      // Skip if already saved
+      if (savedIds.has(txHash)) continue;
 
       const tokenOutputs = tokenTx.tokenTransaction.tokenOutputs;
 
@@ -63,25 +114,13 @@ export async function getLRC20Transactions({
       const amount = Number(
         tokenBufferAmountToDecimal(tokenOutputs[0]?.tokenAmount),
       );
-      const didSend = ownerPublicKey !== ownerPublicKeys[0];
-
-      if (
-        savedIds.has(
-          Buffer.from(Object.values(tokenTx.tokenTransactionHash)).toString(
-            'hex',
-          ),
-        )
-      ) {
-        continue;
-      }
+      const didSend = ownerPublicKey !== ownerPubKey;
 
       const tx = {
-        id: Buffer.from(Object.values(tokenTx.tokenTransactionHash)).toString(
-          'hex',
-        ),
+        id: txHash,
         paymentStatus: 'completed',
         paymentType: 'spark',
-        accountId: ownerPublicKeys[0],
+        accountId: ownerPubKey,
         details: {
           fee: 0,
           totalFee: didSend ? 10 : 0,
@@ -101,11 +140,11 @@ export async function getLRC20Transactions({
       newTxs.push(tx);
     }
 
-    newTxs = markFlashnetTransfersAsFailed(newTxs);
+    const processedTxs = markFlashnetTransfersAsFailed(newTxs);
 
     // using restore flag on initial run since we know the balance updated, otherwise we need to recheck the balance. On any new txs the fullUpdate reloads the wallet balance
     await bulkUpdateSparkTransactions(
-      newTxs,
+      processedTxs,
       isInitialRun ? 'lrc20Payments' : 'fullUpdate-tokens',
     );
   } catch (err) {
@@ -117,24 +156,26 @@ export async function getLRC20Transactions({
 
 // We do not want to show failed flashnet swaps on homepage
 function markFlashnetTransfersAsFailed(transactions, timeWindowMs = 5000) {
+  if (transactions.length < 2) return transactions;
+
   const flashnetIndices = new Set();
 
-  // Group transactions by amount AND token
-  const byAmountAndToken = {};
-  transactions.forEach((tx, index) => {
-    const amount = tx.details.amount;
-    const token = tx.details.LRC20Token;
-    const key = `${amount}-${token}`;
+  // Group transactions by amount AND token for efficient lookup
+  const byAmountAndToken = new Map();
 
-    if (!byAmountAndToken[key]) {
-      byAmountAndToken[key] = [];
+  for (let i = 0; i < transactions.length; i++) {
+    const tx = transactions[i];
+    const key = `${tx.details.amount}-${tx.details.LRC20Token}`;
+
+    if (!byAmountAndToken.has(key)) {
+      byAmountAndToken.set(key, []);
     }
-    byAmountAndToken[key].push({ tx, index });
-  });
+    byAmountAndToken.get(key).push({ tx, index: i });
+  }
 
   // Check each amount+token group for flashnet patterns
-  Object.values(byAmountAndToken).forEach(group => {
-    if (group.length < 2) return;
+  for (const group of byAmountAndToken.values()) {
+    if (group.length < 2) continue;
 
     // Check all pairs in this amount+token group
     for (let i = 0; i < group.length; i++) {
@@ -143,6 +184,8 @@ function markFlashnetTransfersAsFailed(transactions, timeWindowMs = 5000) {
         const tx2 = group[j].tx;
 
         const timeDiff = Math.abs(tx1.details.time - tx2.details.time);
+        if (timeDiff > timeWindowMs) continue;
+
         const oppositeDirs =
           (tx1.details.direction === 'INCOMING' &&
             tx2.details.direction === 'OUTGOING') ||
@@ -150,13 +193,16 @@ function markFlashnetTransfersAsFailed(transactions, timeWindowMs = 5000) {
             tx2.details.direction === 'INCOMING');
 
         // If same amount, same token, opposite directions, and within time window = flashnet
-        if (oppositeDirs && timeDiff <= timeWindowMs) {
+        if (oppositeDirs) {
           flashnetIndices.add(group[i].index);
           flashnetIndices.add(group[j].index);
         }
       }
     }
-  });
+  }
+
+  // Only create new array if we found flashnet transactions
+  if (flashnetIndices.size === 0) return transactions;
 
   return transactions.map((tx, index) => {
     if (flashnetIndices.has(index)) {
