@@ -1374,7 +1374,7 @@ export const getCurrentPrice = async (mnemonic, poolId) => {
  * Convert sats to dollars
  * @param {string|number|bigint} sats - Amount of satoshis (100,000,000)
  * @param {string|number|bigint} currentPriceAinB - Price of Bitcoin in dollars
- * @returns {string} Amount in dollars
+ * @returns {number} Amount in dollars
  */
 export function satsToDollars(sats, currentPriceAinB) {
   try {
@@ -1387,13 +1387,13 @@ export function satsToDollars(sats, currentPriceAinB) {
         : Number(currentPriceAinB || 0);
 
     if (isNaN(numSats) || isNaN(numPrice) || numPrice === 0) {
-      return '0.00';
+      return 0;
     }
 
-    return ((numSats * numPrice) / DOLLAR_DECIMALS).toFixed(2);
+    return (numSats * numPrice) / DOLLAR_DECIMALS;
   } catch (error) {
     console.error('Error in satsToDollars:', error, { sats, currentPriceAinB });
-    return '0.00';
+    return 0;
   }
 }
 
