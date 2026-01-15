@@ -1556,7 +1556,8 @@
           "inputPlaceholder": "Añade un mensaje o nota...",
           "button": "Crear regalo",
           "disclaimer": "Cuando creas un regalo, el dinero queda bloqueado durante {{numDays}} días. Si nadie lo reclama en ese período, puedes ir a la página de recuperación para recuperarlo.",
-          "durationText": "{{numDays}} días"
+          "durationText": "{{numDays}} días",
+          "type": "Tipo"
         },
 
         "giftConfirmation": {

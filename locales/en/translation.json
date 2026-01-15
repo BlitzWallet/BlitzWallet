@@ -1731,7 +1731,8 @@
           "inputPlaceholder": "Add a message or note...",
           "button": "Create Gift",
           "disclaimer": "When you create a gift, the money stays locked for {{numDays}} days. If no one claims it by then, you can go to the reclaim page to get it back.",
-          "durationText": "{{numDays}} days"
+          "durationText": "{{numDays}} days",
+          "type": "Type"
         },
 
         "giftConfirmation": {

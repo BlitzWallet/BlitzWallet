@@ -1729,7 +1729,8 @@
           "inputPlaceholder": "Aggiungi un messaggio o una nota...",
           "button": "Crea regalo",
           "disclaimer": "Quando crei un regalo, il denaro rimane bloccato per {{numDays}} giorni. Se nessuno lo riscatta entro quel periodo, puoi andare alla pagina di recupero per riaverlo.",
-          "durationText": "{{numDays}} giorni"
+          "durationText": "{{numDays}} giorni",
+          "type": "Tipo"
         },
 
         "giftConfirmation": {

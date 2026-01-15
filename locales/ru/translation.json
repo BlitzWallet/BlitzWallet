@@ -1701,7 +1701,8 @@
           "inputPlaceholder": "Сообщение или заметка...",
           "button": "Создать",
           "disclaimer": "Средства блокируются на {{numDays}} дней. Если подарок не заберут, вы сможете его вернуть.",
-          "durationText": "{{numDays}} дней"
+          "durationText": "{{numDays}} дней",
+          "type": "Тип"
         },
         "giftConfirmation": {
           "header": "Подарок создан!",

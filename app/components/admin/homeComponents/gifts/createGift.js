@@ -635,7 +635,7 @@ export default function CreateGift(props) {
               >
                 <ThemeText
                   styles={[styles.label, { marginBottom: 12 }]}
-                  content={t('constants.type')}
+                  content={t('screens.inAccount.giftPages.createGift.type')}
                 />
                 <DenominationToggle
                   giftDenomination={giftDenomination}

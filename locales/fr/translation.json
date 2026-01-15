@@ -1696,7 +1696,8 @@
           "inputPlaceholder": "Ajoutez un message ou une note...",
           "button": "Créer un cadeau",
           "disclaimer": "Lorsque vous créez un cadeau, l'argent reste bloqué pendant {{numDays}} jours. Si personne ne le réclame d'ici là, vous pouvez vous rendre sur la page de réclamation pour le récupérer.",
-          "durationText": "{{numDays}} jours"
+          "durationText": "{{numDays}} jours",
+          "type": "Type"
         },
         "giftConfirmation": {
           "header": "Cadeau créé !",

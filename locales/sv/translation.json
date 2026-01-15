@@ -1696,7 +1696,8 @@
           "inputPlaceholder": "Lägg till ett meddelande eller en anteckning...",
           "button": "Skapa gåva",
           "disclaimer": "När du skapar en gåva förblir pengarna låsta i {{numDays}} dagar. Om ingen gör anspråk på dem innan dess kan du gå till återkravssidan för att få tillbaka dem.",
-          "durationText": "{{numDays}} dagar"
+          "durationText": "{{numDays}} dagar",
+          "type": "Typ"
         },
         "giftConfirmation": {
           "header": "Gåva skapad!",
