@@ -31,10 +31,12 @@ export default function FormattedSatText({
   useSpaces = true,
   useSizing = false,
   forceCurrency = null,
+  forceFiatStats = null,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { fiatStats } = useNodeContext();
+  const { fiatStats: globalFiatStats } = useNodeContext();
 
+  const fiatStats = forceFiatStats || globalFiatStats;
   const localBalanceDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
   const currencyText = forceCurrency
