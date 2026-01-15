@@ -1665,11 +1665,11 @@
         "fundGiftMessage": "Geschenk wird erstellt",
         "reclaimGiftMessage": "Geschenk wird zurückgeholt",
         "giftsHome": {
-          "title": "Bitcoin-Geschenke"
+          "title": "Blitz-Geschenke"
         },
         "giftsOverview": {
           "noGiftsHead": "Noch keine Geschenke",
-          "noGiftsDesc": "Erstelle dein erstes Geschenk, um Bitcoin mit Freunden und Familie zu teilen",
+          "noGiftsDesc": "Erstelle dein erstes Geschenk, um Bitcoin oder Dollar mit Freunden und Familie zu teilen.",
           "createGift": "Geschenk erstellen",
           "claimed": "Eingelöst",
           "expired": "Abgelaufen",

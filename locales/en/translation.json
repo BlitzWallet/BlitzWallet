@@ -1705,12 +1705,12 @@
         "reclaimGiftMessage": "Reclaiming Gift",
 
         "giftsHome": {
-          "title": "Bitcoin Gifts"
+          "title": "Blitz Gifts"
         },
 
         "giftsOverview": {
           "noGiftsHead": "No gifts yet",
-          "noGiftsDesc": "Create your first gift to share Bitcoin with friends and family",
+          "noGiftsDesc": "Create your first gift to share Bitcoin or Dollars with friends and family",
           "createGift": "Create Gift",
           "claimed": "Claimed",
           "expired": "Expired",

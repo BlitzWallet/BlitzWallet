@@ -1672,11 +1672,11 @@
         "fundGiftMessage": "Skapande av gåva",
         "reclaimGiftMessage": "Återvinning av gåva",
         "giftsHome": {
-          "title": "Bitcoin gåvor"
+          "title": "Blitz gåvor"
         },
         "giftsOverview": {
           "noGiftsHead": "Inga gåvor ännu",
-          "noGiftsDesc": "Skapa din första gåva för att dela Bitcoin med vänner och familj",
+          "noGiftsDesc": "Skapa din första present för att dela Bitcoin eller dollar med vänner och familj.",
           "createGift": "Skapa gåva",
           "claimed": "Hävdade",
           "expired": "Utgått",

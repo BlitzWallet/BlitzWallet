@@ -1703,12 +1703,12 @@
         "reclaimGiftMessage": "Recupero del regalo",
 
         "giftsHome": {
-          "title": "Regali in Bitcoin"
+          "title": "Regali in Blitz"
         },
 
         "giftsOverview": {
           "noGiftsHead": "Nessun regalo ancora",
-          "noGiftsDesc": "Crea il tuo primo regalo per condividere Bitcoin con amici e famiglia",
+          "noGiftsDesc": "Crea il tuo primo regalo per condividere Bitcoin o dollari con amici e familiari.",
           "createGift": "Crea regalo",
           "claimed": "Riscattato",
           "expired": "Scaduto",

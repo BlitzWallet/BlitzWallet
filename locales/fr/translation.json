@@ -1672,11 +1672,11 @@
         "fundGiftMessage": "Créer un cadeau",
         "reclaimGiftMessage": "Récupérer le don",
         "giftsHome": {
-          "title": "Cadeaux en bitcoins"
+          "title": "Cadeaux en Blitz"
         },
         "giftsOverview": {
           "noGiftsHead": "Aucun cadeau pour l'instant",
-          "noGiftsDesc": "Créez votre premier cadeau pour partager le bitcoin avec vos amis et votre famille",
+          "noGiftsDesc": "Créez votre premier cadeau pour partager des bitcoins ou des dollars avec vos proches.",
           "createGift": "Créer un cadeau",
           "claimed": "Réclamé",
           "expired": "Expiré",
