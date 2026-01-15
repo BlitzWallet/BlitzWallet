@@ -1,8 +1,9 @@
-import { IS_SPARK_ID } from '../../constants';
+import { IS_SPARK_ID, USDB_TOKEN_ID } from '../../constants';
 import {
   getCachedSparkTransactions,
   getSparkTokenTransactions,
 } from '../spark';
+import { getActiveSwapTransferIds, isSwapActive } from '../spark/flashnet';
 import { bulkUpdateSparkTransactions } from '../spark/transactions';
 import { convertToBech32m } from './bech32';
 import tokenBufferAmountToDecimal from './bufferToDecimal';
@@ -85,6 +86,8 @@ export async function getLRC20Transactions({
 
     const newTxs = [];
     const ownerPubKey = ownerPublicKeys[0];
+    const isSwapInProgress = isSwapActive();
+    const activeSwaps = getActiveSwapTransferIds();
 
     for (const tokenTx of tokenTransactions) {
       const tokenOutput = tokenTx.tokenTransaction.tokenOutputs[0];
@@ -115,6 +118,19 @@ export async function getLRC20Transactions({
         tokenBufferAmountToDecimal(tokenOutputs[0]?.tokenAmount),
       );
       const didSend = ownerPublicKey !== ownerPubKey;
+
+      if (
+        tokenbech32m === USDB_TOKEN_ID &&
+        !didSend &&
+        isSwapInProgress &&
+        activeSwaps.has(txHash)
+      ) {
+        // if we have an incoming USD payment and there is a swap in progress and the tx id is the id of the swap in progress then block it so it does not interfeare with tx list
+        console.log(
+          `[LRC20] Blocking USDB transaction - ${txHash} swap in progress`,
+        );
+        continue;
+      }
 
       const tx = {
         id: txHash,

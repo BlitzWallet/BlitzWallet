@@ -7,6 +7,12 @@ import {
   updateSparkTransactionDetails,
 } from './transactions';
 import i18next from 'i18next';
+import {
+  FLASHNET_POOL_IDENTITY_KEY,
+  getActiveSwapTransferIds,
+  getUserSwapHistory,
+} from './flashnet';
+import { setFlashnetTransfer } from './handleFlashnetTransferIds';
 
 export async function transformTxToPaymentObject(
   tx,
@@ -18,6 +24,7 @@ export async function transformTxToPaymentObject(
   numTxsBeingRestored = 1,
   forceOutgoing = false,
   unpaidContactInvoices,
+  mnemoinc,
 ) {
   // Defer all payments to the 10 second interval to be updated
   const paymentType = forcePaymentType
@@ -123,6 +130,22 @@ export async function transformTxToPaymentObject(
       },
     };
   } else if (paymentType === 'spark') {
+    if (tx.receiverIdentityPublicKey === FLASHNET_POOL_IDENTITY_KEY) {
+      // This could be any bitcoin to USD swap. We only want to block and track the one that is associtated with the current ln -> usd swap to remove the chacnce of the funding tx from showing in the tx list
+      // get all active ln-> usd swaps
+      const activeSwaps = getActiveSwapTransferIds();
+      // Check the most recent 10 swaps chances of performing more than 10 swaps by the time the main tx is added is low
+      const userSwaps = await getUserSwapHistory(mnemoinc, 10);
+      if (userSwaps.didWork) {
+        const swap = userSwaps.swaps.find(savedSwap =>
+          activeSwaps.has(savedSwap.outboundTransferId),
+        );
+        if (swap) {
+          // if we have found a swap with the outbound transfer that meeans this is a ln-> usd swap since we only store those in active swaps
+          setFlashnetTransfer(tx.id);
+        }
+      }
+    }
     const foundInvoice = unpaidContactInvoices?.find(
       savedTx => savedTx.sparkID === tx.id,
     );
