@@ -401,21 +401,6 @@ export default function ClaimGiftScreen({
         },
       };
 
-      const transaction = await transformTxToPaymentObject(
-        tx,
-        receivingAddress,
-        undefined,
-        false,
-        [],
-        undefined,
-        1,
-        true,
-        accountMnemoinc,
-      );
-
-      transaction.details.direction = 'INCOMING';
-      transaction.paymentStatus = 'pending';
-
       if (!tx.details.description) {
         tx.details.description = t(
           'screens.inAccount.giftPages.claimPage.defaultDesc',

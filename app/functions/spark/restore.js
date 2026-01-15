@@ -645,6 +645,8 @@ async function processLightningTransactions(
       [],
       accountId,
       1,
+      false,
+      [],
       mnemonic,
     );
 
