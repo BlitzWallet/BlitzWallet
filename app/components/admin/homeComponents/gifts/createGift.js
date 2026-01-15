@@ -61,6 +61,7 @@ import {
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import DenominationToggle from './denominationsToggle';
+import { formatBalanceAmount } from '../../../../functions';
 
 export default function CreateGift(props) {
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
@@ -291,6 +292,75 @@ export default function CreateGift(props) {
     dollarBalanceSat,
     dollarBalanceToken,
     convertedSatAmount,
+    swapLimits,
+    poolInfoRef.currentPriceAInB,
+    simulationResult,
+  ]);
+
+  const isGiftValid = useMemo(() => {
+    if (!convertedSatAmount) return false;
+
+    const totalBalance = bitcoinBalance + dollarBalanceSat;
+    if (totalBalance < convertedSatAmount) return false;
+
+    if (
+      bitcoinBalance < convertedSatAmount &&
+      dollarBalanceSat < convertedSatAmount &&
+      totalBalance >= convertedSatAmount
+    ) {
+      return false;
+    }
+
+    const hasBTCBalance = bitcoinBalance >= convertedSatAmount;
+    const hasUSDBalance = dollarBalanceSat >= convertedSatAmount;
+
+    const meetsUSDMinimum =
+      convertedSatAmount >=
+      dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
+    const meetsBTCMinimum = convertedSatAmount >= swapLimits.bitcoin;
+
+    if (giftDenomination === 'BTC') {
+      const canPayBTCtoBTC = hasBTCBalance;
+      const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
+
+      if (!canPayBTCtoBTC && canPayUSDtoBTC && simulationResult) {
+        const { simulation } = simulationResult;
+        const totalUSDNeeded = Math.round(
+          satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB) *
+            Math.pow(10, 6) +
+            Number(simulation.feePaidAssetIn),
+        );
+
+        if (totalUSDNeeded > dollarBalanceToken * Math.pow(10, 6)) {
+          return false;
+        }
+      }
+
+      if (!canPayBTCtoBTC && !canPayUSDtoBTC) return false;
+    } else {
+      const canPayUSDtoUSD = hasUSDBalance;
+      const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
+
+      if (!canPayUSDtoUSD && canPayBTCtoUSD && simulationResult) {
+        const { simulation } = simulationResult;
+        const totalBTCNeeded =
+          convertedSatAmount + Number(simulation.feePaidAssetIn);
+
+        if (totalBTCNeeded > bitcoinBalance) {
+          return false;
+        }
+      }
+
+      if (!canPayUSDtoUSD && !canPayBTCtoUSD) return false;
+    }
+
+    return true;
+  }, [
+    convertedSatAmount,
+    bitcoinBalance,
+    dollarBalanceSat,
+    dollarBalanceToken,
+    giftDenomination,
     swapLimits,
     poolInfoRef.currentPriceAInB,
     simulationResult,
@@ -607,10 +677,14 @@ export default function CreateGift(props) {
                       amount:
                         giftDenomination === 'BTC'
                           ? amount
-                          : satsToDollars(
-                              amount,
-                              poolInfoRef.currentPriceAInB,
-                            ).toFixed(2),
+                          : formatBalanceAmount(
+                              satsToDollars(
+                                amount,
+                                poolInfoRef.currentPriceAInB,
+                              ).toFixed(2),
+                              false,
+                              masterInfoObject,
+                            ),
                       masterInfoObject: {
                         ...masterInfoObject,
                         userBalanceDenomination:
@@ -722,7 +796,7 @@ export default function CreateGift(props) {
           <CustomButton
             buttonStyles={[
               styles.buttonContainer,
-              { opacity: !convertedSatAmount ? HIDDEN_OPACITY : 1 },
+              { opacity: !isGiftValid ? HIDDEN_OPACITY : 1 },
             ]}
             textContent={t('screens.inAccount.giftPages.createGift.button')}
             actionFunction={createGift}
