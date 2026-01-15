@@ -44,6 +44,7 @@ export default function GiftConfirmation({
   giftSecret = ' ',
   giftLink = ' ',
   resetPageState,
+  storageObject,
 }) {
   const { showToast } = useToast();
   const navigate = useNavigation();
@@ -65,13 +66,18 @@ export default function GiftConfirmation({
     try {
       await handleGiftCardShare({
         amount: displayCorrectDenomination({
-          amount: amount,
+          amount:
+            storageObject?.denomination === 'BTC'
+              ? amount
+              : storageObject.dollarAmount,
           masterInfoObject: {
             ...masterInfoObject,
-            userBalanceDenomination: 'sats',
-            thousandsSeperator: 'space',
+            userBalanceDenomination:
+              storageObject.denomination === 'USD' ? 'fiat' : 'sats',
           },
           fiatStats,
+          convertAmount: storageObject.denomination !== 'USD',
+          forceCurrency: storageObject.denomination === 'USD' ? 'USD' : false,
         }),
         giftLink,
       });
@@ -170,9 +176,19 @@ export default function GiftConfirmation({
                 CustomNumberOfLines={1}
                 styles={styles.detailValue}
                 content={displayCorrectDenomination({
-                  amount: amount,
-                  masterInfoObject,
+                  amount:
+                    storageObject?.denomination === 'BTC'
+                      ? amount
+                      : storageObject.dollarAmount,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination:
+                      storageObject.denomination === 'USD' ? 'fiat' : 'sats',
+                  },
                   fiatStats,
+                  convertAmount: storageObject.denomination !== 'USD',
+                  forceCurrency:
+                    storageObject.denomination === 'USD' ? 'USD' : false,
                 })}
               />
             </View>

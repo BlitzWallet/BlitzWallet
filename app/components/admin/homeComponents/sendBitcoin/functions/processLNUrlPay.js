@@ -178,7 +178,11 @@ export default async function processLNUrlPay(input, context) {
       if (usdPromiseIndex !== -1) {
         const paymentQuote = results[usdPromiseIndex];
         if (!paymentQuote.didWork) throw new Error(paymentQuote.error);
-        swapPaymentQuote = paymentQuote.quote;
+        swapPaymentQuote = {
+          ...paymentQuote.quote,
+          bitcoinBalance,
+          dollarBalanceSat,
+        };
         paymentFee = paymentQuote.quote.fee;
         supportFee = 0;
       }

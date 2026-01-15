@@ -52,7 +52,8 @@ export const FLASHNET_POOL_IDENTITY_KEY =
   '02894808873b896e21d29856a6d7bb346fb13c019739adb9bf0b6a8b7e28da53da';
 
 // Default slippage tolerance
-export const DEFAULT_SLIPPAGE_BPS = 500; // 5%
+export const DEFAULT_SLIPPAGE_BPS = 300; // %
+export const SEND_AMOUNT_INCREASE_BUFFER = 1.03; // 3%
 export const DEFAULT_MAX_SLIPPAGE_BPS = 500; // 5% for lightning payments
 
 // ============================================
@@ -121,10 +122,11 @@ const formatError = (error, operation) => {
 /**
  * Calculate minimum output with slippage tolerance
  */
-const calculateMinOutput = (expectedOutput, slippageBps) => {
-  const output = BigInt(expectedOutput);
-  const factor = 10_000n - BigInt(slippageBps);
-  return (output * factor) / 10_000n;
+export const calculateMinOutput = (expectedOutput, slippageBps) => {
+  const amount = BigInt(expectedOutput);
+  const slippageFactor = BigInt(10000 - slippageBps);
+  const minAmount = (amount * slippageFactor) / 10000n;
+  return minAmount.toString();
 };
 
 // ============================================

@@ -84,6 +84,8 @@ export default function GiftsOverview({ theme, darkModeType }) {
         state,
         claimURL,
         uuid,
+        denomination,
+        dollarAmount,
       } = item;
 
       const timeRemaining = formatTimeRemaining(expireTime);
@@ -105,9 +107,15 @@ export default function GiftsOverview({ theme, darkModeType }) {
             <View style={styles.amountAndUUID}>
               <ThemeText
                 content={displayCorrectDenomination({
-                  amount,
-                  masterInfoObject,
+                  amount: denomination === 'USD' ? dollarAmount : amount,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination:
+                      denomination === 'USD' ? 'fiat' : 'sats',
+                  },
                   fiatStats,
+                  convertAmount: denomination !== 'USD',
+                  forceCurrency: denomination === 'USD' ? 'USD' : false,
                 })}
               />
               <ThemeText
@@ -123,13 +131,16 @@ export default function GiftsOverview({ theme, darkModeType }) {
                   } else {
                     await handleGiftCardShare({
                       amount: displayCorrectDenomination({
-                        amount: amount,
+                        amount: denomination === 'USD' ? dollarAmount : amount,
                         masterInfoObject: {
                           ...masterInfoObject,
-                          userBalanceDenomination: 'sats',
+                          userBalanceDenomination:
+                            denomination === 'USD' ? 'fiat' : 'sats',
                           thousandsSeperator: 'space',
                         },
                         fiatStats,
+                        convertAmount: denomination !== 'USD',
+                        forceCurrency: denomination === 'USD' ? 'USD' : false,
                       }),
                       giftLink: claimURL,
                     });

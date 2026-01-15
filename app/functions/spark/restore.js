@@ -951,6 +951,10 @@ async function processSparkTransactions(
         accountId: txStateUpdate.accountId,
       });
     } else {
+      if (details.isGift) {
+        // dont process lrc20 pending gift payments, will be handled by getLRC20Transactions function that loops every 10s
+        continue;
+      }
       updatedTxs.push({
         id: txStateUpdate.sparkID,
         paymentStatus: 'completed',

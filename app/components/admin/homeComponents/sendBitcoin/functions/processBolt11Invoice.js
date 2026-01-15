@@ -119,7 +119,11 @@ export default async function processBolt11Invoice(input, context) {
       if (usdPromiseIndex !== -1) {
         const paymentQuote = results[usdPromiseIndex];
         if (!paymentQuote.didWork) throw new Error(paymentQuote.error);
-        swapPaymentQuote = paymentQuote.quote;
+        swapPaymentQuote = {
+          ...paymentQuote.quote,
+          bitcoinBalance,
+          dollarBalanceSat,
+        };
         fee = {
           fee: paymentQuote.quote.fee,
           supportFee: 0,

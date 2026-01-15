@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   GlobalThemeView,
@@ -45,8 +51,21 @@ import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import {
+  BTC_ASSET_ADDRESS,
+  dollarsToSats,
+  satsToDollars,
+  simulateSwap,
+  USD_ASSET_ADDRESS,
+} from '../../../../functions/spark/flashnet';
+import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import DenominationToggle from './denominationsToggle';
 
 export default function CreateGift(props) {
+  const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
+    useUserBalanceContext();
+  const { poolInfoRef, swapLimits } = useFlashnet();
   const { saveGiftToCloud, deleteGiftFromCloudAndLocal } = useGifts();
   const [duration, setDuration] = useState({ label: '7 Days', value: '7' });
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -60,6 +79,9 @@ export default function CreateGift(props) {
   const [description, setDescription] = useState('');
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
+  const [giftDenomination, setGiftDenomination] = useState('BTC');
+  const simulationPromiseRef = useRef(null);
+  const [simulationResult, setSimulationResult] = useState(null);
 
   const [loadingMessage, setLoadingMessage] = useState('');
   const [confirmData, setConfirmData] = useState(null);
@@ -114,12 +136,225 @@ export default function CreateGift(props) {
     ];
   }, [t]);
 
+  useEffect(() => {
+    const calculateSwapSimulation = async () => {
+      if (!convertedSatAmount) {
+        simulationPromiseRef.current = null;
+        setSimulationResult(null);
+        return;
+      }
+
+      const hasBTCBalance = bitcoinBalance >= convertedSatAmount;
+      const hasUSDBalance = dollarBalanceSat >= convertedSatAmount;
+
+      const meetsUSDMinimum =
+        convertedSatAmount >=
+        dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
+      const meetsBTCMinimum = convertedSatAmount >= swapLimits.bitcoin;
+
+      let needsSwap = false;
+      let paymentMethod = null;
+
+      // Determine if swap is needed based on gift denomination
+      if (giftDenomination === 'BTC') {
+        const canPayBTCtoBTC = hasBTCBalance;
+        const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
+
+        if (canPayBTCtoBTC) {
+          paymentMethod = 'BTC';
+          needsSwap = false;
+        } else if (canPayUSDtoBTC) {
+          paymentMethod = 'USD';
+          needsSwap = true;
+        }
+      } else {
+        const canPayUSDtoUSD = hasUSDBalance;
+        const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
+
+        if (canPayUSDtoUSD) {
+          paymentMethod = 'USD';
+          needsSwap = false;
+        } else if (canPayBTCtoUSD) {
+          paymentMethod = 'BTC';
+          needsSwap = true;
+        }
+      }
+
+      if (!needsSwap || !paymentMethod) {
+        simulationPromiseRef.current = null;
+        setSimulationResult(null);
+        return;
+      }
+
+      // Start the simulation
+      const swapPromise = simulateSwap(currentWalletMnemoinc, {
+        poolId: poolInfoRef.lpPublicKey,
+        assetInAddress:
+          paymentMethod === 'BTC' ? BTC_ASSET_ADDRESS : USD_ASSET_ADDRESS,
+        assetOutAddress:
+          paymentMethod === 'BTC' ? USD_ASSET_ADDRESS : BTC_ASSET_ADDRESS,
+        amountIn:
+          paymentMethod === 'BTC'
+            ? convertedSatAmount
+            : Math.round(
+                satsToDollars(
+                  convertedSatAmount,
+                  poolInfoRef.currentPriceAInB,
+                ) * Math.pow(10, 6),
+              ),
+      });
+
+      simulationPromiseRef.current = swapPromise;
+
+      try {
+        const swap = await swapPromise;
+        if (swap.didWork) {
+          setSimulationResult({
+            simulation: swap.simulation,
+            paymentMethod,
+          });
+        } else {
+          setSimulationResult(null);
+        }
+      } catch (err) {
+        console.error('Swap simulation error:', err);
+        setSimulationResult(null);
+      }
+    };
+
+    calculateSwapSimulation();
+  }, [
+    convertedSatAmount,
+    giftDenomination,
+    bitcoinBalance,
+    dollarBalanceSat,
+    swapLimits,
+    poolInfoRef.currentPriceAInB,
+    currentWalletMnemoinc,
+  ]);
+
+  const determinePaymentMethod = useMemo(() => {
+    const hasBTCBalance = bitcoinBalance >= convertedSatAmount;
+    const hasUSDBalance = dollarBalanceSat >= convertedSatAmount;
+
+    const meetsUSDMinimum =
+      convertedSatAmount >=
+      dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
+    const meetsBTCMinimum = convertedSatAmount >= swapLimits.bitcoin;
+
+    // Receiver expects BTC
+    if (giftDenomination === 'BTC') {
+      const canPayBTCtoBTC = hasBTCBalance;
+      const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
+
+      if (canPayBTCtoBTC) return 'BTC';
+
+      // If we have a simulation result, factor in the swap fee
+      if (simulationResult && canPayUSDtoBTC) {
+        const { simulation, paymentMethod } = simulationResult;
+        const totalUSDNeeded = Math.round(
+          satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB) *
+            Math.pow(10, 6) +
+            Number(simulation.feePaidAssetIn),
+        );
+
+        if (totalUSDNeeded > dollarBalanceToken * Math.pow(10, 6)) {
+          return null; // Can't afford with fees
+        }
+      }
+
+      return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : null;
+    }
+    // Receiver expects USD
+    else {
+      const canPayUSDtoUSD = hasUSDBalance;
+      const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
+
+      if (canPayUSDtoUSD) return 'USD';
+
+      // If we have a simulation result, factor in the swap fee
+      if (simulationResult && canPayBTCtoUSD) {
+        const { simulation } = simulationResult;
+        const totalBTCNeeded =
+          convertedSatAmount + Number(simulation.feePaidAssetIn);
+
+        if (totalBTCNeeded > bitcoinBalance) {
+          return null; // Can't afford with fees
+        }
+      }
+
+      return canPayUSDtoUSD ? 'USD' : canPayBTCtoUSD ? 'BTC' : null;
+    }
+  }, [
+    giftDenomination,
+    bitcoinBalance,
+    dollarBalanceSat,
+    dollarBalanceToken,
+    convertedSatAmount,
+    swapLimits,
+    poolInfoRef.currentPriceAInB,
+    simulationResult,
+  ]);
+
   const createGift = async () => {
     try {
       if (!convertedSatAmount)
         throw new Error(
           t('screens.inAccount.giftPages.createGift.noAmountError'),
         );
+
+      if (
+        bitcoinBalance < convertedSatAmount &&
+        dollarBalanceSat < convertedSatAmount
+      ) {
+        if (bitcoinBalance + dollarBalanceSat > convertedSatAmount) {
+          throw new Error(
+            t('wallet.sendPages.acceptButton.balanceFragmentationError'),
+          );
+        } else {
+          throw new Error(t('wallet.sendPages.acceptButton.balanceError'));
+        }
+      }
+
+      // wait for the swap to be done to have a better representation of determinePaymentMethod
+      if (simulationPromiseRef.current) {
+        await simulationPromiseRef.current;
+        await new Promise(res => setTimeout(res, 500));
+      }
+
+      if (!determinePaymentMethod) {
+        // if we do have an available balance but no deterime payment method this is a swap limit error
+        throw new Error(
+          t('wallet.sendPages.acceptButton.swapMinimumError', {
+            amount: displayCorrectDenomination({
+              amount:
+                giftDenomination === 'USD'
+                  ? swapLimits.bitcoin
+                  : dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB),
+
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination:
+                  giftDenomination === 'USD' ? 'fiat' : 'sats',
+              },
+              fiatStats,
+              forceCurrency: 'USD',
+            }),
+            currency1:
+              giftDenomination === 'USD'
+                ? t('constants.bitcoin_upper')
+                : t('constants.dollars_upper'),
+            currency2:
+              giftDenomination === 'USD'
+                ? t('constants.dollars_upper')
+                : t('constants.bitcoin_upper'),
+          }),
+        );
+      }
+
+      const needsSwap =
+        (determinePaymentMethod === 'USD' && giftDenomination === 'BTC') ||
+        (determinePaymentMethod === 'BTC' && giftDenomination === 'USD');
 
       setLoadingMessage(
         t('screens.inAccount.giftPages.createGift.startProcess1'),
@@ -159,12 +394,17 @@ export default function CreateGift(props) {
         expireTime: Date.now() + addedMS,
         encryptedText: encryptedMnemonic,
         amount: convertedSatAmount,
+        dollarAmount: satsToDollars(
+          convertedSatAmount,
+          poolInfoRef.currentPriceAInB,
+        ).toFixed(2),
         description: description || '',
         createdBy: masterInfoObject?.uuid,
         state: 'Unclaimed',
         giftNum: currentDeriveIndex,
         claimURL: urls.webUrl,
         satDisplay: masterInfoObject.satDisplay,
+        denomination: giftDenomination,
       };
 
       setLoadingMessage(
@@ -190,6 +430,54 @@ export default function CreateGift(props) {
       if (!didSave)
         throw new Error(t('screens.inAccount.giftPages.createGift.saveError'));
 
+      let swapPaymentQuote;
+      if (needsSwap) {
+        if (!simulationResult || !simulationResult.simulation) {
+          throw new Error('Swap simulation not available or failed');
+        }
+        // Await the simulation promise if it exists
+        const simulation = simulationResult.simulation;
+        const satFee =
+          determinePaymentMethod === 'BTC'
+            ? Number(simulation.feePaidAssetIn)
+            : dollarsToSats(
+                Number(simulation.feePaidAssetIn) / 1000000,
+                poolInfoRef.currentPriceAInB,
+              );
+        swapPaymentQuote = {
+          warn: parseFloat(simulation.priceImpact) > 3,
+          poolId: poolInfoRef.lpPublicKey,
+          assetInAddress:
+            determinePaymentMethod === 'BTC'
+              ? BTC_ASSET_ADDRESS
+              : USD_ASSET_ADDRESS,
+          assetOutAddress:
+            determinePaymentMethod === 'BTC'
+              ? USD_ASSET_ADDRESS
+              : BTC_ASSET_ADDRESS,
+          amountIn:
+            determinePaymentMethod === 'BTC'
+              ? Math.min(
+                  convertedSatAmount + Number(simulation.feePaidAssetIn),
+                  bitcoinBalance,
+                )
+              : Math.min(
+                  Math.round(
+                    satsToDollars(
+                      convertedSatAmount,
+                      poolInfoRef.currentPriceAInB,
+                    ) *
+                      Math.pow(10, 6) +
+                      Number(simulation.feePaidAssetIn),
+                  ),
+                  dollarBalanceToken * Math.pow(10, 6),
+                ),
+          dollarBalanceSat,
+          bitcoinBalance,
+          satFee,
+        };
+      }
+
       const paymentResponse = await sparkPaymenWrapper({
         address: derivedSparkAddress.address,
         paymentType: 'spark',
@@ -199,6 +487,19 @@ export default function CreateGift(props) {
         userBalance: sparkInformation.userBalance,
         sparkInformation,
         mnemonic: currentWalletMnemoinc,
+        usablePaymentMethod: determinePaymentMethod,
+        swapPaymentQuote,
+        paymentInfo: {
+          data: {
+            expectedReceive: giftDenomination === 'BTC' ? 'sats' : 'tokens',
+          },
+        },
+        fiatValueConvertedSendAmount: Math.min(
+          satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB) *
+            Math.pow(10, 6),
+          dollarBalanceToken * Math.pow(10, 6),
+        ),
+        poolInfoRef,
       });
 
       if (!paymentResponse.didWork) {
@@ -230,6 +531,8 @@ export default function CreateGift(props) {
     setLoadingMessage('');
     setConfirmData(null);
     setDescription('');
+    simulationPromiseRef.current = null;
+    setSimulationResult(null);
     navigate.setParams({ amount: 0 });
   };
 
@@ -243,6 +546,7 @@ export default function CreateGift(props) {
         giftId={confirmData.storageObject.uuid}
         giftLink={confirmData.webUrl}
         resetPageState={resetPageState}
+        storageObject={confirmData.storageObject}
       />
     );
   }
@@ -290,6 +594,7 @@ export default function CreateGift(props) {
                   onPress={() => {
                     navigate.navigate('CustomHalfModal', {
                       wantedContent: 'customInputText',
+                      forceUSD: giftDenomination === 'USD',
                       returnLocation: 'CreateGift',
                       sliderHight: 0.5,
                     });
@@ -299,12 +604,43 @@ export default function CreateGift(props) {
                   <ThemeText
                     styles={{ includeFontPadding: false }}
                     content={displayCorrectDenomination({
-                      amount,
-                      masterInfoObject,
+                      amount:
+                        giftDenomination === 'BTC'
+                          ? amount
+                          : satsToDollars(
+                              amount,
+                              poolInfoRef.currentPriceAInB,
+                            ).toFixed(2),
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination:
+                          giftDenomination === 'BTC' ? 'sats' : 'fiat',
+                      },
                       fiatStats,
+                      forceCurrency: 'USD',
+                      convertAmount: giftDenomination === 'BTC',
                     })}
                   />
                 </TouchableOpacity>
+              </View>
+              <View
+                style={[
+                  styles.fieldContainer,
+                  {
+                    backgroundColor: theme
+                      ? backgroundOffset
+                      : COLORS.darkModeText,
+                  },
+                ]}
+              >
+                <ThemeText
+                  styles={[styles.label, { marginBottom: 12 }]}
+                  content={'Gift denomination'}
+                />
+                <DenominationToggle
+                  giftDenomination={giftDenomination}
+                  setGiftDenomination={setGiftDenomination}
+                />
               </View>
 
               <View

@@ -199,9 +199,10 @@ export default function SendPaymentScreen(props) {
       : Math.round((SATSPERBITCOIN / fiatValue) * Number(sendingAmount))
     : Number(sendingAmount);
 
-  const fiatValueConvertedSendAmount =
+  const fiatValueConvertedSendAmount = Math.round(
     satsToDollars(convertedSendAmount, poolInfoRef.currentPriceAInB) *
-    Math.pow(10, 6);
+      Math.pow(10, 6),
+  );
 
   const paymentFee =
     !userPaymentMethod || userPaymentMethod === 'BTC'

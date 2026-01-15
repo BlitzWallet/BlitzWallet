@@ -267,6 +267,7 @@ export default function CustomHalfModal(props) {
             type={props?.route?.params?.type}
             returnLocation={props?.route?.params?.returnLocation}
             passedParams={props?.route?.params?.passedParams}
+            forceUSD={props?.route?.params?.forceUSD}
           />
         );
       // case 'chooseLNURLCopyFormat':
