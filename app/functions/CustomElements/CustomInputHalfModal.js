@@ -23,7 +23,11 @@ export default function CustomInputHalfModal(props) {
   const [amountValue, setAmountValue] = useState('');
   const initialValue = useRef(0);
   const [inputDenomination, setInputDenomination] = useState(
-    masterInfoObject.userBalanceDenomination != 'fiat' ? 'sats' : 'fiat',
+    props.forceUSD
+      ? 'fiat'
+      : masterInfoObject.userBalanceDenomination != 'fiat'
+      ? 'sats'
+      : 'fiat',
   );
   const forceUSD = props.forceUSD;
   const fiatStats = forceUSD
