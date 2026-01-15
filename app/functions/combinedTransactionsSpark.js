@@ -195,6 +195,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
   }
 
   let formattedTxs = [];
+  let ln_funding_txIds = new Set();
   let currentGroupedDate = '';
   const transactionLimit =
     frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
@@ -234,8 +235,16 @@ export default function getFormattedHomepageTxsForSpark(props) {
       const isLRC20Payment = paymentDetails.isLRC20Payment;
       const hasSavedTokenData =
         sparkInformation.tokens?.[paymentDetails.LRC20Token];
+
+      if (paymentDetails?.ln_funding_id) {
+        // add any ln funding txs ids here
+        ln_funding_txIds.add(paymentDetails.ln_funding_id);
+      }
+
       const showSwapConversion =
-        paymentDetails.performSwaptoUSD && !paymentDetails.completedSwaptoUSD;
+        paymentDetails.performSwaptoUSD &&
+        (!paymentDetails.completedSwaptoUSD ||
+          !ln_funding_txIds.has(currentTransaction.sparkID));
 
       // Early continue conditions
       if (
@@ -419,7 +428,8 @@ export const UserTransaction = memo(function UserTransaction({
 
   const showPendingTransactionStatusIcon =
     transaction.paymentStatus === TRANSACTION_CONSTANTS.PENDING ||
-    transaction.isBalancePending;
+    transaction.isBalancePending ||
+    showSwapConversion;
   const paymentDescription = transaction.details?.description?.trim();
   const isDefaultDescription =
     paymentDescription === BLITZ_DEFAULT_PAYMENT_DESCRIPTION;

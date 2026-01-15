@@ -318,6 +318,7 @@ export default function ClaimGiftScreen({
         undefined,
         1,
         true,
+        accountMnemoinc,
       );
 
       transaction.details.direction = 'INCOMING';
@@ -348,6 +349,7 @@ export default function ClaimGiftScreen({
       expertMode,
       updateGiftList,
       t,
+      accountMnemoinc,
     ],
   );
 

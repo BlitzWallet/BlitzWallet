@@ -410,6 +410,7 @@ const SparkWalletProvider = ({ children }) => {
           1,
           undefined,
           unpaidContactInvoices,
+          currentPollingMnemonicRef.current,
         );
 
         if (paymentObj) {

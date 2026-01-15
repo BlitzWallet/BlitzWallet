@@ -18,6 +18,11 @@ import {
   requestManualClawback,
   dollarsToSats,
   currentPriceAinBToPriceDollars,
+  addActiveSwap,
+  removeActiveSwap,
+  savePendingSwapConfirmation,
+  completeSwapConfirmation,
+  retryPendingSwapConfirmations,
 } from '../app/functions/spark/flashnet';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
@@ -122,7 +127,33 @@ export function FlashnetProvider({ children }) {
     loadSavedPoolInfo();
   }, [appState]);
 
+  useEffect(() => {
+    let retryTimeout;
+
+    if (
+      appState === 'active' &&
+      sparkInformation.didConnectToFlashnet &&
+      currentWalletMnemoincRef.current &&
+      poolInfo?.lpPublicKey
+    ) {
+      // Delay to ensure everything is initialized
+      retryTimeout = setTimeout(() => {
+        retryPendingSwapConfirmations(
+          currentWalletMnemoincRef.current,
+          sparkInfoRef,
+        );
+      }, 3000);
+    }
+
+    return () => {
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+    };
+  }, [appState, sparkInformation.didConnectToFlashnet, poolInfo?.lpPublicKey]);
+
   const handleAutoSwap = async (sparkRequestID, retryCount = 0) => {
+    let outboundTransferId;
     try {
       const MAX_RETRIES = 7;
       const RETRY_DELAY = 2000;
@@ -253,7 +284,9 @@ export function FlashnetProvider({ children }) {
       );
 
       if (result.didWork && result.swap) {
-        setFlashnetTransfer(txDetails.id);
+        outboundTransferId = result.swap.outboundTransferId;
+        addActiveSwap(result.swap.outboundTransferId);
+        savePendingSwapConfirmation(sparkRequestID, outboundTransferId);
         await updateSparkTransactionDetails(lightningRequest.sparkID, {
           completedSwaptoUSD: true,
           swapExecuting: false,
@@ -264,58 +297,28 @@ export function FlashnetProvider({ children }) {
           executionPrice: result.swap.executionPrice,
         });
 
-        const realFeeAmount = Math.round(
-          dollarsToSats(
-            result.swap.feeAmount / Math.pow(10, 6),
-            result.swap.executionPrice,
-          ),
-        );
-
-        const userSwaps = await getUserSwapHistory(
+        const success = await completeSwapConfirmation(
+          sparkRequestID,
+          outboundTransferId,
+          lightningRequest,
+          txDetails,
+          result,
+          invoice,
           currentWalletMnemoincRef.current,
-          5,
+          sparkInfoRef,
         );
 
-        const swap = userSwaps.swaps.find(
-          savedSwap =>
-            savedSwap.outboundTransferId === result.swap.outboundTransferId,
-        );
-
-        const description = invoice
-          ? decode(invoice).tags.find(tag => tag.tagName === 'description')
-              ?.data ||
-            lightningRequest?.description ||
-            ''
-          : lightningRequest?.description || '';
-
-        // clear funding and ln payment from tx list
-        setFlashnetTransfer(swap.inboundTransferId);
-
-        const tx = {
-          id: swap.outboundTransferId,
-          paymentStatus: 'completed',
-          paymentType: 'spark',
-          accountId: sparkInfoRef.current.identityPubKey,
-          details: {
-            fee: realFeeAmount,
-            totalFee: realFeeAmount,
-            supportFee: 0,
-            amount: parseFloat(result.swap.amountOut),
-            description: description,
-            address: sparkInfoRef.current.sparkAddress,
-            time: Date.now() + 1000,
-            createdAt: Date.now() + 1000,
-            direction: 'INCOMING',
-            isLRC20Payment: true,
-            LRC20Token: USDB_TOKEN_ID,
-            showSwapLabel: true,
-            currentPriceAInB: poolInfoRef.current?.currentPriceAInB,
-            ln_funding_id: txDetails.id,
-          },
-        };
-        bulkUpdateSparkTransactions([tx], 'fullUpdate-tokens');
+        if (!success) {
+          console.warn(
+            '[Auto-swap] Confirmation failed, will retry on next load',
+          );
+        }
       } else {
         console.error('Auto-swap failed:', result.error);
+
+        if (outboundTransferId) {
+          removeActiveSwap(sparkRequestID);
+        }
 
         // Mark as failed but not executing, so it can be retried
         await updateSparkTransactionDetails(sparkRequestID, {
@@ -326,6 +329,9 @@ export function FlashnetProvider({ children }) {
       }
     } catch (error) {
       console.error('Error in auto-swap handler:', error);
+      if (outboundTransferId) {
+        removeActiveSwap(outboundTransferId);
+      }
       // Mark as failed but not executing
       try {
         await updateSparkTransactionDetails(sparkRequestID, {

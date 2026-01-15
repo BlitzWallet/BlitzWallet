@@ -310,6 +310,7 @@ async function processTransactionChunk(
   identityPubKey,
   numberOfRestoredTxs,
   unpaidContactInvoices,
+  mnemonic,
 ) {
   const chunkPaymentObjects = [];
 
@@ -325,6 +326,7 @@ async function processTransactionChunk(
         numberOfRestoredTxs,
         undefined,
         unpaidContactInvoices,
+        mnemonic,
       );
       if (paymentObject) {
         chunkPaymentObjects.push(paymentObject);
@@ -379,6 +381,7 @@ export async function fullRestoreSparkState({
             txBatch.length,
             undefined,
             unpaidContactInvoices,
+            mnemonic,
           );
           if (paymentObject) {
             paymentObjects.push(paymentObject);
@@ -436,6 +439,7 @@ export async function fullRestoreSparkState({
           identityPubKey,
           restored.txs.length,
           unpaidContactInvoices,
+          mnemonic,
         ),
       );
 
@@ -641,6 +645,7 @@ async function processLightningTransactions(
       [],
       accountId,
       1,
+      mnemonic,
     );
 
     newTxs.push(transformedObject);

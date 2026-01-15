@@ -11,6 +11,8 @@ import {
 } from '@flashnet/sdk';
 import {
   getFlashnetClient,
+  getSingleTxDetails,
+  getSparkLightningPaymentStatus,
   initializeFlashnet,
   selectSparkRuntime,
   validateWebViewResponse,
@@ -23,8 +25,18 @@ import {
 import {
   FLASHNET_ERROR_CODE_REGEX,
   FLASHNET_REFUND_REGEX,
+  USDB_TOKEN_ID,
 } from '../../constants';
-import { setFlashnetTransfer } from './handleFlashnetTransferIds';
+import {
+  isFlashnetTransfer,
+  setFlashnetTransfer,
+} from './handleFlashnetTransferIds';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+import {
+  bulkUpdateSparkTransactions,
+  getSingleSparkLightningRequest,
+} from './transactions';
+import { decode } from 'bolt11';
 
 // ============================================
 // CONSTANTS
@@ -35,6 +47,9 @@ export const BTC_ASSET_ADDRESS =
   '020202020202020202020202020202020202020202020202020202020202020202';
 export const USD_ASSET_ADDRESS =
   '3206c93b24a4d18ea19d0a9a213204af2c7e74a6d16c7535cc5d33eca4ad1eca';
+
+export const FLASHNET_POOL_IDENTITY_KEY =
+  '02894808873b896e21d29856a6d7bb346fb13c019739adb9bf0b6a8b7e28da53da';
 
 // Default slippage tolerance
 export const DEFAULT_SLIPPAGE_BPS = 500; // 5%
@@ -882,6 +897,368 @@ export const getUserSwapHistory = async (mnemonic, limit = 50) => {
       swaps: [],
       details: formatError(error, 'getUserSwapHistory'),
     };
+  }
+};
+
+// ============================================
+// Track current LN -> USD swaps for the session
+// ============================================
+
+let activeSwapTransferIds = new Set();
+
+/**
+ * Checks to see if we have any pending ln -> btc swaps
+ * @returns {Boolean} True if we have pending swaps
+ */
+export const isSwapActive = () => {
+  return activeSwapTransferIds.size > 0;
+};
+
+/**
+ * Gets pending swaps ids
+ * @returns {Set} Set of pending swap transfers
+ */
+export const getActiveSwapTransferIds = () => {
+  return new Set(activeSwapTransferIds);
+};
+
+/**
+ * Adds a transfer id to the pending swaps set
+ * @param {string} transferId - Outbound transfer id of an execution resposne
+ * @returns {undefined}
+ */
+export const addActiveSwap = transferId => {
+  activeSwapTransferIds.add(transferId);
+  console.log(
+    `[Swap Tracker] Added swap ${transferId}, total active: ${activeSwapTransferIds.size}`,
+  );
+};
+
+/**
+ * Removes a transfer id to the pending swaps set
+ * @param {string} transferId - Outbound transfer id of an execution resposne
+ * @returns {undefined}
+ */
+export const removeActiveSwap = transferId => {
+  activeSwapTransferIds.delete(transferId);
+  console.log(
+    `[Swap Tracker] Removed swap ${transferId}, total active: ${activeSwapTransferIds.size}`,
+  );
+};
+
+// ============================================
+// AUTO SWAP COMPLETION TRACKING
+// ============================================
+
+// Storage key constant
+const PENDING_SWAP_CONFIRMATIONS_KEY = 'pendingSwapConfirmations';
+
+/**
+ * Saves an active swap to be checked later if not completed
+ * @param {string} sparkRequestID - Lightning spark request ID
+ * @param {string} outboundTransferId - Outbound transfer id of an execution resposne
+ * @returns {Promise<undefined>}
+ */
+export const savePendingSwapConfirmation = async (
+  sparkRequestID,
+  outboundTransferId,
+) => {
+  try {
+    const existing = await getLocalStorageItem(PENDING_SWAP_CONFIRMATIONS_KEY);
+    const pending = existing ? JSON.parse(existing) : {};
+
+    pending[sparkRequestID] = {
+      outboundTransferId,
+      timestamp: Date.now(),
+      lastChecked: null,
+    };
+
+    await setLocalStorageItem(
+      PENDING_SWAP_CONFIRMATIONS_KEY,
+      JSON.stringify(pending),
+    );
+    console.log('[Swap Retry] Saved pending confirmation:', sparkRequestID);
+  } catch (err) {
+    console.error('[Swap Retry] Failed to save pending confirmation:', err);
+  }
+};
+
+/**
+ * Removes an active swap to be checked later if not completed
+ * @param {string} sparkRequestID - Lightning spark request ID
+ * @returns {Promise<undefined>}
+ */
+export const removePendingSwapConfirmation = async sparkRequestID => {
+  try {
+    const existing = await getLocalStorageItem(PENDING_SWAP_CONFIRMATIONS_KEY);
+    if (!existing) return;
+
+    const pending = JSON.parse(existing);
+    delete pending[sparkRequestID];
+
+    await setLocalStorageItem(
+      PENDING_SWAP_CONFIRMATIONS_KEY,
+      JSON.stringify(pending),
+    );
+    console.log('[Swap Retry] Removed pending confirmation:', sparkRequestID);
+  } catch (err) {
+    console.error('[Swap Retry] Failed to remove pending confirmation:', err);
+  }
+};
+
+/**
+ * Gets all active swaps to be checked if not completed
+ * @param {string} sparkRequestID - Lightning spark request ID
+ * @returns {Promise<object>} - object of active swaps
+ */
+export const getPendingSwapConfirmations = async () => {
+  try {
+    const existing = await getLocalStorageItem(PENDING_SWAP_CONFIRMATIONS_KEY);
+    return existing ? JSON.parse(existing) : {};
+  } catch (err) {
+    console.error('[Swap Retry] Failed to get pending confirmations:', err);
+    return {};
+  }
+};
+
+/**
+ * Completes the auto swap process
+ * @param {string} sparkRequestID - Lightning spark request ID
+ * @param {string} outboundTransferId - Outbound swap transfer ID
+ * @param {Object} lightningRequest - Lightning request response by spark
+ * @param {Object} txDetails - Saved ln swap payment details
+ * @param {Object} result - Execution result
+ * @param {string} invoice - Lightning invoice
+ * @returns {Promise<boolean>} - true or false based on sucess
+ */
+export const completeSwapConfirmation = async (
+  sparkRequestID,
+  outboundTransferId,
+  lightningRequest,
+  txDetails,
+  result,
+  invoice,
+  mnemoinc,
+  sparkInfoRef,
+) => {
+  try {
+    console.log(
+      '[Swap Confirmation] Starting confirmation for:',
+      sparkRequestID,
+    );
+
+    const realFeeAmount = Math.round(
+      dollarsToSats(
+        result.swap.feeAmount / Math.pow(10, 6),
+        result.swap.executionPrice,
+      ),
+    );
+
+    const userSwaps = await getUserSwapHistory(mnemoinc, 5);
+
+    const swap = userSwaps.swaps.find(
+      savedSwap => savedSwap.outboundTransferId === outboundTransferId,
+    );
+
+    if (!swap) {
+      console.error('[Swap Confirmation] Swap not found in history');
+      return false;
+    }
+
+    const description = invoice
+      ? decode(invoice).tags.find(tag => tag.tagName === 'description')?.data ||
+        lightningRequest?.description ||
+        ''
+      : lightningRequest?.description || '';
+
+    // Clear funding and ln payment from tx list
+    setFlashnetTransfer(swap.inboundTransferId);
+    setFlashnetTransfer(txDetails.id);
+
+    const tx = {
+      id: swap.outboundTransferId,
+      paymentStatus: 'completed',
+      paymentType: 'spark',
+      accountId: sparkInfoRef.current.identityPubKey,
+      details: {
+        fee: realFeeAmount,
+        totalFee: realFeeAmount,
+        supportFee: 0,
+        amount: parseFloat(result.swap.amountOut),
+        description: description,
+        address: sparkInfoRef.current.sparkAddress,
+        time: Date.now() + 1000,
+        createdAt: Date.now() + 1000,
+        direction: 'INCOMING',
+        isLRC20Payment: true,
+        LRC20Token: USDB_TOKEN_ID,
+        showSwapLabel: true,
+        currentPriceAInB: swap.price,
+        ln_funding_id: txDetails.id,
+      },
+    };
+
+    await bulkUpdateSparkTransactions([tx], 'fullUpdate-tokens');
+    removeActiveSwap(outboundTransferId);
+
+    await removePendingSwapConfirmation(sparkRequestID);
+
+    console.log('[Swap Confirmation] Completed successfully');
+    return true;
+  } catch (err) {
+    console.error('[Swap Confirmation] Error:', err);
+    return false;
+  }
+};
+
+export const retryPendingSwapConfirmations = async (mnemoinc, sparkInfoRef) => {
+  try {
+    console.log('[Swap Retry] Checking for pending confirmations...');
+
+    const pending = await getPendingSwapConfirmations();
+    const sparkRequestIDs = Object.keys(pending);
+
+    if (sparkRequestIDs.length === 0) {
+      console.log('[Swap Retry] No pending confirmations found');
+      return;
+    }
+
+    console.log(
+      `[Swap Retry] Found ${sparkRequestIDs.length} pending confirmation(s)`,
+    );
+
+    for (const sparkRequestID of sparkRequestIDs) {
+      const { outboundTransferId, timestamp, lastChecked } =
+        pending[sparkRequestID];
+
+      // Only remove if too old AND has been checked at least once
+      const MAX_AGE = 24 * 60 * 60 * 1000;
+      if (lastChecked && Date.now() - timestamp > MAX_AGE) {
+        console.warn(
+          `[Swap Retry] Confirmation too old (checked at least once), removing:`,
+          sparkRequestID,
+        );
+        await removePendingSwapConfirmation(sparkRequestID);
+        continue;
+      }
+
+      try {
+        console.log(`[Swap Retry] Retrying confirmation for:`, sparkRequestID);
+
+        // Update lastChecked timestamp
+        const updatedPending = await getPendingSwapConfirmations();
+        if (updatedPending[sparkRequestID]) {
+          updatedPending[sparkRequestID].lastChecked = Date.now();
+          await setLocalStorageItem(
+            PENDING_SWAP_CONFIRMATIONS_KEY,
+            JSON.stringify(updatedPending),
+          );
+        }
+
+        let swap = null;
+        let offset = 0;
+        const batchSize = 10;
+        const maxSwaps = 50;
+
+        while (!swap && offset < maxSwaps) {
+          const userSwaps = await getUserSwapHistory(
+            mnemoinc,
+            batchSize,
+            offset,
+          );
+
+          if (!userSwaps?.swaps || userSwaps.swaps.length === 0) {
+            break;
+          }
+
+          swap = userSwaps.swaps.find(
+            s => s.outboundTransferId === outboundTransferId,
+          );
+
+          if (!swap) {
+            offset += batchSize;
+          }
+        }
+
+        if (!swap) {
+          console.error(
+            '[Swap Retry] Swap not found in history after checking up to 50 swaps',
+          );
+          continue;
+        }
+
+        // Get the lightning request
+        const lightningRequest = await getSparkLightningPaymentStatus({
+          lightningInvoiceId: sparkRequestID,
+          mnemonic: mnemoinc,
+        });
+
+        if (!lightningRequest?.transfer?.sparkId) {
+          console.error('[Swap Retry] Lightning request not found');
+          await removePendingSwapConfirmation(sparkRequestID);
+          continue;
+        }
+
+        // Get transaction details
+        const txDetails = await getSingleTxDetails(
+          mnemoinc,
+          lightningRequest?.transfer?.sparkId,
+        );
+
+        if (!txDetails) {
+          console.error('[Swap Retry] Transaction details not found');
+          continue;
+        }
+
+        // Check if already completed
+        if (isFlashnetTransfer(lightningRequest.transfer.sparkId)) {
+          console.log('[Swap Retry] Already completed, removing');
+          await removePendingSwapConfirmation(sparkRequestID);
+          continue;
+        }
+
+        const result = {
+          swap: {
+            ...swap,
+            feeAmount: swap.feePaid || 0,
+            executionPrice: swap.price,
+            amountOut: swap.amountOut,
+          },
+        };
+
+        const invoice = lightningRequest?.invoice?.encodedInvoice || '';
+
+        lightningRequest.description = lightningRequest?.invoice?.memo || '';
+
+        const success = await completeSwapConfirmation(
+          sparkRequestID,
+          outboundTransferId,
+          lightningRequest,
+          txDetails,
+          result,
+          invoice,
+          mnemoinc,
+          sparkInfoRef,
+        );
+
+        if (success) {
+          console.log(
+            '[Swap Retry] Successfully completed pending confirmation',
+          );
+        } else {
+          console.warn('[Swap Retry] Failed to complete confirmation');
+        }
+
+        // Add delay between retries
+        await new Promise(res => setTimeout(res, 1000));
+      } catch (err) {
+        console.error(`[Swap Retry] Error processing ${sparkRequestID}:`, err);
+      }
+    }
+
+    console.log('[Swap Retry] Finished processing pending confirmations');
+  } catch (err) {
+    console.error('[Swap Retry] Error in retry process:', err);
   }
 };
 
