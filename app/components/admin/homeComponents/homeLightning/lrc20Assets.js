@@ -33,14 +33,7 @@ function TokenItem({
   masterInfoObject,
 }) {
   const imageUri = tokensImageCache[tokenIdentifier];
-  console.log(
-    formatBalanceAmount(
-      formatTokensNumber(
-        details?.balance || 0,
-        details?.tokenMetadata?.decimals || 0,
-      ),
-    ),
-  );
+
   return (
     <TouchableOpacity
       onPress={() =>
@@ -104,6 +97,7 @@ function TokenItem({
           details?.balance || 0,
           details?.tokenMetadata?.decimals || 0,
         )}
+        useMillionDenomination={true}
         useBalance={true}
         useCustomLabel={true}
       />
