@@ -69,6 +69,7 @@ export default function CustomInputHalfModal(props) {
           props.returnLocation,
           {
             amount: !amountValue ? 0 : localSatAmount,
+            amountValue,
             type: props?.type,
           },
           {

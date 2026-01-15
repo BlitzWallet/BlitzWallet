@@ -89,7 +89,10 @@ export default function CreateGift(props) {
 
   const amount = props.route.params?.amount || 0;
   const convertedSatAmount = amount;
+  const trueFiatAmount =
+    (props.route.params?.amountValue || 0) * Math.pow(10, 6);
 
+  console.log(amount, convertedSatAmount, trueFiatAmount);
   const currentDerivedGiftIndex = masterInfoObject.currentDerivedGiftIndex || 1;
 
   const handleSelectProcess = useCallback(value => {
@@ -194,15 +197,7 @@ export default function CreateGift(props) {
           paymentMethod === 'BTC' ? BTC_ASSET_ADDRESS : USD_ASSET_ADDRESS,
         assetOutAddress:
           paymentMethod === 'BTC' ? USD_ASSET_ADDRESS : BTC_ASSET_ADDRESS,
-        amountIn:
-          paymentMethod === 'BTC'
-            ? convertedSatAmount
-            : Math.round(
-                satsToDollars(
-                  convertedSatAmount,
-                  poolInfoRef.currentPriceAInB,
-                ) * Math.pow(10, 6),
-              ),
+        amountIn: paymentMethod === 'BTC' ? convertedSatAmount : trueFiatAmount,
       });
 
       simulationPromiseRef.current = swapPromise;
@@ -533,12 +528,7 @@ export default function CreateGift(props) {
                 )
               : Math.min(
                   Math.round(
-                    satsToDollars(
-                      convertedSatAmount,
-                      poolInfoRef.currentPriceAInB,
-                    ) *
-                      Math.pow(10, 6) +
-                      Number(simulation.feePaidAssetIn),
+                    trueFiatAmount + Number(simulation.feePaidAssetIn),
                   ),
                   dollarBalanceToken * Math.pow(10, 6),
                 ),
@@ -565,8 +555,7 @@ export default function CreateGift(props) {
           },
         },
         fiatValueConvertedSendAmount: Math.min(
-          satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB) *
-            Math.pow(10, 6),
+          trueFiatAmount,
           dollarBalanceToken * Math.pow(10, 6),
         ),
         poolInfoRef,
