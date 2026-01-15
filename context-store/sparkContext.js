@@ -1206,7 +1206,6 @@ const SparkWalletProvider = ({ children }) => {
     // Reset refs to initial values
     await removeListeners(true);
     clearMnemonicCache();
-    cleanupOptimization(prevAccountMnemoincRef.current);
     prevAccountMnemoincRef.current = null;
     isRunningAddListeners.current = false;
     if (depositAddressIntervalRef.current) {

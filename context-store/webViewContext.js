@@ -243,6 +243,17 @@ export const WebViewProvider = ({ children }) => {
       isInitialRender.current = false;
       return;
     }
+
+    // clear any qued requests
+    if (queuedRequests.current.length) {
+      console.log('[auth reset webview] clearing qued requests');
+      queuedRequests.current.forEach(({ reject }) => {
+        reject({
+          error: 'Wallet initialization failed, using React Native',
+        });
+      });
+      queuedRequests.current = [];
+    }
     blockAndResetWebview();
   }, [authResetkey]);
 
