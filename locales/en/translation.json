@@ -1631,7 +1631,7 @@
         "header_spark_usd": "Dollars via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Select the asset to receive",
+        "selectReceiveAssetHead": "Select the currency to receive",
         "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion."
       },
 
