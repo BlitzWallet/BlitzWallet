@@ -1764,7 +1764,7 @@
           "header": "Modo avançado",
           "currentIndexHead": "Índice atual - Vales-Blitz",
           "infoHead": "Como funcionam os Vales-Blitz",
-          "infoDesc1": "Os Vales-Blitz Blitz usam carteiras separadas criadas a partir da sua carteira principal. Isso permite recuperar valores não resgatados enquanto mantém sua carteira principal protegida.",
+          "infoDesc1": "Os Vales-Blitz usam carteiras separadas criadas a partir da sua carteira principal. Isso permite recuperar valores não resgatados enquanto mantém sua carteira principal protegida.",
           "infoDesc2": "O valor da maioria dos Vales-Blitz expirados podem ser recuperados na página Expirados. Se um Vale-Blitz não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um Vale-Blitz específico e verificar se ainda há fundos disponíveis.",
           "inputHead": "Digite o número do Vale-Blitz",
           "invalidGiftNum": "Digite um número de Vale-Blitz válido entre 1 e {{currentGiftIndex}}",
