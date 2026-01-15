@@ -103,20 +103,20 @@
     "selectOption": "Eine Option auswählen",
     "slideToConfirm": "Zum Bestätigen wischen",
     "token": "Token",
-    "veriable": "Variabel",
+    "veriable": "Variable",
     "instant": "Sofort",
     "andLower": "und",
     "onLower": "ein",
     "offLower": "aus",
-    "recover": "Genesen",
+    "recover": "Wiederherstellen",
     "search": "Suchen",
-    "review": "Rezension",
+    "review": "Überprüfen",
     "loadMore": "Mehr laden",
     "invoice": "Rechnung",
     "annonName": "Anonymer Benutzer",
     "claim": "Einlösen",
     "manage": "Verwalten",
-    "reclaim": "Abgelaufen",
+    "reclaim": "Zurückfordern",
     "optionalFlag": "(Optional)",
     "gift": "Geschenk",
     "bitcoin_upper": "Bitcoin",
@@ -174,15 +174,15 @@
   "transactionLabelText": {
     "notSent": "Zahlung nicht gesendet",
     "txTime_just_now": "Gerade eben",
-    "ago": "vorher",
+    "ago": "vor",
     "pending": "Ausstehend",
     "confirmed": "Bestätigt",
-    "processing": "In Bearbeitung",
+    "processing": "Wird verarbeitet",
     "successful": "Erfolgreich",
     "failed": "Fehlgeschlagen",
     "requestDeclined": "Anfrage abgelehnt",
     "declinedRequest": "Abgelehnte Anfrage",
-    "requestSent": "Zahlungsanforderung gesendet",
+    "requestSent": "Zahlungsanfrage gesendet",
     "requestPaid": "Anfrage bezahlt",
     "paidRequest": "Bezahlte Anfrage",
     "sent": "Gesendet",
@@ -191,112 +191,112 @@
     "declinedLower": "abgelehnt",
     "receivedRequest": "Erhaltene Anfrage",
     "date": "Datum",
-    "time": "Zeit",
+    "time": "Uhrzeit",
     "memo": "Notiz",
-    "roostockSwap": "Rootstock-zu-Spark-Transfer"
+    "roostockSwap": "Rootstock → Spark Transfer"
   },
   "createAccount": {
     "chooseLanguage": {
-      "title": "Sprache wählen"
+      "title": "Sprache auswählen"
     },
     "homePage": {
-      "subtitle": "Ihre Wallet, Ihre Coins, 100% Open-Source",
+      "subtitle": "Ihre Wallet. Ihre Coins. 100 % Open Source.",
       "buttons": {
-        "button1": "Seed-Phrase eingeben",
+        "button1": "Mit Seed-Phrase wiederherstellen",
         "button2": "Neue Wallet erstellen"
       }
     },
     "disclaimerPage": {
-      "header": "Selbstverwahrung",
-      "subHeader": "Blitz hat keinen Zugriff auf Ihre Gelder und kann diese im Verlustfall nicht wiederherstellen. Mit der Fortsetzung stimmen Sie den Nutzungsbedingungen von Blitz Wallet zu.",
-      "imgCaption": "'Mit großer Macht kommt große Verantwortung' - Onkel Ben",
+      "header": "Sie behalten die volle Kontrolle",
+      "subHeader": "Blitz hat **keinen Zugriff** auf Ihre Gelder und kann diese bei Verlust **nicht wiederherstellen**.\nMit der Fortsetzung akzeptieren Sie die Nutzungsbedingungen von Blitz Wallet.",
+      "imgCaption": "„Mit großer Macht kommt große Verantwortung“ – Onkel Ben",
       "acceptPrefix": "Ich akzeptiere die ",
       "terms&Conditions": "Nutzungsbedingungen",
-      "acceptError": "Um fortzufahren, müssen Sie die Nutzungsbedingungen akzeptieren.",
+      "acceptError": "Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.",
       "continueBTN": "Weiter"
     },
     "verifyKeyPage": {
-      "header": "Lassen Sie uns Ihre Seed-Phrase bestätigen!"
+      "header": "Bestätigen Sie Ihre Seed-Phrase"
     },
     "keySetup": {
       "generateKey": {
-        "header": "Dies ist Ihr Passwort für Ihr Geld. Wenn Sie es verlieren, verlieren Sie Ihr Geld!",
-        "subHeader": "Schreiben Sie es mit Stift und Papier auf und bewahren Sie es sicher auf!",
-        "disclaimer": "WIR KÖNNEN IHNEN NICHT HELFEN, WENN SIE ES VERLIEREN",
-        "errorText": "Fehler beim Abrufen der Seed-Phrase",
-        "keyGenError": "Konnte keine gültige Seed-Phrase generieren",
-        "seedPrivacyMessage": "Stellen Sie sicher, dass niemand in der Nähe ist, der Ihren Bildschirm sehen kann.",
-        "showIt": "Anzeigen",
-        "invalidSeedError": "Konnte keine gültige Seed-Phrase generieren"
+        "header": "Das ist der **einzige Schlüssel** zu Ihrem Geld.",
+        "subHeader": "Wenn Sie ihn verlieren, ist Ihr Geld für immer weg.",
+        "disclaimer": "WIR KÖNNEN IHNEN NICHT HELFEN, WENN SIE IHN VERLIEREN!",
+        "errorText": "Fehler beim Laden der Seed-Phrase",
+        "keyGenError": "Es konnte keine gültige Seed-Phrase erstellt werden",
+        "seedPrivacyMessage": "Achten Sie darauf, dass niemand Ihren Bildschirm sehen kann!",
+        "showIt": "Seed-Phrase anzeigen",
+        "invalidSeedError": "Ungültige oder fehlerhafte Seed-Phrase"
       },
       "pin": {
         "savePinError": "PIN konnte nicht gespeichert werden",
-        "removeWalletError": "Fehler beim Entfernen der Wallet",
-        "wrongPinError": "Erneut versuchen",
+        "removeWalletError": "Wallet konnte nicht entfernt werden",
+        "wrongPinError": "Falsche PIN – bitte erneut versuchen",
         "enterPinMessage": "PIN erstellen",
         "confirmPin": "PIN bestätigen",
-        "attemptsText": "{{number}} Versuche übrig"
+        "attemptsText": "Noch {{number}} Versuche"
       }
     },
     "restoreWallet": {
       "home": {
-        "header": "Geben Sie Ihre Seed-Phrase ein",
+        "header": "Seed-Phrase eingeben",
         "continueBTN": "Wallet wiederherstellen",
-        "error1": "Bitte geben Sie alle Wörter Ihrer Seed-Phrase ein.",
-        "error2": "Dies ist keine gültige Seed-Phrase.",
-        "error3": "Ihre Wörter stimmen nicht mit den generierten Wörtern überein",
-        "noSeedInString": "Konnte keine Seed-Phrase in der Zeichenkette finden",
-        "invalidWordLen": "Nicht jedes Wort hat eine gültige Länge",
-        "cannotFind12Words": "Konnte keine 12 Wörter aus der kopierten Seed-Phrase finden.",
-        "noSeedInNumberArray": "Konnte keine Seed-Phrase in der Zahlenfolge finden",
-        "noSeedInQr": "Konnte keine Seed-Phrase aus dem QR-Code abrufen",
+        "error1": "Bitte geben Sie alle Wörter Ihrer Seed-Phrase ein",
+        "error2": "Das ist keine gültige Seed-Phrase",
+        "error3": "Die eingegebenen Wörter stimmen nicht mit der ursprünglichen Seed-Phrase überein",
+        "noSeedInString": "Keine gültige Seed-Phrase in dem Text gefunden",
+        "invalidWordLen": "Nicht jedes Wort hat die richtige Länge",
+        "cannotFind12Words": "Konnte keine vollständigen 12 Wörter in der kopierten Seed-Phrase finden",
+        "noSeedInNumberArray": "Keine gültige Seed-Phrase in der Zahlenreihe gefunden",
+        "noSeedInQr": "Konnte keine Seed-Phrase aus dem QR-Code lesen",
         "scanQr": "QR-Code scannen"
       }
     },
     "skipMessage": {
-      "header": "Wir empfehlen, dass Sie Ihre Seed-Phrase aufschreiben",
-      "subHeader": "Wenn Sie Ihre Seed-Phrase nicht aufgeschrieben haben, riskieren Sie, Ihr Geld zu verlieren.",
-      "btn": "Ich verstehe"
+      "header": "Bitte schreiben Sie Ihre Seed-Phrase auf!",
+      "subHeader": "Ohne Ihre Seed-Phrase können wir Ihr Geld **nicht wiederherstellen**, wenn etwas schiefgeht.",
+      "btn": "Ich verstehe – fortfahren"
     }
   },
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Wir konnten deine biometrischen Daten nicht verifizieren.\n\nMöchtest du alle Wallet-Daten löschen? Fahre nur fort, wenn deine Seed-Phrase sicher gesichert ist.",
-      "wrongPinError": "Falscher PIN, versuchen Sie es erneut",
+      "isBiometricEnabledConfirmAction": "Die biometrische Überprüfung ist fehlgeschlagen.\n\nMöchten Sie **alle Wallet-Daten löschen**?\n\nFahren Sie **nur** fort, wenn Ihre Seed-Phrase sicher gespeichert ist!",
+      "wrongPinError": "Falscher PIN – bitte erneut versuchen",
       "enterPinMessage": "PIN eingeben",
-      "attemptsText": "{{attempts}} Versuche übrig",
-      "biometricsHeader": "Mit Biometrie öffnen"
+      "attemptsText": "Noch {{attempts}} Versuche",
+      "biometricsHeader": "Mit Biometrie entsperren"
     }
   },
   "apps": {
     "appList": {
       "AI": "KI",
-      "AIDescription": "Chatten Sie mit den neuesten generativen KI-Modellen",
+      "AIDescription": "Chatten mit den neuesten generativen KI-Modellen",
       "SMS": "SMS",
-      "SMSDescription": "Senden und empfangen Sie SMS-Nachrichten weltweit mit Bitcoin",
+      "SMSDescription": "Weltweit SMS senden und empfangen – bezahlt mit Bitcoin",
       "VPN": "VPN",
-      "VPNDescription": "Sicher surfen und Privatsphäre schützen",
+      "VPNDescription": "Sicher surfen und Ihre Privatsphäre schützen",
       "onlineListings": "Shops",
-      "onlineListingsDescription": "Verzeichnis von Online-Unternehmen, die Bitcoin-Zahlungen akzeptieren",
-      "Soon": "Bald",
-      "SoonDescription": "Weitere Apps kommen bald"
+      "onlineListingsDescription": "Verzeichnis von Online-Shops, die Bitcoin-Zahlungen akzeptieren",
+      "Soon": "Bald verfügbar",
+      "SoonDescription": "Weitere spannende Apps kommen bald"
     },
     "VPN": {
       "VPNPlanPage": {
-        "backupLoadingMessage": "Rechnung wird abgerufen",
-        "countrySearchPlaceholder": "Nach Land suchen",
+        "backupLoadingMessage": "Rechnung wird geladen…",
+        "countrySearchPlaceholder": "Land suchen…",
         "createVPNBTN": "VPN kaufen",
-        "noLocationError": "Bitte wählen Sie ein Land für den Standort des VPN aus.",
-        "payingInvoiceLoadingMessage": "Rechnung wird bezahlt",
+        "noLocationError": "Bitte wählen Sie ein Land für den VPN-Standort aus.",
+        "payingInvoiceLoadingMessage": "Zahlung wird verarbeitet…",
         "backupPaymentError": "Fehler beim Bezahlen der Rechnung.",
-        "createInvoiceError": "Fehler beim Erstellen der Rechnung.",
+        "createInvoiceError": "Rechnung konnte nicht erstellt werden.",
         "payingInvoiveError": "Fehler beim Bezahlen der Rechnung.",
-        "runningTries": "Läuft {{runCount}} von {{maxTries}} Versuchen",
-        "configError": "VPN-Konfiguration konnte nicht abgerufen werden, bitte kontaktieren Sie LNVPN.",
-        "paymentMemo": "Shop - VPN"
+        "runningTries": "Versuch {{runCount}} von {{maxTries}}",
+        "configError": "VPN-Konfiguration konnte nicht geladen werden. Bitte kontaktieren Sie LNVPN.",
+        "paymentMemo": "Shop – VPN"
       },
       "confirmationSlideUp": {
-        "invoiceInfoError": "Fehler beim Abrufen der Rechnungsinformationen.",
+        "invoiceInfoError": "Rechnungsdetails konnten nicht geladen werden.",
         "title": "VPN bestätigen",
         "duration": "Dauer: 1 {{duration}}",
         "price": "Preis: ",
@@ -308,63 +308,63 @@
         "30": "Jahr",
         "durationOption": "1 {{duration}}",
         "price": "Preis: ",
-        "noDurations": "Keine verfügbaren Laufzeiten",
+        "noDurations": "Keine Laufzeiten verfügbar",
         "duration": "Dauer",
         "0.1": "Stunde",
         "0.5": "Tag",
         "1.5": "Woche"
       },
       "historicalPurchasesPage": {
-        "deleteVPNConfirmMessage": "Sind Sie sicher, dass Sie dieses VPN entfernen möchten?",
+        "deleteVPNConfirmMessage": "Möchten Sie dieses VPN wirklich löschen?",
         "country": "Land:",
         "createdAt": "Erstellt am:",
         "duration": "Dauer:",
         "paymentHash": "Zahlungs-Hash:",
-        "title": "Käufe",
-        "retryClaim": "Versuche Datei zu erstellen",
-        "noPurchases": "Sie haben keine VPN-Konfigurationen",
-        "assistanceText": "Für Unterstützung wenden Sie sich an LNVPN",
-        "noValidCountryCodeError": "Konnte keinen gültigen Ländercode abrufen",
-        "claimConfigError": "VPN-Konfiguration konnte nicht abgerufen werden, bitte kontaktieren Sie LNVPN.",
+        "title": "Meine Käufe",
+        "retryClaim": "Konfiguration erneut erstellen",
+        "noPurchases": "Sie haben noch keine VPN-Käufe getätigt",
+        "assistanceText": "Bei Problemen wenden Sie sich bitte an LNVPN",
+        "noValidCountryCodeError": "Kein gültiger Ländercode gefunden",
+        "claimConfigError": "VPN-Konfiguration konnte nicht geladen werden. Bitte kontaktieren Sie LNVPN.",
         "contact": "Kontakt"
       },
       "home": {
-        "title": "Um dieses VPN zu nutzen, laden Sie bitte die Wireguard VPN-Client-App herunter",
-        "downloadApp": "Hier herunterladen",
+        "title": "Um dieses VPN zu nutzen, laden Sie bitte die WireGuard-App herunter",
+        "downloadApp": "App herunterladen",
         "status": "",
-        "apiConnectionError": "LNVPN ist vorübergehend nicht verfügbar. Bitte versuchen Sie es in Kürze erneut.",
-        "selectPlan": "Plan auswählen"
+        "apiConnectionError": "LNVPN ist momentan nicht erreichbar.Bitte versuchen Sie es in ein paar Minuten erneut.",
+        "selectPlan": "Tarif auswählen"
       },
       "generatedFile": {
-        "title": "Wireguard-Konfigurationsdatei",
-        "iosDownloadInstructions": "Beim Herunterladen klicken Sie auf 'In Dateien speichern'.",
-        "androidDownloadInstructions": "Beim Herunterladen müssen Sie die Berechtigung für einen Speicherort erteilen, an dem die Konfigurationsdatei gespeichert werden kann."
+        "title": "WireGuard-Konfigurationsdatei",
+        "iosDownloadInstructions": "Beim Herunterladen → „In „Dateien“ speichern“ auswählen.",
+        "androidDownloadInstructions": "Beim Herunterladen die Berechtigung erteilen, damit die Datei gespeichert werden kann."
       }
     },
     "chatGPT": {
       "newChat": "Neuer Chat",
-      "loadingMessage": "Vorherige Chats werden geladen",
+      "loadingMessage": "Vorherige Chats werden geladen…",
       "addCreditsPage": {
-        "title": "Guthaben hinzufügen",
-        "description": "Um die neuesten generativen KI-Modelle zu nutzen, müssen Sie Guthaben kaufen. Wählen Sie unten eine Option, um zu beginnen.",
+        "title": "Guthaben aufladen",
+        "description": "Um die neuesten KI-Modelle nutzen zu können, laden Sie Guthaben auf. Wählen Sie unten einen Plan aus.",
         "supportedModels": "Unterstützte Modelle",
-        "feeInfo": "Je nach Länge Ihrer Frage und Antwort kann die Anzahl der Suchen variieren. Blitz fügt allen Käufen eine Gebühr von 150 Sat + 0,5% des Kaufpreises hinzu.",
+        "feeInfo": "Die tatsächliche Anzahl der Anfragen hängt von der Länge Ihrer Fragen und Antworten ab.Blitz erhebt eine Gebühr von 150 sats + 0,5 % des Kaufpreises.",
         "price": "Preis: ",
-        "estSearches": "Geschätzte Suchen: {{num}}",
-        "casualPlanTitle": "Casual-Plan",
-        "proPlanTitle": "Pro-Plan",
-        "powerPlanTitle": "Power-Plan",
-        "paymentMemo": "Shop - chatGPT",
-        "notAvailableMessage": "Aufgrund der In-App-Kaufrichtlinien von Apple ist diese Funktion derzeit auf iOS nicht verfügbar. Wir arbeiten daran, sie in Zukunft auf iOS bereitzustellen."
+        "estSearches": "≈ {{num}} Anfragen",
+        "casualPlanTitle": "Casual",
+        "proPlanTitle": "Pro",
+        "powerPlanTitle": "Power",
+        "paymentMemo": "Shop – KI Chat",
+        "notAvailableMessage": "Aufgrund der Apple In-App-Kauf-Richtlinien ist diese Funktion derzeit auf iOS nicht verfügbar.Wir arbeiten an einer Lösung."
       },
       "countrySearch": {
-        "inputPlaceholder": "Nach einem Land suchen"
+        "inputPlaceholder": "Land suchen…"
       },
       "chatGPTHome": {
-        "availableCredits": "Verfügbares Guthaben: {{credits}}",
+        "availableCredits": "Verfügbares Guthaben: {{credits}} sats",
         "noAvailableCreditsError": "Ihr Guthaben ist aufgebraucht.",
-        "inputPlaceholder": "Nachricht an {{gptName}}",
-        "youText": "Sie"
+        "inputPlaceholder": "Nachricht an {{gptName}}…",
+        "youText": "Du"
       },
       "confirmLeaveChat": {
         "title": "Möchten Sie Ihren Chat speichern?"
@@ -376,33 +376,33 @@
         "fee": "Gebühr: "
       },
       "switchModel": {
-        "inputLabel": "Eingabe: {{amount}}/M",
-        "outputLabel": "Ausgabe: {{amount}}/M",
-        "chooseModel": "Modell auswählen",
-        "noModels": "Kein Modell entspricht diesem Namen. Bitte überprüfen Sie die Schreibweise oder versuchen Sie einen anderen Namen."
+        "inputLabel": "Eingabe: {{amount}}/M tokens",
+        "outputLabel": "Ausgabe: {{amount}}/M tokens",
+        "chooseModel": "KI-Modell auswählen",
+        "noModels": "Kein Modell mit diesem Namen gefunden.\nBitte überprüfen Sie die Schreibweise oder probieren Sie einen anderen Namen."
       },
       "exampleSearchCards": {
-        "title": "Beispiel-Suchkarten",
+        "title": "Beispiele zum Ausprobieren",
         "examples": [
           {
             "topLine": "Wie fange ich an, React Native zu lernen?",
-            "bottomLine": "als hätte ich noch nie programmiert"
+            "bottomLine": "…als hätte ich noch nie programmiert"
           },
           {
             "topLine": "Was ist der Unterschied zwischen Web2 und Web3?",
-            "bottomLine": "als wäre ich ein Teenager"
+            "bottomLine": "…erklär's mir wie ein Teenager"
           },
           {
-            "topLine": "Wie funktioniert die Börse?",
-            "bottomLine": "als wäre ich 12"
+            "topLine": "Wie funktioniert eigentlich die Börse?",
+            "bottomLine": "…als wäre ich 12"
           },
           {
             "topLine": "Was ist Quantencomputing?",
-            "bottomLine": "als wäre ich 10 Jahre alt"
+            "bottomLine": "…erklär's mir wie einem 10-Jährigen"
           },
           {
-            "topLine": "Erkläre den Klimawandel",
-            "bottomLine": "als wäre ich 8"
+            "topLine": "Erkläre mir den Klimawandel",
+            "bottomLine": "…als wäre ich 8 Jahre alt"
           },
           {
             "topLine": "Was ist künstliche Intelligenz?",
@@ -410,259 +410,99 @@
           },
           {
             "topLine": "Wie funktionieren Kreditkarten?",
-            "bottomLine": "als wäre ich 15"
+            "bottomLine": "…als wäre ich 15"
           },
           {
             "topLine": "Was ist Blockchain-Technologie?",
-            "bottomLine": "als wäre ich in der Mittelschule"
+            "bottomLine": "…als wäre ich in der Mittelschule"
           },
           {
             "topLine": "Wie funktioniert GPS?",
-            "bottomLine": "als wäre ich 7 Jahre alt"
+            "bottomLine": "…als wäre ich 7 Jahre alt"
           },
           {
             "topLine": "Erkläre, wie Flugzeuge fliegen",
-            "bottomLine": "als wäre ich 9"
+            "bottomLine": "…als wäre ich 9"
           },
           {
             "topLine": "Was ist ein Meme?",
-            "bottomLine": "als wäre ich ein Großelternteil"
+            "bottomLine": "…als wäre ich ein Großelternteil"
           },
           {
             "topLine": "Wie funktionieren drahtlose Netzwerke?",
-            "bottomLine": "als wäre ich ein Anfänger"
+            "bottomLine": "…als wäre ich totaler Anfänger"
           },
           {
             "topLine": "Was ist Kryptowährung?",
-            "bottomLine": "als wäre ich ein Teenager"
+            "bottomLine": "…als wäre ich ein Teenager"
           },
           {
             "topLine": "Wie funktioniert das Internet?",
-            "bottomLine": "als wäre ich 6"
+            "bottomLine": "…als wäre ich 6"
           },
           {
             "topLine": "Was ist eine API?",
-            "bottomLine": "als wäre ich neu im Programmieren"
+            "bottomLine": "…als wäre ich ganz neu im Programmieren"
           },
           {
             "topLine": "Erkläre Photosynthese",
-            "bottomLine": "als wäre ich in der 5. Klasse"
+            "bottomLine": "…als wäre ich in der 5. Klasse"
           },
           {
             "topLine": "Wie funktionieren Elektroautos?",
-            "bottomLine": "als wäre ich 14"
+            "bottomLine": "…als wäre ich 14"
           },
           {
             "topLine": "Was ist ein Smart Contract?",
-            "bottomLine": "als wäre ich in der Oberschule"
+            "bottomLine": "…als wäre ich in der Oberstufe"
           },
           {
             "topLine": "Wie funktioniert Raumfahrt?",
-            "bottomLine": "als wäre ich 13"
+            "bottomLine": "…als wäre ich 13"
           },
           {
             "topLine": "Erkläre NFTs",
-            "bottomLine": "als wäre ich 15"
+            "bottomLine": "…als wäre ich 15"
           },
           {
             "topLine": "Was ist Augmented Reality?",
-            "bottomLine": "als wäre ich 10 Jahre alt"
+            "bottomLine": "…als wäre ich 10 Jahre alt"
           },
           {
             "topLine": "Wie funktioniert ein 3D-Drucker?",
-            "bottomLine": "als wäre ich in der Mittelschule"
+            "bottomLine": "…als wäre ich in der Mittelschule"
           },
           {
             "topLine": "Erkläre maschinelles Lernen",
-            "bottomLine": "als wäre ich in der Oberschule"
+            "bottomLine": "…als wäre ich in der Oberstufe"
           },
           {
             "topLine": "Wie funktionieren Solarmodule?",
-            "bottomLine": "als wäre ich 12"
+            "bottomLine": "…als wäre ich 12"
           },
           {
             "topLine": "Was ist Virtual Reality?",
-            "bottomLine": "als wäre ich ein Anfänger"
+            "bottomLine": "…als wäre ich kompletter Anfänger"
           },
           {
             "topLine": "Wie funktionieren Impfstoffe?",
-            "bottomLine": "als wäre ich 10"
+            "bottomLine": "…als wäre ich 10"
           },
           {
             "topLine": "Erkläre Gravitation",
-            "bottomLine": "als wäre ich 5 Jahre alt"
+            "bottomLine": "…als wäre ich 5 Jahre alt"
           },
           {
             "topLine": "Was ist eine dezentrale Anwendung (dApp)?",
-            "bottomLine": "als wäre ich neu in der Blockchain"
+            "bottomLine": "…als wäre ich ganz neu in der Blockchain"
           },
           {
             "topLine": "Wie kochen Mikrowellen Essen?",
-            "bottomLine": "als wäre ich 8"
+            "bottomLine": "…als wäre ich 8"
           },
           {
             "topLine": "Erkläre das Konzept der Zeitzonen",
-            "bottomLine": "als wäre ich in der Grundschule"
-          },
-          {
-            "topLine": "Wie verarbeitet ein Computer Daten?",
-            "bottomLine": "als wäre ich ein Anfänger"
-          },
-          {
-            "topLine": "Was ist Cloud Computing?",
-            "bottomLine": "als wäre ich in der Mittelschule"
-          },
-          {
-            "topLine": "Erkläre das Konzept der KI-Ethik",
-            "bottomLine": "als wäre ich ein Gymnasiast"
-          },
-          {
-            "topLine": "Wie bleiben Satelliten in der Umlaufbahn?",
-            "bottomLine": "als wäre ich 11"
-          },
-          {
-            "topLine": "Was ist Cybersicherheit?",
-            "bottomLine": "als wäre ich ein Teenager"
-          },
-          {
-            "topLine": "Erkläre die Evolutionstheorie",
-            "bottomLine": "als wäre ich in der 8. Klasse"
-          },
-          {
-            "topLine": "Was ist der Zweck der Blockchain?",
-            "bottomLine": "als wäre ich in der Oberschule"
-          },
-          {
-            "topLine": "Wie funktioniert Wi-Fi?",
-            "bottomLine": "als wäre ich 9"
-          },
-          {
-            "topLine": "Was ist eine Suchmaschine?",
-            "bottomLine": "als wäre ich 10 Jahre alt"
-          },
-          {
-            "topLine": "Wie funktionieren Elektromotoren?",
-            "bottomLine": "als wäre ich in der 7. Klasse"
-          },
-          {
-            "topLine": "Erkläre das Konzept der Relativität",
-            "bottomLine": "als wäre ich 14"
-          },
-          {
-            "topLine": "Was ist das Internet der Dinge (IoT)?",
-            "bottomLine": "als wäre ich neu in der Technologie"
-          },
-          {
-            "topLine": "Wie funktionieren Smartphones?",
-            "bottomLine": "als wäre ich in der Mittelschule"
-          },
-          {
-            "topLine": "Erkläre das Konzept der erneuerbaren Energien",
-            "bottomLine": "als wäre ich in der 6. Klasse"
-          },
-          {
-            "topLine": "Was ist virtuelle Währung?",
-            "bottomLine": "als wäre ich ein Teenager"
-          },
-          {
-            "topLine": "Wie funktionieren Smart Homes?",
-            "bottomLine": "als wäre ich 12"
-          },
-          {
-            "topLine": "Was ist Deep Learning?",
-            "bottomLine": "als wäre ich neu in der KI"
-          },
-          {
-            "topLine": "Wie funktioniert Online-Shopping?",
-            "bottomLine": "als wäre ich ein Anfänger"
-          },
-          {
-            "topLine": "Erkläre das Konzept des Datenschutzes",
-            "bottomLine": "als wäre ich ein Teenager"
-          },
-          {
-            "topLine": "Was ist Virtual Reality Gaming?",
-            "bottomLine": "als wäre ich 14"
-          },
-          {
-            "topLine": "Wie funktionieren selbstfahrende Autos?",
-            "bottomLine": "als wäre ich in der Oberschule"
-          },
-          {
-            "topLine": "Was ist Gentechnik?",
-            "bottomLine": "als wäre ich 13"
-          },
-          {
-            "topLine": "Erkläre das Konzept der Smart Cities",
-            "bottomLine": "als wäre ich neu in der Technologie"
-          },
-          {
-            "topLine": "Wie funktionieren Drohnen?",
-            "bottomLine": "als wäre ich 11"
-          },
-          {
-            "topLine": "Was ist eine digitale Wallet?",
-            "bottomLine": "als wäre ich ein Teenager"
-          },
-          {
-            "topLine": "Wie funktioniert digitale Kunst?",
-            "bottomLine": "als wäre ich in der Mittelschule"
-          },
-          {
-            "topLine": "Erkläre das Konzept der 5G-Technologie",
-            "bottomLine": "als wäre ich neu in der Technologie"
-          },
-          {
-            "topLine": "Was ist ein autonomes Fahrzeug?",
-            "bottomLine": "als wäre ich 15"
-          },
-          {
-            "topLine": "Wie funktionieren Videospiele?",
-            "bottomLine": "als wäre ich 10"
-          },
-          {
-            "topLine": "Erkläre das Konzept der Smart Contracts",
-            "bottomLine": "als wäre ich in der Oberschule"
-          },
-          {
-            "topLine": "Was ist eine Smartwatch?",
-            "bottomLine": "als wäre ich in der Mittelschule"
-          },
-          {
-            "topLine": "Wie funktioniert ein Touchscreen?",
-            "bottomLine": "als wäre ich 12 Jahre alt"
-          },
-          {
-            "topLine": "Erkläre das Konzept der maschinellen Übersetzung",
-            "bottomLine": "als wäre ich ein Anfänger"
-          },
-          {
-            "topLine": "Was ist ein Rechenzentrum?",
-            "bottomLine": "als wäre ich neu in der Technologie"
-          },
-          {
-            "topLine": "Wie funktioniert Blockchain-Mining?",
-            "bottomLine": "als wäre ich ein Teenager"
-          },
-          {
-            "topLine": "Was ist ein Mikrochip?",
-            "bottomLine": "als wäre ich in der Oberschule"
-          },
-          {
-            "topLine": "Erkläre das Konzept der Cloud-Speicherung",
-            "bottomLine": "als wäre ich in der Mittelschule"
-          },
-          {
-            "topLine": "Wie funktionieren Elektroscooter?",
-            "bottomLine": "als wäre ich 13"
-          },
-          {
-            "topLine": "Was ist ein Algorithmus?",
-            "bottomLine": "als wäre ich ein Anfänger"
-          },
-          {
-            "topLine": "Erkläre das Konzept der virtuellen Meetings",
-            "bottomLine": "als wäre ich neu in der Technologie"
+            "bottomLine": "…als wäre ich in der Grundschule"
           },
           {
             "topLine": "Wie funktionieren Elektrofahrräder?",
@@ -687,7 +527,7 @@
         ]
       },
       "saveChat": {
-        "errorMessage": "Entschuldigung, wir konnten Ihre Konversation nicht speichern."
+        "errorMessage": "Entschuldigung, die Konversation konnte nicht gespeichert werden."
       }
     },
     "giftCards": {
@@ -1598,10 +1438,10 @@
         "usd_convert_warning": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
       },
       "settingsContent": {
-        "about": "Über",
-        "language": "Sprache",
-        "display currency": "Währung",
-        "display options": "Anzeigeoptionen",
+        "about": "Über uns",
+        "language": "App-Sprache",
+        "display currency": "Standardwährung",
+        "display options": "Anzeige & Layout",
         "edit contact profile": "Kontaktprofil bearbeiten",
         "view all swaps": "Netzwerkübertragungen",
         "fast pay": "Schnellzahlung",
@@ -1609,11 +1449,11 @@
         "crash reports": "Absturzberichte",
         "notifications": "Benachrichtigungen",
         "blitz stats": "Blitz-Statistiken",
-        "accounts": "Konten",
-        "nostr": "Nostr",
-        "login mode": "Anmeldemodus",
-        "backup wallet": "Wallet sichern",
-        "spark info": "Spark-Informationen",
+        "accounts": "Kontenverwaltung",
+        "nostr": "Nostr-Einstellungen",
+        "login mode": "Login-Einstellungen",
+        "backup wallet": "Sicherheitskopie (Backup)",
+        "spark info": "Spark-Details",
         "delete wallet": "Wallet löschen",
         "general": "Allgemein",
         "preferences": "Einstellungen",
@@ -1627,7 +1467,7 @@
       "technicalTransactionDetails": {
         "txHash": "Transaktions-Hash",
         "paymentId": "Zahlungs-ID",
-        "preimage": "Zahlungs-Preimage",
+        "preimage": "Zahlungs-Vorabbild",
         "address": "Zahlungsadresse",
         "bitcoinTxId": "Bitcoin-Txid",
         "paymentExp": "Zahlungsablauf",
@@ -1734,8 +1574,8 @@
           "parseError": "Die Geschenkinformationen konnten nicht gelesen werden.",
           "noGiftForReclaim": "Dieses Geschenk wurde nicht gefunden. Es wurde möglicherweise bereits eingelöst.",
           "expiredOrClaimed": "Dieses Geschenk wurde bereits eingelöst oder ist abgelaufen.",
-          "noGiftSeed": "Gift nicht erreichbar. Bitte später erneut versuchen.",
-          "giftWalletInitError": "Gift nicht erreichbar. Bitte später erneut versuchen.",
+          "noGiftSeed": "Geschenk nicht erreichbar. Bitte später erneut versuchen.",
+          "giftWalletInitError": "Geschenk nicht erreichbar. Bitte später erneut versuchen.",
           "noBalanceErrorReclaim": "Es sind keine Mittel mehr vorhanden.",
           "notExpired": "Du kannst dieses Geschenk noch nicht zurückholen.",
           "nobalanceError": "Wir konnten keinen Betrag für dieses Geschenk finden. Bitte versuchen Sie es später erneut oder versuchen Sie, das Geschenk wiederherzustellen.",
@@ -1823,7 +1663,7 @@
         "convertHead": "Umwandeln",
         "percentConvertSelector": "% zum Umwandeln",
         "slippage": "Slippage",
-        "slippageDesc": "Slippage ist der prozentuale Preisunterschied, den du akzeptierst. Eine niedrige Slippage kann zu fehlgeschlagenen Transaktionen führen, während eine höhere Slippage dazu führen kann, dass du weniger als erwartet erhältst.",
+        "slippageDesc": "Preisabweichung ist der prozentuale Preisunterschied, den du akzeptierst. Eine niedrige Slippage kann zu fehlgeschlagenen Transaktionen führen, während eine höhere Slippage dazu führen kann, dass du weniger als erwartet erhältst.",
         "auto": "Auto"
       }
     }
@@ -1957,7 +1797,7 @@
     "FSAG-4101": "Deine Authentifizierungssitzung wurde nicht gefunden oder ist abgelaufen.",
     "FSAG-4102": "Der Authentifizierungsablauf wurde nicht korrekt befolgt.",
     "FSAG-4201": "Der Pool verfügt nicht über ausreichend Liquidität für diesen Swap.",
-    "FSAG-4202": "Der Preis hat sich stärker bewegt als deine erlaubte Slippage-Toleranz.",
+    "FSAG-4202": "Der Preis hat sich stärker bewegt als deine erlaubte Preisabweichung-Toleranz.",
     "FSAG-4203": "Dieser Vorgang kann im aktuellen Status des Pools nicht ausgeführt werden.",
     "FSAG-4204": "Du hast nicht genügend LP-Token für diese Auszahlung.",
     "FSAG-4301": "Die Gebührenkonfiguration ist ungültig.",
