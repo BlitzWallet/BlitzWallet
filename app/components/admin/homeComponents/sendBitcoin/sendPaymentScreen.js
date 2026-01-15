@@ -257,7 +257,8 @@ export default function SendPaymentScreen(props) {
       convertedSendAmount &&
     !isUsingLRC20 &&
     (!didRequireChoiceRef.current || didSelectPaymentMethod) &&
-    determinePaymentMethod !== 'user-choice';
+    determinePaymentMethod !== 'user-choice' &&
+    convertedSendAmount >= paymentFee;
 
   // Check if user has sufficient balance
   const hasSufficientBalance = useMemo(() => {
