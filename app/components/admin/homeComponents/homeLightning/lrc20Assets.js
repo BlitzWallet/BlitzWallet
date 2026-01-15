@@ -33,7 +33,14 @@ function TokenItem({
   masterInfoObject,
 }) {
   const imageUri = tokensImageCache[tokenIdentifier];
-
+  console.log(
+    formatBalanceAmount(
+      formatTokensNumber(
+        details?.balance || 0,
+        details?.tokenMetadata?.decimals || 0,
+      ),
+    ),
+  );
   return (
     <TouchableOpacity
       onPress={() =>
@@ -93,13 +100,9 @@ function TokenItem({
       </View>
 
       <FormattedSatText
-        balance={formatBalanceAmount(
-          formatTokensNumber(
-            details?.balance || 0,
-            details?.tokenMetadata?.decimals || 0,
-          ),
-          true,
-          masterInfoObject,
+        balance={formatTokensNumber(
+          details?.balance || 0,
+          details?.tokenMetadata?.decimals || 0,
         )}
         useBalance={true}
         useCustomLabel={true}
@@ -175,6 +178,8 @@ export default function LRC20Assets() {
       ? Object.entries(sparkInformation.tokens)
       : [];
   }, [sparkInformation?.tokens]);
+
+  console.log(availableTokens);
 
   const tokens = useMemo(() => {
     return availableTokens
