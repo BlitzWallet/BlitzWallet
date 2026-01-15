@@ -1746,7 +1746,7 @@
           "desc": "Cole o link recebido ou leia o código QR para resgatar o valor",
           "inputPlaceholder": "Insira o link do Vale-Blitz",
           "claim": "Resgatar",
-          "noGiftLinkError": "Não foi possível encontrar um link de Vale-Blitz. Escaneie ou cole o link que você recebeu.",
+          "noGiftLinkError": "Não foi possível encontrar um link de Vale-Blitz. Leia ou cole o link que você recebeu.",
           "invliadGiftFormat": "Link de Vale-Blitz inválido. Copie o link completo e tente novamente."
         },
 
