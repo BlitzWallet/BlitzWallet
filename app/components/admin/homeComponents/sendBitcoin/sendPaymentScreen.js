@@ -229,6 +229,7 @@ export default function SendPaymentScreen(props) {
     isUsingLRC20,
     useFullTokensDisplay,
     selectedPaymentMethod: userPaymentMethod,
+    didSelectPaymentMethod,
   });
 
   useEffect(() => {
@@ -332,10 +333,14 @@ export default function SendPaymentScreen(props) {
     preSelectedPaymentMethod,
   ]);
   console.log(
+    needsToChoosePaymentMethod,
+    didSelectPaymentMethod,
+    isBitcoinPayment,
+    isUsingLRC20,
+    canUseFastPay,
     hasBothUSDAndBitcoinBalance,
-    dollarBalanceSat,
-    bitcoinBalance,
-    dollarBalanceToken,
+    preSelectedPaymentMethod,
+    uiState,
   );
 
   const paymentValidation = usePaymentValidation({

@@ -22,6 +22,7 @@ export default function usePaymentMethodSelection({
 
   // Pre-selected method (from navigation params)
   selectedPaymentMethod = '',
+  didSelectPaymentMethod = false,
 }) {
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
   const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
@@ -124,7 +125,8 @@ export default function usePaymentMethodSelection({
       !selectedPaymentMethod &&
       !useFullTokensDisplay &&
       !isUsingLRC20 &&
-      hasBothUSDAndBitcoinBalance
+      hasBothUSDAndBitcoinBalance &&
+      !didSelectPaymentMethod
     );
   }, [
     determinePaymentMethod,
@@ -132,6 +134,7 @@ export default function usePaymentMethodSelection({
     useFullTokensDisplay,
     isUsingLRC20,
     hasBothUSDAndBitcoinBalance,
+    didSelectPaymentMethod,
   ]);
 
   /**
