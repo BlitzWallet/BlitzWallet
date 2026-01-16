@@ -1593,7 +1593,7 @@
         "advancedMode": {
           "header": "Modo avanzado",
           "currentIndexHead": "Índice actual del regalo",
-          "infoHead": "Cómo funcionan los regalos en Bitcoin",
+          "infoHead": "Cómo funcionan los regalos en Blitz",
           "infoDesc1": "Los regalos de Blitz usan billeteras separadas creadas a partir de tu billetera principal. Esto te permite recuperar fondos no reclamados mientras mantienes tu billetera principal protegida.",
           "infoDesc2": "La mayoría de los regalos vencidos pueden recuperarse en la página normal de recuperación. Si un regalo no se recibió por completo o la opción habitual no funciona, puedes usar esta página para seleccionar un regalo específico y comprobar si aún queda dinero.",
           "inputHead": "Ingresa el número del regalo",

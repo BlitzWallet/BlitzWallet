@@ -1765,7 +1765,7 @@
         "advancedMode": {
           "header": "Advanced Mode",
           "currentIndexHead": "Current Gift Index",
-          "infoHead": "How Bitcoin Gifts Work",
+          "infoHead": "How Blitz Gifts Work",
           "infoDesc1": "Blitz gifts use separate wallets created from your main wallet. This lets you recover unclaimed funds while keeping your main wallet protected.",
           "infoDesc2": "Most expired gifts can be reclaimed on the regular reclaim page. If a gift wasn’t fully received or the normal reclaim option doesn’t work, you can use this page to select a specific gift and check if any money is still left.",
           "inputHead": "Enter Gift Number",

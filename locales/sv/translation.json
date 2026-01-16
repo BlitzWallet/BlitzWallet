@@ -1729,7 +1729,7 @@
         "advancedMode": {
           "header": "Avancerat läge",
           "currentIndexHead": "Index över aktuella gåvor",
-          "infoHead": "Hur Bitcoin-gåvor fungerar",
+          "infoHead": "Hur Blitz-gåvor fungerar",
           "infoDesc1": "Blitz-gåvor använder separata plånböcker som skapats från din huvudplånbok. Detta gör att du kan återvinna obefordrade medel samtidigt som din huvudplånbok är skyddad.",
           "infoDesc2": "De flesta gåvor som har gått ut kan återkrävas på den vanliga återkravssidan. Om en gåva inte togs emot fullt ut eller om det vanliga återkravsalternativet inte fungerar kan du använda den här sidan för att välja en specifik gåva och kontrollera om det fortfarande finns pengar kvar.",
           "inputHead": "Ange presentnummer",

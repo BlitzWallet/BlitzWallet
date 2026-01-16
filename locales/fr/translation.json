@@ -1729,7 +1729,7 @@
         "advancedMode": {
           "header": "Mode avancé",
           "currentIndexHead": "Index des dons en cours",
-          "infoHead": "Comment fonctionnent les dons en bitcoins ?",
+          "infoHead": "Comment fonctionnent les dons en Blitz",
           "infoDesc1": "Les cadeaux Blitz utilisent des portefeuilles distincts créés à partir de votre portefeuille principal. Cela vous permet de récupérer les fonds non réclamés tout en protégeant votre portefeuille principal.",
           "infoDesc2": "La plupart des cadeaux périmés peuvent être réclamés sur la page de réclamation normale. Si un cadeau n'a pas été entièrement reçu ou si l'option de réclamation normale ne fonctionne pas, vous pouvez utiliser cette page pour sélectionner un cadeau spécifique et vérifier s'il reste de l'argent.",
           "inputHead": "Entrer le numéro du cadeau",

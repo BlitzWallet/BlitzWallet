@@ -1766,7 +1766,7 @@
         "advancedMode": {
           "header": "Modalità avanzata",
           "currentIndexHead": "Indice regalo corrente",
-          "infoHead": "Come funzionano i regali in Bitcoin",
+          "infoHead": "Come funzionano i regali in Blitz",
           "infoDesc1": "I regali Blitz utilizzano portafogli separati creati dal tuo portafoglio principale. Questo ti permette di recuperare fondi non riscattati mantenendo protetto il tuo portafoglio principale.",
           "infoDesc2": "La maggior parte dei regali scaduti può essere recuperata tramite la pagina normale di recupero. Se un regalo non è stato ricevuto completamente o l'opzione standard non funziona, puoi usare questa pagina per selezionare un regalo specifico e verificare se è rimasto del denaro.",
           "inputHead": "Inserisci il numero del regalo",
