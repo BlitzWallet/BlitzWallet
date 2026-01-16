@@ -1,4 +1,10 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Keyboard,
+} from 'react-native';
 import {
   CENTER,
   COLORS,
@@ -451,6 +457,7 @@ function InnerContent({
           width: fromSettings ? INSET_WINDOW_WIDTH : '100%',
           ...CENTER,
         }}
+        keyboardShouldPersistTaps="handled"
       >
         <TouchableOpacity
           activeOpacity={
@@ -459,9 +466,13 @@ function InnerContent({
               ? 0.2
               : 1
           }
-          onPress={() => {
+          onPress={async () => {
             if (!isEditingMyProfile && !selectedAddedContact.isLNURL) return;
             if (isAddingImage) return;
+            if (Keyboard.isVisible()) {
+              Keyboard.dismiss();
+              await new Promise(resolve => setTimeout(resolve, 250));
+            }
             if (!hasImage) {
               addProfilePicture(isEditingMyProfile, selectedAddedContact);
               return;
@@ -592,7 +603,7 @@ function InnerContent({
           myContact?.uniqueName === inputs.uniquename &&
           isFirstTimeEditing
         ) {
-          navigate.goBack();
+          keyboardGoBack(navigate);
         } else {
           if (!VALID_USERNAME_REGEX.test(uniqueName)) {
             navigate.navigate('ErrorScreen', {
@@ -631,7 +642,7 @@ function InnerContent({
             },
             true,
           );
-          navigate.goBack();
+          keyboardGoBack(navigate);
         }
       } else {
         console.log(selectedAddedContact, 'testing');
@@ -689,7 +700,7 @@ function InnerContent({
           selectedAddedContact?.name === inputs.name &&
           selectedAddedContact?.receiveAddress === inputs.receiveAddress
         )
-          navigate.goBack();
+          keyboardGoBack(navigate);
         else {
           let newAddedContacts = [...decodedAddedContacts];
           const indexOfContact = decodedAddedContacts.findIndex(
@@ -722,7 +733,7 @@ function InnerContent({
             },
             true,
           );
-          navigate.goBack();
+          keyboardGoBack(navigate);
         }
       }
     } catch (err) {
