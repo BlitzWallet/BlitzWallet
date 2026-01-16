@@ -3,6 +3,7 @@ import { useGlobalContextProvider } from '../../../context-store/context';
 import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
+  CUSTOM_TOKEN_CURRENCY_OPTIONS,
   FONT,
   HIDDEN_BALANCE_TEXT,
   SIZES,
@@ -14,6 +15,7 @@ import formatBalanceAmount from '../formatNumber';
 import formatTokensLabel from '../lrc20/formatTokensLabel';
 import numberConverter from '../numberConverter';
 import { useMemo } from 'react';
+import truncateToTwoDecimals from '../truncateNumber';
 
 export default function FormattedSatText({
   balance = 0,
@@ -36,11 +38,17 @@ export default function FormattedSatText({
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats: globalFiatStats } = useNodeContext();
 
+  const showCustomCurrencyLabel = CUSTOM_TOKEN_CURRENCY_OPTIONS.find(
+    item => item.token === customLabel,
+  );
+
   const fiatStats = forceFiatStats || globalFiatStats;
   const localBalanceDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
   const currencyText = forceCurrency
     ? forceCurrency
+    : showCustomCurrencyLabel
+    ? showCustomCurrencyLabel.currency
     : masterInfoObject.fiatCurrency || 'USD';
 
   const formattedBalance = useMemo(
@@ -149,17 +157,39 @@ export default function FormattedSatText({
       backText && renderText(backText),
     ];
   } else if (useCustomLabel) {
-    children = [
-      frontText && renderText(frontText, { marginLeft: 'auto' }),
-      renderText(
-        formatBalanceAmount(balance, useMillionDenomination, masterInfoObject),
-        {
-          marginLeft: frontText ? 0 : 'auto',
-        },
-      ),
-      renderText(` ${formatTokensLabel(customLabel)}`, { flexShrink: 1 }),
-      backText && renderText(backText),
-    ];
+    if (showCustomCurrencyLabel) {
+      children = [
+        frontText && renderText(frontText),
+        renderText(
+          `${
+            isSymbolInFront && showSymbol ? currencySymbol : ''
+          }${formatBalanceAmount(
+            truncateToTwoDecimals(balance),
+            true,
+            masterInfoObject,
+          )}${!isSymbolInFront && showSymbol ? currencySymbol : ''}${
+            !showSymbol ? ' ' + currencyText : ''
+          }`,
+        ),
+        backText && renderText(backText),
+      ];
+    } else {
+      children = [
+        frontText && renderText(frontText, { marginLeft: 'auto' }),
+        renderText(
+          formatBalanceAmount(
+            balance,
+            useMillionDenomination,
+            masterInfoObject,
+          ),
+          {
+            marginLeft: frontText ? 0 : 'auto',
+          },
+        ),
+        renderText(` ${formatTokensLabel(customLabel)}`, { flexShrink: 1 }),
+        backText && renderText(backText),
+      ];
+    }
   } else if (showSats) {
     children = [
       frontText && renderText(frontText),

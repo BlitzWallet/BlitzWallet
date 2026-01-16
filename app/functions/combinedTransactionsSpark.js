@@ -552,7 +552,7 @@ export const UserTransaction = memo(function UserTransaction({
                 (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
               }
               useCustomLabel={true}
-              customLabel={'USD'}
+              customLabel={token?.tokenTicker || 'USDB'}
               useMillionDenomination={true}
             />
           ) : (

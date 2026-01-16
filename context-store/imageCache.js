@@ -216,7 +216,9 @@ export function ImageCacheProvider({ children }) {
         setCache(prev => ({ ...prev, ...cacheUpdates }));
       }
     }
-    refreshContactsImages();
+    setTimeout(() => {
+      refreshContactsImages();
+    }, 5000); //delay to allow homepage to settle
   }, [
     decodedAddedContacts,
     didGetToHomepage,
