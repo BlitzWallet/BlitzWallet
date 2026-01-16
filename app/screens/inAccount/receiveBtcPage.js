@@ -13,7 +13,7 @@ import {
   APPROXIMATE_SYMBOL,
   HIDDEN_BALANCE_TEXT,
 } from '../../constants';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { copyToClipboard, formatBalanceAmount } from '../../functions';
 import { useGlobalContextProvider } from '../../../context-store/context';
@@ -370,11 +370,7 @@ export default function ReceivePaymentHome(props) {
             selectedRecieveOption.toLowerCase() !== 'spark' ? (
               <ThemeText content={t('constants.veriable')} />
             ) : (
-              <FormattedSatText
-                neverHideBalance={true}
-                styles={{ paddingBottom: 5 }}
-                balance={0}
-              />
+              <FormattedSatText neverHideBalance={true} balance={0} />
             )}
           </TouchableOpacity>
         </View>
@@ -705,6 +701,21 @@ function QRInformationRow({
   iconName,
 }) {
   const { backgroundColor, textColor } = GetThemeColors();
+
+  const [layout, setLayout] = useState({ height: 50 });
+  const maxLayoutRef = useRef({ height: 50 });
+
+  const handleLayoutMeasurement = useCallback(event => {
+    const { height } = event.nativeEvent.layout;
+
+    const newMaxHeight = Math.max(maxLayoutRef.current.height, height);
+
+    if (newMaxHeight !== maxLayoutRef.current.height) {
+      maxLayoutRef.current = { height: newMaxHeight };
+      setLayout({ height: newMaxHeight });
+    }
+  }, []);
+
   return (
     <TouchableOpacity
       style={[
@@ -718,51 +729,102 @@ function QRInformationRow({
         if (actionFunction) actionFunction();
       }}
     >
-      <View style={styles.infoTextContiner}>
-        <ThemeText
-          styles={{ includeFontPadding: false, fontSize: SIZES.small }}
-          content={title}
-        />
-        {showSkeleton ? (
-          <SkeletonPlaceholder
-            highlightColor={backgroundColor}
-            backgroundColor={COLORS.opaicityGray}
-            enabled={true}
-            speed={SKELETON_ANIMATION_SPEED}
-          >
-            <View
-              style={{
-                width: '100%',
-                height: SIZES.small,
-                marginVertical: 3,
-                borderRadius: 8,
-              }}
-            ></View>
-          </SkeletonPlaceholder>
-        ) : (
+      {/* Hidden component for layout measurement */}
+      <View
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+        onLayout={handleLayoutMeasurement}
+      >
+        <View style={styles.infoTextContiner}>
           <ThemeText
-            CustomNumberOfLines={1}
-            styles={{
-              includeFontPadding: false,
-              fontSize: SIZES.small,
-              opacity: 0.6,
-              flexShrink: 1,
-            }}
-            content={info}
+            styles={{ includeFontPadding: false, fontSize: SIZES.small }}
+            content={title}
           />
-        )}
+          {showSkeleton ? (
+            <SkeletonPlaceholder
+              highlightColor={backgroundColor}
+              backgroundColor={COLORS.opaicityGray}
+              enabled={true}
+              speed={SKELETON_ANIMATION_SPEED}
+            >
+              <View
+                style={{
+                  width: '100%',
+                  height: SIZES.small,
+                  marginVertical: 3,
+                  borderRadius: 8,
+                }}
+              ></View>
+            </SkeletonPlaceholder>
+          ) : (
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={{
+                includeFontPadding: false,
+                fontSize: SIZES.small,
+                opacity: 0.6,
+                flexShrink: 1,
+              }}
+              content={info}
+            />
+          )}
+        </View>
       </View>
+
+      {/* Visible component with fixed height */}
       <View
         style={{
-          width: 30,
-          height: 30,
-          backgroundColor,
-          alignItems: 'center',
+          height: layout.height,
           justifyContent: 'center',
-          borderRadius: 8,
+          width: '100%',
+          flexDirection: 'row',
         }}
       >
-        <ThemeIcon colorOverride={textColor} size={15} iconName={iconName} />
+        <View style={styles.infoTextContiner}>
+          <ThemeText
+            styles={{ includeFontPadding: false, fontSize: SIZES.small }}
+            content={title}
+          />
+          {showSkeleton ? (
+            <SkeletonPlaceholder
+              highlightColor={backgroundColor}
+              backgroundColor={COLORS.opaicityGray}
+              enabled={true}
+              speed={SKELETON_ANIMATION_SPEED}
+            >
+              <View
+                style={{
+                  width: '100%',
+                  height: SIZES.medium,
+                  marginVertical: 3,
+                  borderRadius: 8,
+                }}
+              ></View>
+            </SkeletonPlaceholder>
+          ) : (
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={{
+                includeFontPadding: false,
+                fontSize: SIZES.small,
+                opacity: 0.6,
+                flexShrink: 1,
+              }}
+              content={info}
+            />
+          )}
+        </View>
+        <View
+          style={{
+            width: 30,
+            height: 30,
+            backgroundColor,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 8,
+          }}
+        >
+          <ThemeIcon colorOverride={textColor} size={15} iconName={iconName} />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -828,7 +890,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
   },
-  infoTextContiner: { width: '100%', flexShrink: 1, marginRight: 10 },
+  infoTextContiner: {
+    width: '100%',
+    flexShrink: 1,
+    marginRight: 10,
+    minHeight: 50,
+  },
   dollarPrice: {
     textAlign: 'center',
     fontSize: SIZES.smedium,
