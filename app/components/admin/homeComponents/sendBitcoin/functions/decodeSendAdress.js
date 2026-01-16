@@ -201,14 +201,16 @@ export default async function decodeSendAddress(props) {
         comingFromAccept &&
         (seletctedToken?.tokenMetadata?.tokenTicker === 'Bitcoin' ||
           seletctedToken?.tokenMetadata?.tokenTicker === undefined) &&
-        dollarBalanceSat <
-          processedPaymentInfo.paymentFee +
-            processedPaymentInfo.supportFee +
-            enteredPaymentInfo.amount &&
-        bitcoinBalance <
-          processedPaymentInfo.paymentFee +
-            processedPaymentInfo.supportFee +
-            enteredPaymentInfo.amount
+        ((usablePaymentMethod === 'USD' &&
+          dollarBalanceSat <
+            processedPaymentInfo.paymentFee +
+              processedPaymentInfo.supportFee +
+              enteredPaymentInfo.amount) ||
+          (usablePaymentMethod === 'BTC' &&
+            bitcoinBalance <
+              processedPaymentInfo.paymentFee +
+                processedPaymentInfo.supportFee +
+                enteredPaymentInfo.amount))
       ) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t(
@@ -216,8 +218,9 @@ export default async function decodeSendAddress(props) {
             {
               amount: displayCorrectDenomination({
                 amount: Math.max(
-                  dollarBalanceSat +
-                    bitcoinBalance -
+                  (usablePaymentMethod === 'USD'
+                    ? dollarBalanceSat
+                    : bitcoinBalance) -
                     (processedPaymentInfo.paymentFee +
                       processedPaymentInfo.supportFee),
                   0,

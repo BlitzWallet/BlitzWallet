@@ -208,9 +208,8 @@ export default function SendPaymentScreen(props) {
     !userPaymentMethod || userPaymentMethod === 'BTC'
       ? (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0)
       : (paymentInfo?.swapPaymentQuote?.fee ||
-          paymentInfo?.swapPaymentQuote?.satFee) +
-        (paymentInfo?.swapPaymentQuote?.estimatedLightningFee || 0);
-
+          paymentInfo?.swapPaymentQuote?.satFee ||
+          0) + (paymentInfo?.swapPaymentQuote?.estimatedLightningFee || 0);
   console.log(paymentInfo, 'payment info');
 
   const {

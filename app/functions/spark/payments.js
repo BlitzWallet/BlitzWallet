@@ -232,7 +232,7 @@ export const sparkPaymenWrapper = async ({
         const lightningPayResponse = await sendSparkLightningPayment({
           maxFeeSats: Math.max(initialFee, 1000),
           invoice: address,
-          amountSats: usingZeroAmountInvoice ? amountSats : undefined,
+          amountSats: usingZeroAmountInvoice ? Number(amountSats) : undefined,
           mnemonic,
         });
 
@@ -451,7 +451,7 @@ export const sparkPaymenWrapper = async ({
           useLRC20Format = true;
           sparkPayResponse = await sendSparkTokens({
             tokenIdentifier: USDB_TOKEN_ID,
-            tokenAmount: Math.ceil(usdbAmount),
+            tokenAmount: Number(Math.ceil(usdbAmount)),
             receiverSparkAddress: address,
             mnemonic,
           });
@@ -459,7 +459,7 @@ export const sparkPaymenWrapper = async ({
           useLRC20Format = true;
           sparkPayResponse = await sendSparkTokens({
             tokenIdentifier: seletctedToken,
-            tokenAmount: amountSats,
+            tokenAmount: Number(amountSats),
             receiverSparkAddress: address,
             mnemonic,
           });
@@ -471,7 +471,7 @@ export const sparkPaymenWrapper = async ({
             : amountSats;
           sparkPayResponse = await sendSparkPayment({
             receiverSparkAddress: address,
-            amountSats: finalSatAmount,
+            amountSats: Number(finalSatAmount),
             mnemonic,
           });
         }
