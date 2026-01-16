@@ -705,8 +705,8 @@ function QRInformationRow({
 }) {
   const { backgroundColor, textColor } = GetThemeColors();
 
-  const [layout, setLayout] = useState({ height: 50 });
-  const maxLayoutRef = useRef({ height: 50 });
+  const [layout, setLayout] = useState({ height: 5 });
+  const maxLayoutRef = useRef({ height: 5 });
 
   const handleLayoutMeasurement = useCallback(event => {
     const { height } = event.nativeEvent.layout;
@@ -897,7 +897,6 @@ const styles = StyleSheet.create({
     width: '100%',
     flexShrink: 1,
     marginRight: 10,
-    minHeight: 50,
   },
   dollarPrice: {
     textAlign: 'center',

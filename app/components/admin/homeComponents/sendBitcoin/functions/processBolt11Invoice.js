@@ -30,6 +30,7 @@ export default async function processBolt11Invoice(input, context) {
   const currentTime = Math.floor(Date.now() / 1000);
   const expirationTime = input.data.timestamp + input.data.expiry;
   const isExpired = currentTime > expirationTime;
+  const isZeroAmountInvoice = !input.data.amountMsat;
   if (isExpired)
     throw new Error(
       t('wallet.sendPages.handlingAddressErrors.expiredLightningInvoice'),
@@ -46,7 +47,7 @@ export default async function processBolt11Invoice(input, context) {
       );
   }
 
-  if (usablePaymentMethod === 'USD' && !input.data.amountMsat) {
+  if (usablePaymentMethod === 'USD' && isZeroAmountInvoice) {
     throw new Error(
       t('wallet.sendPages.sendPaymentScreen.zeroAmountInvoiceDollarPayments'),
     );
@@ -72,7 +73,8 @@ export default async function processBolt11Invoice(input, context) {
       (usablePaymentMethod === 'USD' ||
         ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
           dollarBalanceSat >= amountMsat / 1000)) &&
-      amountMsat / 1000 >= min_usd_swap_amount;
+      amountMsat / 1000 >= min_usd_swap_amount &&
+      !isZeroAmountInvoice;
     const needBtcFee =
       usablePaymentMethod === 'BTC' ||
       ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
