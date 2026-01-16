@@ -1626,7 +1626,7 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Selecione o ativo a receber",
+        "selectReceiveAssetHead": "Selecione a moeda a receber",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão."
       },
 
@@ -1705,7 +1705,7 @@
 
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",
-          "noGiftsDesc": "Crie seu primeiro Vale-Blitz para compartilhar Bitcoin ou Dólares com amigos e familiares.",
+          "noGiftsDesc": "Crie seu primeiro Vale-Blitz para presentear amigos e familiares com bitcoin ou dólares.",
           "createGift": "Criar Vale-Blitz",
           "claimed": "Resgatado",
           "expired": "Expirado",
@@ -1727,7 +1727,7 @@
           "button": "Criar Vale-Blitz",
           "disclaimer": "Quando você cria um Vale-Blitz, o valor usado para emiti-lo fica bloqueado por {{numDays}} dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor.",
           "durationText": "{{numDays}} dias",
-          "type": "Moeda do Vale-Blitz"
+          "type": "Tipo"
         },
 
         "giftConfirmation": {
