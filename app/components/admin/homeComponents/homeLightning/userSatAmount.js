@@ -39,6 +39,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
   const { t } = useTranslation();
   const [layout, setlayout] = useState({ height: 45, width: 87 });
+  const maxLayoutRef = useRef({ height: 45, width: 87 });
 
   const displayBalance =
     mode === 'total'
@@ -46,19 +47,21 @@ export const UserSatAmount = memo(function UserSatAmount({
       : mode === 'sats'
       ? bitcoinBalance
       : formatBalanceAmount(dollarBalanceToken, false, masterInfoObject);
-  // useEffect(() => {
-  //   didMount.current = true;
-  //   return () => (didMount.current = false);
-  // }, []);
 
-  // const handleLayout = useCallback(
-  //   event => {
-  //     const { width } = event.nativeEvent.layout;
-  //     if (!didMount.current) return;
-  //     setBalanceWidth(width);
-  //   },
-  //   [didMount],
-  // );
+  const handleLayoutMeasurement = useCallback(event => {
+    const { height, width } = event.nativeEvent.layout;
+
+    const newMaxHeight = Math.max(maxLayoutRef.current.height, height);
+    const newMaxWidth = Math.max(maxLayoutRef.current.width, width);
+
+    if (
+      newMaxHeight !== maxLayoutRef.current.height ||
+      newMaxWidth !== maxLayoutRef.current.width
+    ) {
+      maxLayoutRef.current = { height: newMaxHeight, width: newMaxWidth };
+      setlayout({ height: newMaxHeight, width: newMaxWidth });
+    }
+  }, []);
 
   const handleBalanceChange = useCallback(() => {
     if (mode !== 'total') return;
@@ -107,14 +110,44 @@ export const UserSatAmount = memo(function UserSatAmount({
       onPress={handleBalanceChange}
       activeOpacity={mode === 'total' ? 0.2 : 1}
     >
-      <SkeletonTextPlaceholder
-        highlightColor={backgroundColor}
-        backgroundColor={COLORS.opaicityGray}
-        speed={SKELETON_ANIMATION_SPEED}
-        enabled={!sparkInformation.identityPubKey}
-        layout={layout}
+      {/* Hidden component for layout measurement */}
+      <View
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+        onLayout={handleLayoutMeasurement}
       >
-        <View onLayout={event => setlayout(event.nativeEvent.layout)}>
+        <FormattedSatText
+          styles={styles.valueText}
+          balance={displayBalance}
+          useSizing={true}
+          globalBalanceDenomination={
+            masterInfoObject.userBalanceDenomination === 'hidden'
+              ? masterInfoObject.userBalanceDenomination
+              : mode === 'total'
+              ? undefined
+              : mode === 'sats'
+              ? 'sats'
+              : 'fiat'
+          }
+          forceCurrency={mode === 'usd' ? 'USD' : null}
+          useBalance={mode === 'usd'}
+        />
+      </View>
+
+      {/* Visible component with skeleton - using max layout dimensions */}
+      <View
+        style={{
+          height: layout.height,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <SkeletonTextPlaceholder
+          highlightColor={backgroundColor}
+          backgroundColor={COLORS.opaicityGray}
+          speed={SKELETON_ANIMATION_SPEED}
+          enabled={!sparkInformation.identityPubKey}
+          layout={layout}
+        >
           <FormattedSatText
             styles={styles.valueText}
             balance={displayBalance}
@@ -131,8 +164,8 @@ export const UserSatAmount = memo(function UserSatAmount({
             forceCurrency={mode === 'usd' ? 'USD' : null}
             useBalance={mode === 'usd'}
           />
-        </View>
-      </SkeletonTextPlaceholder>
+        </SkeletonTextPlaceholder>
+      </View>
     </TouchableOpacity>
   );
 });

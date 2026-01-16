@@ -67,7 +67,9 @@ const SkeletonTextPlaceholder = ({
     [highlightColor],
   );
 
-  if (!enabled) return children;
+  if (!enabled) {
+    return <View style={{ width: '100%' }}>{children}</View>;
+  }
 
   const maskElement = (
     <View style={styles.maskContainer}>
