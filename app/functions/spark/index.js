@@ -84,6 +84,7 @@ export const selectSparkRuntime = async (
   mnemonic,
   isInitialLoad = false,
   force = undefined,
+  createNativeWallet = true,
 ) => {
   // Force native runtime explicitly
   if (isInitialLoad && force) {
@@ -100,10 +101,12 @@ export const selectSparkRuntime = async (
     return 'webview';
   }
 
-  // Handshake not done → fallback to native
-  const walletHash = getMnemonicHash(mnemonic);
-  if (!sparkWallet[walletHash]) {
-    await getWallet(mnemonic);
+  if (createNativeWallet) {
+    // Handshake not done → fallback to native
+    const walletHash = getMnemonicHash(mnemonic);
+    if (!sparkWallet[walletHash]) {
+      await getWallet(mnemonic);
+    }
   }
 
   return 'native';
@@ -112,7 +115,7 @@ export const selectSparkRuntime = async (
 // Clear cache when needed (call this on logout/cleanup)
 export const clearMnemonicCache = () => {
   mnemonicHashCache.clear();
-  sparkWallet = {};
+  Object.keys(sparkWallet).forEach(key => delete sparkWallet[key]);
 };
 
 export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {

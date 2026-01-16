@@ -255,7 +255,7 @@ const SparkWalletProvider = ({ children }) => {
       } else {
         let alreadyRanConnection = false;
         if (!sparkInfoRef.current.identityPubKey && shouldRunNormalConnection) {
-          await resetSparkState(true);
+          await resetSparkState(true, false);
           await connectToSparkWallet();
           await initializeFlashnet(currentMnemonicRef.current);
           alreadyRanConnection = true;
@@ -266,10 +266,15 @@ const SparkWalletProvider = ({ children }) => {
           }));
         }
 
-        const runtime = await selectSparkRuntime(currentMnemonicRef.current);
+        const runtime = await selectSparkRuntime(
+          currentMnemonicRef.current,
+          false,
+          undefined,
+          false,
+        );
         if (runtime === 'native') {
           if (!alreadyRanConnection) {
-            await resetSparkState(true);
+            await resetSparkState(true, false);
             await connectToSparkWallet();
             await initializeFlashnet(currentMnemonicRef.current);
           }
@@ -1202,56 +1207,61 @@ const SparkWalletProvider = ({ children }) => {
     didGetToHomepage,
   ]);
 
-  const resetSparkState = useCallback(async (internalRefresh = false) => {
-    // Reset refs to initial values
-    await removeListeners(true);
-    clearMnemonicCache();
-    prevAccountMnemoincRef.current = null;
-    isRunningAddListeners.current = false;
-    if (depositAddressIntervalRef.current) {
-      clearInterval(depositAddressIntervalRef.current);
-    }
-    initialBitcoinIntervalRun.current = null;
-    depositAddressIntervalRef.current = null;
-    sparkInfoRef.current = {
-      balance: 0,
-      tokens: {},
-      identityPubKey: '',
-      sparkAddress: '',
-    };
-    handledTransfers.current = new Set();
-    prevListenerType.current = null;
-    prevAppState.current = 'active';
-    prevAccountId.current = null;
-    isSendingPaymentRef.current = false;
-    balancePollingTimeoutRef.current = null;
-    balancePollingAbortControllerRef.current = null;
-    txPollingAbortControllerRef.current = null;
-    txPollingTimeoutRef.current = null;
-    currentPollingMnemonicRef.current = null;
-    didRunInitialRestore.current = false;
-    hasRestoreCompleted.current = false;
-    pendingSparkTxIds.current.clear();
-    txObjectCache.current.clear();
-    currentUpdateIdRef.current = 0;
+  const resetSparkState = useCallback(
+    async (internalRefresh = false, shouldClearMnemonicCache = true) => {
+      // Reset refs to initial values
+      await removeListeners(true);
+      if (shouldClearMnemonicCache) {
+        clearMnemonicCache();
+      }
+      prevAccountMnemoincRef.current = null;
+      isRunningAddListeners.current = false;
+      if (depositAddressIntervalRef.current) {
+        clearInterval(depositAddressIntervalRef.current);
+      }
+      initialBitcoinIntervalRun.current = null;
+      depositAddressIntervalRef.current = null;
+      sparkInfoRef.current = {
+        balance: 0,
+        tokens: {},
+        identityPubKey: '',
+        sparkAddress: '',
+      };
+      handledTransfers.current = new Set();
+      prevListenerType.current = null;
+      prevAppState.current = 'active';
+      prevAccountId.current = null;
+      isSendingPaymentRef.current = false;
+      balancePollingTimeoutRef.current = null;
+      balancePollingAbortControllerRef.current = null;
+      txPollingAbortControllerRef.current = null;
+      txPollingTimeoutRef.current = null;
+      currentPollingMnemonicRef.current = null;
+      didRunInitialRestore.current = false;
+      hasRestoreCompleted.current = false;
+      pendingSparkTxIds.current.clear();
+      txObjectCache.current.clear();
+      currentUpdateIdRef.current = 0;
 
-    // Reset state variables
-    setSparkConnectionError(null);
-    setSparkInformation({
-      balance: 0,
-      tokens: {},
-      transactions: [],
-      identityPubKey: '',
-      sparkAddress: '',
-      didConnect: null,
-      didConnectToFlashnet: null,
-    });
-    setPendingNavigation(null);
-    if (!internalRefresh) {
-      setDidRunNormalConnection(false);
-      setNormalConnectionTimeout(false);
-    }
-  }, []);
+      // Reset state variables
+      setSparkConnectionError(null);
+      setSparkInformation({
+        balance: 0,
+        tokens: {},
+        transactions: [],
+        identityPubKey: '',
+        sparkAddress: '',
+        didConnect: null,
+        didConnectToFlashnet: null,
+      });
+      setPendingNavigation(null);
+      if (!internalRefresh) {
+        setDidRunNormalConnection(false);
+        setNormalConnectionTimeout(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (isInitialRender.current) {

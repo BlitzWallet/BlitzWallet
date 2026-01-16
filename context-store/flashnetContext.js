@@ -72,13 +72,19 @@ export function FlashnetProvider({ children }) {
 
   const refundMonitorIntervalRef = useRef(null);
   const swapMonitorIntervalRef = useRef(null);
+  const retryTimeoutRef = useRef(null);
 
   const flashnetRetryIntervalRef = useRef(null);
   const flashnetRetryDelayRef = useRef(5_000);
   const { authResetkey } = useAuthContext();
+  const authResetKeyRef = useRef(authResetkey);
 
   const REFUND_MONITOR_INTERVAL = 25_000;
   const SWAP_MONITOR_INTERVAL = 30_000;
+
+  useEffect(() => {
+    authResetKeyRef.current = authResetkey;
+  }, [authResetkey]);
 
   useEffect(() => {
     currentWalletMnemoincRef.current = currentWalletMnemoinc;
@@ -128,7 +134,10 @@ export function FlashnetProvider({ children }) {
   }, [appState]);
 
   useEffect(() => {
-    let retryTimeout;
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
 
     if (
       appState === 'active' &&
@@ -137,7 +146,15 @@ export function FlashnetProvider({ children }) {
       poolInfo?.lpPublicKey
     ) {
       // Delay to ensure everything is initialized
-      retryTimeout = setTimeout(() => {
+      const capturedAuthKey = authResetKeyRef.current;
+
+      retryTimeoutRef.current = setTimeout(() => {
+        // Check if auth has changed before executing
+        if (capturedAuthKey !== authResetKeyRef.current) {
+          console.log('[Flashnet] Auth changed, skipping retry confirmations');
+          return;
+        }
+
         retryPendingSwapConfirmations(
           currentWalletMnemoincRef.current,
           sparkInfoRef,
@@ -146,8 +163,9 @@ export function FlashnetProvider({ children }) {
     }
 
     return () => {
-      if (retryTimeout) {
-        clearTimeout(retryTimeout);
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
       }
     };
   }, [appState, sparkInformation.didConnectToFlashnet, poolInfo?.lpPublicKey]);
@@ -440,12 +458,20 @@ export function FlashnetProvider({ children }) {
   const startPendingSwapsMonitor = () => {
     if (swapMonitorIntervalRef.current) return;
 
+    const capturedAuthKey = authResetKeyRef.current;
+
     runPendingSwapsMonitor(); // immediate pass
 
-    swapMonitorIntervalRef.current = setInterval(
-      runPendingSwapsMonitor,
-      SWAP_MONITOR_INTERVAL,
-    );
+    swapMonitorIntervalRef.current = setInterval(async () => {
+      // Check if auth has changed
+      if (capturedAuthKey !== authResetKeyRef.current) {
+        console.log('[Pending Swaps Monitor] Auth changed, stopping monitor');
+        stopPendingSwapsMonitor();
+        return;
+      }
+
+      await runPendingSwapsMonitor();
+    }, SWAP_MONITOR_INTERVAL);
   };
 
   const stopPendingSwapsMonitor = () => {
@@ -509,10 +535,18 @@ export function FlashnetProvider({ children }) {
   const startRefundMonitor = () => {
     if (refundMonitorIntervalRef.current) return;
 
-    refundMonitorIntervalRef.current = setInterval(
-      runRefundMonitor,
-      REFUND_MONITOR_INTERVAL,
-    );
+    const capturedAuthKey = authResetKeyRef.current;
+
+    refundMonitorIntervalRef.current = setInterval(async () => {
+      // Check if auth has changed
+      if (capturedAuthKey !== authResetKeyRef.current) {
+        console.log('[Refund Monitor] Auth changed, stopping monitor');
+        stopRefundMonitor();
+        return;
+      }
+
+      await runRefundMonitor();
+    }, REFUND_MONITOR_INTERVAL);
   };
 
   const stopRefundMonitor = () => {
@@ -556,7 +590,17 @@ export function FlashnetProvider({ children }) {
   useEffect(() => {
     let refundMonitorTimeout;
     if (appState === 'active' && sparkInformation.didConnectToFlashnet) {
-      refundMonitorTimeout = setTimeout(runRefundMonitor, 1500);
+      const capturedAuthKey = authResetKeyRef.current;
+
+      refundMonitorTimeout = setTimeout(() => {
+        // Check if auth has changed before executing
+        if (capturedAuthKey !== authResetKeyRef.current) {
+          console.log('[Refund Monitor] Auth changed, skipping initial run');
+          return;
+        }
+        runRefundMonitor();
+      }, 1500);
+
       startRefundMonitor();
     } else {
       stopRefundMonitor();
@@ -616,7 +660,14 @@ export function FlashnetProvider({ children }) {
               clearTimeout(flashnetRetryIntervalRef.current);
             }
 
+            const capturedAuthKey = authResetKeyRef.current;
+
             flashnetRetryIntervalRef.current = setTimeout(() => {
+              // Check if auth has changed
+              if (capturedAuthKey !== authResetKeyRef.current) {
+                console.log('[Flashnet Retry] Auth changed, aborting retry');
+                return;
+              }
               attemptFlashnetConnection();
             }, flashnetRetryDelayRef.current);
 
@@ -635,7 +686,16 @@ export function FlashnetProvider({ children }) {
           clearTimeout(flashnetRetryIntervalRef.current);
         }
 
+        const capturedAuthKey = authResetKeyRef.current;
+
         flashnetRetryIntervalRef.current = setTimeout(() => {
+          // Check if auth has changed
+          if (capturedAuthKey !== authResetKeyRef.current) {
+            console.log(
+              '[Flashnet Retry] Auth changed, aborting retry after error',
+            );
+            return;
+          }
           attemptFlashnetConnection();
         }, flashnetRetryDelayRef.current);
 
@@ -691,12 +751,31 @@ export function FlashnetProvider({ children }) {
     if (appState !== 'active') return;
 
     // Start interval
+    const capturedAuthKey = authResetKeyRef.current;
+
     poolIntervalRef.current = setInterval(() => {
+      // Check if auth has changed
+      if (capturedAuthKey !== authResetKeyRef.current) {
+        console.log('[Pool Refresh] Auth changed, stopping refresh');
+        if (poolIntervalRef.current) {
+          clearInterval(poolIntervalRef.current);
+          poolIntervalRef.current = null;
+        }
+        return;
+      }
+
       refreshPool();
     }, 30_000);
 
     // Run immediately on activation
-    const refreshPoolTimeout = setTimeout(refreshPool, 2000);
+    const refreshPoolTimeout = setTimeout(() => {
+      // Check if auth has changed
+      if (capturedAuthKey !== authResetKeyRef.current) {
+        console.log('[Pool Refresh] Auth changed, skipping initial refresh');
+        return;
+      }
+      refreshPool();
+    }, 2000);
 
     return () => {
       if (refreshPoolTimeout) {
@@ -737,9 +816,33 @@ export function FlashnetProvider({ children }) {
     return currentPriceAinBToPriceDollars(poolInfo?.currentPriceAInB);
   }, [poolInfo?.currentPriceAInB]);
 
+  // Clean up all intervals and timeouts when auth resets
   useEffect(() => {
+    console.log('[Flashnet] Auth reset detected, cleaning up all processes');
+
     stopRefundMonitor();
     stopPendingSwapsMonitor();
+
+    if (poolIntervalRef.current) {
+      clearInterval(poolIntervalRef.current);
+      poolIntervalRef.current = null;
+    }
+
+    if (flashnetRetryIntervalRef.current) {
+      clearTimeout(flashnetRetryIntervalRef.current);
+      flashnetRetryIntervalRef.current = null;
+    }
+
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+
+    // Clear triggered swaps set
+    triggeredSwapsRef.current.clear();
+
+    // Reset retry delay
+    flashnetRetryDelayRef.current = 5_000;
   }, [authResetkey]);
 
   const contextValue = useMemo(() => {

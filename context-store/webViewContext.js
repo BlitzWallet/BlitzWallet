@@ -27,6 +27,7 @@ import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { useAppStatus } from './appStatus';
 import { useActiveCustodyAccount } from './activeAccount';
 import { useAuthContext } from './authContext';
+import { navigationRef } from '../navigation/navigationService';
 
 export const OPERATION_TYPES = {
   // Spark
@@ -364,8 +365,17 @@ export const WebViewProvider = ({ children }) => {
       // On verification failure, force React Native mode
       forceReactNativeUse = true;
       setHandshakeComplete(false);
+      const currentRoutes = navigationRef
+        .getRootState()
+        .routes?.map(r => r.name);
+
+      const blockReset =
+        currentRoutes?.includes('Splash') ||
+        currentRoutes?.includes('Home') ||
+        currentRoutes?.includes('ConnectingToNodeLoadingScreen');
+
       setChangeSparkConnectionState(prev => ({
-        state: true,
+        state: blockReset ? null : true,
         count: prev.count + 1,
       }));
     }
@@ -960,8 +970,17 @@ export const WebViewProvider = ({ children }) => {
     } catch (error) {
       console.warn('Handshake failed or timed out:', error.message);
       forceReactNativeUse = true;
+      const currentRoutes = navigationRef
+        .getRootState()
+        .routes?.map(r => r.name);
+
+      const blockReset =
+        currentRoutes?.includes('Splash') ||
+        currentRoutes?.includes('Home') ||
+        currentRoutes?.includes('ConnectingToNodeLoadingScreen');
+
       setChangeSparkConnectionState(prev => ({
-        state: true,
+        state: blockReset ? null : true,
         count: prev.count + 1,
       }));
       queuedRequests.current.forEach(({ reject }) => {
