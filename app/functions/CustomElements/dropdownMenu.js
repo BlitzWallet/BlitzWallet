@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: 20,
     position: 'relative',
+    justifyContent: 'center',
   },
   verticalTopArrow: {
     width: 20,
