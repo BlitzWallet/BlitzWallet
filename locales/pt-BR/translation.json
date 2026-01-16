@@ -1727,7 +1727,7 @@
           "button": "Criar Vale-Blitz",
           "disclaimer": "Quando você cria um Vale-Blitz, o valor usado para emiti-lo fica bloqueado por {{numDays}} dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor.",
           "durationText": "{{numDays}} dias",
-          "type": "Moeda do Vale-Blitz"
+          "type": "Tipo"
         },
 
         "giftConfirmation": {
