@@ -50,6 +50,7 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { satsToDollars } from '../../functions/spark/flashnet';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -69,6 +70,7 @@ export default function ReceivePaymentHome(props) {
   const { startLiquidEventListener } = useLiquidEvent();
   const userReceiveAmount = props.route.params?.receiveAmount || 0;
   const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
+  const { bottomPadding } = useGlobalInsets();
 
   const paymentDescription = props.route.params?.description;
   const requestUUID = props.route.params?.uuid;
@@ -199,7 +201,7 @@ export default function ReceivePaymentHome(props) {
   };
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <CustomSettingsTopBar
         showLeftImage={true}
         iconNew="Share"
@@ -209,6 +211,7 @@ export default function ReceivePaymentHome(props) {
       <ScrollView
         contentContainerStyle={{
           flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
+          paddingBottom: bottomPadding,
         }}
         showsVerticalScrollIndicator={false}
       >

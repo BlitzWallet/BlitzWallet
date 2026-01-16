@@ -707,6 +707,7 @@ export const receiveSparkLightningPayment = async ({
   memo,
   mnemonic,
   includeSparkAddress = true,
+  expirySeconds = DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry
 }) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -717,7 +718,7 @@ export const receiveSparkLightningPayment = async ({
           mnemonic,
           amountSats,
           memo,
-          expirySeconds: DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry,
+          expirySeconds,
           includeSparkAddress,
         },
       );
@@ -730,7 +731,7 @@ export const receiveSparkLightningPayment = async ({
       const response = await wallet.createLightningInvoice({
         amountSats,
         memo,
-        expirySeconds: DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry
+        expirySeconds,
         includeSparkAddress,
       });
       return { didWork: true, response };

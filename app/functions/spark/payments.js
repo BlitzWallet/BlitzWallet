@@ -591,6 +591,7 @@ export const sparkReceivePaymentWrapper = async ({
   sendWebViewRequest,
   performSwaptoUSD = false,
   includeSparkAddress = true,
+  expirySeconds,
 }) => {
   try {
     // if (!sparkWallet[sha256Hash(mnemoinc)])
@@ -602,6 +603,7 @@ export const sparkReceivePaymentWrapper = async ({
         memo,
         mnemonic: mnemoinc,
         includeSparkAddress,
+        expirySeconds,
       });
 
       if (!invoiceResponse.didWork) throw new Error(invoiceResponse.error);

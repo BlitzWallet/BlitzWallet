@@ -97,6 +97,7 @@ export async function initializeAddressProcess(wolletInfo) {
           mnemoinc: wolletInfo.currentWalletMnemoinc,
           sendWebViewRequest,
           performSwaptoUSD: wolletInfo.endReceiveType === 'USD',
+          expirySeconds: wolletInfo.endReceiveType === 'USD' ? 600 : undefined,
           includeSparkAddress: wolletInfo.endReceiveType !== 'USD',
         }),
         wolletInfo.endReceiveType === 'USD'
