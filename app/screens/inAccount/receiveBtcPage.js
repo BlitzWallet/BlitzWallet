@@ -526,29 +526,29 @@ function QrCode(props) {
         : 'lightningAddress'
       : `${selectedRecieveOption.toLowerCase()}Address`;
 
-  const approximateUSDAmount = ` ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination(
-    {
-      masterInfoObject: {
-        ...masterInfoObject,
-        userBalanceDenomination: 'fiat',
-      },
-      forceCurrency: 'USD',
-      fiatStats: fiatStats,
-      amount: formatBalanceAmount(
-        addressState?.swapResponse?.expectedOutput
-          ? (
-              addressState?.swapResponse?.expectedOutput / Math.pow(10, 6)
-            ).toFixed(2)
-          : (
-              satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
-              (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
-            ).toFixed(2),
-        false,
-        masterInfoObject,
-      ),
-      convertAmount: false,
-    },
-  )}`;
+  // const approximateUSDAmount = ` ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination(
+  //   {
+  //     masterInfoObject: {
+  //       ...masterInfoObject,
+  //       userBalanceDenomination: 'fiat',
+  //     },
+  //     forceCurrency: 'USD',
+  //     fiatStats: fiatStats,
+  //     amount: formatBalanceAmount(
+  //       addressState?.swapResponse?.expectedOutput
+  //         ? (
+  //             addressState?.swapResponse?.expectedOutput / Math.pow(10, 6)
+  //           ).toFixed(2)
+  //         : (
+  //             satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
+  //             (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
+  //           ).toFixed(2),
+  //       false,
+  //       masterInfoObject,
+  //     ),
+  //     convertAmount: false,
+  //   },
+  // )}`;
 
   return (
     <View
@@ -651,15 +651,12 @@ function QrCode(props) {
                     fiatStats: fiatStats,
                     amount: initialSendAmount,
                   }),
-                }) + approximateUSDAmount
+                })
               : displayCorrectDenomination({
                   masterInfoObject: masterInfoObject,
                   fiatStats: fiatStats,
                   amount: initialSendAmount,
-                }) +
-                (endReceiveType === 'USD' && canConvert
-                  ? approximateUSDAmount
-                  : '')
+                })
           }
           iconName={'SquarePen'}
           showBoder={true}

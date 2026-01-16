@@ -85,10 +85,14 @@ export async function initializeAddressProcess(wolletInfo) {
             );
       wolletInfo.setInitialSendAmount(realAmount);
 
+      const swapAmountWithFee = Math.round(
+        realAmount * ((wolletInfo.poolInfoRef.lpFeeBps + 100 + 10000) / 10000),
+      );
+
       const [response, swapResponse] = await Promise.all([
         sparkReceivePaymentWrapper({
           paymentType: 'lightning',
-          amountSats: realAmount,
+          amountSats: swapAmountWithFee,
           memo: wolletInfo.description,
           mnemoinc: wolletInfo.currentWalletMnemoinc,
           sendWebViewRequest,
@@ -100,7 +104,7 @@ export async function initializeAddressProcess(wolletInfo) {
               poolId: wolletInfo.poolInfoRef.lpPublicKey,
               assetInAddress: BTC_ASSET_ADDRESS,
               assetOutAddress: USD_ASSET_ADDRESS,
-              amountIn: realAmount,
+              amountIn: swapAmountWithFee,
             })
           : Promise.resolve(null),
       ]);
