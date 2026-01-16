@@ -857,10 +857,12 @@ export default function SendAndRequestPage(props) {
                     placeholderText={t(
                       'contacts.sendAndRequestPage.descriptionPlaceholder',
                     )}
-                    textInputStyles={{
-                      borderRadius: useAltLayout ? 15 : 8,
-                      height: useAltLayout ? 50 : 'unset',
-                    }}
+                    textInputStyles={
+                      {
+                        // borderRadius: useAltLayout ? 15 : 8,
+                        // height: useAltLayout ? 50 : 'unset',
+                      }
+                    }
                     placeholderTextColor={
                       theme && !darkModeType
                         ? undefined
@@ -879,7 +881,7 @@ export default function SendAndRequestPage(props) {
                     maxLength={149}
                   />
 
-                  {useAltLayout && (
+                  {/* {useAltLayout && (
                     <View style={styles.maxAndAcceptContainer}>
                       <View
                         style={{
@@ -925,7 +927,7 @@ export default function SendAndRequestPage(props) {
                         }
                       />
                     </View>
-                  )}
+                  )} */}
                 </View>
                 {isAmountFocused && (
                   <CustomNumberKeyboard
@@ -938,7 +940,7 @@ export default function SendAndRequestPage(props) {
                 )}
               </>
             )}
-            {((isAmountFocused && !useAltLayout) || giftOption) && (
+            {(isAmountFocused || giftOption) && (
               <CustomButton
                 buttonStyles={{
                   ...styles.button,

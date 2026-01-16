@@ -928,18 +928,15 @@ export default function SendPaymentScreen(props) {
               inputText={paymentDescription}
               textInputMultiline={true}
               textAlignVertical={'baseline'}
-              textInputStyles={{
-                borderRadius: useAltLayout ? 15 : 8,
-              }}
               maxLength={paymentInfo?.data?.commentAllowed || 150}
               containerStyles={{
                 width: INSET_WINDOW_WIDTH,
-                marginTop: useAltLayout ? 0 : 10,
+                marginTop: 10,
                 maxWidth: 350,
               }}
             />
 
-            {useAltLayout && (
+            {/* {useAltLayout && (
               <View style={styles.maxAndAcceptContainer}>
                 {showSendMax && (
                   <SendMaxComponent
@@ -994,7 +991,7 @@ export default function SendPaymentScreen(props) {
                   setDidSelectPaymentMethod={setDidSelectPaymentMethod}
                 />
               </View>
-            )}
+            )} */}
 
             {isAmountFocused && (
               <NumberInputSendPage
@@ -1007,45 +1004,48 @@ export default function SendPaymentScreen(props) {
               />
             )}
 
-            {!useAltLayout && isAmountFocused && (
-              <AcceptButtonSendPage
-                isLiquidPayment={isLiquidPayment}
-                canSendPayment={canSendPayment}
-                decodeSendAddress={decodeSendAddress}
-                errorMessageNavigation={errorMessageNavigation}
-                btcAdress={btcAdress}
-                paymentInfo={paymentInfo}
-                convertedSendAmount={convertedSendAmount}
-                paymentDescription={paymentDescription}
-                setPaymentInfo={setPaymentInfo}
-                setLoadingMessage={setLoadingMessage}
-                fromPage={fromPage}
-                publishMessageFunc={publishMessageFunc}
-                // webViewRef={webViewRef}
-                minLNURLSatAmount={minLNURLSatAmount}
-                maxLNURLSatAmount={maxLNURLSatAmount}
-                sparkInformation={sparkInformation}
-                seletctedToken={seletctedToken}
-                isLRC20Payment={isUsingLRC20}
-                useAltLayout={useAltLayout}
-                sendWebViewRequest={sendWebViewRequest}
-                globalContactsInformation={globalContactsInformation}
-                canUseFastPay={canUseFastPay}
-                selectedPaymentMethod={determinePaymentMethod}
-                bitcoinBalance={bitcoinBalance}
-                dollarBalanceSat={dollarBalanceSat}
-                needsToChoosePaymentMethod={needsToChoosePaymentMethod}
-                isDecoding={isDecoding}
-                poolInfoRef={poolInfoRef}
-                swapLimits={swapLimits}
-                // usd_multiplier_coefiicent={usd_multiplier_coefiicent}
-                min_usd_swap_amount={min_usd_swap_amount}
-                hasSufficientBalance={hasSufficientBalance}
-                inputDenomination={inputDenomination}
-                paymentValidation={paymentValidation}
-                setDidSelectPaymentMethod={setDidSelectPaymentMethod}
-              />
-            )}
+            {
+              // !useAltLayout &&
+              isAmountFocused && (
+                <AcceptButtonSendPage
+                  isLiquidPayment={isLiquidPayment}
+                  canSendPayment={canSendPayment}
+                  decodeSendAddress={decodeSendAddress}
+                  errorMessageNavigation={errorMessageNavigation}
+                  btcAdress={btcAdress}
+                  paymentInfo={paymentInfo}
+                  convertedSendAmount={convertedSendAmount}
+                  paymentDescription={paymentDescription}
+                  setPaymentInfo={setPaymentInfo}
+                  setLoadingMessage={setLoadingMessage}
+                  fromPage={fromPage}
+                  publishMessageFunc={publishMessageFunc}
+                  // webViewRef={webViewRef}
+                  minLNURLSatAmount={minLNURLSatAmount}
+                  maxLNURLSatAmount={maxLNURLSatAmount}
+                  sparkInformation={sparkInformation}
+                  seletctedToken={seletctedToken}
+                  isLRC20Payment={isUsingLRC20}
+                  useAltLayout={false} //will be useAltLayout in future
+                  sendWebViewRequest={sendWebViewRequest}
+                  globalContactsInformation={globalContactsInformation}
+                  canUseFastPay={canUseFastPay}
+                  selectedPaymentMethod={determinePaymentMethod}
+                  bitcoinBalance={bitcoinBalance}
+                  dollarBalanceSat={dollarBalanceSat}
+                  needsToChoosePaymentMethod={needsToChoosePaymentMethod}
+                  isDecoding={isDecoding}
+                  poolInfoRef={poolInfoRef}
+                  swapLimits={swapLimits}
+                  // usd_multiplier_coefiicent={usd_multiplier_coefiicent}
+                  min_usd_swap_amount={min_usd_swap_amount}
+                  hasSufficientBalance={hasSufficientBalance}
+                  inputDenomination={inputDenomination}
+                  paymentValidation={paymentValidation}
+                  setDidSelectPaymentMethod={setDidSelectPaymentMethod}
+                />
+              )
+            }
           </>
         )}
 
