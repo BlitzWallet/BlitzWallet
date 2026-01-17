@@ -470,6 +470,7 @@ export const WebViewProvider = ({ children }) => {
   const isDuplicate = (queue, action, args) => {
     return queue.some(
       req =>
+        req.action !== OPERATION_TYPES.getSingleTxDetails &&
         req.action === action &&
         JSON.stringify(req.args) === JSON.stringify(args),
     );
