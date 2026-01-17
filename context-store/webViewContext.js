@@ -122,6 +122,7 @@ const mediumOperations = [
   OPERATION_TYPES.simulateSwap,
   OPERATION_TYPES.requestBatchClawback,
   OPERATION_TYPES.checkIfOptimizationNeeded,
+  OPERATION_TYPES.listClawbackableTransfers,
 ];
 
 const rejectIfNotConnectedToInternet = [
