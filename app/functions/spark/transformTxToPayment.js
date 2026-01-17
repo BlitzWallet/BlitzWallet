@@ -4,6 +4,7 @@ import calculateProgressiveBracketFee from './calculateSupportFee';
 import {
   deleteSparkContactTransaction,
   deleteUnpaidSparkLightningTransaction,
+  getActiveAutoSwapByAmount,
   updateSparkTransactionDetails,
 } from './transactions';
 import i18next from 'i18next';
@@ -132,17 +133,33 @@ export async function transformTxToPaymentObject(
   } else if (paymentType === 'spark') {
     if (tx.receiverIdentityPublicKey === FLASHNET_POOL_IDENTITY_KEY) {
       // This could be any bitcoin to USD swap. We only want to block and track the one that is associtated with the current ln -> usd swap to remove the chacnce of the funding tx from showing in the tx list
-      // get all active ln-> usd swaps
-      const activeSwaps = getActiveSwapTransferIds();
-      // Check the most recent 10 swaps chances of performing more than 10 swaps by the time the main tx is added is low
-      const userSwaps = await getUserSwapHistory(mnemoinc, 10);
-      if (userSwaps.didWork) {
-        const swap = userSwaps.swaps.find(savedSwap =>
-          activeSwaps.has(savedSwap.outboundTransferId),
-        );
-        if (swap) {
-          // if we have found a swap with the outbound transfer that meeans this is a ln-> usd swap since we only store those in active swaps
-          setFlashnetTransfer(tx.id);
+
+      // Check active ln-> usd swaps based on amount to see if this is thatoutgoing tx(amount is unique enough to use for matching we add 1-20 sats on each swap to make it more unique)
+      const potentialSwapTx = await getActiveAutoSwapByAmount(paymentAmount);
+
+      if (potentialSwapTx) {
+        console.log(tx.id, 'Setting flashnet transfer (matched by amount)');
+        setFlashnetTransfer(tx.id);
+      } else {
+        // Check the most recent 10 swaps chances of performing more than 10 swaps by the time the main tx is added is low
+        const activeSwaps = getActiveSwapTransferIds();
+
+        // Only fetch swap history if there are active swaps
+        if (activeSwaps.size > 0) {
+          const userSwaps = await getUserSwapHistory(mnemoinc, 10);
+          if (userSwaps.didWork) {
+            const swap = userSwaps.swaps.find(savedSwap =>
+              activeSwaps.has(savedSwap.outboundTransferId),
+            );
+            if (swap) {
+              // if we have found a swap with the outbound transfer that meeans this is a ln-> usd swap since we only store those in active swaps
+              console.log(
+                tx.id,
+                'Setting flashnet transfer (matched by swap history)',
+              );
+              setFlashnetTransfer(tx.id);
+            }
+          }
         }
       }
     }

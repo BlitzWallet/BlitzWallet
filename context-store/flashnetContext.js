@@ -54,6 +54,7 @@ import { listClawbackableTransfers } from '../app/functions/spark/flashnet';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 
 const FlashnetContext = createContext(null);
+const MAX_SWAP_RETRIES = 10;
 
 export function FlashnetProvider({ children }) {
   const { showToast } = useToast();
@@ -272,6 +273,17 @@ export function FlashnetProvider({ children }) {
         console.error('Invalid amount for swap');
         triggeredSwapsRef.current.delete(sparkRequestID);
         deleteUnpaidSparkLightningTransaction(sparkRequestID);
+
+        const tx = {
+          id: lightningRequest.details?.finalSparkID,
+          accountId: sparkInfoRef.current.identityPubKey,
+          paymentStatus: 'completed',
+          paymentType: 'lightning',
+          details: {
+            performSwaptoUSD: false,
+          },
+        };
+        await bulkUpdateSparkTransactions([tx]);
         return;
       }
 
@@ -291,6 +303,11 @@ export function FlashnetProvider({ children }) {
         poolId: currentPoolInfo.lpPublicKey,
       });
 
+      await updateSparkTransactionDetails(sparkRequestID, {
+        swapInitiated: true,
+        swapAmount: amountSats,
+      });
+
       // Execute the swap
       const result = await swapBitcoinToToken(
         currentWalletMnemoincRef.current,
@@ -308,6 +325,7 @@ export function FlashnetProvider({ children }) {
         await updateSparkTransactionDetails(lightningRequest.sparkID, {
           completedSwaptoUSD: true,
           swapExecuting: false,
+          swapRetryCount: 0,
         });
 
         console.log('Auto-swap completed successfully:', {
@@ -404,6 +422,32 @@ export function FlashnetProvider({ children }) {
           continue;
         }
 
+        const currentRetries = details.swapRetryCount || 0;
+        if (currentRetries >= MAX_SWAP_RETRIES) {
+          console.error(
+            `[Pending Swaps Monitor] Swap ${sparkID} exceeded max retries (${MAX_SWAP_RETRIES}), cleaning up`,
+          );
+
+          // Delete the lightning request
+          await deleteUnpaidSparkLightningTransaction(sparkID);
+
+          // Update the final transaction to remove swap flags if it exists
+          if (finalSparkID) {
+            const tx = {
+              id: finalSparkID,
+              accountId: sparkInfoRef.current.identityPubKey,
+              paymentStatus: 'completed',
+              paymentType: 'lightning',
+              details: {
+                performSwaptoUSD: false,
+              },
+            };
+            await bulkUpdateSparkTransactions([tx]);
+          }
+
+          continue;
+        }
+
         // Handle swaps marked as executing (potential orphaned state from app closure)
         if (details.swapExecuting) {
           const lastAttempt = details.lastSwapAttempt || 0;
@@ -432,6 +476,7 @@ export function FlashnetProvider({ children }) {
             );
             await updateSparkTransactionDetails(sparkID, {
               swapExecuting: false,
+              swapRetryCount: currentRetries + 1,
             });
           } else {
             // Still within execution window, skip for now
@@ -440,6 +485,10 @@ export function FlashnetProvider({ children }) {
             );
             continue;
           }
+        } else {
+          await updateSparkTransactionDetails(sparkID, {
+            swapRetryCount: currentRetries + 1,
+          });
         }
 
         console.log(`[Pending Swaps Monitor] Retrying swap ${sparkID}`);

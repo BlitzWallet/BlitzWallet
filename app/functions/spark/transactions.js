@@ -449,6 +449,32 @@ export const getPendingAutoSwaps = async () => {
   }
 };
 
+export const getActiveAutoSwapByAmount = async amount => {
+  try {
+    await ensureSparkDatabaseReady();
+    const query = `
+      SELECT * FROM ${LIGHTNING_REQUEST_IDS_TABLE_NAME}
+      WHERE json_extract(details, '$.swapInitiated') = 1
+        AND json_extract(details, '$.swapAmount') = ?
+        AND (json_extract(details, '$.completedSwaptoUSD') IS NULL 
+             OR json_extract(details, '$.completedSwaptoUSD') = 0)
+      ORDER BY json_extract(details, '$.lastSwapAttempt') DESC
+      LIMIT 1
+    `;
+    const result = await sqlLiteDB.getAllAsync(query, [amount]);
+    if (result.length > 0) {
+      return {
+        ...result[0],
+        details: result[0].details ? JSON.parse(result[0].details) : {},
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error finding swap by amount:', error);
+    return null;
+  }
+};
+
 // export const updateSingleSparkTransaction = async (saved_spark_id, updates) => {
 //   // updates should be an object like { status: 'COMPLETED' }
 //   // saved_spark_id needs to match that of the stored transaction and then you can update the saved_id
