@@ -646,15 +646,37 @@ function QrCode(props) {
                 canConvert
               ? t('screens.inAccount.receiveBtcPage.amount_USD_MIN', {
                   swapAmountSat: displayCorrectDenomination({
-                    masterInfoObject: masterInfoObject,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'fiat',
+                    },
                     fiatStats: fiatStats,
-                    amount: initialSendAmount,
+                    amount: satsToDollars(
+                      initialSendAmount,
+                      poolInfoRef?.currentPriceAInB,
+                    ).toFixed(2),
+                    convertAmount: false,
+                    forceCurrency: 'USD',
                   }),
                 })
               : displayCorrectDenomination({
-                  masterInfoObject: masterInfoObject,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination:
+                      endReceiveType === 'USD'
+                        ? 'fiat'
+                        : masterInfoObject.userBalanceDenomination,
+                  },
                   fiatStats: fiatStats,
-                  amount: initialSendAmount,
+                  amount:
+                    endReceiveType === 'USD'
+                      ? satsToDollars(
+                          initialSendAmount,
+                          poolInfoRef?.currentPriceAInB,
+                        ).toFixed(2)
+                      : initialSendAmount,
+                  convertAmount: endReceiveType !== 'USD',
+                  forceCurrency: endReceiveType === 'USD' ? 'USD' : null,
                 })
           }
           iconName={'SquarePen'}
