@@ -869,6 +869,7 @@ export const getUserSwapHistory = async (mnemonic, limit = 50) => {
         OPERATION_TYPES.getUserSwapHistory,
         {
           mnemonic,
+          limit,
         },
       );
       return validateWebViewResponse(
@@ -878,7 +879,7 @@ export const getUserSwapHistory = async (mnemonic, limit = 50) => {
     } else {
       const client = getFlashnetClient(mnemonic);
 
-      const result = await client.getUserSwaps();
+      const result = await client.getUserSwaps(undefined, { limit });
 
       console.log('User swap history response:', result);
 
