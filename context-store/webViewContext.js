@@ -470,7 +470,10 @@ export const WebViewProvider = ({ children }) => {
   const isDuplicate = (queue, action, args) => {
     return queue.some(
       req =>
-        req.action !== OPERATION_TYPES.getSingleTxDetails &&
+        ![
+          OPERATION_TYPES.getSingleTxDetails,
+          OPERATION_TYPES.getUserSwapHistory,
+        ].includes(req.action) &&
         req.action === action &&
         JSON.stringify(req.args) === JSON.stringify(args),
     );
