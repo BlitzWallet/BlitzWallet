@@ -539,8 +539,92 @@ export default function SwapsPage() {
       return;
     }
 
-    // Show review screen
-    setShowReviewScreen(true);
+    if (lastEditedField === 'to') {
+      setIsSimulating(true);
+      setError(null);
+
+      try {
+        const isBtcToUsdb = fromAsset === 'BTC';
+        const decimals = tokenInformation?.tokenMetadata?.decimals || 6;
+
+        const amountInSmallestUnits = isBtcToUsdb
+          ? Math.floor(parseFloat(fromAmount))
+          : Math.floor(parseFloat(fromAmount) * Math.pow(10, decimals));
+
+        const assetInAddress = isBtcToUsdb
+          ? BTC_ASSET_ADDRESS
+          : USD_ASSET_ADDRESS;
+        const assetOutAddress = isBtcToUsdb
+          ? USD_ASSET_ADDRESS
+          : BTC_ASSET_ADDRESS;
+
+        const uuid = customUUID();
+        currentRequetId.current = uuid;
+
+        const result = await simulateSwap(currentWalletMnemoinc, {
+          poolId: poolInfo.lpPublicKey,
+          assetInAddress,
+          assetOutAddress,
+          amountIn: amountInSmallestUnits,
+        });
+
+        if (uuid !== currentRequetId.current) {
+          console.log('New request created during re-simulation, blocking...');
+          setIsSimulating(false);
+          return;
+        }
+
+        if (result.didWork && result.simulation) {
+          setSimulationResult(result.simulation);
+          setPriceImpact(parseFloat(result.simulation.priceImpact));
+
+          const outputAmount = isBtcToUsdb
+            ? (
+                parseFloat(result.simulation.expectedOutput) /
+                Math.pow(10, decimals)
+              ).toFixed(2)
+            : parseFloat(result.simulation.expectedOutput).toFixed(0);
+
+          lastSimulatedAmount.current = fromAmount;
+
+          setLastEditedField('from');
+
+          setToAmount(outputAmount);
+
+          if (parseFloat(result.simulation.priceImpact) > 3) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('screens.inAccount.swapsPage.highPriceImpact', {
+                priceImpact: result.simulation.priceImpact,
+              }),
+            });
+            setIsSimulating(false);
+            return;
+          }
+
+          setIsSimulating(false);
+          setShowReviewScreen(true);
+        } else {
+          const errorInfo = handleFlashnetError({
+            ...result.details,
+            error: result.error,
+          });
+          setError(true);
+          setIsSimulating(false);
+          navigate.navigate('ErrorScreen', {
+            errorMessage: errorInfo.userMessage || result.error,
+          });
+        }
+      } catch (err) {
+        console.warn('Re-simulate swap error:', err);
+        setError(true);
+        setIsSimulating(false);
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('screens.inAccount.swapsPage.simulationError'),
+        });
+      }
+    } else {
+      setShowReviewScreen(true);
+    }
   };
 
   const handleAcceptReview = () => {
