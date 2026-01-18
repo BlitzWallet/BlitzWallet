@@ -55,7 +55,7 @@ export default function displayCorrectDenomination({
         if (showSymbol && !isSymbolInFront) {
           return `${currencyOptions[1]}${currencySymbol}`;
         }
-        return `${currencyOptions[1]} ${currencyText}`;
+        return `${currencyOptions[1]} ${showCustomCurrencyLabel.currency}`;
       }
 
       const labelText = formatTokensLabel(customLabel);
