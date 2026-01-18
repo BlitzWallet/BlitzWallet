@@ -525,10 +525,10 @@ export default function SendPaymentScreen(props) {
 
   const sendPayment = useCallback(async () => {
     if (!paymentValidation.isValid) {
-      const errorMessage = paymentValidation.getErrorMessage(
+      const error = paymentValidation.getErrorMessage(
         paymentValidation.primaryError,
       );
-      navigate.navigate('ErrorScreen', { errorMessage });
+      navigate.navigate('ErrorScreen', { errorMessage: error });
       return;
     }
 
@@ -696,10 +696,10 @@ export default function SendPaymentScreen(props) {
     showNextScreen => {
       if (showNextScreen) {
         if (!paymentValidation.isValid) {
-          const errorMessage = paymentValidation.getErrorMessage(
+          const error = paymentValidation.getErrorMessage(
             paymentValidation.primaryError,
           );
-          navigate.navigate('ErrorScreen', { errorMessage });
+          navigate.navigate('ErrorScreen', { errorMessage: error });
           return;
         }
 
