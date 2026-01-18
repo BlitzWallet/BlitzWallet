@@ -4538,9 +4538,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - SDWebImage (5.21.2):
-    - SDWebImage/Core (= 5.21.2)
-  - SDWebImage/Core (5.21.2)
+  - SDWebImage (5.21.3):
+    - SDWebImage/Core (= 5.21.3)
+  - SDWebImage/Core (5.21.3)
   - SDWebImageAVIFCoder (0.11.1):
     - libavif/core (>= 0.11.0)
     - SDWebImage (~> 5.10)
@@ -5160,7 +5160,7 @@ SPEC CHECKSUMS:
   RNScreens: 2e9c41cd099b1ca50136af8d57c3594214d0086a
   RNSVG: 94a1be05fab4043354bcf7104f0f9b0e2231ef05
   RNWorklets: ad0606bee2a8103c14adb412149789c60b72bfb2
-  SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
+  SDWebImage: 16309af6d214ba3f77a7c6f6fdda888cb313a50a
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
