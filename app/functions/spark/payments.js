@@ -369,11 +369,10 @@ export const sparkPaymenWrapper = async ({
           usedUSDB = true;
         } else {
           const amountInWithBuffer = Math.min(
-            (swapPaymentQuote.amountIn * SEND_AMOUNT_INCREASE_BUFFER) /
-              Math.pow(10, 6),
+            swapPaymentQuote.amountIn * SEND_AMOUNT_INCREASE_BUFFER,
             swapPaymentQuote.bitcoinBalance,
           );
-          const formatted = Math.round(amountInWithBuffer * Math.pow(10, 6));
+          const formatted = Math.round(amountInWithBuffer);
           executionResponse = await executeSwap(mnemonic, {
             poolId: swapPaymentQuote.poolId,
             assetInAddress: swapPaymentQuote.assetInAddress,
