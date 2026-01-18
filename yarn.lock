@@ -1600,58 +1600,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "@buildonspark/spark-sdk@npm:0.5.0"
-  dependencies:
-    "@bufbuild/protobuf": ^2.2.5
-    "@lightsparkdev/core": ^1.4.4
-    "@noble/curves": ^1.8.0
-    "@noble/hashes": ^1.7.0
-    "@opentelemetry/api": ^1.9.0
-    "@opentelemetry/context-async-hooks": ^2.0.0
-    "@opentelemetry/core": ^2.0.0
-    "@opentelemetry/instrumentation": ^0.203.0
-    "@opentelemetry/instrumentation-undici": ^0.14.0
-    "@opentelemetry/sdk-trace-base": ^2.0.0
-    "@opentelemetry/sdk-trace-node": ^2.0.1
-    "@opentelemetry/sdk-trace-web": ^2.0.1
-    "@scure/base": ^1.2.4
-    "@scure/bip32": ^1.6.2
-    "@scure/bip39": ^1.5.4
-    "@scure/btc-signer": ^1.5.0
-    abort-controller-x: ^0.4.3
-    abortcontroller-polyfill: ^1.7.8
-    async-mutex: ^0.5.0
-    bare-crypto: ^1.9.2
-    bare-fetch: ^2.4.1
-    buffer: ^6.0.3
-    eventemitter3: ^5.0.1
-    js-base64: ^3.7.7
-    light-bolt11-decoder: ^3.2.0
-    nice-grpc: ^2.1.10
-    nice-grpc-client-middleware-retry: ^3.1.10
-    nice-grpc-common: ^2.0.2
-    nice-grpc-opentelemetry: ^0.1.18
-    nice-grpc-web: ^3.3.7
-    ts-proto: ^2.6.1
-    ua-parser-js: ^2.0.6
-    uuidv7: ^1.0.2
-  peerDependencies:
-    react: ">=18.2.0"
-    react-native: ">=0.71.0"
-    react-native-get-random-values: ">=1.11.0"
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-native:
-      optional: true
-    react-native-get-random-values:
-      optional: true
-  checksum: bdd3bbdc694ae43c078f2665d7ca31b86cbe94e53afd0e17c9208405b13da3ba96145471e8e2f6ecda09eed165a1b71b5c928f940679c81199b8c9e64ffba54f
-  languageName: node
-  linkType: hard
-
 "@buildonspark/spark-sdk@npm:^0.5.3":
   version: 0.5.3
   resolution: "@buildonspark/spark-sdk@npm:0.5.3"
@@ -4944,7 +4892,7 @@ __metadata:
     react-native-worklets: 0.5.1
     react-test-renderer: 19.1.0
     rn-qr-generator: ^1.4.3
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#2c277de1173933cf8a366f11bd744a5a09dc7f68"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     text-encoding-polyfill: ^0.6.7
@@ -13952,15 +13900,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#2c277de1173933cf8a366f11bd744a5a09dc7f68":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=c5f9082b9afafe19b65987c6cb7e01e3b7e1167f"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=2c277de1173933cf8a366f11bd744a5a09dc7f68"
   dependencies:
-    "@buildonspark/spark-sdk": ^0.5.0
+    "@buildonspark/spark-sdk": ^0.5.3
     "@ecies/ciphers": ^0.2.4
+    "@flashnet/sdk": ^0.4.3
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: 6143d9960a40a162f8ba8ea627c7195ca087e7275d78d5099e57cb202e4c2dc7276d25fa62a5b51c452ca17c63c736f72279137bfb93fef4b958481e6d258994
+  checksum: 491f6b0b05d4227b733c61d920ecb9bbad064d9a571e4ca77337b8fc27073c0034275cf82c7d8cff310df04398b43a4c4d1fd15d251c29d23565c857f71a3717
   languageName: node
   linkType: hard
 
@@ -14365,16 +14314,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar@npm:7.5.2":
-  version: 7.5.2
-  resolution: "tar@npm:7.5.2"
+"tar@npm:7.5.3":
+  version: 7.5.3
+  resolution: "tar@npm:7.5.3"
   dependencies:
     "@isaacs/fs-minipass": ^4.0.0
     chownr: ^3.0.0
     minipass: ^7.1.2
     minizlib: ^3.1.0
     yallist: ^5.0.0
-  checksum: 192559b0e7af17d57c7747592ef22c14d5eba2d9c35996320ccd20c3e2038160fe8d928fc5c08b2aa1b170c4d0a18c119441e81eae8f227ca2028d5bcaa6bf23
+  checksum: 146cd30727cd886c6cbed9e8f67c280f98bcab57c69d7acdb44d8a743987aac9b27cb10a98c2ea3cd416ded44ee93cad84c4acd6abad900f6aaa4845ceaf1b46
   languageName: node
   linkType: hard
 
@@ -14567,7 +14516,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-proto@npm:2.8.3, ts-proto@npm:^2.6.1":
+"ts-proto@npm:2.8.3":
   version: 2.8.3
   resolution: "ts-proto@npm:2.8.3"
   dependencies:
