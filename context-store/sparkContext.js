@@ -156,6 +156,8 @@ const SparkWalletProvider = ({ children }) => {
   const isInitialRender = useRef(true);
   const authResetKeyRef = useRef(authResetkey);
   const currentUpdateIdRef = useRef(0);
+  const pendingTxRange = useRef({ start: -1, end: -1 });
+  const pendingTxCount = useRef(0);
 
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
@@ -461,49 +463,6 @@ const SparkWalletProvider = ({ children }) => {
     return newTx;
   };
 
-  const markNewTransactionsPending = (
-    txs,
-    prevLatestId,
-    pendingIds,
-    BUFFER_LIMIT = 15,
-  ) => {
-    let foundAnchor = false;
-    let lastNewIndex = -1;
-    let numSinceLastFound = 0;
-
-    for (let i = 0; i < txs.length; i++) {
-      const tx = txs[i];
-      const txId = tx.sparkID;
-
-      if (txId === prevLatestId) {
-        foundAnchor = true;
-      }
-
-      if (!foundAnchor || pendingIds.has(txId)) {
-        pendingIds.add(txId);
-        lastNewIndex = i;
-        numSinceLastFound = 0;
-      } else {
-        numSinceLastFound++;
-        if (numSinceLastFound > BUFFER_LIMIT) break;
-      }
-    }
-
-    if (lastNewIndex === -1 && pendingIds.size === 0) {
-      return { txs };
-    }
-
-    const result = [...txs];
-    for (let i = 0; i <= lastNewIndex; i++) {
-      const tx = txs[i];
-      if (pendingIds.has(tx.sparkID) && !tx.isBalancePending) {
-        result[i] = getCachedTx(tx, true);
-      }
-    }
-
-    return { txs: result };
-  };
-
   const handleUpdate = useCallback(async (...args) => {
     try {
       const [updateType = 'transactions', fee = 0, passedBalance = 0] = args;
@@ -532,6 +491,44 @@ const SparkWalletProvider = ({ children }) => {
 
       const isLatestRequest = updateId === currentUpdateIdRef.current;
 
+      const applyPendingFlags = transactions => {
+        const { start, end } = pendingTxRange.current;
+        const previousTxCount = pendingTxCount.current;
+
+        if (start === -1 || end === -1 || previousTxCount === 0)
+          return transactions;
+
+        const currentTxCount = transactions.length;
+        const txCountDiff = currentTxCount - previousTxCount;
+        const adjustedStart = start + txCountDiff;
+        const adjustedEnd = end + txCountDiff;
+
+        if (
+          adjustedStart < 0 ||
+          adjustedEnd >= currentTxCount ||
+          adjustedStart > adjustedEnd
+        ) {
+          console.warn('Pending range out of bounds, clearing pending state');
+          pendingTxRange.current = { start: -1, end: -1 };
+          pendingTxCount.current = 0;
+          return transactions;
+        }
+
+        const before =
+          adjustedStart > 0 ? transactions.slice(0, adjustedStart) : [];
+        const pending = [];
+        const after =
+          adjustedEnd < currentTxCount - 1
+            ? transactions.slice(adjustedEnd + 1)
+            : [];
+
+        for (let i = adjustedStart; i <= adjustedEnd; i++) {
+          pending.push(getCachedTx(transactions[i], true));
+        }
+
+        return [...before, ...pending, ...after];
+      };
+
       if (
         updateType === 'lrc20Payments' ||
         updateType === 'txStatusUpdate' ||
@@ -539,18 +536,10 @@ const SparkWalletProvider = ({ children }) => {
         updateType === 'contactDetailsUpdate'
       ) {
         if (isLatestRequest) {
-          setSparkInformation(prev => {
-            const latestKnownId = txs[0]?.sparkID;
-            const { txs: updatedTxs } = markNewTransactionsPending(
-              txs,
-              latestKnownId,
-              pendingSparkTxIds.current,
-            );
-            return {
-              ...prev,
-              transactions: updatedTxs,
-            };
-          });
+          setSparkInformation(prev => ({
+            ...prev,
+            transactions: applyPendingFlags(txs),
+          }));
         }
       } else if (updateType === 'incomingPayment') {
         // incomingPayment has authoritative balance - clear ALL pending flags
@@ -560,6 +549,8 @@ const SparkWalletProvider = ({ children }) => {
         }
 
         pendingSparkTxIds.current.clear();
+        pendingTxRange.current = { start: -1, end: -1 };
+        pendingTxCount.current = 0;
 
         handleBalanceCache({
           isCheck: false,
@@ -589,17 +580,30 @@ const SparkWalletProvider = ({ children }) => {
         const pollingMnemonic = currentPollingMnemonicRef.current;
 
         setSparkInformation(prev => {
-          const latestKnownId = prev.transactions[0]?.sparkID;
+          const existingIds = new Set(prev.transactions.map(t => t.sparkID));
 
-          const { txs: updatedTxs } = markNewTransactionsPending(
-            txs,
-            latestKnownId,
-            pendingSparkTxIds.current,
-          );
+          // Find the range of new transactions
+          let firstNewIndex = -1;
+          let lastNewIndex = -1;
+
+          for (let i = 0; i < txs.length; i++) {
+            if (!existingIds.has(txs[i].sparkID)) {
+              if (firstNewIndex === -1) firstNewIndex = i;
+              lastNewIndex = i;
+              pendingSparkTxIds.current.add(txs[i].sparkID);
+            } else if (firstNewIndex !== -1) {
+              // Found existing tx after new ones - stop looking
+              break;
+            }
+          }
+
+          // Update range
+          pendingTxRange.current = { start: firstNewIndex, end: lastNewIndex };
+          pendingTxCount.current = txs.length;
 
           return {
             ...prev,
-            transactions: updatedTxs,
+            transactions: applyPendingFlags(txs),
           };
         });
 
@@ -609,6 +613,8 @@ const SparkWalletProvider = ({ children }) => {
           balancePollingAbortControllerRef.current,
           async newBalance => {
             pendingSparkTxIds.current.clear();
+            pendingTxRange.current = { start: -1, end: -1 };
+            pendingTxCount.current = 0;
 
             const freshTxs = await getAllSparkTransactions({
               limit: null,
@@ -683,6 +689,9 @@ const SparkWalletProvider = ({ children }) => {
         if (updateType === 'paymentWrapperTx') {
           const updatedBalance = Math.round(newBalance - fee);
           pendingSparkTxIds.current.clear();
+          pendingTxRange.current = { start: -1, end: -1 };
+          pendingTxCount.current = 0;
+
           handleBalanceCache({
             isCheck: false,
             passedBalance: updatedBalance,
@@ -714,22 +723,14 @@ const SparkWalletProvider = ({ children }) => {
             mnemonic,
           });
           if (stillLatest) {
-            setSparkInformation(prev => {
-              const latestKnownId = txs[0]?.sparkID;
-              const { txs: updatedTxs } = markNewTransactionsPending(
-                txs,
-                latestKnownId,
-                pendingSparkTxIds.current,
-              );
-              return {
-                ...prev,
-                transactions: updatedTxs,
-                balance: newBalance,
-                tokens: balanceResponse.didWork
-                  ? balanceResponse.tokensObj
-                  : prev.tokens,
-              };
-            });
+            setSparkInformation(prev => ({
+              ...prev,
+              transactions: applyPendingFlags(txs),
+              balance: newBalance,
+              tokens: balanceResponse.didWork
+                ? balanceResponse.tokensObj
+                : prev.tokens,
+            }));
           } else {
             setSparkInformation(prev => ({
               ...prev,
@@ -741,6 +742,9 @@ const SparkWalletProvider = ({ children }) => {
           }
         } else if (updateType === 'fullUpdate') {
           pendingSparkTxIds.current.clear();
+          pendingTxRange.current = { start: -1, end: -1 };
+          pendingTxCount.current = 0;
+
           handleBalanceCache({
             isCheck: false,
             passedBalance: newBalance,
@@ -1240,6 +1244,8 @@ const SparkWalletProvider = ({ children }) => {
       didRunInitialRestore.current = false;
       hasRestoreCompleted.current = false;
       pendingSparkTxIds.current.clear();
+      pendingTxRange.current = { start: -1, end: -1 };
+      const pendingTxCount = useRef(0);
       txObjectCache.current.clear();
       currentUpdateIdRef.current = 0;
 
