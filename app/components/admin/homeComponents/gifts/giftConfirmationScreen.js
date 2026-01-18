@@ -33,6 +33,8 @@ import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkS
 import { useTranslation } from 'react-i18next';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import CustomButton from '../../../../functions/CustomElements/button';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -52,7 +54,7 @@ export default function GiftConfirmation({
   const { fiatStats } = useNodeContext();
   const animationRef = useRef(null);
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
 
@@ -99,6 +101,11 @@ export default function GiftConfirmation({
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={{ paddingBottom: 0 }}>
+      <CustomSettingsTopBar
+        iconNew="Share"
+        showLeftImage={true}
+        leftImageFunction={handleShare}
+      />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -261,57 +268,18 @@ export default function GiftConfirmation({
 
       {/* Fixed Bottom Buttons */}
       <View style={[styles.bottomButtons, { paddingBottom: bottomPadding }]}>
-        <TouchableOpacity
-          onPress={handleShare}
-          style={styles.shareButton}
-          activeOpacity={0.8}
-        >
-          <ThemeIcon
-            size={20}
-            colorOverride={
-              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-            }
-            iconName={'Share'}
-          />
-          <ThemeText
-            styles={styles.shareButtonText}
-            content={t(
-              'screens.inAccount.giftPages.giftConfirmation.shareGift',
-            )}
-          />
-        </TouchableOpacity>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            onPress={resetPageState}
-            style={[styles.secondaryButton, styles.buttonFlex]}
-            activeOpacity={0.7}
-          >
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={{
-                includeFontPadding: false,
-                color: COLORS.lightModeText,
-              }}
-              content={t(
-                'screens.inAccount.giftPages.giftConfirmation.createAnother',
-              )}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={navigate.goBack}
-            style={[styles.secondaryButton, styles.buttonFlex]}
-            activeOpacity={0.7}
-          >
-            <ThemeText
-              styles={{
-                includeFontPadding: false,
-                color: COLORS.lightModeText,
-              }}
-              CustomNumberOfLines={1}
-              content={t('screens.inAccount.giftPages.giftConfirmation.done')}
-            />
-          </TouchableOpacity>
-        </View>
+        <CustomButton
+          actionFunction={navigate.goBack}
+          textContent={t('screens.inAccount.giftPages.giftConfirmation.done')}
+        />
+        <CustomButton
+          buttonStyles={{ backgroundColor: 'unset' }}
+          textStyles={{ color: textColor }}
+          actionFunction={resetPageState}
+          textContent={t(
+            'screens.inAccount.giftPages.giftConfirmation.createAnother',
+          )}
+        />
       </View>
     </GlobalThemeView>
   );
@@ -426,10 +394,12 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
   buttonFlex: {
     flex: 1,
+    minWidth: '49%',
   },
   secondaryButton: {
     borderRadius: 24,
