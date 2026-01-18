@@ -82,7 +82,8 @@ function getFommattedTime(getServerTime, currentTimeZoneOffsetInHours) {
 const styles = StyleSheet.create({
   dateText: {
     fontSize: SIZES.small,
-    marginRight: 5,
+    opacity: 0.7,
+    // marginRight: 5,
     flex: 1,
     includeFontPadding: false,
   },

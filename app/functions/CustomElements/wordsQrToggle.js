@@ -1,20 +1,17 @@
-import {StyleSheet, TouchableOpacity, View, Dimensions} from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
 import GetThemeColors from '../../hooks/themeColors';
-import {useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import ThemeText from './textTheme';
-import {useTranslation} from 'react-i18next';
-import {useNavigation} from '@react-navigation/native';
-import {COLORS} from '../../constants';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-
-const {width: deviceWidth} = Dimensions.get('window');
-const PADDING_HORIZONTAL = 20;
-const MAX_CONTAINER_WIDTH = deviceWidth - PADDING_HORIZONTAL;
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { COLORS } from '../../constants';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useAppStatus } from '../../../context-store/appStatus';
 
 export default function WordsQrToggle({
   setSelectedDisplayOption,
@@ -22,34 +19,43 @@ export default function WordsQrToggle({
   canViewQrCode,
   qrNavigateFunc,
 }) {
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { screenDimensions } = useAppStatus();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   const navigate = useNavigation();
 
   const sliderAnimation = useSharedValue(3);
 
-  const [containerWidth, setContainerWidth] = useState(200);
-  const [buttonWidth, setButtonWidth] = useState(95);
+  const [containerWidth, setContainerWidth] = useState(999);
+  const [buttonWidth, setButtonWidth] = useState(999);
   const [wordsTextWidth, setWordsTextWidth] = useState(0);
   const [qrTextWidth, setQrTextWidth] = useState(0);
 
+  const MAX_CONTAINER_WIDTH = useMemo(() => {
+    return Math.round(screenDimensions.width * 0.9);
+  }, [screenDimensions.width]);
+
   useEffect(() => {
     if (wordsTextWidth > 0 && qrTextWidth > 0) {
-      const wordsWidth = wordsTextWidth + 10;
-      const qrWidth = qrTextWidth + 10;
+      const textPadding = 20;
+      const wordsWidth = wordsTextWidth + textPadding;
+      const qrWidth = qrTextWidth + textPadding;
 
-      const totalTextWidth = wordsWidth + qrWidth;
+      const maxTextWidth = Math.max(wordsWidth, qrWidth);
+
       const containerPadding = 10;
-      const calculatedWidth = totalTextWidth + containerPadding;
 
-      const finalWidth = Math.min(calculatedWidth, MAX_CONTAINER_WIDTH);
+      const idealWidth = maxTextWidth * 2 + containerPadding;
+
+      const finalWidth = Math.min(idealWidth, MAX_CONTAINER_WIDTH);
+
       const finalButtonWidth = (finalWidth - containerPadding) / 2;
 
       setContainerWidth(finalWidth);
-      setButtonWidth(finalButtonWidth - 3);
+      setButtonWidth(finalButtonWidth);
     }
-  }, [wordsTextWidth, qrTextWidth]);
+  }, [wordsTextWidth, qrTextWidth, MAX_CONTAINER_WIDTH]);
 
   useEffect(() => {
     if (!canViewQrCode) return;
@@ -60,20 +66,20 @@ export default function WordsQrToggle({
   const handleSlide = useCallback(
     type => {
       sliderAnimation.value = withTiming(
-        type === 'words' ? 3 : buttonWidth + 3,
-        {duration: 200},
+        type === 'words' ? 3 : buttonWidth + 7,
+        { duration: 200 },
       );
     },
     [buttonWidth],
   );
 
   const handleWordsTextLayout = useCallback(event => {
-    const {width} = event.nativeEvent.layout;
+    const { width } = event.nativeEvent.layout;
     setWordsTextWidth(width);
   }, []);
 
   const handleQrTextLayout = useCallback(event => {
-    const {width} = event.nativeEvent.layout;
+    const { width } = event.nativeEvent.layout;
     setQrTextWidth(width);
   }, []);
 
@@ -96,9 +102,9 @@ export default function WordsQrToggle({
   }, [canViewQrCode, navigate, handleSlide]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateX: sliderAnimation.value}, {translateY: 3}],
+    transform: [{ translateX: sliderAnimation.value }, { translateY: 3 }],
     backgroundColor: theme && darkModeType ? backgroundColor : COLORS.primary,
-    width: buttonWidth,
+    width: buttonWidth - 6,
   }));
 
   return (
@@ -110,14 +116,17 @@ export default function WordsQrToggle({
           alignItems: 'center',
           width: containerWidth,
         },
-      ]}>
+      ]}
+    >
       <View style={styles.colorSchemeContainer}>
         <TouchableOpacity
-          style={[styles.colorSchemeItemContainer, {width: buttonWidth + 3}]}
+          style={[styles.colorSchemeItemContainer, { width: buttonWidth }]}
           activeOpacity={1}
-          onPress={wordsFunction}>
+          onPress={wordsFunction}
+        >
           <ThemeText
             CustomNumberOfLines={1}
+            CustomEllipsizeMode="tail"
             styles={{
               ...styles.colorSchemeText,
               color:
@@ -131,11 +140,13 @@ export default function WordsQrToggle({
           />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.colorSchemeItemContainer, {width: buttonWidth + 3}]}
+          style={[styles.colorSchemeItemContainer, { width: buttonWidth }]}
           activeOpacity={1}
-          onPress={qrFunction}>
+          onPress={qrFunction}
+        >
           <ThemeText
             CustomNumberOfLines={1}
+            CustomEllipsizeMode="tail"
             styles={{
               ...styles.colorSchemeText,
               color:
@@ -150,6 +161,7 @@ export default function WordsQrToggle({
         </TouchableOpacity>
         <Animated.View style={[styles.activeSchemeStyle, animatedStyle]} />
       </View>
+      {/* Hidden measurement text */}
       <ThemeText
         onLayout={handleWordsTextLayout}
         styles={styles.colorSchemeTextPlace}
@@ -178,6 +190,7 @@ const styles = StyleSheet.create({
   colorSchemeItemContainer: {
     paddingVertical: 8,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   colorSchemeTextPlace: {
     position: 'absolute',

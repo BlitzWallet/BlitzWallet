@@ -61,7 +61,10 @@ export default function SparkInfo() {
   }, [Object.keys(tokens || {}).length, selectedToken]);
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContianer}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContianer}
+    >
       <View
         style={{
           ...styles.container,

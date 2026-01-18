@@ -79,6 +79,7 @@ export default function SeedPhrasePage({ extraData }) {
               theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
             marginBottom: 50,
             fontSize: SIZES.large,
+            textAlign: 'center',
           }}
           content={t('settings.seedPhrase.headerDesc')}
         />
