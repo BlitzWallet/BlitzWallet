@@ -228,6 +228,9 @@ export const WebViewProvider = ({ children }) => {
     state: null,
     count: 0,
   });
+  const webViewLoadState = useRef('unloaded');
+  const onLoadEndCalledRef = useRef(false);
+  const lastLoadEndTimeRef = useRef(0);
 
   const fileHash = !!verifiedPath ? process.env.WEBVIEW_BUNDLE_HASH : '';
 
@@ -1061,6 +1064,12 @@ export const WebViewProvider = ({ children }) => {
     globalSendWebViewRequest = sendWebViewRequestInternal;
   }, [sendWebViewRequestInternal]);
 
+  useEffect(() => {
+    webViewLoadState.current = 'unloaded';
+    onLoadEndCalledRef.current = false;
+    lastLoadEndTimeRef.current = 0;
+  }, [reloadKey, verifiedPath]);
+
   const processQueuedRequests = useCallback(
     async connectionJustRestored => {
       // After a soft reset, the WebView's internal state is cleared
@@ -1154,37 +1163,64 @@ export const WebViewProvider = ({ children }) => {
       }}
     >
       {children}
-      <WebView
-        key={reloadKey}
-        domStorageEnabled={true}
-        allowFileAccess={true}
-        allowFileAccessFromFileURLs={false}
-        allowUniversalAccessFromFileURLs={false}
-        thirdPartyCookiesEnabled={true}
-        sharedCookiesEnabled={true}
-        incognito={false}
-        userAgent={getCustomUserAgent()}
-        webviewDebuggingEnabled={false}
-        cacheEnabled={false}
-        mixedContentMode="never"
-        javaScriptEnabled
-        ref={webViewRef}
-        containerStyle={{ position: 'absolute', top: 1000, left: 1000 }}
-        source={{ uri: verifiedPath }}
-        originWhitelist={['file://']}
-        onShouldStartLoadWithRequest={request => {
-          return request.url === verifiedPath;
-        }}
-        onMessage={handleWebViewResponse}
-        onLoadEnd={() => {
-          setIsWebViewReady(true);
-          console.log('WebView loaded and ready');
-        }}
-        onContentProcessDidTerminate={() => {
-          console.warn('WebView content process terminated — reloading...');
-          blockAndResetWebview();
-        }}
-      />
+      {verifiedPath && (
+        <WebView
+          key={reloadKey}
+          domStorageEnabled={true}
+          allowFileAccess={true}
+          allowFileAccessFromFileURLs={false}
+          allowUniversalAccessFromFileURLs={false}
+          thirdPartyCookiesEnabled={true}
+          sharedCookiesEnabled={true}
+          incognito={false}
+          userAgent={getCustomUserAgent()}
+          webviewDebuggingEnabled={false}
+          cacheEnabled={false}
+          mixedContentMode="never"
+          javaScriptEnabled
+          ref={webViewRef}
+          containerStyle={{ position: 'absolute', top: 1000, left: 1000 }}
+          source={{ uri: verifiedPath }}
+          originWhitelist={['file://']}
+          onShouldStartLoadWithRequest={request => {
+            return request.url === verifiedPath;
+          }}
+          onMessage={handleWebViewResponse}
+          onLoadStart={() => {
+            webViewLoadState.current = 'loading';
+            onLoadEndCalledRef.current = false;
+            setIsWebViewReady(false);
+          }}
+          onLoadProgress={({ nativeEvent }) => {
+            if (
+              nativeEvent.progress === 1 &&
+              webViewLoadState.current === 'loading'
+            ) {
+              webViewLoadState.current = 'loaded';
+              setIsWebViewReady(true);
+              console.log('WebView loaded and ready (progress: 100%)');
+            }
+          }}
+          onLoadEnd={() => {
+            setIsWebViewReady(true);
+            // Only set ready if we're still in loading state
+            // (onLoadProgress might have already handled it)
+            if (webViewLoadState.current === 'loading') {
+              webViewLoadState.current = 'loaded';
+              setIsWebViewReady(true);
+              console.log('WebView loaded and ready (onLoadEnd)');
+            } else if (webViewLoadState.current === 'loaded') {
+              console.log(
+                'onLoadEnd called but WebView already marked ready - ignoring',
+              );
+            }
+          }}
+          onContentProcessDidTerminate={() => {
+            console.warn('WebView content process terminated — reloading...');
+            blockAndResetWebview();
+          }}
+        />
+      )}
     </WebViewContext.Provider>
   );
 };
