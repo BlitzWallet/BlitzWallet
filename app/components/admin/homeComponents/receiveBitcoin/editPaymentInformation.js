@@ -181,10 +181,23 @@ export default function EditReceivePaymentInformation(props) {
       return newDenom;
     });
 
-    setAmountValue(
-      convertTextInputValue(amountValue, primaryFiatStats, inputDenomination) ||
-        '',
-    );
+    if (isUSDReceiveMode && !isDeviceCurrencyUSD) {
+      setAmountValue(
+        convertTextInputValue(
+          localSatAmount,
+          secondaryDisplay.forceFiatStats,
+          'sats',
+        ) || '',
+      );
+    } else {
+      setAmountValue(
+        convertTextInputValue(
+          amountValue,
+          primaryFiatStats,
+          inputDenomination,
+        ) || '',
+      );
+    }
   };
 
   return (
