@@ -1245,7 +1245,7 @@ const SparkWalletProvider = ({ children }) => {
       hasRestoreCompleted.current = false;
       pendingSparkTxIds.current.clear();
       pendingTxRange.current = { start: -1, end: -1 };
-      const pendingTxCount = useRef(0);
+      pendingTxCount.current = 0;
       txObjectCache.current.clear();
       currentUpdateIdRef.current = 0;
 
