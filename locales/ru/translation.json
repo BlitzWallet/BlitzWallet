@@ -1559,7 +1559,10 @@
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
-        "title": "Загрузки Blitz"
+        "title": "Загрузки Blitz",
+        "goalUserCount": "из {{goalUserCount}} пользователей.",
+        "percentOfGoal": "{{goalPercent}}% от цели",
+        "numAddedUsers": "+{{numNewUsers}} пользователей сегодня"
       },
       "loadingScreen": {
         "loadingMessage1": "Пожалуйста, не закрывайте приложение",

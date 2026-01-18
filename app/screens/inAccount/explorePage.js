@@ -29,7 +29,7 @@ import { FONT, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { findLargestByVisualWidth } from '../../components/admin/homeComponents/explore/largestNumber';
 import { useTranslation } from 'react-i18next';
-import CustomLineChart from '../../functions/CustomElements/customLineChart';
+import ModernLineChart from '../../functions/CustomElements/modernLineChart';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import { shouldLoadExploreData } from '../../functions/initializeUserSettingsHelpers';
 import fetchBackend from '../../../db/handleBackend';
@@ -49,7 +49,6 @@ export default function ExploreUsers() {
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
-  const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
   const [chartWidth, setChartWidth] = useState(0);
   const dataObject = masterInfoObject.exploreData
@@ -81,8 +80,6 @@ export default function ExploreUsers() {
   }, 0);
 
   const totalYesterday = masterInfoObject.exploreData?.['day']?.[1]?.value || 0;
-
-  const xAxisHeight = 30;
 
   const largestNumber = useMemo(() => {
     return findLargestByVisualWidth(
@@ -227,81 +224,89 @@ export default function ExploreUsers() {
       >
         {largestNumber}
       </Text>
-      <View style={{ ...styles.statsCard, backgroundColor: backgroundOffset }}>
-        <ThemeText
-          styles={styles.statsCardHeader}
-          content={t('screens.inAccount.explorePage.title')}
-        />
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={{ marginBottom: 5 }}
-          content={t('constants.today')}
-        />
-        <View style={styles.statsCardHorizontal}>
+
+      <ThemeText
+        styles={styles.statsCardHeader}
+        content={t('screens.inAccount.explorePage.title')}
+      />
+
+      {/* Today's Stats Card */}
+      <View style={{ ...styles.todayCard, backgroundColor: backgroundOffset }}>
+        <View style={styles.cardHeader}>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={{ ...styles.cardLabel, color: textColor }}
+            content={t('constants.today')}
+          />
           <DateCountdown
             currentTimeZoneOffsetInHours={currentTimeZoneOffsetInHours}
             getServerTime={getServerTime}
           />
-          <ThemeText
-            styles={styles.statsCardNumberText}
-            content={`${formatBalanceAmount(
-              max,
-              undefined,
-              masterInfoObject,
-            )} of ${formatBalanceAmount(
+        </View>
+
+        <ThemeText
+          styles={{ ...styles.mainNumber, color: textColor }}
+          content={formatBalanceAmount(max, undefined, masterInfoObject)}
+        />
+
+        <ThemeText
+          styles={{ ...styles.subText, color: textColor }}
+          content={t('screens.inAccount.explorePage.goalUserCount', {
+            goalUserCount: formatBalanceAmount(
               BLITZ_GOAL_USER_COUNT,
               undefined,
               masterInfoObject,
-            )} (${((max / BLITZ_GOAL_USER_COUNT) * 100).toFixed(3)}%)`}
-          />
-        </View>
+            ),
+          })}
+        />
+
+        {/* Progress Bar */}
         <View
-          onLayout={event => {
-            setTargetUserCountBarWidth(event.nativeEvent.layout.width);
-          }}
           style={{
             backgroundColor: backgroundColor,
-            ...styles.statsCardBar,
+            ...styles.progressBarContainer,
           }}
         >
           <View
             style={{
-              width: targetUserCountBarWidth * (max / BLITZ_GOAL_USER_COUNT),
+              width: `${(max / BLITZ_GOAL_USER_COUNT) * 100}%`,
               backgroundColor:
                 theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              ...styles.statsCardBarFill,
+              ...styles.progressBarFill,
             }}
           />
         </View>
-        <View style={styles.statsCardHorizontal}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            content={t('constants.yesterday')}
-          />
-          <ThemeText
-            styles={styles.statsCardNumberText}
-            content={`${formatBalanceAmount(
-              totalYesterday,
-              undefined,
-              masterInfoObject,
-            )} of ${formatBalanceAmount(
-              BLITZ_GOAL_USER_COUNT,
-              undefined,
-              masterInfoObject,
-            )} (${((totalYesterday / BLITZ_GOAL_USER_COUNT) * 100).toFixed(
-              3,
-            )}%)`}
-          />
-        </View>
+
+        <ThemeText
+          styles={{ ...styles.percentageText, color: textColor }}
+          content={t('screens.inAccount.explorePage.percentOfGoal', {
+            goalPercent: ((max / BLITZ_GOAL_USER_COUNT) * 100).toFixed(2),
+          })}
+        />
       </View>
 
+      {/* Growth Indicator */}
+      <View style={styles.growthIndicator}>
+        <ThemeText
+          styles={{ ...styles.growthText, color: textColor }}
+          content={t('screens.inAccount.explorePage.numAddedUsers', {
+            numNewUsers: formatBalanceAmount(
+              max - totalYesterday,
+              false,
+              masterInfoObject,
+            ),
+          })}
+        />
+      </View>
+
+      {/* Chart */}
       <View
         onLayout={e => {
           setChartWidth(e.nativeEvent.layout.width);
         }}
         style={styles.chartContainer}
       >
-        <CustomLineChart
+        <ModernLineChart
           data={data.map(d => d.value)}
           width={chartWidth}
           leftPadding={yAxisWidth * 1.1}
@@ -313,9 +318,14 @@ export default function ExploreUsers() {
             theme && darkModeType ? COLORS.darkModeText : COLORS.primary
           }
           textColor={textColor}
+          showGradient={true}
+          showGrid={true}
+          showDots={true}
+          strokeWidth={2.5}
         />
       </View>
 
+      {/* Time Frame Buttons */}
       <View style={styles.timeFrameElementsContainer}>{timeFrameElements}</View>
     </ScrollView>
   );
@@ -327,36 +337,77 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     ...CENTER,
   },
-  statsCard: { borderRadius: 8, padding: 10 },
-  statsCardHeader: {
-    fontSize: SIZES.xLarge,
-    textAlign: 'center',
-    marginBottom: 5,
+  sizingText: {
+    fontSize: SIZES.small,
+    fontFamily: FONT.Title_Regular,
+    position: 'absolute',
+    zIndex: -1,
+    opacity: 0,
   },
-  statsCardHorizontal: {
+  statsCardHeader: {
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  todayCard: {
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 12,
+  },
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 12,
+    flexWrap: 'wrap',
+    gap: 8,
   },
-  statsCardBar: {
-    height: 30,
-    width: '100%',
-    borderRadius: 25,
-    marginVertical: 10,
-    overflow: 'hidden',
-  },
-  statsCardBarFill: {
-    height: '100%',
-    marginRight: 'auto',
-  },
-  statsCardNumberText: {
+  cardLabel: {
     fontSize: SIZES.small,
+    opacity: 0.7,
+    textTransform: 'uppercase',
+    includeFontPadding: false,
+  },
+  mainNumber: {
+    fontSize: SIZES.xxLarge,
+    fontWeight: '500',
+    // marginBottom: 12,
+    includeFontPadding: false,
+  },
+  subText: {
+    fontSize: SIZES.smedium,
+    opacity: 0.6,
+    marginBottom: 16,
+    includeFontPadding: false,
+  },
+  progressBarContainer: {
+    height: 25,
+    borderRadius: 15,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 15,
+  },
+  percentageText: {
+    fontSize: SIZES.smedium,
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
+  growthIndicator: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  growthText: {
+    fontSize: SIZES.smedium,
+    fontWeight: '500',
+    opacity: 0.7,
     includeFontPadding: false,
   },
   chartContainer: {
     height: 250,
     flexDirection: 'row',
-    marginTop: 20,
+    marginBottom: 12,
   },
   timeFrameElementsContainer: {
     flexDirection: 'row',
@@ -379,12 +430,5 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
     includeFontPadding: false,
     padding: 10,
-  },
-  sizingText: {
-    fontSize: SIZES.small,
-    fontFamily: FONT.Title_Regular,
-    position: 'absolute',
-    zIndex: -1,
-    opacity: 0,
   },
 });

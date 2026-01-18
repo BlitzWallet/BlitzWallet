@@ -1584,8 +1584,11 @@
         "converstionRate": "{{satAmount}} por {{dollarAmount}}"
       },
       "explorePage": {
-        "timeLeft": "({{time}} restante)",
-        "title": "Downloads Blitz "
+        "timeLeft": "({{time}} restantes)",
+        "title": "Downloads do Blitz",
+        "goalUserCount": "de {{goalUserCount}} usuários.",
+        "percentOfGoal": "{{goalPercent}}% da meta",
+        "numAddedUsers": "+{{numNewUsers}} usuários hoje"
       },
 
       "loadingScreen": {

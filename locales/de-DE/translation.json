@@ -1555,7 +1555,10 @@
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
-        "title": "Blitz-Downloads"
+        "title": "Blitz-Downloads",
+        "goalUserCount": "von {{goalUserCount}} Nutzern.",
+        "percentOfGoal": "{{goalPercent}}% des Ziels",
+        "numAddedUsers": "+{{numNewUsers}} Nutzer heute"
       },
       "loadingScreen": {
         "loadingMessage1": "Bitte schließen Sie die App nicht",

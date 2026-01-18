@@ -1587,10 +1587,12 @@
         "converstionRate": "{{satAmount}} per {{dollarAmount}}"
       },
       "explorePage": {
-        "timeLeft": "({{time}} rimasto)",
-        "title": "Download Blitz"
+        "timeLeft": "({{time}} rimanenti)",
+        "title": "Download di Blitz",
+        "goalUserCount": "su {{goalUserCount}} utenti.",
+        "percentOfGoal": "{{goalPercent}}% dell’obiettivo",
+        "numAddedUsers": "+{{numNewUsers}} utenti oggi"
       },
-
       "loadingScreen": {
         "loadingMessage1": "Non chiudere l'app",
         "loadingMessage2": "Stiamo configurando tutto",

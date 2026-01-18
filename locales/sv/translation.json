@@ -1561,8 +1561,11 @@
         "converstionRate": "{{satAmount}} per {{dollarAmount}}"
       },
       "explorePage": {
-        "timeLeft": "({{time}} vänster)",
-        "title": "Blitz Nedladdningar"
+        "timeLeft": "({{time}} kvar)",
+        "title": "Blitz-nedladdningar",
+        "goalUserCount": "av {{goalUserCount}} användare.",
+        "percentOfGoal": "{{goalPercent}} av målet",
+        "numAddedUsers": "+{{numNewUsers}} användare idag"
       },
       "loadingScreen": {
         "loadingMessage1": "Stäng inte appen, snälla",

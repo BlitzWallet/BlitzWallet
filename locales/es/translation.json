@@ -1419,7 +1419,10 @@
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
-        "title": "Descargas de Blitz"
+        "title": "Descargas de Blitz",
+        "goalUserCount": "de {{goalUserCount}} usuarios.",
+        "percentOfGoal": "{{goalPercent}}% del objetivo",
+        "numAddedUsers": "+{{numNewUsers}} usuarios hoy"
       },
       "loadingScreen": {
         "loadingMessage1": "Por favor no cierres la aplicación",

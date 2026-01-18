@@ -1561,8 +1561,11 @@
         "converstionRate": "{{satAmount}} par {{dollarAmount}}"
       },
       "explorePage": {
-        "timeLeft": "({{time}} left)",
-        "title": "Téléchargements Blitz"
+        "timeLeft": "({{time}} restantes)",
+        "title": "Téléchargements Blitz",
+        "goalUserCount": "sur {{goalUserCount}} utilisateurs.",
+        "percentOfGoal": "{{goalPercent}}% de l’objectif",
+        "numAddedUsers": "+{{numNewUsers}} utilisateurs aujourd’hui"
       },
       "loadingScreen": {
         "loadingMessage1": "Ne fermez pas l'application",

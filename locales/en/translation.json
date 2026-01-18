@@ -1590,7 +1590,11 @@
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
-        "title": "Blitz Downloads"
+        "title": "Blitz Downloads",
+        "__COMMENT__": "Full sentence below = Number of totalUser users",
+        "goalUserCount": "of {{goalUserCount}} users.",
+        "percentOfGoal": "{{goalPercent}}% of goal",
+        "numAddedUsers": "+{{numNewUsers}} users today"
       },
 
       "loadingScreen": {
