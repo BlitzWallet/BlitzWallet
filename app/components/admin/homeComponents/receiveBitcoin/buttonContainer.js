@@ -46,5 +46,6 @@ const styles = StyleSheet.create({
   switchButtonText: {
     fontSize: SIZES.medium,
     textDecorationLine: 'underline',
+    textAlign: 'center',
   },
 });
