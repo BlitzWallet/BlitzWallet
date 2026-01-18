@@ -592,7 +592,7 @@ export default function CreateGift(props) {
     setDescription('');
     simulationPromiseRef.current = null;
     setSimulationResult(null);
-    navigate.setParams({ amount: 0 });
+    navigate.setParams({ amount: 0, amountValue: 0 });
   };
 
   if (confirmData) {
