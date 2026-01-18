@@ -69,7 +69,12 @@ export default function CustomInputHalfModal(props) {
           props.returnLocation,
           {
             amount: !amountValue ? 0 : localSatAmount,
-            amountValue,
+            amountValue: forceUSD
+              ? amountValue
+              : satsToDollars(
+                  localSatAmount,
+                  poolInfoRef.currentPriceAInB,
+                ).toFixed(2),
             type: props?.type,
           },
           {
