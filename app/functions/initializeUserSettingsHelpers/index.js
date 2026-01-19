@@ -113,23 +113,25 @@ export function shouldLoadExploreData(savedExploreRawData, currentServerTime) {
 
     const UTC_MINUS_6_OFFSET = -6;
 
-    // Calculate the next 12 PM UTC-6 after the last update
-    const lastUpdateTimezoneMs =
-      savedExploreRawData.lastUpdated -
-      1000 * 60 * 60 * 12 +
-      UTC_MINUS_6_OFFSET * 60 * 60 * 1000;
-    const lastUpdateDate = new Date(lastUpdateTimezoneMs);
-    lastUpdateDate.setUTCHours(12, 0, 0, 0);
+    const targetTimezoneMs =
+      currentServerTime + UTC_MINUS_6_OFFSET * 60 * 60 * 1000;
+    const targetDate = new Date(targetTimezoneMs);
+    targetDate.setUTCHours(12, 0, 0, 0);
 
-    let next12PMAfterLastUpdate = lastUpdateDate.getTime();
+    const current12PMUtcMinus6 = targetDate.getTime();
 
-    // If last update was after 12 PM on that day, move to next day's 12 PM
-    if (savedExploreRawData.lastUpdated >= next12PMAfterLastUpdate) {
-      next12PMAfterLastUpdate += 24 * 60 * 60 * 1000; // Add one day
-    }
+    console.log(savedExploreRawData, currentServerTime, current12PMUtcMinus6);
 
-    // Check if we've passed the next 12 PM UTC-6 after the last update
-    if (currentServerTime >= next12PMAfterLastUpdate) {
+    console.log(
+      currentServerTime >= current12PMUtcMinus6,
+      savedExploreRawData.lastUpdated < current12PMUtcMinus6,
+    );
+
+    // Check if we've passed 12 PM UTC-6 since last update
+    if (
+      currentServerTime >= current12PMUtcMinus6 &&
+      savedExploreRawData.lastUpdated < current12PMUtcMinus6
+    ) {
       shouldFetchUserCount = true;
     }
   } catch (err) {
