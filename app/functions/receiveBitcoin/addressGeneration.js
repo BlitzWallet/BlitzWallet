@@ -15,6 +15,7 @@ import sha256Hash from '../hash';
 import { createTokensInvoice } from '../spark';
 import {
   BTC_ASSET_ADDRESS,
+  dollarsToSats,
   simulateSwap,
   USD_ASSET_ADDRESS,
 } from '../spark/flashnet';
@@ -76,13 +77,21 @@ export async function initializeAddressProcess(wolletInfo) {
 
     // Lightning
     if (selectedRecieveOption.toLowerCase() === 'lightning') {
-      const realAmount =
+      const userAmount =
         wolletInfo.endReceiveType === 'BTC'
           ? wolletInfo.receivingAmount
           : Math.max(
               wolletInfo.receivingAmount,
               wolletInfo.swapLimits?.bitcoin,
             );
+
+      // hard coding 1,000 here so if swap limits change this becomes irrelevent
+      const realAmount =
+        wolletInfo.endReceiveType === 'BTC'
+          ? userAmount
+          : userAmount === 1000 && !wolletInfo.receivingAmount
+          ? dollarsToSats(1, wolletInfo.poolInfoRef?.currentPriceAInB)
+          : userAmount;
 
       const randomSats =
         wolletInfo.endReceiveType === 'USD'

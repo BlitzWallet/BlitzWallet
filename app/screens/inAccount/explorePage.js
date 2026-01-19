@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   },
   mainNumber: {
     fontSize: SIZES.xxLarge,
-    fontWeight: '500',
+    // fontWeight: '500',
     // marginBottom: 12,
     includeFontPadding: false,
   },
@@ -396,11 +396,11 @@ const styles = StyleSheet.create({
   },
   growthIndicator: {
     alignItems: 'center',
-    paddingVertical: 8,
+    // paddingVertical: 8,
   },
   growthText: {
     fontSize: SIZES.smedium,
-    fontWeight: '500',
+    // fontWeight: '500',
     opacity: 0.7,
     includeFontPadding: false,
   },

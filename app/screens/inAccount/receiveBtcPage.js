@@ -48,7 +48,7 @@ import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
-import { satsToDollars } from '../../functions/spark/flashnet';
+import { dollarsToSats, satsToDollars } from '../../functions/spark/flashnet';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 
@@ -525,6 +525,11 @@ function QrCode(props) {
         : 'lightningAddress'
       : `${selectedRecieveOption.toLowerCase()}Address`;
 
+  const minBTCUSDSwapAmountSat = dollarsToSats(
+    1,
+    poolInfoRef?.currentPriceAInB,
+  );
+
   // const approximateUSDAmount = ` ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination(
   //   {
   //     masterInfoObject: {
@@ -642,7 +647,8 @@ function QrCode(props) {
             !initialSendAmount
               ? t('screens.inAccount.receiveBtcPage.amountPlaceholder')
               : endReceiveType === 'USD' &&
-                initialSendAmount === swapLimits.bitcoin &&
+                initialSendAmount >= minBTCUSDSwapAmountSat * 0.99 &&
+                initialSendAmount <= minBTCUSDSwapAmountSat * 1.01 &&
                 canConvert
               ? t('screens.inAccount.receiveBtcPage.amount_USD_MIN', {
                   swapAmountSat: displayCorrectDenomination({

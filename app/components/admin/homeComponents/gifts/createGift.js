@@ -363,6 +363,9 @@ export default function CreateGift(props) {
 
   const createGift = async () => {
     try {
+      setLoadingMessage(
+        t('screens.inAccount.giftPages.createGift.startProcess1'),
+      );
       if (!convertedSatAmount)
         throw new Error(
           t('screens.inAccount.giftPages.createGift.noAmountError'),
@@ -420,10 +423,6 @@ export default function CreateGift(props) {
       const needsSwap =
         (determinePaymentMethod === 'USD' && giftDenomination === 'BTC') ||
         (determinePaymentMethod === 'BTC' && giftDenomination === 'USD');
-
-      setLoadingMessage(
-        t('screens.inAccount.giftPages.createGift.startProcess1'),
-      );
 
       const giftId = uuidv4();
 
