@@ -704,6 +704,8 @@ export const getLightningPaymentQuote = async (
   mnemonic,
   invoice,
   tokenAddress,
+  integratorFeeRateBps = 100,
+  maxSlippageBps = DEFAULT_MAX_SLIPPAGE_BPS,
 ) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -714,6 +716,8 @@ export const getLightningPaymentQuote = async (
           mnemonic,
           invoice,
           tokenAddress,
+          integratorFeeRateBps,
+          maxSlippageBps,
         },
       );
       return validateWebViewResponse(
@@ -726,6 +730,10 @@ export const getLightningPaymentQuote = async (
       const quote = await client.getPayLightningWithTokenQuote(
         invoice,
         tokenAddress,
+        {
+          integratorFeeRateBps,
+          maxSlippageBps,
+        },
       );
 
       return {

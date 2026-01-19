@@ -48,7 +48,7 @@ export default function ErrorScreen(props) {
           styles.content,
           {
             backgroundColor: theme ? backgroundOffset : backgroundColor,
-            maxHeight: height || 200,
+            // maxHeight: height || 200,
           },
         ]}
       >
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     width: '95%',
     maxWidth: 300,
     borderRadius: 8,
-    maxHeight: 400,
+    maxHeight: '70%',
   },
   headerText: {
     width: '100%',
