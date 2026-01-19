@@ -1585,7 +1585,7 @@
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
-        "title": "Downloads do Blitz",
+        "title": "Downloads",
         "goalUserCount": "de {{goalUserCount}} usuários.",
         "percentOfGoal": "{{goalPercent}}% da meta",
         "numAddedUsers": "+{{numNewUsers}} usuários hoje"
