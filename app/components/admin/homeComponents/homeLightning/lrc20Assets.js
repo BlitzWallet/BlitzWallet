@@ -216,7 +216,8 @@ export default function LRC20Assets() {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: 10,
+          paddingTop: 20,
+          paddingBottom: 10,
           ...CENTER,
         }}
         onPress={toggleExpanded}

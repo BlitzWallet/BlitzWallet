@@ -126,7 +126,7 @@ export function SendRecieveBTNs({
     <View
       style={{
         ...styles.container,
-        marginBottom: isNWCWallet ? 0 : 50,
+        marginBottom: isNWCWallet ? 0 : 30,
       }}
     >
       {buttonElements}
