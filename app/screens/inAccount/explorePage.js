@@ -157,6 +157,8 @@ export default function ExploreUsers() {
   }, [timeFrame, t, formattedCurrentTime]);
 
   useEffect(() => {
+    let mounted = true;
+
     async function loadExploreData() {
       try {
         const pastExploreData = await getLocalStorageItem(
@@ -170,6 +172,7 @@ export default function ExploreUsers() {
         if (masterInfoObject.exploreData && !shouldLoadExporeDataResp) return;
 
         if (!shouldLoadExporeDataResp) {
+          if (!mounted) return;
           toggleMasterInfoObject({ exploreData: pastExploreData.data });
           throw new Error('Blocking call since data is up to date');
         }
@@ -182,6 +185,7 @@ export default function ExploreUsers() {
         );
 
         if (freshExploreData) {
+          if (!mounted) return;
           toggleMasterInfoObject({ exploreData: freshExploreData });
           await setLocalStorageItem(
             'savedExploreData',
@@ -198,6 +202,9 @@ export default function ExploreUsers() {
       }
     }
     loadExploreData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (isLoading) {

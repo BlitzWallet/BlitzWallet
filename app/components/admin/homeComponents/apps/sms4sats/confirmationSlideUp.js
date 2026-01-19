@@ -61,6 +61,7 @@ export default function ConfirmSMSPayment(props) {
   }, [invoiceInformation]);
 
   useEffect(() => {
+    let mounted = true;
     async function fetchInvoice() {
       try {
         const payload = {
@@ -104,6 +105,7 @@ export default function ConfirmSMSPayment(props) {
             t('errormessages.insufficientBalanceError', { planType: 'SMS' }),
           );
         }
+        if (!mounted) return;
         setInvoiceInformation({
           fee: fee.fee,
           supportFee: fee.supportFee,
@@ -113,10 +115,14 @@ export default function ConfirmSMSPayment(props) {
         });
       } catch (err) {
         console.log('Error fetching invoice:', err);
+        if (!mounted) return;
         setError(err.message);
       }
     }
     fetchInvoice();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (error) {

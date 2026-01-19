@@ -33,6 +33,7 @@ export default function ConfirmChatGPTPage(props) {
   const [invoiceInformation, setInvoiceInformation] = useState(null);
 
   useEffect(() => {
+    let mounted = true;
     async function geneateInvoiceAndFee() {
       try {
         let creditPrice = props.price;
@@ -45,6 +46,7 @@ export default function ConfirmChatGPTPage(props) {
           if (!didGetData) throw new Error('Unable to get lnurl data');
           input = { type: InputTypes.LNURL_PAY, data: didGetData };
         } catch (err) {
+          if (!mounted) return;
           setError(t('errormessages.invoiceRetrivalError'));
           return;
         }
@@ -72,6 +74,7 @@ export default function ConfirmChatGPTPage(props) {
             }),
           );
         }
+        if (!mounted) return;
         setInvoiceInformation({
           fee: fee.fee,
           supportFee: fee.supportFee,
@@ -79,8 +82,8 @@ export default function ConfirmChatGPTPage(props) {
         });
       } catch (err) {
         console.log('Error generating invoice and fee for chatGPT:', err);
+        if (!mounted) return;
         setError(err.message);
-        return;
       }
     }
     requestAnimationFrame(() => {
@@ -88,6 +91,9 @@ export default function ConfirmChatGPTPage(props) {
         geneateInvoiceAndFee();
       });
     });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const onSwipeSuccess = useCallback(() => {

@@ -73,6 +73,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
     setUserLocal(removeUserLocal);
   }, [removeUserLocal]);
   useEffect(() => {
+    let mounted = true;
     const fetchListings = async () => {
       try {
         const [shopSavedLocation, res] = await Promise.all([
@@ -89,6 +90,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
           fetchListings();
           reTryCounter.current += 1;
         }
+        if (!mounted) return;
         setData(json);
       } catch (e) {
         console.error('Failed to fetch listings', e);
@@ -97,6 +99,9 @@ export default function ViewOnlineListings({ removeUserLocal }) {
       }
     };
     fetchListings();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Preprocess businesses once (lowercased fields, sorted)
@@ -450,6 +455,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     marginBottom: 30,
+    maxHeight: 100,
   },
   flatList: { flex: 1, width: '95%', alignSelf: 'center' },
   listContent: { paddingTop: 10, paddingBottom: 20 },

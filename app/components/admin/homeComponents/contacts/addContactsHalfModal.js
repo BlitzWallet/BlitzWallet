@@ -103,20 +103,17 @@ export default function AddContactsHalfModal({
         await Promise.all(
           results.map(async savedContact => {
             if (!savedContact) return false;
-            if (
-              savedContact.uniqueName ===
-              globalContactsInformation.myProfile.uniqueName
-            )
+            const uniqueName = savedContact?.uniqueName;
+            const contactUUID = savedContact?.uuid;
+            const hasProfileImage = savedContact?.hasProfileImage;
+            if (uniqueName === globalContactsInformation.myProfile.uniqueName)
               return false;
-            if (!savedContact?.uuid) return false;
+            if (!contactUUID) return false;
 
             let responseData;
 
-            if (
-              savedContact.hasProfileImage ||
-              typeof savedContact.hasProfileImage === 'boolean'
-            ) {
-              responseData = await getCachedProfileImage(savedContact.uuid);
+            if (hasProfileImage || typeof hasProfileImage === 'boolean') {
+              responseData = await getCachedProfileImage(contactUUID);
               console.log(responseData, 'response');
             }
 

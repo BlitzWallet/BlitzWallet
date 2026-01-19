@@ -47,6 +47,7 @@ export default function ConfirmGiftCardPurchase(props) {
   const darkModeType = props?.darkModeTyoe;
 
   useEffect(() => {
+    let mounted = true;
     async function getGiftCardInfo() {
       try {
         const postData = {
@@ -98,6 +99,7 @@ export default function ConfirmGiftCardPurchase(props) {
         const description = decodedInvoice.tags.filter(
           item => item.tagName === 'description',
         );
+        if (!mounted) return;
         setRetrivedInformation({
           countryInfo: countryInfo,
           productInfo:
@@ -112,10 +114,14 @@ export default function ConfirmGiftCardPurchase(props) {
         });
       } catch (err) {
         console.log(err);
+        if (!mounted) return;
         setError(err.message);
       }
     }
     getGiftCardInfo();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const fee =

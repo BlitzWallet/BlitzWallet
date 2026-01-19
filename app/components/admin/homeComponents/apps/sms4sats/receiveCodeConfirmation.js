@@ -49,6 +49,7 @@ export default function ConfirmSMSReceiveCode(props) {
   }, [invoiceInformation]);
 
   useEffect(() => {
+    let mounted = true;
     async function fetchInvoice() {
       try {
         const payload = {
@@ -92,6 +93,7 @@ export default function ConfirmSMSReceiveCode(props) {
           );
         }
         console.log(data);
+        if (!mounted) return;
         setInvoiceInformation({
           fee: fee.fee,
           supportFee: fee.supportFee,
@@ -105,6 +107,7 @@ export default function ConfirmSMSReceiveCode(props) {
         });
       } catch (err) {
         console.log('Error fetching invoice:', err);
+        if (!mounted) return;
         setError(err.message);
       }
     }
@@ -113,6 +116,9 @@ export default function ConfirmSMSReceiveCode(props) {
         fetchInvoice();
       });
     });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (error) {

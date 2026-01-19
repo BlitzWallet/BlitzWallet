@@ -68,7 +68,7 @@ export default function ExpandedContactsPage(props) {
 
   useEffect(() => {
     //listening for messages when you're on the contact
-    async function updateSeenTransactions() {
+    function updateSeenTransactions() {
       const newMessagesList = [];
       let consecutiveSeenCount = 0;
       const REQUIRED_CONSECUTIVE_SEEN = 100;
