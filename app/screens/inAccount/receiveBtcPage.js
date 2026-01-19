@@ -71,6 +71,7 @@ export default function ReceivePaymentHome(props) {
   const userReceiveAmount = props.route.params?.receiveAmount || 0;
   const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
   const { bottomPadding } = useGlobalInsets();
+  const isSharingRef = useRef(null);
 
   const paymentDescription = props.route.params?.description;
   const requestUUID = props.route.params?.uuid;
@@ -192,12 +193,19 @@ export default function ReceivePaymentHome(props) {
       ? selectedRecieveOption?.toLowerCase() +
         `_${endReceiveType?.toLowerCase()}`
       : selectedRecieveOption?.toLowerCase();
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!addressState.generatedAddress) return;
     if (addressState.isGeneratingInvoice) return;
-    Share.share({
-      message: addressState.generatedAddress,
-    });
+    try {
+      isSharingRef.current = true;
+      await Share.share({
+        message: addressState.generatedAddress,
+      });
+    } catch (err) {
+      console.log('Error sharing invoice', err);
+    } finally {
+      isSharingRef.current = false;
+    }
   };
 
   return (
@@ -245,6 +253,7 @@ export default function ReceivePaymentHome(props) {
             endReceiveType={endReceiveType}
             swapLimits={swapLimits}
             poolInfoRef={poolInfoRef}
+            isSharingRef={isSharingRef}
           />
 
           <ButtonsContainer
@@ -396,6 +405,7 @@ function QrCode(props) {
     endReceiveType,
     swapLimits,
     poolInfoRef,
+    isSharingRef,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
@@ -476,6 +486,7 @@ function QrCode(props) {
   const handlePress = () => {
     if (!addressState.generatedAddress) return;
     if (addressState.isGeneratingInvoice) return;
+    if (isSharingRef.current) return;
     copyToClipboard(addressState.generatedAddress, showToast);
   };
 
@@ -498,6 +509,7 @@ function QrCode(props) {
     !!initialSendAmount;
 
   const editAmount = () => {
+    if (isSharingRef.current) return;
     navigate.navigate('EditReceivePaymentInformation', {
       from: 'receivePage',
       receiveType: selectedRecieveOption,
@@ -506,6 +518,7 @@ function QrCode(props) {
   };
 
   const selectReceiveTypeAsset = () => {
+    if (isSharingRef.current) return;
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'SelectReceiveAsset',
       endReceiveType,
@@ -709,6 +722,7 @@ function QrCode(props) {
         iconName={'Copy'}
         actionFunction={() => {
           if (addressState.isGeneratingInvoice) return;
+          if (isSharingRef.current) return;
           // if (isUsingLnurl) editLNURL();
           if (addressState.generatedAddress)
             copyToClipboard(address, showToast);
