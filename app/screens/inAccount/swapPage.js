@@ -1293,6 +1293,9 @@ export default function SwapsPage() {
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={t('screens.inAccount.swapsPage.convertHead')}
+        showLeftImage={true}
+        iconNew="History"
+        leftImageFunction={() => navigate.navigate('ConversionHistory')}
       />
 
       <ScrollView

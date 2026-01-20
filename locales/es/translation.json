@@ -1701,6 +1701,12 @@
         "slippage": "Deslizamiento",
         "slippageDesc": "El deslizamiento es el porcentaje de variación de precio que estás dispuesto a aceptar. Un deslizamiento bajo puede causar fallos en la transacción, mientras que uno alto puede resultar en recibir menos de lo esperado.",
         "auto": "Auto"
+      },
+      "swapHistory": {
+        "loadingSwapHistoryError": "No se pudo cargar el historial de intercambios. Inténtalo de nuevo más tarde.",
+        "noHisotorytitle": "Sin historial de intercambios",
+        "noHisotorydesc": "Tus transacciones de intercambio aparecerán aquí.",
+        "pageTitle": "Historial"
       }
     }
   },

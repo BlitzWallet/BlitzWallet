@@ -80,6 +80,7 @@ import {
   ViewAllTxPage,
   SwapsPage,
 } from '../app/screens/inAccount';
+import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -101,6 +102,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },
   { name: 'ShowProfileQr', component: ShowProfileQr },
   { name: 'SwapsPage', component: SwapsPage },
+  { name: 'ConversionHistory', component: ConversionHistory },
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
   {

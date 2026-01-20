@@ -1874,6 +1874,12 @@
         "slippage": "Slippage",
         "slippageDesc": "Slippage is the percentage of price movement you are willing to accept. Lower slippage may cause transaction failures, while higher slippage may result in receiving a fewer amount than expected.",
         "auto": "Auto"
+      },
+      "swapHistory": {
+        "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",
+        "noHisotorytitle": "No Swap History",
+        "noHisotorydesc": "Your swap transactions will appear here",
+        "pageTitle": "History"
       }
     }
   },
