@@ -122,7 +122,8 @@
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dollar",
     "rate": "Kurs",
-    "swap": "Swap"
+    "swap": "Swap",
+    "paymentDescriptionPlaceholder": "Beskrivning (valfritt)"
   },
   "languages": {
     "english": "English",
@@ -909,7 +910,6 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Förbereda fakturauppgifter",
         "alreadyPaidInvoiceError": "Den här fakturan har redan betalats.",
-        "descriptionPlaceholder": "Betalningsbeskrivning...",
         "fallbackErrorMessage": "Felavkodning av faktura",
         "connectToSparkMessage": "Ansluta till din plånbok.",
         "switchTokenText": "Använd en annan symbol",
@@ -1063,7 +1063,6 @@
       "deleateWarning": "Är du säker på att du vill ta bort den här kontakten? Meddelanden som är äldre än en vecka kan inte återställas."
     },
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Beskrivning av betalning",
       "profileMessage": "Betalning {{name}}",
       "contactMessage": "{{name}} betalade dig",
       "giftCardappVersionError": "Du kan inte skicka ett presentkort till den här kontakten. De har inte uppdaterat till den senaste versionen av Blitz Wallet.",

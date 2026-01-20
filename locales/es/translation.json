@@ -122,7 +122,8 @@
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dólares",
     "rate": "Tasa",
-    "swap": "Swap"
+    "swap": "Swap",
+    "paymentDescriptionPlaceholder": "Descripción (opcional)"
   },
 
   "languages": {
@@ -770,7 +771,6 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparación de detalles de facturas",
         "alreadyPaidInvoiceError": "Esta factura ya ha sido pagada.",
-        "descriptionPlaceholder": "Descripción del pago...",
         "fallbackErrorMessage": "Error al decodificar la factura",
         "connectToSparkMessage": "Conectando a tu billetera.",
         "switchTokenText": "Usar un token diferente",
@@ -924,7 +924,6 @@
       "deleateWarning": "¿Seguro que deseas eliminar este contacto? Los mensajes de más de una semana no se pueden restaurar."
     },
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Descripción del pago",
       "profileMessage": "Pagando {{name}}",
       "contactMessage": "{{name}} te pagó",
       "giftCardappVersionError": "No puedes enviar una tarjeta de regalo a este contacto. No ha actualizado a la última versión de Blitz Wallet.",

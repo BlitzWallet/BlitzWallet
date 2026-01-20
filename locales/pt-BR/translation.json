@@ -122,7 +122,8 @@
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dólares",
     "rate": "Cotação",
-    "swap": "Troca"
+    "swap": "Troca",
+    "paymentDescriptionPlaceholder": "Descrição (opcional)"
   },
 
   "languages": {
@@ -919,7 +920,6 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparando detalhes da fatura",
         "alreadyPaidInvoiceError": "Esta fatura já foi paga.",
-        "descriptionPlaceholder": "Descrição do pagamento...",
         "fallbackErrorMessage": "Erro ao decodificar a fatura",
         "connectToSparkMessage": "Conectando à sua carteira.",
         "switchTokenText": "Usar um token diferente",
@@ -1079,7 +1079,6 @@
     },
 
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Descrição (opcional)",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um cartão-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",

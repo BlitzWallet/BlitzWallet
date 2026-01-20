@@ -13,7 +13,8 @@
     "receive": "Receive",
     "accept": "Accept",
     "total_balance": "Total Balance",
-    "sat_balance": "SAT Balance",
+    "sat_balance": "Bitcoin Balance",
+    "usd_balance": "Dollar Balance",
     "amount": "Amount",
     "sent": "Sent",
     "received": "Received",
@@ -102,19 +103,38 @@
     "selectOption": "Select an option",
     "slideToConfirm": "Slide to confirm",
     "token": "Token",
-    "veriable": "Veriable",
+    "veriable": "Variable",
     "instant": "Instant",
     "andLower": "and",
     "onLower": "on",
     "offLower": "off",
-    "invoice": "Invoice"
+    "recover": "Recover",
+    "search": "Search",
+    "review": "Review",
+    "loadMore": "Load More",
+    "invoice": "Invoice",
+    "annonName": "Anonymous User",
+    "claim": "Claim",
+    "manage": "Manage",
+    "reclaim": "Expired",
+    "optionalFlag": "(Optional)",
+    "gift": "Gift",
+    "bitcoin_upper": "Bitcoin",
+    "dollars_upper": "Dollars",
+    "rate": "Rate",
+    "swap": "Swap",
+    "paymentDescriptionPlaceholder": "Description (optional)"
   },
 
   "languages": {
     "english": "English",
     "spanish": "Español",
     "italian": "Italiano",
-    "portuguese_br": "Português (Brasil)"
+    "portuguese_br": "Português (Brasil)",
+    "german": "Deutsch",
+    "french": "Française",
+    "swedish": "Svenska",
+    "russian": "русский"
   },
 
   "weekdays": {
@@ -179,7 +199,7 @@
     "date": "Date",
     "time": "Time",
     "memo": "Memo",
-    "roostockSwap": "Rootstock to Spark Swap"
+    "roostockSwap": "Rootstock to Spark Transfer"
   },
 
   "createAccount": {
@@ -195,7 +215,7 @@
     },
     "disclaimerPage": {
       "header": "Self-custodial",
-      "subHeader": "Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's terms and conditions.",
+      "subHeader": "Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's Terms and Conditions.",
       "imgCaption": "'With great power comes great responsibility' - Uncle Ben",
       "acceptPrefix": "I accept the ",
       "terms&Conditions": "Terms and Conditions",
@@ -208,13 +228,13 @@
     "keySetup": {
       "generateKey": {
         "header": "This is your password to your money, if you lose it you lose your money!",
-        "subHeader": "Write it down with pen and paper and keep it safe!",
+        "subHeader": "Write it down with a pen and paper and keep it safe!",
         "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
-        "errorText": "Error Fetching seed phrase",
-        "keyGenError": "Not able to generate a valid seed phrase",
+        "errorText": "Error fetching seed phrase",
+        "keyGenError": "Unable to generate a valid seed phrase",
         "seedPrivacyMessage": "Make sure no one is around who can see your screen.",
         "showIt": "Show it",
-        "invalidSeedError": "Not able to generate a valid seed phrase"
+        "invalidSeedError": "Unable to generate a valid seed phrase"
       },
       "pin": {
         "savePinError": "Unable to save pin",
@@ -232,8 +252,8 @@
         "error1": "Please enter all of your seed phrase words.",
         "error2": "This is not a valid seed phrase.",
         "error3": "Your words are not the same as the generated words",
-        "noSeedInString": "Unable to find a seed phrase in string",
-        "invalidWordLen": "Not every word is of valid length",
+        "noSeedInString": "Unable to find a seed phrase in the string",
+        "invalidWordLen": "Not all words are of valid length",
         "cannotFind12Words": "Unable to find 12 words from copied seed phrase.",
         "noSeedInNumberArray": "Unable to find a seed phrase in number array",
         "noSeedInQr": "Unable to get a seed phrase from QR code",
@@ -249,17 +269,18 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "You can’t use your PIN while biometrics are enabled.\n\nWould you like to delete all wallet data? Make sure your seed phrase is backed up.\n",
+      "isBiometricEnabledConfirmAction": "We couldn’t verify your biometrics.\n\nDo you want to delete all wallet data? Only continue if your seed phrase is securely backed up.",
       "wrongPinError": "Wrong PIN, try again",
       "enterPinMessage": "Enter PIN",
-      "attemptsText": "{{attempts}} attempts left"
+      "attemptsText": "{{attempts}} attempts left",
+      "biometricsHeader": "Open with Biometrics"
     }
   },
 
   "apps": {
     "appList": {
       "AI": "AI",
-      "AIDescription": "Chat with the latest generative Ai models",
+      "AIDescription": "Chat with the latest generative AI models",
       "SMS": "SMS",
       "SMSDescription": "Send and receive SMS messages worldwide using Bitcoin",
       "VPN": "VPN",
@@ -267,11 +288,11 @@
       "onlineListings": "Shops",
       "onlineListingsDescription": "Directory of online businesses accepting Bitcoin payments",
       "Soon": "Soon",
-      "SoonDescription": "More apps coming soon"
+      "SoonDescription": "More integrations coming soon"
     },
     "VPN": {
       "VPNPlanPage": {
-        "backupLoadingMessage": "Retriving invoice",
+        "backupLoadingMessage": "Retrieving invoice",
         "countrySearchPlaceholder": "Search by country",
         "createVPNBTN": "Buy VPN",
         "noLocationError": "Please select a country for the VPN to be located in.",
@@ -279,8 +300,8 @@
         "backupPaymentError": "Error paying invoice.",
         "createInvoiceError": "Error creating invoice.",
         "payingInvoiveError": "Error paying invoice.",
-        "runningTries": "Running {{runCount}} for {{maxTries}} tries",
-        "configError": "Not able to get VPN config, please reach out to LNVPN.",
+        "runningTries": "Attempt {{runCount}} of {{maxTries}} attempts",
+        "configError": "Unable to get VPN config. Please reach out to LNVPN.",
         "paymentMemo": "Store - VPN"
       },
       "confirmationSlideUp": {
@@ -303,17 +324,17 @@
         "30": "year"
       },
       "historicalPurchasesPage": {
-        "deleteVPNConfirmMessage": "Are you sure you want to remove this VPN.",
+        "deleteVPNConfirmMessage": "Are you sure you want to remove this VPN?",
         "country": "Country:",
         "createdAt": "Created at:",
         "duration": "Duration:",
         "paymentHash": "Payment Hash:",
         "title": "Purchases",
-        "retryClaim": "Trying to create file",
-        "noPurchases": "You have no VPN configuations",
+        "retryClaim": "Attempting to create file",
+        "noPurchases": "You have no VPN configurations",
         "assistanceText": "For assistance, reach out to LNVPN",
         "noValidCountryCodeError": "Not able to get valid country code",
-        "claimConfigError": "Not able to get VPN config, please reach out to LNVPN.",
+        "claimConfigError": "Unable to get VPN config. Please reach out to LNVPN.",
         "contact": "Contact"
       },
       "home": {
@@ -325,8 +346,8 @@
       },
       "generatedFile": {
         "title": "Wiregurard Config File",
-        "iosDownloadInstructions": "When dowloading, click save to files.",
-        "androidDownloadInstructions": "When dowloading, you will need to give permission to a location where we can save the config file to."
+        "iosDownloadInstructions": "When downloading, click save to Files.",
+        "androidDownloadInstructions": "When downloading, you will need to give permission for a location to save the config file to."
       }
     },
     "chatGPT": {
@@ -334,9 +355,9 @@
       "loadingMessage": "Loading previous chats",
       "addCreditsPage": {
         "title": "Add Credits",
-        "description": "In order to use the latest generative AI models, you must buy credits. Choose an option below to begin.",
+        "description": "In order to use the latest generative AI models, you must purchase credits. Choose an option below to begin.",
         "supportedModels": "Supported Models",
-        "feeInfo": "Depending on the length of your question and response, the number of searches you get might be different. Blitz adds a 150 sat fee + 0.5% of purchase price onto all purchases.",
+        "feeInfo": "Depending on the length of your question and response, the number of searches you get might differ. Blitz adds a 150 sat fee + 0.5% of purchase price onto all purchases.",
         "price": "Price: ",
         "estSearches": "Est. searches: {{num}}",
         "casualPlanTitle": "Casual Plan",
@@ -704,7 +725,7 @@
         "termsAndConditions4": "Privacy policy"
       },
       "expandedGiftCardPage": {
-        "purchasingCardMessage": "Purchasing gift card, do not leave the page.",
+        "purchasingCardMessage": "Purchasing gift card. Do not leave the page.",
         "selectamount": "Select an amount",
         "sendingto": "Sending to: ",
         "minMaxPurchaseAmount": "You can buy a {{min}} amount of {{max}} {{currency}}",
@@ -714,7 +735,7 @@
         "terms": "Terms",
         "cardDescription": "Card Description",
         "cardTerms": "Card terms",
-        "dailyPurchaseAmountError": "You have hit your daily purchase limit",
+        "dailyPurchaseAmountError": "You have reached your daily purchase limit",
         "giftMessage": "Add a note to your gift",
         "giftMessagePlaceholder": "Type your message here",
         "selectForContactBTN": "Select Gift Card",
@@ -737,7 +758,7 @@
 
     "sms4sats": {
       "home": {
-        "pageDescription": "Send and Receive sms messages without giving away your personal phone number.",
+        "pageDescription": "Send and receive SMS messages without giving away your personal phone number.",
         "pricingError": "Unable to get SMS pricing"
       },
       "confirmationSlideUp": {
@@ -757,8 +778,8 @@
         "invalidInputError": "Must have a {{errorTyoe}}",
         "invalidCountryError": "Not a valid country",
         "payingMessage": "Paying...",
-        "runningTries": "Running {{runCount}} for {{maxTries}} tries",
-        "notAbleToSettleInvoice": "Not able to settle invoice.",
+        "runningTries": "Attempt {{runCount}} of {{maxTries}} attempts",
+        "notAbleToSettleInvoice": "Unable to settle invoice.",
         "paymentMemo": "Store - SMS Send"
       },
       "sentPayments": {
@@ -774,14 +795,14 @@
         "fetchOrderError": "Failed to fetch order status",
         "failedUpdate": "Failed to update order status",
         "refundedOrder": "Order has been refunded, funds will automatically return to your wallet after 21 minutes",
-        "reclaimComplete": "Rety complete. If no code is generated, you will be auto-refunded after 21 minutes.",
+        "reclaimComplete": "Retry complete. If no code is generated, you will be auto-refunded after 21 minutes.",
         "noCode": "No code",
         "rateLimitError": "Too many requests. You can only make 5 requests every 30 seconds. Please wait before trying again."
       },
       "receivePage": {
         "paymentMemo": "Store - SMS Receive",
         "selectCountry": "Select Country",
-        "autoSelectInfoMessage": "Choose the country of the phone number you want to use. For the best chance of receiving your code, we recommend keeping it on Auto Select so the system picks the most reliable option.",
+        "autoSelectInfoMessage": "Choose the country of the phone number you want to use. For the best chance of receiving your code, we recommend keeping it on 'Auto Select' so the system picks the most reliable option.",
         "autoSelect": "Auto Select",
         "inputPlaceholder": "Search for a service",
         "loacationLoadingMessage": "Getting location-based services",
@@ -842,7 +863,7 @@
       "settingsText": "Go to settings to let Blitz Wallet access your camera",
       "noCameraDevice": "You do not have a camera device.",
       "noFlash": " Device does not have a torch",
-      "sanningResponse": "Only QRcodes are accepted.",
+      "sanningResponse": "Only QR codes are accepted.",
       "qrDecodeError": "Error decoding QR code"
     },
     "confirmClipboard": {
@@ -853,10 +874,10 @@
     "see_all_txs": "See all transactions",
     "no_transaction_history": "Send or receive a transaction for it to show up here",
     "contactsPage": {
-      "header": "Select recipient",
+      "header": "Select contact",
       "inputTextPlaceholder": "Search username...",
       "subHeader": "All Contacts",
-      "giftsText": "My Gifts"
+      "giftsText": "Gifts from Contacts"
     },
     "cameraPage": {
       "noCameraAccess": "No access to camera",
@@ -868,23 +889,29 @@
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "receive amount",
-        "descriptionInputPlaceholder": "Description..."
+        "descriptionInputPlaceholder": "Description...",
+        "editAmount": "Edit amount",
+        "minUSDSwap": "Payments converted to dollars require a minimum amount of:\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Choose Network",
+        "format": "Other receiving methods",
         "infoMessage": "Custom amounts aren’t supported on Spark or Rootstock payments."
       },
 
       "switchReceiveOptionPage": {
-        "title": "Choose Network",
+        "title": "Receiving methods",
         "actionBTN": "Show {{action}}",
         "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
-        "swapWarning": "{{swapType}} payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the {{swapType}} payment is confirmed.",
-        "unalignedSeeds": "Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.",
-        "rootstockWarningText": "Rootstock payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.",
+        "swapWarning": "{{swapType}} payments will be received into Spark. Payments below {{amount}} won’t be transferred. Funds will only be transferred after the {{swapType}} payment is confirmed.",
         "oneMinute": "~ {{numMins}} minute",
         "tenMinutes": "~ {{numMins}} minutes",
-        "notUsingMainAccountWarning": "Warning: You’re not using your main wallet account. All {{swapType}} swaps will be sent to your main wallet."
+        "notUsingMainAccountWarning": "Warning: You’re not using your main wallet account. All {{swapType}} transfers will be sent to your main wallet.",
+        "sparkDesc": "Instant, Supports Tokens",
+        "sparkTitle": "Spark Address",
+        "bitcoinTitle": "Bitcoin Address",
+        "lightningTitle": "Lightning Invoice",
+        "liquidTitle": "Liquid Address",
+        "rootstockTitle": "Rootstock Address"
       },
       "editLNURLContact": {
         "informationMessage": "Changing your username updates how others find you in Blitz Contacts and your Lightning address (username @blitzwalletapp.com).\n\nA Lightning address lets others easily send you Bitcoin. Just share your address (username@blitzwalletapp.com) to get paid.",
@@ -894,30 +921,37 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparing invoice details",
-        "alreadyPaidInvoiceError": "You have already paid this invoice",
-        "descriptionPlaceholder": "Payment description...",
+        "alreadyPaidInvoiceError": "This invoice has already been paid",
         "fallbackErrorMessage": "Error decoding invoice",
-        "connectToSparkMessage": "Connecting to Spark"
+        "connectToSparkMessage": "Connecting to your wallet.",
+        "switchTokenText": "Use Different Token",
+        "zeroAmountInvoiceDollarPayments": "Zero amount invoices cannot be paid with USD. Please use BTC.",
+        "decodingPayment": "Decoding payment information...",
+        "selectPaymentMethod": "Please select a payment method to continue"
+      },
+      "selectPaymentMethod": {
+        "header": "Please select how you’d like to fund your payment."
       },
       "handlingAddressErrors": {
-        "invlidFormat": "Addresses should be text only. Please check and try again.",
-        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark, on-chain, LNURL, or BOLT11 invoice.",
+        "invlidFormat": "Invalid format: Addresses should be text only. Please check and try again.",
+        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark address, Bitcoin address, or a Lightning address/invoice.",
         "paymentProcessingError": "Error processing payment info",
         "tooLowSendingAmount": "The sending amount is too high to cover the payment and fees. Maximum send amount is {{amount}}",
         "processInputError": "Unable to process input",
         "unkonwDecodeError": "Unknown decoding error occurred",
         "invalidInputType": "Not a valid address type",
-        "expiredLightningInvoice": "This lightning invoice has expired",
-        "lnurlAuthStartMeessage": "Starting LNURL auth",
-        "lnurlFailedAuthMessage": "Failed to authenticate LNURL",
-        "lnurlConfirmMessage": "LNURL successfully authenticated",
-        "lnurlPayInvoiceError": "Unable to retrive invoice from LNURL, please try again.",
-        "lnurlWithdrawlStart": "Generating invoice for withdrawl",
-        "lnurlWithdrawlInvoiceError": "Unable to generate invoice for lnurl withdrawl",
+        "expiredLightningInvoice": "This Lightning invoice has expired",
+        "lnurlAuthStartMeessage": "Starting Lightning login",
+        "lnurlFailedAuthMessage": "Failed to authenticate using Lightning",
+        "lnurlConfirmMessage": "Login successfull",
+        "lnurlPayInvoiceError": "Failed to generate invoice for this Lightning address payment. Please try again.",
+        "lnurlWithdrawlStart": "Generating invoice for withdrawal",
+        "lnurlWithdrawlInvoiceError": "Unable to generate invoice for Lightning withdrawal",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
         "invoiceDetails": "Loading details",
-        "timeoutError": "The process took too long to complete. Please try again."
+        "timeoutError": "The process took too long to complete. Please try again.",
+        "payingToSameAddress": "You cannot send a {{addressType}} payment to yourself"
       },
 
       "errorScreen": {
@@ -940,12 +974,16 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Please enter a send amount",
-        "liquidError": "{{overFlowType}} send amount {{amount}}",
-        "onchainError": "Minimum on-chain send amount is {{amount}}",
-        "lnurlPayError": "{{overFlowType}} send amount {{amount}}",
-        "lrc20FeeError": "You need {{amount}} to send tokens. Your balance is {{balance}}. Please receive some Bitcoin first.",
-        "balanceError": "Not enough funds to cover sending amount and fees"
+        "noSendAmountError": "Please enter an amount to send",
+        "noSwapForBTCPaymentsError": "Bitcoin on-chain payments can only be paid with BTC, not USD. Swaps are not available for on-chain payments.",
+        "balanceFragmentationError": "Your balance is split between BTC and USD. To complete this payment, consolidate your funds or adjust the payment method.",
+        "liquidError": "{{overFlowType}} liquid payment amount is {{amount}}",
+        "onchainError": "Bitcoin on-chain payments require a minimum of {{amount}}",
+        "lnurlPayError": "Payment amount must be between the {{overFlowType}} of {{amount}}",
+        "lrc20FeeError": "You need at least {{amount}} to pay the transaction fee. Current balance: {{balance}}",
+        "balanceError": "Insufficient balance to complete this payment",
+        "swapMinimumError": "{{currency1}} to {{currency2}} swaps require a minimum of {{amount}}",
+        "flashnetOffineError": "Conversions between Dollars and Bitcoin are currently offline. Please try again later."
       }
     },
     "switchOption": {
@@ -966,11 +1004,17 @@
       },
       "manualEnterSendAddress": {
         "title": "Enter in destination",
-        "paymentTypesDesc": "Blitz wallet can send to spark, on-chain, LNURL and BOLT 11 addresses"
+        "paymentTypesDesc": "Blitz Wallet can send to Spark addresses, Bitcoin addresses, and Lightning addresses/invoices"
       },
       "sparkErrorScreen": {
         "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
         "retry": "We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your seed phrase."
+      },
+      "backupSeedWarning": {
+        "header": "Backup Your Seed Phrase",
+        "description": "You have money in your wallet, but you haven’t saved your seed phrase. Your seed phrase is a list of words that unlock your wallet. If you lose this device and don’t have it saved, your money could be gone forever.",
+        "backupBTN": "Backup Now",
+        "laterBTN": "I'll do it later"
       }
     },
     "exportTransactions": {
@@ -980,7 +1024,7 @@
       "txFees": "Transaction Fees (SAT)",
       "amount": "Amount (SAT)",
       "sent/received": "Sent/Received",
-      "title": "Export your payment history in CSV (comma seperated value) format.",
+      "title": "Export your payment history in CSV (comma separated value) format.",
       "paymentsCounter": "{{number}} payments",
       "paymentsCounterTracker": "{{number}} of {{total}}",
       "loadingMessage": "Loading saved transactions"
@@ -989,12 +1033,16 @@
 
   "contacts": {
     "contactsPage": {
+      "contactsHeader": "Contacts",
+      "addContactsText": "Add Contact",
       "searchContactsPlaceholder": "Search added contacts",
       "noContactsMessage": "You have no contacts",
       "editContactProfileMessage": "Edit your profile to begin using contacts.",
       "addContactButton": "Add Contact",
       "editContactButton": "Edit Profile",
-      "unknownSender": "Unknown sender"
+      "unknownSender": "Unknown sender",
+      "noContactSearch": "This contact isn't in your list yet.",
+      "notFound": "not found."
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Not able to find contact.",
@@ -1002,12 +1050,12 @@
       "searchPlaceholder": "Find a contact",
       "lnurlAddMessage": "You are about to add",
       "noProfilesFound": "No profiles match this search",
-      "startTypingMessage": "Search by LNURL (e.g. name@service.com) or Blitz username."
+      "startTypingMessage": "Search by a Lightning address (e.g. name@service.com) or a Blitz username."
     },
 
     "expandedContactPage": {
       "loadingContactError": "Unable to load contact, please try again.",
-      "requestLNURLError": "You can only request money from Blitz contacts, not LNURL addresses.",
+      "requestLNURLError": "You can only request money from Blitz contacts, not Lightning addresses.",
       "noTransactions": "Send or request a payment to see transaction history."
     },
     "expandedMessageHalfModal": {
@@ -1015,27 +1063,27 @@
       "noDescription": "No description"
     },
     "editMyProfilePage": {
-      "navTitle": "Edit Contact Profile",
+      "navTitle": "Edit Profile",
       "nameInputDesc": "Name",
       "nameInputPlaceholder": "Enter your name",
-      "lnurlInputDesc": "LNURL Address",
-      "lnurlInputPlaceholder": "Enter your LNURL address",
+      "lnurlInputDesc": "Lightning Address",
+      "lnurlInputPlaceholder": "Enter your Lightning address",
       "uniqueNameInputDesc": "Username",
       "uniqueNameInputPlaceholder": "Enter your username",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Enter a short bio",
       "addContactBTN": " Add Contact",
-      "unqiueNameRegexError": "You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.",
+      "unqiueNameRegexError": "You can only have letters, numbers, or underscores in your username, and it must contain at least 1 letter.",
       "usernameAlreadyExistsError": "This username already exists, please choose another.",
       "unableToSaveError": "Unable to save profile image, please try again.",
-      "deleteProfileImageError": "Unable to delete profile image, please try again."
+      "deleteProfileImageError": "Unable to delete profile image, please try again.",
+      "deleateWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored."
     },
 
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Payment description",
       "profileMessage": "Paying {{name}}",
       "contactMessage": "{{name}} paid you",
-      "giftCardappVersionError": "You cannot send a gift card to this contact. They have not updated to the latest verison of Blitz Wallet.",
+      "giftCardappVersionError": "You cannot send a gift card to this contact. They have not updated to the latest version of Blitz Wallet.",
       "giftCardDescription": "You sent {{name}} a {{giftCardName}} Gift Card",
       "cardDetailsError": "We couldn’t load your gift card right now. Please try again.",
       "giftCardRange": "Send {{amount}} - {{amount2}}",
@@ -1076,11 +1124,12 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} your request",
         "acceptProfileMessage": "Paid {{name}}'s request",
         "acceptPayingContactMessage": "{{name}} paid your request",
-        "requestTitle": "Received request for "
+        "requestTitle": "Received request for {{amount}}",
+        "send": "Send"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Gift Card",
-        "noCardsText": "Your gift cards will appear here once you receive them",
+        "noCardsText": "Your gift cards will appear here when a contact sends you one.",
         "header": "Your Gift Cards",
         "cardsLenghSingular": "{{num}} card",
         "cardsLenghPlurl": "{{num}} cards"
@@ -1088,23 +1137,39 @@
       "editGiftCard": {
         "header": "What would you like to do with your gift?"
       }
+    },
+    "showProfileQr": {
+      "header": "Share Profile",
+      "lnAddress": "Lightning Address",
+      "blitzContact": "Blitz Contact",
+      "copyMessage": "Copied!",
+      "lnurlCopy": "Copy Address",
+      "blitzCopy": "Copy Link",
+      "scanProfile": "Scan Profile"
     }
   },
 
   "settings": {
+    "index": {
+      "editProfile": "Edit Profile",
+      "showQR": "Show QR",
+      "profileHead": "Profile",
+      "settingsHead": "Settings",
+      "seedPopup": "A seed phrase is a list of words that lets you recover your Bitcoin if your device is lost or damaged. Write it down and store it safely. Never give it to anyone—if someone gets it, they can take all your money."
+    },
     "about": {
       "header1": "Software",
       "text2": "Blitz is a free and open source app under the ",
       "text3": "Apache License",
       "text4": " Version 2.0",
-      "text5": "This is a self-custodial Bitcoin Lightning wallet. Blitz does not have access to your funds, if you lose your seed phrase it may result in a loss of funds.",
+      "text5": "This is a self-custodial Bitcoin Spark wallet compatible with the Lightning Network. Blitz does not have access to your funds, if you lose your seed phrase it may result in a loss of funds.",
       "text6": "Blitz uses ",
       "text7": "Breez Liquid SDK, ",
       "text8": "Spark, ",
       "text9": "and ",
       "text10": "Boltz API.",
       "header2": "Good to know",
-      "text12": "Blitz is a powered by the Spark protocol. Spark is an ",
+      "text12": "Blitz is powered by the Spark protocol. Spark is an ",
       "text13": "off-chain protocol ",
       "text14": "where Spark Operators update the state of Bitcoin ownership off-chain ",
       "text15": "allowing for fast, low-fee, and non-custodial transfers without touching the blockchain.",
@@ -1112,16 +1177,39 @@
       "text17": "Version:",
       "learnMore": "Learn More",
       "webpackVerified": "Webpack Verified",
-      "webpackUnvarified": "Webpack Unvarified",
+      "webpackUnvarified": "Webpack Unverified",
       "showTechnicals": "Show Technical Details",
       "hideTechnicals": "Hide Technical Details",
       "backendHash": "Backend Hash",
-      "expectedHash": "Expected Hash"
+      "expectedHash": "Expected Hash",
+      "blitzWallet": "Blitz Wallet"
     },
     "language": {
       "inputPlaceHolder": ""
     },
     "displayOptions": {
+      "appearance": "Appearance",
+      "theme": "Theme",
+      "light": "Light",
+      "lightsOut": "Lights out",
+      "dim": "Dim",
+      "balDisplay": "Balance Display",
+      "prev": "Preview",
+      "denomination": "Denomination",
+      "displayForm": "Display Format",
+      "homepage": "Homepage",
+      "txToDisplay": "Transactions to Display",
+      "transactionsLabel_15": "15 Transactions",
+      "transactionsLabel_20": "20 Transactions",
+      "transactionsLabel_25": "25 Transactions",
+      "transactionsLabel_30": "30 Transactions",
+      "transactionsLabel_35": "35 Transactions",
+      "transactionsLabel_40": "40 Transactions",
+      "privFeat": "Privacy & Features",
+      "cameraSwipe": "Swipe for camera",
+      "cameraSwipeDesc": "Swipe right on any main screen to open the camera.",
+      "unkownSenders": "Hide Unknown Senders",
+      "unknownSenderDesc": "Hide transactions from unknown contacts",
       "text1": "Dark Mode Style",
       "text2": "Lights out",
       "text3": "Dim",
@@ -1129,17 +1217,25 @@
       "text5": "Current denomination",
       "text6": "Please reconnect to the internet to switch your denomination",
       "text7": "How to display",
-      "text8": "fiat",
+      "fiat": "Fiat",
+      "hidden": "Hidden",
+      "symbol": "Symbol",
+      "word": "Word",
       "text9": "Example",
       "text10": "Home Screen",
       "text11": "Swipe for camera",
       "text12": "Swipe right from the main screen—whether you're on Contacts, Wallet, or the Home page—to quickly open the camera for scanning.",
       "text13": "Displayed Transactions",
       "text14": "Contacts Page",
-      "text15": "Hide Unknown Senders"
+      "text15": "Hide Unknown Senders",
+      "sparkTitle": "BTKN Spark Tokens",
+      "sliderTitle_enabled": "Show BTKN tokens",
+      "thousandsSeperator": "Thousands Separator",
+      "space": "Space",
+      "local": "Local Number Format"
     },
     "fastPay": {
-      "text1": "Error adding inputed value, plase try again.",
+      "text1": "Error adding input value. Please try again.",
       "text2": "Amount cannot be 0",
       "text3": "Enable Fast Pay",
       "text4": "Fast pay threshold (SAT)",
@@ -1150,46 +1246,47 @@
       "text2": "Security Type",
       "text3": "Pin",
       "text4": "Biometric",
-      "text5": "Device does not have a Biometric profile. Create one in settings to continue.",
+      "text5": "Device does not have a Biometric profile. Create one in Settings to continue.",
       "text6": "Error logging in with Biometrics",
       "text7": "Device does not support Biometric login",
       "unsuccesfullLoginSwitch": "Unable to switch login type",
       "toggleSecurityModeError": "Something went wrong while switching your security settings. Please try again.",
       "noBiometricsError": "Device does not support Biometric login",
-      "noBiometricProfileError": "Device does not have a Biometric profile. Create one in settings to continue.",
+      "noBiometricProfileError": "Device does not have a Biometric profile. Create one in Settings to continue.",
       "biometricSignInError": "Error logging in with Biometrics",
       "migratingStorageMessgae": "Migrating storage to new security.",
       "createPinPageHeader": "{{type}} your Blitz PIN",
-      "invalidPinconfirmation": "PIN's do not match. Try again!"
+      "invalidPinconfirmation": "PINs do not match. Try again!",
+      "randomPinKeyboardToggle": "Shuffle Keypad",
+      "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern."
     },
     "seedPhrase": {
       "header": "Keep this seed phrase in a secure and safe place",
       "headerDesc": "Do not share it with anyone!",
-      "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your seed phrase is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
+      "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your seed phrase is convenient but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
       "wordsText": "Words",
       "qrText": "QR Code",
       "showSeedWarning": "Are you sure you want to show your seed phrase?"
     },
     "crashReporting": {
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "crashreporting": "crash reporting",
+      "crashreporting_enabled": "Enabled crash reporting",
+      "crashreporting_disabled": "Disabled crash reporting",
       "descriptionText": "Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version"
     },
 
     "accounts": {
-      "inputPlaceholder": "Account name",
-      "buttonCTA": "Swap Funds"
+      "inputPlaceholder": "Search existing account",
+      "mainWalletPlace": "Main Wallet"
     },
     "resetWallet": {
       "header": "Are you sure?",
       "dataDeleteHeader": "Select data to delete from this device.",
-      "dataDeleteDesc": "Any option that is selected will be removed forever. If your seed phrase is forgotten, you WILL lose your funds.",
-      "seedAndPinOpt": "Delete seed phrase and pin from my device",
-      "localData": "Delete locally stored data from my device",
+      "dataDeleteDesc": "This will delete all wallet data from your device. If you don’t have a copy of your seed phrase saved, you WILL lose access to your funds.",
+      "boxNotChecked": "Please check the box to confirm you want to reset your wallet before resetting.",
+      "seedAndPinOpt": "Delete all data from my device",
       "balanceText": "Your balance is",
-      "localStorageError": "Not able to delete local stored information",
-      "secureStorageError": "Not able to delete secure stored information"
+      "localStorageError": "Unable to delete locally stored information",
+      "secureStorageError": "Unable to delete securely stored information"
     },
     "sparkInfo": {
       "title": "Wallet Info",
@@ -1199,52 +1296,57 @@
     "sparkLrc20": {
       "balanceError": "Your current wallet balance is {{balance}}. Blitz adds a {{fee}} fee to all BTKN payments. Make sure you have some Bitcoin in your wallet to send tokens.",
       "title": "Spark Settings",
-      "sliderTitle": "{{switchType}} BTKN",
-      "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use."
+      "sliderTitle_enabled": "Enabled BTKN",
+      "sliderTitle_disabled": "Disabled BTKN",
+      "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you to send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin-focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.",
+      "selectTokenHeader": "Default Token",
+      "selectTokenInformationPopup": "Choose which token you’d like to use first when sending payments. Don’t worry—you can still change it on the payment page anytime."
     },
     "viewSwapsHome": {
-      "swaps": "Swaps",
+      "swaps": "Network Transfers",
       "selectionTitle": "Choose Network",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "{{type}} Swaps"
+      "flashnet": "BTC <> USD",
+      "pageTitle": "{{type}} Transfers"
     },
 
     "viewRoostockSwaps": {
-      "loadingMessage": "Loading saved Roostock swaps",
-      "noSwapsMessage": "You have no saved Roostock swaps"
+      "loadingMessage": "Loading saved Roostock transfers",
+      "noSwapsMessage": "You have no saved Roostock transfers"
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
       "id": "ID",
-      "swapDetails": "Swap Details",
+      "swapDetails": "Transfer Details",
       "claimAddress": "Claim Address",
       "timeoutBHeight": "Timeout Block Height",
       "expAmount": "Expected Amount",
       "invoice": "Invoice",
-      "refundSwap": "Refund swap"
+      "refundSwap": "Refund transfer"
     },
 
     "viewAllLiquidSwaps": {
       "rescanComplete": "Rescan complete",
-      "swapStartedMessage": "The swap has started. It may take 10–20 seconds for the payment to show up.",
-      "balanceError": "Current liquid balance is {{balance}} but the minimum swap amount is {{swapAmount}}",
-      "loadingMessage": "Getting liquid info",
+      "swapStartedMessage": "The transfer has started. It may take 10–20 seconds for the payment to show up.",
+      "balanceError": "Current Liquid balance is {{balance}} but the minimum transfer amount is {{swapAmount}}",
+      "loadingMessage": "Getting Liquid info",
       "breakdownHead": "Balance Breakdown",
       "incoming": "{{amount}} pending incoming",
       "outgoing": "{{amount}} pending outgoing",
-      "balance": "{{amount}} liquid balance",
+      "balance": "{{amount}} Liquid balance",
       "rescan": "Rescan",
       "totalBalance": "Total Balance",
-      "swapMessage": "Blitz Wallet will try to swap your Liquid funds into Spark when you first load the app or when you receive Liquid payments.\n\nHowever, in some cases a swap might be missed. To move these funds into Spark manually, just click the Swap button below.",
-      "swap": "Swap"
+      "swapMessage": "Blitz Wallet will try to transfer your Liquid funds into Spark when you first load the app or when you receive Liquid payments.\n\nHowever, in some cases a transfer might be missed. To move these funds into Spark manually, just click the Transfer button below.",
+      "swap": "Transfer"
     },
     "notifications": {
-      "mainToggle": "{{state}} notifications",
+      "mainToggle_enabled": "Enabled notifications",
+      "mainToggle_disabled": "Disabled notifications",
       "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
-      "lnurl": "LNURL",
+      "lnurl": "Lightning address",
       "nostrZaps": "Nostr zaps",
       "nwc": "Nostr Wallet Connect",
       "pos": "Point-of-sale"
@@ -1256,17 +1358,22 @@
       "nwcDesc": "Connect your Blitz Wallet to apps using Nostr."
     },
     "fiatCurrency": {
-      "title": "Display Currency",
+      "title": "Currency",
       "placeholderText": "Search currency",
       "saveCurrencyError": "We were unable to save the selected currency, please try again."
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet offers free and open‑source products for the Bitcoin community. \n\nTo help keep the project sustainable, we’ve added a small transaction fee to each payment.\n\nHere’s how those fees are distributed:",
+      "description": "Blitz Wallet provides free and open-source tools for the Bitcoin community.\n\nTo support the long-term sustainability of the project, a small transaction fee will be applied to each payment.\n\nThe breakdown of fees is below.",
       "upTo": "Up To",
       "fixedFee": "Fixed Fee",
       "percent": "Percent",
-      "noLimit": "No limit"
+      "noLimit": "No limit",
+      "transactionType": "Transaction Type",
+      "swapsType": "BTC <> USD Swaps",
+      "swapsFee": "{{poolFee}}% pool fee + {{blitzFee}}% Blitz fee",
+      "othersType": "All other",
+      "othersFee": "Network Fees"
     },
 
     "nip5": {
@@ -1276,9 +1383,9 @@
       "regexError": "Name can only include letters or numbers.",
       "takenNameError": "Name already taken",
       "nameConfirmationMessage": "NIP-05 added successfully! Please note that it may take up to 24 hours to appear, as the list is updated once per day.",
-      "title": "Nip5 Verification",
-      "desc": "Nip5 turns your long Npub into a small email-like address, similar to a lightning address.",
-      "dataIsInvalid": "Something went wrong, please try again,",
+      "title": "NIP-05 Verification",
+      "desc": "NIP-05 turns your long Npub into a small, email-like address, similar to a Lightning address.",
+      "dataIsInvalid": "Something went wrong. Please try again.",
       "usernameInputLabel": "Username",
       "usernameInputPlaceholder": "Satoshi...",
       "publicKeyLabel": "Username",
@@ -1287,7 +1394,7 @@
         "invalidPubKey": "Invalid pubkey: must be a non-empty string",
         "invalidNpub": "Invalid npub format",
         "decodeNpubError": "Failed to decode npub",
-        "invlaidFormat": "Invalid pubkey format: must be either 64-character hex string or npub"
+        "invlaidFormat": "Invalid pubkey format: must be either a 64-character hex string or npub"
       }
     },
     "nwc": {
@@ -1319,7 +1426,7 @@
         "wanringMessage": "To send money from your Nostr Connect wallet, you’ll first need to add funds—either by receiving money or transferring from your main wallet.\n\n You can transfer funds from your main wallet to NWC in the account settings page."
       },
       "noNotifications": {
-        "wanringMessage": "In order to use Nostr Wallet Connect you need to have push notification for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again."
+        "wanringMessage": "In order to use Nostr Wallet Connect you need to have push notifications for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again."
       },
       "showSeedPage": {
         "loadingMessage": "Generating seed phrase",
@@ -1328,18 +1435,26 @@
       }
     },
     "accountComponents": {
+      "homepage": {
+        "addNewAccount": "Add",
+        "swap": "Transfer",
+        "viewSeed": "View seed phrase",
+        "editAccount": "Edit account",
+        "swapAccountError": "You need at least two accounts to make a transfer.",
+        "noAccountsFound": "No accounts match your search."
+      },
       "accountPaymentPage": {
-        "noAmountError": "Please enter an amount to be swapped",
-        "noAccountError": "Please select an account for funds to be swapped from",
-        "noAccountToError": "Please select an account for funds to be swapped to",
-        "loadingFeeError": "Cannot start swap when fee is being calculated",
+        "noAmountError": "Please enter an amount to be transferred",
+        "noAccountError": "Please select an account for funds to be transferred from",
+        "noAccountToError": "Please select an account for funds to be transferred to",
+        "loadingFeeError": "Cannot start transfer when fee is being calculated",
         "alreadyStartedTransferError": "A transfer has already been started",
         "balanceError": "Sending amount is greater than your balance and fees",
-        "noSendAddressError": "Not able to get transfer address",
-        "noAccountInformation": "Not able to get account information",
-        "title": "Swap",
+        "noSendAddressError": "Unable to get transfer address",
+        "noAccountInformation": "Unable to get account information",
+        "title": "Transfer",
         "selectAccount": "Select Account",
-        "inputPlaceHolderText": "Account Swap"
+        "inputPlaceHolderText": "Account Transfer"
       },
       "createAccountPage": {
         "alreadyUsingSeedError": "This seed phrase already exists for another account",
@@ -1385,10 +1500,10 @@
         "updateContactMessage": "The recipient needs to update their Blitz app to get paid.",
         "payingMessage": "Paying...",
         "notifyngMessage": "Notifiying...",
-        "errorPaying": "Unable to pay blitz contact. Try again later.",
-        "invalidName": "Name is not an LNURL or a Blitz user.",
+        "errorPaying": "Unable to pay Blitz contact. Try again later.",
+        "invalidName": "Name is not a Lightning Address or a Blitz user.",
         "removeEmployeeWarning": "Are you sure you want to remove this employee?",
-        "startingPaymentProcessMessage": "'Begining payment process, please do not leave this page or the app.",
+        "startingPaymentProcessMessage": "Begining payment process, please do not leave this page or the app.",
         "goBack": "Go back",
         "lastSale": "Last sale:",
         "numTipsPaid": "Tips paid:",
@@ -1400,6 +1515,7 @@
         "unpaidtips": "Tips: {{number}}",
         "title": "Tips to pay",
         "empNamePlaceholder": "Employee name",
+        "noEmployees": "You currently don’t have any employees with saved tips. Once an employee uses the point-of-sale, their tips will appear here so you can pay them.",
         "noTips": "Employee has no tips"
       },
       "items": {
@@ -1448,27 +1564,37 @@
         "shopTitle": "Shop with Bitcoin",
         "shopDescription": "Buy gift cards from thousands of different merchants around the world",
         "callToAction": "Anything you want here?",
-        "featuredApps": "Anything you want here?"
+        "featuredApps": "Anything you want here?",
+        "comingSoon": "This feature is temporarily unavailable. We're working to restore it as soon as possible."
       },
 
       "confirmTxPage": {
         "failedToSend": "Failed to send",
-        "confirmMessage": "{{direction}} succesfully",
+        "confirmMessage": "{{direction}} successfully",
         "paymentErrorMessage": "There was an issue sending this payment, please try again.",
         "sendReport": "Send report to developer",
         "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in.",
         "emailReport": "Send via Email",
-        "copyReport": "Copy to Clipboard"
+        "copyReport": "Copy to Clipboard",
+        "confirmMessage_sent": "Sent successfully",
+        "confirmMessage_received": "Received successfully"
       },
       "expandedTxPage": {
-        "confirmMessage": "{{direction}} amount",
+        "confirmMessage_sent": "Sent amount",
+        "confirmMessage_received": "Received amount",
         "paymentStatus": "Payment status",
         "confReqired": "Confs required",
-        "detailsBTN": "Technical details"
+        "detailsBTN": "Technical details",
+        "contactPaymentType": "Contact",
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
-        "title": "Blitz Downloads"
+        "title": "Blitz Downloads",
+        "__COMMENT__": "Full sentence below = Number of totalUser users",
+        "goalUserCount": "of {{goalUserCount}} users.",
+        "percentOfGoal": "{{goalPercent}}% of goal",
+        "numAddedUsers": "+{{numNewUsers}} users today"
       },
 
       "loadingScreen": {
@@ -1477,24 +1603,49 @@
         "loadingText": "We're setting things up. Hang tight! This could take up to  a minute.",
         "dbInitError": "Unable to open the database. Please try again.",
         "userSettingsError": "Unable to load user settings. Please try again.",
-        "liquidWalletError": "Wallet information was not set properly, please try again.",
-        "liquidWalletError2": "We were unable to set up your wallet. Please try again."
+        "liquidWalletError": "Wallet information was not set properly. Please try again.",
+        "liquidWalletError2": "We were unable to set up your wallet. Please try again.",
+        "dbInitError1": "We’re unable to set up your app.",
+        "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your seed phrase."
       },
 
       "receiveBtcPage": {
-        "onchainFeeMessage": "On-chain payments have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
-        "liquidFeeMessage": "Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
-        "rootstockFeeMessage": "Rootstock payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
-        "generatingInvoice": "Generating Invoice"
+        "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and a 0.1% Spark fee.\n\nIf you send money to yourself, you'll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you'll only pay the network fee once to claim it.",
+        "liquidFeeMessage": "Payments received to Liquid addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
+        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
+        "lightningConvertMessage": "Receiving dollars from Lightning requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is:\n{{satExchangeRate}}.",
+        "generatingInvoice": "Generating Invoice",
+        "amountPlaceholder": "Any amount",
+        "receiveAsHeader": "Receive as",
+        "receiveAs_spark_BTC": "Bitcoin or Tokens",
+        "receiveAs_lightning_BTC": "Keep in Bitcoin",
+        "receiveAs_spark_USD": "Dollars",
+        "receiveAs_lightning_USD": "Convert to dollars",
+        "amount_USD_MIN": "Min {{swapAmountSat}}",
+        "invoiceDescription_lightningInvoice": "Lightning invoice",
+        "invoiceDescription_lightningAddress": "Lightning address",
+        "invoiceDescription_bitcoinAddress": "Bitcoin address",
+        "invoiceDescription_liquidAddress": "Liquid address",
+        "invoiceDescription_sparkAddress": "Spark address",
+        "invoiceDescription_rootstockAddress": "Rootstock address",
+        "header_lightning_btc": "Bitcoin via Lightning",
+        "header_lightning_usd": "Dollars via Lightning",
+        "header_bitcoin": "Bitcoin",
+        "header_spark_btc": "Bitcoin/Tokens via Spark",
+        "header_spark_usd": "Dollars via Spark",
+        "header_liquid": "Bitcoin via Liquid",
+        "header_rootstock": "Bitcoin via Rootstock",
+        "selectReceiveAssetHead": "Select the currency to receive",
+        "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion."
       },
 
       "settingsContent": {
         "about": "About",
         "language": "Language",
-        "display currency": "Display Currency",
+        "display currency": "Currency",
         "display options": "Display Options",
         "edit contact profile": "Edit Contact Profile",
-        "view all swaps": "Swaps",
+        "view all swaps": "Network Transfers",
         "fast pay": "Fast Pay",
         "blitz fee details": "Blitz Fee Details",
         "crash reports": "Crash Reports",
@@ -1507,6 +1658,7 @@
         "spark info": "Spark Info",
         "delete wallet": "Delete Wallet",
         "general": "General",
+        "preferences": "Preferences",
         "security": "Security",
         "technical settings": "Technical Settings",
         "experimental features": "Experimental Features",
@@ -1516,7 +1668,7 @@
       },
       "technicalTransactionDetails": {
         "txHash": "Transaction Hash",
-        "paymentId": "Payment Id",
+        "paymentId": "Payment ID",
         "preimage": "Payment Preimage",
         "address": "Payment Address",
         "bitcoinTxId": "Bitcoin Txid",
@@ -1540,13 +1692,204 @@
         "maxSupply": "Max Supply",
         "tokenTicker": "Token Ticker",
         "tokenPubKey": "Token Public Key"
+      },
+      "giftPages": {
+        "expired": "Expired",
+        "lessThanMin": "Less than a minute left",
+        "timeLeft": {
+          "days_one": "{{count}} day left",
+          "days_other": "{{count}} days left",
+          "hours_one": "{{count}} hour left",
+          "hours_other": "{{count}} hours left",
+          "minutes_one": "{{count}} minute left",
+          "minutes_other": "{{count}} minutes left"
+        },
+        "shareMessage": "You've received a {{amount}} gift! Claim it here:\n{{link}}",
+        "fundGiftMessage": "Creating Gift",
+        "reclaimGiftMessage": "Reclaiming Gift",
+
+        "giftsHome": {
+          "title": "Blitz Gifts"
+        },
+
+        "giftsOverview": {
+          "noGiftsHead": "No gifts yet",
+          "noGiftsDesc": "Create your first gift to share Bitcoin or Dollars with friends and family",
+          "createGift": "Create Gift",
+          "claimed": "Claimed",
+          "expired": "Expired",
+          "unclaimed": "Unclaimed",
+          "reclaimed": "Reclaimed"
+        },
+
+        "createGift": {
+          "noAmountError": "Please enter an amount to create your gift.",
+          "connectError": "We couldn’t set up your gift wallet. Please try again.",
+          "addressError": "We couldn’t get the address for your gift wallet.",
+          "saveError": "We couldn’t save your gift. Please try again.",
+          "fundError": "We couldn’t add funds to your gift.",
+          "startProcess1": "Preparing your gift…",
+          "startProcess2": "Setting things up…",
+          "startProcess3": "Adding funds to your gift…",
+          "header": "Create Gift",
+          "inputPlaceholder": "Add a message or note...",
+          "button": "Create Gift",
+          "disclaimer": "When you create a gift, the money stays locked for {{numDays}} days. If no one claims it by then, you can go to the reclaim page to get it back.",
+          "durationText": "{{numDays}} days",
+          "type": "Type"
+        },
+
+        "giftConfirmation": {
+          "header": "Gift Created!",
+          "whatToDo": "Share this gift with anyone using the QR code or link below",
+          "details": "Gift Details",
+          "expire": "Expires",
+          "giftLink": "Gift Link",
+          "shareGift": "Share Gift",
+          "createAnother": "Create Another",
+          "done": "Done"
+        },
+        "claimHome": {
+          "header": "Enter gift link",
+          "desc": "Paste the gift link you received or scan the QR code to claim your gift",
+          "inputPlaceholder": "Enter gift link",
+          "claim": "Claim",
+          "noGiftLinkError": "We couldn’t find a gift link. Please scan or paste the link you received.",
+          "invliadGiftFormat": "Invalid gift link. Please copy the full link and try again."
+        },
+        "reclaimPage": {
+          "header": "Reclaim your gift",
+          "desc": "Enter or choose the gift ID to return an unclaimed, expired gift to your wallet.",
+          "inputPlaceholder": "Enter gift ID",
+          "dropdownPlaceHolder": "Select Expired Gift",
+          "button": "Reclaim Gift",
+          "noReclaimsMessage": "You have no expired gifts right now. Come back after a gift has expired to reclaim it.",
+          "advancedModeBTN": "Advanced Mode"
+        },
+        "advancedMode": {
+          "header": "Advanced Mode",
+          "currentIndexHead": "Current Gift Index",
+          "infoHead": "How Blitz Gifts Work",
+          "infoDesc1": "Blitz gifts use separate wallets created from your main wallet. This lets you recover unclaimed funds while keeping your main wallet protected.",
+          "infoDesc2": "Most expired gifts can be reclaimed on the regular reclaim page. If a gift wasn’t fully received or the normal reclaim option doesn’t work, you can use this page to select a specific gift and check if any money is still left.",
+          "inputHead": "Enter Gift Number",
+          "invalidGiftNum": "Please enter a valid gift number between 1 and {{currentGiftIndex}}",
+          "restoreGiftBTN": "Restore Gift",
+          "advancedWarning": "This advanced feature should only be used when the standard reclaim process doesn't work. If you're unsure, try the normal reclaim page first."
+        },
+        "claimPage": {
+          "parseError": "We couldn’t read the gift details from this link.",
+          "noGiftForReclaim": "We couldn’t find this gift. It may have already been claimed.",
+          "expiredOrClaimed": "This gift has already been claimed or has expired.",
+          "noGiftSeed": "We couldn’t reach the gift right now. Please try again later.",
+          "giftWalletInitError": "We were unable to reach the gift. Please try again later.",
+          "noBalanceErrorReclaim": "There are no funds left to reclaim from this gift.",
+          "notExpired": "You cannot reclaim this gift yet.",
+          "nobalanceError": "We couldn’t find an amount for this gift. Please try again later, or try restoring the gift.",
+          "nobalanceErrorExpert": "There’s no amount available to restore for this gift.",
+          "balanceMismatchError": "There was an issue getting the gift amount. Please try again.",
+          "paymentError": "We couldn’t claim the gift. Please try again.",
+          "claimHead": "Accept Gift",
+          "reclaimHead": "Refund Gift",
+          "claimLoading": "Claiming your gift… please stay in the app.",
+          "reclaimLoading": "Returning your funds… please stay in the app.",
+          "claimAmountHead": "Receiving amount",
+          "reclaimAmountHead": "Amount Restored",
+          "reclaimAmountHeadExpert": "Gift Number Restored",
+          "networkFeeWarningExpert": "Any amount found, minus network fees, will be added to your balance",
+          "networkFeeWarning": "This amount, minus network fees, will be added to your balance",
+          "buttonTextClaiming": "Claiming",
+          "reclaimButton": "Reclaim Gift",
+          "claimButton": "Accept Gift",
+          "confirmMessage": "Your gift has been claimed, and you will receive your funds shortly",
+          "defaultDesc": "Blitz Gift",
+          "claimingGiftMessage1": "Preparing Gift...",
+          "giftBalanceMessage_0": "Just a moment while we get things ready...",
+          "giftBalanceMessage_1": "We’re gathering your gift information...",
+          "giftBalanceMessage_2": "Almost there—please keep the app open...",
+          "giftBalanceMessage_3": "Finishing up the last steps...",
+          "claimingGiftMessage4": "Claiming Gift..."
+        }
+      },
+      "swapsPage": {
+        "noPoolFoundBackup": "BTC/USDB pool not found",
+        "loadPoolError": "Failed to load pool information",
+        "noPoolsFoundError": "No pools found for {{tokenAAddress}}/{{tokenBAddress}}",
+        "highPriceImpact": "High price impact: {{priceImpact}}",
+        "slippageError": "Price moved too much. Try increasing slippage tolerance.",
+        "noLiquidity": "Not enough liquidity. Try a smaller amount or different pool.",
+        "authenticationError": "Authentication failed. Please reconnect.",
+        "noPoolError": "Pool does not exist.",
+        "automaticRecovery": "Funds recovered automatically.",
+        "semiRecovered": "Some funds need manual recovery.",
+        "willRecover": "Funds will be returned automatically.",
+        "failedSimulation": "Simulation failed",
+        "swapAmountCalculatorFailed": "'Failed to calculate swap amount",
+        "invalidAmount": "Please enter a valid amount",
+        "priceImpact": "Price Impact: {{impact}}%\n Do you still want to swap?",
+        "swapFailedBackupError": "Swap failed",
+        "swapAutomaticRecovery": "\n\nYour funds have been automatically recovered.",
+        "swapPartialRecovery": "\n\nSome funds recovered automatically ({{count}}).",
+        "swapFutureRecovery": "\n\nYour funds will be automatically refunded.",
+        "swapSlippageError": "\n\nTry increasing slippage tolerance or waiting for better market conditions.",
+        "swapLiquidityError": "\n\nTry swapping a smaller amount or waiting for more liquidity.",
+        "fullSwapError": "An unexpected error occurred during the swap. Please try again.",
+        "checkSwapMessage": "High price impact",
+        "__COMMENT__": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
+        "swapConfimred": "Swap Successful",
+        "youSent": "You sent",
+        "youReceived": "You received",
+        "newSwap": "New Swap",
+        "loadingPool": "Loading swap information...",
+        "fromBalance": "I have {{amount}}",
+        "fromBalanceHidden": "I have",
+        "toBalance": "I want",
+        "min": "MIN",
+        "half": "HALF",
+        "max": "MAX",
+        "swappingMessageButton": "Swapping...",
+        "loadingMessageButton": "Loading...",
+        "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
+        "swapDisclaimer": "Swap services are available through third-party API providers.",
+        "serviceUnavailableHead": "Service Unavailable",
+        "serviceUnavailableDesc": "Unable to connect to swap service. Please check your connection and try again.",
+        "swapDirection_usdbtc": "USD → BTC",
+        "swapDirection_btcusd": "BTC → USD",
+        "paymentDescription_outgoing": "{{swapDirection}}",
+        "paymentDescription_incoming": "{{swapDirection}}",
+        "yourAreConverting": "You are converting",
+        "youWillReceive": "You will receive",
+        "bitcoinPrice": "Bitcoin Price",
+        "swapFee": "Swap Fee",
+        "exchangeRate": "Exchange Rate",
+        "minBTCError": "Minimum BTC amount is {{min}}. Please increase the amount to continue.",
+        "minUSDError": "Minimum USD amount is {{min}}. Please increase the amount to continue.",
+        "simulationError": "We couldn’t calculate this swap right now. Please try again.",
+        "swapInProgressError": "A swap is already in progress. Please wait.",
+        "insufficientBalance": "The amount is greater than your available balance. Please enter a smaller amount.",
+        "simulationInProgress": "Please wait, the swap is still being calculated.",
+        "convertHead": "Convert",
+        "percentConvertSelector": "% to convert",
+        "slippage": "Slippage",
+        "slippageDesc": "Slippage is the percentage of price movement you are willing to accept. Lower slippage may cause transaction failures, while higher slippage may result in receiving a fewer amount than expected.",
+        "auto": "Auto"
+      },
+      "swapHistory": {
+        "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",
+        "noHisotorytitle": "No Swap History",
+        "noHisotorydesc": "Your swap transactions will appear here",
+        "pageTitle": "History"
       }
     }
   },
 
   "toastmessages": {
     "confirmCopy": "Copied to clipboard",
-    "failedCopy": "Failed to copy"
+    "failedCopy": "Failed to copy",
+    "handleSwap": {
+      "title": "Swap payment received",
+      "desc": "Your balance will update shortly"
+    }
   },
 
   "errormessages": {
@@ -1562,42 +1905,46 @@
     "requestError": "There was an error with the request, please try again.",
     "invoiceRetrivalError": "There was an error retrieving the invoice, please try again.",
     "payingInvoiceError": "There was an error paying the invoice, please try again.",
-    "noMailAppsFoundError": " No mail apps found on your device. Please install a mail app to use this feature.",
-    "retriveingPhotoesError": " There was an error retrieving photos, please try again.",
-    "clipboardContentError": "No data in clipboard",
+    "noMailAppsFoundError": "No mail apps found on your device. Please install a mail app to use this feature.",
+    "retriveingPhotoesError": "There was an error retrieving photos, please try again.",
+    "clipboardContentError": "No data in the clipboard",
     "userDataFetchError": "Unable to get user from database.",
-    "updateContactMessageError": "There was a problem updating this message, please try again.",
-    "declinePaymentError": "There was a problem declining this payment, please try again.",
-    "payingContactError": "We were not able to get the contacts address, please try again.",
-    "noUserFoundDeeplinkError": "Not able to find any user for this username.",
+    "updateContactMessageError": "There was a problem updating this message. Please try again.",
+    "declinePaymentError": "There was a problem declining this payment. Please try again.",
+    "payingContactError": "We were unable to get the contact's address. Please try again.",
+    "noUserFoundDeeplinkError": "Unable to find any user for this username.",
     "cannotAddSelfError": "You cannot add yourself as a contact.",
-    "fullDeeplinkError": "Unable to retrive contact information, please try again.",
+    "fullDeeplinkError": "Unable to retrieve contact information. Please try again.",
     "processingDeepLinkError": "Failed to process link: {{error}}",
-    "legacyContactError": "Contact has not updated thier wallet yet. Please ask them to update their wallet to send this.",
-    "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid LNURL address.",
-    "explorePagenoDataError": "We were unable to retrive Blitz user count.",
+    "legacyContactError": "Contact has not updated their wallet yet. Please ask them to update their wallet to send this.",
+    "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid Lightning address.",
+    "explorePagenoDataError": "We were unable to retrieve Blitz user count.",
     "savingFileError": "Error saving file to document",
     "savingFilePermissionsError": "Error getting permissions",
     "writtingFileError": "Error writing file to filesystem",
     "createTransactionsFileError": "Unable to create transaction file",
-    "noQrInScanError": "Not able to get find QRcode from image.",
-    "noDataInQRError": "Not able to get find data from image.",
-    "noInvoiceInImageError": "Not able to get invoice from image.",
-    "savingImageError": "Unable to save image, pleae try again.",
+    "noQrInScanError": "Unable to find QR code in image.",
+    "noDataInQRError": "Unable to find data in image.",
+    "noInvoiceInImageError": "Unable to get invoice from image.",
+    "savingImageError": "Unable to save image. Please try again.",
     "invalidSeedError": "Did not enter a valid seed phrase",
-    "invalidSeedWordLengthErorr": "Not every word is of valid length",
+    "invalidSeedWordLengthErorr": "Not all words are of valid length",
     "invalidSeedLengthError": "Unable to find 12 words from copied seed phrase.",
     "noGooglePlay": "Google Play Services are required to receive notifications.",
-    "noNotificationPermission": "Blitz doesn’t have notification permissions. Enable them in settings to use notifications.",
+    "noNotificationPermission": "Blitz doesn’t have notification permissions. Enable them in Settings to use notifications.",
     "rootstockInvoiceError": "There was a problem generating your Rootstock address. Please try again.",
     "liquidInvoiceError": "There was a problem generating your Liquid address. Please try again.",
     "bitcoinInvoiceError": "There was a problem generating your Bitcoin address. Please try again.",
     "sparkInvioceError": "There was a problem generating your Spark address. Please try again.",
-    "lightningInvoiceError": "There was a problem generating your Lightning address. Please try again.",
+    "lightningInvoiceError": "There was a problem generating your Lightning invoice. Please try again.",
     "sparkConnectionError": "Spark connection failed. Please try again.",
-    "giftCardExpiration": "Gift cards can only be recovered for 7 days after they are sent. If this app is deleted or local storage is cleared after that time, your gift cards will be lost. Be sure to save the claim links or gift card codes somewhere safe.",
+    "giftCardExpiration": "Gift cards can only be recovered for 7 days after they are sent. If this app is deleted or local storage is cleared after that time, your gift cards will be lost. Be sure to save the claim links or gift card codes in a safe place.",
     "receivedRootstock": "Rootstock payment received — your swap is starting. It may take up to a minute, so please keep the app open.",
-    "receivedLiquid": "Liquid payment received — your swap is starting. It may take up to a minute, so please keep the app open."
+    "receivedLiquid": "Liquid payment received — your swap is starting. It may take up to a minute, so please keep the app open.",
+    "invalidData": "The data you entered isn’t valid",
+    "paymentError": "Something went wrong while processing your payment. Please try again. If it still doesn’t work, close the app and reopen it before trying again.",
+    "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again.",
+    "priceImpact": "This payment is large, so the final amount you receive in Dollars may change."
   },
 
   "loadingScreen": {
@@ -1611,9 +1958,12 @@
       "depositLabel": "Deposit address payment"
     }
   },
+  "share": {
+    "contact": "Hi, add me on Blitz!"
+  },
 
   "swapMessages": {
-    "liquid": "Liquid to Spark Swap"
+    "liquid": "Liquid to Spark Transfer"
   },
   "tabs": {
     "home": "Wallet",
@@ -1621,6 +1971,10 @@
     "contacts": "Contacts"
   },
   "pushNotifications": {
+    "paymentReceived": {
+      "title": "Payment received",
+      "body": "You received {{totalAmount}}"
+    },
     "LNURL": {
       "zapped": "You were zapped {{totalAmount}}",
       "regular": "You just received {{totalAmount}}"
@@ -1632,5 +1986,49 @@
       "payment": "{{name}} paid you {{amount}}",
       "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
     }
+  },
+
+  "flashnetUserMessages": {
+    "FSAG-1000": "The request failed validation checks.",
+    "FSAG-1001": "A required field is missing from your request.",
+    "FSAG-1002": "One or more fields have an invalid format.",
+    "FSAG-1003": "A value is outside the acceptable range.",
+    "FSAG-1004": "This value already exists and must be unique.",
+
+    "FSAG-2001": "Your request signature could not be verified.",
+    "FSAG-2002": "The token identity doesn't match the expected public key.",
+    "FSAG-2003": "Authentication is required for this operation.",
+    "FSAG-2004": "Your session has expired or the token is invalid.",
+    "FSAG-2005": "The request nonce is invalid or has already been used.",
+    "FSAG-2101": "The provided public key is invalid.",
+
+    "FSAG-3001": "A temporary service issue occurred. Please try again.",
+    "FSAG-3002": "A temporary service issue occurred. Please try again.",
+    "FSAG-3101": "A database error occurred. Please try again.",
+    "FSAG-3201": "The settlement service is temporarily unavailable.",
+    "FSAG-3201T1": "The settlement service is temporarily unavailable.",
+    "FSAG-3201T2": "The settlement request timed out.",
+    "FSAG-3202": "A dependent service is temporarily unavailable.",
+    "FSAG-3301": "The AMM processor couldn't receive your request.",
+    "FSAG-3302": "The AMM processor timed out while processing your request.",
+    "FSAG-3401": "An internal processing error occurred.",
+    "FSAG-3402": "An internal processing error occurred.",
+
+    "FSAG-4001": "The specified pool does not exist.",
+    "FSAG-4002": "The specified host namespace does not exist.",
+    "FSAG-4101": "Your authentication session was not found or has expired.",
+    "FSAG-4102": "The authentication flow was not followed correctly.",
+    "FSAG-4201": "The pool doesn't have enough liquidity to complete this swap.",
+    "FSAG-4202": "The price moved more than your allowed slippage tolerance.",
+    "FSAG-4203": "This operation cannot be performed while the pool is in its current phase.",
+    "FSAG-4204": "You don't have enough LP tokens to complete this withdrawal.",
+    "FSAG-4301": "The fee configuration is invalid.",
+    "FSAG-4401": "This Spark transfer has already been used in an operation.",
+
+    "FSAG-5001": "An internal error occurred while processing your request.",
+    "FSAG-5002": "This feature is not yet available.",
+    "FSAG-5003": "An internal error occurred. Please contact support if this persists.",
+    "FSAG-5004": "A system configuration error occurred.",
+    "FSAG-5100": "An unexpected error occurred on the server."
   }
 }
