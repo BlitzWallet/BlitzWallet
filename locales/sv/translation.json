@@ -1605,7 +1605,8 @@
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Välj tillgång att ta emot",
-        "usd_convert_warning": "Det slutliga beloppet du får kan variera på grund av marknadsprisförändringar under konverteringen."
+        "usd_convert_warning": "Det slutliga beloppet du får kan variera på grund av marknadsprisförändringar under konverteringen.",
+        "editDescriptionHead": "Vad vill du säga?"
       },
       "settingsContent": {
         "about": "Om",

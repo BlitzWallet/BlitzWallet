@@ -26,6 +26,7 @@ export default function CustomSearchInput({
   shouldDelayBlur = true,
   autoCapitalize = 'none',
   editable = true,
+  autoFocus = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
@@ -161,6 +162,7 @@ export default function CustomSearchInput({
         </View>
       )}
       <TextInput
+        autoFocus={autoFocus}
         keyboardAppearance={keyboardAppearance}
         placeholder={''}
         placeholderTextColor={placeholderTextColorStyles}
