@@ -980,7 +980,8 @@
         "lnurlPayError": "O valor do pagamento deve estar dentro do {{overFlowType}} de {{amount}}",
         "lrc20FeeError": "Você precisa de pelo menos {{amount}} para pagar a taxa da transação. Saldo atual: {{balance}}",
         "balanceError": "Saldo insuficiente para concluir este pagamento",
-        "swapMinimumError": "Trocas de {{currency1}} para {{currency2}} exigem um mínimo de {{amount}}"
+        "swapMinimumError": "Trocas de {{currency1}} para {{currency2}} exigem um mínimo de {{amount}}",
+        "flashnetOffineError": "As conversões entre dólares e Bitcoin estão temporariamente indisponíveis. Tente novamente mais tarde."
       }
     },
     "switchOption": {

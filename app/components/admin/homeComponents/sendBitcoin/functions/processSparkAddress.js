@@ -91,6 +91,18 @@ export default async function processSparkAddress(input, context) {
         ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
           bitcoinBalance >= amountMsat / 1000);
 
+      // Determine if non-swap fallbacks are available
+      const canDoDirectBtcPayment =
+        needBtcPath &&
+        !(
+          addressInfo.expectedReceive === 'tokens' &&
+          addressInfo.expectedToken === USDB_TOKEN_ID
+        );
+      const canDoDirectUsdPayment =
+        needUsdPath &&
+        addressInfo.expectedReceive === 'tokens' &&
+        (!addressInfo.expectedToken ||
+          addressInfo.expectedToken === USDB_TOKEN_ID);
       // Check if we have cached values
       const hasCachedQuote =
         typeof paymentInfo.swapPaymentQuote === 'object' &&
@@ -214,26 +226,30 @@ export default async function processSparkAddress(input, context) {
             addressInfo.supportFee = paymentInfo.supportFee;
           } else if (results.usdSwap) {
             const { result, usdAmount } = results.usdSwap;
-            if (!result.didWork) throw new Error(result.error);
+            // Only throw if USD swap failed AND we don't have a BTC fallback
+            if (!result.didWork && !canDoDirectBtcPayment)
+              throw new Error(result.error);
 
-            const fees = result.simulation.feePaidAssetIn;
-            const satFee = dollarsToSats(
-              fees / 1000000,
-              poolInfoRef.currentPriceAInB,
-            );
+            if (result.didWork) {
+              const fees = result.simulation.feePaidAssetIn;
+              const satFee = dollarsToSats(
+                fees / 1000000,
+                poolInfoRef.currentPriceAInB,
+              );
 
-            addressInfo.paymentFee = satFee;
-            addressInfo.supportFee = 0;
-            swapPaymentQuote = {
-              warn: parseFloat(result.simulation.priceImpact) > 3,
-              poolId: poolInfoRef.lpPublicKey,
-              assetInAddress: USD_ASSET_ADDRESS,
-              assetOutAddress: BTC_ASSET_ADDRESS,
-              amountIn: usdAmount,
-              satFee,
-              bitcoinBalance,
-              dollarBalanceSat,
-            };
+              addressInfo.paymentFee = satFee;
+              addressInfo.supportFee = 0;
+              swapPaymentQuote = {
+                warn: parseFloat(result.simulation.priceImpact) > 3,
+                poolId: poolInfoRef.lpPublicKey,
+                assetInAddress: USD_ASSET_ADDRESS,
+                assetOutAddress: BTC_ASSET_ADDRESS,
+                amountIn: usdAmount,
+                satFee,
+                bitcoinBalance,
+                dollarBalanceSat,
+              };
+            }
           }
         }
       }
@@ -251,23 +267,28 @@ export default async function processSparkAddress(input, context) {
             addressInfo.supportFee = paymentInfo.supportFee;
           } else if (results.btcSwap) {
             const { result, satAmount } = results.btcSwap;
-            if (!result.didWork) throw new Error(result.error);
 
-            const fees = Number(result.simulation.feePaidAssetIn);
-            const satFee = fees;
+            // Only throw if BTC swap failed AND we don't have a USD fallback
+            if (!result.didWork && !canDoDirectUsdPayment)
+              throw new Error(result.error);
 
-            addressInfo.paymentFee = fees;
-            addressInfo.supportFee = 0;
-            swapPaymentQuote = {
-              warn: parseFloat(result.simulation.priceImpact) > 3,
-              poolId: poolInfoRef.lpPublicKey,
-              assetInAddress: BTC_ASSET_ADDRESS,
-              assetOutAddress: USD_ASSET_ADDRESS,
-              amountIn: satAmount,
-              satFee,
-              bitcoinBalance,
-              dollarBalanceSat,
-            };
+            if (result.didWork) {
+              const fees = Number(result.simulation.feePaidAssetIn);
+              const satFee = fees;
+
+              addressInfo.paymentFee = fees;
+              addressInfo.supportFee = 0;
+              swapPaymentQuote = {
+                warn: parseFloat(result.simulation.priceImpact) > 3,
+                poolId: poolInfoRef.lpPublicKey,
+                assetInAddress: BTC_ASSET_ADDRESS,
+                assetOutAddress: USD_ASSET_ADDRESS,
+                amountIn: satAmount,
+                satFee,
+                bitcoinBalance,
+                dollarBalanceSat,
+              };
+            }
           }
         } else {
           // If we are just using BTC

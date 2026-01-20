@@ -23,6 +23,9 @@ export default function usePaymentMethodSelection({
   // Pre-selected method (from navigation params)
   selectedPaymentMethod = '',
   didSelectPaymentMethod = false,
+
+  // for swap validation
+  sparkInformation,
 }) {
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
   const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
@@ -63,7 +66,11 @@ export default function usePaymentMethodSelection({
         // USD → BTC Spark (requires swap, check minimums)
         const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
 
-        if (canPayBTCtoBTC && canPayUSDtoBTC) {
+        if (
+          canPayBTCtoBTC &&
+          canPayUSDtoBTC &&
+          sparkInformation?.didConnectToFlashnet
+        ) {
           return 'user-choice';
         }
         return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : 'BTC';
@@ -76,7 +83,11 @@ export default function usePaymentMethodSelection({
         // BTC → USD Spark (requires swap, check minimums)
         const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
 
-        if (canPayUSDtoUSD && canPayBTCtoUSD) {
+        if (
+          canPayUSDtoUSD &&
+          canPayBTCtoUSD &&
+          sparkInformation?.didConnectToFlashnet
+        ) {
           return 'user-choice';
         }
         return canPayUSDtoUSD ? 'USD' : canPayBTCtoUSD ? 'BTC' : 'USD';
@@ -90,7 +101,11 @@ export default function usePaymentMethodSelection({
     // USD → BTC (requires swap, check minimums)
     const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
 
-    if (canPayBTCtoBTC && canPayUSDtoBTC) {
+    if (
+      canPayBTCtoBTC &&
+      canPayUSDtoBTC &&
+      sparkInformation?.didConnectToFlashnet
+    ) {
       return 'user-choice';
     }
 
@@ -114,6 +129,7 @@ export default function usePaymentMethodSelection({
     useFullTokensDisplay,
     hasBothUSDAndBitcoinBalance,
     isSparkPayment,
+    sparkInformation?.didConnectToFlashnet,
   ]);
 
   /**

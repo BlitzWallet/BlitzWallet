@@ -230,6 +230,7 @@ export default function SendPaymentScreen(props) {
     useFullTokensDisplay,
     selectedPaymentMethod: userPaymentMethod,
     didSelectPaymentMethod,
+    sparkInformation,
   });
 
   useEffect(() => {
@@ -364,6 +365,7 @@ export default function SendPaymentScreen(props) {
     masterInfoObject,
     fiatStats,
     inputDenomination,
+    sparkInformation,
   });
   console.log(paymentValidation);
 

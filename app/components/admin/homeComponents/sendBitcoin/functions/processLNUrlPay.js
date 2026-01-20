@@ -177,14 +177,17 @@ export default async function processLNUrlPay(input, context) {
       // Process USD quote result
       if (usdPromiseIndex !== -1) {
         const paymentQuote = results[usdPromiseIndex];
-        if (!paymentQuote.didWork) throw new Error(paymentQuote.error);
-        swapPaymentQuote = {
-          ...paymentQuote.quote,
-          bitcoinBalance,
-          dollarBalanceSat,
-        };
-        paymentFee = paymentQuote.quote.fee;
-        supportFee = 0;
+        if (!paymentQuote.didWork && !needBtcFee)
+          throw new Error(paymentQuote.error);
+        if (paymentQuote.didWork) {
+          swapPaymentQuote = {
+            ...paymentQuote.quote,
+            bitcoinBalance,
+            dollarBalanceSat,
+          };
+          paymentFee = paymentQuote.quote.fee;
+          supportFee = 0;
+        }
       }
 
       // Process BTC fee result

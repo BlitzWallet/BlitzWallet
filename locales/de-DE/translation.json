@@ -964,7 +964,8 @@
         "lnurlPayError": "Der Zahlungsbetrag muss zwischen dem {{overFlowType}} von {{amount}} liegen",
         "lrc20FeeError": "Sie benötigen mindestens {{amount}}, um die Transaktionsgebühr zu bezahlen. Ihr Aktuelles Guthaben: {{balance}}",
         "balanceError": "Unzureichendes Guthaben, um diese Zahlung abzuschließen",
-        "swapMinimumError": "{{currency1}}-zu-{{currency2}}-Swaps erfordern einen Mindestbetrag von {{amount}}"
+        "swapMinimumError": "{{currency1}}-zu-{{currency2}}-Swaps erfordern einen Mindestbetrag von {{amount}}",
+        "flashnetOffineError": "Umwandlungen zwischen Dollar und Bitcoin sind derzeit nicht verfügbar. Bitte versuche es später erneut."
       }
     },
     "switchOption": {

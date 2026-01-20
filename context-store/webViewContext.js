@@ -679,7 +679,7 @@ export const WebViewProvider = ({ children }) => {
 
           // Queue messages during reset/background
           if (
-            (isResetting.current || AppState.currentState !== 'active') &&
+            (isResetting.current || AppState.currentState === 'background') &&
             action !== 'handshake:init' &&
             action !== 'initializeSparkWallet'
           ) {

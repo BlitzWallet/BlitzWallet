@@ -238,6 +238,7 @@ export default function SendAndRequestPage(props) {
     isUsingLRC20: false,
     useFullTokensDisplay: false,
     selectedPaymentMethod,
+    sparkInformation,
   });
 
   const handleSelectPaymentMethod = useCallback(() => {
@@ -299,6 +300,9 @@ export default function SendAndRequestPage(props) {
           currency2: t('constants.bitcoin_upper'),
         });
       }
+      if (!sparkInformation?.didConnectToFlashnet) {
+        return t('wallet.sendPages.acceptButton.flashnetOffineError');
+      }
     }
 
     // Validate balance sufficiency
@@ -333,6 +337,7 @@ export default function SendAndRequestPage(props) {
     masterInfoObject,
     fiatStats,
     t,
+    sparkInformation?.didConnectToFlashnet,
   ]);
 
   console.log(getValidationError);

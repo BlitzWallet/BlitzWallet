@@ -968,7 +968,8 @@
         "lnurlPayError": "Betalningsbeloppet måste ligga inom {{overFlowType}} på {{amount}}",
         "lrc20FeeError": "Du behöver minst {{amount}} för att betala transaktionsavgiften. Nuvarande saldo: {{balance}}",
         "balanceError": "Otillräckligt saldo för att slutföra betalningen",
-        "swapMinimumError": "Swaps från {{currency1}} till {{currency2}} kräver ett minimum på {{amount}}"
+        "swapMinimumError": "Swaps från {{currency1}} till {{currency2}} kräver ett minimum på {{amount}}",
+        "flashnetOffineError": "Växlingar mellan dollar och Bitcoin är för närvarande inte tillgängliga. Försök igen senare."
       }
     },
     "switchOption": {

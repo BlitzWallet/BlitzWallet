@@ -982,7 +982,8 @@
         "lnurlPayError": "Payment amount must be between the {{overFlowType}} of {{amount}}",
         "lrc20FeeError": "You need at least {{amount}} to pay the transaction fee. Current balance: {{balance}}",
         "balanceError": "Insufficient balance to complete this payment",
-        "swapMinimumError": "{{currency1}} to {{currency2}} swaps require a minimum of {{amount}}"
+        "swapMinimumError": "{{currency1}} to {{currency2}} swaps require a minimum of {{amount}}",
+        "flashnetOffineError": "Conversions between Dollars and Bitcoin are currently offline. Please try again later."
       }
     },
     "switchOption": {

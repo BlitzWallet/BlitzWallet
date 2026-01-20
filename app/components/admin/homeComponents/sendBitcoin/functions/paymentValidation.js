@@ -43,6 +43,9 @@ export default function usePaymentValidation({
   masterInfoObject,
   fiatStats,
   inputDenomination,
+
+  //can perform swap
+  sparkInformation,
 }) {
   const validation = useMemo(() => {
     // Initialize validation result
@@ -85,6 +88,7 @@ export default function usePaymentValidation({
       finalPaymentMethod,
       determinePaymentMethod,
       selectedPaymentMethod,
+      'payment methods',
     );
 
     if (isUsingLRC20) {
@@ -185,6 +189,10 @@ export default function usePaymentValidation({
           return result;
         }
       }
+      if (!sparkInformation?.didConnectToFlashnet) {
+        result.errors.push('FLASHNET_NOT_INITIALIZED');
+        return result;
+      }
     }
 
     const hasSufficientBalance =
@@ -225,6 +233,7 @@ export default function usePaymentValidation({
     maxLNURLSatAmount,
     isDecoding,
     canEditAmount,
+    sparkInformation?.didConnectToFlashnet,
   ]);
 
   /**
@@ -325,6 +334,9 @@ export default function usePaymentValidation({
       INSUFFICIENT_BALANCE: t('wallet.sendPages.acceptButton.balanceError'),
       ZERO_AMOUNT_INVOICE_SWAP_ERROR: t(
         'wallet.sendPages.sendPaymentScreen.zeroAmountInvoiceDollarPayments',
+      ),
+      FLASHNET_NOT_INITIALIZED: t(
+        'wallet.sendPages.acceptButton.flashnetOffineError',
       ),
     };
 

@@ -965,7 +965,8 @@
         "lnurlPayError": "Сумма должна быть от {{amount}} ({{overFlowType}})",
         "lrc20FeeError": "Нужно минимум {{amount}} для комиссии. Баланс: {{balance}}",
         "balanceError": "Недостаточно средств",
-        "swapMinimumError": "Минимум для свопа {{currency1}} -> {{currency2}}: {{amount}}"
+        "swapMinimumError": "Минимум для свопа {{currency1}} -> {{currency2}}: {{amount}}",
+        "flashnetOffineError": "Конвертации между долларами и биткойном в настоящее время недоступны. Пожалуйста, попробуйте позже."
       }
     },
     "switchOption": {
