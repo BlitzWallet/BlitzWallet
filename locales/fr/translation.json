@@ -1836,6 +1836,12 @@
         "slippage": "Glissement",
         "slippageDesc": "Le glissement est le pourcentage de variation de prix que vous êtes prêt à accepter. Un glissement faible peut entraîner des échecs de transaction, tandis qu’un glissement élevé peut entraîner la réception d’un montant inférieur à celui attendu.",
         "auto": "Auto"
+      },
+      "swapHistory": {
+        "loadingSwapHistoryError": "Impossible de charger l’historique des échanges. Veuillez réessayer plus tard.",
+        "noHisotorytitle": "Aucun historique d’échange",
+        "noHisotorydesc": "Vos transactions d’échange apparaîtront ici.",
+        "pageTitle": "Historique"
       }
     }
   },

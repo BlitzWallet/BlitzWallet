@@ -869,7 +869,7 @@ export const payLightningWithToken = async (
  * @param {number} limit - Number of swaps to retrieve
  * @returns {Promise<object>} Swap history
  */
-export const getUserSwapHistory = async (mnemonic, limit = 50) => {
+export const getUserSwapHistory = async (mnemonic, limit = 50, offset) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
@@ -878,6 +878,7 @@ export const getUserSwapHistory = async (mnemonic, limit = 50) => {
         {
           mnemonic,
           limit,
+          offset,
         },
       );
       return validateWebViewResponse(
@@ -887,7 +888,12 @@ export const getUserSwapHistory = async (mnemonic, limit = 50) => {
     } else {
       const client = getFlashnetClient(mnemonic);
 
-      const result = await client.getUserSwaps(undefined, { limit });
+      let result;
+      if (offset) {
+        result = await client.getUserSwaps(undefined, { limit, offset });
+      } else {
+        result = await client.getUserSwaps(undefined, { limit });
+      }
 
       console.log('User swap history response:', result);
 

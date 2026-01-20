@@ -1836,6 +1836,12 @@
         "slippage": "Slippage",
         "slippageDesc": "Slippage är den procentuella prisförändring du är villig att acceptera. Låg slippage kan leda till att transaktionen misslyckas, medan hög slippage kan innebära att du får mindre än förväntat.",
         "auto": "Auto"
+      },
+      "swapHistory": {
+        "loadingSwapHistoryError": "Det gick inte att läsa in swap-historiken. Försök igen senare.",
+        "noHisotorytitle": "Ingen swap-historik",
+        "noHisotorydesc": "Dina swap-transaktioner visas här.",
+        "pageTitle": "Historik"
       }
     }
   },

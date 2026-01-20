@@ -1829,6 +1829,12 @@
         "slippage": "Preisabweichung",
         "slippageDesc": "Die Preisabweichung ist der prozentuale Preisunterschied, den Sie akzeptieren. Eine niedrige Preisabweichung kann dazu führen, dass Transaktionen fehlschlagen, während eine höhere Preisabweichung dazu führen kann, dass Sie weniger als erwartet erhalten.",
         "auto": "Auto"
+      },
+      "swapHistory": {
+        "loadingSwapHistoryError": "Der Swap-Verlauf konnte nicht geladen werden. Bitte versuche es später erneut.",
+        "noHisotorytitle": "Kein Swap-Verlauf",
+        "noHisotorydesc": "Deine Swap-Transaktionen werden hier angezeigt.",
+        "pageTitle": "Verlauf"
       }
     }
   },

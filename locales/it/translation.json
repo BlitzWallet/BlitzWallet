@@ -1874,6 +1874,12 @@
         "slippage": "Slippage",
         "slippageDesc": "Lo slippage è la percentuale di variazione del prezzo che sei disposto ad accettare. Uno slippage basso può causare il fallimento della transazione, mentre uno slippage alto può portare a ricevere un importo inferiore a quello previsto.",
         "auto": "Auto"
+      },
+      "swapHistory": {
+        "loadingSwapHistoryError": "Impossibile caricare la cronologia degli swap. Riprova più tardi.",
+        "noHisotorytitle": "Nessuna cronologia degli swap",
+        "noHisotorydesc": "Le tue transazioni di swap appariranno qui.",
+        "pageTitle": "Cronologia"
       }
     }
   },
