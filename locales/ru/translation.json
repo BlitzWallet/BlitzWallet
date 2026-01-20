@@ -1603,7 +1603,8 @@
         "header_rootstock": "Биткоин через Rootstock",
         "selectReceiveAssetHead": "Выберите актив для получения",
         "usd_convert_warning": "Окончательная сумма, которую вы получите, может измениться из-за колебаний рыночной цены во время конвертации.",
-        "editDescriptionHead": "Что вы хотите сказать?"
+        "editDescriptionHead": "Что вы хотите сказать?",
+        "editDescriptionPlaceholder": "Добавить описание"
       },
       "settingsContent": {
         "about": "О приложении",

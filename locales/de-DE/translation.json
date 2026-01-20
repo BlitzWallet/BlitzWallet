@@ -1599,7 +1599,8 @@
         "header_rootstock": "Bitcoin über Rootstock",
         "selectReceiveAssetHead": "Asset zum Empfangen auswählen",
         "usd_convert_warning": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
-        "editDescriptionHead": "Was möchtest du sagen?"
+        "editDescriptionHead": "Was möchtest du sagen?",
+        "editDescriptionPlaceholder": "Beschreibung hinzufügen"
       },
       "settingsContent": {
         "about": "Über uns",

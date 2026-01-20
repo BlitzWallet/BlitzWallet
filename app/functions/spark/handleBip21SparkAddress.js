@@ -16,7 +16,7 @@ import { crashlyticsLogReport } from '../crashlyticsLogs';
 
 export function formatBip21Address({
   address = '',
-  amountSat = 0,
+  amountSat,
   message,
   prefix = '',
 }) {

@@ -141,7 +141,8 @@ export default function ReceivePaymentHome(props) {
         !userReceiveAmount &&
         selectedRecieveOption.toLowerCase() === 'lightning' &&
         !isUsingAltAccount &&
-        endReceiveType === 'BTC'
+        endReceiveType === 'BTC' &&
+        !paymentDescription
       ) {
         setInitialSendAmount(0);
         setAddressState(prev => ({
@@ -254,6 +255,7 @@ export default function ReceivePaymentHome(props) {
             swapLimits={swapLimits}
             poolInfoRef={poolInfoRef}
             isSharingRef={isSharingRef}
+            paymentDescription={paymentDescription}
           />
 
           <ButtonsContainer
@@ -406,6 +408,7 @@ function QrCode(props) {
     swapLimits,
     poolInfoRef,
     isSharingRef,
+    paymentDescription,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
@@ -415,7 +418,8 @@ function QrCode(props) {
     selectedRecieveOption.toLowerCase() === 'lightning' &&
     !initialSendAmount &&
     !isUsingAltAccount &&
-    endReceiveType === 'BTC';
+    endReceiveType === 'BTC' &&
+    !paymentDescription;
 
   const qrOpacity = useSharedValue(addressState.generatedAddress ? 1 : 0);
   const loadingOpacity = useSharedValue(isUsingLnurl ? 0 : 1);
@@ -499,6 +503,11 @@ function QrCode(props) {
     selectedRecieveOption?.toLowerCase() !== 'spark' &&
     selectedRecieveOption?.toLowerCase() !== 'rootstock';
 
+  const canUseDescription =
+    selectedRecieveOption?.toLowerCase() === 'lightning' ||
+    selectedRecieveOption?.toLowerCase() === 'bitcoin' ||
+    selectedRecieveOption?.toLowerCase() === 'liquid';
+
   const canConvert =
     selectedRecieveOption?.toLowerCase() === 'spark' ||
     selectedRecieveOption?.toLowerCase() === 'lightning';
@@ -517,6 +526,13 @@ function QrCode(props) {
     });
   };
 
+  const editDescription = () => {
+    if (isSharingRef.current) return;
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'AddMessageReceivePage',
+      memo: paymentDescription,
+    });
+  };
   const selectReceiveTypeAsset = () => {
     if (isSharingRef.current) return;
     navigate.navigate('CustomHalfModal', {
@@ -701,13 +717,23 @@ function QrCode(props) {
           iconName={'SquarePen'}
           showBoder={true}
           actionFunction={editAmount}
-          showSkeleton={
-            addressState.isGeneratingInvoice &&
-            endReceiveType === 'USD' &&
-            canConvert
-          }
         />
       )}
+
+      {canUseDescription && (
+        <QRInformationRow
+          title={t('constants.description')}
+          info={
+            !paymentDescription
+              ? t('screens.inAccount.receiveBtcPage.editDescriptionPlaceholder')
+              : paymentDescription
+          }
+          iconName={'SquarePen'}
+          showBoder={true}
+          actionFunction={editDescription}
+        />
+      )}
+
       <QRInformationRow
         title={t('screens.inAccount.receiveBtcPage.invoiceDescription', {
           context: invoiceContext,

@@ -1606,7 +1606,8 @@
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Sélectionnez l’actif à recevoir",
         "usd_convert_warning": "Le montant final que vous recevrez peut varier en raison des fluctuations du prix du marché pendant la conversion.",
-        "editDescriptionHead": "Que souhaitez-vous dire?"
+        "editDescriptionHead": "Que souhaitez-vous dire?",
+        "editDescriptionPlaceholder": "Ajouter une description"
       },
       "settingsContent": {
         "about": "A propos de",

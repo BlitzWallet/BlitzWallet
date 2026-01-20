@@ -1606,7 +1606,8 @@
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Välj tillgång att ta emot",
         "usd_convert_warning": "Det slutliga beloppet du får kan variera på grund av marknadsprisförändringar under konverteringen.",
-        "editDescriptionHead": "Vad vill du säga?"
+        "editDescriptionHead": "Vad vill du säga?",
+        "editDescriptionPlaceholder": "Lägg till en beskrivning"
       },
       "settingsContent": {
         "about": "Om",
