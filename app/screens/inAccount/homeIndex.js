@@ -7,9 +7,9 @@ import { MyTabs } from '../../../navigation/tabs';
 import AppStore from './appStore';
 import SendPaymentHome from './sendBtcPage';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { ContactsPage, HomeLightning } from '../../components/admin';
 import GiftsPageHome from './giftsHome';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -43,10 +43,10 @@ export default function AdminHomeIndex() {
     if (currentPageRef.current !== HOME_PAGE) {
       console.log('RUNNING');
       requestAnimationFrame(() => pagerRef.current?.setPage(HOME_PAGE));
+      return true;
     } else {
-      BackHandler.exitApp();
+      return false;
     }
-    return true;
   }, []);
 
   useHandleBackPressNew(handleBackPressFunction);

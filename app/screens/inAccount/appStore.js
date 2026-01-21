@@ -17,7 +17,6 @@ import { openComposer } from 'react-native-email-link';
 import { copyToClipboard } from '../../functions';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useAppStatus } from '../../../context-store/appStatus';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useToast } from '../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import { HIDDEN_OPACITY, MAX_CONTENT_WIDTH } from '../../constants/theme';
@@ -38,12 +37,6 @@ export default function AppStore({ navigation }) {
 
   const chatGPTCredits = decodedChatGPT?.credits;
   const hideGenerativeAI = chatGPTCredits < 30 && Platform.OS === 'ios';
-
-  function handleBackPressFunction() {
-    navigation.navigate('Home');
-  }
-
-  useHandleBackPressNew(handleBackPressFunction);
 
   const localScreenWidth = Math.min(
     MAX_CONTENT_WIDTH,

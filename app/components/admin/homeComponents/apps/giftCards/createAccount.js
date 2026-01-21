@@ -16,7 +16,7 @@ import { FONT } from '../../../../../constants/theme';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../../context-store/keys';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
@@ -33,7 +33,6 @@ export default function CreateGiftCardAccount(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const { t } = useTranslation();
   const navigate = useNavigation();
-  useHandleBackPressNew();
 
   return (
     <CustomKeyboardAvoidingView

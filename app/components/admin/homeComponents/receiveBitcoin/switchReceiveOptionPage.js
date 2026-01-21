@@ -11,7 +11,6 @@ import { CENTER, FONT, ICONS, SIZES } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useEffect, useState } from 'react';
 import { KEYBOARDTIMEOUT } from '../../../../constants/styles';
 import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
@@ -56,7 +55,6 @@ export default function SwitchReceiveOptionPage({
   const { minMaxLiquidSwapAmounts } = useAppStatus();
   const [isExpanded, setIsExpanded] = useState(false);
   const { t } = useTranslation();
-  useHandleBackPressNew();
   const [contentHeight, setContentHeight] = useState(0);
   const isLRC20Enabled = showTokensInformation;
 

@@ -18,7 +18,6 @@ import { encriptMessage } from '../../../../../functions/messaging/encodingAndDe
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { useKeysContext } from '../../../../../../context-store/keys';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {
   keyboardGoBack,
   keyboardNavigate,
@@ -76,7 +75,6 @@ export default function CountryList(props) {
       };
     }, []),
   );
-  useHandleBackPressNew();
 
   const saveNewCountrySetting = useCallback(
     async isoCode => {

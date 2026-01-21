@@ -74,7 +74,7 @@ export default function CustomHalfModal(props) {
 
   const handleBackPressFunction = useCallback(
     customBackFunction => {
-      if (didHandleBackpress.current) return;
+      if (didHandleBackpress.current) return true;
       didHandleBackpress.current = true;
       const keyboardVisible = Keyboard.isVisible();
       Keyboard.dismiss();
@@ -89,6 +89,7 @@ export default function CustomHalfModal(props) {
         },
         keyboardVisible ? KEYBOARDTIMEOUT : 200,
       );
+      return true;
     },
     [navigation],
   );

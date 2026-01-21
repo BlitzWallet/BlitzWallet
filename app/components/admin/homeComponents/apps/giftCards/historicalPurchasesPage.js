@@ -17,7 +17,7 @@ import { openComposer } from 'react-native-email-link';
 import { copyToClipboard } from '../../../../../functions';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import { useKeysContext } from '../../../../../../context-store/keys';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
@@ -33,8 +33,6 @@ export default function HistoricalGiftCardPurchases() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { bottomPadding } = useGlobalInsets();
-
-  useHandleBackPressNew();
 
   const renderItem = ({ item }) => (
     <TouchableOpacity

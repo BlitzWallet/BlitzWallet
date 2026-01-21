@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 import { COLORS, FONT, SIZES } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
-import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import GetThemeColors from '../../../hooks/themeColors';
 import { ThemeText } from '../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
@@ -21,8 +20,6 @@ export default function ClipboardCopyPopup(props) {
   const { textColor, backgroundColor, backgroundOffset, transparentOveraly } =
     GetThemeColors();
   const { t } = useTranslation();
-
-  useHandleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={navigate.goBack}>

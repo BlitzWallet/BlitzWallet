@@ -4,34 +4,33 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
-import {COLORS, SIZES, CENTER} from '../../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import { COLORS, SIZES, CENTER } from '../../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {useTranslation} from 'react-i18next';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 
 export default function ConfirmActionPage(props) {
   const navigate = useNavigation();
-  const {t} = useTranslation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundColor} = GetThemeColors();
-  useHandleBackPressNew();
+  const { t } = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor } = GetThemeColors();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
       <View style={styles.globalContainer}>
-        <TouchableWithoutFeedback style={{flex: 1}}>
+        <TouchableWithoutFeedback style={{ flex: 1 }}>
           <View
             style={[
               styles.content,
               {
                 backgroundColor: backgroundColor,
               },
-            ]}>
+            ]}
+          >
             <ThemeText
-              styles={{...styles.headerText}}
+              styles={{ ...styles.headerText }}
               content={
                 props.route.params?.confirmMessage
                   ? props.route.params.confirmMessage
@@ -57,7 +56,8 @@ export default function ConfirmActionPage(props) {
                   } else props.route.params.wantsToDrainFunc(true);
                   navigate.goBack();
                 }}
-                style={[styles.button]}>
+                style={[styles.button]}
+              >
                 <ThemeText
                   styles={styles.buttonText}
                   content={t('constants.yes')}
@@ -81,7 +81,8 @@ export default function ConfirmActionPage(props) {
                   }
                   navigate.goBack();
                 }}
-                style={styles.button}>
+                style={styles.button}
+              >
                 <ThemeText
                   styles={styles.buttonText}
                   content={t('constants.no')}

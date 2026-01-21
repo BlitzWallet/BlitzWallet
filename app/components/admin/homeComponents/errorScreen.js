@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { COLORS } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
-import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
+
 import GetThemeColors from '../../../hooks/themeColors';
 import { ThemeText } from '../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
@@ -24,7 +24,6 @@ export default function ErrorScreen(props) {
   const height = props.route.params?.height;
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  useHandleBackPressNew();
 
   const handleNaviagation = () => {
     if (navigationFunction) {

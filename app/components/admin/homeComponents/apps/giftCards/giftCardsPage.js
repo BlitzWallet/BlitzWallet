@@ -26,7 +26,6 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import getGiftCardsList from './giftCardAPI';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
@@ -80,10 +79,6 @@ export default function GiftCardPage() {
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
-  const handleBackPress = useCallback(() => {
-    navigate.popTo('HomeAdmin');
-  }, [navigate]);
-  useHandleBackPressNew(handleBackPress);
 
   // Filter gift cards based on search input
   const filteredGiftCards = useMemo(

@@ -3,7 +3,6 @@ import { CENTER } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { copyToClipboard } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useToast } from '../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -14,7 +13,6 @@ export default function TechnicalTransactionDetails(props) {
   const { showToast } = useToast();
   const navigate = useNavigation();
   const { t } = useTranslation();
-  useHandleBackPressNew();
 
   const { transaction } = props.route.params;
 

@@ -26,7 +26,6 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useAppStatus } from '../../../context-store/appStatus';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useLiquidEvent } from '../../../context-store/liquidEventContext';
@@ -79,7 +78,7 @@ export default function ReceivePaymentHome(props) {
     props?.route.params.endReceiveType ||
     props?.route.params.initialReceiveType ||
     'BTC';
-  useHandleBackPressNew();
+
   const selectedRecieveOption =
     props.route.params?.selectedRecieveOption || 'Lightning';
 

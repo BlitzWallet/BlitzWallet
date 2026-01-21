@@ -4,7 +4,6 @@ import { ICONS } from '../../constants';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useUpdateHomepageTransactions } from '../../hooks/updateHomepageTransactions';
 import { useGlobalContextProvider } from '../../../context-store/context';
@@ -24,7 +23,6 @@ export default function ViewAllTxPage() {
   const [txs, setTxs] = useState([]);
   const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
-  useHandleBackPressNew();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const enabledLRC20 = showTokensInformation;
   const { bottomPadding } = useGlobalInsets();

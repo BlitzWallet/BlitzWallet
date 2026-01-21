@@ -378,10 +378,10 @@ export default function SwapsPage() {
   const handleBackPressAndroid = useCallback(() => {
     if (showReviewScreen) {
       setShowReviewScreen(false);
+      return true;
+    } else {
       return false;
     }
-
-    navigate.goBack();
   }, [showReviewScreen]);
   useHandleBackPressNew(handleBackPressAndroid);
 

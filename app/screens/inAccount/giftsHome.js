@@ -12,7 +12,6 @@ import { WINDOWWIDTH } from '../../constants/theme';
 import GiftsOverview from '../../components/admin/homeComponents/gifts/giftsOverview';
 import ClaimGiftHome from '../../components/admin/homeComponents/gifts/claimGiftHome';
 import ReclaimGift from '../../components/admin/homeComponents/gifts/reclaimGift';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function GiftsPageHome({ navigation }) {
   const tabsNavigate = navigation.navigate;
@@ -23,17 +22,12 @@ export default function GiftsPageHome({ navigation }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
-  const handleBackPressFunction = useCallback(() => {
-    tabsNavigate('Home');
-  }, [tabsNavigate]);
-
   const handleTabChange = value => {
     setActiveTab(value);
     if (value === 'my-gifts') setCurrentView('overview');
     if (value === 'claim') setCurrentView('claim');
     if (value === 'reclaim') setCurrentView('reclaim');
   };
-  useHandleBackPressNew(handleBackPressFunction);
 
   return (
     <View style={[styles.container]}>

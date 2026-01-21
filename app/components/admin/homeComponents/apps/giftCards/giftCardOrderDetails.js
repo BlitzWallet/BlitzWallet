@@ -11,7 +11,7 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 import { copyToClipboard } from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { openInbox } from 'react-native-email-link';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 
@@ -22,7 +22,6 @@ export default function GiftCardOrderDetails(props) {
 
   const item = props.route.params?.item;
   const navigate = useNavigation();
-  useHandleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

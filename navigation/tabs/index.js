@@ -189,6 +189,7 @@ export function MyTabs(props) {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{ headerShown: false }}
+      backBehavior="initialRoute"
       tabBar={renderTabBar}
     >
       <Tab.Screen

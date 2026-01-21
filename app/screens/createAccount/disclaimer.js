@@ -6,7 +6,6 @@ import CustomButton from '../../functions/CustomElements/button';
 import { G, Path, Svg } from 'react-native-svg';
 import LoginNavbar from '../../components/login/navBar';
 import { useTranslation } from 'react-i18next';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useState } from 'react';
 import { useAppStatus } from '../../../context-store/appStatus';
@@ -20,7 +19,6 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
   const [termsAccepted, setTermsAccepted] = useState(false); // Add acceptance state
   const { screenDimensions } = useAppStatus();
   const { t } = useTranslation();
-  useHandleBackPressNew();
   const nextPageName = route?.params?.nextPage;
 
   const handleLayout = e => {
