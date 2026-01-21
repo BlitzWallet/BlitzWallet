@@ -213,7 +213,7 @@
     },
     "disclaimerPage": {
       "header": "Autocustodial",
-      "subHeader": "A Blitz não pode acessar seus fundos nem ajudar você a recuperá-los em caso de perda. Ao continuar, você concorda com os termos e condições da Carteira Blitz.",
+      "subHeader": "A Blitz Wallet não pode acessar seus fundos nem ajudar você a recuperá-los em caso de perda. Ao continuar, você concorda com os termos e condições da Blitz Wallet.",
       "imgCaption": "'Com grandes poderes, surgem grandes responsabilidades' - Tio Ben",
       "acceptPrefix": "Eu aceito os ",
       "terms&Conditions": "Termos e Condições",
@@ -355,7 +355,7 @@
         "title": "Adicionar créditos",
         "description": "Para usar os modelos de IA generativa mais recentes, você precisa comprar créditos. Escolha uma opção abaixo para começar.",
         "supportedModels": "Modelos suportados",
-        "feeInfo": "Dependendo do tamanho da sua pergunta e resposta, o número de pesquisas que você obtém pode ser diferente. A Blitz adiciona uma taxa de 150 sat + 0,5% do preço de compra em todas as compras.",
+        "feeInfo": "Dependendo do tamanho da sua pergunta e resposta, o número de pesquisas que você obtém pode ser diferente. A Blitz Wallet adiciona uma taxa de 150 sat + 0,5% do preço de compra em todas as compras.",
         "price": "Preço: ",
         "estSearches": "Est. de pesquisas: {{num}}",
         "casualPlanTitle": "Plano Casual",
@@ -858,7 +858,7 @@
     },
     "cameraModal": {
       "noCamera": "Sem acesso à câmera",
-      "settingsText": "Acesse as configurações para permitir que a Carteira Blitz acesse sua câmera",
+      "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
       "noCameraDevice": "Você não tem um dispositivo com câmera.",
       "noFlash": " Device does not have a torch",
       "sanningResponse": "Somente códigos QR são aceitos.",
@@ -879,7 +879,7 @@
     },
     "cameraPage": {
       "noCameraAccess": "Sem acesso à câmera",
-      "settingsText": "Acesse as configurações para permitir que a Carteira Blitz acesse sua câmera",
+      "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
       "noCameraDevice": "Você não tem um dispositivo com câmera.",
       "error1": "O dispositivo não possui lanterna",
       "error2": "Você já pagou esta fatura"
@@ -1002,7 +1002,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Digite o destino",
-        "paymentTypesDesc": "A carteira Blitz pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Lightning"
+        "paymentTypesDesc": "A Blitz Wallet pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Lightning"
       },
       "sparkErrorScreen": {
         "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase-semente mantém seus fundos seguros.",
@@ -1081,7 +1081,7 @@
     "sendAndRequestPage": {
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
-      "giftCardappVersionError": "Você não pode enviar um cartão-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
+      "giftCardappVersionError": "Você não pode enviar um cartão-presente para este contato. Eles não atualizaram para a versão mais recente da Blitz Wallet.",
       "giftCardDescription": "Você enviou para {{name}} um cartão-presente {{giftCardName}}",
       "cardDetailsError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
       "giftCardRange": "Enviar {{amount}} - {{amount2}}",
@@ -1157,17 +1157,17 @@
     },
     "about": {
       "header1": "Software",
-      "text2": "Blitz é um aplicativo gratuito e de código aberto sob a ",
+      "text2": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a ",
       "text3": "Licença Apache",
       "text4": " Versão 2.0",
-      "text5": "Esta é uma carteira Bitcoin Spark compatível com a rede Lightning. A Blitz não tem acesso aos seus fundos. Se você perder sua frase-semente, poderá perder seus fundos.",
-      "text6": "A Blitz usa ",
+      "text5": "Esta é uma carteira Bitcoin Spark compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase-semente, poderá perder seus fundos.",
+      "text6": "A Blitz Wallet usa ",
       "text7": "o SDK da Breez Liquid, ",
       "text8": "Spark, ",
       "text9": "e ",
       "text10": "a API da Boltz.",
       "header2": "Bom saber",
-      "text12": "A Blitz usa o protocolo Spark. Spark é um ",
+      "text12": "A Blitz Wallet usa o protocolo Spark. Spark é um ",
       "text13": "protocolo off-chain ",
       "text14": "onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da cadeia da blockchain ",
       "text15": "permitindo transferências rápidas, de custo baixo e sem ceder a custódia dos fundos.",
@@ -1180,7 +1180,7 @@
       "hideTechnicals": "Ocultar detalhes técnicos",
       "backendHash": "Hash de backend",
       "expectedHash": "Hash esperado",
-      "blitzWallet": "Carteira Blitz"
+      "blitzWallet": "Blitz Wallet"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1272,7 +1272,7 @@
 
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
-      "mainWalletPlace": "Carteira Blitz"
+      "mainWalletPlace": "Blitz Wallet"
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1290,11 +1290,11 @@
       "pubKey": "Chave pública"
     },
     "sparkLrc20": {
-      "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz adiciona uma {{fee}} taxa em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
+      "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz Wallet adiciona uma {{fee}} taxa em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
       "title": "Configurações Spark",
       "sliderTitle_enabled": "BTKN",
       "sliderTitle_disabled": "BTKN",
-      "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nBlitz é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem.",
+      "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nA Blitz Wallet é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem.",
       "selectTokenHeader": "Token padrão",
       "selectTokenInformationPopup": "Escolha qual token você gostaria de usar primeiro ao enviar pagamentos. Não se preocupe — você ainda pode alterá-lo na página de pagamento a qualquer momento."
     },
@@ -1333,7 +1333,7 @@
       "balance": "{{amount}} Saldo Liquid",
       "rescan": "Verificar",
       "totalBalance": "Saldo total",
-      "swapMessage": "A carteira Blitz tentará transferir seus fundos Liquid para a Spark quando você abrir o app pela primeira vez ou quando receber pagamentos Liquid.\n\nNo entanto, em alguns casos a transferência pode não ocorrer. Para mover esses fundos manualmente para a Spark, toque no botão Transferir abaixo.",
+      "swapMessage": "A Blitz Wallet tentará transferir seus fundos Liquid para a Spark quando você abrir o app pela primeira vez ou quando receber pagamentos Liquid.\n\nNo entanto, em alguns casos a transferência pode não ocorrer. Para mover esses fundos manualmente para a Spark, toque no botão Transferir abaixo.",
       "swap": "Transferir"
     },
     "notifications": {
@@ -1349,7 +1349,7 @@
     },
     "nostrHome": {
       "nip5Title": "Verificação Nip5",
-      "nip5Desc": "Verifique rapidamente sua identidade Nostr usando a Blitz.",
+      "nip5Desc": "Verifique rapidamente sua identidade Nostr usando a Blitz Wallet.",
       "nwcTitle": "Conexão Nostr",
       "nwcDesc": "Conecte sua conta aos aplicativos que usam o Nostr."
     },
@@ -1360,14 +1360,14 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "A carteira Blitz oferece ferramentas gratuitas e de código aberto para a comunidade Bitcoin.\n\nPara apoiar a sustentabilidade de longo prazo do projeto, será aplicada uma pequena taxa em cada transação.\n\nConfira abaixo as taxas aplicadas.",
+      "description": "A Blitz Wallet oferece ferramentas gratuitas e de código aberto para a comunidade Bitcoin.\n\nPara apoiar a sustentabilidade de longo prazo do projeto, será aplicada uma pequena taxa em cada transação.\n\nConfira abaixo as taxas aplicadas.",
       "upTo": "Até",
       "fixedFee": "Taxa fixa",
       "percent": "Porcentagem",
       "noLimit": "Sem limite",
       "transactionType": "Tipo de transação",
       "swapsType": "Trocas BTC <> USD",
-      "swapsFee": "{{poolFee}}% de taxa do pool + {{blitzFee}}% de taxa da Blitz",
+      "swapsFee": "{{poolFee}}% de taxa do pool + {{blitzFee}}% de taxa da Blitz Wallet",
       "othersType": "Outros",
       "othersFee": "Taxas de rede"
     },
@@ -1426,7 +1426,7 @@
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase-semente",
-        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nQualquer conta criada na Blitz pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase-semente.",
+        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nQualquer conta criada na Blitz Wallet pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase-semente.",
         "viewSeed": "Ver frase-semente"
       }
     },
@@ -1493,7 +1493,7 @@
       },
       "totalTipsScreen": {
         "noTipBalanceError": "O usuário não tem saldo de gorjetas.",
-        "updateContactMessage": "O destinatário precisa atualizar o aplicativo Blitz para receber o pagamento.",
+        "updateContactMessage": "O destinatário precisa atualizar o aplicativo Blitz Wallet para receber o pagamento.",
         "payingMessage": "Pagando...",
         "notifyngMessage": "Notificando...",
         "errorPaying": "Não foi possível pagar o contato Blitz. Tente novamente mais tarde.",
@@ -1643,10 +1643,10 @@
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
         "fast pay": "Pagamento rápido",
-        "blitz fee details": "Taxas da carteira Blitz",
+        "blitz fee details": "Taxas da Blitz Wallet",
         "crash reports": "Relatório de falhas",
         "notifications": "Notificações",
-        "blitz stats": "Estatísticas Blitz",
+        "blitz stats": "Estatísticas Blitz Wallet",
         "accounts": "Contas",
         "nostr": "nostr",
         "login mode": "Opções de acesso",
@@ -1769,7 +1769,7 @@
           "header": "Modo avançado",
           "currentIndexHead": "Índice atual - Vales-Blitz",
           "infoHead": "Como funcionam os Vales-Blitz",
-          "infoDesc1": "Os Vales-Blitz usam carteiras separadas criadas a partir da sua carteira principal. Isso permite recuperar valores não resgatados enquanto mantém sua carteira principal protegida.",
+          "infoDesc1": "Os Vales-Blitz usam contas separadas criadas a partir da sua conta principal. Isso permite recuperar valores não resgatados enquanto mantém sua conta principal protegida.",
           "infoDesc2": "O valor da maioria dos Vales-Blitz expirados podem ser recuperados na página Expirados. Se um Vale-Blitz não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um Vale-Blitz específico e verificar se ainda há fundos disponíveis.",
           "inputHead": "Digite o número do Vale-Blitz",
           "invalidGiftNum": "Digite um número de Vale-Blitz válido entre 1 e {{currentGiftIndex}}",
@@ -1918,7 +1918,7 @@
     "processingDeepLinkError": "Falha ao processar o link: {{error}}",
     "legacyContactError": "O contato ainda não atualizou a carteira. Peça para ele atualizar a carteira para enviar isso..",
     "contactInvoiceGenerationError": "Erro ao gerar fatura. Certifique-se de que seja um endereço LNURL válido.",
-    "explorePagenoDataError": "Não foi possível recuperar a contagem de usuários da Blitz.",
+    "explorePagenoDataError": "Não foi possível recuperar a contagem de usuários da Blitz Wallet.",
     "savingFileError": "Erro ao salvar arquivo no documento",
     "savingFilePermissionsError": "Erro ao obter permissões",
     "writtingFileError": "Erro ao gravar arquivo no sistema de arquivos",
@@ -1931,7 +1931,7 @@
     "invalidSeedWordLengthErorr": "Nem toda palavra tem comprimento válido",
     "invalidSeedLengthError": "Não foi possível encontrar 12 palavras da frase-semente copiada.",
     "noGooglePlay": "Os serviços do Google Play são necessários para receber notificações.",
-    "noNotificationPermission": "A Blitz não tem permissões para notificações. Habilite-as nas configurações para usar notificações.",
+    "noNotificationPermission": "A Blitz Wallet não tem permissões para notificações. Habilite-as nas configurações para usar notificações.",
     "rootstockInvoiceError": "Ocorreu um problema ao gerar seu endereço Rootstock. Tente novamente.",
     "liquidInvoiceError": "Ocorreu um problema ao gerar seu endereço Liquid. Tente novamente.",
     "bitcoinInvoiceError": "Ocorreu um problema ao gerar seu endereço Bitcoin. Tente novamente..",
@@ -1960,7 +1960,7 @@
   },
 
   "share": {
-    "contact": "Oi, me adicione no Blitz!"
+    "contact": "Oi, me adicione na Blitz Wallet!"
   },
 
   "swapMessages": {
