@@ -32,6 +32,7 @@ import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function GiftCardPage() {
   const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
@@ -45,6 +46,11 @@ export default function GiftCardPage() {
   const [showList, setShowList] = useState(false);
   const windowDimensions = useWindowDimensions();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+
+  const handleBackPress = useCallback(() => {
+    navigate.popTo('HomeAdmin');
+  }, [navigate]);
+  useHandleBackPressNew(handleBackPress);
 
   useFocusEffect(
     useCallback(() => {
