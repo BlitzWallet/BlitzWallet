@@ -49,6 +49,7 @@ export default function GiftCardPage() {
 
   const handleBackPress = useCallback(() => {
     navigate.popTo('HomeAdmin');
+    return true;
   }, [navigate]);
   useHandleBackPressNew(handleBackPress);
 
