@@ -1875,9 +1875,9 @@
         "auto": "Auto"
       },
       "swapHistory": {
-        "loadingSwapHistoryError": "Não foi possível carregar o histórico de swaps. Tente novamente mais tarde.",
-        "noHisotorytitle": "Nenhum histórico de swaps",
-        "noHisotorydesc": "Suas transações de swap aparecerão aqui.",
+        "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
+        "noHisotorytitle": "Nenhum histórico de trocas",
+        "noHisotorydesc": "As trocas aparecerão aqui.",
         "pageTitle": "Histórico"
       }
     }
