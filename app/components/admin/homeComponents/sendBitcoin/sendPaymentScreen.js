@@ -184,6 +184,13 @@ export default function SendPaymentScreen(props) {
     );
   }, [poolInfoRef.currentPriceAInB, swapLimits]);
 
+  const minLNURLSatAmount = isLNURLPayment
+    ? paymentInfo?.data?.minSendable / 1000
+    : 0;
+  const maxLNURLSatAmount = isLNURLPayment
+    ? paymentInfo?.data?.maxSendable / 1000
+    : 0;
+
   const selectedLRC20Asset = masterTokenInfo?.tokenName || defaultToken;
   const seletctedToken =
     masterTokenInfo?.details ||
@@ -380,13 +387,6 @@ export default function SendPaymentScreen(props) {
     uiState === 'CONFIRM_PAYMENT';
 
   const isUsingFastPay = canUseFastPay && canSendPayment && !canEditAmount;
-
-  const minLNURLSatAmount = isLNURLPayment
-    ? paymentInfo?.data?.minSendable / 1000
-    : 0;
-  const maxLNURLSatAmount = isLNURLPayment
-    ? paymentInfo?.data?.maxSendable / 1000
-    : 0;
 
   const errorMessageNavigation = useCallback(
     reason => {
