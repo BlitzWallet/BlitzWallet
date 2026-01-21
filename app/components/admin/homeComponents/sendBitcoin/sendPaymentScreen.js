@@ -752,7 +752,6 @@ export default function SendPaymentScreen(props) {
         <NavBarWithBalance
           seletctedToken={seletctedToken}
           selectedLRC20Asset={selectedLRC20Asset}
-          backFunction={handleBackpress}
           useFrozen={true}
         />
 
