@@ -860,7 +860,7 @@ export default function SendAndRequestPage(props) {
                     }}
                     textInputRef={descriptionRef}
                     placeholderText={t(
-                      'contacts.sendAndRequestPage.descriptionPlaceholder',
+                      'constants.paymentDescriptionPlaceholder',
                     )}
                     textInputStyles={
                       {

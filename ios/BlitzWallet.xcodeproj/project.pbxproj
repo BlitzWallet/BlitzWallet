@@ -36,6 +36,19 @@
 		FDDE20E2D862458897A87602 /* Poppins-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9E800A45BB884CFE95C010A1 /* Poppins-Light.ttf */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		933D236F2F2005310039371B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* BlitzWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlitzWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BlitzWallet/Images.xcassets; sourceTree = "<group>"; };
@@ -207,6 +220,7 @@
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
 				867F306E8F1B44EA993CF42A /* [CP-User] [RNFB] Core Configuration */,
 				667007EB52AEE9A40DB7579F /* [CP-User] [RNFB] Crashlytics Configuration */,
+				933D236F2F2005310039371B /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -223,6 +237,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {

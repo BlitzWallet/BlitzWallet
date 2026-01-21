@@ -122,7 +122,8 @@
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dollars",
     "rate": "Taux",
-    "swap": "Swap"
+    "swap": "Swap",
+    "paymentDescriptionPlaceholder": "Description (facultatif)"
   },
   "languages": {
     "english": "English",
@@ -909,7 +910,6 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Préparation des détails de la facture",
         "alreadyPaidInvoiceError": "Cette facture a déjà été payée.",
-        "descriptionPlaceholder": "Description du paiement...",
         "fallbackErrorMessage": "Erreur de décodage de la facture",
         "connectToSparkMessage": "Connexion à votre portefeuille.",
         "switchTokenText": "Utiliser un autre jeton",
@@ -1063,7 +1063,6 @@
       "deleateWarning": "Êtes-vous sûr de vouloir supprimer ce contact ? Les messages datant de plus d'une semaine ne peuvent pas être restaurés."
     },
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Description du paiement",
       "profileMessage": "Payer {{name}}",
       "contactMessage": "{{name}} vous a payé",
       "giftCardappVersionError": "Vous ne pouvez pas envoyer de carte cadeau à ce contact. Il n'a pas mis à jour la dernière version de Blitz Wallet.",
@@ -1606,7 +1605,9 @@
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Sélectionnez l’actif à recevoir",
-        "usd_convert_warning": "Le montant final que vous recevrez peut varier en raison des fluctuations du prix du marché pendant la conversion."
+        "usd_convert_warning": "Le montant final que vous recevrez peut varier en raison des fluctuations du prix du marché pendant la conversion.",
+        "editDescriptionHead": "Que souhaitez-vous dire?",
+        "editDescriptionPlaceholder": "Ajouter une description"
       },
       "settingsContent": {
         "about": "A propos de",

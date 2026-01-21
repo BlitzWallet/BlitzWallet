@@ -52,6 +52,7 @@ import { useAppStatus } from '../../../context-store/appStatus';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
 import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
 import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
+import AddReceiveMessageHalfModal from '../../components/admin/homeComponents/receiveBitcoin/addMessageHalfModal';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 
 export default function CustomHalfModal(props) {
@@ -63,7 +64,9 @@ export default function CustomHalfModal(props) {
   const { backgroundColor, backgroundOffset, transparentOveraly } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(
+    contentType === 'AddMessageReceivePage' ? true : false,
+  );
   const { bottomPadding, topPadding } = useGlobalInsets();
   const didHandleBackpress = useRef(false);
 
@@ -369,6 +372,16 @@ export default function CustomHalfModal(props) {
             darkModeType={darkModeType}
           />
         );
+      case 'AddMessageReceivePage':
+        return (
+          <AddReceiveMessageHalfModal
+            memo={props?.route?.params?.memo}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -426,7 +439,8 @@ export default function CustomHalfModal(props) {
               contentType === 'addPOSItemsHalfModal' ||
               // contentType === 'editLNURLOnReceive' ||
               contentType === 'addContacts' ||
-              contentType === 'SelectLRC20Token'
+              contentType === 'SelectLRC20Token' ||
+              contentType === 'AddMessageReceivePage'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||

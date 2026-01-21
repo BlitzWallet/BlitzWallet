@@ -122,7 +122,8 @@
     "bitcoin_upper": "Биткоин",
     "dollars_upper": "Доллары",
     "rate": "Курс",
-    "swap": "Обмен"
+    "swap": "Обмен",
+    "paymentDescriptionPlaceholder": "Описание (необязательно)"
   },
   "languages": {
     "english": "English",
@@ -906,7 +907,6 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Подготовка деталей инвойса",
         "alreadyPaidInvoiceError": "Инвойс уже оплачен",
-        "descriptionPlaceholder": "Описание платежа...",
         "fallbackErrorMessage": "Ошибка декодирования инвойса",
         "connectToSparkMessage": "Подключение к кошельку.",
         "switchTokenText": "Использовать другой токен",
@@ -1060,7 +1060,6 @@
       "deleateWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить."
     },
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Описание платежа",
       "profileMessage": "Оплата {{name}}",
       "contactMessage": "{{name}} заплатил вам",
       "giftCardappVersionError": "Нельзя отправить карту: у контакта старая версия Blitz Wallet.",
@@ -1603,7 +1602,9 @@
         "header_liquid": "Биткоин через Liquid",
         "header_rootstock": "Биткоин через Rootstock",
         "selectReceiveAssetHead": "Выберите актив для получения",
-        "usd_convert_warning": "Окончательная сумма, которую вы получите, может измениться из-за колебаний рыночной цены во время конвертации."
+        "usd_convert_warning": "Окончательная сумма, которую вы получите, может измениться из-за колебаний рыночной цены во время конвертации.",
+        "editDescriptionHead": "Что вы хотите сказать?",
+        "editDescriptionPlaceholder": "Добавить описание"
       },
       "settingsContent": {
         "about": "О приложении",

@@ -122,7 +122,8 @@
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dollars",
     "rate": "Rate",
-    "swap": "Swap"
+    "swap": "Swap",
+    "paymentDescriptionPlaceholder": "Description (optional)"
   },
 
   "languages": {
@@ -921,7 +922,6 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparing invoice details",
         "alreadyPaidInvoiceError": "This invoice has already been paid",
-        "descriptionPlaceholder": "Payment description...",
         "fallbackErrorMessage": "Error decoding invoice",
         "connectToSparkMessage": "Connecting to your wallet.",
         "switchTokenText": "Use Different Token",
@@ -1081,7 +1081,6 @@
     },
 
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Payment description",
       "profileMessage": "Paying {{name}}",
       "contactMessage": "{{name}} paid you",
       "giftCardappVersionError": "You cannot send a gift card to this contact. They have not updated to the latest version of Blitz Wallet.",
@@ -1637,7 +1636,9 @@
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Select the currency to receive",
-        "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion."
+        "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion.",
+        "editDescriptionHead": "What would you like to say?",
+        "editDescriptionPlaceholder": "Add a description"
       },
 
       "settingsContent": {

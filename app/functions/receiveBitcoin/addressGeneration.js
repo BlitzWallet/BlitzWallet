@@ -187,16 +187,17 @@ export async function initializeAddressProcess(wolletInfo) {
       }
 
       stateTracker = {
-        generatedAddress: wolletInfo.receivingAmount
-          ? formatBip21Address({
-              address: address,
-              amountSat: (wolletInfo.receivingAmount / SATSPERBITCOIN).toFixed(
-                8,
-              ),
-              message: wolletInfo.description,
-              prefix: 'bitcoin',
-            })
-          : address,
+        generatedAddress:
+          wolletInfo.receivingAmount || wolletInfo.description
+            ? formatBip21Address({
+                address: address,
+                amountSat: wolletInfo.receivingAmount
+                  ? (wolletInfo.receivingAmount / SATSPERBITCOIN).toFixed(8)
+                  : undefined,
+                message: wolletInfo.description,
+                prefix: 'bitcoin',
+              })
+            : address,
         fee: 0,
       };
     }

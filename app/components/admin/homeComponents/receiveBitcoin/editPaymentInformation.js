@@ -243,30 +243,6 @@ export default function EditReceivePaymentInformation(props) {
           </TouchableOpacity>
         </ScrollView>
 
-        {(receiveType.toLowerCase() === 'lightning' ||
-          receiveType.toLowerCase() === 'bitcoin' ||
-          receiveType.toLowerCase() === 'liquid') && (
-          <CustomSearchInput
-            setInputText={setPaymentDescription}
-            placeholderText={t(
-              'wallet.receivePages.editPaymentInfo.descriptionInputPlaceholder',
-            )}
-            inputText={paymentDescription}
-            textInputStyles={styles.textInputStyles}
-            onFocusFunction={() => setIsKeyboardFocused(true)}
-            onBlurFunction={() => setIsKeyboardFocused(false)}
-            editable={!disableDescription}
-            containerStyles={{ maxWidth: 350 }}
-            placeholderTextColor={
-              theme && !darkModeType
-                ? undefined
-                : theme
-                ? COLORS.lightsOutModeOpacityInput
-                : COLORS.opaicityGray
-            }
-          />
-        )}
-
         {!isKeyboardFocused && (
           <>
             <CustomNumberKeyboard
@@ -327,14 +303,12 @@ export default function EditReceivePaymentInformation(props) {
     if (fromPage === 'homepage') {
       navigate.replace('ReceiveBTC', {
         receiveAmount: sendAmount,
-        description: paymentDescription,
       });
     } else {
       navigate.popTo(
         'ReceiveBTC',
         {
           receiveAmount: sendAmount,
-          description: paymentDescription,
           uuid: customUUID(),
         },
         { merge: true },

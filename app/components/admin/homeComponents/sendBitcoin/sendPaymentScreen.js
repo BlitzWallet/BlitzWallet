@@ -136,6 +136,11 @@ export default function SendPaymentScreen(props) {
   const [refreshDecode, setRefreshDecode] = useState(0);
   const isSendingPayment = useRef(null);
   const userPaymentMethod = selectedPaymentMethod || preSelectedPaymentMethod;
+  const combinedPaymentDescription =
+    paymentDescription ||
+    paymentInfo?.data?.label ||
+    paymentInfo?.data?.message ||
+    '';
 
   // Payment type flags
   const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
@@ -547,11 +552,8 @@ export default function SendPaymentScreen(props) {
 
       const memo =
         paymentInfo.type === InputTypes.BOLT11
-          ? enteredPaymentInfo?.description ||
-            paymentDescription ||
-            paymentInfo?.data.message ||
-            ''
-          : paymentDescription || paymentInfo?.data.message || '';
+          ? enteredPaymentInfo?.description || combinedPaymentDescription
+          : combinedPaymentDescription;
 
       const paymentObject = {
         getFee: false,
@@ -674,7 +676,7 @@ export default function SendPaymentScreen(props) {
     paymentInfo,
     selectedLRC20Asset,
     enteredPaymentInfo,
-    paymentDescription,
+    combinedPaymentDescription,
     isUsingLRC20,
     tokenDecimals,
     convertedSendAmount,
@@ -927,11 +929,9 @@ export default function SendPaymentScreen(props) {
             <CustomSearchInput
               onFocusFunction={() => setIsAmountFocused(false)}
               onBlurFunction={() => setIsAmountFocused(true)}
-              placeholderText={t(
-                'wallet.sendPages.sendPaymentScreen.descriptionPlaceholder',
-              )}
+              placeholderText={t('constants.paymentDescriptionPlaceholder')}
               setInputText={setPaymentDescription}
-              inputText={paymentDescription}
+              inputText={combinedPaymentDescription}
               textInputMultiline={true}
               textAlignVertical={'baseline'}
               maxLength={paymentInfo?.data?.commentAllowed || 150}
@@ -1021,7 +1021,7 @@ export default function SendPaymentScreen(props) {
                   btcAdress={btcAdress}
                   paymentInfo={paymentInfo}
                   convertedSendAmount={convertedSendAmount}
-                  paymentDescription={paymentDescription}
+                  paymentDescription={combinedPaymentDescription}
                   setPaymentInfo={setPaymentInfo}
                   setLoadingMessage={setLoadingMessage}
                   fromPage={fromPage}
@@ -1112,7 +1112,7 @@ export default function SendPaymentScreen(props) {
       {/* Emoji bar for description input */}
       {!isAmountFocused && uiState === 'EDIT_AMOUNT' && (
         <EmojiQuickBar
-          description={paymentDescription}
+          description={combinedPaymentDescription}
           onEmojiSelect={handleEmoji}
         />
       )}
