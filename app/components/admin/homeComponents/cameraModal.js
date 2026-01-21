@@ -41,58 +41,127 @@ export default function CameraModal(props) {
   const device = useCameraDevice('back');
   const { t } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isFlashOn, setIsFlashOn] = useState(false);
   const didScanRef = useRef(false);
   const didCallImagePicker = useRef(null);
 
+  const isCameraActive = isFocused && !isClosing;
+
   useFocusEffect(
     useCallback(() => {
       crashlyticsLogReport('Loading camera model page');
-
       if (!hasPermission) {
         requestPermission();
       }
 
       setIsFocused(true);
+      setIsClosing(false);
+      didScanRef.current = false;
 
       return () => {
         setIsFocused(false);
-        didScanRef.current = false;
       };
     }, [hasPermission, requestPermission]),
   );
 
+  const handleFinish = useCallback(
+    data => {
+      if (didScanRef.current) return;
+      didScanRef.current = true;
+
+      setIsClosing(true);
+
+      setTimeout(() => {
+        if (navigate.canGoBack()) {
+          navigate.goBack();
+          setTimeout(() => {
+            props.route.params.updateBitcoinAdressFunc(data);
+          }, 100);
+        }
+      }, 100);
+    },
+    [navigate, props.route.params],
+  );
+
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
-    onCodeScanned: useCallback(
-      codes => {
-        if (didScanRef.current) return;
-        const [data] = codes;
-        if (data.type !== 'qr') return;
-
-        didScanRef.current = true;
+    onCodeScanned: codes => {
+      if (didScanRef.current || isClosing || codes.length === 0) return;
+      const [data] = codes;
+      if (data.type === 'qr' && data.value) {
         crashlyticsLogReport('handling scanned barcode');
-        navigate.goBack();
-
-        setTimeout(() => {
-          props.route.params.updateBitcoinAdressFunc(data.value);
-        }, 150);
-      },
-      [navigate, props.route.params],
-    ),
+        handleFinish(data.value);
+      }
+    },
   });
 
   const format = useCameraFormat(device?.formats?.length ? device : undefined, [
     { photoAspectRatio: screenAspectRatio },
   ]);
 
+  const toggleFlash = useCallback(() => {
+    if (!device?.hasTorch) {
+      return;
+    }
+    setIsFlashOn(prev => !prev);
+  }, [device]);
+
+  const dataFromClipboard = async () => {
+    try {
+      const response = await getClipboardText();
+      if (!response.didWork) {
+        navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
+        return;
+      }
+      handleFinish(response.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getQRImage = async () => {
+    if (didCallImagePicker.current) return;
+    didCallImagePicker.current = true;
+
+    const imagePickerResponse = await getImageFromLibrary();
+    const { didRun, error, imgURL } = imagePickerResponse;
+
+    if (!didRun) {
+      didCallImagePicker.current = false;
+      return;
+    }
+
+    if (error) {
+      crashlyticsRecordErrorReport(error);
+      didCallImagePicker.current = false;
+      navigate.navigate('ErrorScreen', { errorMessage: t(error) });
+      return;
+    }
+
+    try {
+      const response = await detectQRCode(imgURL.uri);
+      if (response?.values?.length > 0) {
+        handleFinish(response.values[0]);
+      } else {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('wallet.cameraModal.qrDecodeError'),
+        });
+      }
+    } catch (err) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.cameraModal.qrDecodeError'),
+      });
+    } finally {
+      didCallImagePicker.current = false;
+    }
+  };
+
   if (!hasPermission) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CameraPageNavBar />
-        <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-        >
+        <View style={styles.centeredContainer}>
           <ThemeText
             styles={styles.errorText}
             content={t('wallet.cameraModal.noCamera')}
@@ -105,6 +174,7 @@ export default function CameraModal(props) {
       </GlobalThemeView>
     );
   }
+
   if (device == null) {
     return (
       <GlobalThemeView useStandardWidth={true}>
@@ -123,10 +193,11 @@ export default function CameraModal(props) {
         codeScanner={codeScanner}
         style={StyleSheet.absoluteFill}
         device={device}
-        isActive={isFocused}
+        isActive={isCameraActive}
         format={format}
         torch={isFlashOn ? 'on' : 'off'}
       />
+
       <View style={styles.cameraOverlay}>
         <View style={styles.topOverlay}>
           <CameraPageNavBar useFullWidth={false} showWhiteImage={true} />
@@ -148,17 +219,21 @@ export default function CameraModal(props) {
             </TouchableOpacity>
           </View>
         </View>
+
         <View style={styles.middleRow}>
           <View style={styles.sideOverlay} />
           <View
-            style={{
-              ...styles.qrBoxOutline,
-              borderColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-            }}
+            style={[
+              styles.qrBoxOutline,
+              {
+                borderColor:
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              },
+            ]}
           />
           <View style={styles.sideOverlay} />
         </View>
+
         <View style={styles.bottomOverlay}>
           {props?.route?.params?.fromPage !== 'addContact' && (
             <TouchableOpacity
@@ -176,111 +251,16 @@ export default function CameraModal(props) {
       </View>
     </View>
   );
-  function toggleFlash() {
-    if (!device?.hasTorch) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.cameraModal.noFlash'),
-      });
-      return;
-    }
-    setIsFlashOn(prev => !prev);
-  }
-
-  async function dataFromClipboard() {
-    try {
-      const response = await getClipboardText();
-      if (!response.didWork) {
-        navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
-        return;
-      }
-      crashlyticsLogReport('handling data from clipboard');
-      navigate.goBack();
-      props.route.params.updateBitcoinAdressFunc(response.data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  async function getQRImage() {
-    if (didCallImagePicker.current) return;
-    didCallImagePicker.current = true;
-    const imagePickerResponse = await getImageFromLibrary();
-    const { didRun, error, imgURL } = imagePickerResponse;
-    if (!didRun) {
-      didCallImagePicker.current = false;
-      return;
-    }
-    if (error) {
-      crashlyticsRecordErrorReport(error);
-      navigate.goBack();
-      setTimeout(
-        () => {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t(error),
-          });
-        },
-        Platform.OS === 'android' ? 350 : 50,
-      );
-      didCallImagePicker.current = false;
-      return;
-    }
-
-    try {
-      const response = await detectQRCode(imgURL.uri);
-      if (!response) throw new Error('Error detecting invoice');
-
-      if (response.type != 'QRCode') {
-        navigate.goBack();
-        setTimeout(() => {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('wallet.cameraModal.sanningResponse'),
-          });
-        }, 150);
-      }
-      if (!response.values.length) {
-        navigate.goBack();
-        setTimeout(() => {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('wallet.cameraModal.qrDecodeError'),
-          });
-        }, 150);
-        return;
-      }
-      crashlyticsLogReport('handling code from qr code');
-      navigate.goBack();
-      setTimeout(() => {
-        props.route.params.updateBitcoinAdressFunc(response.values[0]);
-      }, 150);
-    } catch (err) {
-      console.log(err);
-      navigate.goBack();
-      setTimeout(() => {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('wallet.cameraModal.qrDecodeError'),
-        });
-      }, 150);
-    } finally {
-      didCallImagePicker.current = false;
-    }
-  }
 }
 
 const styles = StyleSheet.create({
+  centeredContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   errorText: { width: '80%', textAlign: 'center' },
-  backArrow: {
-    width: 30,
-    height: 30,
-  },
-  qrBoxOutline: {
-    width: 250,
-    height: 250,
-    borderWidth: 3,
-  },
-  qrLine: {
-    width: '100%',
-    height: 10,
-    position: 'absolute',
-  },
+  qrBoxOutline: { width: 250, height: 250, borderWidth: 3 },
   qrVerticalBackground: {
     width: 250,
     flexDirection: 'row',
@@ -289,6 +269,11 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
     ...CENTER,
   },
+  cameraOverlay: { ...StyleSheet.absoluteFillObject, zIndex: 1 },
+  topOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.6)' },
+  middleRow: { flexDirection: 'row' },
+  sideOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.6)' },
+  bottomOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.6)' },
   pasteBTN: {
     borderRadius: 8,
     borderWidth: 2,
@@ -297,34 +282,6 @@ const styles = StyleSheet.create({
     ...CENTER,
     borderColor: COLORS.darkModeText,
     marginTop: 10,
-  },
-  cameraOverlay: {
-    position: 'absolute',
-    zIndex: 1,
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    flex: 1,
-  },
-
-  overlay: {
-    flex: 1,
-  },
-  topOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  },
-  middleRow: {
-    flexDirection: 'row',
-  },
-  sideOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  },
-  bottomOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   pastBTNText: {
     color: COLORS.darkModeText,

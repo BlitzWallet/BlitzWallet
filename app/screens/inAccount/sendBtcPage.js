@@ -28,7 +28,7 @@ import Reanimated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { navigateToSendUsingClipboard, getQRImage } from '../../functions';
+import { getQRImage } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { backArrow } from '../../constants/styles';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
@@ -38,10 +38,8 @@ import { CameraPageNavBar } from '../../functions/CustomElements/camera/cameraPa
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../functions/sendBitcoin/handlePreSendPageParsing';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import getClipboardText from '../../functions/getClipboardText';
 
-Reanimated.addWhitelistedNativeProps({
-  zoom: true,
-});
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 
 export default function SendPaymentHome({ pageViewPage, from }) {
@@ -57,6 +55,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
   const zoomOffset = useSharedValue(0);
   const zoom = useSharedValue(device?.neutralZoom || 1);
   const [isFlashOn, setIsFlashOn] = useState(false);
+  const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const didScanRef = useRef(false);
   const { t } = useTranslation();
 
@@ -68,10 +67,11 @@ export default function SendPaymentHome({ pageViewPage, from }) {
   const format = useCameraFormat(device?.formats?.length ? device : undefined, [
     { photoAspectRatio: screenAspectRatio },
   ]);
-  const isCameraActive = useMemo(
-    () => (navigate.canGoBack() ? isFocused : pageViewPage === 0),
-    [navigate, isFocused, pageViewPage],
-  );
+
+  const isCameraActive = useMemo(() => {
+    const baseActive = navigate.canGoBack() ? isFocused : pageViewPage === 0;
+    return baseActive && !isNavigatingAway;
+  }, [isFocused, pageViewPage, navigate, isNavigatingAway]);
 
   const qrBoxOutlineStyle = useMemo(
     () => ({
@@ -110,48 +110,62 @@ export default function SendPaymentHome({ pageViewPage, from }) {
 
   const handleInvoice = useCallback(
     data => {
-      const response = handlePreSendPageParsing(data);
+      setIsNavigatingAway(true);
 
-      if (response.error) {
-        navigate.navigate('ErrorScreen', { errorMessage: response.error });
-        return;
-      }
+      setTimeout(() => {
+        const response = handlePreSendPageParsing(data);
 
-      if (response.navigateToWebView) {
-        navigate.navigate('CustomWebView', {
-          headerText: '',
-          webViewURL: response.webViewURL,
-        });
-        return;
-      }
+        if (response.error) {
+          navigate.navigate('ErrorScreen', { errorMessage: response.error });
+          setIsNavigatingAway(false);
+          return;
+        }
 
-      if (from === 'home')
-        navigate.navigate('ConfirmPaymentScreen', {
-          btcAdress: response.btcAdress,
-        });
-      else
-        navigate.replace('ConfirmPaymentScreen', {
-          btcAdress: response.btcAdress,
-        });
+        if (response.navigateToWebView) {
+          navigate.navigate('CustomWebView', {
+            headerText: '',
+            webViewURL: response.webViewURL,
+          });
+          return;
+        }
+
+        if (from === 'home')
+          navigate.navigate('ConfirmPaymentScreen', {
+            btcAdress: response.btcAdress,
+          });
+        else
+          navigate.replace('ConfirmPaymentScreen', {
+            btcAdress: response.btcAdress,
+          });
+      }, 100);
     },
     [navigate, from],
   );
 
-  const handleBarCodeScanned = codes => {
-    if (didScanRef.current || codes.length === 0) return;
-    const [data] = codes;
+  const handleBarCodeScanned = useCallback(
+    codes => {
+      if (didScanRef.current || codes.length === 0 || isNavigatingAway) return;
+      const [data] = codes;
 
-    if (data.type !== 'qr') return;
-    crashlyticsLogReport('Hanlding scanned baracode');
-    didScanRef.current = true;
-    handleInvoice(data.value);
-  };
+      if (data.type !== 'qr') return;
+      crashlyticsLogReport('Hanlding scanned baracode');
+      didScanRef.current = true;
+      handleInvoice(data.value);
+    },
+    [handleInvoice, isNavigatingAway],
+  );
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: handleBarCodeScanned,
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      setIsNavigatingAway(false);
+      didScanRef.current = false;
+    }, []),
+  );
   const toggleFlash = useCallback(() => {
     if (!device?.hasTorch) {
       navigate.navigate('ErrorScreen', {
@@ -202,6 +216,17 @@ export default function SendPaymentHome({ pageViewPage, from }) {
       console.log('Error in getting QR image', err);
     }
   }, [navigate]);
+
+  const handlePaste = useCallback(async () => {
+    const response = await getClipboardText();
+
+    if (!response.didWork) {
+      navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
+      return;
+    }
+    const clipboardData = response.data?.trim();
+    handleInvoice(clipboardData);
+  }, [navigate, handleInvoice]);
 
   if (!hasPermission) {
     return (
@@ -280,9 +305,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
           </View>
           <View style={styles.overlay}>
             <TouchableOpacity
-              onPress={() => {
-                navigateToSendUsingClipboard(navigate, 'sendBTCPage', from, t);
-              }}
+              onPress={handlePaste}
               style={styles.pasteBTN}
               activeOpacity={0.2}
             >
