@@ -71,7 +71,6 @@ import {
 } from '../../../../functions/spark/flashnet';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -726,13 +725,6 @@ export default function SendPaymentScreen(props) {
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);
   };
-
-  const handleBackpress = useCallback(() => {
-    keyboardGoBack(navigate);
-    return true;
-  }, [navigate]);
-
-  useHandleBackPressNew(handleBackpress);
 
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
