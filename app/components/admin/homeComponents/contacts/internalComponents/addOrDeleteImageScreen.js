@@ -5,30 +5,30 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {COLORS, FONT, SIZES} from '../../../../../constants';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import { COLORS, FONT, SIZES } from '../../../../../constants';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useNavigation} from '@react-navigation/native';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {useTranslation} from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 export default function AddOrDeleteContactImage(props) {
-  const {textColor, backgroundColor} = GetThemeColors();
+  const { textColor, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
-  useHandleBackPressNew();
-  const {t} = useTranslation();
+
+  const { t } = useTranslation();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
       <View style={styles.globalContainer}>
-        <TouchableWithoutFeedback style={{flex: 1}}>
+        <TouchableWithoutFeedback style={{ flex: 1 }}>
           <View
             style={[
               styles.content,
               {
                 backgroundColor: backgroundColor,
               },
-            ]}>
+            ]}
+          >
             <ThemeText
               styles={styles.headerText}
               content={t(
@@ -46,9 +46,10 @@ export default function AddOrDeleteContactImage(props) {
                   navigate.goBack();
                   props.route.params.addPhoto();
                 }}
-                style={[styles.button]}>
+                style={[styles.button]}
+              >
                 <ThemeText
-                  styles={{...styles.buttonText}}
+                  styles={{ ...styles.buttonText }}
                   content={
                     props.route.params.hasImage
                       ? t('constants.change')
@@ -70,9 +71,10 @@ export default function AddOrDeleteContactImage(props) {
                   }
                   navigate.goBack();
                 }}
-                style={styles.button}>
+                style={styles.button}
+              >
                 <ThemeText
-                  styles={{...styles.buttonText}}
+                  styles={{ ...styles.buttonText }}
                   content={
                     props.route.params.hasImage
                       ? t('constants.delete')

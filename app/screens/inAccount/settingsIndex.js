@@ -9,7 +9,6 @@ import { useMemo } from 'react';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useAppStatus } from '../../../context-store/appStatus';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import openWebBrowser from '../../functions/openWebBrowser';
 import { useTranslation } from 'react-i18next';
@@ -177,8 +176,6 @@ export default function SettingsIndex(props) {
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const isDoomsday = props?.route?.params?.isDoomsday;
   const navigate = useNavigation();
-  useHandleBackPressNew();
-
   const scrollY = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler({

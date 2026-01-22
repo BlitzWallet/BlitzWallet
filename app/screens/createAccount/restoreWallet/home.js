@@ -20,7 +20,6 @@ import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import { WINDOWWIDTH } from '../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
-import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import getClipboardText from '../../../functions/getClipboardText';
 import { useNavigation } from '@react-navigation/native';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
@@ -39,7 +38,6 @@ export default function RestoreWallet({
   navigation: { reset },
   route: { params },
 }) {
-  useHandleBackPressNew();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { accountMnemoinc, setAccountMnemonic } = useKeysContext();

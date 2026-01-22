@@ -28,7 +28,7 @@ import {
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
 } from '../../../../constants/theme';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
 import ContactProfileImage from './internalComponents/profileImage';
@@ -66,8 +66,6 @@ export default function EditMyProfilePage(props) {
     : decodedAddedContacts.find(
         contact => contact.uuid === providedContact?.uuid,
       );
-
-  useHandleBackPressNew();
 
   const deleteUser = shouldDelete => {
     if (shouldDelete) {

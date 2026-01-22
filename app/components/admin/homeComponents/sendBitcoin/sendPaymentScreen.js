@@ -29,7 +29,6 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import hasAlredyPaidInvoice from './functions/hasPaid';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
@@ -727,12 +726,6 @@ export default function SendPaymentScreen(props) {
     setPaymentDescription(newDescription);
   };
 
-  const handleBackpress = useCallback(() => {
-    keyboardGoBack(navigate);
-  }, [navigate]);
-
-  useHandleBackPressNew(handleBackpress);
-
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
@@ -759,7 +752,6 @@ export default function SendPaymentScreen(props) {
         <NavBarWithBalance
           seletctedToken={seletctedToken}
           selectedLRC20Asset={selectedLRC20Asset}
-          backFunction={handleBackpress}
           useFrozen={true}
         />
 

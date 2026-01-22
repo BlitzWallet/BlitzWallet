@@ -1,5 +1,11 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  BackHandler,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {
   CENTER,
   COLORS,
@@ -23,7 +29,6 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { useKeysContext } from '../../../../../context-store/keys';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import ContactProfileImage from './internalComponents/profileImage';
@@ -270,10 +275,6 @@ export default function ContactsPage({ navigation }) {
     keyboardNavigate(() => navigate.navigate('SettingsHome', {}));
   }, [navigate]);
 
-  const handleBackPressFunction = useCallback(() => {
-    tabsNavigate('Home');
-  }, [tabsNavigate]);
-
   const handleButtonPress = useCallback(() => {
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
@@ -302,8 +303,6 @@ export default function ContactsPage({ navigation }) {
       };
     }, []),
   );
-
-  useHandleBackPressNew(handleBackPressFunction);
 
   const hasContacts =
     decodedAddedContacts.filter(

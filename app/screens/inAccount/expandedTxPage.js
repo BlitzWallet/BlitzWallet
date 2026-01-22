@@ -19,7 +19,6 @@ import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
@@ -146,8 +145,6 @@ export default function ExpandedTx(props) {
       console.log(err);
     }
   };
-
-  useHandleBackPressNew();
 
   const isLRC20Payment = transaction.details.isLRC20Payment;
   const selectedToken = isLRC20Payment

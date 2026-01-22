@@ -27,6 +27,7 @@ export default function SkipCreateAccountPathMessage() {
 
   const handleBackPressFunction = () => {
     setGoGack(true);
+    return true;
   };
   useHandleBackPressNew(handleBackPressFunction);
 

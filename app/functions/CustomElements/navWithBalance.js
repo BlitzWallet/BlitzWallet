@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
 import { useRef } from 'react';
 import ThemeIcon from './themeIcon';
+import { keyboardGoBack } from '../customNavigation';
 
 export default function NavBarWithBalance({
   backFunction,
@@ -36,7 +37,7 @@ export default function NavBarWithBalance({
         style={styles.backArrow}
         onPress={() => {
           if (backFunction) backFunction();
-          else naivigate.goBack();
+          else keyboardGoBack(naivigate);
         }}
       >
         <ThemeIcon iconName={'ArrowLeft'} />

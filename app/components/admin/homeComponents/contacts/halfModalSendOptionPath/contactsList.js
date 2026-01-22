@@ -26,7 +26,6 @@ import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { KEYBOARDTIMEOUT } from '../../../../../constants/styles';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import ContactProfileImage from '../internalComponents/profileImage';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
@@ -44,8 +43,6 @@ export default function ChooseContactHalfModal() {
   const { bottomPadding } = useGlobalInsets();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { isConnectedToTheInternet } = useAppStatus();
-
-  useHandleBackPressNew();
 
   const navigateToExpandedContact = useCallback((contact, imageData) => {
     setTimeout(

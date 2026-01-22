@@ -12,7 +12,7 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../../context-store/keys';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+
 import { useTranslation } from 'react-i18next';
 
 export default function ContactsPageLongPressActions({
@@ -30,7 +30,7 @@ export default function ContactsPageLongPressActions({
     toggleGlobalContactsInformation,
     deleteContact,
   } = useGlobalContacts();
-  useHandleBackPressNew();
+
   const { t } = useTranslation();
 
   return (

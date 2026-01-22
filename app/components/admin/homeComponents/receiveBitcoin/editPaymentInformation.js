@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import {
   COLORS,
@@ -165,8 +164,6 @@ export default function EditReceivePaymentInformation(props) {
     receiveType.toLowerCase() === 'lightning' &&
     endReceiveType === 'USD' &&
     localSatAmount < 1000;
-
-  useHandleBackPressNew();
 
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);

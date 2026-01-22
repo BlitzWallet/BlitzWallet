@@ -26,13 +26,13 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import getGiftCardsList from './giftCardAPI';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function GiftCardPage() {
   const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
@@ -46,6 +46,12 @@ export default function GiftCardPage() {
   const [showList, setShowList] = useState(false);
   const windowDimensions = useWindowDimensions();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+
+  const handleBackPress = useCallback(() => {
+    navigate.popTo('HomeAdmin');
+    return true;
+  }, [navigate]);
+  useHandleBackPressNew(handleBackPress);
 
   useFocusEffect(
     useCallback(() => {
@@ -80,10 +86,6 @@ export default function GiftCardPage() {
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
-  const handleBackPress = useCallback(() => {
-    navigate.popTo('HomeAdmin');
-  }, [navigate]);
-  useHandleBackPressNew(handleBackPress);
 
   // Filter gift cards based on search input
   const filteredGiftCards = useMemo(

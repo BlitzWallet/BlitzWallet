@@ -21,7 +21,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+
 import ContactProfileImage from './internalComponents/profileImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
@@ -63,8 +63,6 @@ export default function ExpandedContactsPage(props) {
   );
   const imageData = cache[selectedContact.uuid];
   const contactTransactions = contactsMessags[selectedUUID]?.messages || [];
-
-  useHandleBackPressNew();
 
   useEffect(() => {
     //listening for messages when you're on the contact

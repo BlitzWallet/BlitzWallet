@@ -22,7 +22,6 @@ import { EditMyProfilePage } from '../../components/admin';
 
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useCallback } from 'react';
 import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
@@ -38,10 +37,6 @@ export default function SettingsContentIndex(props) {
   const isDoomsday = props?.route?.params?.isDoomsday;
 
   const extraData = props?.route?.params?.extraData;
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-  }, [navigate]);
-  useHandleBackPressNew(handleBackPressFunction);
 
   return (
     <>

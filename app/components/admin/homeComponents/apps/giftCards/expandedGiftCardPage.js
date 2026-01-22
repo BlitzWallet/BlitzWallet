@@ -22,7 +22,7 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+
 import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import sendStorePayment from '../../../../../functions/apps/payments';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
@@ -61,7 +61,6 @@ export default function ExpandedGiftCardPage(props) {
   );
   const { t } = useTranslation();
   const navigate = useNavigation();
-  useHandleBackPressNew();
 
   const [isPurchasingGift, setIsPurchasingGift] = useState({
     isPurasing: false,

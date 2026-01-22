@@ -8,7 +8,6 @@ import CustomButton from '../../../functions/CustomElements/button';
 import { copyToClipboard } from '../../../functions';
 import { useNavigation } from '@react-navigation/native';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import { crashlyticsRecordErrorReport } from '../../../functions/crashlyticsLogs';
 import { useKeysContext } from '../../../../context-store/keys';
 import { useToast } from '../../../../context-store/toastManager';
@@ -37,8 +36,6 @@ export default function GenerateKey() {
   const { t } = useTranslation();
   const hookNavigate = useNavigation();
   const { backgroundColor } = GetThemeColors();
-
-  useHandleBackPressNew();
 
   const handleScrollViewLayout = e => {
     setScrollViewDimensions(e.nativeEvent.layout);
