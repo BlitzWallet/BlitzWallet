@@ -13,13 +13,13 @@
     "receive": "Empfangen",
     "accept": "Akzeptieren",
     "total_balance": "Gesamtguthaben",
-    "sat_balance": "Bitcoin-Guthaben",
-    "usd_balance": "Dollar-Guthaben",
+    "sat_balance": "BTC-Guthaben",
+    "usd_balance": "USD-Guthaben",
     "amount": "Betrag",
     "sent": "Gesendet",
     "received": "Empfangen",
     "store": "Shop",
-    "faucet": "Faucet",
+    "faucet": "Gratis-Beträge",
     "today": "Heute",
     "yesterday": "Gestern",
     "day": "Tag",
@@ -63,9 +63,9 @@
     "change": "Ändern",
     "unpin": "Lösen",
     "pin": "Anheften",
-    "noBioSet": "Keine Biografie eingestellt",
+    "noBioSet": "Sie haben keine Biografie eingestellt",
     "noTransactions": "Senden oder fordern Sie eine Zahlung an, um den Transaktionsverlauf zu sehen.",
-    "leftPageMessage": "Wohin sind Sie gegangen?",
+    "leftPageMessage": "Sie haben die Seite verlassen.",
     "tryAgain": "Erneut versuchen",
     "noDescription": "Keine Beschreibung",
     "slideToExport": "Zum Exportieren wischen",
@@ -108,7 +108,7 @@
     "andLower": "und",
     "onLower": "ein",
     "offLower": "aus",
-    "recover": "Genesen",
+    "recover": "Wiederherstellung",
     "search": "Suchen",
     "review": "Überprüfen",
     "loadMore": "Mehr laden",
@@ -119,11 +119,10 @@
     "reclaim": "Abgelaufen",
     "optionalFlag": "(Optional)",
     "gift": "Geschenk",
-    "bitcoin_upper": "Bitcoin",
-    "dollars_upper": "Dollar",
+    "bitcoin_upper": "BTC",
+    "dollars_upper": "USD",
     "rate": "Kurs",
-    "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Beschreibung (optional)"
+    "swap": "Swap"
   },
   "languages": {
     "english": "English",
@@ -131,9 +130,9 @@
     "italian": "Italiano",
     "portuguese_br": "Português (Brasil)",
     "german": "Deutsch",
-    "french": "Française",
+    "french": "Français",
     "swedish": "Svenska",
-    "russian": "русский"
+    "russian": "Pусский"
   },
   "weekdays": {
     "Mon": "Montag",
@@ -209,7 +208,7 @@
     },
     "disclaimerPage": {
       "header": "Selbstverwahrung",
-      "subHeader": "Blitz hat keinen Zugriff auf Ihre Gelder und kann diese im Verlustfall nicht wiederherstellen. Mit der Fortsetzung stimmen Sie den Nutzungsbedingungen von Blitz Wallet zu.",
+      "subHeader": "Blitz hat keinen Zugriff auf Ihre Gelder und kann diese im Verlustfall nicht wiederherstellen. Mit der Fortsetzung stimmen Sie den Nutzungsbedingungen von Blitz-Wallet zu.",
       "imgCaption": "'Mit großer Macht kommt große Verantwortung' - Onkel Ben",
       "acceptPrefix": "Ich akzeptiere die ",
       "terms&Conditions": "Nutzungsbedingungen",
@@ -274,11 +273,11 @@
       "AI": "KI",
       "AIDescription": "Chatten Sie mit den neuesten generativen KI-Modellen",
       "SMS": "SMS",
-      "SMSDescription": "Senden und empfangen Sie SMS-Nachrichten weltweit mit Bitcoin",
+      "SMSDescription": "Senden und empfangen Sie SMS-Nachrichten weltweit mit BTC",
       "VPN": "VPN",
       "VPNDescription": "Sicher surfen und Privatsphäre schützen",
       "onlineListings": "Shops",
-      "onlineListingsDescription": "Verzeichnis von Online-Unternehmen, die Bitcoin-Zahlungen akzeptieren",
+      "onlineListingsDescription": "Verzeichnis von Online-Unternehmen, die BTC-Zahlungen akzeptieren",
       "Soon": "Bald",
       "SoonDescription": "Weitere Apps kommen bald"
     },
@@ -814,7 +813,7 @@
       "apparel": "Bekleidung",
       "other": "Sonstiges",
       "travel": "Reisen",
-      "e-commerce": "E-Commerce",
+      "e-commerce": "Elektronischer Handel",
       "health": "Gesundheit",
       "art & collectibles": "Kunst & Sammlerstücke",
       "legal & services": "Recht & Dienstleistungen",
@@ -876,7 +875,7 @@
         "receive_amount": "Empfangsbetrag",
         "descriptionInputPlaceholder": "Beschreibung...",
         "editAmount": "Betrag bearbeiten",
-        "minUSDSwap": "Zahlungen, die in Dollar umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}"
+        "minUSDSwap": "Zahlungen, die in USD umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Andere Empfangsmethoden",
@@ -890,15 +889,15 @@
         "oneMinute": "~ {{numMins}} Minute",
         "tenMinutes": "~ {{numMins}} Minuten",
         "notUsingMainAccountWarning": "Warnung: Sie nutzen nicht Ihr Hauptkonto. Alle {{swapType}}-Transfers werden an Ihre Hauptwallet gesendet.",
-        "sparkDesc": "Sofort, unterstützt Token",
+        "sparkDesc": "Sofort, unterstützte Token",
         "sparkTitle": "Spark-Adresse",
-        "bitcoinTitle": "Bitcoin-Adresse",
+        "bitcoinTitle": "BTC-On-Chain-Adresse",
         "lightningTitle": "Lightning-Rechnung",
         "liquidTitle": "Liquid-Adresse",
         "rootstockTitle": "Rootstock-Adresse"
       },
       "editLNURLContact": {
-        "informationMessage": "Das Ändern Ihres Benutzernamens aktualisiert, wie andere Sie in Blitz-Kontakten und Ihre Lightning-Adresse (Benutzername@blitzwalletapp.com) finden.\n\nEine Lightning-Adresse ermöglicht es anderen, Ihnen einfach Bitcoin zu senden. Teilen Sie einfach Ihre Adresse (Benutzername@blitzwalletapp.com), um bezahlt zu werden.",
+        "informationMessage": "Beim Ändern Ihres Benutzernamens passt sich auch Ihre Lightning-Adresse an (benutzername@blitzwalletapp.com). Dadurch finden andere Sie einfacher in ihren Blitz-Kontakten. Ihre Lightning-Adresse funktioniert wie eine E-Mail-Adresse für Bitcoin: Geben Sie anderen einfach benutzername@blitzwalletapp.com – und schon können sie Ihnen BTC senden.",
         "usernameInputDesc": "Benutzernamen bearbeiten"
       }
     },
@@ -906,9 +905,10 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Rechnungsdetails werden vorbereitet",
         "alreadyPaidInvoiceError": "Diese Rechnung wurde bereits bezahlt.",
+        "descriptionPlaceholder": "Zahlungsbeschreibung...",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung",
         "connectToSparkMessage": "Verbindung zu Ihrer Wallet wird hergestellt.",
-        "switchTokenText": "Anderen Token verwenden",
+        "switchTokenText": "Bitte verwenden Sie einen anderen Token.",
         "zeroAmountInvoiceDollarPayments": "Rechnungen mit Betrag null können nicht mit USD bezahlt werden. Bitte verwenden Sie BTC.",
         "decodingPayment": "Zahlungsinformationen werden dekodiert...",
         "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren."
@@ -956,16 +956,16 @@
         "sendMaxShort": "Max"
       },
       "acceptButton": {
-        "noSendAmountError": "Bitte gib einen Betrag zum Senden ein.",
-        "noSwapForBTCPaymentsError": "Bitcoin-On-Chain-Zahlungen können nur mit BTC bezahlt werden, nicht mit USD. Swaps sind für On-Chain-Zahlungen nicht verfügbar.",
+        "noSendAmountError": "Bitte geben Sie einen Betrag zum Senden ein.",
+        "noSwapForBTCPaymentsError": "BTC-On-Chain-Zahlungen können nur mit BTC bezahlt werden, nicht mit USD. Swaps sind für On-Chain-Zahlungen nicht verfügbar.",
         "balanceFragmentationError": "Ihr Guthaben ist auf BTC und USD aufgeteilt. Um diese Zahlung abzuschließen, konsolidieren Sie Ihr Mittel oder passen Sie die Zahlungsmethode an.",
         "liquidError": "{{overFlowType}} Liquid-Zahlungsbetrag beträgt {{amount}}",
-        "onchainError": "Bitcoin-On-Chain-Zahlungen erfordern einen Mindestbetrag von {{amount}}",
+        "onchainError": "BTC-On-Chain-Zahlungen erfordern einen Mindestbetrag von {{amount}}",
         "lnurlPayError": "Der Zahlungsbetrag muss zwischen dem {{overFlowType}} von {{amount}} liegen",
         "lrc20FeeError": "Sie benötigen mindestens {{amount}}, um die Transaktionsgebühr zu bezahlen. Ihr Aktuelles Guthaben: {{balance}}",
         "balanceError": "Unzureichendes Guthaben, um diese Zahlung abzuschließen",
         "swapMinimumError": "{{currency1}}-zu-{{currency2}}-Swaps erfordern einen Mindestbetrag von {{amount}}",
-        "flashnetOffineError": "Umwandlungen zwischen Dollar und Bitcoin sind derzeit nicht verfügbar. Bitte versuche es später erneut."
+        "flashnetOffineError": "Umwandlungen zwischen Dollar und Bitcoin sind derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
       }
     },
     "switchOption": {
@@ -1014,26 +1014,26 @@
   "contacts": {
     "contactsPage": {
       "contactsHeader": "Kontakte",
-      "addContactsText": "Kontakt hinzufügen",
+      "addContactsText": "Kontakte hinzufügen",
       "searchContactsPlaceholder": "Hinzugefügte Kontakte suchen",
       "noContactsMessage": "Sie haben keine Kontakte",
       "editContactProfileMessage": "Bearbeiten Sie Ihr Profil, um Kontakte zu nutzen.",
-      "addContactButton": "Kontakt hinzufügen",
+      "addContactButton": "Kontakte hinzufügen",
       "editContactButton": "Profil bearbeiten",
       "unknownSender": "Unbekannter Absender",
       "noContactSearch": "Dieser Kontakt ist noch nicht in Ihrer Liste.",
       "notFound": "Nicht gefunden."
     },
     "addContactsHalfModal": {
-      "noContactsMessage": "Kontakt konnte nicht gefunden werden.",
-      "title": "Kontakt hinzufügen",
-      "searchPlaceholder": "Kontakt suchen",
+      "noContactsMessage": "Der Kontakt konnte nicht gefunden werden.",
+      "title": "Kontakte hinzufügen",
+      "searchPlaceholder": "Kontakte suchen",
       "lnurlAddMessage": "Sie sind dabei, hinzuzufügen",
       "noProfilesFound": "Kein Profil entspricht dieser Suche",
       "startTypingMessage": "Suchen Sie nach LNURL (z.B. name@service.com) oder Blitz-Benutzername."
     },
     "expandedContactPage": {
-      "loadingContactError": "Kontakt konnte nicht geladen werden, bitte versuchen Sie es erneut.",
+      "loadingContactError": "Die Kontakte konnten nicht geladen werden, bitte versuchen Sie es erneut.",
       "requestLNURLError": "Sie können nur Geld von Blitz-Kontakten anfordern, nicht von LNURL-Adressen.",
       "noTransactions": "Senden oder fordern Sie eine Zahlung an, um den Transaktionsverlauf zu sehen."
     },
@@ -1051,7 +1051,7 @@
       "uniqueNameInputPlaceholder": "Geben Sie Ihren Benutzernamen ein",
       "bioInputDesc": "Biografie",
       "bioInputPlaceholder": "Geben Sie eine kurze Biografie ein",
-      "addContactBTN": "Kontakt hinzufügen",
+      "addContactBTN": "Kontakte hinzufügen",
       "unqiueNameRegexError": "Ihr Benutzername darf nur Buchstaben, Zahlen oder Unterstriche enthalten und muss mindestens einen Buchstaben enthalten.",
       "usernameAlreadyExistsError": "Dieser Benutzername existiert bereits, bitte wählen Sie einen anderen.",
       "unableToSaveError": "Profilbild konnte nicht gespeichert werden, bitte versuchen Sie es erneut.",
@@ -1059,9 +1059,10 @@
       "deleateWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden."
     },
     "sendAndRequestPage": {
+      "descriptionPlaceholder": "Zahlungsbeschreibung",
       "profileMessage": "Bezahlung an {{name}}",
       "contactMessage": "{{name}} hat Ihnen bezahlt",
-      "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz Wallet aktualisiert.",
+      "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz-Wallet aktualisiert.",
       "giftCardDescription": "Sie haben {{name}} eine {{giftCardName}} Geschenkkarte gesendet",
       "cardDetailsError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",
       "giftCardRange": "{{amount}} - {{amount2}} senden",
@@ -1105,7 +1106,7 @@
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Geschenkkarte",
-        "noCardsText": "Ihre Geschenkkarten werden hier angezeigt, wenn dir ein Kontakt eine sendet.",
+        "noCardsText": "Hier werden Geschenkkarten angezeigt, die Ihnen ein Kontakt sendet.",
         "header": "Ihre Geschenkkarten",
         "cardsLenghSingular": "{{num}} Karte",
         "cardsLenghPlurl": "{{num}} Karten"
@@ -1117,7 +1118,7 @@
     "showProfileQr": {
       "header": "Profil teilen",
       "lnAddress": "Lightning-Adresse",
-      "blitzContact": "Blitz-Kontakt",
+      "blitzContact": "Blitz-Kontakte",
       "copyMessage": "Kopiert!",
       "lnurlCopy": "Adresse kopieren",
       "blitzCopy": "Link kopieren",
@@ -1130,14 +1131,14 @@
       "showQR": "QR anzeigen",
       "profileHead": "Profil",
       "settingsHead": "Einstellungen",
-      "seedPopup": "Eine Wiederherstellungsphrase ist eine Liste von Wörtern, mit der Sie Ihre Bitcoin wiederherstellen können, wenn Ihr Gerät verloren geht oder beschädigt wird. Schreiben Sie sie auf und bewahren Sie sie sicher auf. Geben Sie sie niemals an jemand anderen weiter – wer sie besitzt, kann all Ihre Bitcoin stehlen."
+      "seedPopup": "Ihre Wiederherstellungsphrase (Seed) ist eine Liste von Wörtern, mit der Sie Ihre Bitcoin wiederherstellen können, falls Ihr Gerät verloren geht oder kaputtgeht. Schreiben Sie sie unbedingt auf und bewahren Sie sie an einem sicheren Ort auf. Niemals weitergeben – wer diese Wörter hat, kann alle Ihre Bitcoin stehlen."
     },
     "about": {
       "header1": "Software",
       "text2": "Blitz ist eine kostenlose und Open-Source-App unter der ",
       "text3": "Apache-Lizenz",
       "text4": " Version 2.0",
-      "text5": "Dies ist eine selbstverwaltete Bitcoin Lightning-Wallet. Blitz hat keinen Zugriff auf Ihre Gelder, wenn Sie Ihre Seed-Phrase verlieren, kann dies zum Verlust Ihrer Gelder führen.",
+      "text5": "Dies ist eine selbstverwaltete BTC-Lightning-Wallet. Blitz hat keinen Zugriff auf Ihre Gelder, wenn Sie Ihre Seed-Phrase verlieren, kann dies zum Verlust Ihrer Gelder führen.",
       "text6": "Blitz verwendet ",
       "text7": "Breez Liquid SDK, ",
       "text8": "Spark, ",
@@ -1146,7 +1147,7 @@
       "header2": "Gut zu wissen",
       "text12": "Blitz wird vom Spark-Protokoll unterstützt. Spark ist ein ",
       "text13": "Off-Chain-Protokoll ",
-      "text14": "wobei Spark-Operatoren den Status des Bitcoin-Besitzes außerhalb der Kette aktualisieren ",
+      "text14": "wobei Spark-Operatoren den Status des BTC-Besitzes außerhalb der Kette aktualisieren ",
       "text15": "was schnelle, kostengünstige und nicht-verwahrende Übertragungen ohne Berührung der Blockchain ermöglicht.",
       "text16": "Ersteller",
       "text17": "Version:",
@@ -1167,7 +1168,7 @@
       "theme": "Thema",
       "light": "Hell",
       "lightsOut": "Dunkel",
-      "dim": "Gedimmt",
+      "dim": "Gedimmt (Augenschonend)",
       "balDisplay": "Saldoanzeige",
       "prev": "Vorschau",
       "denomination": "Einheit",
@@ -1185,9 +1186,9 @@
       "cameraSwipeDesc": "Wische auf einer Hauptseite nach rechts, um die Kamera zu öffnen.",
       "unkownSenders": "Unbekannte Absender ausblenden",
       "unknownSenderDesc": "Transaktionen von unbekannten Kontakten ausblenden",
-      "text1": "Dunkler Modus Stil",
-      "text2": "Lichter aus",
-      "text3": "Gedimmt",
+      "text1": "Dunklermodus-Stil",
+      "text2": "Dunkel",
+      "text3": "Gedimmt (Augenschonend)",
       "text4": "Guthabenwährung",
       "text5": "Aktuelle Währung",
       "text6": "Bitte stellen Sie die Internetverbindung wieder her, um Ihre Währung zu wechseln",
@@ -1266,11 +1267,11 @@
       "pubKey": "Öffentlicher Schlüssel"
     },
     "sparkLrc20": {
-      "balanceError": "Ihr aktuelles Wallet-Guthaben beträgt {{balance}}. Blitz fügt allen BTKN-Zahlungen eine {{fee}}-Gebühr hinzu. Stellen Sie sicher, dass Sie etwas Bitcoin in Ihrer Wallet haben, um Token zu senden.",
+      "balanceError": "Ihr aktuelles Wallet-Guthaben beträgt {{balance}}. Blitz fügt allen BTKN-Zahlungen eine {{fee}}-Gebühr hinzu. Stellen Sie sicher, dass Sie etwas BTC in Ihrer Wallet haben, um Token zu senden.",
       "title": "Spark-Einstellungen",
       "sliderTitle_enabled": "BTKN aktiviert",
       "sliderTitle_disabled": "BTKN deaktiviert",
-      "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf Bitcoin fokussierte Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die Sie wollen.",
+      "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf BTC fokussierte Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die Sie wollen.",
       "selectTokenHeader": "Standard-Token",
       "selectTokenInformationPopup": "Wählen Sie aus, welchen Token Sie zuerst für Zahlungen verwenden möchten. Keine Sorge – Sie können dies jederzeit auf der Zahlungsseite ändern."
     },
@@ -1334,7 +1335,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet stellt der Bitcoin-Community kostenlose Open-Source-Tools zur Verfügung.\n\nUm die langfristige Nachhaltigkeit des Projekts zu unterstützen, wird auf jede Zahlung eine kleine Transaktionsgebühr erhoben.\n\nDie Aufschlüsselung der Gebühren finden Sie unten.",
+      "description": "Blitz Wallet stellt der BTC-Community kostenlose Open-Source-Tools zur Verfügung.\n\nUm die langfristige Nachhaltigkeit des Projekts zu unterstützen, wird auf jede Zahlung eine kleine Transaktionsgebühr erhoben.\n\nDie Aufschlüsselung der Gebühren finden Sie unten.",
       "upTo": "Bis zu",
       "fixedFee": "Feste Gebühr",
       "percent": "Prozent",
@@ -1459,7 +1460,7 @@
       "posInstructionsPath": {
         "title": "Anweisungen",
         "head1": "Wie akzeptieren",
-        "head2": "Bitcoin-Zahlungen",
+        "head2": "BTC-Zahlungen",
         "step1": "1. QR-Code mit Ihrer Kamera scannen",
         "step2": "2. Das war's."
       },
@@ -1468,7 +1469,7 @@
         "updateContactMessage": "Der Empfänger muss seine Blitz-App aktualisieren, um bezahlt zu werden.",
         "payingMessage": "Zahlung wird durchgeführt...",
         "notifyngMessage": "Benachrichtigung wird gesendet...",
-        "errorPaying": "Kontakt konnte nicht bezahlt werden. Bitte versuchen Sie es später erneut.",
+        "errorPaying": "Der Kontakt konnte nicht bezahlt werden. Bitte versuchen Sie es später erneut.",
         "invalidName": "Der Name ist kein LNURL oder ein Blitz-Benutzer.",
         "removeEmployeeWarning": "Sind Sie sicher, dass Sie diesen Mitarbeiter entfernen möchten?",
         "startingPaymentProcessMessage": "Zahlungsprozess wird gestartet, bitte verlassen Sie diese Seite oder die App nicht.",
@@ -1528,7 +1529,7 @@
       "appStore": {
         "soonMessage": "Wir freuen uns, dass Sie mehr Apps möchten. Schlagen Sie sie unten vor!",
         "title": "Shop",
-        "shopTitle": "Mit Bitcoin einkaufen",
+        "shopTitle": "Mit BTC einkaufen",
         "shopDescription": "Kaufen Sie Geschenkkarten von Tausenden verschiedener Händler weltweit",
         "callToAction": "Möchten Sie hier etwas Bestimmtes?",
         "featuredApps": "Möchten Sie hier etwas Bestimmtes?",
@@ -1551,19 +1552,19 @@
         "confReqired": "Benötigte Bestätigungen",
         "detailsBTN": "Technische Details",
         "contactPaymentType": "Kontakt",
-        "converstionRate": "{{satAmount}} pro {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} pro {{USDAmount}}"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
         "title": "Blitz-Downloads",
-        "goalUserCount": "von {{goalUserCount}} Nutzern.",
-        "percentOfGoal": "{{goalPercent}}% des Ziels",
-        "numAddedUsers": "+{{numNewUsers}} Nutzer heute"
+        "goalUserCount": "von {{goalUserCount}} Nutzern",
+        "percentOfGoal": "{{goalPercent}} % des Ziels erreicht",
+        "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute"
       },
       "loadingScreen": {
         "loadingMessage1": "Bitte schließen Sie die App nicht",
-        "loadingMessage2": "Wir richten alles für Sie ein",
-        "loadingText": "Wir richten alles für Sie ein. Bleiben Sie dran! Dies kann bis zu einer Minute dauern.",
+        "loadingMessage2": "Die Einrichtung wird vorbereitet.",
+        "loadingText": "Die Einrichtung wird vorbereitet. Dies kann bis zu einer Minute dauern.",
         "dbInitError": "Datenbank konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
         "userSettingsError": "Benutzereinstellungen konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
         "liquidWalletError": "Wallet-Informationen wurden nicht korrekt eingerichtet, bitte versuchen Sie es erneut.",
@@ -1575,41 +1576,39 @@
         "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1%.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
         "liquidFeeMessage": "Zahlungen, die an Liquid-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}}, eine Anspruchsgebühr von rund {{claimFee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
         "rootstockFeeMessage": "Zahlungen, die an Rootstock-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
-        "lightningConvertMessage": "Der Empfang von Dollar über Lightning erfordert die Umwandlung von Bitcoin in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
+        "lightningConvertMessage": "Der Empfang von USD über Lightning erfordert die Umwandlung von BTC in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
         "generatingInvoice": "Rechnung wird generiert",
-        "amountPlaceholder": "Beliebiger Betrag",
+        "amountPlaceholder": "Beliebigen Betrag",
         "receiveAsHeader": "Empfangen als",
-        "receiveAs_spark_BTC": "Bitcoin oder Token",
-        "receiveAs_lightning_BTC": "In Bitcoin behalten",
-        "receiveAs_spark_USD": "Dollar",
-        "receiveAs_lightning_USD": "In Dollar umwandeln",
+        "receiveAs_spark_BTC": "BTC oder Token",
+        "receiveAs_lightning_BTC": "In BTC behalten",
+        "receiveAs_spark_USD": "USD",
+        "receiveAs_lightning_USD": "In USD umwandeln",
         "amount_USD_MIN": "Min. {{swapAmountSat}}",
         "invoiceDescription_lightningInvoice": "Lightning-Rechnung",
         "invoiceDescription_lightningAddress": "Lightning-Adresse",
-        "invoiceDescription_bitcoinAddress": "Bitcoin-Adresse",
+        "invoiceDescription_bitcoinAddress": "BTC-On-Chain-Adresse",
         "invoiceDescription_liquidAddress": "Liquid-Adresse",
         "invoiceDescription_sparkAddress": "Spark-Adresse",
         "invoiceDescription_rootstockAddress": "Rootstock-Adresse",
-        "header_lightning_btc": "Bitcoin über Lightning",
-        "header_lightning_usd": "Dollar über Lightning",
-        "header_bitcoin": "Bitcoin",
-        "header_spark_btc": "Bitcoin/Token über Spark",
-        "header_spark_usd": "Dollar über Spark",
-        "header_liquid": "Bitcoin über Liquid",
-        "header_rootstock": "Bitcoin über Rootstock",
+        "header_lightning_btc": "BTC über Lightning",
+        "header_lightning_usd": "USD über Lightning",
+        "header_bitcoin": "BTC",
+        "header_spark_btc": "BTC/Token über Spark",
+        "header_spark_usd": "USD über Spark",
+        "header_liquid": "BTC über Liquid",
+        "header_rootstock": "BTC über Rootstock",
         "selectReceiveAssetHead": "Asset zum Empfangen auswählen",
-        "usd_convert_warning": "Der endgültige Betrag, den du erhältst, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
-        "editDescriptionHead": "Was möchtest du sagen?",
-        "editDescriptionPlaceholder": "Beschreibung hinzufügen"
+        "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
       },
       "settingsContent": {
         "about": "Über uns",
-        "language": "App-Sprache",
+        "language": "Spracheinstellung",
         "display currency": "Standardwährung",
         "display options": "Anzeige & Layout",
         "edit contact profile": "Kontaktprofil bearbeiten",
-        "view all swaps": "Netzwerkübertragungen",
-        "fast pay": "Schnellzahlung",
+        "view all swaps": "Netzwerk-Einstellungen",
+        "fast pay": "Schnellzahlungen",
         "blitz fee details": "Blitz-Gebührendetails",
         "crash reports": "Absturzberichte",
         "notifications": "Benachrichtigungen",
@@ -1634,7 +1633,7 @@
         "paymentId": "Zahlungs-ID",
         "preimage": "Zahlungs-Preimage",
         "address": "Zahlungsadresse",
-        "bitcoinTxId": "Bitcoin-Txid",
+        "bitcoinTxId": "BTC-Txid",
         "paymentExp": "Zahlungsablauf",
         "noInformationLabel": "{{item}} wird nicht angezeigt, da diese Zahlung aus dem Verlauf wiederhergestellt wurde oder eine Rechnung mit Nullbetrag verwendet wurde.",
         "privacyMessage": "Um die Privatsphäre des {{type}} zu wahren, sind alle weiteren Informationen ausgeblendet.",
@@ -1674,7 +1673,7 @@
         },
         "giftsOverview": {
           "noGiftsHead": "Noch keine Geschenke",
-          "noGiftsDesc": "Erstellen Sie Ihr erstes Geschenk, um Bitcoin oder Dollar mit Freunden und Familie zu teilen",
+          "noGiftsDesc": "Erstellen Sie Ihr erstes Geschenk, um BTC oder USD mit Freunden und Familie zu teilen",
           "createGift": "Geschenk erstellen",
           "claimed": "Eingelöst",
           "expired": "Abgelaufen",
@@ -1712,7 +1711,7 @@
           "desc": "Fügen Sie denn erhaltenen Link ein oder scanne den QR-Code, um Ihr Geschenk einzulösen",
           "inputPlaceholder": "Geschenklink einfügen",
           "claim": "Einlösen",
-          "noGiftLinkError": "Wir konnten keinen Geschenkl-Link finden. Bitte scannen Sie oder fügen Sie den erhaltenen Link ein.",
+          "noGiftLinkError": "Wir konnten leider keinen Geschenkl-Link finden. Bitte scannen Sie oder fügen Sie den erhaltenen Link ein.",
           "invliadGiftFormat": "Ungültiger Geschenkl-Link. Bitte kopieren Sie den vollständigen Link und versuche Sie es erneut."
         },
         "reclaimPage": {
@@ -1733,7 +1732,7 @@
           "inputHead": "Geschenknummer eingeben",
           "invalidGiftNum": "Bitte geben Sie eine gültige Geschenknummer zwischen 1 und {{currentGiftIndex}} ein",
           "restoreGiftBTN": "Geschenk wiederherstellen",
-          "advancedWarning": "Diese erweiterte Funktion sollte nur verwendet werden, wenn der normale Rückforderungsprozess nicht funktioniert. Wenn Sie unsicher sind, probieren Sie zuerst die normale Rückforderungsseite."
+          "advancedWarning": "Diese erweiterte Funktion sollte nur verwendet werden, wenn der normale Rückforderungsprozess nicht funktioniert. Wenn Sie unsicher sind, probieren Sie zuerst die normale Rückforderungsseite aus."
         },
         "claimPage": {
           "parseError": "Die Geschenkinformationen konnten nicht gelesen werden.",
@@ -1798,9 +1797,9 @@
         "youReceived": "Sie haben es erhalten",
         "newSwap": "Neuer Swap",
         "loadingPool": "Swap-Informationen werden geladen...",
-        "fromBalance": "Ich habe {{amount}}",
-        "fromBalanceHidden": "Ich habe",
-        "toBalance": "Ich möchte",
+        "fromBalance": "Sie haben {{amount}}",
+        "fromBalanceHidden": "Sie haben",
+        "toBalance": "Sie möchten",
         "min": "MIN",
         "half": "HALB",
         "max": "MAX",
@@ -1816,7 +1815,7 @@
         "paymentDescription_incoming": "{{swapDirection}}",
         "yourAreConverting": "Sie wandeln es um",
         "youWillReceive": "Sie erhalten es",
-        "bitcoinPrice": "Bitcoin-Preis",
+        "bitcoinPrice": "BTC-Preis",
         "swapFee": "Swap-Gebühr",
         "exchangeRate": "Wechselkurs",
         "minBTCError": "Der Mindestbetrag für BTC beträgt {{min}}. Bitte erhöhen Sie den Betrag, um fortzufahren.",
@@ -1832,9 +1831,9 @@
         "auto": "Auto"
       },
       "swapHistory": {
-        "loadingSwapHistoryError": "Der Swap-Verlauf konnte nicht geladen werden. Bitte versuche es später erneut.",
+        "loadingSwapHistoryError": "Der Swap-Verlauf konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",
         "noHisotorytitle": "Kein Swap-Verlauf",
-        "noHisotorydesc": "Deine Swap-Transaktionen werden hier angezeigt.",
+        "noHisotorydesc": "Ihre Swap-Transaktionen werden hier angezeigt.",
         "pageTitle": "Verlauf"
       }
     }
@@ -1870,7 +1869,7 @@
     "noUserFoundDeeplinkError": "Für diesen Benutzernamen konnte kein Benutzer gefunden werden.",
     "cannotAddSelfError": "Sie können sich nicht selbst als Kontakt hinzufügen.",
     "fullDeeplinkError": "Kontaktinformationen konnten nicht abgerufen werden, bitte versuchen Sie es erneut.",
-    "processingDeepLinkError": "Link konnte nicht verarbeitet werden: {{error}}",
+    "processingDeepLinkError": "Link konnte leider nicht verarbeitet werden: {{error}}",
     "legacyContactError": "Der Kontakt hat seine Wallet noch nicht aktualisiert. Bitte Sie ihn, seine Wallet zu aktualisieren, um dies zu senden.",
     "contactInvoiceGenerationError": "Fehler beim Generieren der Rechnung. Stellen Sie sicher, dass dies eine gültige LNURL-Adresse ist.",
     "explorePagenoDataError": "Die Anzahl der Blitz-Benutzer konnte nicht abgerufen werden.",
@@ -1889,7 +1888,7 @@
     "noNotificationPermission": "Blitz hat keine Benachrichtigungsberechtigungen. Aktivieren Sie diese in den Einstellungen, um Benachrichtigungen zu nutzen.",
     "rootstockInvoiceError": "Es gab ein Problem beim Generieren Ihrer Rootstock-Adresse. Bitte versuchen Sie es erneut.",
     "liquidInvoiceError": "Es gab ein Problem beim Generieren Ihrer Liquid-Adresse. Bitte versuchen Sie es erneut.",
-    "bitcoinInvoiceError": "Es gab ein Problem beim Generieren Ihrer Bitcoin-Adresse. Bitte versuchen Sie es erneut.",
+    "bitcoinInvoiceError": "Es gab ein Problem beim Generieren Ihrer BTC-On-Chain-Adresse. Bitte versuchen Sie es erneut.",
     "sparkInvioceError": "Es gab ein Problem beim Generieren Ihrer Spark-Adresse. Bitte versuchen Sie es erneut.",
     "lightningInvoiceError": "Es gab ein Problem beim Generieren Ihrer Lightning-Adresse. Bitte versuchen Sie es erneut.",
     "sparkConnectionError": "Spark-Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.",
@@ -1899,12 +1898,12 @@
     "invalidData": "Die eingegebenen Daten sind ungültig",
     "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App richtig und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
-    "priceImpact": "Diese Zahlung ist groß, daher kann sich der endgültige Betrag in Dollar, den du erhältst, ändern."
+    "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch ändern."
   },
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht",
-    "message2": "Wir richten alles ein",
-    "loadingText": "Wir richten alles ein. Bleiben Sie dran! Dies kann bis zu einer Minute dauern.",
+    "message2": "Wir richten alles für Sie ein",
+    "loadingText": "Wir richten für Sie alles ein. Bleiben Sie dran! Dies kann bis zu einer Minute dauern.",
     "errorText1": "Fehler bei der Verbindung zu Ihrem Knoten. Versuchen Sie, die App neu zu laden."
   },
   "contexts": {
@@ -1913,7 +1912,7 @@
     }
   },
   "share": {
-    "contact": "Hi, füge mich auf Blitz hinzu!"
+    "contact": "Hallo, fügen Sie mich auf Blitz hinzu!"
   },
   "swapMessages": {
     "liquid": "Liquid-zu-Spark-Transfer"
@@ -1941,7 +1940,7 @@
     }
   },
   "flashnetUserMessages": {
-    "FSAG-1000": "Die Anfrage hat die Validierungsprüfungen nicht bestanden.",
+    "FSAG-1000": "Ihre Anfrage hat die Validierungsprüfung nicht bestanden.",
     "FSAG-1001": "Ein erforderliches Feld fehlt in Ihrer Anfrage.",
     "FSAG-1002": "Ein oder mehrere Felder haben ein ungültiges Format.",
     "FSAG-1003": "Ein Wert liegt außerhalb des zulässigen Bereichs.",
@@ -1950,11 +1949,11 @@
     "FSAG-2002": "Die Token-Identität stimmt nicht mit dem erwarteten öffentlichen Schlüssel überein.",
     "FSAG-2003": "Für diesen Vorgang ist eine Authentifizierung erforderlich.",
     "FSAG-2004": "Ihre Sitzung ist abgelaufen oder der Token ist ungültig.",
-    "FSAG-2005": "Der Anfrage-Nonce ist ungültig oder wurde bereits verwendet.",
+    "FSAG-2005": "Der Einmal-Code (Nonce) ist ungültig oder bereits benutzt. Bitte versuchen Sie es noch einmal – am besten die Seite neu laden.",
     "FSAG-2101": "Der bereitgestellte öffentliche Schlüssel ist ungültig.",
-    "FSAG-3001": "Ein temporäres Serviceproblem ist aufgetreten. Bitte versuche es erneut.",
-    "FSAG-3002": "Ein temporäres Serviceproblem ist aufgetreten. Bitte versuche es erneut.",
-    "FSAG-3101": "Ein Datenbankfehler ist aufgetreten. Bitte versuche es erneut.",
+    "FSAG-3001": "Ein temporäres Serviceproblem ist aufgetreten. Bitte versuchen Sie es erneut.",
+    "FSAG-3002": "Ein temporäres Serviceproblem ist aufgetreten. Bitte versuchen Sie es erneut.",
+    "FSAG-3101": "Ein Datenbankfehler ist aufgetreten. Bitte versuchen Sie es erneut.",
     "FSAG-3201": "Der Abwicklungsdienst ist vorübergehend nicht verfügbar.",
     "FSAG-3201T1": "Der Abwicklungsdienst ist vorübergehend nicht verfügbar.",
     "FSAG-3201T2": "Die Abwicklungsanfrage hat ein Zeitlimit überschritten.",
@@ -1964,7 +1963,7 @@
     "FSAG-3401": "Ein interner Verarbeitungsfehler ist aufgetreten.",
     "FSAG-3402": "Ein interner Verarbeitungsfehler ist aufgetreten.",
     "FSAG-4001": "Der angegebene Pool existiert nicht.",
-    "FSAG-4002": "Der angegebene Host-Namespace existiert nicht.",
+    "FSAG-4002": "Der gewünschte Host-Namespace wurde nicht gefunden.",
     "FSAG-4101": "Ihre Authentifizierungssitzung wurde nicht gefunden oder ist abgelaufen.",
     "FSAG-4102": "Der Authentifizierungsablauf wurde nicht korrekt befolgt.",
     "FSAG-4201": "Der Pool verfügt nicht über ausreichend Liquidität für diesen Swap.",
@@ -1975,7 +1974,7 @@
     "FSAG-4401": "Diese Spark-Übertragung wurde bereits in einem Vorgang verwendet.",
     "FSAG-5001": "Beim Verarbeiten Ihrer Anfrage ist ein interner Fehler aufgetreten.",
     "FSAG-5002": "Diese Funktion ist noch nicht verfügbar.",
-    "FSAG-5003": "Ein interner Fehler ist aufgetreten. Bitte kontaktiere den Support, falls die Probleme weiterhin bestehen.",
+    "FSAG-5003": "Ein interner Fehler ist aufgetreten. Bitte kontaktieren Sie den Support, falls die Probleme weiterhin bestehen.",
     "FSAG-5004": "Ein Systemkonfigurationsfehler ist aufgetreten.",
     "FSAG-5100": "Ein unerwarteter Serverfehler ist aufgetreten."
   }
