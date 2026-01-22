@@ -54,6 +54,10 @@ import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitco
 import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
 import AddReceiveMessageHalfModal from '../../components/admin/homeComponents/receiveBitcoin/addMessageHalfModal';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
+import {
+  SelectContactRequestCurrency,
+  SelectPaymentType,
+} from '../../components/admin/homeComponents/contacts';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -308,8 +312,33 @@ export default function CustomHalfModal(props) {
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
+            setContentHeight={setContentHeight}
           />
         );
+      case 'SelectPaymentType':
+        return (
+          <SelectPaymentType
+            theme={theme}
+            handleBackPressFunction={handleBackPressFunction}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            setContentHeight={setContentHeight}
+            selectedContact={props?.route?.params?.selectedContact}
+            imageData={props?.route?.params?.imageData}
+          />
+        );
+      case 'SelectContactRequestCurrency':
+        return (
+          <SelectContactRequestCurrency
+            theme={theme}
+            handleBackPressFunction={handleBackPressFunction}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            setContentHeight={setContentHeight}
+            selectedRecieveOption={props?.route?.params?.selectedRecieveOption}
+          />
+        );
+
       case 'viewContactsGiftInfo':
         return (
           <ViewGiftCardCodePage
