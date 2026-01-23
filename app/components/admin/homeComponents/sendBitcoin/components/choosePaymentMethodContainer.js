@@ -94,15 +94,24 @@ export default function ChoosePaymentMethod({
           <ThemeText
             styles={styles.balanceTitle}
             content={t(
-              `constants.${
-                determinePaymentMethod === 'BTC' ||
-                determinePaymentMethod === 'user-choice'
-                  ? 'sat'
-                  : 'usd'
-              }_balance`,
+              uiState === 'CONTACT_REQUEST'
+                ? `constants.${
+                    determinePaymentMethod === 'BTC' ||
+                    determinePaymentMethod === 'user-choice'
+                      ? 'bitcoin_upper'
+                      : 'dollars_upper'
+                  }`
+                : `constants.${
+                    determinePaymentMethod === 'BTC' ||
+                    determinePaymentMethod === 'user-choice'
+                      ? 'sat'
+                      : 'usd'
+                  }_balance`,
             )}
           />
-          <ThemeText styles={styles.amountText} content={`${balance}`} />
+          {uiState !== 'CONTACT_REQUEST' && (
+            <ThemeText styles={styles.amountText} content={`${balance}`} />
+          )}
         </View>
         <ThemeIcon
           colorOverride={
