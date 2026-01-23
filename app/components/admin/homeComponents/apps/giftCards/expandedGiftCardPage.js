@@ -362,9 +362,14 @@ export default function ExpandedGiftCardPage(props) {
                   return;
                 }
                 if (fromSelectGiftPage) {
+                  const { imageData, selectedContact } =
+                    props.route?.params || {};
                   navigate.popTo(
                     'SendAndRequestPage',
                     {
+                      paymentType: 'Gift',
+                      imageData,
+                      selectedContact,
                       cardInfo: {
                         ...props.route.params?.cardInfo,
                         selectedDenomination: selectedDenomination,

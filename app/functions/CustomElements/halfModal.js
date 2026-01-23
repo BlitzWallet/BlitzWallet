@@ -313,6 +313,7 @@ export default function CustomHalfModal(props) {
             darkModeType={darkModeType}
             slideHeight={slideHeight}
             setContentHeight={setContentHeight}
+            uuid={props?.route?.params?.uuid}
           />
         );
       case 'SelectPaymentType':

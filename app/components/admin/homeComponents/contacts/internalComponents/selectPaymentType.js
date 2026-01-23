@@ -39,7 +39,10 @@ export default function SelectPaymentType({
   const selectSendingBalance = () => {
     handleBackPressFunction(() => {
       if (selectedOption === 'Gift') {
-        navigate.replace('SelectGiftCardForContacts');
+        navigate.replace('SelectGiftCardForContacts', {
+          selectedContact: selectedContact,
+          imageData,
+        });
       } else {
         navigate.replace('SendAndRequestPage', {
           selectedContact: selectedContact,

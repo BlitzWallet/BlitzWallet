@@ -34,7 +34,8 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
-export default function SelectGiftCardForContacts() {
+export default function SelectGiftCardForContacts(props) {
+  const { selectedContact, imageData } = props?.route?.params || {};
   const { masterInfoObject } = useGlobalContextProvider();
   const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
     useGlobalAppData();
@@ -112,9 +113,11 @@ export default function SelectGiftCardForContacts() {
 
               const satsPerDollar = SATSPERBITCOIN / fiatPrice.value;
 
-              navigate.navigate('ExpandedGiftCardPage', {
+              navigate.replace('ExpandedGiftCardPage', {
                 selectedItem: item,
                 fromSelectGiftPage: true,
+                selectedContact,
+                imageData,
                 cardInfo: {
                   id: item.id,
                   logo: item.logo,

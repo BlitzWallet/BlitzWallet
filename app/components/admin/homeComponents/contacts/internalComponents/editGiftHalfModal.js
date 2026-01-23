@@ -1,15 +1,20 @@
-import {StyleSheet, View} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import { StyleSheet, View } from 'react-native';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {INSET_WINDOW_WIDTH, SIZES} from '../../../../../constants/theme';
-import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../../hooks/themeColors';
+import { useEffect } from 'react';
 
-export default function EditGiftHalfModal() {
+export default function EditGiftHalfModal({ setContentHeight, uuid }) {
   const navigate = useNavigation();
-  const {t} = useTranslation();
-  const {textColor} = GetThemeColors();
+  const { t } = useTranslation();
+  const { textColor } = GetThemeColors();
+
+  useEffect(() => {
+    setContentHeight(350);
+  }, []);
   return (
     <View style={styles.container}>
       <ThemeText
@@ -18,21 +23,13 @@ export default function EditGiftHalfModal() {
       />
       <CustomButton
         actionFunction={() => navigate.replace('SelectGiftCardForContacts')}
-        buttonStyles={{...styles.buttonStyle}}
+        buttonStyles={styles.buttonStyle}
         textContent={t('constants.edit')}
       />
       <CustomButton
-        actionFunction={() =>
-          navigate.popTo(
-            'SendAndRequestPage',
-            {
-              cardInfo: null,
-            },
-            {merge: true},
-          )
-        }
-        buttonStyles={{...styles.buttonStyle, backgroundColor: 'unset'}}
-        textStyles={{color: textColor}}
+        actionFunction={() => navigate.popTo('ExpandedContactsPage', { uuid })}
+        buttonStyles={[styles.buttonStyle, { backgroundColor: 'unset' }]}
+        textStyles={{ color: textColor }}
         textContent={t('constants.remove')}
       />
     </View>
