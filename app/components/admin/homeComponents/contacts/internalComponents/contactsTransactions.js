@@ -462,8 +462,6 @@ export default function ContactsTransactionItem(props) {
     }
   }, [paymentDescription, navigate]);
 
-  if (!txParsed) return null;
-
   const buttonStyle = useMemo(
     () => ({
       ...styles.acceptOrPayBTN,
@@ -481,6 +479,8 @@ export default function ContactsTransactionItem(props) {
     }),
     [theme, textColor],
   );
+
+  if (!txParsed) return null;
 
   return (
     <TouchableOpacity onPress={handlePress} key={props.id} activeOpacity={1}>
