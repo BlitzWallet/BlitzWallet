@@ -59,7 +59,7 @@ export default function EditReceivePaymentInformation(props) {
     primaryDisplay,
     secondaryDisplay,
     conversionFiatStats,
-    convertToSats,
+    convertDisplayToSats,
     getNextDenomination,
     convertForToggle,
   } = usePaymentInputDisplay({
@@ -71,7 +71,7 @@ export default function EditReceivePaymentInformation(props) {
   });
 
   // Calculate sat amount based on which fiat we're using
-  const localSatAmount = convertToSats(amountValue);
+  const localSatAmount = convertDisplayToSats(amountValue);
 
   const cannotRequset =
     receiveType.toLowerCase() === 'lightning' &&

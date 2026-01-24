@@ -143,6 +143,42 @@ export default function usePaymentInputDisplay({
   };
 
   /**
+   * Convert sats to display amount (for FIXED amounts from invoices)
+   * @param {number} satsAmount - The amount in satoshis
+   * @returns {number|string} Amount in the current display denomination
+   */
+  const convertSatsToDisplay = satsAmount => {
+    const numAmount = Number(satsAmount) || 0;
+
+    if (primaryDisplay.denomination === 'fiat') {
+      // Convert sats to fiat for display
+      const fiatValue = conversionFiatStats?.value || 65000;
+      return ((numAmount * fiatValue) / SATSPERBITCOIN).toFixed(2);
+    } else {
+      // Already in sats
+      return numAmount;
+    }
+  };
+
+  /**
+   * Convert display amount to sats (for USER-ENTERED amounts)
+   * @param {string|number} displayAmount - The amount in current display denomination
+   * @returns {number} Amount in satoshis
+   */
+  const convertDisplayToSats = displayAmount => {
+    const numAmount = Number(displayAmount) || 0;
+
+    if (primaryDisplay.denomination === 'fiat') {
+      // Converting from fiat to sats
+      const fiatValue = conversionFiatStats?.value || 65000;
+      return Math.round((SATSPERBITCOIN / fiatValue) * numAmount);
+    } else {
+      // Already in sats
+      return Math.round(numAmount);
+    }
+  };
+
+  /**
    * Get the next denomination when toggling
    * @returns {string} Next denomination
    */
@@ -192,6 +228,8 @@ export default function usePaymentInputDisplay({
     conversionFiatStats,
 
     // Helper functions
+    convertSatsToDisplay,
+    convertDisplayToSats,
     convertToSats,
     getNextDenomination,
     convertForToggle,
