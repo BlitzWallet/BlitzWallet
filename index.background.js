@@ -10,7 +10,7 @@ import {
   setBackgroundMessageHandler,
 } from '@react-native-firebase/messaging';
 import * as TaskManager from 'expo-task-manager';
-import { getLocalStorageItem } from './app/functions';
+import { formatBalanceAmount, getLocalStorageItem } from './app/functions';
 import displayCorrectDenomination from './app/functions/displayCorrectDenomination';
 import { pushInstantNotification } from './app/functions/notifications';
 import handleNWCBackgroundEvent from './app/functions/nwc/backgroundNofifications';
@@ -22,46 +22,61 @@ const firebaseMessaging = getMessaging();
 
 // Background notification formatting function
 async function formatPushNotification(data) {
-  const [
-    selectedLanguage,
-    satDisplay,
-    bitcoinPrice,
-    userBalanceDenomination,
-    thousandsSeperator,
-  ] = await Promise.all([
+  const [selectedLanguage, satDisplay, thousandsSeperator] = await Promise.all([
     getLocalStorageItem('userSelectedLanguage').then(
       data => JSON.parse(data) || 'en',
     ),
     getLocalStorageItem('satDisplay').then(data => JSON.parse(data) || 'word'),
-    getLocalStorageItem('cachedBitcoinPrice').then(
-      data => JSON.parse(data) || { coin: 'USD', value: 100_000 },
-    ),
-    getLocalStorageItem('userBalanceDenomination').then(
-      data => JSON.parse(data) || 'sats',
-    ),
     getLocalStorageItem('thousandsSeperator').then(
       data => JSON.parse(data) || 'space',
     ),
   ]);
-
-  console.log(selectedLanguage, i18next.language);
 
   if (selectedLanguage !== i18next.language) {
     i18next.changeLanguage(selectedLanguage);
   }
 
   let message = '';
-  const formattedAmount = data.amountSat
-    ? displayCorrectDenomination({
-        amount: data.amountSat,
-        masterInfoObject: {
-          userBalanceDenomination: userBalanceDenomination,
-          satDisplay: satDisplay,
-          thousandsSeperator,
-        },
-        fiatStats: bitcoinPrice,
-      })
-    : '';
+  let formattedAmount;
+
+  if (
+    data.notificationType === 'contacts' &&
+    data.paymentDenomination === 'USD'
+  ) {
+    formattedAmount = displayCorrectDenomination({
+      amount: formatBalanceAmount(data.amountDollars, false, {
+        thousandsSeperator,
+      }),
+      masterInfoObject: {
+        userBalanceDenomination: 'fiat',
+        satDisplay: satDisplay,
+        thousandsSeperator,
+      },
+      convertAmount: false,
+      forceCurrency: 'USD',
+    });
+  } else {
+    const [bitcoinPrice, userBalanceDenomination] = await Promise.all([
+      getLocalStorageItem('userBalanceDenomination').then(
+        data => JSON.parse(data) || 'sats',
+      ),
+      getLocalStorageItem('userBalanceDenomination').then(
+        data => JSON.parse(data) || 'sats',
+      ),
+    ]);
+
+    formattedAmount = data.amountSat
+      ? displayCorrectDenomination({
+          amount: data.amountSat,
+          masterInfoObject: {
+            userBalanceDenomination: userBalanceDenomination,
+            satDisplay: satDisplay,
+            thousandsSeperator,
+          },
+          fiatStats: bitcoinPrice,
+        })
+      : '';
+  }
 
   if (data.notificationType === 'POS') {
     message = i18next.t('pushNotifications.POS', {
