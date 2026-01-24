@@ -71,6 +71,7 @@ import {
 } from '../../../../functions/spark/flashnet';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
+import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -92,7 +93,7 @@ export default function SendPaymentScreen(props) {
     btcAdress,
   });
 
-  const { poolInfoRef, swapLimits } = useFlashnet();
+  const { poolInfoRef, swapLimits, swapUSDPriceDollars } = useFlashnet();
   const { t } = useTranslation();
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
     useUserBalanceContext();
@@ -122,8 +123,15 @@ export default function SendPaymentScreen(props) {
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
+
+  const paymentMode =
+    preSelectedPaymentMethod === 'USD' ||
+    enteredPaymentInfo?.inputCurrency === 'USD'
+      ? 'USD'
+      : 'BTC';
+
   const [inputDenomination, setInputDenomination] = useState(
-    masterInfoObject.userBalanceDenomination,
+    paymentMode === 'USD' ? 'fiat' : masterInfoObject.userBalanceDenomination,
   );
   const inputDenominationRef = useRef(inputDenomination);
   const [paymentDescription, setPaymentDescription] = useState('');
@@ -201,19 +209,7 @@ export default function SendPaymentScreen(props) {
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
-
-  const fiatValue = fiatStats?.value || 1;
-
-  const convertedSendAmount = !isUsingLRC20
-    ? isBTCdenominated
-      ? Math.round(Number(sendingAmount))
-      : Math.round((SATSPERBITCOIN / fiatValue) * Number(sendingAmount))
-    : Number(sendingAmount);
-
-  const fiatValueConvertedSendAmount = Math.round(
-    satsToDollars(convertedSendAmount, poolInfoRef.currentPriceAInB) *
-      Math.pow(10, 6),
-  );
+  const canEditAmount = paymentInfo?.canEditPayment === true;
 
   const paymentFee =
     !userPaymentMethod || userPaymentMethod === 'BTC'
@@ -244,6 +240,45 @@ export default function SendPaymentScreen(props) {
     sparkInformation,
   });
 
+  const {
+    primaryDisplay,
+    secondaryDisplay,
+    conversionFiatStats,
+    convertSatsToDisplay,
+    convertDisplayToSats,
+    getNextDenomination,
+    convertForToggle,
+  } = usePaymentInputDisplay({
+    paymentMode:
+      enteredPaymentInfo?.fromContacts &&
+      !enteredPaymentInfo?.payingContactsRequest
+        ? paymentMode
+        : determinePaymentMethod,
+    inputDenomination,
+    fiatStats,
+    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    masterInfoObject,
+  });
+
+  const displayAmount = canEditAmount
+    ? sendingAmount // User is editing, so sendingAmount is in current display denomination
+    : convertSatsToDisplay(sendingAmount); // Fixed from invoice, convert sats to display
+
+  const convertedSendAmount = !isUsingLRC20
+    ? canEditAmount
+      ? convertDisplayToSats(sendingAmount) // User entered amount, convert to sats
+      : Number(sendingAmount) // Fixed invoice amount, already in sats
+    : Number(sendingAmount);
+
+  // use stablepool info ref so the fiat amount doesnt change in between inputs leading to a false amount being sent.
+  const fiatValueConvertedSendAmount = Math.round(
+    satsToDollars(
+      convertedSendAmount,
+      enteredPaymentInfo?.stablePoolInfoRef?.currentPriceAInB ||
+        poolInfoRef.currentPriceAInB,
+    ).toFixed(2) * Math.pow(10, 6),
+  );
+
   useEffect(() => {
     determinePaymentMethodRef.current = determinePaymentMethod;
   }, [determinePaymentMethod]);
@@ -257,8 +292,6 @@ export default function SendPaymentScreen(props) {
       didRequireChoiceRef.current = true;
     }
   }, [needsToChoosePaymentMethod]);
-
-  const canEditAmount = paymentInfo?.canEditPayment === true;
 
   // Fast pay logic
   const canUseFastPay =
@@ -375,7 +408,9 @@ export default function SendPaymentScreen(props) {
     t,
     masterInfoObject,
     fiatStats,
-    inputDenomination,
+    inputDenomination: primaryDisplay.denomination,
+    primaryDisplay,
+    conversionFiatStats,
     sparkInformation,
   });
   console.log(paymentValidation);
@@ -458,7 +493,7 @@ export default function SendPaymentScreen(props) {
         navigate,
         // maxZeroConf:
         //   minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
-        comingFromAccept,
+        comingFromAccept: enteredPaymentInfo.fromContacts,
         enteredPaymentInfo,
         setLoadingMessage,
         paymentInfo,
@@ -726,6 +761,30 @@ export default function SendPaymentScreen(props) {
     setPaymentDescription(newDescription);
   };
 
+  const handleDenominationToggle = () => {
+    if (!isAmountFocused) return;
+    if (!canEditAmount) {
+      // For fixed amounts, just change the display denomination
+      const nextDenom = getNextDenomination();
+      setInputDenomination(nextDenom);
+      // No need to convert sendingAmount - it stays in sats
+      // The display will automatically update via convertSatsToDisplay
+    } else {
+      // For editable amounts, convert the user-entered value
+      const nextDenom = getNextDenomination();
+      const convertedValue = convertForToggle(
+        sendingAmount,
+        convertTextInputValue,
+      );
+
+      setInputDenomination(nextDenom);
+      setPaymentInfo(prev => ({
+        ...prev,
+        sendAmount: convertedValue,
+      }));
+    }
+  };
+
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
@@ -774,32 +833,14 @@ export default function SendPaymentScreen(props) {
           {/* Amount display */}
           <TouchableOpacity
             activeOpacity={1}
-            onPress={() => {
-              if (!isAmountFocused) return;
-              if (isUsingLRC20) return;
-              if (uiState !== 'EDIT_AMOUNT') return;
-              setInputDenomination(prev => {
-                const newPrev =
-                  prev === 'sats' || prev === 'hidden' ? 'fiat' : 'sats';
-                return newPrev;
-              });
-
-              setPaymentInfo(prev => {
-                return {
-                  ...prev,
-                  sendAmount: convertTextInputValue(
-                    sendingAmount,
-                    fiatStats,
-                    inputDenomination,
-                  ),
-                };
-              });
-            }}
+            onPress={handleDenominationToggle}
           >
             <FormattedBalanceInput
               maxWidth={0.9}
-              amountValue={sendingAmount}
-              inputDenomination={inputDenomination}
+              amountValue={displayAmount}
+              inputDenomination={primaryDisplay.denomination}
+              forceCurrency={primaryDisplay.forceCurrency}
+              forceFiatStats={primaryDisplay.forceFiatStats}
               activeOpacity={!sendingAmount ? 0.5 : 1}
               customCurrencyCode={
                 isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
@@ -830,12 +871,10 @@ export default function SendPaymentScreen(props) {
                   includeFontPadding: false,
                   ...styles.satValue,
                 }}
-                globalBalanceDenomination={
-                  inputDenomination === 'sats' || inputDenomination === 'hidden'
-                    ? 'fiat'
-                    : 'sats'
-                }
+                globalBalanceDenomination={secondaryDisplay.denomination}
+                forceCurrency={secondaryDisplay.forceCurrency}
                 balance={convertedSendAmount}
+                forceFiatStats={secondaryDisplay.forceFiatStats}
               />
             )}
           </TouchableOpacity>
@@ -995,7 +1034,7 @@ export default function SendPaymentScreen(props) {
               <NumberInputSendPage
                 paymentInfo={paymentInfo}
                 setPaymentInfo={setPaymentInfo}
-                fiatStats={fiatStats}
+                fiatStats={conversionFiatStats}
                 selectedLRC20Asset={selectedLRC20Asset}
                 seletctedToken={seletctedToken}
                 inputDenomination={inputDenomination}

@@ -109,6 +109,7 @@ export default function SendAndRequestPage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
+  const poolInfoRefSnapshotRef = useRef(poolInfoRef);
 
   const descriptionRef = useRef(null);
 
@@ -156,9 +157,12 @@ export default function SendAndRequestPage(props) {
 
   const min_usd_swap_amount = useMemo(() => {
     return Math.round(
-      dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB),
+      dollarsToSats(
+        swapLimits.usd,
+        poolInfoRefSnapshotRef.current.currentPriceAInB,
+      ),
     );
-  }, [poolInfoRef.currentPriceAInB, swapLimits]);
+  }, [poolInfoRefSnapshotRef.current.currentPriceAInB, swapLimits]);
 
   const paymentValidation = usePaymentValidation({
     paymentInfo: {
@@ -453,7 +457,7 @@ export default function SendAndRequestPage(props) {
           endReceiveType === 'USD'
             ? satsToDollars(
                 convertedSendAmount,
-                poolInfoRef.currentPriceAInB,
+                poolInfoRefSnapshotRef.current.currentPriceAInB,
               ).toFixed(2)
             : null;
 
@@ -467,6 +471,7 @@ export default function SendAndRequestPage(props) {
             endReceiveType: endReceiveType,
             selectedPaymentMethod: selectedPaymentMethod,
             inputCurrency: primaryDisplay.inputCurrency,
+            stablePoolInfoRef: poolInfoRefSnapshotRef.current,
           },
           contactInfo: {
             imageData,
@@ -504,7 +509,7 @@ export default function SendAndRequestPage(props) {
           selectedRequestMethod === 'USD'
             ? satsToDollars(
                 convertedSendAmount,
-                poolInfoRef.currentPriceAInB,
+                poolInfoRefSnapshotRef.current.currentPriceAInB,
               ).toFixed(2)
             : null;
         sendObject['description'] = descriptionValue;

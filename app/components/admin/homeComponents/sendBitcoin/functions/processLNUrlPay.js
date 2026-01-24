@@ -210,6 +210,12 @@ export default async function processLNUrlPay(input, context) {
     }
   }
 
+  const displayAmount = enteredPaymentInfo?.fromContacts
+    ? enteredPaymentInfo.amount
+    : masterInfoObject.userBalanceDenomination != 'fiat'
+    ? `${Math.round(amountMsat / 1000)}`
+    : fiatValue;
+
   return {
     data: enteredAmount
       ? {
@@ -223,13 +229,7 @@ export default async function processLNUrlPay(input, context) {
     swapPaymentQuote: swapPaymentQuote,
     type: InputTypes.LNURL_PAY,
     paymentNetwork: 'lightning',
-    sendAmount: enteredAmount
-      ? `${
-          masterInfoObject.userBalanceDenomination != 'fiat'
-            ? `${Math.round(amountMsat / 1000)}`
-            : fiatValue
-        }`
-      : '',
+    sendAmount: enteredAmount ? `${displayAmount}` : '',
     canEditPayment: !invoice,
   };
 }

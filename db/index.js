@@ -493,6 +493,8 @@ export async function updateGiftInDatabase(dataObject) {
     const db = getFirestore();
     const docRef = doc(db, 'blitzGifts', dataObject.uuid);
 
+    delete dataObject.claimURL;
+
     await setDoc(docRef, dataObject, { merge: true });
 
     console.log('Document merged with ID: ', dataObject.uuid);
