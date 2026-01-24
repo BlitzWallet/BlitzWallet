@@ -63,8 +63,8 @@ export default function ChoosePaymentMethod({
     <View
       style={[
         styles.paymentMethodContainer,
-        containerStyles,
         { marginTop: uiState === 'CHOOSE_METHOD' ? 30 : 5 },
+        containerStyles,
       ]}
     >
       {/* <ThemeText styles={styles.header} content={'Pay with'} /> */}
