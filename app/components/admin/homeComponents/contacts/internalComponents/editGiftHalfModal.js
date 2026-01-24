@@ -7,7 +7,12 @@ import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useEffect } from 'react';
 
-export default function EditGiftHalfModal({ setContentHeight, uuid }) {
+export default function EditGiftHalfModal({
+  setContentHeight,
+  uuid,
+  selectedContact,
+  imageData,
+}) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { textColor } = GetThemeColors();
@@ -22,7 +27,12 @@ export default function EditGiftHalfModal({ setContentHeight, uuid }) {
         content={t('contacts.internalComponents.editGiftCard.header')}
       />
       <CustomButton
-        actionFunction={() => navigate.replace('SelectGiftCardForContacts')}
+        actionFunction={() =>
+          navigate.replace('SelectGiftCardForContacts', {
+            selectedContact,
+            imageData,
+          })
+        }
         buttonStyles={styles.buttonStyle}
         textContent={t('constants.edit')}
       />
