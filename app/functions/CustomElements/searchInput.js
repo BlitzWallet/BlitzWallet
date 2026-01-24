@@ -151,7 +151,12 @@ export default function CustomSearchInput({
         <View
           style={{
             ...placeholderStyles,
-            justifyContent: 'center',
+            justifyContent:
+              textAlignVerticalValue === 'top'
+                ? 'flex-start'
+                : textAlignVerticalValue === 'bottom'
+                ? 'flex-end'
+                : 'center',
           }}
         >
           <ThemeText
