@@ -21,138 +21,173 @@ import { getTransactionContent } from '../contactsPageComponents/transactionText
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { formatBalanceAmount } from '../../../../../functions';
 
-function ConfirmedOrSentTransaction({
-  txParsed,
-  paymentDescription,
-  timeDifferenceMinutes,
-  timeDifferenceHours,
-  timeDifferenceDays,
-  timeDifferenceYears,
-  props,
-  navigate,
-}) {
-  const { t } = useTranslation();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { masterInfoObject } = useGlobalContextProvider();
-  const { textColor, backgroundOffset } = GetThemeColors();
+const ConfirmedOrSentTransaction = React.memo(
+  ({
+    txParsed,
+    paymentDescription,
+    timeDifferenceMinutes,
+    timeDifferenceHours,
+    timeDifferenceDays,
+    timeDifferenceYears,
+    navigate,
+    masterInfoObject,
+  }) => {
+    const { t } = useTranslation();
+    const { theme, darkModeType } = useGlobalThemeContext();
+    const { textColor, backgroundOffset } = GetThemeColors();
 
-  const didDeclinePayment = txParsed.isRedeemed != null && !txParsed.isRedeemed;
+    const didDeclinePayment =
+      txParsed.isRedeemed != null && !txParsed.isRedeemed;
+    const isOutgoingPayment = useMemo(
+      () =>
+        (txParsed.didSend && !txParsed.isRequest) ||
+        (txParsed.isRequest && txParsed.isRedeemed && !txParsed.didSend),
+      [txParsed.didSend, txParsed.isRequest, txParsed.isRedeemed],
+    );
 
-  const isOutgoingPayment =
-    (txParsed.didSend && !txParsed.isRequest) ||
-    (txParsed.isRequest && txParsed.isRedeemed && !txParsed.didSend);
-
-  if (!!txParsed.giftCardInfo) {
-    return (
-      <GiftCardTxItem
-        txParsed={txParsed}
-        isOutgoingPayment={isOutgoingPayment}
-        theme={theme}
-        darkModeType={darkModeType}
-        backgroundOffset={backgroundOffset}
-        timeDifference={getTimeDisplay(
+    const timeDisplay = useMemo(
+      () =>
+        getTimeDisplay(
           timeDifferenceMinutes,
           timeDifferenceHours,
           timeDifferenceDays,
           timeDifferenceYears,
-        )}
-        isFromProfile={false}
-        t={t}
-        navigate={navigate}
-        masterInfoObject={masterInfoObject}
-      />
+        ),
+      [
+        timeDifferenceMinutes,
+        timeDifferenceHours,
+        timeDifferenceDays,
+        timeDifferenceYears,
+      ],
     );
-  }
 
-  return (
-    <View style={[styles.transactionContainer, { alignItems: 'center' }]}>
-      {didDeclinePayment ? (
+    const transactionContent = useMemo(
+      () =>
+        getTransactionContent({
+          paymentDescription,
+          didDeclinePayment,
+          txParsed,
+          t,
+        }),
+      [paymentDescription, didDeclinePayment, txParsed, t],
+    );
+
+    const textColorValue = useMemo(
+      () =>
+        didDeclinePayment
+          ? theme && darkModeType
+            ? textColor
+            : COLORS.cancelRed
+          : textColor,
+      [didDeclinePayment, theme, darkModeType, textColor],
+    );
+
+    const balanceValue = useMemo(
+      () =>
+        txParsed?.paymentDenomination === 'USD'
+          ? formatBalanceAmount(txParsed.amountDollars, false, masterInfoObject)
+          : txParsed.amountMsat / 1000,
+      [
+        txParsed?.paymentDenomination,
+        txParsed?.amountDollars,
+        txParsed?.amountMsat,
+        masterInfoObject,
+      ],
+    );
+
+    if (txParsed.giftCardInfo) {
+      return (
+        <GiftCardTxItem
+          txParsed={txParsed}
+          isOutgoingPayment={isOutgoingPayment}
+          theme={theme}
+          darkModeType={darkModeType}
+          backgroundOffset={backgroundOffset}
+          timeDifference={timeDisplay}
+          isFromProfile={false}
+          t={t}
+          navigate={navigate}
+          masterInfoObject={masterInfoObject}
+        />
+      );
+    }
+
+    return (
+      <View style={[styles.transactionContainer, styles.centerAlign]}>
         <ThemeIcon
           colorOverride={
-            theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
+            didDeclinePayment
+              ? theme && darkModeType
+                ? COLORS.darkModeText
+                : COLORS.cancelRed
+              : undefined
           }
           styles={styles.icons}
-          iconName={'CircleX'}
+          iconName={
+            didDeclinePayment
+              ? 'CircleX'
+              : isOutgoingPayment
+              ? 'ArrowUp'
+              : 'ArrowDown'
+          }
         />
-      ) : (
-        <ThemeIcon
-          styles={styles.icons}
-          iconName={isOutgoingPayment ? 'ArrowUp' : 'ArrowDown'}
-        />
-      )}
 
-      <View style={{ width: '100%', flex: 1 }}>
-        <ThemeText
-          CustomEllipsizeMode={'tail'}
-          CustomNumberOfLines={1}
+        <View style={styles.contentContainer}>
+          <ThemeText
+            CustomEllipsizeMode="tail"
+            CustomNumberOfLines={1}
+            styles={{
+              ...styles.descriptionText,
+              color: textColorValue,
+              marginRight: 15,
+              includeFontPadding: false,
+            }}
+            content={transactionContent}
+          />
+          <ThemeText
+            styles={{
+              ...styles.dateText,
+              color: textColorValue,
+              includeFontPadding: false,
+            }}
+            content={timeDisplay}
+          />
+        </View>
+
+        <FormattedSatText
+          frontText={
+            didDeclinePayment ||
+            masterInfoObject.userBalanceDenomination === 'hidden'
+              ? ''
+              : isOutgoingPayment
+              ? '-'
+              : '+'
+          }
+          containerStyles={styles.amountContainer}
           styles={{
-            ...styles.descriptionText,
-            color: didDeclinePayment
-              ? theme && darkModeType
-                ? textColor
-                : COLORS.cancelRed
-              : textColor,
-            marginRight: 15,
+            ...styles.amountText,
+            color: textColorValue,
             includeFontPadding: false,
           }}
-          content={getTransactionContent({
-            paymentDescription,
-            didDeclinePayment,
-            txParsed,
-            t,
-          })}
-        />
-        <ThemeText
-          styles={{
-            ...styles.dateText,
-            color: didDeclinePayment
-              ? theme && darkModeType
-                ? textColor
-                : COLORS.cancelRed
-              : textColor,
-            includeFontPadding: false,
-          }}
-          content={getTimeDisplay(
-            timeDifferenceMinutes,
-            timeDifferenceHours,
-            timeDifferenceDays,
-            timeDifferenceYears,
-          )}
+          balance={balanceValue}
+          useMillionDenomination
+          useBalance={txParsed?.paymentDenomination === 'USD'}
+          useCustomLabel={txParsed?.paymentDenomination === 'USD'}
+          customLabel={txParsed?.paymentDenomination === 'USD' ? 'USDB' : null}
         />
       </View>
+    );
+  },
+);
 
-      <FormattedSatText
-        frontText={
-          didDeclinePayment ||
-          masterInfoObject.userBalanceDenomination === 'hidden'
-            ? ''
-            : isOutgoingPayment
-            ? '-'
-            : '+'
-        }
-        containerStyles={{
-          marginBottom: 'auto',
-        }}
-        styles={{
-          ...styles.amountText,
-          color: didDeclinePayment
-            ? theme && darkModeType
-              ? textColor
-              : COLORS.cancelRed
-            : textColor,
-          includeFontPadding: false,
-        }}
-        balance={txParsed.amountMsat / 1000}
-        useMillionDenomination={true}
-      />
-    </View>
-  );
-}
+ConfirmedOrSentTransaction.displayName = 'ConfirmedOrSentTransaction';
 
 export default function ContactsTransactionItem(props) {
   const { selectedContact, transaction, myProfile, currentTime, imageData } =
     props;
+
   const { t } = useTranslation();
   const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -162,17 +197,14 @@ export default function ContactsTransactionItem(props) {
   const navigate = useNavigation();
   const getServerTime = useServerTimeOnly();
   const { globalContactsInformation } = useGlobalContacts();
+
   const [isLoading, setIsLoading] = useState({
     sendBTN: false,
     declineBTN: false,
   });
 
-  // Memoized calculations
   const timeCalculations = useMemo(() => {
-    const endDate = currentTime;
-    const startDate = transaction.timestamp;
-
-    const timeDifferenceMs = Math.abs(endDate - startDate);
+    const timeDifferenceMs = Math.abs(currentTime - transaction.timestamp);
 
     return {
       timeDifferenceMinutes: timeDifferenceMs / (1000 * 60),
@@ -180,27 +212,68 @@ export default function ContactsTransactionItem(props) {
       timeDifferenceDays: timeDifferenceMs / (1000 * 60 * 60 * 24),
       timeDifferenceYears: timeDifferenceMs / (1000 * 60 * 60 * 24 * 365),
     };
-  }, [currentTime, transaction.serverTimestamp, transaction.timestamp]);
-
-  const {
-    timeDifferenceMinutes,
-    timeDifferenceHours,
-    timeDifferenceDays,
-    timeDifferenceYears,
-  } = timeCalculations;
+  }, [currentTime, transaction.timestamp]);
 
   const txParsed = transaction.message;
   const paymentDescription = txParsed?.description || '';
 
+  // Memoized computed values
+  const isCompletedTransaction = useMemo(
+    () =>
+      txParsed?.didSend ||
+      !txParsed?.isRequest ||
+      (txParsed?.isRequest && txParsed.isRedeemed != null),
+    [txParsed?.didSend, txParsed?.isRequest, txParsed?.isRedeemed],
+  );
+
+  const requestAmount = useMemo(() => {
+    if (txParsed?.paymentDenomination === 'USD') {
+      return displayCorrectDenomination({
+        amount: formatBalanceAmount(
+          txParsed?.amountDollars,
+          false,
+          masterInfoObject,
+        ),
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: 'fiat',
+        },
+        fiatStats,
+        forceCurrency: 'USD',
+        convertAmount: false,
+      });
+    } else {
+      return displayCorrectDenomination({
+        amount: txParsed?.amountMsat / 1000,
+        masterInfoObject,
+        fiatStats,
+        useMillionDenomination: true,
+      });
+    }
+  }, [txParsed?.amountMsat, masterInfoObject, fiatStats]);
+
+  const timeDisplay = useMemo(
+    () =>
+      getTimeDisplay(
+        timeCalculations.timeDifferenceMinutes,
+        timeCalculations.timeDifferenceHours,
+        timeCalculations.timeDifferenceDays,
+        timeCalculations.timeDifferenceYears,
+      ),
+    [timeCalculations],
+  );
+
   const updatePaymentStatus = useCallback(
     async (transaction, usingOnPage, didPay, txid) => {
       try {
-        usingOnPage &&
+        if (usingOnPage) {
           setIsLoading(prev => ({
             ...prev,
             [didPay ? 'sendBTN' : 'declineBTN']: true,
           }));
-        let newMessage = {
+        }
+
+        const newMessage = {
           ...transaction.message,
           isRedeemed: didPay,
           txid,
@@ -208,83 +281,93 @@ export default function ContactsTransactionItem(props) {
             globalContactsInformation.myProfile.name ||
             globalContactsInformation.myProfile.uniqueName,
         };
-        // Need to switch unqiue name since the original receiver is now the sender
+
         if (newMessage.senderProfileSnapshot) {
           newMessage.senderProfileSnapshot.uniqueName =
             globalContactsInformation.myProfile.uniqueName;
         }
         delete newMessage.didSend;
         delete newMessage.wasSeen;
-        const [retrivedContact] = await Promise.all([
-          getDataFromCollection('blitzWalletUsers', selectedContact.uuid),
-        ]);
-        if (!retrivedContact)
+
+        const retrivedContact = await getDataFromCollection(
+          'blitzWalletUsers',
+          selectedContact.uuid,
+        );
+
+        if (!retrivedContact) {
           throw new Error(t('errormessages.userDataFetchError'));
+        }
 
         const currentTime = getServerTime();
 
         const useNewNotifications = !!retrivedContact.isUsingNewNotifications;
 
+        const notificationData = {
+          isUpdate: true,
+          [useNewNotifications ? 'option' : 'message']: useNewNotifications
+            ? didPay
+              ? 'paid'
+              : 'declined'
+            : t(
+                'contacts.internalComponents.contactsTransactions.pushNotificationUpdateMessage',
+                {
+                  name: myProfile.name || myProfile.uniqueName,
+                  option: didPay
+                    ? t('transactionLabelText.paidLower')
+                    : t('transactionLabelText.declinedLower'),
+                },
+              ),
+        };
+
+        const updateMessageParams = retrivedContact.isUsingEncriptedMessaging
+          ? {
+              newMessage,
+              fromPubKey: publicKey,
+              toPubKey: selectedContact.uuid,
+              retrivedContact,
+              privateKey: contactsPrivateKey,
+              currentTime,
+            }
+          : {
+              newMessage,
+              fromPubKey: transaction.fromPubKey,
+              toPubKey: transaction.toPubKey,
+              retrivedContact,
+              privateKey: contactsPrivateKey,
+              currentTime,
+            };
+
         const [didPublishNotification, didUpdateMessage] = await Promise.all([
           sendPushNotification({
             selectedContactUsername: selectedContact.uniqueName,
-            myProfile: myProfile,
-            data: {
-              isUpdate: true,
-              [useNewNotifications ? 'option' : 'message']: useNewNotifications
-                ? didPay
-                  ? 'paid'
-                  : 'declined'
-                : t(
-                    'contacts.internalComponents.contactsTransactions.pushNotificationUpdateMessage',
-                    {
-                      name: myProfile.name || myProfile.uniqueName,
-                      option: didPay
-                        ? t('transactionLabelText.paidLower')
-                        : t('transactionLabelText.declinedLower'),
-                    },
-                  ),
-            },
+            myProfile,
+            data: notificationData,
             privateKey: contactsPrivateKey,
             retrivedContact,
             masterInfoObject,
           }),
-
-          retrivedContact.isUsingEncriptedMessaging
-            ? updateMessage({
-                newMessage,
-                fromPubKey: publicKey,
-                toPubKey: selectedContact.uuid,
-                retrivedContact,
-                privateKey: contactsPrivateKey,
-                currentTime,
-              })
-            : updateMessage({
-                newMessage,
-                fromPubKey: transaction.fromPubKey,
-                toPubKey: transaction.toPubKey,
-                retrivedContact,
-                privateKey: contactsPrivateKey,
-                currentTime,
-              }),
+          updateMessage(updateMessageParams),
         ]);
+
         if (!didUpdateMessage && usingOnPage) {
           navigate.navigate('ErrorScreen', {
             errorMessage: t('errormessages.updateContactMessageError'),
           });
         }
       } catch (err) {
-        console.log(err);
-        if (!usingOnPage) return;
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('errormessages.declinePaymentError'),
-        });
+        console.error('Update payment status error:', err);
+        if (usingOnPage) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('errormessages.declinePaymentError'),
+          });
+        }
       } finally {
-        if (!usingOnPage) return;
-        setIsLoading(prev => ({
-          ...prev,
-          [didPay ? 'sendBTN' : 'declineBTN']: false,
-        }));
+        if (usingOnPage) {
+          setIsLoading(prev => ({
+            ...prev,
+            [didPay ? 'sendBTN' : 'declineBTN']: false,
+          }));
+        }
       }
     },
     [
@@ -296,17 +379,15 @@ export default function ContactsTransactionItem(props) {
       navigate,
       masterInfoObject,
       globalContactsInformation,
+      t,
     ],
   );
 
   const acceptPayRequest = useCallback(
     async (transaction, selectedContact) => {
-      setIsLoading(prev => ({
-        ...prev,
-        sendBTN: true,
-      }));
-      const sendingAmount = transaction.message.amountMsat / 1000;
+      setIsLoading(prev => ({ ...prev, sendBTN: true }));
 
+      const sendingAmount = transaction.message.amountMsat / 1000;
       const myProfileMessage = t(
         'contacts.internalComponents.contactsTransactions.acceptProfileMessage',
         {
@@ -336,6 +417,7 @@ export default function ContactsTransactionItem(props) {
       });
 
       if (!didWork) {
+        setIsLoading(prev => ({ ...prev, sendBTN: false }));
         navigate.navigate('ErrorScreen', {
           errorMessage: error,
           useTranslationString: true,
@@ -343,17 +425,17 @@ export default function ContactsTransactionItem(props) {
         return;
       }
 
-      setIsLoading(prev => ({
-        ...prev,
-        sendBTN: false,
-      }));
+      setIsLoading(prev => ({ ...prev, sendBTN: false }));
 
       navigate.navigate('ConfirmPaymentScreen', {
         btcAdress: receiveAddress,
         comingFromAccept: true,
         enteredPaymentInfo: {
+          fromContacts: true,
+          payingContactsRequest: true,
           amount: sendingAmount,
-          description: myProfileMessage, // handles local tx description
+          description: myProfileMessage,
+          endReceiveType: transaction.message.paymentDenomination || 'BTC',
         },
         contactInfo: {
           imageData,
@@ -366,65 +448,61 @@ export default function ContactsTransactionItem(props) {
         publishMessageFunc: txid =>
           updatePaymentStatus(transaction, false, true, txid),
       });
-      return;
     },
-    [
-      myProfile,
-      navigate,
-      updatePaymentStatus,
-      globalContactsInformation,
-      imageData,
-      selectedContact,
-    ],
+    [navigate, updatePaymentStatus, globalContactsInformation, imageData, t],
   );
 
-  if (txParsed === undefined) return;
+  const handlePress = useCallback(() => {
+    if (paymentDescription) {
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'expandedContactMessage',
+        sliderHight: 0.3,
+        message: paymentDescription,
+      });
+    }
+  }, [paymentDescription, navigate]);
 
-  const isCompletedTransaction =
-    txParsed.didSend ||
-    !txParsed.isRequest ||
-    (txParsed.isRequest && txParsed.isRedeemed != null);
+  if (!txParsed) return null;
+
+  const buttonStyle = useMemo(
+    () => ({
+      ...styles.acceptOrPayBTN,
+      backgroundColor: theme ? textColor : COLORS.primary,
+    }),
+    [theme, textColor],
+  );
+
+  const declineButtonStyle = useMemo(
+    () => ({
+      ...styles.acceptOrPayBTN,
+      borderWidth: 1,
+      borderColor: theme ? textColor : COLORS.primary,
+      backgroundColor: 'transparent',
+    }),
+    [theme, textColor],
+  );
 
   return (
-    <TouchableOpacity
-      onPress={() => {
-        if (!paymentDescription) return;
-        navigate.navigate('CustomHalfModal', {
-          wantedContent: 'expandedContactMessage',
-          sliderHight: 0.3,
-          message: paymentDescription,
-        });
-      }}
-      key={props.id}
-      activeOpacity={1}
-    >
+    <TouchableOpacity onPress={handlePress} key={props.id} activeOpacity={1}>
       {isCompletedTransaction ? (
         <ConfirmedOrSentTransaction
           txParsed={txParsed}
           paymentDescription={paymentDescription}
-          timeDifferenceMinutes={timeDifferenceMinutes}
-          timeDifferenceHours={timeDifferenceHours}
-          timeDifferenceDays={timeDifferenceDays}
-          timeDifferenceYears={timeDifferenceYears}
+          {...timeCalculations}
           navigate={navigate}
-          props={props}
+          masterInfoObject={masterInfoObject}
         />
       ) : (
         <View style={styles.transactionContainer}>
-          <ThemeIcon styles={styles.icons} iconName={'ArrowDown'} />
+          <ThemeIcon styles={styles.icons} iconName="ArrowDown" />
 
-          <View style={{ width: '100%', flex: 1 }}>
+          <View style={styles.contentContainer}>
             <ThemeText
               styles={{ includeFontPadding: false }}
               content={t(
                 'contacts.internalComponents.contactsTransactions.requestTitle',
                 {
-                  amount: displayCorrectDenomination({
-                    amount: txParsed.amountMsat / 1000,
-                    masterInfoObject,
-                    fiatStats,
-                    useMillionDenomination: true,
-                  }),
+                  amount: requestAmount,
                 },
               )}
             />
@@ -433,17 +511,12 @@ export default function ContactsTransactionItem(props) {
                 ...styles.dateText,
                 marginBottom: paymentDescription ? 0 : 15,
               }}
-              content={getTimeDisplay(
-                timeDifferenceMinutes,
-                timeDifferenceHours,
-                timeDifferenceDays,
-                timeDifferenceYears,
-              )}
+              content={timeDisplay}
             />
 
             {paymentDescription && (
               <ThemeText
-                CustomEllipsizeMode={'tail'}
+                CustomEllipsizeMode="tail"
                 CustomNumberOfLines={2}
                 styles={{
                   ...styles.descriptionText,
@@ -456,18 +529,11 @@ export default function ContactsTransactionItem(props) {
             <CustomButton
               useLoading={isLoading.sendBTN}
               loadingColor={backgroundColor}
-              actionFunction={() => {
-                acceptPayRequest(transaction, props.selectedContact);
-              }}
-              buttonStyles={{
-                ...styles.acceptOrPayBTN,
-                marginBottom: 10,
-                backgroundColor: theme ? textColor : COLORS.primary,
-              }}
-              textStyles={{
-                color: backgroundColor,
-                includeFontPadding: false,
-              }}
+              actionFunction={() =>
+                acceptPayRequest(transaction, selectedContact)
+              }
+              buttonStyles={{ ...buttonStyle, marginBottom: 10 }}
+              textStyles={{ color: backgroundColor, includeFontPadding: false }}
               textContent={t(
                 'contacts.internalComponents.contactsTransactions.send',
               )}
@@ -476,15 +542,10 @@ export default function ContactsTransactionItem(props) {
             <CustomButton
               useLoading={isLoading.declineBTN}
               loadingColor={theme ? textColor : COLORS.primary}
-              actionFunction={() => {
-                updatePaymentStatus(transaction, true, false);
-              }}
-              buttonStyles={{
-                ...styles.acceptOrPayBTN,
-                borderWidth: 1,
-                borderColor: theme ? textColor : COLORS.primary,
-                backgroundColor: 'transparent',
-              }}
+              actionFunction={() =>
+                updatePaymentStatus(transaction, true, false)
+              }
+              buttonStyles={declineButtonStyle}
               textStyles={{
                 color: theme ? textColor : COLORS.primary,
                 includeFontPadding: false,
@@ -506,6 +567,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12.5,
     ...CENTER,
   },
+  centerAlign: {
+    alignItems: 'center',
+  },
+  contentContainer: {
+    width: '100%',
+    flex: 1,
+  },
   icons: {
     width: 30,
     height: 30,
@@ -514,21 +582,22 @@ const styles = StyleSheet.create({
   descriptionText: {
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
-    fontWeight: 400,
+    fontWeight: '400',
   },
   dateText: {
     fontSize: SIZES.small,
-    fontWeight: 300,
+    fontWeight: '300',
   },
   amountText: {
-    fontWeight: 400,
+    fontWeight: '400',
   },
-
+  amountContainer: {
+    marginBottom: 'auto',
+  },
   acceptOrPayBTN: {
     width: '100%',
     overflow: 'hidden',
     borderRadius: 15,
-    // paddingVertical: 8,
     alignItems: 'center',
   },
 });
