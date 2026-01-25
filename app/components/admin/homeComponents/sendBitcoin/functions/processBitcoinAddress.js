@@ -89,6 +89,12 @@ export default async function processBitcoinAddress(input, context) {
     }
   }
 
+  const displayAmount = comingFromAccept
+    ? enteredPaymentInfo.amount
+    : masterInfoObject.userBalanceDenomination != 'fiat'
+    ? `${amountSat}`
+    : fiatValue;
+
   return {
     data: newPaymentInfo,
     type: InputTypes.BITCOIN_ADDRESS,
@@ -97,13 +103,7 @@ export default async function processBitcoinAddress(input, context) {
     paymentFee: paymentFee,
     supportFee: supportFee,
     feeQuote,
-    sendAmount: !amountSat
-      ? ''
-      : `${
-          masterInfoObject.userBalanceDenomination != 'fiat'
-            ? `${amountSat}`
-            : fiatValue
-        }`,
+    sendAmount: !amountSat ? '' : `${displayAmount}`,
     canEditPayment:
       comingFromAccept || amountSat > SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
         ? false

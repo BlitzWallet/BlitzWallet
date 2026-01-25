@@ -313,11 +313,12 @@ export default async function processSparkAddress(input, context) {
     }
   }
 
-  const displayAmount = enteredPaymentInfo?.fromContacts
-    ? enteredPaymentInfo.amount
-    : masterInfoObject.userBalanceDenomination != 'fiat'
-    ? `${Math.round(amountMsat / 1000)}`
-    : fiatValue;
+  const displayAmount =
+    enteredPaymentInfo?.fromContacts || comingFromAccept
+      ? enteredPaymentInfo.amount
+      : masterInfoObject.userBalanceDenomination != 'fiat'
+      ? `${Math.round(amountMsat / 1000)}`
+      : fiatValue;
 
   return {
     data: addressInfo,
