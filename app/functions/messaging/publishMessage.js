@@ -94,12 +94,18 @@ export async function sendPushNotification({
       } else if (data.isRequest) {
         notificationData['amountSat'] = data.amountMsat / 1000;
         notificationData['type'] = 'request';
+        notificationData['paymentDenomination'] =
+          data.paymentDenomination || 'BTC';
+        notificationData['amountDollars'] = data.amountDollars;
       } else if (data.giftCardInfo) {
         notificationData['giftCardName'] = data.giftCardInfo.name;
         notificationData['type'] = 'giftCard';
       } else {
         notificationData['amountSat'] = data.amountMsat / 1000;
         notificationData['type'] = 'payment';
+        notificationData['paymentDenomination'] =
+          data.paymentDenomination || 'BTC';
+        notificationData['amountDollars'] = data.amountDollars;
       }
 
       requestData = {

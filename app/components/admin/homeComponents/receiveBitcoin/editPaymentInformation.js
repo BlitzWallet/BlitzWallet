@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, FONT, SATSPERBITCOIN, SIZES } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { use, useMemo, useState } from 'react';
+import { use, useCallback, useMemo, useState } from 'react';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -25,6 +25,7 @@ import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 
 export default function EditReceivePaymentInformation(props) {
@@ -45,8 +46,6 @@ export default function EditReceivePaymentInformation(props) {
   const endReceiveType = props.route.params.endReceiveType;
 
   const isUSDReceiveMode = endReceiveType === 'USD';
-  const deviceCurrency = masterInfoObject.fiatCurrency;
-  const isDeviceCurrencyUSD = deviceCurrency === 'USD';
 
   const [inputDenomination, setInputDenomination] = useState(
     isUSDReceiveMode
@@ -56,109 +55,23 @@ export default function EditReceivePaymentInformation(props) {
       : 'fiat',
   );
 
-  const usdFiatStats = { coin: 'USD', value: swapUSDPriceDollars };
+  const {
+    primaryDisplay,
+    secondaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    getNextDenomination,
+    convertForToggle,
+  } = usePaymentInputDisplay({
+    paymentMode: endReceiveType,
+    inputDenomination,
+    fiatStats,
+    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    masterInfoObject,
+  });
 
-  // Determine what the primary input should display
-  // When receiving USD: primary alternates between USD and (device currency OR bitcoin if device is USD)
-  // When receiving Bitcoin: primary alternates between bitcoin and device currency
-  const primaryDisplay = useMemo(() => {
-    if (isUSDReceiveMode) {
-      if (inputDenomination === 'fiat') {
-        // Showing USD
-        return {
-          denomination: 'fiat',
-          forceCurrency: 'USD',
-          forceFiatStats: usdFiatStats,
-        };
-      } else {
-        // Showing device currency or bitcoin
-        if (isDeviceCurrencyUSD) {
-          return {
-            denomination: 'sats',
-            forceCurrency: null,
-            forceFiatStats: null,
-          };
-        } else {
-          return {
-            denomination: 'fiat',
-            forceCurrency: deviceCurrency,
-            forceFiatStats: fiatStats,
-          };
-        }
-      }
-    } else {
-      // Receiving Bitcoin: standard behavior
-      return {
-        denomination: inputDenomination,
-        forceCurrency: null,
-        forceFiatStats: null,
-      };
-    }
-  }, [isUSDReceiveMode, inputDenomination, usdFiatStats]);
-
-  // Determine what the secondary display denomination should be
-  // When receiving USD:
-  //   - If showing USD (fiat), secondary shows device currency (or bitcoin if device is USD)
-  //   - If showing bitcoin/device currency (sats/fiat), secondary shows USD
-  // When receiving Bitcoin:
-  //   - If showing bitcoin (sats), secondary shows device currency
-  //   - If showing device currency (fiat), secondary shows bitcoin
-  const secondaryDisplay = useMemo(() => {
-    if (isUSDReceiveMode) {
-      if (inputDenomination === 'fiat') {
-        // Showing USD, secondary is device currency or bitcoin
-        if (isDeviceCurrencyUSD) {
-          return {
-            denomination: 'sats',
-            forceCurrency: null,
-            forceFiatStats: null,
-          };
-        } else {
-          return {
-            denomination: 'fiat',
-            forceCurrency: deviceCurrency,
-            forceFiatStats: fiatStats,
-          };
-        }
-      } else {
-        // Showing bitcoin/device currency, secondary is USD
-        return {
-          denomination: 'fiat',
-          forceCurrency: 'USD',
-          forceFiatStats: usdFiatStats,
-        };
-      }
-    } else {
-      // Receiving Bitcoin: toggle between sats and fiat (device currency)
-      return {
-        denomination: inputDenomination === 'sats' ? 'fiat' : 'sats',
-        forceCurrency: null,
-        forceFiatStats: null,
-      };
-    }
-  }, [isUSDReceiveMode, inputDenomination, isDeviceCurrencyUSD, usdFiatStats]);
-
-  // Determine which fiat stats to use for primary input and conversions
-  // When receiving USD: if primary input is USD use USD otherwise use device currency
-  // When receiving Bitcoin: use device currency
-  const primaryFiatStats = isUSDReceiveMode
-    ? primaryDisplay.forceCurrency === 'USD'
-      ? usdFiatStats
-      : fiatStats
-    : fiatStats;
-  console.log(primaryDisplay);
   // Calculate sat amount based on which fiat we're using
-  const localSatAmount =
-    primaryDisplay.denomination !== 'fiat'
-      ? Number(amountValue)
-      : Math.round(
-          (SATSPERBITCOIN / (primaryFiatStats?.value || 65000)) * amountValue,
-        );
-
-  const disableDescription =
-    receiveType.toLowerCase() === 'lightning' &&
-    !isUsingAltAccount &&
-    !localSatAmount;
+  const localSatAmount = convertDisplayToSats(amountValue);
 
   const cannotRequset =
     receiveType.toLowerCase() === 'lightning' &&
@@ -173,29 +86,60 @@ export default function EditReceivePaymentInformation(props) {
   const handleDenominationToggle = () => {
     if (isKeyboardFocused) return;
 
-    setInputDenomination(prev => {
-      const newDenom = prev === 'sats' || prev === 'hidden' ? 'fiat' : 'sats';
-      return newDenom;
-    });
+    const nextDenom = getNextDenomination();
+    setInputDenomination(nextDenom);
+    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
+  };
 
-    if (isUSDReceiveMode && !isDeviceCurrencyUSD) {
-      setAmountValue(
-        convertTextInputValue(
-          localSatAmount,
-          secondaryDisplay.forceFiatStats,
-          'sats',
-        ) || '',
-      );
+  const handleSubmit = useCallback(() => {
+    const sendAmount = !Number(localSatAmount) ? 0 : Number(localSatAmount);
+    crashlyticsLogReport(`Running in edit payment information submit function`);
+
+    if (!localSatAmount) {
+      navigate.goBack();
+    }
+
+    if (localSatAmount && cannotRequset) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
+          amount: displayCorrectDenomination({
+            amount: swapLimits.bitcoin,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination:
+                primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
+            },
+            forceCurrency: primaryDisplay.forceCurrency,
+            fiatStats: conversionFiatStats,
+          }),
+        }),
+      });
+      return;
+    }
+
+    if (fromPage === 'homepage') {
+      navigate.replace('ReceiveBTC', {
+        receiveAmount: sendAmount,
+      });
     } else {
-      setAmountValue(
-        convertTextInputValue(
-          amountValue,
-          primaryFiatStats,
-          inputDenomination,
-        ) || '',
+      navigate.popTo(
+        'ReceiveBTC',
+        {
+          receiveAmount: sendAmount,
+          uuid: customUUID(),
+        },
+        { merge: true },
       );
     }
-  };
+  }, [
+    localSatAmount,
+    navigate,
+    cannotRequset,
+    masterInfoObject,
+    swapLimits,
+    primaryDisplay,
+    conversionFiatStats,
+  ]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -246,7 +190,7 @@ export default function EditReceivePaymentInformation(props) {
               showDot={primaryDisplay.denomination === 'fiat'}
               setInputValue={setAmountValue}
               usingForBalance={true}
-              fiatStats={primaryFiatStats}
+              fiatStats={conversionFiatStats}
             />
 
             <CustomButton
@@ -270,50 +214,6 @@ export default function EditReceivePaymentInformation(props) {
       )}
     </CustomKeyboardAvoidingView>
   );
-
-  function handleSubmit() {
-    const sendAmount = !Number(localSatAmount) ? 0 : Number(localSatAmount);
-    crashlyticsLogReport(`Running in edit payment information submit function`);
-
-    if (!localSatAmount) {
-      navigate.goBack();
-    }
-
-    if (localSatAmount && cannotRequset) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
-          amount: displayCorrectDenomination({
-            amount: swapLimits.bitcoin,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination:
-                primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
-            },
-            forceCurrency: primaryDisplay.forceCurrency,
-            fiatStats: primaryFiatStats,
-          }),
-        }),
-      });
-      return;
-    }
-
-    if (fromPage === 'homepage') {
-      navigate.replace('ReceiveBTC', {
-        receiveAmount: sendAmount,
-      });
-    } else {
-      navigate.popTo(
-        'ReceiveBTC',
-        {
-          receiveAmount: sendAmount,
-          uuid: customUUID(),
-        },
-        { merge: true },
-      );
-    }
-
-    setAmountValue('');
-  }
 }
 
 const styles = StyleSheet.create({

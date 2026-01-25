@@ -57,6 +57,12 @@ export default async function processSparkAddress(input, context) {
     addressInfo.message =
       enteredPaymentInfo.description || input?.address?.message || '';
     addressInfo.isBip21 = true;
+    if (enteredPaymentInfo.fromContacts) {
+      addressInfo.expectedReceive =
+        enteredPaymentInfo.endReceiveType === 'USD' ? 'tokens' : 'sats';
+      addressInfo.expectedToken =
+        enteredPaymentInfo.endReceiveType === 'USD' ? USDB_TOKEN_ID : null;
+    }
   }
 
   const enteredAmount = enteredPaymentInfo.amount
@@ -157,7 +163,7 @@ export default async function processSparkAddress(input, context) {
           usdBalanceConversion,
         );
 
-        const usdAmount = Math.ceil(maxAmount * 1000000);
+        const usdAmount = Math.ceil(maxAmount.toFixed(2) * Math.pow(10, 6));
 
         operations.usdSwap = promises.length;
         promises.push(
@@ -307,6 +313,17 @@ export default async function processSparkAddress(input, context) {
     }
   }
 
+  const canEditPayment = comingFromAccept ? false : !amountMsat;
+
+  const displayAmount =
+    enteredPaymentInfo?.fromContacts || comingFromAccept
+      ? enteredPaymentInfo.amount
+      : masterInfoObject.userBalanceDenomination != 'fiat'
+      ? Math.round(amountMsat / 1000)
+      : canEditPayment
+      ? fiatValue
+      : Math.round(amountMsat / 1000);
+
   return {
     data: addressInfo,
     type: 'spark',
@@ -314,15 +331,7 @@ export default async function processSparkAddress(input, context) {
     paymentFee: addressInfo.paymentFee,
     supportFee: addressInfo.supportFee,
     swapPaymentQuote,
-    sendAmount: !amountMsat
-      ? ''
-      : isLRC20
-      ? amountMsat
-      : `${
-          masterInfoObject.userBalanceDenomination != 'fiat'
-            ? `${Math.round(amountMsat / 1000)}`
-            : fiatValue
-        }`,
-    canEditPayment: comingFromAccept ? false : !amountMsat,
+    sendAmount: !amountMsat ? '' : isLRC20 ? amountMsat : `${displayAmount}`,
+    canEditPayment,
   };
 }

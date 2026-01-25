@@ -1,10 +1,15 @@
+import { AppState } from 'react-native';
 import { IS_SPARK_ID, USDB_TOKEN_ID } from '../../constants';
 import {
   getCachedSparkTransactions,
   getSparkTokenTransactions,
 } from '../spark';
 import { getActiveSwapTransferIds, isSwapActive } from '../spark/flashnet';
-import { bulkUpdateSparkTransactions } from '../spark/transactions';
+import {
+  bulkUpdateSparkTransactions,
+  deleteSparkContactTransaction,
+  getAllSparkContactInvoices,
+} from '../spark/transactions';
 import { convertToBech32m } from './bech32';
 import tokenBufferAmountToDecimal from './bufferToDecimal';
 
@@ -18,6 +23,7 @@ export async function getLRC20Transactions({
   try {
     if (isRunning) throw new Error('process is already running');
     isRunning = true;
+    if (AppState.currentState !== 'active') return;
     const savedTxs = await getCachedSparkTransactions(null, ownerPublicKeys[0]);
 
     // Find last saved completed token transaction
@@ -88,6 +94,7 @@ export async function getLRC20Transactions({
     const ownerPubKey = ownerPublicKeys[0];
     const isSwapInProgress = isSwapActive();
     const activeSwaps = getActiveSwapTransferIds();
+    const unpaidContactInvoices = await getAllSparkContactInvoices();
 
     for (const tokenTx of tokenTransactions) {
       const tokenOutput = tokenTx.tokenTransaction.tokenOutputs[0];
@@ -132,12 +139,21 @@ export async function getLRC20Transactions({
         continue;
       }
 
+      const foundInvoice = unpaidContactInvoices?.find(
+        savedTx => savedTx.sparkID === txHash,
+      );
+
+      if (foundInvoice?.sparkID) {
+        deleteSparkContactTransaction(foundInvoice.sparkID);
+      }
+
       const tx = {
         id: txHash,
         paymentStatus: 'completed',
         paymentType: 'spark',
         accountId: ownerPubKey,
         details: {
+          sendingUUID: foundInvoice?.sendersPubkey,
           fee: 0,
           totalFee: didSend ? 10 : 0,
           supportFee: didSend ? 10 : 0,
@@ -147,7 +163,7 @@ export async function getLRC20Transactions({
             tokenTx.tokenTransaction.clientCreatedTimestamp,
           ).getTime(),
           direction: didSend ? 'OUTGOING' : 'INCOMING',
-          description: '',
+          description: foundInvoice?.description || '',
           isLRC20Payment: true,
           LRC20Token: tokenbech32m,
         },

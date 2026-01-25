@@ -1079,6 +1079,12 @@
       "deleteProfileImageError": "Unable to delete profile image, please try again.",
       "deleateWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored."
     },
+    "selectCurrencyToSend": {
+      "header": "What do you want to send?"
+    },
+    "selectCurrencyToRequest": {
+      "header": "Select the currency to request"
+    },
 
     "sendAndRequestPage": {
       "profileMessage": "Paying {{name}}",
@@ -1091,7 +1097,10 @@
       "sendGiftText": "Send gift",
       "notVariableCard": "This gift card has a fixed amount. You can only send the price shown above.",
       "giftCardText": "{{giftName}} Gift Card",
-      "giftMessage": "Gift Message"
+      "giftMessage": "Gift Message",
+      "recipientReceives": "{{contactName}} will receive",
+      "giftMessagePlaceholder": "Write your gift message here...",
+      "paymentSourceHeader": "Payment Source"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "We couldn't load your gift card right now. Please try again.",

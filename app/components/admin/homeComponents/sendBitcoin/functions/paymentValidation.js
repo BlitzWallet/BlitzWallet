@@ -43,6 +43,8 @@ export default function usePaymentValidation({
   masterInfoObject,
   fiatStats,
   inputDenomination,
+  primaryDisplay,
+  conversionFiatStats,
 
   //can perform swap
   sparkInformation,
@@ -88,6 +90,7 @@ export default function usePaymentValidation({
       finalPaymentMethod,
       determinePaymentMethod,
       selectedPaymentMethod,
+      receiverExpectsCurrency,
       'payment methods',
     );
 
@@ -175,6 +178,13 @@ export default function usePaymentValidation({
         finalPaymentMethod === 'BTC' &&
         paymentInfo?.data?.expectedToken === USDB_TOKEN_ID);
 
+    console.log(
+      needsSwap,
+      'needs swap',
+      finalPaymentMethod,
+      receiverExpectsCurrency,
+    );
+
     if (needsSwap) {
       if (finalPaymentMethod === 'USD') {
         // USD → BTC swap
@@ -258,7 +268,8 @@ export default function usePaymentValidation({
               ...masterInfoObject,
               userBalanceDenomination: inputDenomination,
             },
-            fiatStats,
+            fiatStats: conversionFiatStats,
+            forceCurrency: primaryDisplay.forceCurrency,
           }),
           balance: bitcoinBalance,
         },
@@ -270,7 +281,8 @@ export default function usePaymentValidation({
             ...masterInfoObject,
             userBalanceDenomination: inputDenomination,
           },
-          fiatStats,
+          fiatStats: conversionFiatStats,
+          forceCurrency: primaryDisplay.forceCurrency,
         }),
       }),
       NO_SWAP_FOR_BITCOIN_PAYMENTS: t(
@@ -284,7 +296,8 @@ export default function usePaymentValidation({
             ...masterInfoObject,
             userBalanceDenomination: inputDenomination,
           },
-          fiatStats,
+          fiatStats: conversionFiatStats,
+          forceCurrency: primaryDisplay.forceCurrency,
         }),
       }),
       ABOVE_LNURL_MAXIMUM: t('wallet.sendPages.acceptButton.lnurlPayError', {
@@ -295,7 +308,8 @@ export default function usePaymentValidation({
             ...masterInfoObject,
             userBalanceDenomination: inputDenomination,
           },
-          fiatStats,
+          fiatStats: conversionFiatStats,
+          forceCurrency: primaryDisplay.forceCurrency,
         }),
       }),
       BELOW_USD_SWAP_MINIMUM: t(
@@ -307,7 +321,8 @@ export default function usePaymentValidation({
               ...masterInfoObject,
               userBalanceDenomination: inputDenomination,
             },
-            fiatStats,
+            fiatStats: conversionFiatStats,
+            forceCurrency: primaryDisplay.forceCurrency,
           }),
           currency1: t('constants.dollars_upper'),
           currency2: t('constants.bitcoin_upper'),
@@ -322,7 +337,8 @@ export default function usePaymentValidation({
               ...masterInfoObject,
               userBalanceDenomination: inputDenomination,
             },
-            fiatStats,
+            fiatStats: conversionFiatStats,
+            forceCurrency: primaryDisplay.forceCurrency,
           }),
           currency1: t('constants.bitcoin_upper'),
           currency2: t('constants.dollars_upper'),

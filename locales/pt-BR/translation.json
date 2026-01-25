@@ -1077,6 +1077,12 @@
       "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
       "deleateWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
+    "selectCurrencyToSend": {
+      "header": "O que você quer enviar?"
+    },
+    "selectCurrencyToRequest": {
+      "header": "Selecione a moeda a solicitar"
+    },
 
     "sendAndRequestPage": {
       "profileMessage": "Você pagou {{name}}",
@@ -1089,7 +1095,10 @@
       "sendGiftText": "Enviar cartão-presente",
       "notVariableCard": "Este cartão-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
       "giftCardText": "Cartão-presente {{giftName}}",
-      "giftMessage": "Mensagem"
+      "giftMessage": "Mensagem",
+      "recipientReceives": "{{contactName}} receberá",
+      "giftMessagePlaceholder": "Escreva sua mensagem de presente aqui...",
+      "paymentSourceHeader": "Fonte de pagamento"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",

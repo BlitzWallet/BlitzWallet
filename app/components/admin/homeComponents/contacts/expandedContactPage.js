@@ -183,11 +183,20 @@ export default function ExpandedContactsPage(props) {
                 });
                 return;
               }
-              navigate.navigate('SendAndRequestPage', {
-                selectedContact: selectedContact,
-                paymentType: 'send',
-                imageData,
-              });
+              if (selectedContact?.isLNURL) {
+                navigate.navigate('SendAndRequestPage', {
+                  selectedContact: selectedContact,
+                  paymentType: 'send',
+                  imageData,
+                  endReceiveType: 'BTC',
+                });
+              } else {
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'SelectPaymentType',
+                  selectedContact: selectedContact,
+                  imageData,
+                });
+              }
             }}
             arrowColor={
               theme

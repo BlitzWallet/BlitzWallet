@@ -359,7 +359,9 @@ export const sparkPaymenWrapper = async ({
               poolInfoRef.currentPriceAInB,
             ),
           );
-          const formatted = Math.round(amountInWithBuffer * Math.pow(10, 6));
+          const formatted = Math.round(
+            amountInWithBuffer.toFixed(2) * Math.pow(10, 6),
+          );
           executionResponse = await executeSwap(mnemonic, {
             poolId: swapPaymentQuote.poolId,
             assetInAddress: swapPaymentQuote.assetInAddress,
