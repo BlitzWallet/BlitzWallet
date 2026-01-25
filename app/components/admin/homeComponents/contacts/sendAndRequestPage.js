@@ -248,7 +248,8 @@ export default function SendAndRequestPage(props) {
     );
   }, [giftOption]);
 
-  const canProceed = paymentValidation.canProceed;
+  const canProceed =
+    paymentType === 'request' ? !!amountValue : paymentValidation.canProceed;
 
   const handleDenominationToggle = () => {
     if (isDescriptionFocused) return;
