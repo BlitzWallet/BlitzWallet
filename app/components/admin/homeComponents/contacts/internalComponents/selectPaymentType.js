@@ -49,6 +49,7 @@ export default function SelectPaymentType({
           paymentType: 'send',
           imageData,
           endReceiveType: selectedOption,
+          selectedPaymentMethod: selectedOption,
         });
       }
     });
