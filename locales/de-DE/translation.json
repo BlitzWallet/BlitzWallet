@@ -1058,6 +1058,12 @@
       "deleteProfileImageError": "Profilbild konnte nicht gelöscht werden, bitte versuchen Sie es erneut.",
       "deleateWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden."
     },
+    "selectCurrencyToSend": {
+      "header": "Was möchtest du senden?"
+    },
+    "selectCurrencyToRequest": {
+      "header": "Wähle die anzufordernde Währung aus"
+    },
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Zahlungsbeschreibung",
       "profileMessage": "Bezahlung an {{name}}",
@@ -1070,7 +1076,10 @@
       "sendGiftText": "Geschenk senden",
       "notVariableCard": "Diese Geschenkkarte hat einen festen Betrag. Sie können nur den oben angezeigten Preis senden.",
       "giftCardText": "{{giftName}} Geschenkkarte",
-      "giftMessage": "Geschenk-Nachricht"
+      "giftMessage": "Geschenk-Nachricht",
+      "recipientReceives": "{{contactName}} erhält",
+      "giftMessagePlaceholder": "Schreibe hier deine Geschenknachricht...",
+      "paymentSourceHeader": "Zahlungsquelle"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",

@@ -1059,6 +1059,12 @@
       "deleteProfileImageError": "Не удалось удалить фото.",
       "deleateWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить."
     },
+    "selectCurrencyToSend": {
+      "header": "Что вы хотите отправить?"
+    },
+    "selectCurrencyToRequest": {
+      "header": "Выберите валюту для запроса"
+    },
     "sendAndRequestPage": {
       "profileMessage": "Оплата {{name}}",
       "contactMessage": "{{name}} заплатил вам",
@@ -1070,7 +1076,10 @@
       "sendGiftText": "Отправить подарок",
       "notVariableCard": "У этой карты фиксированный номинал.",
       "giftCardText": "Карта {{giftName}}",
-      "giftMessage": "Сообщение"
+      "giftMessage": "Сообщение",
+      "recipientReceives": "{{contactName}} получит",
+      "giftMessagePlaceholder": "Напишите сообщение для подарка здесь...",
+      "paymentSourceHeader": "Источник оплаты"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Не удалось загрузить карту.",

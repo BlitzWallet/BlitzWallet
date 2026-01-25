@@ -1062,6 +1062,12 @@
       "deleteProfileImageError": "Impossible de supprimer l'image du profil, veuillez réessayer.",
       "deleateWarning": "Êtes-vous sûr de vouloir supprimer ce contact ? Les messages datant de plus d'une semaine ne peuvent pas être restaurés."
     },
+    "selectCurrencyToSend": {
+      "header": "Que souhaitez-vous envoyer ?"
+    },
+    "selectCurrencyToRequest": {
+      "header": "Sélectionnez la devise à demander"
+    },
     "sendAndRequestPage": {
       "profileMessage": "Payer {{name}}",
       "contactMessage": "{{name}} vous a payé",
@@ -1073,7 +1079,10 @@
       "sendGiftText": "Envoyer un cadeau",
       "notVariableCard": "Cette carte cadeau a un montant fixe. Vous ne pouvez envoyer que le prix indiqué ci-dessus.",
       "giftCardText": "{{giftName}} Carte cadeau",
-      "giftMessage": "Message sur le cadeau"
+      "giftMessage": "Message sur le cadeau",
+      "recipientReceives": "{{contactName}} recevra",
+      "giftMessagePlaceholder": "Écrivez votre message cadeau ici...",
+      "paymentSourceHeader": "Source de paiement"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Nous n'avons pas pu charger votre carte cadeau pour le moment. Veuillez réessayer.",

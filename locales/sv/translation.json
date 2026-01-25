@@ -1062,6 +1062,12 @@
       "deleteProfileImageError": "Det går inte att ta bort profilbilden, försök igen.",
       "deleateWarning": "Är du säker på att du vill ta bort den här kontakten? Meddelanden som är äldre än en vecka kan inte återställas."
     },
+    "selectCurrencyToSend": {
+      "header": "Vad vill du skicka?"
+    },
+    "selectCurrencyToRequest": {
+      "header": "Välj valuta att begära"
+    },
     "sendAndRequestPage": {
       "profileMessage": "Betalning {{name}}",
       "contactMessage": "{{name}} betalade dig",
@@ -1073,7 +1079,10 @@
       "sendGiftText": "Skicka gåva",
       "notVariableCard": "Detta presentkort har ett fast belopp. Du kan bara skicka det pris som visas ovan.",
       "giftCardText": "{{giftName}} Presentkort",
-      "giftMessage": "Gåvomeddelande"
+      "giftMessage": "Gåvomeddelande",
+      "recipientReceives": "{{contactName}} kommer att ta emot",
+      "giftMessagePlaceholder": "Skriv ditt presentmeddelande här...",
+      "paymentSourceHeader": "Betalningskälla"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Vi kunde inte ladda ditt presentkort just nu. Vänligen försök igen.",

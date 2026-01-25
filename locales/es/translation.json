@@ -923,6 +923,12 @@
       "deleteProfileImageError": "No se pudo eliminar la imagen de perfil, intenta de nuevo.",
       "deleateWarning": "¿Seguro que deseas eliminar este contacto? Los mensajes de más de una semana no se pueden restaurar."
     },
+    "selectCurrencyToSend": {
+      "header": "¿Qué deseas enviar?"
+    },
+    "selectCurrencyToRequest": {
+      "header": "Selecciona la moneda a solicitar"
+    },
     "sendAndRequestPage": {
       "profileMessage": "Pagando {{name}}",
       "contactMessage": "{{name}} te pagó",
@@ -934,7 +940,10 @@
       "sendGiftText": "Enviar regalo",
       "notVariableCard": "Esta tarjeta de regalo tiene un importe fijo. Solo puedes enviar el precio mostrado arriba.",
       "giftCardText": "Tarjeta de regalo {{giftName}}",
-      "giftMessage": "Mensaje de regalo"
+      "giftMessage": "Mensaje de regalo",
+      "recipientReceives": "{{contactName}} recibirá",
+      "giftMessagePlaceholder": "Escribe aquí tu mensaje de regalo...",
+      "paymentSourceHeader": "Fuente de pago"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "No pudimos cargar tu tarjeta de regalo en este momento. Por favor, inténtalo de nuevo.",
