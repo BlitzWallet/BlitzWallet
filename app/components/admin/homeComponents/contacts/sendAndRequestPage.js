@@ -142,6 +142,7 @@ export default function SendAndRequestPage(props) {
     secondaryDisplay,
     conversionFiatStats,
     convertDisplayToSats,
+    convertSatsToDisplay,
     getNextDenomination,
     convertForToggle,
   } = usePaymentInputDisplay({
@@ -152,8 +153,14 @@ export default function SendAndRequestPage(props) {
     masterInfoObject,
   });
 
+  const displayAmount =
+    paymentType !== 'Gift' ? amountValue : convertSatsToDisplay(amountValue);
+
   // Calculate sat amount
-  const convertedSendAmount = convertDisplayToSats(amountValue);
+  const convertedSendAmount =
+    paymentType === 'Gift'
+      ? Number(amountValue)
+      : convertDisplayToSats(amountValue);
 
   const min_usd_swap_amount = useMemo(() => {
     return Math.round(
@@ -229,7 +236,9 @@ export default function SendAndRequestPage(props) {
     const totalSats = Math.round(
       giftOption.selectedDenomination * giftOption.satsPerDollar,
     );
-    const localfiatSatsPerDollar = fiatStats.value / SATSPERBITCOIN;
+    const localfiatSatsPerDollar =
+      (primaryDisplay.forceFiatStats?.value || fiatStats.value) /
+      SATSPERBITCOIN;
     setAmountValue(
       String(
         primaryDisplay.denomination !== 'fiat'
@@ -243,10 +252,14 @@ export default function SendAndRequestPage(props) {
 
   const handleDenominationToggle = () => {
     if (isDescriptionFocused) return;
-
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
+    if (paymentType === 'Gift') {
+      const nextDenom = getNextDenomination();
+      setInputDenomination(nextDenom);
+    } else {
+      const nextDenom = getNextDenomination();
+      setInputDenomination(nextDenom);
+      setAmountValue(convertForToggle(amountValue, convertTextInputValue));
+    }
   };
 
   const handleSubmit = useCallback(async () => {
@@ -378,6 +391,7 @@ export default function SendAndRequestPage(props) {
             btcAdress: invoice,
             comingFromAccept: true,
             enteredPaymentInfo: {
+              fromContacts: true,
               amount: amount,
               description:
                 descriptionValue ||
@@ -393,6 +407,7 @@ export default function SendAndRequestPage(props) {
               uuid: selectedContact.uuid,
             },
             preSelectedPaymentMethod: selectedPaymentMethod,
+            selectedPaymentMethod: selectedPaymentMethod,
             fromPage: 'contacts',
             publishMessageFunc: () => {
               giftCardPurchaseAmountTracker({
@@ -469,9 +484,6 @@ export default function SendAndRequestPage(props) {
             amount: convertedSendAmount,
             description: myProfileMessage,
             endReceiveType: endReceiveType,
-            selectedPaymentMethod: selectedPaymentMethod,
-            inputCurrency: primaryDisplay.inputCurrency,
-            stablePoolInfoRef: poolInfoRefSnapshotRef.current,
           },
           contactInfo: {
             imageData,
@@ -608,7 +620,7 @@ export default function SendAndRequestPage(props) {
           >
             <FormattedBalanceInput
               maxWidth={0.9}
-              amountValue={amountValue || 0}
+              amountValue={displayAmount || 0}
               inputDenomination={primaryDisplay.denomination}
               forceCurrency={primaryDisplay.forceCurrency}
               forceFiatStats={primaryDisplay.forceFiatStats}

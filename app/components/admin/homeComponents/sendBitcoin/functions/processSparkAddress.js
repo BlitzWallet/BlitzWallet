@@ -163,7 +163,7 @@ export default async function processSparkAddress(input, context) {
           usdBalanceConversion,
         );
 
-        const usdAmount = Math.ceil(maxAmount * 1000000);
+        const usdAmount = Math.ceil(maxAmount.toFixed(2) * Math.pow(10, 6));
 
         operations.usdSwap = promises.length;
         promises.push(

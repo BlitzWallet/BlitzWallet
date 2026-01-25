@@ -160,6 +160,12 @@ export default async function processBolt11Invoice(input, context) {
     }
   }
 
+  const displayAmount = enteredPaymentInfo?.fromContacts
+    ? enteredPaymentInfo.amount
+    : masterInfoObject.userBalanceDenomination != 'fiat'
+    ? `${Math.round(amountMsat / 1000)}`
+    : fiatValue;
+
   return {
     data: { ...input, message: input.data.description },
     type: InputTypes.BOLT11,
@@ -169,13 +175,7 @@ export default async function processBolt11Invoice(input, context) {
     address: input.data.address,
     usingZeroAmountInvoice: !input.data.amountMsat,
     swapPaymentQuote: swapPaymentQuote,
-    sendAmount: !amountMsat
-      ? ''
-      : `${
-          masterInfoObject.userBalanceDenomination != 'fiat'
-            ? `${Math.round(amountMsat / 1000)}`
-            : fiatValue
-        }`,
+    sendAmount: !amountMsat ? '' : `${displayAmount}`,
     canEditPayment: comingFromAccept ? false : !amountMsat,
   };
 }

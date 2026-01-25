@@ -149,7 +149,7 @@ export default function SelectPaymentType({
                     ? darkModeType
                       ? backgroundColor
                       : backgroundOffset
-                    : COLORS.darkModeText,
+                    : COLORS.tertiary,
               },
             ]}
           >
@@ -160,7 +160,7 @@ export default function SelectPaymentType({
                 tintColor:
                   theme && darkModeType
                     ? COLORS.darkModeText
-                    : COLORS.lightModeText,
+                    : COLORS.darkModeText,
               }}
               lightModeIcon={ICONS.giftCardIcon}
               darkModeIcon={ICONS.giftCardIcon}
