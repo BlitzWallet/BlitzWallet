@@ -39,9 +39,12 @@ export function createFormattedDate(time, currentTime, t) {
     t('weekdays.Sat'),
   ];
 
-  let formattedTime;
+  const hoursAgo = (currentDate.getTime() - date.getTime()) / (1000 * 60 * 60);
 
-  if (isSameDay(date, currentDate)) {
+  let formattedTime;
+  if (isSameDay(date, currentDate) && hoursAgo >= 12 && date.getHours() < 5) {
+    formattedTime = t('constants.yesterday');
+  } else if (isSameDay(date, currentDate)) {
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
