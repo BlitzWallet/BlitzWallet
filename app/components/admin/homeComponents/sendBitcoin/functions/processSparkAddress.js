@@ -313,12 +313,16 @@ export default async function processSparkAddress(input, context) {
     }
   }
 
+  const canEditPayment = comingFromAccept ? false : !amountMsat;
+
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredPaymentInfo.amount
       : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? `${Math.round(amountMsat / 1000)}`
-      : fiatValue;
+      ? Math.round(amountMsat / 1000)
+      : canEditPayment
+      ? fiatValue
+      : Math.round(amountMsat / 1000);
 
   return {
     data: addressInfo,
@@ -328,6 +332,6 @@ export default async function processSparkAddress(input, context) {
     supportFee: addressInfo.supportFee,
     swapPaymentQuote,
     sendAmount: !amountMsat ? '' : isLRC20 ? amountMsat : `${displayAmount}`,
-    canEditPayment: comingFromAccept ? false : !amountMsat,
+    canEditPayment,
   };
 }
