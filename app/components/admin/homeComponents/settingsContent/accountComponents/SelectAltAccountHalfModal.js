@@ -69,7 +69,9 @@ export default function SelectAltAccountHalfModal(props) {
               });
 
               await new Promise(res => setTimeout(res, 800));
-              await initializeSparkWallet(account.mnemoinc);
+              await initializeSparkWallet(account.mnemoinc, false, {
+                maxRetries: 4,
+              });
               let balance = 0;
               if (transferType === 'from') {
                 const balanceResponse = await getSparkBalance(account.mnemoinc);

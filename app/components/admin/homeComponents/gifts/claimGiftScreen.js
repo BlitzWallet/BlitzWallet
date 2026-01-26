@@ -254,7 +254,9 @@ export default function ClaimGiftScreen({
       }
 
       if (!initResult) {
-        initResult = await initializeSparkWallet(giftSeed);
+        initResult = await initializeSparkWallet(giftSeed, false, {
+          maxRetries: 4,
+        });
       }
 
       if (!initResult) {

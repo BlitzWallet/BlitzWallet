@@ -704,7 +704,11 @@ export const WebViewProvider = ({ children }) => {
           }
 
           // Reject importent messages if app is not connected to the internet
-          if (!internetConnectionRef.current && action !== 'handshake:init') {
+          if (
+            !internetConnectionRef.current &&
+            action !== 'handshake:init' &&
+            action !== 'initializeSparkWallet'
+          ) {
             console.log(
               'App is not connected to the internet, queueing message:',
               action,
@@ -866,11 +870,11 @@ export const WebViewProvider = ({ children }) => {
                   result,
                 );
 
-                forceReactNativeUse = true;
-                setChangeSparkConnectionState(prev => ({
-                  state: true,
-                  count: prev.count + 1,
-                }));
+                // forceReactNativeUse = true;
+                // setChangeSparkConnectionState(prev => ({
+                //   state: true,
+                //   count: prev.count + 1,
+                // }));
 
                 queuedRequests.current.forEach(({ reject }) => {
                   reject({
@@ -1091,7 +1095,7 @@ export const WebViewProvider = ({ children }) => {
           if (!response?.isConnected) throw new Error('Wallet init failed');
         } catch (err) {
           console.log('Error re-initializing wallet:', err);
-          forceReactNativeUse = true;
+          // forceReactNativeUse = true;
           // Reject all queued requests since WebView is now unusable
           queuedRequests.current.forEach(({ reject }) => {
             reject({

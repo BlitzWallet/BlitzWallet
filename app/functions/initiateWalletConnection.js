@@ -25,25 +25,7 @@ export async function initWallet({
 }) {
   try {
     crashlyticsLogReport('Trying to connect to nodes');
-    const [
-      didConnectToSpark,
-      // balance
-    ] = await Promise.all([
-      initializeSparkWallet(mnemonic),
-      // handleBalanceCache({
-      //   isCheck: false,
-      //   mnemonic: mnemonic,
-      //   returnBalanceOnly: true,
-      // }),
-    ]);
-
-    // if (balance) {
-    //   setSparkInformation(prev => ({
-    //     ...prev,
-    //     didConnect: true,
-    //     balance: balance,
-    //   }));
-    // }
+    const didConnectToSpark = await initializeSparkWallet(mnemonic);
 
     if (didConnectToSpark.isConnected) {
       crashlyticsLogReport('Loading node balances for session');
