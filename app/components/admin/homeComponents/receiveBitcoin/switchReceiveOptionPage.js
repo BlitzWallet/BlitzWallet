@@ -31,8 +31,9 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 const MAIN_PAYMENTS = [
   ['Lightning', 'Instant'],
   ['Bitcoin', '~ 10 minutes'],
-  // ['USD', '~ Instant'],
   ['Spark', 'Instant'],
+  ['USDT', '~ 5 minutes'],
+  ['USDC', '~ 5 minutes'],
   ['Liquid', '~ 1 minute'],
   ['Rootstock', '~ 1 minute'],
 ];
@@ -131,7 +132,7 @@ export default function SwitchReceiveOptionPage({
         style={[
           styles.optionItemContainer,
           {
-            marginBottom: index !== 4 ? 20 : 0,
+            marginBottom: index !== MAIN_PAYMENTS.length - 1 ? 20 : 0,
             backgroundColor:
               theme && darkModeType ? backgroundColor : backgroundOffset,
           },
@@ -170,6 +171,10 @@ export default function SwitchReceiveOptionPage({
                   ? 'blockstreamLiquid'
                   : name === 'USD'
                   ? 'dollar'
+                  : name === 'USDT'
+                  ? 'tetherLogo'
+                  : name === 'USDC'
+                  ? 'usdcLogo'
                   : 'rootstockLogo'
               ]
             }
