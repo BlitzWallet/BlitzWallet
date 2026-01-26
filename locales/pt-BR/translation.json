@@ -1078,10 +1078,10 @@
       "deleateWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
     "selectCurrencyToSend": {
-      "header": "O que você quer enviar?"
+      "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Selecione a moeda a solicitar"
+      "header": "Selecione a moeda que você deseja receber"
     },
 
     "sendAndRequestPage": {
