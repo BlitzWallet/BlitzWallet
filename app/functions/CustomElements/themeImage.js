@@ -12,6 +12,7 @@ export default function ThemeImage({
   darkModeIcon,
   source,
   disableTint = false,
+  contentFit = 'cover',
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
 
@@ -68,6 +69,7 @@ export default function ThemeImage({
       style={imageStyles}
       source={imageSource}
       recyclingKey={String(imageSource)}
+      contentFit={contentFit}
     />
   );
 }
