@@ -1638,7 +1638,7 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Selecione a moeda a receber",
+        "selectReceiveAssetHead": "Selecione a moeda que você deseja receber",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "O que você gostaria de dizer?",
         "editDescriptionPlaceholder": "Adicionar uma descrição"
