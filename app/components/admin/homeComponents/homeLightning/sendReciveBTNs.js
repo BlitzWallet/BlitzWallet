@@ -49,7 +49,7 @@ export function SendRecieveBTNs({
           if (btnType === 'send') {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'sendOptions',
-              sliderHight: 0.5,
+              sliderHight: 0.7,
             });
           } else {
             navigate.navigate('ReceiveBTC', {

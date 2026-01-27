@@ -117,6 +117,7 @@ export default function CustomHalfModal(props) {
       case 'sendOptions':
         return (
           <HalfModalSendOptions
+            setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
@@ -473,11 +474,13 @@ export default function CustomHalfModal(props) {
               // contentType === 'editLNURLOnReceive' ||
               contentType === 'addContacts' ||
               contentType === 'SelectLRC20Token' ||
-              contentType === 'AddMessageReceivePage'
+              contentType === 'AddMessageReceivePage' ||
+              contentType === 'sendOptions'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
-                    contentType === 'addContacts'
+                    contentType === 'addContacts' ||
+                    contentType === 'sendOptions'
                   ? 0
                   : bottomPadding
                 : bottomPadding,
