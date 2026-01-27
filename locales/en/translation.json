@@ -909,7 +909,7 @@
         "sparkDesc": "Instant, Supports Tokens",
         "sparkTitle": "Spark Address",
         "bitcoinTitle": "Bitcoin Address",
-        "lightningTitle": "Lightning Invoice",
+        "lightningTitle": "Lightning Address",
         "liquidTitle": "Liquid Address",
         "rootstockTitle": "Rootstock Address"
       },
