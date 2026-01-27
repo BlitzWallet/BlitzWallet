@@ -27,10 +27,14 @@ import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import {
+  dollarsToSats,
+  satsToDollars,
+} from '../../../../functions/spark/flashnet';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
-  const { swapLimits, swapUSDPriceDollars } = useFlashnet();
+  const { swapLimits, swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { isUsingAltAccount } = useActiveCustodyAccount();
   const { fiatStats } = useNodeContext();
@@ -44,6 +48,9 @@ export default function EditReceivePaymentInformation(props) {
   const receiveType = props.route.params.receiveType;
 
   const endReceiveType = props.route.params.endReceiveType;
+  const isStablecoinPayment =
+    receiveType.toLowerCase() === 'usdt' ||
+    receiveType.toLowerCase() === 'usdc';
 
   const isUSDReceiveMode = endReceiveType === 'USD';
 
@@ -60,6 +67,7 @@ export default function EditReceivePaymentInformation(props) {
     secondaryDisplay,
     conversionFiatStats,
     convertDisplayToSats,
+    convertSatsToDisplay,
     getNextDenomination,
     convertForToggle,
   } = usePaymentInputDisplay({
@@ -73,10 +81,21 @@ export default function EditReceivePaymentInformation(props) {
   // Calculate sat amount based on which fiat we're using
   const localSatAmount = convertDisplayToSats(amountValue);
 
-  const cannotRequset =
+  const lightningMin =
     receiveType.toLowerCase() === 'lightning' &&
     endReceiveType === 'USD' &&
     localSatAmount < 1000;
+
+  const dollarAmount =
+    primaryDisplay.forceCurrency !== 'USD'
+      ? primaryDisplay.denomination === 'fiat'
+        ? convertSatsToDisplay(amountValue)
+        : satsToDollars(amountValue, poolInfoRef.currentPriceAInB).toFixed(1)
+      : amountValue;
+
+  const stableCoinMin = isStablecoinPayment && dollarAmount < 1;
+
+  const cannotRequset = lightningMin || stableCoinMin;
 
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);
@@ -103,7 +122,9 @@ export default function EditReceivePaymentInformation(props) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
           amount: displayCorrectDenomination({
-            amount: swapLimits.bitcoin,
+            amount: lightningMin
+              ? swapLimits.bitcoin
+              : dollarsToSats(1, poolInfoRef.currentPriceAInB),
             masterInfoObject: {
               ...masterInfoObject,
               userBalanceDenomination:
@@ -119,13 +140,13 @@ export default function EditReceivePaymentInformation(props) {
 
     if (fromPage === 'homepage') {
       navigate.replace('ReceiveBTC', {
-        receiveAmount: sendAmount,
+        receiveAmount: isStablecoinPayment ? dollarAmount : sendAmount,
       });
     } else {
       navigate.popTo(
         'ReceiveBTC',
         {
-          receiveAmount: sendAmount,
+          receiveAmount: isStablecoinPayment ? dollarAmount : sendAmount,
           uuid: customUUID(),
         },
         { merge: true },

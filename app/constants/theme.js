@@ -40,6 +40,7 @@ const COLORS = {
   blueDarkmodeTextInputPlaceholder: '#FFFFFF80',
 
   nostrGreen: '#29C467',
+  polygonColor: '#6C00F6',
 
   failedTransaction: '#FF0000',
 

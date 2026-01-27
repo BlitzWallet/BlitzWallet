@@ -72,15 +72,20 @@ export default function ReceivePaymentHome(props) {
   const { bottomPadding } = useGlobalInsets();
   const isSharingRef = useRef(null);
 
-  const paymentDescription = props.route.params?.description;
-  const requestUUID = props.route.params?.uuid;
-  const endReceiveType =
-    props?.route.params.endReceiveType ||
-    props?.route.params.initialReceiveType ||
-    'BTC';
-
   const selectedRecieveOption =
     props.route.params?.selectedRecieveOption || 'Lightning';
+  const stablecoinNetworkSelection =
+    props.route.params?.selectedStablecoinNetwork || 'polygon';
+  const isStablecoinPayment =
+    selectedRecieveOption.toLowerCase() === 'usdt' ||
+    selectedRecieveOption.toLowerCase() === 'usdc';
+  const paymentDescription = props.route.params?.description;
+  const requestUUID = props.route.params?.uuid;
+  const endReceiveType = isStablecoinPayment
+    ? 'USD'
+    : props?.route.params.endReceiveType ||
+      props?.route.params.initialReceiveType ||
+      'BTC';
 
   const prevRequstInfo = useRef(null);
   const addressStateRef = useRef(null);
@@ -121,7 +126,9 @@ export default function ReceivePaymentHome(props) {
           prevRequstInfo.current.selectedRecieveOption.toLowerCase() &&
         paymentDescription === prevRequstInfo.current.paymentDescription &&
         !addressStateRef.current.errorMessageText.text &&
-        endReceiveType === prevRequstInfo.current.endReceiveType
+        endReceiveType === prevRequstInfo.current.endReceiveType &&
+        stablecoinNetworkSelection ===
+          prevRequstInfo.current.stablecoinNetworkSelection
       ) {
         // This checks if we had a previous requst
         // And all other formation is the same
@@ -135,6 +142,7 @@ export default function ReceivePaymentHome(props) {
         selectedRecieveOption,
         paymentDescription,
         endReceiveType,
+        stablecoinNetworkSelection,
       };
       if (
         !userReceiveAmount &&
@@ -171,6 +179,7 @@ export default function ReceivePaymentHome(props) {
         setInitialSendAmount,
         userReceiveAmount,
         poolInfoRef,
+        stablecoinNetworkSelection,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener(60);
@@ -255,6 +264,8 @@ export default function ReceivePaymentHome(props) {
             poolInfoRef={poolInfoRef}
             isSharingRef={isSharingRef}
             paymentDescription={paymentDescription}
+            stablecoinNetworkSelection={stablecoinNetworkSelection}
+            isStablecoinPayment={isStablecoinPayment}
           />
 
           <ButtonsContainer
@@ -408,6 +419,8 @@ function QrCode(props) {
     poolInfoRef,
     isSharingRef,
     paymentDescription,
+    stablecoinNetworkSelection,
+    isStablecoinPayment,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
@@ -541,6 +554,14 @@ function QrCode(props) {
       sliderHight: 0.5,
     });
   };
+  const selectStablecoinNetwork = () => {
+    if (isSharingRef.current) return;
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'SelectReceiveStableCoinNetwork',
+      selectedRecieveOption: stablecoinNetworkSelection,
+      sliderHight: 0.5,
+    });
+  };
 
   const qrData = isUsingLnurl
     ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
@@ -551,12 +572,17 @@ function QrCode(props) {
       ? !isUsingLnurl
         ? 'lightningInvoice'
         : 'lightningAddress'
+      : selectedRecieveOption.toLowerCase() === 'usdt' ||
+        selectedRecieveOption.toLowerCase() === 'usdc'
+      ? `${selectedRecieveOption.toLowerCase()}_${stablecoinNetworkSelection}`
       : `${selectedRecieveOption.toLowerCase()}Address`;
 
   const minBTCUSDSwapAmountSat = dollarsToSats(
     1,
     poolInfoRef?.currentPriceAInB,
   );
+
+  console.log(stablecoinNetworkSelection);
 
   // const approximateUSDAmount = ` ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination(
   //   {
@@ -668,6 +694,19 @@ function QrCode(props) {
         />
       )}
 
+      {isStablecoinPayment && (
+        <QRInformationRow
+          title={t('screens.inAccount.receiveBtcPage.networkHeader')}
+          info={t(
+            `screens.inAccount.receiveBtcPage.network_${stablecoinNetworkSelection?.toLowerCase()}`,
+          )}
+          iconName={'ChevronDown'}
+          showBoder={true}
+          rotateIcon={true}
+          actionFunction={selectStablecoinNetwork}
+        />
+      )}
+
       {canUseAmount && (
         <QRInformationRow
           title={t('constants.amount')}
@@ -704,10 +743,13 @@ function QrCode(props) {
                   fiatStats: fiatStats,
                   amount:
                     endReceiveType === 'USD'
-                      ? satsToDollars(
-                          initialSendAmount,
-                          poolInfoRef?.currentPriceAInB,
-                        ).toFixed(2)
+                      ? selectedRecieveOption?.toLowerCase() !== 'usdc' &&
+                        selectedRecieveOption?.toLowerCase() !== 'usdt'
+                        ? satsToDollars(
+                            initialSendAmount,
+                            poolInfoRef?.currentPriceAInB,
+                          ).toFixed(2)
+                        : initialSendAmount
                       : initialSendAmount,
                   convertAmount: endReceiveType !== 'USD',
                   forceCurrency: endReceiveType === 'USD' ? 'USD' : null,

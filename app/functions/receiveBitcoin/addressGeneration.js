@@ -249,6 +249,14 @@ export async function initializeAddressProcess(wolletInfo) {
       const response = await generateRootstockAddress(wolletInfo);
       if (!response) throw new Error('errormessages.rootstockInvoiceError');
       stateTracker = response;
+    } else if (selectedRecieveOption.toLowerCase() === 'usdt') {
+      const userAmount = Math.max(wolletInfo.receivingAmount, 1);
+      console.log(userAmount, wolletInfo.stablecoinNetworkSelection);
+      wolletInfo.setInitialSendAmount(userAmount);
+    } else if (selectedRecieveOption.toLowerCase() === 'usdc') {
+      const userAmount = Math.max(wolletInfo.receivingAmount, 1);
+      console.log(userAmount, wolletInfo.stablecoinNetworkSelection);
+      wolletInfo.setInitialSendAmount(userAmount);
     }
   } catch (error) {
     console.log(error, 'HANDLING ERROR');

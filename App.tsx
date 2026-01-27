@@ -119,9 +119,11 @@ import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { GiftProvider } from './context-store/giftContext';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
+import { LendaswapProvider } from './context-store/lendaSapContext';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
 import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
+import { AsyncStorageAdapter } from './app/functions/lendaswap/asyncStorageAdapter';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
@@ -132,6 +134,16 @@ ExpoSplashScreen.preventAutoHideAsync()
   .catch(console.warn);
 
 function App(): JSX.Element {
+  const storageAdapter = AsyncStorageAdapter.open();
+  const config = {
+    apiUrl: 'https://apilendaswap.lendasat.com',
+    network: 'bitcoin', // or 'testnet'
+    arkadeUrl: 'https://arkade.computer',
+    esploraUrl: 'https://mempool.space/api',
+    mnemonic: null, // Will generate new if not provided
+    storageAdapter,
+  };
+
   return (
     <GestureHandlerRootView>
       <SafeAreaProvider>
@@ -164,9 +176,13 @@ function App(): JSX.Element {
                                                     <GiftProvider>
                                                       <FlashnetProvider>
                                                         <UserBalanceProvider>
-                                                          {/* <Suspense
+                                                          <LendaswapProvider
+                                                            config={config}
+                                                          >
+                                                            {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                          <ResetStack />
+                                                            <ResetStack />
+                                                          </LendaswapProvider>
                                                         </UserBalanceProvider>
                                                       </FlashnetProvider>
                                                     </GiftProvider>
