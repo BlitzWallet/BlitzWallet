@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import {
   HIDDEN_OPACITY,
@@ -10,7 +10,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import customUUID from '../../../../functions/customUUID';
 
 export default function AddReceiveMessageHalfModal({
@@ -20,7 +20,30 @@ export default function AddReceiveMessageHalfModal({
 }) {
   const navigate = useNavigation();
   const [description, setDescription] = useState(memo || '');
+  const textInputRef = useRef(null);
+
   const { t } = useTranslation();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!textInputRef.current.isFocused()) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            textInputRef.current.focus();
+          });
+        });
+      }
+    }, []),
+  );
+
+  const handleTextInputBlur = () => {
+    if (description === memo) {
+      handleBackPressFunction?.();
+    } else {
+      handlesave();
+    }
+  };
+
   const handlesave = () => {
     handleBackPressFunction(() => {
       navigate.popTo(
@@ -45,8 +68,10 @@ export default function AddReceiveMessageHalfModal({
         content={t('screens.inAccount.receiveBtcPage.editDescriptionHead')}
       />
       <CustomSearchInput
+        textInputRef={textInputRef}
         inputText={description}
         setInputText={setDescription}
+        onBlurFunction={handleTextInputBlur}
         autoFocus={true}
         placeholderText={t('constants.paymentDescriptionPlaceholder')}
       />
