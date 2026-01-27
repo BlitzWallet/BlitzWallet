@@ -25,6 +25,7 @@ import getDeepLinkUser from '../../components/admin/homeComponents/contacts/inte
 import { useNavigation } from '@react-navigation/native';
 import { getCachedProfileImage } from '../cachedImage';
 import ThemeIcon from './themeIcon';
+import { shareMessage } from '../handleShare';
 
 export default function ShowProfileQr() {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -61,9 +62,9 @@ export default function ShowProfileQr() {
 
   const handleShare = () => {
     if (activeType === 'lnurl') {
-      Share.share({ message: currentValue });
+      shareMessage({ message: currentValue });
     } else {
-      Share.share({ message: t('share.contact') + '\n' + currentValue });
+      shareMessage({ message: t('share.contact') + '\n' + currentValue });
     }
   };
 

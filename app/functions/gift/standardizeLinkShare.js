@@ -1,6 +1,6 @@
-import { Share } from 'react-native';
 import { BITCOIN_SATS_ICON } from '../../constants';
 import i18n from 'i18next';
+import { shareMessage } from '../handleShare';
 
 export async function handleGiftCardShare({ amount, giftLink }) {
   const message = i18n.t('screens.inAccount.giftPages.shareMessage', {
@@ -9,5 +9,5 @@ export async function handleGiftCardShare({ amount, giftLink }) {
     link: giftLink,
   });
 
-  await Share.share({ message });
+  await shareMessage({ message });
 }

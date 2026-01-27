@@ -1,10 +1,4 @@
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  Share,
-} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import {
   CENTER,
   SIZES,
@@ -50,6 +44,7 @@ import { useFlashnet } from '../../../context-store/flashnetContext';
 import { dollarsToSats, satsToDollars } from '../../functions/spark/flashnet';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
+import { shareMessage } from '../../functions/handleShare';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -198,7 +193,7 @@ export default function ReceivePaymentHome(props) {
     if (addressState.isGeneratingInvoice) return;
     try {
       isSharingRef.current = true;
-      await Share.share({
+      await shareMessage({
         message: addressState.generatedAddress,
       });
     } catch (err) {
