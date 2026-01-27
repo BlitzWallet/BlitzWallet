@@ -123,7 +123,8 @@
     "dollars_upper": "Dollari",
     "rate": "Tasso",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Descrizione (facoltativa)"
+    "paymentDescriptionPlaceholder": "Descrizione (facoltativa)",
+    "print": "Stampa"
   },
 
   "languages": {
@@ -1493,7 +1494,11 @@
         "itemsDescription": "Aggiungere articoli al tuo sistema Terminale significa che i dipendenti non dovranno digitare manualmente i prezzi. Invece, possono semplicemente cliccare sui nomi dei prodotti e i prezzi che imposti verranno aggiunti automaticamente al totale.",
         "updateItems": "Aggiorna Articoli",
         "addItem": "Aggiungi Articolo",
-        "openPos": "Apri Terminale POS"
+        "openPos": "Apri Terminale POS",
+        "brandLogo": "Logo del marchio",
+        "changeLogo": "Cambia logo",
+        "removeLogo": "Rimuovi",
+        "uploadLogo": "Tocca per caricare il logo del marchio"
       },
       "posInstructionsPath": {
         "title": "Istruzioni",
@@ -1955,7 +1960,8 @@
     "invalidData": "I dati forniti non sono validi",
     "paymentError": "Si è verificato un errore durante l'elaborazione del pagamento. Riprova. Se continua a non funzionare, chiudi l'app e riaprila prima di riprovare.",
     "paymentFeeError": "Non siamo riusciti a recuperare la commissione di pagamento. Riprova. Se il problema persiste, chiudi l'app e riaprila prima di riprovare.",
-    "priceImpact": "Questo pagamento è elevato, quindi l'importo finale che riceverai in dollari potrebbe cambiare."
+    "priceImpact": "Questo pagamento è elevato, quindi l'importo finale che riceverai in dollari potrebbe cambiare.",
+    "removingImageError": "Impossibile rimuovere l'immagine. Riprova."
   },
 
   "loadingScreen": {

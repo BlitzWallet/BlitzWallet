@@ -27,6 +27,7 @@ import Animated, {
 import { useToast } from '../../../context-store/toastManager';
 import { copyToClipboard } from '../../functions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import { shareMessage } from '../../functions/handleShare';
 
 const PREFERENCES = [
   {
@@ -414,7 +415,7 @@ export default function SettingsIndex(props) {
           <Animated.View style={shareIconStyle}>
             <TouchableOpacity
               onPress={() => {
-                Share.share({
+                shareMessage({
                   message: `${t(
                     'share.contact',
                   )}\nhttps://blitzwalletapp.com/u/${myContact?.uniqueName}`,
