@@ -196,7 +196,7 @@
     "receivedRequest": "Solicitação recebida",
     "date": "Data",
     "time": "Hora",
-    "memo": "Nota",
+    "memo": "Descrição",
     "roostockSwap": "Transferência de Rootstock para Spark"
   },
 
@@ -734,7 +734,7 @@
         "cardDescription": "Descrição do cartão",
         "cardTerms": "Termos do cartão",
         "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
-        "giftMessage": "Adicione uma nota ao seu presente",
+        "giftMessage": "Adicione uma descrição ao seu presente",
         "giftMessagePlaceholder": "Digite sua mensagem aqui",
         "selectForContactBTN": "Selecione cartão-presente",
         "noAmountError": "Por favor, escolha o valor do cartão-presente"
@@ -1641,7 +1641,7 @@
         "selectReceiveAssetHead": "Selecione a moeda que você deseja receber",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
-        "editDescriptionPlaceholder": "Escreva uma nota"
+        "editDescriptionPlaceholder": "Adicione uma descrição"
       },
 
       "settingsContent": {
@@ -1737,7 +1737,7 @@
           "startProcess2": "Configurando…",
           "startProcess3": "Adicionando fundos ao Vale-Blitz…",
           "header": "Criar Vale-Blitz",
-          "inputPlaceholder": "Adicione uma mensagem ou nota...",
+          "inputPlaceholder": "Adicione uma mensagem...",
           "button": "Criar Vale-Blitz",
           "disclaimer": "Quando você cria um Vale-Blitz, o valor usado para emiti-lo fica bloqueado por {{numDays}} dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor.",
           "durationText": "{{numDays}} dias",
