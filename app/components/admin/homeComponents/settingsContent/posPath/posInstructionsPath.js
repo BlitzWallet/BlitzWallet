@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: COLORS.lightModeText,
     fontSize: SIZES.smedium,
-    textAlign: 'center',
     ...CENTER,
   },
 });
