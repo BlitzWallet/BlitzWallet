@@ -122,7 +122,8 @@
     "bitcoin_upper": "BTC",
     "dollars_upper": "USD",
     "rate": "Kurs",
-    "swap": "Swap"
+    "swap": "Swap",
+    "print": "Drucken"
   },
   "languages": {
     "english": "English",
@@ -1464,7 +1465,11 @@
         "itemsDescription": "Das Hinzufügen von Elementen zu Ihrem Kassensystem bedeutet, dass Mitarbeiter die Preise nicht manuell eingeben müssen. Stattdessen können sie einfach auf die Produktnamen klicken, und die von Ihnen festgelegten Preise werden automatisch zum Gesamtbetrag hinzugefügt.",
         "updateItems": "Elemente aktualisieren",
         "addItem": "Element hinzufügen",
-        "openPos": "POS öffnen"
+        "openPos": "POS öffnen",
+        "brandLogo": "Markenlogo",
+        "changeLogo": "Logo ändern",
+        "removeLogo": "Entfernen",
+        "uploadLogo": "Tippe hier, um das Markenlogo hochzuladen"
       },
       "posInstructionsPath": {
         "title": "Anweisungen",
@@ -1907,7 +1912,8 @@
     "invalidData": "Die eingegebenen Daten sind ungültig",
     "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App richtig und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
-    "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch ändern."
+    "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch ändern.",
+    "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuche es erneut."
   },
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht",

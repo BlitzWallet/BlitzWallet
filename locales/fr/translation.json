@@ -123,7 +123,8 @@
     "dollars_upper": "Dollars",
     "rate": "Taux",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Description (facultatif)"
+    "paymentDescriptionPlaceholder": "Description (facultatif)",
+    "print": "Imprimer"
   },
   "languages": {
     "english": "English",
@@ -1469,7 +1470,11 @@
         "itemsDescription": "L'ajout d'articles à votre système de point de vente signifie que les employés n'auront pas à saisir les prix manuellement. Ils n'auront qu'à cliquer sur les noms des produits et les prix que vous aurez définis seront automatiquement ajoutés au total.",
         "updateItems": "Points de mise à jour",
         "addItem": "Ajouter un article",
-        "openPos": "POS ouvert"
+        "openPos": "POS ouvert",
+        "brandLogo": "Logo de la marque",
+        "changeLogo": "Changer le logo",
+        "removeLogo": "Supprimer",
+        "uploadLogo": "Appuyez pour télécharger le logo de la marque"
       },
       "posInstructionsPath": {
         "title": "Instructions",
@@ -1915,7 +1920,8 @@
     "invalidData": "Les données saisies ne sont pas valides",
     "paymentError": "Un problème s'est produit lors du traitement de votre paiement. Veuillez réessayer. Si cela ne fonctionne toujours pas, fermez l'application et rouvrez-la avant de réessayer.",
     "paymentFeeError": "Nous n'avons pas pu récupérer les frais de paiement. Veuillez réessayer. Si le problème persiste, fermez l'application et rouvrez-la avant de réessayer.",
-    "priceImpact": "Ce paiement est important, le montant final que vous recevrez en dollars peut donc changer."
+    "priceImpact": "Ce paiement est important, le montant final que vous recevrez en dollars peut donc changer.",
+    "removingImageError": "Impossible de supprimer l'image. Veuillez réessayer."
   },
   "loadingScreen": {
     "message1": "Ne fermez pas l'application",

@@ -123,7 +123,8 @@
     "dollars_upper": "Dollars",
     "rate": "Rate",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Description (optional)"
+    "paymentDescriptionPlaceholder": "Description (optional)",
+    "print": "Print"
   },
 
   "languages": {
@@ -1495,14 +1496,17 @@
         "itemsDescription": "Adding items to your point-of-sale system means employees won’t have to type in prices manually. Instead, they can just click the product names, and the prices you set will be added to the total automatically.",
         "updateItems": "Update Items",
         "addItem": "Add Item",
-        "openPos": "Open POS"
+        "openPos": "Open POS",
+        "brandLogo": "Brand Logo",
+        "changeLogo": "Change Logo",
+        "removeLogo": "Remove",
+        "uploadLogo": "Tap to upload brand logo"
       },
       "posInstructionsPath": {
         "title": "Instructions",
         "head1": "How to accept",
         "head2": "Bitcoin payments",
-        "step1": "1. Scan QR code with your camera",
-        "step2": "2. That's it."
+        "step1": "Scan QR code with your camera"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "User does not have any tips balance.",
@@ -1955,7 +1959,8 @@
     "invalidData": "The data you entered isn’t valid",
     "paymentError": "Something went wrong while processing your payment. Please try again. If it still doesn’t work, close the app and reopen it before trying again.",
     "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again.",
-    "priceImpact": "This payment is large, so the final amount you receive in Dollars may change."
+    "priceImpact": "This payment is large, so the final amount you receive in Dollars may change.",
+    "removingImageError": "Unable to remove image. Please try again."
   },
 
   "loadingScreen": {

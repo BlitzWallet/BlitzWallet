@@ -123,7 +123,8 @@
     "dollars_upper": "Dólares",
     "rate": "Cotação",
     "swap": "Troca",
-    "paymentDescriptionPlaceholder": "Descrição (opcional)"
+    "paymentDescriptionPlaceholder": "Descrição (opcional)",
+    "print": "Imprimir"
   },
 
   "languages": {
@@ -1491,7 +1492,11 @@
         "itemsDescription": "Adicionar itens ao seu sistema de ponto de venda significa que os funcionários não precisarão digitar os preços manualmente. Em vez disso, eles podem simplesmente clicar nos nomes dos produtos e os preços definidos serão adicionados ao total automaticamente.",
         "updateItems": "Atualizar itens",
         "addItem": "Adicionar item",
-        "openPos": "Abrir PDV"
+        "openPos": "Abrir PDV",
+        "brandLogo": "Logo da marca",
+        "changeLogo": "Alterar logo",
+        "removeLogo": "Remover",
+        "uploadLogo": "Toque para enviar o logo da marca"
       },
       "posInstructionsPath": {
         "title": "Instruções",
@@ -1953,7 +1958,8 @@
     "invalidData": "Os dados fornecidos não são válidos",
     "paymentError": "Ocorreu um erro ao processar seu pagamento. Tente novamente. Se ainda não funcionar, feche o app e abra-o novamente antes de tentar de novo.",
     "paymentFeeError": "Não foi possível recuperar a taxa de pagamento. Tente novamente. Se o problema continuar, feche o app e abra-o novamente antes de tentar de novo.",
-    "priceImpact": "Este pagamento é grande, portanto o valor final que você receber em dólares pode mudar."
+    "priceImpact": "Este pagamento é grande, portanto o valor final que você receber em dólares pode mudar.",
+    "removingImageError": "Não foi possível remover a imagem. Tente novamente."
   },
 
   "loadingScreen": {
