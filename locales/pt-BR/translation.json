@@ -1641,7 +1641,7 @@
         "selectReceiveAssetHead": "Selecione a moeda que você deseja receber",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
-        "editDescriptionPlaceholder": "Adicione uma descrição"
+        "editDescriptionPlaceholder": "Adicionar uma descrição"
       },
 
       "settingsContent": {
