@@ -162,21 +162,25 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: SIZES.huge,
     marginTop: 'auto',
+    includeFontPadding: false,
   },
   subHeaderText: {
     width: '95%',
     textAlign: 'center',
     maxWidth: 400,
     marginBottom: 'auto',
+    includeFontPadding: 'false',
   },
   strongText: {
     fontWeight: 500,
     marginBottom: 10,
+    includeFontPadding: false,
   },
   descriptionText: {
     textAlign: 'center',
     fontSize: SIZES.smedium,
     opacity: 0.8,
+    includeFontPadding: false,
   },
   imgCaptionText: {
     width: '85%',
