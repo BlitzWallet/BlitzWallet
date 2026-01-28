@@ -843,7 +843,21 @@
       "images": "De l'image",
       "clipboard": "Du presse-papiers",
       "manual": "Entrée manuelle",
-      "contacts": "Depuis les contacts"
+      "contacts": "Depuis les contacts",
+      "inputPlaceholder": "Saisir une adresse pour payer",
+      "scanImage": "Scanner une image",
+      "tapToScan": "Appuyez pour extraire une adresse depuis une image",
+      "addressBook": "Carnet de contacts",
+      "chooseWhatToSend": "Choisir quoi envoyer",
+      "noContacts": "Ajoutez des contacts pour les voir apparaître ici",
+      "selectAddressType": "Sélectionner le type d’adresse",
+      "otherAddresses": "Autres options",
+      "tapToGenerate_other": "Appuyez pour voir d’autres options de réception",
+      "tapToGenerate_lightning": "Appuyez pour générer une facture Lightning",
+      "tapToGenerate_bitcoin": "Appuyez pour générer une adresse Bitcoin",
+      "tapToGenerate_spark": "Appuyez pour générer une adresse Spark",
+      "tapToGenerate_liquid": "Appuyez pour générer une adresse Liquid",
+      "tapToGenerate_rootstock": "Appuyez pour générer une adresse Rootstock"
     },
     "manualInputPage": {
       "inputPlaceholder": "Saisir ou coller un liquide, ou une adresse/facture Lightning"

@@ -854,7 +854,21 @@
       "images": "From Image",
       "clipboard": "From Clipboard",
       "manual": "Manual Input",
-      "contacts": "From Contacts"
+      "contacts": "From Contacts",
+      "inputPlaceholder": "Enter an address to pay",
+      "scanImage": "Scan Image",
+      "tapToScan": "Tap to get an address from an image",
+      "addressBook": "Contacts Book",
+      "chooseWhatToSend": "Choose what to send",
+      "noContacts": "Add contacts for them to show up here",
+      "selectAddressType": "Select address type",
+      "otherAddresses": "Other options",
+      "tapToGenerate_other": "Tap to see other receive options",
+      "tapToGenerate_lightning": "Tap to generate a Lightning invoice",
+      "tapToGenerate_bitcoin": "Tap to generate a Bitcoin address",
+      "tapToGenerate_spark": "Tap to generate a Spark address",
+      "tapToGenerate_liquid": "Tap to generate a Liquid address",
+      "tapToGenerate_rootstock": "Tap to generate a Rootstock address"
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"

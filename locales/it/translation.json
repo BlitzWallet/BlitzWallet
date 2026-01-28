@@ -854,7 +854,21 @@
       "images": "Dall'Immagine",
       "clipboard": "Dalla Clipboard",
       "manual": "Inserimento Manuale",
-      "contacts": "Dai Contatti"
+      "contacts": "Dai Contatti",
+      "inputPlaceholder": "Inserisci un indirizzo per pagare",
+      "scanImage": "Scansiona immagine",
+      "tapToScan": "Tocca per ottenere un indirizzo da un'immagine",
+      "addressBook": "Rubrica contatti",
+      "chooseWhatToSend": "Scegli cosa inviare",
+      "noContacts": "Aggiungi contatti per visualizzarli qui",
+      "selectAddressType": "Seleziona tipo di indirizzo",
+      "otherAddresses": "Altre opzioni",
+      "tapToGenerate_other": "Tocca per vedere altre opzioni di ricezione",
+      "tapToGenerate_lightning": "Tocca per generare una fattura Lightning",
+      "tapToGenerate_bitcoin": "Tocca per generare un indirizzo Bitcoin",
+      "tapToGenerate_spark": "Tocca per generare un indirizzo Spark",
+      "tapToGenerate_liquid": "Tocca per generare un indirizzo Liquid",
+      "tapToGenerate_rootstock": "Tocca per generare un indirizzo Rootstock"
     },
     "manualInputPage": {
       "inputPlaceholder": "Inserisci o incolla un indirizzo o una fattura Liquid o Lightning"

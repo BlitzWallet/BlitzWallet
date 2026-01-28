@@ -852,7 +852,21 @@
       "images": "Imagem",
       "clipboard": "Área de transferência",
       "manual": "Digitar",
-      "contacts": "Contatos"
+      "contacts": "Contatos",
+      "inputPlaceholder": "Digite um endereço para pagar",
+      "scanImage": "Escanear imagem",
+      "tapToScan": "Toque para obter um endereço a partir de uma imagem",
+      "addressBook": "Agenda de contatos",
+      "chooseWhatToSend": "Escolha o que enviar",
+      "noContacts": "Adicione contatos para que apareçam aqui",
+      "selectAddressType": "Selecionar tipo de endereço",
+      "otherAddresses": "Outras opções",
+      "tapToGenerate_other": "Toque para ver outras opções de recebimento",
+      "tapToGenerate_lightning": "Toque para gerar uma fatura Lightning",
+      "tapToGenerate_bitcoin": "Toque para gerar um endereço Bitcoin",
+      "tapToGenerate_spark": "Toque para gerar um endereço Spark",
+      "tapToGenerate_liquid": "Toque para gerar um endereço Liquid",
+      "tapToGenerate_rootstock": "Toque para gerar um endereço Rootstock"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"

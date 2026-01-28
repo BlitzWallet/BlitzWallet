@@ -840,7 +840,21 @@
       "images": "Из изображения",
       "clipboard": "Из буфера обмена",
       "manual": "Вручную",
-      "contacts": "Из контактов"
+      "contacts": "Из контактов",
+      "inputPlaceholder": "Введите адрес для оплаты",
+      "scanImage": "Сканировать изображение",
+      "tapToScan": "Нажмите, чтобы получить адрес из изображения",
+      "addressBook": "Контакты",
+      "chooseWhatToSend": "Выберите, что отправить",
+      "noContacts": "Добавьте контакты, чтобы они отображались здесь",
+      "selectAddressType": "Выберите тип адреса",
+      "otherAddresses": "Другие варианты",
+      "tapToGenerate_other": "Нажмите, чтобы увидеть другие варианты получения",
+      "tapToGenerate_lightning": "Нажмите, чтобы создать счет Lightning",
+      "tapToGenerate_bitcoin": "Нажмите, чтобы создать Bitcoin-адрес",
+      "tapToGenerate_spark": "Нажмите, чтобы создать адрес Spark",
+      "tapToGenerate_liquid": "Нажмите, чтобы создать адрес Liquid",
+      "tapToGenerate_rootstock": "Нажмите, чтобы создать адрес Rootstock"
     },
     "manualInputPage": {
       "inputPlaceholder": "Адрес Liquid, Молнии или инвойс"

@@ -6,6 +6,7 @@ import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import {
   HalfModalSendOptions,
   SwitchReceiveOptionPage,
+  HalfModalReceiveOptions,
 } from '../../components/admin';
 import {
   ConfirmSMSPayment,
@@ -121,6 +122,17 @@ export default function CustomHalfModal(props) {
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
+          />
+        );
+      case 'receiveOptions':
+        return (
+          <HalfModalReceiveOptions
+            setIsKeyboardActive={setIsKeyboardActive}
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            scrollPosition={props.route.params?.scrollPosition}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'confirmSMS':

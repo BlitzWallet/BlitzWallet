@@ -838,7 +838,21 @@
       "images": "Aus Bild",
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
-      "contacts": "Aus Kontakten"
+      "contacts": "Aus Kontakten",
+      "inputPlaceholder": "Adresse zum Bezahlen eingeben",
+      "scanImage": "Bild scannen",
+      "tapToScan": "Tippen, um eine Adresse aus einem Bild zu extrahieren",
+      "addressBook": "Kontaktbuch",
+      "chooseWhatToSend": "Auswählen, was gesendet werden soll",
+      "noContacts": "Füge Kontakte hinzu, damit sie hier angezeigt werden",
+      "selectAddressType": "Adresstyp auswählen",
+      "otherAddresses": "Weitere Optionen",
+      "tapToGenerate_other": "Tippen, um weitere Empfangsoptionen zu sehen",
+      "tapToGenerate_lightning": "Tippen, um eine Lightning-Rechnung zu erstellen",
+      "tapToGenerate_bitcoin": "Tippen, um eine Bitcoin-Adresse zu erstellen",
+      "tapToGenerate_spark": "Tippen, um eine Spark-Adresse zu erstellen",
+      "tapToGenerate_liquid": "Tippen, um eine Liquid-Adresse zu erstellen",
+      "tapToGenerate_rootstock": "Tippen, um eine Rootstock-Adresse zu erstellen"
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse/Rechnung ein oder fügen Sie sie ein"

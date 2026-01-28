@@ -27,6 +27,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
 
 const ContactRow = ({
   contact,
@@ -56,7 +57,7 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * (contact?.isLNURL ? 105 : 200),
+    height: expandHeight.value * (contact?.isLNURL ? 115 : 200),
     opacity: expandHeight.value,
   }));
 
@@ -200,11 +201,15 @@ export default function HalfModalSendOptions({
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
-  const { decodedAddedContacts } = useGlobalContacts();
+  const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
   const { t } = useTranslation();
-  const didCallImagePicker = useRef(null);
   const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
     GetThemeColors();
+
+  const contactInfoList = useProcessedContacts(
+    decodedAddedContacts,
+    contactsMessags,
+  );
 
   const handleManualInputSubmit = useCallback(() => {
     if (!inputText.trim()) return;
@@ -254,12 +259,21 @@ export default function HalfModalSendOptions({
   );
 
   const sortedContacts = useMemo(() => {
-    return decodedAddedContacts.sort((contactA, contactB) => {
-      const nameA = contactA?.name || contactA?.uniqueName || '';
-      const nameB = contactB?.name || contactB?.uniqueName || '';
-      return nameA.localeCompare(nameB);
-    });
-  }, [decodedAddedContacts]);
+    return contactInfoList
+      .sort((contactA, contactB) => {
+        const updatedA = contactA?.lastUpdated || 0;
+        const updatedB = contactB?.lastUpdated || 0;
+
+        if (updatedA !== updatedB) {
+          return updatedB - updatedA;
+        }
+
+        const nameA = contactA?.name || contactA?.uniqueName || '';
+        const nameB = contactB?.name || contactB?.uniqueName || '';
+        return nameA.localeCompare(nameB);
+      })
+      .map(contact => contact.contact);
+  }, [contactInfoList]);
 
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
@@ -357,7 +371,13 @@ export default function HalfModalSendOptions({
             },
           ]}
         >
-          <ThemeIcon colorOverride={textColor} size={24} iconName={'Image'} />
+          <ThemeIcon
+            colorOverride={
+              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            }
+            size={24}
+            iconName={'Image'}
+          />
         </View>
         <View style={styles.scanTextContainer}>
           <ThemeText

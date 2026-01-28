@@ -703,7 +703,21 @@
       "images": "Desde imagen",
       "clipboard": "Desde portapapeles",
       "manual": "Entrada manual",
-      "contacts": "Desde contactos"
+      "contacts": "Desde contactos",
+      "inputPlaceholder": "Ingresa una dirección para pagar",
+      "scanImage": "Escanear imagen",
+      "tapToScan": "Toca para obtener una dirección desde una imagen",
+      "addressBook": "Agenda de contactos",
+      "chooseWhatToSend": "Elige qué enviar",
+      "noContacts": "Agrega contactos para que aparezcan aquí",
+      "selectAddressType": "Seleccionar tipo de dirección",
+      "otherAddresses": "Otras opciones",
+      "tapToGenerate_other": "Toca para ver otras opciones de recepción",
+      "tapToGenerate_lightning": "Toca para generar una factura Lightning",
+      "tapToGenerate_bitcoin": "Toca para generar una dirección Bitcoin",
+      "tapToGenerate_spark": "Toca para generar una dirección Spark",
+      "tapToGenerate_liquid": "Toca para generar una dirección Liquid",
+      "tapToGenerate_rootstock": "Toca para generar una dirección Rootstock"
     },
     "manualInputPage": {
       "inputPlaceholder": "Introduce o pega una dirección/factura de Liquid o Lightning"

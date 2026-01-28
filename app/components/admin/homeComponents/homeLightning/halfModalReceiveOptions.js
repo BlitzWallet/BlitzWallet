@@ -1,0 +1,652 @@
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { CENTER, ICONS, SIZES } from '../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useTranslation } from 'react-i18next';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { useCallback, useMemo, useState, useEffect } from 'react';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import GetThemeColors from '../../../../hooks/themeColors';
+import { useImageCache } from '../../../../../context-store/imageCache';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
+import ContactProfileImage from '../contacts/internalComponents/profileImage';
+import { formatDisplayName } from '../contacts/utils/formatListDisplayName';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { Image } from 'expo-image';
+import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
+
+const ContactRow = ({
+  contact,
+  cache,
+  theme,
+  darkModeType,
+  backgroundOffset,
+  backgroundColor,
+  onToggleExpand,
+  textColor,
+}) => {
+  return (
+    <TouchableOpacity
+      style={styles.contactRowContainer}
+      onPress={() => onToggleExpand(contact)}
+    >
+      <View
+        style={[
+          styles.contactImageContainer,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
+      >
+        <ContactProfileImage
+          updated={cache[contact.uuid]?.updated}
+          uri={cache[contact.uuid]?.localUri}
+          darkModeType={darkModeType}
+          theme={theme}
+        />
+      </View>
+
+      <View style={styles.nameContainer}>
+        <ThemeText
+          CustomEllipsizeMode={'tail'}
+          CustomNumberOfLines={1}
+          styles={styles.contactName}
+          content={formatDisplayName(contact) || contact.uniqueName || ''}
+        />
+      </View>
+      <ThemeIcon
+        size={20}
+        iconName={'ChevronRight'}
+        colorOverride={textColor}
+        style={{ opacity: HIDDEN_OPACITY }}
+      />
+    </TouchableOpacity>
+  );
+};
+
+const OtherOptionsRow = ({
+  theme,
+  darkModeType,
+  backgroundColor,
+  backgroundOffset,
+  iconColor,
+  textColor,
+  expandedOtherOptions,
+  onToggleOtherOptions,
+  onSelectOtherOption,
+  t,
+}) => {
+  const expandHeight = useSharedValue(0);
+  const chevronRotation = useSharedValue(0);
+
+  useEffect(() => {
+    expandHeight.value = withTiming(expandedOtherOptions ? 1 : 0, {
+      duration: 200,
+    });
+    chevronRotation.value = withTiming(expandedOtherOptions ? 1 : 0, {
+      duration: 200,
+    });
+  }, [expandedOtherOptions]);
+
+  const expandedStyle = useAnimatedStyle(() => ({
+    height: expandHeight.value * 240, // Height for 3 options
+    opacity: expandHeight.value,
+  }));
+
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
+  }));
+
+  return (
+    <View style={styles.contactWrapper}>
+      <TouchableOpacity
+        style={styles.scanButton}
+        onPress={onToggleOtherOptions}
+      >
+        <View
+          style={[
+            styles.scanIconContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <ThemeIcon colorOverride={iconColor} size={24} iconName={'QrCode'} />
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={styles.scanButtonText}
+            content={t('wallet.halfModal.otherAddresses')}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToGenerate', { context: 'other' })}
+          />
+        </View>
+        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
+          <ThemeIcon
+            size={20}
+            iconName={'ChevronDown'}
+            colorOverride={textColor}
+            style={{ opacity: HIDDEN_OPACITY }}
+          />
+        </Animated.View>
+      </TouchableOpacity>
+
+      <Animated.View style={[styles.expandedContainer, expandedStyle]}>
+        <ThemeText
+          styles={styles.chooseWhatToSendText}
+          content={t('wallet.halfModal.selectAddressType')}
+        />
+        <View style={styles.otherOptionsColumn}>
+          <TouchableOpacity
+            style={styles.scanButton}
+            onPress={() => onSelectOtherOption('spark')}
+          >
+            <View
+              style={[
+                styles.scanIconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            >
+              <Image
+                style={{
+                  width: 25,
+                  height: 25,
+                  tintColor: iconColor,
+                }}
+                contentFit="contain"
+                source={ICONS.sparkAsteriskWhite}
+              />
+            </View>
+            <View style={styles.scanTextContainer}>
+              <ThemeText
+                styles={styles.scanButtonText}
+                content={t(
+                  `wallet.receivePages.switchReceiveOptionPage.sparkTitle`,
+                )}
+              />
+              <ThemeText
+                styles={styles.scanButtonSubtext}
+                content={t('wallet.halfModal.tapToGenerate', {
+                  context: 'spark',
+                })}
+              />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.scanButton}
+            onPress={() => onSelectOtherOption('liquid')}
+          >
+            <View
+              style={[
+                styles.scanIconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            >
+              <Image
+                style={{
+                  width: 25,
+                  height: 25,
+                  tintColor: iconColor,
+                }}
+                contentFit="contain"
+                source={ICONS.blockstreamLiquid}
+              />
+            </View>
+            <View style={styles.scanTextContainer}>
+              <ThemeText
+                styles={styles.scanButtonText}
+                content={t(
+                  `wallet.receivePages.switchReceiveOptionPage.liquidTitle`,
+                )}
+              />
+              <ThemeText
+                styles={styles.scanButtonSubtext}
+                content={t('wallet.halfModal.tapToGenerate', {
+                  context: 'liquid',
+                })}
+              />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.scanButton}
+            onPress={() => onSelectOtherOption('rootstock')}
+          >
+            <View
+              style={[
+                styles.scanIconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            >
+              <Image
+                style={{
+                  width: 25,
+                  height: 25,
+                  tintColor: iconColor,
+                }}
+                contentFit="contain"
+                source={ICONS.rootstockLogo}
+              />
+            </View>
+            <View style={styles.scanTextContainer}>
+              <ThemeText
+                styles={styles.scanButtonText}
+                content={t(
+                  `wallet.receivePages.switchReceiveOptionPage.rootstockTitle`,
+                )}
+              />
+              <ThemeText
+                styles={styles.scanButtonSubtext}
+                content={t('wallet.halfModal.tapToGenerate', {
+                  context: 'rootstock',
+                })}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </View>
+  );
+};
+
+export default function HalfModalReceiveOptions({
+  setIsKeyboardActive,
+  theme,
+  darkModeType,
+  scrollPosition,
+  handleBackPressFunction,
+}) {
+  const [expandedOtherOptions, setExpandedOtherOptions] = useState(false);
+  const navigate = useNavigation();
+  const { cache } = useImageCache();
+  const { bottomPadding } = useGlobalInsets();
+  const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
+  const { t } = useTranslation();
+  const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
+    GetThemeColors();
+
+  const iconColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+
+  const contactInfoList = useProcessedContacts(
+    decodedAddedContacts,
+    contactsMessags,
+  );
+
+  const handleReceiveOption = useCallback(
+    async type => {
+      handleBackPressFunction(() => {
+        navigate.replace('ReceiveBTC', {
+          from: 'homepage',
+          initialReceiveType: scrollPosition,
+          selectedRecieveOption: type,
+        });
+      });
+    },
+    [navigate, scrollPosition, handleBackPressFunction],
+  );
+
+  const handleToggleOtherOptions = useCallback(() => {
+    setExpandedOtherOptions(prev => !prev);
+  }, []);
+
+  const handleToggleExpand = useCallback(
+    contact => {
+      navigate.replace('SendAndRequestPage', {
+        selectedContact: contact,
+        paymentType: 'request',
+        imageData: cache[contact.uuid],
+      });
+    },
+    [navigate, cache],
+  );
+
+  const sortedContacts = useMemo(() => {
+    return contactInfoList
+      .sort((contactA, contactB) => {
+        const updatedA = contactA?.lastUpdated || 0;
+        const updatedB = contactB?.lastUpdated || 0;
+
+        if (updatedA !== updatedB) {
+          return updatedB - updatedA;
+        }
+
+        const nameA = contactA?.name || contactA?.uniqueName || '';
+        const nameB = contactB?.name || contactB?.uniqueName || '';
+        return nameA.localeCompare(nameB);
+      })
+      .map(contact => contact.contact);
+  }, [contactInfoList]);
+
+  const contactElements = useMemo(() => {
+    return sortedContacts.map(contact => (
+      <ContactRow
+        key={contact.uuid}
+        contact={contact}
+        cache={cache}
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundOffset={backgroundOffset}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        onToggleExpand={handleToggleExpand}
+      />
+    ));
+  }, [
+    sortedContacts,
+    cache,
+    theme,
+    darkModeType,
+    backgroundOffset,
+    backgroundColor,
+    textColor,
+    handleToggleExpand,
+  ]);
+
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{
+        ...styles.innerContainer,
+        paddingBottom: bottomPadding,
+      }}
+      stickyHeaderIndices={[0, 4]}
+    >
+      <View
+        style={[
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          },
+        ]}
+      >
+        <ThemeText
+          styles={[styles.sectionHeader, { marginTop: 0 }]}
+          content={'Receive Options'}
+        />
+      </View>
+      {/* Generate lightning address */}
+      <TouchableOpacity
+        style={styles.scanButton}
+        onPress={() => handleReceiveOption('lightning')}
+      >
+        <View
+          style={[
+            styles.scanIconContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <Image
+            style={{
+              width: 25,
+              height: 25,
+              tintColor: iconColor,
+            }}
+            contentFit="contain"
+            source={ICONS.lightningReceiveIcon}
+          />
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={styles.scanButtonText}
+            content={t(
+              `screens.inAccount.receiveBtcPage.header_lightning_${scrollPosition?.toLowerCase()}`,
+            )}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToGenerate', {
+              context: 'lightning',
+            })}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Bitcoin Address */}
+      <TouchableOpacity
+        style={styles.scanButton}
+        onPress={() => handleReceiveOption('bitcoin')}
+      >
+        <View
+          style={[
+            styles.scanIconContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <Image
+            style={{
+              width: 25,
+              height: 25,
+              tintColor: iconColor,
+            }}
+            contentFit="contain"
+            source={ICONS.bitcoinIcon}
+          />
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={styles.scanButtonText}
+            content={t(
+              `wallet.receivePages.switchReceiveOptionPage.bitcoinTitle`,
+            )}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToGenerate', {
+              context: 'bitcoin',
+            })}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Other - Now with expandable dropdown */}
+      <OtherOptionsRow
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundColor={backgroundColor}
+        backgroundOffset={backgroundOffset}
+        iconColor={iconColor}
+        textColor={textColor}
+        expandedOtherOptions={expandedOtherOptions}
+        onToggleOtherOptions={handleToggleOtherOptions}
+        onSelectOtherOption={handleReceiveOption}
+        t={t}
+      />
+
+      <View
+        style={[
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          },
+        ]}
+      >
+        <ThemeText
+          styles={styles.sectionHeader}
+          content={t('wallet.halfModal.addressBook')}
+        />
+      </View>
+
+      {/* Address Book Section */}
+      {decodedAddedContacts.length > 0 ? (
+        contactElements
+      ) : (
+        <ThemeText
+          styles={{ textAlign: 'center' }}
+          content={t('wallet.halfModal.noContacts')}
+        />
+      )}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  innerContainer: {
+    width: INSET_WINDOW_WIDTH,
+    flexGrow: 1,
+    ...CENTER,
+  },
+
+  searchContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  clipboardButton: {
+    width: 45,
+    height: '100%',
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 0,
+    zIndex: 99,
+  },
+
+  scanButton: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    paddingVertical: 10,
+  },
+  scanIconContainer: {
+    width: 45,
+    height: 45,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 15,
+  },
+  scanTextContainer: {
+    flex: 1,
+  },
+  scanButtonText: {
+    fontSize: SIZES.medium,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  scanButtonSubtext: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+  },
+
+  sectionHeader: {
+    fontSize: SIZES.medium,
+    fontWeight: '500',
+    marginTop: 15,
+    marginBottom: 10,
+    width: '100%',
+  },
+
+  contactWrapper: {
+    width: '100%',
+  },
+
+  contactRowContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+
+  contactImageContainer: {
+    width: 45,
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 22.5,
+    marginRight: 15,
+    overflow: 'hidden',
+  },
+
+  nameContainer: {
+    flex: 1,
+  },
+  contactName: {
+    fontSize: SIZES.medium,
+    marginBottom: 2,
+  },
+  contactSubtext: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+  },
+
+  expandedContainer: {
+    overflow: 'hidden',
+  },
+
+  chooseWhatToSendText: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+
+  otherOptionsColumn: {
+    width: '100%',
+    paddingHorizontal: 8,
+    paddingTop: 4,
+    paddingBottom: 12,
+  },
+
+  paymentOptionsRow: {
+    width: '100%',
+    gap: 12,
+    paddingHorizontal: 8,
+    paddingTop: 4,
+    paddingBottom: 12,
+  },
+  iconContainer: {
+    width: 35,
+    height: 35,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 14,
+    borderRadius: 8,
+    gap: 8,
+  },
+
+  paymentOptionText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+  },
+});

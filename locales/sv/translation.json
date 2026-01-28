@@ -843,7 +843,21 @@
       "images": "Från bild",
       "clipboard": "Från klippbordet",
       "manual": "Manuell inmatning",
-      "contacts": "Från Kontakter"
+      "contacts": "Från Kontakter",
+      "inputPlaceholder": "Ange en adress att betala till",
+      "scanImage": "Skanna bild",
+      "tapToScan": "Tryck för att hämta en adress från en bild",
+      "addressBook": "Kontaktbok",
+      "chooseWhatToSend": "Välj vad som ska skickas",
+      "noContacts": "Lägg till kontakter så visas de här",
+      "selectAddressType": "Välj adresstyp",
+      "otherAddresses": "Andra alternativ",
+      "tapToGenerate_other": "Tryck för att se andra mottagningsalternativ",
+      "tapToGenerate_lightning": "Tryck för att skapa en Lightning-faktura",
+      "tapToGenerate_bitcoin": "Tryck för att skapa en Bitcoin-adress",
+      "tapToGenerate_spark": "Tryck för att skapa en Spark-adress",
+      "tapToGenerate_liquid": "Tryck för att skapa en Liquid-adress",
+      "tapToGenerate_rootstock": "Tryck för att skapa en Rootstock-adress"
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"
