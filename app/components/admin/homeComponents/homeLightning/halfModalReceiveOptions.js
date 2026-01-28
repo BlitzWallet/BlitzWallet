@@ -60,6 +60,7 @@ const ContactRow = ({
   const chevronStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
   }));
+
   return (
     <View style={styles.contactWrapper}>
       <TouchableOpacity
@@ -208,7 +209,7 @@ const OtherOptionsRow = ({
   }, [expandedOtherOptions]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * 240, // Height for 3 options
+    height: expandHeight.value * 170,
     opacity: expandHeight.value,
   }));
 
@@ -219,10 +220,13 @@ const OtherOptionsRow = ({
   return (
     <View style={styles.contactWrapper}>
       <TouchableOpacity
-        style={styles.scanButton}
+        style={[
+          styles.scanButton,
+          { alignItems: 'center', justifyContent: 'center' },
+        ]}
         onPress={onToggleOtherOptions}
       >
-        <View
+        {/* <View
           style={[
             styles.scanIconContainer,
             {
@@ -232,17 +236,13 @@ const OtherOptionsRow = ({
           ]}
         >
           <ThemeIcon colorOverride={iconColor} size={24} iconName={'QrCode'} />
-        </View>
-        <View style={styles.scanTextContainer}>
-          <ThemeText
-            styles={[styles.scanButtonText, { marginBottom: 2 }]}
-            content={t('wallet.halfModal.otherAddresses')}
-          />
-          <ThemeText
-            styles={styles.scanButtonSubtext}
-            content={t('wallet.halfModal.tapToGenerate', { context: 'other' })}
-          />
-        </View>
+        </View> */}
+        {/* <View style={styles.scanTextContainer}> */}
+        <ThemeText
+          styles={[styles.scanButtonText, { marginRight: 10 }]}
+          content={t('wallet.halfModal.otherAddresses')}
+        />
+        {/* </View> */}
         <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
           <ThemeIcon
             size={20}
@@ -253,10 +253,6 @@ const OtherOptionsRow = ({
       </TouchableOpacity>
 
       <Animated.View style={[styles.expandedContainer, expandedStyle]}>
-        <ThemeText
-          styles={styles.chooseWhatToSendText}
-          content={t('wallet.halfModal.selectAddressType')}
-        />
         <View style={styles.otherOptionsColumn}>
           <TouchableOpacity
             style={styles.scanButton}
@@ -273,8 +269,8 @@ const OtherOptionsRow = ({
             >
               <Image
                 style={{
-                  width: 25,
-                  height: 25,
+                  width: 18,
+                  height: 18,
                   tintColor: iconColor,
                 }}
                 contentFit="contain"
@@ -288,12 +284,6 @@ const OtherOptionsRow = ({
                   `wallet.receivePages.switchReceiveOptionPage.sparkTitle`,
                 )}
               />
-              {/* <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.tapToGenerate', {
-                  context: 'spark',
-                })}
-              /> */}
             </View>
             <View style={{ opacity: HIDDEN_OPACITY }}>
               <ThemeIcon
@@ -319,8 +309,8 @@ const OtherOptionsRow = ({
             >
               <Image
                 style={{
-                  width: 25,
-                  height: 25,
+                  width: 18,
+                  height: 18,
                   tintColor: iconColor,
                 }}
                 contentFit="contain"
@@ -334,12 +324,6 @@ const OtherOptionsRow = ({
                   `wallet.receivePages.switchReceiveOptionPage.liquidTitle`,
                 )}
               />
-              {/* <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.tapToGenerate', {
-                  context: 'liquid',
-                })}
-              /> */}
             </View>
             <View style={{ opacity: HIDDEN_OPACITY }}>
               <ThemeIcon
@@ -365,8 +349,8 @@ const OtherOptionsRow = ({
             >
               <Image
                 style={{
-                  width: 25,
-                  height: 25,
+                  width: 18,
+                  height: 18,
                   tintColor: iconColor,
                 }}
                 contentFit="contain"
@@ -380,12 +364,6 @@ const OtherOptionsRow = ({
                   `wallet.receivePages.switchReceiveOptionPage.rootstockTitle`,
                 )}
               />
-              {/* <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.tapToGenerate', {
-                  context: 'rootstock',
-                })}
-              /> */}
             </View>
             <View style={{ opacity: HIDDEN_OPACITY }}>
               <ThemeIcon
@@ -517,6 +495,7 @@ export default function HalfModalReceiveOptions({
     >
       <View
         style={[
+          styles.stickyHeaderContainer,
           {
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
@@ -525,20 +504,27 @@ export default function HalfModalReceiveOptions({
       >
         <ThemeText
           styles={[styles.sectionHeader, { marginTop: 0 }]}
-          content={'Receive Options'}
+          content={'Payment Methods'}
         />
       </View>
-      {/* Generate lightning address */}
+
+      {/* Lightning Network - Enhanced Card Style */}
       <TouchableOpacity
-        style={styles.scanButton}
+        style={[
+          styles.primaryPaymentCard,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
         onPress={() => handleReceiveOption('lightning')}
       >
         <View
           style={[
-            styles.scanIconContainer,
+            styles.primaryIconContainer,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
+                theme && darkModeType ? backgroundOffset : COLORS.primary,
             },
           ]}
         >
@@ -546,18 +532,23 @@ export default function HalfModalReceiveOptions({
             style={{
               width: 25,
               height: 25,
-              tintColor: iconColor,
+              tintColor:
+                theme && darkModeType ? iconColor : COLORS.darkModeText,
             }}
             contentFit="contain"
             source={ICONS.lightningReceiveIcon}
           />
         </View>
-        <View style={styles.scanTextContainer}>
+        <View style={styles.primaryTextContainer}>
           <ThemeText
-            styles={styles.scanButtonText}
+            styles={styles.primaryPaymentTitle}
             content={t(
               `screens.inAccount.receiveBtcPage.header_lightning_${scrollPosition?.toLowerCase()}`,
             )}
+          />
+          <ThemeText
+            styles={styles.primaryPaymentSubtitle}
+            content={t('wallet.halfModal.instantLowFees')}
           />
         </View>
         <View style={{ opacity: HIDDEN_OPACITY }}>
@@ -569,17 +560,23 @@ export default function HalfModalReceiveOptions({
         </View>
       </TouchableOpacity>
 
-      {/* Bitcoin Address */}
+      {/* Bitcoin Address - Enhanced Card Style */}
       <TouchableOpacity
-        style={styles.scanButton}
+        style={[
+          styles.primaryPaymentCard,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
         onPress={() => handleReceiveOption('bitcoin')}
       >
         <View
           style={[
-            styles.scanIconContainer,
+            styles.primaryIconContainer,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
+                theme && darkModeType ? backgroundOffset : COLORS.primary,
             },
           ]}
         >
@@ -587,18 +584,23 @@ export default function HalfModalReceiveOptions({
             style={{
               width: 25,
               height: 25,
-              tintColor: iconColor,
+              tintColor:
+                theme && darkModeType ? iconColor : COLORS.darkModeText,
             }}
             contentFit="contain"
             source={ICONS.bitcoinIcon}
           />
         </View>
-        <View style={styles.scanTextContainer}>
+        <View style={styles.primaryTextContainer}>
           <ThemeText
-            styles={styles.scanButtonText}
+            styles={styles.primaryPaymentTitle}
             content={t(
               `wallet.receivePages.switchReceiveOptionPage.bitcoinTitle`,
             )}
+          />
+          <ThemeText
+            styles={styles.primaryPaymentSubtitle}
+            content={t('wallet.halfModal.onChainTransaction')}
           />
         </View>
         <View style={{ opacity: HIDDEN_OPACITY }}>
@@ -610,7 +612,7 @@ export default function HalfModalReceiveOptions({
         </View>
       </TouchableOpacity>
 
-      {/* Other - Now with expandable dropdown */}
+      {/* Other Options - Collapsible */}
       <OtherOptionsRow
         theme={theme}
         darkModeType={darkModeType}
@@ -624,8 +626,23 @@ export default function HalfModalReceiveOptions({
         t={t}
       />
 
+      {/* Divider */}
       <View
         style={[
+          styles.divider,
+          {
+            borderColor:
+              theme && darkModeType
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.05)',
+          },
+        ]}
+      />
+
+      {/* Contacts Section Header */}
+      <View
+        style={[
+          styles.stickyHeaderContainer,
           {
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
@@ -643,7 +660,7 @@ export default function HalfModalReceiveOptions({
         contactElements
       ) : (
         <ThemeText
-          styles={{ textAlign: 'center' }}
+          styles={styles.emptyStateText}
           content={t('wallet.halfModal.noContacts')}
         />
       )}
@@ -658,22 +675,60 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
 
-  searchContainer: {
+  stickyHeaderContainer: {
+    width: '100%',
+    paddingTop: 4,
+    paddingBottom: 4,
+  },
+
+  sectionHeader: {
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.6,
+    marginTop: 15,
+    marginBottom: 10,
+    width: '100%',
+    letterSpacing: 0.5,
+  },
+
+  // Enhanced Primary Payment Cards
+  primaryPaymentCard: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-  },
-  clipboardButton: {
-    width: 45,
-    height: '100%',
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    right: 0,
-    zIndex: 99,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    marginBottom: 12,
   },
 
+  primaryIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+
+  primaryTextContainer: {
+    flex: 1,
+  },
+
+  primaryPaymentTitle: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+
+  primaryPaymentSubtitle: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    includeFontPadding: false,
+  },
+
+  // Other Options / Advanced
   scanButton: {
     width: '100%',
     flexDirection: 'row',
@@ -681,35 +736,34 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 10,
   },
+
   scanIconContainer: {
-    width: 45,
-    height: 45,
-    borderRadius: 30,
+    width: 35,
+    height: 35,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 15,
   },
+
   scanTextContainer: {
     flex: 1,
   },
+
   scanButtonText: {
-    fontSize: SIZES.medium,
-    fontWeight: '500',
+    fontSize: SIZES.smedium,
     includeFontPadding: false,
   },
-  scanButtonSubtext: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-  },
 
-  sectionHeader: {
-    fontSize: SIZES.medium,
-    fontWeight: '500',
-    marginTop: 15,
-    marginBottom: 10,
+  // Divider
+  divider: {
     width: '100%',
+    height: 1,
+    borderTopWidth: 1,
+    marginVertical: 20,
   },
 
+  // Contact Rows
   contactWrapper: {
     width: '100%',
   },
@@ -734,6 +788,7 @@ const styles = StyleSheet.create({
   nameContainer: {
     flex: 1,
   },
+
   contactName: {
     includeFontPadding: false,
   },
@@ -751,23 +806,23 @@ const styles = StyleSheet.create({
   },
 
   otherOptionsColumn: {
-    width: '100%',
-    paddingHorizontal: 8,
+    width: '95%',
     paddingTop: 4,
-    paddingBottom: 12,
+    paddingBottom: 8,
+    ...CENTER,
   },
 
   paymentOptionsRow: {
     width: '100%',
     gap: 12,
-    paddingHorizontal: 8,
-    paddingTop: 4,
-    paddingBottom: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
+
   iconContainer: {
     width: 35,
     height: 35,
-    borderRadius: 24,
+    borderRadius: 17.5,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -775,14 +830,21 @@ const styles = StyleSheet.create({
   paymentOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    borderRadius: 8,
-    gap: 8,
+    borderRadius: 12,
+    gap: 12,
   },
 
   paymentOptionText: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
+    fontWeight: '500',
+  },
+
+  emptyStateText: {
+    textAlign: 'center',
+    opacity: 0.5,
+    marginTop: 20,
   },
 });

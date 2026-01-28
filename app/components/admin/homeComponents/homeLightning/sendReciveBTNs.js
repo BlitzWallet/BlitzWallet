@@ -49,13 +49,13 @@ export function SendRecieveBTNs({
           if (btnType === 'send') {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'sendOptions',
-              sliderHight: 0.8,
+              sliderHight: 0.7,
             });
           } else {
             navigate.navigate('CustomHalfModal', {
               scrollPosition: scrollPosition === 'usd' ? 'USD' : 'BTC',
               wantedContent: 'receiveOptions',
-              sliderHight: 0.8,
+              sliderHight: 0.7,
             });
           }
         },

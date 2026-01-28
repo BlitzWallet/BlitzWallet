@@ -465,7 +465,6 @@ const styles = StyleSheet.create({
   },
   scanButtonText: {
     fontSize: SIZES.medium,
-    fontWeight: '500',
     marginBottom: 2,
     includeFontPadding: false,
   },
@@ -475,10 +474,12 @@ const styles = StyleSheet.create({
   },
 
   sectionHeader: {
-    fontSize: SIZES.medium,
-    fontWeight: '500',
-    marginBottom: 15,
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.6,
+    marginBottom: 10,
     width: '100%',
+    letterSpacing: 0.5,
   },
 
   contactWrapper: {
