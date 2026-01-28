@@ -217,7 +217,8 @@
     "disclaimerPage": {
       "header": "Self-Custodial Wallet",
       "subHeader": "Take full control of your money.",
-      "info1": "Your money is yours",
+      "disclaimerBold": "Blitz cannot recover your wallet.",
+      "dislcaimer": "You are solely responsible for securing and protecting your funds.",
       "info1Description": "Only you can access or use your money. We don’t have access to it.",
       "info2": "You’re in control",
       "info2Description": "Blitz cannot access your funds or help recover them if lost.",

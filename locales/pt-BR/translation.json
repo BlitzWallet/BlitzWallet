@@ -215,6 +215,8 @@
     "disclaimerPage": {
       "header": "Carteira sem custódia",
       "subHeader": "Tenha controle total sobre seu dinheiro.",
+      "disclaimerBold": "A Blitz não pode recuperar sua carteira.",
+      "dislcaimer": "Você é o único responsável por proteger e guardar seus fundos.",
       "info1": "Seu dinheiro é seu",
       "info1Description": "Somente você pode acessar ou usar seu dinheiro. Não temos acesso a ele.",
       "info2": "Você está no controle",

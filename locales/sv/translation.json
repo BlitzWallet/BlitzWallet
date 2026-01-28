@@ -211,6 +211,8 @@
     "disclaimerPage": {
       "header": "Självförvarad plånbok",
       "subHeader": "Ta full kontroll över dina pengar.",
+      "disclaimerBold": "Blitz kan inte återställa din plånbok.",
+      "dislcaimer": "Du är ensam ansvarig för att säkra och skydda dina medel.",
       "info1": "Dina pengar är dina",
       "info1Description": "Endast du kan komma åt eller använda dina pengar. Vi har ingen tillgång till dem.",
       "info2": "Du har kontrollen",

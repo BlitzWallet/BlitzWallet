@@ -210,6 +210,8 @@
     "disclaimerPage": {
       "header": "Selbstverwahrte Wallet",
       "subHeader": "Übernimm die volle Kontrolle über dein Geld.",
+      "disclaimerBold": "Blitz kann dein Wallet nicht wiederherstellen.",
+      "dislcaimer": "Du bist allein verantwortlich dafür, deine Gelder zu sichern und zu schützen.",
       "info1": "Dein Geld gehört dir",
       "info1Description": "Nur du kannst auf dein Geld zugreifen oder es verwenden. Wir haben keinen Zugriff darauf.",
       "info2": "Du hast die Kontrolle",

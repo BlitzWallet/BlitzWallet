@@ -211,6 +211,8 @@
     "disclaimerPage": {
       "header": "Portefeuille auto-hébergé",
       "subHeader": "Prenez le contrôle total de votre argent.",
+      "disclaimerBold": "Blitz ne peut pas récupérer votre portefeuille.",
+      "dislcaimer": "Vous êtes seul responsable de la sécurisation et de la protection de vos fonds.",
       "info1": "Votre argent vous appartient",
       "info1Description": "Vous seul pouvez accéder à votre argent ou l’utiliser. Nous n’y avons pas accès.",
       "info2": "Vous êtes aux commandes",

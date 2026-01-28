@@ -1,7 +1,13 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { CENTER, COLORS } from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
+import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
 import LoginNavbar from '../../components/login/navBar';
 import { useTranslation } from 'react-i18next';
@@ -63,15 +69,13 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.contentContainer]}
       >
-        <View
-          style={[styles.sheidlContainer, { borderColor: backgroundOffset }]}
-        >
-          <ThemeIcon
-            styles={{ alignSelf: 'center' }}
-            size={45}
-            iconName={'ShieldCheck'}
-          />
-        </View>
+        <ThemeIcon
+          styles={{ alignSelf: 'center' }}
+          size={75}
+          strokeWidth={1.5}
+          iconName={'ShieldCheck'}
+        />
+
         <ThemeText
           styles={styles.headerText}
           content={t('createAccount.disclaimerPage.header')}
@@ -80,25 +84,20 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
           CustomNumberOfLines={1}
         />
         <ThemeText
-          styles={[styles.descriptionText, { marginBottom: 60 }]}
+          styles={[styles.descriptionText, { marginBottom: 35 }]}
           content={t('createAccount.disclaimerPage.subHeader')}
         />
-        <ThemeText
-          styles={styles.strongText}
-          content={t('createAccount.disclaimerPage.info1')}
-        />
-        <ThemeText
-          styles={[styles.descriptionText, { marginBottom: 30 }]}
-          content={t('createAccount.disclaimerPage.info1Description')}
-        />
-        <ThemeText
-          styles={styles.strongText}
-          content={t('createAccount.disclaimerPage.info2')}
-        />
-        <ThemeText
-          styles={styles.descriptionText}
-          content={t('createAccount.disclaimerPage.info2Description')}
-        />
+
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <Text style={styles.text}>
+              <Text style={styles.bold}>
+                {t('createAccount.disclaimerPage.disclaimerBold')}
+              </Text>{' '}
+              {t('createAccount.disclaimerPage.dislcaimer')}
+            </Text>
+          </View>
+        </View>
       </ScrollView>
 
       {/* Terms Acceptance Section */}
@@ -160,9 +159,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   headerText: {
+    width: '80%',
     fontSize: SIZES.huge,
-    marginTop: 'auto',
+    marginTop: 25,
+    marginBottom: 15,
     includeFontPadding: false,
+    ...CENTER,
+    textAlign: 'center',
   },
   subHeaderText: {
     width: '95%',
@@ -232,5 +235,26 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     textDecorationLine: 'underline',
     includeFontPadding: false,
+  },
+  container: {
+    width: '100%',
+    maxWidth: 400, // approximate of max-w-md
+    marginBottom: 32, // mb-8
+    paddingVertical: 8, // optional spacing between cards
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
+  },
+  text: {
+    fontFamily: FONT.Title_Regular,
+    color: '#2d2d2d',
+    lineHeight: 22, // leading-relaxed
+  },
+  bold: {
+    fontWeight: '600',
   },
 });
