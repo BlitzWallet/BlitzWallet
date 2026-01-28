@@ -15,15 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'yarn'
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      #     cache: 'yarn'
 
       - name: Install dependencies (with retry)
         run: |
           set -euxo pipefail
+          yarn cache clean
           yarn config set registry https://registry.npmjs.org/
           for i in 1 2 3; do
             yarn install && break || sleep 10
