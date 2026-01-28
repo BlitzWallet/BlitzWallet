@@ -844,7 +844,5 @@ const styles = StyleSheet.create({
 
   emptyStateText: {
     textAlign: 'center',
-    opacity: 0.5,
-    marginTop: 20,
   },
 });
