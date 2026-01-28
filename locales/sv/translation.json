@@ -857,7 +857,8 @@
       "tapToGenerate_bitcoin": "Tryck för att skapa en Bitcoin-adress",
       "tapToGenerate_spark": "Tryck för att skapa en Spark-adress",
       "tapToGenerate_liquid": "Tryck för att skapa en Liquid-adress",
-      "tapToGenerate_rootstock": "Tryck för att skapa en Rootstock-adress"
+      "tapToGenerate_rootstock": "Tryck för att skapa en Rootstock-adress",
+      "chooseWhatToReceive": "Välj vad som ska begäras"
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"

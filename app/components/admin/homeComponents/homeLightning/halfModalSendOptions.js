@@ -101,7 +101,6 @@ const ContactRow = ({
             size={20}
             iconName={'ChevronDown'}
             colorOverride={textColor}
-            style={{ opacity: 0.5 }}
           />
         </Animated.View>
       </TouchableOpacity>
@@ -195,6 +194,7 @@ export default function HalfModalSendOptions({
   setIsKeyboardActive,
   theme,
   darkModeType,
+  handleBackPressFunction,
 }) {
   const [inputText, setInputText] = useState('');
   const [expandedContact, setExpandedContact] = useState(null);
@@ -218,7 +218,7 @@ export default function HalfModalSendOptions({
       btcAdress: inputText.trim(),
       fromPage: '',
     });
-  }, [navigate, inputText]);
+  }, [navigate, inputText, handleBackPressFunction]);
 
   const handleClipboardPaste = useCallback(async () => {
     navigateToSendUsingClipboard(navigate, 'modal', undefined, t);
@@ -235,11 +235,12 @@ export default function HalfModalSendOptions({
     if (!response.didWork || !response.btcAdress) {
       return;
     }
+
     navigate.replace('ConfirmPaymentScreen', {
       btcAdress: response.btcAdress,
       fromPage: '',
     });
-  }, [navigate, t]);
+  }, [navigate, t, handleBackPressFunction]);
 
   const handleToggleExpand = useCallback(contactUuid => {
     setExpandedContact(prev => (prev === contactUuid ? null : contactUuid));
@@ -247,12 +248,14 @@ export default function HalfModalSendOptions({
 
   const handleSelectPaymentType = useCallback(
     (contact, paymentType) => {
-      navigate.replace('SendAndRequestPage', {
-        selectedContact: contact,
-        paymentType: 'send',
-        imageData: cache[contact.uuid],
-        endReceiveType: paymentType,
-        selectedPaymentMethod: paymentType,
+      handleBackPressFunction(() => {
+        navigate.replace('SendAndRequestPage', {
+          selectedContact: contact,
+          paymentType: 'send',
+          imageData: cache[contact.uuid],
+          endReceiveType: paymentType,
+          selectedPaymentMethod: paymentType,
+        });
       });
     },
     [navigate, cache],

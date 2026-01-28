@@ -868,7 +868,8 @@
       "tapToGenerate_bitcoin": "Tocca per generare un indirizzo Bitcoin",
       "tapToGenerate_spark": "Tocca per generare un indirizzo Spark",
       "tapToGenerate_liquid": "Tocca per generare un indirizzo Liquid",
-      "tapToGenerate_rootstock": "Tocca per generare un indirizzo Rootstock"
+      "tapToGenerate_rootstock": "Tocca per generare un indirizzo Rootstock",
+      "chooseWhatToReceive": "Scegli cosa richiedere"
     },
     "manualInputPage": {
       "inputPlaceholder": "Inserisci o incolla un indirizzo o una fattura Liquid o Lightning"

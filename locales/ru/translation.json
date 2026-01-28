@@ -854,7 +854,8 @@
       "tapToGenerate_bitcoin": "Нажмите, чтобы создать Bitcoin-адрес",
       "tapToGenerate_spark": "Нажмите, чтобы создать адрес Spark",
       "tapToGenerate_liquid": "Нажмите, чтобы создать адрес Liquid",
-      "tapToGenerate_rootstock": "Нажмите, чтобы создать адрес Rootstock"
+      "tapToGenerate_rootstock": "Нажмите, чтобы создать адрес Rootstock",
+      "chooseWhatToReceive": "Выберите, что запросить"
     },
     "manualInputPage": {
       "inputPlaceholder": "Адрес Liquid, Молнии или инвойс"

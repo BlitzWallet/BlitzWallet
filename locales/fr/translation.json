@@ -857,7 +857,8 @@
       "tapToGenerate_bitcoin": "Appuyez pour générer une adresse Bitcoin",
       "tapToGenerate_spark": "Appuyez pour générer une adresse Spark",
       "tapToGenerate_liquid": "Appuyez pour générer une adresse Liquid",
-      "tapToGenerate_rootstock": "Appuyez pour générer une adresse Rootstock"
+      "tapToGenerate_rootstock": "Appuyez pour générer une adresse Rootstock",
+      "chooseWhatToReceive": "Choisir quoi demander"
     },
     "manualInputPage": {
       "inputPlaceholder": "Saisir ou coller un liquide, ou une adresse/facture Lightning"

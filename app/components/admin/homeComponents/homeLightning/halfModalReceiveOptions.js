@@ -23,8 +23,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
 
 const ContactRow = ({
+  expandedContact,
   contact,
   cache,
   theme,
@@ -32,45 +34,152 @@ const ContactRow = ({
   backgroundOffset,
   backgroundColor,
   onToggleExpand,
+  onSelectPaymentType,
   textColor,
+  t,
 }) => {
-  return (
-    <TouchableOpacity
-      style={styles.contactRowContainer}
-      onPress={() => onToggleExpand(contact)}
-    >
-      <View
-        style={[
-          styles.contactImageContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
-      >
-        <ContactProfileImage
-          updated={cache[contact.uuid]?.updated}
-          uri={cache[contact.uuid]?.localUri}
-          darkModeType={darkModeType}
-          theme={theme}
-        />
-      </View>
+  const isExpanded = expandedContact === contact.uuid;
 
-      <View style={styles.nameContainer}>
+  const expandHeight = useSharedValue(0);
+  const chevronRotation = useSharedValue(0);
+
+  useEffect(() => {
+    expandHeight.value = withTiming(isExpanded ? 1 : 0, {
+      duration: 200,
+    });
+    chevronRotation.value = withTiming(isExpanded ? 1 : 0, {
+      duration: 200,
+    });
+  }, [isExpanded]);
+
+  const expandedStyle = useAnimatedStyle(() => ({
+    height: expandHeight.value * 200,
+    opacity: expandHeight.value,
+  }));
+
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
+  }));
+  return (
+    <View style={styles.contactWrapper}>
+      <TouchableOpacity
+        style={styles.contactRowContainer}
+        onPress={() => onToggleExpand(contact.uuid)}
+      >
+        <View
+          style={[
+            styles.contactImageContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <ContactProfileImage
+            updated={cache[contact.uuid]?.updated}
+            uri={cache[contact.uuid]?.localUri}
+            darkModeType={darkModeType}
+            theme={theme}
+          />
+        </View>
+
+        <View style={styles.nameContainer}>
+          <ThemeText
+            CustomEllipsizeMode={'tail'}
+            CustomNumberOfLines={1}
+            styles={styles.contactName}
+            content={formatDisplayName(contact) || contact.uniqueName || ''}
+          />
+        </View>
+        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
+          <ThemeIcon
+            size={20}
+            iconName={'ChevronDown'}
+            colorOverride={textColor}
+          />
+        </Animated.View>
+      </TouchableOpacity>
+
+      <Animated.View style={[styles.expandedContainer, expandedStyle]}>
         <ThemeText
-          CustomEllipsizeMode={'tail'}
-          CustomNumberOfLines={1}
-          styles={styles.contactName}
-          content={formatDisplayName(contact) || contact.uniqueName || ''}
+          styles={styles.chooseWhatToSendText}
+          content={t('wallet.halfModal.chooseWhatToReceive')}
         />
-      </View>
-      <ThemeIcon
-        size={20}
-        iconName={'ChevronRight'}
-        colorOverride={textColor}
-        style={{ opacity: HIDDEN_OPACITY }}
-      />
-    </TouchableOpacity>
+        <View style={styles.paymentOptionsRow}>
+          <TouchableOpacity
+            style={[
+              styles.paymentOption,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+            onPress={() => onSelectPaymentType(contact, 'BTC')}
+          >
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? darkModeType
+                        ? backgroundOffset
+                        : backgroundColor
+                      : COLORS.bitcoinOrange,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={{ width: 18, height: 18 }}
+                lightModeIcon={ICONS.bitcoinIcon}
+                darkModeIcon={ICONS.bitcoinIcon}
+                lightsOutIcon={ICONS.bitcoinIcon}
+              />
+            </View>
+            <ThemeText
+              styles={styles.paymentOptionText}
+              content={t('constants.bitcoin_upper')}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.paymentOption,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+            onPress={() => onSelectPaymentType(contact, 'USD')}
+          >
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? darkModeType
+                        ? backgroundOffset
+                        : backgroundColor
+                      : COLORS.dollarGreen,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={{ width: 18, height: 18 }}
+                lightModeIcon={ICONS.dollarIcon}
+                darkModeIcon={ICONS.dollarIcon}
+                lightsOutIcon={ICONS.dollarIcon}
+              />
+            </View>
+            <ThemeText
+              styles={styles.paymentOptionText}
+              content={t('constants.dollars_upper')}
+            />
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </View>
   );
 };
 
@@ -139,7 +248,6 @@ const OtherOptionsRow = ({
             size={20}
             iconName={'ChevronDown'}
             colorOverride={textColor}
-            style={{ opacity: HIDDEN_OPACITY }}
           />
         </Animated.View>
       </TouchableOpacity>
@@ -180,11 +288,18 @@ const OtherOptionsRow = ({
                   `wallet.receivePages.switchReceiveOptionPage.sparkTitle`,
                 )}
               />
-              <ThemeText
+              {/* <ThemeText
                 styles={styles.scanButtonSubtext}
                 content={t('wallet.halfModal.tapToGenerate', {
                   context: 'spark',
                 })}
+              /> */}
+            </View>
+            <View style={{ opacity: HIDDEN_OPACITY }}>
+              <ThemeIcon
+                size={20}
+                iconName={'ChevronRight'}
+                colorOverride={textColor}
               />
             </View>
           </TouchableOpacity>
@@ -219,11 +334,18 @@ const OtherOptionsRow = ({
                   `wallet.receivePages.switchReceiveOptionPage.liquidTitle`,
                 )}
               />
-              <ThemeText
+              {/* <ThemeText
                 styles={styles.scanButtonSubtext}
                 content={t('wallet.halfModal.tapToGenerate', {
                   context: 'liquid',
                 })}
+              /> */}
+            </View>
+            <View style={{ opacity: HIDDEN_OPACITY }}>
+              <ThemeIcon
+                size={20}
+                iconName={'ChevronRight'}
+                colorOverride={textColor}
               />
             </View>
           </TouchableOpacity>
@@ -258,11 +380,18 @@ const OtherOptionsRow = ({
                   `wallet.receivePages.switchReceiveOptionPage.rootstockTitle`,
                 )}
               />
-              <ThemeText
+              {/* <ThemeText
                 styles={styles.scanButtonSubtext}
                 content={t('wallet.halfModal.tapToGenerate', {
                   context: 'rootstock',
                 })}
+              /> */}
+            </View>
+            <View style={{ opacity: HIDDEN_OPACITY }}>
+              <ThemeIcon
+                size={20}
+                iconName={'ChevronRight'}
+                colorOverride={textColor}
               />
             </View>
           </TouchableOpacity>
@@ -280,6 +409,7 @@ export default function HalfModalReceiveOptions({
   handleBackPressFunction,
 }) {
   const [expandedOtherOptions, setExpandedOtherOptions] = useState(false);
+  const [expandedContact, setExpandedContact] = useState(null);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -288,8 +418,7 @@ export default function HalfModalReceiveOptions({
   const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
     GetThemeColors();
 
-  const iconColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const iconColor = theme && darkModeType ? textColor : COLORS.primary;
 
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
@@ -298,12 +427,10 @@ export default function HalfModalReceiveOptions({
 
   const handleReceiveOption = useCallback(
     async type => {
-      handleBackPressFunction(() => {
-        navigate.replace('ReceiveBTC', {
-          from: 'homepage',
-          initialReceiveType: scrollPosition,
-          selectedRecieveOption: type,
-        });
+      navigate.replace('ReceiveBTC', {
+        from: 'homepage',
+        initialReceiveType: scrollPosition,
+        selectedRecieveOption: type,
       });
     },
     [navigate, scrollPosition, handleBackPressFunction],
@@ -313,12 +440,19 @@ export default function HalfModalReceiveOptions({
     setExpandedOtherOptions(prev => !prev);
   }, []);
 
-  const handleToggleExpand = useCallback(
-    contact => {
-      navigate.replace('SendAndRequestPage', {
-        selectedContact: contact,
-        paymentType: 'request',
-        imageData: cache[contact.uuid],
+  const handleToggleExpand = useCallback(contactUuid => {
+    setExpandedContact(prev => (prev === contactUuid ? null : contactUuid));
+  }, []);
+
+  const handleSelectPaymentType = useCallback(
+    (contact, paymentType) => {
+      handleBackPressFunction(() => {
+        navigate.replace('SendAndRequestPage', {
+          selectedContact: contact,
+          paymentType: 'request',
+          imageData: cache[contact.uuid],
+          selectedRequestMethod: paymentType,
+        });
       });
     },
     [navigate, cache],
@@ -338,13 +472,15 @@ export default function HalfModalReceiveOptions({
         const nameB = contactB?.name || contactB?.uniqueName || '';
         return nameA.localeCompare(nameB);
       })
-      .map(contact => contact.contact);
+      .map(contact => contact.contact)
+      .filter(contact => !contact.isLNURL);
   }, [contactInfoList]);
 
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
       <ContactRow
         key={contact.uuid}
+        expandedContact={expandedContact}
         contact={contact}
         cache={cache}
         theme={theme}
@@ -353,9 +489,12 @@ export default function HalfModalReceiveOptions({
         backgroundColor={backgroundColor}
         textColor={textColor}
         onToggleExpand={handleToggleExpand}
+        onSelectPaymentType={handleSelectPaymentType}
+        t={t}
       />
     ));
   }, [
+    expandedContact,
     sortedContacts,
     cache,
     theme,
@@ -420,11 +559,12 @@ export default function HalfModalReceiveOptions({
               `screens.inAccount.receiveBtcPage.header_lightning_${scrollPosition?.toLowerCase()}`,
             )}
           />
-          <ThemeText
-            styles={styles.scanButtonSubtext}
-            content={t('wallet.halfModal.tapToGenerate', {
-              context: 'lightning',
-            })}
+        </View>
+        <View style={{ opacity: HIDDEN_OPACITY }}>
+          <ThemeIcon
+            size={20}
+            iconName={'ChevronRight'}
+            colorOverride={textColor}
           />
         </View>
       </TouchableOpacity>
@@ -460,11 +600,12 @@ export default function HalfModalReceiveOptions({
               `wallet.receivePages.switchReceiveOptionPage.bitcoinTitle`,
             )}
           />
-          <ThemeText
-            styles={styles.scanButtonSubtext}
-            content={t('wallet.halfModal.tapToGenerate', {
-              context: 'bitcoin',
-            })}
+        </View>
+        <View style={{ opacity: HIDDEN_OPACITY }}>
+          <ThemeIcon
+            size={20}
+            iconName={'ChevronRight'}
+            colorOverride={textColor}
           />
         </View>
       </TouchableOpacity>

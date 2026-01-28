@@ -852,7 +852,8 @@
       "tapToGenerate_bitcoin": "Tippen, um eine Bitcoin-Adresse zu erstellen",
       "tapToGenerate_spark": "Tippen, um eine Spark-Adresse zu erstellen",
       "tapToGenerate_liquid": "Tippen, um eine Liquid-Adresse zu erstellen",
-      "tapToGenerate_rootstock": "Tippen, um eine Rootstock-Adresse zu erstellen"
+      "tapToGenerate_rootstock": "Tippen, um eine Rootstock-Adresse zu erstellen",
+      "chooseWhatToReceive": "Auswählen, was angefordert werden soll"
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse/Rechnung ein oder fügen Sie sie ein"
