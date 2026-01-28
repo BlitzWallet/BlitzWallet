@@ -342,6 +342,7 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
             selectedContact={props?.route?.params?.selectedContact}
             imageData={props?.route?.params?.imageData}
+            paymentType={props?.route?.params?.paymentType}
           />
         );
       case 'SelectContactRequestCurrency':

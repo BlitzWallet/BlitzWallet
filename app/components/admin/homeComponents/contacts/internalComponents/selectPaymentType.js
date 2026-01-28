@@ -25,6 +25,7 @@ export default function SelectPaymentType({
   imageData,
   setContentHeight,
   handleBackPressFunction,
+  paymentType,
 }) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -46,10 +47,12 @@ export default function SelectPaymentType({
       } else {
         navigate.replace('SendAndRequestPage', {
           selectedContact: selectedContact,
-          paymentType: 'send',
+          paymentType,
           imageData,
           endReceiveType: selectedOption,
-          selectedPaymentMethod: selectedOption,
+          [paymentType === 'send'
+            ? 'selectedPaymentMethod'
+            : 'selectedRequestMethod']: selectedOption,
         });
       }
     });
@@ -59,7 +62,11 @@ export default function SelectPaymentType({
     <View style={styles.innerContainer}>
       <ThemeText
         styles={{ fontWeight: 500, fontSize: SIZES.large, marginBottom: 15 }}
-        content={t('contacts.selectCurrencyToSend.header')}
+        content={
+          paymentType === 'request'
+            ? t('contacts.selectCurrencyToRequest.header')
+            : t('contacts.selectCurrencyToSend.header')
+        }
       />
 
       <TouchableOpacity
@@ -136,7 +143,7 @@ export default function SelectPaymentType({
         />
       </TouchableOpacity>
 
-      {!HIDE_IN_APP_PURCHASE_ITEMS && (
+      {!HIDE_IN_APP_PURCHASE_ITEMS && paymentType !== 'request' && (
         <TouchableOpacity
           onPress={() => setSeelctedOption('Gift')}
           style={styles.containerRow}
