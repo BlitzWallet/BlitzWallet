@@ -24,10 +24,13 @@ jobs:
       - name: Install dependencies (with retry)
         run: |
           set -euxo pipefail
-          yarn cache clean
+          echo "@jsr:registry=https://npm.jsr.io" >> .npmrc
           yarn config set registry https://registry.npmjs.org/
-          for i in 1 2 3; do
-            yarn install && break || sleep 10
+          for i in 1 2 3 4 5; do
+            yarn install && break || {
+              echo "Attempt $i failed, waiting 30s..."
+              sleep 30
+            }
           done
 
       - name: Run eslint
