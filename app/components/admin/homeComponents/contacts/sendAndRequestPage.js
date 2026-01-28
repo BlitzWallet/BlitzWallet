@@ -600,6 +600,32 @@ export default function SendAndRequestPage(props) {
               ? t('constants.gift')
               : t('constants.request')
           }
+          containerStyles={{ marginBottom: 0 }}
+        />
+        <ThemeText
+          styles={{
+            textAlign: 'center',
+            opacity: 0.7,
+          }}
+          content={
+            paymentType === 'send'
+              ? t(
+                  `constants.${
+                    selectedPaymentMethod === 'USD'
+                      ? 'dollars_upper'
+                      : 'bitcoin_upper'
+                  }`,
+                )
+              : paymentType === 'Gift'
+              ? ''
+              : t(
+                  `constants.${
+                    selectedRequestMethod === 'USD'
+                      ? 'dollars_upper'
+                      : 'bitcoin_upper'
+                  }`,
+                )
+          }
         />
 
         <ScrollView
@@ -761,32 +787,34 @@ export default function SendAndRequestPage(props) {
         </ScrollView>
         {paymentType !== 'Gift' && (
           <View style={styles.inputAndGiftContainer}>
-            <ChoosePaymentMethod
-              theme={theme}
-              darkModeType={darkModeType}
-              determinePaymentMethod={
-                paymentType === 'send' || paymentType === 'Gift'
-                  ? selectedPaymentMethod
-                  : selectedRequestMethod
-              }
-              handleSelectPaymentMethod={handleSelectPaymentMethod}
-              bitcoinBalance={sparkInformation.balance}
-              dollarBalanceToken={dollarBalanceToken}
-              masterInfoObject={masterInfoObject}
-              fiatStats={fiatStats}
-              uiState={
-                paymentType === 'send' || paymentType === 'Gift'
-                  ? 'SELECT_INLINE'
-                  : 'CONTACT_REQUEST'
-              }
-              t={t}
-              selectedMethod={
-                paymentType === 'send' || paymentType === 'Gift'
-                  ? selectedPaymentMethod
-                  : selectedRequestMethod
-              }
-              containerStyles={{ width: '100%', marginBottom: 8 }}
-            />
+            {paymentType === 'send' && (
+              <ChoosePaymentMethod
+                theme={theme}
+                darkModeType={darkModeType}
+                determinePaymentMethod={
+                  paymentType === 'send' || paymentType === 'Gift'
+                    ? selectedPaymentMethod
+                    : selectedRequestMethod
+                }
+                handleSelectPaymentMethod={handleSelectPaymentMethod}
+                bitcoinBalance={sparkInformation.balance}
+                dollarBalanceToken={dollarBalanceToken}
+                masterInfoObject={masterInfoObject}
+                fiatStats={fiatStats}
+                uiState={
+                  paymentType === 'send' || paymentType === 'Gift'
+                    ? 'SELECT_INLINE'
+                    : 'CONTACT_REQUEST'
+                }
+                t={t}
+                selectedMethod={
+                  paymentType === 'send' || paymentType === 'Gift'
+                    ? selectedPaymentMethod
+                    : selectedRequestMethod
+                }
+                containerStyles={{ width: '100%', marginBottom: 8 }}
+              />
+            )}
 
             <CustomSearchInput
               onFocusFunction={() => {

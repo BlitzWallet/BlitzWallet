@@ -10,6 +10,8 @@ export default function ThemeText({
   CustomEllipsizeMode = 'tail',
   CustomNumberOfLines = null,
   onLayout = null,
+  adjustsFontSizeToFit = false,
+  minimumFontScale = 0.5,
 }) {
   const { theme } = useGlobalThemeContext();
 
@@ -60,6 +62,8 @@ export default function ThemeText({
       ellipsizeMode={CustomEllipsizeMode}
       numberOfLines={CustomNumberOfLines}
       style={memorizedStyles}
+      adjustsFontSizeToFit={adjustsFontSizeToFit}
+      minimumFontScale={minimumFontScale}
     >
       {content}
     </Text>

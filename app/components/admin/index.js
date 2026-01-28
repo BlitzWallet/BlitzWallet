@@ -14,6 +14,8 @@ import ContactsPageLongPressActions from './homeComponents/contacts/internalComp
 import ErrorScreen from './homeComponents/errorScreen';
 import HomeLightning from './homeComponents/homeLightning';
 import HalfModalSendOptions from './homeComponents/homeLightning/halfModalSendOptions';
+import HalfModalReceiveOptions from './homeComponents/homeLightning/halfModalReceiveOptions';
+
 import { SendRecieveBTNs } from './homeComponents/homeLightning/sendReciveBTNs';
 import { UserSatAmount } from './homeComponents/homeLightning/userSatAmount';
 
@@ -59,6 +61,7 @@ export {
   PinPage,
   ClipboardCopyPopup,
   HalfModalSendOptions,
+  HalfModalReceiveOptions,
   ExpandedContactsPage,
   EditMyProfilePage,
   // MyContactProfilePage,

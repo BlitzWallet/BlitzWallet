@@ -208,15 +208,19 @@
       "title": "Choose Language"
     },
     "homePage": {
-      "subtitle": "Your wallet, your coins, 100% open-source",
+      "subtitle": "Your wallet, your money, 100% open-source",
       "buttons": {
         "button1": "Enter seed phrase",
         "button2": "Make new wallet"
       }
     },
     "disclaimerPage": {
-      "header": "Self-custodial",
-      "subHeader": "Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's Terms and Conditions.",
+      "header": "Self-Custodial Wallet",
+      "subHeader": "Take full control of your money.",
+      "info1": "Your money is yours",
+      "info1Description": "Only you can access or use your money. We don’t have access to it.",
+      "info2": "You’re in control",
+      "info2Description": "Blitz cannot access your funds or help recover them if lost.",
       "imgCaption": "'With great power comes great responsibility' - Uncle Ben",
       "acceptPrefix": "I accept the ",
       "terms&Conditions": "Terms and Conditions",
@@ -854,7 +858,24 @@
       "images": "From Image",
       "clipboard": "From Clipboard",
       "manual": "Manual Input",
-      "contacts": "From Contacts"
+      "contacts": "From Contacts",
+      "inputPlaceholder": "Enter an address to pay",
+      "scanImage": "Scan Image",
+      "tapToScan": "Tap to get an address from an image",
+      "addressBook": "Contacts Book",
+      "chooseWhatToSend": "Choose what to send",
+      "noContacts": "Add contacts for them to show up here",
+      "selectAddressType": "Select address type",
+      "otherAddresses": "Other options",
+      "tapToGenerate_other": "Tap to see other receive options",
+      "tapToGenerate_lightning": "Tap to generate a Lightning invoice",
+      "tapToGenerate_bitcoin": "Tap to generate a Bitcoin address",
+      "tapToGenerate_spark": "Tap to generate a Spark address",
+      "tapToGenerate_liquid": "Tap to generate a Liquid address",
+      "tapToGenerate_rootstock": "Tap to generate a Rootstock address",
+      "chooseWhatToReceive": "Choose what to request",
+      "instantLowFees": "Instant, low fees",
+      "onChainTransaction": "On-chain transaction"
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"

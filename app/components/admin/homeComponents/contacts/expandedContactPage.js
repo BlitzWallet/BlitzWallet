@@ -193,6 +193,7 @@ export default function ExpandedContactsPage(props) {
                 });
               } else {
                 navigate.navigate('CustomHalfModal', {
+                  paymentType: 'send',
                   wantedContent: 'SelectPaymentType',
                   selectedContact: selectedContact,
                   imageData,
@@ -228,7 +229,8 @@ export default function ExpandedContactsPage(props) {
                 });
                 return;
               }
-              navigate.navigate('SendAndRequestPage', {
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'SelectPaymentType',
                 selectedContact: selectedContact,
                 paymentType: 'request',
                 imageData,
