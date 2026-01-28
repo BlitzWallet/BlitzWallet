@@ -208,15 +208,19 @@
       "title": "Scegli la lingua"
     },
     "homePage": {
-      "subtitle": "Il tuo portafoglio, i tuoi satoshi, 100% open-source",
+      "subtitle": "Il tuo wallet, il tuo denaro, 100% open-source",
       "buttons": {
         "button1": "Inserisci frase di recupero",
         "button2": "Crea nuovo portafoglio"
       }
     },
     "disclaimerPage": {
-      "header": "Auto-custodia",
-      "subHeader": "Blitz non può accedere ai tuoi fondi o aiutarti a recuperarli se la perdi. Continuando, accetti i termini e condizioni di Blitz Wallet.",
+      "header": "Wallet self-custodial",
+      "subHeader": "Assumi il pieno controllo del tuo denaro.",
+      "info1": "Il tuo denaro è tuo",
+      "info1Description": "Solo tu puoi accedere o utilizzare il tuo denaro. Noi non vi abbiamo accesso.",
+      "info2": "Sei tu a controllare",
+      "info2Description": "Blitz non può accedere ai tuoi fondi né aiutarti a recuperarli se vengono persi.",
       "imgCaption": "'Da grandi poteri derivano grandi responsabilità' - Zio Ben",
       "acceptPrefix": "Accetto il ",
       "terms&Conditions": "Termini e Condizioni",
@@ -869,7 +873,9 @@
       "tapToGenerate_spark": "Tocca per generare un indirizzo Spark",
       "tapToGenerate_liquid": "Tocca per generare un indirizzo Liquid",
       "tapToGenerate_rootstock": "Tocca per generare un indirizzo Rootstock",
-      "chooseWhatToReceive": "Scegli cosa richiedere"
+      "chooseWhatToReceive": "Scegli cosa richiedere",
+      "instantLowFees": "Istantaneo, commissioni basse",
+      "onChainTransaction": "Transazione on-chain"
     },
     "manualInputPage": {
       "inputPlaceholder": "Inserisci o incolla un indirizzo o una fattura Liquid o Lightning"

@@ -201,15 +201,19 @@
       "title": "Sprache wählen"
     },
     "homePage": {
-      "subtitle": "Ihre Wallet, Ihre Coins, 100% Open-Source",
+      "subtitle": "Ihre Wallet, Ihre Geld, 100% Open-Source",
       "buttons": {
         "button1": "Seed-Phrase eingeben",
         "button2": "Neue Wallet erstellen"
       }
     },
     "disclaimerPage": {
-      "header": "Selbstverwahrung",
-      "subHeader": "Blitz hat keinen Zugriff auf Ihre Gelder und kann diese im Verlustfall nicht wiederherstellen. Mit der Fortsetzung stimmen Sie den Nutzungsbedingungen von Blitz-Wallet zu.",
+      "header": "Selbstverwahrte Wallet",
+      "subHeader": "Übernimm die volle Kontrolle über dein Geld.",
+      "info1": "Dein Geld gehört dir",
+      "info1Description": "Nur du kannst auf dein Geld zugreifen oder es verwenden. Wir haben keinen Zugriff darauf.",
+      "info2": "Du hast die Kontrolle",
+      "info2Description": "Blitz kann nicht auf deine Gelder zugreifen oder sie wiederherstellen, falls sie verloren gehen.",
       "imgCaption": "'Mit großer Macht kommt große Verantwortung' - Onkel Ben",
       "acceptPrefix": "Ich akzeptiere die ",
       "terms&Conditions": "Nutzungsbedingungen",
@@ -853,7 +857,9 @@
       "tapToGenerate_spark": "Tippen, um eine Spark-Adresse zu erstellen",
       "tapToGenerate_liquid": "Tippen, um eine Liquid-Adresse zu erstellen",
       "tapToGenerate_rootstock": "Tippen, um eine Rootstock-Adresse zu erstellen",
-      "chooseWhatToReceive": "Auswählen, was angefordert werden soll"
+      "chooseWhatToReceive": "Auswählen, was angefordert werden soll",
+      "instantLowFees": "Sofort, niedrige Gebühren",
+      "onChainTransaction": "On-Chain-Transaktion"
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse/Rechnung ein oder fügen Sie sie ein"

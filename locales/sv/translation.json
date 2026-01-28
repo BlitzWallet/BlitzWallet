@@ -202,15 +202,19 @@
       "title": "Välj språk"
     },
     "homePage": {
-      "subtitle": "Din plånbok, dina mynt, 100% öppen källkod",
+      "subtitle": "Din plånbok, dina pengar, 100 % open source",
       "buttons": {
         "button1": "Ange fröfras",
         "button2": "Skapa en ny plånbok"
       }
     },
     "disclaimerPage": {
-      "header": "Självförvaltande",
-      "subHeader": "Blitz kan inte komma åt dina pengar eller hjälpa dig att återfå dem om de försvinner. Genom att fortsätta godkänner du Blitz Wallet's villkor och bestämmelser.",
+      "header": "Självförvarad plånbok",
+      "subHeader": "Ta full kontroll över dina pengar.",
+      "info1": "Dina pengar är dina",
+      "info1Description": "Endast du kan komma åt eller använda dina pengar. Vi har ingen tillgång till dem.",
+      "info2": "Du har kontrollen",
+      "info2Description": "Blitz kan inte komma åt dina medel eller hjälpa till att återställa dem om de går förlorade.",
       "imgCaption": "\"Med stor makt kommer stort ansvar\" - Uncle Ben",
       "acceptPrefix": "Jag accepterar ",
       "terms&Conditions": "Villkor och anvisningar",
@@ -858,7 +862,9 @@
       "tapToGenerate_spark": "Tryck för att skapa en Spark-adress",
       "tapToGenerate_liquid": "Tryck för att skapa en Liquid-adress",
       "tapToGenerate_rootstock": "Tryck för att skapa en Rootstock-adress",
-      "chooseWhatToReceive": "Välj vad som ska begäras"
+      "chooseWhatToReceive": "Välj vad som ska begäras",
+      "instantLowFees": "Direkt, låga avgifter",
+      "onChainTransaction": "On-chain-transaktion"
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"

@@ -206,15 +206,19 @@
       "title": "Escolha o idioma"
     },
     "homePage": {
-      "subtitle": "Sua carteira, seu dinheiro, 100% código livre",
+      "subtitle": "Sua carteira, seu dinheiro, 100% open-source",
       "buttons": {
         "button1": "Insira sua frase-semente",
         "button2": "Criar nova carteira"
       }
     },
     "disclaimerPage": {
-      "header": "Autocustodial",
-      "subHeader": "A Blitz Wallet não pode acessar seus fundos nem ajudar você a recuperá-los em caso de perda. Ao continuar, você concorda com os termos e condições da Blitz Wallet.",
+      "header": "Carteira sem custódia",
+      "subHeader": "Tenha controle total sobre seu dinheiro.",
+      "info1": "Seu dinheiro é seu",
+      "info1Description": "Somente você pode acessar ou usar seu dinheiro. Não temos acesso a ele.",
+      "info2": "Você está no controle",
+      "info2Description": "A Blitz não pode acessar seus fundos nem ajudar a recuperá-los se forem perdidos.",
       "imgCaption": "'Com grandes poderes, surgem grandes responsabilidades' - Tio Ben",
       "acceptPrefix": "Eu aceito os ",
       "terms&Conditions": "Termos e Condições",
@@ -867,7 +871,9 @@
       "tapToGenerate_spark": "Toque para gerar um endereço Spark",
       "tapToGenerate_liquid": "Toque para gerar um endereço Liquid",
       "tapToGenerate_rootstock": "Toque para gerar um endereço Rootstock",
-      "chooseWhatToReceive": "Escolha o que solicitar"
+      "chooseWhatToReceive": "Escolha o que solicitar",
+      "instantLowFees": "Instantâneo, taxas baixas",
+      "onChainTransaction": "Transação on-chain"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
