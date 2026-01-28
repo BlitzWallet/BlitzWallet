@@ -376,7 +376,7 @@ export default function HalfModalSendOptions({
         >
           <ThemeIcon
             colorOverride={
-              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              theme && darkModeType ? COLORS.darkModeText : COLORS.primary
             }
             size={24}
             iconName={'Image'}
@@ -467,6 +467,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     fontWeight: '500',
     marginBottom: 2,
+    includeFontPadding: false,
   },
   scanButtonSubtext: {
     fontSize: SIZES.small,
@@ -505,12 +506,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contactName: {
-    fontSize: SIZES.medium,
-    marginBottom: 2,
-  },
-  contactSubtext: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
+    includeFontPadding: false,
   },
 
   expandedContainer: {

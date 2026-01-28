@@ -235,7 +235,7 @@ const OtherOptionsRow = ({
         </View>
         <View style={styles.scanTextContainer}>
           <ThemeText
-            styles={styles.scanButtonText}
+            styles={[styles.scanButtonText, { marginBottom: 2 }]}
             content={t('wallet.halfModal.otherAddresses')}
           />
           <ThemeText
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   scanButtonText: {
     fontSize: SIZES.medium,
     fontWeight: '500',
-    marginBottom: 2,
+    includeFontPadding: false,
   },
   scanButtonSubtext: {
     fontSize: SIZES.small,
@@ -735,12 +735,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contactName: {
-    fontSize: SIZES.medium,
-    marginBottom: 2,
-  },
-  contactSubtext: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
+    includeFontPadding: false,
   },
 
   expandedContainer: {
