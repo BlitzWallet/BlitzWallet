@@ -611,9 +611,7 @@ export default function SendAndRequestPage(props) {
             paymentType === 'send'
               ? t(
                   `constants.${
-                    selectedPaymentMethod === 'USD'
-                      ? 'dollars_upper'
-                      : 'bitcoin_upper'
+                    endReceiveType === 'USD' ? 'dollars_upper' : 'bitcoin_upper'
                   }`,
                 )
               : paymentType === 'Gift'
