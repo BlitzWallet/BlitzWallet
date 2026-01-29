@@ -863,11 +863,10 @@
       "inputPlaceholder": "Enter an address to pay",
       "scanImage": "Scan Image",
       "tapToScan": "Tap to get an address from an image",
-      "addressBook": "Contacts Book",
+      "addressBook_send": "Contacts Book",
       "chooseWhatToSend": "Choose what to send",
       "noContacts": "Add contacts for them to show up here",
       "selectAddressType": "Select address type",
-      "otherAddresses": "Other options",
       "tapToGenerate_other": "Tap to see other receive options",
       "tapToGenerate_lightning": "Tap to generate a Lightning invoice",
       "tapToGenerate_bitcoin": "Tap to generate a Bitcoin address",
@@ -876,7 +875,12 @@
       "tapToGenerate_rootstock": "Tap to generate a Rootstock address",
       "chooseWhatToReceive": "Choose what to request",
       "instantLowFees": "Instant, low fees",
-      "onChainTransaction": "On-chain transaction"
+      "onChainTransaction": "On-chain transaction",
+      "otherAddresses": "More ways to receive",
+      "scanQrCode": "Scan QR code",
+      "tapToScanQr": "Tap to scan a QR code",
+      "addressBook_request": "Request from a contact",
+      "qrReceiveOptions": "Receive via QR code"
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"

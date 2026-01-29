@@ -853,11 +853,10 @@
       "inputPlaceholder": "Ange en adress att betala till",
       "scanImage": "Skanna bild",
       "tapToScan": "Tryck för att hämta en adress från en bild",
-      "addressBook": "Kontaktbok",
+      "addressBook_send": "Kontaktbok",
       "chooseWhatToSend": "Välj vad som ska skickas",
       "noContacts": "Lägg till kontakter så visas de här",
       "selectAddressType": "Välj adresstyp",
-      "otherAddresses": "Andra alternativ",
       "tapToGenerate_other": "Tryck för att se andra mottagningsalternativ",
       "tapToGenerate_lightning": "Tryck för att skapa en Lightning-faktura",
       "tapToGenerate_bitcoin": "Tryck för att skapa en Bitcoin-adress",
@@ -866,7 +865,12 @@
       "tapToGenerate_rootstock": "Tryck för att skapa en Rootstock-adress",
       "chooseWhatToReceive": "Välj vad som ska begäras",
       "instantLowFees": "Direkt, låga avgifter",
-      "onChainTransaction": "On-chain-transaktion"
+      "onChainTransaction": "On-chain-transaktion",
+      "otherAddresses": "Fler sätt att ta emot",
+      "scanQrCode": "Skanna QR-kod",
+      "tapToScanQr": "Tryck för att skanna en QR-kod",
+      "addressBook_request": "Begär från en kontakt",
+      "qrReceiveOptions": "Ta emot via QR-kod"
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"
