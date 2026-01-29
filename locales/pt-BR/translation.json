@@ -877,7 +877,7 @@
       "onChainTransaction": "~ 10 minutos"
       "otherAddresses": "Outros tipos de endereço",
       "scanQrCode": "Ler código QR",
-      "tapToScanQr": "Ler um código QR",
+      "tapToScanQr": "Pague lendo um código QR",
       "addressBook_request": "Solicitar de um contato",
       "qrReceiveOptions": "Receber via código QR"
     },
