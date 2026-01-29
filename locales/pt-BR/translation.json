@@ -104,7 +104,7 @@
     "slideToConfirm": "Arraste para confirmar",
     "token": "Token",
     "veriable": "Variável",
-    "instant": "instantâneo",
+    "instant": "Instantâneo",
     "andLower": "e",
     "onLower": "on",
     "offLower": "off",
@@ -118,7 +118,7 @@
     "manage": "Emitidos",
     "reclaim": "Expirados",
     "optionalFlag": "(Opcional)",
-    "gift": "Vale-Blitz",
+    "gift": "Cartão-presente",
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dólares",
     "rate": "Cotação",
@@ -197,7 +197,7 @@
     "receivedRequest": "Solicitação recebida",
     "date": "Data",
     "time": "Hora",
-    "memo": "Nota",
+    "memo": "Descrição",
     "roostockSwap": "Transferência de Rootstock para Spark"
   },
 
@@ -741,7 +741,7 @@
         "cardDescription": "Descrição do cartão",
         "cardTerms": "Termos do cartão",
         "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
-        "giftMessage": "Adicione uma nota ao seu presente",
+        "giftMessage": "Adicione uma descrição ao seu presente",
         "giftMessagePlaceholder": "Digite sua mensagem aqui",
         "selectForContactBTN": "Selecione cartão-presente",
         "noAmountError": "Por favor, escolha o valor do cartão-presente"
@@ -862,20 +862,24 @@
       "inputPlaceholder": "Digite um endereço para pagar",
       "scanImage": "Escanear imagem",
       "tapToScan": "Toque para obter um endereço a partir de uma imagem",
-      "addressBook": "Agenda de contatos",
-      "chooseWhatToSend": "Escolha o que enviar",
+      "chooseWhatToSend": "Escolha o que você deseja enviar",
+      "addressBook_send": "Contatos",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
-      "otherAddresses": "Outras opções",
       "tapToGenerate_other": "Toque para ver outras opções de recebimento",
       "tapToGenerate_lightning": "Toque para gerar uma fatura Lightning",
       "tapToGenerate_bitcoin": "Toque para gerar um endereço Bitcoin",
       "tapToGenerate_spark": "Toque para gerar um endereço Spark",
       "tapToGenerate_liquid": "Toque para gerar um endereço Liquid",
       "tapToGenerate_rootstock": "Toque para gerar um endereço Rootstock",
-      "chooseWhatToReceive": "Escolha o que solicitar",
+      "chooseWhatToReceive": "Escolha o que você deseja receber",
       "instantLowFees": "Instantâneo, taxas baixas",
-      "onChainTransaction": "Transação on-chain"
+  "onChainTransaction": "~ 10 minutos"
+      "otherAddresses": "Mais formas de receber",
+      "scanQrCode": "Escanear código QR",
+      "tapToScanQr": "Toque para escanear um código QR",
+      "addressBook_request": "Solicitar de um contato",
+      "qrReceiveOptions": "Receber via código QR"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
@@ -1102,10 +1106,10 @@
       "deleateWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
     "selectCurrencyToSend": {
-      "header": "O que você quer enviar?"
+      "header": "Qual moeda você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Selecione a moeda a solicitar"
+      "header": "Selecione a moeda que você deseja receber"
     },
 
     "sendAndRequestPage": {
@@ -1666,9 +1670,9 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Selecione a moeda a receber",
+        "selectReceiveAssetHead": "Selecione a moeda que você deseja receber",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
-        "editDescriptionHead": "O que você gostaria de dizer?",
+        "editDescriptionHead": "Adicione uma descrição para esse pagamento",
         "editDescriptionPlaceholder": "Adicionar uma descrição"
       },
 
@@ -1765,7 +1769,7 @@
           "startProcess2": "Configurando…",
           "startProcess3": "Adicionando fundos ao Vale-Blitz…",
           "header": "Criar Vale-Blitz",
-          "inputPlaceholder": "Adicione uma mensagem ou nota...",
+          "inputPlaceholder": "Adicione uma mensagem...",
           "button": "Criar Vale-Blitz",
           "disclaimer": "Quando você cria um Vale-Blitz, o valor usado para emiti-lo fica bloqueado por {{numDays}} dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor.",
           "durationText": "{{numDays}} dias",

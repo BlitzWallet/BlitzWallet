@@ -850,11 +850,10 @@
       "inputPlaceholder": "Введите адрес для оплаты",
       "scanImage": "Сканировать изображение",
       "tapToScan": "Нажмите, чтобы получить адрес из изображения",
-      "addressBook": "Контакты",
+      "addressBook_send": "Контакты",
       "chooseWhatToSend": "Выберите, что отправить",
       "noContacts": "Добавьте контакты, чтобы они отображались здесь",
       "selectAddressType": "Выберите тип адреса",
-      "otherAddresses": "Другие варианты",
       "tapToGenerate_other": "Нажмите, чтобы увидеть другие варианты получения",
       "tapToGenerate_lightning": "Нажмите, чтобы создать счет Lightning",
       "tapToGenerate_bitcoin": "Нажмите, чтобы создать Bitcoin-адрес",
@@ -863,7 +862,12 @@
       "tapToGenerate_rootstock": "Нажмите, чтобы создать адрес Rootstock",
       "chooseWhatToReceive": "Выберите, что запросить",
       "instantLowFees": "Мгновенно, низкие комиссии",
-      "onChainTransaction": "Ончейн-транзакция"
+      "onChainTransaction": "Ончейн-транзакция",
+      "otherAddresses": "Другие способы получения",
+      "scanQrCode": "Сканировать QR-код",
+      "tapToScanQr": "Нажмите, чтобы отсканировать QR-код",
+      "addressBook_request": "Запросить у контакта",
+      "qrReceiveOptions": "Получить через QR-код"
     },
     "manualInputPage": {
       "inputPlaceholder": "Адрес Liquid, Молнии или инвойс"
