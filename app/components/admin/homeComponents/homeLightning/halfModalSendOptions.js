@@ -1,5 +1,10 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, ICONS, SIZES } from '../../../../constants';
+import {
+  CENTER,
+  HIDE_IN_APP_PURCHASE_ITEMS,
+  ICONS,
+  SIZES,
+} from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import {
   navigateToSendUsingClipboard,
@@ -57,7 +62,9 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * (contact?.isLNURL ? 115 : 200),
+    height:
+      expandHeight.value *
+      (contact?.isLNURL ? 115 : !HIDE_IN_APP_PURCHASE_ITEMS ? 260 : 190),
     opacity: expandHeight.value,
   }));
 
@@ -184,6 +191,47 @@ const ContactRow = ({
               />
             </TouchableOpacity>
           )}
+          {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
+            <TouchableOpacity
+              style={[
+                styles.paymentOption,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+              onPress={() => onSelectPaymentType(contact, 'gift')}
+            >
+              <View
+                style={[
+                  styles.iconContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? darkModeType
+                          ? backgroundOffset
+                          : backgroundColor
+                        : COLORS.tertiary,
+                  },
+                ]}
+              >
+                <ThemeImage
+                  styles={{
+                    width: 18,
+                    height: 18,
+                    tintColor: COLORS.darkModeText,
+                  }}
+                  lightModeIcon={ICONS.giftCardIcon}
+                  darkModeIcon={ICONS.giftCardIcon}
+                  lightsOutIcon={ICONS.giftCardIcon}
+                />
+              </View>
+              <ThemeText
+                styles={styles.paymentOptionText}
+                content={t('constants.gift')}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </Animated.View>
     </View>
@@ -253,13 +301,20 @@ export default function HalfModalSendOptions({
   const handleSelectPaymentType = useCallback(
     (contact, paymentType) => {
       handleBackPressFunction(() => {
-        navigate.replace('SendAndRequestPage', {
-          selectedContact: contact,
-          paymentType: 'send',
-          imageData: cache[contact.uuid],
-          endReceiveType: paymentType,
-          selectedPaymentMethod: paymentType,
-        });
+        if (paymentType === 'gift') {
+          navigate.replace('SelectGiftCardForContacts', {
+            selectedContact: contact,
+            imageData: cache[contact.uuid],
+          });
+        } else {
+          navigate.replace('SendAndRequestPage', {
+            selectedContact: contact,
+            paymentType: 'send',
+            imageData: cache[contact.uuid],
+            endReceiveType: paymentType,
+            selectedPaymentMethod: paymentType,
+          });
+        }
       });
     },
     [navigate, cache],

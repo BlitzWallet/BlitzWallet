@@ -53,7 +53,7 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * 200,
+    height: expandHeight.value * 190,
     opacity: expandHeight.value,
   }));
 
