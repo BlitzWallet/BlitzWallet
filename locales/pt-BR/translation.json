@@ -860,7 +860,7 @@
       "manual": "Digitar",
       "contacts": "Contatos",
       "inputPlaceholder": "Digite um endereço para pagar",
-      "scanImage": "Escanear imagem",
+      "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "Escolha o que você deseja enviar",
       "addressBook_send": "Contatos",
