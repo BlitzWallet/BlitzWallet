@@ -201,7 +201,7 @@
       "title": "Sprache wählen"
     },
     "homePage": {
-      "subtitle": "Ihre Wallet, Ihre Geld, 100% Open-Source",
+      "subtitle": "Ihre Wallet, Ihre Coins, 100% Open-Source",
       "buttons": {
         "button1": "Seed-Phrase eingeben",
         "button2": "Neue Wallet erstellen"
@@ -209,15 +209,15 @@
     },
     "disclaimerPage": {
       "header": "Selbstverwahrte Wallet",
-      "subHeader": "Übernimm die volle Kontrolle über dein Geld.",
-      "disclaimerBold": "Blitz kann dein Wallet nicht wiederherstellen.",
-      "dislcaimer": "Du bist allein verantwortlich dafür, deine Gelder zu sichern und zu schützen.",
-      "info1": "Dein Geld gehört dir",
-      "info1Description": "Nur du kannst auf dein Geld zugreifen oder es verwenden. Wir haben keinen Zugriff darauf.",
-      "info2": "Du hast die Kontrolle",
-      "info2Description": "Blitz kann nicht auf deine Gelder zugreifen oder sie wiederherstellen, falls sie verloren gehen.",
+      "subHeader": "Übernehmen Sie die volle Kontrolle über Ihr Geld.",
+      "disclaimerBold": "Blitz kann Ihre Wallet nicht wiederherstellen. Bewahren Sie Ihre Wiederherstellungsphrase sicher auf.",
+      "dislcaimer": "Sie sind allein dafür verantwortlich, Ihre Gelder zu sichern und zu schützen.",
+      "info1": "Ihr Geld gehört Ihnen",
+      "info1Description": "Nur Sie können auf Ihr Geld zugreifen oder es verwenden. Wir haben keinen Zugriff darauf.",
+      "info2": "Sie haben die Kontrolle",
+      "info2Description": "Blitz kann nicht auf Ihre Gelder zugreifen oder sie wiederherstellen, falls sie verloren gehen.",
       "imgCaption": "'Mit großer Macht kommt große Verantwortung' - Onkel Ben",
-      "acceptPrefix": "Ich akzeptiere die ",
+      "acceptPrefix": "Sie akzeptiere die ",
       "terms&Conditions": "Nutzungsbedingungen",
       "acceptError": "Um fortzufahren, müssen Sie die Nutzungsbedingungen akzeptieren.",
       "continueBTN": "Weiter"
@@ -845,23 +845,24 @@
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
       "contacts": "Aus Kontakten",
-      "inputPlaceholder": "Adresse zum Bezahlen eingeben",
+      "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein",
       "scanImage": "Bild scannen",
-      "tapToScan": "Tippen, um eine Adresse aus einem Bild zu extrahieren",
+      "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild zu extrahieren",
       "addressBook_send": "Kontaktbuch",
-      "chooseWhatToSend": "Auswählen, was gesendet werden soll",
-      "noContacts": "Füge Kontakte hinzu, damit sie hier angezeigt werden",
-      "selectAddressType": "Adresstyp auswählen",
-      "tapToGenerate_other": "Tippen, um weitere Empfangsoptionen zu sehen",
-      "tapToGenerate_lightning": "Tippen, um eine Lightning-Rechnung zu erstellen",
-      "tapToGenerate_bitcoin": "Tippen, um eine Bitcoin-Adresse zu erstellen",
-      "tapToGenerate_spark": "Tippen, um eine Spark-Adresse zu erstellen",
-      "tapToGenerate_liquid": "Tippen, um eine Liquid-Adresse zu erstellen",
-      "tapToGenerate_rootstock": "Tippen, um eine Rootstock-Adresse zu erstellen",
-      "chooseWhatToReceive": "Auswählen, was angefordert werden soll",
+     "chooseWhatToSend": "Wählen Sie aus, was gesendet werden soll",
+      "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden",
+            "selectAddressType": "Adresstyp auswählen",
+       "selectAddressType": "Adresstyp auswählen",
+      "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen zu sehen",
+      "tapToGenerate_lightning": "Tippen Sie, um eine Lightning-Rechnung zu erstellen",
+      "tapToGenerate_bitcoin": "Tippen Sie, um eine BTC-Adresse zu erstellen",
+      "tapToGenerate_spark": "Tippen Sie, um eine Spark-Adresse zu erstellen",
+      "tapToGenerate_liquid": "Tippen Sie, um eine Liquid-Adresse zu erstellen",
+      "tapToGenerate_rootstock": "Tippen Sie, um eine Rootstock-Adresse zu erstellen",
+      "chooseWhatToReceive": "Wählen Sie aus, was angefordert werden soll",
       "instantLowFees": "Sofort, niedrige Gebühren",
       "onChainTransaction": "On-Chain-Transaktion",
-      "otherAddresses": "Weitere Empfangsoptionen",
+       "otherAddresses": "Weitere Optionen",
       "scanQrCode": "QR-Code scannen",
       "tapToScanQr": "Tippe, um einen QR-Code zu scannen",
       "addressBook_request": "Von einem Kontakt anfordern",
@@ -942,7 +943,7 @@
         "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren."
       },
       "selectPaymentMethod": {
-        "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung finanzieren möchten."
+        "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung senden möchten, in BTC oder USD."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adressen sollten nur Text enthalten. Bitte überprüfen Sie und versuchen Sie es erneut.",
@@ -1087,10 +1088,10 @@
       "deleateWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden."
     },
     "selectCurrencyToSend": {
-      "header": "Was möchtest du senden?"
+      "header": "Wie möchten Sie senden?"
     },
     "selectCurrencyToRequest": {
-      "header": "Wähle die anzufordernde Währung aus"
+      "header": "Wählen Sie bitte die anzufordernde Währung aus"
     },
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Zahlungsbeschreibung",
@@ -1106,7 +1107,7 @@
       "giftCardText": "{{giftName}} Geschenkkarte",
       "giftMessage": "Geschenk-Nachricht",
       "recipientReceives": "{{contactName}} erhält",
-      "giftMessagePlaceholder": "Schreibe hier deine Geschenknachricht...",
+      "giftMessagePlaceholder": "Schreiben Sie hier Ihre Geschenknachricht...",
       "paymentSourceHeader": "Zahlungsquelle"
     },
     "viewGiftCardCode": {
@@ -1227,8 +1228,8 @@
       "text2": "Dunkel",
       "text3": "Gedimmt (Augenschonend)",
       "text4": "Guthabenwährung",
-      "text5": "Aktuelle Währung",
-      "text6": "Bitte stellen Sie die Internetverbindung wieder her, um Ihre Währung zu wechseln",
+      "text5": "Aktuelle Standardwährung",
+      "text6": "Bitte stellen Sie die Internetverbindung wieder her, um in Ihre Standardwährung zu wechseln",
       "text7": "Wie anzeigen",
       "fiat": "Fiat",
       "hidden": "Ausgeblendet",
@@ -1363,12 +1364,12 @@
       "nip5Title": "Nip5-Verifizierung",
       "nip5Desc": "Verifizieren Sie Ihre Nostr-Identität schnell mit Blitz.",
       "nwcTitle": "Nostr Wallet Connect",
-      "nwcDesc": "Verbinden Sie Ihre Blitz Wallet mit Apps, die Nostr verwenden."
+      "nwcDesc": "Verbinden Sie Ihre Blitz Wallet mit Apps, die auf Nostr basieren."
     },
     "fiatCurrency": {
       "title": "Währung",
-      "placeholderText": "Währung suchen",
-      "saveCurrencyError": "Wir konnten die ausgewählte Währung nicht speichern, bitte versuchen Sie es erneut."
+      "placeholderText": "Standardwährung suchen",
+      "saveCurrencyError": "Wir konnten die ausgewählte Standardwährung nicht speichern, bitte versuchen Sie es erneut."
     },
     "feeInformation": {
       "title": "",
@@ -1483,27 +1484,27 @@
         "nameTakenError": "Dieser Kassensystem-Name ist bereits in Verwendung.",
         "nameRegexError": "Name darf nur Buchstaben und Zahlen enthalten.",
         "title": "Kassensystem",
-        "storeNameInputDesc": "Geschäftsname",
-        "storeNameInputPlaceholder": "Geschäftsnamen eingeben",
-        "displayCurrencyDesc": "Anzeigewährung",
-        "numAddeditems": "{{number}} hinzugefügtes Element{{isPlurl}}",
-        "plurlEnding": "e",
-        "differingCurrencyItemsError": "Ihre aktuelle Währung unterscheidet sich von {{number}} Ihrer gespeicherten Elemente. Bitte aktualisieren Sie Ihre Elementpreise, um sicherzustellen, dass Sie den richtigen Betrag berechnen",
-        "itemsDescription": "Das Hinzufügen von Elementen zu Ihrem Kassensystem bedeutet, dass Mitarbeiter die Preise nicht manuell eingeben müssen. Stattdessen können sie einfach auf die Produktnamen klicken, und die von Ihnen festgelegten Preise werden automatisch zum Gesamtbetrag hinzugefügt.",
+        "storeNameInputDesc": "Markenname",
+        "storeNameInputPlaceholder": "Markennamen eingeben",
+        "displayCurrencyDesc": "Standardwährung",
+        "numAddeditems": "{{number}} hinzugefügte Artikel",
+        "differingCurrencyItemsError": "Ihre aktuelle Standardwährung unterscheidet sich von {{number}} Ihrer gespeicherten Elemente. Bitte aktualisieren Sie Ihre Elementpreise, um sicherzustellen, dass Sie den richtigen Betrag berechnen",
+        "itemsDescription": "Wenn Sie Elemente zu Ihrem Kassensystem hinzufügen, müssen Mitarbeiter die Preise nicht mehr manuell eingeben. Sie klicken einfach auf den Produktnamen – der festgelegte Preis wird automatisch zum Gesamtbetrag hinzugefügt.",
         "updateItems": "Elemente aktualisieren",
         "addItem": "Element hinzufügen",
         "openPos": "POS öffnen",
-        "brandLogo": "Markenlogo",
+        "brandLogo": "Markenzeichen",
         "changeLogo": "Logo ändern",
         "removeLogo": "Entfernen",
-        "uploadLogo": "Tippe hier, um das Markenlogo hochzuladen"
+        "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen"
       },
       "posInstructionsPath": {
         "title": "Anweisungen",
-        "head1": "Wie akzeptieren",
-        "head2": "BTC-Zahlungen",
+        "head1": "Wie akzeptieren wir",
+        "head2": "BTC-Lightning-Zahlungen",
         "step1": "1. QR-Code mit Ihrer Kamera scannen",
-        "step2": "2. Das war's."
+        "step2": "2. Betrag bestätigen & zahlen",
+        "step3": "Fertig! ⚡️"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "Der Benutzer hat kein Trinkgeldguthaben.",
@@ -1525,7 +1526,7 @@
         "unpaidtips": "Trinkgelder: {{number}}",
         "title": "Zu zahlende Trinkgelder",
         "empNamePlaceholder": "Mitarbeitername",
-        "noEmployees": "Sie haben derzeit keine Mitarbeiter mit gespeicherten Trinkgeldern. Sobald ein Mitarbeiter das Kassensystem verwendet, werden seine Trinkgelder hier angezeigt, sodass Sie es auszahlen können.",
+        "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Kassensystem erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeiter – und können ausgezahlt werden.",
         "noTips": "Der Mitarbeiter hat keine Trinkgelder"
       },
       "items": {
@@ -1534,11 +1535,11 @@
           "addItemError": "Es gab ein Problem beim Hinzufügen Ihres Artikels zum Kassensystem. Bitte versuchen Sie es erneut.",
           "editItem": "Artikel bearbeiten",
           "addItem": "Neuen Artikel hinzufügen",
-          "pricesLabel": "Preise basieren auf Ihrer gespeicherten Währung ({{currency}})",
-          "editMessage": "Anzeigewährung in den POS-Einstellungen bearbeiten.",
+          "pricesLabel": "Die Preise basieren auf Ihrer gespeicherten Standardwährung (EUR) ({{currency}})",
+          "editMessage": "Die Standardwährung können Sie in den POS-Einstellungen ändern.",
           "itemNamePlaceholder": "Artikelname",
           "pricePlaceholder": "Preis ({{number}})",
-          "updateCurrency": "Währung aktualisieren",
+          "updateCurrency": "Standardwährung aktualisieren",
           "addItemBTN": "Artikel hinzufügen"
         },
         "addPOSItemsPage": {
@@ -1651,7 +1652,7 @@
         "view all swaps": "Netzwerk-Einstellungen",
         "fast pay": "Schnellzahlungen",
         "blitz fee details": "Blitz-Gebührendetails",
-        "crash reports": "Absturzberichte",
+        "crash reports": "Absturzberichte (Logs)",
         "notifications": "Benachrichtigungen",
         "blitz stats": "Blitz-Statistiken",
         "accounts": "Kontenverwaltung",
@@ -1761,15 +1762,15 @@
           "inputPlaceholder": "Geschenk-ID eingeben",
           "dropdownPlaceHolder": "Abgelaufenes Geschenk auswählen",
           "button": "Geschenk zurückholen",
-          "noReclaimsMessage": "Sie haben derzeit keine abgelaufenen Geschenke. Kommen Sie zurück, sobald ein Geschenk abgelaufen ist, um es zurückzuholen.",
+          "noReclaimsMessage": "Derzeit haben Sie keine abgelaufenen Geschenke. Sobald ein Geschenk abläuft, können Sie es hier zurückholen.",
           "advancedModeBTN": "Erweiterter Modus"
         },
         "advancedMode": {
           "header": "Erweiterter Modus",
           "currentIndexHead": "Aktueller Geschenk-Index",
           "infoHead": "Wie Blitz-Geschenke funktionieren",
-          "infoDesc1": "Blitz-Geschenke verwenden separate Wallets, die aus Ihrer Haupt-Wallet erstellt werden. Dadurch können Sie nicht eingelöste Beträge wiederherstellen, während Ihre Haupt-Wallet geschützt bleibt.",
-          "infoDesc2": "Die meisten abgelaufenen Geschenke können über die normale Rückforderungsseite zurückgeholt werden. Wenn ein Geschenk nicht vollständig empfangen wurde oder die normale Rückforderungsoption nicht funktioniert, können Sie auf dieser Seite ein bestimmtes Geschenk auswählen und prüfen, ob noch Geld übrig ist.",
+          "infoDesc1": "Blitz-Geschenke verwenden separate Wallets, die aus Ihrer Haupt-Wallet erstellt werden. Dadurch bleibt Ihre Haupt-Wallet geschützt, während nicht eingelöste Beträge wiederhergestellt werden können.",
+          "infoDesc2": "Die meisten abgelaufenen Geschenke lassen sich über die normale Rückforderungsseite zurückholen. Wenn ein Geschenk nicht vollständig empfangen wurde oder die normale Rückforderung nicht funktioniert, können Sie auf dieser Seite ein bestimmtes Geschenk auswählen und prüfen, ob noch Guthaben vorhanden ist.",
           "inputHead": "Geschenknummer eingeben",
           "invalidGiftNum": "Bitte geben Sie eine gültige Geschenknummer zwischen 1 und {{currentGiftIndex}} ein",
           "restoreGiftBTN": "Geschenk wiederherstellen",
