@@ -863,7 +863,7 @@
       "scanImage": "Escanear imagem",
       "tapToScan": "Toque para obter um endereço a partir de uma imagem",
       "addressBook": "Contatos",
-      "chooseWhatToSend": "Escolha a moeda que você deseja enviar",
+      "chooseWhatToSend": "Escolha o que você deseja enviar",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
       "otherAddresses": "Outras opções",
@@ -873,7 +873,7 @@
       "tapToGenerate_spark": "Toque para gerar um endereço Spark",
       "tapToGenerate_liquid": "Toque para gerar um endereço Liquid",
       "tapToGenerate_rootstock": "Toque para gerar um endereço Rootstock",
-      "chooseWhatToReceive": "Escolha a moeda que você deseja receber",
+      "chooseWhatToReceive": "Escolha o que você deseja receber",
       "instantLowFees": "Instantâneo, taxas baixas",
       "onChainTransaction": "~ 10 minutos"
     },
