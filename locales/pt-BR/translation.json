@@ -866,7 +866,7 @@
       "addressBook_send": "Contatos",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
-      "tapToGenerate_other": "Ver outras opções de recebimento",
+      "tapToGenerate_other": "Ver outros tipos de endereços",
       "tapToGenerate_lightning": "Gerar uma fatura Lightning",
       "tapToGenerate_bitcoin": "Gerar um endereço Bitcoin",
       "tapToGenerate_spark": "Gerar um endereço Spark",
@@ -875,7 +875,7 @@
       "chooseWhatToReceive": "Escolha o que você deseja receber",
       "instantLowFees": "Instantâneo, taxas baixas",
       "onChainTransaction": "~ 10 minutos"
-      "otherAddresses": "Outros tipos de endereço",
+      "otherAddresses": "Outros tipos de endereços",
       "scanQrCode": "Ler código QR",
       "tapToScanQr": "Pague lendo um código QR",
       "addressBook_request": "Solicitar de um contato",
