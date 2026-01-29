@@ -853,11 +853,10 @@
       "inputPlaceholder": "Saisir une adresse pour payer",
       "scanImage": "Scanner une image",
       "tapToScan": "Appuyez pour extraire une adresse depuis une image",
-      "addressBook": "Carnet de contacts",
+      "addressBook_send": "Carnet de contacts",
       "chooseWhatToSend": "Choisir quoi envoyer",
       "noContacts": "Ajoutez des contacts pour les voir apparaître ici",
       "selectAddressType": "Sélectionner le type d’adresse",
-      "otherAddresses": "Autres options",
       "tapToGenerate_other": "Appuyez pour voir d’autres options de réception",
       "tapToGenerate_lightning": "Appuyez pour générer une facture Lightning",
       "tapToGenerate_bitcoin": "Appuyez pour générer une adresse Bitcoin",
@@ -866,7 +865,12 @@
       "tapToGenerate_rootstock": "Appuyez pour générer une adresse Rootstock",
       "chooseWhatToReceive": "Choisir quoi demander",
       "instantLowFees": "Instantané, frais réduits",
-      "onChainTransaction": "Transaction on-chain"
+      "onChainTransaction": "Transaction on-chain",
+      "otherAddresses": "Autres moyens de recevoir",
+      "scanQrCode": "Scanner le code QR",
+      "tapToScanQr": "Appuyez pour scanner un code QR",
+      "addressBook_request": "Demander à un contact",
+      "qrReceiveOptions": "Recevoir via code QR"
     },
     "manualInputPage": {
       "inputPlaceholder": "Saisir ou coller un liquide, ou une adresse/facture Lightning"

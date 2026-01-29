@@ -862,11 +862,10 @@
       "inputPlaceholder": "Digite um endereço para pagar",
       "scanImage": "Escanear imagem",
       "tapToScan": "Toque para obter um endereço a partir de uma imagem",
-      "addressBook": "Agenda de contatos",
+      "addressBook_send": "Agenda de contatos",
       "chooseWhatToSend": "Escolha o que enviar",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
-      "otherAddresses": "Outras opções",
       "tapToGenerate_other": "Toque para ver outras opções de recebimento",
       "tapToGenerate_lightning": "Toque para gerar uma fatura Lightning",
       "tapToGenerate_bitcoin": "Toque para gerar um endereço Bitcoin",
@@ -875,7 +874,12 @@
       "tapToGenerate_rootstock": "Toque para gerar um endereço Rootstock",
       "chooseWhatToReceive": "Escolha o que solicitar",
       "instantLowFees": "Instantâneo, taxas baixas",
-      "onChainTransaction": "Transação on-chain"
+      "onChainTransaction": "Transação on-chain",
+      "otherAddresses": "Mais formas de receber",
+      "scanQrCode": "Escanear código QR",
+      "tapToScanQr": "Toque para escanear um código QR",
+      "addressBook_request": "Solicitar de um contato",
+      "qrReceiveOptions": "Receber via código QR"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"

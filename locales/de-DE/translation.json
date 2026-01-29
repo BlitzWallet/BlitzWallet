@@ -848,11 +848,10 @@
       "inputPlaceholder": "Adresse zum Bezahlen eingeben",
       "scanImage": "Bild scannen",
       "tapToScan": "Tippen, um eine Adresse aus einem Bild zu extrahieren",
-      "addressBook": "Kontaktbuch",
+      "addressBook_send": "Kontaktbuch",
       "chooseWhatToSend": "Auswählen, was gesendet werden soll",
       "noContacts": "Füge Kontakte hinzu, damit sie hier angezeigt werden",
       "selectAddressType": "Adresstyp auswählen",
-      "otherAddresses": "Weitere Optionen",
       "tapToGenerate_other": "Tippen, um weitere Empfangsoptionen zu sehen",
       "tapToGenerate_lightning": "Tippen, um eine Lightning-Rechnung zu erstellen",
       "tapToGenerate_bitcoin": "Tippen, um eine Bitcoin-Adresse zu erstellen",
@@ -861,7 +860,12 @@
       "tapToGenerate_rootstock": "Tippen, um eine Rootstock-Adresse zu erstellen",
       "chooseWhatToReceive": "Auswählen, was angefordert werden soll",
       "instantLowFees": "Sofort, niedrige Gebühren",
-      "onChainTransaction": "On-Chain-Transaktion"
+      "onChainTransaction": "On-Chain-Transaktion",
+      "otherAddresses": "Weitere Empfangsoptionen",
+      "scanQrCode": "QR-Code scannen",
+      "tapToScanQr": "Tippe, um einen QR-Code zu scannen",
+      "addressBook_request": "Von einem Kontakt anfordern",
+      "qrReceiveOptions": "Per QR-Code empfangen"
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse/Rechnung ein oder fügen Sie sie ein"

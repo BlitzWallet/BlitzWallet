@@ -224,6 +224,10 @@ export default function HalfModalSendOptions({
     navigateToSendUsingClipboard(navigate, 'modal', undefined, t);
   }, [navigate, t]);
 
+  const handleCameraScan = useCallback(async () => {
+    handleBackPressFunction(() => navigate.replace('SendBTC'));
+  }, [navigate, t, handleBackPressFunction]);
+
   const handleImageScan = useCallback(async () => {
     const response = await getQRImage();
     if (response.error) {
@@ -317,7 +321,7 @@ export default function HalfModalSendOptions({
         ...styles.innerContainer,
         paddingBottom: bottomPadding,
       }}
-      stickyHeaderIndices={[2]}
+      stickyHeaderIndices={[3]}
     >
       {/* Search Input with Clipboard Icon */}
       <View
@@ -364,6 +368,40 @@ export default function HalfModalSendOptions({
       </View>
 
       {/* Scan QR Code Button */}
+      <TouchableOpacity
+        style={[styles.scanButton, { marginBottom: 0 }]}
+        onPress={handleCameraScan}
+      >
+        <View
+          style={[
+            styles.scanIconContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <ThemeIcon
+            colorOverride={
+              theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+            }
+            size={24}
+            iconName={'ScanQrCode'}
+          />
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={styles.scanButtonText}
+            content={t('wallet.halfModal.scanQrCode')}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToScanQr')}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Scan Image Button */}
       <TouchableOpacity style={styles.scanButton} onPress={handleImageScan}>
         <View
           style={[
@@ -385,7 +423,7 @@ export default function HalfModalSendOptions({
         <View style={styles.scanTextContainer}>
           <ThemeText
             styles={styles.scanButtonText}
-            content={t('wallet.halfModal.scanImage')}
+            content={t('wallet.halfModal.images')}
           />
           <ThemeText
             styles={styles.scanButtonSubtext}
@@ -393,6 +431,19 @@ export default function HalfModalSendOptions({
           />
         </View>
       </TouchableOpacity>
+
+      {/* Divider */}
+      <View
+        style={[
+          styles.divider,
+          {
+            borderColor:
+              theme && darkModeType
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.05)',
+          },
+        ]}
+      />
 
       <View
         style={[
@@ -404,7 +455,9 @@ export default function HalfModalSendOptions({
       >
         <ThemeText
           styles={styles.sectionHeader}
-          content={t('wallet.halfModal.addressBook')}
+          content={t('wallet.halfModal.addressBook', {
+            context: 'send',
+          })}
         />
       </View>
 
@@ -432,7 +485,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
   },
   clipboardButton: {
     width: 45,
@@ -449,8 +502,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
-    paddingVertical: 15,
-    marginBottom: 20,
+    paddingVertical: 8,
   },
   scanIconContainer: {
     width: 45,
@@ -471,6 +523,13 @@ const styles = StyleSheet.create({
   scanButtonSubtext: {
     fontSize: SIZES.small,
     opacity: 0.6,
+  },
+
+  divider: {
+    width: '100%',
+    height: 1,
+    borderTopWidth: 1,
+    marginVertical: 20,
   },
 
   sectionHeader: {

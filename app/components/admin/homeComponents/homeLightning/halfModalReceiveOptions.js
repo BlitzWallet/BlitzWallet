@@ -209,7 +209,7 @@ const OtherOptionsRow = ({
   }, [expandedOtherOptions]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * 170,
+    height: expandHeight.value * 250,
     opacity: expandHeight.value,
   }));
 
@@ -226,7 +226,7 @@ const OtherOptionsRow = ({
         ]}
         onPress={onToggleOtherOptions}
       >
-        {/* <View
+        <View
           style={[
             styles.scanIconContainer,
             {
@@ -236,13 +236,17 @@ const OtherOptionsRow = ({
           ]}
         >
           <ThemeIcon colorOverride={iconColor} size={24} iconName={'QrCode'} />
-        </View> */}
-        {/* <View style={styles.scanTextContainer}> */}
-        <ThemeText
-          styles={[styles.scanButtonText, { marginRight: 10 }]}
-          content={t('wallet.halfModal.otherAddresses')}
-        />
-        {/* </View> */}
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={[styles.scanButtonText, { marginRight: 10 }]}
+            content={t('wallet.halfModal.otherAddresses')}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToGenerate_other')}
+          />
+        </View>
         <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
           <ThemeIcon
             size={20}
@@ -254,6 +258,46 @@ const OtherOptionsRow = ({
 
       <Animated.View style={[styles.expandedContainer, expandedStyle]}>
         <View style={styles.otherOptionsColumn}>
+          <TouchableOpacity
+            style={styles.scanButton}
+            onPress={() => onSelectOtherOption('bitcoin')}
+          >
+            <View
+              style={[
+                styles.scanIconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            >
+              <Image
+                style={{
+                  width: 18,
+                  height: 18,
+                  tintColor: iconColor,
+                }}
+                contentFit="contain"
+                source={ICONS.bitcoinIcon}
+              />
+            </View>
+            <View style={styles.scanTextContainer}>
+              <ThemeText
+                styles={styles.scanButtonText}
+                content={t(
+                  `wallet.receivePages.switchReceiveOptionPage.bitcoinTitle`,
+                )}
+              />
+            </View>
+            {/* <View style={{ opacity: HIDDEN_OPACITY }}>
+              <ThemeIcon
+                size={20}
+                iconName={'ChevronRight'}
+                colorOverride={textColor}
+              />
+            </View> */}
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.scanButton}
             onPress={() => onSelectOtherOption('spark')}
@@ -285,13 +329,13 @@ const OtherOptionsRow = ({
                 )}
               />
             </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
+            {/* <View style={{ opacity: HIDDEN_OPACITY }}>
               <ThemeIcon
                 size={20}
                 iconName={'ChevronRight'}
                 colorOverride={textColor}
               />
-            </View>
+            </View> */}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -325,13 +369,13 @@ const OtherOptionsRow = ({
                 )}
               />
             </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
+            {/* <View style={{ opacity: HIDDEN_OPACITY }}>
               <ThemeIcon
                 size={20}
                 iconName={'ChevronRight'}
                 colorOverride={textColor}
               />
-            </View>
+            </View> */}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -365,13 +409,13 @@ const OtherOptionsRow = ({
                 )}
               />
             </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
+            {/* <View style={{ opacity: HIDDEN_OPACITY }}>
               <ThemeIcon
                 size={20}
                 iconName={'ChevronRight'}
                 colorOverride={textColor}
               />
-            </View>
+            </View> */}
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -504,12 +548,50 @@ export default function HalfModalReceiveOptions({
       >
         <ThemeText
           styles={[styles.sectionHeader, { marginTop: 0 }]}
-          content={'Payment Methods'}
+          content={t('wallet.halfModal.qrReceiveOptions')}
         />
       </View>
 
-      {/* Lightning Network - Enhanced Card Style */}
+      {/* Lightning */}
       <TouchableOpacity
+        style={[styles.scanButton, { marginBottom: 0 }]}
+        onPress={() => handleReceiveOption('lightning')}
+      >
+        <View
+          style={[
+            styles.scanIconContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <Image
+            style={{
+              width: 25,
+              height: 25,
+              tintColor: theme && darkModeType ? iconColor : COLORS.primary,
+            }}
+            contentFit="contain"
+            source={ICONS.lightningReceiveIcon}
+          />
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={styles.scanButtonText}
+            content={t(
+              `screens.inAccount.receiveBtcPage.header_lightning_${scrollPosition?.toLowerCase()}`,
+            )}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToGenerate_lightning')}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Lightning Address - Enhanced Card Style */}
+      {/* <TouchableOpacity
         style={[
           styles.primaryPaymentCard,
           {
@@ -548,7 +630,7 @@ export default function HalfModalReceiveOptions({
           />
           <ThemeText
             styles={styles.primaryPaymentSubtitle}
-            content={t('wallet.halfModal.instantLowFees')}
+            content={t('constants.instant')}
           />
         </View>
         <View style={{ opacity: HIDDEN_OPACITY }}>
@@ -558,10 +640,10 @@ export default function HalfModalReceiveOptions({
             colorOverride={textColor}
           />
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Bitcoin Address - Enhanced Card Style */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[
           styles.primaryPaymentCard,
           {
@@ -610,7 +692,7 @@ export default function HalfModalReceiveOptions({
             colorOverride={textColor}
           />
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Other Options - Collapsible */}
       <OtherOptionsRow
@@ -650,8 +732,10 @@ export default function HalfModalReceiveOptions({
         ]}
       >
         <ThemeText
-          styles={styles.sectionHeader}
-          content={t('wallet.halfModal.addressBook')}
+          styles={[styles.sectionHeader, { marginTop: 0 }]}
+          content={t('wallet.halfModal.addressBook', {
+            context: 'request',
+          })}
         />
       </View>
 
@@ -677,7 +761,7 @@ const styles = StyleSheet.create({
 
   stickyHeaderContainer: {
     width: '100%',
-    paddingTop: 4,
+    // paddingTop: 4,
     paddingBottom: 4,
   },
 
@@ -718,7 +802,7 @@ const styles = StyleSheet.create({
   primaryPaymentTitle: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
-    fontWeight: '500',
+    includeFontPadding: false,
     marginBottom: 2,
   },
 
@@ -734,13 +818,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
-    paddingVertical: 10,
+    paddingVertical: 8,
   },
 
   scanIconContainer: {
-    width: 35,
-    height: 35,
-    borderRadius: 12,
+    width: 45,
+    height: 45,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 15,
@@ -751,10 +835,14 @@ const styles = StyleSheet.create({
   },
 
   scanButtonText: {
-    fontSize: SIZES.smedium,
+    fontSize: SIZES.medium,
+    marginBottom: 2,
     includeFontPadding: false,
   },
-
+  scanButtonSubtext: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+  },
   // Divider
   divider: {
     width: '100%',
