@@ -197,7 +197,7 @@
     "receivedRequest": "Solicitação recebida",
     "date": "Data",
     "time": "Hora",
-    "memo": "Nota",
+    "memo": "Descrição",
     "roostockSwap": "Transferência de Rootstock para Spark"
   },
 
@@ -741,7 +741,7 @@
         "cardDescription": "Descrição do cartão",
         "cardTerms": "Termos do cartão",
         "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
-        "giftMessage": "Adicione uma nota ao seu presente",
+        "giftMessage": "Adicione uma descrição ao seu presente",
         "giftMessagePlaceholder": "Digite sua mensagem aqui",
         "selectForContactBTN": "Selecione cartão-presente",
         "noAmountError": "Por favor, escolha o valor do cartão-presente"
@@ -1106,10 +1106,10 @@
       "deleateWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
     "selectCurrencyToSend": {
-      "header": "O que você quer enviar?"
+      "header": "Qual moeda você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Selecione a moeda a solicitar"
+      "header": "Selecione a moeda que você deseja receber"
     },
 
     "sendAndRequestPage": {
@@ -1670,9 +1670,9 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Selecione a moeda a receber",
+        "selectReceiveAssetHead": "Selecione a moeda que você deseja receber",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
-        "editDescriptionHead": "O que você gostaria de dizer?",
+        "editDescriptionHead": "Adicione uma descrição para esse pagamento",
         "editDescriptionPlaceholder": "Adicionar uma descrição"
       },
 
@@ -1769,7 +1769,7 @@
           "startProcess2": "Configurando…",
           "startProcess3": "Adicionando fundos ao Vale-Blitz…",
           "header": "Criar Vale-Blitz",
-          "inputPlaceholder": "Adicione uma mensagem ou nota...",
+          "inputPlaceholder": "Adicione uma mensagem...",
           "button": "Criar Vale-Blitz",
           "disclaimer": "Quando você cria um Vale-Blitz, o valor usado para emiti-lo fica bloqueado por {{numDays}} dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor.",
           "durationText": "{{numDays}} dias",
