@@ -123,7 +123,8 @@
     "dollars_upper": "Dollari",
     "rate": "Tasso",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Descrizione (facoltativa)"
+    "paymentDescriptionPlaceholder": "Descrizione (facoltativa)",
+    "print": "Stampa"
   },
 
   "languages": {
@@ -207,15 +208,21 @@
       "title": "Scegli la lingua"
     },
     "homePage": {
-      "subtitle": "Il tuo portafoglio, i tuoi satoshi, 100% open-source",
+      "subtitle": "Il tuo wallet, il tuo denaro, 100% open-source",
       "buttons": {
         "button1": "Inserisci frase di recupero",
         "button2": "Crea nuovo portafoglio"
       }
     },
     "disclaimerPage": {
-      "header": "Auto-custodia",
-      "subHeader": "Blitz non può accedere ai tuoi fondi o aiutarti a recuperarli se la perdi. Continuando, accetti i termini e condizioni di Blitz Wallet.",
+      "header": "Wallet self-custodial",
+      "subHeader": "Assumi il pieno controllo del tuo denaro.",
+      "disclaimerBold": "Blitz non può recuperare il tuo wallet.",
+      "dislcaimer": "Sei l’unico responsabile di proteggere e mettere in sicurezza i tuoi fondi.",
+      "info1": "Il tuo denaro è tuo",
+      "info1Description": "Solo tu puoi accedere o utilizzare il tuo denaro. Noi non vi abbiamo accesso.",
+      "info2": "Sei tu a controllare",
+      "info2Description": "Blitz non può accedere ai tuoi fondi né aiutarti a recuperarli se vengono persi.",
       "imgCaption": "'Da grandi poteri derivano grandi responsabilità' - Zio Ben",
       "acceptPrefix": "Accetto il ",
       "terms&Conditions": "Termini e Condizioni",
@@ -853,7 +860,28 @@
       "images": "Dall'Immagine",
       "clipboard": "Dalla Clipboard",
       "manual": "Inserimento Manuale",
-      "contacts": "Dai Contatti"
+      "contacts": "Dai Contatti",
+      "inputPlaceholder": "Inserisci un indirizzo per pagare",
+      "scanImage": "Scansiona immagine",
+      "tapToScan": "Tocca per ottenere un indirizzo da un'immagine",
+      "addressBook_send": "Rubrica contatti",
+      "chooseWhatToSend": "Scegli cosa inviare",
+      "noContacts": "Aggiungi contatti per visualizzarli qui",
+      "selectAddressType": "Seleziona tipo di indirizzo",
+      "tapToGenerate_other": "Tocca per vedere altre opzioni di ricezione",
+      "tapToGenerate_lightning": "Tocca per generare una fattura Lightning",
+      "tapToGenerate_bitcoin": "Tocca per generare un indirizzo Bitcoin",
+      "tapToGenerate_spark": "Tocca per generare un indirizzo Spark",
+      "tapToGenerate_liquid": "Tocca per generare un indirizzo Liquid",
+      "tapToGenerate_rootstock": "Tocca per generare un indirizzo Rootstock",
+      "chooseWhatToReceive": "Scegli cosa richiedere",
+      "instantLowFees": "Istantaneo, commissioni basse",
+      "onChainTransaction": "Transazione on-chain",
+      "otherAddresses": "Altri modi per ricevere",
+      "scanQrCode": "Scansiona codice QR",
+      "tapToScanQr": "Tocca per scansionare un codice QR",
+      "addressBook_request": "Richiedi a un contatto",
+      "qrReceiveOptions": "Ricevi tramite codice QR"
     },
     "manualInputPage": {
       "inputPlaceholder": "Inserisci o incolla un indirizzo o una fattura Liquid o Lightning"
@@ -1495,7 +1523,11 @@
         "itemsDescription": "Aggiungere articoli al tuo sistema Terminale significa che i dipendenti non dovranno digitare manualmente i prezzi. Invece, possono semplicemente cliccare sui nomi dei prodotti e i prezzi che imposti verranno aggiunti automaticamente al totale.",
         "updateItems": "Aggiorna Articoli",
         "addItem": "Aggiungi Articolo",
-        "openPos": "Apri Terminale POS"
+        "openPos": "Apri Terminale POS",
+        "brandLogo": "Logo del marchio",
+        "changeLogo": "Cambia logo",
+        "removeLogo": "Rimuovi",
+        "uploadLogo": "Tocca per caricare il logo del marchio"
       },
       "posInstructionsPath": {
         "title": "Istruzioni",
@@ -1967,7 +1999,8 @@
     "invalidData": "I dati forniti non sono validi",
     "paymentError": "Si è verificato un errore durante l'elaborazione del pagamento. Riprova. Se continua a non funzionare, chiudi l'app e riaprila prima di riprovare.",
     "paymentFeeError": "Non siamo riusciti a recuperare la commissione di pagamento. Riprova. Se il problema persiste, chiudi l'app e riaprila prima di riprovare.",
-    "priceImpact": "Questo pagamento è elevato, quindi l'importo finale che riceverai in dollari potrebbe cambiare."
+    "priceImpact": "Questo pagamento è elevato, quindi l'importo finale che riceverai in dollari potrebbe cambiare.",
+    "removingImageError": "Impossibile rimuovere l'immagine. Riprova."
   },
 
   "loadingScreen": {

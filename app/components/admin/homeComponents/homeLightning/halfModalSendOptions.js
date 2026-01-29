@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, SIZES } from '../../../../constants';
+import { CENTER, ICONS, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import {
   navigateToSendUsingClipboard,
@@ -8,146 +8,605 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
-import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import { useRef } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
+import { useImageCache } from '../../../../../context-store/imageCache';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
+import ContactProfileImage from '../contacts/internalComponents/profileImage';
+import { formatDisplayName } from '../contacts/utils/formatListDisplayName';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
 
-export default function HalfModalSendOptions(props) {
-  const navigate = useNavigation();
-  const { theme } = useGlobalThemeContext();
-  const { bottomPadding } = useGlobalInsets();
-  const { decodedAddedContacts } = useGlobalContacts();
-  const { t } = useTranslation();
-  const didCallImagePicker = useRef(null);
-  const { textColor } = GetThemeColors();
+const ContactRow = ({
+  contact,
+  cache,
+  theme,
+  darkModeType,
+  backgroundOffset,
+  backgroundColor,
+  textColor,
+  expandedContact,
+  onToggleExpand,
+  onSelectPaymentType,
+  t,
+}) => {
+  const isExpanded = expandedContact === contact.uuid;
 
-  const sendOptionElements = ['img', 'clipboard', 'manual'].map((item, key) => {
-    const iconName =
-      item === 'manual'
-        ? 'SquarePen'
-        : item === 'img'
-        ? 'ImageIcon'
-        : 'Clipboard';
+  const expandHeight = useSharedValue(0);
+  const chevronRotation = useSharedValue(0);
 
-    const itemText =
-      item === 'img'
-        ? t('wallet.halfModal.images')
-        : item === 'clipboard'
-        ? t('wallet.halfModal.clipboard')
-        : t('wallet.halfModal.manual');
-    return (
-      <TouchableOpacity
-        key={key}
-        onPress={async () => {
-          crashlyticsLogReport(
-            `Running in half modal sent options navigation function`,
-          );
-          if (item === 'img') {
-            if (didCallImagePicker.current) return;
-            didCallImagePicker.current = true;
-            const response = await getQRImage();
-            if (response.error) {
-              navigate.replace('ErrorScreen', {
-                errorMessage: t(response.error),
-              });
-              didCallImagePicker.current = false;
-              return;
-            }
-            if (!response.didWork || !response.btcAdress) {
-              didCallImagePicker.current = false;
-              return;
-            }
-            navigate.replace('ConfirmPaymentScreen', {
-              btcAdress: response.btcAdress,
-              fromPage: '',
-            });
-            didCallImagePicker.current = false;
-          } else if (item === 'clipboard') {
-            navigateToSendUsingClipboard(navigate, 'modal', undefined, t);
-          } else {
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'manualEnterSendAddress',
-              sliderHight: 0.5,
-            });
-          }
-        }}
-      >
-        <View style={styles.optionRow}>
-          <View style={styles.icon}>
-            <ThemeIcon
-              colorOverride={textColor}
-              size={35}
-              iconName={iconName}
-            />
-          </View>
+  useEffect(() => {
+    expandHeight.value = withTiming(isExpanded ? 1 : 0, {
+      duration: 200,
+    });
+    chevronRotation.value = withTiming(isExpanded ? 1 : 0, {
+      duration: 200,
+    });
+  }, [isExpanded]);
 
-          <ThemeText styles={styles.optionText} content={itemText} />
-        </View>
-      </TouchableOpacity>
-    );
-  });
+  const expandedStyle = useAnimatedStyle(() => ({
+    height: expandHeight.value * (contact?.isLNURL ? 115 : 200),
+    opacity: expandHeight.value,
+  }));
+
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
+  }));
 
   return (
-    <View style={styles.containerStyles}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
+    <View style={styles.contactWrapper}>
+      <TouchableOpacity
+        style={styles.contactRowContainer}
+        onPress={() => onToggleExpand(contact.uuid)}
       >
-        {sendOptionElements}
-        {decodedAddedContacts.length != 0 && (
+        <View
+          style={[
+            styles.contactImageContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <ContactProfileImage
+            updated={cache[contact.uuid]?.updated}
+            uri={cache[contact.uuid]?.localUri}
+            darkModeType={darkModeType}
+            theme={theme}
+          />
+        </View>
+
+        <View style={styles.nameContainer}>
+          <ThemeText
+            CustomEllipsizeMode={'tail'}
+            CustomNumberOfLines={1}
+            styles={styles.contactName}
+            content={formatDisplayName(contact) || contact.uniqueName || ''}
+          />
+        </View>
+        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
+          <ThemeIcon
+            size={20}
+            iconName={'ChevronDown'}
+            colorOverride={textColor}
+          />
+        </Animated.View>
+      </TouchableOpacity>
+
+      <Animated.View style={[styles.expandedContainer, expandedStyle]}>
+        <ThemeText
+          styles={styles.chooseWhatToSendText}
+          content={t('wallet.halfModal.chooseWhatToSend')}
+        />
+        <View style={styles.paymentOptionsRow}>
           <TouchableOpacity
-            onPress={() => {
-              navigate.replace('ChooseContactHalfModal');
-            }}
+            style={[
+              styles.paymentOption,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+            onPress={() => onSelectPaymentType(contact, 'BTC')}
           >
-            <View style={styles.optionRow}>
-              <View style={styles.icon}>
-                <ThemeIcon
-                  colorOverride={textColor}
-                  size={35}
-                  iconName={'UsersRound'}
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? darkModeType
+                        ? backgroundOffset
+                        : backgroundColor
+                      : COLORS.bitcoinOrange,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={{ width: 18, height: 18 }}
+                lightModeIcon={ICONS.bitcoinIcon}
+                darkModeIcon={ICONS.bitcoinIcon}
+                lightsOutIcon={ICONS.bitcoinIcon}
+              />
+            </View>
+            <ThemeText
+              styles={styles.paymentOptionText}
+              content={t('constants.bitcoin_upper')}
+            />
+          </TouchableOpacity>
+
+          {!contact?.isLNURL && (
+            <TouchableOpacity
+              style={[
+                styles.paymentOption,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+              onPress={() => onSelectPaymentType(contact, 'USD')}
+            >
+              <View
+                style={[
+                  styles.iconContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? darkModeType
+                          ? backgroundOffset
+                          : backgroundColor
+                        : COLORS.dollarGreen,
+                  },
+                ]}
+              >
+                <ThemeImage
+                  styles={{ width: 18, height: 18 }}
+                  lightModeIcon={ICONS.dollarIcon}
+                  darkModeIcon={ICONS.dollarIcon}
+                  lightsOutIcon={ICONS.dollarIcon}
                 />
               </View>
               <ThemeText
-                styles={{ ...styles.optionText }}
-                content={t('wallet.halfModal.contacts')}
+                styles={styles.paymentOptionText}
+                content={t('constants.dollars_upper')}
               />
-            </View>
+            </TouchableOpacity>
+          )}
+        </View>
+      </Animated.View>
+    </View>
+  );
+};
+
+export default function HalfModalSendOptions({
+  setIsKeyboardActive,
+  theme,
+  darkModeType,
+  handleBackPressFunction,
+}) {
+  const [inputText, setInputText] = useState('');
+  const [expandedContact, setExpandedContact] = useState(null);
+  const navigate = useNavigation();
+  const { cache } = useImageCache();
+  const { bottomPadding } = useGlobalInsets();
+  const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
+  const { t } = useTranslation();
+  const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
+    GetThemeColors();
+
+  const contactInfoList = useProcessedContacts(
+    decodedAddedContacts,
+    contactsMessags,
+  );
+
+  const handleManualInputSubmit = useCallback(() => {
+    if (!inputText.trim()) return;
+
+    navigate.replace('ConfirmPaymentScreen', {
+      btcAdress: inputText.trim(),
+      fromPage: '',
+    });
+  }, [navigate, inputText, handleBackPressFunction]);
+
+  const handleClipboardPaste = useCallback(async () => {
+    navigateToSendUsingClipboard(navigate, 'modal', undefined, t);
+  }, [navigate, t]);
+
+  const handleCameraScan = useCallback(async () => {
+    handleBackPressFunction(() => navigate.replace('SendBTC'));
+  }, [navigate, t, handleBackPressFunction]);
+
+  const handleImageScan = useCallback(async () => {
+    const response = await getQRImage();
+    if (response.error) {
+      navigate.replace('ErrorScreen', {
+        errorMessage: t(response.error),
+      });
+      return;
+    }
+    if (!response.didWork || !response.btcAdress) {
+      return;
+    }
+
+    navigate.replace('ConfirmPaymentScreen', {
+      btcAdress: response.btcAdress,
+      fromPage: '',
+    });
+  }, [navigate, t, handleBackPressFunction]);
+
+  const handleToggleExpand = useCallback(contactUuid => {
+    setExpandedContact(prev => (prev === contactUuid ? null : contactUuid));
+  }, []);
+
+  const handleSelectPaymentType = useCallback(
+    (contact, paymentType) => {
+      handleBackPressFunction(() => {
+        navigate.replace('SendAndRequestPage', {
+          selectedContact: contact,
+          paymentType: 'send',
+          imageData: cache[contact.uuid],
+          endReceiveType: paymentType,
+          selectedPaymentMethod: paymentType,
+        });
+      });
+    },
+    [navigate, cache],
+  );
+
+  const sortedContacts = useMemo(() => {
+    return contactInfoList
+      .sort((contactA, contactB) => {
+        const updatedA = contactA?.lastUpdated || 0;
+        const updatedB = contactB?.lastUpdated || 0;
+
+        if (updatedA !== updatedB) {
+          return updatedB - updatedA;
+        }
+
+        const nameA = contactA?.name || contactA?.uniqueName || '';
+        const nameB = contactB?.name || contactB?.uniqueName || '';
+        return nameA.localeCompare(nameB);
+      })
+      .map(contact => contact.contact);
+  }, [contactInfoList]);
+
+  const contactElements = useMemo(() => {
+    return sortedContacts.map(contact => (
+      <ContactRow
+        key={contact.uuid}
+        contact={contact}
+        cache={cache}
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundOffset={backgroundOffset}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        expandedContact={expandedContact}
+        onToggleExpand={handleToggleExpand}
+        onSelectPaymentType={handleSelectPaymentType}
+        t={t}
+      />
+    ));
+  }, [
+    sortedContacts,
+    cache,
+    theme,
+    darkModeType,
+    backgroundOffset,
+    backgroundColor,
+    textColor,
+    expandedContact,
+    handleToggleExpand,
+    handleSelectPaymentType,
+    t,
+  ]);
+
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{
+        ...styles.innerContainer,
+        paddingBottom: bottomPadding,
+      }}
+      stickyHeaderIndices={[3]}
+    >
+      {/* Search Input with Clipboard Icon */}
+      <View
+        style={[styles.searchContainer, { backgroundColor: backgroundColor }]}
+      >
+        <CustomSearchInput
+          placeholderText={t('wallet.halfModal.inputPlaceholder')}
+          textInputMultiline={true}
+          inputText={inputText}
+          setInputText={setInputText}
+          onBlurFunction={() => setIsKeyboardActive(false)}
+          onFocusFunction={() => setIsKeyboardActive(true)}
+          textInputStyles={{ paddingRight: 40 }}
+          returnKeyType="go"
+          onSubmitEditing={handleManualInputSubmit}
+        />
+        {inputText.trim() ? (
+          <TouchableOpacity
+            onPress={handleManualInputSubmit}
+            style={styles.clipboardButton}
+          >
+            <ThemeIcon
+              colorOverride={
+                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              }
+              size={20}
+              iconName={'ArrowRight'}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={handleClipboardPaste}
+            style={styles.clipboardButton}
+          >
+            <ThemeIcon
+              colorOverride={
+                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              }
+              size={20}
+              iconName={'Clipboard'}
+            />
           </TouchableOpacity>
         )}
+      </View>
+
+      {/* Scan QR Code Button */}
+      <TouchableOpacity
+        style={[styles.scanButton, { marginBottom: 0 }]}
+        onPress={handleCameraScan}
+      >
         <View
-          style={{
-            height: bottomPadding,
-          }}
+          style={[
+            styles.scanIconContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <ThemeIcon
+            colorOverride={
+              theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+            }
+            size={24}
+            iconName={'ScanQrCode'}
+          />
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={styles.scanButtonText}
+            content={t('wallet.halfModal.scanQrCode')}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToScanQr')}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Scan Image Button */}
+      <TouchableOpacity style={styles.scanButton} onPress={handleImageScan}>
+        <View
+          style={[
+            styles.scanIconContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <ThemeIcon
+            colorOverride={
+              theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+            }
+            size={24}
+            iconName={'Image'}
+          />
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={styles.scanButtonText}
+            content={t('wallet.halfModal.images')}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToScan')}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Divider */}
+      <View
+        style={[
+          styles.divider,
+          {
+            borderColor:
+              theme && darkModeType
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.05)',
+          },
+        ]}
+      />
+
+      <View
+        style={[
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          },
+        ]}
+      >
+        <ThemeText
+          styles={styles.sectionHeader}
+          content={t('wallet.halfModal.addressBook', {
+            context: 'send',
+          })}
         />
-      </ScrollView>
-    </View>
+      </View>
+
+      {/* Address Book Section */}
+      {decodedAddedContacts.length > 0 ? (
+        contactElements
+      ) : (
+        <ThemeText
+          styles={{ textAlign: 'center' }}
+          content={t('wallet.halfModal.noContacts')}
+        />
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  containerStyles: {
-    flex: 1,
-  },
-
-  optionRow: {
-    width: '90%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
+  innerContainer: {
+    width: INSET_WINDOW_WIDTH,
+    flexGrow: 1,
     ...CENTER,
   },
-  optionText: {
-    fontSize: SIZES.large,
+
+  searchContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  clipboardButton: {
+    width: 45,
+    height: '100%',
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 0,
+    zIndex: 99,
+  },
+
+  scanButton: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    paddingVertical: 8,
+  },
+  scanIconContainer: {
+    width: 45,
+    height: 45,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 15,
+  },
+  scanTextContainer: {
+    flex: 1,
+  },
+  scanButtonText: {
+    fontSize: SIZES.medium,
+    marginBottom: 2,
+    includeFontPadding: false,
+  },
+  scanButtonSubtext: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+  },
+
+  divider: {
+    width: '100%',
+    height: 1,
+    borderTopWidth: 1,
+    marginVertical: 20,
+  },
+
+  sectionHeader: {
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.6,
+    marginBottom: 10,
+    width: '100%',
+    letterSpacing: 0.5,
+  },
+
+  contactWrapper: {
+    width: '100%',
+  },
+
+  contactRowContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+
+  contactImageContainer: {
+    width: 45,
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 22.5,
+    marginRight: 15,
+    overflow: 'hidden',
+  },
+
+  nameContainer: {
+    flex: 1,
+  },
+  contactName: {
     includeFontPadding: false,
   },
 
-  icon: {
+  expandedContainer: {
+    overflow: 'hidden',
+  },
+
+  chooseWhatToSendText: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+
+  paymentOptionsRow: {
+    width: '100%',
+    gap: 12,
+    paddingHorizontal: 8,
+    paddingTop: 4,
+    paddingBottom: 12,
+  },
+  iconContainer: {
     width: 35,
     height: 35,
-    marginRight: 15,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 14,
+    borderRadius: 8,
+    gap: 8,
+  },
+
+  paymentOptionText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
   },
 });

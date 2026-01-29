@@ -123,7 +123,8 @@
     "dollars_upper": "Dollar",
     "rate": "Kurs",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Beskrivning (valfritt)"
+    "paymentDescriptionPlaceholder": "Beskrivning (valfritt)",
+    "print": "Skriv ut"
   },
   "languages": {
     "english": "English",
@@ -201,15 +202,21 @@
       "title": "Välj språk"
     },
     "homePage": {
-      "subtitle": "Din plånbok, dina mynt, 100% öppen källkod",
+      "subtitle": "Din plånbok, dina pengar, 100 % open source",
       "buttons": {
         "button1": "Ange fröfras",
         "button2": "Skapa en ny plånbok"
       }
     },
     "disclaimerPage": {
-      "header": "Självförvaltande",
-      "subHeader": "Blitz kan inte komma åt dina pengar eller hjälpa dig att återfå dem om de försvinner. Genom att fortsätta godkänner du Blitz Wallet's villkor och bestämmelser.",
+      "header": "Självförvarad plånbok",
+      "subHeader": "Ta full kontroll över dina pengar.",
+      "disclaimerBold": "Blitz kan inte återställa din plånbok.",
+      "dislcaimer": "Du är ensam ansvarig för att säkra och skydda dina medel.",
+      "info1": "Dina pengar är dina",
+      "info1Description": "Endast du kan komma åt eller använda dina pengar. Vi har ingen tillgång till dem.",
+      "info2": "Du har kontrollen",
+      "info2Description": "Blitz kan inte komma åt dina medel eller hjälpa till att återställa dem om de går förlorade.",
       "imgCaption": "\"Med stor makt kommer stort ansvar\" - Uncle Ben",
       "acceptPrefix": "Jag accepterar ",
       "terms&Conditions": "Villkor och anvisningar",
@@ -842,7 +849,28 @@
       "images": "Från bild",
       "clipboard": "Från klippbordet",
       "manual": "Manuell inmatning",
-      "contacts": "Från Kontakter"
+      "contacts": "Från Kontakter",
+      "inputPlaceholder": "Ange en adress att betala till",
+      "scanImage": "Skanna bild",
+      "tapToScan": "Tryck för att hämta en adress från en bild",
+      "addressBook_send": "Kontaktbok",
+      "chooseWhatToSend": "Välj vad som ska skickas",
+      "noContacts": "Lägg till kontakter så visas de här",
+      "selectAddressType": "Välj adresstyp",
+      "tapToGenerate_other": "Tryck för att se andra mottagningsalternativ",
+      "tapToGenerate_lightning": "Tryck för att skapa en Lightning-faktura",
+      "tapToGenerate_bitcoin": "Tryck för att skapa en Bitcoin-adress",
+      "tapToGenerate_spark": "Tryck för att skapa en Spark-adress",
+      "tapToGenerate_liquid": "Tryck för att skapa en Liquid-adress",
+      "tapToGenerate_rootstock": "Tryck för att skapa en Rootstock-adress",
+      "chooseWhatToReceive": "Välj vad som ska begäras",
+      "instantLowFees": "Direkt, låga avgifter",
+      "onChainTransaction": "On-chain-transaktion",
+      "otherAddresses": "Fler sätt att ta emot",
+      "scanQrCode": "Skanna QR-kod",
+      "tapToScanQr": "Tryck för att skanna en QR-kod",
+      "addressBook_request": "Begär från en kontakt",
+      "qrReceiveOptions": "Ta emot via QR-kod"
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"
@@ -1471,7 +1499,11 @@
         "itemsDescription": "Om du lägger till artiklar i ditt kassasystem behöver medarbetarna inte skriva in priserna manuellt. Istället kan de bara klicka på produktnamnen och de priser du anger läggs automatiskt till totalsumman.",
         "updateItems": "Uppdatering av punkter",
         "addItem": "Lägg till artikel",
-        "openPos": "Öppna POS"
+        "openPos": "Öppna POS",
+        "brandLogo": "Varumärkeslogo",
+        "changeLogo": "Byt logo",
+        "removeLogo": "Ta bort",
+        "uploadLogo": "Tryck för att ladda upp varumärkeslogo"
       },
       "posInstructionsPath": {
         "title": "Instruktioner",
@@ -1927,7 +1959,8 @@
     "invalidData": "De uppgifter du angav är inte giltiga",
     "paymentError": "Något gick fel när vi behandlade din betalning. Vänligen försök igen. Om det fortfarande inte fungerar stänger du appen och öppnar den igen innan du försöker igen.",
     "paymentFeeError": "Vi kunde inte hämta betalningsavgiften. Vänligen försök igen. Om problemet kvarstår ska du stänga appen och öppna den igen innan du försöker igen.",
-    "priceImpact": "Den här betalningen är stor, så det slutliga beloppet du får i dollar kan förändras."
+    "priceImpact": "Den här betalningen är stor, så det slutliga beloppet du får i dollar kan förändras.",
+    "removingImageError": "Kunde inte ta bort bilden. Försök igen."
   },
   "loadingScreen": {
     "message1": "Stäng inte appen, snälla",

@@ -123,7 +123,8 @@
     "dollars_upper": "Dollars",
     "rate": "Rate",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Description (optional)"
+    "paymentDescriptionPlaceholder": "Description (optional)",
+    "print": "Print"
   },
 
   "languages": {
@@ -207,15 +208,20 @@
       "title": "Choose Language"
     },
     "homePage": {
-      "subtitle": "Your wallet, your coins, 100% open-source",
+      "subtitle": "Your wallet, your money, 100% open-source",
       "buttons": {
         "button1": "Enter seed phrase",
         "button2": "Make new wallet"
       }
     },
     "disclaimerPage": {
-      "header": "Self-custodial",
-      "subHeader": "Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's Terms and Conditions.",
+      "header": "Self-Custodial Wallet",
+      "subHeader": "Take full control of your money.",
+      "disclaimerBold": "Blitz cannot recover your wallet.",
+      "dislcaimer": "You are solely responsible for securing and protecting your funds.",
+      "info1Description": "Only you can access or use your money. We don’t have access to it.",
+      "info2": "You’re in control",
+      "info2Description": "Blitz cannot access your funds or help recover them if lost.",
       "imgCaption": "'With great power comes great responsibility' - Uncle Ben",
       "acceptPrefix": "I accept the ",
       "terms&Conditions": "Terms and Conditions",
@@ -853,7 +859,28 @@
       "images": "From Image",
       "clipboard": "From Clipboard",
       "manual": "Manual Input",
-      "contacts": "From Contacts"
+      "contacts": "From Contacts",
+      "inputPlaceholder": "Enter an address to pay",
+      "scanImage": "Scan Image",
+      "tapToScan": "Tap to get an address from an image",
+      "addressBook_send": "Contacts Book",
+      "chooseWhatToSend": "Choose what to send",
+      "noContacts": "Add contacts for them to show up here",
+      "selectAddressType": "Select address type",
+      "tapToGenerate_other": "Tap to see other receive options",
+      "tapToGenerate_lightning": "Tap to generate a Lightning invoice",
+      "tapToGenerate_bitcoin": "Tap to generate a Bitcoin address",
+      "tapToGenerate_spark": "Tap to generate a Spark address",
+      "tapToGenerate_liquid": "Tap to generate a Liquid address",
+      "tapToGenerate_rootstock": "Tap to generate a Rootstock address",
+      "chooseWhatToReceive": "Choose what to request",
+      "instantLowFees": "Instant, low fees",
+      "onChainTransaction": "On-chain transaction",
+      "otherAddresses": "More ways to receive",
+      "scanQrCode": "Scan QR code",
+      "tapToScanQr": "Tap to scan a QR code",
+      "addressBook_request": "Request from a contact",
+      "qrReceiveOptions": "Receive via QR code"
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"
@@ -1497,14 +1524,17 @@
         "itemsDescription": "Adding items to your point-of-sale system means employees won’t have to type in prices manually. Instead, they can just click the product names, and the prices you set will be added to the total automatically.",
         "updateItems": "Update Items",
         "addItem": "Add Item",
-        "openPos": "Open POS"
+        "openPos": "Open POS",
+        "brandLogo": "Brand Logo",
+        "changeLogo": "Change Logo",
+        "removeLogo": "Remove",
+        "uploadLogo": "Tap to upload brand logo"
       },
       "posInstructionsPath": {
         "title": "Instructions",
         "head1": "How to accept",
         "head2": "Bitcoin payments",
-        "step1": "1. Scan QR code with your camera",
-        "step2": "2. That's it."
+        "step1": "Scan QR code with your camera"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "User does not have any tips balance.",
@@ -1967,7 +1997,8 @@
     "invalidData": "The data you entered isn’t valid",
     "paymentError": "Something went wrong while processing your payment. Please try again. If it still doesn’t work, close the app and reopen it before trying again.",
     "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again.",
-    "priceImpact": "This payment is large, so the final amount you receive in Dollars may change."
+    "priceImpact": "This payment is large, so the final amount you receive in Dollars may change.",
+    "removingImageError": "Unable to remove image. Please try again."
   },
 
   "loadingScreen": {

@@ -148,7 +148,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   verticalArrowsContainer: {
-    height: '100%',
     width: 20,
     position: 'relative',
     justifyContent: 'center',

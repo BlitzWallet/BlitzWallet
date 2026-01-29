@@ -123,7 +123,8 @@
     "dollars_upper": "Dollars",
     "rate": "Taux",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Description (facultatif)"
+    "paymentDescriptionPlaceholder": "Description (facultatif)",
+    "print": "Imprimer"
   },
   "languages": {
     "english": "English",
@@ -201,15 +202,21 @@
       "title": "Choisir la langue"
     },
     "homePage": {
-      "subtitle": "Votre portefeuille, vos pièces, 100% open-source",
+      "subtitle": "Votre portefeuille, votre argent, 100 % open source",
       "buttons": {
         "button1": "Saisir une phrase de semence",
         "button2": "Créer un nouveau portefeuille"
       }
     },
     "disclaimerPage": {
-      "header": "Autodétention",
-      "subHeader": "Blitz ne peut pas accéder à vos fonds ni vous aider à les récupérer en cas de perte. En continuant, vous acceptez les termes et conditions de Blitz Wallet.",
+      "header": "Portefeuille auto-hébergé",
+      "subHeader": "Prenez le contrôle total de votre argent.",
+      "disclaimerBold": "Blitz ne peut pas récupérer votre portefeuille.",
+      "dislcaimer": "Vous êtes seul responsable de la sécurisation et de la protection de vos fonds.",
+      "info1": "Votre argent vous appartient",
+      "info1Description": "Vous seul pouvez accéder à votre argent ou l’utiliser. Nous n’y avons pas accès.",
+      "info2": "Vous êtes aux commandes",
+      "info2Description": "Blitz ne peut pas accéder à vos fonds ni les récupérer en cas de perte.",
       "imgCaption": "Un grand pouvoir implique de grandes responsabilités\" - Uncle Ben",
       "acceptPrefix": "J'accepte la ",
       "terms&Conditions": "Conditions générales d'utilisation",
@@ -842,7 +849,28 @@
       "images": "De l'image",
       "clipboard": "Du presse-papiers",
       "manual": "Entrée manuelle",
-      "contacts": "Depuis les contacts"
+      "contacts": "Depuis les contacts",
+      "inputPlaceholder": "Saisir une adresse pour payer",
+      "scanImage": "Scanner une image",
+      "tapToScan": "Appuyez pour extraire une adresse depuis une image",
+      "addressBook_send": "Carnet de contacts",
+      "chooseWhatToSend": "Choisir quoi envoyer",
+      "noContacts": "Ajoutez des contacts pour les voir apparaître ici",
+      "selectAddressType": "Sélectionner le type d’adresse",
+      "tapToGenerate_other": "Appuyez pour voir d’autres options de réception",
+      "tapToGenerate_lightning": "Appuyez pour générer une facture Lightning",
+      "tapToGenerate_bitcoin": "Appuyez pour générer une adresse Bitcoin",
+      "tapToGenerate_spark": "Appuyez pour générer une adresse Spark",
+      "tapToGenerate_liquid": "Appuyez pour générer une adresse Liquid",
+      "tapToGenerate_rootstock": "Appuyez pour générer une adresse Rootstock",
+      "chooseWhatToReceive": "Choisir quoi demander",
+      "instantLowFees": "Instantané, frais réduits",
+      "onChainTransaction": "Transaction on-chain",
+      "otherAddresses": "Autres moyens de recevoir",
+      "scanQrCode": "Scanner le code QR",
+      "tapToScanQr": "Appuyez pour scanner un code QR",
+      "addressBook_request": "Demander à un contact",
+      "qrReceiveOptions": "Recevoir via code QR"
     },
     "manualInputPage": {
       "inputPlaceholder": "Saisir ou coller un liquide, ou une adresse/facture Lightning"
@@ -1471,7 +1499,11 @@
         "itemsDescription": "L'ajout d'articles à votre système de point de vente signifie que les employés n'auront pas à saisir les prix manuellement. Ils n'auront qu'à cliquer sur les noms des produits et les prix que vous aurez définis seront automatiquement ajoutés au total.",
         "updateItems": "Points de mise à jour",
         "addItem": "Ajouter un article",
-        "openPos": "POS ouvert"
+        "openPos": "POS ouvert",
+        "brandLogo": "Logo de la marque",
+        "changeLogo": "Changer le logo",
+        "removeLogo": "Supprimer",
+        "uploadLogo": "Appuyez pour télécharger le logo de la marque"
       },
       "posInstructionsPath": {
         "title": "Instructions",
@@ -1927,7 +1959,8 @@
     "invalidData": "Les données saisies ne sont pas valides",
     "paymentError": "Un problème s'est produit lors du traitement de votre paiement. Veuillez réessayer. Si cela ne fonctionne toujours pas, fermez l'application et rouvrez-la avant de réessayer.",
     "paymentFeeError": "Nous n'avons pas pu récupérer les frais de paiement. Veuillez réessayer. Si le problème persiste, fermez l'application et rouvrez-la avant de réessayer.",
-    "priceImpact": "Ce paiement est important, le montant final que vous recevrez en dollars peut donc changer."
+    "priceImpact": "Ce paiement est important, le montant final que vous recevrez en dollars peut donc changer.",
+    "removingImageError": "Impossible de supprimer l'image. Veuillez réessayer."
   },
   "loadingScreen": {
     "message1": "Ne fermez pas l'application",

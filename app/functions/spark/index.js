@@ -118,47 +118,93 @@ export const clearMnemonicCache = () => {
   Object.keys(sparkWallet).forEach(key => delete sparkWallet[key]);
 };
 
-export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {
-  try {
-    const runtime = await selectSparkRuntime(mnemonic, isInitialLoad);
+export const initializeSparkWallet = async (
+  mnemonic,
+  isInitialLoad = true,
+  options = {},
+) => {
+  const {
+    maxRetries = 8,
+    retryDelay = 15000, // 15 seconds between retries
+    enableRetry = true,
+  } = options;
 
-    if (runtime === 'webview') {
-      // Use WebView to initialize wallet
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.initWallet,
-        {
-          mnemonic,
-        },
+  const attemptInitialization = async (attemptNumber = 0) => {
+    try {
+      const runtime = await selectSparkRuntime(mnemonic, isInitialLoad);
+
+      if (runtime === 'webview') {
+        // Use WebView to initialize wallet
+        const response = await sendWebViewRequestGlobal(
+          OPERATION_TYPES.initWallet,
+          {
+            mnemonic,
+          },
+        );
+
+        if (response?.isConnected) return response;
+      }
+
+      const hash = getMnemonicHash(mnemonic);
+
+      // Early return if already initialized
+      if (sparkWallet[hash]) {
+        return { isConnected: true };
+      }
+      if (initializingWallets[hash]) {
+        await initializingWallets[hash];
+        return { isConnected: true };
+      }
+      initializingWallets[hash] = (async () => {
+        try {
+          const wallet = await initializeWallet(mnemonic);
+          sparkWallet[hash] = wallet;
+          return wallet;
+        } catch (err) {
+          delete initializingWallets[hash]; // cleanup after done
+          delete sparkWallet[hash];
+          throw err;
+        }
+      })();
+
+      await initializingWallets[hash];
+      delete initializingWallets[hash];
+      setForceReactNative(true);
+
+      return { isConnected: true };
+    } catch (err) {
+      console.log(
+        `Initialize spark wallet error (attempt ${attemptNumber + 1}/${
+          maxRetries + 1
+        }):`,
+        err,
       );
 
-      if (response?.isConnected) return response;
+      const hash = getMnemonicHash(mnemonic);
+      delete initializingWallets[hash];
+      delete sparkWallet[hash];
+
+      // If retry is disabled or max retries reached, return error
+      if (!enableRetry || attemptNumber >= maxRetries) {
+        return { isConnected: false, error: err.message };
+      }
+
+      // Log retry attempt
+      console.log(
+        `Wallet failed to connect. Retrying in ${
+          retryDelay / 1000
+        } seconds... (${attemptNumber + 1}/${maxRetries} retries)`,
+      );
+
+      // Wait before retry
+      await new Promise(res => setTimeout(res, retryDelay));
+
+      // Recursive retry
+      return attemptInitialization(attemptNumber + 1);
     }
+  };
 
-    const hash = getMnemonicHash(mnemonic);
-
-    // Early return if already initialized
-    if (sparkWallet[hash]) {
-      return { isConnected: true };
-    }
-    if (initializingWallets[hash]) {
-      await initializingWallets[hash];
-      return { isConnected: true };
-    }
-    initializingWallets[hash] = (async () => {
-      const wallet = await initializeWallet(mnemonic);
-      sparkWallet[hash] = wallet;
-
-      delete initializingWallets[hash]; // cleanup after done
-    })();
-
-    await initializingWallets[hash];
-    setForceReactNative(true);
-
-    return { isConnected: true };
-  } catch (err) {
-    console.log('Initialize spark wallet error:', err);
-    return { isConnected: false, error: err.message };
-  }
+  return attemptInitialization(0);
 };
 
 const initializeWallet = async mnemonic => {

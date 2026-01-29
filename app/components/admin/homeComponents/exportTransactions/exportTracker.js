@@ -91,7 +91,6 @@ export default function ConfirmExportPayments({
           csvData,
           fileName,
           'text/csv',
-          navigate,
         );
 
         navigate.goBack();

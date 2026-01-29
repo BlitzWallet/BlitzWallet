@@ -33,6 +33,7 @@ import {
 } from '../../../../constants/theme';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import { shareMessage } from '../../../../functions/handleShare';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -114,7 +115,7 @@ export default function ExpandedContactsPage(props) {
             onPress={() => {
               if (selectedContact?.isLNURL || !selectedContact?.uniqueName)
                 return;
-              Share.share({
+              shareMessage({
                 message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
                   selectedContact?.uniqueName
                 }`,
@@ -192,6 +193,7 @@ export default function ExpandedContactsPage(props) {
                 });
               } else {
                 navigate.navigate('CustomHalfModal', {
+                  paymentType: 'send',
                   wantedContent: 'SelectPaymentType',
                   selectedContact: selectedContact,
                   imageData,
@@ -227,7 +229,8 @@ export default function ExpandedContactsPage(props) {
                 });
                 return;
               }
-              navigate.navigate('SendAndRequestPage', {
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'SelectPaymentType',
                 selectedContact: selectedContact,
                 paymentType: 'request',
                 imageData,

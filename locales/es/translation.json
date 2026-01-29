@@ -123,7 +123,8 @@
     "dollars_upper": "Dólares",
     "rate": "Tasa",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Descripción (opcional)"
+    "paymentDescriptionPlaceholder": "Descripción (opcional)",
+    "print": "Imprimir"
   },
 
   "languages": {
@@ -203,15 +204,21 @@
       "title": "Elegir idioma"
     },
     "homePage": {
-      "subtitle": "Tu billetera, tus monedas, 100% código abierto",
+      "subtitle": "Tu billetera, tu dinero, 100 % de código abierto",
       "buttons": {
         "button1": "Ingrese la frase de recuperación",
         "button2": "Crear nueva billetera"
       }
     },
     "disclaimerPage": {
-      "header": "Autocustodia",
-      "subHeader": "Blitz no puede acceder a tus fondos ni ayudarte a recuperarlos si se pierden. Al continuar, aceptas los términos y condiciones de Blitz Wallet.",
+      "header": "Billetera sin custodia",
+      "subHeader": "Toma el control total de tu dinero.",
+      "disclaimerBold": "Blitz no puede recuperar tu billetera.",
+      "dislcaimer": "Eres el único responsable de asegurar y proteger tus fondos.",
+      "info1": "Tu dinero es tuyo",
+      "info1Description": "Solo tú puedes acceder o usar tu dinero. No tenemos acceso a él.",
+      "info2": "Tú tienes el control",
+      "info2Description": "Blitz no puede acceder a tus fondos ni ayudarte a recuperarlos si se pierden.",
       "imgCaption": "'Un gran poder conlleva una gran responsabilidad' - Tío Ben",
       "acceptPrefix": "Acepto el ",
       "terms&Conditions": "Términos y condiciones",
@@ -702,7 +709,28 @@
       "images": "Desde imagen",
       "clipboard": "Desde portapapeles",
       "manual": "Entrada manual",
-      "contacts": "Desde contactos"
+      "contacts": "Desde contactos",
+      "inputPlaceholder": "Ingresa una dirección para pagar",
+      "scanImage": "Escanear imagen",
+      "tapToScan": "Toca para obtener una dirección desde una imagen",
+      "addressBook_send": "Agenda de contactos",
+      "chooseWhatToSend": "Elige qué enviar",
+      "noContacts": "Agrega contactos para que aparezcan aquí",
+      "selectAddressType": "Seleccionar tipo de dirección",
+      "tapToGenerate_other": "Toca para ver otras opciones de recepción",
+      "tapToGenerate_lightning": "Toca para generar una factura Lightning",
+      "tapToGenerate_bitcoin": "Toca para generar una dirección Bitcoin",
+      "tapToGenerate_spark": "Toca para generar una dirección Spark",
+      "tapToGenerate_liquid": "Toca para generar una dirección Liquid",
+      "tapToGenerate_rootstock": "Toca para generar una dirección Rootstock",
+      "chooseWhatToReceive": "Elige qué solicitar",
+      "instantLowFees": "Instantáneo, bajas comisiones",
+      "onChainTransaction": "Transacción en cadena",
+      "otherAddresses": "Más formas de recibir",
+      "scanQrCode": "Escanear código QR",
+      "tapToScanQr": "Toca para escanear un código QR",
+      "addressBook_request": "Solicitar a un contacto",
+      "qrReceiveOptions": "Recibir mediante código QR"
     },
     "manualInputPage": {
       "inputPlaceholder": "Introduce o pega una dirección/factura de Liquid o Lightning"
@@ -1329,7 +1357,11 @@
         "itemsDescription": "Agregar artículos a tu sistema de punto de venta significa que los empleados no tendrán que escribir precios manualmente. En su lugar, pueden hacer clic en los nombres de los productos y los precios que configuraste se añadirán automáticamente al total.",
         "updateItems": "Actualizar artículos",
         "addItem": "Añadir artículo",
-        "openPos": "Abrir POS"
+        "openPos": "Abrir POS",
+        "brandLogo": "Logo de la marca",
+        "changeLogo": "Cambiar logo",
+        "removeLogo": "Eliminar",
+        "uploadLogo": "Toca para subir el logo de la marca"
       },
       "posInstructionsPath": {
         "title": "Instrucciones",
@@ -1792,7 +1824,8 @@
     "invalidData": "Los datos proporcionados no son válidos",
     "paymentError": "Se produjo un error al procesar tu pago. Inténtalo de nuevo. Si aún no funciona, cierra la aplicación y vuelve a abrirla antes de intentarlo nuevamente.",
     "paymentFeeError": "No pudimos obtener la tarifa de pago. Inténtalo de nuevo. Si el problema continúa, cierra la aplicación y vuelve a abrirla antes de intentarlo nuevamente.",
-    "priceImpact": "Este pago es grande, por lo que el monto final que recibas en dólares puede cambiar."
+    "priceImpact": "Este pago es grande, por lo que el monto final que recibas en dólares puede cambiar.",
+    "removingImageError": "No se pudo eliminar la imagen. Inténtalo de nuevo."
   },
   "loadingScreen": {
     "message1": "Por favor no cierres la aplicación",

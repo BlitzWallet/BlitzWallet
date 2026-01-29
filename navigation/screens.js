@@ -85,7 +85,7 @@ import ConversionHistory from '../app/components/admin/homeComponents/swaps/swap
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
   { name: 'SendBTC', component: SendPaymentHome },
-  { name: 'ReceiveBTC', component: ReceivePaymentHome },
+
   { name: 'ExpandedTx', component: ExpandedTx },
   {
     name: 'TechnicalTransactionDetails',
@@ -120,6 +120,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     options: { gestureEnabled: false },
   },
   { name: 'ExpandedContactsPage', component: ExpandedContactsPage },
+  { name: 'ReceiveBTC', component: ReceivePaymentHome },
   // { name: 'MyContactProfilePage', component: MyContactProfilePage },
   { name: 'EditMyProfilePage', component: EditMyProfilePage },
   { name: 'ExpandedAddContactsPage', component: ExpandedAddContactsPage },

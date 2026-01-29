@@ -122,7 +122,8 @@
     "bitcoin_upper": "BTC",
     "dollars_upper": "USD",
     "rate": "Kurs",
-    "swap": "Swap"
+    "swap": "Swap",
+    "print": "Drucken"
   },
   "languages": {
     "english": "English",
@@ -200,15 +201,21 @@
       "title": "Sprache wählen"
     },
     "homePage": {
-      "subtitle": "Ihre Wallet, Ihre Coins, 100% Open-Source",
+      "subtitle": "Ihre Wallet, Ihre Geld, 100% Open-Source",
       "buttons": {
         "button1": "Seed-Phrase eingeben",
         "button2": "Neue Wallet erstellen"
       }
     },
     "disclaimerPage": {
-      "header": "Selbstverwahrung",
-      "subHeader": "Blitz hat keinen Zugriff auf Ihre Gelder und kann diese im Verlustfall nicht wiederherstellen. Mit der Fortsetzung stimmen Sie den Nutzungsbedingungen von Blitz-Wallet zu.",
+      "header": "Selbstverwahrte Wallet",
+      "subHeader": "Übernimm die volle Kontrolle über dein Geld.",
+      "disclaimerBold": "Blitz kann dein Wallet nicht wiederherstellen.",
+      "dislcaimer": "Du bist allein verantwortlich dafür, deine Gelder zu sichern und zu schützen.",
+      "info1": "Dein Geld gehört dir",
+      "info1Description": "Nur du kannst auf dein Geld zugreifen oder es verwenden. Wir haben keinen Zugriff darauf.",
+      "info2": "Du hast die Kontrolle",
+      "info2Description": "Blitz kann nicht auf deine Gelder zugreifen oder sie wiederherstellen, falls sie verloren gehen.",
       "imgCaption": "'Mit großer Macht kommt große Verantwortung' - Onkel Ben",
       "acceptPrefix": "Ich akzeptiere die ",
       "terms&Conditions": "Nutzungsbedingungen",
@@ -837,7 +844,28 @@
       "images": "Aus Bild",
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
-      "contacts": "Aus Kontakten"
+      "contacts": "Aus Kontakten",
+      "inputPlaceholder": "Adresse zum Bezahlen eingeben",
+      "scanImage": "Bild scannen",
+      "tapToScan": "Tippen, um eine Adresse aus einem Bild zu extrahieren",
+      "addressBook_send": "Kontaktbuch",
+      "chooseWhatToSend": "Auswählen, was gesendet werden soll",
+      "noContacts": "Füge Kontakte hinzu, damit sie hier angezeigt werden",
+      "selectAddressType": "Adresstyp auswählen",
+      "tapToGenerate_other": "Tippen, um weitere Empfangsoptionen zu sehen",
+      "tapToGenerate_lightning": "Tippen, um eine Lightning-Rechnung zu erstellen",
+      "tapToGenerate_bitcoin": "Tippen, um eine Bitcoin-Adresse zu erstellen",
+      "tapToGenerate_spark": "Tippen, um eine Spark-Adresse zu erstellen",
+      "tapToGenerate_liquid": "Tippen, um eine Liquid-Adresse zu erstellen",
+      "tapToGenerate_rootstock": "Tippen, um eine Rootstock-Adresse zu erstellen",
+      "chooseWhatToReceive": "Auswählen, was angefordert werden soll",
+      "instantLowFees": "Sofort, niedrige Gebühren",
+      "onChainTransaction": "On-Chain-Transaktion",
+      "otherAddresses": "Weitere Empfangsoptionen",
+      "scanQrCode": "QR-Code scannen",
+      "tapToScanQr": "Tippe, um einen QR-Code zu scannen",
+      "addressBook_request": "Von einem Kontakt anfordern",
+      "qrReceiveOptions": "Per QR-Code empfangen"
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse/Rechnung ein oder fügen Sie sie ein"
@@ -1466,7 +1494,11 @@
         "itemsDescription": "Das Hinzufügen von Elementen zu Ihrem Kassensystem bedeutet, dass Mitarbeiter die Preise nicht manuell eingeben müssen. Stattdessen können sie einfach auf die Produktnamen klicken, und die von Ihnen festgelegten Preise werden automatisch zum Gesamtbetrag hinzugefügt.",
         "updateItems": "Elemente aktualisieren",
         "addItem": "Element hinzufügen",
-        "openPos": "POS öffnen"
+        "openPos": "POS öffnen",
+        "brandLogo": "Markenlogo",
+        "changeLogo": "Logo ändern",
+        "removeLogo": "Entfernen",
+        "uploadLogo": "Tippe hier, um das Markenlogo hochzuladen"
       },
       "posInstructionsPath": {
         "title": "Anweisungen",
@@ -1921,7 +1953,8 @@
     "invalidData": "Die eingegebenen Daten sind ungültig",
     "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App richtig und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
-    "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch ändern."
+    "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch ändern.",
+    "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuche es erneut."
   },
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht",

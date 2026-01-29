@@ -6,6 +6,7 @@ import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import {
   HalfModalSendOptions,
   SwitchReceiveOptionPage,
+  HalfModalReceiveOptions,
 } from '../../components/admin';
 import {
   ConfirmSMSPayment,
@@ -118,9 +119,22 @@ export default function CustomHalfModal(props) {
       case 'sendOptions':
         return (
           <HalfModalSendOptions
+            handleBackPressFunction={handleBackPressFunction}
+            setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
+          />
+        );
+      case 'receiveOptions':
+        return (
+          <HalfModalReceiveOptions
+            setIsKeyboardActive={setIsKeyboardActive}
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            scrollPosition={props.route.params?.scrollPosition}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'confirmSMS':
@@ -329,6 +343,7 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
             selectedContact={props?.route?.params?.selectedContact}
             imageData={props?.route?.params?.imageData}
+            paymentType={props?.route?.params?.paymentType}
           />
         );
       case 'SelectContactRequestCurrency':
@@ -483,11 +498,16 @@ export default function CustomHalfModal(props) {
               // contentType === 'editLNURLOnReceive' ||
               contentType === 'addContacts' ||
               contentType === 'SelectLRC20Token' ||
-              contentType === 'AddMessageReceivePage'
+              contentType === 'AddMessageReceivePage' ||
+              contentType === 'sendOptions' ||
+              contentType === 'receiveOptions'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
-                    contentType === 'addContacts'
+                    contentType === 'addContacts' ||
+                    contentType === 'sendOptions'
+                  ? 0
+                  : contentType === 'receiveOptions'
                   ? 0
                   : bottomPadding
                 : bottomPadding,
