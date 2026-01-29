@@ -802,7 +802,6 @@ const styles = StyleSheet.create({
   primaryPaymentTitle: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
-    includeFontPadding: false,
     marginBottom: 2,
   },
 
