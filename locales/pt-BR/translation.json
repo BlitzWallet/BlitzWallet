@@ -104,7 +104,7 @@
     "slideToConfirm": "Arraste para confirmar",
     "token": "Token",
     "veriable": "Variável",
-    "instant": "instantâneo",
+    "instant": "Instantâneo",
     "andLower": "e",
     "onLower": "on",
     "offLower": "off",
@@ -862,8 +862,8 @@
       "inputPlaceholder": "Digite um endereço para pagar",
       "scanImage": "Escanear imagem",
       "tapToScan": "Toque para obter um endereço a partir de uma imagem",
-      "addressBook": "Agenda de contatos",
-      "chooseWhatToSend": "Escolha o que enviar",
+      "addressBook": "Contatos",
+      "chooseWhatToSend": "Escolha a moeda que você deseja enviar",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
       "otherAddresses": "Outras opções",
@@ -873,9 +873,9 @@
       "tapToGenerate_spark": "Toque para gerar um endereço Spark",
       "tapToGenerate_liquid": "Toque para gerar um endereço Liquid",
       "tapToGenerate_rootstock": "Toque para gerar um endereço Rootstock",
-      "chooseWhatToReceive": "Escolha o que solicitar",
+      "chooseWhatToReceive": "Escolha a moeda que você deseja receber",
       "instantLowFees": "Instantâneo, taxas baixas",
-      "onChainTransaction": "Transação on-chain"
+      "onChainTransaction": "~ 10 minutos"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
