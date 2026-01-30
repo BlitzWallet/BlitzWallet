@@ -920,7 +920,7 @@
         "minUSDSwap": "Pagamentos convertidos para dólares exigem um valor mínimo de:\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Outros meios de recebimento",
+        "format": "Outras opções de recebimento",
         "infoMessage": "Quantias personalizadas não são suportadas em pagamentos Spark ou Rootstock."
       },
 
