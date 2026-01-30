@@ -866,7 +866,7 @@
       "addressBook_send": "Contatos",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
-      "tapToGenerate_other": "Mostrar endereços suportados",
+      "tapToGenerate_other": "Toque para ver outras opções",
       "tapToGenerate_lightning": "Mostrar endereço Lightning",
       "tapToGenerate_bitcoin": "Mostrar endereço Bitcoin",
       "tapToGenerate_spark": "Mostrar endereço Spark",
