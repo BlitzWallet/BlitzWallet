@@ -40,6 +40,7 @@ export default function SparkErrorScreen(props) {
           // globalContactsInformation,
           mnemonic: accountMnemoinc,
           sendWebViewRequest,
+          hasRestoreCompleted: false,
         });
 
         if (!didWork) {

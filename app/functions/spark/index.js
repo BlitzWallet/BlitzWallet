@@ -143,6 +143,12 @@ export const initializeSparkWallet = async (
         );
 
         if (response?.isConnected) return response;
+        else if (
+          response.error
+            ?.toLowerCase()
+            .includes('load failed [endpoint: authenticate')
+        )
+          throw new Error('Internet error');
       }
 
       const hash = getMnemonicHash(mnemonic);

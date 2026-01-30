@@ -58,7 +58,6 @@ import {
   incomingSparkTransaction,
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
-  setForceReactNative,
   useWebView,
 } from './webViewContext';
 import { useGlobalContextProvider } from './context';
@@ -1625,7 +1624,6 @@ const SparkWalletProvider = ({ children }) => {
     setDidRunNormalConnection(true);
     // lastConnectedTimeRef.current = Date.now();
     if (!didWork) {
-      setForceReactNative(true);
       setSparkInformation(prev => ({ ...prev, didConnect: false }));
       setSparkConnectionError(error);
       console.log('Error connecting to spark wallet:', error);
