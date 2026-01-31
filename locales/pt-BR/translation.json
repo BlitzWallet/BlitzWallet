@@ -848,7 +848,7 @@
       "loadingShopMessage": "Carregando",
       "inputPlaceHolder": "Procurar lojas...",
       "noBuisMessage": "Não conseguimos encontrar nada que corresponda à sua pesquisa.",
-      "visitWebsite": "Visitar site",
+      "visitWebsite": "Acessar site",
       "addListing": "Adicionar loja"
     }
   },
@@ -862,7 +862,7 @@
       "inputPlaceholder": "Digite um endereço para pagar",
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
-      "chooseWhatToSend": "Escolha o que você deseja enviar",
+      "chooseWhatToSend": "O que você deseja enviar?",
       "addressBook_send": "Contatos",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
@@ -872,7 +872,7 @@
       "tapToGenerate_spark": "Mostrar endereço Spark",
       "tapToGenerate_liquid": "Mostrar endereço Liquid",
       "tapToGenerate_rootstock": "Mostrar endereço Rootstock",
-      "chooseWhatToReceive": "Escolha o que você deseja receber",
+      "chooseWhatToReceive": "O que você deseja receber?",
       "instantLowFees": "Instantâneo, taxas baixas",
       "onChainTransaction": "~ 10 minutos"
       "otherAddresses": "Outras opções",
@@ -1106,10 +1106,10 @@
       "deleateWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
     "selectCurrencyToSend": {
-      "header": "Qual moeda você deseja enviar?"
+      "header": "O você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Selecione a moeda que você deseja receber"
+      "header": "O que você deseja receber?"
     },
 
     "sendAndRequestPage": {
@@ -1670,7 +1670,7 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Selecione a moeda que você deseja receber",
+        "selectReceiveAssetHead": "O que você deseja receber?",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
         "editDescriptionPlaceholder": "Adicionar uma descrição"
