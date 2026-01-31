@@ -859,7 +859,7 @@
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
-      "inputPlaceholder": "Digite um endereço para pagar",
+      "inputPlaceholder": "Digite ou cole um endereço para pagar",
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "O que você deseja enviar?",
