@@ -64,7 +64,11 @@ const ContactRow = ({
   const expandedStyle = useAnimatedStyle(() => ({
     height:
       expandHeight.value *
-      (contact?.isLNURL ? 115 : !HIDE_IN_APP_PURCHASE_ITEMS ? 260 : 190),
+      (contact?.isLNURL ? 85 : !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
+    opacity: expandHeight.value,
+  }));
+
+  const labelFadeStyle = useAnimatedStyle(() => ({
     opacity: expandHeight.value,
   }));
 
@@ -102,6 +106,12 @@ const ContactRow = ({
             styles={styles.contactName}
             content={formatDisplayName(contact) || contact.uniqueName || ''}
           />
+          <Animated.View style={labelFadeStyle}>
+            <ThemeText
+              styles={styles.chooseWhatToSendText}
+              content={t('wallet.halfModal.chooseWhatToSend')}
+            />
+          </Animated.View>
         </View>
         <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
           <ThemeIcon
@@ -113,10 +123,6 @@ const ContactRow = ({
       </TouchableOpacity>
 
       <Animated.View style={[styles.expandedContainer, expandedStyle]}>
-        <ThemeText
-          styles={styles.chooseWhatToSendText}
-          content={t('wallet.halfModal.chooseWhatToSend')}
-        />
         <View style={styles.paymentOptionsRow}>
           <TouchableOpacity
             style={[
@@ -631,9 +637,8 @@ const styles = StyleSheet.create({
   chooseWhatToSendText: {
     fontSize: SIZES.small,
     opacity: 0.6,
-    paddingHorizontal: 8,
-    paddingTop: 8,
-    paddingBottom: 4,
+    paddingTop: 4,
+    includeFontPadding: false,
   },
 
   paymentOptionsRow: {
