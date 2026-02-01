@@ -1270,9 +1270,9 @@
     "fastPay": {
       "text1": "Erro ao inserir o valor, tente novamente.",
       "text2": "A quantia não pode ser 0",
-      "text3": "Pagamentos rápidos",
+      "text3": "Pagamentos Rápidos",
       "text4": "Limite máximo (SAT)",
-      "text5": "A função pagamento rápido permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento."
+      "text5": "A função Pagamento Rápidos permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento."
     },
     "loginSecurity": {
       "text1": "Segurança de acesso",
@@ -1683,7 +1683,7 @@
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
-        "fast pay": "Pagamento rápido",
+        "fast pay": "Pagamentos Rápidos",
         "blitz fee details": "Taxas da Blitz Wallet",
         "crash reports": "Relatório de falhas",
         "notifications": "Notificações",
