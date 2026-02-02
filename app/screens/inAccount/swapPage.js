@@ -73,6 +73,7 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import { setFlashnetTransfer } from '../../functions/spark/handleFlashnetTransferIds';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 
@@ -833,11 +834,10 @@ export default function SwapsPage() {
           }
         }
 
-        if (incomingTransfer && outgoingTransfer) {
-          bulkUpdateSparkTransactions(
-            [incomingTransfer, outgoingTransfer],
-            'fullUpdate',
-          );
+        setFlashnetTransfer(outgoingTransfer.id);
+
+        if (incomingTransfer) {
+          bulkUpdateSparkTransactions([incomingTransfer], 'fullUpdate');
         }
       } else {
         const errorInfo = handleFlashnetError({
