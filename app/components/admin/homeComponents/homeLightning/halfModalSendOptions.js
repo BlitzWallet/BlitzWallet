@@ -45,6 +45,7 @@ const ContactRow = ({
   expandedContact,
   onToggleExpand,
   onSelectPaymentType,
+  onRowLayout,
   t,
 }) => {
   const isExpanded = expandedContact === contact.uuid;
@@ -77,7 +78,10 @@ const ContactRow = ({
   }));
 
   return (
-    <View style={styles.contactWrapper}>
+    <View
+      style={styles.contactWrapper}
+      onLayout={e => onRowLayout(contact.uuid, e.nativeEvent.layout.y)}
+    >
       <TouchableOpacity
         style={styles.contactRowContainer}
         onPress={() => onToggleExpand(contact.uuid)}
@@ -252,6 +256,10 @@ export default function HalfModalSendOptions({
 }) {
   const [inputText, setInputText] = useState('');
   const [expandedContact, setExpandedContact] = useState(null);
+  const scrollViewRef = useRef(null);
+  const rowLayoutsRef = useRef({}); // { [uuid]: y }
+  const scrollOffsetRef = useRef(0);
+  const scrollViewHeightRef = useRef(0);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -304,6 +312,66 @@ export default function HalfModalSendOptions({
     setExpandedContact(prev => (prev === contactUuid ? null : contactUuid));
   }, []);
 
+  const handleRowLayout = useCallback((uuid, y) => {
+    rowLayoutsRef.current[uuid] = y;
+  }, []);
+
+  const sortedContacts = useMemo(() => {
+    return contactInfoList
+      .sort((contactA, contactB) => {
+        const updatedA = contactA?.lastUpdated || 0;
+        const updatedB = contactB?.lastUpdated || 0;
+
+        if (updatedA !== updatedB) {
+          return updatedB - updatedA;
+        }
+
+        const nameA = contactA?.name || contactA?.uniqueName || '';
+        const nameB = contactB?.name || contactB?.uniqueName || '';
+        return nameA.localeCompare(nameB);
+      })
+      .map(contact => contact.contact);
+  }, [contactInfoList]);
+
+  // When a contact expands, check whether the bottom of its expanded panel
+  // extends past the visible area of the ScrollView. If so, scroll just enough
+  // to bring it into view.
+  useEffect(() => {
+    if (!expandedContact || !scrollViewRef.current) return;
+
+    const rowY = rowLayoutsRef.current[expandedContact];
+    if (rowY == null) return;
+
+    const contact = sortedContacts.find(c => c.uuid === expandedContact);
+    if (!contact) return;
+
+    const expandedPanelHeight = contact?.isLNURL
+      ? 85
+      : !HIDE_IN_APP_PURCHASE_ITEMS
+      ? 230
+      : 160;
+
+    // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
+    const collapsedRowHeight = 61;
+
+    const expandedBottomEdge = rowY + collapsedRowHeight + expandedPanelHeight;
+
+    const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
+
+    if (expandedBottomEdge > visibleBottom) {
+      const buffer = 16;
+      const targetOffset =
+        expandedBottomEdge - scrollViewHeightRef.current + buffer;
+
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: targetOffset,
+          animated: true,
+        });
+      }, 220);
+    }
+  }, [expandedContact, sortedContacts]);
+
   const handleSelectPaymentType = useCallback(
     (contact, paymentType) => {
       handleBackPressFunction(() => {
@@ -326,23 +394,6 @@ export default function HalfModalSendOptions({
     [navigate, cache],
   );
 
-  const sortedContacts = useMemo(() => {
-    return contactInfoList
-      .sort((contactA, contactB) => {
-        const updatedA = contactA?.lastUpdated || 0;
-        const updatedB = contactB?.lastUpdated || 0;
-
-        if (updatedA !== updatedB) {
-          return updatedB - updatedA;
-        }
-
-        const nameA = contactA?.name || contactA?.uniqueName || '';
-        const nameB = contactB?.name || contactB?.uniqueName || '';
-        return nameA.localeCompare(nameB);
-      })
-      .map(contact => contact.contact);
-  }, [contactInfoList]);
-
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
       <ContactRow
@@ -357,6 +408,7 @@ export default function HalfModalSendOptions({
         expandedContact={expandedContact}
         onToggleExpand={handleToggleExpand}
         onSelectPaymentType={handleSelectPaymentType}
+        onRowLayout={handleRowLayout}
         t={t}
       />
     ));
@@ -371,11 +423,13 @@ export default function HalfModalSendOptions({
     expandedContact,
     handleToggleExpand,
     handleSelectPaymentType,
+    handleRowLayout,
     t,
   ]);
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{
@@ -383,6 +437,13 @@ export default function HalfModalSendOptions({
         paddingBottom: bottomPadding,
       }}
       stickyHeaderIndices={[3]}
+      onScroll={e => {
+        scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+      }}
+      scrollEventThrottle={16}
+      onLayout={e => {
+        scrollViewHeightRef.current = e.nativeEvent.layout.height;
+      }}
     >
       {/* Search Input with Clipboard Icon */}
       <View

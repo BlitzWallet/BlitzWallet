@@ -5,7 +5,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useImageCache } from '../../../../../context-store/imageCache';
@@ -36,6 +36,7 @@ const ContactRow = ({
   onToggleExpand,
   onSelectPaymentType,
   textColor,
+  onRowLayout,
   t,
 }) => {
   const isExpanded = expandedContact === contact.uuid;
@@ -66,7 +67,10 @@ const ContactRow = ({
   }));
 
   return (
-    <View style={styles.contactWrapper}>
+    <View
+      style={styles.contactWrapper}
+      onLayout={e => onRowLayout(contact.uuid, e.nativeEvent.layout.y)}
+    >
       <TouchableOpacity
         style={styles.contactRowContainer}
         onPress={() => onToggleExpand(contact.uuid)}
@@ -438,6 +442,10 @@ export default function HalfModalReceiveOptions({
 }) {
   const [expandedOtherOptions, setExpandedOtherOptions] = useState(false);
   const [expandedContact, setExpandedContact] = useState(null);
+  const scrollViewRef = useRef(null);
+  const rowLayoutsRef = useRef({}); // { [uuid]: y }
+  const scrollOffsetRef = useRef(0);
+  const scrollViewHeightRef = useRef(0);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -486,6 +494,10 @@ export default function HalfModalReceiveOptions({
     [navigate, cache],
   );
 
+  const handleRowLayout = useCallback((uuid, y) => {
+    rowLayoutsRef.current[uuid] = y;
+  }, []);
+
   const sortedContacts = useMemo(() => {
     return contactInfoList
       .sort((contactA, contactB) => {
@@ -504,6 +516,41 @@ export default function HalfModalReceiveOptions({
       .filter(contact => !contact.isLNURL);
   }, [contactInfoList]);
 
+  // When a contact expands, check whether the bottom of its expanded panel
+  // extends past the visible area of the ScrollView. If so, scroll just enough
+  // to bring it into view.
+  useEffect(() => {
+    if (!expandedContact || !scrollViewRef.current) return;
+
+    const rowY = rowLayoutsRef.current[expandedContact];
+    if (rowY == null) return;
+
+    const contact = sortedContacts.find(c => c.uuid === expandedContact);
+    if (!contact) return;
+
+    const expandedPanelHeight = 160;
+
+    // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
+    const collapsedRowHeight = 61;
+
+    const expandedBottomEdge = rowY + collapsedRowHeight + expandedPanelHeight;
+
+    const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
+
+    if (expandedBottomEdge > visibleBottom) {
+      const buffer = 16;
+      const targetOffset =
+        expandedBottomEdge - scrollViewHeightRef.current + buffer;
+
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: targetOffset,
+          animated: true,
+        });
+      }, 220);
+    }
+  }, [expandedContact, sortedContacts]);
+
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
       <ContactRow
@@ -518,6 +565,7 @@ export default function HalfModalReceiveOptions({
         textColor={textColor}
         onToggleExpand={handleToggleExpand}
         onSelectPaymentType={handleSelectPaymentType}
+        onRowLayout={handleRowLayout}
         t={t}
       />
     ));
@@ -531,10 +579,13 @@ export default function HalfModalReceiveOptions({
     backgroundColor,
     textColor,
     handleToggleExpand,
+    handleRowLayout,
+    t,
   ]);
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{
@@ -542,6 +593,13 @@ export default function HalfModalReceiveOptions({
         paddingBottom: bottomPadding,
       }}
       stickyHeaderIndices={[0, 4]}
+      onScroll={e => {
+        scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+      }}
+      scrollEventThrottle={16}
+      onLayout={e => {
+        scrollViewHeightRef.current = e.nativeEvent.layout.height;
+      }}
     >
       <View
         style={[
