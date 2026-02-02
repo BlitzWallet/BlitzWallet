@@ -282,7 +282,7 @@ export default function ClaimGiftScreen({
         ? Number(walletBalance?.balance)
         : 0;
       const dollarBalance = walletBalance?.didWork
-        ? Number(walletBalance?.tokensObj?.[USDB_TOKEN_ID]?.balance)
+        ? Number(walletBalance?.tokensObj?.[USDB_TOKEN_ID]?.balance) || 0
         : 0;
       const dollarGiftAmount = giftAmount * Math.pow(10, 6);
 
