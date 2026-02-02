@@ -1097,6 +1097,11 @@
       "header": "Sélectionnez la devise à demander"
     },
     "sendAndRequestPage": {
+      "sendBitcoin": "Envoyer du Bitcoin",
+      "sendDollars": "Envoyer des dollars",
+      "sendGift": "Envoyer un cadeau",
+      "requestBitcoin": "Demander du Bitcoin",
+      "requestDollars": "Demander des dollars",
       "profileMessage": "Payer {{name}}",
       "contactMessage": "{{name}} vous a payé",
       "giftCardappVersionError": "Vous ne pouvez pas envoyer de carte cadeau à ce contact. Il n'a pas mis à jour la dernière version de Blitz Wallet.",

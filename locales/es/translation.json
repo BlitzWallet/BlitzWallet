@@ -958,6 +958,11 @@
       "header": "Selecciona la moneda a solicitar"
     },
     "sendAndRequestPage": {
+      "sendBitcoin": "Enviar Bitcoin",
+      "sendDollars": "Enviar dólares",
+      "sendGift": "Enviar regalo",
+      "requestBitcoin": "Solicitar Bitcoin",
+      "requestDollars": "Solicitar dólares",
       "profileMessage": "Pagando {{name}}",
       "contactMessage": "{{name}} te pagó",
       "giftCardappVersionError": "No puedes enviar una tarjeta de regalo a este contacto. No ha actualizado a la última versión de Blitz Wallet.",

@@ -1113,6 +1113,11 @@
     },
 
     "sendAndRequestPage": {
+      "sendBitcoin": "Enviar Bitcoin",
+      "sendDollars": "Enviar dólares",
+      "sendGift": "Enviar presente",
+      "requestBitcoin": "Solicitar Bitcoin",
+      "requestDollars": "Solicitar dólares",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um cartão-presente para este contato. Eles não atualizaram para a versão mais recente da Blitz Wallet.",

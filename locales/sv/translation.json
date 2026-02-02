@@ -1097,6 +1097,11 @@
       "header": "Välj valuta att begära"
     },
     "sendAndRequestPage": {
+      "sendBitcoin": "Skicka Bitcoin",
+      "sendDollars": "Skicka dollar",
+      "sendGift": "Skicka gåva",
+      "requestBitcoin": "Begär Bitcoin",
+      "requestDollars": "Begär dollar",
       "profileMessage": "Betalning {{name}}",
       "contactMessage": "{{name}} betalade dig",
       "giftCardappVersionError": "Du kan inte skicka ett presentkort till den här kontakten. De har inte uppdaterat till den senaste versionen av Blitz Wallet.",

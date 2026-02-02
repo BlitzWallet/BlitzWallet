@@ -70,6 +70,8 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import usePaymentValidation from '../sendBitcoin/functions/paymentValidation';
 import { InputTypes } from 'bitcoin-address-parser';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import ContactProfileImage from './internalComponents/profileImage';
+
 const MAX_SEND_OPTIONS = [
   { label: '25%', value: '25' },
   { label: '50%', value: '50' },
@@ -593,38 +595,52 @@ export default function SendAndRequestPage(props) {
         ]}
       >
         <CustomSettingsTopBar
-          label={
-            paymentType === 'send'
-              ? t('constants.send')
-              : paymentType === 'Gift'
-              ? t('constants.gift')
-              : t('constants.request')
-          }
+          label={t(
+            `contacts.sendAndRequestPage.${
+              paymentType === 'Gift' ? 'sendGift' : paymentType.toLowerCase()
+            }${
+              paymentType === 'send'
+                ? endReceiveType === 'USD'
+                  ? 'Dollars'
+                  : 'Bitcoin'
+                : paymentType === 'Gift'
+                ? ''
+                : selectedRequestMethod === 'USD'
+                ? 'Dollars'
+                : 'Bitcoin'
+            }`,
+          )}
           containerStyles={{ marginBottom: 0 }}
         />
-        <ThemeText
-          styles={{
-            textAlign: 'center',
-            opacity: 0.7,
-          }}
-          content={
-            paymentType === 'send'
-              ? t(
-                  `constants.${
-                    endReceiveType === 'USD' ? 'dollars_upper' : 'bitcoin_upper'
-                  }`,
-                )
-              : paymentType === 'Gift'
-              ? ''
-              : t(
-                  `constants.${
-                    selectedRequestMethod === 'USD'
-                      ? 'dollars_upper'
-                      : 'bitcoin_upper'
-                  }`,
-                )
-          }
-        />
+
+        <View
+          style={[
+            styles.identityBadge,
+            { marginBottom: paymentType !== 'Gift' ? 12 : 32 },
+          ]}
+        >
+          <View
+            style={[
+              styles.contactListLetterImage,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            <ContactProfileImage
+              updated={imageData?.updated}
+              uri={imageData?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+          <View style={styles.identityTextContainer}>
+            <ThemeText
+              styles={styles.contactName}
+              content={
+                selectedContact?.name || selectedContact?.uniqueName || ''
+              }
+            />
+          </View>
+        </View>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -679,7 +695,6 @@ export default function SendAndRequestPage(props) {
                   style={[
                     styles.pill,
                     {
-                      // borderColor: backgroundOffset,
                       backgroundColor: theme
                         ? backgroundOffset
                         : COLORS.darkModeText,
@@ -885,6 +900,34 @@ const styles = StyleSheet.create({
     width: WINDOWWIDTH,
     ...CENTER,
   },
+
+  identityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: 16,
+    gap: 10,
+  },
+
+  contactListLetterImage: {
+    height: 40,
+    width: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+
+  identityTextContainer: {
+    flexDirection: 'column',
+    gap: 2,
+  },
+
+  contactName: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+  },
+
   scrollViewContainer: {
     paddingBottom: 20,
     alignItems: 'center',
@@ -960,32 +1003,21 @@ const styles = StyleSheet.create({
   editButton: {
     width: 32,
     height: 32,
-    // borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    // position: 'absolute',
-    // right: -8,
-    // top: -8,
-    // borderWidth: 3,
     marginLeft: 'auto',
   },
   editIcon: {
     width: 18,
     height: 18,
   },
-  memoSection: {
-    // marginTop: 18,
-  },
+  memoSection: {},
   memoLabel: {
     marginBottom: 10,
     opacity: 0.8,
     fontSize: SIZES.smedium,
   },
   memoContainer: {
-    // padding: 15,
-    // borderRadius: 8,
-    // borderWidth: 1,
-
     justifyContent: 'center',
   },
   memoText: {

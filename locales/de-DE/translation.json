@@ -1093,6 +1093,11 @@
       "header": "Wählen Sie bitte die anzufordernde Währung aus"
     },
     "sendAndRequestPage": {
+      "sendBitcoin": "BTC senden",
+      "sendDollars": "USD senden",
+      "sendGift": "Geschenk senden",
+      "requestBitcoin": "BTC anfordern",
+      "requestDollars": "USD anfordern",
       "descriptionPlaceholder": "Zahlungsbeschreibung",
       "profileMessage": "Bezahlung an {{name}}",
       "contactMessage": "{{name}} hat Ihnen bezahlt",

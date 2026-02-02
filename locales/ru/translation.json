@@ -1094,6 +1094,11 @@
       "header": "Выберите валюту для запроса"
     },
     "sendAndRequestPage": {
+      "sendBitcoin": "Отправить Bitcoin",
+      "sendDollars": "Отправить доллары",
+      "sendGift": "Отправить подарок",
+      "requestBitcoin": "Запросить Bitcoin",
+      "requestDollars": "Запросить доллары",
       "profileMessage": "Оплата {{name}}",
       "contactMessage": "{{name}} заплатил вам",
       "giftCardappVersionError": "Нельзя отправить карту: у контакта старая версия Blitz Wallet.",
