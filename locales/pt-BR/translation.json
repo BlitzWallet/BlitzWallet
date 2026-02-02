@@ -118,7 +118,7 @@
     "manage": "Emitidos",
     "reclaim": "Expirados",
     "optionalFlag": "(Opcional)",
-    "gift": "Cartão-presente",
+    "gift": "Cartão-Presente",
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dólares",
     "rate": "Cotação",
@@ -709,10 +709,10 @@
     },
     "giftCards": {
       "giftCardsPage": {
-        "searchPlaceholder": "Procure um Cartão-presente",
+        "searchPlaceholder": "Procure um Cartão-Presente",
         "leftPageMessage": "Aonde você foi?",
         "loadingCardsMessage": "Buscando cartões-presente",
-        "noCardsAvailable": "Nenhum Cartão-presente disponível"
+        "noCardsAvailable": "Nenhum Cartão-Presente disponível"
       },
       "confimPurchase": {
         "quantity": "Quantidade {{quantity}}",
@@ -730,12 +730,12 @@
         "termsAndConditions4": "Política de privacidade"
       },
       "expandedGiftCardPage": {
-        "purchasingCardMessage": "Adquirindo Cartão-presente, não saia da página.",
+        "purchasingCardMessage": "Adquirindo Cartão-Presente, não saia da página.",
         "selectamount": "Selecione um valor",
         "sendingto": "Enviando para: ",
         "minMaxPurchaseAmount": "Você pode comprar um {{min}} quantidade de {{max}} {{currency}}",
         "emailPlaceholder": "Digite o endereço de e-mail",
-        "purchaseBTN": "Comprar Cartão-presente",
+        "purchaseBTN": "Comprar Cartão-Presente",
         "differentEmailMessage": "O e-mail atual é diferente do salvo. Deseja tornar este e-mail o seu e-mail principal?",
         "terms": "Termos",
         "cardDescription": "Descrição do cartão",
@@ -743,8 +743,8 @@
         "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
         "giftMessage": "Adicione uma descrição ao seu presente",
         "giftMessagePlaceholder": "Digite sua mensagem aqui",
-        "selectForContactBTN": "Selecione Cartão-presente",
-        "noAmountError": "Por favor, escolha o valor do Cartão-presente"
+        "selectForContactBTN": "Selecione Cartão-Presente",
+        "noAmountError": "Por favor, escolha o valor do Cartão-Presente"
       },
       "giftCardOrderDetails": {
         "title": "Detalhes do pedido",
@@ -754,9 +754,9 @@
         "openInbox": "Abrir caixa de entrada"
       },
       "historicalPurchasesPage": {
-        "confirmRemoval": "Tem certeza de que deseja remover este Cartão-presente?",
+        "confirmRemoval": "Tem certeza de que deseja remover este Cartão-Presente?",
         "purchased": "Comprado:",
-        "noPurchases": "Você não tem compras de Cartão-presente",
+        "noPurchases": "Você não tem compras de Cartão-Presente",
         "customCopyMessage": "E-mail de suporte copiado"
       }
     },
@@ -1115,35 +1115,35 @@
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin",
       "sendDollars": "Enviar Dólares",
-      "sendGift": "Enviar Cartão-presente",
+      "sendGift": "Enviar Cartão-Presente",
       "requestBitcoin": "Solicitar Bitcoin",
       "requestDollars": "Solicitar Dólares",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
-      "giftCardappVersionError": "Você não pode enviar um Cartão-presente para este contato. Eles não atualizaram para a versão mais recente da Blitz Wallet.",
-      "giftCardDescription": "Você enviou para {{name}} um Cartão-presente {{giftCardName}}",
-      "cardDetailsError": "Não foi possível carregar seu Cartão-presente neste momento. Tente novamente.",
+      "giftCardappVersionError": "Você não pode enviar um Cartão-Presente para este contato. Eles não atualizaram para a versão mais recente da Blitz Wallet.",
+      "giftCardDescription": "Você enviou para {{name}} um Cartão-Presente {{giftCardName}}",
+      "cardDetailsError": "Não foi possível carregar seu Cartão-Presente neste momento. Tente novamente.",
       "giftCardRange": "Enviar {{amount}} - {{amount2}}",
       "giftCardAmountError": "Insira um valor de pelo menos {{amount}} e até {{amount2}}",
-      "sendGiftText": "Enviar Cartão-presente",
-      "notVariableCard": "Este Cartão-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
-      "giftCardText": "Cartão-presente {{giftName}}",
+      "sendGiftText": "Enviar Cartão-Presente",
+      "notVariableCard": "Este Cartão-Presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
+      "giftCardText": "Cartão-Presente {{giftName}}",
       "giftMessage": "Mensagem",
       "recipientReceives": "{{contactName}} receberá",
       "giftMessagePlaceholder": "Escreva sua mensagem de presente aqui...",
       "paymentSourceHeader": "Fonte de pagamento"
     },
     "viewGiftCardCode": {
-      "noCardInfoError": "Não foi possível carregar seu Cartão-presente neste momento. Tente novamente.",
-      "loadingMessage": "Carregando informações do Cartão-presente...",
-      "valueHeader": "Valor do Cartão-presente",
+      "noCardInfoError": "Não foi possível carregar seu Cartão-Presente neste momento. Tente novamente.",
+      "loadingMessage": "Carregando informações do Cartão-Presente...",
+      "valueHeader": "Valor do Cartão-Presente",
       "redeemHeader": "Como resgatar",
-      "openClaimText": "Abrir Cartão-presente",
+      "openClaimText": "Abrir Cartão-Presente",
       "instructionsHeader": "Instruções para resgate",
       "terms&conditions": "Termos & Condições",
       "cardUUID": "Cartão UUID",
       "helpHeader": "Precisa de ajuda?",
-      "helpDesc": "Se precisar de ajuda com este Cartão-presente, copie o UUID do cartão acima e envie para o e-mail da nossa equipe de suporte.",
+      "helpDesc": "Se precisar de ajuda com este Cartão-Presente, copie o UUID do cartão acima e envie para o e-mail da nossa equipe de suporte.",
       "unpaidMessage": "Este cartão não está pago. Se o pagamento foi efetuado, mas não foi reconhecido, use o e-mail abaixo para obter ajuda.",
       "messageLabel": "Mensagem:",
       "claimed": "Usado",
@@ -1152,8 +1152,8 @@
 
     "selectGiftPage": {
       "noCards": "Nenhum cartão disponível",
-      "header": "Selecione o Cartão-presente que deseja enviar",
-      "inputPlaceholder": "Procure um Cartão-presente"
+      "header": "Selecione o Cartão-Presente que deseja enviar",
+      "inputPlaceholder": "Procure um Cartão-Presente"
     },
 
     "internalComponents": {
@@ -1168,14 +1168,14 @@
         "send": "Aprovar"
       },
       "viewAllGiftCards": {
-        "cardNamePlaceH": "Cartão-presente",
+        "cardNamePlaceH": "Cartão-Presente",
         "noCardsText": "Seus cartões-presente aparecerão aqui assim que você os receber",
         "header": "Seus cartões-presente",
         "cardsLenghSingular": "{{num}} cartão",
         "cardsLenghPlurl": "{{num}} cartões"
       },
       "editGiftCard": {
-        "header": "O que você gostaria de fazer com seu Cartão-presente?"
+        "header": "O que você gostaria de fazer com seu Cartão-Presente?"
       }
     },
     "showProfileQr": {
@@ -2032,7 +2032,7 @@
       "updateMessage": "{{name}} {{option}} sua solicitação",
       "request": "{{name}} solicitou você {{amount}}",
       "payment": "{{name}} pagou você {{amount}}",
-      "giftCard": "{{name}} enviou para você um Cartão-presente {{giftCardName}}"
+      "giftCard": "{{name}} enviou para você um Cartão-Presente {{giftCardName}}"
     }
   },
 
