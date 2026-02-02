@@ -1115,7 +1115,7 @@
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin",
       "sendDollars": "Enviar dólares",
-      "sendGift": "Enviar presente",
+      "sendGift": "Enviar cartão-presente",
       "requestBitcoin": "Solicitar Bitcoin",
       "requestDollars": "Solicitar dólares",
       "profileMessage": "Você pagou {{name}}",
