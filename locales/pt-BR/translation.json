@@ -865,7 +865,6 @@
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "O que você deseja enviar?",
-      "addressBook_send": "Contatos",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
       "tapToGenerate_other": "Toque para ver outras opções",
@@ -881,7 +880,10 @@
       "scanQrCode": "Ler código QR",
       "tapToScanQr": "Pague lendo um código QR",
       "addressBook_request": "Solicitar de um contato",
-      "qrReceiveOptions": "Receber via código QR"
+      "qrReceiveOptions": "Receber via código QR",
+      "addressBook_send": "Enviar para um contato",
+      "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
+      "tapToGenerate_lightning_usd": "Receber USD instantaneamente"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"

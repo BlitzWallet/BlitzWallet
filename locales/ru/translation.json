@@ -850,7 +850,6 @@
       "inputPlaceholder": "Введите адрес для оплаты",
       "scanImage": "Сканировать изображение",
       "tapToScan": "Нажмите, чтобы получить адрес из изображения",
-      "addressBook_send": "Контакты",
       "chooseWhatToSend": "Выберите, что отправить",
       "noContacts": "Добавьте контакты, чтобы они отображались здесь",
       "selectAddressType": "Выберите тип адреса",
@@ -867,7 +866,10 @@
       "scanQrCode": "Сканировать QR-код",
       "tapToScanQr": "Нажмите, чтобы отсканировать QR-код",
       "addressBook_request": "Запросить у контакта",
-      "qrReceiveOptions": "Получить через QR-код"
+      "qrReceiveOptions": "Получить через QR-код",
+      "addressBook_send": "Отправить контакту",
+      "tapToGenerate_lightning_btc": "Мгновенно получить BTC",
+      "tapToGenerate_lightning_usd": "Мгновенно получить USD"
     },
     "manualInputPage": {
       "inputPlaceholder": "Адрес Liquid, Молнии или инвойс"
