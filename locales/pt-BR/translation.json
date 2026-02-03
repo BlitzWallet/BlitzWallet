@@ -208,7 +208,7 @@
       "title": "Escolha o idioma"
     },
     "homePage": {
-      "subtitle": "Sua carteira. Seu dinheiro. Open-source.",
+      "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
         "button1": "Recuperar carteira",
         "button2": "Criar nova carteira"
@@ -865,7 +865,7 @@
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "O que você deseja enviar?",
-      "addressBook_send": "Contatos",
+      "addressBook_send": "Enviar para contatos",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
       "tapToGenerate_other": "Toque para ver outras opções",
