@@ -391,81 +391,303 @@
       "exampleSearchCards": {
         "title": "Beispielanfragen",
         "examples": [
-          {"bottomLine": "als hätten Sie noch nie programmiert", "topLine": "Wie fange ich an, React Native zu lernen?"},
-          {"bottomLine": "als wären Sie ein Teenager", "topLine": "Was ist der Unterschied zwischen Web2 und Web3?"},
-          {"bottomLine": "als wären Sie 12", "topLine": "Wie funktioniert die Börse?"},
-          {"bottomLine": "als wären Sie 10 Jahre alt", "topLine": "Was ist Quantencomputing?"},
-          {"bottomLine": "als wären Sie 8", "topLine": "Erklären Sie den Klimawandel"},
-          {"bottomLine": "als wären Sie ein Gymnasiast", "topLine": "Was ist künstliche Intelligenz?"},
-          {"bottomLine": "als wären Sie 15", "topLine": "Wie funktionieren Kreditkarten?"},
-          {"bottomLine": "als wären Sie in der Mittelschule", "topLine": "Was ist Blockchain-Technologie?"},
-          {"bottomLine": "als wären Sie 7 Jahre alt", "topLine": "Wie funktioniert GPS?"},
-          {"bottomLine": "als wären Sie 9", "topLine": "Erklären Sie, wie Flugzeuge fliegen"},
-          {"bottomLine": "als wären Sie ein Großelternteil", "topLine": "Was ist ein Meme?"},
-          {"bottomLine": "als wären Sie ein Anfänger", "topLine": "Wie funktionieren drahtlose Netzwerke?"},
-          {"bottomLine": "als wären Sie ein Teenager", "topLine": "Was ist Kryptowährung?"},
-          {"bottomLine": "als wären Sie 6", "topLine": "Wie funktioniert das Internet?"},
-          {"bottomLine": "als wären Sie neu im Programmieren", "topLine": "Was ist eine API?"},
-          {"bottomLine": "als wären Sie in der 5. Klasse", "topLine": "Erklären Sie Photosynthese"},
-          {"bottomLine": "als wären Sie 14", "topLine": "Wie funktionieren Elektroautos?"},
-          {"bottomLine": "als wären Sie in der Oberschule", "topLine": "Was ist ein Smart Contract?"},
-          {"bottomLine": "als wären Sie 13", "topLine": "Wie funktioniert Raumfahrt?"},
-          {"bottomLine": "als wären Sie 15", "topLine": "Erklären Sie NFTs"},
-          {"bottomLine": "als wären Sie 10 Jahre alt", "topLine": "Was ist Augmented Reality?"},
-          {"bottomLine": "als wären Sie in der Mittelschule", "topLine": "Wie funktioniert ein 3D-Drucker?"},
-          {"bottomLine": "als wären Sie in der Oberschule", "topLine": "Erklären Sie maschinelles Lernen"},
-          {"bottomLine": "als wären Sie 12", "topLine": "Wie funktionieren Solarmodule?"},
-          {"bottomLine": "als wären Sie ein Anfänger", "topLine": "Was ist Virtual Reality?"},
-          {"bottomLine": "als wären Sie 10", "topLine": "Wie funktionieren Impfstoffe?"},
-          {"bottomLine": "als wären Sie 5 Jahre alt", "topLine": "Erklären Sie Gravitation"},
-          {"bottomLine": "als wären Sie neu in der Blockchain", "topLine": "Was ist eine dezentrale Anwendung (dApp)?"},
-          {"bottomLine": "als wären Sie 8", "topLine": "Wie kochen Mikrowellen Essen?"},
-          {"bottomLine": "als wären Sie in der Grundschule", "topLine": "Erklären Sie das Konzept der Zeitzonen"},
-          {"bottomLine": "als wären Sie ein Anfänger", "topLine": "Wie verarbeitet ein Computer Daten?"},
-          {"bottomLine": "als wären Sie in der Mittelschule", "topLine": "Was ist Cloud Computing?"},
-          {"bottomLine": "als wären Sie ein Gymnasiast", "topLine": "Erklären Sie das Konzept der KI-Ethik"},
-          {"bottomLine": "als wären Sie 11", "topLine": "Wie bleiben Satelliten in der Umlaufbahn?"},
-          {"bottomLine": "als wären Sie ein Teenager", "topLine": "Was ist Cybersicherheit?"},
-          {"bottomLine": "als wären Sie in der 8. Klasse", "topLine": "Erklären Sie die Evolutionstheorie"},
-          {"bottomLine": "als wären Sie in der Oberschule", "topLine": "Was ist der Zweck der Blockchain?"},
-          {"bottomLine": "als wären Sie 9", "topLine": "Wie funktioniert Wi-Fi?"},
-          {"bottomLine": "als wären Sie 10 Jahre alt", "topLine": "Was ist eine Suchmaschine?"},
-          {"bottomLine": "als wären Sie in der 7. Klasse", "topLine": "Wie funktionieren Elektromotoren?"},
-          {"bottomLine": "als wären Sie 14", "topLine": "Erklären Sie das Konzept der Relativität"},
-          {"bottomLine": "als wären Sie neu in der Technologie", "topLine": "Was ist das Internet der Dinge (IoT)?"},
-          {"bottomLine": "als wären Sie in der Mittelschule", "topLine": "Wie funktionieren Smartphones?"},
-          {"bottomLine": "als wären Sie in der 6. Klasse", "topLine": "Erklären Sie das Konzept der erneuerbaren Energien"},
-          {"bottomLine": "als wären Sie ein Teenager", "topLine": "Was ist virtuelle Währung?"},
-          {"bottomLine": "als wären Sie 12", "topLine": "Wie funktionieren Smart Homes?"},
-          {"bottomLine": "als wären Sie neu in der KI", "topLine": "Was ist Deep Learning?"},
-          {"bottomLine": "als wären Sie ein Anfänger", "topLine": "Wie funktioniert Online-Shopping?"},
-          {"bottomLine": "als wären Sie ein Teenager", "topLine": "Erklären Sie das Konzept des Datenschutzes"},
-          {"bottomLine": "als wären Sie 14", "topLine": "Was ist Virtual Reality Gaming?"},
-          {"bottomLine": "als wären Sie in der Oberschule", "topLine": "Wie funktionieren selbstfahrende Autos?"},
-          {"bottomLine": "als wären Sie 13", "topLine": "Was ist Gentechnik?"},
-          {"bottomLine": "als wären Sie neu in der Technologie", "topLine": "Erklären Sie das Konzept der Smart Cities"},
-          {"bottomLine": "als wären Sie 11", "topLine": "Wie funktionieren Drohnen?"},
-          {"bottomLine": "als wären Sie ein Teenager", "topLine": "Was ist eine digitale Wallet?"},
-          {"bottomLine": "als wären Sie in der Mittelschule", "topLine": "Wie funktioniert digitale Kunst?"},
-          {"bottomLine": "als wären Sie neu in der Technologie", "topLine": "Erklären Sie das Konzept der 5G-Technologie"},
-          {"bottomLine": "als wären Sie 15", "topLine": "Was ist ein autonomes Fahrzeug?"},
-          {"bottomLine": "als wären Sie 10", "topLine": "Wie funktionieren Videospiele?"},
-          {"bottomLine": "als wären Sie in der Oberschule", "topLine": "Erklären Sie das Konzept der Smart Contracts"},
-          {"bottomLine": "als wären Sie in der Mittelschule", "topLine": "Was ist eine Smartwatch?"},
-          {"bottomLine": "als wären Sie 12 Jahre alt", "topLine": "Wie funktioniert ein Touchscreen?"},
-          {"bottomLine": "als wären Sie ein Anfänger", "topLine": "Erklären Sie das Konzept der maschinellen Übersetzung"},
-          {"bottomLine": "als wären Sie neu in der Technologie", "topLine": "Was ist ein Rechenzentrum?"},
-          {"bottomLine": "als wären Sie ein Teenager", "topLine": "Wie funktioniert Blockchain-Mining?"},
-          {"bottomLine": "als wären Sie in der Oberschule", "topLine": "Was ist ein Mikrochip?"},
-          {"bottomLine": "als wären Sie in der Mittelschule", "topLine": "Erklären Sie das Konzept der Cloud-Speicherung"},
-          {"bottomLine": "als wären Sie 13", "topLine": "Wie funktionieren Elektroscooter?"},
-          {"bottomLine": "als wären Sie ein Anfänger", "topLine": "Was ist ein Algorithmus?"},
-          {"bottomLine": "als wären Sie neu in der Technologie", "topLine": "Erklären Sie das Konzept der virtuellen Meetings"},
-          {"bottomLine": "als wären Sie 14", "topLine": "Wie funktionieren Elektrofahrräder?"},
-          {"bottomLine": "als wären Sie in der Oberschule", "topLine": "Was ist ein Quantencomputer?"},
-          {"bottomLine": "als wären Sie ein Teenager", "topLine": "Erklären Sie das Konzept der Cybersicherheit"},
-          {"bottomLine": "als wären Sie 12", "topLine": "Was ist Augmented Reality?"},
-          {"bottomLine": "als wären Sie in der Mittelschule", "topLine": "Wie funktionieren Streaming-Dienste?"}
+          {
+            "bottomLine": "als hätten Sie noch nie programmiert",
+            "topLine": "Wie fange ich an, React Native zu lernen?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Was ist der Unterschied zwischen Web2 und Web3?"
+          },
+          {
+            "bottomLine": "als wären Sie 12",
+            "topLine": "Wie funktioniert die Börse?"
+          },
+          {
+            "bottomLine": "als wären Sie 10 Jahre alt",
+            "topLine": "Was ist Quantencomputing?"
+          },
+          {
+            "bottomLine": "als wären Sie 8",
+            "topLine": "Erklären Sie den Klimawandel"
+          },
+          {
+            "bottomLine": "als wären Sie ein Gymnasiast",
+            "topLine": "Was ist künstliche Intelligenz?"
+          },
+          {
+            "bottomLine": "als wären Sie 15",
+            "topLine": "Wie funktionieren Kreditkarten?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Was ist Blockchain-Technologie?"
+          },
+          {
+            "bottomLine": "als wären Sie 7 Jahre alt",
+            "topLine": "Wie funktioniert GPS?"
+          },
+          {
+            "bottomLine": "als wären Sie 9",
+            "topLine": "Erklären Sie, wie Flugzeuge fliegen"
+          },
+          {
+            "bottomLine": "als wären Sie ein Großelternteil",
+            "topLine": "Was ist ein Meme?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Wie funktionieren drahtlose Netzwerke?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Was ist Kryptowährung?"
+          },
+          {
+            "bottomLine": "als wären Sie 6",
+            "topLine": "Wie funktioniert das Internet?"
+          },
+          {
+            "bottomLine": "als wären Sie neu im Programmieren",
+            "topLine": "Was ist eine API?"
+          },
+          {
+            "bottomLine": "als wären Sie in der 5. Klasse",
+            "topLine": "Erklären Sie Photosynthese"
+          },
+          {
+            "bottomLine": "als wären Sie 14",
+            "topLine": "Wie funktionieren Elektroautos?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Was ist ein Smart Contract?"
+          },
+          {
+            "bottomLine": "als wären Sie 13",
+            "topLine": "Wie funktioniert Raumfahrt?"
+          },
+          { "bottomLine": "als wären Sie 15", "topLine": "Erklären Sie NFTs" },
+          {
+            "bottomLine": "als wären Sie 10 Jahre alt",
+            "topLine": "Was ist Augmented Reality?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Wie funktioniert ein 3D-Drucker?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Erklären Sie maschinelles Lernen"
+          },
+          {
+            "bottomLine": "als wären Sie 12",
+            "topLine": "Wie funktionieren Solarmodule?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Was ist Virtual Reality?"
+          },
+          {
+            "bottomLine": "als wären Sie 10",
+            "topLine": "Wie funktionieren Impfstoffe?"
+          },
+          {
+            "bottomLine": "als wären Sie 5 Jahre alt",
+            "topLine": "Erklären Sie Gravitation"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Blockchain",
+            "topLine": "Was ist eine dezentrale Anwendung (dApp)?"
+          },
+          {
+            "bottomLine": "als wären Sie 8",
+            "topLine": "Wie kochen Mikrowellen Essen?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Grundschule",
+            "topLine": "Erklären Sie das Konzept der Zeitzonen"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Wie verarbeitet ein Computer Daten?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Was ist Cloud Computing?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Gymnasiast",
+            "topLine": "Erklären Sie das Konzept der KI-Ethik"
+          },
+          {
+            "bottomLine": "als wären Sie 11",
+            "topLine": "Wie bleiben Satelliten in der Umlaufbahn?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Was ist Cybersicherheit?"
+          },
+          {
+            "bottomLine": "als wären Sie in der 8. Klasse",
+            "topLine": "Erklären Sie die Evolutionstheorie"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Was ist der Zweck der Blockchain?"
+          },
+          {
+            "bottomLine": "als wären Sie 9",
+            "topLine": "Wie funktioniert Wi-Fi?"
+          },
+          {
+            "bottomLine": "als wären Sie 10 Jahre alt",
+            "topLine": "Was ist eine Suchmaschine?"
+          },
+          {
+            "bottomLine": "als wären Sie in der 7. Klasse",
+            "topLine": "Wie funktionieren Elektromotoren?"
+          },
+          {
+            "bottomLine": "als wären Sie 14",
+            "topLine": "Erklären Sie das Konzept der Relativität"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Was ist das Internet der Dinge (IoT)?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Wie funktionieren Smartphones?"
+          },
+          {
+            "bottomLine": "als wären Sie in der 6. Klasse",
+            "topLine": "Erklären Sie das Konzept der erneuerbaren Energien"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Was ist virtuelle Währung?"
+          },
+          {
+            "bottomLine": "als wären Sie 12",
+            "topLine": "Wie funktionieren Smart Homes?"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der KI",
+            "topLine": "Was ist Deep Learning?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Wie funktioniert Online-Shopping?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Erklären Sie das Konzept des Datenschutzes"
+          },
+          {
+            "bottomLine": "als wären Sie 14",
+            "topLine": "Was ist Virtual Reality Gaming?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Wie funktionieren selbstfahrende Autos?"
+          },
+          {
+            "bottomLine": "als wären Sie 13",
+            "topLine": "Was ist Gentechnik?"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Erklären Sie das Konzept der Smart Cities"
+          },
+          {
+            "bottomLine": "als wären Sie 11",
+            "topLine": "Wie funktionieren Drohnen?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Was ist eine digitale Wallet?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Wie funktioniert digitale Kunst?"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Erklären Sie das Konzept der 5G-Technologie"
+          },
+          {
+            "bottomLine": "als wären Sie 15",
+            "topLine": "Was ist ein autonomes Fahrzeug?"
+          },
+          {
+            "bottomLine": "als wären Sie 10",
+            "topLine": "Wie funktionieren Videospiele?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Erklären Sie das Konzept der Smart Contracts"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Was ist eine Smartwatch?"
+          },
+          {
+            "bottomLine": "als wären Sie 12 Jahre alt",
+            "topLine": "Wie funktioniert ein Touchscreen?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Erklären Sie das Konzept der maschinellen Übersetzung"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Was ist ein Rechenzentrum?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Wie funktioniert Blockchain-Mining?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Was ist ein Mikrochip?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Erklären Sie das Konzept der Cloud-Speicherung"
+          },
+          {
+            "bottomLine": "als wären Sie 13",
+            "topLine": "Wie funktionieren Elektroscooter?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Was ist ein Algorithmus?"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Erklären Sie das Konzept der virtuellen Meetings"
+          },
+          {
+            "bottomLine": "als wären Sie 14",
+            "topLine": "Wie funktionieren Elektrofahrräder?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Was ist ein Quantencomputer?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Erklären Sie das Konzept der Cybersicherheit"
+          },
+          {
+            "bottomLine": "als wären Sie 12",
+            "topLine": "Was ist Augmented Reality?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Wie funktionieren Streaming-Dienste?"
+          }
         ]
       },
       "saveChat": {
@@ -1117,7 +1339,7 @@
       "rescan": "Neu scannen",
       "totalBalance": "Gesamtguthaben",
       "swapMessage": "Blitz Wallet versucht, Ihre Liquid-Gelder beim ersten App-Start oder beim Empfang von Liquid-Zahlungen nach Spark zu übertragen.\n\nIn manchen Fällen kann jedoch eine Übertragung verpasst werden. Um diese Gelder manuell nach Spark zu bewegen, tippen Sie unten auf den Button „Übertragen“.",
-      "swap": "Übertragen,
+      "swap": "Übertragen",
       "rescanning": "Scannen…",
       "autoClaimLabel": "Automatisch einlösen",
       "autoClaimHelper": "Liquid-Guthaben automatisch in Lightning tauschen, sobald der Mindestbetrag erreicht ist."
@@ -1755,7 +1977,7 @@
       "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet"
     }
   },
-    "flashnetUserMessages": {
+  "flashnetUserMessages": {
     "FSAG-1000": "Ihre Anfrage hat die Validierungsprüfung leider nicht bestanden.",
     "FSAG-1001": "In Ihrer Anfrage fehlt ein erforderliches Feld.",
     "FSAG-1002": "Ein oder mehrere Felder haben ein ungültiges Format.",
