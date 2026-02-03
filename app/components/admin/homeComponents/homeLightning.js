@@ -55,6 +55,81 @@ const MemoizedLRC20Assets = memo(LRC20Assets);
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
+const MemoizedStickyNavbarContainer = memo(
+  function MemoizedStickyNavbarContainer({
+    backgroundColor,
+    borderRadius,
+    onLayout,
+    darkModeType,
+    theme,
+    toggleTheme,
+    sparkBalance,
+    sparkTokens,
+    didViewSeedPhrase,
+    masterInfoObject,
+    totalSatValue,
+    bitcoinBalance,
+    dollarBalanceToken,
+    scrollPosition,
+    balanceOpacityStyle,
+  }) {
+    return (
+      <View
+        onLayout={onLayout}
+        style={[
+          styles.navbarContainer,
+          {
+            backgroundColor,
+            borderBottomLeftRadius: borderRadius ? 30 : 0,
+            borderBottomRightRadius: borderRadius ? 30 : 0,
+          },
+        ]}
+      >
+        <MemoizedNavBar
+          darkModeType={darkModeType}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          sparkBalance={sparkBalance}
+          sparkTokens={sparkTokens}
+          didViewSeedPhrase={didViewSeedPhrase}
+        />
+
+        <Animated.View
+          style={[styles.navbarBalance, balanceOpacityStyle]}
+          pointerEvents="none"
+        >
+          <FormattedSatText
+            styles={styles.navbarBalanceText}
+            globalBalanceDenomination={
+              masterInfoObject.userBalanceDenomination === 'hidden'
+                ? masterInfoObject.userBalanceDenomination
+                : scrollPosition === 'total'
+                ? masterInfoObject.userBalanceDenomination
+                : scrollPosition === 'sats'
+                ? 'sats'
+                : 'fiat'
+            }
+            balance={
+              scrollPosition === 'total'
+                ? totalSatValue
+                : scrollPosition === 'sats'
+                ? bitcoinBalance
+                : formatBalanceAmount(
+                    dollarBalanceToken,
+                    false,
+                    masterInfoObject,
+                  )
+            }
+            forceCurrency={scrollPosition !== 'usd' ? '' : 'USD'}
+            useBalance={scrollPosition === 'usd'}
+            useSizing={true}
+          />
+        </Animated.View>
+      </View>
+    );
+  },
+);
+
 // Custom hook for PagerView scroll handler
 function usePagerScrollHandler(handlers, dependencies) {
   const { context, doDependenciesDiffer } = useHandler(handlers, dependencies);
@@ -387,62 +462,23 @@ export default function HomeLightning({ navigation }) {
         stickyHeaderIndices={[0]}
       >
         {/* Sticky navbar */}
-        <View
+        <MemoizedStickyNavbarContainer
+          backgroundColor={backgroundColor}
+          borderRadius={scrollContentChanges.borderRadius}
           onLayout={handleNavbarLayout}
-          style={[
-            styles.navbarContainer,
-            {
-              backgroundColor: backgroundColor,
-              borderBottomLeftRadius: scrollContentChanges.borderRadius
-                ? 30
-                : 0,
-              borderBottomRightRadius: scrollContentChanges.borderRadius
-                ? 30
-                : 0,
-            },
-          ]}
-        >
-          <MemoizedNavBar
-            darkModeType={darkModeType}
-            theme={theme}
-            toggleTheme={toggleTheme}
-            sparkBalance={sparkInformation?.balance}
-            sparkTokens={sparkInformation?.tokens}
-            didViewSeedPhrase={didViewSeedPhrase}
-          />
-
-          <Animated.View
-            style={[styles.navbarBalance, balanceOpacityStyle]}
-            pointerEvents="none"
-          >
-            <FormattedSatText
-              styles={styles.navbarBalanceText}
-              globalBalanceDenomination={
-                masterInfoObject.userBalanceDenomination === 'hidden'
-                  ? masterInfoObject.userBalanceDenomination
-                  : scrollPosition === 'total'
-                  ? masterInfoObject.userBalanceDenomination
-                  : scrollPosition === 'sats'
-                  ? 'sats'
-                  : 'fiat'
-              }
-              balance={
-                scrollPosition === 'total'
-                  ? totalSatValue
-                  : scrollPosition === 'sats'
-                  ? bitcoinBalance
-                  : formatBalanceAmount(
-                      dollarBalanceToken,
-                      false,
-                      masterInfoObject,
-                    )
-              }
-              forceCurrency={scrollPosition !== 'usd' ? '' : 'USD'}
-              useBalance={scrollPosition === 'usd'}
-              useSizing={true}
-            />
-          </Animated.View>
-        </View>
+          darkModeType={darkModeType}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          sparkBalance={sparkInformation?.balance}
+          sparkTokens={sparkInformation?.tokens}
+          didViewSeedPhrase={didViewSeedPhrase}
+          masterInfoObject={masterInfoObject}
+          totalSatValue={totalSatValue}
+          bitcoinBalance={bitcoinBalance}
+          dollarBalanceToken={dollarBalanceToken}
+          scrollPosition={scrollPosition}
+          balanceOpacityStyle={balanceOpacityStyle}
+        />
 
         {/* Balance pager (horizontal swipe) */}
         <View style={[styles.balanceSection, { backgroundColor }]}>

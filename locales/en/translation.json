@@ -135,7 +135,7 @@
     "german": "Deutsch",
     "french": "Française",
     "swedish": "Svenska",
-    "russian": "русский"
+    "russian": "Русский"
   },
 
   "weekdays": {
@@ -208,10 +208,10 @@
       "title": "Choose Language"
     },
     "homePage": {
-      "subtitle": "Your wallet, your money, 100% open-source",
+      "subtitle": "Your wallet. Your money. Open-source.",
       "buttons": {
-        "button1": "Enter seed phrase",
-        "button2": "Make new wallet"
+        "button1": "Recover wallet",
+        "button2": "Create new wallet"
       }
     },
     "disclaimerPage": {
@@ -1116,6 +1116,11 @@
     },
 
     "sendAndRequestPage": {
+      "sendBitcoin": "Send Bitcoin",
+      "sendDollars": "Send Dollars",
+      "sendGift": "Send Gift",
+      "requestBitcoin": "Request Bitcoin",
+      "requestDollars": "Request Dollars",
       "profileMessage": "Paying {{name}}",
       "contactMessage": "{{name}} paid you",
       "giftCardappVersionError": "You cannot send a gift card to this contact. They have not updated to the latest version of Blitz Wallet.",
@@ -1376,7 +1381,10 @@
       "rescan": "Rescan",
       "totalBalance": "Total Balance",
       "swapMessage": "Blitz Wallet will try to transfer your Liquid funds into Spark when you first load the app or when you receive Liquid payments.\n\nHowever, in some cases a transfer might be missed. To move these funds into Spark manually, just click the Transfer button below.",
-      "swap": "Transfer"
+      "swap": "Transfer",
+      "rescanning": "Scanning…",
+      "autoClaimLabel": "Auto-Claim",
+      "autoClaimHelper": "Automatically swap Liquid funds to Lightning when the minimum threshold is reached."
     },
     "notifications": {
       "mainToggle_enabled": "Enabled notifications",

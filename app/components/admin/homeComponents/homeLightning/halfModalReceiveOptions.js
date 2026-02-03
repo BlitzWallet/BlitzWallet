@@ -5,7 +5,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useImageCache } from '../../../../../context-store/imageCache';
@@ -36,6 +36,7 @@ const ContactRow = ({
   onToggleExpand,
   onSelectPaymentType,
   textColor,
+  onRowLayout,
   t,
 }) => {
   const isExpanded = expandedContact === contact.uuid;
@@ -53,7 +54,11 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * 200,
+    height: expandHeight.value * 170,
+    opacity: expandHeight.value,
+  }));
+
+  const labelFadeStyle = useAnimatedStyle(() => ({
     opacity: expandHeight.value,
   }));
 
@@ -62,7 +67,10 @@ const ContactRow = ({
   }));
 
   return (
-    <View style={styles.contactWrapper}>
+    <View
+      style={styles.contactWrapper}
+      onLayout={e => onRowLayout(contact.uuid, e.nativeEvent.layout.y)}
+    >
       <TouchableOpacity
         style={styles.contactRowContainer}
         onPress={() => onToggleExpand(contact.uuid)}
@@ -91,6 +99,12 @@ const ContactRow = ({
             styles={styles.contactName}
             content={formatDisplayName(contact) || contact.uniqueName || ''}
           />
+          <Animated.View style={labelFadeStyle}>
+            <ThemeText
+              styles={styles.chooseWhatToSendText}
+              content={t('wallet.halfModal.chooseWhatToReceive')}
+            />
+          </Animated.View>
         </View>
         <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
           <ThemeIcon
@@ -102,10 +116,6 @@ const ContactRow = ({
       </TouchableOpacity>
 
       <Animated.View style={[styles.expandedContainer, expandedStyle]}>
-        <ThemeText
-          styles={styles.chooseWhatToSendText}
-          content={t('wallet.halfModal.chooseWhatToReceive')}
-        />
         <View style={styles.paymentOptionsRow}>
           <TouchableOpacity
             style={[
@@ -432,6 +442,10 @@ export default function HalfModalReceiveOptions({
 }) {
   const [expandedOtherOptions, setExpandedOtherOptions] = useState(false);
   const [expandedContact, setExpandedContact] = useState(null);
+  const scrollViewRef = useRef(null);
+  const rowLayoutsRef = useRef({}); // { [uuid]: y }
+  const scrollOffsetRef = useRef(0);
+  const scrollViewHeightRef = useRef(0);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -480,6 +494,10 @@ export default function HalfModalReceiveOptions({
     [navigate, cache],
   );
 
+  const handleRowLayout = useCallback((uuid, y) => {
+    rowLayoutsRef.current[uuid] = y;
+  }, []);
+
   const sortedContacts = useMemo(() => {
     return contactInfoList
       .sort((contactA, contactB) => {
@@ -498,6 +516,41 @@ export default function HalfModalReceiveOptions({
       .filter(contact => !contact.isLNURL);
   }, [contactInfoList]);
 
+  // When a contact expands, check whether the bottom of its expanded panel
+  // extends past the visible area of the ScrollView. If so, scroll just enough
+  // to bring it into view.
+  useEffect(() => {
+    if (!expandedContact || !scrollViewRef.current) return;
+
+    const rowY = rowLayoutsRef.current[expandedContact];
+    if (rowY == null) return;
+
+    const contact = sortedContacts.find(c => c.uuid === expandedContact);
+    if (!contact) return;
+
+    const expandedPanelHeight = 160;
+
+    // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
+    const collapsedRowHeight = 61;
+
+    const expandedBottomEdge = rowY + collapsedRowHeight + expandedPanelHeight;
+
+    const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
+
+    if (expandedBottomEdge > visibleBottom) {
+      const buffer = 16;
+      const targetOffset =
+        expandedBottomEdge - scrollViewHeightRef.current + buffer;
+
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: targetOffset,
+          animated: true,
+        });
+      }, 220);
+    }
+  }, [expandedContact, sortedContacts]);
+
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
       <ContactRow
@@ -512,6 +565,7 @@ export default function HalfModalReceiveOptions({
         textColor={textColor}
         onToggleExpand={handleToggleExpand}
         onSelectPaymentType={handleSelectPaymentType}
+        onRowLayout={handleRowLayout}
         t={t}
       />
     ));
@@ -525,10 +579,13 @@ export default function HalfModalReceiveOptions({
     backgroundColor,
     textColor,
     handleToggleExpand,
+    handleRowLayout,
+    t,
   ]);
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{
@@ -536,6 +593,13 @@ export default function HalfModalReceiveOptions({
         paddingBottom: bottomPadding,
       }}
       stickyHeaderIndices={[0, 4]}
+      onScroll={e => {
+        scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+      }}
+      scrollEventThrottle={16}
+      onLayout={e => {
+        scrollViewHeightRef.current = e.nativeEvent.layout.height;
+      }}
     >
       <View
         style={[
@@ -562,7 +626,11 @@ export default function HalfModalReceiveOptions({
             styles.scanIconContainer,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
+                theme && darkModeType
+                  ? backgroundColor
+                  : scrollPosition === 'USD'
+                  ? COLORS.dollarGreen
+                  : COLORS.bitcoinOrange,
             },
           ]}
         >
@@ -570,18 +638,23 @@ export default function HalfModalReceiveOptions({
             style={{
               width: 25,
               height: 25,
-              tintColor: theme && darkModeType ? iconColor : COLORS.primary,
+              tintColor:
+                theme && darkModeType ? iconColor : COLORS.darkModeText,
             }}
             contentFit="contain"
-            source={ICONS.lightningReceiveIcon}
+            source={
+              scrollPosition === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
+            }
           />
         </View>
         <View style={styles.scanTextContainer}>
           <ThemeText
             styles={styles.scanButtonText}
-            content={t(
-              `screens.inAccount.receiveBtcPage.header_lightning_${scrollPosition?.toLowerCase()}`,
-            )}
+            content={
+              scrollPosition === 'USD'
+                ? t('constants.dollars_upper')
+                : t('constants.bitcoin_upper')
+            }
           />
           <ThemeText
             styles={styles.scanButtonSubtext}
@@ -802,7 +875,6 @@ const styles = StyleSheet.create({
   primaryPaymentTitle: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
-    includeFontPadding: false,
     marginBottom: 2,
   },
 
@@ -888,9 +960,8 @@ const styles = StyleSheet.create({
   chooseWhatToSendText: {
     fontSize: SIZES.small,
     opacity: 0.6,
-    paddingHorizontal: 8,
-    paddingTop: 8,
-    paddingBottom: 4,
+    paddingTop: 4,
+    includeFontPadding: false,
   },
 
   otherOptionsColumn: {

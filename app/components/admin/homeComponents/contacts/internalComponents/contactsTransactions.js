@@ -33,6 +33,7 @@ const ConfirmedOrSentTransaction = React.memo(
     timeDifferenceYears,
     navigate,
     masterInfoObject,
+    isPendingRequest,
   }) => {
     const { t } = useTranslation();
     const { theme, darkModeType } = useGlobalThemeContext();
@@ -128,6 +129,8 @@ const ConfirmedOrSentTransaction = React.memo(
           iconName={
             didDeclinePayment
               ? 'CircleX'
+              : isPendingRequest
+              ? 'Clock'
               : isOutgoingPayment
               ? 'ArrowUp'
               : 'ArrowDown'
@@ -225,6 +228,8 @@ export default function ContactsTransactionItem(props) {
       (txParsed?.isRequest && txParsed.isRedeemed != null),
     [txParsed?.didSend, txParsed?.isRequest, txParsed?.isRedeemed],
   );
+
+  const isPendingRequest = txParsed?.isRequest && txParsed.isRedeemed === null;
 
   const requestAmount = useMemo(() => {
     if (txParsed?.paymentDenomination === 'USD') {
@@ -491,10 +496,14 @@ export default function ContactsTransactionItem(props) {
           {...timeCalculations}
           navigate={navigate}
           masterInfoObject={masterInfoObject}
+          isPendingRequest={isPendingRequest}
         />
       ) : (
         <View style={styles.transactionContainer}>
-          <ThemeIcon styles={styles.icons} iconName="ArrowDown" />
+          <ThemeIcon
+            styles={styles.icons}
+            iconName={isPendingRequest ? 'Clock' : 'ArrowDown'}
+          />
 
           <View style={styles.contentContainer}>
             <ThemeText

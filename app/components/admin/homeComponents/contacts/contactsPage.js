@@ -638,10 +638,10 @@ const ContactElement = memo(
       <TouchableOpacity
         style={[
           memoizedStyles.contactRowContainer,
-          !isLastElement && {
-            borderBottomWidth: 1,
-            borderBottomColor: backgroundOffset,
-          },
+          // !isLastElement && {
+          //   borderBottomWidth: 1,
+          //   borderBottomColor: backgroundOffset,
+          // },
         ]}
         onLongPress={handleLongPress}
         onPress={handlePress}

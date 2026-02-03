@@ -104,7 +104,8 @@ const CustomToggleSwitch = ({
       page === 'useRanomPinLayout' ||
       page === 'settingsNotifications' ||
       page === 'settingsCrashReporting' ||
-      page === 'tipPaymentStatus'
+      page === 'tipPaymentStatus' ||
+      page === 'liquidSwap'
         ? backgroundColor
         : backgroundOffset,
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,

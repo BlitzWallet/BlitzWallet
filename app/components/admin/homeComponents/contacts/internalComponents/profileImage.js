@@ -85,6 +85,8 @@ export default function ContactProfileImage({
   return (
     <ExpoImage
       source={imageSource}
+      placeholder={imageSource}
+      placeholderContentFit={contentFit}
       onError={onError}
       onLoad={onLoad}
       style={[

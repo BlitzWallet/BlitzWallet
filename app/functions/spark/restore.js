@@ -822,7 +822,11 @@ async function processBitcoinTransactions(
         const foundPayment = allPayments.find(payment => {
           if (payment.paymentType === 'bitcoin') {
             const details = JSON.parse(payment.details);
-            if (details.onChainTxid === txStateUpdate.sparkID) return true;
+            if (
+              details.onChainTxid === txStateUpdate.sparkID &&
+              payment.sparkID !== txStateUpdate.sparkID
+            )
+              return true;
           }
         });
         if (foundPayment) {

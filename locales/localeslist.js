@@ -56,7 +56,7 @@ export const supportedLanguagesList = [
     flagCode: 'se',
   },
   {
-    languageName: 'русский',
+    languageName: 'Русский',
     fullySupported: true,
     translatedName: 'languages.russian',
     shortId: 'ru',

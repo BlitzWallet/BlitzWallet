@@ -36,6 +36,7 @@ export const OPERATION_TYPES = {
   getBalance: 'getSparkBalance',
   getL1Address: 'getSparkStaticBitcoinL1Address',
   queryStaticL1Address: 'queryAllStaticDepositAddresses',
+  getUtxosForDepositAddress: 'getUtxosForDepositAddress',
   getL1AddressQuote: 'getSparkStaticBitcoinL1AddressQuote',
   claimStaticDepositAddress: 'claimnSparkStaticDepositAddress',
   getSparkAddress: 'getSparkAddress',
@@ -109,6 +110,7 @@ const longOperations = [
 const mediumOperations = [
   OPERATION_TYPES.getBalance,
   OPERATION_TYPES.queryStaticL1Address,
+  OPERATION_TYPES.getUtxosForDepositAddress,
   OPERATION_TYPES.getL1AddressQuote,
   OPERATION_TYPES.getSparkAddress,
   OPERATION_TYPES.getL1Address,
@@ -289,6 +291,18 @@ export const WebViewProvider = ({ children }) => {
     return current;
   }, []);
 
+  const isDuplicate = (queue, action, args) => {
+    return queue.some(
+      req =>
+        ![
+          OPERATION_TYPES.getSingleTxDetails,
+          OPERATION_TYPES.getUserSwapHistory,
+        ].includes(req.action) &&
+        req.action === action &&
+        JSON.stringify(req.args) === JSON.stringify(args),
+    );
+  };
+
   const resetWebViewState = useCallback(
     (
       clearHandshake = false,
@@ -305,9 +319,42 @@ export const WebViewProvider = ({ children }) => {
       setIsWebViewReady(false);
       // setVerifiedPath('');
 
-      Object.values(activeTimeoutsRef.current).forEach(t =>
-        clearTimeout(t.timeoutId),
-      );
+      Object.entries(activeTimeoutsRef.current).forEach(([id, timeoutInfo]) => {
+        clearTimeout(timeoutInfo.timeoutId);
+
+        // Re-queue the request if it's not a handshake
+        // and if we're not clearing pending requests
+        if (!shouldClearPending && timeoutInfo.action !== 'handshake:init') {
+          // Find the pending request's resolve/reject functions
+          const originalResolve = pendingRequests.current[id];
+          if (originalResolve && timeoutInfo.originalRequest) {
+            const { action, args, encrypt } = timeoutInfo.originalRequest;
+
+            console.log(`Re-queueing interrupted request: ${action}`);
+
+            // Add to queue if not already there
+            // IMPORTANT: We pass the original resolve function so the promise chain is preserved
+            if (!isDuplicate(queuedRequests.current, action, args)) {
+              queuedRequests.current.push({
+                id, // Keep original ID for tracking
+                action,
+                args,
+                encrypt,
+                resolve: originalResolve,
+                reject: error => {
+                  // Reject using the original resolve function (which handles both resolve/reject)
+                  if (typeof originalResolve === 'function') {
+                    originalResolve({ error: error.message || error });
+                  }
+                },
+              });
+            }
+
+            // Remove from pendingRequests since it's now queued
+            delete pendingRequests.current[id];
+          }
+        }
+      });
       activeTimeoutsRef.current = {};
 
       // Only clear handshake if explicitly told to (actual failures)
@@ -336,6 +383,8 @@ export const WebViewProvider = ({ children }) => {
         });
         pendingRequests.current = {};
       }
+      // Note: We already removed re-queued items from pendingRequests in the loop above,
+      // so no additional cleanup needed in the else branch
 
       sessionKeyRef.current = null;
       expectedSequenceRef.current = 0;
@@ -470,18 +519,6 @@ export const WebViewProvider = ({ children }) => {
     blockAndResetWebview,
     processQueuedRequests,
   ]);
-
-  const isDuplicate = (queue, action, args) => {
-    return queue.some(
-      req =>
-        ![
-          OPERATION_TYPES.getSingleTxDetails,
-          OPERATION_TYPES.getUserSwapHistory,
-        ].includes(req.action) &&
-        req.action === action &&
-        JSON.stringify(req.args) === JSON.stringify(args),
-    );
-  };
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -824,6 +861,7 @@ export const WebViewProvider = ({ children }) => {
             handler: handleTimeout,
             remaining: timeoutDuration,
             action,
+            originalRequest: { action, args, encrypt }, //Store request details
           };
 
           const originalResolve = resolve;
@@ -1122,11 +1160,23 @@ export const WebViewProvider = ({ children }) => {
 
       const requests = [...queuedRequests.current];
       queuedRequests.current = [];
+
       await Promise.allSettled(
         requests.map(({ id, action, args, encrypt, resolve, reject }) =>
           sendWebViewRequestInternal(action, args, encrypt)
-            .then(resolve)
-            .catch(reject)
+            .then(result => {
+              // Call the original resolve function with the result
+              // This preserves the promise chain back to the original caller
+              if (typeof resolve === 'function') {
+                resolve(result);
+              }
+            })
+            .catch(error => {
+              // Call the original reject function with the error
+              if (typeof reject === 'function') {
+                reject(error);
+              }
+            })
             .finally(() => {
               queuedRequests.current = queuedRequests.current.filter(
                 req => req.id !== id,

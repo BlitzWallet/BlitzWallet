@@ -3,11 +3,11 @@
     "next": "Weiter",
     "skip_all": "Alle überspringen",
     "copy": "Kopieren",
-    "validating": "Validieren",
+    "validating": "Wird validiert …",
     "paste": "Einfügen",
     "skip": "Überspringen",
     "verify": "Verifizieren",
-    "internetError": "Bitte stellen Sie die Internetverbindung wieder her, um diese Funktion zu nutzen",
+    "internetError": "Bitte stellen Sie die Internetverbindung wieder her, um diese Funktion nutzen zu können.",
     "send": "Senden",
     "decline": "Ablehnen",
     "receive": "Empfangen",
@@ -41,7 +41,7 @@
     "no": "Nein",
     "confirm": "Bestätigen",
     "balance": "Guthaben",
-    "loading": "Laden",
+    "loading": "Wird geladen …",
     "error": "Fehler",
     "success": "Erfolg",
     "cancel": "Abbrechen",
@@ -58,16 +58,16 @@
     "download": "Herunterladen",
     "contactUs": "Kontaktieren Sie uns",
     "pay": "Bezahlen",
-    "processing": "Verarbeiten",
+    "processing": "Wird verarbeitet …",
     "support": "Support",
     "change": "Ändern",
     "unpin": "Lösen",
     "pin": "Anheften",
-    "noBioSet": "Sie haben keine Biografie eingestellt",
-    "noTransactions": "Senden oder fordern Sie eine Zahlung an, um den Transaktionsverlauf zu sehen.",
+    "noBioSet": "Sie haben noch keine Biografie hinterlegt.",
+    "noTransactions": "Senden oder fordern Sie eine Zahlung an, um den Transaktionsverlauf anzuzeigen.",
     "leftPageMessage": "Sie haben die Seite verlassen.",
     "tryAgain": "Erneut versuchen",
-    "noDescription": "Keine Beschreibung",
+    "noDescription": "Keine Beschreibung vorhanden",
     "slideToExport": "Zum Exportieren wischen",
     "hide": "Verbergen",
     "show": "Anzeigen",
@@ -92,7 +92,7 @@
     "enabled": "Aktiviert",
     "disabled": "Deaktiviert",
     "unlimited": "Unbegrenzt",
-    "custom...": "Benutzerdefiniert...",
+    "custom...": "Benutzerdefiniert…",
     "enable": "Aktivieren",
     "disable": "Deaktivieren",
     "paidLower": "bezahlt",
@@ -100,15 +100,15 @@
     "view": "Anzeigen",
     "reset": "Zurücksetzen",
     "noData": "Keine Daten verfügbar",
-    "selectOption": "Eine Option auswählen",
+    "selectOption": "Bitte wählen Sie eine Option aus",
     "slideToConfirm": "Zum Bestätigen wischen",
     "token": "Token",
-    "veriable": "Variabel",
+    "veriable": "Variable",
     "instant": "Sofort",
     "andLower": "und",
     "onLower": "ein",
     "offLower": "aus",
-    "recover": "Wiederherstellung",
+    "recover": "Wiederherstellen",
     "search": "Suchen",
     "review": "Überprüfen",
     "loadMore": "Mehr laden",
@@ -116,13 +116,13 @@
     "annonName": "Anonymer Benutzer",
     "claim": "Einlösen",
     "manage": "Verwalten",
-    "reclaim": "Abgelaufen",
-    "optionalFlag": "(Optional)",
+    "reclaim": "Zurückholen",
+    "optionalFlag": "(optional)",
     "gift": "Geschenk",
     "bitcoin_upper": "BTC",
     "dollars_upper": "USD",
     "rate": "Kurs",
-    "swap": "Swap",
+    "swap": "Tauschen",
     "print": "Drucken"
   },
   "languages": {
@@ -133,7 +133,7 @@
     "german": "Deutsch",
     "french": "Français",
     "swedish": "Svenska",
-    "russian": "Pусский"
+    "russian": "Русский"
   },
   "weekdays": {
     "Mon": "Montag",
@@ -167,30 +167,30 @@
     "days": "Tage",
     "year": "Jahr",
     "years": "Jahre",
-    "daily": "Täglich",
-    "weekly": "Wöchentlich",
-    "monthly": "Monatlich",
-    "yearly": "Jährlich"
+    "daily": "täglich",
+    "weekly": "wöchentlich",
+    "monthly": "monatlich",
+    "yearly": "jährlich"
   },
   "transactionLabelText": {
     "notSent": "Zahlung nicht gesendet",
-    "txTime_just_now": "Gerade eben",
-    "ago": "vorher",
+    "txTime_just_now": "gerade eben",
+    "ago": "vor",
     "pending": "Ausstehend",
     "confirmed": "Bestätigt",
     "processing": "In Bearbeitung",
     "successful": "Erfolgreich",
     "failed": "Fehlgeschlagen",
     "requestDeclined": "Anfrage abgelehnt",
-    "declinedRequest": "Abgelehnte Anfrage",
-    "requestSent": "Zahlungsanforderung gesendet",
+    "declinedRequest": "abgelehnte Anfrage",
+    "requestSent": "Zahlungsanfrage gesendet",
     "requestPaid": "Anfrage bezahlt",
-    "paidRequest": "Bezahlte Anfrage",
+    "paidRequest": "bezahlte Anfrage",
     "sent": "Gesendet",
     "received": "Empfangen",
     "paidLower": "bezahlt",
     "declinedLower": "abgelehnt",
-    "receivedRequest": "Erhaltene Anfrage",
+    "receivedRequest": "erhaltene Anfrage",
     "date": "Datum",
     "time": "Zeit",
     "memo": "Notiz",
@@ -198,51 +198,51 @@
   },
   "createAccount": {
     "chooseLanguage": {
-      "title": "Sprache wählen"
+      "title": "Sprache auswählen"
     },
     "homePage": {
-      "subtitle": "Ihre Wallet, Ihre Geld, 100% Open-Source",
+      "subtitle": "Deine Wallet. Dein Geld. Open Source.",
       "buttons": {
-        "button1": "Seed-Phrase eingeben",
+        "button1": "Wallet wiederherstellen",
         "button2": "Neue Wallet erstellen"
       }
     },
     "disclaimerPage": {
       "header": "Selbstverwahrte Wallet",
-      "subHeader": "Übernimm die volle Kontrolle über dein Geld.",
-      "disclaimerBold": "Blitz kann dein Wallet nicht wiederherstellen.",
-      "dislcaimer": "Du bist allein verantwortlich dafür, deine Gelder zu sichern und zu schützen.",
-      "info1": "Dein Geld gehört dir",
-      "info1Description": "Nur du kannst auf dein Geld zugreifen oder es verwenden. Wir haben keinen Zugriff darauf.",
-      "info2": "Du hast die Kontrolle",
-      "info2Description": "Blitz kann nicht auf deine Gelder zugreifen oder sie wiederherstellen, falls sie verloren gehen.",
-      "imgCaption": "'Mit großer Macht kommt große Verantwortung' - Onkel Ben",
-      "acceptPrefix": "Ich akzeptiere die ",
+      "subHeader": "Übernehmen Sie die volle Kontrolle über Ihr Geld.",
+      "disclaimerBold": "Blitz kann Ihre Wallet nicht wiederherstellen. Bewahren Sie Ihre Seed-Phrase unbedingt sicher auf.",
+      "disclaimer": "Sie sind allein verantwortlich für die Sicherung und den Schutz Ihrer Gelder.",
+      "info1": "Ihr Geld gehört Ihnen",
+      "info1Description": "Nur Sie können auf Ihr Geld zugreifen oder es verwenden. Wir haben keinen Zugriff.",
+      "info2": "Sie behalten die Kontrolle",
+      "info2Description": "Blitz kann nicht auf Ihre Gelder zugreifen oder sie wiederherstellen, falls sie verloren gehen.",
+      "imgCaption": "„Mit großer Macht kommt große Verantwortung“ – Onkel Ben",
+      "acceptPrefix": "Sie akzeptiere die ",
       "terms&Conditions": "Nutzungsbedingungen",
       "acceptError": "Um fortzufahren, müssen Sie die Nutzungsbedingungen akzeptieren.",
       "continueBTN": "Weiter"
     },
     "verifyKeyPage": {
-      "header": "Lassen Sie uns Ihre Seed-Phrase bestätigen!"
+      "header": "Bestätigen Sie bitte Ihre Seed-Phrase"
     },
     "keySetup": {
       "generateKey": {
-        "header": "Dies ist Ihr Passwort für Ihr Geld. Wenn Sie es verlieren, verlieren Sie Ihr Geld!",
-        "subHeader": "Schreiben Sie es mit Stift und Papier auf und bewahren Sie es sicher auf!",
-        "disclaimer": "WIR KÖNNEN IHNEN NICHT HELFEN, WENN SIE ES VERLIEREN",
+        "header": "Dies ist Ihr Passwort für Ihr Geld. Verlieren Sie es, verlieren Sie Ihr Geld.",
+        "subHeader": "Schreiben Sie die Seed-Phrase mit Stift und Papier auf und bewahren Sie sie sicher auf!",
+        "disclaimer": "WIR KÖNNEN IHNEN NICHT HELFEN, WENN SIE DIE PHRASE VERLIEREN",
         "errorText": "Fehler beim Abrufen der Seed-Phrase",
-        "keyGenError": "Konnte keine gültige Seed-Phrase generieren",
-        "seedPrivacyMessage": "Stellen Sie sicher, dass niemand in der Nähe ist, der Ihren Bildschirm sehen kann.",
+        "keyGenError": "Es konnte keine gültige Seed-Phrase generiert werden",
+        "seedPrivacyMessage": "Achten Sie darauf, dass niemand Ihren Bildschirm sehen kann.",
         "showIt": "Anzeigen",
-        "invalidSeedError": "Konnte keine gültige Seed-Phrase generieren"
+        "invalidSeedError": "Es konnte keine gültige Seed-Phrase generiert werden"
       },
       "pin": {
         "savePinError": "PIN konnte nicht gespeichert werden",
         "removeWalletError": "Fehler beim Entfernen der Wallet",
-        "wrongPinError": "Erneut versuchen",
+        "wrongPinError": "Falscher PIN – bitte erneut versuchen",
         "enterPinMessage": "PIN erstellen",
         "confirmPin": "PIN bestätigen",
-        "attemptsText": "{{number}} Versuche übrig"
+        "attemptsText": "Noch {{number}} Versuche"
       }
     },
     "restoreWallet": {
@@ -251,27 +251,27 @@
         "continueBTN": "Wallet wiederherstellen",
         "error1": "Bitte geben Sie alle Wörter Ihrer Seed-Phrase ein.",
         "error2": "Dies ist keine gültige Seed-Phrase.",
-        "error3": "Ihre Wörter stimmen nicht mit den generierten Wörtern überein",
-        "noSeedInString": "Konnte keine Seed-Phrase in der Zeichenkette finden",
-        "invalidWordLen": "Nicht jedes Wort hat eine gültige Länge",
-        "cannotFind12Words": "Konnte keine 12 Wörter aus der kopierten Seed-Phrase finden.",
-        "noSeedInNumberArray": "Konnte keine Seed-Phrase in der Zahlenfolge finden",
-        "noSeedInQr": "Konnte keine Seed-Phrase aus dem QR-Code abrufen",
+        "error3": "Die eingegebenen Wörter stimmen nicht mit der erwarteten Seed-Phrase überein.",
+        "noSeedInString": "In der eingefügten Zeichenkette wurde keine Seed-Phrase gefunden.",
+        "invalidWordLen": "Nicht jedes Wort hat die korrekte Länge.",
+        "cannotFind12Words": "Aus dem kopierten Text konnten keine 12 gültigen Wörter extrahiert werden.",
+        "noSeedInNumberArray": "In der Zahlenfolge wurde keine Seed-Phrase gefunden.",
+        "noSeedInQr": "Aus dem QR-Code konnte keine Seed-Phrase gelesen werden.",
         "scanQr": "QR-Code scannen"
       }
     },
     "skipMessage": {
-      "header": "Wir empfehlen, dass Sie Ihre Seed-Phrase aufschreiben",
-      "subHeader": "Wenn Sie Ihre Seed-Phrase nicht aufgeschrieben haben, riskieren Sie, Ihr Geld zu verlieren.",
+      "header": "Wir empfehlen dringend, Ihre Seed-Phrase aufzuschreiben",
+      "subHeader": "Ohne gesicherte Seed-Phrase riskieren Sie den vollständigen Verlust Ihrer Gelder.",
       "btn": "Ich verstehe"
     }
   },
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Wir konnten Ihre biometrischen Daten nicht verifizieren.\n\nMöchten Sie alle Wallet-Daten löschen? Fahren Sie nur fort, wenn Sie die Seed-Phrase sicher gesichert haben.",
-      "wrongPinError": "Falscher PIN, versuchen Sie es erneut",
+      "isBiometricEnabledConfirmAction": "Ihre biometrischen Daten konnten nicht verifiziert werden.\n\nMöchten Sie alle Wallet-Daten löschen? Fahren Sie nur fort, wenn Sie Ihre Seed-Phrase sicher gespeichert haben.",
+      "wrongPinError": "Falscher PIN – bitte erneut versuchen",
       "enterPinMessage": "PIN eingeben",
-      "attemptsText": "{{attempts}} Versuche übrig",
+      "attemptsText": "Noch {{attempts}} Versuche",
       "biometricsHeader": "Mit Biometrie entsperren"
     }
   },
@@ -280,30 +280,30 @@
       "AI": "KI",
       "AIDescription": "Chatten Sie mit den neuesten generativen KI-Modellen",
       "SMS": "SMS",
-      "SMSDescription": "Senden und empfangen Sie SMS-Nachrichten weltweit mit BTC",
+      "SMSDescription": "Senden und empfangen Sie SMS weltweit mit BTC",
       "VPN": "VPN",
       "VPNDescription": "Sicher surfen und Privatsphäre schützen",
       "onlineListings": "Shops",
-      "onlineListingsDescription": "Verzeichnis von Online-Unternehmen, die BTC-Zahlungen akzeptieren",
-      "Soon": "Bald",
+      "onlineListingsDescription": "Verzeichnis von Online-Shops, die BTC-Zahlungen akzeptieren",
+      "Soon": "Bald verfügbar",
       "SoonDescription": "Weitere Apps kommen bald"
     },
     "VPN": {
       "VPNPlanPage": {
-        "backupLoadingMessage": "Rechnung wird abgerufen",
-        "countrySearchPlaceholder": "Nach Land suchen",
+        "backupLoadingMessage": "Rechnung wird abgerufen …",
+        "countrySearchPlaceholder": "Nach Land suchen …",
         "createVPNBTN": "VPN kaufen",
-        "noLocationError": "Bitte wählen Sie ein Land für den Standort des VPN aus.",
-        "payingInvoiceLoadingMessage": "Rechnung wird bezahlt",
+        "noLocationError": "Bitte wählen Sie ein Land für den VPN-Standort aus.",
+        "payingInvoiceLoadingMessage": "Rechnung wird bezahlt …",
         "backupPaymentError": "Fehler beim Bezahlen der Rechnung.",
         "createInvoiceError": "Fehler beim Erstellen der Rechnung.",
         "payingInvoiveError": "Fehler beim Bezahlen der Rechnung.",
-        "runningTries": "Läuft {{runCount}} von {{maxTries}} Versuchen",
-        "configError": "VPN-Konfiguration konnte nicht abgerufen werden, bitte kontaktieren Sie LNVPN.",
-        "paymentMemo": "Shop - VPN"
+        "runningTries": "Versuch {{runCount}} von {{maxTries}}",
+        "configError": "VPN-Konfiguration konnte nicht abgerufen werden. Bitte wenden Sie sich an LNVPN.",
+        "paymentMemo": "Shop – VPN"
       },
       "confirmationSlideUp": {
-        "invoiceInfoError": "Fehler beim Abrufen der Rechnungsinformationen.",
+        "invoiceInfoError": "Rechnungsinformationen konnten nicht abgerufen werden.",
         "title": "VPN bestätigen",
         "duration": "Dauer: 1 {{duration}}",
         "price": "Preis: ",
@@ -322,50 +322,50 @@
         "1.5": "Woche"
       },
       "historicalPurchasesPage": {
-        "deleteVPNConfirmMessage": "Sind Sie sicher, dass Sie dieses VPN entfernen möchten?",
+        "deleteVPNConfirmMessage": "Möchten Sie dieses VPN wirklich entfernen?",
         "country": "Land:",
         "createdAt": "Erstellt am:",
         "duration": "Dauer:",
         "paymentHash": "Zahlungs-Hash:",
-        "title": "Käufe",
-        "retryClaim": "Versuche Datei zu erstellen",
-        "noPurchases": "Sie haben keine VPN-Konfigurationen",
-        "assistanceText": "Für Unterstützung wenden Sie sich an LNVPN",
-        "noValidCountryCodeError": "Konnte keinen gültigen Ländercode abrufen",
-        "claimConfigError": "VPN-Konfiguration konnte nicht abgerufen werden, bitte kontaktieren Sie LNVPN.",
+        "title": "Ihre Käufe",
+        "retryClaim": "Datei erneut erstellen",
+        "noPurchases": "Sie haben noch keine VPN-Konfigurationen gekauft.",
+        "assistanceText": "Bei Fragen wenden Sie sich bitte an LNVPN",
+        "noValidCountryCodeError": "Kein gültiger Ländercode gefunden",
+        "claimConfigError": "VPN-Konfiguration konnte nicht abgerufen werden. Bitte wenden Sie sich an LNVPN.",
         "contact": "Kontakt"
       },
       "home": {
-        "title": "Um dieses VPN zu nutzen, laden Sie bitte die Wireguard VPN-Client-App herunter",
+        "title": "Um dieses VPN zu nutzen, laden Sie bitte die WireGuard-App herunter",
         "downloadApp": "Hier herunterladen",
         "status": "",
-        "apiConnectionError": "LNVPN ist vorübergehend nicht verfügbar. Bitte versuchen Sie es in Kürze erneut.",
-        "selectPlan": "Plan auswählen"
+        "apiConnectionError": "LNVPN ist derzeit nicht erreichbar. Bitte versuchen Sie es später erneut.",
+        "selectPlan": "Tarif auswählen"
       },
       "generatedFile": {
-        "title": "Wireguard-Konfigurationsdatei",
-        "iosDownloadInstructions": "Beim Herunterladen klicken Sie auf 'In Dateien speichern'.",
-        "androidDownloadInstructions": "Beim Herunterladen müssen Sie die Berechtigung für einen Speicherort erteilen, an dem die Konfigurationsdatei gespeichert werden kann."
+        "title": "WireGuard-Konfigurationsdatei",
+        "iosDownloadInstructions": "Tippen Sie beim Herunterladen auf „In Dateien speichern“.",
+        "androidDownloadInstructions": "Erteilen Sie beim Herunterladen die Berechtigung, die Datei an einem Speicherort abzulegen."
       }
     },
     "chatGPT": {
       "newChat": "Neuer Chat",
-      "loadingMessage": "Vorherige Chats werden geladen",
+      "loadingMessage": "Vorherige Chats werden geladen …",
       "addCreditsPage": {
-        "title": "Guthaben hinzufügen",
-        "description": "Um die neuesten generativen KI-Modelle zu nutzen, müssen Sie Guthaben kaufen. Wählen Sie unten eine Option, um zu beginnen.",
+        "title": "Guthaben aufladen",
+        "description": "Um die neuesten KI-Modelle nutzen zu können, müssen Sie Guthaben kaufen. Wählen Sie unten eine Option aus.",
         "supportedModels": "Unterstützte Modelle",
-        "feeInfo": "Je nach Länge Ihrer Frage und Antwort kann die Anzahl der Suchen variieren. Blitz fügt allen Käufen eine Gebühr von 150 Sat + 0,5% des Kaufpreises hinzu.",
+        "feeInfo": "Je nach Länge von Frage und Antwort variiert die Anzahl möglicher Anfragen. Blitz erhebt eine Gebühr von 150 Sat + 0,5 % des Kaufpreises.",
         "price": "Preis: ",
-        "estSearches": "Geschätzte Suchen: {{num}}",
+        "estSearches": "Geschätzte Anfragen: {{num}}",
         "casualPlanTitle": "Casual-Plan",
         "proPlanTitle": "Pro-Plan",
         "powerPlanTitle": "Power-Plan",
-        "paymentMemo": "Shop - chatGPT",
-        "notAvailableMessage": "Aufgrund der In-App-Kaufrichtlinien von Apple ist diese Funktion derzeit auf iOS nicht verfügbar. Wir arbeiten daran, sie in Zukunft auf iOS bereitzustellen."
+        "paymentMemo": "Shop – ChatGPT",
+        "notAvailableMessage": "Aufgrund der Apple-In-App-Kauf-Richtlinien ist diese Funktion derzeit auf iOS nicht verfügbar. Wir arbeiten an einer Lösung."
       },
       "countrySearch": {
-        "inputPlaceholder": "Nach einem Land suchen"
+        "inputPlaceholder": "Nach einem Land suchen …"
       },
       "chatGPTHome": {
         "availableCredits": "Verfügbares Guthaben: {{credits}}",
@@ -374,11 +374,11 @@
         "youText": "Sie"
       },
       "confirmLeaveChat": {
-        "title": "Möchten Sie Ihren Chat speichern?"
+        "title": "Möchten Sie den Chat speichern?"
       },
       "confirmationPage": {
         "title": "Kauf bestätigen",
-        "plan": "Plan: {{planType}}",
+        "plan": "Tarif: {{planType}}",
         "price": "Preis: ",
         "fee": "Gebühr: "
       },
@@ -386,14 +386,14 @@
         "inputLabel": "Eingabe: {{amount}}/M",
         "outputLabel": "Ausgabe: {{amount}}/M",
         "chooseModel": "Modell auswählen",
-        "noModels": "Kein Modell entspricht diesem Namen. Bitte überprüfen Sie die Schreibweise oder versuchen Sie einen anderen Namen."
+        "noModels": "Kein Modell mit diesem Namen gefunden. Bitte überprüfen Sie die Schreibweise."
       },
       "exampleSearchCards": {
-        "title": "Beispiel-Suchkarten",
+        "title": "Beispielanfragen",
         "examples": [
           {
             "bottomLine": "als hätten Sie noch nie programmiert",
-            "topLine": "Wie fangen Sie an, React Native zu lernen?"
+            "topLine": "Wie fange ich an, React Native zu lernen?"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
@@ -409,7 +409,7 @@
           },
           {
             "bottomLine": "als wären Sie 8",
-            "topLine": "Erkläre den Klimawandel"
+            "topLine": "Erklären Sie den Klimawandel"
           },
           {
             "bottomLine": "als wären Sie ein Gymnasiast",
@@ -429,7 +429,7 @@
           },
           {
             "bottomLine": "als wären Sie 9",
-            "topLine": "Erkläre, wie Flugzeuge fliegen"
+            "topLine": "Erklären Sie, wie Flugzeuge fliegen"
           },
           {
             "bottomLine": "als wären Sie ein Großelternteil",
@@ -453,7 +453,7 @@
           },
           {
             "bottomLine": "als wären Sie in der 5. Klasse",
-            "topLine": "Erkläre Photosynthese"
+            "topLine": "Erklären Sie Photosynthese"
           },
           {
             "bottomLine": "als wären Sie 14",
@@ -467,10 +467,7 @@
             "bottomLine": "als wären Sie 13",
             "topLine": "Wie funktioniert Raumfahrt?"
           },
-          {
-            "bottomLine": "als wären Sie 15",
-            "topLine": "Erkläre NFTs"
-          },
+          { "bottomLine": "als wären Sie 15", "topLine": "Erklären Sie NFTs" },
           {
             "bottomLine": "als wären Sie 10 Jahre alt",
             "topLine": "Was ist Augmented Reality?"
@@ -481,7 +478,7 @@
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Erkläre maschinelles Lernen"
+            "topLine": "Erklären Sie maschinelles Lernen"
           },
           {
             "bottomLine": "als wären Sie 12",
@@ -497,7 +494,7 @@
           },
           {
             "bottomLine": "als wären Sie 5 Jahre alt",
-            "topLine": "Erkläre Gravitation"
+            "topLine": "Erklären Sie Gravitation"
           },
           {
             "bottomLine": "als wären Sie neu in der Blockchain",
@@ -509,7 +506,7 @@
           },
           {
             "bottomLine": "als wären Sie in der Grundschule",
-            "topLine": "Erkläre das Konzept der Zeitzonen"
+            "topLine": "Erklären Sie das Konzept der Zeitzonen"
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
@@ -521,7 +518,7 @@
           },
           {
             "bottomLine": "als wären Sie ein Gymnasiast",
-            "topLine": "Erkläre das Konzept der KI-Ethik"
+            "topLine": "Erklären Sie das Konzept der KI-Ethik"
           },
           {
             "bottomLine": "als wären Sie 11",
@@ -533,7 +530,7 @@
           },
           {
             "bottomLine": "als wären Sie in der 8. Klasse",
-            "topLine": "Erkläre die Evolutionstheorie"
+            "topLine": "Erklären Sie die Evolutionstheorie"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
@@ -553,7 +550,7 @@
           },
           {
             "bottomLine": "als wären Sie 14",
-            "topLine": "Erkläre das Konzept der Relativität"
+            "topLine": "Erklären Sie das Konzept der Relativität"
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
@@ -565,7 +562,7 @@
           },
           {
             "bottomLine": "als wären Sie in der 6. Klasse",
-            "topLine": "Erkläre das Konzept der erneuerbaren Energien"
+            "topLine": "Erklären Sie das Konzept der erneuerbaren Energien"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
@@ -585,7 +582,7 @@
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Erkläre das Konzept des Datenschutzes"
+            "topLine": "Erklären Sie das Konzept des Datenschutzes"
           },
           {
             "bottomLine": "als wären Sie 14",
@@ -601,7 +598,7 @@
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
-            "topLine": "Erkläre das Konzept der Smart Cities"
+            "topLine": "Erklären Sie das Konzept der Smart Cities"
           },
           {
             "bottomLine": "als wären Sie 11",
@@ -617,7 +614,7 @@
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
-            "topLine": "Erkläre das Konzept der 5G-Technologie"
+            "topLine": "Erklären Sie das Konzept der 5G-Technologie"
           },
           {
             "bottomLine": "als wären Sie 15",
@@ -629,7 +626,7 @@
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Erkläre das Konzept der Smart Contracts"
+            "topLine": "Erklären Sie das Konzept der Smart Contracts"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
@@ -641,7 +638,7 @@
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
-            "topLine": "Erkläre das Konzept der maschinellen Übersetzung"
+            "topLine": "Erklären Sie das Konzept der maschinellen Übersetzung"
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
@@ -657,7 +654,7 @@
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Erkläre das Konzept der Cloud-Speicherung"
+            "topLine": "Erklären Sie das Konzept der Cloud-Speicherung"
           },
           {
             "bottomLine": "als wären Sie 13",
@@ -669,7 +666,7 @@
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
-            "topLine": "Erkläre das Konzept der virtuellen Meetings"
+            "topLine": "Erklären Sie das Konzept der virtuellen Meetings"
           },
           {
             "bottomLine": "als wären Sie 14",
@@ -681,7 +678,7 @@
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Erkläre das Konzept der Cybersicherheit"
+            "topLine": "Erklären Sie das Konzept der Cybersicherheit"
           },
           {
             "bottomLine": "als wären Sie 12",
@@ -694,46 +691,46 @@
         ]
       },
       "saveChat": {
-        "errorMessage": "Entschuldigen Sie bitte, wir konnten Ihre Konversation nicht speichern."
+        "errorMessage": "Ihre Konversation konnte leider nicht gespeichert werden."
       }
     },
     "giftCards": {
       "giftCardsPage": {
         "searchPlaceholder": "Nach einer Geschenkkarte suchen",
         "leftPageMessage": "Wohin sind Sie gegangen?",
-        "loadingCardsMessage": "Geschenkkarten werden geladen",
+        "loadingCardsMessage": "Geschenkkarten werden geladen …",
         "noCardsAvailable": "Keine Geschenkkarten verfügbar"
       },
       "confimPurchase": {
-        "quantity": "Menge {{quantity}}",
+        "quantity": "Menge: {{quantity}}",
         "cardAmount": "Kartenbetrag: {{amount}} {{currency}}",
         "price": "Preis: ",
         "fee": "Gebühr: "
       },
       "createAccount": {
         "title": "Bereitgestellt von",
-        "saveEmail": "Sie haben keine E-Mail gespeichert. Beschleunigen Sie den Checkout-Prozess, indem Sie eine E-Mail speichern.",
-        "termsAndConditions1": "Durch Fortfahren stimmen Sie den",
+        "saveEmail": "Sie haben noch keine E-Mail-Adresse gespeichert. Beschleunigen Sie den Bezahlvorgang, indem Sie eine E-Mail-Adresse hinterlegen.",
+        "termsAndConditions1": "Mit dem Fortfahren akzeptieren Sie die",
         "termsAndConditions2": "Nutzungsbedingungen",
-        "termsAndConditions3": "und",
-        "termsAndConditions4": "Datenschutzrichtlinie"
+        "termsAndConditions3": "und die",
+        "termsAndConditions4": "Datenschutzerklärung"
       },
       "expandedGiftCardPage": {
-        "purchasingCardMessage": "Geschenkkarte wird gekauft, verlassen Sie die Seite nicht.",
+        "purchasingCardMessage": "Geschenkkarte wird gekauft – verlassen Sie die Seite nicht.",
         "selectamount": "Betrag auswählen",
         "sendingto": "Senden an: ",
-        "minMaxPurchaseAmount": "Sie können einen {{min}}-Betrag von bis zu {{max}} {{currency}} kaufen",
+        "minMaxPurchaseAmount": "Sie können einen Betrag von {{min}} bis {{max}} {{currency}} kaufen.",
         "emailPlaceholder": "E-Mail-Adresse eingeben",
         "purchaseBTN": "Geschenkkarte kaufen",
-        "differentEmailMessage": "Die aktuelle E-Mail-Adresse unterscheidet sich von der gespeicherten. Möchten Sie diese E-Mail-Adresse als Ihre primäre festlegen?",
+        "differentEmailMessage": "Die eingegebene E-Mail-Adresse unterscheidet sich von der gespeicherten. Möchten Sie diese als Standard festlegen?",
         "terms": "Bedingungen",
         "cardDescription": "Kartenbeschreibung",
         "cardTerms": "Kartenbedingungen",
-        "dailyPurchaseAmountError": "Sie haben Ihr tägliches Kaufmaximum erreicht",
-        "giftMessage": "Fügen Sie eine Notiz zu Ihrem Geschenk hinzu",
-        "giftMessagePlaceholder": "Geben Sie Ihre Nachricht hier ein",
+        "dailyPurchaseAmountError": "Sie haben Ihr tägliches Kaufmaximum erreicht.",
+        "giftMessage": "Fügen Sie eine Nachricht zu Ihrem Geschenk hinzu",
+        "giftMessagePlaceholder": "Ihre Nachricht hier eingeben …",
         "selectForContactBTN": "Geschenkkarte auswählen",
-        "noAmountError": "Bitte wählen Sie einen Geschenkkartenbetrag"
+        "noAmountError": "Bitte wählen Sie einen Geschenkkartenbetrag aus"
       },
       "giftCardOrderDetails": {
         "title": "Bestelldetails",
@@ -743,16 +740,16 @@
         "openInbox": "Posteingang öffnen"
       },
       "historicalPurchasesPage": {
-        "confirmRemoval": "Sind Sie sicher, dass Sie diese Geschenkkarte entfernen möchten?",
-        "purchased": "Gekauft:",
-        "noPurchases": "Sie haben keine Geschenkkartenkäufe",
-        "customCopyMessage": "Support-E-Mail kopiert"
+        "confirmRemoval": "Möchten Sie diese Geschenkkarte wirklich entfernen?",
+        "purchased": "Gekauft am:",
+        "noPurchases": "Sie haben noch keine Geschenkkarten gekauft.",
+        "customCopyMessage": "Support-E-Mail wurde kopiert"
       }
     },
     "sms4sats": {
       "home": {
         "pageDescription": "Senden und empfangen Sie SMS-Nachrichten, ohne Ihre persönliche Telefonnummer preiszugeben.",
-        "pricingError": "Konnte die SMS-Preise nicht abrufen"
+        "pricingError": "SMS-Preise konnten nicht abgerufen werden"
       },
       "confirmationSlideUp": {
         "title": "Nummer bestätigen",
@@ -762,51 +759,51 @@
         "receiveTitle": "Empfang bestätigen"
       },
       "sendPage": {
-        "startingSendingMessage": "Sendeauftrag wird erstellt",
+        "startingSendingMessage": "Sendeauftrag wird erstellt …",
         "phoneNumberInputDescription": "Telefonnummer eingeben",
         "phoneNumberCountryDescription": "Land der Telefonnummer",
         "messageInputDescription": "Nachricht eingeben",
         "sendBTN": "Nachricht senden",
         "invalidInputError": "Muss ein {{errorType}} enthalten",
         "invalidCountryError": "Kein gültiges Land",
-        "payingMessage": "Bezahlung läuft...",
-        "runningTries": "Läuft {{runCount}} von {{maxTries}} Versuchen",
+        "payingMessage": "Bezahlung wird durchgeführt …",
+        "runningTries": "Versuch {{runCount}} von {{maxTries}}",
         "notAbleToSettleInvoice": "Rechnung konnte nicht beglichen werden.",
-        "paymentMemo": "Shop - SMS Senden"
+        "paymentMemo": "Shop – SMS senden"
       },
       "sentPayments": {
         "titlesend": "Gesendete Nachrichten",
         "titlereceive": "Erhaltene Codes",
-        "noPaymentssend": "Sie haben keine Nachrichten gesendet",
-        "noPaymentsreceive": "Sie haben keine Codes erhalten",
-        "helpMessage": "Für Hilfe wenden Sie sich an:",
+        "noPaymentssend": "Sie haben noch keine Nachrichten gesendet.",
+        "noPaymentsreceive": "Sie haben noch keine Codes erhalten.",
+        "helpMessage": "Bei Fragen wenden Sie sich an:",
         "orderId": "Bestell-ID",
         "pending": "Bestellung ausstehend",
         "refunded": "Bestellung erstattet",
         "retryClaim": "Code abrufen",
         "fetchOrderError": "Fehler beim Abrufen des Bestellstatus",
         "failedUpdate": "Fehler beim Aktualisieren des Bestellstatus",
-        "refundedOrder": "Die Bestellung wurde erstattet, die Gelder werden nach 21 Minuten automatisch auf Ihre Wallet zurückgebucht",
-        "reclaimComplete": "Wiederholung abgeschlossen. Wenn kein Code generiert wird, wird Ihnen nach 21 Minuten automatisch eine Rückerstattung gewährt.",
+        "refundedOrder": "Die Bestellung wurde erstattet. Die Gelder werden nach 21 Minuten automatisch auf Ihre Wallet zurückgebucht.",
+        "reclaimComplete": "Wiederholung abgeschlossen. Falls kein Code generiert wird, erhalten Sie nach 21 Minuten automatisch eine Rückerstattung.",
         "noCode": "Kein Code",
-        "rateLimitError": "Zu viele Anfragen. Sie können nur 5 Anfragen alle 30 Sekunden stellen. Bitte warten Sie, bevor Sie es erneut versuchen."
+        "rateLimitError": "Zu viele Anfragen. Sie können nur 5 Anfragen alle 30 Sekunden stellen. Bitte warten Sie einen Moment."
       },
       "receivePage": {
-        "paymentMemo": "Shop - SMS Empfang",
+        "paymentMemo": "Shop – SMS Empfang",
         "selectCountry": "Land auswählen",
-        "autoSelectInfoMessage": "Wählen Sie das Land der Telefonnummer, die Sie verwenden möchten. Für die beste Chance, Ihren Code zu erhalten, empfehlen wir, die automatische Auswahl beizubehalten, damit das System die zuverlässigste Option auswählt.",
+        "autoSelectInfoMessage": "Bitte wählen Sie das Land für die Telefonnummer aus. Für die beste Chance, den Code zu erhalten, empfehlen wir die automatische Auswahl.",
         "autoSelect": "Automatische Auswahl",
-        "inputPlaceholder": "Nach einem Dienst suchen",
-        "loacationLoadingMessage": "Standortbasierte Dienste werden abgerufen",
-        "noAvailableServices": "Dieser Standort hat keine Dienste",
-        "orderDetailsLoading": "Bestelldetails werden abgerufen"
+        "inputPlaceholder": "Nach einem Dienst suchen…",
+        "loacationLoadingMessage": "Standortbasierte Dienste werden abgerufen…",
+        "noAvailableServices": "Dieser Standort hat keine verfügbaren Dienste",
+        "orderDetailsLoading": "Bestelldetails werden abgerufen…"
       },
       "confirmCodePage": {
         "header": "Ihre Bestellung wurde erfolgreich initiiert. Folgendes passiert als Nächstes:",
         "phoneNumberLabel": "Ihre Nummer:",
-        "step1": "• Klicken Sie auf das Rechnungssymbol oben rechts, um Ihren Bestellverlauf anzuzeigen",
-        "step2": "• Verwenden Sie die Schaltfläche 'Code abrufen', um Ihren Verifizierungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben",
-        "step3": "• Wenn kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet",
+        "step1": "• Tippen Sie auf das Rechnungssymbol oben rechts, um Ihren Bestellverlauf anzuzeigen",
+        "step2": "• Verwenden Sie die Schaltfläche „Code abrufen“, um Ihren Verifizierungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben",
+        "step3": "• Falls kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet",
         "automaticRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder wurden bereits zurückerstattet.",
         "waitedRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder werden nach 21 Minuten automatisch zurückerstattet."
       },
@@ -820,7 +817,7 @@
       "apparel": "Bekleidung",
       "other": "Sonstiges",
       "travel": "Reisen",
-      "e-commerce": "Elektronischer Handel",
+      "e-commerce": "E-Commerce",
       "health": "Gesundheit",
       "art & collectibles": "Kunst & Sammlerstücke",
       "legal & services": "Recht & Dienstleistungen",
@@ -832,9 +829,9 @@
       "sustainability": "Nachhaltigkeit",
       "selectCategoryPlaceholder": "Kategorie auswählen",
       "topBarLabel": "Shops",
-      "loadingShopMessage": "Online-Shops werden geladen",
-      "inputPlaceHolder": "Unternehmen suchen...",
-      "noBuisMessage": "Wir konnten nichts finden, das Ihrer Suche entspricht.",
+      "loadingShopMessage": "Online-Shops werden geladen …",
+      "inputPlaceHolder": "Unternehmen suchen …",
+      "noBuisMessage": "Wir konnten keine passenden Ergebnisse finden.",
       "visitWebsite": "Website besuchen",
       "addListing": "Shop hinzufügen"
     }
@@ -845,38 +842,34 @@
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
       "contacts": "Aus Kontakten",
-      "inputPlaceholder": "Adresse zum Bezahlen eingeben",
+      "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein",
       "scanImage": "Bild scannen",
-      "tapToScan": "Tippen, um eine Adresse aus einem Bild zu extrahieren",
-      "addressBook_send": "Kontaktbuch",
-      "chooseWhatToSend": "Auswählen, was gesendet werden soll",
-      "noContacts": "Füge Kontakte hinzu, damit sie hier angezeigt werden",
+      "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild zu extrahieren",
+      "addressBook": "Adressbuch",
+      "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten",
+      "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden",
       "selectAddressType": "Adresstyp auswählen",
-      "tapToGenerate_other": "Tippen, um weitere Empfangsoptionen zu sehen",
-      "tapToGenerate_lightning": "Tippen, um eine Lightning-Rechnung zu erstellen",
-      "tapToGenerate_bitcoin": "Tippen, um eine Bitcoin-Adresse zu erstellen",
-      "tapToGenerate_spark": "Tippen, um eine Spark-Adresse zu erstellen",
-      "tapToGenerate_liquid": "Tippen, um eine Liquid-Adresse zu erstellen",
-      "tapToGenerate_rootstock": "Tippen, um eine Rootstock-Adresse zu erstellen",
-      "chooseWhatToReceive": "Auswählen, was angefordert werden soll",
+      "otherAddresses": "Weitere Optionen",
+      "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen",
+      "tapToGenerate_lightning": "Tippen Sie, um eine Lightning-Rechnung zu erstellen",
+      "tapToGenerate_bitcoin": "Tippen Sie, um eine BTC-Adresse zu erstellen",
+      "tapToGenerate_spark": "Tippen Sie, um eine Spark-Adresse zu erstellen",
+      "tapToGenerate_liquid": "Tippen Sie, um eine Liquid-Adresse zu erstellen",
+      "tapToGenerate_rootstock": "Tippen Sie, um eine Rootstock-Adresse zu erstellen",
+      "chooseWhatToReceive": "Bitte wählen Sie aus, was Sie anfordern möchten",
       "instantLowFees": "Sofort, niedrige Gebühren",
-      "onChainTransaction": "On-Chain-Transaktion",
-      "otherAddresses": "Weitere Empfangsoptionen",
-      "scanQrCode": "QR-Code scannen",
-      "tapToScanQr": "Tippe, um einen QR-Code zu scannen",
-      "addressBook_request": "Von einem Kontakt anfordern",
-      "qrReceiveOptions": "Per QR-Code empfangen"
+      "onChainTransaction": "On-Chain-Transaktion"
     },
     "manualInputPage": {
-      "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse/Rechnung ein oder fügen Sie sie ein"
+      "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Zahlungsanforderung ein oder fügen Sie sie ein."
     },
     "cameraModal": {
       "noCamera": "Kein Zugriff auf die Kamera",
-      "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf Ihre Kamera zu erlauben",
-      "noCameraDevice": "Sie haben kein Kameragerät.",
-      "noFlash": "Gerät hat keine Taschenlampe",
-      "sanningResponse": "Nur QR-Codes werden akzeptiert.",
-      "qrDecodeError": "Fehler beim Dekodieren des QR-Codes"
+      "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf die Kamera zu erlauben.",
+      "noCameraDevice": "Kein Kameragerät verfügbar.",
+      "noFlash": "Dieses Gerät verfügt über keine Taschenlampe.",
+      "sanningResponse": "Es werden nur QR-Codes akzeptiert.",
+      "qrDecodeError": "Fehler beim Lesen des QR-Codes"
     },
     "confirmClipboard": {
       "clipboardContent": "Text in die Zwischenablage kopiert",
@@ -884,10 +877,10 @@
       "ok": "OK"
     },
     "see_all_txs": "Alle Transaktionen anzeigen",
-    "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit Sie hier angezeigt wird",
+    "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit diese hier angezeigt wird",
     "contactsPage": {
       "header": "Empfänger auswählen",
-      "inputTextPlaceholder": "Benutzernamen suchen...",
+      "inputTextPlaceholder": "Benutzernamen suchen …",
       "subHeader": "Alle Kontakte",
       "giftsText": "Geschenke von Kontakten"
     },
@@ -901,7 +894,7 @@
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "Empfangsbetrag",
-        "descriptionInputPlaceholder": "Beschreibung...",
+        "descriptionInputPlaceholder": "Beschreibung …",
         "editAmount": "Betrag bearbeiten",
         "minUSDSwap": "Zahlungen, die in USD umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}"
       },
@@ -933,37 +926,37 @@
     },
     "sendPages": {
       "sendPaymentScreen": {
-        "initialLoadingMessage": "Rechnungsdetails werden vorbereitet",
+        "initialLoadingMessage": "Rechnungsdetails werden vorbereitet …",
         "alreadyPaidInvoiceError": "Diese Rechnung wurde bereits bezahlt.",
-        "descriptionPlaceholder": "Zahlungsbeschreibung...",
+        "descriptionPlaceholder": "Zahlungsbeschreibung …",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung",
-        "connectToSparkMessage": "Verbindung zu Ihrer Wallet wird hergestellt.",
+        "connectToSparkMessage": "Verbindung zu Ihrer Wallet wird hergestellt …",
         "switchTokenText": "Bitte verwenden Sie einen anderen Token.",
         "zeroAmountInvoiceDollarPayments": "Rechnungen mit Betrag null können nicht mit USD bezahlt werden. Bitte verwenden Sie BTC.",
-        "decodingPayment": "Zahlungsinformationen werden dekodiert...",
+        "decodingPayment": "Zahlungsinformationen werden dekodiert …",
         "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren."
       },
       "selectPaymentMethod": {
-        "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung finanzieren möchten."
+        "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung senden möchten (BTC oder USD)."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adressen sollten nur Text enthalten. Bitte überprüfen Sie und versuchen Sie es erneut.",
         "parseError": "Wir konnten den Zahlungstyp nicht erkennen. Bitte geben Sie eine gültige Spark-, On-Chain-, LNURL- oder BOLT11-Rechnung ein.",
         "paymentProcessingError": "Fehler bei der Verarbeitung der Zahlungsinformationen",
-        "tooLowSendingAmount": "Der Sendebetrag ist zu hoch, um die Zahlung und Gebühren zu decken. Maximaler Sendebetrag ist {{amount}}",
+        "tooLowSendingAmount": "Der Sendebetrag ist zu niedrig, um die Zahlung und Gebühren zu decken. Maximaler Sendebetrag ist {{amount}}",
         "processInputError": "Eingabe konnte nicht verarbeitet werden",
         "unkonwDecodeError": "Unbekannter Dekodierungsfehler aufgetreten",
-        "invalidInputType": "Keine gültige Adresstyp",
+        "invalidInputType": "Kein gültiger Adresstyp",
         "expiredLightningInvoice": "Diese Lightning-Rechnung ist abgelaufen",
-        "lnurlAuthStartMeessage": "LNURL-Authentifizierung wird gestartet",
+        "lnurlAuthStartMeessage": "LNURL-Authentifizierung wird gestartet …",
         "lnurlFailedAuthMessage": "LNURL-Authentifizierung fehlgeschlagen",
         "lnurlConfirmMessage": "LNURL erfolgreich authentifiziert",
-        "lnurlPayInvoiceError": "Fehler beim Erstellen der Rechnung für die LNURL-Zahlung. Bitte versuche es erneut.",
-        "lnurlWithdrawlStart": "Rechnung für Auszahlung wird generiert",
+        "lnurlPayInvoiceError": "Fehler beim Erstellen der Rechnung für die LNURL-Zahlung. Bitte versuchen Sie es erneut.",
+        "lnurlWithdrawlStart": "Rechnung für Auszahlung wird generiert …",
         "lnurlWithdrawlInvoiceError": "Rechnung für LNURL-Auszahlung konnte nicht generiert werden",
-        "waitingForLnurlWithdrawl": "Warten auf Zahlung...",
+        "waitingForLnurlWithdrawl": "Warten auf Zahlung …",
         "lnurlWithdrawlSuccess": "Auszahlung erfolgreich! Ihre Zahlung ist unterwegs.",
-        "invoiceDetails": "Details werden geladen",
+        "invoiceDetails": "Details werden geladen …",
         "timeoutError": "Der Vorgang hat zu lange gedauert. Bitte versuchen Sie es erneut.",
         "payingToSameAddress": "Sie können keine {{addressType}}-Zahlung an sich selbst senden."
       },
@@ -978,7 +971,7 @@
       },
       "selectLRC20Token": {
         "title": "Token auswählen",
-        "searchPlaceholder": "Token-Name...",
+        "searchPlaceholder": "Token-Name …",
         "noTokensFoundText": "Keine Token gefunden"
       },
       "sendMaxComponent": {
@@ -988,11 +981,11 @@
       "acceptButton": {
         "noSendAmountError": "Bitte geben Sie einen Betrag zum Senden ein.",
         "noSwapForBTCPaymentsError": "BTC-On-Chain-Zahlungen können nur mit BTC bezahlt werden, nicht mit USD. Swaps sind für On-Chain-Zahlungen nicht verfügbar.",
-        "balanceFragmentationError": "Ihr Guthaben ist auf BTC und USD aufgeteilt. Um diese Zahlung abzuschließen, konsolidieren Sie Ihr Mittel oder passen Sie die Zahlungsmethode an.",
+        "balanceFragmentationError": "Ihr Guthaben ist auf BTC und USD aufgeteilt. Um diese Zahlung abzuschließen, konsolidieren Sie Ihre Mittel oder passen Sie die Zahlungsmethode an.",
         "liquidError": "{{overFlowType}} Liquid-Zahlungsbetrag beträgt {{amount}}",
         "onchainError": "BTC-On-Chain-Zahlungen erfordern einen Mindestbetrag von {{amount}}",
-        "lnurlPayError": "Der Zahlungsbetrag muss zwischen dem {{overFlowType}} von {{amount}} liegen",
-        "lrc20FeeError": "Sie benötigen mindestens {{amount}}, um die Transaktionsgebühr zu bezahlen. Ihr Aktuelles Guthaben: {{balance}}",
+        "lnurlPayError": "Der Zahlungsbetrag muss zwischen {{overFlowType}} von {{amount}} liegen",
+        "lrc20FeeError": "Sie benötigen mindestens {{amount}}, um die Transaktionsgebühr zu bezahlen. Ihr aktuelles Guthaben: {{balance}}",
         "balanceError": "Unzureichendes Guthaben, um diese Zahlung abzuschließen",
         "swapMinimumError": "{{currency1}}-zu-{{currency2}}-Swaps erfordern einen Mindestbetrag von {{amount}}",
         "flashnetOffineError": "Umwandlungen zwischen Dollar und Bitcoin sind derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
@@ -1009,7 +1002,7 @@
       },
       "lrc20Assets": {
         "actionText": "{{action}} Token",
-        "tokensSearchPlaceholder": "Token suchen...",
+        "tokensSearchPlaceholder": "Token suchen …",
         "noTokensText": "Sie haben keine Token",
         "noTokensFoundText": "Keine Token gefunden"
       },
@@ -1019,10 +1012,10 @@
       },
       "sparkErrorScreen": {
         "connectionError": "Wir haben Probleme, eine Verbindung zu Ihrer Wallet herzustellen. Bitte informieren Sie uns über dieses Problem.\n\nDenken Sie daran, Ihre Seed-Phrase hält Ihre Gelder sicher.",
-        "retry": "Wir konnten Ihre Wallet derzeit nicht laden. Bitte versuchen Sie es erneut. \n\nIhre Gelder sind sicher, solange Sie Ihre Seed-Phrase haben."
+        "retry": "Wir konnten Ihre Wallet derzeit nicht laden. Bitte versuchen Sie es erneut.\n\nIhre Gelder sind sicher, solange Sie Ihre Seed-Phrase haben."
       },
       "backupSeedWarning": {
-        "header": "Sicheren Sie Ihre Seed-Phrase",
+        "header": "Sichern Sie Ihre Seed-Phrase",
         "description": "Sie haben Geld in Ihrer Wallet, aber Ihre Seed-Phrase noch nicht gespeichert. Ihre Seed-Phrase ist eine Liste von Wörtern, die Ihre Wallet entsperrt. Wenn Sie dieses Gerät verlieren und sie nicht gespeichert haben, könnten Sie Ihr Geld für immer verlieren.",
         "backupBTN": "Jetzt sichern",
         "laterBTN": "Später erledigen"
@@ -1038,7 +1031,7 @@
       "title": "Exportieren Sie Ihren Zahlungsverlauf im CSV-Format (Komma-getrennte Werte).",
       "paymentsCounter": "{{number}} Zahlungen",
       "paymentsCounterTracker": "{{number}} von {{total}}",
-      "loadingMessage": "Gespeicherte Transaktionen werden geladen"
+      "loadingMessage": "Gespeicherte Transaktionen werden geladen …"
     }
   },
   "contacts": {
@@ -1046,7 +1039,7 @@
       "contactsHeader": "Kontakte",
       "addContactsText": "Kontakte hinzufügen",
       "searchContactsPlaceholder": "Hinzugefügte Kontakte suchen",
-      "noContactsMessage": "Sie haben keine Kontakte",
+      "noContactsMessage": "Sie haben noch keine Kontakte",
       "editContactProfileMessage": "Bearbeiten Sie Ihr Profil, um Kontakte zu nutzen.",
       "addContactButton": "Kontakte hinzufügen",
       "editContactButton": "Profil bearbeiten",
@@ -1057,15 +1050,15 @@
     "addContactsHalfModal": {
       "noContactsMessage": "Der Kontakt konnte nicht gefunden werden.",
       "title": "Kontakte hinzufügen",
-      "searchPlaceholder": "Kontakte suchen",
+      "searchPlaceholder": "Kontakte suchen …",
       "lnurlAddMessage": "Sie sind dabei, hinzuzufügen",
       "noProfilesFound": "Kein Profil entspricht dieser Suche",
-      "startTypingMessage": "Suchen Sie nach LNURL (z.B. name@service.com) oder Blitz-Benutzername."
+      "startTypingMessage": "Suchen Sie nach LNURL (z. B. name@service.com) oder Blitz-Benutzername."
     },
     "expandedContactPage": {
       "loadingContactError": "Die Kontakte konnten nicht geladen werden, bitte versuchen Sie es erneut.",
       "requestLNURLError": "Sie können nur Geld von Blitz-Kontakten anfordern, nicht von LNURL-Adressen.",
-      "noTransactions": "Senden oder fordern Sie eine Zahlung an, um den Transaktionsverlauf zu sehen."
+      "noTransactions": "Senden oder fordern Sie eine Zahlung an, um den Transaktionsverlauf anzuzeigen."
     },
     "expandedMessageHalfModal": {
       "title": "Vollständige Nachricht",
@@ -1089,31 +1082,31 @@
       "deleateWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden."
     },
     "selectCurrencyToSend": {
-      "header": "Was möchtest du senden?"
+      "header": "Wie möchten Sie senden?"
     },
     "selectCurrencyToRequest": {
-      "header": "Wähle die anzufordernde Währung aus"
+      "header": "Bitte wählen Sie die anzufordernde Währung aus"
     },
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Zahlungsbeschreibung",
       "profileMessage": "Bezahlung an {{name}}",
       "contactMessage": "{{name}} hat Ihnen bezahlt",
-      "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz-Wallet aktualisiert.",
+      "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz Wallet.",
       "giftCardDescription": "Sie haben {{name}} eine {{giftCardName}} Geschenkkarte gesendet",
       "cardDetailsError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",
-      "giftCardRange": "{{amount}} - {{amount2}} senden",
+      "giftCardRange": "{{amount}} – {{amount2}} senden",
       "giftCardAmountError": "Geben Sie einen Wert von mindestens {{amount}} und bis zu {{amount2}} ein",
       "sendGiftText": "Geschenk senden",
       "notVariableCard": "Diese Geschenkkarte hat einen festen Betrag. Sie können nur den oben angezeigten Preis senden.",
       "giftCardText": "{{giftName}} Geschenkkarte",
       "giftMessage": "Geschenk-Nachricht",
       "recipientReceives": "{{contactName}} erhält",
-      "giftMessagePlaceholder": "Schreibe hier deine Geschenknachricht...",
+      "giftMessagePlaceholder": "Schreiben Sie hier Ihre Geschenknachricht …",
       "paymentSourceHeader": "Zahlungsquelle"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",
-      "loadingMessage": "Geschenkkarteninformationen werden geladen...",
+      "loadingMessage": "Geschenkkarteninformationen werden geladen …",
       "valueHeader": "Geschenkkartenwert",
       "redeemHeader": "Wie einlösen",
       "openClaimText": "Geschenkkarte öffnen",
@@ -1129,8 +1122,8 @@
     },
     "selectGiftPage": {
       "noCards": "Keine Karten verfügbar",
-      "header": "Wählen Sie die Geschenkkarte aus, die Sie senden möchten",
-      "inputPlaceholder": "Nach einer Geschenkkarte suchen"
+      "header": "Bitte wählen Sie die Geschenkkarte aus, die Sie senden möchten",
+      "inputPlaceholder": "Nach einer Geschenkkarte suchen …"
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
@@ -1177,7 +1170,7 @@
       "text2": "Blitz ist eine kostenlose und Open-Source-App unter der ",
       "text3": "Apache-Lizenz",
       "text4": " Version 2.0",
-      "text5": "Dies ist eine selbstverwaltete BTC-Lightning-Wallet. Blitz hat keinen Zugriff auf Ihre Gelder, wenn Sie Ihre Seed-Phrase verlieren, kann dies zum Verlust Ihrer Gelder führen.",
+      "text5": "Dies ist eine selbstverwaltete BTC-Lightning-Wallet. Blitz hat keinen Zugriff auf Ihre Gelder. Wenn Sie Ihre Seed-Phrase verlieren, kann dies zum Verlust Ihrer Gelder führen.",
       "text6": "Blitz verwendet ",
       "text7": "Breez Liquid SDK, ",
       "text8": "Spark, ",
@@ -1207,7 +1200,7 @@
       "theme": "Thema",
       "light": "Hell",
       "lightsOut": "Dunkel",
-      "dim": "Gedimmt (Augenschonend)",
+      "dim": "Gedimmt (augenschonend)",
       "balDisplay": "Saldoanzeige",
       "prev": "Vorschau",
       "denomination": "Einheit",
@@ -1222,15 +1215,15 @@
       "transactionsLabel_40": "40 Transaktionen",
       "privFeat": "Privatsphäre & Funktionen",
       "cameraSwipe": "Wischen für Kamera",
-      "cameraSwipeDesc": "Wische auf einer Hauptseite nach rechts, um die Kamera zu öffnen.",
+      "cameraSwipeDesc": "Wischen Sie auf einer Hauptseite nach rechts, um die Kamera zu öffnen.",
       "unkownSenders": "Unbekannte Absender ausblenden",
       "unknownSenderDesc": "Transaktionen von unbekannten Kontakten ausblenden",
-      "text1": "Dunklermodus-Stil",
+      "text1": "Dunkelmodus-Stil",
       "text2": "Dunkel",
-      "text3": "Gedimmt (Augenschonend)",
+      "text3": "Gedimmt (augenschonend)",
       "text4": "Guthabenwährung",
-      "text5": "Aktuelle Währung",
-      "text6": "Bitte stellen Sie die Internetverbindung wieder her, um Ihre Währung zu wechseln",
+      "text5": "Aktuelle Standardwährung",
+      "text6": "Bitte stellen Sie die Internetverbindung wieder her, um in Ihre Standardwährung zu wechseln",
       "text7": "Wie anzeigen",
       "fiat": "Fiat",
       "hidden": "Ausgeblendet",
@@ -1271,12 +1264,12 @@
       "createPinPageHeader": "{{type}} Ihren Blitz-PIN",
       "invalidPinconfirmation": "PINs stimmen nicht überein. Versuchen Sie es erneut!",
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
-      "randomPinKeyboardInfo": "Aktiviere diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen."
+      "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen."
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Seed-Phrase an einem sicheren Ort auf",
       "headerDesc": "Teilen Sie sie mit niemandem!",
-      "qrWarning": "Sind Sie sicher, dass Sie diesen QR-Code anzeigen möchten?\n\nDas Scannen Ihrer Seed-Phrase ist praktisch, aber stellen Sie sicher, dass Sie ein sicheres und vertrauenswürdiges Gerät verwenden. Dies hilft, Ihre Wallet sicher zu halten.",
+      "qrWarning": "Sind Sie sicher, dass Sie diesen QR-Code anzeigen möchten?\n\nDas Scannen Ihrer Seed-Phrase ist praktisch, aber stellen Sie sicher, dass Sie ein sicheres und vertrauenswürdiges Gerät verwenden.",
       "wordsText": "Wörter",
       "qrText": "QR-Code",
       "showSeedWarning": "Sind Sie sicher, dass Sie Ihre Seed-Phrase anzeigen möchten?"
@@ -1292,7 +1285,7 @@
     },
     "resetWallet": {
       "header": "Sind Sie sicher?",
-      "dataDeleteHeader": "Wählen Sie die Daten aus, die von diesem Gerät gelöscht werden sollen.",
+      "dataDeleteHeader": "Bitte wählen Sie die Daten aus, die von diesem Gerät gelöscht werden sollen.",
       "dataDeleteDesc": "Dies wird alle Wallet-Daten von Ihrem Gerät löschen. Wenn Sie keine Kopie Ihrer Seed-Phrase gespeichert haben, VERLIEREN Sie den Zugriff auf Ihre Gelder.",
       "boxNotChecked": "Bitte markieren Sie das Kästchen, um zu bestätigen, dass Sie Ihre Wallet zurücksetzen möchten, bevor Sie fortfahren.",
       "seedAndPinOpt": "Alle Daten von meinem Gerät löschen",
@@ -1310,9 +1303,9 @@
       "title": "Spark-Einstellungen",
       "sliderTitle_enabled": "BTKN aktiviert",
       "sliderTitle_disabled": "BTKN deaktiviert",
-      "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf BTC fokussierte Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die Sie wollen.",
+      "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf BTC fokussierte Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die sie wollen.",
       "selectTokenHeader": "Standard-Token",
-      "selectTokenInformationPopup": "Wählen Sie aus, welchen Token Sie zuerst für Zahlungen verwenden möchten. Keine Sorge – Sie können dies jederzeit auf der Zahlungsseite ändern."
+      "selectTokenInformationPopup": "Bitte wählen Sie aus, welchen Token Sie zuerst für Zahlungen verwenden möchten. Keine Sorge – Sie können dies jederzeit auf der Zahlungsseite ändern."
     },
     "viewSwapsHome": {
       "swaps": "Netzwerkübertragungen",
@@ -1323,8 +1316,8 @@
       "pageTitle": "{{type}}-Übertragungen"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Gespeicherte Roostock-Übertragungen werden geladen",
-      "noSwapsMessage": "Sie haben keine gespeicherten Roostock-Übertragungen"
+      "loadingMessage": "Gespeicherte Rootstock-Übertragungen werden geladen …",
+      "noSwapsMessage": "Sie haben keine gespeicherten Rootstock-Übertragungen"
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
@@ -1340,15 +1333,18 @@
       "rescanComplete": "Neu scannen abgeschlossen",
       "swapStartedMessage": "Die Übertragung wurde gestartet. Es kann 10–20 Sekunden dauern, bis die Zahlung angezeigt wird.",
       "balanceError": "Der aktuelle Liquid-Saldo beträgt {{balance}}, aber der Mindestbetrag für eine Übertragung ist {{swapAmount}}",
-      "loadingMessage": "Liquid-Informationen werden abgerufen",
+      "loadingMessage": "Liquid-Informationen werden abgerufen …",
       "breakdownHead": "Guthabenaufschlüsselung",
       "incoming": "{{amount}} ausstehende eingehende",
       "outgoing": "{{amount}} ausstehende ausgehende",
       "balance": "{{amount}} Liquid-Guthaben",
       "rescan": "Neu scannen",
       "totalBalance": "Gesamtguthaben",
-      "swapMessage": "Blitz Wallet versucht, Ihre Liquid-Gelder beim ersten App-Start oder beim Empfang von Liquid-Zahlungen nach Spark zu übertragen.\n\nIn manchen Fällen kann jedoch eine Übertragung verpasst werden. Um diese Gelder manuell nach Spark zu bewegen, tippen Sie unten auf den Button Übertragung.",
-      "swap": "Übertragen"
+      "swapMessage": "Blitz Wallet versucht, Ihre Liquid-Gelder beim ersten App-Start oder beim Empfang von Liquid-Zahlungen nach Spark zu übertragen.\n\nIn manchen Fällen kann jedoch eine Übertragung verpasst werden. Um diese Gelder manuell nach Spark zu bewegen, tippen Sie unten auf den Button „Übertragen“.",
+      "swap": "Übertragen",
+      "rescanning": "Scannen…",
+      "autoClaimLabel": "Automatisch einlösen",
+      "autoClaimHelper": "Liquid-Guthaben automatisch in Lightning tauschen, sobald der Mindestbetrag erreicht ist."
     },
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",
@@ -1362,15 +1358,15 @@
       "pos": "Kasse"
     },
     "nostrHome": {
-      "nip5Title": "Nip5-Verifizierung",
+      "nip5Title": "NIP-05-Verifizierung",
       "nip5Desc": "Verifizieren Sie Ihre Nostr-Identität schnell mit Blitz.",
       "nwcTitle": "Nostr Wallet Connect",
-      "nwcDesc": "Verbinden Sie Ihre Blitz Wallet mit Apps, die Nostr verwenden."
+      "nwcDesc": "Verbinden Sie Ihre Blitz Wallet mit Apps, die auf Nostr basieren."
     },
     "fiatCurrency": {
       "title": "Währung",
-      "placeholderText": "Währung suchen",
-      "saveCurrencyError": "Wir konnten die ausgewählte Währung nicht speichern, bitte versuchen Sie es erneut."
+      "placeholderText": "Standardwährung suchen …",
+      "saveCurrencyError": "Wir konnten die ausgewählte Standardwährung nicht speichern, bitte versuchen Sie es erneut."
     },
     "feeInformation": {
       "title": "",
@@ -1392,13 +1388,13 @@
       "regexError": "Name darf nur Buchstaben oder Zahlen enthalten.",
       "takenNameError": "Name bereits vergeben",
       "nameConfirmationMessage": "NIP-05 erfolgreich hinzugefügt! Bitte beachten Sie, dass es bis zu 24 Stunden dauern kann, bis es angezeigt wird, da die Liste einmal täglich aktualisiert wird.",
-      "title": "Nip5-Verifizierung",
-      "desc": "Nip5 verwandelt Ihren langen Npub in eine kurze, E-Mail-ähnliche Adresse, ähnlich wie eine Lightning-Adresse.",
-      "dataIsInvalid": "Etwas ist schiefgelaufen, bitte versuchen Sie es erneut,",
+      "title": "NIP-05-Verifizierung",
+      "desc": "NIP-05 verwandelt Ihren langen Npub in eine kurze, E-Mail-ähnliche Adresse, ähnlich wie eine Lightning-Adresse.",
+      "dataIsInvalid": "Etwas ist schiefgelaufen, bitte versuchen Sie es erneut.",
       "usernameInputLabel": "Benutzername",
-      "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Benutzername",
-      "publicKeyPlaceholder": "Npub...",
+      "usernameInputPlaceholder": "Satoshi …",
+      "publicKeyLabel": "Öffentlicher Schlüssel",
+      "publicKeyPlaceholder": "Npub …",
       "errors": {
         "invalidPubKey": "Ungültiger öffentlicher Schlüssel: muss eine nicht-leere Zeichenkette sein",
         "invalidNpub": "Ungültiges Npub-Format",
@@ -1408,7 +1404,7 @@
     },
     "nwc": {
       "confirmDelete": "Sind Sie sicher, dass Sie dieses Nostr Connect-Element löschen möchten?",
-      "searchAccountPlaceholder": "Nach NWC-Konto suchen",
+      "searchAccountPlaceholder": "Nach NWC-Konto suchen …",
       "noAccountsMessage": "Sie haben keine Nostr Connect-Konten.",
       "addAccount": "Konto hinzufügen",
       "createNWCAccount": {
@@ -1417,7 +1413,7 @@
         "noBudgetError": "Bitte wählen Sie einen Budgetverlängerungszeitraum.",
         "noBudgetAmountError": "Bitte wählen Sie einen Budgetbetrag.",
         "title": "Konto erstellen",
-        "loadingMessage": "Konto wird erstellt",
+        "loadingMessage": "Konto wird erstellt …",
         "nameInputPlaceholder": "NWC-Kontonamen eingeben",
         "permissionsHeader": "Wallet-Berechtigungen",
         "receivePayments": "Zahlungen empfangen",
@@ -1427,8 +1423,8 @@
         "lookupInvoice": "Rechnung nachschlagen",
         "budgetRenewalHeader": "Budgetverlängerung",
         "bugetPlaceholder": "Budgetverlängerungszeitraum auswählen",
-        "createConnection": "",
-        "connectionName": ""
+        "createConnection": "Verbindung erstellen",
+        "connectionName": "Verbindungsname"
       },
       "hasNoAccounts": {
         "wanringMessage": "Um Geld von Ihrer Nostr Connect-Wallet zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrer Hauptwallet.\n\nSie können Gelder von Ihrer Hauptwallet zu NWC auf der Kontoseinstellungsseite übertragen."
@@ -1437,7 +1433,7 @@
         "wanringMessage": "Um Nostr Wallet Connect zu nutzen, müssen Sie Push-Benachrichtigungen für Nostr Wallet Connect aktiviert haben.\n\nBitte aktivieren Sie Push-Benachrichtigungen in den Einstellungen und versuchen Sie es erneut."
       },
       "showSeedPage": {
-        "loadingMessage": "Seed-Phrase wird generiert",
+        "loadingMessage": "Seed-Phrase wird generiert …",
         "wanringMessage": "Um Ihre Wallet sicher zu halten, erstellt Nostr Wallet Connect eine separate Seed-Phrase von der Seed-Phrase Ihrer Hauptwallet.\n\nDiese Wallet verwendet den zweiten Ableitungspfad und kann immer mit der Seed-Phrase Ihrer Hauptwallet wiederhergestellt werden.\n\nWenn Sie nicht technisch versiert sind und unsicher bezüglich der Wiederherstellung der Wallet-Adresse sind, schreiben Sie bitte diese Seed-Phrase auf.",
         "viewSeed": "Seed-Phrase anzeigen"
       }
@@ -1452,9 +1448,9 @@
         "noAccountsFound": "Keine Konten entsprechen Ihrer Suche."
       },
       "accountPaymentPage": {
-        "noAmountError": "Bitte gib einen Betrag zum Übertragen ein",
-        "noAccountError": "Bitte wähle ein Konto aus, von dem die Mittel übertragen werden sollen",
-        "noAccountToError": "Bitte wähle ein Konto aus, auf das die Mittel übertragen werden sollen",
+        "noAmountError": "Bitte geben Sie einen Betrag zum Übertragen ein",
+        "noAccountError": "Bitte wählen Sie ein Konto aus, von dem die Mittel übertragen werden sollen",
+        "noAccountToError": "Bitte wählen Sie ein Konto aus, auf das die Mittel übertragen werden sollen",
         "loadingFeeError": "Übertragung kann nicht gestartet werden, während die Gebühr berechnet wird",
         "alreadyStartedTransferError": "Es wurde bereits eine Übertragung gestartet",
         "balanceError": "Der Betrag übersteigt Ihr Guthaben einschließlich Gebühren",
@@ -1473,7 +1469,7 @@
         "deleteAccountConfirmation": "Sind Sie sicher, dass Sie dieses Konto löschen möchten?",
         "inputDesc": "Kontoname",
         "nameTakenError": "Dieser Name ist derzeit in Verwendung. Bitte verwenden Sie einen anderen Kontonamen.",
-        "nameInputPlaceholder": "Name...",
+        "nameInputPlaceholder": "Name …",
         "seedHeader": "Konto-Seed-Phrase"
       },
       "viewAccountPage": {
@@ -1485,33 +1481,33 @@
         "nameTakenError": "Dieser Kassensystem-Name ist bereits in Verwendung.",
         "nameRegexError": "Name darf nur Buchstaben und Zahlen enthalten.",
         "title": "Kassensystem",
-        "storeNameInputDesc": "Geschäftsname",
-        "storeNameInputPlaceholder": "Geschäftsnamen eingeben",
-        "displayCurrencyDesc": "Anzeigewährung",
-        "numAddeditems": "{{number}} hinzugefügtes Element{{isPlurl}}",
-        "plurlEnding": "e",
-        "differingCurrencyItemsError": "Ihre aktuelle Währung unterscheidet sich von {{number}} Ihrer gespeicherten Elemente. Bitte aktualisieren Sie Ihre Elementpreise, um sicherzustellen, dass Sie den richtigen Betrag berechnen",
-        "itemsDescription": "Das Hinzufügen von Elementen zu Ihrem Kassensystem bedeutet, dass Mitarbeiter die Preise nicht manuell eingeben müssen. Stattdessen können sie einfach auf die Produktnamen klicken, und die von Ihnen festgelegten Preise werden automatisch zum Gesamtbetrag hinzugefügt.",
+        "storeNameInputDesc": "Markenname",
+        "storeNameInputPlaceholder": "Markennamen eingeben",
+        "displayCurrencyDesc": "Standardwährung",
+        "numAddeditems": "{{number}} hinzugefügte Artikel",
+        "differingCurrencyItemsError": "Ihre aktuelle Standardwährung unterscheidet sich von {{number}} Ihrer gespeicherten Elemente. Bitte aktualisieren Sie Ihre Elementpreise, um sicherzustellen, dass Sie den richtigen Betrag berechnen",
+        "itemsDescription": "Wenn Sie Elemente zu Ihrem Kassensystem hinzufügen, müssen Mitarbeiter die Preise nicht mehr manuell eingeben. Sie klicken einfach auf den Produktnamen – der festgelegte Preis wird automatisch zum Gesamtbetrag hinzugefügt.",
         "updateItems": "Elemente aktualisieren",
         "addItem": "Element hinzufügen",
         "openPos": "POS öffnen",
-        "brandLogo": "Markenlogo",
+        "brandLogo": "Markenzeichen",
         "changeLogo": "Logo ändern",
         "removeLogo": "Entfernen",
-        "uploadLogo": "Tippe hier, um das Markenlogo hochzuladen"
+        "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen"
       },
       "posInstructionsPath": {
         "title": "Anweisungen",
-        "head1": "Wie akzeptieren",
-        "head2": "BTC-Zahlungen",
+        "head1": "Wie akzeptieren wir",
+        "head2": "BTC-Lightning-Zahlungen",
         "step1": "1. QR-Code mit Ihrer Kamera scannen",
-        "step2": "2. Das war's."
+        "step2": "2. Betrag bestätigen & zahlen",
+        "step3": "Fertig! ⚡️"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "Der Benutzer hat kein Trinkgeldguthaben.",
         "updateContactMessage": "Der Empfänger muss seine Blitz-App aktualisieren, um bezahlt zu werden.",
-        "payingMessage": "Zahlung wird durchgeführt...",
-        "notifyngMessage": "Benachrichtigung wird gesendet...",
+        "payingMessage": "Zahlung wird durchgeführt …",
+        "notifyngMessage": "Benachrichtigung wird gesendet …",
         "errorPaying": "Der Kontakt konnte nicht bezahlt werden. Bitte versuchen Sie es später erneut.",
         "invalidName": "Der Name ist kein LNURL oder ein Blitz-Benutzer.",
         "removeEmployeeWarning": "Sind Sie sicher, dass Sie diesen Mitarbeiter entfernen möchten?",
@@ -1527,7 +1523,7 @@
         "unpaidtips": "Trinkgelder: {{number}}",
         "title": "Zu zahlende Trinkgelder",
         "empNamePlaceholder": "Mitarbeitername",
-        "noEmployees": "Sie haben derzeit keine Mitarbeiter mit gespeicherten Trinkgeldern. Sobald ein Mitarbeiter das Kassensystem verwendet, werden seine Trinkgelder hier angezeigt, sodass Sie es auszahlen können.",
+        "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Kassensystem erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeiter – und können ausgezahlt werden.",
         "noTips": "Der Mitarbeiter hat keine Trinkgelder"
       },
       "items": {
@@ -1536,18 +1532,18 @@
           "addItemError": "Es gab ein Problem beim Hinzufügen Ihres Artikels zum Kassensystem. Bitte versuchen Sie es erneut.",
           "editItem": "Artikel bearbeiten",
           "addItem": "Neuen Artikel hinzufügen",
-          "pricesLabel": "Preise basieren auf Ihrer gespeicherten Währung ({{currency}})",
-          "editMessage": "Anzeigewährung in den POS-Einstellungen bearbeiten.",
+          "pricesLabel": "Die Preise basieren auf Ihrer gespeicherten Standardwährung ({{currency}})",
+          "editMessage": "Die Standardwährung können Sie in den POS-Einstellungen ändern.",
           "itemNamePlaceholder": "Artikelname",
           "pricePlaceholder": "Preis ({{number}})",
-          "updateCurrency": "Währung aktualisieren",
+          "updateCurrency": "Standardwährung aktualisieren",
           "addItemBTN": "Artikel hinzufügen"
         },
         "addPOSItemsPage": {
           "denominationError": "Der Preis ist in {{currency1}}, aber die Shop-Währung ist {{currency2}}.",
           "deleteItemMessage": "Sind Sie sicher, dass Sie diesen Kassensystem-Artikel löschen möchten?",
           "title": "POS-Artikel",
-          "itemSearchPlaceholder": "Artikelname...",
+          "itemSearchPlaceholder": "Artikelname …",
           "noItemsSearch": "Keine Artikel entsprechen Ihrer Suche.",
           "noItemsAdded": "Fügen Sie einen Artikel hinzu, damit er hier angezeigt wird.",
           "ctaBTN": "Artikel hinzufügen"
@@ -1575,8 +1571,8 @@
         "shopTitle": "Mit BTC einkaufen",
         "shopDescription": "Kaufen Sie Geschenkkarten von Tausenden verschiedener Händler weltweit",
         "callToAction": "Möchten Sie hier etwas Bestimmtes?",
-        "featuredApps": "Möchten Sie hier etwas Bestimmtes?",
-        "comingSoon": "Diese Funktion ist vorübergehend nicht verfügbar. Wir arbeiten daran, sie so schnell wie möglich wiederherzustellen."
+        "featuredApps": "Empfohlene Apps",
+        "comingSoon": "Diese Funktion ist derzeit nicht verfügbar. Wir arbeiten daran, sie so schnell wie möglich wiederherzustellen."
       },
       "confirmTxPage": {
         "failedToSend": "Senden fehlgeschlagen",
@@ -1616,11 +1612,11 @@
         "dbInitError2": "Bitte versuchen Sie es erneut. Wenn dieses Problem weiterhin besteht, können Sie Ihr Geld mithilfe Ihrer Seed-Phrase sicher zurückerhalten."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1%.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
+        "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1 %.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
         "liquidFeeMessage": "Zahlungen, die an Liquid-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}}, eine Anspruchsgebühr von rund {{claimFee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
         "rootstockFeeMessage": "Zahlungen, die an Rootstock-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
         "lightningConvertMessage": "Der Empfang von USD über Lightning erfordert die Umwandlung von BTC in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
-        "generatingInvoice": "Rechnung wird generiert",
+        "generatingInvoice": "Rechnung wird generiert …",
         "amountPlaceholder": "Beliebigen Betrag",
         "receiveAsHeader": "Empfangen als",
         "receiveAs_spark_BTC": "BTC oder Token",
@@ -1650,7 +1646,7 @@
         "header_rootstock": "BTC über Rootstock",
         "header_usdt": "Bitcoin über USDT",
         "header_usdc": "Bitcoin über USDC",
-        "selectReceiveAssetHead": "Asset zum Empfangen auswählen",
+        "selectReceiveAssetHead": "Bitte das Asset zum Empfangen auswählen",
         "selectStablecoinHead": "Wähle das Netzwerk für den Empfang aus",
         "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
         "editDescriptionHead": "Was möchtest du sagen?",
@@ -1665,7 +1661,7 @@
         "view all swaps": "Netzwerk-Einstellungen",
         "fast pay": "Schnellzahlungen",
         "blitz fee details": "Blitz-Gebührendetails",
-        "crash reports": "Absturzberichte",
+        "crash reports": "Absturzberichte (Logs)",
         "notifications": "Benachrichtigungen",
         "blitz stats": "Blitz-Statistiken",
         "accounts": "Kontenverwaltung",
@@ -1692,15 +1688,15 @@
         "paymentExp": "Zahlungsablauf",
         "noInformationLabel": "{{item}} wird nicht angezeigt, da diese Zahlung aus dem Verlauf wiederhergestellt wurde oder eine Rechnung mit Nullbetrag verwendet wurde.",
         "privacyMessage": "Um die Privatsphäre des {{type}} zu wahren, sind alle weiteren Informationen ausgeblendet.",
-        "receivers": "Empfängers",
-        "senders": "Absenders"
+        "receivers": "Empfänger",
+        "senders": "Absender"
       },
       "viewAllTxPage": {
         "title": "Transaktionen"
       },
       "lrc20HalfModal": {
         "title": "Token suchen",
-        "searchPlaceholder": "Token-Name...",
+        "searchPlaceholder": "Token-Name …",
         "noTokens": "Keine Token gefunden"
       },
       "lrc20TokenDataHalfModal": {
@@ -1721,8 +1717,8 @@
           "minutes_other": "{{count}} Minuten übrig"
         },
         "shareMessage": "Sie haben ein Geschenk von {{amount}} erhalten! Hier bitte einlösen:\n{{link}}",
-        "fundGiftMessage": "Geschenk wird erstellt",
-        "reclaimGiftMessage": "Geschenk wird zurückgeholt",
+        "fundGiftMessage": "Geschenk wird erstellt …",
+        "reclaimGiftMessage": "Geschenk wird zurückgeholt …",
         "giftsHome": {
           "title": "Blitz-Geschenke"
         },
@@ -1741,11 +1737,11 @@
           "addressError": "Wir konnten die Geschenkadresse nicht abrufen.",
           "saveError": "Wir konnten Ihr Geschenk nicht speichern.",
           "fundError": "Wir konnten keine Mittel hinzufügen.",
-          "startProcess1": "Ihr Geschenk wird vorbereitet…",
-          "startProcess2": "Einrichten…",
-          "startProcess3": "Guthaben wird hinzugefügt…",
+          "startProcess1": "Ihr Geschenk wird vorbereitet …",
+          "startProcess2": "Einrichten …",
+          "startProcess3": "Guthaben wird hinzugefügt …",
           "header": "Geschenk erstellen",
-          "inputPlaceholder": "Nachricht oder Notiz hinzufügen...",
+          "inputPlaceholder": "Nachricht oder Notiz hinzufügen …",
           "button": "Geschenk erstellen",
           "disclaimer": "Wenn Sie ein Geschenk erstellen, bleibt das Geld {{numDays}} Tage lang gesperrt. Wenn es in dieser Zeit niemand einlöst, können Sie zur Rückforderungsseite gehen, um es zurückzubekommen.",
           "durationText": "{{numDays}} Tage",
@@ -1753,7 +1749,7 @@
         },
         "giftConfirmation": {
           "header": "Geschenk erstellt!",
-          "whatToDo": "Teile dieses Geschenk per QR-Code oder Link",
+          "whatToDo": "Teilen Sie dieses Geschenk per QR-Code oder Link",
           "details": "Geschenkdetails",
           "expire": "Läuft ab",
           "giftLink": "Geschenklink",
@@ -1763,11 +1759,11 @@
         },
         "claimHome": {
           "header": "Geschenklink eingeben",
-          "desc": "Fügen Sie denn erhaltenen Link ein oder scanne den QR-Code, um Ihr Geschenk einzulösen",
+          "desc": "Fügen Sie den erhaltenen Link ein oder scannen Sie den QR-Code, um Ihr Geschenk einzulösen",
           "inputPlaceholder": "Geschenklink einfügen",
           "claim": "Einlösen",
-          "noGiftLinkError": "Wir konnten leider keinen Geschenkl-Link finden. Bitte scannen Sie oder fügen Sie den erhaltenen Link ein.",
-          "invliadGiftFormat": "Ungültiger Geschenkl-Link. Bitte kopieren Sie den vollständigen Link und versuche Sie es erneut."
+          "noGiftLinkError": "Wir konnten leider keinen Geschenklink finden. Bitte scannen Sie oder fügen Sie den erhaltenen Link ein.",
+          "invliadGiftFormat": "Ungültiger Geschenklink. Bitte kopieren Sie den vollständigen Link und versuchen Sie es erneut."
         },
         "reclaimPage": {
           "header": "Geschenk zurückholen",
@@ -1775,15 +1771,15 @@
           "inputPlaceholder": "Geschenk-ID eingeben",
           "dropdownPlaceHolder": "Abgelaufenes Geschenk auswählen",
           "button": "Geschenk zurückholen",
-          "noReclaimsMessage": "Sie haben derzeit keine abgelaufenen Geschenke. Kommen Sie zurück, sobald ein Geschenk abgelaufen ist, um es zurückzuholen.",
+          "noReclaimsMessage": "Derzeit haben Sie keine abgelaufenen Geschenke. Sobald ein Geschenk abläuft, können Sie es hier zurückholen.",
           "advancedModeBTN": "Erweiterter Modus"
         },
         "advancedMode": {
           "header": "Erweiterter Modus",
           "currentIndexHead": "Aktueller Geschenk-Index",
           "infoHead": "Wie Blitz-Geschenke funktionieren",
-          "infoDesc1": "Blitz-Geschenke verwenden separate Wallets, die aus Ihrer Haupt-Wallet erstellt werden. Dadurch können Sie nicht eingelöste Beträge wiederherstellen, während Ihre Haupt-Wallet geschützt bleibt.",
-          "infoDesc2": "Die meisten abgelaufenen Geschenke können über die normale Rückforderungsseite zurückgeholt werden. Wenn ein Geschenk nicht vollständig empfangen wurde oder die normale Rückforderungsoption nicht funktioniert, können Sie auf dieser Seite ein bestimmtes Geschenk auswählen und prüfen, ob noch Geld übrig ist.",
+          "infoDesc1": "Blitz-Geschenke verwenden separate Wallets, die aus Ihrer Haupt-Wallet erstellt werden. Dadurch bleibt Ihre Haupt-Wallet geschützt, während nicht eingelöste Beträge wiederhergestellt werden können.",
+          "infoDesc2": "Die meisten abgelaufenen Geschenke lassen sich über die normale Rückforderungsseite zurückholen. Wenn ein Geschenk nicht vollständig empfangen wurde oder die normale Rückforderung nicht funktioniert, können Sie auf dieser Seite ein bestimmtes Geschenk auswählen und prüfen, ob noch Guthaben vorhanden ist.",
           "inputHead": "Geschenknummer eingeben",
           "invalidGiftNum": "Bitte geben Sie eine gültige Geschenknummer zwischen 1 und {{currentGiftIndex}} ein",
           "restoreGiftBTN": "Geschenk wiederherstellen",
@@ -1803,8 +1799,8 @@
           "paymentError": "Geschenk konnte nicht eingelöst werden.",
           "claimHead": "Geschenk annehmen",
           "reclaimHead": "Geschenk erstatten",
-          "claimLoading": "Einlösen… bitte in der App bleiben.",
-          "reclaimLoading": "Guthaben wird zurückgebucht… bitte in der App bleiben.",
+          "claimLoading": "Einlösen … bitte in der App bleiben.",
+          "reclaimLoading": "Guthaben wird zurückgebucht … bitte in der App bleiben.",
           "claimAmountHead": "Erhaltener Betrag",
           "reclaimAmountHead": "Erstatteter Betrag",
           "reclaimAmountHeadExpert": "Geschenknummer wiederhergestellt",
@@ -1815,12 +1811,12 @@
           "claimButton": "Geschenk annehmen",
           "confirmMessage": "Ihr Geschenk wurde eingelöst; Sie erhalten Ihre Gelder in Kürze",
           "defaultDesc": "Blitz-Geschenk",
-          "claimingGiftMessage1": "Geschenk wird vorbereitet...",
-          "giftBalanceMessage_0": "Einen Moment, wir bereiten alles vor...",
-          "giftBalanceMessage_1": "Wir sammeln die Informationen zu Ihrem Geschenk...",
-          "giftBalanceMessage_2": "Gleich geschafft—bitte lassen Sie die App geöffnet...",
-          "giftBalanceMessage_3": "Wir schließen die letzten Schritte ab...",
-          "claimingGiftMessage4": "Geschenk wird eingelöst..."
+          "claimingGiftMessage1": "Geschenk wird vorbereitet …",
+          "giftBalanceMessage_0": "Einen Moment, wir bereiten alles vor …",
+          "giftBalanceMessage_1": "Wir sammeln die Informationen zu Ihrem Geschenk …",
+          "giftBalanceMessage_2": "Gleich geschafft – bitte lassen Sie die App geöffnet …",
+          "giftBalanceMessage_3": "Wir schließen die letzten Schritte ab …",
+          "claimingGiftMessage4": "Geschenk wird eingelöst …"
         }
       },
       "swapsPage": {
@@ -1828,8 +1824,8 @@
         "loadPoolError": "Pool-Informationen konnten nicht geladen werden",
         "noPoolsFoundError": "Keine Pools für {{tokenAAddress}}/{{tokenBAddress}} gefunden",
         "highPriceImpact": "Hoher Preiseinfluss: {{priceImpact}}",
-        "slippageError": "Der Preis hat sich zu stark verändert. Versuche, die Preisabweichung-Toleranz zu erhöhen.",
-        "noLiquidity": "Nicht genügend Liquidität. Versuche einen kleineren Betrag oder einen anderen Pool.",
+        "slippageError": "Der Preis hat sich zu stark verändert. Versuchen Sie, die Preisabweichungstoleranz zu erhöhen.",
+        "noLiquidity": "Nicht genügend Liquidität. Versuchen Sie einen kleineren Betrag oder einen anderen Pool.",
         "authenticationError": "Authentifizierung fehlgeschlagen. Bitte erneut verbinden.",
         "noPoolError": "Pool existiert nicht.",
         "automaticRecovery": "Guthaben automatisch wiederhergestellt.",
@@ -1843,23 +1839,23 @@
         "swapAutomaticRecovery": "\n\nIhr Guthaben wurde automatisch wiederhergestellt.",
         "swapPartialRecovery": "\n\nEinige Guthaben wurden automatisch wiederhergestellt ({{count}}).",
         "swapFutureRecovery": "\n\nIhr Guthaben wird automatisch zurückerstattet.",
-        "swapSlippageError": "\n\nVersuche, die Preisabweichung-Toleranz zu erhöhen oder auf bessere Marktbedingungen zu warten.",
-        "swapLiquidityError": "\n\nVersuche, einen kleineren Betrag zu tauschen oder auf mehr Liquidität zu warten.",
-        "fullSwapError": "Während des Swaps ist ein unerwarteter Fehler aufgetreten. Bitte versuche es erneut.",
+        "swapSlippageError": "\n\nVersuchen Sie, die Preisabweichungstoleranz zu erhöhen oder auf bessere Marktbedingungen zu warten.",
+        "swapLiquidityError": "\n\nVersuchen Sie, einen kleineren Betrag zu tauschen oder auf mehr Liquidität zu warten.",
+        "fullSwapError": "Während des Swaps ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut.",
         "checkSwapMessage": "Hoher Preiseinfluss",
         "swapConfimred": "Swap erfolgreich",
-        "youSent": "Sie haben es gesendet",
-        "youReceived": "Sie haben es erhalten",
+        "youSent": "Sie haben gesendet",
+        "youReceived": "Sie haben erhalten",
         "newSwap": "Neuer Swap",
-        "loadingPool": "Swap-Informationen werden geladen...",
+        "loadingPool": "Swap-Informationen werden geladen …",
         "fromBalance": "Sie haben {{amount}}",
         "fromBalanceHidden": "Sie haben",
         "toBalance": "Sie möchten",
         "min": "MIN",
         "half": "HALB",
         "max": "MAX",
-        "swappingMessageButton": "Swapping...",
-        "loadingMessageButton": "Lädt...",
+        "swappingMessageButton": "Tauschen …",
+        "loadingMessageButton": "Lädt …",
         "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
         "swapDisclaimer": "Swap-Dienste werden über Drittanbieter-APIs bereitgestellt.",
         "serviceUnavailableHead": "Dienst nicht verfügbar",
@@ -1868,14 +1864,14 @@
         "swapDirection_btcusd": "BTC → USD",
         "paymentDescription_outgoing": "{{swapDirection}}",
         "paymentDescription_incoming": "{{swapDirection}}",
-        "yourAreConverting": "Sie wandeln es um",
-        "youWillReceive": "Sie erhalten es",
+        "yourAreConverting": "Sie wandeln um",
+        "youWillReceive": "Sie erhalten",
         "bitcoinPrice": "BTC-Preis",
         "swapFee": "Swap-Gebühr",
         "exchangeRate": "Wechselkurs",
         "minBTCError": "Der Mindestbetrag für BTC beträgt {{min}}. Bitte erhöhen Sie den Betrag, um fortzufahren.",
         "minUSDError": "Der Mindestbetrag für USD beträgt {{min}}. Bitte erhöhen Sie den Betrag, um fortzufahren.",
-        "simulationError": "Dieser Swap kann derzeit nicht berechnet werden. Bitte versuche es erneut.",
+        "simulationError": "Dieser Swap kann derzeit nicht berechnet werden. Bitte versuchen Sie es erneut.",
         "swapInProgressError": "Ein Swap wird bereits durchgeführt. Bitte warten Sie.",
         "insufficientBalance": "Der Betrag übersteigt Ihr verfügbares Guthaben. Bitte geben Sie einen kleineren Betrag ein.",
         "simulationInProgress": "Bitte warten, der Swap wird noch berechnet.",
@@ -1902,19 +1898,19 @@
     }
   },
   "errormessages": {
-    "nointernet": "Bitte stellen Sie die Internetverbindung wieder her, um diese Funktion zu nutzen",
-    "genericError": "Ein unerwarteter Fehler ist aufgetreten",
-    "tryAgain": "Bitte versuchen Sie es erneut",
-    "contactSupport": "Bitte kontaktieren Sie den Support, wenn das Problem weiterhin besteht",
-    "deleteAccount": "Fehler beim Löschen des Kontos.",
-    "failedToDecryptPin": "PIN konnte nicht entschlüsselt werden",
-    "decodePinWithBio": "PIN konnte nicht mit Biometrie entschlüsselt werden",
-    "insufficientBalanceError": "Unzureichendes Guthaben, um {{planType}} zu kaufen",
-    "internetReconnection": "Bitte stellen Sie die Internetverbindung wieder her, um diese Funktion zu nutzen",
-    "requestError": "Es gab einen Fehler bei der Anfrage, bitte versuchen Sie es erneut.",
-    "invoiceRetrivalError": "Es gab einen Fehler beim Abrufen der Rechnung, bitte versuchen Sie es erneut.",
-    "payingInvoiceError": "Es gab einen Fehler beim Bezahlen der Rechnung, bitte versuchen Sie es erneut.",
-    "noMailAppsFoundError": "Wir haben keine E-Mail-Apps auf Ihrem Gerät gefunden. Bitte installieren Sie eine E-Mail-App, um diese Funktion zu nutzen.",
+    "nointernet": "Bitte stellen Sie die Internetverbindung wieder her, um diese Funktion nutzen zu können.",
+    "genericError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "tryAgain": "Bitte versuchen Sie es erneut.",
+    "contactSupport": "Bitte wenden Sie sich an den Support, falls das Problem weiterhin besteht.",
+    "deleteAccount": "Beim Löschen des Kontos ist ein Fehler aufgetreten.",
+    "failedToDecryptPin": "Der PIN konnte nicht entschlüsselt werden.",
+    "decodePinWithBio": "Der PIN konnte mit Biometrie nicht entschlüsselt werden.",
+    "insufficientBalanceError": "Ihr Guthaben reicht nicht aus, um den {{planType}} zu kaufen.",
+    "internetReconnection": "Bitte stellen Sie die Internetverbindung wieder her.",
+    "requestError": "Bei der Anfrage ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "invoiceRetrivalError": "Die Rechnung konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
+    "payingInvoiceError": "Die Rechnung konnte nicht bezahlt werden. Bitte versuchen Sie es erneut.",
+    "noMailAppsFoundError": "Auf Ihrem Gerät wurde keine E-Mail-App gefunden.",
     "retriveingPhotoesError": "Es gab einen Fehler beim Abrufen von Fotos, bitte versuchen Sie es erneut.",
     "clipboardContentError": "Keine Daten in der Zwischenablage",
     "userDataFetchError": "Benutzer konnte nicht aus der Datenbank abgerufen werden.",
@@ -1925,7 +1921,7 @@
     "cannotAddSelfError": "Sie können sich nicht selbst als Kontakt hinzufügen.",
     "fullDeeplinkError": "Kontaktinformationen konnten nicht abgerufen werden, bitte versuchen Sie es erneut.",
     "processingDeepLinkError": "Link konnte leider nicht verarbeitet werden: {{error}}",
-    "legacyContactError": "Der Kontakt hat seine Wallet noch nicht aktualisiert. Bitte Sie ihn, seine Wallet zu aktualisieren, um dies zu senden.",
+    "legacyContactError": "Der Kontakt hat seine Wallet noch nicht aktualisiert. Bitte bitten Sie ihn, seine Wallet zu aktualisieren, um dies zu senden.",
     "contactInvoiceGenerationError": "Fehler beim Generieren der Rechnung. Stellen Sie sicher, dass dies eine gültige LNURL-Adresse ist.",
     "explorePagenoDataError": "Die Anzahl der Blitz-Benutzer konnte nicht abgerufen werden.",
     "savingFileError": "Fehler beim Speichern der Datei im Dokument",
@@ -1937,7 +1933,7 @@
     "noInvoiceInImageError": "Rechnung konnte aus dem Bild nicht abgerufen werden.",
     "savingImageError": "Bild konnte nicht gespeichert werden, bitte versuchen Sie es erneut.",
     "invalidSeedError": "Keine gültige Seed-Phrase eingegeben",
-    "invalidSeedWordLengthErorr": "Nicht jedes Wort hat eine gültige Länge",
+    "invalidSeedWordLengthErorr": "Nicht jedes Wort hat die korrekte Länge",
     "invalidSeedLengthError": "Aus der kopierten Seed-Phrase konnten keine 12 Wörter gefunden werden.",
     "noGooglePlay": "Google Play-Dienste sind erforderlich, um Benachrichtigungen zu erhalten.",
     "noNotificationPermission": "Blitz hat keine Benachrichtigungsberechtigungen. Aktivieren Sie diese in den Einstellungen, um Benachrichtigungen zu nutzen.",
@@ -1954,7 +1950,7 @@
     "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App richtig und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch ändern.",
-    "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuche es erneut."
+    "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut."
   },
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht",
@@ -1996,8 +1992,8 @@
     }
   },
   "flashnetUserMessages": {
-    "FSAG-1000": "Ihre Anfrage hat die Validierungsprüfung nicht bestanden.",
-    "FSAG-1001": "Ein erforderliches Feld fehlt in Ihrer Anfrage.",
+    "FSAG-1000": "Ihre Anfrage hat die Validierungsprüfung leider nicht bestanden.",
+    "FSAG-1001": "In Ihrer Anfrage fehlt ein erforderliches Feld.",
     "FSAG-1002": "Ein oder mehrere Felder haben ein ungültiges Format.",
     "FSAG-1003": "Ein Wert liegt außerhalb des zulässigen Bereichs.",
     "FSAG-1004": "Dieser Wert existiert bereits und muss eindeutig sein.",
@@ -2005,33 +2001,33 @@
     "FSAG-2002": "Die Token-Identität stimmt nicht mit dem erwarteten öffentlichen Schlüssel überein.",
     "FSAG-2003": "Für diesen Vorgang ist eine Authentifizierung erforderlich.",
     "FSAG-2004": "Ihre Sitzung ist abgelaufen oder der Token ist ungültig.",
-    "FSAG-2005": "Der Einmal-Code (Nonce) ist ungültig oder bereits benutzt. Bitte versuchen Sie es noch einmal – am besten die Seite neu laden.",
+    "FSAG-2005": "Der Einmal-Code (Nonce) ist ungültig oder wurde bereits verwendet. Bitte versuchen Sie es erneut – idealerweise laden Sie die Seite neu.",
     "FSAG-2101": "Der bereitgestellte öffentliche Schlüssel ist ungültig.",
-    "FSAG-3001": "Ein temporäres Serviceproblem ist aufgetreten. Bitte versuchen Sie es erneut.",
-    "FSAG-3002": "Ein temporäres Serviceproblem ist aufgetreten. Bitte versuchen Sie es erneut.",
-    "FSAG-3101": "Ein Datenbankfehler ist aufgetreten. Bitte versuchen Sie es erneut.",
-    "FSAG-3201": "Der Abwicklungsdienst ist vorübergehend nicht verfügbar.",
-    "FSAG-3201T1": "Der Abwicklungsdienst ist vorübergehend nicht verfügbar.",
-    "FSAG-3201T2": "Die Abwicklungsanfrage hat ein Zeitlimit überschritten.",
-    "FSAG-3202": "Ein abhängiger Dienst ist vorübergehend nicht verfügbar.",
-    "FSAG-3301": "Der AMM-Prozessor konnte Ihre Anfrage nicht empfangen.",
-    "FSAG-3302": "Der AMM-Prozessor hat beim Verarbeiten Ihrer Anfrage ein Zeitlimit überschritten.",
-    "FSAG-3401": "Ein interner Verarbeitungsfehler ist aufgetreten.",
-    "FSAG-3402": "Ein interner Verarbeitungsfehler ist aufgetreten.",
+    "FSAG-3001": "Es ist ein vorübergehendes Serviceproblem aufgetreten. Bitte versuchen Sie es in Kürze erneut.",
+    "FSAG-3002": "Es ist ein vorübergehendes Serviceproblem aufgetreten. Bitte versuchen Sie es in Kürze erneut.",
+    "FSAG-3101": "Es ist ein Datenbankfehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "FSAG-3201": "Der Abwicklungsdienst ist derzeit vorübergehend nicht verfügbar.",
+    "FSAG-3201T1": "Der Abwicklungsdienst ist derzeit vorübergehend nicht verfügbar.",
+    "FSAG-3201T2": "Die Abwicklungsanfrage hat das Zeitlimit überschritten.",
+    "FSAG-3202": "Ein abhängiger Dienst ist derzeit vorübergehend nicht verfügbar.",
+    "FSAG-3301": "Der AMM-Prozessor konnte Ihre Anfrage nicht entgegennehmen.",
+    "FSAG-3302": "Der AMM-Prozessor hat beim Verarbeiten Ihrer Anfrage das Zeitlimit überschritten.",
+    "FSAG-3401": "Es ist ein interner Verarbeitungsfehler aufgetreten.",
+    "FSAG-3402": "Es ist ein interner Verarbeitungsfehler aufgetreten.",
     "FSAG-4001": "Der angegebene Pool existiert nicht.",
     "FSAG-4002": "Der gewünschte Host-Namespace wurde nicht gefunden.",
     "FSAG-4101": "Ihre Authentifizierungssitzung wurde nicht gefunden oder ist abgelaufen.",
-    "FSAG-4102": "Der Authentifizierungsablauf wurde nicht korrekt befolgt.",
-    "FSAG-4201": "Der Pool verfügt nicht über ausreichend Liquidität für diesen Swap.",
-    "FSAG-4202": "Der Preis hat sich stärker bewegt als Ihre erlaubte Preisabweichung-Toleranz.",
+    "FSAG-4102": "Der Authentifizierungsablauf wurde nicht korrekt eingehalten.",
+    "FSAG-4201": "Der Pool verfügt nicht über ausreichend Liquidität für diesen Tausch.",
+    "FSAG-4202": "Der Preis hat sich stärker verändert als Ihre erlaubte Preisabweichungstoleranz.",
     "FSAG-4203": "Dieser Vorgang kann im aktuellen Status des Pools nicht ausgeführt werden.",
     "FSAG-4204": "Sie haben nicht genügend LP-Token für diese Auszahlung.",
     "FSAG-4301": "Die Gebührenkonfiguration ist ungültig.",
-    "FSAG-4401": "Diese Spark-Übertragung wurde bereits in einem Vorgang verwendet.",
+    "FSAG-4401": "Diese Spark-Übertragung wurde bereits in einem anderen Vorgang verwendet.",
     "FSAG-5001": "Beim Verarbeiten Ihrer Anfrage ist ein interner Fehler aufgetreten.",
-    "FSAG-5002": "Diese Funktion ist noch nicht verfügbar.",
-    "FSAG-5003": "Ein interner Fehler ist aufgetreten. Bitte kontaktieren Sie den Support, falls die Probleme weiterhin bestehen.",
-    "FSAG-5004": "Ein Systemkonfigurationsfehler ist aufgetreten.",
-    "FSAG-5100": "Ein unerwarteter Serverfehler ist aufgetreten."
+    "FSAG-5002": "Diese Funktion ist derzeit noch nicht verfügbar.",
+    "FSAG-5003": "Es ist ein interner Fehler aufgetreten. Bitte kontaktieren Sie den Support, falls das Problem weiterhin besteht.",
+    "FSAG-5004": "Es ist ein Systemkonfigurationsfehler aufgetreten.",
+    "FSAG-5100": "Es ist ein unerwarteter Serverfehler aufgetreten."
   }
 }

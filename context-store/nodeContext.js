@@ -121,6 +121,7 @@ const GLobalNodeContextProider = ({ children }) => {
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
     if (!sparkInformation.identityPubKey) return;
+    if (!masterInfoObject.enabledLiquidAutoSwap) return;
     swapLiquidToSpark();
   }, [
     didGetToHomepage,
@@ -129,6 +130,7 @@ const GLobalNodeContextProider = ({ children }) => {
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     globalContactsInformation?.myProfile?.uniqueName,
+    masterInfoObject.enabledLiquidAutoSwap,
   ]);
 
   useEffect(() => {

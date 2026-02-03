@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useEffect } from 'react';
+import { navigationRef } from '../../../../../../navigation/navigationService';
 
 export default function EditGiftHalfModal({
   setContentHeight,
@@ -37,7 +38,27 @@ export default function EditGiftHalfModal({
         textContent={t('constants.edit')}
       />
       <CustomButton
-        actionFunction={() => navigate.popTo('ExpandedContactsPage', { uuid })}
+        actionFunction={() => {
+          try {
+            const navigationState = navigationRef.current.getState();
+            if (navigationState.routes.length) {
+              const indexState = navigationState.routes[0]?.state;
+              if (indexState) {
+                const fromPage = indexState.routes[indexState.index];
+                if (fromPage?.name === 'Home') {
+                  navigate.popTo('HomeAdmin');
+                } else {
+                  navigate.popTo('ExpandedContactsPage', { uuid });
+                }
+                return;
+              }
+            }
+            navigate.popTo('ExpandedContactsPage', { uuid });
+          } catch (err) {
+            console.log('error navigating', err);
+            navigate.popTo('ExpandedContactsPage', { uuid });
+          }
+        }}
         buttonStyles={[styles.buttonStyle, { backgroundColor: 'unset' }]}
         textStyles={{ color: textColor }}
         textContent={t('constants.remove')}

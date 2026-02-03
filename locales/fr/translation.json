@@ -134,7 +134,7 @@
     "german": "Deutsch",
     "french": "Française",
     "swedish": "Svenska",
-    "russian": "русский"
+    "russian": "Русский"
   },
   "weekdays": {
     "Mon": "Lundi",
@@ -202,9 +202,9 @@
       "title": "Choisir la langue"
     },
     "homePage": {
-      "subtitle": "Votre portefeuille, votre argent, 100 % open source",
+      "subtitle": "Votre portefeuille. Votre argent. Open source.",
       "buttons": {
-        "button1": "Saisir une phrase de semence",
+        "button1": "Récupérer un portefeuille",
         "button2": "Créer un nouveau portefeuille"
       }
     },
@@ -1099,6 +1099,11 @@
       "header": "Sélectionnez la devise à demander"
     },
     "sendAndRequestPage": {
+      "sendBitcoin": "Envoyer du Bitcoin",
+      "sendDollars": "Envoyer des dollars",
+      "sendGift": "Envoyer un cadeau",
+      "requestBitcoin": "Demander du Bitcoin",
+      "requestDollars": "Demander des dollars",
       "profileMessage": "Payer {{name}}",
       "contactMessage": "{{name}} vous a payé",
       "giftCardappVersionError": "Vous ne pouvez pas envoyer de carte cadeau à ce contact. Il n'a pas mis à jour la dernière version de Blitz Wallet.",
@@ -1353,7 +1358,10 @@
       "rescan": "Rescan",
       "totalBalance": "Solde total",
       "swapMessage": "Blitz Wallet essaiera de transférer vos fonds Liquid dans Spark lorsque vous chargez l'application pour la première fois ou lorsque vous recevez des paiements Liquid.\n\nCependant, dans certains cas, un transfert peut être manqué. Pour transférer manuellement ces fonds dans Spark, cliquez simplement sur le bouton Transférer ci-dessous.",
-      "swap": "Transfert"
+      "swap": "Transfert",
+      "rescanning": "Analyse en cours…",
+      "autoClaimLabel": "Réclamation automatique",
+      "autoClaimHelper": "Convertit automatiquement les fonds Liquid en Lightning lorsque le seuil minimum est atteint."
     },
     "notifications": {
       "mainToggle_enabled": "Notifications activées",

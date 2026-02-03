@@ -1,5 +1,10 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, ICONS, SIZES } from '../../../../constants';
+import {
+  CENTER,
+  HIDE_IN_APP_PURCHASE_ITEMS,
+  ICONS,
+  SIZES,
+} from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import {
   navigateToSendUsingClipboard,
@@ -40,6 +45,7 @@ const ContactRow = ({
   expandedContact,
   onToggleExpand,
   onSelectPaymentType,
+  onRowLayout,
   t,
 }) => {
   const isExpanded = expandedContact === contact.uuid;
@@ -57,7 +63,13 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * (contact?.isLNURL ? 115 : 200),
+    height:
+      expandHeight.value *
+      (contact?.isLNURL ? 85 : !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
+    opacity: expandHeight.value,
+  }));
+
+  const labelFadeStyle = useAnimatedStyle(() => ({
     opacity: expandHeight.value,
   }));
 
@@ -66,7 +78,10 @@ const ContactRow = ({
   }));
 
   return (
-    <View style={styles.contactWrapper}>
+    <View
+      style={styles.contactWrapper}
+      onLayout={e => onRowLayout(contact.uuid, e.nativeEvent.layout.y)}
+    >
       <TouchableOpacity
         style={styles.contactRowContainer}
         onPress={() => onToggleExpand(contact.uuid)}
@@ -95,6 +110,12 @@ const ContactRow = ({
             styles={styles.contactName}
             content={formatDisplayName(contact) || contact.uniqueName || ''}
           />
+          <Animated.View style={labelFadeStyle}>
+            <ThemeText
+              styles={styles.chooseWhatToSendText}
+              content={t('wallet.halfModal.chooseWhatToSend')}
+            />
+          </Animated.View>
         </View>
         <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
           <ThemeIcon
@@ -106,10 +127,6 @@ const ContactRow = ({
       </TouchableOpacity>
 
       <Animated.View style={[styles.expandedContainer, expandedStyle]}>
-        <ThemeText
-          styles={styles.chooseWhatToSendText}
-          content={t('wallet.halfModal.chooseWhatToSend')}
-        />
         <View style={styles.paymentOptionsRow}>
           <TouchableOpacity
             style={[
@@ -184,6 +201,47 @@ const ContactRow = ({
               />
             </TouchableOpacity>
           )}
+          {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
+            <TouchableOpacity
+              style={[
+                styles.paymentOption,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+              onPress={() => onSelectPaymentType(contact, 'gift')}
+            >
+              <View
+                style={[
+                  styles.iconContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? darkModeType
+                          ? backgroundOffset
+                          : backgroundColor
+                        : COLORS.tertiary,
+                  },
+                ]}
+              >
+                <ThemeImage
+                  styles={{
+                    width: 18,
+                    height: 18,
+                    tintColor: COLORS.darkModeText,
+                  }}
+                  lightModeIcon={ICONS.giftCardIcon}
+                  darkModeIcon={ICONS.giftCardIcon}
+                  lightsOutIcon={ICONS.giftCardIcon}
+                />
+              </View>
+              <ThemeText
+                styles={styles.paymentOptionText}
+                content={t('constants.gift')}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </Animated.View>
     </View>
@@ -198,6 +256,10 @@ export default function HalfModalSendOptions({
 }) {
   const [inputText, setInputText] = useState('');
   const [expandedContact, setExpandedContact] = useState(null);
+  const scrollViewRef = useRef(null);
+  const rowLayoutsRef = useRef({}); // { [uuid]: y }
+  const scrollOffsetRef = useRef(0);
+  const scrollViewHeightRef = useRef(0);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -250,20 +312,9 @@ export default function HalfModalSendOptions({
     setExpandedContact(prev => (prev === contactUuid ? null : contactUuid));
   }, []);
 
-  const handleSelectPaymentType = useCallback(
-    (contact, paymentType) => {
-      handleBackPressFunction(() => {
-        navigate.replace('SendAndRequestPage', {
-          selectedContact: contact,
-          paymentType: 'send',
-          imageData: cache[contact.uuid],
-          endReceiveType: paymentType,
-          selectedPaymentMethod: paymentType,
-        });
-      });
-    },
-    [navigate, cache],
-  );
+  const handleRowLayout = useCallback((uuid, y) => {
+    rowLayoutsRef.current[uuid] = y;
+  }, []);
 
   const sortedContacts = useMemo(() => {
     return contactInfoList
@@ -282,6 +333,67 @@ export default function HalfModalSendOptions({
       .map(contact => contact.contact);
   }, [contactInfoList]);
 
+  // When a contact expands, check whether the bottom of its expanded panel
+  // extends past the visible area of the ScrollView. If so, scroll just enough
+  // to bring it into view.
+  useEffect(() => {
+    if (!expandedContact || !scrollViewRef.current) return;
+
+    const rowY = rowLayoutsRef.current[expandedContact];
+    if (rowY == null) return;
+
+    const contact = sortedContacts.find(c => c.uuid === expandedContact);
+    if (!contact) return;
+
+    const expandedPanelHeight = contact?.isLNURL
+      ? 85
+      : !HIDE_IN_APP_PURCHASE_ITEMS
+      ? 230
+      : 160;
+
+    // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
+    const collapsedRowHeight = 61;
+
+    const expandedBottomEdge = rowY + collapsedRowHeight + expandedPanelHeight;
+
+    const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
+
+    if (expandedBottomEdge > visibleBottom) {
+      const buffer = 16;
+      const targetOffset =
+        expandedBottomEdge - scrollViewHeightRef.current + buffer;
+
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: targetOffset,
+          animated: true,
+        });
+      }, 220);
+    }
+  }, [expandedContact, sortedContacts]);
+
+  const handleSelectPaymentType = useCallback(
+    (contact, paymentType) => {
+      handleBackPressFunction(() => {
+        if (paymentType === 'gift') {
+          navigate.replace('SelectGiftCardForContacts', {
+            selectedContact: contact,
+            imageData: cache[contact.uuid],
+          });
+        } else {
+          navigate.replace('SendAndRequestPage', {
+            selectedContact: contact,
+            paymentType: 'send',
+            imageData: cache[contact.uuid],
+            endReceiveType: paymentType,
+            selectedPaymentMethod: paymentType,
+          });
+        }
+      });
+    },
+    [navigate, cache],
+  );
+
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
       <ContactRow
@@ -296,6 +408,7 @@ export default function HalfModalSendOptions({
         expandedContact={expandedContact}
         onToggleExpand={handleToggleExpand}
         onSelectPaymentType={handleSelectPaymentType}
+        onRowLayout={handleRowLayout}
         t={t}
       />
     ));
@@ -310,18 +423,27 @@ export default function HalfModalSendOptions({
     expandedContact,
     handleToggleExpand,
     handleSelectPaymentType,
+    handleRowLayout,
     t,
   ]);
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{
         ...styles.innerContainer,
         paddingBottom: bottomPadding,
       }}
-      stickyHeaderIndices={[3]}
+      stickyHeaderIndices={[4]}
+      onScroll={e => {
+        scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+      }}
+      scrollEventThrottle={16}
+      onLayout={e => {
+        scrollViewHeightRef.current = e.nativeEvent.layout.height;
+      }}
     >
       {/* Search Input with Clipboard Icon */}
       <View
@@ -576,9 +698,8 @@ const styles = StyleSheet.create({
   chooseWhatToSendText: {
     fontSize: SIZES.small,
     opacity: 0.6,
-    paddingHorizontal: 8,
-    paddingTop: 8,
-    paddingBottom: 4,
+    paddingTop: 4,
+    includeFontPadding: false,
   },
 
   paymentOptionsRow: {

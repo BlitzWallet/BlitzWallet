@@ -90,6 +90,7 @@ export default async function initializeUserSettingsFromHistory({
       enabledBTKNTokens,
       defaultSpendToken,
       thousandsSeperator,
+      enabledLiquidAutoSwap,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -386,6 +387,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['defaultSpendToken'] = defaultSpendToken;
     tempObject['currentDerivedGiftIndex'] = currentDerivedGiftIndex;
     tempObject['thousandsSeperator'] = thousandsSeperator;
+    tempObject['enabledLiquidAutoSwap'] = enabledLiquidAutoSwap;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

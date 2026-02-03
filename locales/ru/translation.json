@@ -202,10 +202,10 @@
       "title": "Выберите язык"
     },
     "homePage": {
-      "subtitle": "Ваш кошелёк, ваши деньги, 100 % open-source",
+      "subtitle": "Ваш кошелёк. Ваши деньги. Open source.",
       "buttons": {
-        "button1": "Ввести сид-фразу",
-        "button2": "Создать новый кошелек"
+        "button1": "Восстановить кошелёк",
+        "button2": "Создать новый кошелёк"
       }
     },
     "disclaimerPage": {
@@ -1096,6 +1096,11 @@
       "header": "Выберите валюту для запроса"
     },
     "sendAndRequestPage": {
+      "sendBitcoin": "Отправить Bitcoin",
+      "sendDollars": "Отправить доллары",
+      "sendGift": "Отправить подарок",
+      "requestBitcoin": "Запросить Bitcoin",
+      "requestDollars": "Запросить доллары",
       "profileMessage": "Оплата {{name}}",
       "contactMessage": "{{name}} заплатил вам",
       "giftCardappVersionError": "Нельзя отправить карту: у контакта старая версия Blitz Wallet.",
@@ -1350,7 +1355,10 @@
       "rescan": "Рескан",
       "totalBalance": "Общий баланс",
       "swapMessage": "Blitz Wallet пытается перевести средства Liquid в Spark при запуске или получении платежа.\n\nЕсли перевод не прошел, нажмите кнопку ниже.",
-      "swap": "Перевести"
+      "swap": "Перевести",
+      "rescanning": "Сканирование…",
+      "autoClaimLabel": "Автополучение",
+      "autoClaimHelper": "Автоматически конвертирует средства Liquid в Lightning при достижении минимального порога."
     },
     "notifications": {
       "mainToggle_enabled": "Уведомления включены",
