@@ -848,7 +848,7 @@
       "loadingShopMessage": "Carregando",
       "inputPlaceHolder": "Procurar lojas...",
       "noBuisMessage": "Não conseguimos encontrar nada que corresponda à sua pesquisa.",
-      "visitWebsite": "Visitar site",
+      "visitWebsite": "Acessar site",
       "addListing": "Adicionar loja"
     }
   },
@@ -859,25 +859,25 @@
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
-      "inputPlaceholder": "Digite um endereço para pagar",
-      "scanImage": "Escanear imagem",
-      "tapToScan": "Toque para obter um endereço a partir de uma imagem",
-      "chooseWhatToSend": "Escolha o que você deseja enviar",
+      "inputPlaceholder": "Digite ou cole um endereço",
+      "scanImage": "Carregar imagem",
+      "tapToScan": "Obter endereço a partir de uma imagem",
+      "chooseWhatToSend": "O que você deseja enviar?",
       "addressBook_send": "Contatos",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
-      "tapToGenerate_other": "Toque para ver outras opções de recebimento",
-      "tapToGenerate_lightning": "Toque para gerar uma fatura Lightning",
-      "tapToGenerate_bitcoin": "Toque para gerar um endereço Bitcoin",
-      "tapToGenerate_spark": "Toque para gerar um endereço Spark",
-      "tapToGenerate_liquid": "Toque para gerar um endereço Liquid",
-      "tapToGenerate_rootstock": "Toque para gerar um endereço Rootstock",
-      "chooseWhatToReceive": "Escolha o que você deseja receber",
+      "tapToGenerate_other": "Toque para ver outras opções",
+      "tapToGenerate_lightning": "Mostrar endereço Lightning",
+      "tapToGenerate_bitcoin": "Mostrar endereço Bitcoin",
+      "tapToGenerate_spark": "Mostrar endereço Spark",
+      "tapToGenerate_liquid": "Mostrar endereço Liquid",
+      "tapToGenerate_rootstock": "Mostrar endereço Rootstock",
+      "chooseWhatToReceive": "O que você deseja receber?",
       "instantLowFees": "Instantâneo, taxas baixas",
-      "onChainTransaction": "~ 10 minutos",
-      "otherAddresses": "Mais formas de receber",
-      "scanQrCode": "Escanear código QR",
-      "tapToScanQr": "Toque para escanear um código QR",
+      "onChainTransaction": "~ 10 minutos"
+      "otherAddresses": "Outras opções",
+      "scanQrCode": "Ler código QR",
+      "tapToScanQr": "Pague lendo um código QR",
       "addressBook_request": "Solicitar de um contato",
       "qrReceiveOptions": "Receber via código QR"
     },
@@ -1106,10 +1106,10 @@
       "deleateWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
     "selectCurrencyToSend": {
-      "header": "Qual moeda você deseja enviar?"
+      "header": "O você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Selecione a moeda que você deseja receber"
+      "header": "O que você deseja receber?"
     },
 
     "sendAndRequestPage": {
@@ -1275,9 +1275,9 @@
     "fastPay": {
       "text1": "Erro ao inserir o valor, tente novamente.",
       "text2": "A quantia não pode ser 0",
-      "text3": "Pagamentos rápidos",
+      "text3": "Pagamentos Rápidos",
       "text4": "Limite máximo (SAT)",
-      "text5": "A função pagamento rápido permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento."
+      "text5": "A função Pagamento Rápidos permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento."
     },
     "loginSecurity": {
       "text1": "Segurança de acesso",
@@ -1678,7 +1678,7 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "Selecione a moeda que você deseja receber",
+        "selectReceiveAssetHead": "O que você deseja receber?",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
         "editDescriptionPlaceholder": "Adicionar uma descrição"
@@ -1691,7 +1691,7 @@
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
-        "fast pay": "Pagamento rápido",
+        "fast pay": "Pagamentos Rápidos",
         "blitz fee details": "Taxas da Blitz Wallet",
         "crash reports": "Relatório de falhas",
         "notifications": "Notificações",
