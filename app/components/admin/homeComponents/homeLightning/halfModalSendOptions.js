@@ -436,7 +436,7 @@ export default function HalfModalSendOptions({
         ...styles.innerContainer,
         paddingBottom: bottomPadding,
       }}
-      stickyHeaderIndices={[3]}
+      stickyHeaderIndices={[4]}
       onScroll={e => {
         scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
       }}

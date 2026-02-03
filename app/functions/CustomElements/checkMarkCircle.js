@@ -14,8 +14,8 @@ export default function CheckMarkCircle({
   return (
     <View
       style={{
-        height: containerSize,
-        width: containerSize,
+        height: containerSize + (isActive ? 1 : 0),
+        width: containerSize + (isActive ? 1 : 0),
         backgroundColor: isActive
           ? theme
             ? switchDarkMode
