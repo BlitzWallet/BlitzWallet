@@ -858,7 +858,10 @@
       "tapToGenerate_rootstock": "Tippen Sie, um eine Rootstock-Adresse zu erstellen",
       "chooseWhatToReceive": "Bitte wählen Sie aus, was Sie anfordern möchten",
       "instantLowFees": "Sofort, niedrige Gebühren",
-      "onChainTransaction": "On-Chain-Transaktion"
+      "onChainTransaction": "On-Chain-Transaktion",
+      "addressBook_send": "An einen Kontakt senden",
+      "tapToGenerate_lightning_btc": "BTC sofort empfangen",
+      "tapToGenerate_lightning_usd": "USD sofort empfangen"
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Zahlungsanforderung ein oder fügen Sie sie ein."

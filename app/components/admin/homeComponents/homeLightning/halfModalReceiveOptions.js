@@ -446,6 +446,7 @@ export default function HalfModalReceiveOptions({
   const rowLayoutsRef = useRef({}); // { [uuid]: y }
   const scrollOffsetRef = useRef(0);
   const scrollViewHeightRef = useRef(0);
+  const previousExpandedRef = useRef(null);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -465,8 +466,8 @@ export default function HalfModalReceiveOptions({
     async type => {
       navigate.replace('ReceiveBTC', {
         from: 'homepage',
-        initialReceiveType: scrollPosition,
-        selectedRecieveOption: type,
+        initialReceiveType: type === 'lightning' ? 'BTC' : 'USD',
+        selectedRecieveOption: 'lightning',
       });
     },
     [navigate, scrollPosition, handleBackPressFunction],
@@ -477,7 +478,10 @@ export default function HalfModalReceiveOptions({
   }, []);
 
   const handleToggleExpand = useCallback(contactUuid => {
-    setExpandedContact(prev => (prev === contactUuid ? null : contactUuid));
+    setExpandedContact(prev => {
+      previousExpandedRef.current = prev;
+      return prev === contactUuid ? null : contactUuid;
+    });
   }, []);
 
   const handleSelectPaymentType = useCallback(
@@ -516,9 +520,11 @@ export default function HalfModalReceiveOptions({
       .filter(contact => !contact.isLNURL);
   }, [contactInfoList]);
 
-  // When a contact expands, check whether the bottom of its expanded panel
-  // extends past the visible area of the ScrollView. If so, scroll just enough
-  // to bring it into view.
+  // When a contact expands, check whether the expanded panel extends past
+  // the visible area of the ScrollView (either above or below). If so, scroll
+  // just enough to bring it into view.
+  // Also accounts for the previously expanded contact collapsing, which shifts
+  // content upward when it was above the newly expanded contact.
   useEffect(() => {
     if (!expandedContact || !scrollViewRef.current) return;
 
@@ -533,14 +539,47 @@ export default function HalfModalReceiveOptions({
     // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
     const collapsedRowHeight = 61;
 
-    const expandedBottomEdge = rowY + collapsedRowHeight + expandedPanelHeight;
+    // If a different contact was previously expanded and it is above the
+    // newly expanded contact, collapsing it will shift everything above
+    // downward by -expandedPanelHeight (i.e. content moves up).
+    let collapseShift = 0;
+    const prevExpanded = previousExpandedRef.current;
+    if (prevExpanded && prevExpanded !== expandedContact) {
+      const prevY = rowLayoutsRef.current[prevExpanded];
+      if (prevY != null && prevY < rowY) {
+        collapseShift = expandedPanelHeight;
+      }
+    }
 
+    console.log(rowY);
+    console.log(collapseShift);
+
+    const adjustedRowY = rowY - collapseShift;
+    const rowTopEdge = adjustedRowY;
+    const expandedBottomEdge =
+      adjustedRowY + collapsedRowHeight + expandedPanelHeight;
+
+    const visibleTop = scrollOffsetRef.current;
     const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
 
+    const bottomBuffer = 16;
+    const topBuffer = 35;
+
+    // Check if content extends below visible area
     if (expandedBottomEdge > visibleBottom) {
-      const buffer = 16;
       const targetOffset =
-        expandedBottomEdge - scrollViewHeightRef.current + buffer;
+        expandedBottomEdge - scrollViewHeightRef.current + bottomBuffer;
+
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: targetOffset,
+          animated: true,
+        });
+      }, 220);
+    }
+    // Check if content extends above visible area (including shift from collapse)
+    else if (rowTopEdge < visibleTop + 50) {
+      const targetOffset = Math.max(0, rowTopEdge - topBuffer);
 
       setTimeout(() => {
         scrollViewRef.current?.scrollTo({
@@ -626,11 +665,7 @@ export default function HalfModalReceiveOptions({
             styles.scanIconContainer,
             {
               backgroundColor:
-                theme && darkModeType
-                  ? backgroundColor
-                  : scrollPosition === 'USD'
-                  ? COLORS.dollarGreen
-                  : COLORS.bitcoinOrange,
+                theme && darkModeType ? backgroundColor : COLORS.bitcoinOrange,
             },
           ]}
         >
@@ -642,23 +677,54 @@ export default function HalfModalReceiveOptions({
                 theme && darkModeType ? iconColor : COLORS.darkModeText,
             }}
             contentFit="contain"
-            source={
-              scrollPosition === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
-            }
+            source={ICONS.bitcoinIcon}
           />
         </View>
         <View style={styles.scanTextContainer}>
           <ThemeText
             styles={styles.scanButtonText}
-            content={
-              scrollPosition === 'USD'
-                ? t('constants.dollars_upper')
-                : t('constants.bitcoin_upper')
-            }
+            content={t('constants.bitcoin_upper')}
           />
           <ThemeText
             styles={styles.scanButtonSubtext}
-            content={t('wallet.halfModal.tapToGenerate_lightning')}
+            content={t('wallet.halfModal.tapToGenerate_lightning_btc')}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Dollars */}
+      <TouchableOpacity
+        style={[styles.scanButton, { marginBottom: 0 }]}
+        onPress={() => handleReceiveOption('dollars')}
+      >
+        <View
+          style={[
+            styles.scanIconContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : COLORS.dollarGreen,
+            },
+          ]}
+        >
+          <Image
+            style={{
+              width: 25,
+              height: 25,
+              tintColor:
+                theme && darkModeType ? iconColor : COLORS.darkModeText,
+            }}
+            contentFit="contain"
+            source={ICONS.dollarIcon}
+          />
+        </View>
+        <View style={styles.scanTextContainer}>
+          <ThemeText
+            styles={styles.scanButtonText}
+            content={t('constants.dollars_upper')}
+          />
+          <ThemeText
+            styles={styles.scanButtonSubtext}
+            content={t('wallet.halfModal.tapToGenerate_lightning_usd')}
           />
         </View>
       </TouchableOpacity>
@@ -768,7 +834,7 @@ export default function HalfModalReceiveOptions({
       </TouchableOpacity> */}
 
       {/* Other Options - Collapsible */}
-      <OtherOptionsRow
+      {/* <OtherOptionsRow
         theme={theme}
         darkModeType={darkModeType}
         backgroundColor={backgroundColor}
@@ -779,7 +845,7 @@ export default function HalfModalReceiveOptions({
         onToggleOtherOptions={handleToggleOtherOptions}
         onSelectOtherOption={handleReceiveOption}
         t={t}
-      />
+      /> */}
 
       {/* Divider */}
       <View

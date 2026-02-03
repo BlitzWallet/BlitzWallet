@@ -853,7 +853,6 @@
       "inputPlaceholder": "Ange en adress att betala till",
       "scanImage": "Skanna bild",
       "tapToScan": "Tryck för att hämta en adress från en bild",
-      "addressBook_send": "Kontaktbok",
       "chooseWhatToSend": "Välj vad som ska skickas",
       "noContacts": "Lägg till kontakter så visas de här",
       "selectAddressType": "Välj adresstyp",
@@ -870,7 +869,10 @@
       "scanQrCode": "Skanna QR-kod",
       "tapToScanQr": "Tryck för att skanna en QR-kod",
       "addressBook_request": "Begär från en kontakt",
-      "qrReceiveOptions": "Ta emot via QR-kod"
+      "qrReceiveOptions": "Ta emot via QR-kod",
+      "addressBook_send": "Skicka till en kontakt",
+      "tapToGenerate_lightning_btc": "Ta emot BTC direkt",
+      "tapToGenerate_lightning_usd": "Ta emot USD direkt"
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"
