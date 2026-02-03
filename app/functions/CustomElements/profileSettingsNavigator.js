@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import GetTheemColors from '../../hooks/themeColors';
-import ContactsProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
+import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import { useImageCache } from '../../../context-store/imageCache';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -26,7 +26,7 @@ export default function ProfileImageSettingsNavigator() {
           { backgroundColor: backgroundOffset },
         ]}
       >
-        <ContactsProfileImage
+        <ContactProfileImage
           updated={cache[masterInfoObject?.uuid]?.updated}
           uri={cache[masterInfoObject?.uuid]?.localUri}
           darkModeType={darkModeType}
