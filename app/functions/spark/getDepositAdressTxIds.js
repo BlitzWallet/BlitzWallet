@@ -1,5 +1,5 @@
 import fetchBackend from '../../../db/handleBackend';
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 
 export default async function getDepositAddressTxIds(
   address,
@@ -48,7 +48,7 @@ async function fetchTxidsFromBlockstream(
       if (api.name === 'fbBLockstream') {
         const response = await fetchBackend(
           'enterpriseBlockstreamEsploraData',
-          {address},
+          { address },
           contactsPrivateKey,
           publicKey,
         );

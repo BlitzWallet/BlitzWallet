@@ -1356,7 +1356,10 @@
       "rescan": "Rescan",
       "totalBalance": "Totalt saldo",
       "swapMessage": "Blitz Wallet kommer att försöka överföra dina Liquid-medel till Spark när du först laddar appen eller när du tar emot Liquid-betalningar.\n\nMen i vissa fall kan en överföring missas. För att flytta dessa medel till Spark manuellt, klicka bara på knappen Överför nedan.",
-      "swap": "Överföring"
+      "swap": "Överföring",
+      "rescanning": "Skannar…",
+      "autoClaimLabel": "Automatisk inlösen",
+      "autoClaimHelper": "Växlar automatiskt Liquid-medel till Lightning när minimitröskeln uppnås."
     },
     "notifications": {
       "mainToggle_enabled": "Aktiverade meddelanden",

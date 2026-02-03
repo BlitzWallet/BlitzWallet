@@ -1214,7 +1214,10 @@
       "rescan": "Reescanear",
       "totalBalance": "Saldo total",
       "swapMessage": "Blitz Wallet intentará transferir tus fondos Liquid a Spark al abrir la app por primera vez o cuando recibas pagos Liquid.\n\nSin embargo, en algunos casos una transferencia puede fallar. Para mover estos fondos a Spark manualmente, toca el botón Transferir.",
-      "swap": "Transferir"
+      "swap": "Transferir",
+      "rescanning": "Escaneando…",
+      "autoClaimLabel": "Cobro automático",
+      "autoClaimHelper": "Convierte automáticamente fondos de Liquid a Lightning cuando se alcanza el umbral mínimo."
     },
     "notifications": {
       "mainToggle_enabled": "Notificaciones activadas",

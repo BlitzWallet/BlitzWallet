@@ -36,6 +36,7 @@ export const OPERATION_TYPES = {
   getBalance: 'getSparkBalance',
   getL1Address: 'getSparkStaticBitcoinL1Address',
   queryStaticL1Address: 'queryAllStaticDepositAddresses',
+  getUtxosForDepositAddress: 'getUtxosForDepositAddress',
   getL1AddressQuote: 'getSparkStaticBitcoinL1AddressQuote',
   claimStaticDepositAddress: 'claimnSparkStaticDepositAddress',
   getSparkAddress: 'getSparkAddress',
@@ -109,6 +110,7 @@ const longOperations = [
 const mediumOperations = [
   OPERATION_TYPES.getBalance,
   OPERATION_TYPES.queryStaticL1Address,
+  OPERATION_TYPES.getUtxosForDepositAddress,
   OPERATION_TYPES.getL1AddressQuote,
   OPERATION_TYPES.getSparkAddress,
   OPERATION_TYPES.getL1Address,

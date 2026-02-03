@@ -1379,7 +1379,10 @@
       "rescan": "Rescan",
       "totalBalance": "Total Balance",
       "swapMessage": "Blitz Wallet will try to transfer your Liquid funds into Spark when you first load the app or when you receive Liquid payments.\n\nHowever, in some cases a transfer might be missed. To move these funds into Spark manually, just click the Transfer button below.",
-      "swap": "Transfer"
+      "swap": "Transfer",
+      "rescanning": "Scanning…",
+      "autoClaimLabel": "Auto-Claim",
+      "autoClaimHelper": "Automatically swap Liquid funds to Lightning when the minimum threshold is reached."
     },
     "notifications": {
       "mainToggle_enabled": "Enabled notifications",

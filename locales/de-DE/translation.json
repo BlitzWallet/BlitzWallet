@@ -1117,7 +1117,10 @@
       "rescan": "Neu scannen",
       "totalBalance": "Gesamtguthaben",
       "swapMessage": "Blitz Wallet versucht, Ihre Liquid-Gelder beim ersten App-Start oder beim Empfang von Liquid-Zahlungen nach Spark zu übertragen.\n\nIn manchen Fällen kann jedoch eine Übertragung verpasst werden. Um diese Gelder manuell nach Spark zu bewegen, tippen Sie unten auf den Button „Übertragen“.",
-      "swap": "Übertragen"
+      "swap": "Übertragen,
+      "rescanning": "Scannen…",
+      "autoClaimLabel": "Automatisch einlösen",
+      "autoClaimHelper": "Liquid-Guthaben automatisch in Lightning tauschen, sobald der Mindestbetrag erreicht ist."
     },
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",

@@ -883,6 +883,46 @@ export const sendSparkLightningPayment = async ({
   }
 };
 
+export const getUtxosForDepositAddress = async ({
+  depositAddress,
+  mnemonic,
+  limit = 100,
+  offset = 0,
+  excludeClaimed = true,
+}) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getUtxosForDepositAddress,
+        {
+          depositAddress,
+          mnemonic,
+          limit,
+          offset,
+          excludeClaimed,
+        },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark bitcoin payment',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const utxos = await wallet.getUtxosForDepositAddress(
+        depositAddress,
+        limit,
+        offset,
+        excludeClaimed,
+      );
+      return { didWork: true, utxos };
+    }
+  } catch (err) {
+    console.log('Send Bitcoin payment error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
 export const sendSparkBitcoinPayment = async ({
   onchainAddress,
   exitSpeed,
