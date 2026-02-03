@@ -1392,11 +1392,17 @@ const SparkWalletProvider = ({ children }) => {
           console.log('Checking deposit address:', address);
           if (!address) continue;
 
-          const [exploraData, unclaimedUtxos] = await Promise.all([
+          const [exploraData, unclaimedUtxos, allUtxos] = await Promise.all([
             getDepositAddressTxIds(address, contactsPrivateKey, publicKey),
             getUtxosForDepositAddress({
               depositAddress: address,
               mnemonic: currentMnemonicRef.current,
+              excludeClaimed: true,
+            }),
+            getUtxosForDepositAddress({
+              depositAddress: address,
+              mnemonic: currentMnemonicRef.current,
+              excludeClaimed: false,
             }),
           ]);
 
@@ -1404,8 +1410,13 @@ const SparkWalletProvider = ({ children }) => {
             unclaimedUtxos.didWork ? unclaimedUtxos.utxos.map(u => u.txid) : [],
           );
 
+          const allKnownByTxid = new Set(
+            allUtxos.didWork ? allUtxos.utxos.map(u => u.txid) : [],
+          );
+
           for (const tx of exploraData) {
             if (claimableByTxid.has(tx.txid)) continue; // Spark has it, Phase 2 handles it
+            if (allKnownByTxid.has(tx.txid)) continue; // Already claimed by Spark
             if (savedTxMap.has(tx.txid)) continue; // Already in our DB
 
             console.log(
@@ -1431,9 +1442,6 @@ const SparkWalletProvider = ({ children }) => {
 
           if (!unclaimedUtxos.didWork || !unclaimedUtxos.utxos.length) continue;
 
-          // let claimedTxs =
-          //   JSON.parse(await getLocalStorageItem('claimedBitcoinTxs')) || [];
-
           for (const utxo of unclaimedUtxos.utxos) {
             const { txid, vout } = utxo;
             const hasAlreadySaved = savedTxMap.has(txid);
@@ -1450,32 +1458,8 @@ const SparkWalletProvider = ({ children }) => {
 
             if (!quoteDidWorkResponse || !quote) {
               console.log(error, 'Error getting deposit address quote');
-
-              // If UTXO is already claimed by current user, just skip
-              if (
-                error.includes('UTXO is already claimed by the current user.')
-              ) {
-                continue;
-              }
-
-              // If we don't have it saved yet, add as pending
-              if (!hasAlreadySaved) {
-                await addPendingTransaction(
-                  {
-                    transactionId: txid,
-                    creditAmountSats: quote?.creditAmountSats || 0,
-                  },
-                  address,
-                  sparkInfoRef.current,
-                );
-              }
               continue;
             }
-
-            // Check if we've already processed this specific quote
-            // if (claimedTxs?.includes(quote.signature)) {
-            //   continue;
-            // }
 
             // Attempt to claim the UTXO
             const {
@@ -1501,15 +1485,6 @@ const SparkWalletProvider = ({ children }) => {
             }
 
             console.log('Claimed deposit address transaction:', claimTx);
-
-            // Mark as claimed
-            // if (!claimedTxs?.includes(quote.signature)) {
-            //   claimedTxs.push(quote.signature);
-            //   await setLocalStorageItem(
-            //     'claimedBitcoinTxs',
-            //     JSON.stringify(claimedTxs),
-            //   );
-            // }
 
             // Wait for the transfer to settle
             await new Promise(res => setTimeout(res, 2000));
