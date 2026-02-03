@@ -37,6 +37,7 @@ const PRESET_LOCAL_DATA = {
   enabledBTKNTokens: null,
   defaultSpendToken: 'bitcoin',
   thousandsSeperator: 'space',
+  enabledLiquidAutoSwap: true,
 };
 
 async function sendDataToDB(newObject, uuid) {
