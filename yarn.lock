@@ -3196,9 +3196,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lendasat/lendaswap-sdk-pure@npm:^0.0.1":
-  version: 0.0.1
-  resolution: "@lendasat/lendaswap-sdk-pure@npm:0.0.1"
+"@lendasat/lendaswap-sdk-pure@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "@lendasat/lendaswap-sdk-pure@npm:0.0.2"
   dependencies:
     "@arkade-os/sdk": ^0.3.12
     "@noble/hashes": ^1.7.1
@@ -3211,7 +3211,7 @@ __metadata:
   dependenciesMeta:
     better-sqlite3:
       optional: true
-  checksum: c18c8149c8f528e1df668ea8df3e77daff3c15f16ac66ef67151e6645e0f6b621df572acf5d63dfd51296cfc56a7297e7069a916af7b8ac514ce30d9ef4e7779
+  checksum: 908fceec3014c0124fae916367d6a5f36e771a10cdd6bb4a591955a2a438f07c2fea000f106fed2a0610e0421bdff000454c00788c30328399c03fe4f0d00f66
   languageName: node
   linkType: hard
 
@@ -4877,7 +4877,7 @@ __metadata:
     "@buildonspark/spark-sdk": ^0.5.8
     "@craftzdog/react-native-buffer": ^6.1.0
     "@flashnet/sdk": ^0.5.3
-    "@lendasat/lendaswap-sdk-pure": ^0.0.1
+    "@lendasat/lendaswap-sdk-pure": ^0.0.2
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
     "@noble/secp256k1": ^2.2.3
