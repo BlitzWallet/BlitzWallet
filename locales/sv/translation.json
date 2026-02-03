@@ -134,7 +134,7 @@
     "german": "Deutsch",
     "french": "Française",
     "swedish": "Svenska",
-    "russian": "русский"
+    "russian": "Русский"
   },
   "weekdays": {
     "Mon": "Måndag",
@@ -202,10 +202,10 @@
       "title": "Välj språk"
     },
     "homePage": {
-      "subtitle": "Din plånbok, dina pengar, 100 % open source",
+      "subtitle": "Din plånbok. Dina pengar. Öppen källkod.",
       "buttons": {
-        "button1": "Ange fröfras",
-        "button2": "Skapa en ny plånbok"
+        "button1": "Återställ plånbok",
+        "button2": "Skapa ny plånbok"
       }
     },
     "disclaimerPage": {

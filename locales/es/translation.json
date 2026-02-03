@@ -135,7 +135,7 @@
     "german": "Deutsch",
     "french": "Française",
     "swedish": "Svenska",
-    "russian": "русский"
+    "russian": "Русский"
   },
 
   "weekdays": {
@@ -204,9 +204,9 @@
       "title": "Elegir idioma"
     },
     "homePage": {
-      "subtitle": "Tu billetera, tu dinero, 100 % de código abierto",
+      "subtitle": "Tu billetera. Tu dinero. Código abierto.",
       "buttons": {
-        "button1": "Ingrese la frase de recuperación",
+        "button1": "Recuperar billetera",
         "button2": "Crear nueva billetera"
       }
     },

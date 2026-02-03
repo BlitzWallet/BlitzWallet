@@ -202,10 +202,10 @@
       "title": "Выберите язык"
     },
     "homePage": {
-      "subtitle": "Ваш кошелёк, ваши деньги, 100 % open-source",
+      "subtitle": "Ваш кошелёк. Ваши деньги. Open source.",
       "buttons": {
-        "button1": "Ввести сид-фразу",
-        "button2": "Создать новый кошелек"
+        "button1": "Восстановить кошелёк",
+        "button2": "Создать новый кошелёк"
       }
     },
     "disclaimerPage": {

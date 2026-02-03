@@ -133,7 +133,9 @@
     "italian": "Italiano",
     "portuguese_br": "Português (Brasil)",
     "german": "Deutsch",
-    "french": "Française"
+    "french": "Française",
+    "swedish": "Svenska",
+    "russian": "Русский"
   },
 
   "weekdays": {
@@ -206,9 +208,9 @@
       "title": "Escolha o idioma"
     },
     "homePage": {
-      "subtitle": "Sua carteira, seu dinheiro, 100% open-source",
+      "subtitle": "Sua carteira. Seu dinheiro. Open-source.",
       "buttons": {
-        "button1": "Insira sua frase-semente",
+        "button1": "Recuperar carteira",
         "button2": "Criar nova carteira"
       }
     },

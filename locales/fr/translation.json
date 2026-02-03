@@ -134,7 +134,7 @@
     "german": "Deutsch",
     "french": "Française",
     "swedish": "Svenska",
-    "russian": "русский"
+    "russian": "Русский"
   },
   "weekdays": {
     "Mon": "Lundi",
@@ -202,9 +202,9 @@
       "title": "Choisir la langue"
     },
     "homePage": {
-      "subtitle": "Votre portefeuille, votre argent, 100 % open source",
+      "subtitle": "Votre portefeuille. Votre argent. Open source.",
       "buttons": {
-        "button1": "Saisir une phrase de semence",
+        "button1": "Récupérer un portefeuille",
         "button2": "Créer un nouveau portefeuille"
       }
     },

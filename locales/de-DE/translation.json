@@ -201,9 +201,9 @@
       "title": "Sprache auswählen"
     },
     "homePage": {
-      "subtitle": "Ihre Wallet – Ihre Coins – 100 % Open Source",
+      "subtitle": "Deine Wallet. Dein Geld. Open Source.",
       "buttons": {
-        "button1": "Seed-Phrase eingeben",
+        "button1": "Wallet wiederherstellen",
         "button2": "Neue Wallet erstellen"
       }
     },

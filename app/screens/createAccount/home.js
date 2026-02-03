@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   buttonStyle: {
-    width: '80%',
-    maxWidth: MAX_CONTENT_WIDTH,
+    width: '95%',
+    maxWidth: 300,
     marginBottom: 20,
   },
 

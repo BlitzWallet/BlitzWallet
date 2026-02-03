@@ -135,7 +135,7 @@
     "german": "Deutsch",
     "french": "Française",
     "swedish": "Svenska",
-    "russian": "русский"
+    "russian": "Русский"
   },
 
   "weekdays": {
@@ -208,10 +208,10 @@
       "title": "Scegli la lingua"
     },
     "homePage": {
-      "subtitle": "Il tuo wallet, il tuo denaro, 100% open-source",
+      "subtitle": "Il tuo wallet. Il tuo denaro. Open source.",
       "buttons": {
-        "button1": "Inserisci frase di recupero",
-        "button2": "Crea nuovo portafoglio"
+        "button1": "Ripristina wallet",
+        "button2": "Crea nuovo wallet"
       }
     },
     "disclaimerPage": {
