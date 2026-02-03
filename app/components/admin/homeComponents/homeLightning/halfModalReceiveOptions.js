@@ -626,7 +626,11 @@ export default function HalfModalReceiveOptions({
             styles.scanIconContainer,
             {
               backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
+                theme && darkModeType
+                  ? backgroundColor
+                  : scrollPosition === 'USD'
+                  ? COLORS.dollarGreen
+                  : COLORS.bitcoinOrange,
             },
           ]}
         >
@@ -634,18 +638,23 @@ export default function HalfModalReceiveOptions({
             style={{
               width: 25,
               height: 25,
-              tintColor: theme && darkModeType ? iconColor : COLORS.primary,
+              tintColor:
+                theme && darkModeType ? iconColor : COLORS.darkModeText,
             }}
             contentFit="contain"
-            source={ICONS.lightningReceiveIcon}
+            source={
+              scrollPosition === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
+            }
           />
         </View>
         <View style={styles.scanTextContainer}>
           <ThemeText
             styles={styles.scanButtonText}
-            content={t(
-              `screens.inAccount.receiveBtcPage.header_lightning_${scrollPosition?.toLowerCase()}`,
-            )}
+            content={
+              scrollPosition === 'USD'
+                ? t('constants.dollars_upper')
+                : t('constants.bitcoin_upper')
+            }
           />
           <ThemeText
             styles={styles.scanButtonSubtext}
