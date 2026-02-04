@@ -880,8 +880,6 @@
       "scanQrCode": "Ler código QR",
       "tapToScanQr": "Pague lendo um código QR",
       "addressBook_request": "Receber de contatos",
-      "qrReceiveOptions": "Receber via código QR"
-      "addressBook_request": "Solicitar de um contato",
       "qrReceiveOptions": "Receber via código QR",
       "addressBook_send": "Enviar para contatos",
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
