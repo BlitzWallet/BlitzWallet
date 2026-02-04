@@ -953,7 +953,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: 10,
+    minHeight: 45,
   },
   infoTextContiner: {
     width: '100%',
