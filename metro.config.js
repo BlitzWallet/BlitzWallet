@@ -1,5 +1,5 @@
-const {getDefaultConfig} = require('expo/metro-config');
-const {mergeConfig} = require('@react-native/metro-config');
+const { getDefaultConfig } = require('expo/metro-config');
+const { mergeConfig } = require('@react-native/metro-config');
 const path = require('path');
 
 /**
@@ -73,14 +73,16 @@ const config = {
 
       return context.resolveRequest(context, moduleName, platform);
     },
-    transformer: {
-      getTransformOptions: async () => ({
-        transform: {
-          experimentalImportSupport: false,
-          inlineRequires: true, // This can help with module resolution
-        },
-      }),
-    },
+  },
+
+  // Move transformer to root level, not inside resolver
+  transformer: {
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: true, // This can help with module resolution
+      },
+    }),
   },
 };
 

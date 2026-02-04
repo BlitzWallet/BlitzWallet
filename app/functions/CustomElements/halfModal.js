@@ -53,6 +53,7 @@ import { useAppStatus } from '../../../context-store/appStatus';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
 import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
 import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
+import SelectReceiveStableCoinNetwork from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveStableCoinNetwork';
 import AddReceiveMessageHalfModal from '../../components/admin/homeComponents/receiveBitcoin/addMessageHalfModal';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 import {
@@ -414,6 +415,15 @@ export default function CustomHalfModal(props) {
         return (
           <SelectReceiveAsset
             endReceiveType={props?.route?.params?.endReceiveType}
+            selectedRecieveOption={props?.route?.params?.selectedRecieveOption}
+            handleBackPressFunction={handleBackPressFunction}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
+      case 'SelectReceiveStableCoinNetwork':
+        return (
+          <SelectReceiveStableCoinNetwork
             selectedRecieveOption={props?.route?.params?.selectedRecieveOption}
             handleBackPressFunction={handleBackPressFunction}
             theme={theme}
