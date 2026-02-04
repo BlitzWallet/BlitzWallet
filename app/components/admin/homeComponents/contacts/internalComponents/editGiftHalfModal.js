@@ -51,7 +51,10 @@ export default function EditGiftHalfModal({
                   navigate.popTo('ExpandedContactsPage', { uuid });
                 }
                 return;
+              } else {
+                navigate.popTo('HomeAdmin');
               }
+              return;
             }
             navigate.popTo('ExpandedContactsPage', { uuid });
           } catch (err) {

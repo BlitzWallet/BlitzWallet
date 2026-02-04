@@ -613,12 +613,7 @@ export default function SendAndRequestPage(props) {
           containerStyles={{ marginBottom: 0 }}
         />
 
-        <View
-          style={[
-            styles.identityBadge,
-            { marginBottom: paymentType !== 'Gift' ? 12 : 32 },
-          ]}
-        >
+        <View style={styles.identityBadge}>
           <View
             style={[
               styles.contactListLetterImage,
@@ -734,10 +729,7 @@ export default function SendAndRequestPage(props) {
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.memoSection}
-                  activeOpacity={giftOption.memo ? 1 : 0.2}
-                >
+                <View style={styles.memoSection}>
                   <ThemeText
                     styles={styles.memoLabel}
                     content={t('contacts.sendAndRequestPage.giftMessage')}
@@ -755,7 +747,7 @@ export default function SendAndRequestPage(props) {
                     textInputStyles={{ minHeight: 100 }}
                     textAlignVertical="top"
                   />
-                </TouchableOpacity>
+                </View>
 
                 {paymentType === 'Gift' && (
                   <View>
@@ -876,7 +868,7 @@ export default function SendAndRequestPage(props) {
               actionFunction={handleSubmit}
               textContent={
                 paymentType === 'send' || paymentType === 'Gift'
-                  ? t('constants.continue')
+                  ? t('constants.review')
                   : t('constants.request')
               }
             />
@@ -902,17 +894,17 @@ const styles = StyleSheet.create({
   },
 
   identityBadge: {
-    flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'center',
-    marginTop: 16,
+    marginTop: 26,
     gap: 10,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
 
   contactListLetterImage: {
-    height: 40,
-    width: 40,
-    borderRadius: 20,
+    height: 60,
+    width: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -929,9 +921,10 @@ const styles = StyleSheet.create({
   },
 
   scrollViewContainer: {
+    paddingTop: 5,
     paddingBottom: 20,
     alignItems: 'center',
-    justifyContent: 'center',
+    // justifyContent: 'center',
     flexGrow: 1,
   },
   convertedAmount: {
