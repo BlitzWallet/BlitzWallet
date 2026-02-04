@@ -134,6 +134,8 @@ export default function SelectLRC20Token({
                 ? 'transparent'
                 : theme && darkModeType
                 ? COLORS.darkModeText
+                : tokenIdentifier === 'Bitcoin'
+                ? COLORS.bitcoinOrange
                 : COLORS.primary,
             }}
           >

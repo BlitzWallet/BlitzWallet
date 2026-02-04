@@ -492,6 +492,7 @@ export default function HalfModalSendOptions({
           onBlurFunction={() => setIsKeyboardActive(false)}
           onFocusFunction={() => setIsKeyboardActive(true)}
           textInputStyles={{ paddingRight: 40 }}
+          containerStyles={{ maxHeight: 100 }}
           returnKeyType="go"
           onSubmitEditing={handleManualInputSubmit}
         />

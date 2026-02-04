@@ -43,6 +43,7 @@ import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
 import SelectLRC20Token from './components/selectLRC20Token';
 import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
+import ChooseLRC20TokenContainer from './components/chooseLRC20TokenContainer';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
@@ -305,6 +306,8 @@ export default function SendPaymentScreen(props) {
     determinePaymentMethod !== 'user-choice' &&
     convertedSendAmount >= paymentFee;
 
+  const receiverExpectsCurrency = paymentInfo?.data?.expectedReceive || 'sats';
+
   // Check if user has sufficient balance
   const hasSufficientBalance = useMemo(() => {
     if (!sendingAmount) return false;
@@ -312,7 +315,6 @@ export default function SendPaymentScreen(props) {
     if (!determinePaymentMethod) return false;
 
     const totalCost = convertedSendAmount + paymentFee;
-    const receiverExpectsCurrency = paymentInfo.data.expectedReceive || 'sats';
 
     // Check if we need a swap and if it meets minimums
     const needsSwap =
@@ -347,6 +349,7 @@ export default function SendPaymentScreen(props) {
     min_usd_swap_amount,
     swapLimits.bitcoin,
     isUsingLRC20,
+    receiverExpectsCurrency,
   ]);
 
   const uiState = useMemo(() => {
@@ -785,6 +788,15 @@ export default function SendPaymentScreen(props) {
     }
   };
 
+  const sendingAsset =
+    selectedLRC20Asset === 'Bitcoin'
+      ? !isLightningPayment &&
+        !isBitcoinPayment &&
+        !(isSparkPayment && receiverExpectsCurrency === 'sats')
+        ? t('constants.dollars_upper')
+        : t('constants.bitcoin_upper')
+      : seletctedToken?.tokenMetadata?.tokenTicker;
+
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
@@ -808,27 +820,9 @@ export default function SendPaymentScreen(props) {
       }}
     >
       <View style={styles.replacementContainer}>
-        <NavBarWithBalance
-          seletctedToken={seletctedToken}
-          selectedLRC20Asset={selectedLRC20Asset}
-          useFrozen={true}
+        <CustomSettingsTopBar
+          label={t('constants.send') + ' ' + sendingAsset}
         />
-
-        {/* Token selector for Spark LRC20 payments */}
-        {enabledLRC20 &&
-          paymentInfo.type === 'spark' &&
-          canEditAmount &&
-          useFullTokensDisplay && (
-            <TouchableOpacity onPress={handleSelectTokenPress}>
-              <ThemeText
-                styles={styles.selectTokenText}
-                content={t(
-                  'wallet.sendPages.sendPaymentScreen.switchTokenText',
-                )}
-              />
-            </TouchableOpacity>
-          )}
-
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           <TouchableOpacity
@@ -937,6 +931,26 @@ export default function SendPaymentScreen(props) {
         {/* EDIT_AMOUNT State - Show input controls */}
         {uiState === 'EDIT_AMOUNT' && (
           <>
+            {/* Token selector for Spark LRC20 payments */}
+            {enabledLRC20 &&
+              paymentInfo.type === 'spark' &&
+              canEditAmount &&
+              useFullTokensDisplay && (
+                <ChooseLRC20TokenContainer
+                  theme={theme}
+                  darkModeType={darkModeType}
+                  determinePaymentMethod={determinePaymentMethod}
+                  handleSelectPaymentMethod={handleSelectTokenPress}
+                  bitcoinBalance={bitcoinBalance}
+                  dollarBalanceToken={dollarBalanceToken}
+                  masterInfoObject={masterInfoObject}
+                  fiatStats={fiatStats}
+                  uiState={uiState}
+                  seletctedToken={seletctedToken}
+                  selectedLRC20Asset={selectedLRC20Asset}
+                  t={t}
+                />
+              )}
             {!(
               enabledLRC20 &&
               paymentInfo.type === 'spark' &&
