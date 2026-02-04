@@ -1115,11 +1115,11 @@
     },
 
     "sendAndRequestPage": {
-      "sendBitcoin": "Enviando Bitcoin para",
-      "sendDollars": "Enviando Dólares para",
+      "sendBitcoin": "Enviar Bitcoin para",
+      "sendDollars": "Enviar Dólares para",
       "sendGift": "Enviar cartão-presente",
-      "requestBitcoin": "Solicitando Bitcoin de",
-      "requestDollars": "Solicitando Dólares de",
+      "requestBitcoin": "Solicitar Bitcoin de",
+      "requestDollars": "Solicitar Dólares de",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um cartão-presente para este contato. Eles não atualizaram para a versão mais recente da Blitz Wallet.",
@@ -1127,13 +1127,13 @@
       "cardDetailsError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
       "giftCardRange": "Enviar {{amount}} - {{amount2}}",
       "giftCardAmountError": "Insira um valor de pelo menos {{amount}} e até {{amount2}}",
-      "sendGiftText": "Enviar cartão-presente",
+      "sendGiftText": "Enviar cartão-presente para",
       "notVariableCard": "Este cartão-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
       "giftCardText": "Cartão-presente {{giftName}}",
       "giftMessage": "Mensagem",
       "recipientReceives": "{{contactName}} receberá",
       "giftMessagePlaceholder": "Escreva sua mensagem de presente aqui...",
-      "paymentSourceHeader": "Fonte de pagamento"
+      "paymentSourceHeader": "Pagar com"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
