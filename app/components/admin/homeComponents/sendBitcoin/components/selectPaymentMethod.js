@@ -86,7 +86,10 @@ export default function SelectPaymentMethod({
             styles={styles.amountText}
             content={`${displayCorrectDenomination({
               amount: bitcoinBalance,
-              masterInfoObject,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'sats',
+              },
               fiatStats,
             })}`}
           />

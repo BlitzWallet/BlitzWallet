@@ -41,7 +41,10 @@ export default function ChoosePaymentMethod({
     determinePaymentMethod === 'BTC' || determinePaymentMethod === 'user-choice'
       ? displayCorrectDenomination({
           amount: bitcoinBalance,
-          masterInfoObject,
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'sats',
+          },
           fiatStats,
         })
       : displayCorrectDenomination({
