@@ -1064,7 +1064,6 @@ const styles = StyleSheet.create({
   paymentOptionText: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
-    fontWeight: '500',
   },
 
   emptyStateText: {
