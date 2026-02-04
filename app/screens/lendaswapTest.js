@@ -139,6 +139,7 @@ export default function LendaswapTest() {
         direction.to,
         parseInt(amount, 10),
       );
+      console.log(result);
       setQuote(result);
     } catch (err) {
       console.error('Failed to get quote:', err);
@@ -171,7 +172,8 @@ export default function LendaswapTest() {
         targetChain: direction.to.includes('pol') ? 'polygon' : 'arbitrum',
         sourceAmount: parseInt(amount, 10),
       });
-      setActiveSwap(result);
+      console.log(result);
+      setActiveSwap(result.response);
     } catch (err) {
       console.error('Failed to create swap:', err);
       setError(err.message || 'Failed to create swap');
@@ -189,6 +191,7 @@ export default function LendaswapTest() {
 
     try {
       const result = await client.getSwap(activeSwap.id);
+      console.log(result);
       setActiveSwap(result);
     } catch (err) {
       console.error('Failed to refresh swap status:', err);
@@ -203,7 +206,7 @@ export default function LendaswapTest() {
     if (!client || !activeSwap?.id) return;
 
     try {
-      const result = await client.claimEvmSwap(activeSwap.id);
+      const result = await client.claim(activeSwap.id);
       Alert.alert('Claim submitted', `TX: ${result.tx_hash || 'pending'}`);
       refreshSwapStatus();
     } catch (err) {
@@ -301,7 +304,7 @@ export default function LendaswapTest() {
       )}
     </View>
   );
-
+  console.log(activeSwap);
   const renderSwapTab = () => (
     <View>
       {renderInitSection()}
@@ -376,7 +379,7 @@ export default function LendaswapTest() {
               <View style={styles.quoteRow}>
                 <Text style={styles.quoteLabel}>You receive:</Text>
                 <Text style={[styles.quoteValue, { color: '#29C467' }]}>
-                  {`${quote}`}
+                  {`${amount - quote.network_fee - quote.protocol_fee}`}
                 </Text>
               </View>
             </View>

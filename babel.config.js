@@ -6,6 +6,11 @@ module.exports = api => {
     plugins: [
       ['module:react-native-dotenv'],
       ['@babel/plugin-transform-class-static-block'],
+
+      ['@babel/plugin-proposal-class-properties', { loose: true }],
+      ['@babel/plugin-proposal-private-methods', { loose: true }],
+      ['@babel/plugin-proposal-private-property-in-object', { loose: true }],
+
       isProduction && ['transform-remove-console'],
 
       [
