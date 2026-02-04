@@ -729,10 +729,7 @@ export default function SendAndRequestPage(props) {
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.memoSection}
-                  activeOpacity={giftOption.memo ? 1 : 0.2}
-                >
+                <View style={styles.memoSection}>
                   <ThemeText
                     styles={styles.memoLabel}
                     content={t('contacts.sendAndRequestPage.giftMessage')}
@@ -750,7 +747,7 @@ export default function SendAndRequestPage(props) {
                     textInputStyles={{ minHeight: 100 }}
                     textAlignVertical="top"
                   />
-                </TouchableOpacity>
+                </View>
 
                 {paymentType === 'Gift' && (
                   <View>
@@ -871,7 +868,7 @@ export default function SendAndRequestPage(props) {
               actionFunction={handleSubmit}
               textContent={
                 paymentType === 'send' || paymentType === 'Gift'
-                  ? t('constants.continue')
+                  ? t('constants.review')
                   : t('constants.request')
               }
             />
