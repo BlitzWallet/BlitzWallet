@@ -208,7 +208,7 @@
       "title": "Escolha o idioma"
     },
     "homePage": {
-      "subtitle": "Sua carteira. Seu dinheiro. Open-source.",
+      "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
         "button1": "Recuperar carteira",
         "button2": "Criar nova carteira"
@@ -745,7 +745,7 @@
         "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
         "giftMessage": "Adicione uma descrição ao seu presente",
         "giftMessagePlaceholder": "Digite sua mensagem aqui",
-        "selectForContactBTN": "Selecione cartão-presente",
+        "selectForContactBTN": "Continuar",
         "noAmountError": "Por favor, escolha o valor do cartão-presente"
       },
       "giftCardOrderDetails": {
@@ -857,7 +857,7 @@
 
   "wallet": {
     "halfModal": {
-      "images": "Imagem",
+      "images": "Carregar imagem",
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
@@ -879,9 +879,11 @@
       "otherAddresses": "Outras opções",
       "scanQrCode": "Ler código QR",
       "tapToScanQr": "Pague lendo um código QR",
+      "addressBook_request": "Receber de contatos",
+      "qrReceiveOptions": "Receber via código QR"
       "addressBook_request": "Solicitar de um contato",
       "qrReceiveOptions": "Receber via código QR",
-      "addressBook_send": "Enviar para um contato",
+      "addressBook_send": "Enviar para contatos",
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente"
     },
@@ -1117,11 +1119,11 @@
     },
 
     "sendAndRequestPage": {
-      "sendBitcoin": "Enviar Bitcoin",
-      "sendDollars": "Enviar Dólares",
+      "sendBitcoin": "Enviar Bitcoin para",
+      "sendDollars": "Enviar Dólares para",
       "sendGift": "Enviar cartão-presente",
-      "requestBitcoin": "Solicitar Bitcoin",
-      "requestDollars": "Solicitar Dólares",
+      "requestBitcoin": "Solicitar Bitcoin de",
+      "requestDollars": "Solicitar Dólares de",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um cartão-presente para este contato. Eles não atualizaram para a versão mais recente da Blitz Wallet.",
@@ -1129,13 +1131,13 @@
       "cardDetailsError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
       "giftCardRange": "Enviar {{amount}} - {{amount2}}",
       "giftCardAmountError": "Insira um valor de pelo menos {{amount}} e até {{amount2}}",
-      "sendGiftText": "Enviar cartão-presente",
+      "sendGiftText": "Enviar cartão-presente para",
       "notVariableCard": "Este cartão-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
       "giftCardText": "Cartão-presente {{giftName}}",
       "giftMessage": "Mensagem",
       "recipientReceives": "{{contactName}} receberá",
       "giftMessagePlaceholder": "Escreva sua mensagem de presente aqui...",
-      "paymentSourceHeader": "Fonte de pagamento"
+      "paymentSourceHeader": "Pagar com"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
@@ -1156,7 +1158,7 @@
 
     "selectGiftPage": {
       "noCards": "Nenhum cartão disponível",
-      "header": "Selecione o cartão-presente que deseja enviar",
+      "header": "Escolha um cartão-presente para enviar",
       "inputPlaceholder": "Procure um cartão-presente"
     },
 
