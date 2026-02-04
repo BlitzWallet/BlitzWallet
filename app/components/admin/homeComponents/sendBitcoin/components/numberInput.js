@@ -13,7 +13,7 @@ export default function NumberInputSendPage({
   const decimals = seletctedToken?.tokenMetadata?.decimals;
 
   useEffect(() => {
-    let value = amount.trim();
+    let value = String(amount).trim();
 
     if (value.startsWith('.')) {
       value = '0' + value;
