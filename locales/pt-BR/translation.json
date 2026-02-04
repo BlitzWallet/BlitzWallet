@@ -880,7 +880,7 @@
       "otherAddresses": "Outras opções",
       "scanQrCode": "Ler código QR",
       "tapToScanQr": "Pague lendo um código QR",
-      "addressBook_request": "Solicitar de um contato",
+      "addressBook_request": "Receber de um contato",
       "qrReceiveOptions": "Receber via código QR"
     },
     "manualInputPage": {
@@ -1115,11 +1115,11 @@
     },
 
     "sendAndRequestPage": {
-      "sendBitcoin": "Enviar Bitcoin",
-      "sendDollars": "Enviar Dólares",
+      "sendBitcoin": "Enviando Bitcoin para",
+      "sendDollars": "Enviando Dólares para",
       "sendGift": "Enviar cartão-presente",
-      "requestBitcoin": "Solicitar Bitcoin",
-      "requestDollars": "Solicitar Dólares",
+      "requestBitcoin": "Solicitando Bitcoin de",
+      "requestDollars": "Solicitando Dólares de",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um cartão-presente para este contato. Eles não atualizaram para a versão mais recente da Blitz Wallet.",
