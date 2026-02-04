@@ -857,7 +857,7 @@
 
   "wallet": {
     "halfModal": {
-      "images": "Imagem",
+      "images": "Carregar imagem",
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
