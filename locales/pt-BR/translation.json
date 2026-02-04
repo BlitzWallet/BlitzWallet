@@ -880,7 +880,7 @@
       "otherAddresses": "Outras opções",
       "scanQrCode": "Ler código QR",
       "tapToScanQr": "Pague lendo um código QR",
-      "addressBook_request": "Receber de um contato",
+      "addressBook_request": "Receber de contatos",
       "qrReceiveOptions": "Receber via código QR"
     },
     "manualInputPage": {
