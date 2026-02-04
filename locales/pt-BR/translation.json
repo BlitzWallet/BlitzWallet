@@ -745,7 +745,7 @@
         "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
         "giftMessage": "Adicione uma descrição ao seu presente",
         "giftMessagePlaceholder": "Digite sua mensagem aqui",
-        "selectForContactBTN": "Selecione cartão-presente",
+        "selectForContactBTN": "Continuar",
         "noAmountError": "Por favor, escolha o valor do cartão-presente"
       },
       "giftCardOrderDetails": {
