@@ -43,8 +43,10 @@ export const DropdownProvider = ({ children }) => {
   const { theme } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
-  const formattedDropdownHeight =
-    Math.min(dropdownHeight, 200) + dropdownState?.options?.length * 1;
+  const formattedDropdownHeight = Math.min(
+    dropdownHeight + dropdownState?.options?.length * 1,
+    200,
+  );
 
   const animatedHeight = useSharedValue(0);
 

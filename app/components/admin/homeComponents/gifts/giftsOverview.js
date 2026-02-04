@@ -118,10 +118,6 @@ export default function GiftsOverview({ theme, darkModeType }) {
                   forceCurrency: denomination === 'USD' ? 'USD' : false,
                 })}
               />
-              <ThemeText
-                styles={styles.uuid}
-                content={uuid.slice(0, 4) + '...' + uuid.slice(uuid.length - 4)}
-              />
             </View>
             {state !== 'Claimed' && state !== 'Reclaimed' && (
               <TouchableOpacity
@@ -252,7 +248,7 @@ const styles = StyleSheet.create({
   leftContainer: { flexDirection: 'row', width: '100%' },
   amountAndUUID: { width: '100%', flexShrink: 1, marginBottom: 10 },
   uuid: { opacity: 0.7, fontSize: SIZES.small },
-  description: { marginBottom: 10 },
+  description: { marginBottom: 30 },
   numAndState: {
     flexDirection: 'row',
     alignItems: 'center',
