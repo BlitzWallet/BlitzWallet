@@ -88,7 +88,7 @@ const ConfirmedOrSentTransaction = React.memo(
     const balanceValue = useMemo(
       () =>
         txParsed?.paymentDenomination === 'USD'
-          ? formatBalanceAmount(txParsed.amountDollars, false, masterInfoObject)
+          ? parseFloat(txParsed.amountDollars || 0)
           : txParsed.amountMsat / 1000,
       [
         txParsed?.paymentDenomination,
