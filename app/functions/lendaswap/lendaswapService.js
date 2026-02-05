@@ -1,5 +1,9 @@
 import { EventEmitter } from 'events';
-// import { ClientBuilder } from '@lendasat/lendaswap-sdk-native';
+import {
+  Client,
+  InMemoryWalletStorage,
+  InMemorySwapStorage,
+} from '@lendasat/lendaswap-sdk-pure';
 
 // ============================================================================
 // Swap Status Constants
@@ -14,6 +18,7 @@ export const SwapStatus = {
   FAILED: 'failed',
   EXPIRED: 'expired',
   REFUNDED: 'refunded',
+  SERVER_FUNDED: 'serverfunded',
 };
 
 // ============================================================================
@@ -59,10 +64,6 @@ export class LendaswapService extends EventEmitter {
     super();
 
     this.config = {
-      apiUrl: config.apiUrl || 'https://apilendaswap.lendasat.com',
-      network: config.network || 'bitcoin',
-      arkadeUrl: config.arkadeUrl || 'https://arkade.computer',
-      esploraUrl: config.esploraUrl || 'https://mempool.space/api',
       mnemonic: config.mnemonic || null,
       storageAdapter: config.storageAdapter,
     };
@@ -79,30 +80,28 @@ export class LendaswapService extends EventEmitter {
 
   /**
    * Initialize the Lendaswap client
-   * @returns {Promise<Object>} Wallet info
+   * @returns {Promise<Object>} Client info
    */
   async initialize() {
     try {
-      // Build client with configuration
-      const builder = new ClientBuilder()
-        .storage(this.config.storageAdapter)
-        .url(this.config.apiUrl)
-        .network(this.config.network)
-        .arkadeUrl(this.config.arkadeUrl)
-        .esploraUrl(this.config.esploraUrl);
+      const builder = Client.builder()
+        .withSignerStorage(new InMemoryWalletStorage())
+        .withSwapStorage(new InMemorySwapStorage());
 
-      this.client = builder.build();
+      // Add mnemonic if provided
+      if (this.config.mnemonic) {
+        builder.withMnemonic(this.config.mnemonic);
+      }
 
-      // Initialize with mnemonic (will generate new if not provided)
-      await this.client.init(this.config.mnemonic);
+      const sdkClient = await builder.build();
 
+      this.client = sdkClient;
       this.initialized = true;
 
-      // Get wallet info
-      const walletInfo = await this.getWalletInfo();
+      const mnemonic = sdkClient.getMnemonic();
 
-      this.emit('initialized', walletInfo);
-      return walletInfo;
+      this.emit('initialized', { mnemonic });
+      return { initialized: true, mnemonic };
     } catch (error) {
       throw this.handleError(error, 'Failed to initialize Lendaswap client');
     }
@@ -121,47 +120,13 @@ export class LendaswapService extends EventEmitter {
     }
   }
 
-  // ==========================================================================
-  // Wallet Management
-  // ==========================================================================
-
   /**
-   * Get wallet information
-   * @returns {Promise<Object>}
+   * Get the mnemonic from the client
+   * @returns {string}
    */
-  async getWalletInfo() {
+  getMnemonic() {
     this.ensureInitialized();
-
-    try {
-      const info = await this.client.getWalletInfo();
-      return {
-        bitcoinAddress: info.bitcoinAddress,
-        lightningNodeId: info.lightningNodeId,
-        mnemonic: info.mnemonic,
-        network: this.config.network,
-      };
-    } catch (error) {
-      throw this.handleError(error, 'Failed to get wallet info');
-    }
-  }
-
-  /**
-   * Get wallet balance
-   * @returns {Promise<Object>}
-   */
-  async getBalance() {
-    this.ensureInitialized();
-
-    try {
-      const balance = await this.client.getBalance();
-      return {
-        confirmed: balance.confirmed || '0',
-        unconfirmed: balance.unconfirmed || '0',
-        total: balance.total || '0',
-      };
-    } catch (error) {
-      throw this.handleError(error, 'Failed to get balance');
-    }
+    return this.client.getMnemonic();
   }
 
   // ==========================================================================
@@ -169,45 +134,17 @@ export class LendaswapService extends EventEmitter {
   // ==========================================================================
 
   /**
-   * Get all available trading pairs
+   * Get all available asset pairs
    * @returns {Promise<Array>}
    */
-  async getTradingPairs() {
+  async getAssetPairs() {
     this.ensureInitialized();
 
     try {
-      const pairs = await this.client.getPairs();
-      return pairs.map(pair => ({
-        id: pair.id,
-        fromToken: pair.from_token,
-        toToken: pair.to_token,
-        minAmount: pair.min_amount,
-        maxAmount: pair.max_amount,
-        enabled: pair.enabled !== false,
-      }));
+      const pairs = await this.client.getAssetPairs();
+      return pairs;
     } catch (error) {
-      throw this.handleError(error, 'Failed to get trading pairs');
-    }
-  }
-
-  /**
-   * Get all available tokens
-   * @returns {Promise<Array>}
-   */
-  async getTokens() {
-    this.ensureInitialized();
-
-    try {
-      const tokens = await this.client.getTokens();
-      return tokens.map(token => ({
-        symbol: token.symbol,
-        name: token.name,
-        network: token.network,
-        decimals: token.decimals || 8,
-        type: token.type,
-      }));
-    } catch (error) {
-      throw this.handleError(error, 'Failed to get tokens');
+      throw this.handleError(error, 'Failed to get asset pairs');
     }
   }
 
@@ -217,13 +154,12 @@ export class LendaswapService extends EventEmitter {
 
   /**
    * Get a swap quote
-   * @param {Object} params - Quote parameters
-   * @param {string} params.fromToken - Source token (e.g., 'btc_lightning')
-   * @param {string} params.toToken - Destination token (e.g., 'usdc_pol')
-   * @param {string} params.amount - Amount in smallest unit (sats for BTC)
+   * @param {string} fromToken - Source token (e.g., 'btc_lightning')
+   * @param {string} toToken - Destination token (e.g., 'usdc_pol')
+   * @param {number} amount - Amount in smallest unit (sats for BTC)
    * @returns {Promise<Object>}
    */
-  async getQuote({ fromToken, toToken, amount }) {
+  async getQuote(fromToken, toToken, amount) {
     this.ensureInitialized();
 
     try {
@@ -231,18 +167,7 @@ export class LendaswapService extends EventEmitter {
 
       const quote = await this.client.getQuote(fromToken, toToken, amount);
 
-      return {
-        fromToken: quote.from_token,
-        toToken: quote.to_token,
-        amountIn: quote.amount_in,
-        amountOut: quote.amount_out,
-        exchangeRate: quote.exchange_rate,
-        fee: quote.fee,
-        networkFee: quote.network_fee || '0',
-        expiresAt: quote.expires_at,
-        minAmount: quote.min_amount,
-        maxAmount: quote.max_amount,
-      };
+      return quote;
     } catch (error) {
       throw this.handleError(error, 'Failed to get quote');
     }
@@ -253,72 +178,50 @@ export class LendaswapService extends EventEmitter {
   // ==========================================================================
 
   /**
-   * Create a new swap
+   * Create a Lightning to EVM swap
    * @param {Object} params - Swap parameters
-   * @param {string} params.fromToken - Source token
-   * @param {string} params.toToken - Destination token
-   * @param {string} params.amount - Amount in smallest unit
-   * @param {string} params.destinationAddress - Destination address
-   * @param {string} [params.refundAddress] - Optional refund address
+   * @param {string} params.targetAddress - Destination EVM address
+   * @param {string} params.targetToken - Target token (e.g., 'usdc_pol', 'usdt_pol')
+   * @param {string} params.targetChain - Target chain ('polygon' or 'arbitrum')
+   * @param {number} params.sourceAmount - Amount in sats
    * @returns {Promise<Object>}
    */
-  async createSwap({
-    fromToken,
-    toToken,
-    amount,
-    destinationAddress,
-    refundAddress,
+  async createLightningToEvmSwap({
+    targetAddress,
+    targetToken,
+    targetChain,
+    sourceAmount,
   }) {
     this.ensureInitialized();
 
     try {
       this.validateSwapParams({
-        fromToken,
-        toToken,
-        amount,
-        destinationAddress,
+        targetAddress,
+        targetToken,
+        targetChain,
+        sourceAmount,
       });
 
-      const swap = await this.client.createSwap(
-        fromToken,
-        toToken,
-        amount,
-        destinationAddress,
-        refundAddress,
-      );
+      const result = await this.client.createLightningToEvmSwap({
+        targetAddress,
+        targetToken,
+        targetChain,
+        sourceAmount,
+      });
 
-      const formattedSwap = this.formatSwap(swap);
+      const swap = result.response;
+      const swapId = swap.id || swap.swapId;
 
       // Track swap
-      this.activeSwaps.set(formattedSwap.id, formattedSwap);
-      this.emit('swapCreated', formattedSwap);
+      this.activeSwaps.set(swapId, swap);
+      this.emit('swapCreated', swap);
 
       // Start monitoring
-      this.startSwapMonitoring(formattedSwap.id);
+      this.startSwapMonitoring(swapId);
 
-      return formattedSwap;
+      return result;
     } catch (error) {
       throw this.handleError(error, 'Failed to create swap');
-    }
-  }
-
-  /**
-   * Send payment for a swap (for outgoing swaps)
-   * @param {string} swapId - Swap ID
-   * @returns {Promise<Object>}
-   */
-  async sendSwapPayment(swapId) {
-    this.ensureInitialized();
-
-    try {
-      const result = await this.client.sendPayment(swapId);
-
-      const swap = await this.getSwapDetails(swapId);
-      this.emit('paymentSent', swap);
-
-      return swap;
-    } catch (error) {
-      throw this.handleError(error, 'Failed to send payment');
     }
   }
 
@@ -331,89 +234,54 @@ export class LendaswapService extends EventEmitter {
    * @param {string} swapId - Swap ID
    * @returns {Promise<Object>}
    */
-  async getSwapDetails(swapId) {
+  async getSwap(swapId) {
     this.ensureInitialized();
 
     try {
       const swap = await this.client.getSwap(swapId);
-      const formattedSwap = this.formatSwap(swap);
 
-      this.activeSwaps.set(formattedSwap.id, formattedSwap);
-      return formattedSwap;
+      this.activeSwaps.set(swapId, swap);
+      return swap;
     } catch (error) {
       throw this.handleError(error, 'Failed to get swap details');
     }
   }
 
   /**
-   * Get all swaps from storage
+   * Get stored swaps from storage
    * @returns {Promise<Array>}
    */
-  async getAllSwaps() {
+  async getStoredSwaps() {
     this.ensureInitialized();
 
     try {
-      const swaps = await this.client.getSwaps();
-      return swaps.map(swap => this.formatSwap(swap));
+      if (!this.client.getStoredSwaps) {
+        return [];
+      }
+      const swaps = await this.client.getStoredSwaps();
+      return Array.isArray(swaps) ? swaps : [];
     } catch (error) {
-      throw this.handleError(error, 'Failed to get swaps');
+      throw this.handleError(error, 'Failed to get stored swaps');
     }
   }
 
   /**
-   * Get swaps with filters
-   * @param {Object} filters
-   * @param {string} [filters.status] - Filter by status
-   * @param {string} [filters.fromToken] - Filter by source token
-   * @param {string} [filters.toToken] - Filter by destination token
-   * @returns {Promise<Array>}
-   */
-  async getSwaps(filters = {}) {
-    this.ensureInitialized();
-
-    try {
-      let swaps = await this.getAllSwaps();
-
-      // Apply filters
-      if (filters.status) {
-        swaps = swaps.filter(swap => swap.status === filters.status);
-      }
-      if (filters.fromToken) {
-        swaps = swaps.filter(swap => swap.fromToken === filters.fromToken);
-      }
-      if (filters.toToken) {
-        swaps = swaps.filter(swap => swap.toToken === filters.toToken);
-      }
-
-      // Sort by creation date (newest first)
-      swaps.sort((a, b) => b.createdAt - a.createdAt);
-
-      return swaps;
-    } catch (error) {
-      throw this.handleError(error, 'Failed to get filtered swaps');
-    }
-  }
-
-  /**
-   * Cancel a pending swap
+   * Claim an EVM swap
    * @param {string} swapId - Swap ID
    * @returns {Promise<Object>}
    */
-  async cancelSwap(swapId) {
+  async claim(swapId) {
     this.ensureInitialized();
 
     try {
-      await this.client.cancelSwap(swapId);
+      const result = await this.client.claim(swapId);
 
-      const swap = await this.getSwapDetails(swapId);
+      const swap = await this.getSwap(swapId);
+      this.emit('swapClaimed', swap);
 
-      this.activeSwaps.delete(swapId);
-      this.stopSwapMonitoring(swapId);
-      this.emit('swapCancelled', swap);
-
-      return swap;
+      return result;
     } catch (error) {
-      throw this.handleError(error, 'Failed to cancel swap');
+      throw this.handleError(error, 'Failed to claim swap');
     }
   }
 
@@ -433,7 +301,7 @@ export class LendaswapService extends EventEmitter {
 
     const interval = setInterval(async () => {
       try {
-        const swap = await this.getSwapDetails(swapId);
+        const swap = await this.getSwap(swapId);
 
         const previousSwap = this.activeSwaps.get(swapId);
         if (previousSwap && previousSwap.status !== swap.status) {
@@ -496,35 +364,6 @@ export class LendaswapService extends EventEmitter {
   // ==========================================================================
 
   /**
-   * Format swap object from SDK response
-   * @private
-   * @param {Object} swap
-   * @returns {Object}
-   */
-  formatSwap(swap) {
-    return {
-      id: swap.id,
-      fromToken: swap.from_token,
-      toToken: swap.to_token,
-      status: swap.status,
-      amountIn: swap.amount_in,
-      amountOut: swap.amount_out,
-      fee: swap.fee || '0',
-      networkFee: swap.network_fee || '0',
-      lightningInvoice: swap.lightning_invoice,
-      lightningPaymentHash: swap.lightning_payment_hash,
-      lightningPreimage: swap.lightning_preimage,
-      chainTxHash: swap.chain_tx_hash,
-      destinationAddress: swap.destination_address,
-      refundAddress: swap.refund_address,
-      createdAt: swap.created_at || Date.now(),
-      updatedAt: swap.updated_at || Date.now(),
-      expiresAt: swap.expires_at,
-      errorMessage: swap.error_message,
-    };
-  }
-
-  /**
    * Validate quote parameters
    * @private
    */
@@ -546,11 +385,32 @@ export class LendaswapService extends EventEmitter {
    * Validate swap parameters
    * @private
    */
-  validateSwapParams({ fromToken, toToken, amount, destinationAddress }) {
-    this.validateQuoteParams({ fromToken, toToken, amount });
+  validateSwapParams({
+    targetAddress,
+    targetToken,
+    targetChain,
+    sourceAmount,
+  }) {
+    if (!targetAddress || typeof targetAddress !== 'string') {
+      throw new ValidationError('Invalid target address');
+    }
 
-    if (!destinationAddress || typeof destinationAddress !== 'string') {
-      throw new ValidationError('Invalid destination address');
+    if (!targetToken || typeof targetToken !== 'string') {
+      throw new ValidationError('Invalid target token');
+    }
+
+    if (!targetChain || !['polygon', 'arbitrum'].includes(targetChain)) {
+      throw new ValidationError(
+        'Invalid target chain. Must be "polygon" or "arbitrum"',
+      );
+    }
+
+    if (
+      !sourceAmount ||
+      isNaN(parseInt(sourceAmount)) ||
+      parseInt(sourceAmount) <= 0
+    ) {
+      throw new ValidationError('Invalid source amount');
     }
   }
 
@@ -604,6 +464,7 @@ export class LendaswapService extends EventEmitter {
     this.clearCache();
     this.removeAllListeners();
     this.initialized = false;
+    this.config.mnemonic = null;
     this.client = null;
   }
 }
