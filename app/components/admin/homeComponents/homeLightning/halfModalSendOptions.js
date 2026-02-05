@@ -63,9 +63,7 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height:
-      expandHeight.value *
-      (contact?.isLNURL ? 85 : !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
+    height: expandHeight.value * (!HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
     opacity: expandHeight.value,
   }));
 
@@ -136,7 +134,9 @@ const ContactRow = ({
                   theme && darkModeType ? backgroundColor : backgroundOffset,
               },
             ]}
-            onPress={() => onSelectPaymentType(contact, 'BTC')}
+            onPress={() =>
+              onSelectPaymentType(contact, 'BTC', contact?.isLNURL)
+            }
           >
             <View
               style={[
@@ -164,43 +164,44 @@ const ContactRow = ({
             />
           </TouchableOpacity>
 
-          {!contact?.isLNURL && (
-            <TouchableOpacity
+          <TouchableOpacity
+            style={[
+              styles.paymentOption,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+            onPress={() =>
+              onSelectPaymentType(contact, 'USD', contact?.isLNURL)
+            }
+          >
+            <View
               style={[
-                styles.paymentOption,
+                styles.iconContainer,
                 {
                   backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                    theme && darkModeType
+                      ? darkModeType
+                        ? backgroundOffset
+                        : backgroundColor
+                      : COLORS.dollarGreen,
                 },
               ]}
-              onPress={() => onSelectPaymentType(contact, 'USD')}
             >
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? darkModeType
-                          ? backgroundOffset
-                          : backgroundColor
-                        : COLORS.dollarGreen,
-                  },
-                ]}
-              >
-                <ThemeImage
-                  styles={{ width: 18, height: 18 }}
-                  lightModeIcon={ICONS.dollarIcon}
-                  darkModeIcon={ICONS.dollarIcon}
-                  lightsOutIcon={ICONS.dollarIcon}
-                />
-              </View>
-              <ThemeText
-                styles={styles.paymentOptionText}
-                content={t('constants.dollars_upper')}
+              <ThemeImage
+                styles={{ width: 18, height: 18 }}
+                lightModeIcon={ICONS.dollarIcon}
+                darkModeIcon={ICONS.dollarIcon}
+                lightsOutIcon={ICONS.dollarIcon}
               />
-            </TouchableOpacity>
-          )}
+            </View>
+            <ThemeText
+              styles={styles.paymentOptionText}
+              content={t('constants.dollars_upper')}
+            />
+          </TouchableOpacity>
+
           {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
             <TouchableOpacity
               style={[
@@ -210,7 +211,9 @@ const ContactRow = ({
                     theme && darkModeType ? backgroundColor : backgroundOffset,
                 },
               ]}
-              onPress={() => onSelectPaymentType(contact, 'gift')}
+              onPress={() =>
+                onSelectPaymentType(contact, 'gift', contact?.isLNURL)
+              }
             >
               <View
                 style={[
@@ -351,11 +354,7 @@ export default function HalfModalSendOptions({
     const contact = sortedContacts.find(c => c.uuid === expandedContact);
     if (!contact) return;
 
-    const expandedPanelHeight = contact?.isLNURL
-      ? 85
-      : !HIDE_IN_APP_PURCHASE_ITEMS
-      ? 230
-      : 160;
+    const expandedPanelHeight = !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160;
 
     // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
     const collapsedRowHeight = 61;
@@ -408,7 +407,7 @@ export default function HalfModalSendOptions({
   }, [expandedContact, sortedContacts]);
 
   const handleSelectPaymentType = useCallback(
-    (contact, paymentType) => {
+    (contact, paymentType, isLNURL) => {
       handleBackPressFunction(() => {
         if (paymentType === 'gift') {
           navigate.replace('SelectGiftCardForContacts', {
@@ -420,7 +419,7 @@ export default function HalfModalSendOptions({
             selectedContact: contact,
             paymentType: 'send',
             imageData: cache[contact.uuid],
-            endReceiveType: paymentType,
+            endReceiveType: isLNURL ? 'BTC' : paymentType,
             selectedPaymentMethod: paymentType,
           });
         }
