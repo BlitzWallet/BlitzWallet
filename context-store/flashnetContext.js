@@ -63,7 +63,7 @@ export function FlashnetProvider({ children }) {
   const { sparkInformation, sparkInfoRef, setSparkInformation } =
     useSparkWallet();
   const [poolInfo, setPoolInfo] = useState({});
-  const [swapLimits, setSwapLimits] = useState({ usd: 1, bitcoin: 1000 });
+  const [swapLimits, setSwapLimits] = useState({ usd: 1.03, bitcoin: 1030 });
   const swapLimitsRef = useRef(swapLimits);
   const poolInfoRef = useRef({});
   const poolIntervalRef = useRef(null);
@@ -853,8 +853,8 @@ export function FlashnetProvider({ children }) {
       ]);
       if (usdLimits.didWork && bitconLimits.didWork) {
         setSwapLimits({
-          usd: Number(usdLimits.assetData) / 1000000,
-          bitcoin: Number(bitconLimits.assetData),
+          usd: Math.round((Number(usdLimits.assetData) / 1000000) * 1.03),
+          bitcoin: Math.round(Number(bitconLimits.assetData) * 1.03),
         });
       }
     }
