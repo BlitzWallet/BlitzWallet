@@ -595,21 +595,13 @@ export default function SendAndRequestPage(props) {
         ]}
       >
         <CustomSettingsTopBar
-          label={t(
-            `contacts.sendAndRequestPage.${
-              paymentType === 'Gift' ? 'sendGift' : paymentType.toLowerCase()
-            }${
-              paymentType === 'send'
-                ? endReceiveType === 'USD'
-                  ? 'Dollars'
-                  : 'Bitcoin'
-                : paymentType === 'Gift'
-                ? ''
-                : selectedRequestMethod === 'USD'
-                ? 'Dollars'
-                : 'Bitcoin'
-            }`,
-          )}
+          label={
+            paymentType === 'Gift'
+              ? t('constants.gift')
+              : paymentType === 'send'
+              ? t('constants.send')
+              : t('constants.request')
+          }
           containerStyles={{ marginBottom: 0 }}
         />
 
