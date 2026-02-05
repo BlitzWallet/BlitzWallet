@@ -34,7 +34,7 @@ export default function SelectPaymentType({
   const [selectedOption, setSeelctedOption] = useState('BTC');
 
   useEffect(() => {
-    setContentHeight(!HIDE_IN_APP_PURCHASE_ITEMS ? 450 : 375);
+    setContentHeight(!HIDE_IN_APP_PURCHASE_ITEMS ? 500 : 425);
   }, []);
 
   const selectSendingBalance = () => {

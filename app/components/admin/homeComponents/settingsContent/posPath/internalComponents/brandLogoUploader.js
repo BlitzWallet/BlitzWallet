@@ -16,6 +16,7 @@ import FullLoadingScreen from '../../../../../../functions/CustomElements/loadin
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
+import { HIDDEN_OPACITY } from '../../../../../../constants/theme';
 
 export default function BrandLogoUploader({
   onLogoChange,
@@ -197,6 +198,7 @@ export default function BrandLogoUploader({
               styles={styles.logoUploadText}
               content={t('settings.posPath.settings.uploadLogo')}
             />
+            <ThemeText styles={styles.logoSizeText} content={'400 × 400 px'} />
           </TouchableOpacity>
         )}
       </View>
@@ -244,5 +246,10 @@ const styles = StyleSheet.create({
   logoUploadText: {
     marginTop: 8,
     fontSize: SIZES.small,
+  },
+  logoSizeText: {
+    marginTop: 8,
+    fontSize: SIZES.small,
+    opacity: HIDDEN_OPACITY,
   },
 });

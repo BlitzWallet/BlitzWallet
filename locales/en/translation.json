@@ -1111,7 +1111,7 @@
       "header": "What do you want to send?"
     },
     "selectCurrencyToRequest": {
-      "header": "Select the currency to request"
+      "header": "What do you want to request?"
     },
 
     "sendAndRequestPage": {
