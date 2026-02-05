@@ -9,9 +9,18 @@ import {
   View,
 } from 'react-native';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
-import { CENTER, STARTING_INDEX_FOR_GIFTS_DERIVE } from '../../../../constants';
+import {
+  CENTER,
+  ICONS,
+  STARTING_INDEX_FOR_GIFTS_DERIVE,
+} from '../../../../constants';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+  WINDOWWIDTH,
+} from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
@@ -24,6 +33,7 @@ import { useToast } from '../../../../../context-store/toastManager';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
 
 export default function GiftsOverview({ theme, darkModeType }) {
   const { showToast } = useToast();
@@ -45,7 +55,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
   );
 
   const { bottomPadding } = useGlobalInsets();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const handleRefresh = async () => {
     await checkForRefunds();
@@ -89,23 +99,101 @@ export default function GiftsOverview({ theme, darkModeType }) {
       } = item;
 
       const timeRemaining = formatTimeRemaining(expireTime);
-
       const isExpired = timeRemaining.time <= 0;
-      // Only show outstanding and claimed gifts here, put expired gifts on reclaim page to make it easier for user
-      // if (timeRemaining.time <= 0 && state === 'Expired') return null;
+
+      const getStatusText = () => {
+        switch (state) {
+          case 'Claimed':
+          case 'Reclaimed':
+          case 'Expired':
+            return t(
+              `screens.inAccount.giftPages.giftsOverview.${state.toLowerCase()}`,
+            );
+          default:
+            return timeRemaining.string;
+        }
+      };
+
+      const formattedNumber = `#${(giftNum - STARTING_INDEX_FOR_GIFTS_DERIVE)
+        .toString()
+        .padStart(3, '0')}`;
+
+      const shouldShowActions = state !== 'Claimed' && state !== 'Reclaimed';
+
       return (
-        <View
-          style={[
-            styles.giftContainer,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-              borderColor: backgroundOffset,
-            },
-          ]}
-        >
-          <View style={styles.leftContainer}>
-            <View style={styles.amountAndUUID}>
+        <View style={styles.giftCard}>
+          <View style={styles.cardContent}>
+            {/* Icon Container */}
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? backgroundOffset
+                      : denomination === 'USD'
+                      ? COLORS.dollarGreen
+                      : COLORS.bitcoinOrange,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={{ width: 24, height: 24 }}
+                lightModeIcon={
+                  denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
+                }
+                darkModeIcon={
+                  denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
+                }
+                lightsOutIcon={
+                  denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
+                }
+              />
+            </View>
+
+            {/* Middle Section - Description/Number and Status */}
+            <View style={styles.middleSection}>
               <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.descriptionText}
+                content={
+                  description || `${t('constants.gift')} ${formattedNumber}`
+                }
+              />
+              <View style={styles.statusRow}>
+                {description && (
+                  <>
+                    <ThemeText
+                      CustomNumberOfLines={1}
+                      styles={styles.statusText}
+                      content={formattedNumber}
+                    />
+                    {getStatusText() && (
+                      <View style={styles.combinedStatusContainer}>
+                        <ThemeText styles={styles.statusText} content="•" />
+                        <ThemeText
+                          CustomNumberOfLines={1}
+                          styles={styles.statusText}
+                          content={getStatusText()}
+                        />
+                      </View>
+                    )}
+                  </>
+                )}
+                {!description && getStatusText() && (
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.statusText}
+                    content={getStatusText()}
+                  />
+                )}
+              </View>
+            </View>
+
+            {/* Right Section - Amount and Actions */}
+            <View style={styles.rightSection}>
+              <ThemeText
+                styles={styles.amountText}
                 content={displayCorrectDenomination({
                   amount: denomination === 'USD' ? dollarAmount : amount,
                   masterInfoObject: {
@@ -118,62 +206,70 @@ export default function GiftsOverview({ theme, darkModeType }) {
                   forceCurrency: denomination === 'USD' ? 'USD' : false,
                 })}
               />
-            </View>
-            {state !== 'Claimed' && state !== 'Reclaimed' && (
-              <TouchableOpacity
-                onPress={async () => {
-                  if (isExpired) {
-                    await copyToClipboard(uuid, showToast);
-                  } else {
-                    await handleGiftCardShare({
-                      amount: displayCorrectDenomination({
-                        amount: denomination === 'USD' ? dollarAmount : amount,
-                        masterInfoObject: {
-                          ...masterInfoObject,
-                          userBalanceDenomination:
-                            denomination === 'USD' ? 'fiat' : 'sats',
-                          thousandsSeperator: 'space',
-                        },
-                        fiatStats,
-                        convertAmount: denomination !== 'USD',
-                        forceCurrency: denomination === 'USD' ? 'USD' : false,
-                      }),
-                      giftLink: claimURL,
-                    });
-                  }
-                }}
-              >
-                <ThemeIcon size={25} iconName={isExpired ? 'Copy' : 'Share'} />
-              </TouchableOpacity>
-            )}
-          </View>
 
-          <ThemeText styles={styles.description} content={description || ''} />
-
-          <View style={styles.numAndState}>
-            <ThemeText
-              styles={styles.num}
-              content={`#${(giftNum - STARTING_INDEX_FOR_GIFTS_DERIVE)
-                .toString()
-                .padStart(3, '0')}`}
-            />
-            <View>
-              <ThemeText
-                styles={styles.state}
-                content={
-                  isExpired
-                    ? t(
-                        `screens.inAccount.giftPages.giftsOverview.${state.toLowerCase()}`,
-                      )
-                    : timeRemaining.string
-                }
-              />
+              {shouldShowActions && (
+                <View style={styles.actionsContainer}>
+                  <TouchableOpacity
+                    onPress={async () => {
+                      if (isExpired) {
+                        await copyToClipboard(uuid, showToast);
+                      } else {
+                        await handleGiftCardShare({
+                          amount: displayCorrectDenomination({
+                            amount:
+                              denomination === 'USD' ? dollarAmount : amount,
+                            masterInfoObject: {
+                              ...masterInfoObject,
+                              userBalanceDenomination:
+                                denomination === 'USD' ? 'fiat' : 'sats',
+                              thousandsSeperator: 'space',
+                            },
+                            fiatStats,
+                            convertAmount: denomination !== 'USD',
+                            forceCurrency:
+                              denomination === 'USD' ? 'USD' : false,
+                          }),
+                          giftLink: claimURL,
+                        });
+                      }
+                    }}
+                    style={[
+                      styles.actionButton,
+                      {
+                        backgroundColor: backgroundOffset,
+                      },
+                    ]}
+                  >
+                    <ThemeIcon
+                      size={16}
+                      iconName={isExpired ? 'Copy' : 'Share'}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </View>
+
+          {/* Divider */}
+          <View
+            style={[
+              styles.divider,
+              {
+                backgroundColor: backgroundOffset,
+              },
+            ]}
+          />
         </View>
       );
     },
-    [theme, masterInfoObject, fiatStats, refreshGiftsList, darkModeType],
+    [
+      theme,
+      masterInfoObject,
+      fiatStats,
+      refreshGiftsList,
+      darkModeType,
+      backgroundColor,
+    ],
   );
   return (
     <View style={styles.container}>
@@ -237,28 +333,71 @@ export default function GiftsOverview({ theme, darkModeType }) {
 }
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  giftContainer: {
-    width: INSET_WINDOW_WIDTH,
+  giftCard: {
+    width: WINDOWWIDTH,
     ...CENTER,
-    marginVertical: 10,
-    padding: 20,
-    borderRadius: 8,
-    borderWidth: 1,
   },
-  leftContainer: { flexDirection: 'row', width: '100%' },
-  amountAndUUID: { width: '100%', flexShrink: 1, marginBottom: 10 },
-  uuid: { opacity: 0.7, fontSize: SIZES.small },
-  description: { marginBottom: 30 },
-  numAndState: {
+  cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
   },
-  num: { opacity: 0.7, fontSize: SIZES.small },
-  state: {
-    opacity: 0.7,
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  middleSection: {
+    width: '100%',
+    flexShrink: 1,
+  },
+  descriptionText: {
+    fontSize: SIZES.medium,
+    marginBottom: 2,
+    includeFontPadding: false,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  statusText: {
+    includeFontPadding: false,
     fontSize: SIZES.small,
-    textTransform: 'capitalize',
+    opacity: 0.6,
+  },
+  combinedStatusContainer: {
+    flexShrink: 1,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 5,
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  amountText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+    textAlign: 'right',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  actionButton: {
+    padding: 8,
+    borderRadius: 8,
+  },
+  divider: {
+    height: 1,
+    marginHorizontal: 16,
   },
   flatlistStyle: { paddingTop: 0 },
   flatListContent: { flexGrow: 1, paddingTop: 20 },
