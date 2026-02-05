@@ -258,6 +258,7 @@ export default function ReceivePaymentHome(props) {
             selectedRecieveOption={selectedRecieveOption}
             initialSendAmount={initialSendAmount || userReceiveAmount}
             isUsingAltAccount={isUsingAltAccount}
+            endReceiveType={endReceiveType}
           />
 
           <View style={{ marginBottom: 'auto' }}></View>

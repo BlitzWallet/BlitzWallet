@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 
-export default function ButtonsContainer() {
+export default function ButtonsContainer({ endReceiveType }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -16,6 +16,7 @@ export default function ButtonsContainer() {
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'switchReceiveOption',
             sliderHight: 0.8,
+            endReceiveType,
           });
         }}
       >

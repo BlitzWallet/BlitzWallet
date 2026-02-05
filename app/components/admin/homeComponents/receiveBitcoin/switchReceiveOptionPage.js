@@ -37,6 +37,20 @@ const MAIN_PAYMENTS = [
   ['Rootstock', '~ 1 minute'],
 ];
 
+const BITCOIN_PAYMENTS = [
+  ['Lightning', 'Instant'],
+  ['Bitcoin', '~ 10 minutes'],
+  // ['USD', '~ Instant'],
+  ['Spark', 'Instant'],
+  ['Liquid', '~ 1 minute'],
+  ['Rootstock', '~ 1 minute'],
+];
+
+const DOLLAR_PAYMENTS = [
+  ['Lightning', 'Instant'],
+  ['Spark', 'Instant'],
+];
+
 export default function SwitchReceiveOptionPage({
   slideOut,
   theme,
@@ -44,6 +58,7 @@ export default function SwitchReceiveOptionPage({
   didWarnSpark,
   didWarnLiquid,
   didWarnRootstock,
+  endReceiveType,
 }) {
   const { showTokensInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
@@ -57,7 +72,7 @@ export default function SwitchReceiveOptionPage({
   const { t } = useTranslation();
   const [contentHeight, setContentHeight] = useState(0);
   const isLRC20Enabled = showTokensInformation;
-
+  console.log(endReceiveType);
   // Reanimated shared values
   const rotateAnim = useSharedValue(0);
   const heightAnim = useSharedValue(0);
@@ -120,7 +135,10 @@ export default function SwitchReceiveOptionPage({
     };
   });
 
-  const paymentTypes = MAIN_PAYMENTS.map((item, index) => {
+  const selectedPaymentType =
+    endReceiveType === 'USD' ? DOLLAR_PAYMENTS : BITCOIN_PAYMENTS;
+
+  const paymentTypes = selectedPaymentType.map((item, index) => {
     const [name] = item;
     return (
       <TouchableOpacity
@@ -220,47 +238,56 @@ export default function SwitchReceiveOptionPage({
         content={t('wallet.receivePages.switchReceiveOptionPage.title')}
       />
 
-      {paymentTypes.slice(0, isLRC20Enabled ? 3 : 2)}
+      {endReceiveType === 'USD' ? (
+        paymentTypes
+      ) : (
+        <>
+          {paymentTypes.slice(0, isLRC20Enabled ? 3 : 2)}
 
-      <TouchableOpacity
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 20,
-          marginBottom: 20,
-        }}
-        onPress={toggleExpanded}
-      >
-        <ThemeText
-          styles={{ includeFontPadding: false }}
-          content={t('wallet.receivePages.switchReceiveOptionPage.actionBTN', {
-            action: isExpanded
-              ? t('constants.lessLower')
-              : t('constants.moreLower'),
-          })}
-        />
-        <Animated.View style={[arrowStyle, { marginLeft: 5 }]}>
-          <ThemeIcon size={15} iconName={'ArrowDown'} />
-        </Animated.View>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingVertical: 20,
+              marginBottom: 20,
+            }}
+            onPress={toggleExpanded}
+          >
+            <ThemeText
+              styles={{ includeFontPadding: false }}
+              content={t(
+                'wallet.receivePages.switchReceiveOptionPage.actionBTN',
+                {
+                  action: isExpanded
+                    ? t('constants.lessLower')
+                    : t('constants.moreLower'),
+                },
+              )}
+            />
+            <Animated.View style={[arrowStyle, { marginLeft: 5 }]}>
+              <ThemeIcon size={15} iconName={'ArrowDown'} />
+            </Animated.View>
+          </TouchableOpacity>
 
-      <Animated.View style={[{ width: '100%' }, animatedContainerStyle]}>
-        <View
-          onLayout={e => {
-            const height = e.nativeEvent.layout.height;
-            if (height > 0 && contentHeight === 0) {
-              setContentHeight(height);
-            }
-          }}
-          style={{
-            width: '100%',
-            position: 'absolute',
-            top: 0,
-          }}
-        >
-          {paymentTypes.slice(isLRC20Enabled ? 3 : 2)}
-        </View>
-      </Animated.View>
+          <Animated.View style={[{ width: '100%' }, animatedContainerStyle]}>
+            <View
+              onLayout={e => {
+                const height = e.nativeEvent.layout.height;
+                if (height > 0 && contentHeight === 0) {
+                  setContentHeight(height);
+                }
+              }}
+              style={{
+                width: '100%',
+                position: 'absolute',
+                top: 0,
+              }}
+            >
+              {paymentTypes.slice(isLRC20Enabled ? 3 : 2)}
+            </View>
+          </Animated.View>
+        </>
+      )}
     </ScrollView>
   );
 

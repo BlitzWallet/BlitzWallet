@@ -274,6 +274,7 @@ export default function CustomHalfModal(props) {
             didWarnSpark={props?.route?.params?.didWarnSpark}
             didWarnLiquid={props?.route?.params?.didWarnLiquid}
             didWarnRootstock={props?.route?.params?.didWarnRootstock}
+            endReceiveType={props?.route?.params?.endReceiveType}
             handleBackPressFunction={handleBackPressFunction}
           />
         );
