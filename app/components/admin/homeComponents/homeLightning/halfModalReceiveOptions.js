@@ -464,11 +464,19 @@ export default function HalfModalReceiveOptions({
 
   const handleReceiveOption = useCallback(
     async type => {
-      navigate.replace('ReceiveBTC', {
-        from: 'homepage',
-        initialReceiveType: type === 'lightning' ? 'BTC' : 'USD',
-        selectedRecieveOption: 'lightning',
-      });
+      if (type === 'lightning') {
+        navigate.replace('ReceiveBTC', {
+          from: 'homepage',
+          initialReceiveType: 'BTC',
+          selectedRecieveOption: 'lightning',
+        });
+      } else {
+        navigate.replace('EditReceivePaymentInformation', {
+          from: 'receivePage',
+          endReceiveType: 'USD',
+          receiveType: 'lightning',
+        });
+      }
     },
     [navigate, scrollPosition, handleBackPressFunction],
   );

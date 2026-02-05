@@ -89,7 +89,7 @@ export async function initializeAddressProcess(wolletInfo) {
       const realAmount =
         wolletInfo.endReceiveType === 'BTC'
           ? userAmount
-          : userAmount === 1000 && !wolletInfo.receivingAmount
+          : userAmount === 1030 && !wolletInfo.receivingAmount
           ? dollarsToSats(1, wolletInfo.poolInfoRef?.currentPriceAInB)
           : userAmount;
 

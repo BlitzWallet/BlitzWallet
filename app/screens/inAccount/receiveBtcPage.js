@@ -550,7 +550,7 @@ function QrCode(props) {
       : `${selectedRecieveOption.toLowerCase()}Address`;
 
   const minBTCUSDSwapAmountSat = dollarsToSats(
-    1,
+    swapLimits.usd,
     poolInfoRef?.currentPriceAInB,
   );
 

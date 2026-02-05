@@ -853,7 +853,9 @@ export function FlashnetProvider({ children }) {
       ]);
       if (usdLimits.didWork && bitconLimits.didWork) {
         setSwapLimits({
-          usd: Math.round((Number(usdLimits.assetData) / 1000000) * 1.03),
+          usd: parseFloat(
+            ((Number(usdLimits.assetData) / 1000000) * 1.03).toFixed(2),
+          ),
           bitcoin: Math.round(Number(bitconLimits.assetData) * 1.03),
         });
       }

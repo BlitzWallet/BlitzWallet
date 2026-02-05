@@ -76,7 +76,7 @@ export default function EditReceivePaymentInformation(props) {
   const cannotRequset =
     receiveType.toLowerCase() === 'lightning' &&
     endReceiveType === 'USD' &&
-    localSatAmount < 1000;
+    localSatAmount < swapLimits.bitcoin;
 
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);
@@ -97,6 +97,7 @@ export default function EditReceivePaymentInformation(props) {
 
     if (!localSatAmount) {
       navigate.goBack();
+      return;
     }
 
     if (localSatAmount && cannotRequset) {
@@ -126,6 +127,7 @@ export default function EditReceivePaymentInformation(props) {
         'ReceiveBTC',
         {
           receiveAmount: sendAmount,
+          endReceiveType: endReceiveType,
           uuid: customUUID(),
         },
         { merge: true },
