@@ -1179,7 +1179,7 @@
         "cardsLenghPlurl": "{{num}} cartões"
       },
       "editGiftCard": {
-        "header": "O que você gostaria de fazer com seu cartão-presente?"
+        "header": "Escolha outro cartão-presente ou cancele o envio"
       }
     },
     "showProfileQr": {
