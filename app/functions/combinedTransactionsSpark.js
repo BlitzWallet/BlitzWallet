@@ -273,6 +273,12 @@ export default function getFormattedHomepageTxsForSpark(props) {
       )
         continue;
       if (
+        scrollPosition === 'total' &&
+        paymentDetails.showSwapLabel &&
+        paymentDetails.direction === 'OUTGOING'
+      )
+        continue;
+      if (
         (scrollPosition === 'sats' && isLRC20Payment) ||
         (scrollPosition === 'sats' && showSwapConversion)
       )

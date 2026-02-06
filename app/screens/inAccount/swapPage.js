@@ -834,10 +834,13 @@ export default function SwapsPage() {
           }
         }
 
-        setFlashnetTransfer(outgoingTransfer.id);
+        // setFlashnetTransfer(outgoingTransfer.id);
 
         if (incomingTransfer) {
-          bulkUpdateSparkTransactions([incomingTransfer], 'fullUpdate');
+          bulkUpdateSparkTransactions(
+            [incomingTransfer, outgoingTransfer],
+            'fullUpdate',
+          );
         }
       } else {
         const errorInfo = handleFlashnetError({
