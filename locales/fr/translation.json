@@ -1517,7 +1517,7 @@
         "title": "Instructions",
         "head1": "Comment accepter",
         "head2": "Paiements en bitcoins",
-        "step1": "1. Scannez le code QR avec votre appareil photo",
+        "step1": "Scannez le code QR avec votre appareil photo",
         "step2": "2. C'est tout."
       },
       "totalTipsScreen": {

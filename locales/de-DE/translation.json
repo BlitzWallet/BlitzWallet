@@ -1500,7 +1500,7 @@
         "title": "Anweisungen",
         "head1": "Wie akzeptieren wir",
         "head2": "BTC-Lightning-Zahlungen",
-        "step1": "1. QR-Code mit Ihrer Kamera scannen",
+        "step1": "QR-Code mit Ihrer Kamera scannen",
         "step2": "2. Betrag bestätigen & zahlen",
         "step3": "Fertig! ⚡️"
       },

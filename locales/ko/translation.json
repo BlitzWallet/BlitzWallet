@@ -1492,7 +1492,7 @@
         "title": "Instructions",
         "head1": "How to accept",
         "head2": "Bitcoin payments",
-        "step1": "1. Scan QR code with your camera",
+        "step1": "Scan QR code with your camera",
         "step2": "2. That's it."
       },
       "totalTipsScreen": {

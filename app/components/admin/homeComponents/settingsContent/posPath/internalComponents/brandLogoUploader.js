@@ -242,14 +242,17 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: COLORS.gray,
     borderRadius: 8,
+    paddingHorizontal: 10,
   },
   logoUploadText: {
     marginTop: 8,
     fontSize: SIZES.small,
+    textAlign: 'center',
   },
   logoSizeText: {
     marginTop: 8,
     fontSize: SIZES.small,
     opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
   },
 });

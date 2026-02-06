@@ -1541,7 +1541,7 @@
         "title": "Istruzioni",
         "head1": "Come accettare",
         "head2": "pagamenti Bitcoin",
-        "step1": "1. Scansiona il QR Code con la tua fotocamera",
+        "step1": "Scansiona il QR Code con la tua fotocamera",
         "step2": "2. È tutto."
       },
       "totalTipsScreen": {

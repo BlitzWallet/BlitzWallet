@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
     maxWidth: 275,
     ...CENTER,
     marginTop: 15,
+    color: COLORS.lightModeText,
   },
   lineItem: {
     marginVertical: 5,
