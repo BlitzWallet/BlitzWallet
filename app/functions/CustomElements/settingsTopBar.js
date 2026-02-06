@@ -20,6 +20,7 @@ export default function CustomSettingsTopBar({
   customBackFunction,
   customBackColor,
   iconNew = '',
+  iconNewColor = undefined,
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
@@ -61,7 +62,11 @@ export default function CustomSettingsTopBar({
           onPress={leftImageFunction}
         >
           {iconNew ? (
-            <ThemeIcon size={leftImageStyles?.height} iconName={iconNew} />
+            <ThemeIcon
+              colorOverride={iconNewColor}
+              size={leftImageStyles?.height}
+              iconName={iconNew}
+            />
           ) : (
             <ThemeImage
               styles={{ ...leftImageStyles }}

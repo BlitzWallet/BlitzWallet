@@ -22,6 +22,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import {
   isFileSharingAvailable,
   shareFile,
+  shareMessage,
 } from '../../../../../functions/handleShare';
 
 const normalizeFileUri = path => {
@@ -98,6 +99,12 @@ export default function POSInstructionsPath() {
       <CustomSettingsTopBar
         label={t('settings.posPath.posInstructionsPath.title')}
         customBackColor={COLORS.lightModeText}
+        leftImageFunction={() => {
+          shareMessage({ url: posURL });
+        }}
+        iconNewColor={COLORS.lightModeText}
+        showLeftImage={true}
+        iconNew="Share"
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <ViewShot
@@ -143,14 +150,14 @@ export default function POSInstructionsPath() {
               />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => {
               copyToClipboard(posURL, showToast);
             }}
           >
             <ThemeText styles={styles.posURLText} content={posURL} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </ViewShot>
       </ScrollView>
       <CustomButton
@@ -198,7 +205,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     maxWidth: 275,
     ...CENTER,
-    marginTop: 15,
+    marginTop: 45,
     color: COLORS.lightModeText,
   },
   lineItem: {
