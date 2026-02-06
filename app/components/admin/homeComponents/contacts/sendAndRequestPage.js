@@ -672,9 +672,7 @@ export default function SendAndRequestPage(props) {
               <View style={styles.giftAmountContainer}>
                 <TouchableOpacity
                   onPress={() =>
-                    navigate.navigate('CustomHalfModal', {
-                      wantedContent: 'giftCardSendAndReceiveOption',
-                      uuid: selectedContact.uuid,
+                    navigate.navigate('SelectGiftCardForContacts', {
                       selectedContact,
                       imageData,
                     })
