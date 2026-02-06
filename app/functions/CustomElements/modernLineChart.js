@@ -21,13 +21,43 @@ export default function ModernLineChart({
   xLabels,
   strokeColor,
   textColor,
-  leftPadding = 30,
+  leftPadding,
   showGradient = true,
   showGrid = true,
   showDots = true,
   strokeWidth = 2.5,
 }) {
-  const padding = { top: 20, bottom: 30, left: leftPadding, right: 15 };
+  // Format large numbers
+  const formatNumber = num => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
+    return num.toString();
+  };
+
+  // Calculate Y ticks first
+  const tickCount = 5;
+  const tickStep = (max - min) / (tickCount - 1);
+  const yTicks = Array.from(
+    { length: tickCount },
+    (_, i) => min + tickStep * i,
+  );
+
+  // Calculate dynamic left padding based on longest label
+  // Rough estimate: ~7 pixels per character for fontSize 12
+  const longestLabel = yTicks.reduce((longest, tick) => {
+    const formatted = formatNumber(tick);
+    return formatted.length > longest.length ? formatted : longest;
+  }, '');
+
+  const dynamicLeftPadding = Math.max(
+    longestLabel.length * 7 + 8, // 7px per char + 8px margin
+    30, // minimum padding
+  );
+
+  const padding = { top: 20, bottom: 30, left: dynamicLeftPadding, right: 15 };
 
   // Calculate range and add buffer to prevent curve from going below baseline
   const range = max - min;
@@ -64,25 +94,6 @@ export default function ModernLineChart({
     .curve(d3.curveCatmullRom.alpha(1));
 
   const areaPath = areaGenerator(data) || '';
-
-  // Calculate Y ticks based on original min/max (not adjusted)
-  // Create manual ticks to ensure consistent display
-  const tickCount = 5;
-  const tickStep = (max - min) / (tickCount - 1);
-  const yTicks = Array.from(
-    { length: tickCount },
-    (_, i) => min + tickStep * i,
-  );
-
-  // Format large numbers
-  const formatNumber = num => {
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
-    }
-    return num.toString();
-  };
 
   return (
     <Svg width={width} height={height}>
