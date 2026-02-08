@@ -33,6 +33,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
+import getClipboardText from '../../../../functions/getClipboardText';
 
 const ContactRow = ({
   contact,
@@ -287,7 +288,12 @@ export default function HalfModalSendOptions({
   }, [navigate, inputText, handleBackPressFunction]);
 
   const handleClipboardPaste = useCallback(async () => {
-    navigateToSendUsingClipboard(navigate, 'modal', undefined, t);
+    const response = await getClipboardText();
+    if (!response.didWork) {
+      navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
+      return;
+    }
+    setInputText(response.data);
   }, [navigate, t]);
 
   const handleCameraScan = useCallback(async () => {
