@@ -1112,7 +1112,7 @@ const SparkWalletProvider = ({ children }) => {
               // No pending txs listed
               const txs = sparkInfoRef.current.transactions;
               // if we find a pending tx that means the db and spark state are unaligned
-              const isStateUnalighed = txs.find(
+              const isStateUnalighed = txs?.find(
                 tx => tx.paymentStatus === 'pending',
               );
               if (isStateUnalighed) {
