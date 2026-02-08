@@ -76,6 +76,13 @@ export default function CustomHalfModal(props) {
   const didHandleBackpress = useRef(false);
 
   const translateY = useSharedValue(screenDimensions.height);
+  const animatedHeight = useSharedValue(screenDimensions.height * slideHeight);
+
+  useEffect(() => {
+    if (contentHeight) {
+      animatedHeight.value = withTiming(contentHeight, { duration: 200 });
+    }
+  }, [contentHeight]);
 
   const handleBackPressFunction = useCallback(
     customBackFunction => {
@@ -134,6 +141,7 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
             scrollPosition={props.route.params?.scrollPosition}
             handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
           />
         );
       case 'confirmSMS':
@@ -452,6 +460,7 @@ export default function CustomHalfModal(props) {
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
+    height: animatedHeight.value,
   }));
 
   return (
@@ -469,9 +478,6 @@ export default function CustomHalfModal(props) {
           styles.contentContainer,
           animatedStyle,
           {
-            height: contentHeight
-              ? contentHeight
-              : screenDimensions.height * slideHeight,
             backgroundColor: 'black',
             marginTop: topPadding,
           },
