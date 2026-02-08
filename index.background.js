@@ -57,8 +57,8 @@ async function formatPushNotification(data) {
     });
   } else {
     const [bitcoinPrice, userBalanceDenomination] = await Promise.all([
-      getLocalStorageItem('userBalanceDenomination').then(
-        data => JSON.parse(data) || 'sats',
+      getLocalStorageItem('cachedBitcoinPrice').then(
+        data => JSON.parse(data) || { coin: 'USD', value: 100_000 },
       ),
       getLocalStorageItem('userBalanceDenomination').then(
         data => JSON.parse(data) || 'sats',
@@ -72,6 +72,7 @@ async function formatPushNotification(data) {
             userBalanceDenomination: userBalanceDenomination,
             satDisplay: satDisplay,
             thousandsSeperator,
+            fiatCurrency: bitcoinPrice.coin?.toUpperCase(),
           },
           fiatStats: bitcoinPrice,
         })
