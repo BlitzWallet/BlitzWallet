@@ -28,6 +28,7 @@ export default function CustomNumberKeyboard({
         setInputValue(prev => {
           let previousNumber = typeof prev !== 'string' ? String(prev) : prev;
           let newNumber = '';
+
           if (previousNumber?.includes('.') && id === '.') {
             newNumber = previousNumber;
           } else if (
@@ -38,6 +39,14 @@ export default function CustomNumberKeyboard({
           } else {
             newNumber = String(previousNumber) + id;
           }
+
+          // Add leading 0 if the number starts with a decimal point
+          if (newNumber.startsWith('.')) {
+            newNumber = '0' + newNumber;
+          }
+
+          // Remove leading zeros before digits (but keep single 0 before decimal)
+          newNumber = newNumber.replace(/^(-?)0+(?=\d)/, '$1');
 
           if (usingForBalance) {
             const convertedValue =

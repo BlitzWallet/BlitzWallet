@@ -13,17 +13,10 @@ export default function NumberInputSendPage({
   const decimals = seletctedToken?.tokenMetadata?.decimals;
 
   useEffect(() => {
-    let value = String(amount).trim();
-
-    if (value.startsWith('.')) {
-      value = '0' + value;
-    }
-    value = value.replace(/^(-?)0+(?=\d)/, '$1'); //only have at max 1 leading 0. If a number comes then remove the 0 and replace with number
-
     setPaymentInfo(prev => {
       return {
         ...prev,
-        sendAmount: value,
+        sendAmount: amount,
         feeQuote: undefined,
         paymentFee: 0,
         supportFee: 0,
@@ -55,10 +48,19 @@ export default function NumberInputSendPage({
         } else {
           newNumber = String(amount) + input;
         }
+
+        // Add leading 0 if starting with decimal point
+        if (newNumber.startsWith('.')) {
+          newNumber = '0' + newNumber;
+        }
+
+        // Remove leading zeros before digits
+        newNumber = newNumber.replace(/^(-?)0+(?=\d)/, '$1');
+
         setAmount(newNumber);
       }
     },
-    [amount],
+    [amount, decimals],
   );
 
   return (
