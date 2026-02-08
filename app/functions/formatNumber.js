@@ -17,6 +17,10 @@ export default function formatBalanceAmount(
     const inputStr = String(formattingAmount);
     const hasTrailingDecimal = inputStr.trim().endsWith('.');
 
+    // Extract the decimal portion to count digits
+    const decimalMatch = inputStr.trim().match(/\.(\d+)$/);
+    const decimalDigits = decimalMatch ? decimalMatch[1].length : 0;
+
     const numericValue = parseFloat(inputStr.replace(/[^\d.-]/g, ''));
 
     if (isNaN(numericValue)) return '0';
@@ -62,14 +66,25 @@ export default function formatBalanceAmount(
     }
 
     // LOCAL FORMAT
-    const formatted = new Intl.NumberFormat(i18next.language || 'en', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(inputStr);
+    // Get the locale's decimal separator
+    const localeDecimalSeparator = new Intl.NumberFormat(
+      i18next.language || 'en',
+    )
+      .format(1.1)
+      .charAt(1); // Gets the separator from "1.1" or "1,1"
 
-    // If user is typing a decimal point, append it
-    if (hasTrailingDecimal && !formatted.includes('.')) {
-      return formatted + '.';
+    // Set minimumFractionDigits based on actual decimal digits typed
+    // This preserves trailing zeros (e.g., .00 shows both zeros)
+    const minFractionDigits = Math.min(decimalDigits, 2);
+
+    const formatted = new Intl.NumberFormat(i18next.language || 'en', {
+      minimumFractionDigits: minFractionDigits,
+      maximumFractionDigits: 2,
+    }).format(numericValue);
+
+    // If user is typing a decimal point, append the locale-appropriate separator
+    if (hasTrailingDecimal && !formatted.includes(localeDecimalSeparator)) {
+      return formatted + localeDecimalSeparator;
     }
 
     return formatted;
