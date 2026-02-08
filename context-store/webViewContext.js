@@ -151,6 +151,36 @@ const WASM_ERRORS = [
 let handshakeComplete = false;
 let forceReactNativeUse = null;
 let globalSendWebViewRequest = null;
+let webviewFailureCount = 0;
+const MAX_WEBVIEW_FAILURES = 2;
+
+const WV_STATES = {
+  UNLOADED: 'unloaded',
+  VERIFYING: 'verifying',
+  LOADING: 'loading',
+  LOADED: 'loaded',
+  HANDSHAKING: 'handshaking',
+  READY: 'ready',
+  ERROR: 'error',
+};
+
+const VALID_TRANSITIONS = {
+  [WV_STATES.UNLOADED]: [WV_STATES.VERIFYING],
+  [WV_STATES.VERIFYING]: [WV_STATES.LOADING, WV_STATES.ERROR],
+  [WV_STATES.LOADING]: [WV_STATES.LOADED, WV_STATES.ERROR, WV_STATES.UNLOADED],
+  [WV_STATES.LOADED]: [
+    WV_STATES.HANDSHAKING,
+    WV_STATES.ERROR,
+    WV_STATES.UNLOADED,
+  ],
+  [WV_STATES.HANDSHAKING]: [
+    WV_STATES.READY,
+    WV_STATES.ERROR,
+    WV_STATES.UNLOADED,
+  ],
+  [WV_STATES.READY]: [WV_STATES.ERROR, WV_STATES.UNLOADED],
+  [WV_STATES.ERROR]: [WV_STATES.UNLOADED],
+};
 
 const WebViewContext = createContext(null);
 
@@ -174,8 +204,16 @@ const setHandshakeComplete = value => {
   handshakeComplete = value;
 };
 
-export const setForceReactNative = value => {
+export const setForceReactNative = (value, reason = 'unknown') => {
+  if (value === true) {
+    console.warn(`forceReactNativeUse set to true. Reason: ${reason}`);
+  }
   forceReactNativeUse = value;
+};
+
+const forceNativeMode = reason => {
+  console.warn(`Forcing React Native mode: ${reason}`);
+  forceReactNativeUse = true;
 };
 
 export const sendWebViewRequestGlobal = async (
@@ -233,6 +271,28 @@ export const WebViewProvider = ({ children }) => {
   const webViewLoadState = useRef('unloaded');
   const onLoadEndCalledRef = useRef(false);
   const lastLoadEndTimeRef = useRef(0);
+  const wvState = useRef(WV_STATES.UNLOADED);
+
+  const transitionWvState = useCallback((newState, reason = '') => {
+    const current = wvState.current;
+    const valid = VALID_TRANSITIONS[current];
+    if (!valid || !valid.includes(newState)) {
+      console.warn(
+        `Invalid WebView state transition: ${current} → ${newState} (reason: ${reason})`,
+      );
+      return false;
+    }
+    console.log(`WebView state: ${current} → ${newState} (${reason})`);
+    wvState.current = newState;
+
+    // Derive isWebViewReady from state machine
+    const ready =
+      newState === WV_STATES.LOADED ||
+      newState === WV_STATES.HANDSHAKING ||
+      newState === WV_STATES.READY;
+    setIsWebViewReady(ready);
+    return true;
+  }, []);
 
   const fileHash = !!verifiedPath ? process.env.WEBVIEW_BUNDLE_HASH : '';
 
@@ -278,12 +338,15 @@ export const WebViewProvider = ({ children }) => {
     maxPerSecond: 20,
   });
 
-  const blockAndResetWebview = shouldClearPending => {
-    didRunInit.current = true; // Block handshakes during reload
+  const blockAndResetWebview = useCallback(
+    shouldClearPending => {
+      didRunInit.current = true; // Block handshakes during reload
 
-    resetWebViewState(false, false, shouldClearPending);
-    reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
-  };
+      resetWebViewState(false, false, shouldClearPending);
+      reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
+    },
+    [resetWebViewState, reloadWebViewSecurely],
+  );
 
   const getNextSequence = useCallback(() => {
     const current = expectedSequenceRef.current;
@@ -309,12 +372,14 @@ export const WebViewProvider = ({ children }) => {
       sparkConnectionState,
       shouldClearPending = true,
     ) => {
-      if (forceReactNativeUse) return;
       console.log('Resetting WebView state', {
         clearHandshake,
         sparkConnectionState,
         shouldClearPending,
       });
+      // Transition to UNLOADED — this also sets isWebViewReady(false) via derived state.
+      // Allow transition from any state during reset.
+      wvState.current = WV_STATES.UNLOADED;
       isResetting.current = true;
       setIsWebViewReady(false);
       // setVerifiedPath('');
@@ -399,6 +464,8 @@ export const WebViewProvider = ({ children }) => {
       console.log('Re-verifying WebView before reload...');
       if (forceReactNativeUse) return;
 
+      transitionWvState(WV_STATES.VERIFYING, 'reload verification');
+
       // Re-verify the file
       const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
         Platform.OS === 'ios'
@@ -416,7 +483,7 @@ export const WebViewProvider = ({ children }) => {
       console.error('WebView re-verification failed:', err);
 
       // On verification failure, force React Native mode
-      forceReactNativeUse = true;
+      forceNativeMode('bundle verification failed');
       setHandshakeComplete(false);
       const currentRoutes = navigationRef
         .getRootState()
@@ -445,8 +512,9 @@ export const WebViewProvider = ({ children }) => {
     }
 
     if (appState === 'background') {
-      console.log('App going to background - clearing all timeouts');
-      // Clear everything to prevent timeout issues on background
+      console.log(
+        'App going to background - clearing all timeouts and pending requests',
+      );
       Object.values(activeTimeoutsRef.current).forEach(t =>
         clearTimeout(t.timeoutId),
       );
@@ -568,7 +636,7 @@ export const WebViewProvider = ({ children }) => {
           );
 
           resetWebViewState(true, true);
-          forceReactNativeUse = true;
+          forceNativeMode('rate limit exceeded');
           return;
         }
 
@@ -615,7 +683,9 @@ export const WebViewProvider = ({ children }) => {
             return;
           }
           nonceVerified.current = true;
+          webviewFailureCount = 0;
           console.log('Handshake complete. Got backend public key.');
+          transitionWvState(WV_STATES.READY, 'handshake complete');
           setHandshakeComplete(true);
           // resolve requset to avoid timeout
           resolve({ didComplete: true });
@@ -644,7 +714,7 @@ export const WebViewProvider = ({ children }) => {
           console.error('CSP VIOLATION DETECTED:', content);
 
           resetWebViewState(true, true);
-          forceReactNativeUse = true;
+          forceNativeMode('CSP violation');
           return;
         }
 
@@ -674,10 +744,11 @@ export const WebViewProvider = ({ children }) => {
               );
 
               resetWebViewState(true, true);
-              forceReactNativeUse = true;
+              forceNativeMode('WASM error');
 
               setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
             }
+            webviewFailureCount = 0; // Reset on successful response
             resolve(result);
 
             delete pendingRequests.current[content.id];
@@ -690,16 +761,27 @@ export const WebViewProvider = ({ children }) => {
           err.message === 'Rejected stale message'
         )
           return;
+        webviewFailureCount++;
+        if (webviewFailureCount >= MAX_WEBVIEW_FAILURES) {
+          forceNativeMode('repeated WebView errors');
+        }
         resetWebViewState(true, true);
-        forceReactNativeUse = true;
       }
     },
     [decryptMessage, resetWebViewState],
   );
 
   const sendWebViewRequestInternal = useCallback(
-    async (action, args = {}, encrypt = true) => {
-      return new Promise(async (resolve, reject) => {
+    (action, args = {}, encrypt = true) => {
+      let resolveFn, rejectFn;
+      const promise = new Promise((resolve, reject) => {
+        resolveFn = resolve;
+        rejectFn = reject;
+      });
+
+      const execute = async () => {
+        const resolve = resolveFn;
+        const reject = rejectFn;
         let timeoutId = null;
         try {
           // If forceReactNativeUse is set, reject immediately
@@ -799,7 +881,7 @@ export const WebViewProvider = ({ children }) => {
           }
 
           const getTimeoutDuration = action => {
-            if (action === 'handshake:init') return 2000;
+            if (action === 'handshake:init') return 4000;
 
             if (
               longOperations.some(op =>
@@ -824,9 +906,9 @@ export const WebViewProvider = ({ children }) => {
           const startedAt = Date.now();
 
           const handleTimeout = () => {
-            if (appState !== 'active') {
+            if (AppState.currentState !== 'active') {
               console.log(
-                `Skipping timeout for ${action} because app is not active (${appState})`,
+                `Skipping timeout for ${action} because app is not active (${AppState.currentState})`,
               );
               return;
             }
@@ -842,8 +924,26 @@ export const WebViewProvider = ({ children }) => {
             delete pendingRequests.current[id];
             delete activeTimeoutsRef.current[id];
 
-            resetWebViewState(true, true);
-            forceReactNativeUse = true;
+            // If handshake is complete and this is not a handshake action,
+            // the WebView bridge is functional — this is a service timeout.
+            // Don't kill the WebView for a backend service being slow.
+            if (handshakeComplete && action !== 'handshake:init') {
+              console.warn(
+                `Service timeout for ${action} — WebView bridge is healthy, not forcing native mode`,
+              );
+            } else {
+              // WebView-level failure (handshake timeout or bridge issue)
+              webviewFailureCount++;
+              console.warn(
+                `WebView failure #${webviewFailureCount} for ${action}`,
+              );
+              if (webviewFailureCount >= MAX_WEBVIEW_FAILURES) {
+                forceNativeMode(
+                  `${MAX_WEBVIEW_FAILURES} consecutive WebView failures`,
+                );
+              }
+              resetWebViewState(true, true);
+            }
 
             reject(
               new Error(
@@ -881,7 +981,7 @@ export const WebViewProvider = ({ children }) => {
             if (!getHandshakeComplete()) {
               console.log('Handshake not complete, cannot initialize wallet');
               if (timeoutId) clearTimeout(timeoutId);
-              forceReactNativeUse = true;
+              forceNativeMode('handshake incomplete for wallet init');
               setChangeSparkConnectionState(prev => ({
                 state: true,
                 count: prev.count + 1,
@@ -891,7 +991,7 @@ export const WebViewProvider = ({ children }) => {
             if (!nonceVerified.current) {
               console.log('Nonce not verified, cannot initialize wallet');
               if (timeoutId) clearTimeout(timeoutId);
-              forceReactNativeUse = true;
+              forceNativeMode('nonce not verified for wallet init');
               setChangeSparkConnectionState(prev => ({
                 state: true,
                 count: prev.count + 1,
@@ -966,7 +1066,13 @@ export const WebViewProvider = ({ children }) => {
           const sequence = getNextSequence();
           const timestamp = Date.now();
 
-          let payload = { id, action, args, sequence, timestamp };
+          let payload = {
+            id,
+            action,
+            args,
+            sequence,
+            timestamp,
+          };
           console.log('sending message to webview', action, payload);
 
           try {
@@ -992,7 +1098,9 @@ export const WebViewProvider = ({ children }) => {
           );
           reject(err);
         }
-      });
+      };
+      execute();
+      return promise;
     },
     [
       encryptMessage,
@@ -1019,7 +1127,7 @@ export const WebViewProvider = ({ children }) => {
       });
     } catch (error) {
       console.warn('Handshake failed or timed out:', error.message);
-      forceReactNativeUse = true;
+      forceNativeMode('handshake failed');
       const currentRoutes = navigationRef
         .getRootState()
         .routes?.map(r => r.name);
@@ -1062,10 +1170,11 @@ export const WebViewProvider = ({ children }) => {
 
       if (savedVariable === 'true') {
         console.log('FORCE_REACT_NATIVE is set, skipping handshake');
-        forceReactNativeUse = true;
+        forceNativeMode('FORCE_REACT_NATIVE localStorage flag');
         didRunHandshakeRef.current = true;
         return;
       }
+      transitionWvState(WV_STATES.HANDSHAKING, 'handshake init');
       await initHandshake();
       didRunHandshakeRef.current = true;
     }
@@ -1084,6 +1193,7 @@ export const WebViewProvider = ({ children }) => {
 
   useEffect(() => {
     (async () => {
+      transitionWvState(WV_STATES.VERIFYING, 'initial verification');
       try {
         const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
           Platform.OS === 'ios'
@@ -1161,29 +1271,25 @@ export const WebViewProvider = ({ children }) => {
       const requests = [...queuedRequests.current];
       queuedRequests.current = [];
 
-      await Promise.allSettled(
-        requests.map(({ id, action, args, encrypt, resolve, reject }) =>
-          sendWebViewRequestInternal(action, args, encrypt)
-            .then(result => {
-              // Call the original resolve function with the result
-              // This preserves the promise chain back to the original caller
-              if (typeof resolve === 'function') {
-                resolve(result);
-              }
-            })
-            .catch(error => {
-              // Call the original reject function with the error
-              if (typeof reject === 'function') {
-                reject(error);
-              }
-            })
-            .finally(() => {
-              queuedRequests.current = queuedRequests.current.filter(
-                req => req.id !== id,
-              );
-            }),
-        ),
-      );
+      // Process sequentially to avoid triggering the rate limiter (20 msgs/sec).
+      // Parallel dispatch via Promise.allSettled could fire 21+ messages at once,
+      // permanently killing the WebView.
+      for (const { action, args, encrypt, resolve, reject } of requests) {
+        try {
+          const result = await sendWebViewRequestInternal(
+            action,
+            args,
+            encrypt,
+          );
+          if (typeof resolve === 'function') {
+            resolve(result);
+          }
+        } catch (error) {
+          if (typeof reject === 'function') {
+            reject(error);
+          }
+        }
+      }
 
       isResetting.current = false;
     },
@@ -1241,36 +1347,30 @@ export const WebViewProvider = ({ children }) => {
           }}
           onMessage={handleWebViewResponse}
           onLoadStart={() => {
+            transitionWvState(WV_STATES.LOADING, 'onLoadStart');
             webViewLoadState.current = 'loading';
             onLoadEndCalledRef.current = false;
-            setIsWebViewReady(false);
           }}
           onLoadProgress={({ nativeEvent }) => {
             if (
               nativeEvent.progress === 1 &&
-              webViewLoadState.current === 'loading'
+              wvState.current === WV_STATES.LOADING
             ) {
+              transitionWvState(WV_STATES.LOADED, 'progress 100%');
               webViewLoadState.current = 'loaded';
-              setIsWebViewReady(true);
-              console.log('WebView loaded and ready (progress: 100%)');
             }
           }}
           onLoadEnd={() => {
-            setIsWebViewReady(true);
-            // Only set ready if we're still in loading state
+            // Only transition if still in LOADING state
             // (onLoadProgress might have already handled it)
-            if (webViewLoadState.current === 'loading') {
+            if (wvState.current === WV_STATES.LOADING) {
+              transitionWvState(WV_STATES.LOADED, 'onLoadEnd');
               webViewLoadState.current = 'loaded';
-              setIsWebViewReady(true);
-              console.log('WebView loaded and ready (onLoadEnd)');
-            } else if (webViewLoadState.current === 'loaded') {
-              console.log(
-                'onLoadEnd called but WebView already marked ready - ignoring',
-              );
             }
           }}
           onContentProcessDidTerminate={() => {
             console.warn('WebView content process terminated — reloading...');
+            transitionWvState(WV_STATES.ERROR, 'process terminated');
             blockAndResetWebview();
           }}
         />

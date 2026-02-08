@@ -72,9 +72,10 @@ export const getFlashnetClient = mnemonic => {
   return client;
 };
 
-let forceUseOfNativeRuntime = null;
 /**
  * Determines which runtime to use for Spark functions.
+ * Uses getHandshakeComplete() as the single source of truth — it checks
+ * both handshakeComplete and forceReactNativeUse internally.
  * @param {string} mnemonic - user mnemonic
  * @param {boolean} isInitialLoad - true only on first connection attempt
  * @param {boolean?} force - optional force to native runtime
@@ -86,13 +87,9 @@ export const selectSparkRuntime = async (
   force = undefined,
   createNativeWallet = true,
 ) => {
-  // Force native runtime explicitly
+  // Force native runtime explicitly via the canonical latch
   if (isInitialLoad && force) {
-    forceUseOfNativeRuntime = true;
-  }
-
-  if (forceUseOfNativeRuntime) {
-    return 'native';
+    setForceReactNative(true, 'forced by caller');
   }
 
   const handshakeDone = getHandshakeComplete();
@@ -175,7 +172,7 @@ export const initializeSparkWallet = async (
 
       await initializingWallets[hash];
       delete initializingWallets[hash];
-      setForceReactNative(true);
+      setForceReactNative(true, 'native wallet initialized successfully');
 
       return { isConnected: true };
     } catch (err) {
