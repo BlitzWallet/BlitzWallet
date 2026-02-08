@@ -52,6 +52,7 @@ import {
   getUserSwapHistory,
   satsToDollars,
   dollarsToSats,
+  INTEGRATOR_FEE,
 } from '../../functions/spark/flashnet';
 
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
@@ -981,10 +982,8 @@ export default function SwapsPage() {
         );
 
     const lpFee = isBtcToUsdb
-      ? (simulationResult.expectedOutput * (poolInfo.lpFeeBps / 100 + 1)) /
-        100 /
-        1000000
-      : (simulationResult.expectedOutput * (poolInfo.lpFeeBps / 100 + 1)) / 100;
+      ? (simulationResult.expectedOutput * INTEGRATOR_FEE) / 1000000 // add blitz fee
+      : 0;
 
     const exchangeRate = isBtcToUsdb
       ? `${displayCorrectDenomination({

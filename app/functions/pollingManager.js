@@ -121,19 +121,25 @@ export const createBalancePoller = (
   let sameValueIndex = 0;
   return createPollingManager({
     pollFn: async () => {
-      const balance = await getSparkBalance(mnemonic);
-      return balance.didWork ? Number(balance.balance) : null;
+      return await getSparkBalance(mnemonic);
     },
     shouldContinue: () => mnemonic === currentMnemonicRef.current,
-    validateResult: (newBalance, previousBalance) => {
+    validateResult: (newResult, previousResult) => {
       console.log(
-        newBalance,
-        previousBalance,
+        newResult,
+        previousResult,
         hasIncreasedAtLeastOnce,
         sameValueIndex,
       );
 
-      if (newBalance == null || previousBalance == null) return false;
+      if (!newResult?.didWork || !previousResult?.didWork) return false;
+
+      const newBalance = Number(newResult.balance);
+      const previousBalance = Number(previousResult.balance);
+
+      if (Number.isNaN(newBalance) || Number.isNaN(previousBalance)) {
+        return false;
+      }
 
       if (newBalance !== previousBalance) {
         console.log('Balance changed — resetting');
@@ -152,11 +158,11 @@ export const createBalancePoller = (
 
       return false;
     },
-    onUpdate: (newBalance, delayIndex) => {
+    onUpdate: (balanceResult, delayIndex) => {
       console.log(
-        `Balance updated to ${newBalance} after ${delayIndex} attempts`,
+        `Balance updated to ${balanceResult.balance} after ${delayIndex} attempts`,
       );
-      onBalanceUpdate(newBalance);
+      onBalanceUpdate(balanceResult);
     },
     abortController,
     delays: [

@@ -526,14 +526,24 @@ export const sparkPaymenWrapper = async ({
         if (usedUSDB) {
           tx.details.isLRC20Payment = true;
           tx.details.LRC20Token = USDB_TOKEN_ID;
-          tx.details.fee = tx.details.fee + Math.ceil(swapPaymentQuote.satFee);
+          tx.details.fee =
+            tx.details.fee +
+            dollarsToSats(
+              executionResponse.swap.feeAmount / Math.pow(10, 6),
+              poolInfoRef.currentPriceAInB,
+            );
           tx.details.totalFee = tx.details.fee;
 
           tx.details.amount = swapPaymentQuote.amountIn;
         } else {
           tx.details.isLRC20Payment = false;
           tx.details.LRC20Token = '';
-          tx.details.fee = tx.details.fee + Math.ceil(swapPaymentQuote.satFee);
+          tx.details.fee =
+            tx.details.fee +
+            dollarsToSats(
+              executionResponse.swap.feeAmount / Math.pow(10, 6),
+              poolInfoRef.currentPriceAInB,
+            );
           tx.details.totalFee = tx.details.fee;
           tx.details.amount = amountSats;
         }

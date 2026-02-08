@@ -577,7 +577,10 @@ const SparkWalletProvider = ({ children }) => {
             };
           });
         }
-      } else if (updateType === 'fullUpdate-waitBalance') {
+      } else if (
+        updateType === 'fullUpdate-waitBalance' ||
+        updateType === 'paymentWrapperTx'
+      ) {
         // Balance may have changed (e.g. restore found new txs, gift received)
         // Poll until balance stabilizes, then set confirmed value
         if (balancePollingAbortControllerRef.current) {
@@ -621,7 +624,14 @@ const SparkWalletProvider = ({ children }) => {
           mnemonic,
           currentMnemonicRef,
           balancePollingAbortControllerRef.current,
-          async newBalance => {
+          async balanceResult => {
+            if (!balanceResult.didWork) {
+              sparkTransactionsEventEmitter.emit(
+                SPARK_TX_UPDATE_ENVENT_NAME,
+                'fullUpdate-waitBalance',
+              );
+              return;
+            }
             pendingSparkTxIds.current.clear();
             pendingTxRange.current = { start: -1, end: -1 };
             pendingTxCount.current = 0;
@@ -636,12 +646,14 @@ const SparkWalletProvider = ({ children }) => {
               if (myVersion < balanceVersionRef.current) return prev;
               handleBalanceCache({
                 isCheck: false,
-                passedBalance: newBalance,
+                passedBalance: Number(balanceResult.balance),
+
                 mnemonic: pollingMnemonic,
               });
               return {
                 ...prev,
-                balance: newBalance,
+                balance: Number(balanceResult.balance),
+                tokens: balanceResult.tokensObj,
                 transactions: freshTxs, //removes all pending flags since we have the updated balance now
               };
             });
@@ -1680,14 +1692,17 @@ const SparkWalletProvider = ({ children }) => {
       mnemonic,
       currentMnemonicRef,
       balancePollingAbortControllerRef.current,
-      async confirmedBalance => {
+      async balanceResult => {
         // Balance has stabilized — this is our confirmed value
-        console.log('Init balance confirmed via polling:', confirmedBalance);
+        console.log(
+          'Init balance confirmed via polling:',
+          balanceResult.balance,
+        );
         const myVersion = ++balanceVersionRef.current;
 
         handleBalanceCache({
           isCheck: false,
-          passedBalance: confirmedBalance,
+          passedBalance: Number(balanceResult.balance),
           mnemonic: pollingMnemonic,
         });
 
@@ -1701,7 +1716,8 @@ const SparkWalletProvider = ({ children }) => {
           if (myVersion < balanceVersionRef.current) return prev;
           return {
             ...prev,
-            balance: confirmedBalance,
+            balance: Number(balanceResult.balance),
+            tokens: balanceResult.tokensObj,
             transactions: freshTxs || prev.transactions,
             initialBalance: undefined, // Clean up — no longer needed
           };

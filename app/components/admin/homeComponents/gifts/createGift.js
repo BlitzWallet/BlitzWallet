@@ -54,6 +54,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import {
   BTC_ASSET_ADDRESS,
   dollarsToSats,
+  INTEGRATOR_FEE,
   satsToDollars,
   simulateSwap,
   USD_ASSET_ADDRESS,
@@ -271,8 +272,11 @@ export default function CreateGift(props) {
       // If we have a simulation result, factor in the swap fee
       if (simulationResult && canPayBTCtoUSD) {
         const { simulation } = simulationResult;
-        const totalBTCNeeded =
-          convertedSatAmount + Number(simulation.feePaidAssetIn);
+        const totalBTCNeeded = Math.round(
+          convertedSatAmount +
+            dollarsToSats(Number(simulation.feePaidAssetIn) / Math.pow(10, 6)) +
+            convertedSatAmount * INTEGRATOR_FEE,
+        );
 
         if (totalBTCNeeded > bitcoinBalance) {
           return null; // Can't afford with fees
@@ -338,8 +342,11 @@ export default function CreateGift(props) {
 
       if (!canPayUSDtoUSD && canPayBTCtoUSD && simulationResult) {
         const { simulation } = simulationResult;
-        const totalBTCNeeded =
-          convertedSatAmount + Number(simulation.feePaidAssetIn);
+        const totalBTCNeeded = Math.round(
+          convertedSatAmount +
+            dollarsToSats(Number(simulation.feePaidAssetIn) / Math.pow(10, 6)) +
+            convertedSatAmount * INTEGRATOR_FEE,
+        );
 
         if (totalBTCNeeded > bitcoinBalance) {
           return false;
@@ -503,9 +510,14 @@ export default function CreateGift(props) {
         const simulation = simulationResult.simulation;
         const satFee =
           determinePaymentMethod === 'BTC'
-            ? Number(simulation.feePaidAssetIn)
+            ? Math.round(
+                dollarsToSats(
+                  Number(simulation.feePaidAssetIn) / Math.pow(10, 6),
+                ) +
+                  convertedSatAmount * INTEGRATOR_FEE,
+              )
             : dollarsToSats(
-                Number(simulation.feePaidAssetIn) / 1000000,
+                Number(simulation.feePaidAssetIn) / Math.pow(10, 6),
                 poolInfoRef.currentPriceAInB,
               );
         swapPaymentQuote = {
@@ -522,7 +534,13 @@ export default function CreateGift(props) {
           amountIn:
             determinePaymentMethod === 'BTC'
               ? Math.min(
-                  convertedSatAmount + Number(simulation.feePaidAssetIn),
+                  Math.round(
+                    convertedSatAmount +
+                      dollarsToSats(
+                        Number(simulation.feePaidAssetIn) / Math.pow(10, 6),
+                      ) +
+                      convertedSatAmount * INTEGRATOR_FEE,
+                  ),
                   bitcoinBalance,
                 )
               : Math.min(

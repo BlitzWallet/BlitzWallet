@@ -23,6 +23,7 @@ import {
   savePendingSwapConfirmation,
   completeSwapConfirmation,
   retryPendingSwapConfirmations,
+  SEND_AMOUNT_INCREASE_BUFFER,
 } from '../app/functions/spark/flashnet';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
@@ -854,9 +855,14 @@ export function FlashnetProvider({ children }) {
       if (usdLimits.didWork && bitconLimits.didWork) {
         setSwapLimits({
           usd: parseFloat(
-            ((Number(usdLimits.assetData) / 1000000) * 1.03).toFixed(2),
+            (
+              (Number(usdLimits.assetData) / 1000000) *
+              SEND_AMOUNT_INCREASE_BUFFER
+            ).toFixed(2),
           ),
-          bitcoin: Math.round(Number(bitconLimits.assetData) * 1.03),
+          bitcoin: Math.round(
+            Number(bitconLimits.assetData) * SEND_AMOUNT_INCREASE_BUFFER,
+          ),
         });
       }
     }

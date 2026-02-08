@@ -3,6 +3,7 @@ import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import {
   BTC_ASSET_ADDRESS,
   dollarsToSats,
+  INTEGRATOR_FEE,
   satsToDollars,
   simulateSwap,
   USD_ASSET_ADDRESS,
@@ -280,9 +281,13 @@ export default async function processSparkAddress(input, context) {
 
             if (result.didWork) {
               const fees = Number(result.simulation.feePaidAssetIn);
-              const satFee = fees;
+              let satFee = dollarsToSats(
+                fees / Math.pow(10, 6),
+                poolInfoRef.currentPriceAInB,
+              );
+              satFee += satAmount * INTEGRATOR_FEE; //add blitz fee
 
-              addressInfo.paymentFee = fees;
+              addressInfo.paymentFee = Math.round(satFee);
               addressInfo.supportFee = 0;
               swapPaymentQuote = {
                 warn: parseFloat(result.simulation.priceImpact) > 3,
@@ -290,7 +295,7 @@ export default async function processSparkAddress(input, context) {
                 assetInAddress: BTC_ASSET_ADDRESS,
                 assetOutAddress: USD_ASSET_ADDRESS,
                 amountIn: satAmount,
-                satFee,
+                satFee: Math.round(satFee),
                 bitcoinBalance,
                 dollarBalanceSat,
               };
