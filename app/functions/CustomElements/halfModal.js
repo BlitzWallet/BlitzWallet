@@ -55,10 +55,13 @@ import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitco
 import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
 import AddReceiveMessageHalfModal from '../../components/admin/homeComponents/receiveBitcoin/addMessageHalfModal';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
+import CreatePoolDescription from '../../components/admin/homeComponents/pools/createPoolDescription';
 import {
   SelectContactRequestCurrency,
   SelectPaymentType,
 } from '../../components/admin/homeComponents/contacts';
+import ClosePoolConfirmation from '../../components/admin/homeComponents/pools/closePoolConfirmation';
+import ContributeToPoolHalfModal from '../../components/admin/homeComponents/pools/contributeToPoolHalfModal';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -439,6 +442,32 @@ export default function CustomHalfModal(props) {
             darkModeType={darkModeType}
           />
         );
+      case 'createPoolDescription':
+        return (
+          <CreatePoolDescription
+            route={props?.route}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'closePoolConfirmation':
+        return (
+          <ClosePoolConfirmation
+            pool={props?.route?.params?.pool}
+            autoStart={props?.route?.params?.autoStart}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'contributeToPool':
+        return (
+          <ContributeToPoolHalfModal
+            pool={props?.route?.params?.pool}
+            poolId={props?.route?.params?.poolId}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -497,14 +526,16 @@ export default function CustomHalfModal(props) {
               contentType === 'SelectLRC20Token' ||
               contentType === 'AddMessageReceivePage' ||
               contentType === 'sendOptions' ||
-              contentType === 'receiveOptions'
+              contentType === 'receiveOptions' ||
+              contentType === 'createPoolDescription'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
                     contentType === 'addContacts' ||
                     contentType === 'sendOptions'
                   ? 0
-                  : contentType === 'receiveOptions'
+                  : contentType === 'receiveOptions' ||
+                    contentType === 'createPoolDescription'
                   ? 0
                   : bottomPadding
                 : bottomPadding,

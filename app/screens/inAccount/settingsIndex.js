@@ -72,6 +72,12 @@ const OTHEROPTIONS = [
   },
   {
     for: 'general',
+    name: 'Pools',
+    displayName: 'screens.inAccount.settingsContent.pools',
+    iconNew: 'Vault',
+  },
+  {
+    for: 'general',
     name: 'Blitz Stats',
     displayName: 'screens.inAccount.settingsContent.blitz stats',
     iconNew: 'ChartArea',

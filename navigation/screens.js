@@ -59,6 +59,10 @@ import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
 import CreateGift from '../app/components/admin/homeComponents/gifts/createGift';
 import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
+import CreatePoolAmount from '../app/components/admin/homeComponents/pools/createPoolAmount';
+import PoolManagementScreen from '../app/components/admin/homeComponents/pools/poolManagementScreen';
+import PoolDetailScreen from '../app/components/admin/homeComponents/pools/poolDetailScreen';
+import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
 import {
   CreateAccountHome,
   DislaimerPage,
@@ -103,6 +107,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'ShowProfileQr', component: ShowProfileQr },
   { name: 'SwapsPage', component: SwapsPage },
   { name: 'ConversionHistory', component: ConversionHistory },
+  { name: 'ViewContributor', component: ViewContibutors },
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
   {
@@ -161,6 +166,9 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SMSMessagingSendPage', component: SMSMessagingSendPage },
   { name: 'CreateGift', component: CreateGift },
   { name: 'AdvancedGiftClaim', component: AdvancedGiftClaim },
+  { name: 'PoolManagementScreen', component: PoolManagementScreen },
+  { name: 'CreatePoolAmount', component: CreatePoolAmount },
+  { name: 'PoolDetailScreen', component: PoolDetailScreen },
 ];
 
 const FADE_SCREENS = [
