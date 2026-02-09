@@ -573,7 +573,7 @@ export default function HalfModalReceiveOptions({
             ...styles.innerContainer,
             paddingBottom: bottomPadding,
           }}
-          stickyHeaderIndices={[0, 4]}
+          stickyHeaderIndices={[0, 5]}
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}
@@ -671,6 +671,49 @@ export default function HalfModalReceiveOptions({
               <ThemeText
                 styles={styles.scanButtonSubtext}
                 content={t('wallet.halfModal.tapToGenerate_lightning_usd')}
+              />
+            </View>
+          </TouchableOpacity>
+
+          <View
+            style={[
+              styles.stickyHeaderContainer,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+                marginTop: 20,
+              },
+            ]}
+          >
+            <ThemeText
+              styles={[styles.sectionHeader, { marginTop: 0 }]}
+              content={t('wallet.pools.receiveViaPool')}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={[styles.scanButton, { marginBottom: 0 }]}
+            onPress={() => navigate.replace('CreatePoolAmount')}
+          >
+            <View
+              style={[
+                styles.scanIconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            >
+              <ThemeIcon size={25} iconName={'Vault'} />
+            </View>
+            <View style={styles.scanTextContainer}>
+              <ThemeText
+                styles={styles.scanButtonText}
+                content={t('wallet.pools.createPool')}
+              />
+              <ThemeText
+                styles={styles.scanButtonSubtext}
+                content={t('wallet.pools.collectPaymentsDescription')}
               />
             </View>
           </TouchableOpacity>
