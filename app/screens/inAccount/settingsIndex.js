@@ -591,7 +591,6 @@ export default function SettingsIndex(props) {
                 adjustsFontSizeToFit={true}
                 minimumFontScale={0.5}
                 styles={{
-                  width: '100%',
                   flexShrink: 1,
                   color: theme && darkModeType ? COLORS.white : COLORS.primary,
                   fontSize: SIZES.xLarge,
@@ -702,6 +701,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 20,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   inlineSettingsDescription: {
     opacity: 0.7,
