@@ -62,23 +62,41 @@ export const createPollingManager = ({
           // Re-check abort conditions before executing
           if (abortController?.signal?.aborted || !shouldContinue()) {
             cleanup();
-            resolve({ success: false, reason: 'aborted' });
+            resolve({
+              success: false,
+              reason: 'aborted',
+            });
             return;
           }
 
           // Execute the poll function
           globalResult = await pollFn(delayIndex);
 
+          // Check abort AFTER async operation
+          if (abortController?.signal?.aborted || !shouldContinue()) {
+            cleanup();
+            resolve({
+              success: false,
+              reason: 'aborted',
+            });
+            return;
+          }
+
+          // Update previous result BEFORE validation
+          if (globalResult != null) {
+            previousResult = globalResult;
+          }
+
           // Validate if we should continue
           if (validateResult(globalResult, previousResult)) {
             // Call update callback
             if (onUpdate) {
-              onUpdate(globalResult, delayIndex);
+              await onUpdate(globalResult, delayIndex);
             }
 
             // Success - stop polling
             cleanup();
-            resolve({ success: true, globalResult });
+            resolve({ success: true, result: globalResult });
             return;
           }
 
@@ -87,14 +105,6 @@ export const createPollingManager = ({
         } catch (err) {
           console.log('Error in polling iteration, continuing:', err);
           poll(delayIndex + 1, resolve, reject);
-        } finally {
-          if (
-            globalResult != null &&
-            (previousResult == null || globalResult !== previousResult)
-          ) {
-            // Only update if balance changes
-            previousResult = globalResult;
-          }
         }
       }, delays[delayIndex]);
     } catch (err) {
@@ -105,7 +115,18 @@ export const createPollingManager = ({
   };
 
   return {
-    start: () => new Promise((resolve, reject) => poll(0, resolve, reject)),
+    start: () => {
+      if (abortController?.signal?.aborted) {
+        console.log('Poller: Already aborted before start');
+        return Promise.resolve({
+          success: false,
+          reason: 'aborted',
+          result: previousResult,
+        });
+      }
+
+      return new Promise((resolve, reject) => poll(0, resolve, reject));
+    },
     cleanup,
   };
 };
@@ -119,6 +140,13 @@ export const createBalancePoller = (
 ) => {
   let hasIncreasedAtLeastOnce = false;
   let sameValueIndex = 0;
+
+  // Wrap initialBalance in the expected format
+  const wrappedInitialBalance =
+    typeof initialBalance === 'number'
+      ? { didWork: true, balance: initialBalance, tokensObj: {} }
+      : initialBalance;
+
   return createPollingManager({
     pollFn: async () => {
       return await getSparkBalance(mnemonic);
@@ -126,13 +154,24 @@ export const createBalancePoller = (
     shouldContinue: () => mnemonic === currentMnemonicRef.current,
     validateResult: (newResult, previousResult) => {
       console.log(
-        newResult,
-        previousResult,
-        hasIncreasedAtLeastOnce,
-        sameValueIndex,
+        'Validate:',
+        {
+          newBalance: newResult?.balance,
+          prevBalance: previousResult?.balance,
+        },
+        { hasIncreasedAtLeastOnce, sameValueIndex },
       );
 
-      if (!newResult?.didWork || !previousResult?.didWork) return false;
+      if (!newResult?.didWork) {
+        console.log('New result invalid');
+        return false;
+      }
+
+      // previousResult might be null on first run
+      if (!previousResult?.didWork) {
+        console.log('Previous result invalid, continuing');
+        return false;
+      }
 
       const newBalance = Number(newResult.balance);
       const previousBalance = Number(previousResult.balance);
@@ -145,6 +184,7 @@ export const createBalancePoller = (
         console.log('Balance changed — resetting');
         hasIncreasedAtLeastOnce = true;
         sameValueIndex = 0;
+        return false;
       }
 
       sameValueIndex++;
@@ -158,18 +198,18 @@ export const createBalancePoller = (
 
       return false;
     },
-    onUpdate: (balanceResult, delayIndex) => {
+    onUpdate: async (balanceResult, delayIndex) => {
       console.log(
         `Balance updated to ${balanceResult.balance} after ${delayIndex} attempts`,
       );
-      onBalanceUpdate(balanceResult);
+      await onBalanceUpdate(balanceResult);
     },
     abortController,
     delays: [
       1000, 1500, 1500, 1500, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
       2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
     ],
-    initialBalance,
+    initialBalance: wrappedInitialBalance,
   });
 };
 

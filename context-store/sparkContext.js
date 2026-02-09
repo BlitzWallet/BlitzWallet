@@ -543,12 +543,6 @@ const SparkWalletProvider = ({ children }) => {
           }));
         }
       } else if (updateType === 'incomingPayment') {
-        // incomingPayment has authoritative balance - clear ALL pending flags
-        if (balancePollingAbortControllerRef.current) {
-          balancePollingAbortControllerRef.current.abort();
-          balancePollingAbortControllerRef.current = null;
-        }
-
         pendingSparkTxIds.current.clear();
         pendingTxRange.current = { start: -1, end: -1 };
         pendingTxCount.current = 0;
@@ -581,12 +575,6 @@ const SparkWalletProvider = ({ children }) => {
         updateType === 'fullUpdate-waitBalance' ||
         updateType === 'paymentWrapperTx'
       ) {
-        // Balance may have changed (e.g. restore found new txs, gift received)
-        // Poll until balance stabilizes, then set confirmed value
-        if (balancePollingAbortControllerRef.current) {
-          balancePollingAbortControllerRef.current.abort();
-        }
-
         balancePollingAbortControllerRef.current = new AbortController();
         currentPollingMnemonicRef.current = mnemonic;
         const pollingMnemonic = mnemonic;
@@ -668,10 +656,6 @@ const SparkWalletProvider = ({ children }) => {
           return;
         }
       } else {
-        if (balancePollingAbortControllerRef.current) {
-          balancePollingAbortControllerRef.current.abort();
-        }
-
         const MAX_RETRIES = 3;
         const RETRY_DELAY = 2000;
         let balanceResponse = await getSparkBalance(mnemonic);
@@ -961,6 +945,24 @@ const SparkWalletProvider = ({ children }) => {
 
   const handleUpdate = useCallback(
     (...args) => {
+      const [updateType] = args;
+
+      if (
+        !(
+          updateType === 'lrc20Payments' ||
+          updateType === 'txStatusUpdate' ||
+          updateType === 'transactions' ||
+          updateType === 'contactDetailsUpdate'
+        )
+      ) {
+        console.log(`Aborting any existing poller for incoming ${updateType}`);
+        if (balancePollingAbortControllerRef.current) {
+          balancePollingAbortControllerRef.current.abort();
+          balancePollingAbortControllerRef.current = null;
+        }
+      }
+
+      // Then queue the actual work
       handleUpdateQueueRef.current = handleUpdateQueueRef.current
         .then(() => handleUpdateInternal(...args))
         .catch(err =>
@@ -997,11 +999,6 @@ const SparkWalletProvider = ({ children }) => {
     }
 
     console.log('adding web view listeners');
-
-    sparkTransactionsEventEmitter.removeAllListeners(
-      SPARK_TX_UPDATE_ENVENT_NAME,
-    );
-    incomingSparkTransaction.removeAllListeners(INCOMING_SPARK_TX_NAME);
 
     sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
     incomingSparkTransaction.on(INCOMING_SPARK_TX_NAME, transferHandler);
