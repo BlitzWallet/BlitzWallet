@@ -112,6 +112,10 @@ export default function SendAndRequestPage(props) {
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
   const poolInfoRefSnapshotRef = useRef(poolInfoRef);
+  const prefSelectedPaymentInfo = useRef({
+    selectedPaymentMethod,
+    selectedRequestMethod,
+  });
 
   const descriptionRef = useRef(null);
 
@@ -131,13 +135,16 @@ export default function SendAndRequestPage(props) {
       ? selectedPaymentMethod === 'USD'
       : selectedRequestMethod === 'USD';
 
-  const [inputDenomination, setInputDenomination] = useState(
-    paymentMode === 'USD'
-      ? 'fiat'
-      : masterInfoObject.userBalanceDenomination !== 'fiat'
-      ? 'sats'
-      : 'fiat',
-  );
+  const [userSetInputDenomination, setUserSetInputDenomination] =
+    useState(null);
+
+  const inputDenomination = userSetInputDenomination
+    ? userSetInputDenomination
+    : paymentMode === 'USD'
+    ? 'fiat'
+    : masterInfoObject.userBalanceDenomination !== 'fiat'
+    ? 'sats'
+    : 'fiat';
 
   const {
     primaryDisplay,
@@ -231,6 +238,22 @@ export default function SendAndRequestPage(props) {
   }, [navigate, selectedPaymentMethod, selectedRequestMethod]);
 
   useEffect(() => {
+    if (
+      prefSelectedPaymentInfo.current.selectedPaymentMethod !==
+        selectedPaymentMethod ||
+      prefSelectedPaymentInfo.current.selectedRequestMethod !==
+        selectedRequestMethod
+    ) {
+      setAmountValue('');
+      setUserSetInputDenomination(null);
+      prefSelectedPaymentInfo.current = {
+        selectedPaymentMethod,
+        selectedRequestMethod,
+      };
+    }
+  }, [selectedPaymentMethod, selectedRequestMethod]);
+
+  useEffect(() => {
     if (!giftOption) {
       setAmountValue('');
       return;
@@ -257,10 +280,10 @@ export default function SendAndRequestPage(props) {
     if (isDescriptionFocused) return;
     if (paymentType === 'Gift') {
       const nextDenom = getNextDenomination();
-      setInputDenomination(nextDenom);
+      setUserSetInputDenomination(nextDenom);
     } else {
       const nextDenom = getNextDenomination();
-      setInputDenomination(nextDenom);
+      setUserSetInputDenomination(nextDenom);
       setAmountValue(convertForToggle(amountValue, convertTextInputValue));
     }
   };

@@ -124,16 +124,30 @@ export default function SendPaymentScreen(props) {
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
+  const prevSelectedPaymentInfo = useRef({
+    preSelectedPaymentMethod,
+    enteredInfo: enteredPaymentInfo?.inputCurrency,
+    selectedPaymentMethod,
+  });
 
   const paymentMode =
     preSelectedPaymentMethod === 'USD' ||
-    enteredPaymentInfo?.inputCurrency === 'USD'
+    enteredPaymentInfo?.inputCurrency === 'USD' ||
+    selectedPaymentMethod === 'USD'
       ? 'USD'
       : 'BTC';
 
-  const [inputDenomination, setInputDenomination] = useState(
-    paymentMode === 'USD' ? 'fiat' : masterInfoObject.userBalanceDenomination,
-  );
+  const [userSetInputDenomination, setUserSetInputDenomination] =
+    useState(null);
+
+  const inputDenomination = userSetInputDenomination
+    ? userSetInputDenomination
+    : paymentMode === 'USD'
+    ? 'fiat'
+    : masterInfoObject.userBalanceDenomination !== 'fiat'
+    ? 'sats'
+    : 'fiat';
+
   const inputDenominationRef = useRef(inputDenomination);
   const [paymentDescription, setPaymentDescription] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(
@@ -279,6 +293,32 @@ export default function SendPaymentScreen(props) {
         poolInfoRef.currentPriceAInB,
     ).toFixed(2) * Math.pow(10, 6),
   );
+
+  useEffect(() => {
+    if (
+      prevSelectedPaymentInfo.current.preSelectedPaymentMethod !==
+        preSelectedPaymentMethod ||
+      prevSelectedPaymentInfo.current.enteredInfo !==
+        enteredPaymentInfo?.inputCurrency ||
+      prevSelectedPaymentInfo.current.selectedPaymentMethod !==
+        selectedPaymentMethod
+    ) {
+      setPaymentInfo(prev => ({
+        ...prev,
+        sendAmount: '',
+      }));
+      setUserSetInputDenomination(null);
+      prevSelectedPaymentInfo.current = {
+        preSelectedPaymentMethod,
+        enteredInfo: enteredPaymentInfo?.inputCurrency,
+        selectedPaymentMethod,
+      };
+    }
+  }, [
+    preSelectedPaymentMethod,
+    enteredPaymentInfo?.inputCurrency,
+    selectedPaymentMethod,
+  ]);
 
   useEffect(() => {
     determinePaymentMethodRef.current = determinePaymentMethod;
@@ -769,7 +809,7 @@ export default function SendPaymentScreen(props) {
     if (!canEditAmount) {
       // For fixed amounts, just change the display denomination
       const nextDenom = getNextDenomination();
-      setInputDenomination(nextDenom);
+      setUserSetInputDenomination(nextDenom);
       // No need to convert sendingAmount - it stays in sats
       // The display will automatically update via convertSatsToDisplay
     } else {
@@ -780,7 +820,7 @@ export default function SendPaymentScreen(props) {
         convertTextInputValue,
       );
 
-      setInputDenomination(nextDenom);
+      setUserSetInputDenomination(nextDenom);
       setPaymentInfo(prev => ({
         ...prev,
         sendAmount: convertedValue,
