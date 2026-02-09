@@ -18,6 +18,9 @@ import {
   or,
   orderBy,
   deleteDoc,
+  increment,
+  runTransaction,
+  serverTimestamp,
 } from '@react-native-firebase/firestore';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import {
@@ -576,5 +579,134 @@ export async function reloadGiftsOnDomesday(uuid) {
   } catch (e) {
     console.error('Error fetching gifts by creator:', e);
     return [];
+  }
+}
+
+export async function addPoolToDatabase(poolData) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzPools', poolData.poolId);
+    await setDoc(docRef, poolData, { merge: false });
+    console.log('Pool added with ID:', poolData.poolId);
+    return true;
+  } catch (e) {
+    console.error('Error adding pool to database:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function updatePoolInDatabase(poolData) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzPools', poolData.poolId);
+    await setDoc(docRef, poolData, { merge: true });
+    console.log('Pool updated with ID:', poolData.poolId);
+    return true;
+  } catch (e) {
+    console.error('Error updating pool in database:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function getPoolFromDatabase(poolId) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzPools', poolId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+    return null;
+  } catch (e) {
+    console.error('Error fetching pool from database:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return null;
+  }
+}
+
+export async function getPoolsByCreator(creatorUUID) {
+  try {
+    const db = getFirestore();
+    const q = query(
+      collection(db, 'blitzPools'),
+      where('creatorUUID', '==', creatorUUID),
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data());
+  } catch (e) {
+    console.error('Error fetching pools by creator:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return [];
+  }
+}
+
+export async function deletePoolFromDatabase(poolId) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzPools', poolId);
+    await deleteDoc(docRef);
+    console.log('Pool deleted:', poolId);
+    return true;
+  } catch (e) {
+    console.error('Error deleting pool:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function getPoolContributions(poolId) {
+  try {
+    const db = getFirestore();
+    const contribRef = collection(db, 'blitzPools', poolId, 'contributions');
+    const q = query(contribRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.error('Error fetching contributions:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return [];
+  }
+}
+
+export async function addContributionWithTransaction(
+  poolId,
+  contribution,
+  amount,
+) {
+  const db = getFirestore();
+  const poolRef = doc(db, 'blitzPools', poolId);
+  const contribRef = doc(collection(db, 'blitzPools', poolId, 'contributions'));
+
+  try {
+    await runTransaction(db, async tx => {
+      // REQUIRED read
+      const poolSnap = await tx.get(poolRef);
+      if (!poolSnap.exists()) {
+        throw new Error('Pool does not exist');
+      }
+
+      tx.set(contribRef, {
+        ...contribution,
+        contributionId: contribution.contributionId,
+        poolId,
+        createdAt: serverTimestamp(),
+      });
+
+      tx.update(poolRef, {
+        currentAmount: increment(amount),
+        contributorCount: increment(1),
+        lastContributionAt: serverTimestamp(),
+      });
+    });
+
+    console.log('Pool contribution transaction committed:', poolId);
+    return true;
+  } catch (e) {
+    console.error('Contribution transaction failed:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
   }
 }
