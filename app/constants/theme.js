@@ -133,6 +133,28 @@ const INSET_WINDOW_WIDTH = '90%';
 const MAX_CONTENT_WIDTH = 600;
 const HIDDEN_OPACITY = 0.5;
 
+const AVATAR_COLORS = [
+  '#6B8FB8', // muted steel blue
+  '#5F7FA3', // desaturated blue
+  '#7C9BB8', // soft gray-blue
+  '#8FA8C3', // light cool blue
+  '#6F93AD', // blue-gray
+  '#9BB1C9', // pale blue-gray
+  '#5A738F', // darker support blue
+  '#AFC2D6', // very light neutral blue
+];
+
+const AVATAR_COLORS_LIGHTS_OUT = [
+  '#E6E6E6',
+  '#CCCCCC',
+  '#B3B3B3',
+  '#999999',
+  '#808080',
+  '#666666',
+  '#4D4D4D',
+  '#333333',
+];
+
 export {
   COLORS,
   FONT,
@@ -142,4 +164,6 @@ export {
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
   HIDDEN_OPACITY,
+  AVATAR_COLORS,
+  AVATAR_COLORS_LIGHTS_OUT,
 };
