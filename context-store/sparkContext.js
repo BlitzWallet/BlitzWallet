@@ -663,7 +663,10 @@ const SparkWalletProvider = ({ children }) => {
 
         balancePollingTimeoutRef.current = poller;
         const response = await poller.start();
-        if (response.reason === 'aborted') return;
+        if (response.reason === 'aborted') {
+          console.warn('Polling aborted');
+          return;
+        }
       } else {
         if (balancePollingAbortControllerRef.current) {
           balancePollingAbortControllerRef.current.abort();
@@ -1210,14 +1213,14 @@ const SparkWalletProvider = ({ children }) => {
       updatePendingPaymentsIntervalRef.current = null;
     }
     //Clear balance polling
-    if (balancePollingTimeoutRef.current) {
-      clearTimeout(balancePollingTimeoutRef.current);
-      balancePollingTimeoutRef.current = null;
-    }
-    if (balancePollingAbortControllerRef.current) {
-      balancePollingAbortControllerRef.current.abort();
-      balancePollingAbortControllerRef.current = null;
-    }
+    // if (balancePollingTimeoutRef.current) {
+    //   clearTimeout(balancePollingTimeoutRef.current);
+    //   balancePollingTimeoutRef.current = null;
+    // }
+    // if (balancePollingAbortControllerRef.current) {
+    //   balancePollingAbortControllerRef.current.abort();
+    //   balancePollingAbortControllerRef.current = null;
+    // }
     if (txPollingTimeoutRef.current) {
       clearTimeout(txPollingTimeoutRef.current);
       txPollingTimeoutRef.current = null;
