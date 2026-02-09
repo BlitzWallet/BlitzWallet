@@ -2009,7 +2009,7 @@
   },
   "contexts": {
     "spark": {
-      "depositLabel": "Endereço de depósito para pagamento"
+      "depositLabel": "Depósito de Bitcoin"
     }
   },
 
