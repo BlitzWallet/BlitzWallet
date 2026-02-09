@@ -12,6 +12,9 @@ type RootStackParamList = {
     sliderHight: number;
     claimType: string;
   };
+  PoolDetailScreen: {
+    poolId: string;
+  };
 };
 
 // Correct way to define the navigationRef
