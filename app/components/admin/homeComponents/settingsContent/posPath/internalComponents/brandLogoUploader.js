@@ -17,6 +17,7 @@ import { ThemeText } from '../../../../../../functions/CustomElements';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import { HIDDEN_OPACITY } from '../../../../../../constants/theme';
+import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
 
 export default function BrandLogoUploader({
   onLogoChange,
@@ -27,8 +28,9 @@ export default function BrandLogoUploader({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { refreshCache, removeProfileImageFromCache } = useImageCache();
+  const { theme } = useGlobalThemeContext();
   const [isUploading, setIsUploading] = useState(false);
 
   const getPOSImageKey = () => `${masterInfoObject.uuid}_POS`;
@@ -189,7 +191,10 @@ export default function BrandLogoUploader({
           </View>
         ) : (
           <TouchableOpacity
-            style={styles.logoUploadPlaceholder}
+            style={[
+              styles.logoUploadPlaceholder,
+              { borderColor: COLORS.opaicityGray },
+            ]}
             onPress={pickImage}
             disabled={isUploading}
           >
@@ -240,7 +245,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: COLORS.gray,
     borderRadius: 8,
     paddingHorizontal: 10,
   },
