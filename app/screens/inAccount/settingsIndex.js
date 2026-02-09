@@ -587,7 +587,12 @@ export default function SettingsIndex(props) {
                 iconName={'Calculator'}
               />
               <ThemeText
+                CustomNumberOfLines={1}
+                adjustsFontSizeToFit={true}
+                minimumFontScale={0.5}
                 styles={{
+                  width: '100%',
+                  flexShrink: 1,
                   color: theme && darkModeType ? COLORS.white : COLORS.primary,
                   fontSize: SIZES.xLarge,
                   marginLeft: 10,
@@ -687,9 +692,9 @@ const styles = StyleSheet.create({
   },
 
   posContainer: {
+    width: INSET_WINDOW_WIDTH,
     flexDirection: 'row',
     borderWidth: 2,
-    width: 'auto',
     ...CENTER,
     paddingHorizontal: 25,
     paddingVertical: 8,
