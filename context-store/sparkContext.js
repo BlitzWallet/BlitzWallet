@@ -573,7 +573,9 @@ const SparkWalletProvider = ({ children }) => {
         }
       } else if (
         updateType === 'fullUpdate-waitBalance' ||
-        updateType === 'paymentWrapperTx'
+        updateType === 'paymentWrapperTx' ||
+        updateType === 'fullUpdate' ||
+        updateType === 'fullUpdate-tokens'
       ) {
         balancePollingAbortControllerRef.current = new AbortController();
         currentPollingMnemonicRef.current = mnemonic;

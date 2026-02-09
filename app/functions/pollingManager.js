@@ -82,11 +82,6 @@ export const createPollingManager = ({
             return;
           }
 
-          // Update previous result BEFORE validation
-          if (globalResult != null) {
-            previousResult = globalResult;
-          }
-
           // Validate if we should continue
           if (validateResult(globalResult, previousResult)) {
             // Call update callback
@@ -105,6 +100,14 @@ export const createPollingManager = ({
         } catch (err) {
           console.log('Error in polling iteration, continuing:', err);
           poll(delayIndex + 1, resolve, reject);
+        } finally {
+          if (
+            globalResult != null &&
+            (previousResult == null || globalResult !== previousResult)
+          ) {
+            // Only update if balance changes
+            previousResult = globalResult;
+          }
         }
       }, delays[delayIndex]);
     } catch (err) {
