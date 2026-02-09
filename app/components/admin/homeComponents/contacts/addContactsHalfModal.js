@@ -133,7 +133,7 @@ export default function AddContactsHalfModal({
     } else {
       setIsSearching(false);
     }
-  }, 650);
+  }, 450);
 
   const handleSearch = term => {
     setSearchInput(term);
