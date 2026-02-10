@@ -920,7 +920,9 @@
       "chooseContributionAmount": "Välj bidragsbelopp",
       "organizer": "Arrangör",
       "contributorCount_one": "{{count}} person",
-      "contributorCount_other": "{{count}} personer"
+      "contributorCount_other": "{{count}} personer",
+      "pool_contribution_label": "Bidrag till pool: {{poolName}}",
+      "closing_pool_label": "Stänger pool: {{poolName}}"
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"

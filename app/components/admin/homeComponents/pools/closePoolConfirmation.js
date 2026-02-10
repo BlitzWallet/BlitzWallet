@@ -196,7 +196,9 @@ export default function ClosePoolConfirmation({
           address: mainSparkAddress,
           time: new Date().getTime(),
           direction: 'INCOMING',
-          description: `Closing pool: ${pool.poolTitle}`,
+          description: t('wallet.pools.closing_pool_label', {
+            poolName: pool.poolTitle,
+          }),
           senderIdentityPublicKey:
             transferResponse.response.receiverIdentityPublicKey,
         },

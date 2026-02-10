@@ -920,7 +920,9 @@
       "chooseContributionAmount": "Choisir le montant de la contribution",
       "organizer": "Organisateur",
       "contributorCount_one": "{{count}} personne",
-      "contributorCount_other": "{{count}} personnes"
+      "contributorCount_other": "{{count}} personnes",
+      "pool_contribution_label": "Contribution au pool : {{poolName}}",
+      "closing_pool_label": "Fermeture du pool : {{poolName}}"
     },
     "manualInputPage": {
       "inputPlaceholder": "Saisir ou coller un liquide, ou une adresse/facture Lightning"

@@ -917,7 +917,9 @@
       "chooseContributionAmount": "Выберите сумму вклада",
       "organizer": "Организатор",
       "contributorCount_one": "{{count}} человек",
-      "contributorCount_other": "{{count}} человек"
+      "contributorCount_other": "{{count}} человек",
+      "pool_contribution_label": "Взнос в пул: {{poolName}}",
+      "closing_pool_label": "Закрытие пула: {{poolName}}"
     },
     "manualInputPage": {
       "inputPlaceholder": "Адрес Liquid, Молнии или инвойс"

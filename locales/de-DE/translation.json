@@ -912,7 +912,9 @@
       "chooseContributionAmount": "Beitragsbetrag auswählen",
       "organizer": "Organisator",
       "contributorCount_one": "{{count}} Person",
-      "contributorCount_other": "{{count}} Personen"
+      "contributorCount_other": "{{count}} Personen",
+      "pool_contribution_label": "Pool-Beitrag: {{poolName}}",
+      "closing_pool_label": "Pool wird geschlossen: {{poolName}}"
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Zahlungsanforderung ein oder fügen Sie sie ein."

@@ -139,7 +139,9 @@ export default function ContributeToPoolHalfModal({
         paymentType: 'spark',
         amountSats: paymentAmountSats,
         masterInfoObject,
-        memo: `Pool contribution: ${pool.poolTitle}`,
+        memo: t('wallet.pools.pool_contribution_label', {
+          poolName: pool.poolTitle,
+        }),
         userBalance: sparkInformation.userBalance,
         sparkInformation,
         mnemonic: currentWalletMnemoinc,
