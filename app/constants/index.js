@@ -91,6 +91,10 @@ const CUSTOM_TOKEN_CURRENCY_OPTIONS = [{ token: 'USDB', currency: 'USD' }];
 const CHATGPT_INPUT_COST = 10 / 1000000;
 const CHATGPT_OUTPUT_COST = 30 / 1000000;
 const STARTING_INDEX_FOR_GIFTS_DERIVE = 1000;
+const STARTING_INDEX_FOR_POOLS_DERIVE = 100000;
+
+const POOL_DEEPLINK_REGEX =
+  /^(?:blitz-wallet:\/\/pools\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/pools\/)[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\/?$/;
 
 const MIN_CHANNEL_OPEN_FEE = 500_000;
 const MAX_CHANNEL_OPEN_FEE = 1_000_000;
@@ -201,4 +205,6 @@ export {
   FLASHNET_ERROR_CODE_REGEX,
   FLASHNET_REFUND_REGEX,
   CUSTOM_TOKEN_CURRENCY_OPTIONS,
+  STARTING_INDEX_FOR_POOLS_DERIVE,
+  POOL_DEEPLINK_REGEX,
 };

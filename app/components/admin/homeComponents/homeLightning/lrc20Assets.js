@@ -295,10 +295,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tokenNameText: {
+    width: '100%',
     textTransform: 'uppercase',
     includeFontPadding: false,
     flexShrink: 1,
-    maxWidth: '45%',
   },
   tokenIdentifierText: {
     opacity: 0.7,

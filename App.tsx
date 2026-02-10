@@ -46,6 +46,7 @@ import {
   BLITZ_PAYMENT_DEEP_LINK_SCHEMES,
   CONTACT_UNIVERSAL_LINK_REGEX,
   GIFT_DEEPLINK_REGEX,
+  POOL_DEEPLINK_REGEX,
   LOGIN_SECUITY_MODE_KEY,
   LOGIN_SECURITY_MODE_TYPE_KEY,
 } from './app/constants';
@@ -117,6 +118,7 @@ import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { GiftProvider } from './context-store/giftContext';
+import { PoolProvider } from './context-store/poolContext';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
@@ -162,6 +164,7 @@ function App(): JSX.Element {
                                                 <ImageCacheProvider>
                                                   <GlobalServerTimeProvider>
                                                     <GiftProvider>
+                                                      <PoolProvider>
                                                       <FlashnetProvider>
                                                         <UserBalanceProvider>
                                                           {/* <Suspense
@@ -169,6 +172,7 @@ function App(): JSX.Element {
                                                           <ResetStack />
                                                         </UserBalanceProvider>
                                                       </FlashnetProvider>
+                                                      </PoolProvider>
                                                     </GiftProvider>
                                                     {/* </Suspense> */}
                                                   </GlobalServerTimeProvider>
@@ -352,7 +356,14 @@ function ResetStack(): JSX.Element | null {
         if (!blockSoftReset) {
           let isContactLink = false;
 
-          if (GIFT_DEEPLINK_REGEX.test(url)) {
+          if (POOL_DEEPLINK_REGEX.test(url)) {
+            const poolIdMatch = url.match(/pools\/([0-9a-f-]{36})/i);
+            if (poolIdMatch) {
+              navigationRef.current.navigate('PoolDetailScreen', {
+                poolId: poolIdMatch[1],
+              });
+            }
+          } else if (GIFT_DEEPLINK_REGEX.test(url)) {
             navigationRef.current.navigate('CustomHalfModal', {
               wantedContent: 'ClaimGiftScreen',
               url,
