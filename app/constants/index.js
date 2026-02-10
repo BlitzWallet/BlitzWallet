@@ -35,6 +35,8 @@ const FLASHNET_ERROR_CODE_REGEX = /\bFSAG-\d{4}(?:T\d+)?\b/;
 
 const FLASHNET_REFUND_REGEX = /via transfer ([\da-fA-F\-]+)/;
 
+const BASIC_ACCOUNT_NAME_REGEX = /^account\s+\d+$/i;
+
 const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
 const NOSTR_RELAY_URL = 'wss://relay.getalbypro.com/blitz';
 
@@ -90,8 +92,11 @@ const CUSTOM_TOKEN_CURRENCY_OPTIONS = [{ token: 'USDB', currency: 'USD' }];
 
 const CHATGPT_INPUT_COST = 10 / 1000000;
 const CHATGPT_OUTPUT_COST = 30 / 1000000;
-const STARTING_INDEX_FOR_GIFTS_DERIVE = 1000;
-const STARTING_INDEX_FOR_POOLS_DERIVE = 100000;
+
+const MAX_DERIVED_ACCOUNTS = 1000; // Indices 0-999 for user accounts
+const STARTING_INDEX_FOR_GIFTS_DERIVE = 1000; // Indices 1000-99999 for gifts
+const MAX_GIFTS = 99000; // Maximum 99000 gifts
+const STARTING_INDEX_FOR_POOLS_DERIVE = 100000; // Indices 100000+ for pools (unlimited)
 
 const POOL_DEEPLINK_REGEX =
   /^(?:blitz-wallet:\/\/pools\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/pools\/)[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\/?$/;
@@ -193,7 +198,9 @@ export {
   BLITZ_PAYMENT_DEEP_LINK_SCHEMES,
   HIDE_IN_APP_PURCHASE_ITEMS,
   IS_BLITZ_URL_REGEX,
+  MAX_DERIVED_ACCOUNTS,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
+  MAX_GIFTS,
   GIFT_DEEPLINK_REGEX,
   GIFT_DERIVE_PATH_CUTOFF,
   CONTACT_UNIVERSAL_LINK_REGEX,
@@ -207,4 +214,5 @@ export {
   CUSTOM_TOKEN_CURRENCY_OPTIONS,
   STARTING_INDEX_FOR_POOLS_DERIVE,
   POOL_DEEPLINK_REGEX,
+  BASIC_ACCOUNT_NAME_REGEX,
 };
