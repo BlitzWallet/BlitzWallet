@@ -75,9 +75,9 @@ export default function PoolDetailScreen(props) {
 
   const refreshPoolDetails = useCallback(async () => {
     try {
+      if (pools?.[poolId]?.status === 'closed') return;
       // Refresh pool data from Firestore
       const freshPool = await getPoolFromDatabase(poolId);
-      console.log(freshPool, poolId);
       if (freshPool) {
         setPool(freshPool);
       } else {
@@ -93,13 +93,13 @@ export default function PoolDetailScreen(props) {
     } finally {
       setIsLoading(false);
     }
-  }, [poolId]);
+  }, [poolId, pools]);
 
   // use focus effect to rerender after clsoing on half modal
   useFocusEffect(
     useCallback(() => {
       refreshPoolDetails(true);
-    }, [poolId]),
+    }, [poolId, pools]),
   );
 
   const handleShare = useCallback(async () => {
