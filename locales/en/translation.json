@@ -958,7 +958,7 @@
         "selectPaymentMethod": "Please select a payment method to continue"
       },
       "selectPaymentMethod": {
-        "header": "Please select how you’d like to fund your payment."
+        "header": "How do you want to fund your payment?"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Invalid format: Addresses should be text only. Please check and try again.",
