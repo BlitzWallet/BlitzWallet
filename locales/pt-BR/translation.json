@@ -2009,7 +2009,7 @@
   },
   "contexts": {
     "spark": {
-      "depositLabel": "Depósito de Bitcoin"
+      "depositLabel": "Recebimento via endereço Bitcoin"
     }
   },
 
