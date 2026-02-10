@@ -4,6 +4,7 @@ import { CENTER, ICONS } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {
   COLORS,
+  FONT,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
@@ -37,6 +38,8 @@ export default function ChoosePaymentMethod({
       ? 'bitcoinOrange'
       : 'dollarGreen';
 
+  const showHiddenBalance =
+    masterInfoObject.userBalanceDenomination === 'hidden';
   const balance =
     determinePaymentMethod === 'BTC' || determinePaymentMethod === 'user-choice'
       ? displayCorrectDenomination({
@@ -113,7 +116,19 @@ export default function ChoosePaymentMethod({
             )}
           />
           {uiState !== 'CONTACT_REQUEST' && (
-            <ThemeText styles={styles.amountText} content={`${balance}`} />
+            <ThemeText
+              styles={[
+                styles.amountText,
+                {
+                  fontFamily: showHiddenBalance
+                    ? FONT.Asterisk
+                    : FONT.Title_Regular,
+                  fontSize: showHiddenBalance ? SIZES.xSmall : SIZES.medium,
+                  marginTop: showHiddenBalance ? 3 : 0,
+                },
+              ]}
+              content={showHiddenBalance ? 'A A A A A' : `${balance}`}
+            />
           )}
         </View>
         <ThemeIcon
