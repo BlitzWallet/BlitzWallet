@@ -379,7 +379,10 @@ export const getSparkBalance = async mnemonic => {
 
       let currentTokensObj = {};
       for (const [tokensIdentifier, tokensData] of balance.tokenBalances) {
-        currentTokensObj[tokensIdentifier] = tokensData;
+        currentTokensObj[tokensIdentifier] = {
+          ...tokensData,
+          balance: tokensData.availableToSendBalance,
+        };
       }
 
       const allTokens = mergeTokensWithCache(

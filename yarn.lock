@@ -1600,9 +1600,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@buildonspark/spark-sdk@npm:0.6.1"
+"@buildonspark/spark-sdk@npm:^0.6.2":
+  version: 0.6.2
+  resolution: "@buildonspark/spark-sdk@npm:0.6.2"
   dependencies:
     "@bufbuild/protobuf": ^2.2.5
     "@lightsparkdev/core": ^1.4.4
@@ -1648,7 +1648,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 7a236e2b7106c4e20ce0adbcde55c18a9b4b133d1939874383b7b585bbd3165a3e7426c5a41cf6e2063b3b333c2e05697ebcb419c861ddae75becc0cf94800d8
+  checksum: adaec52d797d52104a123b9565cc169ae428682dd997d1444a34838fe20625b83b6e5cf5a4a8b240af1ba1f5717bdb23267005b7d7636f53dd0316cb6bb157a1
   languageName: node
   linkType: hard
 
@@ -4790,7 +4790,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
-    "@buildonspark/spark-sdk": ^0.6.1
+    "@buildonspark/spark-sdk": ^0.6.2
     "@craftzdog/react-native-buffer": ^6.1.0
     "@flashnet/sdk": ^0.5.4
     "@miblanchard/react-native-slider": ^2.6.0
@@ -4895,7 +4895,7 @@ __metadata:
     react-native-worklets: 0.5.1
     react-test-renderer: 19.1.0
     rn-qr-generator: ^1.4.3
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#e286d5ca320730c540287ba34bfc386e8796de74"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#90830e39d7198c7056aaadbfa0147232ce939f1b"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     text-encoding-polyfill: ^0.6.7
@@ -13960,16 +13960,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#e286d5ca320730c540287ba34bfc386e8796de74":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#90830e39d7198c7056aaadbfa0147232ce939f1b":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=e286d5ca320730c540287ba34bfc386e8796de74"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=90830e39d7198c7056aaadbfa0147232ce939f1b"
   dependencies:
-    "@buildonspark/spark-sdk": ^0.6.1
+    "@buildonspark/spark-sdk": ^0.6.2
     "@ecies/ciphers": ^0.2.4
     "@flashnet/sdk": ^0.5.4
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: 32e6a47959c08683bb998ce6245a56338b462535844f8a93447c8b5bffe431caba08723fb792bdf3d54e834981b2c83c21f44050adad2b9d6a4f3d3579a7b291
+  checksum: d48856fbcce33828cce7f66e905b63dd0ac3bd1051a2c4ed0fdfd79083eff9512622944606c49ee6ad67eb00ba26f5884faca41d73388290f9fe539ff8c64de8
   languageName: node
   linkType: hard
 
