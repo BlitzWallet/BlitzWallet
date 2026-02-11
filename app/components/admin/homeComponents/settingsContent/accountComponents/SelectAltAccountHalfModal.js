@@ -4,8 +4,7 @@ import { CENTER, SIZES } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { useState } from 'react';
-import CustomButton from '../../../../../functions/CustomElements/button';
+import { useCallback, useState } from 'react';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import {
@@ -13,11 +12,12 @@ import {
   initializeSparkWallet,
 } from '../../../../../functions/spark';
 import { useTranslation } from 'react-i18next';
-import { useWebView } from '../../../../../../context-store/webViewContext';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import AccountCard from '../../accounts/accountCard';
 
 export default function SelectAltAccountHalfModal(props) {
-  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
+  const { getAccountMnemonic } = useActiveCustodyAccount();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const [isLoading, setIsLoading] = useState({
@@ -30,91 +30,83 @@ export default function SelectAltAccountHalfModal(props) {
 
   const accounts = useCustodyAccountList();
 
+  const handleAccountSelection = useCallback(
+    async account => {
+      if (
+        (transferType === 'from' && selectedFrom === account.uuid) ||
+        (transferType === 'to' && selectedTo === account.uuid)
+      ) {
+        navigate.goBack();
+        return;
+      }
+
+      setIsLoading({
+        accountBeingLoaded: account.uuid,
+        isLoading: true,
+      });
+
+      const accountMnemoinic = await getAccountMnemonic(account);
+
+      await new Promise(res => setTimeout(res, 800));
+      await initializeSparkWallet(accountMnemoinic, false, {
+        maxRetries: 4,
+      });
+      let balance = 0;
+      if (transferType === 'from') {
+        const balanceResponse = await getSparkBalance(accountMnemoinic);
+        balance = Number(balanceResponse.balance);
+      }
+
+      navigate.popTo(
+        'CustodyAccountPaymentPage',
+        {
+          [transferType]: account.uuid,
+          [`${transferType}Balance`]: balance,
+        },
+        {
+          merge: true,
+        },
+      );
+    },
+    [navigate, selectedFrom, selectedTo, transferType, getAccountMnemonic],
+  );
+
   const accountElements = accounts
     .filter(item => {
       return (
-        item.mnemoinc !== (transferType === 'from' ? selectedTo : selectedFrom)
+        item.uuid !== (transferType === 'from' ? selectedTo : selectedFrom)
       );
     })
     .map((account, index) => {
       return (
-        <View
-          key={index}
-          style={{
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-            ...styles.accountRow,
-          }}
-        >
-          <ThemeText
-            styles={styles.accountName}
-            CustomNumberOfLines={1}
-            content={account.name}
-          />
-
-          <CustomButton
-            actionFunction={async () => {
-              if (
-                (transferType === 'from' &&
-                  selectedFrom === account.mnemoinc) ||
-                (transferType === 'to' && selectedTo === account.mnemoinc)
-              ) {
-                navigate.goBack();
-                return;
-              }
-
-              setIsLoading({
-                accountBeingLoaded: account.mnemoinc,
-                isLoading: true,
-              });
-
-              await new Promise(res => setTimeout(res, 800));
-              await initializeSparkWallet(account.mnemoinc, false, {
-                maxRetries: 4,
-              });
-              let balance = 0;
-              if (transferType === 'from') {
-                const balanceResponse = await getSparkBalance(account.mnemoinc);
-                balance = Number(balanceResponse.balance);
-              }
-
-              navigate.popTo(
-                'CustodyAccountPaymentPage',
-                {
-                  [transferType]: account.mnemoinc,
-                  [`${transferType}Balance`]: balance,
-                },
-                {
-                  merge: true,
-                },
-              );
-            }}
-            buttonStyles={{
-              width: 'auto',
-              backgroundColor:
-                theme && darkModeType ? backgroundOffset : backgroundColor,
-            }}
-            textStyles={{ color: textColor }}
-            loadingColor={textColor}
-            textContent={t('constants.select')}
-            useLoading={
-              isLoading.accountBeingLoaded === account.mnemoinc &&
-              isLoading.isLoading
-            }
-          />
-        </View>
+        <AccountCard
+          key={account.uuid || `Account ${index}`}
+          account={account}
+          isActive={false}
+          onPress={() => handleAccountSelection(account)}
+          isLoading={
+            isLoading.accountBeingLoaded === account.uuid && isLoading.isLoading
+          }
+          useSelection={true}
+        />
       );
     });
 
   return (
-    <ScrollView stickyHeaderIndices={[0]} style={styles.container}>
+    <ScrollView
+      stickyHeaderIndices={[0]}
+      showsVerticalScrollIndicator={false}
+      style={styles.container}
+    >
       <ThemeText
         styles={{
           ...styles.sectionHeader,
           backgroundColor:
             theme && darkModeType ? backgroundOffset : backgroundColor,
         }}
-        content={t('constants.accounts')}
+        content={t(
+          `settings.accountComponents.selectAltAccount.${transferType}`,
+        )}
       />
       {accountElements}
     </ScrollView>
@@ -125,7 +117,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     width: '100%',
     fontSize: SIZES.large,
-    textAlign: 'center',
+    fontWeight: 500,
     marginBottom: 10,
   },
   container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
