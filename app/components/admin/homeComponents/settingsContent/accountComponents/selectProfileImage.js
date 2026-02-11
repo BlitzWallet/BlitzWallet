@@ -132,26 +132,22 @@ export default function EmojiAvatarSelector(props) {
         <View
           style={[styles.previewCircle, { backgroundColor: backgroundOffset }]}
         >
-          {selectedEmoji ? (
-            <>
-              <AccountProfileImage
-                imageSize={120}
-                account={{ ...selectedAccount, profileEmoji: selectedEmoji }}
+          <AccountProfileImage
+            imageSize={120}
+            account={{ ...selectedAccount, profileEmoji: selectedEmoji }}
+          />
+          {selectedEmoji && (
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={handleClear}
+              activeOpacity={0.7}
+            >
+              <ThemeIcon
+                size={25}
+                colorOverride={COLORS.lightModeText}
+                iconName={'X'}
               />
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={handleClear}
-                activeOpacity={0.7}
-              >
-                <ThemeIcon
-                  size={25}
-                  colorOverride={COLORS.lightModeText}
-                  iconName={'X'}
-                />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <ContactProfileImage />
+            </TouchableOpacity>
           )}
         </View>
       </View>
