@@ -77,14 +77,17 @@ export default function AccountCard({
             style={[
               styles.activeDot,
               {
-                backgroundColor:
-                  theme && darkModeType ? COLORS.white : COLORS.darkModeText,
+                backgroundColor: COLORS.darkModeText,
               },
             ]}
           >
             <ThemeIcon
-              colorOverride={textColor}
-              size={15}
+              colorOverride={
+                theme && darkModeType
+                  ? COLORS.lightModeText
+                  : COLORS.lightModeText
+              }
+              size={12}
               iconName={'Check'}
               strokeWidth={2}
             />
@@ -167,8 +170,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   activeDot: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     borderRadius: 10,
     position: 'absolute',
     bottom: -5,
