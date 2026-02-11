@@ -960,7 +960,7 @@
         "selectPaymentMethod": "Selecione um método de pagamento para continuar."
       },
       "selectPaymentMethod": {
-        "header": "Fazer esse pagamento usando:"
+        "header": "Escolha o saldo para realizar esse pagamento."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
