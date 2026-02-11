@@ -16,11 +16,11 @@ export default function AccountProfileImage({ account, imageSize }) {
 
   const uri =
     account.name === 'Main Wallet'
-      ? cache[masterInfoObject.uuid].localUri
+      ? cache[masterInfoObject.uuid]?.localUri
       : account.profileImage;
   const updated =
     account.name === 'Main Wallet'
-      ? cache[masterInfoObject.uuid].updated
+      ? cache[masterInfoObject.uuid]?.updated
       : account.timeUploaded;
 
   return (
