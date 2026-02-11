@@ -1,22 +1,34 @@
 import { useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import GetTheemColors from '../../hooks/themeColors';
-import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
-import { useImageCache } from '../../../context-store/imageCache';
-import { useGlobalContextProvider } from '../../../context-store/context';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { keyboardNavigate } from '../customNavigation';
+import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
+import useCustodyAccountList from '../../hooks/useCustodyAccountsList';
+import AccountProfileImage from '../../components/admin/homeComponents/accounts/accountProfileImage';
 export default function ProfileImageSettingsNavigator() {
-  const { darkModeType, theme } = useGlobalThemeContext();
-  const { masterInfoObject } = useGlobalContextProvider();
-  const { cache } = useImageCache();
   const { backgroundOffset } = GetTheemColors();
   const navigate = useNavigation();
+  const accounts = useCustodyAccountList();
+  const { isUsingNostr, selectedAltAccount } = useActiveCustodyAccount();
 
   const goToMyProfile = useCallback(() => {
-    keyboardNavigate(() => navigate.navigate('SettingsHome', {}));
+    keyboardNavigate(() => navigate.navigate('ManageAccountsPoolsScreen', {}));
   }, [navigate]);
+
+  const activeAccount = useMemo(() => {
+    return accounts.find((account, index) => {
+      const isMainWallet = account.name === 'Main Wallet';
+      const isNWC = account.name === 'NWC';
+      const activeAltAccount = selectedAltAccount[0];
+      const isActive = isNWC
+        ? isUsingNostr
+        : isMainWallet
+        ? !activeAltAccount && !isUsingNostr
+        : activeAltAccount?.uuid === account.uuid;
+      return isActive;
+    });
+  }, [accounts, isUsingNostr, selectedAltAccount]);
 
   return (
     <TouchableOpacity onPress={goToMyProfile}>
@@ -26,12 +38,7 @@ export default function ProfileImageSettingsNavigator() {
           { backgroundColor: backgroundOffset },
         ]}
       >
-        <ContactProfileImage
-          updated={cache[masterInfoObject?.uuid]?.updated}
-          uri={cache[masterInfoObject?.uuid]?.localUri}
-          darkModeType={darkModeType}
-          theme={theme}
-        />
+        <AccountProfileImage account={activeAccount} imageSize={35} />
       </View>
     </TouchableOpacity>
   );
