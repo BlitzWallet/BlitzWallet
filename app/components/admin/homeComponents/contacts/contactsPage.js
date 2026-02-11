@@ -50,6 +50,7 @@ import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { TAB_ITEM_HEIGHT } from '../../../../../navigation/tabs';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import ProfileImageSettingsNavigator from '../../../../functions/CustomElements/profileSettingsNavigator';
 
 export default function ContactsPage({ navigation }) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -271,10 +272,6 @@ export default function ContactsPage({ navigation }) {
     t,
   ]);
 
-  const goToMyProfile = useCallback(() => {
-    keyboardNavigate(() => navigate.navigate('SettingsHome', {}));
-  }, [navigate]);
-
   const handleButtonPress = useCallback(() => {
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
@@ -358,21 +355,7 @@ export default function ContactsPage({ navigation }) {
             content={t('contacts.contactsPage.contactsHeader')}
             styles={memoizedStyles.headerText}
           />
-          <TouchableOpacity onPress={goToMyProfile}>
-            <View
-              style={[
-                memoizedStyles.profileImageContainer,
-                profileContainerStyle,
-              ]}
-            >
-              <ContactProfileImage
-                updated={cache[masterInfoObject?.uuid]?.updated}
-                uri={cache[masterInfoObject?.uuid]?.localUri}
-                darkModeType={darkModeType}
-                theme={theme}
-              />
-            </View>
-          </TouchableOpacity>
+          <ProfileImageSettingsNavigator />
         </View>
       )}
       {hasContacts && didEditProfile ? (
