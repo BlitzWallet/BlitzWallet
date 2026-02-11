@@ -44,6 +44,10 @@ import {
 } from '../app/components/admin/homeComponents/settingsContent';
 import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
+import SelectCreateAccountType from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectCreateAccountType';
+import EditAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/editAccountPage';
+import EditAccountName from '../app/components/admin/homeComponents/settingsContent/accountComponents/editAccountName';
+import EmojiAvatarSelector from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectProfileImage';
 import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
@@ -83,6 +87,7 @@ import {
   TechnicalTransactionDetails,
   ViewAllTxPage,
   SwapsPage,
+  ManageAccountsPoolsScreen,
 } from '../app/screens/inAccount';
 import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
 
@@ -116,6 +121,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     options: { gestureEnabled: true },
   },
   { name: 'SettingsHome', component: SettingsIndex },
+  { name: 'ManageAccountsPoolsScreen', component: ManageAccountsPoolsScreen },
+  { name: 'ShowProfileQrSlideRight', component: ShowProfileQr },
   // {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
   { name: 'ChooseContactHalfModal', component: ChooseContactHalfModal },
   { name: 'SettingsContentHome', component: SettingsContentIndex },
@@ -153,7 +160,11 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   // {name: 'EcashSettings', component: EcashSettings},
   { name: 'AddPOSItemsPage', component: AddPOSItemsPage },
   { name: 'CreateCustodyAccount', component: CreateCustodyAccountPage },
+  { name: 'SelectCreateAccountType', component: SelectCreateAccountType },
+  { name: 'EditAccountName', component: EditAccountName },
   { name: 'ViewCustodyAccount', component: ViewCustodyAccountPage },
+  { name: 'EditAccountPage', component: EditAccountPage },
+  { name: 'EmojiAvatarSelector', component: EmojiAvatarSelector },
   { name: 'CustodyAccountPaymentPage', component: AccountPaymentPage },
   { name: 'NosterWalletConnect', component: NosterWalletConnect },
   { name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount },
