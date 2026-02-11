@@ -8,6 +8,7 @@ import {
   PosSettingsPage,
   ResetPage,
   SeedPhrasePage,
+  SeedPhraseWarning,
   CrashReportingSettingsPage,
   CreateCustodyAccounts,
   SparkInfo,
@@ -67,18 +68,6 @@ export default function SettingsContentIndex(props) {
         <GlobalThemeView styles={styles.globalContainer}>
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
-              showLeftImage={selectedPage?.toLowerCase() === 'backup wallet'}
-              iconNew={
-                selectedPage?.toLowerCase() === 'backup wallet' ? 'Info' : ''
-              }
-              leftImageFunction={() => {
-                if (selectedPage?.toLowerCase() === 'backup wallet') {
-                  navigate.navigate('InformationPopup', {
-                    textContent: t('settings.index.seedPopup'),
-                    buttonText: t('constants.iunderstand'),
-                  });
-                }
-              }}
               label={t(
                 `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
               )}
@@ -128,6 +117,13 @@ export default function SettingsContentIndex(props) {
               )}
 
               {selectedPage?.toLowerCase() === 'backup wallet' && (
+                <SeedPhraseWarning
+                  fromPage={'settings'}
+                  extraData={extraData}
+                  theme={theme}
+                />
+              )}
+              {selectedPage?.toLowerCase() === 'show seed phrase' && (
                 <SeedPhrasePage extraData={extraData} theme={theme} />
               )}
               {selectedPage?.toLowerCase() === 'spark info' && (
