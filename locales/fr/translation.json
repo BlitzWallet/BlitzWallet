@@ -1541,6 +1541,40 @@
       },
       "viewAccountPage": {
         "informationMessage": "Êtes-vous sûr de vouloir afficher ce code QR ?\n\nScanner votre phrase de semence est pratique, mais assurez-vous d'utiliser un appareil sécurisé et de confiance. Cela permet de préserver la sécurité de votre portefeuille."
+      },
+      "editAccountName": {
+        "title": "Nom du compte",
+        "namePlaceholder": "Nom"
+      },
+      "editAccountPage": {
+        "title": "Modifier le compte",
+        "accountNameLabel": "Nom du compte",
+        "showRecoveryPhraseLabel": "Afficher la phrase de récupération",
+        "removeAccountLabel": "Supprimer le compte"
+      },
+      "selectCreateAccountType": {
+        "title": "Ajouter un compte",
+        "createNewAccountTitle": "Créer un nouveau compte",
+        "createNewAccountDescription": "Récupérable via la phrase seed principale",
+        "importRecoveryPhraseTitle": "Importer une phrase de récupération",
+        "importRecoveryPhraseDescription": "Importer des comptes depuis un autre wallet"
+      },
+      "selectProfileImage": {
+        "title": "Choisir un avatar",
+        "searchPlaceholder": "Rechercher des emojis...",
+        "saveButton": "Enregistrer l’avatar"
+      },
+      "selectAltAccount": {
+        "from": "Sélectionnez le compte depuis lequel vous souhaitez envoyer.",
+        "to": "Sélectionnez le compte sur lequel vous souhaitez recevoir."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Profil",
+        "settingsButton": "Paramètres",
+        "poolsTitle": "Pools",
+        "noPoolsMessage": "Vous n’avez pas encore créé de pool. Appuyez pour créer votre premier pool.",
+        "yourAccountsTitle": "Vos comptes",
+        "addAccountButton": "Ajouter un compte"
       }
     },
     "posPath": {
@@ -2048,6 +2082,10 @@
       "payment": "{{name}} vous a payé {{amount}}",
       "giftCard": "{{name}} vous a envoyé une carte cadeau {{giftCardName}} "
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Compte {{index}}"
   },
 
   "flashnetUserMessages": {

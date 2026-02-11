@@ -1565,6 +1565,40 @@
       },
       "viewAccountPage": {
         "informationMessage": "Sei sicuro di voler mostrare questo QR Code?\n\nScansionare il tuo seed è comodo, ma assicurati di usare un dispositivo sicuro e affidabile. Questo aiuta a mantenere il tuo wallet sicuro."
+      },
+      "editAccountName": {
+        "title": "Nome account",
+        "namePlaceholder": "Nome"
+      },
+      "editAccountPage": {
+        "title": "Modifica account",
+        "accountNameLabel": "Nome account",
+        "showRecoveryPhraseLabel": "Mostra frase di recupero",
+        "removeAccountLabel": "Rimuovi account"
+      },
+      "selectCreateAccountType": {
+        "title": "Aggiungi account",
+        "createNewAccountTitle": "Crea nuovo account",
+        "createNewAccountDescription": "Recuperabile dalla frase seed principale",
+        "importRecoveryPhraseTitle": "Importa frase di recupero",
+        "importRecoveryPhraseDescription": "Importa account da un altro wallet"
+      },
+      "selectProfileImage": {
+        "title": "Scegli avatar",
+        "searchPlaceholder": "Cerca emoji...",
+        "saveButton": "Salva avatar"
+      },
+      "selectAltAccount": {
+        "from": "Seleziona l’account da cui vuoi inviare.",
+        "to": "Seleziona l’account su cui vuoi ricevere."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Profilo",
+        "settingsButton": "Impostazioni",
+        "poolsTitle": "Pool",
+        "noPoolsMessage": "Non hai ancora creato alcun pool. Tocca per creare il tuo primo pool.",
+        "yourAccountsTitle": "I tuoi account",
+        "addAccountButton": "Aggiungi account"
       }
     },
     "posPath": {
@@ -2092,6 +2126,10 @@
       "payment": "{{name}} ti ha pagato {{amount}}",
       "giftCard": "{{name}} ti ha inviato una carta regalo {{giftCardName}}"
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Account {{index}}"
   },
 
   "flashnetUserMessages": {

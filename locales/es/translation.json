@@ -1399,6 +1399,40 @@
       },
       "viewAccountPage": {
         "informationMessage": "¿Estás seguro de que quieres mostrar este código QR?\n\nEscanear tu semilla es conveniente, pero asegúrate de usar un dispositivo seguro y confiable. Esto ayuda a mantener tu billetera segura."
+      },
+      "editAccountName": {
+        "title": "Nombre de la cuenta",
+        "namePlaceholder": "Nombre"
+      },
+      "editAccountPage": {
+        "title": "Editar cuenta",
+        "accountNameLabel": "Nombre de la cuenta",
+        "showRecoveryPhraseLabel": "Mostrar frase de recuperación",
+        "removeAccountLabel": "Eliminar cuenta"
+      },
+      "selectCreateAccountType": {
+        "title": "Agregar cuenta",
+        "createNewAccountTitle": "Crear nueva cuenta",
+        "createNewAccountDescription": "Recuperable desde la frase semilla principal",
+        "importRecoveryPhraseTitle": "Importar frase de recuperación",
+        "importRecoveryPhraseDescription": "Importar cuentas desde otra wallet"
+      },
+      "selectProfileImage": {
+        "title": "Elegir avatar",
+        "searchPlaceholder": "Buscar emojis...",
+        "saveButton": "Guardar avatar"
+      },
+      "selectAltAccount": {
+        "from": "Selecciona la cuenta desde la que quieres enviar.",
+        "to": "Selecciona la cuenta en la que quieres recibir."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Perfil",
+        "settingsButton": "Configuración",
+        "poolsTitle": "Pools",
+        "noPoolsMessage": "Aún no has creado ningún pool. Toca para crear tu primer pool.",
+        "yourAccountsTitle": "Tus cuentas",
+        "addAccountButton": "Agregar cuenta"
       }
     },
     "posPath": {
@@ -1915,6 +1949,10 @@
       "payment": "{{name}} te pagó {{amount}}",
       "giftCard": "{{name}} te envió una tarjeta regalo de {{giftCardName}}."
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Cuenta {{index}}"
   },
 
   "flashnetUserMessages": {

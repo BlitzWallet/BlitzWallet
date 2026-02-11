@@ -1541,6 +1541,40 @@
       },
       "viewAccountPage": {
         "informationMessage": "Är du säker på att du vill visa den här QR-koden?\n\nAtt skanna din seed-fras är bekvämt, men se till att du använder en säker och betrodd enhet. Detta hjälper till att hålla din plånbok säker."
+      },
+      "editAccountName": {
+        "title": "Kontonamn",
+        "namePlaceholder": "Namn"
+      },
+      "editAccountPage": {
+        "title": "Redigera konto",
+        "accountNameLabel": "Kontonamn",
+        "showRecoveryPhraseLabel": "Visa återställningsfras",
+        "removeAccountLabel": "Ta bort konto"
+      },
+      "selectCreateAccountType": {
+        "title": "Lägg till konto",
+        "createNewAccountTitle": "Skapa nytt konto",
+        "createNewAccountDescription": "Kan återställas från huvudets seed-fras",
+        "importRecoveryPhraseTitle": "Importera återställningsfras",
+        "importRecoveryPhraseDescription": "Importera konton från en annan wallet"
+      },
+      "selectProfileImage": {
+        "title": "Välj avatar",
+        "searchPlaceholder": "Sök emojis...",
+        "saveButton": "Spara avatar"
+      },
+      "selectAltAccount": {
+        "from": "Välj kontot du vill skicka från.",
+        "to": "Välj kontot du vill ta emot till."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Profil",
+        "settingsButton": "Inställningar",
+        "poolsTitle": "Pools",
+        "noPoolsMessage": "Du har inte skapat några pools ännu. Tryck för att skapa din första pool.",
+        "yourAccountsTitle": "Dina konton",
+        "addAccountButton": "Lägg till konto"
       }
     },
     "posPath": {
@@ -2048,6 +2082,10 @@
       "payment": "{{name}} betalade dig {{amount}}",
       "giftCard": "{{name}} skickade ett presentkort till dig på {{giftCardName}} "
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Konto {{index}}"
   },
 
   "flashnetUserMessages": {

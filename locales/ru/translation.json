@@ -1538,6 +1538,40 @@
       },
       "viewAccountPage": {
         "informationMessage": "Показать QR-код?\n\nСканируйте только на безопасном устройстве."
+      },
+      "editAccountName": {
+        "title": "Название аккаунта",
+        "namePlaceholder": "Название"
+      },
+      "editAccountPage": {
+        "title": "Редактировать аккаунт",
+        "accountNameLabel": "Название аккаунта",
+        "showRecoveryPhraseLabel": "Показать фразу восстановления",
+        "removeAccountLabel": "Удалить аккаунт"
+      },
+      "selectCreateAccountType": {
+        "title": "Добавить аккаунт",
+        "createNewAccountTitle": "Создать новый аккаунт",
+        "createNewAccountDescription": "Восстанавливается из основной seed-фразы",
+        "importRecoveryPhraseTitle": "Импортировать фразу восстановления",
+        "importRecoveryPhraseDescription": "Импортировать аккаунты из другого кошелька"
+      },
+      "selectProfileImage": {
+        "title": "Выбрать аватар",
+        "searchPlaceholder": "Поиск эмодзи...",
+        "saveButton": "Сохранить аватар"
+      },
+      "selectAltAccount": {
+        "from": "Выберите аккаунт, с которого хотите отправить.",
+        "to": "Выберите аккаунт, на который хотите получить."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Профиль",
+        "settingsButton": "Настройки",
+        "poolsTitle": "Пулы",
+        "noPoolsMessage": "Вы ещё не создали ни одного пула. Нажмите, чтобы создать первый пул.",
+        "yourAccountsTitle": "Ваши аккаунты",
+        "addAccountButton": "Добавить аккаунт"
       }
     },
     "posPath": {
@@ -2054,6 +2088,10 @@
       "payment": "{{name}} заплатил {{amount}}",
       "giftCard": "{{name}} отправил вам карту {{giftCardName}}"
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Аккаунт {{index}}"
   },
 
   "flashnetUserMessages": {

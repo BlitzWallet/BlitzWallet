@@ -1528,6 +1528,40 @@
       },
       "viewAccountPage": {
         "informationMessage": "Sind Sie sicher, dass Sie diesen QR-Code anzeigen möchten?\n\nDas Scannen Ihrer Seed-Phrase ist praktisch, aber stellen Sie sicher, dass Sie ein sicheres und vertrauenswürdiges Gerät verwenden. Dies hilft, Ihre Wallet sicher zu halten."
+      },
+      "editAccountName": {
+        "title": "Kontoname",
+        "namePlaceholder": "Name"
+      },
+      "editAccountPage": {
+        "title": "Konto bearbeiten",
+        "accountNameLabel": "Kontoname",
+        "showRecoveryPhraseLabel": "Wiederherstellungsphrase anzeigen",
+        "removeAccountLabel": "Konto entfernen"
+      },
+      "selectCreateAccountType": {
+        "title": "Konto hinzufügen",
+        "createNewAccountTitle": "Neues Konto erstellen",
+        "createNewAccountDescription": "Wiederherstellbar über die Haupt-Seed-Phrase",
+        "importRecoveryPhraseTitle": "Wiederherstellungsphrase importieren",
+        "importRecoveryPhraseDescription": "Konten aus einer anderen Wallet importieren"
+      },
+      "selectProfileImage": {
+        "title": "Avatar auswählen",
+        "searchPlaceholder": "Emojis suchen...",
+        "saveButton": "Avatar speichern"
+      },
+      "selectAltAccount": {
+        "from": "Wähle das Konto, von dem du senden möchtest.",
+        "to": "Wähle das Konto, auf das du empfangen möchtest."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Profil",
+        "settingsButton": "Einstellungen",
+        "poolsTitle": "Pools",
+        "noPoolsMessage": "Du hast noch keine Pools erstellt. Tippe, um deinen ersten Pool zu erstellen.",
+        "yourAccountsTitle": "Deine Konten",
+        "addAccountButton": "Konto hinzufügen"
       }
     },
     "posPath": {
@@ -2033,6 +2067,11 @@
       "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet"
     }
   },
+
+  "accountCard": {
+    "fallbackAccountName": "Konto {{index}}"
+  },
+
   "flashnetUserMessages": {
     "FSAG-1000": "Ihre Anfrage hat die Validierungsprüfung leider nicht bestanden.",
     "FSAG-1001": "In Ihrer Anfrage fehlt ein erforderliches Feld.",
