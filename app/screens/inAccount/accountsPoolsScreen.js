@@ -139,37 +139,14 @@ export default function ManageAccountsPoolsScreen() {
         <TouchableOpacity onPress={navigate.goBack}>
           <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <View
-            style={{
-              marginRight: 5,
-            }}
-          >
+        <View style={styles.accountContainer}>
+          <View>
             <ThemeText
-              styles={{
-                fontSize: SIZES.smedium,
-                lineHeight: SIZES.smedium + 2,
-                includeFontPadding: false,
-                textAlign: 'right',
-                width: '100%',
-              }}
+              styles={styles.accountName}
               content={activeAccount?.name || ''}
             />
             <ThemeText
-              styles={{
-                width: '100%',
-                fontSize: SIZES.xSmall,
-                lineHeight: SIZES.xSmall + 1,
-                includeFontPadding: false,
-                opacity: HIDDEN_OPACITY,
-                textAlign: 'right',
-              }}
+              styles={styles.accountType}
               content={activeAccount?.accountType || ''}
             />
           </View>
@@ -185,25 +162,10 @@ export default function ManageAccountsPoolsScreen() {
           </View>
         </View>
       </View>
-      {/* <CustomSettingsTopBar /> */}
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
       >
-        {/* <View
-          style={[
-            styles.profileImage,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}
-        >
-          <AccountProfileImage imageSize={125} account={activeAccount} />
-        </View>
-        <ThemeText
-          styles={{ opacity: HIDDEN_OPACITY, marginBottom: 20 }}
-          content={activeAccount?.name || ''}
-        /> */}
         {/* Profile and Settings Buttons */}
         <View style={styles.settingsContainer}>
           <TouchableOpacity
@@ -354,6 +316,28 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 10,
     minHeight: 30,
+  },
+  accountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  accountName: {
+    fontSize: SIZES.smedium,
+    lineHeight: SIZES.smedium + 2,
+    includeFontPadding: false,
+    textAlign: 'right',
+    width: '100%',
+  },
+  accountType: {
+    width: '100%',
+    fontSize: SIZES.xSmall,
+    lineHeight: SIZES.xSmall + 1,
+    includeFontPadding: false,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'right',
+    textTransform: 'capitalize',
   },
   container: {
     width: INSET_WINDOW_WIDTH,
