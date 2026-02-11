@@ -140,7 +140,11 @@ export default function ManageAccountsPoolsScreen() {
           <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
         <View style={styles.accountContainer}>
-          <View>
+          <View
+            style={{
+              alignItems: 'flex-end',
+            }}
+          >
             <ThemeText
               styles={styles.accountName}
               content={activeAccount?.name || ''}
@@ -328,12 +332,10 @@ const styles = StyleSheet.create({
     lineHeight: SIZES.smedium + 2,
     includeFontPadding: false,
     textAlign: 'right',
-    width: '100%',
   },
   accountType: {
-    width: '100%',
     fontSize: SIZES.xSmall,
-    lineHeight: SIZES.xSmall + 1,
+    lineHeight: SIZES.xSmall + 2,
     includeFontPadding: false,
     opacity: HIDDEN_OPACITY,
     textAlign: 'right',
