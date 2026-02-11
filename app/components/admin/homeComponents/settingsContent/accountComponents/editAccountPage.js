@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.small,
     opacity: 0.6,
     flexShrink: 1,
+    includeFontPadding: false,
   },
 
   divider: {

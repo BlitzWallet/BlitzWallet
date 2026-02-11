@@ -54,6 +54,7 @@ export default function ViewContibutors(props) {
           />
           <View>
             <ThemeText
+              styles={styles.name}
               content={item?.creatorName || item?.contributorName || 'Unknwon'}
             />
             <ThemeText
@@ -74,6 +75,7 @@ export default function ViewContibutors(props) {
           />
           <View>
             <ThemeText
+              styles={styles.name}
               content={item?.creatorName || item?.contributorName || 'Unknwon'}
             />
             <ThemeText
@@ -121,10 +123,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: 'center',
   },
-  name: {},
+  name: { includeFontPadding: false },
   amount: {
     opacity: HIDDEN_OPACITY,
     fontSize: SIZES.smedium,
+    includeFontPadding: false,
   },
   button: {
     ...CENTER,
