@@ -914,7 +914,7 @@
       "pool": "Pool",
       "couldNotFind": "We couldn't find this pool.",
       "createdBy": "By ",
-      "moneyTransferred": "Money transferred to Bitcoin Balance",
+      "moneyTransferred": "Money transferred to Main Wallet",
       "contribute": "Contribute",
       "share": "Share",
       "noActivity": "No activity yet. Be the first to contribute!",
@@ -1598,6 +1598,7 @@
       "settingsButton": "Settings",
       "poolsTitle": "Pools",
       "noPoolsMessage": "You haven't created any pools yet. Tap to create your first pool.",
+      "noActivePools": "You have no active pools",
       "yourAccountsTitle": "Your Accounts",
       "addAccountButton": "Add Account"
     },

@@ -132,6 +132,9 @@ export default async function initializeUserSettingsFromHistory({
     const nextAccountDerivationIndex =
       blitzStoredData.nextAccountDerivationIndex || 3;
 
+    const currentDerivedPoolIndex =
+      blitzStoredData.currentDerivedPoolIndex || 1;
+
     let pushNotifications = blitzStoredData.pushNotifications || {
       isEnabled: false,
       pushNotifications: {
@@ -392,6 +395,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['thousandsSeperator'] = thousandsSeperator;
     tempObject['enabledLiquidAutoSwap'] = enabledLiquidAutoSwap;
     tempObject['nextAccountDerivationIndex'] = nextAccountDerivationIndex;
+    tempObject['currentDerivedPoolIndex'] = currentDerivedPoolIndex;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

@@ -75,7 +75,11 @@ export default function PoolDetailScreen(props) {
 
   const refreshPoolDetails = useCallback(async () => {
     try {
-      if (pools?.[poolId]?.status === 'closed') return;
+      if (
+        pools?.[poolId]?.status === 'closed' &&
+        Date.now() - pools?.[poolId]?.closedAt > 10 * 1000
+      )
+        return;
       // Refresh pool data from Firestore
       const freshPool = await getPoolFromDatabase(poolId);
       if (freshPool) {

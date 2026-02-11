@@ -916,7 +916,7 @@
       "pool": "Pool",
       "couldNotFind": "Non siamo riusciti a trovare questo pool.",
       "createdBy": "Da ",
-      "moneyTransferred": "Fondi trasferiti al saldo Bitcoin",
+      "moneyTransferred": "Fondi trasferiti al wallet principale",
       "contribute": "Contribuisci",
       "share": "Condividi",
       "noActivity": "Nessuna attività al momento. Sii il primo a contribuire!",

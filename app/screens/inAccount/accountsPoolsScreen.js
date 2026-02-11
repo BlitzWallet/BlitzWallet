@@ -29,7 +29,7 @@ export default function ManageAccountsPoolsScreen() {
   const { setSparkInformation } = useSparkWallet();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset } = GetThemeColors();
-  const { activePoolsArray } = usePools();
+  const { activePoolsArray, poolsArray } = usePools();
   const accounts = useCustodyAccountList();
   const {
     currentWalletMnemoinc,
@@ -250,7 +250,11 @@ export default function ManageAccountsPoolsScreen() {
             </>
           ) : (
             <ThemeText
-              content={t('settings.accountsPoolsScreen.noPoolsMessage')}
+              content={
+                !poolsArray.length
+                  ? t('settings.accountsPoolsScreen.noPoolsMessage')
+                  : t('settings.accountsPoolsScreen.noActivePools')
+              }
             />
           )}
         </TouchableOpacity>
@@ -277,8 +281,6 @@ export default function ManageAccountsPoolsScreen() {
               : isMainWallet
               ? !activeAltAccount && !isUsingNostr
               : activeAltAccount?.uuid === account.uuid;
-            console.log(isMainWallet, isNWC, isUsingNostr, activeAltAccount);
-            console.log(account.uuid || `account-${index}`, isActive);
             return (
               <AccountCard
                 key={account.uuid || `account-${index}`}
