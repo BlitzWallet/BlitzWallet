@@ -143,35 +143,39 @@ export default function CreatePoolDescription({
   };
 
   return (
-    <View style={styles.container}>
-      <ThemeText
-        styles={styles.title}
-        content={t('wallet.pools.whatIsPoolFor')}
-      />
+    <>
+      <View style={styles.container}>
+        <ThemeText
+          styles={styles.title}
+          content={t('wallet.pools.whatIsPoolFor')}
+        />
 
-      <CustomSearchInput
-        textInputRef={textInputRef}
-        inputText={poolTitle}
-        setInputText={setPoolTitle}
-        onBlurFunction={handleTextInputBlur}
-        maxLength={100}
-        autoFocus={true}
-        placeholderText={t('wallet.pools.examplePlaceholder')}
-      />
+        <CustomSearchInput
+          textInputRef={textInputRef}
+          inputText={poolTitle}
+          setInputText={setPoolTitle}
+          onBlurFunction={handleTextInputBlur}
+          maxLength={100}
+          autoFocus={true}
+          containerStyles={{ width: '100%' }}
+          placeholderText={t('wallet.pools.examplePlaceholder')}
+        />
 
-      <CustomButton
-        buttonStyles={[
-          styles.createButton,
-          { opacity: !isValid ? HIDDEN_OPACITY : 1 },
-        ]}
-        textContent={
-          isLoading ? t('wallet.pools.creating') : t('wallet.pools.createPool')
-        }
-        actionFunction={handleCreatePool}
-        disabled={isLoading || !isValid}
-      />
-
-      {isLoading && (
+        <CustomButton
+          buttonStyles={[
+            styles.createButton,
+            { opacity: !isValid ? HIDDEN_OPACITY : 1 },
+          ]}
+          textContent={
+            isLoading
+              ? t('wallet.pools.creating')
+              : t('wallet.pools.createPool')
+          }
+          actionFunction={handleCreatePool}
+          disabled={isLoading || !isValid}
+        />
+      </View>
+      {true && (
         <View
           style={[
             styles.loadingOverlay,
@@ -184,7 +188,7 @@ export default function CreatePoolDescription({
           <FullLoadingScreen text={t('wallet.pools.creatingPool')} />
         </View>
       )}
-    </View>
+    </>
   );
 }
 
@@ -207,6 +211,10 @@ const styles = StyleSheet.create({
   },
   loadingOverlay: {
     position: 'absolute',
+    top: 35,
+    left: 0,
+    right: 0,
+    bottom: 0,
     width: '100%',
     height: '100%',
     ...CENTER,
