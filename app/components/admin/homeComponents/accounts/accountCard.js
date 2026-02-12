@@ -153,7 +153,7 @@ export default function AccountCard({
             ]}
           >
             <TouchableOpacity onPress={onEdit} style={styles.editButton}>
-              <ThemeIcon iconName={'Edit'} size={18} />
+              <ThemeIcon iconName={'Edit'} size={20} />
             </TouchableOpacity>
           </View>
         )}
@@ -205,8 +205,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   editButton: {
-    height: 35,
-    width: 35,
+    height: 40,
+    width: 40,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',

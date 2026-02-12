@@ -256,15 +256,15 @@ const styles = StyleSheet.create({
   emojiRow: {
     flexDirection: 'row',
     marginBottom: 8,
+    flexWrap: 'wrap',
   },
   emojiButton: {
-    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 1,
+    flexGrow: 1,
   },
   emojiText: {
-    fontSize: SIZES.xLarge,
+    fontSize: SIZES.xxLarge,
   },
   saveButton: {
     alignItems: 'center',
