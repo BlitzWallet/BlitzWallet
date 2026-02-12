@@ -1588,6 +1588,20 @@
         "searchPlaceholder": "Buscar emojis...",
         "saveButton": "Salvar avatar"
       },
+      "restoreDerivedAccount": {
+        "title": "Restaurar conta",
+        "emptyStateTitle": "Nenhuma conta para restaurar",
+        "emptyStateMessage": "Todas as contas estão atualmente restauradas. Nenhuma conta ausente encontrada.",
+        "accountCardTitle": "Conta {{index}}",
+        "accountCardSubtitle": "Índice de derivação: {{index}}",
+        "restoreButton": "Restaurar",
+        "nameInputTitle": "Nomeie esta conta",
+        "nameInputPlaceholder": "Conta {{index}}",
+        "nameInputConfirm": "Restaurar conta",
+        "nameInputCancel": "Cancelar",
+        "successMessage": "Conta {{index}} restaurada com sucesso",
+        "errorMessage": "Falha ao restaurar a conta"
+      },
       "selectAltAccount": {
         "from": "Selecione a conta da qual deseja enviar.",
         "to": "Selecione a conta para a qual deseja receber."

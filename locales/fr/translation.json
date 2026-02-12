@@ -1562,7 +1562,21 @@
       "selectProfileImage": {
         "title": "Choisir un avatar",
         "searchPlaceholder": "Rechercher des emojis...",
-        "saveButton": "Enregistrer l’avatar"
+        "saveButton": "Enregistrer l'avatar"
+      },
+      "restoreDerivedAccount": {
+        "title": "Restaurer le compte",
+        "emptyStateTitle": "Aucun compte à restaurer",
+        "emptyStateMessage": "Tous les comptes sont actuellement restaurés. Aucun compte manquant trouvé.",
+        "accountCardTitle": "Compte {{index}}",
+        "accountCardSubtitle": "Indice de dérivation : {{index}}",
+        "restoreButton": "Restaurer",
+        "nameInputTitle": "Nommer ce compte",
+        "nameInputPlaceholder": "Compte {{index}}",
+        "nameInputConfirm": "Restaurer le compte",
+        "nameInputCancel": "Annuler",
+        "successMessage": "Compte {{index}} restauré avec succès",
+        "errorMessage": "Échec de la restauration du compte"
       },
       "selectAltAccount": {
         "from": "Sélectionnez le compte depuis lequel vous souhaitez envoyer.",

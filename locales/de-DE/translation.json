@@ -1551,6 +1551,20 @@
         "searchPlaceholder": "Emojis suchen...",
         "saveButton": "Avatar speichern"
       },
+      "restoreDerivedAccount": {
+        "title": "Konto wiederherstellen",
+        "emptyStateTitle": "Keine Konten zum Wiederherstellen",
+        "emptyStateMessage": "Alle Konten sind derzeit wiederhergestellt. Keine fehlenden Konten gefunden.",
+        "accountCardTitle": "Konto {{index}}",
+        "accountCardSubtitle": "Ableitungsindex: {{index}}",
+        "restoreButton": "Wiederherstellen",
+        "nameInputTitle": "Benenne dieses Konto",
+        "nameInputPlaceholder": "Konto {{index}}",
+        "nameInputConfirm": "Konto wiederherstellen",
+        "nameInputCancel": "Abbrechen",
+        "successMessage": "Konto {{index}} erfolgreich wiederhergestellt",
+        "errorMessage": "Fehler beim Wiederherstellen des Kontos"
+      },
       "selectAltAccount": {
         "from": "Wähle das Konto, von dem du senden möchtest.",
         "to": "Wähle das Konto, auf das du empfangen möchtest."

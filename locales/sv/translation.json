@@ -1564,6 +1564,20 @@
         "searchPlaceholder": "Sök emojis...",
         "saveButton": "Spara avatar"
       },
+      "restoreDerivedAccount": {
+        "title": "Återställ konto",
+        "emptyStateTitle": "Inga konton att återställa",
+        "emptyStateMessage": "Alla konton är för närvarande återställda. Inga saknade konton hittades.",
+        "accountCardTitle": "Konto {{index}}",
+        "accountCardSubtitle": "Derivationsindex: {{index}}",
+        "restoreButton": "Återställ",
+        "nameInputTitle": "Namnge detta konto",
+        "nameInputPlaceholder": "Konto {{index}}",
+        "nameInputConfirm": "Återställ konto",
+        "nameInputCancel": "Avbryt",
+        "successMessage": "Konto {{index}} återställdes framgångsrikt",
+        "errorMessage": "Misslyckades återställa kontot"
+      },
       "selectAltAccount": {
         "from": "Välj kontot du vill skicka från.",
         "to": "Välj kontot du vill ta emot till."

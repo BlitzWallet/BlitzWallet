@@ -1561,6 +1561,20 @@
         "searchPlaceholder": "Поиск эмодзи...",
         "saveButton": "Сохранить аватар"
       },
+      "restoreDerivedAccount": {
+        "title": "Восстановить аккаунт",
+        "emptyStateTitle": "Нет аккаунтов для восстановления",
+        "emptyStateMessage": "Все аккаунты в настоящее время восстановлены. Отсутствующих аккаунтов не найдено.",
+        "accountCardTitle": "Аккаунт {{index}}",
+        "accountCardSubtitle": "Индекс деривации: {{index}}",
+        "restoreButton": "Восстановить",
+        "nameInputTitle": "Назовите этот аккаунт",
+        "nameInputPlaceholder": "Аккаунт {{index}}",
+        "nameInputConfirm": "Восстановить аккаунт",
+        "nameInputCancel": "Отмена",
+        "successMessage": "Аккаунт {{index}} успешно восстановлен",
+        "errorMessage": "Не удалось восстановить аккаунт"
+      },
       "selectAltAccount": {
         "from": "Выберите аккаунт, с которого хотите отправить.",
         "to": "Выберите аккаунт, на который хотите получить."

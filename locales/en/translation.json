@@ -1358,7 +1358,15 @@
       "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your seed phrase is convenient but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
       "wordsText": "Words",
       "qrText": "QR Code",
-      "showSeedWarning": "Are you sure you want to show your seed phrase?"
+      "showSeedWarning": "Are you sure you want to show your seed phrase?",
+      "warning": {
+        "title": "Keep Your Recovery Phrase Secret",
+        "point1": "Your secret recovery phrase is like a master key to your wallet.",
+        "point2": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
+        "point3": "Never share it with anyone—no person, website, or app.",
+        "checkbox": "I understand that sharing my recovery phrase could result in permanent loss of funds.",
+        "continueButton": "Continue"
+      }
     },
     "crashReporting": {
       "crashreporting_enabled": "Enabled crash reporting",
@@ -1576,17 +1584,40 @@
         "showRecoveryPhraseLabel": "Show Recovery Phrase",
         "removeAccountLabel": "Remove Account"
       },
+      "removeAccountPage": {
+        "title": "Remove",
+        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to re-derive it using your seed phrase in this.",
+        "explanation_imported": "You are removing an imported wallet. You will only be able to recover this wallet by re-entering the seed phrase",
+        "cancelButton": "Cancel",
+        "removeButton": "Remove"
+      },
       "selectCreateAccountType": {
         "title": "Add Account",
         "createNewAccountTitle": "Create New Account",
         "createNewAccountDescription": "Recoverable from main seed phrase",
         "importRecoveryPhraseTitle": "Import Recovery Phrase",
-        "importRecoveryPhraseDescription": "Import accounts from another wallet"
+        "importRecoveryPhraseDescription": "Import accounts from another wallet",
+        "recoverRecoveryPhraseTitle": "Recover Account",
+        "recoverRecoveryPhraseDescription": "Restore an already created account"
       },
       "selectProfileImage": {
         "title": "Choose Avatar",
         "searchPlaceholder": "Search emojis...",
         "saveButton": "Save Avatar"
+      },
+      "restoreDerivedAccount": {
+        "title": "Restore Account",
+        "emptyStateTitle": "No Accounts to Restore",
+        "emptyStateMessage": "All accounts are currently restored. No missing accounts found.",
+        "accountCardTitle": "Account {{index}}",
+        "accountCardSubtitle": "Derivation Index: {{index}}",
+        "restoreButton": "Restore",
+        "nameInputTitle": "Name This Account",
+        "nameInputPlaceholder": "Account {{index}}",
+        "nameInputConfirm": "Restore Account",
+        "nameInputCancel": "Cancel",
+        "successMessage": "Account {{index}} restored successfully",
+        "errorMessage": "Failed to restore account"
       },
       "selectAltAccount": {
         "from": "Select the account you want to send from.",
@@ -1791,6 +1822,7 @@
         "nostr": "nostr",
         "login mode": "Login Mode",
         "backup wallet": "Backup Wallet",
+        "show seed phrase": "Backup Wallet",
         "spark info": "Spark Info",
         "delete wallet": "Delete Wallet",
         "general": "General",

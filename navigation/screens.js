@@ -49,6 +49,7 @@ import EditAccountPage from '../app/components/admin/homeComponents/settingsCont
 import EditAccountName from '../app/components/admin/homeComponents/settingsContent/accountComponents/editAccountName';
 import EmojiAvatarSelector from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectProfileImage';
 import RemoveAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/removeAccountPage';
+import RestoreDerivedAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/restoreDerivedAccountPage';
 import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
 import SeedPhraseWarning from '../app/components/admin/homeComponents/settingsContent/seedPhraseWarning';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
@@ -163,6 +164,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'AddPOSItemsPage', component: AddPOSItemsPage },
   { name: 'CreateCustodyAccount', component: CreateCustodyAccountPage },
   { name: 'SelectCreateAccountType', component: SelectCreateAccountType },
+  { name: 'RestoreDerivedAccount', component: RestoreDerivedAccountPage },
   { name: 'EditAccountName', component: EditAccountName },
   { name: 'ViewCustodyAccount', component: ViewCustodyAccountPage },
   { name: 'EditAccountPage', component: EditAccountPage },

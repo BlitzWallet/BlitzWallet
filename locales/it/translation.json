@@ -1588,6 +1588,20 @@
         "searchPlaceholder": "Cerca emoji...",
         "saveButton": "Salva avatar"
       },
+      "restoreDerivedAccount": {
+        "title": "Ripristina account",
+        "emptyStateTitle": "Nessun account da ripristinare",
+        "emptyStateMessage": "Tutti gli account sono attualmente ripristinati. Nessun account mancante trovato.",
+        "accountCardTitle": "Account {{index}}",
+        "accountCardSubtitle": "Indice di derivazione: {{index}}",
+        "restoreButton": "Ripristina",
+        "nameInputTitle": "Nomina questo account",
+        "nameInputPlaceholder": "Account {{index}}",
+        "nameInputConfirm": "Ripristina account",
+        "nameInputCancel": "Annulla",
+        "successMessage": "Account {{index}} ripristinato con successo",
+        "errorMessage": "Impossibile ripristinare l'account"
+      },
       "selectAltAccount": {
         "from": "Seleziona l’account da cui vuoi inviare.",
         "to": "Seleziona l’account su cui vuoi ricevere."

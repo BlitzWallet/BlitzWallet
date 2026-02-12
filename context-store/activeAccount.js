@@ -151,7 +151,6 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
 
       savedAccountInformation.push(accountInformation);
 
-      console.log(savedAccountInformation);
       await setLocalStorageItem(
         CUSTODY_ACCOUNTS_STORAGE_KEY,
         JSON.stringify(encriptAccountsList(savedAccountInformation)),
@@ -284,6 +283,81 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       return { didWork: true };
     } catch (err) {
       console.log('Create imported account error', err);
+      return { didWork: false, error: err.message };
+    }
+  };
+
+  const restoreDerivedAccount = async (accountName, derivationIndex) => {
+    try {
+      // Validation #1: Type check
+      if (
+        typeof derivationIndex !== 'number' ||
+        !Number.isInteger(derivationIndex)
+      ) {
+        return {
+          didWork: false,
+          error: 'Derivation index must be a whole number',
+        };
+      }
+
+      // Validation #2: Range check (minimum)
+      if (derivationIndex < 3) {
+        return {
+          didWork: false,
+          error:
+            'Derivation index must be 3 or higher (indices 0-2 are reserved)',
+        };
+      }
+
+      // Validation #3: Range check (maximum - gifts boundary)
+      if (derivationIndex >= MAX_DERIVED_ACCOUNTS) {
+        return {
+          didWork: false,
+          error: `Derivation index must be less than ${MAX_DERIVED_ACCOUNTS} (gift wallet range)`,
+        };
+      }
+
+      // Validation #4: Check against nextAccountDerivationIndex
+      const nextCloudIndex = masterInfoObject.nextAccountDerivationIndex || 3;
+      if (derivationIndex > nextCloudIndex) {
+        return {
+          didWork: false,
+          error: `Cannot restore index ${derivationIndex}. Highest created account is ${
+            nextCloudIndex - 1
+          }`,
+        };
+      }
+
+      // Validation #5: Check if account already exists (idempotency)
+      const existingAccount = custodyAccounts.find(
+        acc => acc.derivationIndex === derivationIndex,
+      );
+      if (existingAccount) {
+        return {
+          didWork: false,
+          error: `Account at index ${derivationIndex} already exists: "${existingAccount.name}"`,
+        };
+      }
+
+      // Create account with EXACT same structure as auto-restore
+      const accountInfo = {
+        uuid: customUUID(),
+        name: accountName,
+        derivationIndex: derivationIndex,
+        dateCreated: Date.now(),
+        isActive: false,
+        accountType: 'derived',
+        profileEmoji: '',
+      };
+
+      await createAccount(accountInfo);
+
+      // CRITICAL: Do NOT update nextAccountDerivationIndex
+      // This is a restoration of an existing index, not a new sequential account
+
+      return { didWork: true };
+    } catch (err) {
+      console.log('Restore derived account error', err);
       return { didWork: false, error: err.message };
     }
   };
@@ -423,6 +497,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         updateAccountCacheOnly,
         createDerivedAccount,
         createImportedAccount,
+        restoreDerivedAccount,
         getAccountMnemonic,
         restoreDerivedAccountsFromCloud,
         selectedAltAccount,

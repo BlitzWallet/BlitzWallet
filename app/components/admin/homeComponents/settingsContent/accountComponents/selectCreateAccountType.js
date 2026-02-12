@@ -5,17 +5,31 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, SIZES } from '../../../../../constants';
-import { COLORS, WINDOWWIDTH } from '../../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { getRestorableIndices } from '../../../../../functions/accounts/derivedAccounts';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 
 export default function SelectCreateAccountType() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { theme } = useGlobalThemeContext();
+  const { custodyAccounts } = useActiveCustodyAccount();
+  const { masterInfoObject } = useGlobalContextProvider();
+
+  const restorableIndices = getRestorableIndices(
+    custodyAccounts,
+    masterInfoObject.nextAccountDerivationIndex,
+  );
 
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
@@ -49,7 +63,7 @@ export default function SelectCreateAccountType() {
               },
             ]}
           >
-            <ThemeIcon size={20} colorOverride={theme} iconName={'Plus'} />
+            <ThemeIcon size={20} iconName={'Plus'} />
           </View>
           <View style={styles.textContainer}>
             <ThemeText
@@ -90,7 +104,7 @@ export default function SelectCreateAccountType() {
               },
             ]}
           >
-            <ThemeIcon size={20} colorOverride={theme} iconName={'FileKey'} />
+            <ThemeIcon size={20} iconName={'FileKey'} />
           </View>
           <View style={styles.textContainer}>
             <ThemeText
@@ -103,6 +117,46 @@ export default function SelectCreateAccountType() {
               styles={styles.descText}
               content={t(
                 'settings.accountComponents.selectCreateAccountType.importRecoveryPhraseDescription',
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+        {/* Restore already created Account */}
+        <TouchableOpacity
+          activeOpacity={!restorableIndices.length ? HIDDEN_OPACITY : 0.7}
+          onPress={() => {
+            if (!restorableIndices.length) return;
+            navigate.navigate('RestoreDerivedAccount');
+          }}
+          style={[
+            styles.rowContainer,
+            {
+              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              opacity: restorableIndices.length ? 1 : HIDDEN_OPACITY,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: backgroundColor,
+              },
+            ]}
+          >
+            <ThemeIcon size={20} iconName={'RotateCcw'} />
+          </View>
+          <View style={styles.textContainer}>
+            <ThemeText
+              styles={styles.titleText}
+              content={t(
+                'settings.accountComponents.selectCreateAccountType.recoverRecoveryPhraseTitle',
+              )}
+            />
+            <ThemeText
+              styles={styles.descText}
+              content={t(
+                'settings.accountComponents.selectCreateAccountType.recoverRecoveryPhraseDescription',
               )}
             />
           </View>

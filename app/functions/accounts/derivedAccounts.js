@@ -16,7 +16,9 @@ export async function deriveAccountMnemonic(mainSeed, derivationIndex) {
     derivationIndex >= MAX_DERIVED_ACCOUNTS
   ) {
     throw new Error(
-      `Derivation index ${derivationIndex} out of range (0-${MAX_DERIVED_ACCOUNTS - 1})`,
+      `Derivation index ${derivationIndex} out of range (0-${
+        MAX_DERIVED_ACCOUNTS - 1
+      })`,
     );
   }
 
@@ -59,4 +61,37 @@ export function isAccountImported(account) {
     account.mnemoinc !== null &&
     account.derivationIndex === undefined
   );
+}
+
+/**
+ * Returns array of derivation indices that can be restored (gaps in account sequence)
+ * @param {Array} custodyAccounts - Current account list
+ * @param {number} nextAccountDerivationIndex - Highest index + 1 (from masterInfoObject)
+ * @returns {Array<number>} Available indices for restoration (sorted ascending)
+ */
+export function getRestorableIndices(
+  custodyAccounts,
+  nextAccountDerivationIndex,
+) {
+  try {
+    const maxIndex = nextAccountDerivationIndex || 3;
+    const existingIndices = new Set(
+      custodyAccounts
+        .filter(acc => acc.accountType === 'derived')
+        .map(acc => acc.derivationIndex)
+        .filter(idx => typeof idx === 'number'),
+    );
+
+    const restorable = [];
+    if (maxIndex === 3) return restorable;
+    for (let i = 3; i <= maxIndex; i++) {
+      if (!existingIndices.has(i)) {
+        restorable.push(i);
+      }
+    }
+
+    return restorable;
+  } catch (err) {
+    return [];
+  }
 }
