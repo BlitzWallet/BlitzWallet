@@ -25,6 +25,7 @@ export default function AccountCard({
   onEdit,
   isLoading,
   useSelection = false,
+  fromSettings = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
@@ -39,7 +40,16 @@ export default function AccountCard({
 
   if (isLoading) {
     return (
-      <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: backgroundOffset,
+            marginVertical: fromSettings ? 0 : 8,
+            paddingHorizontal: fromSettings ? 0 : 15,
+          },
+        ]}
+      >
         <SkeletonPlaceholder
           enabled={true}
           backgroundColor={theme ? backgroundColor : COLORS.opaicityGray}
@@ -58,7 +68,14 @@ export default function AccountCard({
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onPress}
-      style={[styles.card, { backgroundColor: backgroundOffset }]}
+      style={[
+        styles.card,
+        {
+          backgroundColor: backgroundOffset,
+          marginVertical: fromSettings ? 0 : 8,
+          paddingHorizontal: fromSettings ? 0 : 15,
+        },
+      ]}
     >
       {/* Left: Account Badge */}
       <View style={styles.leftSection}>
@@ -151,8 +168,6 @@ const styles = StyleSheet.create({
     minHeight: 50,
     borderRadius: 8,
     paddingVertical: 10,
-    paddingHorizontal: 15,
-    marginVertical: 8,
   },
   leftSection: {
     alignItems: 'center',
