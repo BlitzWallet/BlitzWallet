@@ -19,12 +19,11 @@ export default function AccountsPreview({
   const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
   const { custodyAccountsList, activeAccount } = useActiveCustodyAccount();
-
   const displayAccounts = getDisplayAccounts(
     custodyAccountsList,
     pinnedAccountUUIDs,
     isUsingNostr,
-    activeAccount,
+    selectedAltAccount[0],
   );
 
   const hasMoreAccounts = custodyAccountsList?.length > displayAccounts?.length;
