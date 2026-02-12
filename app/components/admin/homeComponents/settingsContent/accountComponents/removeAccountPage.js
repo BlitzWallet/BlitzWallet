@@ -82,7 +82,7 @@ export default function RemoveAccountPage(props) {
             content={t(
               'settings.accountComponents.removeAccountPage.explanation',
               {
-                context: selectedAccount?.accountType,
+                context: selectedAccount?.accountType || 'imported',
               },
             )}
           />
