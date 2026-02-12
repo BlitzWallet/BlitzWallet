@@ -288,18 +288,7 @@ const AmountInputOverlay = ({
   if (!visible) return null;
 
   return (
-    <Animated.View
-      style={[
-        styles.overlayContainer,
-        {
-          backgroundColor:
-            theme && darkModeType
-              ? backgroundColor
-              : COLORS.lightModeBackground,
-        },
-        overlayStyle,
-      ]}
-    >
+    <Animated.View style={[styles.overlayContainer, overlayStyle]}>
       <View style={styles.overlayContent}>
         <TouchableOpacity
           activeOpacity={1}
