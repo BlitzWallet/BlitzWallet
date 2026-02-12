@@ -25,6 +25,7 @@ const keys = [
   'defaultSpendToken',
   'thousandsSeperator',
   'enabledLiquidAutoSwap',
+  'pinnedAccounts',
 ];
 
 const defaultValues = {
@@ -60,6 +61,7 @@ const defaultValues = {
   defaultSpendToken: 'Bitcoin',
   thousandsSeperator: 'space',
   enabledLiquidAutoSwap: true,
+  pinnedAccounts: [],
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -104,6 +106,7 @@ export const fetchLocalStorageItems = async () => {
     thousandsSeperator: parsedResults[19] ?? defaultValues.thousandsSeperator,
     enabledLiquidAutoSwap:
       parsedResults[20] ?? defaultValues.enabledLiquidAutoSwap,
+    pinnedAccounts: parsedResults[21] ?? defaultValues.pinnedAccounts,
   };
 };
 

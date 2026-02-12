@@ -91,6 +91,7 @@ export default async function initializeUserSettingsFromHistory({
       defaultSpendToken,
       thousandsSeperator,
       enabledLiquidAutoSwap,
+      pinnedAccounts,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -394,6 +395,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['currentDerivedGiftIndex'] = currentDerivedGiftIndex;
     tempObject['thousandsSeperator'] = thousandsSeperator;
     tempObject['enabledLiquidAutoSwap'] = enabledLiquidAutoSwap;
+    tempObject['pinnedAccounts'] = pinnedAccounts;
     tempObject['nextAccountDerivationIndex'] = nextAccountDerivationIndex;
     tempObject['currentDerivedPoolIndex'] = currentDerivedPoolIndex;
 
