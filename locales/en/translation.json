@@ -1582,11 +1582,14 @@
         "title": "Edit Account",
         "accountNameLabel": "Account Name",
         "showRecoveryPhraseLabel": "Show Recovery Phrase",
-        "removeAccountLabel": "Remove Account"
+        "removeAccountLabel": "Remove Account",
+        "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
+        "account_pin": "Pin Account",
+        "account_unpin": "Unpin Account"
       },
       "removeAccountPage": {
         "title": "Remove",
-        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to re-derive it using your seed phrase in this.",
+        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to re-derive it using your seed phrase.",
         "explanation_imported": "You are removing an imported wallet. You will only be able to recover this wallet by re-entering the seed phrase",
         "cancelButton": "Cancel",
         "removeButton": "Remove"
@@ -1632,6 +1635,14 @@
       "noActivePools": "You have no active pools",
       "yourAccountsTitle": "Your Accounts",
       "addAccountButton": "Add Account"
+    },
+    "hub": {
+      "viewAll": "View All",
+      "accounts": "Accounts",
+      "pinAccount": "Pin",
+      "unpinAccount": "Unpin",
+      "maxPinsReached": "Maximum 2 pinned accounts. Unpin one first.",
+      "morePoolsCount": "+{{count}} more"
     },
     "posPath": {
       "settings": {

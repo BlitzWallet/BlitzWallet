@@ -1408,7 +1408,10 @@
         "title": "Editar cuenta",
         "accountNameLabel": "Nombre de la cuenta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperación",
-        "removeAccountLabel": "Eliminar cuenta"
+        "removeAccountLabel": "Eliminar cuenta",
+        "activeAccountError": "No puedes eliminar la cuenta activa actualmente. Por favor, cambia a una cuenta diferente antes de eliminar esta.",
+        "account_pin": "Fijar cuenta",
+        "account_unpin": "Desfijar cuenta"
       },
       "selectCreateAccountType": {
         "title": "Agregar cuenta",
@@ -1448,6 +1451,14 @@
         "yourAccountsTitle": "Tus cuentas",
         "addAccountButton": "Agregar cuenta"
       }
+    },
+    "hub": {
+      "viewAll": "Ver todo",
+      "accounts": "Cuentas",
+      "pinAccount": "Fijar",
+      "unpinAccount": "Desfijar",
+      "maxPinsReached": "Máximo 2 cuentas fijadas. Desfija una primero.",
+      "morePoolsCount": "+{{count}} más"
     },
     "posPath": {
       "settings": {

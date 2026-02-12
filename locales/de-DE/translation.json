@@ -1537,7 +1537,10 @@
         "title": "Konto bearbeiten",
         "accountNameLabel": "Kontoname",
         "showRecoveryPhraseLabel": "Wiederherstellungsphrase anzeigen",
-        "removeAccountLabel": "Konto entfernen"
+        "removeAccountLabel": "Konto entfernen",
+        "activeAccountError": "Du kannst das derzeit aktive Konto nicht löschen. Bitte wechsle zu einem anderen Konto, bevor du dieses löschst.",
+        "account_pin": "Konto anheften",
+        "account_unpin": "Konto lösen"
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",
@@ -1577,6 +1580,14 @@
         "yourAccountsTitle": "Deine Konten",
         "addAccountButton": "Konto hinzufügen"
       }
+    },
+    "hub": {
+      "viewAll": "Alle anzeigen",
+      "accounts": "Konten",
+      "pinAccount": "Anheften",
+      "unpinAccount": "Lösen",
+      "maxPinsReached": "Maximal 2 angeheftete Konten. Löse zuerst eines.",
+      "morePoolsCount": "+{{count}} weitere"
     },
     "posPath": {
       "settings": {

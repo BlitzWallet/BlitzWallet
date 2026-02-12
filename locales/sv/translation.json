@@ -1550,7 +1550,10 @@
         "title": "Redigera konto",
         "accountNameLabel": "Kontonamn",
         "showRecoveryPhraseLabel": "Visa återställningsfras",
-        "removeAccountLabel": "Ta bort konto"
+        "removeAccountLabel": "Ta bort konto",
+        "activeAccountError": "Du kan inte ta bort det för närvarande aktiva kontot. Vänligen byt till ett annat konto innan du tar bort detta.",
+        "account_pin": "Fäst konto",
+        "account_unpin": "Lossa konto"
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",
@@ -1590,6 +1593,14 @@
         "yourAccountsTitle": "Dina konton",
         "addAccountButton": "Lägg till konto"
       }
+    },
+    "hub": {
+      "viewAll": "Visa alla",
+      "accounts": "Konton",
+      "pinAccount": "Fäst",
+      "unpinAccount": "Lossa",
+      "maxPinsReached": "Maximalt 2 fästa konton. Lossa ett först.",
+      "morePoolsCount": "+{{count}} till"
     },
     "posPath": {
       "settings": {

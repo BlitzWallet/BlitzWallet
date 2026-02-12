@@ -1550,7 +1550,10 @@
         "title": "Modifier le compte",
         "accountNameLabel": "Nom du compte",
         "showRecoveryPhraseLabel": "Afficher la phrase de récupération",
-        "removeAccountLabel": "Supprimer le compte"
+        "removeAccountLabel": "Supprimer le compte",
+        "activeAccountError": "Vous ne pouvez pas supprimer le compte actuellement actif. Veuillez passer à un autre compte avant de supprimer celui-ci.",
+        "account_pin": "Épingler le compte",
+        "account_unpin": "Désépingler le compte"
       },
       "selectCreateAccountType": {
         "title": "Ajouter un compte",
@@ -1590,6 +1593,14 @@
         "yourAccountsTitle": "Vos comptes",
         "addAccountButton": "Ajouter un compte"
       }
+    },
+    "hub": {
+      "viewAll": "Tout voir",
+      "accounts": "Comptes",
+      "pinAccount": "Épingler",
+      "unpinAccount": "Désépingler",
+      "maxPinsReached": "Maximum 2 comptes épinglés. Désépinglez-en un d'abord.",
+      "morePoolsCount": "+{{count}} de plus"
     },
     "posPath": {
       "settings": {
