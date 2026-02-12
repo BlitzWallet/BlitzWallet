@@ -1591,7 +1591,7 @@
       },
       "removeAccountPage": {
         "title": "Remove",
-        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to re-derive it using your seed phrase.",
+        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to recover it using your seed phrase.",
         "explanation_imported": "You are removing an imported wallet. You will only be able to recover this wallet by re-entering the seed phrase",
         "cancelButton": "Cancel",
         "removeButton": "Remove"
