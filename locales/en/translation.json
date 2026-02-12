@@ -1382,11 +1382,13 @@
       "header": "Are you sure?",
       "dataDeleteHeader": "Select data to delete from this device.",
       "dataDeleteDesc": "This will delete all wallet data from your device. If you don’t have a copy of your seed phrase saved, you WILL lose access to your funds.",
-      "boxNotChecked": "Please check the box to confirm you want to reset your wallet before resetting.",
       "seedAndPinOpt": "Delete all data from my device",
       "balanceText": "Your balance is",
       "localStorageError": "Unable to delete locally stored information",
-      "secureStorageError": "Unable to delete securely stored information"
+      "secureStorageError": "Unable to delete securely stored information",
+      "boxNotChecked": "Please check the box to confirm you want to delete your wallet before deleating.",
+      "title": "Delete Wallet",
+      "warningText": "I understand that I can only recover my funds with my seed phrase, and if I lose it, my funds cannot be recovered."
     },
     "sparkInfo": {
       "title": "Wallet Info",

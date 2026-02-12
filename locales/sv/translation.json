@@ -1354,11 +1354,13 @@
       "header": "Är du säker?",
       "dataDeleteHeader": "Välj data som ska raderas från den här enheten.",
       "dataDeleteDesc": "Detta kommer att radera alla plånboksdata från din enhet. Om du inte har sparat en kopia av din seed-fras kommer du att förlora tillgången till dina pengar.",
-      "boxNotChecked": "Markera rutan för att bekräfta att du vill återställa din plånbok innan du återställer.",
       "seedAndPinOpt": "Ta bort alla data från min enhet",
       "balanceText": "Ditt saldo är",
       "localStorageError": "Kan inte radera lokalt lagrad information",
-      "secureStorageError": "Kan inte radera säkert lagrad information"
+      "secureStorageError": "Kan inte radera säkert lagrad information",
+      "boxNotChecked": "Markera rutan för att bekräfta att du vill ta bort din wallet.",
+      "title": "Ta bort wallet",
+      "warningText": "Jag förstår att jag endast kan återställa mina medel med min seed-fras och att om jag förlorar den kan mina medel inte återställas."
     },
     "sparkInfo": {
       "title": "Information om plånboken",

@@ -1210,11 +1210,13 @@
       "header": "¿Estás seguro?",
       "dataDeleteHeader": "Selecciona los datos a eliminar de este dispositivo.",
       "dataDeleteDesc": "Esto eliminará todos los datos de la billetera de tu dispositivo. Si no tienes una copia de tu frase semilla guardada, PERDERÁS el acceso a tus fondos.",
-      "boxNotChecked": "Por favor, marca la casilla para confirmar que deseas restablecer tu billetera antes de continuar.",
       "seedAndPinOpt": "Eliminar todos los datos de mi dispositivo",
       "balanceText": "Tu saldo es",
       "localStorageError": "No se pudo eliminar la información local",
-      "secureStorageError": "No se pudo eliminar la información segura"
+      "secureStorageError": "No se pudo eliminar la información segura",
+      "boxNotChecked": "Marca la casilla para confirmar que deseas eliminar tu wallet.",
+      "title": "Eliminar wallet",
+      "warningText": "Entiendo que solo puedo recuperar mis fondos con mi frase semilla y que, si la pierdo, no podrán recuperarse."
     },
     "sparkInfo": {
       "title": "Información de billetera",

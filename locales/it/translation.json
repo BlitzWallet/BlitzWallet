@@ -1372,11 +1372,14 @@
       "header": "Sei sicuro?",
       "dataDeleteHeader": "Seleziona i dati da eliminare da questo dispositivo.",
       "dataDeleteDesc": "Questo eliminerà tutti i dati del portafoglio dal tuo dispositivo. Se non hai una copia della tua frase seed salvata, PERDERAI l’accesso ai tuoi fondi.",
-      "boxNotChecked": "Seleziona la casella per confermare che desideri reimpostare il tuo portafoglio prima di continuare.",
+
       "seedAndPinOpt": "Elimina tutti i dati dal mio dispositivo",
       "balanceText": "Il tuo saldo è",
       "localStorageError": "Impossibile eliminare le informazioni memorizzate localmente",
-      "secureStorageError": "Impossibile eliminare le informazioni memorizzate in modo sicuro"
+      "secureStorageError": "Impossibile eliminare le informazioni memorizzate in modo sicuro",
+      "boxNotChecked": "Seleziona la casella per confermare che vuoi eliminare il wallet.",
+      "title": "Elimina wallet",
+      "warningText": "Comprendo che posso recuperare i miei fondi solo con la mia frase seed e che, se la perdo, i miei fondi non potranno essere recuperati."
     },
     "sparkInfo": {
       "title": "Info Wallet",

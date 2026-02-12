@@ -1374,11 +1374,13 @@
       "header": "Tem certeza?",
       "dataDeleteHeader": "Selecione os dados a serem excluídos deste dispositivo.",
       "dataDeleteDesc": "Isso excluirá todos os dados da carteira do seu dispositivo. Se você não tiver uma cópia da sua frase-semente salva, PERDERÁ o acesso aos seus fundos.",
-      "boxNotChecked": "Marque a caixa para confirmar que deseja redefinir sua carteira antes de continuar.",
       "seedAndPinOpt": "Excluir todos os dados do meu dispositivo",
       "balanceText": "Seu saldo é",
       "localStorageError": "Não foi possível excluir as informações armazenadas localmente",
-      "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança"
+      "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança",
+      "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua wallet.",
+      "title": "Excluir wallet",
+      "warningText": "Entendo que só posso recuperar meus fundos com minha frase seed e que, se eu perdê-la, meus fundos não poderão ser recuperados."
     },
     "sparkInfo": {
       "title": "Informações da carteira",

@@ -1354,11 +1354,13 @@
       "header": "Êtes-vous sûr ?",
       "dataDeleteHeader": "Sélectionnez les données à supprimer de cet appareil.",
       "dataDeleteDesc": "Cette opération supprimera toutes les données du portefeuille de votre appareil. Si vous n'avez pas sauvegardé une copie de votre phrase de départ, vous PERDREZ l'accès à vos fonds.",
-      "boxNotChecked": "Veuillez cocher la case pour confirmer que vous souhaitez réinitialiser votre portefeuille avant de procéder à la réinitialisation.",
       "seedAndPinOpt": "Supprimer toutes les données de mon appareil",
       "balanceText": "Votre solde est de",
       "localStorageError": "Impossibilité de supprimer les informations stockées localement",
-      "secureStorageError": "Impossibilité de supprimer les informations stockées de manière sécurisée"
+      "secureStorageError": "Impossibilité de supprimer les informations stockées de manière sécurisée",
+      "boxNotChecked": "Veuillez cocher la case pour confirmer que vous souhaitez supprimer votre wallet.",
+      "title": "Supprimer le wallet",
+      "warningText": "Je comprends que je ne peux récupérer mes fonds qu’avec ma phrase seed et que si je la perds, mes fonds ne pourront pas être récupérés."
     },
     "sparkInfo": {
       "title": "Informations sur le portefeuille",
