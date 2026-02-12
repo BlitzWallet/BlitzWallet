@@ -241,7 +241,7 @@ export default function PoolDetailScreen(props) {
         label={t('wallet.pools.pool')}
         showLeftImage={isCreator}
         leftImageStyles={{ height: 25 }}
-        iconNew={isActive ? 'Trash' : 'RefreshCcw'}
+        iconNew={isActive ? 'Trash2' : 'RefreshCcw'}
         leftImageFunction={isActive ? handleClosePool : handleReCheck}
       />
 
