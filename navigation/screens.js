@@ -90,7 +90,6 @@ import {
   TechnicalTransactionDetails,
   ViewAllTxPage,
   SwapsPage,
-  ManageAccountsPoolsScreen,
   SettingsHub,
 } from '../app/screens/inAccount';
 import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
