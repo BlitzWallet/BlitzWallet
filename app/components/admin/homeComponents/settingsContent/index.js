@@ -5,6 +5,7 @@ import NosterWalletConnect from './nwc';
 import ConfirmActionPage from './popups/confirmActionPage';
 import ResetPage from './resetWallet';
 import SeedPhrasePage from './seedPhrasePage';
+import SeedPhraseWarning from './seedPhraseWarning';
 import LoginSecurity from './loginSecurity';
 import BlitzSocialOptions from './socialOptions';
 import PosSettingsPage from './posPath/settings';
@@ -25,6 +26,7 @@ export {
   ResetPage,
   ConfirmActionPage,
   SeedPhrasePage,
+  SeedPhraseWarning,
   NosterWalletConnect,
   LoginSecurity,
   BlitzSocialOptions,

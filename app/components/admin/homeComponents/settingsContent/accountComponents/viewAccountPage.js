@@ -1,44 +1,45 @@
-import {useNavigation} from '@react-navigation/native';
-import {CENTER, COLORS, SIZES} from '../../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { CENTER, COLORS, SIZES } from '../../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {useState} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useToast} from '../../../../../../context-store/toastManager';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useToast } from '../../../../../../context-store/toastManager';
 import calculateSeedQR from '../seedQR';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
-import {useTranslation} from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { useTranslation } from 'react-i18next';
 import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
-import {KeyContainer} from '../../../../login';
+import { KeyContainer } from '../../../../login';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {copyToClipboard} from '../../../../../functions';
+import { copyToClipboard } from '../../../../../functions';
 import WordsQrToggle from '../../../../../functions/CustomElements/wordsQrToggle';
 
-export default function ViewCustodyAccountPage({route}) {
-  const {showToast} = useToast();
-  const {account} = route.params;
-  const {extraData} = route.params;
+export default function ViewCustodyAccountPage({ route }) {
+  const { showToast } = useToast();
+  const { account } = route.params;
+  const { extraData } = route.params;
   const mnemoinc = account.mnemoinc;
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState(0);
   const navigate = useNavigation();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
   const canViewQrCode = extraData?.canViewQrCode;
   const qrValue = calculateSeedQR(mnemoinc);
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
 
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewStyles}>
+        contentContainerStyle={styles.scrollViewStyles}
+      >
         <ThemeText
-          styles={{...styles.headerPhrase}}
+          styles={{ ...styles.headerPhrase }}
           content={t('settings.seedPhrase.header')}
         />
         <ThemeText
@@ -46,7 +47,8 @@ export default function ViewCustodyAccountPage({route}) {
             color:
               theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
             marginBottom: 50,
-            fontSize: SIZES.large,
+
+            textAlign: 'center',
           }}
           content={t('settings.seedPhrase.headerDesc')}
         />
@@ -56,7 +58,8 @@ export default function ViewCustodyAccountPage({route}) {
               height: seedContainerHeight,
               alignItems: 'center',
               justifyContent: 'center',
-            }}>
+            }}
+          >
             <QrCodeWrapper QRData={qrValue} />
           </View>
         ) : (
@@ -64,7 +67,8 @@ export default function ViewCustodyAccountPage({route}) {
             onLayout={event => {
               setSeedContainerHeight(event.nativeEvent.layout.height);
             }}
-            style={styles.scrollViewContainer}>
+            style={styles.scrollViewContainer}
+          >
             <KeyContainer keys={mnemoinc.split(' ')} />
           </View>
         )}
@@ -76,7 +80,7 @@ export default function ViewCustodyAccountPage({route}) {
             navigate.popTo(
               'ViewCustodyAccount',
               {
-                extraData: {canViewQrCode: true},
+                extraData: { canViewQrCode: true },
               },
               {
                 merge: true,
@@ -86,7 +90,7 @@ export default function ViewCustodyAccountPage({route}) {
         />
 
         <CustomButton
-          buttonStyles={{marginTop: 10}}
+          buttonStyles={{ marginTop: 10 }}
           actionFunction={() =>
             copyToClipboard(
               selectedDisplayOption === 'words' ? mnemoinc : qrValue,

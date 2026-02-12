@@ -11,17 +11,16 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
+  MAX_DERIVED_ACCOUNTS,
   SIZES,
 } from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
-import { createAccountMnemonic } from '../../../../../functions';
 import {
   COLORS,
   FONT,
@@ -35,12 +34,11 @@ import SuggestedWordContainer from '../../../../login/suggestedWords';
 import isValidMnemonic from '../../../../../functions/isValidMnemonic';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import customUUID from '../../../../../functions/customUUID';
-import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import { handleRestoreFromText } from '../../../../../functions/seed';
 import getClipboardText from '../../../../../functions/getClipboardText';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
@@ -48,8 +46,9 @@ const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
 }, {});
 
 export default function CreateCustodyAccountPage(props) {
-  const selectedAccount = props?.route?.params?.account;
-  const { createAccount, currentWalletMnemoinc, removeAccount, updateAccount } =
+  const accountType = props?.route?.params?.accountType || 'derived';
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { createDerivedAccount, createImportedAccount, custodyAccountsList } =
     useActiveCustodyAccount();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
@@ -57,35 +56,22 @@ export default function CreateCustodyAccountPage(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [accountInformation, setAccountInformation] = useState({
-    name: selectedAccount?.name || '',
-    mnemoinc: selectedAccount?.mnemoinc || '',
-    dateCreated: selectedAccount?.dateCreated || Date.now(),
-    password: selectedAccount?.password || '',
-    isPasswordEnabled: selectedAccount?.isPasswordEnabled || false,
-    uuid: selectedAccount?.uuid || customUUID(),
-    isActive: selectedAccount?.isActive || false,
+    name: '',
+    mnemoinc: '',
+    dateCreated: Date.now(),
+    password: '',
+    isPasswordEnabled: false,
+    uuid: customUUID(),
+    isActive: false,
   });
   const [currentFocused, setCurrentFocused] = useState(null);
   const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
 
   const keyRefs = useRef({});
-  const blockDeleteAccountRef = useRef(null);
 
   const { backgroundOffset, textColor, textInputColor } = GetThemeColors();
 
-  const accounts = useCustodyAccountList();
   const navigate = useNavigation();
-
-  const foundAccount = accounts.find(
-    account =>
-      account.name.toLowerCase() === accountInformation.name.toLowerCase(),
-  );
-  const deleatedAccount = !!accounts.find(
-    account =>
-      account.name.toLowerCase() === selectedAccount?.name.toLowerCase(),
-  );
-  const nameIsAlreadyUsed =
-    Boolean(foundAccount) && foundAccount?.name !== selectedAccount?.name;
 
   const enteredAllSeeds = Object.values(inputedKey).filter(item => item);
   const { t } = useTranslation();
@@ -123,98 +109,81 @@ export default function CreateCustodyAccountPage(props) {
     [keyRefs],
   );
 
-  useEffect(() => {
-    async function initalizeAccount() {
-      const mnemoinc = await (selectedAccount
-        ? Promise.resolve(selectedAccount.mnemoinc)
-        : createAccountMnemonic(true));
-      const mnemoincArray = mnemoinc.split(' ');
-      const keyState = NUMARRAY.reduce((acc, num) => {
-        acc[`key${num}`] = mnemoincArray[num - 1];
-        return acc;
-      }, {});
-      setInputedKey(keyState);
-      setAccountInformation(prev => ({
-        ...prev,
-        mnemoinc,
-      }));
-    }
-    initalizeAccount();
-  }, []);
-
-  useEffect(() => {
-    if (!blockDeleteAccountRef.current) {
-      blockDeleteAccountRef.current = true;
-      return;
-    }
-
-    if (deleatedAccount) return;
-    navigate.goBack();
-  }, [deleatedAccount]);
-
-  const regenerateSeed = async () => {
-    const mnemoinc = await createAccountMnemonic(true);
-    const mnemoincArray = mnemoinc.split(' ');
-    const keyState = NUMARRAY.reduce((acc, num) => {
-      acc[`key${num}`] = mnemoincArray[num - 1];
-      return acc;
-    }, {});
-    setInputedKey(keyState);
-    setAccountInformation(prev => ({
-      ...prev,
-      mnemoinc,
-    }));
-  };
-
   const handleCreateAccount = async () => {
     try {
       if (!accountInformation.name) return;
-      if (nameIsAlreadyUsed) return;
-      if (enteredAllSeeds.length !== 12) return;
-      if (
-        selectedAccount?.name?.toLowerCase() ===
-        accountInformation.name.toLowerCase()
-      ) {
-        navigate.goBack();
-        return;
-      }
-      const isValidSeed = isValidMnemonic(enteredAllSeeds);
-      if (!isValidSeed) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('errormessages.invalidSeedError'),
-        });
-        return;
-      }
-      const seedString = enteredAllSeeds.join(' ');
-      const alreadyUsedSeed = selectedAccount
-        ? false
-        : accounts.find(
-            account => account.mnemoinc.toLowerCase() === seedString,
-          );
-      if (alreadyUsedSeed) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t(
-            'settings.accountComponents.createAccountPage.alreadyUsingSeedError',
-          ),
-        });
-        return;
-      }
+
       setIsCreatingAccount(true);
 
-      if (selectedAccount) {
-        const response = await updateAccount(accountInformation);
-        if (!response.didWork) throw new Error(response.err);
+      // Creating new account
+      if (accountType === 'derived') {
+        const nextIndex = Number(
+          masterInfoObject.nextAccountDerivationIndex || 0,
+        );
+        if (nextIndex >= MAX_DERIVED_ACCOUNTS) {
+          throw new Error(
+            `Maximum of ${MAX_DERIVED_ACCOUNTS} accounts reached. Please delete unused accounts.`,
+          );
+        }
+
+        // Create derived account (no seed needed)
+        const response = await createDerivedAccount(accountInformation.name);
+        if (!response.didWork) {
+          setIsCreatingAccount(false);
+          navigate.navigate('ErrorScreen', {
+            errorMessage: response.error,
+          });
+          return;
+        }
       } else {
-        const response = await createAccount({
-          ...accountInformation,
-          mnemoinc: seedString,
-        });
-        if (!response.didWork) throw new Error(response.err);
+        // Create imported account (requires seed validation)
+        if (enteredAllSeeds.length !== 12) {
+          setIsCreatingAccount(false);
+          return;
+        }
+
+        const isValidSeed = isValidMnemonic(enteredAllSeeds);
+        if (!isValidSeed) {
+          setIsCreatingAccount(false);
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('errormessages.invalidSeedError'),
+          });
+          return;
+        }
+
+        const seedString = enteredAllSeeds.join(' ');
+        const alreadyUsedSeed = custodyAccountsList.find(
+          account => account?.mnemoinc?.toLowerCase() === seedString,
+        );
+
+        if (alreadyUsedSeed) {
+          setIsCreatingAccount(false);
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t(
+              'settings.accountComponents.createAccountPage.alreadyUsingSeedError',
+            ),
+          });
+          return;
+        }
+
+        const response = await createImportedAccount(
+          accountInformation.name,
+          seedString,
+        );
+        if (!response.didWork) {
+          setIsCreatingAccount(false);
+          navigate.navigate('ErrorScreen', {
+            errorMessage: response.error,
+          });
+          return;
+        }
       }
+
       setIsCreatingAccount(false);
       navigate.goBack();
     } catch (err) {
       console.log('Create custody account error', err);
+      setIsCreatingAccount(false);
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
     }
   };
@@ -334,36 +303,15 @@ export default function CreateCustodyAccountPage(props) {
       <View style={{ width: '95%' }}>
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}
-          label={
-            selectedAccount
-              ? t('settings.accountComponents.createAccountPage.editTitle')
-              : t('settings.accountComponents.createAccountPage.createTitle')
-          }
+          label={t('settings.accountComponents.createAccountPage.createTitle')}
           iconNew="Trash2"
-          showLeftImage={selectedAccount}
-          leftImageFunction={() => {
-            if (currentWalletMnemoinc === selectedAccount?.mnemoinc) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t(
-                  'settings.accountComponents.createAccountPage.cannotDeleteActiveAccountError',
-                ),
-              });
-              return;
-            }
-            navigate.navigate('ConfirmActionPage', {
-              confirmMessage: t(
-                'settings.accountComponents.createAccountPage.deleteAccountConfirmation',
-              ),
-              confirmFunction: () => removeAccount(selectedAccount),
-              cancelFunction: () => {},
-            });
-          }}
         />
       </View>
       <ScrollView
         style={{ width: INSET_WINDOW_WIDTH }}
         contentContainerStyle={{ paddingTop: 10, paddingBottom: 10 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps={'handled'}
       >
         <View
           style={{
@@ -381,26 +329,6 @@ export default function CreateCustodyAccountPage(props) {
               'settings.accountComponents.createAccountPage.inputDesc',
             )}
           />
-          {nameIsAlreadyUsed && (
-            <TouchableOpacity
-              onPress={() => {
-                navigate.navigate('InformationPopup', {
-                  textContent: t(
-                    'settings.accountComponents.createAccountPage.nameTakenError',
-                  ),
-                  buttonText: t('constants.understandText'),
-                });
-              }}
-            >
-              <ThemeIcon
-                size={20}
-                colorOverride={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
-                }
-                iconName={'CircleAlert'}
-              />
-            </TouchableOpacity>
-          )}
         </View>
         <CustomSearchInput
           inputText={accountInformation.name}
@@ -410,19 +338,10 @@ export default function CreateCustodyAccountPage(props) {
             });
           }}
           containerStyles={{
-            borderColor: nameIsAlreadyUsed
-              ? theme && darkModeType
-                ? COLORS.darkModeText
-                : COLORS.cancelRed
-              : 'transparent',
-            borderWidth: 1,
             borderRadius: 8,
           }}
           textInputStyles={{
-            color:
-              nameIsAlreadyUsed && !(theme && darkModeType)
-                ? COLORS.cancelRed
-                : textInputColor,
+            color: textInputColor,
           }}
           placeholderText={t(
             'settings.accountComponents.createAccountPage.nameInputPlaceholder',
@@ -433,7 +352,7 @@ export default function CreateCustodyAccountPage(props) {
           }}
         />
 
-        {!selectedAccount && (
+        {accountType === 'imported' && (
           <>
             <ThemeText
               styles={{
@@ -461,26 +380,7 @@ export default function CreateCustodyAccountPage(props) {
               <CustomButton
                 buttonStyles={{
                   flex: 1,
-                  minWidth: 150,
-                  backgroundColor: theme ? backgroundOffset : COLORS.primary,
                 }}
-                textStyles={{ color: COLORS.darkModeText }}
-                actionFunction={regenerateSeed}
-                textContent={t('constants.regenerate')}
-              />
-              <CustomButton
-                actionFunction={() => setInputedKey(INITIAL_KEY_STATE)}
-                buttonStyles={{
-                  flex: 1,
-                  minWidth: 150,
-                  backgroundColor: theme ? backgroundOffset : COLORS.primary,
-                }}
-                textStyles={{ color: COLORS.darkModeText }}
-                textContent={t('constants.restore')}
-              />
-            </View>
-            {inputedKey === INITIAL_KEY_STATE && (
-              <CustomButton
                 actionFunction={async () => {
                   const response = await getClipboardText();
                   if (!response.didWork) throw new Error(t(response.reason));
@@ -512,12 +412,9 @@ export default function CreateCustodyAccountPage(props) {
                   });
                   setInputedKey(newKeys);
                 }}
-                buttonStyles={{
-                  marginTop: 10,
-                }}
                 textContent={t('constants.paste')}
               />
-            )}
+            </View>
           </>
         )}
       </ScrollView>
@@ -531,18 +428,13 @@ export default function CreateCustodyAccountPage(props) {
             ...CENTER,
             opacity:
               !accountInformation.name ||
-              nameIsAlreadyUsed ||
-              enteredAllSeeds.length !== 12 ||
-              selectedAccount?.name?.toLowerCase() ===
-                accountInformation?.name?.toLowerCase()
+              (accountType !== 'derived' && enteredAllSeeds.length !== 12)
                 ? HIDDEN_OPACITY
                 : 1,
           }}
-          textContent={
-            selectedAccount
-              ? t('settings.accountComponents.createAccountPage.updateTitle')
-              : t('settings.accountComponents.createAccountPage.createTitle')
-          }
+          textContent={t(
+            'settings.accountComponents.createAccountPage.createTitle',
+          )}
           actionFunction={handleCreateAccount}
         />
       )}

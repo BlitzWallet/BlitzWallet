@@ -165,13 +165,13 @@ function App(): JSX.Element {
                                                   <GlobalServerTimeProvider>
                                                     <GiftProvider>
                                                       <PoolProvider>
-                                                      <FlashnetProvider>
-                                                        <UserBalanceProvider>
-                                                          {/* <Suspense
+                                                        <FlashnetProvider>
+                                                          <UserBalanceProvider>
+                                                            {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                          <ResetStack />
-                                                        </UserBalanceProvider>
-                                                      </FlashnetProvider>
+                                                            <ResetStack />
+                                                          </UserBalanceProvider>
+                                                        </FlashnetProvider>
                                                       </PoolProvider>
                                                     </GiftProvider>
                                                     {/* </Suspense> */}
@@ -535,7 +535,7 @@ function ResetStack(): JSX.Element | null {
         if (mnemonic.value && !storedSettings.isSecurityEnabled) {
           setAccountMnemonic(mnemonic.value);
         }
-
+        setSecuritySettings(storedSettings);
         setInitSettings(prev => {
           return {
             ...prev,

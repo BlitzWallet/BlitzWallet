@@ -38,6 +38,7 @@ const PRESET_LOCAL_DATA = {
   defaultSpendToken: 'bitcoin',
   thousandsSeperator: 'space',
   enabledLiquidAutoSwap: true,
+  pinnedAccounts: [],
 };
 
 async function sendDataToDB(newObject, uuid) {

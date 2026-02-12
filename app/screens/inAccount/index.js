@@ -17,7 +17,7 @@ import SettingsIndex from './settingsIndex';
 import TechnicalTransactionDetails from './technicalTransactionDetails';
 import ViewAllTxPage from './viewAllTxPage';
 import SwapsPage from './swapPage';
-
+import SettingsHub from './settingsHub';
 export {
   ExpandedTx,
   AdminLogin,
@@ -37,4 +37,5 @@ export {
   AppStorePageIndex,
   BuyBitcoinHome,
   SwapsPage,
+  SettingsHub,
 };

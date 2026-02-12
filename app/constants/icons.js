@@ -21,6 +21,7 @@ import blockstreamLiquid from '../assets/icons/blockstreamLiquid.png';
 import dollarIcon from '../assets/icons/dollarIcon.png';
 import bitcoinIcon from '../assets/icons/bitcoinIcon.png';
 import giftCardIcon from '../assets/icons/giftCardIcon.png';
+import nwcLogo from '../assets/icons/nwcLogo.png';
 
 export default {
   logoIcon,
@@ -59,4 +60,5 @@ export default {
 
   dollarIcon,
   bitcoinIcon,
+  nwcLogo,
 };

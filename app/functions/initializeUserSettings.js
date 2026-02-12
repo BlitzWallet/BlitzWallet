@@ -91,6 +91,7 @@ export default async function initializeUserSettingsFromHistory({
       defaultSpendToken,
       thousandsSeperator,
       enabledLiquidAutoSwap,
+      pinnedAccounts,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -128,6 +129,12 @@ export default async function initializeUserSettingsFromHistory({
     const selectedLanguage = userSelectedLanguage;
     const currentDerivedGiftIndex =
       blitzStoredData.currentDerivedGiftIndex || 1;
+
+    const nextAccountDerivationIndex =
+      blitzStoredData.nextAccountDerivationIndex || 3;
+
+    const currentDerivedPoolIndex =
+      blitzStoredData.currentDerivedPoolIndex || 1;
 
     let pushNotifications = blitzStoredData.pushNotifications || {
       isEnabled: false,
@@ -388,6 +395,9 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['currentDerivedGiftIndex'] = currentDerivedGiftIndex;
     tempObject['thousandsSeperator'] = thousandsSeperator;
     tempObject['enabledLiquidAutoSwap'] = enabledLiquidAutoSwap;
+    tempObject['pinnedAccounts'] = pinnedAccounts;
+    tempObject['nextAccountDerivationIndex'] = nextAccountDerivationIndex;
+    tempObject['currentDerivedPoolIndex'] = currentDerivedPoolIndex;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

@@ -24,7 +24,6 @@ import useDebounce from '../../../../../hooks/useDebounce';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
@@ -48,7 +47,8 @@ export default function AccountPaymentPage(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { currentWalletMnemoinc, getAccountMnemonic, custodyAccountsList } =
+    useActiveCustodyAccount();
   const sendingAmount = props?.route?.params?.amount || 0;
   const from = props?.route?.params?.from;
   const to = props?.route?.params?.to;
@@ -65,9 +65,10 @@ export default function AccountPaymentPage(props) {
   const { backgroundOffset, textColor } = GetThemeColors();
   const { t } = useTranslation();
 
-  const accounts = useCustodyAccountList();
-  const fromAccount = accounts.find(item => item.mnemoinc === from)?.name || '';
-  const toAccount = accounts.find(item => item.mnemoinc === to)?.name || '';
+  const fromAccount =
+    custodyAccountsList.find(item => item.uuid === from)?.name || '';
+  const toAccount =
+    custodyAccountsList.find(item => item.uuid === to)?.name || '';
 
   const convertedSendAmount =
     masterInfoObject.userBalanceDenomination != 'fiat'
@@ -146,7 +147,19 @@ export default function AccountPaymentPage(props) {
       }
       setTransferInfo(prev => ({ ...prev, isDoingTransfer: true }));
 
-      const toSparkAddress = await getSparkAddress(to);
+      const sendingFromAccount = custodyAccountsList.find(
+        item => item.uuid === from,
+      );
+      const sendingToAccount = custodyAccountsList.find(
+        item => item.uuid === to,
+      );
+
+      const [fromMnemonic, toMnemonic] = await Promise.all([
+        getAccountMnemonic(sendingFromAccount),
+        getAccountMnemonic(sendingToAccount),
+      ]);
+
+      const toSparkAddress = await getSparkAddress(toMnemonic);
 
       if (!toSparkAddress.didWork) {
         throw new Error(
@@ -156,8 +169,8 @@ export default function AccountPaymentPage(props) {
 
       const [accountIdentifyPubKey, toAccountIdentityPubKey] =
         await Promise.all([
-          getSparkIdentityPubKey(from),
-          getSparkIdentityPubKey(to),
+          getSparkIdentityPubKey(fromMnemonic),
+          getSparkIdentityPubKey(toMnemonic),
         ]);
 
       if (!accountIdentifyPubKey || !toAccountIdentityPubKey) {
@@ -183,7 +196,7 @@ export default function AccountPaymentPage(props) {
         sparkInformation: {
           identityPubKey: accountIdentifyPubKey,
         },
-        mnemonic: from,
+        mnemonic: fromMnemonic,
         sendWebViewRequest,
       });
 
@@ -224,6 +237,7 @@ export default function AccountPaymentPage(props) {
     from,
     currentWalletMnemoinc,
     memo,
+    custodyAccountsList,
   ]);
 
   if (transferInfo?.showConfirmScreen) {
@@ -327,7 +341,7 @@ export default function AccountPaymentPage(props) {
             onPress={() => {
               navigate.navigate('CustomHalfModal', {
                 wantedContent: 'SelectAltAccount',
-                sliderHight: 0.5,
+                sliderHight: 0.6,
                 selectedFrom: from,
                 selectedTo: to,
                 transferType: 'from',
@@ -376,7 +390,7 @@ export default function AccountPaymentPage(props) {
             onPress={() => {
               navigate.navigate('CustomHalfModal', {
                 wantedContent: 'SelectAltAccount',
-                sliderHight: 0.5,
+                sliderHight: 0.6,
                 selectedFrom: from,
                 selectedTo: to,
                 transferType: 'to',

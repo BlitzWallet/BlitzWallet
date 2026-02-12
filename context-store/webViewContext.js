@@ -1180,8 +1180,8 @@ export const WebViewProvider = ({ children }) => {
     }
 
     const debouceID = setTimeout(() => {
-      forceReactNativeUse = true;
-      // startHandshake(); //remove this and app fully uses RN
+      // forceReactNativeUse = true;
+      startHandshake(); //remove this and app fully uses RN
     }, 250);
 
     return () => {

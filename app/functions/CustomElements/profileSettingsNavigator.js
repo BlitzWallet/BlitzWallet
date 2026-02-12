@@ -2,17 +2,13 @@ import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import GetTheemColors from '../../hooks/themeColors';
-import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
-import { useImageCache } from '../../../context-store/imageCache';
-import { useGlobalContextProvider } from '../../../context-store/context';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { keyboardNavigate } from '../customNavigation';
+import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
+import AccountProfileImage from '../../components/admin/homeComponents/accounts/accountProfileImage';
 export default function ProfileImageSettingsNavigator() {
-  const { darkModeType, theme } = useGlobalThemeContext();
-  const { masterInfoObject } = useGlobalContextProvider();
-  const { cache } = useImageCache();
   const { backgroundOffset } = GetTheemColors();
   const navigate = useNavigation();
+  const { activeAccount } = useActiveCustodyAccount();
 
   const goToMyProfile = useCallback(() => {
     keyboardNavigate(() => navigate.navigate('SettingsHome', {}));
@@ -26,12 +22,7 @@ export default function ProfileImageSettingsNavigator() {
           { backgroundColor: backgroundOffset },
         ]}
       >
-        <ContactProfileImage
-          updated={cache[masterInfoObject?.uuid]?.updated}
-          uri={cache[masterInfoObject?.uuid]?.localUri}
-          darkModeType={darkModeType}
-          theme={theme}
-        />
+        <AccountProfileImage account={activeAccount} imageSize={35} />
       </View>
     </TouchableOpacity>
   );

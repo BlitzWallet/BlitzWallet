@@ -24,9 +24,9 @@ export default function PresetAmountGrid({
   fiatStats,
   onCustomPress,
 }) {
-  const { theme } = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const fiatPrice = fiatStats?.value || 0;
   const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
@@ -102,7 +102,11 @@ export default function PresetAmountGrid({
           style={[
             styles.presetButton,
             {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              backgroundColor: theme
+                ? darkModeType
+                  ? backgroundColor
+                  : backgroundOffset
+                : COLORS.darkModeText,
               borderColor: isCustomSelected()
                 ? theme
                   ? COLORS.darkModeText
@@ -124,7 +128,11 @@ export default function PresetAmountGrid({
         style={[
           styles.presetButton,
           {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            backgroundColor: theme
+              ? darkModeType
+                ? backgroundColor
+                : backgroundOffset
+              : COLORS.darkModeText,
             borderColor: isPresetSelected(item)
               ? theme
                 ? COLORS.darkModeText

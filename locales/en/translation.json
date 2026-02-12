@@ -914,7 +914,7 @@
       "pool": "Pool",
       "couldNotFind": "We couldn't find this pool.",
       "createdBy": "By ",
-      "moneyTransferred": "Money transferred to Bitcoin Balance",
+      "moneyTransferred": "Money transferred to Main Wallet",
       "contribute": "Contribute",
       "share": "Share",
       "noActivity": "No activity yet. Be the first to contribute!",
@@ -1358,7 +1358,15 @@
       "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your seed phrase is convenient but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
       "wordsText": "Words",
       "qrText": "QR Code",
-      "showSeedWarning": "Are you sure you want to show your seed phrase?"
+      "showSeedWarning": "Are you sure you want to show your seed phrase?",
+      "warning": {
+        "title": "Keep Your Recovery Phrase Secret",
+        "point1": "Your secret recovery phrase is like a master key to your wallet.",
+        "point2": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
+        "point3": "Never share it with anyone—no person, website, or app.",
+        "checkbox": "I understand that sharing my recovery phrase could result in permanent loss of funds.",
+        "continueButton": "Continue"
+      }
     },
     "crashReporting": {
       "crashreporting_enabled": "Enabled crash reporting",
@@ -1374,11 +1382,13 @@
       "header": "Are you sure?",
       "dataDeleteHeader": "Select data to delete from this device.",
       "dataDeleteDesc": "This will delete all wallet data from your device. If you don’t have a copy of your seed phrase saved, you WILL lose access to your funds.",
-      "boxNotChecked": "Please check the box to confirm you want to reset your wallet before resetting.",
       "seedAndPinOpt": "Delete all data from my device",
       "balanceText": "Your balance is",
       "localStorageError": "Unable to delete locally stored information",
-      "secureStorageError": "Unable to delete securely stored information"
+      "secureStorageError": "Unable to delete securely stored information",
+      "boxNotChecked": "Please check the box to confirm you want to delete your wallet before deleating.",
+      "title": "Delete Wallet",
+      "warningText": "I understand that I can only recover my funds with my seed phrase, and if I lose it, my funds cannot be recovered."
     },
     "sparkInfo": {
       "title": "Wallet Info",
@@ -1565,7 +1575,76 @@
       },
       "viewAccountPage": {
         "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your seed phrase is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe."
+      },
+      "editAccountName": {
+        "title": "Account Name",
+        "namePlaceholder": "Name"
+      },
+      "editAccountPage": {
+        "title": "Edit Account",
+        "accountNameLabel": "Account Name",
+        "showRecoveryPhraseLabel": "Show Recovery Phrase",
+        "removeAccountLabel": "Remove Account",
+        "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
+        "account_pin": "Pin Account",
+        "account_unpin": "Unpin Account"
+      },
+      "removeAccountPage": {
+        "title": "Remove",
+        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to recover it using your seed phrase.",
+        "explanation_imported": "You are removing an imported wallet. You will only be able to recover this wallet by re-entering the seed phrase",
+        "cancelButton": "Cancel",
+        "removeButton": "Remove"
+      },
+      "selectCreateAccountType": {
+        "title": "Add Account",
+        "createNewAccountTitle": "Create New Account",
+        "createNewAccountDescription": "Recoverable from main seed phrase",
+        "importRecoveryPhraseTitle": "Import Recovery Phrase",
+        "importRecoveryPhraseDescription": "Import accounts from another wallet",
+        "recoverRecoveryPhraseTitle": "Recover Account",
+        "recoverRecoveryPhraseDescription": "Restore an already created account"
+      },
+      "selectProfileImage": {
+        "title": "Choose Avatar",
+        "searchPlaceholder": "Search emojis...",
+        "saveButton": "Save Avatar"
+      },
+      "restoreDerivedAccount": {
+        "title": "Restore Account",
+        "emptyStateTitle": "No Accounts to Restore",
+        "emptyStateMessage": "All accounts are currently restored. No missing accounts found.",
+        "accountCardTitle": "Account {{index}}",
+        "accountCardSubtitle": "Derivation Index: {{index}}",
+        "restoreButton": "Restore",
+        "nameInputTitle": "Name This Account",
+        "nameInputPlaceholder": "Account {{index}}",
+        "nameInputConfirm": "Restore Account",
+        "nameInputCancel": "Cancel",
+        "successMessage": "Account {{index}} restored successfully",
+        "errorMessage": "Failed to restore account"
+      },
+      "selectAltAccount": {
+        "from": "Select the account you want to send from.",
+        "to": "Select the account you want to receive to."
       }
+    },
+    "accountsPoolsScreen": {
+      "profileButton": "Profile",
+      "settingsButton": "Settings",
+      "poolsTitle": "Pools",
+      "noPoolsMessage": "You haven't created any pools yet. Tap to create your first pool.",
+      "noActivePools": "You have no active pools",
+      "yourAccountsTitle": "Your Accounts",
+      "addAccountButton": "Add Account"
+    },
+    "hub": {
+      "viewAll": "View All",
+      "accounts": "Accounts",
+      "pinAccount": "Pin",
+      "unpinAccount": "Unpin",
+      "maxPinsReached": "Maximum 2 pinned accounts. Unpin one first.",
+      "morePoolsCount": "+{{count}} more"
     },
     "posPath": {
       "settings": {
@@ -1756,6 +1835,7 @@
         "nostr": "nostr",
         "login mode": "Login Mode",
         "backup wallet": "Backup Wallet",
+        "show seed phrase": "Backup Wallet",
         "spark info": "Spark Info",
         "delete wallet": "Delete Wallet",
         "general": "General",
@@ -2088,6 +2168,10 @@
       "payment": "{{name}} paid you {{amount}}",
       "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Account {{index}}"
   },
 
   "flashnetUserMessages": {

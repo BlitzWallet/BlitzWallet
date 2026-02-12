@@ -902,7 +902,7 @@
       "pool": "Пул",
       "couldNotFind": "Мы не смогли найти этот пул.",
       "createdBy": "От ",
-      "moneyTransferred": "Средства переведены на Bitcoin-баланс",
+      "moneyTransferred": "Средства переведены в основной кошелёк",
       "contribute": "Внести вклад",
       "share": "Поделиться",
       "noActivity": "Пока нет активности. Будьте первым, кто внесёт вклад!",
@@ -1351,11 +1351,14 @@
       "header": "Вы уверены?",
       "dataDeleteHeader": "Выберите данные для удаления.",
       "dataDeleteDesc": "Это удалит все данные кошелька. Без сид-фразы вы потеряете доступ к средствам.",
-      "boxNotChecked": "Поставьте галочку для подтверждения.",
+
       "seedAndPinOpt": "Удалить все данные с устройства",
       "balanceText": "Ваш баланс",
       "localStorageError": "Не удалось удалить локальные данные",
-      "secureStorageError": "Не удалось удалить защищенные данные"
+      "secureStorageError": "Не удалось удалить защищенные данные",
+      "boxNotChecked": "Отметьте галочку, чтобы подтвердить удаление кошелька.",
+      "title": "Удалить кошелёк",
+      "warningText": "Я понимаю, что могу восстановить средства только с помощью своей seed-фразы, и если я её потеряю, средства нельзя будет восстановить."
     },
     "sparkInfo": {
       "title": "Инфо о кошельке",
@@ -1538,7 +1541,66 @@
       },
       "viewAccountPage": {
         "informationMessage": "Показать QR-код?\n\nСканируйте только на безопасном устройстве."
+      },
+      "editAccountName": {
+        "title": "Название аккаунта",
+        "namePlaceholder": "Название"
+      },
+      "editAccountPage": {
+        "title": "Редактировать аккаунт",
+        "accountNameLabel": "Название аккаунта",
+        "showRecoveryPhraseLabel": "Показать фразу восстановления",
+        "removeAccountLabel": "Удалить аккаунт",
+        "activeAccountError": "Вы не можете удалить текущий активный аккаунт. Пожалуйста, переключитесь на другой аккаунт перед удалением этого.",
+        "account_pin": "Закрепить аккаунт",
+        "account_unpin": "Открепить аккаунт"
+      },
+      "selectCreateAccountType": {
+        "title": "Добавить аккаунт",
+        "createNewAccountTitle": "Создать новый аккаунт",
+        "createNewAccountDescription": "Восстанавливается из основной seed-фразы",
+        "importRecoveryPhraseTitle": "Импортировать фразу восстановления",
+        "importRecoveryPhraseDescription": "Импортировать аккаунты из другого кошелька"
+      },
+      "selectProfileImage": {
+        "title": "Выбрать аватар",
+        "searchPlaceholder": "Поиск эмодзи...",
+        "saveButton": "Сохранить аватар"
+      },
+      "restoreDerivedAccount": {
+        "title": "Восстановить аккаунт",
+        "emptyStateTitle": "Нет аккаунтов для восстановления",
+        "emptyStateMessage": "Все аккаунты в настоящее время восстановлены. Отсутствующих аккаунтов не найдено.",
+        "accountCardTitle": "Аккаунт {{index}}",
+        "accountCardSubtitle": "Индекс деривации: {{index}}",
+        "restoreButton": "Восстановить",
+        "nameInputTitle": "Назовите этот аккаунт",
+        "nameInputPlaceholder": "Аккаунт {{index}}",
+        "nameInputConfirm": "Восстановить аккаунт",
+        "nameInputCancel": "Отмена",
+        "successMessage": "Аккаунт {{index}} успешно восстановлен",
+        "errorMessage": "Не удалось восстановить аккаунт"
+      },
+      "selectAltAccount": {
+        "from": "Выберите аккаунт, с которого хотите отправить.",
+        "to": "Выберите аккаунт, на который хотите получить."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Профиль",
+        "settingsButton": "Настройки",
+        "poolsTitle": "Пулы",
+        "noPoolsMessage": "Вы ещё не создали ни одного пула. Нажмите, чтобы создать первый пул.",
+        "yourAccountsTitle": "Ваши аккаунты",
+        "addAccountButton": "Добавить аккаунт"
       }
+    },
+    "hub": {
+      "viewAll": "Показать все",
+      "accounts": "Аккаунты",
+      "pinAccount": "Закрепить",
+      "unpinAccount": "Открепить",
+      "maxPinsReached": "Максимум 2 закреплённых аккаунта. Сначала открепите один.",
+      "morePoolsCount": "+{{count}} ещё"
     },
     "posPath": {
       "settings": {
@@ -2054,6 +2116,10 @@
       "payment": "{{name}} заплатил {{amount}}",
       "giftCard": "{{name}} отправил вам карту {{giftCardName}}"
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Аккаунт {{index}}"
   },
 
   "flashnetUserMessages": {

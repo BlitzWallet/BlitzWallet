@@ -897,7 +897,7 @@
       "pool": "Pool",
       "couldNotFind": "Dieser Pool konnte nicht gefunden werden.",
       "createdBy": "Von ",
-      "moneyTransferred": "Geld auf Bitcoin-Guthaben übertragen",
+      "moneyTransferred": "Geld wurde in die Haupt-Wallet übertragen",
       "contribute": "Beitragen",
       "share": "Teilen",
       "noActivity": "Noch keine Aktivität. Sei der Erste, der beiträgt!",
@@ -1341,11 +1341,13 @@
       "header": "Sind Sie sicher?",
       "dataDeleteHeader": "Bitte wählen Sie die Daten aus, die von diesem Gerät gelöscht werden sollen.",
       "dataDeleteDesc": "Dies wird alle Wallet-Daten von Ihrem Gerät löschen. Wenn Sie keine Kopie Ihrer Seed-Phrase gespeichert haben, VERLIEREN Sie den Zugriff auf Ihre Gelder.",
-      "boxNotChecked": "Bitte markieren Sie das Kästchen, um zu bestätigen, dass Sie Ihre Wallet zurücksetzen möchten, bevor Sie fortfahren.",
       "seedAndPinOpt": "Alle Daten von meinem Gerät löschen",
       "balanceText": "Ihr Guthaben beträgt",
       "localStorageError": "Lokal gespeicherte Informationen konnten nicht gelöscht werden",
-      "secureStorageError": "Sicher gespeicherte Informationen konnten nicht gelöscht werden"
+      "secureStorageError": "Sicher gespeicherte Informationen konnten nicht gelöscht werden",
+      "boxNotChecked": "Bitte bestätige durch Ankreuzen, dass du deine Wallet löschen möchtest.",
+      "title": "Wallet löschen",
+      "warningText": "Ich verstehe, dass ich meine Gelder nur mit meiner Seed-Phrase wiederherstellen kann und dass sie nicht wiederhergestellt werden können, wenn ich sie verliere."
     },
     "sparkInfo": {
       "title": "Wallet-Informationen",
@@ -1528,7 +1530,66 @@
       },
       "viewAccountPage": {
         "informationMessage": "Sind Sie sicher, dass Sie diesen QR-Code anzeigen möchten?\n\nDas Scannen Ihrer Seed-Phrase ist praktisch, aber stellen Sie sicher, dass Sie ein sicheres und vertrauenswürdiges Gerät verwenden. Dies hilft, Ihre Wallet sicher zu halten."
+      },
+      "editAccountName": {
+        "title": "Kontoname",
+        "namePlaceholder": "Name"
+      },
+      "editAccountPage": {
+        "title": "Konto bearbeiten",
+        "accountNameLabel": "Kontoname",
+        "showRecoveryPhraseLabel": "Wiederherstellungsphrase anzeigen",
+        "removeAccountLabel": "Konto entfernen",
+        "activeAccountError": "Du kannst das derzeit aktive Konto nicht löschen. Bitte wechsle zu einem anderen Konto, bevor du dieses löschst.",
+        "account_pin": "Konto anheften",
+        "account_unpin": "Konto lösen"
+      },
+      "selectCreateAccountType": {
+        "title": "Konto hinzufügen",
+        "createNewAccountTitle": "Neues Konto erstellen",
+        "createNewAccountDescription": "Wiederherstellbar über die Haupt-Seed-Phrase",
+        "importRecoveryPhraseTitle": "Wiederherstellungsphrase importieren",
+        "importRecoveryPhraseDescription": "Konten aus einer anderen Wallet importieren"
+      },
+      "selectProfileImage": {
+        "title": "Avatar auswählen",
+        "searchPlaceholder": "Emojis suchen...",
+        "saveButton": "Avatar speichern"
+      },
+      "restoreDerivedAccount": {
+        "title": "Konto wiederherstellen",
+        "emptyStateTitle": "Keine Konten zum Wiederherstellen",
+        "emptyStateMessage": "Alle Konten sind derzeit wiederhergestellt. Keine fehlenden Konten gefunden.",
+        "accountCardTitle": "Konto {{index}}",
+        "accountCardSubtitle": "Ableitungsindex: {{index}}",
+        "restoreButton": "Wiederherstellen",
+        "nameInputTitle": "Benenne dieses Konto",
+        "nameInputPlaceholder": "Konto {{index}}",
+        "nameInputConfirm": "Konto wiederherstellen",
+        "nameInputCancel": "Abbrechen",
+        "successMessage": "Konto {{index}} erfolgreich wiederhergestellt",
+        "errorMessage": "Fehler beim Wiederherstellen des Kontos"
+      },
+      "selectAltAccount": {
+        "from": "Wähle das Konto, von dem du senden möchtest.",
+        "to": "Wähle das Konto, auf das du empfangen möchtest."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Profil",
+        "settingsButton": "Einstellungen",
+        "poolsTitle": "Pools",
+        "noPoolsMessage": "Du hast noch keine Pools erstellt. Tippe, um deinen ersten Pool zu erstellen.",
+        "yourAccountsTitle": "Deine Konten",
+        "addAccountButton": "Konto hinzufügen"
       }
+    },
+    "hub": {
+      "viewAll": "Alle anzeigen",
+      "accounts": "Konten",
+      "pinAccount": "Anheften",
+      "unpinAccount": "Lösen",
+      "maxPinsReached": "Maximal 2 angeheftete Konten. Löse zuerst eines.",
+      "morePoolsCount": "+{{count}} weitere"
     },
     "posPath": {
       "settings": {
@@ -2033,6 +2094,11 @@
       "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet"
     }
   },
+
+  "accountCard": {
+    "fallbackAccountName": "Konto {{index}}"
+  },
+
   "flashnetUserMessages": {
     "FSAG-1000": "Ihre Anfrage hat die Validierungsprüfung leider nicht bestanden.",
     "FSAG-1001": "In Ihrer Anfrage fehlt ein erforderliches Feld.",

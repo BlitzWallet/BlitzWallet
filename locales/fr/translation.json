@@ -905,7 +905,7 @@
       "pool": "Cagnotte",
       "couldNotFind": "Nous n’avons pas trouvé cette cagnotte.",
       "createdBy": "Par ",
-      "moneyTransferred": "Fonds transférés vers le solde Bitcoin",
+      "moneyTransferred": "Fonds transférés vers le portefeuille principal",
       "contribute": "Contribuer",
       "share": "Partager",
       "noActivity": "Aucune activité pour le moment. Soyez le premier à contribuer !",
@@ -1354,11 +1354,13 @@
       "header": "Êtes-vous sûr ?",
       "dataDeleteHeader": "Sélectionnez les données à supprimer de cet appareil.",
       "dataDeleteDesc": "Cette opération supprimera toutes les données du portefeuille de votre appareil. Si vous n'avez pas sauvegardé une copie de votre phrase de départ, vous PERDREZ l'accès à vos fonds.",
-      "boxNotChecked": "Veuillez cocher la case pour confirmer que vous souhaitez réinitialiser votre portefeuille avant de procéder à la réinitialisation.",
       "seedAndPinOpt": "Supprimer toutes les données de mon appareil",
       "balanceText": "Votre solde est de",
       "localStorageError": "Impossibilité de supprimer les informations stockées localement",
-      "secureStorageError": "Impossibilité de supprimer les informations stockées de manière sécurisée"
+      "secureStorageError": "Impossibilité de supprimer les informations stockées de manière sécurisée",
+      "boxNotChecked": "Veuillez cocher la case pour confirmer que vous souhaitez supprimer votre wallet.",
+      "title": "Supprimer le wallet",
+      "warningText": "Je comprends que je ne peux récupérer mes fonds qu’avec ma phrase seed et que si je la perds, mes fonds ne pourront pas être récupérés."
     },
     "sparkInfo": {
       "title": "Informations sur le portefeuille",
@@ -1541,7 +1543,66 @@
       },
       "viewAccountPage": {
         "informationMessage": "Êtes-vous sûr de vouloir afficher ce code QR ?\n\nScanner votre phrase de semence est pratique, mais assurez-vous d'utiliser un appareil sécurisé et de confiance. Cela permet de préserver la sécurité de votre portefeuille."
+      },
+      "editAccountName": {
+        "title": "Nom du compte",
+        "namePlaceholder": "Nom"
+      },
+      "editAccountPage": {
+        "title": "Modifier le compte",
+        "accountNameLabel": "Nom du compte",
+        "showRecoveryPhraseLabel": "Afficher la phrase de récupération",
+        "removeAccountLabel": "Supprimer le compte",
+        "activeAccountError": "Vous ne pouvez pas supprimer le compte actuellement actif. Veuillez passer à un autre compte avant de supprimer celui-ci.",
+        "account_pin": "Épingler le compte",
+        "account_unpin": "Désépingler le compte"
+      },
+      "selectCreateAccountType": {
+        "title": "Ajouter un compte",
+        "createNewAccountTitle": "Créer un nouveau compte",
+        "createNewAccountDescription": "Récupérable via la phrase seed principale",
+        "importRecoveryPhraseTitle": "Importer une phrase de récupération",
+        "importRecoveryPhraseDescription": "Importer des comptes depuis un autre wallet"
+      },
+      "selectProfileImage": {
+        "title": "Choisir un avatar",
+        "searchPlaceholder": "Rechercher des emojis...",
+        "saveButton": "Enregistrer l'avatar"
+      },
+      "restoreDerivedAccount": {
+        "title": "Restaurer le compte",
+        "emptyStateTitle": "Aucun compte à restaurer",
+        "emptyStateMessage": "Tous les comptes sont actuellement restaurés. Aucun compte manquant trouvé.",
+        "accountCardTitle": "Compte {{index}}",
+        "accountCardSubtitle": "Indice de dérivation : {{index}}",
+        "restoreButton": "Restaurer",
+        "nameInputTitle": "Nommer ce compte",
+        "nameInputPlaceholder": "Compte {{index}}",
+        "nameInputConfirm": "Restaurer le compte",
+        "nameInputCancel": "Annuler",
+        "successMessage": "Compte {{index}} restauré avec succès",
+        "errorMessage": "Échec de la restauration du compte"
+      },
+      "selectAltAccount": {
+        "from": "Sélectionnez le compte depuis lequel vous souhaitez envoyer.",
+        "to": "Sélectionnez le compte sur lequel vous souhaitez recevoir."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Profil",
+        "settingsButton": "Paramètres",
+        "poolsTitle": "Pools",
+        "noPoolsMessage": "Vous n’avez pas encore créé de pool. Appuyez pour créer votre premier pool.",
+        "yourAccountsTitle": "Vos comptes",
+        "addAccountButton": "Ajouter un compte"
       }
+    },
+    "hub": {
+      "viewAll": "Tout voir",
+      "accounts": "Comptes",
+      "pinAccount": "Épingler",
+      "unpinAccount": "Désépingler",
+      "maxPinsReached": "Maximum 2 comptes épinglés. Désépinglez-en un d'abord.",
+      "morePoolsCount": "+{{count}} de plus"
     },
     "posPath": {
       "settings": {
@@ -2048,6 +2109,10 @@
       "payment": "{{name}} vous a payé {{amount}}",
       "giftCard": "{{name}} vous a envoyé une carte cadeau {{giftCardName}} "
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Compte {{index}}"
   },
 
   "flashnetUserMessages": {

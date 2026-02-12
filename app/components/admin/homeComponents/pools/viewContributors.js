@@ -6,12 +6,7 @@ import {
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
-} from '../../../../constants/theme';
-import { usePools } from '../../../../../context-store/poolContext';
+import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ContributorAvatar from './contributorAvatar';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -20,26 +15,26 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useTranslation } from 'react-i18next';
 
 export default function ViewContibutors(props) {
-  const poolId = props.route?.params?.poolId;
+  const pool = props.route?.params?.pool;
   const contributions = props.route?.params?.contributions;
 
   const { masterInfoObject } = useGlobalContextProvider();
-  const { pools } = usePools();
   const { fiatStats } = useNodeContext();
   const { t } = useTranslation();
-  const pool = pools[poolId];
   const contributers = [pool, ...contributions];
 
+  console.log(pool);
   const handleShare = useCallback(async () => {
     try {
       await Share.share({
-        message: `https://blitzwalletapp.com/pools/${poolId}`,
+        message: `https://blitzwalletapp.com/pools/${pool.poolId}`,
       });
     } catch (err) {
       console.log('Error sharing pool:', err);
     }
-  }, [poolId]);
+  }, [pool]);
 
+  console.log(contributers);
   const Contributor = useCallback(({ item, index }) => {
     if (!item) return;
 
@@ -54,6 +49,7 @@ export default function ViewContibutors(props) {
           />
           <View>
             <ThemeText
+              styles={styles.name}
               content={item?.creatorName || item?.contributorName || 'Unknwon'}
             />
             <ThemeText
@@ -74,6 +70,7 @@ export default function ViewContibutors(props) {
           />
           <View>
             <ThemeText
+              styles={styles.name}
               content={item?.creatorName || item?.contributorName || 'Unknwon'}
             />
             <ThemeText
@@ -121,10 +118,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: 'center',
   },
-  name: {},
+  name: { includeFontPadding: false },
   amount: {
     opacity: HIDDEN_OPACITY,
     fontSize: SIZES.smedium,
+    includeFontPadding: false,
   },
   button: {
     ...CENTER,

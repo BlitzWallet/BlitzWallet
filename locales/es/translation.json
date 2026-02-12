@@ -765,7 +765,7 @@
       "pool": "Fondo",
       "couldNotFind": "No pudimos encontrar este fondo.",
       "createdBy": "Por ",
-      "moneyTransferred": "Fondos transferidos al saldo de Bitcoin",
+      "moneyTransferred": "Dinero transferido a la Wallet principal",
       "contribute": "Contribuir",
       "share": "Compartir",
       "noActivity": "Aún no hay actividad. ¡Sé el primero en contribuir!",
@@ -1210,11 +1210,13 @@
       "header": "¿Estás seguro?",
       "dataDeleteHeader": "Selecciona los datos a eliminar de este dispositivo.",
       "dataDeleteDesc": "Esto eliminará todos los datos de la billetera de tu dispositivo. Si no tienes una copia de tu frase semilla guardada, PERDERÁS el acceso a tus fondos.",
-      "boxNotChecked": "Por favor, marca la casilla para confirmar que deseas restablecer tu billetera antes de continuar.",
       "seedAndPinOpt": "Eliminar todos los datos de mi dispositivo",
       "balanceText": "Tu saldo es",
       "localStorageError": "No se pudo eliminar la información local",
-      "secureStorageError": "No se pudo eliminar la información segura"
+      "secureStorageError": "No se pudo eliminar la información segura",
+      "boxNotChecked": "Marca la casilla para confirmar que deseas eliminar tu wallet.",
+      "title": "Eliminar wallet",
+      "warningText": "Entiendo que solo puedo recuperar mis fondos con mi frase semilla y que, si la pierdo, no podrán recuperarse."
     },
     "sparkInfo": {
       "title": "Información de billetera",
@@ -1399,7 +1401,66 @@
       },
       "viewAccountPage": {
         "informationMessage": "¿Estás seguro de que quieres mostrar este código QR?\n\nEscanear tu semilla es conveniente, pero asegúrate de usar un dispositivo seguro y confiable. Esto ayuda a mantener tu billetera segura."
+      },
+      "editAccountName": {
+        "title": "Nombre de la cuenta",
+        "namePlaceholder": "Nombre"
+      },
+      "editAccountPage": {
+        "title": "Editar cuenta",
+        "accountNameLabel": "Nombre de la cuenta",
+        "showRecoveryPhraseLabel": "Mostrar frase de recuperación",
+        "removeAccountLabel": "Eliminar cuenta",
+        "activeAccountError": "No puedes eliminar la cuenta activa actualmente. Por favor, cambia a una cuenta diferente antes de eliminar esta.",
+        "account_pin": "Fijar cuenta",
+        "account_unpin": "Desfijar cuenta"
+      },
+      "selectCreateAccountType": {
+        "title": "Agregar cuenta",
+        "createNewAccountTitle": "Crear nueva cuenta",
+        "createNewAccountDescription": "Recuperable desde la frase semilla principal",
+        "importRecoveryPhraseTitle": "Importar frase de recuperación",
+        "importRecoveryPhraseDescription": "Importar cuentas desde otra wallet"
+      },
+      "selectProfileImage": {
+        "title": "Elegir avatar",
+        "searchPlaceholder": "Buscar emojis...",
+        "saveButton": "Guardar avatar"
+      },
+      "restoreDerivedAccount": {
+        "title": "Restaurar cuenta",
+        "emptyStateTitle": "No hay cuentas para restaurar",
+        "emptyStateMessage": "Todas las cuentas están actualmente restauradas. No se encontraron cuentas faltantes.",
+        "accountCardTitle": "Cuenta {{index}}",
+        "accountCardSubtitle": "Índice de derivación: {{index}}",
+        "restoreButton": "Restaurar",
+        "nameInputTitle": "Nombra esta cuenta",
+        "nameInputPlaceholder": "Cuenta {{index}}",
+        "nameInputConfirm": "Restaurar cuenta",
+        "nameInputCancel": "Cancelar",
+        "successMessage": "Cuenta {{index}} restaurada exitosamente",
+        "errorMessage": "Error al restaurar la cuenta"
+      },
+      "selectAltAccount": {
+        "from": "Selecciona la cuenta desde la que quieres enviar.",
+        "to": "Selecciona la cuenta en la que quieres recibir."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Perfil",
+        "settingsButton": "Configuración",
+        "poolsTitle": "Pools",
+        "noPoolsMessage": "Aún no has creado ningún pool. Toca para crear tu primer pool.",
+        "yourAccountsTitle": "Tus cuentas",
+        "addAccountButton": "Agregar cuenta"
       }
+    },
+    "hub": {
+      "viewAll": "Ver todo",
+      "accounts": "Cuentas",
+      "pinAccount": "Fijar",
+      "unpinAccount": "Desfijar",
+      "maxPinsReached": "Máximo 2 cuentas fijadas. Desfija una primero.",
+      "morePoolsCount": "+{{count}} más"
     },
     "posPath": {
       "settings": {
@@ -1915,6 +1976,10 @@
       "payment": "{{name}} te pagó {{amount}}",
       "giftCard": "{{name}} te envió una tarjeta regalo de {{giftCardName}}."
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Cuenta {{index}}"
   },
 
   "flashnetUserMessages": {

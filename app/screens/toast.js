@@ -96,7 +96,7 @@ export function Toast({
       case 'handleSwap':
         return [...baseStyle, styles.clipboardToast];
       case 'error':
-        return [...baseStyle, styles.errorToast];
+        return [...baseStyle, styles.clipboardToast];
       case 'warning':
         return [...baseStyle, styles.warningToast];
       case 'info':
@@ -160,6 +160,15 @@ export function Toast({
                   theme && darkModeType ? COLORS.lightModeText : COLORS.primary
                 }
               />
+            ) : toast.type === 'error' ? (
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={25}
+                styles={{ marginRight: 15 }}
+                iconName={'Info'}
+              />
             ) : (
               <ThemeText styles={styles.toastIcon} content={getIconForType()} />
             )}
@@ -201,7 +210,8 @@ export function Toast({
                 </View>
               ) : (
                 <ThemeText
-                  CustomNumberOfLines={1}
+                  CustomNumberOfLines={2}
+                  adjustsFontSizeToFit={true}
                   styles={styles.toastTitle}
                   content={t(toast.title)}
                 />

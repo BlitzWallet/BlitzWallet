@@ -905,7 +905,7 @@
       "pool": "Pool",
       "couldNotFind": "Vi kunde inte hitta denna pool.",
       "createdBy": "Av ",
-      "moneyTransferred": "Pengar överförda till Bitcoin-saldo",
+      "moneyTransferred": "Pengar överförda till huvudplånboken",
       "contribute": "Bidra",
       "share": "Dela",
       "noActivity": "Ingen aktivitet ännu. Bli den första att bidra!",
@@ -1354,11 +1354,13 @@
       "header": "Är du säker?",
       "dataDeleteHeader": "Välj data som ska raderas från den här enheten.",
       "dataDeleteDesc": "Detta kommer att radera alla plånboksdata från din enhet. Om du inte har sparat en kopia av din seed-fras kommer du att förlora tillgången till dina pengar.",
-      "boxNotChecked": "Markera rutan för att bekräfta att du vill återställa din plånbok innan du återställer.",
       "seedAndPinOpt": "Ta bort alla data från min enhet",
       "balanceText": "Ditt saldo är",
       "localStorageError": "Kan inte radera lokalt lagrad information",
-      "secureStorageError": "Kan inte radera säkert lagrad information"
+      "secureStorageError": "Kan inte radera säkert lagrad information",
+      "boxNotChecked": "Markera rutan för att bekräfta att du vill ta bort din wallet.",
+      "title": "Ta bort wallet",
+      "warningText": "Jag förstår att jag endast kan återställa mina medel med min seed-fras och att om jag förlorar den kan mina medel inte återställas."
     },
     "sparkInfo": {
       "title": "Information om plånboken",
@@ -1541,7 +1543,66 @@
       },
       "viewAccountPage": {
         "informationMessage": "Är du säker på att du vill visa den här QR-koden?\n\nAtt skanna din seed-fras är bekvämt, men se till att du använder en säker och betrodd enhet. Detta hjälper till att hålla din plånbok säker."
+      },
+      "editAccountName": {
+        "title": "Kontonamn",
+        "namePlaceholder": "Namn"
+      },
+      "editAccountPage": {
+        "title": "Redigera konto",
+        "accountNameLabel": "Kontonamn",
+        "showRecoveryPhraseLabel": "Visa återställningsfras",
+        "removeAccountLabel": "Ta bort konto",
+        "activeAccountError": "Du kan inte ta bort det för närvarande aktiva kontot. Vänligen byt till ett annat konto innan du tar bort detta.",
+        "account_pin": "Fäst konto",
+        "account_unpin": "Lossa konto"
+      },
+      "selectCreateAccountType": {
+        "title": "Lägg till konto",
+        "createNewAccountTitle": "Skapa nytt konto",
+        "createNewAccountDescription": "Kan återställas från huvudets seed-fras",
+        "importRecoveryPhraseTitle": "Importera återställningsfras",
+        "importRecoveryPhraseDescription": "Importera konton från en annan wallet"
+      },
+      "selectProfileImage": {
+        "title": "Välj avatar",
+        "searchPlaceholder": "Sök emojis...",
+        "saveButton": "Spara avatar"
+      },
+      "restoreDerivedAccount": {
+        "title": "Återställ konto",
+        "emptyStateTitle": "Inga konton att återställa",
+        "emptyStateMessage": "Alla konton är för närvarande återställda. Inga saknade konton hittades.",
+        "accountCardTitle": "Konto {{index}}",
+        "accountCardSubtitle": "Derivationsindex: {{index}}",
+        "restoreButton": "Återställ",
+        "nameInputTitle": "Namnge detta konto",
+        "nameInputPlaceholder": "Konto {{index}}",
+        "nameInputConfirm": "Återställ konto",
+        "nameInputCancel": "Avbryt",
+        "successMessage": "Konto {{index}} återställdes framgångsrikt",
+        "errorMessage": "Misslyckades återställa kontot"
+      },
+      "selectAltAccount": {
+        "from": "Välj kontot du vill skicka från.",
+        "to": "Välj kontot du vill ta emot till."
+      },
+      "accountsPoolsScreen": {
+        "profileButton": "Profil",
+        "settingsButton": "Inställningar",
+        "poolsTitle": "Pools",
+        "noPoolsMessage": "Du har inte skapat några pools ännu. Tryck för att skapa din första pool.",
+        "yourAccountsTitle": "Dina konton",
+        "addAccountButton": "Lägg till konto"
       }
+    },
+    "hub": {
+      "viewAll": "Visa alla",
+      "accounts": "Konton",
+      "pinAccount": "Fäst",
+      "unpinAccount": "Lossa",
+      "maxPinsReached": "Maximalt 2 fästa konton. Lossa ett först.",
+      "morePoolsCount": "+{{count}} till"
     },
     "posPath": {
       "settings": {
@@ -2048,6 +2109,10 @@
       "payment": "{{name}} betalade dig {{amount}}",
       "giftCard": "{{name}} skickade ett presentkort till dig på {{giftCardName}} "
     }
+  },
+
+  "accountCard": {
+    "fallbackAccountName": "Konto {{index}}"
   },
 
   "flashnetUserMessages": {
