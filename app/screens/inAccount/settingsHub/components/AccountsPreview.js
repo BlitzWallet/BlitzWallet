@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import AccountCard from '../../../../components/admin/homeComponents/accounts/accountCard';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -29,20 +29,28 @@ export default function AccountsPreview({
   const hasMoreAccounts = custodyAccountsList?.length > displayAccounts?.length;
 
   return (
-    <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-      <TouchableOpacity onPress={onViewAll} style={styles.header}>
+    <Pressable
+      onPress={onViewAll}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: backgroundOffset },
+        pressed && styles.pressed,
+      ]}
+    >
+      {/* Header becomes just visual */}
+      <View style={styles.header}>
         <ThemeText
           styles={styles.headerTitle}
           content={t('settings.hub.accounts')}
         />
-
         <ThemeText
           styles={styles.viewAll}
           content={t('settings.hub.viewAll')}
         />
-      </TouchableOpacity>
-      {displayAccounts.map((account, index) => {
-        return (
+      </View>
+
+      <View pointerEvents="box-none">
+        {displayAccounts.map((account, index) => (
           <AccountCard
             key={account.uuid || `account-${index}`}
             account={account}
@@ -53,10 +61,11 @@ export default function AccountsPreview({
               isSwitchingAccount.accountBeingLoaded ===
                 (account.uuid || account.name) && isSwitchingAccount.isLoading
             }
-            fromSettings={true}
+            fromSettings
           />
-        );
-      })}
+        ))}
+      </View>
+
       {hasMoreAccounts && (
         <ThemeText
           styles={styles.moreText}
@@ -65,7 +74,7 @@ export default function AccountsPreview({
           })}
         />
       )}
-    </View>
+    </Pressable>
   );
 }
 
@@ -157,5 +166,8 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     marginTop: 4,
     includeFontPadding: false,
+  },
+  pressed: {
+    opacity: 0.7,
   },
 });

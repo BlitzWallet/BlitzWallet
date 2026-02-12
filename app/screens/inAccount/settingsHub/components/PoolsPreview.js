@@ -28,11 +28,12 @@ export default function PoolsPreview({
           styles={styles.headerTitle}
           content={t('settings.accountsPoolsScreen.poolsTitle')}
         />
-
-        <ThemeText
-          styles={styles.viewAll}
-          content={t('settings.hub.viewAll')}
-        />
+        {!!poolsArray.length && (
+          <ThemeText
+            styles={styles.viewAll}
+            content={t('settings.hub.viewAll')}
+          />
+        )}
       </View>
       {activePoolsArray.length > 0 ? (
         <>
