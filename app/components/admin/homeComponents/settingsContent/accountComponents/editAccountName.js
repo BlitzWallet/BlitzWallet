@@ -21,7 +21,10 @@ export default function EditAccountName(props) {
   const navigate = useNavigation();
 
   const handleNameUpage = useCallback(async () => {
-    if (!canSave) return;
+    if (!canSave) {
+      navigate.goBack();
+      return;
+    }
     await updateAccount({ ...selectedAccount, name: accountName });
     keyboardGoBack(navigate);
   }, [selectedAccount, accountName]);
@@ -54,7 +57,7 @@ export default function EditAccountName(props) {
         />
       </ScrollView>
       <CustomButton
-        buttonStyles={{ ...CENTER, opacity: canSave ? 1 : HIDDEN_OPACITY }}
+        buttonStyles={{ ...CENTER }}
         textContent={canSave ? t('constants.save') : t('constants.back')}
         actionFunction={handleNameUpage}
       />
