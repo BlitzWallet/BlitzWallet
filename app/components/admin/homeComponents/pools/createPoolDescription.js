@@ -42,6 +42,7 @@ export default function CreatePoolDescription({
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
+  const [poolDebug, setPoolDebug] = useState('');
 
   const [poolTitle, setPoolTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -84,11 +85,14 @@ export default function CreatePoolDescription({
         masterInfoObject.currentDerivedPoolIndex || 0;
       const derivationIndex =
         STARTING_INDEX_FOR_POOLS_DERIVE + currentDerivedPoolIndex;
+      setPoolDebug('Getting constants');
 
       const derivedWallet = await derivePoolWallet(
         accountMnemoinc,
         derivationIndex,
       );
+
+      setPoolDebug('Deriving pool');
 
       const poolId = uuidv4();
       const creatorProfile = globalContactsInformation?.myProfile || {};
@@ -120,15 +124,20 @@ export default function CreatePoolDescription({
       };
 
       const didSave = await savePoolToCloud(poolDocument);
+      setPoolDebug('Saving pool');
       if (!didSave) {
         throw new Error('Failed to save pool');
       }
+
+      setPoolDebug('updating pool index');
 
       toggleMasterInfoObject({
         currentDerivedPoolIndex: currentDerivedPoolIndex + 1,
       });
 
       setIsLoading(false);
+
+      setPoolDebug('navigating');
 
       handleBackPressFunction(() => {
         navigate.goBack();
@@ -180,7 +189,9 @@ export default function CreatePoolDescription({
             },
           ]}
         >
-          <FullLoadingScreen text={t('wallet.pools.creatingPool')} />
+          <FullLoadingScreen
+            text={poolDebug || t('wallet.pools.creatingPool')}
+          />
         </View>
       )}
     </View>
@@ -205,7 +216,9 @@ const styles = StyleSheet.create({
     marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
     ...CENTER,
     zIndex: 999,
   },
