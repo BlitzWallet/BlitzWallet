@@ -75,11 +75,11 @@ export default function PoolDetailScreen(props) {
 
   const refreshPoolDetails = useCallback(async () => {
     try {
-      if (
-        pools?.[poolId]?.status === 'closed' &&
-        Date.now() - pools?.[poolId]?.closedAt > 10 * 1000
-      )
-        return;
+      // if (
+      //   pools?.[poolId]?.status === 'closed' &&
+      //   Date.now() - pools?.[poolId]?.closedAt > 10 * 1000
+      // )
+      //   return;
       // Refresh pool data from Firestore
       const freshPool = await getPoolFromDatabase(poolId);
       if (freshPool) {
@@ -141,8 +141,8 @@ export default function PoolDetailScreen(props) {
   }, [navigate, poolId, pool]);
 
   const handleContributorClick = useCallback(() => {
-    navigate.navigate('ViewContributor', { poolId, contributions });
-  }, [poolId, contributions]);
+    navigate.navigate('ViewContributor', { pool, contributions });
+  }, [pool, contributions]);
 
   const contributers = useMemo(() => {
     return [pool, ...contributions].map((item, index) => (
@@ -373,13 +373,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 25,
   },
-  closedBannerText: {
-    marginBottom: 5,
-  },
+  closedBannerText: {},
   transferredText: {
     fontSize: SIZES.small,
     opacity: 0.7,
     textAlign: 'center',
+    marginTop: 5,
   },
   actionsRow: {
     flexDirection: 'row',
