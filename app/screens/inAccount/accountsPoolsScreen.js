@@ -116,7 +116,10 @@ export default function ManageAccountsPoolsScreen() {
   );
 
   const handleAccountEdit = useCallback(account => {
-    navigate.navigate('EditAccountPage', { account });
+    navigate.navigate('EditAccountPage', {
+      account,
+      from: 'ManageAccountsPoolsScreen',
+    });
   }, []);
 
   const handleAddAccount = useCallback(() => {

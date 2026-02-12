@@ -48,7 +48,9 @@ import SelectCreateAccountType from '../app/components/admin/homeComponents/sett
 import EditAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/editAccountPage';
 import EditAccountName from '../app/components/admin/homeComponents/settingsContent/accountComponents/editAccountName';
 import EmojiAvatarSelector from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectProfileImage';
+import RemoveAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/removeAccountPage';
 import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
+import SeedPhraseWarning from '../app/components/admin/homeComponents/settingsContent/seedPhraseWarning';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
@@ -164,6 +166,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'EditAccountName', component: EditAccountName },
   { name: 'ViewCustodyAccount', component: ViewCustodyAccountPage },
   { name: 'EditAccountPage', component: EditAccountPage },
+  { name: 'RemoveAccountPage', component: RemoveAccountPage },
+  { name: 'SeedPhraseWarning', component: SeedPhraseWarning },
   { name: 'EmojiAvatarSelector', component: EmojiAvatarSelector },
   { name: 'CustodyAccountPaymentPage', component: AccountPaymentPage },
   { name: 'NosterWalletConnect', component: NosterWalletConnect },

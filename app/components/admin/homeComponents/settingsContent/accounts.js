@@ -56,7 +56,10 @@ export default function CreateCustodyAccounts() {
   const handleNavigateEdit = useCallback(
     account => {
       if (account.name === 'Main Wallet' || account.name === 'NWC') return;
-      navigate.navigate('EditAccountPage', { account });
+      navigate.navigate('EditAccountPage', {
+        account,
+        from: 'SettingsContentHome',
+      });
     },
     [navigate],
   );

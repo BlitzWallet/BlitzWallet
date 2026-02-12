@@ -16,6 +16,7 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 
 export default function EditAccountPage(props) {
   const selectedAccount = props?.route?.params?.account;
+  const fromPage = props?.route?.params?.from;
   const { removeAccount, getAccountMnemonic, custodyAccounts } =
     useActiveCustodyAccount();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
@@ -34,8 +35,10 @@ export default function EditAccountPage(props) {
 
   const handleNavigateView = useCallback(async () => {
     const mnemonic = await getAccountMnemonic(selectedAccount);
-    navigate.navigate('ViewCustodyAccount', {
-      account: { ...selectedAccount, mnemoinc: mnemonic },
+    navigate.navigate('SeedPhraseWarning', {
+      mnemonic: mnemonic,
+      extraData: { canViewQrCode: false },
+      fromPage: 'accounts',
     });
   }, [selectedAccount]);
 
@@ -114,14 +117,9 @@ export default function EditAccountPage(props) {
           <TouchableOpacity
             style={[styles.row, styles.dangerRow]}
             onPress={() => {
-              navigate.navigate('ConfirmActionPage', {
-                confirmMessage: t(
-                  'settings.accountComponents.createAccountPage.deleteAccountConfirmation',
-                ),
-                confirmFunction: () => {
-                  navigate.goBack();
-                  removeAccount(selectedAccount);
-                },
+              navigate.navigate('RemoveAccountPage', {
+                account: accountInformation,
+                from: fromPage,
               });
             }}
           >
@@ -130,7 +128,7 @@ export default function EditAccountPage(props) {
                 styles.rowLabel,
                 {
                   ...styles.dangerText,
-                  color: theme && darkModeType ? textColor : COLORS.cancelRed,
+                  color: theme && darkModeType ? textColor : COLORS.primary,
                 },
               ]}
               content={t(
