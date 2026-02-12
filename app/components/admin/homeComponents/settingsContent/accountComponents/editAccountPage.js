@@ -13,19 +13,31 @@ import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useToast } from '../../../../../../context-store/toastManager';
 
 export default function EditAccountPage(props) {
+  const { showToast } = useToast();
   const selectedAccount = props?.route?.params?.account;
   const fromPage = props?.route?.params?.from;
-  const { removeAccount, getAccountMnemonic, custodyAccounts } =
+  const { getAccountMnemonic, custodyAccounts, activeAccount } =
     useActiveCustodyAccount();
+  const { toggleMasterInfoObject, masterInfoObject } =
+    useGlobalContextProvider();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
   const accountInformation =
     custodyAccounts?.find(item => item.uuid === selectedAccount.uuid) ||
-    selectedAccount;
+    selectedAccount ||
+    {};
+  const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
+
+  const isPinned = pinnedAccountUUIDs.includes(
+    accountInformation.uuid || accountInformation.name,
+  );
+  const isActive = activeAccount.uuid === accountInformation.uuid;
 
   const navigate = useNavigation();
 
@@ -47,6 +59,35 @@ export default function EditAccountPage(props) {
       account: accountInformation,
     });
   }, [accountInformation]);
+
+  const handlePinToggle = useCallback(() => {
+    const accountId = accountInformation.uuid || accountInformation.name;
+    const currentPins = masterInfoObject.pinnedAccounts || [];
+    const isPinned = currentPins.includes(accountId);
+
+    if (isPinned) {
+      toggleMasterInfoObject({
+        pinnedAccounts: currentPins.filter(id => id !== accountId),
+      });
+    } else {
+      if (currentPins.length >= 2) {
+        showToast({
+          type: 'error',
+          title: t('settings.hub.maxPinsReached'),
+        });
+        return;
+      }
+      toggleMasterInfoObject({
+        pinnedAccounts: [...currentPins, accountId],
+      });
+    }
+  }, [
+    masterInfoObject.pinnedAccounts,
+    toggleMasterInfoObject,
+    showToast,
+    t,
+    accountInformation,
+  ]);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -112,11 +153,69 @@ export default function EditAccountPage(props) {
           </TouchableOpacity>
         </View>
 
-        {/* Danger Zone */}
+        {/* Pin Contact */}
         <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+          {/* Account Name */}
+          <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
+            <ThemeText
+              styles={styles.rowLabel}
+              content={`${isPinned ? 'Unpin' : 'Pin'} Account`}
+            />
+            <View style={styles.rowRight}>
+              <View
+                style={[
+                  styles.pinButton,
+                  {
+                    backgroundColor: theme
+                      ? backgroundColor
+                      : COLORS.darkModeText,
+                  },
+                ]}
+              >
+                <ThemeIcon
+                  iconName={'Star'}
+                  size={16}
+                  fill={
+                    isPinned
+                      ? theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary
+                      : undefined
+                  }
+                  colorOverride={
+                    isPinned
+                      ? theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary
+                      : textColor
+                  }
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Danger Zone */}
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: backgroundOffset,
+              opacity: isActive ? 0.7 : 1,
+            },
+          ]}
+        >
           <TouchableOpacity
             style={[styles.row, styles.dangerRow]}
             onPress={() => {
+              if (isActive) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t(
+                    'settings.accountComponents.editAccountPage.activeAccountError',
+                  ),
+                });
+                return;
+              }
               navigate.navigate('RemoveAccountPage', {
                 account: accountInformation,
                 from: fromPage,
@@ -214,5 +313,12 @@ const styles = StyleSheet.create({
   dangerText: {
     color: COLORS.cancelRed,
     includeFontPadding: false,
+  },
+  pinButton: {
+    height: 35,
+    width: 35,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
