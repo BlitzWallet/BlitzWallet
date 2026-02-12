@@ -1,92 +1,3 @@
-import emojiDataRaw from '../../assets/emoji.json';
-
-// Convert Unicode code points to native emoji
-function unifiedToNative(unified) {
-  return unified
-    .split('-')
-    .map(hex => String.fromCodePoint(parseInt(hex, 16)))
-    .join('');
-}
-
-// Process raw emoji data and organize by category
-function processEmojiData() {
-  const categoryMap = {};
-
-  emojiDataRaw.forEach(item => {
-    // Skip obsolete emojis
-    if (item.obsoleted_by || item.obsoletes) {
-      return;
-    }
-
-    const category = item.category || 'Other';
-    const native = unifiedToNative(item.unified);
-
-    if (!categoryMap[category]) {
-      categoryMap[category] = [];
-    }
-
-    categoryMap[category].push({
-      emoji: native,
-      name: item.name || item.short_name?.toUpperCase(),
-      category: item.category,
-      shortName: item.short_name,
-      unified: item.unified,
-    });
-  });
-
-  // Define category order for better UX
-  const categoryOrder = [
-    'Suggested',
-    'Smileys & Emotion',
-    'People & Body',
-    'Animals & Nature',
-    'Food & Drink',
-    'Travel & Places',
-    'Activities',
-    'Objects',
-    'Symbols',
-    'Flags',
-  ];
-
-  // Create sections in defined order
-  const sections = [];
-
-  // Add custom "Suggested" category first
-  sections.push({
-    title: 'Suggested',
-    data: SUGGESTED_EMOJIS.map(emoji => ({
-      emoji,
-      name: 'Suggested',
-      category: 'Suggested',
-      shortName: 'suggested',
-      unified: '',
-    })),
-  });
-
-  // Add other categories in order
-  categoryOrder.slice(1).forEach(category => {
-    if (categoryMap[category] && categoryMap[category].length > 0) {
-      sections.push({
-        title: category,
-        data: categoryMap[category],
-      });
-    }
-  });
-
-  // Add any remaining categories not in the predefined order
-  Object.keys(categoryMap).forEach(category => {
-    if (!categoryOrder.includes(category)) {
-      sections.push({
-        title: category,
-        data: categoryMap[category],
-      });
-    }
-  });
-
-  return sections;
-}
-
-// Suggested emojis for Bitcoin wallet - customize these!
 export const SUGGESTED_EMOJIS = [
   '🔥',
   '🔐',
@@ -125,26 +36,458 @@ export const SUGGESTED_EMOJIS = [
   '💳',
 ];
 
-// Export processed emoji categories
-export const EMOJI_CATEGORIES = processEmojiData();
-
-// Search helper
-export function searchEmojis(query, sections) {
-  if (!query.trim()) {
-    return sections;
-  }
-
-  const lowerQuery = query.toLowerCase();
-
-  return sections
-    .map(section => ({
-      ...section,
-      data: section.data.filter(
-        emoji =>
-          emoji.name.toLowerCase().includes(lowerQuery) ||
-          emoji.shortName.toLowerCase().includes(lowerQuery) ||
-          emoji.emoji.includes(query),
-      ),
-    }))
-    .filter(section => section.data.length > 0);
-}
+export const EMOJI_CATEGORIES = [
+  {
+    title: 'Suggested',
+    data: SUGGESTED_EMOJIS.map(emoji => ({
+      emoji,
+      name: 'suggested',
+      shortName: 'suggested',
+    })),
+  },
+  {
+    title: 'Smileys & Emotion',
+    data: [
+      // 49 emojis (7 rows)
+      { emoji: '😀', name: 'grinning face', shortName: 'grinning' },
+      { emoji: '😃', name: 'grinning face with big eyes', shortName: 'smiley' },
+      {
+        emoji: '😄',
+        name: 'grinning face with smiling eyes',
+        shortName: 'smile',
+      },
+      {
+        emoji: '😁',
+        name: 'beaming face with smiling eyes',
+        shortName: 'grin',
+      },
+      { emoji: '😆', name: 'grinning squinting face', shortName: 'laughing' },
+      {
+        emoji: '😅',
+        name: 'grinning face with sweat',
+        shortName: 'sweat_smile',
+      },
+      { emoji: '🤣', name: 'rolling on the floor laughing', shortName: 'rofl' },
+      { emoji: '😂', name: 'face with tears of joy', shortName: 'joy' },
+      {
+        emoji: '🙂',
+        name: 'slightly smiling face',
+        shortName: 'slightly_smiling_face',
+      },
+      {
+        emoji: '😊',
+        name: 'smiling face with smiling eyes',
+        shortName: 'blush',
+      },
+      { emoji: '😇', name: 'smiling face with halo', shortName: 'innocent' },
+      {
+        emoji: '🥰',
+        name: 'smiling face with hearts',
+        shortName: 'smiling_face_with_three_hearts',
+      },
+      {
+        emoji: '😍',
+        name: 'smiling face with heart-eyes',
+        shortName: 'heart_eyes',
+      },
+      { emoji: '🤩', name: 'star-struck', shortName: 'star_struck' },
+      { emoji: '😘', name: 'face blowing a kiss', shortName: 'kissing_heart' },
+      { emoji: '😋', name: 'face savoring food', shortName: 'yum' },
+      { emoji: '😛', name: 'face with tongue', shortName: 'stuck_out_tongue' },
+      {
+        emoji: '😜',
+        name: 'winking face with tongue',
+        shortName: 'stuck_out_tongue_winking_eye',
+      },
+      { emoji: '🤪', name: 'zany face', shortName: 'zany_face' },
+      {
+        emoji: '😎',
+        name: 'smiling face with sunglasses',
+        shortName: 'sunglasses',
+      },
+      { emoji: '🤓', name: 'nerd face', shortName: 'nerd_face' },
+      { emoji: '🧐', name: 'face with monocle', shortName: 'monocle_face' },
+      { emoji: '😏', name: 'smirking face', shortName: 'smirk' },
+      { emoji: '🤡', name: 'clown face', shortName: 'clown_face' },
+      { emoji: '🥳', name: 'partying face', shortName: 'partying_face' },
+      { emoji: '😤', name: 'face with steam from nose', shortName: 'triumph' },
+      {
+        emoji: '🤬',
+        name: 'face with symbols on mouth',
+        shortName: 'cursing_face',
+      },
+      { emoji: '🥺', name: 'pleading face', shortName: 'pleading_face' },
+      { emoji: '😢', name: 'crying face', shortName: 'cry' },
+      { emoji: '😭', name: 'loudly crying face', shortName: 'sob' },
+      { emoji: '😱', name: 'face screaming in fear', shortName: 'scream' },
+      {
+        emoji: '😈',
+        name: 'smiling face with horns',
+        shortName: 'smiling_imp',
+      },
+      { emoji: '👿', name: 'angry face with horns', shortName: 'imp' },
+      { emoji: '💀', name: 'skull', shortName: 'skull' },
+      { emoji: '👻', name: 'ghost', shortName: 'ghost' },
+      { emoji: '👽', name: 'alien', shortName: 'alien' },
+      { emoji: '👾', name: 'alien monster', shortName: 'space_invader' },
+      { emoji: '🤖', name: 'robot', shortName: 'robot' },
+      { emoji: '😺', name: 'grinning cat', shortName: 'smiley_cat' },
+      {
+        emoji: '😸',
+        name: 'grinning cat with smiling eyes',
+        shortName: 'smile_cat',
+      },
+      { emoji: '😹', name: 'cat with tears of joy', shortName: 'joy_cat' },
+      {
+        emoji: '😻',
+        name: 'smiling cat with heart-eyes',
+        shortName: 'heart_eyes_cat',
+      },
+      { emoji: '🙀', name: 'weary cat', shortName: 'scream_cat' },
+      { emoji: '💩', name: 'pile of poo', shortName: 'poop' },
+      { emoji: '🤠', name: 'cowboy hat face', shortName: 'cowboy_hat_face' },
+      { emoji: '🥶', name: 'cold face', shortName: 'cold_face' },
+      { emoji: '😶', name: 'face without mouth', shortName: 'no_mouth' },
+      { emoji: '🤑', name: 'money-mouth face', shortName: 'money_mouth_face' },
+      { emoji: '😴', name: 'sleeping face', shortName: 'sleeping' },
+    ],
+  },
+  {
+    title: 'People & Body',
+    data: [
+      // 28 emojis (4 rows)
+      { emoji: '👋', name: 'waving hand', shortName: 'wave' },
+      {
+        emoji: '🤚',
+        name: 'raised back of hand',
+        shortName: 'raised_back_of_hand',
+      },
+      { emoji: '✋', name: 'raised hand', shortName: 'hand' },
+      { emoji: '🖖', name: 'vulcan salute', shortName: 'vulcan_salute' },
+      { emoji: '👌', name: 'ok hand', shortName: 'ok_hand' },
+      { emoji: '🤌', name: 'pinched fingers', shortName: 'pinched_fingers' },
+      { emoji: '✌️', name: 'victory hand', shortName: 'v' },
+      { emoji: '🤞', name: 'crossed fingers', shortName: 'crossed_fingers' },
+      { emoji: '🤟', name: 'love-you gesture', shortName: 'love_you_gesture' },
+      { emoji: '🤘', name: 'sign of the horns', shortName: 'metal' },
+      { emoji: '🤙', name: 'call me hand', shortName: 'call_me_hand' },
+      {
+        emoji: '👈',
+        name: 'backhand index pointing left',
+        shortName: 'point_left',
+      },
+      {
+        emoji: '👉',
+        name: 'backhand index pointing right',
+        shortName: 'point_right',
+      },
+      {
+        emoji: '👆',
+        name: 'backhand index pointing up',
+        shortName: 'point_up_2',
+      },
+      { emoji: '👍', name: 'thumbs up', shortName: 'thumbsup' },
+      { emoji: '👎', name: 'thumbs down', shortName: 'thumbsdown' },
+      { emoji: '✊', name: 'raised fist', shortName: 'fist' },
+      { emoji: '👊', name: 'oncoming fist', shortName: 'facepunch' },
+      { emoji: '🤛', name: 'left-facing fist', shortName: 'fist_left' },
+      { emoji: '🤜', name: 'right-facing fist', shortName: 'fist_right' },
+      { emoji: '👏', name: 'clapping hands', shortName: 'clap' },
+      { emoji: '🙌', name: 'raising hands', shortName: 'raised_hands' },
+      { emoji: '👐', name: 'open hands', shortName: 'open_hands' },
+      { emoji: '🙏', name: 'folded hands', shortName: 'pray' },
+      { emoji: '💪', name: 'flexed biceps', shortName: 'muscle' },
+      { emoji: '🦾', name: 'mechanical arm', shortName: 'mechanical_arm' },
+      { emoji: '🗣️', name: 'speaking head', shortName: 'speaking_head' },
+      { emoji: '👶', name: 'baby', shortName: 'baby' },
+    ],
+  },
+  {
+    title: 'Animals & Nature',
+    data: [
+      // 35 emojis (5 rows)
+      { emoji: '🐶', name: 'dog face', shortName: 'dog' },
+      { emoji: '🐱', name: 'cat face', shortName: 'cat' },
+      { emoji: '🐭', name: 'mouse face', shortName: 'mouse' },
+      { emoji: '🐹', name: 'hamster', shortName: 'hamster' },
+      { emoji: '🐰', name: 'rabbit face', shortName: 'rabbit' },
+      { emoji: '🦊', name: 'fox', shortName: 'fox_face' },
+      { emoji: '🐻', name: 'bear', shortName: 'bear' },
+      { emoji: '🐼', name: 'panda', shortName: 'panda_face' },
+      { emoji: '🐨', name: 'koala', shortName: 'koala' },
+      { emoji: '🐯', name: 'tiger face', shortName: 'tiger' },
+      { emoji: '🦁', name: 'lion', shortName: 'lion' },
+      { emoji: '🐮', name: 'cow face', shortName: 'cow' },
+      { emoji: '🐷', name: 'pig face', shortName: 'pig' },
+      { emoji: '🐸', name: 'frog', shortName: 'frog' },
+      { emoji: '🐵', name: 'monkey face', shortName: 'monkey_face' },
+      { emoji: '🙈', name: 'see-no-evil monkey', shortName: 'see_no_evil' },
+      { emoji: '🙉', name: 'hear-no-evil monkey', shortName: 'hear_no_evil' },
+      { emoji: '🙊', name: 'speak-no-evil monkey', shortName: 'speak_no_evil' },
+      { emoji: '🐔', name: 'chicken', shortName: 'chicken' },
+      { emoji: '🐧', name: 'penguin', shortName: 'penguin' },
+      { emoji: '🦅', name: 'eagle', shortName: 'eagle' },
+      { emoji: '🦉', name: 'owl', shortName: 'owl' },
+      { emoji: '🐺', name: 'wolf', shortName: 'wolf' },
+      { emoji: '🐝', name: 'honeybee', shortName: 'bee' },
+      { emoji: '🦋', name: 'butterfly', shortName: 'butterfly' },
+      { emoji: '🐙', name: 'octopus', shortName: 'octopus' },
+      { emoji: '🐬', name: 'dolphin', shortName: 'dolphin' },
+      { emoji: '🐳', name: 'spouting whale', shortName: 'whale' },
+      { emoji: '🦈', name: 'shark', shortName: 'shark' },
+      { emoji: '🌿', name: 'herb', shortName: 'herb' },
+      { emoji: '🌻', name: 'sunflower', shortName: 'sunflower' },
+      { emoji: '🌈', name: 'rainbow', shortName: 'rainbow' },
+      { emoji: '🌲', name: 'evergreen tree', shortName: 'evergreen_tree' },
+      { emoji: '🍀', name: 'four leaf clover', shortName: 'four_leaf_clover' },
+      { emoji: '🌸', name: 'cherry blossom', shortName: 'cherry_blossom' },
+    ],
+  },
+  {
+    title: 'Food & Drink',
+    data: [
+      // 28 emojis (4 rows)
+      { emoji: '🍎', name: 'red apple', shortName: 'apple' },
+      { emoji: '🍊', name: 'tangerine', shortName: 'tangerine' },
+      { emoji: '🍋', name: 'lemon', shortName: 'lemon' },
+      { emoji: '🍌', name: 'banana', shortName: 'banana' },
+      { emoji: '🍉', name: 'watermelon', shortName: 'watermelon' },
+      { emoji: '🍇', name: 'grapes', shortName: 'grapes' },
+      { emoji: '🍓', name: 'strawberry', shortName: 'strawberry' },
+      { emoji: '🍑', name: 'peach', shortName: 'peach' },
+      { emoji: '🥑', name: 'avocado', shortName: 'avocado' },
+      { emoji: '🌶️', name: 'hot pepper', shortName: 'hot_pepper' },
+      { emoji: '🍕', name: 'pizza', shortName: 'pizza' },
+      { emoji: '🍔', name: 'hamburger', shortName: 'hamburger' },
+      { emoji: '🍟', name: 'french fries', shortName: 'fries' },
+      { emoji: '🌮', name: 'taco', shortName: 'taco' },
+      { emoji: '🍜', name: 'steaming bowl', shortName: 'ramen' },
+      { emoji: '🍣', name: 'sushi', shortName: 'sushi' },
+      { emoji: '🍩', name: 'doughnut', shortName: 'doughnut' },
+      { emoji: '🍪', name: 'cookie', shortName: 'cookie' },
+      { emoji: '🎂', name: 'birthday cake', shortName: 'birthday' },
+      { emoji: '🍿', name: 'popcorn', shortName: 'popcorn' },
+      { emoji: '🍺', name: 'beer mug', shortName: 'beer' },
+      { emoji: '🍻', name: 'clinking beer mugs', shortName: 'beers' },
+      { emoji: '☕', name: 'hot beverage coffee', shortName: 'coffee' },
+      { emoji: '🍷', name: 'wine glass', shortName: 'wine_glass' },
+      { emoji: '🥂', name: 'clinking glasses', shortName: 'champagne_glass' },
+      { emoji: '🧋', name: 'bubble tea', shortName: 'bubble_tea' },
+      { emoji: '🥤', name: 'cup with straw', shortName: 'cup_with_straw' },
+      { emoji: '🧃', name: 'beverage box juice', shortName: 'beverage_box' },
+    ],
+  },
+  {
+    title: 'Travel & Places',
+    data: [
+      // 28 emojis (4 rows)
+      { emoji: '🚗', name: 'automobile car', shortName: 'car' },
+      { emoji: '🚕', name: 'taxi', shortName: 'taxi' },
+      { emoji: '🚌', name: 'bus', shortName: 'bus' },
+      { emoji: '🚑', name: 'ambulance', shortName: 'ambulance' },
+      { emoji: '🚒', name: 'fire engine', shortName: 'fire_engine' },
+      { emoji: '🏎️', name: 'racing car', shortName: 'racing_car' },
+      { emoji: '🚲', name: 'bicycle', shortName: 'bike' },
+      { emoji: '🛵', name: 'motor scooter', shortName: 'motor_scooter' },
+      { emoji: '🚀', name: 'rocket', shortName: 'rocket' },
+      { emoji: '✈️', name: 'airplane', shortName: 'airplane' },
+      { emoji: '🚁', name: 'helicopter', shortName: 'helicopter' },
+      { emoji: '🏠', name: 'house', shortName: 'house' },
+      {
+        emoji: '🏡',
+        name: 'house with garden',
+        shortName: 'house_with_garden',
+      },
+      { emoji: '🏢', name: 'office building', shortName: 'office' },
+      { emoji: '🏰', name: 'castle', shortName: 'castle' },
+      { emoji: '🏝️', name: 'desert island', shortName: 'desert_island' },
+      { emoji: '🌋', name: 'volcano', shortName: 'volcano' },
+      { emoji: '⛰️', name: 'mountain', shortName: 'mountain' },
+      { emoji: '🏔️', name: 'snow-capped mountain', shortName: 'mountain_snow' },
+      {
+        emoji: '🌍',
+        name: 'globe earth africa europe',
+        shortName: 'earth_africa',
+      },
+      {
+        emoji: '🌎',
+        name: 'globe earth americas',
+        shortName: 'earth_americas',
+      },
+      {
+        emoji: '🌏',
+        name: 'globe earth asia australia',
+        shortName: 'earth_asia',
+      },
+      { emoji: '🏖️', name: 'beach with umbrella', shortName: 'beach' },
+      { emoji: '🗺️', name: 'world map', shortName: 'world_map' },
+      { emoji: '🧳', name: 'luggage', shortName: 'luggage' },
+      {
+        emoji: '🛳️',
+        name: 'passenger ship cruise',
+        shortName: 'passenger_ship',
+      },
+      { emoji: '🚂', name: 'locomotive train', shortName: 'steam_locomotive' },
+      { emoji: '🌙', name: 'crescent moon', shortName: 'crescent_moon' },
+    ],
+  },
+  {
+    title: 'Activities',
+    data: [
+      // 21 emojis (3 rows)
+      { emoji: '⚽', name: 'soccer ball', shortName: 'soccer' },
+      { emoji: '🏀', name: 'basketball', shortName: 'basketball' },
+      { emoji: '🏈', name: 'american football', shortName: 'football' },
+      { emoji: '⚾', name: 'baseball', shortName: 'baseball' },
+      { emoji: '🎾', name: 'tennis', shortName: 'tennis' },
+      { emoji: '🏐', name: 'volleyball', shortName: 'volleyball' },
+      { emoji: '🎱', name: 'billiards pool', shortName: 'eight_ball' },
+      { emoji: '🏓', name: 'ping pong', shortName: 'ping_pong' },
+      { emoji: '🎯', name: 'bullseye direct hit', shortName: 'dart' },
+      { emoji: '🎮', name: 'video game', shortName: 'video_game' },
+      { emoji: '🕹️', name: 'joystick', shortName: 'joystick' },
+      { emoji: '🎲', name: 'game die', shortName: 'game_die' },
+      {
+        emoji: '🎭',
+        name: 'performing arts theater',
+        shortName: 'performing_arts',
+      },
+      { emoji: '🎨', name: 'artist palette', shortName: 'art' },
+      { emoji: '🎬', name: 'clapper board movie', shortName: 'clapper' },
+      { emoji: '🎤', name: 'microphone', shortName: 'microphone' },
+      { emoji: '🎧', name: 'headphone', shortName: 'headphones' },
+      { emoji: '🎵', name: 'musical note', shortName: 'musical_note' },
+      { emoji: '🎸', name: 'guitar', shortName: 'guitar' },
+      { emoji: '🏆', name: 'trophy', shortName: 'trophy' },
+      { emoji: '🏋️', name: 'weight lifting gym', shortName: 'weight_lifting' },
+    ],
+  },
+  {
+    title: 'Objects',
+    data: [
+      // 35 emojis (5 rows)
+      { emoji: '💰', name: 'money bag', shortName: 'moneybag' },
+      { emoji: '💵', name: 'dollar banknote', shortName: 'dollar' },
+      { emoji: '💴', name: 'yen banknote', shortName: 'yen' },
+      { emoji: '💶', name: 'euro banknote', shortName: 'euro' },
+      { emoji: '💷', name: 'pound banknote', shortName: 'pound' },
+      { emoji: '💎', name: 'gem stone diamond', shortName: 'gem' },
+      { emoji: '💳', name: 'credit card', shortName: 'credit_card' },
+      {
+        emoji: '💲',
+        name: 'heavy dollar sign',
+        shortName: 'heavy_dollar_sign',
+      },
+      { emoji: '🪙', name: 'coin', shortName: 'coin' },
+      { emoji: '🔑', name: 'key', shortName: 'key' },
+      { emoji: '🗝️', name: 'old key', shortName: 'old_key' },
+      { emoji: '🔒', name: 'locked', shortName: 'lock' },
+      { emoji: '🔓', name: 'unlocked', shortName: 'unlock' },
+      {
+        emoji: '🔐',
+        name: 'locked with key',
+        shortName: 'closed_lock_with_key',
+      },
+      { emoji: '🛡️', name: 'shield', shortName: 'shield' },
+      { emoji: '📱', name: 'mobile phone', shortName: 'iphone' },
+      { emoji: '💻', name: 'laptop computer', shortName: 'computer' },
+      { emoji: '🖥️', name: 'desktop computer', shortName: 'desktop_computer' },
+      { emoji: '⌚', name: 'watch', shortName: 'watch' },
+      { emoji: '📷', name: 'camera', shortName: 'camera' },
+      { emoji: '💡', name: 'light bulb idea', shortName: 'bulb' },
+      { emoji: '🔧', name: 'wrench', shortName: 'wrench' },
+      { emoji: '🔨', name: 'hammer', shortName: 'hammer' },
+      { emoji: '⚙️', name: 'gear settings', shortName: 'gear' },
+      { emoji: '📦', name: 'package', shortName: 'package' },
+      { emoji: '✉️', name: 'envelope mail', shortName: 'envelope' },
+      { emoji: '📚', name: 'books', shortName: 'books' },
+      { emoji: '✏️', name: 'pencil', shortName: 'pencil' },
+      { emoji: '🎓', name: 'graduation cap', shortName: 'mortar_board' },
+      { emoji: '⏰', name: 'alarm clock', shortName: 'alarm_clock' },
+      { emoji: '🎁', name: 'wrapped gift present', shortName: 'gift' },
+      { emoji: '🛍️', name: 'shopping bags', shortName: 'shopping' },
+      { emoji: '📺', name: 'television', shortName: 'tv' },
+      { emoji: '🛒', name: 'shopping cart', shortName: 'shopping_cart' },
+      { emoji: '💊', name: 'pill medicine', shortName: 'pill' },
+    ],
+  },
+  {
+    title: 'Symbols',
+    data: [
+      // 35 emojis (5 rows)
+      { emoji: '❤️', name: 'red heart love', shortName: 'heart' },
+      { emoji: '🧡', name: 'orange heart', shortName: 'orange_heart' },
+      { emoji: '💛', name: 'yellow heart', shortName: 'yellow_heart' },
+      { emoji: '💚', name: 'green heart', shortName: 'green_heart' },
+      { emoji: '💙', name: 'blue heart', shortName: 'blue_heart' },
+      { emoji: '💜', name: 'purple heart', shortName: 'purple_heart' },
+      { emoji: '🖤', name: 'black heart', shortName: 'black_heart' },
+      { emoji: '🤍', name: 'white heart', shortName: 'white_heart' },
+      { emoji: '💔', name: 'broken heart', shortName: 'broken_heart' },
+      {
+        emoji: '❣️',
+        name: 'heart exclamation',
+        shortName: 'heavy_heart_exclamation',
+      },
+      { emoji: '♻️', name: 'recycling symbol', shortName: 'recycle' },
+      { emoji: '⚠️', name: 'warning', shortName: 'warning' },
+      { emoji: '🚫', name: 'prohibited', shortName: 'no_entry_sign' },
+      { emoji: '❌', name: 'cross mark', shortName: 'x' },
+      { emoji: '✅', name: 'check mark button', shortName: 'white_check_mark' },
+      { emoji: '❓', name: 'question mark', shortName: 'question' },
+      { emoji: '❗', name: 'exclamation mark', shortName: 'exclamation' },
+      { emoji: '➕', name: 'plus', shortName: 'heavy_plus_sign' },
+      { emoji: '➖', name: 'minus', shortName: 'heavy_minus_sign' },
+      { emoji: '✖️', name: 'multiply', shortName: 'heavy_multiplication_x' },
+      { emoji: '♾️', name: 'infinity', shortName: 'infinity' },
+      { emoji: '💯', name: 'hundred points', shortName: '100' },
+      { emoji: '🔴', name: 'red circle', shortName: 'red_circle' },
+      { emoji: '🟠', name: 'orange circle', shortName: 'orange_circle' },
+      { emoji: '🟡', name: 'yellow circle', shortName: 'yellow_circle' },
+      { emoji: '🟢', name: 'green circle', shortName: 'green_circle' },
+      { emoji: '🔵', name: 'blue circle', shortName: 'blue_circle' },
+      { emoji: '🟣', name: 'purple circle', shortName: 'purple_circle' },
+      { emoji: '⚫', name: 'black circle', shortName: 'black_circle' },
+      { emoji: '⚪', name: 'white circle', shortName: 'white_circle' },
+      { emoji: '⭐', name: 'star', shortName: 'star' },
+      { emoji: '🌟', name: 'glowing star', shortName: 'star2' },
+      { emoji: '✨', name: 'sparkles', shortName: 'sparkles' },
+      { emoji: '⚡', name: 'high voltage lightning', shortName: 'zap' },
+      { emoji: '🔥', name: 'fire', shortName: 'fire' },
+    ],
+  },
+  {
+    title: 'Flags',
+    data: [
+      // 28 emojis (4 rows)
+      { emoji: '🏳️', name: 'white flag', shortName: 'white_flag' },
+      { emoji: '🏴', name: 'black flag', shortName: 'black_flag' },
+      { emoji: '🏁', name: 'chequered flag', shortName: 'checkered_flag' },
+      { emoji: '🏴‍☠️', name: 'pirate flag', shortName: 'pirate_flag' },
+      { emoji: '🇺🇸', name: 'flag united states', shortName: 'us' },
+      { emoji: '🇬🇧', name: 'flag united kingdom', shortName: 'gb' },
+      { emoji: '🇨🇦', name: 'flag canada', shortName: 'canada' },
+      { emoji: '🇦🇺', name: 'flag australia', shortName: 'australia' },
+      { emoji: '🇩🇪', name: 'flag germany', shortName: 'de' },
+      { emoji: '🇫🇷', name: 'flag france', shortName: 'fr' },
+      { emoji: '🇪🇸', name: 'flag spain', shortName: 'es' },
+      { emoji: '🇮🇹', name: 'flag italy', shortName: 'it' },
+      { emoji: '🇧🇷', name: 'flag brazil', shortName: 'brazil' },
+      { emoji: '🇯🇵', name: 'flag japan', shortName: 'jp' },
+      { emoji: '🇰🇷', name: 'flag south korea', shortName: 'kr' },
+      { emoji: '🇨🇳', name: 'flag china', shortName: 'cn' },
+      { emoji: '🇮🇳', name: 'flag india', shortName: 'india' },
+      { emoji: '🇲🇽', name: 'flag mexico', shortName: 'mexico' },
+      { emoji: '🇦🇷', name: 'flag argentina', shortName: 'argentina' },
+      { emoji: '🇨🇴', name: 'flag colombia', shortName: 'colombia' },
+      { emoji: '🇳🇬', name: 'flag nigeria', shortName: 'nigeria' },
+      { emoji: '🇸🇪', name: 'flag sweden', shortName: 'sweden' },
+      { emoji: '🇳🇱', name: 'flag netherlands', shortName: 'netherlands' },
+      { emoji: '🇨🇭', name: 'flag switzerland', shortName: 'switzerland' },
+      { emoji: '🇵🇹', name: 'flag portugal', shortName: 'portugal' },
+      { emoji: '🇵🇱', name: 'flag poland', shortName: 'poland' },
+      { emoji: '🇹🇷', name: 'flag turkey', shortName: 'turkey' },
+      { emoji: '🇸🇻', name: 'flag el salvador', shortName: 'el_salvador' },
+    ],
+  },
+];

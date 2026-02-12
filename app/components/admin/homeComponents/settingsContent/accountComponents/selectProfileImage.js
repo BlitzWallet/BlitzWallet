@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, memo } from 'react';
 import { View, TouchableOpacity, StyleSheet, SectionList } from 'react-native';
 import { EMOJI_CATEGORIES } from '../../../../../functions/accounts/handleEmoji';
 import {
@@ -8,7 +8,6 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import ContactProfileImage from '../../contacts/internalComponents/profileImage';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import { HIDDEN_OPACITY, SIZES } from '../../../../../constants/theme';
@@ -19,29 +18,123 @@ import { useNavigation } from '@react-navigation/native';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useTranslation } from 'react-i18next';
 
+const EmojiRow = memo(({ item, onEmojiSelect }) => (
+  <View style={styles.emojiRow}>
+    {item.map((emoji, index) => (
+      <TouchableOpacity
+        key={`${emoji.emoji}-${index}`}
+        style={styles.emojiButton}
+        onPress={() => onEmojiSelect(emoji.emoji)}
+        activeOpacity={0.7}
+      >
+        <ThemeText
+          CustomNumberOfLines={1}
+          adjustsFontSizeToFit={true}
+          styles={styles.emojiText}
+          content={emoji.emoji}
+        />
+      </TouchableOpacity>
+    ))}
+  </View>
+));
+
+const SectionHeader = memo(({ title, backgroundColor }) => (
+  <View style={[styles.sectionHeader, { backgroundColor }]}>
+    <ThemeText styles={styles.sectionTitle} content={title} />
+  </View>
+));
+
+const EmojiGrid = memo(({ sections, onEmojiSelect, backgroundColor }) => {
+  const renderEmojiRow = useCallback(
+    ({ item }) => <EmojiRow item={item} onEmojiSelect={onEmojiSelect} />,
+    [onEmojiSelect],
+  );
+
+  const renderSectionHeader = useCallback(
+    ({ section }) => (
+      <SectionHeader title={section.title} backgroundColor={backgroundColor} />
+    ),
+    [backgroundColor],
+  );
+
+  return (
+    <SectionList
+      sections={sections}
+      keyExtractor={(item, index) => `row-${index}`}
+      renderItem={renderEmojiRow}
+      renderSectionHeader={renderSectionHeader}
+      stickySectionHeadersEnabled={true}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.listContent}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+    />
+  );
+});
+
+const AvatarPreview = memo(
+  ({ selectedEmoji, backgroundOffset, onClear, selectedAccount }) => (
+    <View style={styles.previewContainer}>
+      <View
+        style={[styles.previewCircle, { backgroundColor: backgroundOffset }]}
+      >
+        <AccountProfileImage
+          imageSize={120}
+          account={{ ...selectedAccount, profileEmoji: selectedEmoji }}
+        />
+        {!!selectedEmoji && (
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={onClear}
+            activeOpacity={0.7}
+          >
+            <ThemeIcon
+              size={25}
+              colorOverride={COLORS.lightModeText}
+              iconName={'X'}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  ),
+);
+
 export default function EmojiAvatarSelector(props) {
   const navigate = useNavigation();
   const selectedAccount = props?.route?.params?.account;
   const { updateAccount } = useActiveCustodyAccount();
   const { t } = useTranslation();
+
   const [selectedEmoji, setSelectedEmoji] = useState(
     selectedAccount.profileEmoji || '',
   );
-  const [isKeyboardActive, setIskeyboardActive] = useState(false);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const sectionListRef = useRef(null);
 
-  // Handle emoji selection with animation
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+
   const handleEmojiSelect = useCallback(emoji => {
     setSelectedEmoji(emoji);
   }, []);
 
-  // Filter emojis based on search query
-  const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return EMOJI_CATEGORIES;
+  const handleClear = useCallback(() => {
+    setSelectedEmoji('');
+  }, []);
+
+  const handleSave = useCallback(() => {
+    if (selectedEmoji !== selectedAccount.profileEmoji) {
+      updateAccount({ ...selectedAccount, profileEmoji: selectedEmoji });
+      keyboardGoBack(navigate);
+    } else {
+      navigate.goBack();
     }
+  }, [selectedEmoji, updateAccount, selectedAccount, navigate]);
+
+  // Only recomputes on searchQuery change
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) return EMOJI_CATEGORIES;
 
     const query = searchQuery.toLowerCase();
     return EMOJI_CATEGORIES.map(section => ({
@@ -54,68 +147,21 @@ export default function EmojiAvatarSelector(props) {
     })).filter(section => section.data.length > 0);
   }, [searchQuery]);
 
-  // Render emoji row (7 per row)
-  const renderEmojiRow = useCallback(
-    ({ item }) => (
-      <View style={styles.emojiRow}>
-        {item.map((emoji, index) => (
-          <TouchableOpacity
-            key={`${emoji.emoji}-${index}`}
-            style={styles.emojiButton}
-            onPress={() => handleEmojiSelect(emoji.emoji)}
-            activeOpacity={0.7}
-          >
-            <ThemeText
-              CustomNumberOfLines={1}
-              adjustsFontSizeToFit={true}
-              styles={styles.emojiText}
-              content={emoji.emoji}
-            />
-          </TouchableOpacity>
-        ))}
-      </View>
-    ),
-    [handleEmojiSelect],
-  );
-
-  // Group emojis into rows of 7
+  // Chunking into rows of 7 — only recomputes on searchQuery change
   const sectionsWithRows = useMemo(() => {
     return filteredSections.map(section => {
       const rows = [];
       for (let i = 0; i < section.data.length; i += 7) {
         rows.push(section.data.slice(i, i + 7));
       }
-      return {
-        title: section.title,
-        data: rows,
-      };
+      return { title: section.title, data: rows };
     });
   }, [filteredSections]);
 
-  // Render section header
-  const renderSectionHeader = useCallback(
-    ({ section }) => (
-      <View style={[styles.sectionHeader, { backgroundColor }]}>
-        <ThemeText styles={styles.sectionTitle} content={section.title} />
-      </View>
-    ),
-    [],
-  );
-
-  // Handle save
-  const handleSave = useCallback(() => {
-    if (selectedEmoji !== selectedAccount.profileEmoji) {
-      updateAccount({ ...selectedAccount, profileEmoji: selectedEmoji });
-      keyboardGoBack(navigate);
-    } else {
-      navigate.goBack();
-    }
-  }, [selectedEmoji, updateAccount, selectedAccount]);
-
-  // Clear selection
-  const handleClear = useCallback(() => {
-    setSelectedEmoji('');
-  }, []);
+  const saveLabel =
+    selectedEmoji === selectedAccount.profileEmoji
+      ? t('constants.back')
+      : t('settings.accountComponents.selectProfileImage.saveButton');
 
   return (
     <CustomKeyboardAvoidingView
@@ -127,32 +173,13 @@ export default function EmojiAvatarSelector(props) {
         label={t('settings.accountComponents.selectProfileImage.title')}
       />
 
-      {/* Avatar Preview */}
-      <View style={styles.previewContainer}>
-        <View
-          style={[styles.previewCircle, { backgroundColor: backgroundOffset }]}
-        >
-          <AccountProfileImage
-            imageSize={120}
-            account={{ ...selectedAccount, profileEmoji: selectedEmoji }}
-          />
-          {selectedEmoji && (
-            <TouchableOpacity
-              style={styles.clearButton}
-              onPress={handleClear}
-              activeOpacity={0.7}
-            >
-              <ThemeIcon
-                size={25}
-                colorOverride={COLORS.lightModeText}
-                iconName={'X'}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+      <AvatarPreview
+        selectedAccount={selectedAccount}
+        selectedEmoji={selectedEmoji}
+        backgroundOffset={backgroundOffset}
+        onClear={handleClear}
+      />
 
-      {/* Search Bar */}
       <CustomSearchInput
         containerStyles={styles.searchContainer}
         placeholderText={t(
@@ -161,68 +188,26 @@ export default function EmojiAvatarSelector(props) {
         inputText={searchQuery}
         setInputText={setSearchQuery}
         autoCapitalize="none"
-        onFocusFunction={() => setIskeyboardActive(true)}
-        onBlurFunction={() => setIskeyboardActive(false)}
+        onFocusFunction={() => setIsKeyboardActive(true)}
+        onBlurFunction={() => setIsKeyboardActive(false)}
       />
 
-      {/* Emoji Grid */}
-      <SectionList
-        ref={sectionListRef}
+      <EmojiGrid
         sections={sectionsWithRows}
-        keyExtractor={(item, index) => `row-${index}`}
-        renderItem={renderEmojiRow}
-        renderSectionHeader={renderSectionHeader}
-        stickySectionHeadersEnabled={true}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        initialNumToRender={10}
-        maxToRenderPerBatch={10}
-        windowSize={5}
+        onEmojiSelect={handleEmojiSelect}
+        backgroundColor={backgroundColor}
       />
 
-      {/* Save Button */}
       <CustomButton
         buttonStyles={styles.saveButton}
         actionFunction={handleSave}
-        textContent={
-          selectedEmoji === selectedAccount.profileEmoji
-            ? t('constants.back')
-            : t('settings.accountComponents.selectProfileImage.saveButton')
-        }
+        textContent={saveLabel}
       />
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#222',
-  },
-  closeButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeButtonText: {
-    color: '#FFF',
-    fontSize: 24,
-    fontWeight: '300',
-  },
-  headerTitle: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
   previewContainer: {
     alignItems: 'center',
     marginTop: 10,
@@ -232,17 +217,12 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 100,
-
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
   previewEmoji: {
-    fontSize: 40,
-  },
-  placeholderText: {
-    fontSize: 120,
-    color: '#333',
+    fontSize: 60,
   },
   clearButton: {
     position: 'absolute',
@@ -255,13 +235,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
   },
-
   listContent: {
     paddingBottom: 100,
   },
@@ -292,8 +270,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     marginTop: CONTENT_KEYBOARD_OFFSET,
-  },
-  saveButtonDisabled: {
-    opacity: 0.5,
   },
 });
