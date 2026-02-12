@@ -5,7 +5,12 @@ import {
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SIZES, WINDOWWIDTH } from '../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+  WINDOWWIDTH,
+} from '../../../../constants/theme';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
@@ -211,7 +216,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     ...CENTER,
     paddingTop: 20,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     justifyContent: 'center',
   },
   contentContainer: {

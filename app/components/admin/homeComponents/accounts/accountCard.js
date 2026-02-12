@@ -168,11 +168,11 @@ const styles = StyleSheet.create({
     minHeight: 50,
     borderRadius: 8,
     paddingVertical: 10,
+    gap: 12,
   },
   leftSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
   },
   badge: {
     width: 40,
