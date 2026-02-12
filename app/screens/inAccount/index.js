@@ -18,6 +18,7 @@ import TechnicalTransactionDetails from './technicalTransactionDetails';
 import ViewAllTxPage from './viewAllTxPage';
 import SwapsPage from './swapPage';
 import ManageAccountsPoolsScreen from './accountsPoolsScreen';
+import SettingsHub from './settingsHub';
 export {
   ExpandedTx,
   AdminLogin,
@@ -38,4 +39,5 @@ export {
   BuyBitcoinHome,
   SwapsPage,
   ManageAccountsPoolsScreen,
+  SettingsHub,
 };

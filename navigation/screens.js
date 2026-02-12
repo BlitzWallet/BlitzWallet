@@ -91,6 +91,7 @@ import {
   ViewAllTxPage,
   SwapsPage,
   ManageAccountsPoolsScreen,
+  SettingsHub,
 } from '../app/screens/inAccount';
 import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
 
@@ -123,8 +124,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     component: CreateAccountHome,
     options: { gestureEnabled: true },
   },
-  { name: 'SettingsHome', component: SettingsIndex },
-  { name: 'ManageAccountsPoolsScreen', component: ManageAccountsPoolsScreen },
+  { name: 'SettingsHome', component: SettingsHub },
   { name: 'ShowProfileQrSlideRight', component: ShowProfileQr },
   // {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
   { name: 'ChooseContactHalfModal', component: ChooseContactHalfModal },

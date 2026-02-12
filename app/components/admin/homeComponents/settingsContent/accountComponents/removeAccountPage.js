@@ -31,7 +31,7 @@ export default function RemoveAccountPage(props) {
         for: 'Accounts',
       });
     } else {
-      navigate.popTo('ManageAccountsPoolsScreen');
+      navigate.popTo('SettingsHome');
     }
   }, [selectedAccount]);
 

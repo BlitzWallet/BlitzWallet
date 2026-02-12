@@ -13,7 +13,6 @@ import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { usePools } from '../../../context-store/poolContext';
 import AccountCard from '../../components/admin/homeComponents/accounts/accountCard';
-import useCustodyAccountList from '../../hooks/useCustodyAccountsList';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import CircularProgress from '../../components/admin/homeComponents/pools/circularProgress';
 import CustomButton from '../../functions/CustomElements/button';
@@ -30,7 +29,6 @@ export default function ManageAccountsPoolsScreen() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset } = GetThemeColors();
   const { activePoolsArray, poolsArray } = usePools();
-  const accounts = useCustodyAccountList();
   const {
     currentWalletMnemoinc,
     selectedAltAccount,
@@ -38,6 +36,7 @@ export default function ManageAccountsPoolsScreen() {
     updateAccountCacheOnly,
     toggleIsUsingNostr,
     isUsingNostr,
+    custodyAccountsList,
   } = useActiveCustodyAccount();
   const [isSwitchingAccount, setISwitchingAccount] = useState({
     accountBeingLoaded: '',
@@ -131,7 +130,7 @@ export default function ManageAccountsPoolsScreen() {
   const hasMorePools = activePoolsArray.length > 2;
   const remainingPoolsCount = activePoolsArray.length - 2;
 
-  const activeAccount = accounts.find(
+  const activeAccount = custodyAccountsList.find(
     item => currentWalletMnemoinc === item.mnemoinc || item.isActive,
   );
   const activeAltAccount = selectedAltAccount[0];
@@ -276,7 +275,7 @@ export default function ManageAccountsPoolsScreen() {
             styles={[styles.sectionTitle]}
             content={t('settings.accountsPoolsScreen.yourAccountsTitle')}
           />
-          {accounts.map((account, index) => {
+          {custodyAccountsList.map((account, index) => {
             const isMainWallet = account.name === 'Main Wallet';
             const isNWC = account.name === 'NWC';
             const isActive = isNWC
