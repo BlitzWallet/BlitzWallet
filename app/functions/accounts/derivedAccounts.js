@@ -84,7 +84,7 @@ export function getRestorableIndices(
 
     const restorable = [];
     if (maxIndex === 3) return restorable;
-    for (let i = 3; i <= maxIndex; i++) {
+    for (let i = 4; i <= maxIndex; i++) {
       if (!existingIndices.has(i)) {
         restorable.push(i);
       }

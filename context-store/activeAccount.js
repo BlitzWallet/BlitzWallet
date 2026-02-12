@@ -408,7 +408,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       );
 
       const accountsToRestore = [];
-      for (let i = 3; i < nextIndex; i++) {
+      for (let i = 4; i <= nextIndex; i++) {
         if (existingDerivedIndexes.has(i)) continue;
         accountsToRestore.push({
           uuid: customUUID(),
