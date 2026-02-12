@@ -34,7 +34,6 @@ import SuggestedWordContainer from '../../../../login/suggestedWords';
 import isValidMnemonic from '../../../../../functions/isValidMnemonic';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import customUUID from '../../../../../functions/customUUID';
-import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import { handleRestoreFromText } from '../../../../../functions/seed';
 import getClipboardText from '../../../../../functions/getClipboardText';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
@@ -49,7 +48,7 @@ const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
 export default function CreateCustodyAccountPage(props) {
   const accountType = props?.route?.params?.accountType || 'derived';
   const { masterInfoObject } = useGlobalContextProvider();
-  const { createDerivedAccount, createImportedAccount } =
+  const { createDerivedAccount, createImportedAccount, custodyAccountsList } =
     useActiveCustodyAccount();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
@@ -72,7 +71,6 @@ export default function CreateCustodyAccountPage(props) {
 
   const { backgroundOffset, textColor, textInputColor } = GetThemeColors();
 
-  const accounts = useCustodyAccountList();
   const navigate = useNavigation();
 
   const enteredAllSeeds = Object.values(inputedKey).filter(item => item);
@@ -154,7 +152,7 @@ export default function CreateCustodyAccountPage(props) {
         }
 
         const seedString = enteredAllSeeds.join(' ');
-        const alreadyUsedSeed = accounts.find(
+        const alreadyUsedSeed = custodyAccountsList.find(
           account => account?.mnemoinc?.toLowerCase() === seedString,
         );
 

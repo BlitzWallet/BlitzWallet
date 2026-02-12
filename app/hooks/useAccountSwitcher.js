@@ -2,13 +2,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useActiveCustodyAccount } from '../../context-store/activeAccount';
 import { useSparkWallet } from '../../context-store/sparkContext';
-import useCustodyAccountList from './useCustodyAccountsList';
 import { initWallet } from '../functions/initiateWalletConnection';
 
 export default function useAccountSwitcher() {
   const navigate = useNavigation();
   const { setSparkInformation } = useSparkWallet();
-  const accounts = useCustodyAccountList();
   const {
     currentWalletMnemoinc,
     selectedAltAccount,
@@ -16,6 +14,8 @@ export default function useAccountSwitcher() {
     updateAccountCacheOnly,
     toggleIsUsingNostr,
     isUsingNostr,
+    custodyAccountsList,
+    activeAccount,
   } = useActiveCustodyAccount();
 
   const [isSwitchingAccount, setIsSwitchingAccount] = useState({
@@ -77,22 +77,8 @@ export default function useAccountSwitcher() {
     [currentWalletMnemoinc, selectedAltAccount],
   );
 
-  const activeAccount = useMemo(() => {
-    const activeAltAccount = selectedAltAccount[0];
-    return accounts.find(account => {
-      const isMainWallet = account.name === 'Main Wallet';
-      const isNWC = account.name === 'NWC';
-      const isActive = isNWC
-        ? isUsingNostr
-        : isMainWallet
-        ? !activeAltAccount && !isUsingNostr
-        : activeAltAccount?.uuid === account.uuid;
-      return isActive;
-    });
-  }, [accounts, isUsingNostr, selectedAltAccount]);
-
   return {
-    accounts,
+    accounts: custodyAccountsList,
     activeAccount,
     isSwitchingAccount,
     handleAccountPress,

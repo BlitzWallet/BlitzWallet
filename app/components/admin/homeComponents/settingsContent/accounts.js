@@ -18,7 +18,6 @@ import { useActiveCustodyAccount } from '../../../../../context-store/activeAcco
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { initWallet } from '../../../../functions/initiateWalletConnection';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import useCustodyAccountList from '../../../../hooks/useCustodyAccountsList';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../../../context-store/webViewContext';
 import AccountCard from '../accounts/accountCard';
@@ -33,6 +32,8 @@ export default function CreateCustodyAccounts() {
     toggleIsUsingNostr,
     getAccountMnemonic,
     isUsingNostr,
+    custodyAccountsList,
+    activeAccount,
   } = useActiveCustodyAccount();
   const { setSparkInformation } = useSparkWallet();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
@@ -42,16 +43,15 @@ export default function CreateCustodyAccounts() {
     isLoading: false,
   });
   const { t } = useTranslation();
-  const accounts = useCustodyAccountList();
   const { sendWebViewRequest } = useWebView();
 
   const filteredAccounts = useMemo(() => {
-    if (!searchInput.trim()) return accounts;
+    if (!searchInput.trim()) return custodyAccountsList;
     const searchTerm = searchInput.toLowerCase();
-    return accounts.filter(account =>
+    return custodyAccountsList.filter(account =>
       account.name?.toLowerCase()?.includes(searchTerm),
     );
-  }, [accounts, searchInput]);
+  }, [custodyAccountsList, searchInput]);
 
   const handleNavigateEdit = useCallback(
     account => {
@@ -76,7 +76,7 @@ export default function CreateCustodyAccounts() {
   }, [navigate]);
 
   const handleNavigateSwap = useCallback(() => {
-    if (accounts.length < 2) {
+    if (custodyAccountsList.length < 2) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('settings.accountComponents.homepage.swapAccountError'),
       });
@@ -84,7 +84,7 @@ export default function CreateCustodyAccounts() {
     }
 
     navigate.navigate('CustodyAccountPaymentPage');
-  }, [navigate, accounts, t]);
+  }, [navigate, custodyAccountsList, t]);
 
   const handleSelectAccount = useCallback(
     async account => {
@@ -147,22 +147,12 @@ export default function CreateCustodyAccounts() {
   );
 
   const accountElements = useMemo(() => {
-    const activeAltAccount = selectedAltAccount[0];
-
     return filteredAccounts.map((account, index) => {
-      const isMainWallet = account.name === 'Main Wallet';
-      const isNWC = account.name === 'NWC';
-      const isActive = isNWC
-        ? isUsingNostr
-        : isMainWallet
-        ? !activeAltAccount && !isUsingNostr
-        : activeAltAccount?.uuid === account.uuid;
-
       return (
         <AccountCard
           key={account.uuid || `Account ${index}`}
           account={account}
-          isActive={isActive}
+          isActive={activeAccount.uuid === account.uuid}
           onPress={() => handleSelectAccount(account)}
           onEdit={() => handleNavigateEdit(account)}
           isLoading={
@@ -174,11 +164,11 @@ export default function CreateCustodyAccounts() {
     });
   }, [
     filteredAccounts,
-    selectedAltAccount,
     isUsingNostr,
     isLoading,
     handleNavigateEdit,
     handleSelectAccount,
+    activeAccount,
   ]);
 
   return (

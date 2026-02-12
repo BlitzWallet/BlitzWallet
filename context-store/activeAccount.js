@@ -48,6 +48,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const didSelectAltAccount = !!selectedAltAccount.length;
   const isInitialRender = useRef(true);
   const enabledNWC = masterInfoObject.didViewNWCMessage;
+  const currentPins = masterInfoObject.pinnedAccounts || [];
 
   useEffect(() => {
     if (nostrSeed.length || !enabledNWC) return;
@@ -133,6 +134,13 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
       let newAccounts = accountInformation.filter(accounts => {
         return accounts.uuid !== account.uuid;
       });
+      const isPinned = currentPins.includes(account.uuid);
+      if (isPinned) {
+        // clear from pinned list
+        toggleMasterInfoObject({
+          pinnedAccounts: currentPins.filter(id => id !== account.uuid),
+        });
+      }
       //   clear spark information here too. Delte txs from database, reove listeners
       await setLocalStorageItem(
         CUSTODY_ACCOUNTS_STORAGE_KEY,
@@ -487,6 +495,48 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
 
   const isUsingAltAccount = didSelectAltAccount || isUsingNostr;
 
+  const custodyAccountsList = useMemo(() => {
+    return enabledNWC
+      ? [
+          {
+            name: 'Main Wallet',
+            mnemoinc: accountMnemoinc,
+            accountType: 'main',
+            uuid: 'MW09xd09d8f0a9sf2n332',
+          },
+          {
+            name: 'NWC',
+            mnemoinc: nostrSeed,
+            accountType: 'nwc',
+            uuid: 'NWC038rsd0f8234ajsf',
+          },
+          ...custodyAccounts,
+        ]
+      : [
+          {
+            name: 'Main Wallet',
+            mnemoinc: accountMnemoinc,
+            accountType: 'main',
+            uuid: 'MW09xd09d8f0a9sf2n332',
+          },
+          ...custodyAccounts,
+        ];
+  }, [accountMnemoinc, custodyAccounts, enabledNWC, nostrSeed]);
+
+  const activeAccount = useMemo(() => {
+    const activeAltAccount = selectedAltAccount[0];
+    return custodyAccountsList.find(account => {
+      const isMainWallet = account.name === 'Main Wallet';
+      const isNWC = account.name === 'NWC';
+      const isActive = isNWC
+        ? isUsingNostr
+        : isMainWallet
+        ? !activeAltAccount && !isUsingNostr
+        : activeAltAccount?.uuid === account.uuid;
+      return isActive;
+    });
+  }, [custodyAccountsList, isUsingNostr, selectedAltAccount]);
+
   return (
     <ActiveCustodyAccount.Provider
       value={{
@@ -506,6 +556,8 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         toggleIsUsingNostr,
         isUsingNostr,
         nostrSeed,
+        activeAccount,
+        custodyAccountsList,
       }}
     >
       {children}

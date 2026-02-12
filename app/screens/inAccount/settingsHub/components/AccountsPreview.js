@@ -4,7 +4,7 @@ import AccountCard from '../../../../components/admin/homeComponents/accounts/ac
 import GetThemeColors from '../../../../hooks/themeColors';
 import { SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import useCustodyAccountList from '../../../../hooks/useCustodyAccountsList';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 
 export default function AccountsPreview({
   accounts,
@@ -18,18 +18,16 @@ export default function AccountsPreview({
 }) {
   const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
-  const accountList = useCustodyAccountList();
-
-  const activeAltAccount = selectedAltAccount[0];
+  const { custodyAccountsList, activeAccount } = useActiveCustodyAccount();
 
   const displayAccounts = getDisplayAccounts(
-    accounts,
+    custodyAccountsList,
     pinnedAccountUUIDs,
     isUsingNostr,
-    activeAltAccount,
+    activeAccount,
   );
 
-  const hasMoreAccounts = accountList?.length > displayAccounts?.length;
+  const hasMoreAccounts = custodyAccountsList?.length > displayAccounts?.length;
 
   return (
     <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
@@ -45,19 +43,11 @@ export default function AccountsPreview({
         />
       </TouchableOpacity>
       {displayAccounts.map((account, index) => {
-        const isMainWallet = account.name === 'Main Wallet';
-        const isNWC = account.name === 'NWC';
-        const isActive = isNWC
-          ? isUsingNostr
-          : isMainWallet
-          ? !activeAltAccount && !isUsingNostr
-          : activeAltAccount?.uuid === account.uuid;
-
         return (
           <AccountCard
             key={account.uuid || `account-${index}`}
             account={account}
-            isActive={isActive}
+            isActive={activeAccount.uuid === account.uuid}
             onPress={() => onAccountPress(account)}
             onEdit={() => onAccountEdit(account)}
             isLoading={
@@ -72,7 +62,7 @@ export default function AccountsPreview({
         <ThemeText
           styles={styles.moreText}
           content={t('settings.hub.morePoolsCount', {
-            count: accountList?.length - displayAccounts?.length,
+            count: custodyAccountsList?.length - displayAccounts?.length,
           })}
         />
       )}

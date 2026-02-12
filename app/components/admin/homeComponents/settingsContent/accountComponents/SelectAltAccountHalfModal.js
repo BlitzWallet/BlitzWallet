@@ -6,7 +6,6 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useCallback, useState } from 'react';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
-import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import {
   getSparkBalance,
   initializeSparkWallet,
@@ -17,7 +16,7 @@ import AccountCard from '../../accounts/accountCard';
 
 export default function SelectAltAccountHalfModal(props) {
   const navigate = useNavigation();
-  const { getAccountMnemonic } = useActiveCustodyAccount();
+  const { getAccountMnemonic, custodyAccountsList } = useActiveCustodyAccount();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const [isLoading, setIsLoading] = useState({
@@ -27,8 +26,6 @@ export default function SelectAltAccountHalfModal(props) {
   const { t } = useTranslation();
 
   const { selectedFrom, selectedTo, transferType } = props;
-
-  const accounts = useCustodyAccountList();
 
   const handleAccountSelection = useCallback(
     async account => {
@@ -71,7 +68,7 @@ export default function SelectAltAccountHalfModal(props) {
     [navigate, selectedFrom, selectedTo, transferType, getAccountMnemonic],
   );
 
-  const accountElements = accounts
+  const accountElements = custodyAccountsList
     .filter(item => {
       return (
         item.uuid !== (transferType === 'from' ? selectedTo : selectedFrom)

@@ -24,7 +24,6 @@ import useDebounce from '../../../../../hooks/useDebounce';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
@@ -48,7 +47,7 @@ export default function AccountPaymentPage(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { currentWalletMnemoinc, getAccountMnemonic } =
+  const { currentWalletMnemoinc, getAccountMnemonic, custodyAccountsList } =
     useActiveCustodyAccount();
   const sendingAmount = props?.route?.params?.amount || 0;
   const from = props?.route?.params?.from;
@@ -66,9 +65,10 @@ export default function AccountPaymentPage(props) {
   const { backgroundOffset, textColor } = GetThemeColors();
   const { t } = useTranslation();
 
-  const accounts = useCustodyAccountList();
-  const fromAccount = accounts.find(item => item.uuid === from)?.name || '';
-  const toAccount = accounts.find(item => item.uuid === to)?.name || '';
+  const fromAccount =
+    custodyAccountsList.find(item => item.uuid === from)?.name || '';
+  const toAccount =
+    custodyAccountsList.find(item => item.uuid === to)?.name || '';
 
   const convertedSendAmount =
     masterInfoObject.userBalanceDenomination != 'fiat'
@@ -147,8 +147,12 @@ export default function AccountPaymentPage(props) {
       }
       setTransferInfo(prev => ({ ...prev, isDoingTransfer: true }));
 
-      const sendingFromAccount = accounts.find(item => item.uuid === from);
-      const sendingToAccount = accounts.find(item => item.uuid === to);
+      const sendingFromAccount = custodyAccountsList.find(
+        item => item.uuid === from,
+      );
+      const sendingToAccount = custodyAccountsList.find(
+        item => item.uuid === to,
+      );
 
       const [fromMnemonic, toMnemonic] = await Promise.all([
         getAccountMnemonic(sendingFromAccount),
@@ -233,6 +237,7 @@ export default function AccountPaymentPage(props) {
     from,
     currentWalletMnemoinc,
     memo,
+    custodyAccountsList,
   ]);
 
   if (transferInfo?.showConfirmScreen) {
