@@ -79,12 +79,16 @@ export function PoolProvider({ children }) {
 
   const savePoolToCloud = async poolObj => {
     try {
-      const localObject = JSON.parse(JSON.stringify(poolObj));
-      const localResponse = await savePoolLocal(localObject);
       const serverResponse = await addPoolToDatabase(poolObj);
 
-      if (!serverResponse || !localResponse) {
-        throw new Error('Unable to save pool');
+      if (!serverResponse) {
+        throw new Error('Server save failed');
+      }
+      const localObject = JSON.parse(JSON.stringify(poolObj));
+      const localResponse = await savePoolLocal(localObject);
+
+      if (!localResponse) {
+        throw new Error('Local save failed');
       }
       dispatch({ type: 'ADD_OR_UPDATE_POOL', payload: localObject });
       return true;
