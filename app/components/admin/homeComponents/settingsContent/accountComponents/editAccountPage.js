@@ -159,7 +159,9 @@ export default function EditAccountPage(props) {
           <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
             <ThemeText
               styles={styles.rowLabel}
-              content={`${isPinned ? 'Unpin' : 'Pin'} Account`}
+              content={t('settings.accountComponents.editAccountPage.account', {
+                context: isPinned ? 'unpin' : 'pin',
+              })}
             />
             <View style={styles.rowRight}>
               <View
