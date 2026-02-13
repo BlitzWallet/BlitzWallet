@@ -1163,6 +1163,10 @@ export const getSparkPaymentStatus = status => {
       status === 'TRANSFER_STATUS_EXPIRED' ||
       status === 'TRANSFER_STATUS_SENDER_INITIATED' ||
       status === LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED ||
+      status === LightningSendRequestStatus.TRANSFER_FAILED ||
+      status === LightningSendRequestStatus.USER_TRANSFER_VALIDATION_FAILED ||
+      status === LightningSendRequestStatus.PREIMAGE_PROVIDING_FAILED ||
+      status === LightningSendRequestStatus.USER_SWAP_RETURN_FAILED ||
       status === SparkCoopExitRequestStatus.FAILED ||
       status === SparkCoopExitRequestStatus.EXPIRED ||
       status === LightningReceiveRequestStatus.TRANSFER_FAILED ||
@@ -1171,46 +1175,18 @@ export const getSparkPaymentStatus = status => {
       status ===
         LightningReceiveRequestStatus.REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED ||
       status === LightningReceiveRequestStatus.REFUND_SIGNING_FAILED ||
+      status === LightningReceiveRequestStatus.TRANSFER_CREATION_FAILED ||
       status === SparkLeavesSwapRequestStatus.FAILED ||
       status === SparkLeavesSwapRequestStatus.EXPIRED ||
       status === SparkUserRequestStatus.FAILED ||
+      status === SparkUserRequestStatus.CANCELED ||
       status === ClaimStaticDepositStatus.TRANSFER_CREATION_FAILED ||
       status === ClaimStaticDepositStatus.REFUND_SIGNING_FAILED ||
       status === ClaimStaticDepositStatus.UTXO_SWAPPING_FAILED ||
-      status === LightningReceiveRequestStatus.FUTURE_VALUE
+      status ===
+        ClaimStaticDepositStatus.REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED
     ? 'failed'
     : 'pending';
-};
-
-export const useIsSparkPaymentPending = (tx, transactionPaymentType) => {
-  try {
-    return (
-      (transactionPaymentType === 'bitcoin' &&
-        tx.status === 'TRANSFER_STATUS_SENDER_KEY_TWEAK_PENDING') ||
-      (transactionPaymentType === 'spark' && false) ||
-      (transactionPaymentType === 'lightning' &&
-        tx.status === 'LIGHTNING_PAYMENT_INITIATED')
-    );
-  } catch (err) {
-    console.log('Error finding is payment method is pending', err);
-    return '';
-  }
-};
-
-export const useIsSparkPaymentFailed = (tx, transactionPaymentType) => {
-  try {
-    return (
-      (transactionPaymentType === 'bitcoin' &&
-        tx.status === 'TRANSFER_STATUS_RETURNED') ||
-      (transactionPaymentType === 'spark' &&
-        tx.status === 'TRANSFER_STATUS_RETURNED') ||
-      (transactionPaymentType === 'lightning' &&
-        tx.status === 'LIGHTNING_PAYMENT_INITIATED')
-    );
-  } catch (err) {
-    console.log('Error finding is payment method is pending', err);
-    return '';
-  }
 };
 
 export const getSingleTxDetails = async (mnemonic, id) => {
