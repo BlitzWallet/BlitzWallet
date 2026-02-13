@@ -722,7 +722,7 @@ export async function getPoolContributionsSince(poolId, afterTimestampObj) {
     try {
       afterTs = new Timestamp(
         afterTimestampObj.seconds,
-        afterTimestampObj.nanoseconds ?? 0,
+        afterTimestampObj.nanos ?? 0,
       );
     } catch (err) {
       console.log(err);

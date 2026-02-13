@@ -281,25 +281,29 @@ export function PoolProvider({ children }) {
 
   const syncPool = useCallback(async poolId => {
     try {
-      const now = Date.now();
-      if (now - poolUpdateTracker.current[poolId] < POOLS_DEBOUCE) {
-        console.warn('Pool sync call rejected, debouncing...', poolId);
-        return false;
-      }
       const latestTimestamp = await getLatestContributionTimestamp(poolId);
       const newContributions = await getPoolContributionsSince(
         poolId,
         latestTimestamp,
       );
 
-      const freshPool = await getPoolFromDatabase(poolId);
-      if (freshPool) {
-        const isOwnPool = freshPool.creatorUUID === userUuidRef.current;
-        // Only persist to SQLite if this is the user's own pool
-        if (isOwnPool) {
-          await savePoolLocal(freshPool);
+      let freshPool;
+      const now = Date.now();
+      if (
+        now - poolUpdateTracker.current[poolId] > POOLS_DEBOUCE ||
+        newContributions.length > 0
+      ) {
+        freshPool = await getPoolFromDatabase(poolId);
+        if (freshPool) {
+          const isOwnPool = freshPool.creatorUUID === userUuidRef.current;
+          // Only persist to SQLite if this is the user's own pool
+          if (isOwnPool) {
+            await savePoolLocal(freshPool);
+          }
+          dispatch({ type: 'ADD_OR_UPDATE_POOL', payload: freshPool });
         }
-        dispatch({ type: 'ADD_OR_UPDATE_POOL', payload: freshPool });
+      } else {
+        console.warn('Not getting pool from database too soon', poolId);
       }
 
       if (newContributions.length > 0) {

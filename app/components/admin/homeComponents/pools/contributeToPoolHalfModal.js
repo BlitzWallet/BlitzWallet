@@ -27,6 +27,7 @@ import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTra
 import LottieView from 'lottie-react-native';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { usePools } from '../../../../../context-store/poolContext';
+import { Timestamp } from '@react-native-firebase/firestore';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -164,7 +165,7 @@ export default function ContributeToPoolHalfModal({
         amount: paymentAmountSats,
         isBlitzUser: true,
         blitzUserUUID: masterInfoObject.uuid,
-        createdAt: Date.now(),
+        createdAt: new Timestamp(),
       };
 
       await addContributionWithTransaction(
