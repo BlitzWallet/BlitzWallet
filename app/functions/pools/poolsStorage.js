@@ -406,12 +406,23 @@ export const getLatestContributionTimestamp = async poolId => {
   try {
     const db = await getDatabase();
     const result = await db.getFirstAsync(
-      `SELECT createdAtSeconds, createdAtNanos FROM ${CONTRIBUTIONS_TABLE}
-       WHERE poolId = ? ORDER BY createdAtSeconds DESC, createdAtNanos DESC LIMIT 1`,
+      `
+      SELECT 
+        CASE 
+          WHEN createdAtSeconds > 9999999999 
+            THEN CAST(createdAtSeconds / 1000 AS INTEGER)
+          ELSE createdAtSeconds
+        END as normalizedSeconds,
+        createdAtNanos
+      FROM ${CONTRIBUTIONS_TABLE}
+      WHERE poolId = ?
+      ORDER BY normalizedSeconds DESC, createdAtNanos DESC
+      LIMIT 1
+      `,
       [poolId],
     );
     return {
-      seconds: result?.createdAtSeconds || 0,
+      seconds: result?.normalizedSeconds || 0,
       nanos: result?.createdAtNanos || 0,
     };
   } catch (err) {
