@@ -377,7 +377,7 @@ export default function ClaimGiftScreen({
           : fees;
       let tx = {
         id: paymentDenomination === 'USD' ? data : data.id,
-        paymentStatus: 'pending',
+        paymentStatus: 'completed',
         paymentType: 'spark',
         accountId: sparkInformation.identityPubKey,
         details: {
@@ -409,7 +409,7 @@ export default function ClaimGiftScreen({
         );
       }
 
-      await bulkUpdateSparkTransactions([tx]);
+      await bulkUpdateSparkTransactions([tx], 'fullUpdate-waitBalance');
 
       if (!expertMode) {
         await deleteGift(giftDetails.uuid);

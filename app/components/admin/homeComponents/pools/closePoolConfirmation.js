@@ -185,7 +185,7 @@ export default function ClosePoolConfirmation({
 
       let tx = {
         id: transferTxId,
-        paymentStatus: 'pending',
+        paymentStatus: 'completed',
         paymentType: 'spark',
         accountId: sparkInformation.identityPubKey,
         details: {
@@ -204,7 +204,7 @@ export default function ClosePoolConfirmation({
         },
       };
 
-      await bulkUpdateSparkTransactions([tx]);
+      await bulkUpdateSparkTransactions([tx], 'fullUpdate-waitBalance');
 
       setIsLoading(false);
       handleBackPressFunction();

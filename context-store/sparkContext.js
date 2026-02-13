@@ -534,7 +534,8 @@ const SparkWalletProvider = ({ children }) => {
         updateType === 'lrc20Payments' ||
         updateType === 'txStatusUpdate' ||
         updateType === 'transactions' ||
-        updateType === 'contactDetailsUpdate'
+        updateType === 'contactDetailsUpdate' ||
+        updateType === 'incrementalRestore'
       ) {
         if (isLatestRequest) {
           setSparkInformation(prev => ({
@@ -807,7 +808,8 @@ const SparkWalletProvider = ({ children }) => {
         updateType === 'transactions' ||
         updateType === 'txStatusUpdate' ||
         updateType === 'lrc20Payments' ||
-        updateType === 'contactDetailsUpdate'
+        updateType === 'contactDetailsUpdate' ||
+        updateType === 'incrementalRestore'
       ) {
         console.log(
           'Payment type is send payment, transaction, lrc20 first render, updateContactDetails, or txstatus update, skipping confirm tx page navigation',
@@ -954,7 +956,8 @@ const SparkWalletProvider = ({ children }) => {
           updateType === 'lrc20Payments' ||
           updateType === 'txStatusUpdate' ||
           updateType === 'transactions' ||
-          updateType === 'contactDetailsUpdate'
+          updateType === 'contactDetailsUpdate' ||
+          updateType === 'incrementalRestore'
         )
       ) {
         console.log(`Aborting any existing poller for incoming ${updateType}`);
