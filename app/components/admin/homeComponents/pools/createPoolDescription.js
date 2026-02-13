@@ -15,12 +15,9 @@ import {
 } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useKeysContext } from '../../../../../context-store/keys';
-import { usePools } from '../../../../../context-store/poolContext';
 import { derivePoolWallet } from '../../../../functions/pools/derivePoolWallet';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { v4 as uuidv4 } from 'uuid';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
@@ -32,15 +29,12 @@ export default function CreatePoolDescription({
 }) {
   const goalAmount = route?.params?.goalAmount || 0;
   const navigate = useNavigation();
-  const { masterInfoObject, toggleMasterInfoObject } =
-    useGlobalContextProvider();
+  const { masterInfoObject } = useGlobalContextProvider();
   const textInputRef = useRef(null);
   const isAlreadyCreating = useRef(null);
   const { globalContactsInformation } = useGlobalContacts();
   const { accountMnemoinc } = useKeysContext();
-  const { savePoolToCloud } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
   const [poolTitle, setPoolTitle] = useState('');
@@ -119,76 +113,54 @@ export default function CreatePoolDescription({
         topContributors: [],
       };
 
-      const didSave = await savePoolToCloud(poolDocument);
-
-      if (!didSave) {
-        throw new Error('Failed to save pool');
-      }
-
-      toggleMasterInfoObject({
-        currentDerivedPoolIndex: currentDerivedPoolIndex + 1,
-      });
-
       setIsLoading(false);
 
       handleBackPressFunction(() => {
         navigate.goBack();
-        navigate.replace('PoolDetailScreen', { poolId, pool: poolDocument });
+        navigate.replace('PoolDetailScreen', {
+          poolId,
+          pool: poolDocument,
+          shouldSave: true,
+        });
       });
     } catch (err) {
       console.log('Error creating pool:', err);
       setIsLoading(false);
+      isAlreadyCreating.current = false;
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
     }
   };
 
   return (
-    <>
-      <View style={styles.container}>
-        <ThemeText
-          styles={styles.title}
-          content={t('wallet.pools.whatIsPoolFor')}
-        />
+    <View style={styles.container}>
+      <ThemeText
+        styles={styles.title}
+        content={t('wallet.pools.whatIsPoolFor')}
+      />
 
-        <CustomSearchInput
-          textInputRef={textInputRef}
-          inputText={poolTitle}
-          setInputText={setPoolTitle}
-          onBlurFunction={handleTextInputBlur}
-          maxLength={100}
-          autoFocus={true}
-          containerStyles={{ width: '100%' }}
-          placeholderText={t('wallet.pools.examplePlaceholder')}
-        />
+      <CustomSearchInput
+        textInputRef={textInputRef}
+        inputText={poolTitle}
+        setInputText={setPoolTitle}
+        onBlurFunction={handleTextInputBlur}
+        maxLength={100}
+        autoFocus={true}
+        containerStyles={{ width: '100%' }}
+        placeholderText={t('wallet.pools.examplePlaceholder')}
+      />
 
-        <CustomButton
-          buttonStyles={[
-            styles.createButton,
-            { opacity: !isValid ? HIDDEN_OPACITY : 1 },
-          ]}
-          textContent={
-            isLoading
-              ? t('wallet.pools.creating')
-              : t('wallet.pools.createPool')
-          }
-          actionFunction={handleCreatePool}
-          disabled={isLoading || !isValid}
-        />
-      </View>
-      {true && (
-        <View
-          style={[
-            styles.loadingOverlay,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundOffset : backgroundColor,
-            },
-          ]}
-        >
-          <FullLoadingScreen text={t('wallet.pools.creatingPool')} />
-        </View>
-      )}
-    </>
+      <CustomButton
+        buttonStyles={[
+          styles.createButton,
+          { opacity: !isValid ? HIDDEN_OPACITY : 1 },
+        ]}
+        textContent={
+          isLoading ? t('wallet.pools.creating') : t('wallet.pools.createPool')
+        }
+        actionFunction={handleCreatePool}
+        disabled={isLoading || !isValid}
+      />
+    </View>
   );
 }
 
@@ -203,21 +175,9 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     marginBottom: 20,
   },
-
   createButton: {
     ...CENTER,
     marginTop: 'auto',
     marginBottom: CONTENT_KEYBOARD_OFFSET,
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 35,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    ...CENTER,
-    zIndex: 999,
   },
 });
