@@ -26,6 +26,7 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { usePools } from '../../../../../context-store/poolContext';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -42,6 +43,7 @@ export default function ContributeToPoolHalfModal({
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { poolInfoRef } = useFlashnet();
+  const { addContributionToCache } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
@@ -170,6 +172,8 @@ export default function ContributeToPoolHalfModal({
         contribution,
         paymentAmountSats,
       );
+
+      await addContributionToCache(contribution);
 
       setStep('success');
 

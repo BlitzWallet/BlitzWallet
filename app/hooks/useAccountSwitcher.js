@@ -27,7 +27,12 @@ export default function useAccountSwitcher() {
     async account => {
       try {
         const accountMnemonic = await getAccountMnemonic(account);
-        if (currentWalletMnemoinc === accountMnemonic) return;
+        if (currentWalletMnemoinc === accountMnemonic) {
+          navigate.navigate('SettingsContentHome', {
+            for: 'Accounts',
+          });
+          return;
+        }
 
         setIsSwitchingAccount({
           accountBeingLoaded: account.uuid || account.name,

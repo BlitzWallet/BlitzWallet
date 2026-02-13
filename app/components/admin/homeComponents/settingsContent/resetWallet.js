@@ -153,9 +153,9 @@ const styles = StyleSheet.create({
   },
   optionsContainer: {
     width: '100%',
-    gap: 16,
     marginTop: 'auto',
     marginBottom: 5,
+    paddingBottom: 15,
   },
   optionRow: {
     flexDirection: 'row',

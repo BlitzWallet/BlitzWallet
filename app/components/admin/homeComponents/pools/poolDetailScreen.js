@@ -15,20 +15,18 @@ import {
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {
   CENTER,
-  CONTENT_KEYBOARD_OFFSET,
   FONT,
   SIZES,
+  STARTING_INDEX_FOR_POOLS_DERIVE,
 } from '../../../../constants';
 import {
   COLORS,
   HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
   WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { usePools } from '../../../../../context-store/poolContext';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { getPoolContributions, getPoolFromDatabase } from '../../../../../db';
 import CircularProgress from './circularProgress';
 import ContributorAvatar from './contributorAvatar';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -45,19 +43,30 @@ const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 export default function PoolDetailScreen(props) {
   const poolId = props.route?.params?.poolId;
   const passedPool = props.route?.params?.pool;
+  const shouldSave = props.route?.params?.shouldSave;
 
   const navigate = useNavigation();
-  const { masterInfoObject } = useGlobalContextProvider();
-  const { pools } = usePools();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const {
+    pools,
+    contributions: allContributions,
+    savePoolToCloud,
+    syncPool,
+    loadContributionsForPool,
+  } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const [refreshing, setRefreshing] = useState(false);
-  const [pool, setPool] = useState(pools[poolId] || null);
-  const [contributions, setContributions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [noPool, setNoPool] = useState(false);
   const { t } = useTranslation();
+
+  // Read pool from context (cache-first)
+  const pool = pools[poolId] || passedPool || null;
+  // Read contributions from context (cache-first)
+  const contributions = allContributions[poolId] || [];
 
   const isCreator = pool?.creatorUUID === masterInfoObject?.uuid;
   const isActive = pool?.status === 'active';
@@ -75,35 +84,52 @@ export default function PoolDetailScreen(props) {
 
   const refreshPoolDetails = useCallback(async () => {
     try {
-      // if (
-      //   pools?.[poolId]?.status === 'closed' &&
-      //   Date.now() - pools?.[poolId]?.closedAt > 10 * 1000
-      // )
-      //   return;
-      // Refresh pool data from Firestore
-      const freshPool = await getPoolFromDatabase(poolId);
-      if (freshPool) {
-        setPool(freshPool);
-      } else {
-        setNoPool(true);
+      // If this is a freshly created pool, upload it first
+      if (shouldSave && passedPool) {
+        setIsSaving(true);
+
+        const didSave = await savePoolToCloud(passedPool);
+        setIsSaving(false);
+
+        if (!didSave) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Failed to save pool',
+          });
+          return;
+        }
+
+        toggleMasterInfoObject({
+          currentDerivedPoolIndex:
+            passedPool.derivationIndex - STARTING_INDEX_FOR_POOLS_DERIVE + 1,
+        });
+
+        // Clear params to treat saved pool as a normal clicked pool
+        navigate.setParams({
+          poolId: passedPool.poolId,
+          pool: undefined,
+          shouldSave: false,
+        });
         return;
       }
 
-      // Fetch contributions
-      const contribs = await getPoolContributions(poolId);
-      setContributions(contribs);
+      // Load contributions from SQLite if not yet in context
+      await loadContributionsForPool(poolId);
+
+      // Background sync — incremental fetch from Firestore
+      const changed = await syncPool(poolId);
+
+      if (!changed && !pool) {
+        setNoPool(true);
+      }
     } catch (err) {
       console.log('Error fetching pool details:', err);
-    } finally {
-      setIsLoading(false);
     }
-  }, [poolId, pools]);
+  }, [poolId, shouldSave, passedPool, syncPool, loadContributionsForPool]);
 
-  // use focus effect to rerender after clsoing on half modal
   useFocusEffect(
     useCallback(() => {
       refreshPoolDetails(true);
-    }, [poolId, pools]),
+    }, [refreshPoolDetails]),
   );
 
   const handleShare = useCallback(async () => {
@@ -141,8 +167,8 @@ export default function PoolDetailScreen(props) {
   }, [navigate, poolId, pool]);
 
   const handleContributorClick = useCallback(() => {
-    navigate.navigate('ViewContributor', { pool, contributions });
-  }, [pool, contributions]);
+    navigate.navigate('ViewContributor', { pool, poolId, contributions });
+  }, [pool, poolId, contributions]);
 
   const contributers = useMemo(() => {
     return [pool, ...contributions].map((item, index) => (
@@ -159,7 +185,7 @@ export default function PoolDetailScreen(props) {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await refreshPoolDetails();
+    await refreshPoolDetails(false);
     setRefreshing(false);
   };
 
@@ -226,7 +252,16 @@ export default function PoolDetailScreen(props) {
     );
   }
 
-  if (isLoading || !pool) {
+  if (isSaving) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar label={t('wallet.pools.pool')} />
+        <FullLoadingScreen text={t('wallet.pools.creatingPool')} />
+      </GlobalThemeView>
+    );
+  }
+
+  if (!pool) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CustomSettingsTopBar label={t('wallet.pools.pool')} />

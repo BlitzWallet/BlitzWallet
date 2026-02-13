@@ -2,6 +2,7 @@ import * as SQLite from 'expo-sqlite';
 
 export const CACHED_POOLS = 'SAVED_POOLS';
 const CACHED_POOLS_TABLE = 'poolsTable';
+const CONTRIBUTIONS_TABLE = 'contributionsTable';
 
 let sqlLiteDB = null;
 let isInitialized = false;
@@ -60,12 +61,38 @@ export const initPoolDb = async () => {
         storageObject TEXT NOT NULL,
         lastUpdated INTEGER NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS ${CONTRIBUTIONS_TABLE} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contributionId TEXT NOT NULL UNIQUE,
+        poolId TEXT NOT NULL,
+        storageObject TEXT NOT NULL,
+        createdAtSeconds INTEGER NOT NULL,
+        createdAtNanos INTEGER NOT NULL DEFAULT 0
+      );
     `);
+
+    // Migrate: add createdAtNanos column if it doesn't exist (for existing users)
+    try {
+      const colCheck = await sqlLiteDB.getFirstAsync(`
+        SELECT COUNT(*) AS count FROM pragma_table_info('${CONTRIBUTIONS_TABLE}')
+        WHERE name='createdAtNanos';
+      `);
+      if (colCheck.count === 0) {
+        await sqlLiteDB.execAsync(`
+          ALTER TABLE ${CONTRIBUTIONS_TABLE}
+          ADD COLUMN createdAtNanos INTEGER NOT NULL DEFAULT 0;
+        `);
+      }
+    } catch (migrationError) {
+      console.warn('Contributions migration warning:', migrationError);
+    }
 
     try {
       await sqlLiteDB.execAsync(`
         CREATE INDEX IF NOT EXISTS idx_pool_uuid ON ${CACHED_POOLS_TABLE}(uuid);
         CREATE INDEX IF NOT EXISTS idx_pool_lastUpdated ON ${CACHED_POOLS_TABLE}(lastUpdated);
+        CREATE INDEX IF NOT EXISTS idx_contrib_poolId ON ${CONTRIBUTIONS_TABLE}(poolId);
+        CREATE INDEX IF NOT EXISTS idx_contrib_createdAt ON ${CONTRIBUTIONS_TABLE}(poolId, createdAtSeconds);
       `);
     } catch (indexError) {
       console.warn('Pool index creation warning (can be ignored):', indexError);
@@ -282,5 +309,134 @@ export const deletePoolTable = async () => {
     console.log(`Table ${CACHED_POOLS_TABLE} deleted successfully`);
   } catch (error) {
     console.error('Error deleting table:', error);
+  }
+};
+
+// --- Contributions CRUD ---
+
+function extractCreatedAtTimestamp(contribution) {
+  if (contribution.createdAt?.seconds) {
+    return {
+      seconds: contribution.createdAt.seconds,
+      nanos: contribution.createdAt.nanoseconds || 0,
+    };
+  }
+  if (typeof contribution.createdAt === 'number') {
+    return { seconds: Math.floor(contribution.createdAt / 1000), nanos: 0 };
+  }
+  return { seconds: Math.floor(Date.now() / 1000), nanos: 0 };
+}
+
+export const saveContributionLocal = async contribution => {
+  try {
+    const db = await getDatabase();
+    const serialized = JSON.stringify(contribution);
+    const { seconds, nanos } = extractCreatedAtTimestamp(contribution);
+
+    await db.runAsync(
+      `INSERT OR REPLACE INTO ${CONTRIBUTIONS_TABLE}
+       (contributionId, poolId, storageObject, createdAtSeconds, createdAtNanos)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        contribution.contributionId,
+        contribution.poolId,
+        serialized,
+        seconds,
+        nanos,
+      ],
+    );
+  } catch (err) {
+    console.error('saveContributionLocal error:', err);
+  }
+};
+
+export const saveContributionsBatch = async contributions => {
+  if (!contributions.length) return;
+  try {
+    const db = await getDatabase();
+    const statement = await db.prepareAsync(
+      `INSERT OR REPLACE INTO ${CONTRIBUTIONS_TABLE}
+       (contributionId, poolId, storageObject, createdAtSeconds, createdAtNanos)
+       VALUES (?, ?, ?, ?, ?)`,
+    );
+
+    try {
+      for (const c of contributions) {
+        const { seconds, nanos } = extractCreatedAtTimestamp(c);
+        await statement.executeAsync([
+          c.contributionId,
+          c.poolId,
+          JSON.stringify(c),
+          seconds,
+          nanos,
+        ]);
+      }
+    } finally {
+      await statement.finalizeAsync();
+    }
+  } catch (err) {
+    console.error('saveContributionsBatch error:', err);
+  }
+};
+
+export const getContributionsForPool = async poolId => {
+  try {
+    const db = await getDatabase();
+    const result = await db.getAllAsync(
+      `SELECT * FROM ${CONTRIBUTIONS_TABLE} WHERE poolId = ? ORDER BY createdAtSeconds DESC`,
+      [poolId],
+    );
+
+    return result
+      .map(r => {
+        try {
+          return JSON.parse(r.storageObject);
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  } catch (err) {
+    console.error('getContributionsForPool error:', err);
+    return [];
+  }
+};
+
+export const getLatestContributionTimestamp = async poolId => {
+  try {
+    const db = await getDatabase();
+    const result = await db.getFirstAsync(
+      `SELECT createdAtSeconds, createdAtNanos FROM ${CONTRIBUTIONS_TABLE}
+       WHERE poolId = ? ORDER BY createdAtSeconds DESC, createdAtNanos DESC LIMIT 1`,
+      [poolId],
+    );
+    return {
+      seconds: result?.createdAtSeconds || 0,
+      nanos: result?.createdAtNanos || 0,
+    };
+  } catch (err) {
+    console.error('getLatestContributionTimestamp error:', err);
+    return { seconds: 0, nanos: 0 };
+  }
+};
+
+export const deleteContributionsForPool = async poolId => {
+  try {
+    const db = await getDatabase();
+    await db.runAsync(`DELETE FROM ${CONTRIBUTIONS_TABLE} WHERE poolId = ?`, [
+      poolId,
+    ]);
+  } catch (err) {
+    console.error('deleteContributionsForPool error:', err);
+  }
+};
+
+export const deleteContributionsTable = async () => {
+  try {
+    const db = await getDatabase();
+    await db.runAsync(`DROP TABLE IF EXISTS ${CONTRIBUTIONS_TABLE};`);
+    console.log(`Table ${CONTRIBUTIONS_TABLE} deleted successfully`);
+  } catch (error) {
+    console.error('Error deleting contributions table:', error);
   }
 };

@@ -41,6 +41,7 @@ import { useNavigation } from '@react-navigation/native';
 import { initGiftDb, isGiftDatabaseOpen } from '../functions/gift/giftsStorage';
 
 import * as ExpoSplashScreen from 'expo-splash-screen';
+import { initPoolDb } from '../functions/pools/poolsStorage';
 const BlitzAnimation = require('../assets/BlitzAnimation.json');
 const errorTxAnimation = require('../assets/errorTxAnimation.json');
 
@@ -108,6 +109,7 @@ const SplashScreen = () => {
           const sparkTxs = await initializeSparkDatabase();
           const rootstockSwaps = await initRootstockSwapDB();
           const giftsDb = await initGiftDb();
+          const poolsDB = await initPoolDb();
 
           if (
             !didOpen ||
@@ -115,7 +117,8 @@ const SplashScreen = () => {
             !posTransactions ||
             !sparkTxs ||
             !rootstockSwaps ||
-            !giftsDb
+            !giftsDb ||
+            !poolsDB
           )
             throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
         }

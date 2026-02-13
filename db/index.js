@@ -21,6 +21,7 @@ import {
   increment,
   runTransaction,
   serverTimestamp,
+  Timestamp,
 } from '@react-native-firebase/firestore';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import {
@@ -688,6 +689,8 @@ export async function addContributionWithTransaction(
         throw new Error('Pool does not exist');
       }
 
+      const poolData = poolSnap.data();
+
       tx.set(contribRef, {
         ...contribution,
         contributionId: contribution.contributionId,
@@ -696,8 +699,8 @@ export async function addContributionWithTransaction(
       });
 
       tx.update(poolRef, {
-        currentAmount: increment(amount),
-        contributorCount: increment(1),
+        currentAmount: poolData.currentAmount + amount,
+        contributorCount: poolData.contributorCount + 1,
         lastContributionAt: serverTimestamp(),
       });
     });
@@ -708,5 +711,34 @@ export async function addContributionWithTransaction(
     console.error('Contribution transaction failed:', e);
     crashlyticsRecordErrorReport(e.message);
     return false;
+  }
+}
+
+export async function getPoolContributionsSince(poolId, afterTimestampObj) {
+  try {
+    const db = getFirestore();
+    const contribRef = collection(db, 'blitzPools', poolId, 'contributions');
+    let afterTs = new Timestamp(0, 0);
+    try {
+      afterTs = new Timestamp(
+        afterTimestampObj.seconds,
+        afterTimestampObj.nanoseconds ?? 0,
+      );
+    } catch (err) {
+      console.log(err);
+    }
+
+    const q = query(
+      contribRef,
+      where('createdAt', '>', afterTs),
+      orderBy('createdAt', 'desc'),
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error('Error fetching contributions since timestamp:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return [];
   }
 }

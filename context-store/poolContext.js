@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useReducer,
   useEffect,
@@ -12,6 +13,11 @@ import {
   savePoolLocal,
   updatePoolLocal,
   deletePoolLocal,
+  getContributionsForPool,
+  saveContributionLocal,
+  saveContributionsBatch,
+  getLatestContributionTimestamp,
+  deleteContributionsForPool,
 } from '../app/functions/pools/poolsStorage';
 import {
   addPoolToDatabase,
@@ -19,6 +25,7 @@ import {
   getPoolFromDatabase,
   getPoolsByCreator,
   deletePoolFromDatabase,
+  getPoolContributionsSince,
 } from '../db';
 import { useGlobalContextProvider } from './context';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
@@ -26,6 +33,7 @@ import { STARTING_INDEX_FOR_POOLS_DERIVE } from '../app/constants';
 
 const initialState = {
   pools: {},
+  contributions: {},
 };
 
 function poolReducer(state, action) {
@@ -57,6 +65,48 @@ function poolReducer(state, action) {
         },
       };
 
+    case 'LOAD_CONTRIBUTIONS':
+      return {
+        ...state,
+        contributions: {
+          ...state.contributions,
+          [action.payload.poolId]: action.payload.contributions,
+        },
+      };
+
+    case 'ADD_CONTRIBUTION': {
+      const poolId = action.payload.poolId;
+      const existing = state.contributions[poolId] || [];
+      return {
+        ...state,
+        contributions: {
+          ...state.contributions,
+          [poolId]: [action.payload, ...existing],
+        },
+      };
+    }
+
+    case 'BULK_ADD_CONTRIBUTIONS': {
+      const poolId = action.payload.poolId;
+      const existing = state.contributions[poolId] || [];
+      const existingIds = new Set(existing.map(c => c.contributionId));
+      const newOnes = action.payload.contributions.filter(
+        c => !existingIds.has(c.contributionId),
+      );
+      const merged = [...newOnes, ...existing].sort((a, b) => {
+        const aTime = Math.floor(a.createdAt / 1000) ?? 0;
+        const bTime = Math.floor(b.createdAt / 1000) ?? 0;
+        return bTime - aTime;
+      });
+      return {
+        ...state,
+        contributions: {
+          ...state.contributions,
+          [poolId]: merged,
+        },
+      };
+    }
+
     default:
       return state;
   }
@@ -70,6 +120,8 @@ export function PoolProvider({ children }) {
   const { didGetToHomepage } = useAppStatus();
   const [state, dispatch] = useReducer(poolReducer, initialState);
   const isRestoring = useRef(false);
+  const userUuidRef = useRef(masterInfoObject?.uuid);
+  userUuidRef.current = masterInfoObject?.uuid;
 
   const updatePoolList = async () => {
     const updatedList = await getAllLocalPools();
@@ -113,6 +165,7 @@ export function PoolProvider({ children }) {
   const deletePool = async poolId => {
     try {
       await deletePoolLocal(poolId);
+      await deleteContributionsForPool(poolId);
       await deletePoolFromDatabase(poolId);
       await updatePoolList();
       return true;
@@ -200,6 +253,62 @@ export function PoolProvider({ children }) {
     }
   };
 
+  const loadContributionsForPool = useCallback(async poolId => {
+    try {
+      const cached = await getContributionsForPool(poolId);
+      dispatch({
+        type: 'LOAD_CONTRIBUTIONS',
+        payload: { poolId, contributions: cached },
+      });
+      return cached;
+    } catch (err) {
+      console.log('Error loading contributions for pool:', err);
+      return [];
+    }
+  }, []);
+
+  const syncPool = useCallback(async poolId => {
+    try {
+      const latestTimestamp = await getLatestContributionTimestamp(poolId);
+      const newContributions = await getPoolContributionsSince(
+        poolId,
+        latestTimestamp,
+      );
+
+      const freshPool = await getPoolFromDatabase(poolId);
+      if (freshPool) {
+        const isOwnPool = freshPool.creatorUUID === userUuidRef.current;
+        // Only persist to SQLite if this is the user's own pool
+        if (isOwnPool) {
+          await savePoolLocal(freshPool);
+        }
+        dispatch({ type: 'ADD_OR_UPDATE_POOL', payload: freshPool });
+      }
+
+      if (newContributions.length > 0) {
+        await saveContributionsBatch(newContributions);
+        dispatch({
+          type: 'BULK_ADD_CONTRIBUTIONS',
+          payload: { poolId, contributions: newContributions },
+        });
+      }
+
+      return !!freshPool || newContributions.length > 0;
+    } catch (err) {
+      console.log('Error syncing pool:', err);
+      return false;
+    }
+  }, []);
+
+  const addContributionToCache = useCallback(async contribution => {
+    try {
+      await saveContributionLocal(contribution);
+      dispatch({ type: 'ADD_CONTRIBUTION', payload: contribution });
+    } catch (err) {
+      console.log('Error adding contribution to cache:', err);
+    }
+  }, []);
+
   useEffect(() => {
     if (!didGetToHomepage) return;
     (async () => {
@@ -209,24 +318,28 @@ export function PoolProvider({ children }) {
   }, [didGetToHomepage]);
 
   const { poolsArray, activePoolsArray, closedPoolsArray } = useMemo(() => {
-    const all = Object.values(state.pools);
+    const uuid = masterInfoObject?.uuid;
+    // Only show pools the user created in the list arrays
+    const ownedPools = Object.values(state.pools).filter(
+      pool => pool.creatorUUID === uuid,
+    );
 
-    const active = all
+    const active = ownedPools
       .filter(pool => pool.status === 'active')
       .sort((a, b) => b.createdAt - a.createdAt);
 
-    const closed = all
+    const closed = ownedPools
       .filter(pool => pool.status === 'closed')
       .sort(
         (a, b) => (b.closedAt || b.createdAt) - (a.closedAt || a.createdAt),
       );
 
     return {
-      poolsArray: all.sort((a, b) => b.createdAt - a.createdAt),
+      poolsArray: ownedPools.sort((a, b) => b.createdAt - a.createdAt),
       activePoolsArray: active,
       closedPoolsArray: closed,
     };
-  }, [state.pools]);
+  }, [state.pools, masterInfoObject?.uuid]);
 
   return (
     <PoolContext.Provider
@@ -240,6 +353,9 @@ export function PoolProvider({ children }) {
         deletePool,
         updatePoolList,
         syncActivePoolsFromServer,
+        loadContributionsForPool,
+        syncPool,
+        addContributionToCache,
       }}
     >
       {children}
