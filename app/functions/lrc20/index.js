@@ -26,15 +26,11 @@ export async function getLRC20Transactions({
     if (AppState.currentState !== 'active') return;
     const savedTxs = await getCachedSparkTransactions(null, ownerPublicKeys[0]);
 
-    // Find last saved completed token transaction
+    // Find last saved token transaction (any status, including failed flashnet pairs)
     let lastSavedTransactionId = null;
     if (savedTxs) {
       for (const tx of savedTxs) {
-        if (
-          tx.paymentType !== 'spark' ||
-          IS_SPARK_ID.test(tx.sparkID) ||
-          tx.paymentStatus !== 'completed'
-        ) {
+        if (tx.paymentType !== 'spark' || IS_SPARK_ID.test(tx.sparkID)) {
           continue;
         }
 
@@ -60,15 +56,11 @@ export async function getLRC20Transactions({
     if (!tokenTxs?.tokenTransactionsWithStatus) return;
     const tokenTransactions = tokenTxs.tokenTransactionsWithStatus;
 
-    // Build savedIds set - only include completed token txs and all non-token txs
+    // Build savedIds set for all saved LRC20 token txs (any status) to avoid reprocessing
     const savedIds = new Set();
     if (savedTxs) {
       for (const tx of savedTxs) {
-        if (
-          tx.paymentType !== 'spark' ||
-          IS_SPARK_ID.test(tx.sparkID) ||
-          tx.paymentStatus !== 'completed'
-        ) {
+        if (tx.paymentType !== 'spark' || IS_SPARK_ID.test(tx.sparkID)) {
           continue;
         }
 
@@ -76,15 +68,10 @@ export async function getLRC20Transactions({
         try {
           parsed = JSON.parse(tx.details || '{}');
         } catch {
-          // Parse failed, treat as non-token tx and add to set
-          savedIds.add(tx.sparkID);
           continue;
         }
 
-        const isLRC20Token = parsed?.isLRC20Payment;
-
-        // Add to set if: non-token tx
-        if (!isLRC20Token) {
+        if (parsed?.isLRC20Payment) {
           savedIds.add(tx.sparkID);
         }
       }
