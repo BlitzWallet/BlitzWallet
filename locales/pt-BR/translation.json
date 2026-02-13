@@ -885,7 +885,7 @@
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente"
     },
-    "Pools": {
+    "pools": {
       "receiveViaPool": "Receber via Pool",
       "createPool": "Criar Pool",
       "collectPaymentsDescription": "Colete pagamentos para um objetivo",
@@ -913,7 +913,7 @@
       "payment_one": "{{count}} pagamento",
       "payment_other": "{{count}} pagamentos",
       "closed": "Fechado ",
-      "Pool": "Pool",
+      "pool": "Pool",
       "couldNotFind": "Não foi possível encontrar este Pool.",
       "createdBy": "Por ",
       "moneyTransferred": "Fundos transferidos para a carteira principal",
@@ -932,8 +932,8 @@
       "organizer": "Organizador",
       "contributorCount_one": "{{count}} pessoa",
       "contributorCount_other": "{{count}} pessoas",
-      "Pool_contribution_label": "Contribuição para o Pool: {{PoolName}}",
-      "closing_Pool_label": "Encerrando Pool: {{PoolName}}"
+      "pool_contribution_label": "Contribuição para o Pool: {{PoolName}}",
+      "closing_pool_label": "Encerrando Pool: {{PoolName}}"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
@@ -1614,7 +1614,7 @@
       "accountsPoolsScreen": {
         "profileButton": "Perfil",
         "settingsButton": "Configurações",
-        "PoolsTitle": "Pools",
+        "poolsTitle": "Pools",
         "noPoolsMessage": "Você ainda não criou nenhum Pool. Toque para criar seu primeiro Pool.",
         "yourAccountsTitle": "Suas contas",
         "addAccountButton": "Adicionar conta"
