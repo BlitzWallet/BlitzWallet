@@ -2120,7 +2120,7 @@
   },
   "contexts": {
     "spark": {
-      "depositLabel": "Endereço de depósito para pagamento"
+      "depositLabel": "Recebimento via endereço Bitcoin"
     }
   },
 
