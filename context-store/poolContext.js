@@ -36,6 +36,8 @@ const initialState = {
   contributions: {},
 };
 
+const POOLS_DEBOUCE = 10000; //10s
+
 function poolReducer(state, action) {
   switch (action.type) {
     case 'LOAD_LOCAL_POOLS':
@@ -121,6 +123,7 @@ export function PoolProvider({ children }) {
   const [state, dispatch] = useReducer(poolReducer, initialState);
   const isRestoring = useRef(false);
   const userUuidRef = useRef(masterInfoObject?.uuid);
+  const poolUpdateTracker = useRef({});
   userUuidRef.current = masterInfoObject?.uuid;
 
   const updatePoolList = async () => {
@@ -179,15 +182,24 @@ export function PoolProvider({ children }) {
   const syncActivePoolsFromServer = async localPools => {
     try {
       const activePools = localPools.filter(p => p.status === 'active');
-      if (!activePools.length) return;
+      if (!activePools.length) {
+        console.warn('No active pools');
+        return;
+      }
 
       const refreshed = await Promise.all(
         activePools.map(pool => getPoolFromDatabase(pool.poolId)),
       );
 
+      const now = Date.now();
       const updates = refreshed.filter(Boolean);
       if (updates.length) {
-        await Promise.all(updates.map(pool => savePoolLocal(pool)));
+        await Promise.all(
+          updates.map(pool => {
+            poolUpdateTracker.current[pool.poolId] = now;
+            return savePoolLocal(pool);
+          }),
+        );
         dispatch({ type: 'BULK_ADD_POOLS', payload: updates });
       }
     } catch (err) {
@@ -269,6 +281,11 @@ export function PoolProvider({ children }) {
 
   const syncPool = useCallback(async poolId => {
     try {
+      const now = Date.now();
+      if (now - poolUpdateTracker.current[poolId] < POOLS_DEBOUCE) {
+        console.warn('Pool sync call rejected, debouncing...', poolId);
+        return false;
+      }
       const latestTimestamp = await getLatestContributionTimestamp(poolId);
       const newContributions = await getPoolContributionsSince(
         poolId,
@@ -292,7 +309,7 @@ export function PoolProvider({ children }) {
           payload: { poolId, contributions: newContributions },
         });
       }
-
+      poolUpdateTracker.current[poolId] = now;
       return !!freshPool || newContributions.length > 0;
     } catch (err) {
       console.log('Error syncing pool:', err);
