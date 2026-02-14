@@ -108,7 +108,6 @@ export default function CreatePoolAmount() {
       <CustomButton
         buttonStyles={{
           ...CENTER,
-          opacity: !localSatAmount ? HIDDEN_OPACITY : 1,
         }}
         actionFunction={handleNext}
         textContent={
