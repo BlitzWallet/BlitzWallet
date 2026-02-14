@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
@@ -42,6 +42,7 @@ export default function CreateCustodyAccounts() {
   const { setSparkInformation } = useSparkWallet();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
+  const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const [isLoading, setIsLoading] = useState({
     accountBeingLoaded: '',
     isLoading: false,
@@ -180,13 +181,18 @@ export default function CreateCustodyAccounts() {
   ]);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      useLocalPadding={true}
+      isKeyboardActive={isKeyboardFocused}
+      useStandardWidth={true}
+    >
       <CustomSettingsTopBar label={t('constants.accounts')} />
 
       <ScrollView
         stickyHeaderIndices={[0]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="never"
       >
         <View style={{ backgroundColor }}>
           <CustomSearchInput
@@ -194,6 +200,8 @@ export default function CreateCustodyAccounts() {
               backgroundColor,
               marginBottom: CONTENT_KEYBOARD_OFFSET,
             }}
+            onFocusFunction={() => setIsKeyboardFocused(true)}
+            onBlurFunction={() => setIsKeyboardFocused(false)}
             inputText={searchInput}
             setInputText={setSearchInput}
             placeholderText={t('settings.accounts.inputPlaceholder')}
@@ -216,35 +224,39 @@ export default function CreateCustodyAccounts() {
         </View>
       </ScrollView>
 
-      <TouchableOpacity
-        style={[
-          styles.actionButton,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : COLORS.primary,
-          },
-        ]}
-        onPress={handleNavigateAddAccount}
-      >
-        <ThemeText
-          styles={styles.actionButtonText}
-          CustomNumberOfLines={1}
-          content={t(
-            'settings.accountComponents.selectCreateAccountType.title',
-          )}
-        />
-      </TouchableOpacity>
+      {!isKeyboardFocused && (
+        <>
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : COLORS.primary,
+              },
+            ]}
+            onPress={handleNavigateAddAccount}
+          >
+            <ThemeText
+              styles={styles.actionButtonText}
+              CustomNumberOfLines={1}
+              content={t(
+                'settings.accountComponents.selectCreateAccountType.title',
+              )}
+            />
+          </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.actionButton]}
-        onPress={handleNavigateSwap}
-      >
-        <ThemeText
-          CustomNumberOfLines={1}
-          content={t('settings.accountComponents.homepage.swap')}
-        />
-      </TouchableOpacity>
-    </GlobalThemeView>
+          <TouchableOpacity
+            style={[styles.actionButton]}
+            onPress={handleNavigateSwap}
+          >
+            <ThemeText
+              CustomNumberOfLines={1}
+              content={t('settings.accountComponents.homepage.swap')}
+            />
+          </TouchableOpacity>
+        </>
+      )}
+    </CustomKeyboardAvoidingView>
   );
 }
 
