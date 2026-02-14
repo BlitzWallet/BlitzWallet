@@ -1594,16 +1594,16 @@
       "selectAltAccount": {
         "from": "Sélectionnez le compte depuis lequel vous souhaitez envoyer.",
         "to": "Sélectionnez le compte sur lequel vous souhaitez recevoir."
-      },
-      "accountsPoolsScreen": {
-        "profileButton": "Profil",
-        "settingsButton": "Paramètres",
-        "poolsTitle": "Pools",
-        "noPoolsMessage": "Vous n’avez pas encore créé de pool. Appuyez pour créer votre premier pool.",
-        "noActivePools": "Vous n’avez aucun pool actif",
-        "yourAccountsTitle": "Vos comptes",
-        "addAccountButton": "Ajouter un compte"
       }
+    },
+    "accountsPoolsScreen": {
+      "profileButton": "Profil",
+      "settingsButton": "Paramètres",
+      "poolsTitle": "Pools",
+      "noPoolsMessage": "Vous n’avez pas encore créé de pool. Appuyez pour créer votre premier pool.",
+      "noActivePools": "Vous n’avez aucun pool actif",
+      "yourAccountsTitle": "Vos comptes",
+      "addAccountButton": "Ajouter un compte"
     },
     "hub": {
       "viewAll": "Tout voir",

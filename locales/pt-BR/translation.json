@@ -237,11 +237,11 @@
         "header": "Esta é a sua senha para o seu dinheiro. Se você perdê-la, você perde seu dinheiro!",
         "subHeader": "Escreva com caneta e papel e guarde em um local seguro!",
         "disclaimer": "NÃO PODEMOS AJUDÁ-LO SE VOCÊ O PERDER",
-        "errorText": "Erro ao buscar frase-semente",
-        "keyGenError": "Não foi possível gerar uma frase-semente válida",
+        "errorText": "Erro ao buscar frase de recuperação",
+        "keyGenError": "Não foi possível gerar uma frase de recuperação válida",
         "seedPrivacyMessage": "Certifique-se de que não haja ninguém por perto que possa ver sua tela.",
         "showIt": "Mostrar",
-        "invalidSeedError": "Não foi possível gerar uma frase-semente válida"
+        "invalidSeedError": "Não foi possível gerar uma frase de recuperação válida"
       },
       "pin": {
         "savePinError": "Não foi possível salvar o PIN",
@@ -254,29 +254,29 @@
     },
     "restoreWallet": {
       "home": {
-        "header": "Insira sua frase-semente",
+        "header": "Insira sua frase de recuperação",
         "continueBTN": "Restaurar carteira",
         "error1": "Por favor, insira todas as suas palavras.",
-        "error2": "Esta não é uma frase-semente válida",
+        "error2": "Esta não é uma frase de recuperação válida",
         "error3": "Suas palavras não são as mesmas que as palavras geradas",
         "noSeedInString": "Não foi possível encontrar a semente na string",
         "invalidWordLen": "Nem toda palavra tem comprimento válido",
-        "cannotFind12Words": "Não foi possível encontrar 12 palavras da frase-semente copiada.",
+        "cannotFind12Words": "Não foi possível encontrar 12 palavras da frase de recuperação copiada.",
         "noSeedInNumberArray": "Não foi possível encontrar a semente na matriz numérica",
-        "noSeedInQr": "Não foi possível obter a frase-semente a partir do código QR",
+        "noSeedInQr": "Não foi possível obter a frase de recuperação a partir do código QR",
         "scanQr": "Ler código QR"
       }
     },
     "skipMessage": {
-      "header": "Recomendamos que você anote sua frase-semente",
-      "subHeader": "Se você não anotar e guardar sua frase-semente, você corre o risco de perder seus fundos",
+      "header": "Recomendamos que você anote sua frase de recuperação",
+      "subHeader": "Se você não anotar e guardar sua frase de recuperação, você corre o risco de perder seus fundos",
       "btn": "Entendi"
     }
   },
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Não foi possível verificar seus dados biométricos.\n\nDeseja apagar todos os dados da carteira? Continue somente se sua frase-semente estiver salva com segurança.",
+      "isBiometricEnabledConfirmAction": "Não foi possível verificar seus dados biométricos.\n\nDeseja apagar todos os dados da carteira? Continue somente se sua frase de recuperação estiver salva com segurança.",
       "wrongPinError": "PIN incorreto, tente novamente",
       "enterPinMessage": "Inserir PIN",
       "attemptsText": "{{attempts}} tentativas restantes",
@@ -1087,12 +1087,12 @@
         "paymentTypesDesc": "A Blitz Wallet pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Lightning"
       },
       "sparkErrorScreen": {
-        "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase-semente mantém seus fundos seguros.",
-        "retry": "Não foi possível carregar sua carteira. Por favor, tente novamente. \n\nSeus fundos estarão seguros enquanto você tiver sua frase-semente."
+        "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase de recuperação mantém seus fundos seguros.",
+        "retry": "Não foi possível carregar sua carteira. Por favor, tente novamente. \n\nSeus fundos estarão seguros enquanto você tiver sua frase de recuperação."
       },
       "backupSeedWarning": {
-        "header": "Faça backup da sua frase-semente",
-        "description": "Você tem dinheiro na sua carteira, mas ainda não salvou sua frase-semente. Sua frase-semente é uma lista de palavras que desbloqueiam sua carteira. Se você perder este dispositivo e não tiver a frase salva, seu dinheiro poderá ser perdido para sempre.",
+        "header": "Faça backup da sua frase de recuperação",
+        "description": "Você tem dinheiro na sua carteira, mas ainda não salvou sua frase de recuperação. Sua frase de recuperação é uma lista de palavras que desbloqueiam sua carteira. Se você perder este dispositivo e não tiver a frase salva, seu dinheiro poderá ser perdido para sempre.",
         "backupBTN": "Fazer backup agora",
         "laterBTN": "Farei isso mais tarde"
       }
@@ -1249,14 +1249,14 @@
       "showQR": "Código QR",
       "profileHead": "Perfil",
       "settingsHead": "Configurações",
-      "seedPopup": "A frase-semente é uma lista de palavras que permite recuperar seus Bitcoins caso seu dispositivo seja perdido ou danificado. Anote as palavras e guarde em um local seguro. Nunca mostre as palavras para ninguém pois se alguém tiver acesso a elas, poderá roubar todos os seus Bitcoins."
+      "seedPopup": "A frase de recuperação é uma lista de palavras que permite recuperar seus Bitcoins caso seu dispositivo seja perdido ou danificado. Anote as palavras e guarde em um local seguro. Nunca mostre as palavras para ninguém pois se alguém tiver acesso a elas, poderá roubar todos os seus Bitcoins."
     },
     "about": {
       "header1": "Software",
       "text2": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a ",
       "text3": "Licença Apache",
       "text4": " Versão 2.0",
-      "text5": "Esta é uma carteira Bitcoin Spark compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase-semente, poderá perder seus fundos.",
+      "text5": "Esta é uma carteira Bitcoin Spark compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
       "text6": "A Blitz Wallet usa ",
       "text7": "o SDK da Breez Liquid, ",
       "text8": "Spark, ",
@@ -1355,14 +1355,14 @@
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",
       "headerDesc": "Não compartilhe com ninguém!",
-      "qrWarning": "Tem certeza de que deseja mostrar este código QR?\n\nLer sua frase-semente é prático, mas certifique-se de usar um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura.",
+      "qrWarning": "Tem certeza de que deseja mostrar este código QR?\n\nLer sua frase de recuperação é prático, mas certifique-se de usar um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura.",
       "wordsText": "Palavras",
       "qrText": "Código QR",
-      "showSeedWarning": "Tem certeza de que deseja mostrar sua frase-semente?",
+      "showSeedWarning": "Tem certeza de que deseja mostrar sua frase de recuperação?",
       "warning": {
         "title": "Mantenha sua frase de recuperação em segredo",
-        "point1": "Sua frase secreta de recuperação é como uma chave mestra da sua wallet.",
-        "point2": "Se alguém obtiver essa frase, poderá roubar seus fundos. Não há como recuperar fundos perdidos.",
+        "point1": "Sua frase secreta de recuperação é como uma chave mestra da sua carteira.",
+        "point2": "Se alguém acessar essa frase, poderá roubar os fundos de todas suas contas na carteira Blitz. Não há como recuperar fundos perdidos.",
         "point3": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "checkbox": "Entendo que compartilhar minha frase de recuperação pode resultar na perda permanente dos meus fundos.",
         "continueButton": "Continuar"
@@ -1381,7 +1381,7 @@
     "resetWallet": {
       "header": "Tem certeza?",
       "dataDeleteHeader": "Selecione os dados a serem excluídos deste dispositivo.",
-      "dataDeleteDesc": "Isso excluirá todos os dados da carteira do seu dispositivo. Se você não tiver uma cópia da sua frase-semente salva, PERDERÁ o acesso aos seus fundos.",
+      "dataDeleteDesc": "Isso excluirá todos os dados da carteira do seu dispositivo. Se você não tiver uma cópia da sua frase de recuperação salva, PERDERÁ o acesso aos seus fundos.",
       "seedAndPinOpt": "Excluir todos os dados do meu dispositivo",
       "balanceText": "Seu saldo é",
       "localStorageError": "Não foi possível excluir as informações armazenadas localmente",
@@ -1534,16 +1534,16 @@
         "wanringMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
       },
       "showSeedPage": {
-        "loadingMessage": "Gerando frase-semente",
-        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nQualquer conta criada na Blitz Wallet pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase-semente.",
-        "viewSeed": "Ver frase-semente"
+        "loadingMessage": "Gerando frase de recuperação",
+        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase de recuperação separada.\n\nQualquer conta criada na Blitz Wallet pode ser recuperada usando a frase de recuperação da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase de recuperação.",
+        "viewSeed": "Ver frase de recuperação"
       }
     },
     "accountComponents": {
       "homepage": {
         "addNewAccount": "Nova conta",
         "swap": "Transferir",
-        "viewSeed": "Ver frase-semente",
+        "viewSeed": "Ver frase de recuperação",
         "editAccount": "Editar conta",
         "swapAccountError": "Você precisa de pelo menos duas contas para fazer uma transferência.",
         "noAccountsFound": "Nenhuma conta corresponde à sua pesquisa."
@@ -1562,7 +1562,7 @@
         "inputPlaceHolderText": "Transferência entre contas"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Esta frase-semente já existe para outra conta",
+        "alreadyUsingSeedError": "Esta frase de recuperação já existe para outra conta",
         "editTitle": "Editar conta",
         "createTitle": "Criar conta",
         "updateTitle": "Atualizar conta",
@@ -1571,10 +1571,10 @@
         "inputDesc": "Nome da conta",
         "nameTakenError": "Este nome está em uso no momento. Use um nome de conta diferente.",
         "nameInputPlaceholder": "Nome...",
-        "seedHeader": "Frase-semente da conta"
+        "seedHeader": "Frase de recuperação da conta"
       },
       "viewAccountPage": {
-        "informationMessage": "Tem certeza de que deseja mostrar este códdigo QR?\n\nLer sua frase-semente é conveniente, mas certifique-se de estar usando um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura."
+        "informationMessage": "Tem certeza de que deseja mostrar este códdigo QR?\n\nLer sua frase de recuperação é conveniente, mas certifique-se de estar usando um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura."
       },
       "editAccountName": {
         "title": "Nome da conta",
@@ -1583,7 +1583,7 @@
       "editAccountPage": {
         "title": "Editar conta",
         "accountNameLabel": "Nome da conta",
-        "showRecoveryPhraseLabel": "Mostrar frase-semente",
+        "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
         "removeAccountLabel": "Remover conta",
         "activeAccountError": "Você não pode excluir a conta ativa no momento. Por favor, mude para uma conta diferente antes de excluir esta.",
         "account_pin": "Fixar conta",
@@ -1592,8 +1592,8 @@
       "selectCreateAccountType": {
         "title": "Adicionar conta",
         "createNewAccountTitle": "Criar nova conta",
-        "createNewAccountDescription": "Recuperável pela frase-semente principal",
-        "importRecoveryPhraseTitle": "Importar frase-semente",
+        "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
+        "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outra carteira"
       },
       "selectProfileImage": {
@@ -1618,16 +1618,16 @@
       "selectAltAccount": {
         "from": "Selecione a conta da qual deseja enviar.",
         "to": "Selecione a conta para a qual deseja receber."
-      },
-      "accountsPoolsScreen": {
-        "profileButton": "Perfil",
-        "settingsButton": "Configurações",
-        "poolsTitle": "Pools",
-        "noPoolsMessage": "Você ainda não criou nenhum Pool. Toque para criar seu primeiro Pool.",
-        "noActivePools": "Você não tem pools ativos",
-        "yourAccountsTitle": "Suas contas",
-        "addAccountButton": "Adicionar conta"
       }
+    },
+    "accountsPoolsScreen": {
+      "profileButton": "Perfil",
+      "settingsButton": "Configurações",
+      "poolsTitle": "Pools",
+      "noPoolsMessage": "Você ainda não criou nenhum Pool. Toque para criar seu primeiro Pool.",
+      "noActivePools": "Você não tem pools ativos",
+      "yourAccountsTitle": "Suas contas",
+      "addAccountButton": "Adicionar conta"
     },
     "hub": {
       "viewAll": "Ver tudo",
@@ -1773,7 +1773,7 @@
         "liquidWalletError": "As informações da carteira não foram definidas corretamente. Tente novamente.",
         "liquidWalletError2": "Não foi possível configurar sua carteira. Tente novamente.",
         "dbInitError1": "Não foi possível configurar seu aplicativo.",
-        "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase-semente."
+        "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase de recuperação."
       },
 
       "receiveBtcPage": {
@@ -2100,9 +2100,9 @@
     "noDataInQRError": "Não foi possível encontrar dados da imagem.",
     "noInvoiceInImageError": "Não foi possível obter a fatura a partir da imagem.",
     "savingImageError": "Não foi possível salvar a imagem, tente novamente.",
-    "invalidSeedError": "Não foi inserida uma frase-semente válida",
+    "invalidSeedError": "Não foi inserida uma frase de recuperação válida",
     "invalidSeedWordLengthErorr": "Nem toda palavra tem comprimento válido",
-    "invalidSeedLengthError": "Não foi possível encontrar 12 palavras da frase-semente copiada.",
+    "invalidSeedLengthError": "Não foi possível encontrar 12 palavras da frase de recuperação copiada.",
     "noGooglePlay": "Os serviços do Google Play são necessários para receber notificações.",
     "noNotificationPermission": "A Blitz Wallet não tem permissões para notificações. Habilite-as nas configurações para usar notificações.",
     "rootstockInvoiceError": "Ocorreu um problema ao gerar seu endereço Rootstock. Tente novamente.",

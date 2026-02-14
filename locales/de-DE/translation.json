@@ -1592,6 +1592,15 @@
   "addAccountButton": "Konto hinzufügen"
       }
     },
+    "accountsPoolsScreen": {
+      "profileButton": "Profil",
+      "settingsButton": "Einstellungen",
+      "poolsTitle": "Pools",
+      "noPoolsMessage": "Du hast noch keine Pools erstellt. Tippe, um deinen ersten Pool zu erstellen.",
+      "noActivePools": "Du hast keine aktiven Pools",
+      "yourAccountsTitle": "Deine Konten",
+      "addAccountButton": "Konto hinzufügen"
+    },
     "hub": {
     "viewAll": "Alle anzeigen",
 "accounts": "Konten",
