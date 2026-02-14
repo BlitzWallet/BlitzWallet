@@ -1555,7 +1555,7 @@
         "title": "Editar conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
-        "removeAccountLabel": "Remover conta",
+        "removeAccountLabel": "Excluir conta",
         "activeAccountError": "Você não pode excluir a conta ativa no momento. Por favor, mude para uma conta diferente antes de excluir esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta"
