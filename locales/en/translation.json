@@ -1376,7 +1376,8 @@
 
     "accounts": {
       "inputPlaceholder": "Search existing account",
-      "mainWalletPlace": "Main Wallet"
+      "mainWalletPlace": "Main Account",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "Are you sure?",

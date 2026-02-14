@@ -1339,7 +1339,15 @@
       "qrWarning": "Är du säker på att du vill visa den här QR-koden?\n\nAtt skanna din seed-fras är bekvämt, men se till att du använder en säker och betrodd enhet. Detta hjälper till att hålla din plånbok säker.",
       "wordsText": "Ord",
       "qrText": "QR-kod",
-      "showSeedWarning": "Är du säker på att du vill visa din fröfras?"
+      "showSeedWarning": "Är du säker på att du vill visa din fröfras?",
+      "warning": {
+        "title": "Håll din återställningsfras hemlig",
+        "point1": "Din hemliga återställningsfras är som en huvudnyckel till din wallet.",
+        "point2": "Om någon får tag på den kan de stjäla dina medel. Förlorade medel kan inte återställas.",
+        "point3": "Dela den aldrig med någon — ingen person, webbplats eller app.",
+        "checkbox": "Jag förstår att delning av min återställningsfras kan leda till permanent förlust av medel.",
+        "continueButton": "Fortsätt"
+      }
     },
     "crashReporting": {
       "crashreporting_enabled": "Aktiverad kraschrapportering",
@@ -1592,6 +1600,7 @@
         "settingsButton": "Inställningar",
         "poolsTitle": "Pools",
         "noPoolsMessage": "Du har inte skapat några pools ännu. Tryck för att skapa din första pool.",
+        "noActivePools": "Du har inga aktiva pools",
         "yourAccountsTitle": "Dina konton",
         "addAccountButton": "Lägg till konto"
       }

@@ -1326,7 +1326,15 @@
       "qrWarning": "Sind Sie sicher, dass Sie diesen QR-Code anzeigen möchten?\n\nDas Scannen Ihrer Seed-Phrase ist praktisch, aber stellen Sie sicher, dass Sie ein sicheres und vertrauenswürdiges Gerät verwenden.",
       "wordsText": "Wörter",
       "qrText": "QR-Code",
-      "showSeedWarning": "Sind Sie sicher, dass Sie Ihre Seed-Phrase anzeigen möchten?"
+      "showSeedWarning": "Sind Sie sicher, dass Sie Ihre Seed-Phrase anzeigen möchten?",
+      "warning": {
+        "title": "Bewahre deine Wiederherstellungsphrase geheim auf",
+        "point1": "Deine geheime Wiederherstellungsphrase ist wie ein Generalschlüssel für deine Wallet.",
+        "point2": "Wenn jemand sie erhält, kann diese Person deine Gelder stehlen. Verlorene Gelder können nicht wiederhergestellt werden.",
+        "point3": "Teile sie niemals mit jemandem – keiner Person, keiner Website und keiner App.",
+        "checkbox": "Ich verstehe, dass das Teilen meiner Wiederherstellungsphrase zu einem dauerhaften Verlust meiner Gelder führen kann.",
+        "continueButton": "Weiter"
+      }
     },
     "crashReporting": {
       "crashreporting_enabled": "Absturzberichte aktiviert",
@@ -1579,6 +1587,7 @@
         "settingsButton": "Einstellungen",
         "poolsTitle": "Pools",
         "noPoolsMessage": "Du hast noch keine Pools erstellt. Tippe, um deinen ersten Pool zu erstellen.",
+        "noActivePools": "Du hast keine aktiven Pools",
         "yourAccountsTitle": "Deine Konten",
         "addAccountButton": "Konto hinzufügen"
       }

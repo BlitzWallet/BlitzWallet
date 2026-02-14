@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useActiveCustodyAccount } from '../../context-store/activeAccount';
+import {
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+  useActiveCustodyAccount,
+} from '../../context-store/activeAccount';
 import { useSparkWallet } from '../../context-store/sparkContext';
 import { initWallet } from '../functions/initiateWalletConnection';
 
@@ -53,8 +57,8 @@ export default function useAccountSwitcher() {
           return;
         }
 
-        const isMainWallet = account.name === 'Main Wallet';
-        const isNWC = account.name === 'NWC';
+        const isMainWallet = account.uuid === MAIN_ACCOUNT_UUID;
+        const isNWC = account.uuid === NWC_ACCOUNT_UUID;
 
         if (isMainWallet || isNWC) {
           if (selectedAltAccount[0]) {

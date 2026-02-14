@@ -4,7 +4,11 @@ import AccountCard from '../../../../components/admin/homeComponents/accounts/ac
 import GetThemeColors from '../../../../hooks/themeColors';
 import { SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import {
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+  useActiveCustodyAccount,
+} from '../../../../../context-store/activeAccount';
 
 export default function AccountsPreview({
   accounts,
@@ -24,6 +28,7 @@ export default function AccountsPreview({
     pinnedAccountUUIDs,
     isUsingNostr,
     selectedAltAccount[0],
+    activeAccount,
   );
 
   const hasMoreAccounts = custodyAccountsList?.length > displayAccounts?.length;
@@ -84,9 +89,7 @@ function getDisplayAccounts(
   isUsingNostr,
   activeAltAccount,
 ) {
-  const MAIN_UUID = 'MW09xd09d8f0a9sf2n332';
-
-  const mainIndex = accounts.findIndex(a => a.uuid === MAIN_UUID);
+  const mainIndex = accounts.findIndex(a => a.uuid === MAIN_ACCOUNT_UUID);
 
   const orderedAccounts =
     mainIndex > 0
@@ -103,7 +106,7 @@ function getDisplayAccounts(
     const pinned = pinnedAccountUUIDs
       .map(uuid => orderedAccounts.find(a => (a.uuid || a.name) === uuid))
       .filter(Boolean)
-      .filter(a => a.uuid !== MAIN_UUID);
+      .filter(a => a.uuid !== MAIN_ACCOUNT_UUID);
 
     if (pinned.length) {
       return [mainAccount, ...pinned.slice(0, 2)];
@@ -111,8 +114,8 @@ function getDisplayAccounts(
   }
 
   const activeIndex = orderedAccounts.findIndex(account => {
-    const isMainWallet = account.name === 'Main Wallet';
-    const isNWC = account.name === 'NWC';
+    const isMainWallet = account.uuid === MAIN_ACCOUNT_UUID;
+    const isNWC = account.uuid === NWC_ACCOUNT_UUID;
 
     return isNWC
       ? isUsingNostr
@@ -128,11 +131,11 @@ function getDisplayAccounts(
 
   const result = [active, next].filter(Boolean);
 
-  if (result[0]?.uuid !== MAIN_UUID) {
-    return [mainAccount, ...result.filter(a => a.uuid !== MAIN_UUID)].slice(
-      0,
-      2,
-    );
+  if (result[0]?.uuid !== MAIN_ACCOUNT_UUID) {
+    return [
+      mainAccount,
+      ...result.filter(a => a.uuid !== MAIN_ACCOUNT_UUID),
+    ].slice(0, 2);
   }
 
   return result.slice(0, 2);

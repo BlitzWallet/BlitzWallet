@@ -28,6 +28,9 @@ import isValidMnemonic from '../app/functions/isValidMnemonic';
 import { useAppStatus } from './appStatus';
 import { useTranslation } from 'react-i18next';
 
+export const MAIN_ACCOUNT_UUID = 'MW09xd09d8f0a9sf2n332';
+export const NWC_ACCOUNT_UUID = 'NWC038rsd0f8234ajsf';
+
 // Create a context for the WebView ref
 const ActiveCustodyAccount = createContext(null);
 
@@ -499,25 +502,25 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     return enabledNWC
       ? [
           {
-            name: 'Main Wallet',
+            name: t('settings.accounts.mainWalletPlace'),
             mnemoinc: accountMnemoinc,
             accountType: 'main',
-            uuid: 'MW09xd09d8f0a9sf2n332',
+            uuid: MAIN_ACCOUNT_UUID,
           },
           {
-            name: 'NWC',
+            name: t('settings.accounts.nwcWalletPlace'),
             mnemoinc: nostrSeed,
             accountType: 'nwc',
-            uuid: 'NWC038rsd0f8234ajsf',
+            uuid: NWC_ACCOUNT_UUID,
           },
           ...custodyAccounts,
         ]
       : [
           {
-            name: 'Main Wallet',
+            name: t('settings.accounts.mainWalletPlace'),
             mnemoinc: accountMnemoinc,
             accountType: 'main',
-            uuid: 'MW09xd09d8f0a9sf2n332',
+            uuid: MAIN_ACCOUNT_UUID,
           },
           ...custodyAccounts,
         ];
@@ -526,8 +529,8 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   const activeAccount = useMemo(() => {
     const activeAltAccount = selectedAltAccount[0];
     return custodyAccountsList.find(account => {
-      const isMainWallet = account.name === 'Main Wallet';
-      const isNWC = account.name === 'NWC';
+      const isMainWallet = account.uuid === MAIN_ACCOUNT_UUID;
+      const isNWC = account.uuid === NWC_ACCOUNT_UUID;
       const isActive = isNWC
         ? isUsingNostr
         : isMainWallet

@@ -1358,7 +1358,15 @@
       "qrWarning": "Tem certeza de que deseja mostrar este código QR?\n\nLer sua frase-semente é prático, mas certifique-se de usar um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura.",
       "wordsText": "Palavras",
       "qrText": "Código QR",
-      "showSeedWarning": "Tem certeza de que deseja mostrar sua frase-semente?"
+      "showSeedWarning": "Tem certeza de que deseja mostrar sua frase-semente?",
+      "warning": {
+        "title": "Mantenha sua frase de recuperação em segredo",
+        "point1": "Sua frase secreta de recuperação é como uma chave mestra da sua wallet.",
+        "point2": "Se alguém obtiver essa frase, poderá roubar seus fundos. Não há como recuperar fundos perdidos.",
+        "point3": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
+        "checkbox": "Entendo que compartilhar minha frase de recuperação pode resultar na perda permanente dos meus fundos.",
+        "continueButton": "Continuar"
+      }
     },
     "crashReporting": {
       "crashreporting_enabled": "Relatório de falhas",
@@ -1616,6 +1624,7 @@
         "settingsButton": "Configurações",
         "poolsTitle": "Pools",
         "noPoolsMessage": "Você ainda não criou nenhum Pool. Toque para criar seu primeiro Pool.",
+        "noActivePools": "Você não tem pools ativos",
         "yourAccountsTitle": "Suas contas",
         "addAccountButton": "Adicionar conta"
       }

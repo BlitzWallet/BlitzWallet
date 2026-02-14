@@ -12,6 +12,10 @@ import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../hooks/themeColors';
 import AccountProfileImage from './accountProfileImage';
 import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
+import {
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../../context-store/activeAccount';
 
 /**
  * Account card component for account management
@@ -32,9 +36,9 @@ export default function AccountCard({
   const { t } = useTranslation();
 
   const accountIndex =
-    account?.name === 'Main Wallet'
+    account?.uuid === MAIN_ACCOUNT_UUID
       ? 1
-      : account?.name === 'NWC'
+      : account?.uuid === NWC_ACCOUNT_UUID
       ? 2
       : account?.derivationIndex;
 
@@ -141,8 +145,8 @@ export default function AccountCard({
           </View>
         </View>
       )}
-      {account.name !== 'Main Wallet' &&
-        account.name !== 'NWC' &&
+      {account.uuid !== MAIN_ACCOUNT_UUID &&
+        account.uuid !== NWC_ACCOUNT_UUID &&
         !useSelection && (
           <View
             style={[

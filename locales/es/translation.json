@@ -1195,7 +1195,15 @@
       "qrWarning": "¿Seguro que desea mostrar este código QR?\n\nEscanear su frase inicial es conveniente, pero asegúrese de usar un dispositivo seguro y confiable. Esto ayuda a proteger su billetera.",
       "wordsText": "palabras",
       "qrText": "Código QR",
-      "showSeedWarning": "¿Estás seguro de que quieres mostrar tu frase inicial?"
+      "showSeedWarning": "¿Estás seguro de que quieres mostrar tu frase inicial?",
+      "warning": {
+        "title": "Mantén tu frase de recuperación en secreto",
+        "point1": "Tu frase secreta de recuperación es como una llave maestra de tu wallet.",
+        "point2": "Si alguien la obtiene, puede robar tus fondos. No hay forma de recuperar fondos perdidos.",
+        "point3": "Nunca la compartas con nadie: ninguna persona, sitio web o aplicación.",
+        "checkbox": "Entiendo que compartir mi frase de recuperación podría resultar en la pérdida permanente de mis fondos.",
+        "continueButton": "Continuar"
+      }
     },
     "crashReporting": {
       "crashreporting_enabled": "Informes de fallos activados",
@@ -1450,6 +1458,7 @@
         "settingsButton": "Configuración",
         "poolsTitle": "Pools",
         "noPoolsMessage": "Aún no has creado ningún pool. Toca para crear tu primer pool.",
+        "noActivePools": "No tienes pools activos",
         "yourAccountsTitle": "Tus cuentas",
         "addAccountButton": "Agregar cuenta"
       }
