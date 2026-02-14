@@ -126,7 +126,6 @@
     "paymentDescriptionPlaceholder": "Descrição (opcional)",
     "print": "Imprimir"
   },
-
   "languages": {
     "english": "English",
     "spanish": "Español",
@@ -137,7 +136,6 @@
     "swedish": "Svenska",
     "russian": "Русский"
   },
-
   "weekdays": {
     "Mon": "Segunda-feira",
     "Tue": "Terça-feira",
@@ -147,7 +145,6 @@
     "Sat": "Sábado",
     "Sun": "Domingo"
   },
-
   "months": {
     "Jan": "Janeiro",
     "Feb": "Fevereiro",
@@ -162,7 +159,6 @@
     "Nov": "Novembro",
     "Dec": "Dezembro"
   },
-
   "timeLabels": {
     "minute": "minuto",
     "minutes": "minutos",
@@ -177,7 +173,6 @@
     "monthly": "Mensal",
     "yearly": "Anual"
   },
-
   "transactionLabelText": {
     "notSent": "Pagamento não enviado",
     "txTime_just_now": "Agora mesmo",
@@ -202,7 +197,6 @@
     "memo": "Descrição",
     "roostockSwap": "Transferência de Rootstock para Spark"
   },
-
   "createAccount": {
     "chooseLanguage": {
       "title": "Escolha o idioma"
@@ -219,7 +213,6 @@
       "subHeader": "Tenha controle total sobre seu dinheiro.",
       "disclaimerBold": "A Blitz não pode recuperar sua carteira.",
       "dislcaimer": "Você é o único responsável por proteger e guardar seus fundos.",
-      "info1": "Seu dinheiro é seu",
       "info1Description": "Somente você pode acessar ou usar seu dinheiro. Não temos acesso a ele.",
       "info2": "Você está no controle",
       "info2Description": "A Blitz não pode acessar seus fundos nem ajudar a recuperá-los se forem perdidos.",
@@ -273,7 +266,6 @@
       "btn": "Entendi"
     }
   },
-
   "adminLogin": {
     "pinPage": {
       "isBiometricEnabledConfirmAction": "Não foi possível verificar seus dados biométricos.\n\nDeseja apagar todos os dados da carteira? Continue somente se sua frase de recuperação estiver salva com segurança.",
@@ -283,7 +275,6 @@
       "biometricsHeader": "Desbloquear"
     }
   },
-
   "apps": {
     "appList": {
       "AI": "IA",
@@ -391,14 +382,12 @@
         "price": "Preço: ",
         "fee": "Taxa: "
       },
-
       "switchModel": {
         "inputLabel": "Entrada: {{amount}}/M",
         "outputLabel": "Saída: {{amount}}/M",
         "chooseModel": "Escolha o modelo",
         "noModels": "Nenhum modelo corresponde a esse nome. Verifique a ortografia ou tente um nome diferente."
       },
-
       "exampleSearchCards": {
         "title": "Exemplos de pesquisas",
         "examples": [
@@ -704,7 +693,6 @@
           }
         ]
       },
-
       "saveChat": {
         "errorMessage": "Desculpe, não conseguimos salvar sua conversa."
       }
@@ -722,7 +710,6 @@
         "price": "Preço: ",
         "fee": "Taxa: "
       },
-
       "createAccount": {
         "title": "Fornecido por",
         "saveEmail": "Você não tem um e-mail salvo. Agilize o processo de compra salvando um e-mail.",
@@ -762,7 +749,6 @@
         "customCopyMessage": "E-mail de suporte copiado"
       }
     },
-
     "sms4sats": {
       "home": {
         "pageDescription": "Envie e receba mensagens SMS sem revelar seu número de telefone pessoal.",
@@ -775,7 +761,6 @@
         "invalidNumber": "Não é um número de telefone válido",
         "receiveTitle": "Confirmar recebimento"
       },
-
       "sendPage": {
         "startingSendingMessage": "Criando ordem de envio",
         "phoneNumberInputDescription": "Digite o número de telefone",
@@ -854,7 +839,6 @@
       "addListing": "Adicionar loja"
     }
   },
-
   "wallet": {
     "halfModal": {
       "images": "Carregar imagem",
@@ -868,7 +852,6 @@
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
       "tapToGenerate_other": "Toque para ver outras opções",
-      "tapToGenerate_lightning": "Mostrar endereço Lightning",
       "tapToGenerate_bitcoin": "Mostrar endereço Bitcoin",
       "tapToGenerate_spark": "Mostrar endereço Spark",
       "tapToGenerate_liquid": "Mostrar endereço Liquid",
@@ -977,7 +960,6 @@
         "format": "Outros meios de recebimento",
         "infoMessage": "Quantias personalizadas não são suportadas em pagamentos Spark ou Rootstock."
       },
-
       "switchReceiveOptionPage": {
         "title": "Meios de recebimento",
         "actionBTN": "Mostrar {{action}}",
@@ -1033,7 +1015,6 @@
         "timeoutError": "O processo demorou muito para ser concluído. Tente novamente.",
         "payingToSameAddress": "Você não pode enviar um pagamento {{addressType}} para si mesmo."
       },
-
       "errorScreen": {
         "ok": "OK",
         "title": "Mensagem de erro"
@@ -1043,7 +1024,6 @@
         "backTextToAmount": "{{amount}}",
         "tenMinutes": "{{numMins}} minutos"
       },
-
       "selectLRC20Token": {
         "title": "Selecionar token",
         "searchPlaceholder": "Nome do token...",
@@ -1075,7 +1055,6 @@
         "see_all_txs": "Ver tudo",
         "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui"
       },
-
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
         "tokensSearchPlaceholder": "Procurar tokens...",
@@ -1110,7 +1089,6 @@
       "loadingMessage": "Carregando transações salvas"
     }
   },
-
   "contacts": {
     "contactsPage": {
       "contactsHeader": "Contatos",
@@ -1132,7 +1110,6 @@
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
       "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz."
     },
-
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
       "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços Lightning.",
@@ -1165,7 +1142,6 @@
     "selectCurrencyToRequest": {
       "header": "O que você deseja receber?"
     },
-
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
       "sendDollars": "Enviar Dólares para",
@@ -1203,13 +1179,11 @@
       "claimed": "Usado",
       "markAsClaimed": "Marcar como usado"
     },
-
     "selectGiftPage": {
       "noCards": "Nenhum cartão disponível",
       "header": "Escolha um cartão-presente para enviar",
       "inputPlaceholder": "Procure um cartão-presente"
     },
-
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Você deseja a {{option}} {{option2}} da foto"
@@ -1242,7 +1216,6 @@
       "scanProfile": "Ler perfil"
     }
   },
-
   "settings": {
     "index": {
       "editProfile": "Editar perfil",
@@ -1324,7 +1297,9 @@
       "text15": "Ocultar remetentes desconhecidos",
       "thousandsSeperator": "Separador de milhares",
       "space": "Espaço",
-      "local": "Formato numérico local"
+      "local": "Formato numérico local",
+      "sparkTitle": "Spark",
+      "sliderTitle_enabled": "Ativado"
     },
     "fastPay": {
       "text1": "Erro ao inserir o valor, tente novamente.",
@@ -1373,10 +1348,10 @@
       "crashreporting_disabled": "Relatório de falhas",
       "descriptionText": "Os dados de falhas nos ajudam a melhorar a estabilidade e o desempenho do aplicativo.\n\nQuando ocorre uma falha, as informações do dispositivo que são registradas automaticamente incluem:\n\n• Sistema operacional: versão do sistema operacional, orientação do dispositivo e status do jailbreak\n• Detalhes do dispositivo: modelo, orientação e RAM disponível\n• Informações sobre a falha: data da falha e versão do aplicativo"
     },
-
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
-      "mainWalletPlace": "Blitz Wallet"
+      "mainWalletPlace": "Blitz Wallet",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1412,7 +1387,6 @@
       "flashnet": "BTC <> USD",
       "pageTitle": "Transferências de {{type}}"
     },
-
     "viewRoostockSwaps": {
       "loadingMessage": "Carregando transferências Roostock salvas",
       "noSwapsMessage": "Você não tem transferências Roostock salvas"
@@ -1427,7 +1401,6 @@
       "invoice": "Fatura",
       "refundSwap": "Reembolsar transferência"
     },
-
     "viewAllLiquidSwaps": {
       "rescanComplete": "Verificação concluída",
       "swapStartedMessage": "A transferência foi iniciada. Pode levar de 10 a 20 segundos para o pagamento aparecer.",
@@ -1480,7 +1453,6 @@
       "othersType": "Outros",
       "othersFee": "Taxas de rede"
     },
-
     "nip5": {
       "noNameError": "O nome não pode estar vazio.",
       "noPubKey": "A chave pública não pode estar vazia.",
@@ -1526,7 +1498,6 @@
         "createConnection": "",
         "connectionName": ""
       },
-
       "hasNoAccounts": {
         "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
       },
@@ -1594,7 +1565,9 @@
         "createNewAccountTitle": "Criar nova conta",
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
-        "importRecoveryPhraseDescription": "Importar contas de outra carteira"
+        "importRecoveryPhraseDescription": "Importar contas de outra carteira",
+        "recoverRecoveryPhraseTitle": "Recuperar conta",
+        "recoverRecoveryPhraseDescription": "Restaurar uma conta já criada"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",
@@ -1618,6 +1591,13 @@
       "selectAltAccount": {
         "from": "Selecione a conta da qual deseja enviar.",
         "to": "Selecione a conta para a qual deseja receber."
+      },
+      "removeAccountPage": {
+        "title": "Remover conta",
+        "explanation_derived": "Esta conta foi derivada da sua frase semente. Você pode restaurá-la a qualquer momento adicionando-a novamente.",
+        "explanation_imported": "Esta conta foi importada. Se você removê-la, precisará importar novamente sua chave privada para acessá-la.",
+        "cancelButton": "Cancelar",
+        "removeButton": "Remover conta"
       }
     },
     "accountsPoolsScreen": {
@@ -1661,8 +1641,7 @@
         "title": "Instruções",
         "head1": "Como aceitar",
         "head2": "Pagamentos Bitcoin",
-        "step1": "Leia o código QR com sua câmera",
-        "step2": "2. É isso."
+        "step1": "Leia o código QR com sua câmera"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "O usuário não tem saldo de gorjetas.",
@@ -1724,7 +1703,6 @@
       }
     }
   },
-
   "screens": {
     "inAccount": {
       "appStore": {
@@ -1736,7 +1714,6 @@
         "featuredApps": "Gostaria de ver algo aqui?",
         "comingSoon": "Este recurso está temporariamente indisponível. Estamos trabalhando para restaurá-lo o mais rápido possível."
       },
-
       "confirmTxPage": {
         "failedToSend": "Falha ao enviar",
         "paymentErrorMessage": "Ocorreu um problema ao enviar este pagamento. Tente novamente.",
@@ -1745,7 +1722,8 @@
         "emailReport": "Enviar por e-mail",
         "copyReport": "Copiar para a área de transferência",
         "confirmMessage_sent": "Enviado com sucesso",
-        "confirmMessage_received": "Recebido com sucesso"
+        "confirmMessage_received": "Recebido com sucesso",
+        "confirmMessage": "{{direction}} com sucesso"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Valor enviado",
@@ -1763,7 +1741,6 @@
         "percentOfGoal": "{{goalPercent}}% da meta",
         "numAddedUsers": "+{{numNewUsers}} usuários hoje"
       },
-
       "loadingScreen": {
         "loadingMessage1": "Por favor, não feche o aplicativo",
         "loadingMessage2": "Estamos deixando tudo pronto",
@@ -1775,7 +1752,6 @@
         "dbInitError1": "Não foi possível configurar seu aplicativo.",
         "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase de recuperação."
       },
-
       "receiveBtcPage": {
         "onchainFeeMessage": "Os pagamentos recebidos em endereços Bitcoin têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
         "liquidFeeMessage": "Pagamentos recebidos em endereços Liquid precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
@@ -1807,7 +1783,6 @@
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
         "editDescriptionPlaceholder": "Adicionar uma descrição"
       },
-
       "settingsContent": {
         "about": "Sobre",
         "language": "Idioma",
@@ -1833,7 +1808,9 @@
         "experimental features": "Funções experimentais",
         "settings": "Configurações",
         "blitzRestore": "Blitz Restore",
-        "point-of-sale": "Ponto de venda"
+        "point-of-sale": "Ponto de venda",
+        "pools": "Pools",
+        "show seed phrase": "Fazer backup da carteira"
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
@@ -1850,7 +1827,6 @@
       "viewAllTxPage": {
         "title": "Transações"
       },
-
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
         "searchPlaceholder": "Nome do token...",
@@ -1876,11 +1852,9 @@
         "shareMessage": "Você recebeu um Vale-Blitz de {{amount}}! Resgate aqui:\n{{link}}",
         "fundGiftMessage": "Vale-Blitz criado",
         "reclaimGiftMessage": "Vale-Blitz reembolsado",
-
         "giftsHome": {
           "title": "Vales-Blitz"
         },
-
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",
           "noGiftsDesc": "Crie seu primeiro Vale-Blitz para presentear amigos e familiares com bitcoin ou dólares.",
@@ -1890,7 +1864,6 @@
           "unclaimed": "Não resgatado",
           "reclaimed": "Reembolsado"
         },
-
         "createGift": {
           "noAmountError": "Digite um valor para criar seu Vale-Blitz.",
           "connectError": "Não foi possível configurar a carteira do Vale-Blitz.",
@@ -1907,7 +1880,6 @@
           "durationText": "{{numDays}} dias",
           "type": "Tipo"
         },
-
         "giftConfirmation": {
           "header": "Vale-Blitz criado!",
           "whatToDo": "Compartilhe usando o código QR ou o link abaixo",
@@ -1918,7 +1890,6 @@
           "createAnother": "Criar outro",
           "done": "Concluído"
         },
-
         "claimHome": {
           "header": "Insira o link do Vale-Blitz",
           "desc": "Cole o link recebido ou leia o código QR para resgatar o valor",
@@ -1927,7 +1898,6 @@
           "noGiftLinkError": "Não foi possível encontrar um link de Vale-Blitz. Leia ou cole o link que você recebeu.",
           "invliadGiftFormat": "Link de Vale-Blitz inválido. Copie o link completo e tente novamente."
         },
-
         "reclaimPage": {
           "header": "Vales-Blitz expirados",
           "desc": "Digite ou escolha o ID do Vale-Blitz para recuperar o valor de um Vale-Blitz expirado ou não resgatado.",
@@ -1937,7 +1907,6 @@
           "noReclaimsMessage": "Não há Vales-Blitz expirados no momento. Você sempre pode recuperar o valor dos Vales-Blitz que você criou e não foram resgatados.",
           "advancedModeBTN": "Modo avançado"
         },
-
         "advancedMode": {
           "header": "Modo avançado",
           "currentIndexHead": "Índice atual - Vales-Blitz",
@@ -1949,7 +1918,6 @@
           "restoreGiftBTN": "Recuperar valor",
           "advancedWarning": "Este recurso avançado deve ser usado apenas quando o processo padrão de recuperação não funcionar. Se tiver dúvidas, tente primeiro o processo normal de recuperação."
         },
-
         "claimPage": {
           "parseError": "Não foi possível ler os detalhes do Vale-Blitz.",
           "noGiftForReclaim": "Não encontramos este Vale-Blitz. Talvez já tenha sido resgatado.",
@@ -1984,7 +1952,6 @@
           "claimingGiftMessage4": "Resgatando o Vale-Blitz..."
         }
       },
-
       "swapsPage": {
         "noPoolFoundBackup": "Pool BTC/USDB não encontrado",
         "loadPoolError": "Falha ao carregar informações do Pool",
@@ -2055,7 +2022,6 @@
       }
     }
   },
-
   "toastmessages": {
     "confirmCopy": "Copiado com sucesso",
     "failedCopy": "Falha ao copiar",
@@ -2064,7 +2030,6 @@
       "desc": "Seu saldo será atualizado em breve"
     }
   },
-
   "errormessages": {
     "nointernet": "Reconecte-se à Internet para usar este recurso",
     "genericError": "Ocorreu um erro inesperado",
@@ -2120,7 +2085,6 @@
     "priceImpact": "Este pagamento é grande, portanto o valor final que você receber em dólares pode mudar.",
     "removingImageError": "Não foi possível remover a imagem. Tente novamente."
   },
-
   "loadingScreen": {
     "message1": "Por favor, não feche o aplicativo",
     "message2": "Estamos deixando tudo pronto",
@@ -2132,11 +2096,9 @@
       "depositLabel": "Recebimento via endereço Bitcoin"
     }
   },
-
   "share": {
     "contact": "Oi, me adicione na Blitz Wallet!"
   },
-
   "swapMessages": {
     "liquid": "Transferência de Liquid para Spark"
   },
@@ -2162,25 +2124,21 @@
       "giftCard": "{{name}} enviou para você um cartão-presente {{giftCardName}}"
     }
   },
-
   "accountCard": {
     "fallbackAccountName": "Conta {{index}}"
   },
-
   "flashnetUserMessages": {
     "FSAG-1000": "A solicitação não passou pelas validações.",
     "FSAG-1001": "Um campo obrigatório está ausente na solicitação.",
     "FSAG-1002": "Um ou mais campos têm formato inválido.",
     "FSAG-1003": "Um valor está fora do intervalo permitido.",
     "FSAG-1004": "Este valor já existe e deve ser exclusivo.",
-
     "FSAG-2001": "Não foi possível verificar a assinatura da solicitação.",
     "FSAG-2002": "A identidade do token não corresponde à chave pública esperada.",
     "FSAG-2003": "É necessária autenticação para esta operação.",
     "FSAG-2004": "Sua sessão expirou ou o token é inválido.",
     "FSAG-2005": "O nonce da solicitação é inválido ou já foi utilizado.",
     "FSAG-2101": "A chave pública fornecida é inválida.",
-
     "FSAG-3001": "Ocorreu um problema temporário no serviço. Tente novamente.",
     "FSAG-3002": "Ocorreu um problema temporário no serviço. Tente novamente.",
     "FSAG-3101": "Ocorreu um erro no banco de dados. Tente novamente.",
@@ -2192,7 +2150,6 @@
     "FSAG-3302": "O processador AMM atingiu o tempo limite ao processar a solicitação.",
     "FSAG-3401": "Ocorreu um erro interno de processamento.",
     "FSAG-3402": "Ocorreu um erro interno de processamento.",
-
     "FSAG-4001": "A Pool especificada não existe.",
     "FSAG-4002": "O namespace do host especificado não existe.",
     "FSAG-4101": "Sua sessão de autenticação não foi encontrada ou expirou.",
@@ -2203,7 +2160,6 @@
     "FSAG-4204": "Você não possui tokens LP suficientes para este saque.",
     "FSAG-4301": "A configuração de taxas é inválida.",
     "FSAG-4401": "Esta transferência Spark já foi utilizada em uma operação.",
-
     "FSAG-5001": "Ocorreu um erro interno ao processar a solicitação.",
     "FSAG-5002": "Este recurso ainda não está disponível.",
     "FSAG-5003": "Ocorreu um erro interno. Entre em contato com o suporte se persistir.",

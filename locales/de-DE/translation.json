@@ -123,7 +123,8 @@
     "dollars_upper": "USD",
     "rate": "Kurs",
     "swap": "Tauschen",
-    "print": "Drucken"
+    "print": "Drucken",
+    "paymentDescriptionPlaceholder": "Beschreibung (optional)"
   },
   "languages": {
     "english": "English",
@@ -220,7 +221,8 @@
       "acceptPrefix": "Sie akzeptiere die ",
       "terms&Conditions": "Nutzungsbedingungen",
       "acceptError": "Um fortzufahren, müssen Sie die Nutzungsbedingungen akzeptieren.",
-      "continueBTN": "Weiter"
+      "continueBTN": "Weiter",
+      "dislcaimer": "Sie sind allein verantwortlich für die Sicherung und den Schutz Ihrer Gelder."
     },
     "verifyKeyPage": {
       "header": "Bestätigen Sie bitte Ihre Seed-Phrase"
@@ -393,300 +395,303 @@
         "examples": [
           {
             "bottomLine": "als hätten Sie noch nie programmiert",
-          "topLine": "Wie fange ich an, React Native zu lernen?"
+            "topLine": "Wie fange ich an, React Native zu lernen?"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-          "topLine": "Was ist der Unterschied zwischen Web2 und Web3?"
+            "topLine": "Was ist der Unterschied zwischen Web2 und Web3?"
           },
           {
             "bottomLine": "als wären Sie 12",
-          "topLine": "Wie funktioniert die Börse?"
+            "topLine": "Wie funktioniert die Börse?"
           },
           {
             "bottomLine": "als wären Sie 10 Jahre alt",
-          "topLine": "Was ist Quantencomputing?"
+            "topLine": "Was ist Quantencomputing?"
           },
           {
             "bottomLine": "als wären Sie 8",
-          "topLine": "Erklären Sie den Klimawandel"
+            "topLine": "Erklären Sie den Klimawandel"
           },
           {
             "bottomLine": "als wären Sie ein Gymnasiast",
-          "topLine": "Was ist künstliche Intelligenz?"
+            "topLine": "Was ist künstliche Intelligenz?"
           },
           {
             "bottomLine": "als wären Sie 15",
-          "topLine": "Wie funktionieren Kreditkarten?"
+            "topLine": "Wie funktionieren Kreditkarten?"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-          "topLine": "Was ist Blockchain-Technologie?"
+            "topLine": "Was ist Blockchain-Technologie?"
           },
           {
             "bottomLine": "als wären Sie 7 Jahre alt",
-          "topLine": "Wie funktioniert GPS?"
+            "topLine": "Wie funktioniert GPS?"
           },
           {
             "bottomLine": "als wären Sie 9",
-          "topLine": "Erklären Sie, wie Flugzeuge fliegen"
+            "topLine": "Erklären Sie, wie Flugzeuge fliegen"
           },
           {
             "bottomLine": "als wären Sie ein Großelternteil",
-          "topLine": "Was ist ein Meme?"
+            "topLine": "Was ist ein Meme?"
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
-          "topLine": "Wie funktionieren drahtlose Netzwerke?"
+            "topLine": "Wie funktionieren drahtlose Netzwerke?"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-          "topLine": "Was ist Kryptowährung?"
+            "topLine": "Was ist Kryptowährung?"
           },
           {
             "bottomLine": "als wären Sie 6",
-          "topLine": "Wie funktioniert das Internet?"
+            "topLine": "Wie funktioniert das Internet?"
           },
           {
             "bottomLine": "als wären Sie neu im Programmieren",
-          "topLine": "Was ist eine API?"
+            "topLine": "Was ist eine API?"
           },
           {
             "bottomLine": "als wären Sie in der 5. Klasse",
-          "topLine": "Erklären Sie Photosynthese"
+            "topLine": "Erklären Sie Photosynthese"
           },
           {
             "bottomLine": "als wären Sie 14",
-          "topLine": "Wie funktionieren Elektroautos?"
+            "topLine": "Wie funktionieren Elektroautos?"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-          "topLine": "Was ist ein Smart Contract?"
+            "topLine": "Was ist ein Smart Contract?"
           },
           {
             "bottomLine": "als wären Sie 13",
-          "topLine": "Wie funktioniert Raumfahrt?"
-          },
-          { "bottomLine": "als wären Sie 15", "topLine": "Erklären Sie NFTs" },
-          {
-            "bottomLine": "als wären Sie 10 Jahre alt",
-          "topLine": "Was ist Augmented Reality?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Mittelschule",
-          "topLine": "Wie funktioniert ein 3D-Drucker?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Oberschule",
-          "topLine": "Erklären Sie maschinelles Lernen"
-          },
-          {
-            "bottomLine": "als wären Sie 12",
-          "topLine": "Wie funktionieren Solarmodule?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Anfänger",
-          "topLine": "Was ist Virtual Reality?"
-          },
-          {
-            "bottomLine": "als wären Sie 10",
-          "topLine": "Wie funktionieren Impfstoffe?"
-          },
-          {
-            "bottomLine": "als wären Sie 5 Jahre alt",
-          "topLine": "Erklären Sie Gravitation"
-          },
-          {
-            "bottomLine": "als wären Sie neu in der Blockchain",
-          "topLine": "Was ist eine dezentrale Anwendung (dApp)?"
-          },
-          {
-            "bottomLine": "als wären Sie 8",
-          "topLine": "Wie kochen Mikrowellen Essen?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Grundschule",
-          "topLine": "Erklären Sie das Konzept der Zeitzonen"
-          },
-          {
-            "bottomLine": "als wären Sie ein Anfänger",
-          "topLine": "Wie verarbeitet ein Computer Daten?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Mittelschule",
-          "topLine": "Was ist Cloud Computing?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Gymnasiast",
-          "topLine": "Erklären Sie das Konzept der KI-Ethik"
-          },
-          {
-            "bottomLine": "als wären Sie 11",
-          "topLine": "Wie bleiben Satelliten in der Umlaufbahn?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Teenager",
-          "topLine": "Was ist Cybersicherheit?"
-          },
-          {
-            "bottomLine": "als wären Sie in der 8. Klasse",
-          "topLine": "Erklären Sie die Evolutionstheorie"
-          },
-          {
-            "bottomLine": "als wären Sie in der Oberschule",
-          "topLine": "Was ist der Zweck der Blockchain?"
-          },
-          {
-            "bottomLine": "als wären Sie 9",
-          "topLine": "Wie funktioniert Wi-Fi?"
-          },
-          {
-            "bottomLine": "als wären Sie 10 Jahre alt",
-          "topLine": "Was ist eine Suchmaschine?"
-          },
-          {
-            "bottomLine": "als wären Sie in der 7. Klasse",
-          "topLine": "Wie funktionieren Elektromotoren?"
-          },
-          {
-            "bottomLine": "als wären Sie 14",
-          "topLine": "Erklären Sie das Konzept der Relativität"
-          },
-          {
-            "bottomLine": "als wären Sie neu in der Technologie",
-          "topLine": "Was ist das Internet der Dinge (IoT)?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Mittelschule",
-          "topLine": "Wie funktionieren Smartphones?"
-          },
-          {
-            "bottomLine": "als wären Sie in der 6. Klasse",
-          "topLine": "Erklären Sie das Konzept der erneuerbaren Energien"
-          },
-          {
-            "bottomLine": "als wären Sie ein Teenager",
-          "topLine": "Was ist virtuelle Währung?"
-          },
-          {
-            "bottomLine": "als wären Sie 12",
-          "topLine": "Wie funktionieren Smart Homes?"
-          },
-          {
-            "bottomLine": "als wären Sie neu in der KI",
-          "topLine": "Was ist Deep Learning?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Anfänger",
-          "topLine": "Wie funktioniert Online-Shopping?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Teenager",
-          "topLine": "Erklären Sie das Konzept des Datenschutzes"
-          },
-          {
-            "bottomLine": "als wären Sie 14",
-          "topLine": "Was ist Virtual Reality Gaming?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Oberschule",
-          "topLine": "Wie funktionieren selbstfahrende Autos?"
-          },
-          {
-            "bottomLine": "als wären Sie 13",
-          "topLine": "Was ist Gentechnik?"
-          },
-          {
-            "bottomLine": "als wären Sie neu in der Technologie",
-          "topLine": "Erklären Sie das Konzept der Smart Cities"
-          },
-          {
-            "bottomLine": "als wären Sie 11",
-          "topLine": "Wie funktionieren Drohnen?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Teenager",
-          "topLine": "Was ist eine digitale Wallet?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Mittelschule",
-          "topLine": "Wie funktioniert digitale Kunst?"
-          },
-          {
-            "bottomLine": "als wären Sie neu in der Technologie",
-          "topLine": "Erklären Sie das Konzept der 5G-Technologie"
+            "topLine": "Wie funktioniert Raumfahrt?"
           },
           {
             "bottomLine": "als wären Sie 15",
-          "topLine": "Was ist ein autonomes Fahrzeug?"
+            "topLine": "Erklären Sie NFTs"
           },
           {
-            "bottomLine": "als wären Sie 10",
-          "topLine": "Wie funktionieren Videospiele?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Oberschule",
-          "topLine": "Erklären Sie das Konzept der Smart Contracts"
+            "bottomLine": "als wären Sie 10 Jahre alt",
+            "topLine": "Was ist Augmented Reality?"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-          "topLine": "Was ist eine Smartwatch?"
-          },
-          {
-            "bottomLine": "als wären Sie 12 Jahre alt",
-          "topLine": "Wie funktioniert ein Touchscreen?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Anfänger",
-          "topLine": "Erklären Sie das Konzept der maschinellen Übersetzung"
-          },
-          {
-            "bottomLine": "als wären Sie neu in der Technologie",
-          "topLine": "Was ist ein Rechenzentrum?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Teenager",
-          "topLine": "Wie funktioniert Blockchain-Mining?"
+            "topLine": "Wie funktioniert ein 3D-Drucker?"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-          "topLine": "Was ist ein Mikrochip?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Mittelschule",
-          "topLine": "Erklären Sie das Konzept der Cloud-Speicherung"
-          },
-          {
-            "bottomLine": "als wären Sie 13",
-          "topLine": "Wie funktionieren Elektroscooter?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Anfänger",
-          "topLine": "Was ist ein Algorithmus?"
-          },
-          {
-            "bottomLine": "als wären Sie neu in der Technologie",
-          "topLine": "Erklären Sie das Konzept der virtuellen Meetings"
-          },
-          {
-            "bottomLine": "als wären Sie 14",
-          "topLine": "Wie funktionieren Elektrofahrräder?"
-          },
-          {
-            "bottomLine": "als wären Sie in der Oberschule",
-          "topLine": "Was ist ein Quantencomputer?"
-          },
-          {
-            "bottomLine": "als wären Sie ein Teenager",
-          "topLine": "Erklären Sie das Konzept der Cybersicherheit"
+            "topLine": "Erklären Sie maschinelles Lernen"
           },
           {
             "bottomLine": "als wären Sie 12",
-          "topLine": "Was ist Augmented Reality?"
+            "topLine": "Wie funktionieren Solarmodule?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Was ist Virtual Reality?"
+          },
+          {
+            "bottomLine": "als wären Sie 10",
+            "topLine": "Wie funktionieren Impfstoffe?"
+          },
+          {
+            "bottomLine": "als wären Sie 5 Jahre alt",
+            "topLine": "Erklären Sie Gravitation"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Blockchain",
+            "topLine": "Was ist eine dezentrale Anwendung (dApp)?"
+          },
+          {
+            "bottomLine": "als wären Sie 8",
+            "topLine": "Wie kochen Mikrowellen Essen?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Grundschule",
+            "topLine": "Erklären Sie das Konzept der Zeitzonen"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Wie verarbeitet ein Computer Daten?"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-          "topLine": "Wie funktionieren Streaming-Dienste?"
+            "topLine": "Was ist Cloud Computing?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Gymnasiast",
+            "topLine": "Erklären Sie das Konzept der KI-Ethik"
+          },
+          {
+            "bottomLine": "als wären Sie 11",
+            "topLine": "Wie bleiben Satelliten in der Umlaufbahn?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Was ist Cybersicherheit?"
+          },
+          {
+            "bottomLine": "als wären Sie in der 8. Klasse",
+            "topLine": "Erklären Sie die Evolutionstheorie"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Was ist der Zweck der Blockchain?"
+          },
+          {
+            "bottomLine": "als wären Sie 9",
+            "topLine": "Wie funktioniert Wi-Fi?"
+          },
+          {
+            "bottomLine": "als wären Sie 10 Jahre alt",
+            "topLine": "Was ist eine Suchmaschine?"
+          },
+          {
+            "bottomLine": "als wären Sie in der 7. Klasse",
+            "topLine": "Wie funktionieren Elektromotoren?"
+          },
+          {
+            "bottomLine": "als wären Sie 14",
+            "topLine": "Erklären Sie das Konzept der Relativität"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Was ist das Internet der Dinge (IoT)?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Wie funktionieren Smartphones?"
+          },
+          {
+            "bottomLine": "als wären Sie in der 6. Klasse",
+            "topLine": "Erklären Sie das Konzept der erneuerbaren Energien"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Was ist virtuelle Währung?"
+          },
+          {
+            "bottomLine": "als wären Sie 12",
+            "topLine": "Wie funktionieren Smart Homes?"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der KI",
+            "topLine": "Was ist Deep Learning?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Wie funktioniert Online-Shopping?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Erklären Sie das Konzept des Datenschutzes"
+          },
+          {
+            "bottomLine": "als wären Sie 14",
+            "topLine": "Was ist Virtual Reality Gaming?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Wie funktionieren selbstfahrende Autos?"
+          },
+          {
+            "bottomLine": "als wären Sie 13",
+            "topLine": "Was ist Gentechnik?"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Erklären Sie das Konzept der Smart Cities"
+          },
+          {
+            "bottomLine": "als wären Sie 11",
+            "topLine": "Wie funktionieren Drohnen?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Was ist eine digitale Wallet?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Wie funktioniert digitale Kunst?"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Erklären Sie das Konzept der 5G-Technologie"
+          },
+          {
+            "bottomLine": "als wären Sie 15",
+            "topLine": "Was ist ein autonomes Fahrzeug?"
+          },
+          {
+            "bottomLine": "als wären Sie 10",
+            "topLine": "Wie funktionieren Videospiele?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Erklären Sie das Konzept der Smart Contracts"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Was ist eine Smartwatch?"
+          },
+          {
+            "bottomLine": "als wären Sie 12 Jahre alt",
+            "topLine": "Wie funktioniert ein Touchscreen?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Erklären Sie das Konzept der maschinellen Übersetzung"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Was ist ein Rechenzentrum?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Wie funktioniert Blockchain-Mining?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Was ist ein Mikrochip?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Erklären Sie das Konzept der Cloud-Speicherung"
+          },
+          {
+            "bottomLine": "als wären Sie 13",
+            "topLine": "Wie funktionieren Elektroscooter?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Anfänger",
+            "topLine": "Was ist ein Algorithmus?"
+          },
+          {
+            "bottomLine": "als wären Sie neu in der Technologie",
+            "topLine": "Erklären Sie das Konzept der virtuellen Meetings"
+          },
+          {
+            "bottomLine": "als wären Sie 14",
+            "topLine": "Wie funktionieren Elektrofahrräder?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Oberschule",
+            "topLine": "Was ist ein Quantencomputer?"
+          },
+          {
+            "bottomLine": "als wären Sie ein Teenager",
+            "topLine": "Erklären Sie das Konzept der Cybersicherheit"
+          },
+          {
+            "bottomLine": "als wären Sie 12",
+            "topLine": "Was ist Augmented Reality?"
+          },
+          {
+            "bottomLine": "als wären Sie in der Mittelschule",
+            "topLine": "Wie funktionieren Streaming-Dienste?"
           }
         ]
       },
@@ -838,83 +843,83 @@
   },
   "wallet": {
     "halfModal": {
-  "images": "Aus Bild",
-  "clipboard": "Aus Zwischenablage",
-  "manual": "Manuelle Eingabe",
-  "contacts": "Aus Kontakten",
-  "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein",
-  "scanImage": "Bild scannen",
-  "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild zu extrahieren",
-  "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten",
-  "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden",
-  "addressBook": "Adressbuch",
-  "selectAddressType": "Adresstyp auswählen",
-  "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen",
-  "tapToGenerate_bitcoin": "Tippen Sie, um eine BTC-Adresse zu erstellen",
-  "tapToGenerate_spark": "Tippen Sie, um eine Spark-Adresse zu erstellen",
-  "tapToGenerate_liquid": "Tippen Sie, um eine Liquid-Adresse zu erstellen",
-  "tapToGenerate_rootstock": "Tippen Sie, um eine Rootstock-Adresse zu erstellen",
-  "chooseWhatToReceive": "Bitte wählen Sie aus, was Sie anfordern möchten",
-  "instantLowFees": "Sofort und mit niedrigen Gebühren",
-  "onChainTransaction": "On-Chain-Transaktion",
-  "otherAddresses": "Weitere Optionen",
-  "scanQrCode": "QR-Code scannen",
-  "tapToScanQr": "Tippen Sie, um einen QR-Code zu scannen",
+      "images": "Aus Bild",
+      "clipboard": "Aus Zwischenablage",
+      "manual": "Manuelle Eingabe",
+      "contacts": "Aus Kontakten",
+      "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein",
+      "scanImage": "Bild scannen",
+      "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild zu extrahieren",
+      "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten",
+      "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden",
+      "addressBook": "Adressbuch",
+      "selectAddressType": "Adresstyp auswählen",
+      "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen",
+      "tapToGenerate_bitcoin": "Tippen Sie, um eine BTC-Adresse zu erstellen",
+      "tapToGenerate_spark": "Tippen Sie, um eine Spark-Adresse zu erstellen",
+      "tapToGenerate_liquid": "Tippen Sie, um eine Liquid-Adresse zu erstellen",
+      "tapToGenerate_rootstock": "Tippen Sie, um eine Rootstock-Adresse zu erstellen",
+      "chooseWhatToReceive": "Bitte wählen Sie aus, was Sie anfordern möchten",
+      "instantLowFees": "Sofort und mit niedrigen Gebühren",
+      "onChainTransaction": "On-Chain-Transaktion",
+      "otherAddresses": "Weitere Optionen",
+      "scanQrCode": "QR-Code scannen",
+      "tapToScanQr": "Tippen Sie, um einen QR-Code zu scannen",
       "addressBook_request": "Von einem Kontakt anfordern",
-    "qrReceiveOptions": "Über QR-Code empfangen",
-  "addressBook_send": "An einen Kontakt senden",
-  "tapToGenerate_lightning_btc": "BTC sofort empfangen",
-  "tapToGenerate_lightning_usd": "USD sofort empfangen"
-   },
-   "pools": {
-  "receiveViaPool": "Über einen Pool empfangen",
-  "createPool": "Pool erstellen",
-  "collectPaymentsDescription": "Zahlungen für ein Ziel sammeln",
-  "whatIsPoolFor": "Wofür ist dieser Pool?",
-  "examplePlaceholder": "z. B. Reise nach Miami",
-  "creating": "Wird erstellt...",
-  "creatingPool": "Pool wird erstellt...",
-  "gettingBalance": "Pool-Guthaben wird abgerufen...",
-  "checkingBalance": "Pool-Guthaben wird geprüft… ({{attempt}} von {{total}})",
-  "preparingTransfer": "Übertragung wird vorbereitet...",
-  "connectingToPool": "Verbindung zum Pool wird hergestellt...",
-  "unableToConnect": "Verbindung zum Pool nicht möglich. Bitte versuchen Sie es erneut.",
-  "unableToGetBalance": "Pool-Guthaben konnte nicht abgerufen werden",
-  "noFundsFound": "Keine Gelder in diesem Pool gefunden",
-  "closingPool": "Pool wird geschlossen...",
-  "gettingAddress": "Wallet-Adresse wird abgerufen...",
-  "unableToGetAddress": "Haupt-Wallet-Adresse konnte nicht abgerufen werden",
-  "transferringFunds": "Gelder werden übertragen...",
-  "failedToTransfer": "Übertragung der Pool-Gelder fehlgeschlagen",
-  "notFound": "Pool nicht gefunden",
-  "closePoolTitle": "Diesen Pool schließen?",
-  "closePoolWarning": "Alle Gelder werden an Ihre Haupt-Wallet übertragen. Dieser Pool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
-  "closePool": "Pool schließen",
-  "goal": "Ziel: ",
-  "payment_one": "{{count}} Zahlung",
-  "payment_other": "{{count}} Zahlungen",
-  "closed": "Geschlossen",
-  "pool": "Pool",
-  "couldNotFind": "Dieser Pool konnte nicht gefunden werden.",
-  "createdBy": "Erstellt von ",
-  "moneyTransferred": "Das Geld wurde an Ihre Haupt-Wallet übertragen",
-  "contribute": "Beitragen",
-  "share": "Teilen",
-  "noActivity": "Noch keine Aktivität. Seien Sie der Erste, der beiträgt!",
-  "noPoolsCreated": "Sie haben noch keine Pools erstellt",
-  "noActivePools": "Keine aktiven Pools",
-  "closedSection": "Geschlossen",
-  "noClosedPools": "Keine geschlossenen Pools",
-  "sendingContribution": "Beitrag wird gesendet...",
-  "contributionSent": "Beitrag gesendet!",
-  "contributeTo": "Beitragen zu: ",
-  "contributionWarning": "Diese Zahlung ist endgültig. Beiträge können nicht erstattet werden, auch wenn das Ziel nicht erreicht wird.",
-  "chooseContributionAmount": "Beitragsbetrag auswählen",
-  "organizer": "Organisator",
-  "contributorCount_one": "{{count}} Person",
-  "contributorCount_other": "{{count}} Personen",
-  "pool_contribution_label": "Pool-Beitrag: {{poolName}}",
-  "closing_pool_label": "Pool wird geschlossen: {{poolName}}"
+      "qrReceiveOptions": "Über QR-Code empfangen",
+      "addressBook_send": "An einen Kontakt senden",
+      "tapToGenerate_lightning_btc": "BTC sofort empfangen",
+      "tapToGenerate_lightning_usd": "USD sofort empfangen"
+    },
+    "pools": {
+      "receiveViaPool": "Über einen Pool empfangen",
+      "createPool": "Pool erstellen",
+      "collectPaymentsDescription": "Zahlungen für ein Ziel sammeln",
+      "whatIsPoolFor": "Wofür ist dieser Pool?",
+      "examplePlaceholder": "z. B. Reise nach Miami",
+      "creating": "Wird erstellt...",
+      "creatingPool": "Pool wird erstellt...",
+      "gettingBalance": "Pool-Guthaben wird abgerufen...",
+      "checkingBalance": "Pool-Guthaben wird geprüft… ({{attempt}} von {{total}})",
+      "preparingTransfer": "Übertragung wird vorbereitet...",
+      "connectingToPool": "Verbindung zum Pool wird hergestellt...",
+      "unableToConnect": "Verbindung zum Pool nicht möglich. Bitte versuchen Sie es erneut.",
+      "unableToGetBalance": "Pool-Guthaben konnte nicht abgerufen werden",
+      "noFundsFound": "Keine Gelder in diesem Pool gefunden",
+      "closingPool": "Pool wird geschlossen...",
+      "gettingAddress": "Wallet-Adresse wird abgerufen...",
+      "unableToGetAddress": "Haupt-Wallet-Adresse konnte nicht abgerufen werden",
+      "transferringFunds": "Gelder werden übertragen...",
+      "failedToTransfer": "Übertragung der Pool-Gelder fehlgeschlagen",
+      "notFound": "Pool nicht gefunden",
+      "closePoolTitle": "Diesen Pool schließen?",
+      "closePoolWarning": "Alle Gelder werden an Ihre Haupt-Wallet übertragen. Dieser Pool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
+      "closePool": "Pool schließen",
+      "goal": "Ziel: ",
+      "payment_one": "{{count}} Zahlung",
+      "payment_other": "{{count}} Zahlungen",
+      "closed": "Geschlossen",
+      "pool": "Pool",
+      "couldNotFind": "Dieser Pool konnte nicht gefunden werden.",
+      "createdBy": "Erstellt von ",
+      "moneyTransferred": "Das Geld wurde an Ihre Haupt-Wallet übertragen",
+      "contribute": "Beitragen",
+      "share": "Teilen",
+      "noActivity": "Noch keine Aktivität. Seien Sie der Erste, der beiträgt!",
+      "noPoolsCreated": "Sie haben noch keine Pools erstellt",
+      "noActivePools": "Keine aktiven Pools",
+      "closedSection": "Geschlossen",
+      "noClosedPools": "Keine geschlossenen Pools",
+      "sendingContribution": "Beitrag wird gesendet...",
+      "contributionSent": "Beitrag gesendet!",
+      "contributeTo": "Beitragen zu: ",
+      "contributionWarning": "Diese Zahlung ist endgültig. Beiträge können nicht erstattet werden, auch wenn das Ziel nicht erreicht wird.",
+      "chooseContributionAmount": "Beitragsbetrag auswählen",
+      "organizer": "Organisator",
+      "contributorCount_one": "{{count}} Person",
+      "contributorCount_other": "{{count}} Personen",
+      "pool_contribution_label": "Pool-Beitrag: {{poolName}}",
+      "closing_pool_label": "Pool wird geschlossen: {{poolName}}"
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Zahlungsanforderung ein oder fügen Sie sie ein."
@@ -1156,7 +1161,12 @@
       "giftMessage": "Geschenk-Nachricht",
       "recipientReceives": "{{contactName}} erhält",
       "giftMessagePlaceholder": "Schreiben Sie hier Ihre Geschenknachricht …",
-      "paymentSourceHeader": "Zahlungsquelle"
+      "paymentSourceHeader": "Zahlungsquelle",
+      "sendBitcoin": "Bitcoin senden",
+      "sendDollars": "Dollar senden",
+      "sendGift": "Geschenk senden",
+      "requestBitcoin": "Bitcoin anfordern",
+      "requestDollars": "Dollar anfordern"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",
@@ -1292,7 +1302,9 @@
       "text15": "Unbekannte Absender ausblenden",
       "thousandsSeperator": "Tausendertrennzeichen",
       "space": "Leerzeichen",
-      "local": "Lokales Zahlenformat"
+      "local": "Lokales Zahlenformat",
+      "sparkTitle": "Spark",
+      "sliderTitle_enabled": "Aktiviert"
     },
     "fastPay": {
       "text1": "Fehler beim Hinzufügen des eingegebenen Werts, bitte versuchen Sie es erneut.",
@@ -1343,7 +1355,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Kontoname",
-      "mainWalletPlace": "Haupt-Wallet"
+      "mainWalletPlace": "Haupt-Wallet",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "Sind Sie sicher?",
@@ -1354,8 +1367,8 @@
       "localStorageError": "Lokal gespeicherte Informationen konnten nicht gelöscht werden",
       "secureStorageError": "Sicher gespeicherte Informationen konnten nicht gelöscht werden",
       "boxNotChecked": "Bitte bestätigen Sie durch Ankreuzen, dass Sie Ihre Wallet löschen möchten.",
-"title": "Wallet löschen",
-"warningText": "Ich verstehe, dass ich meine Gelder nur mit meiner Seed-Phrase wiederherstellen kann und dass sie nicht wiederhergestellt werden können, wenn ich sie verliere."
+      "title": "Wallet löschen",
+      "warningText": "Ich verstehe, dass ich meine Gelder nur mit meiner Seed-Phrase wiederherstellen kann und dass sie nicht wiederhergestellt werden können, wenn ich sie verliere."
     },
     "sparkInfo": {
       "title": "Wallet-Informationen",
@@ -1409,7 +1422,7 @@
       "rescanning": "Scannen…",
       "autoClaimLabel": "Automatisch einlösen",
       "autoClaimHelper": "Liquid-Guthaben automatisch in Lightning tauschen, sobald der Mindestbetrag erreicht ist."
-      },
+    },
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",
       "mainToggle_disabled": "Benachrichtigungen deaktiviert",
@@ -1557,7 +1570,9 @@
         "createNewAccountTitle": "Neues Konto erstellen",
         "createNewAccountDescription": "Wiederherstellbar über die Haupt-Seed-Phrase",
         "importRecoveryPhraseTitle": "Wiederherstellungsphrase importieren",
-        "importRecoveryPhraseDescription": "Konten aus einer anderen Wallet importieren"
+        "importRecoveryPhraseDescription": "Konten aus einer anderen Wallet importieren",
+        "recoverRecoveryPhraseTitle": "Konto wiederherstellen",
+        "recoverRecoveryPhraseDescription": "Ein bereits erstelltes Konto wiederherstellen"
       },
       "selectProfileImage": {
         "title": "Avatar auswählen",
@@ -1582,14 +1597,12 @@
         "from": "Wählen Sie das Konto, von dem Sie senden möchtest.",
         "to": "Wählen Sie das Konto, auf das Sie empfangen möchten."
       },
-      "accountsPoolsScreen": {
-  "profileButton": "Profil",
-  "settingsButton": "Einstellungen",
-  "poolsTitle": "Pools",
-  "noPoolsMessage": "Sie haben noch keine Pools erstellt. Tippen Sie, um Ihren ersten Pool zu erstellen.",
-  "noActivePools": "Du hast keine aktiven Pools",
-  "yourAccountsTitle": "Ihre Konten",
-  "addAccountButton": "Konto hinzufügen"
+      "removeAccountPage": {
+        "title": "Konto entfernen",
+        "explanation_derived": "Dieses Konto wurde von Ihrer Seed-Phrase abgeleitet. Sie können es jederzeit wiederherstellen, indem Sie es erneut hinzufügen.",
+        "explanation_imported": "Dieses Konto wurde importiert. Wenn Sie es entfernen, müssen Sie Ihren privaten Schlüssel erneut importieren, um darauf zuzugreifen.",
+        "cancelButton": "Abbrechen",
+        "removeButton": "Konto entfernen"
       }
     },
     "accountsPoolsScreen": {
@@ -1602,12 +1615,12 @@
       "addAccountButton": "Konto hinzufügen"
     },
     "hub": {
-    "viewAll": "Alle anzeigen",
-"accounts": "Konten",
-"pinAccount": "Anheften",
-"unpinAccount": "Lösen",
-"maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines.",
-"morePoolsCount": "+{{count}} weitere"
+      "viewAll": "Alle anzeigen",
+      "accounts": "Konten",
+      "pinAccount": "Anheften",
+      "unpinAccount": "Lösen",
+      "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines.",
+      "morePoolsCount": "+{{count}} weitere"
     },
     "posPath": {
       "settings": {
@@ -1626,15 +1639,14 @@
         "brandLogo": "Markenzeichen",
         "changeLogo": "Logo ändern",
         "removeLogo": "Entfernen",
-        "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen"
+        "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen",
+        "plurlEnding": "n"
       },
       "posInstructionsPath": {
         "title": "Anweisungen",
         "head1": "Wir akzeptieren",
         "head2": "BTC-Lightning-Zahlungen",
-        "step1": "Bitte scannen Sie den QR-Code mit Ihrer Kamera",
-        "step2": "2. Betrag bestätigen & zahlen",
-        "step3": "3. Fertig! ⚡️"
+        "step1": "Bitte scannen Sie den QR-Code mit Ihrer Kamera"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "Der Benutzer hat kein Trinkgeldguthaben.",
@@ -1680,19 +1692,19 @@
           "noItemsSearch": "Keine Artikel entsprechen Ihrer Suche.",
           "noItemsAdded": "Fügen Sie einen Artikel hinzu, damit er hier angezeigt wird.",
           "ctaBTN": "Artikel hinzufügen"
-        },
-        "internalComponents": {
-          "tipTx": {
-            "tipMessage": "Trinkgeld: {{amount}}",
-            "ctaBTN": "Als {{option}} markieren"
-          }
         }
       },
-      "popups": {
-        "confirmActionPage": {
-          "defaultMessage": "Sind Sie sicher, dass Sie Ihre Wallet leeren möchten?",
+      "internalComponents": {
+        "tipTx": {
+          "tipMessage": "Trinkgeld: {{amount}}",
           "ctaBTN": "Als {{option}} markieren"
         }
+      }
+    },
+    "popups": {
+      "confirmActionPage": {
+        "defaultMessage": "Sind Sie sicher, dass Sie Ihre Wallet leeren möchten?",
+        "ctaBTN": "Als {{option}} markieren"
       }
     }
   },
@@ -1715,7 +1727,8 @@
         "emailReport": "Per E-Mail senden",
         "copyReport": "In die Zwischenablage kopieren",
         "confirmMessage_sent": "Erfolgreich gesendet",
-        "confirmMessage_received": "Erfolgreich empfangen"
+        "confirmMessage_received": "Erfolgreich empfangen",
+        "confirmMessage": "{{direction}} erfolgreich"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Gesendeter Betrag",
@@ -1771,7 +1784,9 @@
         "header_liquid": "BTC über Liquid",
         "header_rootstock": "BTC über Rootstock",
         "selectReceiveAssetHead": "Bitte das Asset zum Empfangen auswählen",
-        "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern."
+        "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
+        "editDescriptionHead": "Was möchten Sie sagen?",
+        "editDescriptionPlaceholder": "Beschreibung hinzufügen"
       },
       "settingsContent": {
         "about": "Über uns",
@@ -1798,7 +1813,9 @@
         "experimental features": "Experimentelle Funktionen",
         "settings": "Einstellungen",
         "blitzRestore": "Blitz-Wiederherstellung",
-        "point-of-sale": "Zahlungsterminal (POS)"
+        "point-of-sale": "Zahlungsterminal (POS)",
+        "pools": "Pools",
+        "show seed phrase": "Wallet sichern"
       },
       "technicalTransactionDetails": {
         "txHash": "Transaktions-Hash",
@@ -1942,25 +1959,25 @@
       },
       "swapsPage": {
         "noPoolFoundBackup": "BTC/USDB-Pool nicht gefunden",
-"loadPoolError": "Pool-Informationen konnten nicht geladen werden",
-"noPoolsFoundError": "Keine Pools für {{tokenAAddress}}/{{tokenBAddress}} gefunden",
-"highPriceImpact": "Hoher Preiseinfluss: {{priceImpact}}",
-"slippageError": "Der Preis hat sich zu stark verändert. Versuchen Sie, die Preisabweichungstoleranz zu erhöhen.",
-"noLiquidity": "Nicht genügend Liquidität. Versuchen Sie einen kleineren Betrag oder einen anderen Pool.",
-"authenticationError": "Authentifizierung fehlgeschlagen. Bitte verbinden Sie sich erneut.",
-"noPoolError": "Pool existiert nicht.",
-"automaticRecovery": "Guthaben automatisch wiederhergestellt.",
-"semiRecovered": "Einige Guthaben müssen manuell wiederhergestellt werden.",
-"willRecover": "Guthaben werden automatisch zurückerstattet.",
-"failedSimulation": "Simulation fehlgeschlagen",
-"swapAmountCalculatorFailed": "Swap-Betrag konnte nicht berechnet werden",
-"invalidAmount": "Bitte geben Sie einen gültigen Betrag ein",
-"priceImpact": "Preiseinfluss: {{impact}}%\nMöchten Sie trotzdem tauschen?",
-"swapFailedBackupError": "Swap fehlgeschlagen",
-"swapAutomaticRecovery": "\n\nIhr Guthaben wurde automatisch wiederhergestellt.",
-"swapPartialRecovery": "\n\nEinige Guthaben wurden automatisch wiederhergestellt ({{count}}).",
-"swapFutureRecovery": "\n\nIhr Guthaben wird automatisch zurückerstattet.",
-"swapSlippageError": "\n\nVersuchen Sie, die Preisabweichungstoleranz zu erhöhen oder auf bessere Marktbedingungen zu warten.",
+        "loadPoolError": "Pool-Informationen konnten nicht geladen werden",
+        "noPoolsFoundError": "Keine Pools für {{tokenAAddress}}/{{tokenBAddress}} gefunden",
+        "highPriceImpact": "Hoher Preiseinfluss: {{priceImpact}}",
+        "slippageError": "Der Preis hat sich zu stark verändert. Versuchen Sie, die Preisabweichungstoleranz zu erhöhen.",
+        "noLiquidity": "Nicht genügend Liquidität. Versuchen Sie einen kleineren Betrag oder einen anderen Pool.",
+        "authenticationError": "Authentifizierung fehlgeschlagen. Bitte verbinden Sie sich erneut.",
+        "noPoolError": "Pool existiert nicht.",
+        "automaticRecovery": "Guthaben automatisch wiederhergestellt.",
+        "semiRecovered": "Einige Guthaben müssen manuell wiederhergestellt werden.",
+        "willRecover": "Guthaben werden automatisch zurückerstattet.",
+        "failedSimulation": "Simulation fehlgeschlagen",
+        "swapAmountCalculatorFailed": "Swap-Betrag konnte nicht berechnet werden",
+        "invalidAmount": "Bitte geben Sie einen gültigen Betrag ein",
+        "priceImpact": "Preiseinfluss: {{impact}}%\nMöchten Sie trotzdem tauschen?",
+        "swapFailedBackupError": "Swap fehlgeschlagen",
+        "swapAutomaticRecovery": "\n\nIhr Guthaben wurde automatisch wiederhergestellt.",
+        "swapPartialRecovery": "\n\nEinige Guthaben wurden automatisch wiederhergestellt ({{count}}).",
+        "swapFutureRecovery": "\n\nIhr Guthaben wird automatisch zurückerstattet.",
+        "swapSlippageError": "\n\nVersuchen Sie, die Preisabweichungstoleranz zu erhöhen oder auf bessere Marktbedingungen zu warten.",
         "swapLiquidityError": "\n\nVersuchen Sie, einen kleineren Betrag zu tauschen oder auf mehr Liquidität zu warten.",
         "fullSwapError": "Während des Swaps ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut.",
         "checkSwapMessage": "Hoher Preiseinfluss",
@@ -2117,7 +2134,7 @@
     "fallbackAccountName": "Konto {{index}}"
   },
 
-    "flashnetUserMessages": {
+  "flashnetUserMessages": {
     "FSAG-1000": "Ihre Anfrage hat die Validierungsprüfung leider nicht bestanden.",
     "FSAG-1001": "In Ihrer Anfrage fehlt ein erforderliches Feld.",
     "FSAG-1002": "Ein oder mehrere Felder haben ein ungültiges Format.",

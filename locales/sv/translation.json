@@ -92,7 +92,6 @@
     "enabled": "Aktiverad",
     "disabled": "Inaktiverad",
     "unlimited": "Obegränsad",
-    "custom": "Anpassad...",
     "enable": "Aktivera",
     "disable": "Avaktivera",
     "paidLower": "betalda",
@@ -124,7 +123,8 @@
     "rate": "Kurs",
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Beskrivning (valfritt)",
-    "print": "Skriv ut"
+    "print": "Skriv ut",
+    "custom...": "Anpassad..."
   },
   "languages": {
     "english": "English",
@@ -213,7 +213,6 @@
       "subHeader": "Ta full kontroll över dina pengar.",
       "disclaimerBold": "Blitz kan inte återställa din plånbok.",
       "dislcaimer": "Du är ensam ansvarig för att säkra och skydda dina medel.",
-      "info1": "Dina pengar är dina",
       "info1Description": "Endast du kan komma åt eller använda dina pengar. Vi har ingen tillgång till dem.",
       "info2": "Du har kontrollen",
       "info2Description": "Blitz kan inte komma åt dina medel eller hjälpa till att återställa dem om de går förlorade.",
@@ -311,20 +310,16 @@
         "fee": "Avgift: "
       },
       "durationSlider": {
-        "0": {
-          "1": "timme",
-          "5": "dag"
-        },
-        "1": {
-          "5": "vecka"
-        },
-        "3": "månad",
-        "8": "kvartal",
-        "30": "år",
         "durationOption": "1 {{duration}}",
         "price": "Pris: ",
         "noDurations": "Inga tillgängliga varaktigheter",
-        "duration": "Varaktighet"
+        "duration": "Varaktighet",
+        "0.1": "timme",
+        "0.5": "dag",
+        "1.5": "vecka",
+        "3": "månad",
+        "8": "kvartal",
+        "30": "år"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Är du säker på att du vill ta bort detta VPN.",
@@ -395,308 +390,308 @@
       },
       "exampleSearchCards": {
         "title": "Exempel på sökkort",
-        "examples": {
-          "0": {
+        "examples": [
+          {
             "topLine": "Hur börjar jag lära mig React Native?",
             "bottomLine": "som om jag aldrig har kodat förut"
           },
-          "1": {
+          {
             "topLine": "Vad är skillnaden mellan Web2 och Web3?",
             "bottomLine": "som om jag vore en tonåring"
           },
-          "2": {
+          {
             "topLine": "Hur fungerar aktiemarknaden?",
             "bottomLine": "som om jag är 12"
           },
-          "3": {
+          {
             "topLine": "Vad är kvantdatorer?",
             "bottomLine": "som om jag vore 10 år gammal"
           },
-          "4": {
+          {
             "topLine": "Förklara klimatförändringar",
             "bottomLine": "som om jag är 8"
           },
-          "5": {
+          {
             "topLine": "Vad är artificiell intelligens?",
             "bottomLine": "som om jag vore en high school-elev"
           },
-          "6": {
+          {
             "topLine": "Hur fungerar kreditkort?",
             "bottomLine": "som om jag är 15"
           },
-          "7": {
+          {
             "topLine": "Vad är blockkedjeteknik?",
             "bottomLine": "som om jag vore i mellanstadiet"
           },
-          "8": {
+          {
             "topLine": "Hur fungerar GPS?",
             "bottomLine": "som om jag vore 7 år gammal"
           },
-          "9": {
+          {
             "topLine": "Förklara hur flygplan flyger",
             "bottomLine": "som om jag är 9 år"
           },
-          "10": {
+          {
             "topLine": "Vad är ett meme?",
             "bottomLine": "som om jag vore en farförälder"
           },
-          "11": {
+          {
             "topLine": "Hur fungerar trådlösa nätverk?",
             "bottomLine": "som om jag vore nybörjare"
           },
-          "12": {
+          {
             "topLine": "Vad är kryptovaluta?",
             "bottomLine": "som om jag vore en tonåring"
           },
-          "13": {
+          {
             "topLine": "Hur fungerar internet?",
             "bottomLine": "som jag är 6"
           },
-          "14": {
+          {
             "topLine": "Vad är ett API?",
             "bottomLine": "som jag är ny på programmering"
           },
-          "15": {
+          {
             "topLine": "Förklara fotosyntesen",
             "bottomLine": "som om jag gick i 5:e klass"
           },
-          "16": {
+          {
             "topLine": "Hur fungerar elbilar?",
             "bottomLine": "som om jag vore 14 år"
           },
-          "17": {
+          {
             "topLine": "Vad är ett smart kontrakt?",
             "bottomLine": "som om jag vore i high school"
           },
-          "18": {
+          {
             "topLine": "Hur fungerar rymdresor?",
             "bottomLine": "som om jag var 13 år"
           },
-          "19": {
+          {
             "topLine": "Förklara NFT",
             "bottomLine": "som om jag är 15"
           },
-          "20": {
+          {
             "topLine": "Vad är förstärkt verklighet?",
             "bottomLine": "som om jag vore 10 år gammal"
           },
-          "21": {
+          {
             "topLine": "Hur fungerar en 3D-skrivare?",
             "bottomLine": "som om jag vore i mellanstadiet"
           },
-          "22": {
+          {
             "topLine": "Förklara maskininlärning",
             "bottomLine": "som om jag vore i high school"
           },
-          "23": {
+          {
             "topLine": "Hur fungerar solpaneler?",
             "bottomLine": "som om jag är 12"
           },
-          "24": {
+          {
             "topLine": "Vad är virtuell verklighet?",
             "bottomLine": "som om jag vore nybörjare"
           },
-          "25": {
+          {
             "topLine": "Hur fungerar vacciner?",
             "bottomLine": "som jag är 10"
           },
-          "26": {
+          {
             "topLine": "Förklara gravitationen",
             "bottomLine": "som om jag är 5 år gammal"
           },
-          "27": {
+          {
             "topLine": "Vad är en decentraliserad applikation (dApp)?",
             "bottomLine": "som om jag är ny på blockchain"
           },
-          "28": {
+          {
             "topLine": "Hur tillagar mikrovågor mat?",
             "bottomLine": "som jag är 8"
           },
-          "29": {
+          {
             "topLine": "Förklara begreppet tidszoner",
             "bottomLine": "som om jag vore i lågstadiet"
           },
-          "30": {
+          {
             "topLine": "Hur bearbetar en dator data?",
             "bottomLine": "som om jag vore nybörjare"
           },
-          "31": {
+          {
             "topLine": "Vad är cloud computing?",
             "bottomLine": "som om jag vore i mellanstadiet"
           },
-          "32": {
+          {
             "topLine": "Förklara begreppet AI-etik",
             "bottomLine": "som om jag vore en high school-elev"
           },
-          "33": {
+          {
             "topLine": "Hur håller sig satelliter i omloppsbana?",
             "bottomLine": "som jag är 11"
           },
-          "34": {
+          {
             "topLine": "Vad är cybersäkerhet?",
             "bottomLine": "som om jag vore en tonåring"
           },
-          "35": {
+          {
             "topLine": "Förklara evolutionsteorin",
             "bottomLine": "som om jag gick i 8:e klass"
           },
-          "36": {
+          {
             "topLine": "Vad är syftet med blockkedjan?",
             "bottomLine": "som om jag vore i high school"
           },
-          "37": {
+          {
             "topLine": "Hur fungerar Wi-Fi?",
             "bottomLine": "som jag är 9"
           },
-          "38": {
+          {
             "topLine": "Vad är en sökmotor?",
             "bottomLine": "som om jag vore 10 år gammal"
           },
-          "39": {
+          {
             "topLine": "Hur fungerar elektriska motorer?",
             "bottomLine": "som om jag gick i 7:e klass"
           },
-          "40": {
+          {
             "topLine": "Förklara begreppet relativitetsteori",
             "bottomLine": "som om jag är 14"
           },
-          "41": {
+          {
             "topLine": "Vad är sakernas internet (IoT)?",
             "bottomLine": "som om jag är ny inom teknik"
           },
-          "42": {
+          {
             "topLine": "Hur fungerar smartphones?",
             "bottomLine": "som om jag vore i mellanstadiet"
           },
-          "43": {
+          {
             "topLine": "Förklara begreppet förnybar energi",
             "bottomLine": "som om jag går i 6:e klass"
           },
-          "44": {
+          {
             "topLine": "Vad är virtuell valuta?",
             "bottomLine": "som om jag vore en tonåring"
           },
-          "45": {
+          {
             "topLine": "Hur fungerar smarta hem?",
             "bottomLine": "som om jag är 12"
           },
-          "46": {
+          {
             "topLine": "Vad är djupinlärning?",
             "bottomLine": "som jag är ny på AI"
           },
-          "47": {
+          {
             "topLine": "Hur fungerar online shopping?",
             "bottomLine": "som om jag vore nybörjare"
           },
-          "48": {
+          {
             "topLine": "Förklara begreppet datasekretess",
             "bottomLine": "som om jag vore en tonåring"
           },
-          "49": {
+          {
             "topLine": "Vad är virtual reality-spel?",
             "bottomLine": "som om jag är 14"
           },
-          "50": {
+          {
             "topLine": "Hur fungerar självkörande bilar?",
             "bottomLine": "som om jag vore i high school"
           },
-          "51": {
+          {
             "topLine": "Vad är genteknik?",
             "bottomLine": "som om jag är 13"
           },
-          "52": {
+          {
             "topLine": "Förklara konceptet med smarta städer",
             "bottomLine": "som om jag är ny inom teknik"
           },
-          "53": {
+          {
             "topLine": "Hur fungerar drönare?",
             "bottomLine": "som jag är 11"
           },
-          "54": {
+          {
             "topLine": "Vad är en digital plånbok?",
             "bottomLine": "som om jag vore en tonåring"
           },
-          "55": {
+          {
             "topLine": "Hur fungerar digital konst?",
             "bottomLine": "som om jag vore i mellanstadiet"
           },
-          "56": {
+          {
             "topLine": "Förklara konceptet med 5G-teknik",
             "bottomLine": "som jag är ny på teknik"
           },
-          "57": {
+          {
             "topLine": "Vad är ett självkörande fordon?",
             "bottomLine": "som om jag är 15"
           },
-          "58": {
+          {
             "topLine": "Hur fungerar videospel?",
             "bottomLine": "som jag är 10"
           },
-          "59": {
+          {
             "topLine": "Förklara konceptet med smarta kontrakt",
             "bottomLine": "som om jag vore i high school"
           },
-          "60": {
+          {
             "topLine": "Vad är en smart klocka?",
             "bottomLine": "som om jag vore i mellanstadiet"
           },
-          "61": {
+          {
             "topLine": "Hur fungerar en pekskärm?",
             "bottomLine": "som om jag vore 12 år gammal"
           },
-          "62": {
+          {
             "topLine": "Förklara begreppet maskinöversättning",
             "bottomLine": "som om jag vore nybörjare"
           },
-          "63": {
+          {
             "topLine": "Vad är ett datacenter?",
             "bottomLine": "som om jag är ny inom teknik"
           },
-          "64": {
+          {
             "topLine": "Hur fungerar blockchain mining?",
             "bottomLine": "som om jag vore en tonåring"
           },
-          "65": {
+          {
             "topLine": "Vad är ett mikrochip?",
             "bottomLine": "som om jag vore i high school"
           },
-          "66": {
+          {
             "topLine": "Förklara konceptet med molnlagring",
             "bottomLine": "som om jag vore i mellanstadiet"
           },
-          "67": {
+          {
             "topLine": "Hur fungerar elektriska skotrar?",
             "bottomLine": "som om jag var 13 år"
           },
-          "68": {
+          {
             "topLine": "Vad är en algoritm?",
             "bottomLine": "som om jag vore nybörjare"
           },
-          "69": {
+          {
             "topLine": "Förklara konceptet med virtuella möten",
             "bottomLine": "som om jag är ny inom teknik"
           },
-          "70": {
+          {
             "topLine": "Hur fungerar elcyklar?",
             "bottomLine": "som om jag är 14"
           },
-          "71": {
+          {
             "topLine": "Vad är en kvantdator?",
             "bottomLine": "som om jag vore i high school"
           },
-          "72": {
+          {
             "topLine": "Förklara begreppet cybersäkerhet",
             "bottomLine": "som om jag vore en tonåring"
           },
-          "73": {
+          {
             "topLine": "Vad är förstärkt verklighet?",
             "bottomLine": "som om jag är 12"
           },
-          "74": {
+          {
             "topLine": "Hur fungerar streamingtjänster?",
             "bottomLine": "som om jag vore i mellanstadiet"
           }
-        }
+        ]
       },
       "saveChat": {
         "errorMessage": "Tyvärr kunde vi inte spara din konversation."
@@ -857,7 +852,6 @@
       "noContacts": "Lägg till kontakter så visas de här",
       "selectAddressType": "Välj adresstyp",
       "tapToGenerate_other": "Tryck för att se andra mottagningsalternativ",
-      "tapToGenerate_lightning": "Tryck för att skapa en Lightning-faktura",
       "tapToGenerate_bitcoin": "Tryck för att skapa en Bitcoin-adress",
       "tapToGenerate_spark": "Tryck för att skapa en Spark-adress",
       "tapToGenerate_liquid": "Tryck för att skapa en Liquid-adress",
@@ -1356,7 +1350,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Sök befintligt konto",
-      "mainWalletPlace": "Huvudplånbok"
+      "mainWalletPlace": "Huvudplånbok",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "Är du säker?",
@@ -1570,7 +1565,9 @@
         "createNewAccountTitle": "Skapa nytt konto",
         "createNewAccountDescription": "Kan återställas från huvudets seed-fras",
         "importRecoveryPhraseTitle": "Importera återställningsfras",
-        "importRecoveryPhraseDescription": "Importera konton från en annan wallet"
+        "importRecoveryPhraseDescription": "Importera konton från en annan wallet",
+        "recoverRecoveryPhraseTitle": "Återställ konto",
+        "recoverRecoveryPhraseDescription": "Återställ ett redan skapat konto"
       },
       "selectProfileImage": {
         "title": "Välj avatar",
@@ -1594,6 +1591,13 @@
       "selectAltAccount": {
         "from": "Välj kontot du vill skicka från.",
         "to": "Välj kontot du vill ta emot till."
+      },
+      "removeAccountPage": {
+        "title": "Ta bort konto",
+        "explanation_derived": "Detta konto härleddes från ditt seed-fras. Du kan återställa det när som helst genom att lägga till det igen.",
+        "explanation_imported": "Detta konto importerades. Om du tar bort det måste du importera din privata nyckel igen för att komma åt det.",
+        "cancelButton": "Avbryt",
+        "removeButton": "Ta bort konto"
       }
     },
     "accountsPoolsScreen": {
@@ -1637,8 +1641,7 @@
         "title": "Instruktioner",
         "head1": "Hur man accepterar",
         "head2": "Bitcoin-betalningar",
-        "step1": "Skanna QR-koden med din kamera",
-        "step2": "2. Det var allt."
+        "step1": "Skanna QR-koden med din kamera"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "Användaren har inte något tips-saldo.",
@@ -1805,7 +1808,9 @@
         "experimental features": "Experimentella funktioner",
         "settings": "Inställningar",
         "blitzRestore": "Blitz Återställning",
-        "point-of-sale": "Försäljningsställen"
+        "point-of-sale": "Försäljningsställen",
+        "pools": "Pooler",
+        "show seed phrase": "Säkerhetskopiera plånbok"
       },
       "technicalTransactionDetails": {
         "txHash": "Transaktionens hash",
@@ -2119,25 +2124,21 @@
       "giftCard": "{{name}} skickade ett presentkort till dig på {{giftCardName}} "
     }
   },
-
   "accountCard": {
     "fallbackAccountName": "Konto {{index}}"
   },
-
   "flashnetUserMessages": {
     "FSAG-1000": "Begäran klarade inte valideringskontrollerna.",
     "FSAG-1001": "Ett obligatoriskt fält saknas i begäran.",
     "FSAG-1002": "Ett eller flera fält har ogiltigt format.",
     "FSAG-1003": "Ett värde ligger utanför det tillåtna intervallet.",
     "FSAG-1004": "Detta värde finns redan och måste vara unikt.",
-
     "FSAG-2001": "Begärans signatur kunde inte verifieras.",
     "FSAG-2002": "Token-identiteten matchar inte den förväntade publika nyckeln.",
     "FSAG-2003": "Autentisering krävs för denna åtgärd.",
     "FSAG-2004": "Din session har gått ut eller token är ogiltig.",
     "FSAG-2005": "Begärans nonce är ogiltig eller har redan använts.",
     "FSAG-2101": "Den angivna publika nyckeln är ogiltig.",
-
     "FSAG-3001": "Ett tillfälligt serviceproblem uppstod. Försök igen.",
     "FSAG-3002": "Ett tillfälligt serviceproblem uppstod. Försök igen.",
     "FSAG-3101": "Ett databasfel uppstod. Försök igen.",
@@ -2149,7 +2150,6 @@
     "FSAG-3302": "AMM-processorn nådde tidsgränsen vid behandling av begäran.",
     "FSAG-3401": "Ett internt bearbetningsfel uppstod.",
     "FSAG-3402": "Ett internt bearbetningsfel uppstod.",
-
     "FSAG-4001": "Den angivna poolen finns inte.",
     "FSAG-4002": "Det angivna värd-namnområdet finns inte.",
     "FSAG-4101": "Din autentiseringssession hittades inte eller har gått ut.",
@@ -2160,7 +2160,6 @@
     "FSAG-4204": "Du har inte tillräckligt med LP-token för att slutföra uttaget.",
     "FSAG-4301": "Avgiftskonfigurationen är ogiltig.",
     "FSAG-4401": "Denna Spark-överföring har redan använts i en åtgärd.",
-
     "FSAG-5001": "Ett internt fel uppstod vid behandling av begäran.",
     "FSAG-5002": "Denna funktion är ännu inte tillgänglig.",
     "FSAG-5003": "Ett internt fel uppstod. Kontakta support om problemet kvarstår.",

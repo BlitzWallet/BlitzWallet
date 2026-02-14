@@ -877,7 +877,7 @@
         "lnurlWithdrawlStart": "Generando factura para retiro",
         "lnurlWithdrawlInvoiceError": "No se pudo generar la factura para retiro LNURL",
         "waitingForLnurlWithdrawl": "Esperando pago...",
-        "lnurlwithdrawlsuccess": "¡Retiro exitoso! Su pago está en camino.",
+        "lnurlWithdrawlSuccess": "¡Retiro exitoso! Su pago está en camino.",
         "invoiceDetails": "Detalles de carga",
         "timeoutError": "El proceso tardó demasiado en completarse. Inténtalo de nuevo.",
         "payingToSameAddress": "No puedes enviar un pago {{addressType}} a ti mismo."
@@ -1161,7 +1161,9 @@
       "text15": "Ocultar remitentes desconocidos",
       "thousandsSeperator": "Separador de miles",
       "space": "Espacio",
-      "local": "Formato numérico local"
+      "local": "Formato numérico local",
+      "sparkTitle": "Spark",
+      "sliderTitle_enabled": "Activado"
     },
     "fastPay": {
       "text1": "Error al añadir el valor ingresado, por favor intenta de nuevo.",
@@ -1212,7 +1214,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Buscar cuenta existente",
-      "mainWalletPlace": "Billetera principal"
+      "mainWalletPlace": "Billetera principal",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "¿Estás seguro?",
@@ -1428,7 +1431,9 @@
         "createNewAccountTitle": "Crear nueva cuenta",
         "createNewAccountDescription": "Recuperable desde la frase semilla principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperación",
-        "importRecoveryPhraseDescription": "Importar cuentas desde otra wallet"
+        "importRecoveryPhraseDescription": "Importar cuentas desde otra wallet",
+        "recoverRecoveryPhraseTitle": "Recuperar cuenta",
+        "recoverRecoveryPhraseDescription": "Restaurar una cuenta ya creada"
       },
       "selectProfileImage": {
         "title": "Elegir avatar",
@@ -1452,6 +1457,13 @@
       "selectAltAccount": {
         "from": "Selecciona la cuenta desde la que quieres enviar.",
         "to": "Selecciona la cuenta en la que quieres recibir."
+      },
+      "removeAccountPage": {
+        "title": "Eliminar cuenta",
+        "explanation_derived": "Esta cuenta fue derivada de tu frase semilla. Puedes restaurarla en cualquier momento volviéndola a agregar.",
+        "explanation_imported": "Esta cuenta fue importada. Si la eliminas, necesitarás volver a importar tu clave privada para acceder a ella.",
+        "cancelButton": "Cancelar",
+        "removeButton": "Eliminar cuenta"
       }
     },
     "accountsPoolsScreen": {
@@ -1556,6 +1568,9 @@
         "defaultMessage": "¿Estás seguro de que quieres vaciar tu billetera?",
         "ctaBTN": "Marcar como {{option}}"
       }
+    },
+    "language": {
+      "inputPlaceHolder": "Buscar idioma"
     }
   },
   "screens": {
@@ -1573,11 +1588,12 @@
         "failedToSend": "Error al enviar",
         "paymentErrorMessage": "Hubo un problema al enviar este pago, por favor intenta de nuevo.",
         "sendReport": "Enviar informe al desarrollador",
-        "Lnurlauthsuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión.",
         "emailReport": "Enviar por correo electrónico",
         "copyReport": "Copiar al portapapeles",
         "confirmMessage_sent": "Enviado correctamente",
-        "confirmMessage_received": "Recibido correctamente"
+        "confirmMessage_received": "Recibido correctamente",
+        "confirmMessage": "{{direction}} exitosamente",
+        "lnurlAuthSuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión."
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Cantidad enviada",
@@ -1662,7 +1678,9 @@
         "experimental features": "Funciones experimentales",
         "settings": "Configuración",
         "blitzRestore": "Restauración Blitz",
-        "point-of-sale": "Punto de venta"
+        "point-of-sale": "Punto de venta",
+        "pools": "Pools",
+        "show seed phrase": "Respaldar billetera"
       },
       "technicalTransactionDetails": {
         "txHash": "Hash de transacción",
@@ -1704,7 +1722,6 @@
         "shareMessage": "¡Has recibido un regalo de {{amount}}! Reclámalo aquí:\n{{link}}",
         "fundGiftMessage": "Creando regalo",
         "reclaimGiftMessage": "Recuperando regalo",
-
         "giftsHome": {
           "title": "Regalos en Blitz"
         },
@@ -1934,7 +1951,6 @@
     "liquidInvoiceError": "Hubo un problema al generar tu dirección Liquid. Intenta de nuevo.",
     "lightningInvoiceError": "Hubo un problema al generar tu dirección Bitcoin. Intenta de nuevo.",
     "sparkInvioceError": "Hubo un problema al generar tu dirección Spark. Intenta de nuevo.",
-    "lightningInvioceError": "Hubo un problema al generar tu dirección Lightning. Intenta de nuevo.",
     "sparkConnectionError": "Error en la conexión con Spark. Intenta de nuevo.",
     "giftCardExpiration": "Las tarjetas de regalo solo se pueden recuperar durante 7 días después de su envío. Si eliminas esta aplicación o borras el almacenamiento local después de ese tiempo, perderás tus tarjetas de regalo. Asegúrate de guardar los enlaces de solicitud o los códigos de las tarjetas de regalo en un lugar seguro.",
     "receivedRootstock": "Pago de Roostock recibido: su intercambio está comenzando. Puede tardar hasta un minuto, así que mantenga la aplicación abierta.",
@@ -1943,7 +1959,8 @@
     "paymentError": "Se produjo un error al procesar tu pago. Inténtalo de nuevo. Si aún no funciona, cierra la aplicación y vuelve a abrirla antes de intentarlo nuevamente.",
     "paymentFeeError": "No pudimos obtener la tarifa de pago. Inténtalo de nuevo. Si el problema continúa, cierra la aplicación y vuelve a abrirla antes de intentarlo nuevamente.",
     "priceImpact": "Este pago es grande, por lo que el monto final que recibas en dólares puede cambiar.",
-    "removingImageError": "No se pudo eliminar la imagen. Inténtalo de nuevo."
+    "removingImageError": "No se pudo eliminar la imagen. Inténtalo de nuevo.",
+    "bitcoinInvoiceError": "Hubo un problema al generar tu dirección de Bitcoin. Por favor, inténtalo de nuevo."
   },
   "loadingScreen": {
     "message1": "Por favor no cierres la aplicación",
@@ -1997,14 +2014,12 @@
     "FSAG-1002": "Uno o más campos tienen un formato no válido.",
     "FSAG-1003": "Un valor está fuera del rango permitido.",
     "FSAG-1004": "Este valor ya existe y debe ser único.",
-
     "FSAG-2001": "No se pudo verificar la firma de la solicitud.",
     "FSAG-2002": "La identidad del token no coincide con la clave pública esperada.",
     "FSAG-2003": "Se requiere autenticación para esta operación.",
     "FSAG-2004": "Tu sesión ha expirado o el token no es válido.",
     "FSAG-2005": "El nonce de la solicitud no es válido o ya fue utilizado.",
     "FSAG-2101": "La clave pública proporcionada no es válida.",
-
     "FSAG-3001": "Se produjo un problema temporal del servicio. Inténtalo de nuevo.",
     "FSAG-3002": "Se produjo un problema temporal del servicio. Inténtalo de nuevo.",
     "FSAG-3101": "Se produjo un error en la base de datos. Inténtalo de nuevo.",
@@ -2016,7 +2031,6 @@
     "FSAG-3302": "El procesador AMM agotó el tiempo de espera al procesar la solicitud.",
     "FSAG-3401": "Se produjo un error interno de procesamiento.",
     "FSAG-3402": "Se produjo un error interno de procesamiento.",
-
     "FSAG-4001": "El pool especificado no existe.",
     "FSAG-4002": "El espacio de nombres del host especificado no existe.",
     "FSAG-4101": "Tu sesión de autenticación no fue encontrada o ha expirado.",
@@ -2027,7 +2041,6 @@
     "FSAG-4204": "No tienes suficientes tokens LP para completar este retiro.",
     "FSAG-4301": "La configuración de tarifas no es válida.",
     "FSAG-4401": "Esta transferencia Spark ya fue utilizada en una operación.",
-
     "FSAG-5001": "Se produjo un error interno al procesar tu solicitud.",
     "FSAG-5002": "Esta función aún no está disponible.",
     "FSAG-5003": "Se produjo un error interno. Contacta al soporte si persiste.",

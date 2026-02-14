@@ -126,7 +126,6 @@
     "paymentDescriptionPlaceholder": "Descrizione (facoltativa)",
     "print": "Stampa"
   },
-
   "languages": {
     "english": "English",
     "spanish": "Español",
@@ -137,7 +136,6 @@
     "swedish": "Svenska",
     "russian": "Русский"
   },
-
   "weekdays": {
     "Mon": "Lunedì",
     "Tue": "Martedì",
@@ -147,7 +145,6 @@
     "Sat": "Sabato",
     "Sun": "Domenica"
   },
-
   "months": {
     "Jan": "Gennaio",
     "Feb": "Febbraio",
@@ -162,7 +159,6 @@
     "Nov": "Novembre",
     "Dec": "Dicembre"
   },
-
   "timeLabels": {
     "minute": "minuto",
     "minutes": "minuti",
@@ -177,7 +173,6 @@
     "monthly": "Mensile",
     "yearly": "Annuale"
   },
-
   "transactionLabelText": {
     "notSent": "Pagamento non inviato",
     "txTime_just_now": "Adesso",
@@ -202,7 +197,6 @@
     "memo": "Memo",
     "roostockSwap": "Trasferimento da Rootstock a Spark"
   },
-
   "createAccount": {
     "chooseLanguage": {
       "title": "Scegli la lingua"
@@ -273,7 +267,6 @@
       "btn": "Ho capito"
     }
   },
-
   "adminLogin": {
     "pinPage": {
       "isBiometricEnabledConfirmAction": "Non siamo riusciti a verificare i tuoi dati biometrici.\n\nVuoi eliminare tutti i dati del portafoglio? Continua solo se la tua seed phrase è stata salvata in modo sicuro.",
@@ -283,7 +276,6 @@
       "biometricsHeader": "Apri con biometria"
     }
   },
-
   "apps": {
     "appList": {
       "AI": "IA",
@@ -391,14 +383,12 @@
         "price": "Prezzo: ",
         "fee": "Commissione: "
       },
-
       "switchModel": {
         "inputLabel": "Input: {{amount}}/M",
         "outputLabel": "Output: {{amount}}/M",
         "chooseModel": "Scegli il modello",
         "noModels": "Nessun modello corrisponde a quel nome. Controlla l'ortografia o prova un nome diverso."
       },
-
       "exampleSearchCards": {
         "title": "Esempi di ricerche",
         "examples": [
@@ -704,7 +694,6 @@
           }
         ]
       },
-
       "saveChat": {
         "errorMessage": "Spiacenti, non è stato possibile salvare la conversazione."
       }
@@ -722,7 +711,6 @@
         "price": "Prezzo: ",
         "fee": "Commissione: "
       },
-
       "createAccount": {
         "title": "Offerto da",
         "saveEmail": "Non hai un’email salvata. Salva un’email per velocizzare il checkout.",
@@ -762,7 +750,6 @@
         "customCopyMessage": "Email di assistenza copiata"
       }
     },
-
     "sms4sats": {
       "home": {
         "pageDescription": "Invia e ricevi messaggi SMS senza rivelare il tuo numero di telefono personale.",
@@ -775,7 +762,6 @@
         "invalidNumber": "Non è un numero di telefono valido",
         "receiveTitle": "Conferma ricezione"
       },
-
       "sendPage": {
         "startingSendingMessage": "Creazione dell'ordine di invio",
         "phoneNumberInputDescription": "Inserisci il numero di telefono",
@@ -854,7 +840,6 @@
       "addListing": "Aggiungi Negozio"
     }
   },
-
   "wallet": {
     "halfModal": {
       "images": "Dall'Immagine",
@@ -868,7 +853,6 @@
       "noContacts": "Aggiungi contatti per visualizzarli qui",
       "selectAddressType": "Seleziona tipo di indirizzo",
       "tapToGenerate_other": "Tocca per vedere altre opzioni di ricezione",
-      "tapToGenerate_lightning": "Tocca per generare una fattura Lightning",
       "tapToGenerate_bitcoin": "Tocca per generare un indirizzo Bitcoin",
       "tapToGenerate_spark": "Tocca per generare un indirizzo Spark",
       "tapToGenerate_liquid": "Tocca per generare un indirizzo Liquid",
@@ -977,7 +961,6 @@
         "format": "Altri metodi di ricezione",
         "infoMessage": "Gli importi personalizzati non sono supportati nei pagamenti Spark o Rootstock."
       },
-
       "switchReceiveOptionPage": {
         "title": "Metodi di ricezione",
         "actionBTN": "Mostra {{action}}",
@@ -1028,12 +1011,11 @@
         "lnurlWithdrawlStart": "Generazione fattura per prelievo",
         "lnurlWithdrawlInvoiceError": "Impossibile generare fattura per prelievo LNURL",
         "waitingForLnurlWithdrawl": "In attesa di pagamento...",
-        "LnurlwithDrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo.",
         "invoiceDetails": "Caricamento dei dettagli",
         "timeoutError": "Il processo ha richiesto troppo tempo. Riprova.",
-        "payingToSameAddress": "Non puoi inviare un pagamento {{addressType}} a te stesso."
+        "payingToSameAddress": "Non puoi inviare un pagamento {{addressType}} a te stesso.",
+        "lnurlWithdrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo."
       },
-
       "errorScreen": {
         "ok": "OK",
         "title": "Messaggio di errore"
@@ -1043,7 +1025,6 @@
         "backTextToAmount": "{{amount}}",
         "tenMinutes": "{{numMins}} minuti"
       },
-
       "selectLRC20Token": {
         "title": "Seleziona Token",
         "searchPlaceholder": "Nome token...",
@@ -1075,7 +1056,6 @@
         "see_all_txs": "Vedi tutte le transazioni",
         "no_transaction_history": "Invia o ricevi una transazione per visualizzarla qui"
       },
-
       "lrc20Assets": {
         "actionText": "token {{action}}",
         "tokensSearchPlaceholder": "Cerca token...",
@@ -1110,7 +1090,6 @@
       "loadingMessage": "Caricamento delle transazioni salvate"
     }
   },
-
   "contacts": {
     "contactsPage": {
       "contactsHeader": "Contatti",
@@ -1132,7 +1111,6 @@
       "noProfilesFound": "Nessun profilo corrisponde a questa ricerca",
       "startTypingMessage": "Cerca per LNURL (ad es. name@service.com) o nome utente Blitz."
     },
-
     "expandedContactPage": {
       "loadingContactError": "Impossibile caricare il contatto, riprova.",
       "requestLNURLError": "Puoi richiedere denaro solo dai contatti Blitz, non dagli indirizzi LNURL.",
@@ -1165,7 +1143,6 @@
     "selectCurrencyToRequest": {
       "header": "Seleziona la valuta da richiedere"
     },
-
     "sendAndRequestPage": {
       "sendBitcoin": "Invia Bitcoin",
       "sendDollars": "Invia dollari",
@@ -1240,7 +1217,6 @@
       "scanProfile": "Scansiona profilo"
     }
   },
-
   "settings": {
     "index": {
       "editProfile": "Modifica profilo",
@@ -1322,7 +1298,9 @@
       "text15": "Nascondi mittenti sconosciuti",
       "thousandsSeperator": "Separatore delle migliaia",
       "space": "Spazio",
-      "local": "Formato locale"
+      "local": "Formato locale",
+      "sparkTitle": "Spark",
+      "sliderTitle_enabled": "Attivato"
     },
     "fastPay": {
       "text1": "Errore nell'aggiungere il valore inserito, riprova.",
@@ -1357,7 +1335,6 @@
       "wordsText": "Parole",
       "qrText": "QR Code",
       "showSeedWarning": "Sei sicuro di voler mostrare la tua frase seed?",
-
       "warning": {
         "title": "Mantieni segreta la tua frase di recupero",
         "point1": "La tua frase segreta di recupero è come una chiave maestra del tuo wallet.",
@@ -1372,16 +1349,15 @@
       "crashreporting_disabled": "Segnalazione degli arresti anomali disabilitata",
       "descriptionText": "I dati dei crash ci aiutano a migliorare la stabilità e le prestazioni della nostra applicazione.\n\nQuando si verifica un crash, le informazioni sul dispositivo che vengono registrate automaticamente includono:\n\n• Sistema Operativo: versione OS, orientamento del dispositivo e stato del jailbreak\n• Dettagli Dispositivo: Modello, orientamento e RAM disponibile\n• Informazioni Crash: Data del crash e versione dell'app"
     },
-
     "accounts": {
       "inputPlaceholder": "Cerca account esistente",
-      "mainWalletPlace": "Portafoglio principale"
+      "mainWalletPlace": "Portafoglio principale",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "Sei sicuro?",
       "dataDeleteHeader": "Seleziona i dati da eliminare da questo dispositivo.",
       "dataDeleteDesc": "Questo eliminerà tutti i dati del portafoglio dal tuo dispositivo. Se non hai una copia della tua frase seed salvata, PERDERAI l’accesso ai tuoi fondi.",
-
       "seedAndPinOpt": "Elimina tutti i dati dal mio dispositivo",
       "balanceText": "Il tuo saldo è",
       "localStorageError": "Impossibile eliminare le informazioni memorizzate localmente",
@@ -1404,7 +1380,6 @@
       "selectTokenHeader": "Token predefinito",
       "selectTokenInformationPopup": "Scegli quale token desideri utilizzare per primo quando invii pagamenti. Non preoccuparti: puoi comunque modificarlo nella pagina di pagamento in qualsiasi momento."
     },
-
     "viewSwapsHome": {
       "swaps": "Trasferimenti di rete",
       "selectionTitle": "Scegli rete",
@@ -1413,12 +1388,10 @@
       "flashnet": "BTC <> USD",
       "pageTitle": "Trasferimenti {{type}}"
     },
-
     "viewRoostockSwaps": {
       "loadingMessage": "Caricamento delle trasferenze Roostock salvate",
       "noSwapsMessage": "Non hai trasferenze Roostock salvate"
     },
-
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
       "id": "ID",
@@ -1429,7 +1402,6 @@
       "invoice": "Fattura",
       "refundSwap": "Rimborso del trasferimento"
     },
-
     "viewAllLiquidSwaps": {
       "rescanComplete": "Riscansione completa",
       "swapStartedMessage": "Il trasferimento è iniziato. Potrebbero volerci 10–20 secondi prima che il pagamento appaia.",
@@ -1482,7 +1454,6 @@
       "othersType": "Altro",
       "othersFee": "Commissioni di rete"
     },
-
     "nip5": {
       "noNameError": "Il nome non può essere vuoto.",
       "noPubKey": "La chiave pubblica non può essere vuota.",
@@ -1528,7 +1499,6 @@
         "createConnection": "",
         "connectionName": ""
       },
-
       "hasNoAccounts": {
         "wanringMessage": "Per inviare soldi dal tuo wallet Nostr Connect, dovrai prima aggiungere fondi—ricevendo soldi o trasferendoli dal tuo wallet principale.\n\nPuoi trasferire fondi dal tuo wallet principale a NWC nella pagina impostazioni account."
       },
@@ -1596,7 +1566,9 @@
         "createNewAccountTitle": "Crea nuovo account",
         "createNewAccountDescription": "Recuperabile dalla frase seed principale",
         "importRecoveryPhraseTitle": "Importa frase di recupero",
-        "importRecoveryPhraseDescription": "Importa account da un altro wallet"
+        "importRecoveryPhraseDescription": "Importa account da un altro wallet",
+        "recoverRecoveryPhraseTitle": "Recupera account",
+        "recoverRecoveryPhraseDescription": "Ripristina un account già creato"
       },
       "selectProfileImage": {
         "title": "Scegli avatar",
@@ -1620,6 +1592,13 @@
       "selectAltAccount": {
         "from": "Seleziona l’account da cui vuoi inviare.",
         "to": "Seleziona l’account su cui vuoi ricevere."
+      },
+      "removeAccountPage": {
+        "title": "Rimuovi account",
+        "explanation_derived": "Questo account è stato derivato dalla tua frase seed. Puoi ripristinarlo in qualsiasi momento aggiungendolo di nuovo.",
+        "explanation_imported": "Questo account è stato importato. Se lo rimuovi, dovrai reimportare la tua chiave privata per accedervi.",
+        "cancelButton": "Annulla",
+        "removeButton": "Rimuovi account"
       }
     },
     "accountsPoolsScreen": {
@@ -1663,8 +1642,7 @@
         "title": "Istruzioni",
         "head1": "Come accettare",
         "head2": "pagamenti Bitcoin",
-        "step1": "Scansiona il QR Code con la tua fotocamera",
-        "step2": "2. È tutto."
+        "step1": "Scansiona il QR Code con la tua fotocamera"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "L'utente non ha alcun saldo mance.",
@@ -1717,16 +1695,15 @@
           "tipMessage": "Mancia: {{amount}}",
           "ctaBTN": "Segna come {{option}}"
         }
-      },
-      "popups": {
-        "confirmActionPage": {
-          "defaultMessage": "Sei sicuro di voler svuotare il tuo wallet?",
-          "ctaBTN": "Segna come {{option}}"
-        }
+      }
+    },
+    "popups": {
+      "confirmActionPage": {
+        "defaultMessage": "Sei sicuro di voler svuotare il tuo wallet?",
+        "ctaBTN": "Segna come {{option}}"
       }
     }
   },
-
   "screens": {
     "inAccount": {
       "appStore": {
@@ -1738,26 +1715,25 @@
         "featuredApps": "C'è qualcosa che desideri qui?",
         "comingSoon": "Questa funzione è temporaneamente non disponibile. Stiamo lavorando per ripristinarla il prima possibile."
       },
-
       "confirmTxPage": {
         "failedToSend": "Invio fallito",
         "paymentErrorMessage": "C'è stato un problema nell'inviare questo pagamento, riprova.",
         "sendReport": "Invia report allo sviluppatore",
-        "Lnurlauthsuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso.",
         "emailReport": "Invia via email",
         "copyReport": "Copia negli appunti",
         "confirmMessage_sent": "Inviato con successo",
-        "confirmMessage_received": "Ricevuto con successo"
+        "confirmMessage_received": "Ricevuto con successo",
+        "confirmMessage": "{{direction}} con successo",
+        "lnurlAuthSuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso."
       },
       "expandedTxPage": {
-        "mainToggle_enabled": "Notifiche abilitate",
-        "mainToggle_disabled": "Notifiche disabilitate",
         "confirmMessage_received": "Importo ricevuto",
         "paymentStatus": "Stato pagamento",
         "confReqired": "Confs richiesti",
         "detailsBTN": "Dettagli tecnici",
         "contactPaymentType": "Contatto",
-        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}",
+        "confirmMessage_sent": "Importo inviato"
       },
       "explorePage": {
         "timeLeft": "({{time}} rimanenti)",
@@ -1777,7 +1753,6 @@
         "dbInitError1": "Non siamo in grado di configurare la tua app.",
         "dbInitError2": "Per favore riprova. Se il problema persiste, puoi recuperare i tuoi fondi in tutta sicurezza utilizzando la frase seed."
       },
-
       "receiveBtcPage": {
         "onchainFeeMessage": "I pagamenti on-chain hanno una commissione di rete e una commissione Spark dello 0,1%.\n\nSe invii soldi a te stesso, pagherai la commissione di rete due volte — una per inviarli e una per reclamarli.\n\nSe qualcun altro ti invia fondi, pagherai la commissione di rete una sola volta per reclamarli.",
         "liquidFeeMessage": "I pagamenti ricevuti su indirizzi Liquid devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}}, una commissione di riscossione di circa {{claimFee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
@@ -1809,7 +1784,6 @@
         "editDescriptionHead": "Cosa vorresti dire?",
         "editDescriptionPlaceholder": "Aggiungi una descrizione"
       },
-
       "settingsContent": {
         "about": "Informazioni",
         "language": "Lingua",
@@ -1835,7 +1809,9 @@
         "experimental features": "Funzionalità Sperimentali",
         "settings": "Impostazioni",
         "blitzRestore": "Ripristino Blitz",
-        "point-of-sale": "Terminale POS"
+        "point-of-sale": "Terminale POS",
+        "pools": "Pools",
+        "show seed phrase": "Backup portafoglio"
       },
       "technicalTransactionDetails": {
         "txHash": "Hash Transazione",
@@ -1852,7 +1828,6 @@
       "viewAllTxPage": {
         "title": "Transazioni"
       },
-
       "lrc20HalfModal": {
         "title": "Cerca Token",
         "searchPlaceholder": "Nome token...",
@@ -1878,11 +1853,9 @@
         "shareMessage": "Hai ricevuto un regalo di {{amount}}! Riscattalo qui:\n{{link}}",
         "fundGiftMessage": "Creazione del regalo",
         "reclaimGiftMessage": "Recupero del regalo",
-
         "giftsHome": {
           "title": "Regali in Blitz"
         },
-
         "giftsOverview": {
           "noGiftsHead": "Nessun regalo ancora",
           "noGiftsDesc": "Crea il tuo primo regalo per condividere Bitcoin o dollari con amici e familiari.",
@@ -1892,7 +1865,6 @@
           "unclaimed": "Non riscattato",
           "reclaimed": "Recuperato"
         },
-
         "createGift": {
           "noAmountError": "Inserisci un importo per creare il tuo regalo.",
           "connectError": "Non siamo riusciti a configurare il portafoglio del regalo.",
@@ -1909,7 +1881,6 @@
           "durationText": "{{numDays}} giorni",
           "type": "Tipo"
         },
-
         "giftConfirmation": {
           "header": "Regalo creato!",
           "whatToDo": "Condividi questo regalo tramite QR o link",
@@ -1920,7 +1891,6 @@
           "createAnother": "Crea un altro",
           "done": "Fatto"
         },
-
         "claimHome": {
           "header": "Inserisci il link del regalo",
           "desc": "Incolla il link ricevuto o scansiona il QR per riscattare il regalo",
@@ -1929,7 +1899,6 @@
           "noGiftLinkError": "Impossibile trovare un link regalo. Scansiona o incolla il link ricevuto.",
           "invliadGiftFormat": "Link regalo non valido. Copia il link completo e riprova."
         },
-
         "reclaimPage": {
           "header": "Recupera il tuo regalo",
           "desc": "Inserisci o scegli l'ID per recuperare un regalo scaduto o non riscattato.",
@@ -1939,7 +1908,6 @@
           "noReclaimsMessage": "Non hai regali scaduti al momento. Torna quando un regalo sarà scaduto per recuperarlo.",
           "advancedModeBTN": "Modalità avanzata"
         },
-
         "advancedMode": {
           "header": "Modalità avanzata",
           "currentIndexHead": "Indice regalo corrente",
@@ -1951,7 +1919,6 @@
           "restoreGiftBTN": "Ripristina regalo",
           "advancedWarning": "Questa funzione avanzata dovrebbe essere utilizzata solo quando il normale processo di recupero non funziona. Se non sei sicuro, prova prima la pagina normale di recupero."
         },
-
         "claimPage": {
           "parseError": "Non siamo riusciti a leggere i dettagli del regalo.",
           "noGiftForReclaim": "Regalo non trovato. Forse è già stato riscattato.",
@@ -1986,7 +1953,6 @@
           "claimingGiftMessage4": "Riscatto del regalo..."
         }
       },
-
       "swapsPage": {
         "noPoolFoundBackup": "Pool BTC/USDB non trovato",
         "loadPoolError": "Impossibile caricare le informazioni del pool",
@@ -2057,7 +2023,6 @@
       }
     }
   },
-
   "toastmessages": {
     "confirmCopy": "Copiato negli appunti",
     "failedCopy": "Impossibile copiare",
@@ -2066,7 +2031,6 @@
       "desc": "Il tuo saldo verrà aggiornato a breve"
     }
   },
-
   "errormessages": {
     "nointernet": "Riconnettiti a Internet per usare questa funzione",
     "genericError": "Si è verificato un errore inatteso",
@@ -2122,7 +2086,6 @@
     "priceImpact": "Questo pagamento è elevato, quindi l'importo finale che riceverai in dollari potrebbe cambiare.",
     "removingImageError": "Impossibile rimuovere l'immagine. Riprova."
   },
-
   "loadingScreen": {
     "message1": "Non chiudere l'app",
     "message2": "Stiamo configurando tutto",
@@ -2134,15 +2097,12 @@
       "depositLabel": "Pagamento indirizzo deposito"
     }
   },
-
   "share": {
     "contact": "Ciao, aggiungimi su Blitz!"
   },
-
   "swapMessages": {
     "liquid": "Trasferimento da Liquid a Spark"
   },
-
   "tabs": {
     "home": "Portafoglio",
     "appStore": "Negozio",
@@ -2165,25 +2125,21 @@
       "giftCard": "{{name}} ti ha inviato una carta regalo {{giftCardName}}"
     }
   },
-
   "accountCard": {
     "fallbackAccountName": "Account {{index}}"
   },
-
   "flashnetUserMessages": {
     "FSAG-1000": "La richiesta non ha superato i controlli di validazione.",
     "FSAG-1001": "Manca un campo obbligatorio nella richiesta.",
     "FSAG-1002": "Uno o più campi hanno un formato non valido.",
     "FSAG-1003": "Un valore è al di fuori dell’intervallo consentito.",
     "FSAG-1004": "Questo valore esiste già e deve essere univoco.",
-
     "FSAG-2001": "Impossibile verificare la firma della richiesta.",
     "FSAG-2002": "L’identità del token non corrisponde alla chiave pubblica prevista.",
     "FSAG-2003": "È richiesta l’autenticazione per questa operazione.",
     "FSAG-2004": "La sessione è scaduta o il token non è valido.",
     "FSAG-2005": "Il nonce della richiesta non è valido o è già stato utilizzato.",
     "FSAG-2101": "La chiave pubblica fornita non è valida.",
-
     "FSAG-3001": "Si è verificato un problema temporaneo del servizio. Riprova.",
     "FSAG-3002": "Si è verificato un problema temporaneo del servizio. Riprova.",
     "FSAG-3101": "Si è verificato un errore del database. Riprova.",
@@ -2195,7 +2151,6 @@
     "FSAG-3302": "Il processore AMM ha superato il tempo limite durante l’elaborazione.",
     "FSAG-3401": "Si è verificato un errore interno di elaborazione.",
     "FSAG-3402": "Si è verificato un errore interno di elaborazione.",
-
     "FSAG-4001": "Il pool specificato non esiste.",
     "FSAG-4002": "Il namespace host specificato non esiste.",
     "FSAG-4101": "La sessione di autenticazione non è stata trovata o è scaduta.",
@@ -2206,7 +2161,6 @@
     "FSAG-4204": "Non hai abbastanza token LP per completare questo prelievo.",
     "FSAG-4301": "La configurazione delle commissioni non è valida.",
     "FSAG-4401": "Questo trasferimento Spark è già stato utilizzato in un’operazione.",
-
     "FSAG-5001": "Si è verificato un errore interno durante l’elaborazione della richiesta.",
     "FSAG-5002": "Questa funzionalità non è ancora disponibile.",
     "FSAG-5003": "Si è verificato un errore interno. Contatta l’assistenza se il problema persiste.",

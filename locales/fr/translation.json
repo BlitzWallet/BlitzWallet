@@ -92,7 +92,6 @@
     "enabled": "Activé",
     "disabled": "Handicapés",
     "unlimited": "Illimité",
-    "custom": "Sur mesure...",
     "enable": "Activer",
     "disable": "Désactiver",
     "paidLower": "payé",
@@ -124,7 +123,8 @@
     "rate": "Taux",
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Description (facultatif)",
-    "print": "Imprimer"
+    "print": "Imprimer",
+    "custom...": "Sur mesure..."
   },
   "languages": {
     "english": "English",
@@ -311,20 +311,16 @@
         "fee": "Frais : "
       },
       "durationSlider": {
-        "0": {
-          "1": "heure",
-          "5": "jour"
-        },
-        "1": {
-          "5": "semaine"
-        },
-        "3": "mois",
-        "8": "trimestre",
-        "30": "année",
         "durationOption": "1 {{duration}}",
         "price": "Prix : ",
         "noDurations": "Pas de durée disponible",
-        "duration": "Durée de l'accord"
+        "duration": "Durée de l'accord",
+        "0.1": "heure",
+        "0.5": "jour",
+        "1.5": "semaine",
+        "3": "mois",
+        "8": "trimestre",
+        "30": "année"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Êtes-vous sûr de vouloir supprimer ce VPN.",
@@ -395,308 +391,308 @@
       },
       "exampleSearchCards": {
         "title": "Exemples de cartes de recherche",
-        "examples": {
-          "0": {
+        "examples": [
+          {
             "topLine": "Comment commencer à apprendre React Native ?",
             "bottomLine": "comme si je n'avais jamais codé auparavant"
           },
-          "1": {
+          {
             "topLine": "Quelle est la différence entre Web2 et Web3 ?",
             "bottomLine": "comme si j'étais un adolescent"
           },
-          "2": {
+          {
             "topLine": "Comment fonctionne la bourse ?",
             "bottomLine": "comme si j'avais 12 ans"
           },
-          "3": {
+          {
             "topLine": "Qu'est-ce que l'informatique quantique ?",
             "bottomLine": "comme si j'avais 10 ans"
           },
-          "4": {
+          {
             "topLine": "Expliquer le changement climatique",
             "bottomLine": "comme si j'avais 8 ans"
           },
-          "5": {
+          {
             "topLine": "Qu'est-ce que l'intelligence artificielle ?",
             "bottomLine": "comme si j'étais un lycéen"
           },
-          "6": {
+          {
             "topLine": "Comment fonctionnent les cartes de crédit ?",
             "bottomLine": "comme si j'avais 15 ans"
           },
-          "7": {
+          {
             "topLine": "Qu'est-ce que la technologie blockchain ?",
             "bottomLine": "comme si j'étais au collège"
           },
-          "8": {
+          {
             "topLine": "Comment fonctionne le GPS ?",
             "bottomLine": "comme si j'avais 7 ans"
           },
-          "9": {
+          {
             "topLine": "Expliquer comment les avions volent",
             "bottomLine": "comme si j'avais 9 ans"
           },
-          "10": {
+          {
             "topLine": "Qu'est-ce qu'un mème ?",
             "bottomLine": "comme si j'étais un grand-parent"
           },
-          "11": {
+          {
             "topLine": "Comment fonctionnent les réseaux sans fil ?",
             "bottomLine": "comme si j'étais un débutant"
           },
-          "12": {
+          {
             "topLine": "Qu'est-ce qu'une crypto-monnaie ?",
             "bottomLine": "comme si j'étais une adolescente"
           },
-          "13": {
+          {
             "topLine": "Comment fonctionne l'internet ?",
             "bottomLine": "comme j'ai 6 ans"
           },
-          "14": {
+          {
             "topLine": "Qu'est-ce qu'une API ?",
             "bottomLine": "comme je suis novice en programmation"
           },
-          "15": {
+          {
             "topLine": "Expliquer la photosynthèse",
             "bottomLine": "comme si j'étais en 5ème année"
           },
-          "16": {
+          {
             "topLine": "Comment fonctionnent les voitures électriques ?",
             "bottomLine": "comme si j'avais 14 ans"
           },
-          "17": {
+          {
             "topLine": "Qu'est-ce qu'un contrat intelligent ?",
             "bottomLine": "comme si j'étais au lycée"
           },
-          "18": {
+          {
             "topLine": "Comment fonctionne le voyage spatial ?",
             "bottomLine": "comme si j'avais 13 ans"
           },
-          "19": {
+          {
             "topLine": "Expliquer les NFT",
             "bottomLine": "comme si j'avais 15 ans"
           },
-          "20": {
+          {
             "topLine": "Qu'est-ce que la réalité augmentée ?",
             "bottomLine": "comme si j'avais 10 ans"
           },
-          "21": {
+          {
             "topLine": "Comment fonctionne une imprimante 3D ?",
             "bottomLine": "comme si j'étais au collège"
           },
-          "22": {
+          {
             "topLine": "Expliquer l'apprentissage automatique",
             "bottomLine": "comme si j'étais au lycée"
           },
-          "23": {
+          {
             "topLine": "Comment fonctionnent les panneaux solaires ?",
             "bottomLine": "comme si j'avais 12 ans"
           },
-          "24": {
+          {
             "topLine": "Qu'est-ce que la réalité virtuelle ?",
             "bottomLine": "comme si j'étais un débutant"
           },
-          "25": {
+          {
             "topLine": "Comment fonctionnent les vaccins ?",
             "bottomLine": "comme si j'avais 10 ans"
           },
-          "26": {
+          {
             "topLine": "Expliquer la gravité",
             "bottomLine": "comme si j'avais 5 ans"
           },
-          "27": {
+          {
             "topLine": "Qu'est-ce qu'une application décentralisée (dApp) ?",
             "bottomLine": "comme je suis novice en matière de blockchain"
           },
-          "28": {
+          {
             "topLine": "Comment les micro-ondes cuisent-elles les aliments ?",
             "bottomLine": "comme je suis 8"
           },
-          "29": {
+          {
             "topLine": "Expliquer la notion de fuseaux horaires",
             "bottomLine": "comme si j'étais à l'école primaire"
           },
-          "30": {
+          {
             "topLine": "Comment un ordinateur traite-t-il les données ?",
             "bottomLine": "comme si j'étais un débutant"
           },
-          "31": {
+          {
             "topLine": "Qu'est-ce que l'informatique dématérialisée ?",
             "bottomLine": "comme si j'étais au collège"
           },
-          "32": {
+          {
             "topLine": "Expliquer le concept d'éthique de l'IA",
             "bottomLine": "comme si j'étais un lycéen"
           },
-          "33": {
+          {
             "topLine": "Comment les satellites restent-ils en orbite ?",
             "bottomLine": "comme j'ai 11 ans"
           },
-          "34": {
+          {
             "topLine": "Qu'est-ce que la cybersécurité ?",
             "bottomLine": "comme si j'étais un adolescent"
           },
-          "35": {
+          {
             "topLine": "Expliquer la théorie de l'évolution",
             "bottomLine": "comme si j'étais en 8ème année"
           },
-          "36": {
+          {
             "topLine": "Quel est l'objectif de la blockchain ?",
             "bottomLine": "comme si j'étais au lycée"
           },
-          "37": {
+          {
             "topLine": "Comment fonctionne le Wi-Fi ?",
             "bottomLine": "comme je suis 9"
           },
-          "38": {
+          {
             "topLine": "Qu'est-ce qu'un moteur de recherche ?",
             "bottomLine": "comme si j'avais 10 ans"
           },
-          "39": {
+          {
             "topLine": "Comment fonctionnent les moteurs électriques ?",
             "bottomLine": "comme si j'étais en 7ème année"
           },
-          "40": {
+          {
             "topLine": "Expliquer le concept de relativité",
             "bottomLine": "comme si j'avais 14 ans"
           },
-          "41": {
+          {
             "topLine": "Qu'est-ce que l'internet des objets (IdO) ?",
             "bottomLine": "comme je suis novice en matière de technologie"
           },
-          "42": {
+          {
             "topLine": "Comment fonctionnent les smartphones ?",
             "bottomLine": "comme si j'étais au collège"
           },
-          "43": {
+          {
             "topLine": "Expliquer le concept d'énergie renouvelable",
             "bottomLine": "comme si j'étais en 6e année"
           },
-          "44": {
+          {
             "topLine": "Qu'est-ce qu'une monnaie virtuelle ?",
             "bottomLine": "comme si j'étais un adolescent"
           },
-          "45": {
+          {
             "topLine": "Comment fonctionnent les maisons intelligentes ?",
             "bottomLine": "comme si j'avais 12 ans"
           },
-          "46": {
+          {
             "topLine": "Qu'est-ce que l'apprentissage profond ?",
             "bottomLine": "comme je suis novice en matière d'IA"
           },
-          "47": {
+          {
             "topLine": "Comment fonctionne l'achat en ligne ?",
             "bottomLine": "comme si j'étais un débutant"
           },
-          "48": {
+          {
             "topLine": "Expliquer le concept de confidentialité des données",
             "bottomLine": "comme si j'étais un adolescent"
           },
-          "49": {
+          {
             "topLine": "Qu'est-ce que le jeu en réalité virtuelle ?",
             "bottomLine": "comme si j'avais 14 ans"
           },
-          "50": {
+          {
             "topLine": "Comment fonctionnent les voitures autonomes ?",
             "bottomLine": "comme si j'étais au lycée"
           },
-          "51": {
+          {
             "topLine": "Qu'est-ce que le génie génétique ?",
             "bottomLine": "comme si j'avais 13 ans"
           },
-          "52": {
+          {
             "topLine": "Expliquer le concept des villes intelligentes",
             "bottomLine": "comme je suis novice en matière de technologie"
           },
-          "53": {
+          {
             "topLine": "Comment fonctionnent les drones ?",
             "bottomLine": "comme j'ai 11 ans"
           },
-          "54": {
+          {
             "topLine": "Qu'est-ce qu'un portefeuille numérique ?",
             "bottomLine": "comme si j'étais un adolescent"
           },
-          "55": {
+          {
             "topLine": "Comment fonctionne l'art numérique ?",
             "bottomLine": "comme si j'étais au collège"
           },
-          "56": {
+          {
             "topLine": "Expliquer le concept de la technologie 5G",
             "bottomLine": "comme je suis novice en matière de technologie"
           },
-          "57": {
+          {
             "topLine": "Qu'est-ce qu'un véhicule autonome ?",
             "bottomLine": "comme si j'avais 15 ans"
           },
-          "58": {
+          {
             "topLine": "Comment fonctionnent les jeux vidéo ?",
             "bottomLine": "comme si j'avais 10 ans"
           },
-          "59": {
+          {
             "topLine": "Expliquer le concept des contrats intelligents",
             "bottomLine": "comme si j'étais au lycée"
           },
-          "60": {
+          {
             "topLine": "Qu'est-ce qu'une montre intelligente ?",
             "bottomLine": "comme si j'étais au collège"
           },
-          "61": {
+          {
             "topLine": "Comment fonctionne un écran tactile ?",
             "bottomLine": "comme si j'avais 12 ans"
           },
-          "62": {
+          {
             "topLine": "Expliquer le concept de traduction automatique",
             "bottomLine": "comme si j'étais un débutant"
           },
-          "63": {
+          {
             "topLine": "Qu'est-ce qu'un centre de données ?",
             "bottomLine": "comme je suis novice en matière de technologie"
           },
-          "64": {
+          {
             "topLine": "Comment fonctionne l'exploitation minière de la blockchain ?",
             "bottomLine": "comme si j'étais un adolescent"
           },
-          "65": {
+          {
             "topLine": "Qu'est-ce qu'une puce électronique ?",
             "bottomLine": "comme si j'étais au lycée"
           },
-          "66": {
+          {
             "topLine": "Expliquer le concept de stockage en nuage",
             "bottomLine": "comme si j'étais au collège"
           },
-          "67": {
+          {
             "topLine": "Comment fonctionnent les scooters électriques ?",
             "bottomLine": "comme si j'avais 13 ans"
           },
-          "68": {
+          {
             "topLine": "Qu'est-ce qu'un algorithme ?",
             "bottomLine": "comme si j'étais un débutant"
           },
-          "69": {
+          {
             "topLine": "Expliquer le concept de réunions virtuelles",
             "bottomLine": "comme je suis novice en matière de technologie"
           },
-          "70": {
+          {
             "topLine": "Comment fonctionnent les vélos électriques ?",
             "bottomLine": "comme si j'avais 14 ans"
           },
-          "71": {
+          {
             "topLine": "Qu'est-ce qu'un ordinateur quantique ?",
             "bottomLine": "comme si j'étais au lycée"
           },
-          "72": {
+          {
             "topLine": "Expliquer le concept de cybersécurité",
             "bottomLine": "comme si j'étais une adolescente"
           },
-          "73": {
+          {
             "topLine": "Qu'est-ce que la réalité augmentée ?",
             "bottomLine": "comme si j'avais 12 ans"
           },
-          "74": {
+          {
             "topLine": "Comment fonctionnent les services de diffusion en continu ?",
             "bottomLine": "comme si j'étais au collège"
           }
-        }
+        ]
       },
       "saveChat": {
         "errorMessage": "Désolé, nous n'avons pas pu enregistrer votre conversation."
@@ -857,7 +853,6 @@
       "noContacts": "Ajoutez des contacts pour les voir apparaître ici",
       "selectAddressType": "Sélectionner le type d’adresse",
       "tapToGenerate_other": "Appuyez pour voir d’autres options de réception",
-      "tapToGenerate_lightning": "Appuyez pour générer une facture Lightning",
       "tapToGenerate_bitcoin": "Appuyez pour générer une adresse Bitcoin",
       "tapToGenerate_spark": "Appuyez pour générer une adresse Spark",
       "tapToGenerate_liquid": "Appuyez pour générer une adresse Liquid",
@@ -1356,7 +1351,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Rechercher un compte existant",
-      "mainWalletPlace": "Portefeuille principal"
+      "mainWalletPlace": "Portefeuille principal",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "Êtes-vous sûr ?",
@@ -1570,7 +1566,9 @@
         "createNewAccountTitle": "Créer un nouveau compte",
         "createNewAccountDescription": "Récupérable via la phrase seed principale",
         "importRecoveryPhraseTitle": "Importer une phrase de récupération",
-        "importRecoveryPhraseDescription": "Importer des comptes depuis un autre wallet"
+        "importRecoveryPhraseDescription": "Importer des comptes depuis un autre wallet",
+        "recoverRecoveryPhraseTitle": "Récupérer un compte",
+        "recoverRecoveryPhraseDescription": "Restaurer un compte déjà créé"
       },
       "selectProfileImage": {
         "title": "Choisir un avatar",
@@ -1594,6 +1592,13 @@
       "selectAltAccount": {
         "from": "Sélectionnez le compte depuis lequel vous souhaitez envoyer.",
         "to": "Sélectionnez le compte sur lequel vous souhaitez recevoir."
+      },
+      "removeAccountPage": {
+        "title": "Supprimer le compte",
+        "explanation_derived": "Ce compte a été dérivé de votre phrase de récupération. Vous pouvez le restaurer à tout moment en le rajoutant.",
+        "explanation_imported": "Ce compte a été importé. Si vous le supprimez, vous devrez réimporter votre clé privée pour y accéder.",
+        "cancelButton": "Annuler",
+        "removeButton": "Supprimer le compte"
       }
     },
     "accountsPoolsScreen": {
@@ -1637,8 +1642,7 @@
         "title": "Instructions",
         "head1": "Comment accepter",
         "head2": "Paiements en bitcoins",
-        "step1": "Scannez le code QR avec votre appareil photo",
-        "step2": "2. C'est tout."
+        "step1": "Scannez le code QR avec votre appareil photo"
       },
       "totalTipsScreen": {
         "noTipBalanceError": "L'utilisateur n'a pas de solde de pourboires.",
@@ -1805,7 +1809,9 @@
         "experimental features": "Caractéristiques expérimentales",
         "settings": "Paramètres",
         "blitzRestore": "Restauration éclair",
-        "point-of-sale": "Point de vente"
+        "point-of-sale": "Point de vente",
+        "pools": "Pools",
+        "show seed phrase": "Sauvegarder le portefeuille"
       },
       "technicalTransactionDetails": {
         "txHash": "Hachure de la transaction",
@@ -2119,25 +2125,21 @@
       "giftCard": "{{name}} vous a envoyé une carte cadeau {{giftCardName}} "
     }
   },
-
   "accountCard": {
     "fallbackAccountName": "Compte {{index}}"
   },
-
   "flashnetUserMessages": {
     "FSAG-1000": "La requête n’a pas passé les vérifications de validation.",
     "FSAG-1001": "Un champ requis est manquant dans votre requête.",
     "FSAG-1002": "Un ou plusieurs champs ont un format invalide.",
     "FSAG-1003": "Une valeur est en dehors de la plage autorisée.",
     "FSAG-1004": "Cette valeur existe déjà et doit être unique.",
-
     "FSAG-2001": "La signature de la requête n’a pas pu être vérifiée.",
     "FSAG-2002": "L’identité du jeton ne correspond pas à la clé publique attendue.",
     "FSAG-2003": "Une authentification est requise pour cette opération.",
     "FSAG-2004": "Votre session a expiré ou le jeton est invalide.",
     "FSAG-2005": "Le nonce de la requête est invalide ou a déjà été utilisé.",
     "FSAG-2101": "La clé publique fournie est invalide.",
-
     "FSAG-3001": "Un problème temporaire du service est survenu. Veuillez réessayer.",
     "FSAG-3002": "Un problème temporaire du service est survenu. Veuillez réessayer.",
     "FSAG-3101": "Une erreur de base de données est survenue. Veuillez réessayer.",
@@ -2149,7 +2151,6 @@
     "FSAG-3302": "Le processeur AMM a expiré lors du traitement de la requête.",
     "FSAG-3401": "Une erreur interne de traitement est survenue.",
     "FSAG-3402": "Une erreur interne de traitement est survenue.",
-
     "FSAG-4001": "Le pool spécifié n’existe pas.",
     "FSAG-4002": "L’espace de noms hôte spécifié n’existe pas.",
     "FSAG-4101": "Votre session d’authentification est introuvable ou a expiré.",
@@ -2160,7 +2161,6 @@
     "FSAG-4204": "Vous n’avez pas assez de jetons LP pour ce retrait.",
     "FSAG-4301": "La configuration des frais est invalide.",
     "FSAG-4401": "Ce transfert Spark a déjà été utilisé dans une opération.",
-
     "FSAG-5001": "Une erreur interne est survenue lors du traitement de votre requête.",
     "FSAG-5002": "Cette fonctionnalité n’est pas encore disponible.",
     "FSAG-5003": "Une erreur interne est survenue. Contactez le support si le problème persiste.",
