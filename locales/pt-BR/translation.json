@@ -49,7 +49,7 @@
     "continue": "Continuar",
     "back": "Voltar",
     "close": "Fechar",
-    "delete": "Deletar",
+    "delete": "Excluir",
     "add": "Adicionar",
     "remove": "Remover",
     "update": "Atualizar",
@@ -1362,8 +1362,8 @@
       "localStorageError": "Não foi possível excluir as informações armazenadas localmente",
       "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança",
       "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua wallet.",
-      "title": "Excluir wallet",
-      "warningText": "Entendo que só posso recuperar meus fundos com minha frase seed e que, se eu perdê-la, meus fundos não poderão ser recuperados."
+      "title": "Excluir carteira",
+      "warningText": "Entendo que só posso recuperar meus fundos com minha frase de recuperação e que, se eu perdê-la, meus fundos não poderão ser recuperados."
     },
     "sparkInfo": {
       "title": "Informações da carteira",
@@ -1800,7 +1800,7 @@
         "login mode": "Opções de acesso",
         "backup wallet": "Backup da carteira",
         "spark info": "Informações Spark",
-        "delete wallet": "Remover carteira",
+        "delete wallet": "Excluir carteira",
         "general": "Geral",
         "preferences": "Preferências",
         "security": "Segurança",
