@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   COLORS,
+  HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
 } from '../../../../constants/theme';
@@ -290,11 +291,10 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   empty: {
-    paddingVertical: 60,
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 15,
-    opacity: 0.3,
+    textAlign: 'center',
+    opacity: HIDDEN_OPACITY,
   },
 });
