@@ -524,7 +524,7 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
           },
           ...custodyAccounts,
         ];
-  }, [accountMnemoinc, custodyAccounts, enabledNWC, nostrSeed]);
+  }, [accountMnemoinc, custodyAccounts, enabledNWC, nostrSeed, t]);
 
   const activeAccount = useMemo(() => {
     const activeAltAccount = selectedAltAccount[0];

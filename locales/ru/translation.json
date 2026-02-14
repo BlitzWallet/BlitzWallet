@@ -1592,16 +1592,16 @@
       "selectAltAccount": {
         "from": "Выберите аккаунт, с которого хотите отправить.",
         "to": "Выберите аккаунт, на который хотите получить."
-      },
-      "accountsPoolsScreen": {
-        "profileButton": "Профиль",
-        "settingsButton": "Настройки",
-        "poolsTitle": "Пулы",
-        "noPoolsMessage": "Вы ещё не создали ни одного пула. Нажмите, чтобы создать первый пул.",
-        "noActivePools": "У вас нет активных пулов",
-        "yourAccountsTitle": "Ваши аккаунты",
-        "addAccountButton": "Добавить аккаунт"
       }
+    },
+    "accountsPoolsScreen": {
+      "profileButton": "Профиль",
+      "settingsButton": "Настройки",
+      "poolsTitle": "Пулы",
+      "noPoolsMessage": "Вы ещё не создали ни одного пула. Нажмите, чтобы создать первый пул.",
+      "noActivePools": "У вас нет активных пулов",
+      "yourAccountsTitle": "Ваши аккаунты",
+      "addAccountButton": "Добавить аккаунт"
     },
     "hub": {
       "viewAll": "Показать все",
