@@ -289,6 +289,10 @@ export function PoolProvider({ children }) {
 
       let freshPool;
       const now = Date.now();
+
+      if (!poolUpdateTracker.current[poolId]) {
+        poolUpdateTracker.current[poolId] = now;
+      }
       if (
         now - poolUpdateTracker.current[poolId] > POOLS_DEBOUCE ||
         newContributions.length > 0 ||
