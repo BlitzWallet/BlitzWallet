@@ -279,7 +279,7 @@ export function PoolProvider({ children }) {
     }
   }, []);
 
-  const syncPool = useCallback(async poolId => {
+  const syncPool = useCallback(async (poolId, forceSymc = false) => {
     try {
       const latestTimestamp = await getLatestContributionTimestamp(poolId);
       const newContributions = await getPoolContributionsSince(
@@ -291,7 +291,8 @@ export function PoolProvider({ children }) {
       const now = Date.now();
       if (
         now - poolUpdateTracker.current[poolId] > POOLS_DEBOUCE ||
-        newContributions.length > 0
+        newContributions.length > 0 ||
+        forceSymc
       ) {
         freshPool = await getPoolFromDatabase(poolId);
         if (freshPool) {
@@ -302,6 +303,7 @@ export function PoolProvider({ children }) {
           }
           dispatch({ type: 'ADD_OR_UPDATE_POOL', payload: freshPool });
         }
+        poolUpdateTracker.current[poolId] = now;
       } else {
         console.warn('Not getting pool from database too soon', poolId);
       }
@@ -313,7 +315,6 @@ export function PoolProvider({ children }) {
           payload: { poolId, contributions: newContributions },
         });
       }
-      poolUpdateTracker.current[poolId] = now;
       return !!freshPool || newContributions.length > 0;
     } catch (err) {
       console.log('Error syncing pool:', err);

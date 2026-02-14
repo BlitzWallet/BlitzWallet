@@ -114,7 +114,7 @@ export default function PoolDetailScreen(props) {
 
       // purposly use a stale state here so if we transition from active to closed it is not blocked
       // but on the next session it will be blocked
-      if (pool.status === 'closed') {
+      if (pool && pool.status === 'closed') {
         console.warn('Pool is closed, no refreshing...');
         return;
       }
@@ -123,7 +123,7 @@ export default function PoolDetailScreen(props) {
       await loadContributionsForPool(poolId);
 
       // Background sync — incremental fetch from Firestore
-      const changed = await syncPool(poolId);
+      const changed = await syncPool(poolId, !pool);
 
       if (!changed && !pool) {
         setNoPool(true);
