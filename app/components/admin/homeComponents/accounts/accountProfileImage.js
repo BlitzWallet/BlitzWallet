@@ -7,6 +7,7 @@ import { COLORS, ICONS } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../contacts/internalComponents/profileImage';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { MAIN_ACCOUNT_UUID } from '../../../../../context-store/activeAccount';
 
 export default function AccountProfileImage({ account, imageSize }) {
   const { cache } = useImageCache();
@@ -15,11 +16,11 @@ export default function AccountProfileImage({ account, imageSize }) {
   const { theme, darkModeType } = useGlobalThemeContext();
 
   const uri =
-    account.name === 'Main Wallet'
+    account.uuid === MAIN_ACCOUNT_UUID
       ? cache[masterInfoObject.uuid]?.localUri
       : account.profileImage;
   const updated =
-    account.name === 'Main Wallet'
+    account.uuid === MAIN_ACCOUNT_UUID
       ? cache[masterInfoObject.uuid]?.updated
       : account.timeUploaded;
 

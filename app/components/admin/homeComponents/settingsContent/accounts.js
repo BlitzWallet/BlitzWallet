@@ -14,7 +14,11 @@ import {
 } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import {
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+  useActiveCustodyAccount,
+} from '../../../../../context-store/activeAccount';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { initWallet } from '../../../../functions/initiateWalletConnection';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
@@ -55,7 +59,11 @@ export default function CreateCustodyAccounts() {
 
   const handleNavigateEdit = useCallback(
     account => {
-      if (account.name === 'Main Wallet' || account.name === 'NWC') return;
+      if (
+        account.uuid === MAIN_ACCOUNT_UUID ||
+        account.uuid === NWC_ACCOUNT_UUID
+      )
+        return;
       navigate.navigate('EditAccountPage', {
         account,
         from: 'SettingsContentHome',
@@ -110,8 +118,8 @@ export default function CreateCustodyAccounts() {
           return;
         }
 
-        const isMainWallet = account.name === 'Main Wallet';
-        const isNWC = account.name === 'NWC';
+        const isMainWallet = account.uuid === MAIN_ACCOUNT_UUID;
+        const isNWC = account.uuid === NWC_ACCOUNT_UUID;
 
         if (isMainWallet || isNWC) {
           if (selectedAltAccount[0]) {

@@ -165,7 +165,7 @@ export default function ContributeToPoolHalfModal({
         amount: paymentAmountSats,
         isBlitzUser: true,
         blitzUserUUID: masterInfoObject.uuid,
-        createdAt: new Timestamp(),
+        createdAt: Timestamp.now(),
       };
 
       await addContributionWithTransaction(
@@ -177,10 +177,6 @@ export default function ContributeToPoolHalfModal({
       await addContributionToCache(contribution);
 
       setStep('success');
-
-      setTimeout(() => {
-        handleBackPressFunction();
-      }, 1500);
     } catch (err) {
       console.log('Error contributing to pool:', err);
       handleBackPressFunction(() => {

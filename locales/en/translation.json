@@ -229,18 +229,18 @@
       "continueBTN": "Next"
     },
     "verifyKeyPage": {
-      "header": "Let's confirm your seed phrase!"
+      "header": "Let's confirm your recovery phrase!"
     },
     "keySetup": {
       "generateKey": {
         "header": "This is your password to your money, if you lose it you lose your money!",
         "subHeader": "Write it down with a pen and paper and keep it safe!",
         "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
-        "errorText": "Error fetching seed phrase",
-        "keyGenError": "Unable to generate a valid seed phrase",
+        "errorText": "Error fetching recovery phrase",
+        "keyGenError": "Unable to generate a valid recovery phrase",
         "seedPrivacyMessage": "Make sure no one is around who can see your screen.",
         "showIt": "Show it",
-        "invalidSeedError": "Unable to generate a valid seed phrase"
+        "invalidSeedError": "Unable to generate a valid recovery phrase"
       },
       "pin": {
         "savePinError": "Unable to save pin",
@@ -253,29 +253,29 @@
     },
     "restoreWallet": {
       "home": {
-        "header": "Enter your seed phrase",
+        "header": "Enter your recovery phrase",
         "continueBTN": "Restore wallet",
-        "error1": "Please enter all of your seed phrase words.",
-        "error2": "This is not a valid seed phrase.",
+        "error1": "Please enter all of your recovery phrase words.",
+        "error2": "This is not a valid recovery phrase.",
         "error3": "Your words are not the same as the generated words",
-        "noSeedInString": "Unable to find a seed phrase in the string",
+        "noSeedInString": "Unable to find a recovery phrase in the string",
         "invalidWordLen": "Not all words are of valid length",
-        "cannotFind12Words": "Unable to find 12 words from copied seed phrase.",
-        "noSeedInNumberArray": "Unable to find a seed phrase in number array",
-        "noSeedInQr": "Unable to get a seed phrase from QR code",
+        "cannotFind12Words": "Unable to find 12 words from copied recovery phrase.",
+        "noSeedInNumberArray": "Unable to find a recovery phrase in number array",
+        "noSeedInQr": "Unable to get a recovery phrase from QR code",
         "scanQr": "Scan QR"
       }
     },
     "skipMessage": {
-      "header": "We recommend that you write down your seed phrase",
-      "subHeader": "If you do not have your seed phrase written down you risk losing your money.",
+      "header": "We recommend that you write down your recovery phrase",
+      "subHeader": "If you do not have your recovery phrase written down you risk losing your money.",
       "btn": "I understand"
     }
   },
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "We couldn’t verify your biometrics.\n\nDo you want to delete all wallet data? Only continue if your seed phrase is securely backed up.",
+      "isBiometricEnabledConfirmAction": "We couldn’t verify your biometrics.\n\nDo you want to delete all wallet data? Only continue if your recovery phrase is securely backed up.",
       "wrongPinError": "Wrong PIN, try again",
       "enterPinMessage": "Enter PIN",
       "attemptsText": "{{attempts}} attempts left",
@@ -1085,12 +1085,12 @@
         "paymentTypesDesc": "Blitz Wallet can send to Spark addresses, Bitcoin addresses, and Lightning addresses/invoices"
       },
       "sparkErrorScreen": {
-        "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
-        "retry": "We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your seed phrase."
+        "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your recovery phrase keeps your funds safe.",
+        "retry": "We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your recovery phrase."
       },
       "backupSeedWarning": {
-        "header": "Backup Your Seed Phrase",
-        "description": "You have money in your wallet, but you haven’t saved your seed phrase. Your seed phrase is a list of words that unlock your wallet. If you lose this device and don’t have it saved, your money could be gone forever.",
+        "header": "Backup Your Recovery Phrase",
+        "description": "You have money in your wallet, but you haven’t saved your recovery phrase. Your recovery phrase is a list of words that unlock your wallet. If you lose this device and don’t have it saved, your money could be gone forever.",
         "backupBTN": "Backup Now",
         "laterBTN": "I'll do it later"
       }
@@ -1247,14 +1247,14 @@
       "showQR": "Show QR",
       "profileHead": "Profile",
       "settingsHead": "Settings",
-      "seedPopup": "A seed phrase is a list of words that lets you recover your Bitcoin if your device is lost or damaged. Write it down and store it safely. Never give it to anyone—if someone gets it, they can take all your money."
+      "seedPopup": "A recovery phrase is a list of words that lets you recover your Bitcoin if your device is lost or damaged. Write it down and store it safely. Never give it to anyone—if someone gets it, they can take all your money."
     },
     "about": {
       "header1": "Software",
       "text2": "Blitz is a free and open source app under the ",
       "text3": "Apache License",
       "text4": " Version 2.0",
-      "text5": "This is a self-custodial Bitcoin Spark wallet compatible with the Lightning Network. Blitz does not have access to your funds, if you lose your seed phrase it may result in a loss of funds.",
+      "text5": "This is a self-custodial Bitcoin Spark wallet compatible with the Lightning Network. Blitz does not have access to your funds, if you lose your recovery phrase it may result in a loss of funds.",
       "text6": "Blitz uses ",
       "text7": "Breez Liquid SDK, ",
       "text8": "Spark, ",
@@ -1353,12 +1353,12 @@
       "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern."
     },
     "seedPhrase": {
-      "header": "Keep this seed phrase in a secure and safe place",
+      "header": "Keep this recovery phrase in a secure and safe place",
       "headerDesc": "Do not share it with anyone!",
-      "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your seed phrase is convenient but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
+      "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your recovery phrase is convenient but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
       "wordsText": "Words",
       "qrText": "QR Code",
-      "showSeedWarning": "Are you sure you want to show your seed phrase?",
+      "showSeedWarning": "Are you sure you want to show your recovery phrase?",
       "warning": {
         "title": "Keep Your Recovery Phrase Secret",
         "point1": "Your secret recovery phrase is like a master key to your wallet.",
@@ -1376,19 +1376,20 @@
 
     "accounts": {
       "inputPlaceholder": "Search existing account",
-      "mainWalletPlace": "Main Wallet"
+      "mainWalletPlace": "Main Account",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "Are you sure?",
       "dataDeleteHeader": "Select data to delete from this device.",
-      "dataDeleteDesc": "This will delete all wallet data from your device. If you don’t have a copy of your seed phrase saved, you WILL lose access to your funds.",
+      "dataDeleteDesc": "This will delete all wallet data from your device. If you don’t have a copy of your recovery phrase saved, you WILL lose access to your funds.",
       "seedAndPinOpt": "Delete all data from my device",
       "balanceText": "Your balance is",
       "localStorageError": "Unable to delete locally stored information",
       "secureStorageError": "Unable to delete securely stored information",
       "boxNotChecked": "Please check the box to confirm you want to delete your wallet before deleating.",
       "title": "Delete Wallet",
-      "warningText": "I understand that I can only recover my funds with my seed phrase, and if I lose it, my funds cannot be recovered."
+      "warningText": "I understand that I can only recover my funds with my recovery phrase, and if I lose it, my funds cannot be recovered."
     },
     "sparkInfo": {
       "title": "Wallet Info",
@@ -1534,16 +1535,16 @@
         "wanringMessage": "In order to use Nostr Wallet Connect you need to have push notifications for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again."
       },
       "showSeedPage": {
-        "loadingMessage": "Generating seed phrase",
-        "wanringMessage": "To keep your wallet safe, Nostr Wallet Connect creates a separate seed phrase from your main wallet's seed phrase.\n\nThis wallet uses the second derivation path and can always be recovered using your main wallet's seed phrase.\n\nIf you're not tech-savvy and unsure about recovering the wallet address, please write down this seed phrase.",
-        "viewSeed": "View seed phrase"
+        "loadingMessage": "Generating recovery phrase",
+        "wanringMessage": "To keep your wallet safe, Nostr Wallet Connect creates a separate recovery phrase from your main wallet's recovery phrase.\n\nThis wallet uses the second derivation path and can always be recovered using your main wallet's recovery phrase.\n\nIf you're not tech-savvy and unsure about recovering the wallet address, please write down this recovery phrase.",
+        "viewSeed": "View recovery phrase"
       }
     },
     "accountComponents": {
       "homepage": {
         "addNewAccount": "Add",
         "swap": "Transfer",
-        "viewSeed": "View seed phrase",
+        "viewSeed": "View recovery phrase",
         "editAccount": "Edit account",
         "swapAccountError": "You need at least two accounts to make a transfer.",
         "noAccountsFound": "No accounts match your search."
@@ -1562,7 +1563,7 @@
         "inputPlaceHolderText": "Account Transfer"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "This seed phrase already exists for another account",
+        "alreadyUsingSeedError": "This recovery phrase already exists for another account",
         "editTitle": "Edit Account",
         "createTitle": "Create Account",
         "updateTitle": "Update Account",
@@ -1571,10 +1572,10 @@
         "inputDesc": "Account Name",
         "nameTakenError": "This name is currently in use. Please use a differnt account name.",
         "nameInputPlaceholder": "Name...",
-        "seedHeader": "Account seed phrase"
+        "seedHeader": "Account recovery phrase"
       },
       "viewAccountPage": {
-        "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your seed phrase is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe."
+        "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your recovery phrase is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe."
       },
       "editAccountName": {
         "title": "Account Name",
@@ -1591,15 +1592,15 @@
       },
       "removeAccountPage": {
         "title": "Remove",
-        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to recover it using your seed phrase.",
-        "explanation_imported": "You are removing an imported wallet. You will only be able to recover this wallet by re-entering the seed phrase",
+        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to recover it using your recovery phrase.",
+        "explanation_imported": "You are removing an imported wallet. You will only be able to recover this wallet by re-entering the recovery phrase",
         "cancelButton": "Cancel",
         "removeButton": "Remove"
       },
       "selectCreateAccountType": {
         "title": "Add Account",
         "createNewAccountTitle": "Create New Account",
-        "createNewAccountDescription": "Recoverable from main seed phrase",
+        "createNewAccountDescription": "Recoverable from main recovery phrase",
         "importRecoveryPhraseTitle": "Import Recovery Phrase",
         "importRecoveryPhraseDescription": "Import accounts from another wallet",
         "recoverRecoveryPhraseTitle": "Recover Account",
@@ -1783,7 +1784,7 @@
         "liquidWalletError": "Wallet information was not set properly. Please try again.",
         "liquidWalletError2": "We were unable to set up your wallet. Please try again.",
         "dbInitError1": "We’re unable to set up your app.",
-        "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your seed phrase."
+        "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your recovery phrase."
       },
 
       "receiveBtcPage": {
@@ -2108,9 +2109,9 @@
     "noDataInQRError": "Unable to find data in image.",
     "noInvoiceInImageError": "Unable to get invoice from image.",
     "savingImageError": "Unable to save image. Please try again.",
-    "invalidSeedError": "Did not enter a valid seed phrase",
+    "invalidSeedError": "Did not enter a valid recovery phrase",
     "invalidSeedWordLengthErorr": "Not all words are of valid length",
-    "invalidSeedLengthError": "Unable to find 12 words from copied seed phrase.",
+    "invalidSeedLengthError": "Unable to find 12 words from copied recovery phrase.",
     "noGooglePlay": "Google Play Services are required to receive notifications.",
     "noNotificationPermission": "Blitz doesn’t have notification permissions. Enable them in Settings to use notifications.",
     "rootstockInvoiceError": "There was a problem generating your Rootstock address. Please try again.",

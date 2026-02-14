@@ -1339,7 +1339,15 @@
       "qrWarning": "Êtes-vous sûr de vouloir afficher ce code QR ?\n\nScanner votre phrase de semence est pratique, mais assurez-vous d'utiliser un appareil sécurisé et de confiance. Cela permet de préserver la sécurité de votre portefeuille.",
       "wordsText": "Mots",
       "qrText": "Code QR",
-      "showSeedWarning": "Êtes-vous sûr de vouloir montrer votre phrase de semence ?"
+      "showSeedWarning": "Êtes-vous sûr de vouloir montrer votre phrase de semence ?",
+      "warning": {
+        "title": "Gardez votre phrase de récupération secrète",
+        "point1": "Votre phrase secrète de récupération est comme une clé maîtresse de votre wallet.",
+        "point2": "Si quelqu’un l’obtient, il peut voler vos fonds. Il n’existe aucun moyen de récupérer des fonds perdus.",
+        "point3": "Ne la partagez jamais avec qui que ce soit — aucune personne, aucun site web, ni aucune application.",
+        "checkbox": "Je comprends que partager ma phrase de récupération pourrait entraîner une perte permanente de mes fonds.",
+        "continueButton": "Continuer"
+      }
     },
     "crashReporting": {
       "crashreporting_enabled": "Activation des rapports d'accident",
@@ -1592,6 +1600,7 @@
         "settingsButton": "Paramètres",
         "poolsTitle": "Pools",
         "noPoolsMessage": "Vous n’avez pas encore créé de pool. Appuyez pour créer votre premier pool.",
+        "noActivePools": "Vous n’avez aucun pool actif",
         "yourAccountsTitle": "Vos comptes",
         "addAccountButton": "Ajouter un compte"
       }
