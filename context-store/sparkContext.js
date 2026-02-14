@@ -554,6 +554,8 @@ const SparkWalletProvider = ({ children }) => {
           passedBalance: Number(passedBalance),
           mnemonic,
         });
+        const balanceResponse = await getSparkBalance(mnemonic);
+
         if (isLatestRequest) {
           setSparkInformation(prev => {
             if (myVersion < balanceVersionRef.current) return prev;
@@ -561,6 +563,9 @@ const SparkWalletProvider = ({ children }) => {
               ...prev,
               transactions: txs || prev.transactions,
               balance: Number(passedBalance),
+              tokens: balanceResponse.didWork
+                ? balanceResponse.tokensObj
+                : prev.tokens,
             };
           });
         } else {
@@ -569,6 +574,9 @@ const SparkWalletProvider = ({ children }) => {
             return {
               ...prev,
               balance: Number(passedBalance),
+              tokens: balanceResponse.didWork
+                ? balanceResponse.tokensObj
+                : prev.tokens,
             };
           });
         }
@@ -957,7 +965,8 @@ const SparkWalletProvider = ({ children }) => {
           updateType === 'txStatusUpdate' ||
           updateType === 'transactions' ||
           updateType === 'contactDetailsUpdate' ||
-          updateType === 'incrementalRestore'
+          updateType === 'incrementalRestore' ||
+          updateType === 'incomingPayment'
         )
       ) {
         console.log(`Aborting any existing poller for incoming ${updateType}`);
