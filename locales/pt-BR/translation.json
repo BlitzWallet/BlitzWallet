@@ -1337,7 +1337,7 @@
       "warning": {
         "title": "Mantenha sua frase de recuperação em segredo",
         "point1": "Sua frase secreta de recuperação é como uma chave mestra da sua carteira.",
-        "point2": "Se alguém acessar essa frase, poderá roubar os fundos de todas suas contas na carteira Blitz. Não há como recuperar fundos perdidos.",
+        "point2": "Se alguém acessar essa frase, poderá roubar os fundos. Não há como recuperar fundos perdidos.",
         "point3": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "checkbox": "Entendo que compartilhar minha frase de recuperação pode resultar na perda permanente dos meus fundos.",
         "continueButton": "Continuar"
