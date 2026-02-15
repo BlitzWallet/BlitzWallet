@@ -1499,7 +1499,7 @@
         "connectionName": ""
       },
       "hasNoAccounts": {
-        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta Blitz Wallet.\n\n Você pode transferir fundos da sua conta Blitz Wallet para a conta com conexão Nostr em Configurações/Contas."
+        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua Conta Principal.\n\n Você pode transferir fundos da sua Conta Principal para a conta com conexão Nostr em Configurações/Contas."
       },
       "noNotifications": {
         "wanringMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
