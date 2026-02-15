@@ -124,7 +124,10 @@
     "rate": "Курс",
     "swap": "Обмен",
     "paymentDescriptionPlaceholder": "Описание (необязательно)",
-    "print": "Печать"
+    "print": "Печать",
+    "transfer": "Перевод",
+    "details": "Детали",
+    "total": "Итого"
   },
   "languages": {
     "english": "English",

@@ -124,7 +124,10 @@
     "rate": "Tasso",
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Descrizione (facoltativa)",
-    "print": "Stampa"
+    "print": "Stampa",
+    "transfer": "Trasferimento",
+    "details": "Dettagli",
+    "total": "Totale"
   },
   "languages": {
     "english": "English",

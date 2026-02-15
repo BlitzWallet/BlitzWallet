@@ -124,7 +124,10 @@
     "rate": "Tasa",
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Descripción (opcional)",
-    "print": "Imprimir"
+    "print": "Imprimir",
+    "transfer": "Transferencia",
+    "details": "Detalles",
+    "total": "Total"
   },
 
   "languages": {

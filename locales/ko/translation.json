@@ -123,7 +123,10 @@
     "dollars_upper": "Dollars",
     "rate": "Rate",
     "swap": "Swap",
-    "paymentDescriptionPlaceholder": "Description (optional)"
+    "paymentDescriptionPlaceholder": "Description (optional)",
+    "transfer": "이체",
+    "details": "세부사항",
+    "total": "합계"
   },
 
   "languages": {

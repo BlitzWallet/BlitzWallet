@@ -124,7 +124,10 @@
     "rate": "Rate",
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Description (optional)",
-    "print": "Print"
+    "print": "Print",
+    "transfer": "Transfer",
+    "details": "Details",
+    "total": "Total"
   },
 
   "languages": {

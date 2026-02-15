@@ -124,7 +124,10 @@
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Description (facultatif)",
     "print": "Imprimer",
-    "custom...": "Sur mesure..."
+    "custom...": "Sur mesure...",
+    "transfer": "Transfert",
+    "details": "Détails",
+    "total": "Total"
   },
   "languages": {
     "english": "English",

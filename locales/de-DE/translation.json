@@ -124,7 +124,10 @@
     "rate": "Kurs",
     "swap": "Tauschen",
     "print": "Drucken",
-    "paymentDescriptionPlaceholder": "Beschreibung (optional)"
+    "paymentDescriptionPlaceholder": "Beschreibung (optional)",
+    "transfer": "Überweisung",
+    "details": "Details",
+    "total": "Gesamt"
   },
   "languages": {
     "english": "English",

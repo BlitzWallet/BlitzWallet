@@ -124,7 +124,10 @@
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Beskrivning (valfritt)",
     "print": "Skriv ut",
-    "custom...": "Anpassad..."
+    "custom...": "Anpassad...",
+    "transfer": "Överföring",
+    "details": "Detaljer",
+    "total": "Totalt"
   },
   "languages": {
     "english": "English",

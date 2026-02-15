@@ -124,7 +124,10 @@
     "rate": "Cotação",
     "swap": "Troca",
     "paymentDescriptionPlaceholder": "Descrição (opcional)",
-    "print": "Imprimir"
+    "print": "Imprimir",
+    "transfer": "Transferência",
+    "details": "Detalhes",
+    "total": "Total"
   },
   "languages": {
     "english": "English",
