@@ -925,7 +925,7 @@
       "info": {
         "title": "Sobre os Pools",
         "whatArePools": "O que são Pools?",
-        "whatArePoolsBody": "Os Pools permitem que você receba pagamentos em Bitcoin para um objetivo compartilhado. Crie um Pool, defina um valor alvo e compartilhe com quem quiser.",
+        "whatArePoolsBody": "Os Pools permitem que você colete pagamentos em Bitcoin para um objetivo compartilhado. Crie um Pool, defina um valor alvo e compartilhe com quem quiser.",
         "howItWorks": "Como funciona",
         "howStep1": "\u2022 Crie um novo Pool com um nome e um valor alvo",
         "howStep2": "\u2022 Compartilhe o link do Pool com outras pessoas",
@@ -1382,7 +1382,7 @@
       "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança",
       "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua carteira.",
       "title": "Excluir carteira",
-      "warningText": "Entendo que só posso recuperar meus fundos com minha frase seed e que, se eu perdê-la, meus fundos não poderão ser recuperados."
+      "warningText": "Entendo que só posso recuperar meus fundos com minha frase de recuperação e que, se eu perdê-la, meus fundos não poderão ser recuperados."
     },
     "sparkInfo": {
       "title": "Informações da carteira",
@@ -1390,7 +1390,7 @@
       "pubKey": "Chave pública"
     },
     "sparkLrc20": {
-      "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz Wallet adiciona uma {{fee}} taxa em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
+      "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz Wallet adiciona uma taxa de {{fee}} em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
       "title": "Configurações Spark",
       "sliderTitle_enabled": "BTKN",
       "sliderTitle_disabled": "BTKN",
