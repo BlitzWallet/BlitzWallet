@@ -1369,8 +1369,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
-      "mainWalletPlace": "Blitz Wallet",
-      "nwcWalletPlace": "NWC"
+      "mainWalletPlace": "Conta principal",
+      "nwcWalletPlace": "Conta NWC"
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1380,8 +1380,8 @@
       "balanceText": "Seu saldo é",
       "localStorageError": "Não foi possível excluir as informações armazenadas localmente",
       "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança",
-      "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua wallet.",
-      "title": "Excluir wallet",
+      "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua carteira.",
+      "title": "Excluir carteira",
       "warningText": "Entendo que só posso recuperar meus fundos com minha frase seed e que, se eu perdê-la, meus fundos não poderão ser recuperados."
     },
     "sparkInfo": {
