@@ -49,7 +49,7 @@
     "continue": "Continuar",
     "back": "Voltar",
     "close": "Fechar",
-    "delete": "Deletar",
+    "delete": "Excluir",
     "add": "Adicionar",
     "remove": "Remover",
     "update": "Atualizar",
@@ -241,7 +241,7 @@
       },
       "pin": {
         "savePinError": "Não foi possível salvar o PIN",
-        "removeWalletError": "Erro ao remover a carteira",
+        "removeWalletError": "Erro ao excluir a carteira",
         "wrongPinError": "Tente novamente",
         "enterPinMessage": "Criar PIN",
         "confirmPin": "Confirmar Pin",
@@ -921,7 +921,7 @@
       "pool_contribution_label": "Contribuição para o Pool: {{poolName}}",
       "closing_pool_label": "Encerrando Pool: {{poolName}}",
       "activitySection": "Atividade",
-      "active": "Selecionada",
+      "active": "Abertos",
       "info": {
         "title": "Sobre os Pools",
         "whatArePools": "O que são Pools?",
@@ -1369,8 +1369,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
-      "mainWalletPlace": "Blitz Wallet",
-      "nwcWalletPlace": "NWC"
+      "mainWalletPlace": "Conta principal",
+      "nwcWalletPlace": "Conta NWC"
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1380,8 +1380,8 @@
       "balanceText": "Seu saldo é",
       "localStorageError": "Não foi possível excluir as informações armazenadas localmente",
       "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança",
-      "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua wallet.",
-      "title": "Excluir wallet",
+      "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua carteira.",
+      "title": "Excluir carteira",
       "warningText": "Entendo que só posso recuperar meus fundos com minha frase seed e que, se eu perdê-la, meus fundos não poderão ser recuperados."
     },
     "sparkInfo": {
@@ -1574,7 +1574,7 @@
         "title": "Editar conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
-        "removeAccountLabel": "Remover conta",
+        "removeAccountLabel": "Excluir conta",
         "activeAccountError": "Você não pode excluir a conta ativa no momento. Por favor, mude para uma conta diferente antes de excluir esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta"
@@ -1612,11 +1612,11 @@
         "to": "Selecione a conta para a qual deseja receber."
       },
       "removeAccountPage": {
-        "title": "Remover conta",
+        "title": "Excluir conta",
         "explanation_derived": "Esta conta foi derivada da sua frase semente. Você pode restaurá-la a qualquer momento adicionando-a novamente.",
         "explanation_imported": "Esta conta foi importada. Se você removê-la, precisará importar novamente sua chave privada para acessá-la.",
         "cancelButton": "Cancelar",
-        "removeButton": "Remover conta"
+        "removeButton": "Excluir conta"
       }
     },
     "accountsPoolsScreen": {
@@ -1820,7 +1820,7 @@
         "login mode": "Opções de acesso",
         "backup wallet": "Backup da carteira",
         "spark info": "Informações Spark",
-        "delete wallet": "Remover carteira",
+        "delete wallet": "Excluir carteira",
         "general": "Geral",
         "preferences": "Preferências",
         "security": "Segurança",
