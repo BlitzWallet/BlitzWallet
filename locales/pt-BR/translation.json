@@ -915,8 +915,8 @@
       "organizer": "Organizador",
       "contributorCount_one": "{{count}} pessoa",
       "contributorCount_other": "{{count}} pessoas",
-      "pool_contribution_label": "Contribuição para o Pool: {{PoolName}}",
-      "closing_pool_label": "Encerrando Pool: {{PoolName}}"
+      "pool_contribution_label": "Contribuição para o Pool: {{poolName}}",
+      "closing_pool_label": "Encerrando Pool: {{poolName}}"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
@@ -1449,7 +1449,7 @@
       "noLimit": "Sem limite",
       "transactionType": "Tipo de transação",
       "swapsType": "Trocas BTC <> USD",
-      "swapsFee": "{{PoolFee}}% de taxa do Pool + {{blitzFee}}% de taxa da Blitz Wallet",
+      "swapsFee": "{{poolFee}}% de taxa do Pool + {{blitzFee}}% de taxa da Blitz Wallet",
       "othersType": "Outros",
       "othersFee": "Taxas de rede"
     },
