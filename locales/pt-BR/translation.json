@@ -921,7 +921,7 @@
       "pool_contribution_label": "Contribuição para o Pool: {{poolName}}",
       "closing_pool_label": "Encerrando Pool: {{poolName}}",
       "activitySection": "Atividade",
-      "active": "Selecionada",
+     "active": "Abertos"
       "info": {
         "title": "Sobre os pools",
         "whatArePools": "O que são pools?",
@@ -1369,8 +1369,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
-      "mainWalletPlace": "Blitz Wallet",
-      "nwcWalletPlace": "NWC"
+      "mainWalletPlace": "Conta principal",
+      "nwcWalletPlace": "Conta NWC"
     },
     "resetWallet": {
       "header": "Tem certeza?",
