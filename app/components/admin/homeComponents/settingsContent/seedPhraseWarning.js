@@ -56,15 +56,19 @@ export default function SeedPhraseWarning(props) {
   const warningPoints = [
     {
       icon: 'Lock',
-      text: t('settings.seedPhrase.warning.point1'),
+      text: t('settings.seedPhrase.warning.point1', {
+        context: fromPage,
+      }),
     },
     {
       icon: 'EyeOff',
-      text: t('settings.seedPhrase.warning.point2'),
+      text: t('settings.seedPhrase.warning.point2', {
+        context: fromPage,
+      }),
     },
     {
       icon: 'Info',
-      text: t('settings.seedPhrase.warning.point3'),
+      text: t('settings.seedPhrase.warning.point3', { context: fromPage }),
     },
   ];
 
@@ -102,7 +106,9 @@ export default function SeedPhraseWarning(props) {
             {/* Title */}
             <ThemeText
               styles={styles.title}
-              content={t('settings.seedPhrase.warning.title')}
+              content={t('settings.seedPhrase.warning.title', {
+                context: fromPage,
+              })}
             />
 
             {/* Warning Points */}

@@ -923,18 +923,14 @@
       "activitySection": "Aktivitet",
       "active": "Aktiv",
       "info": {
-        "title": "About Pools",
-        "whatArePools": "What are pools?",
-        "whatArePoolsBody": "Pools let you collect Bitcoin payments toward a shared goal. Create a pool, set a target amount, and share it with anyone you like.",
-        "howItWorks": "How it works",
-        "howStep1": "\u2022 Set up a new pool with a name and goal amount",
-        "howStep2": "\u2022 Share the pool link so others can find it",
-        "howStep3": "\u2022 Contributors send Bitcoin directly to the pool",
-        "howStep4": "\u2022 Close the pool when ready to move funds to your wallet",
-        "lifecycle": "Pool states",
-        "lifecycleActive": "\u2022 Active \u2013 open for contributions and tracking progress toward the goal",
-        "lifecycleClosed": "\u2022 Closed \u2013 no longer accepting payments, funds transferred to your wallet",
-        "tip": "Tip: Share your pool link early and often. Anyone with the link can contribute, even without a Blitz Wallet account."
+        "title": "Om pools",
+        "whatArePools": "Vad är pools?",
+        "whatArePoolsBody": "Pools låter dig samla in Bitcoin-betalningar för ett gemensamt mål. Skapa en pool, ange ett målbelopp och dela den med vem du vill.",
+        "howItWorks": "Så fungerar det",
+        "howStep1": "\u2022 Skapa en ny pool med ett namn och ett målbelopp",
+        "howStep2": "\u2022 Dela poolens länk så att andra kan hitta den",
+        "howStep3": "\u2022 Bidragsgivare skickar Bitcoin direkt till poolen",
+        "howStep4": "\u2022 Stäng poolen när du är redo att flytta medlen till din wallet"
       }
     },
     "manualInputPage": {
@@ -1354,10 +1350,14 @@
       "qrText": "QR-kod",
       "showSeedWarning": "Är du säker på att du vill visa din fröfras?",
       "warning": {
-        "title": "Håll din återställningsfras hemlig",
-        "point1": "Din hemliga återställningsfras är som en huvudnyckel till din wallet.",
-        "point2": "Om någon får tag på den kan de stjäla dina medel. Förlorade medel kan inte återställas.",
-        "point3": "Dela den aldrig med någon — ingen person, webbplats eller app.",
+        "title_accounts": "Håll din återställningsfras hemlig",
+        "point1_accounts": "Din hemliga återställningsfras är som en huvudnyckel till din wallet.",
+        "point2_accounts": "Om någon får tag på den kan de stjäla dina medel. Förlorade medel kan inte återställas.",
+        "point3_accounts": "Dela den aldrig med någon — ingen person, webbplats eller app.",
+        "title_settings": "Håll din återställningsfras hemlig",
+        "point1_settings": "Din hemliga återställningsfras är som en huvudnyckel till din wallet.",
+        "point2_settings": "Om någon får tag på den kan de stjäla dina medel. Förlorade medel kan inte återställas.",
+        "point3_settings": "Dela den aldrig med någon — ingen person, webbplats eller app.",
         "checkbox": "Jag förstår att delning av min återställningsfras kan leda till permanent förlust av medel.",
         "continueButton": "Fortsätt"
       }
@@ -1751,7 +1751,8 @@
         "confReqired": "Confs krävs",
         "detailsBTN": "Tekniska detaljer",
         "contactPaymentType": "Kontakt",
-        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}",
+        "gift": "Gåva"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",

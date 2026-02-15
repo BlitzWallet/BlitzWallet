@@ -945,11 +945,7 @@
         "howStep1": "\u2022 Set up a new pool with a name and goal amount",
         "howStep2": "\u2022 Share the pool link so others can find it",
         "howStep3": "\u2022 Contributors send Bitcoin directly to the pool",
-        "howStep4": "\u2022 Close the pool when ready to move funds to your wallet",
-        "lifecycle": "Pool states",
-        "lifecycleActive": "\u2022 Active \u2013 open for contributions and tracking progress toward the goal",
-        "lifecycleClosed": "\u2022 Closed \u2013 no longer accepting payments, funds transferred to your wallet",
-        "tip": "Tip: Share your pool link early and often. Anyone with the link can contribute, even without a Blitz Wallet account."
+        "howStep4": "\u2022 Close the pool when ready to move funds to your wallet"
       }
     },
     "manualInputPage": {
@@ -1379,10 +1375,14 @@
       "qrText": "QR Code",
       "showSeedWarning": "Are you sure you want to show your recovery phrase?",
       "warning": {
-        "title": "Keep Your Recovery Phrase Secret",
-        "point1": "Your secret recovery phrase is like a master key to your wallet.",
-        "point2": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
-        "point3": "Never share it with anyone—no person, website, or app.",
+        "title_accounts": "Keep Your Recovery Phrase Secret",
+        "point1_accounts": "Your secret recovery phrase is like a master key to your wallet.",
+        "point2_accounts": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
+        "point3_accounts": "Never share it with anyone—no person, website, or app.",
+        "title_settings": "Keep Your Recovery Phrase Secret",
+        "point1_settings": "Your secret recovery phrase is like a master key to your wallet.",
+        "point2_settings": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
+        "point3_settings": "Never share it with anyone—no person, website, or app.",
         "checkbox": "I understand that sharing my recovery phrase could result in permanent loss of funds.",
         "continueButton": "Continue"
       }
@@ -1783,7 +1783,8 @@
         "confReqired": "Confs required",
         "detailsBTN": "Technical details",
         "contactPaymentType": "Contact",
-        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}",
+        "gift": "Gift"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",

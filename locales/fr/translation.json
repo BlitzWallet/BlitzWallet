@@ -924,18 +924,14 @@
       "activitySection": "Activité",
       "active": "Actif",
       "info": {
-        "title": "About Pools",
-        "whatArePools": "What are pools?",
-        "whatArePoolsBody": "Pools let you collect Bitcoin payments toward a shared goal. Create a pool, set a target amount, and share it with anyone you like.",
-        "howItWorks": "How it works",
-        "howStep1": "\u2022 Set up a new pool with a name and goal amount",
-        "howStep2": "\u2022 Share the pool link so others can find it",
-        "howStep3": "\u2022 Contributors send Bitcoin directly to the pool",
-        "howStep4": "\u2022 Close the pool when ready to move funds to your wallet",
-        "lifecycle": "Pool states",
-        "lifecycleActive": "\u2022 Active \u2013 open for contributions and tracking progress toward the goal",
-        "lifecycleClosed": "\u2022 Closed \u2013 no longer accepting payments, funds transferred to your wallet",
-        "tip": "Tip: Share your pool link early and often. Anyone with the link can contribute, even without a Blitz Wallet account."
+        "title": "À propos des pools",
+        "whatArePools": "Qu’est-ce qu’un pool ?",
+        "whatArePoolsBody": "Les pools vous permettent de collecter des paiements en Bitcoin pour un objectif commun. Créez un pool, définissez un montant cible et partagez-le avec qui vous voulez.",
+        "howItWorks": "Comment ça fonctionne",
+        "howStep1": "\u2022 Créez un nouveau pool avec un nom et un montant cible",
+        "howStep2": "\u2022 Partagez le lien du pool pour que d’autres puissent le trouver",
+        "howStep3": "\u2022 Les contributeurs envoient des bitcoins directement au pool",
+        "howStep4": "\u2022 Fermez le pool lorsque vous êtes prêt à transférer les fonds vers votre wallet"
       }
     },
     "manualInputPage": {
@@ -1355,10 +1351,14 @@
       "qrText": "Code QR",
       "showSeedWarning": "Êtes-vous sûr de vouloir montrer votre phrase de semence ?",
       "warning": {
-        "title": "Gardez votre phrase de récupération secrète",
-        "point1": "Votre phrase secrète de récupération est comme une clé maîtresse de votre wallet.",
-        "point2": "Si quelqu’un l’obtient, il peut voler vos fonds. Il n’existe aucun moyen de récupérer des fonds perdus.",
-        "point3": "Ne la partagez jamais avec qui que ce soit — aucune personne, aucun site web, ni aucune application.",
+        "title_accounts": "Gardez votre phrase de récupération secrète",
+        "point1_accounts": "Votre phrase secrète de récupération est comme une clé maîtresse de votre wallet.",
+        "point2_accounts": "Si quelqu’un l’obtient, il peut voler vos fonds. Il n’existe aucun moyen de récupérer des fonds perdus.",
+        "point3_accounts": "Ne la partagez jamais avec qui que ce soit — aucune personne, aucun site web, ni aucune application.",
+        "title_settings": "Gardez votre phrase de récupération secrète",
+        "point1_settings": "Votre phrase secrète de récupération est comme une clé maîtresse de votre wallet.",
+        "point2_settings": "Si quelqu’un l’obtient, il peut voler vos fonds. Il n’existe aucun moyen de récupérer des fonds perdus.",
+        "point3_settings": "Ne la partagez jamais avec qui que ce soit — aucune personne, aucun site web, ni aucune application.",
         "checkbox": "Je comprends que partager ma phrase de récupération pourrait entraîner une perte permanente de mes fonds.",
         "continueButton": "Continuer"
       }
@@ -1752,7 +1752,8 @@
         "confReqired": "Confs requis",
         "detailsBTN": "Détails techniques",
         "contactPaymentType": "Contact",
-        "converstionRate": "{{satAmount}} par {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} par {{dollarAmount}}",
+        "gift": "Cadeau"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",

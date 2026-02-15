@@ -922,18 +922,14 @@
       "closing_pool_label": "Закрытие пула: {{poolName}}",
       "activitySection": "Активность",
       "info": {
-        "title": "About Pools",
-        "whatArePools": "What are pools?",
-        "whatArePoolsBody": "Pools let you collect Bitcoin payments toward a shared goal. Create a pool, set a target amount, and share it with anyone you like.",
-        "howItWorks": "How it works",
-        "howStep1": "\u2022 Set up a new pool with a name and goal amount",
-        "howStep2": "\u2022 Share the pool link so others can find it",
-        "howStep3": "\u2022 Contributors send Bitcoin directly to the pool",
-        "howStep4": "\u2022 Close the pool when ready to move funds to your wallet",
-        "lifecycle": "Pool states",
-        "lifecycleActive": "\u2022 Active \u2013 open for contributions and tracking progress toward the goal",
-        "lifecycleClosed": "\u2022 Closed \u2013 no longer accepting payments, funds transferred to your wallet",
-        "tip": "Tip: Share your pool link early and often. Anyone with the link can contribute, even without a Blitz Wallet account."
+        "title": "О пулах",
+        "whatArePools": "Что такое пулы?",
+        "whatArePoolsBody": "Пулы позволяют собирать платежи в биткоинах для общей цели. Создайте пул, установите целевую сумму и поделитесь им с кем угодно.",
+        "howItWorks": "Как это работает",
+        "howStep1": "\u2022 Создайте новый пул с названием и целевой суммой",
+        "howStep2": "\u2022 Поделитесь ссылкой на пул, чтобы другие могли его найти",
+        "howStep3": "\u2022 Участники отправляют биткоины напрямую в пул",
+        "howStep4": "\u2022 Закройте пул, когда будете готовы перевести средства в свою wallet"
       }
     },
     "manualInputPage": {
@@ -1354,10 +1350,14 @@
       "qrText": "QR-код",
       "showSeedWarning": "Вы уверены, что хотите показать сид-фразу?",
       "warning": {
-        "title": "Храните фразу восстановления в секрете",
-        "point1": "Ваша секретная фраза восстановления — это как главный ключ к вашему кошельку.",
-        "point2": "Если кто-то получит её, он сможет украсть ваши средства. Потерянные средства невозможно восстановить.",
-        "point3": "Никогда не делитесь ею ни с кем — ни с человеком, ни с сайтом, ни с приложением.",
+        "title_accounts": "Храните фразу восстановления в секрете",
+        "point1_accounts": "Ваша секретная фраза восстановления — это как главный ключ к вашему кошельку.",
+        "point2_accounts": "Если кто-то получит её, он сможет украсть ваши средства. Потерянные средства невозможно восстановить.",
+        "point3_accounts": "Никогда не делитесь ею ни с кем — ни с человеком, ни с сайтом, ни с приложением.",
+        "title_settings": "Храните фразу восстановления в секрете",
+        "point1_settings": "Ваша секретная фраза восстановления — это как главный ключ к вашему кошельку.",
+        "point2_settings": "Если кто-то получит её, он сможет украсть ваши средства. Потерянные средства невозможно восстановить.",
+        "point3_settings": "Никогда не делитесь ею ни с кем — ни с человеком, ни с сайтом, ни с приложением.",
         "checkbox": "Я понимаю, что передача моей фразы восстановления может привести к безвозвратной потере средств.",
         "continueButton": "Продолжить"
       }
@@ -1751,7 +1751,8 @@
         "confReqired": "Нужно подтверждений",
         "detailsBTN": "Тех. детали",
         "contactPaymentType": "Контакт",
-        "converstionRate": "{{satAmount}} за {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} за {{dollarAmount}}",
+        "gift": "Подарок"
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
