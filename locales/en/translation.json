@@ -936,7 +936,21 @@
       "pool_contribution_label": "Pool contribution: {{poolName}}",
       "closing_pool_label": "Closing pool: {{poolName}}",
       "activitySection": "Activity",
-      "active": "Active"
+      "active": "Active",
+      "info": {
+        "title": "About Pools",
+        "whatArePools": "What are pools?",
+        "whatArePoolsBody": "Pools let you collect Bitcoin payments, and know who's constributed toward a shared goal. Create a pool, set a target amount, and share it with anyone you like.",
+        "howItWorks": "How it works",
+        "howStep1": "\u2022 Set up a new pool with a name and goal amount",
+        "howStep2": "\u2022 Share the pool link so others can find it",
+        "howStep3": "\u2022 Contributors send Bitcoin directly to the pool",
+        "howStep4": "\u2022 Close the pool when ready to move funds to your wallet",
+        "lifecycle": "Pool states",
+        "lifecycleActive": "\u2022 Active \u2013 open for contributions and tracking progress toward the goal",
+        "lifecycleClosed": "\u2022 Closed \u2013 no longer accepting payments, funds transferred to your wallet",
+        "tip": "Tip: Share your pool link early and often. Anyone with the link can contribute, even without a Blitz Wallet account."
+      }
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"
