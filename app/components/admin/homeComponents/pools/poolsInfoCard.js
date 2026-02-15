@@ -11,13 +11,13 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { SIZES, FONT } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 
-const EXPANDED_HEIGHT = 275;
 const ANIMATION_DURATION = 250;
 
 export default function PoolsInfoCard() {
   const { backgroundOffset, textColor } = GetThemeColors();
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [contentHeight, setContentHeight] = useState(275);
 
   const expandProgress = useSharedValue(0);
   const chevronRotation = useSharedValue(0);
@@ -34,7 +34,7 @@ export default function PoolsInfoCard() {
   }, [isExpanded]);
 
   const contentStyle = useAnimatedStyle(() => ({
-    height: expandProgress.value * EXPANDED_HEIGHT,
+    height: expandProgress.value * contentHeight,
     opacity: expandProgress.value,
     overflow: 'hidden',
   }));
@@ -65,8 +65,14 @@ export default function PoolsInfoCard() {
       </TouchableOpacity>
 
       <Animated.View style={contentStyle}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.contentContainer}>
+        <ScrollView scrollEnabled={false} showsVerticalScrollIndicator={false}>
+          <View
+            onLayout={e => {
+              console.log(e.nativeEvent.layout.height, 'content height,dd');
+              setContentHeight(Math.round(e.nativeEvent.layout.height));
+            }}
+            style={styles.contentContainer}
+          >
             <ThemeText
               styles={styles.sectionTitle}
               content={t('wallet.pools.info.whatArePools')}
@@ -96,24 +102,6 @@ export default function PoolsInfoCard() {
               styles={styles.bulletText}
               content={t('wallet.pools.info.howStep4')}
             />
-
-            {/* <ThemeText
-            styles={styles.sectionTitle}
-            content={t('wallet.pools.info.lifecycle')}
-          />
-          <ThemeText
-            styles={styles.bulletText}
-            content={t('wallet.pools.info.lifecycleActive')}
-          />
-          <ThemeText
-            styles={styles.bulletText}
-            content={t('wallet.pools.info.lifecycleClosed')}
-          /> */}
-
-            {/* <ThemeText
-            styles={styles.tipText}
-            content={t('wallet.pools.info.tip')}
-          /> */}
           </View>
         </ScrollView>
       </Animated.View>
@@ -139,6 +127,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Medium,
     marginLeft: 10,
+    includeFontPadding: false,
   },
   contentContainer: {
     paddingHorizontal: 16,
