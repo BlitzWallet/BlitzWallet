@@ -1613,8 +1613,8 @@
       },
       "removeAccountPage": {
         "title": "Excluir conta",
-        "explanation_derived": "Esta conta foi derivada da sua frase semente. Você pode restaurá-la a qualquer momento adicionando-a novamente.",
-        "explanation_imported": "Esta conta foi importada. Se você removê-la, precisará importar novamente sua chave privada para acessá-la.",
+        "explanation_derived": "Mesmo que você exclua esta conta, é possível recuperá-la usando sua frase de recuperação.",
+        "explanation_imported": "Esta conta foi importada. Se você excluí-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
         "removeButton": "Excluir conta"
       }
