@@ -885,7 +885,7 @@
       "noFundsFound": "Nenhum fundo encontrado neste Pool",
       "closingPool": "Fechando Pool...",
       "gettingAddress": "Obtendo endereço da conta...",
-      "unableToGetAddress": "Não foi possível obter o endereço da conta Blitz Wallet",
+      "unableToGetAddress": "Não foi possível obter o endereço da Conta Principal",
       "transferringFunds": "Transferindo fundos...",
       "failedToTransfer": "Falha ao transferir os fundos do Pool",
       "notFound": "Pool não encontrado",
