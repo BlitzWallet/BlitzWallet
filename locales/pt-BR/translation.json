@@ -1563,7 +1563,7 @@
       "selectCreateAccountType": {
         "title": "Adicionar conta",
         "createNewAccountTitle": "Criar nova conta",
-        "createNewAccountDescription": "Recuperável pela frase de recuperação da conta Blitz Wallet",
+        "createNewAccountDescription": "Recuperável pela frase de recuperação da Conta Principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outra carteira",
         "recoverRecoveryPhraseTitle": "Recuperar conta",
