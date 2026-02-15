@@ -1911,7 +1911,7 @@
           "header": "Modo avançado",
           "currentIndexHead": "Índice atual - Vales-Blitz",
           "infoHead": "Como funcionam os Vales-Blitz",
-          "infoDesc1": "Os Vales-Blitz usam contas separadas criadas a partir da sua conta Blitz Wallet. Isso permite recuperar valores não resgatados enquanto mantém sua conta Blitz Wallet protegida.",
+          "infoDesc1": "Os Vales-Blitz usam contas separadas criadas a partir da sua Conta Principal. Isso permite recuperar valores não resgatados enquanto mantém sua Conta Principal protegida.",
           "infoDesc2": "O valor da maioria dos Vales-Blitz expirados podem ser recuperados na página Expirados. Se um Vale-Blitz não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um Vale-Blitz específico e verificar se ainda há fundos disponíveis.",
           "inputHead": "Digite o número do Vale-Blitz",
           "invalidGiftNum": "Digite um número de Vale-Blitz válido entre 1 e {{currentGiftIndex}}",
