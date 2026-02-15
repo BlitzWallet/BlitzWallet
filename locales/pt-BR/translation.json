@@ -1355,7 +1355,7 @@
     },
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
-      "mainWalletPlace": "Conta Principal",
+      "mainWalletPlace": "Conta principal",
       "nwcWalletPlace": "Conta NWC"
     },
     "resetWallet": {
