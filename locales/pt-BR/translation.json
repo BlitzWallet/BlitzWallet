@@ -885,12 +885,12 @@
       "noFundsFound": "Nenhum fundo encontrado neste Pool",
       "closingPool": "Fechando Pool...",
       "gettingAddress": "Obtendo endereço da conta...",
-      "unableToGetAddress": "Não foi possível obter o endereço da Conta Principal",
+      "unableToGetAddress": "Não foi possível obter o endereço da conta principal",
       "transferringFunds": "Transferindo fundos...",
       "failedToTransfer": "Falha ao transferir os fundos do Pool",
       "notFound": "Pool não encontrado",
       "closePoolTitle": "Fechar este Pool?",
-      "closePoolWarning": "Todos os fundos serão transferidos para sua Conta Principal. Este Pool deixará de aceitar pagamentos e não poderá ser reaberto.",
+      "closePoolWarning": "Todos os fundos serão transferidos para sua conta principal. Este Pool deixará de aceitar pagamentos e não poderá ser reaberto.",
       "closePool": "Fechar Pool",
       "goal": "Objetivo: ",
       "payment_one": "{{count}} pagamento",
@@ -899,7 +899,7 @@
       "pool": "Pool",
       "couldNotFind": "Não foi possível encontrar este Pool.",
       "createdBy": "Por ",
-      "moneyTransferred": "Fundos transferidos para a Conta Principal",
+      "moneyTransferred": "Fundos transferidos para a conta principal",
       "contribute": "Contribuir",
       "share": "Compartilhar",
       "noActivity": "Nenhuma atividade ainda. Seja o primeiro a contribuir!",
@@ -967,7 +967,7 @@
         "swapWarning": "Os pagamentos recebidos em endereços {{swapType}} serão transferidos para Bitcoin na Spark. Valores abaixo de {{amount}} não serão recebidos. Os fundos só serão recebidos após o pagamento {{swapType}} ser confirmado.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
-        "notUsingMainAccountWarning": "Aviso: Você não está usando a Conta Principal da sua carteira. Todas as transferências {{swapType}} recebidas serão enviadas para sua Conta Principal.",
+        "notUsingMainAccountWarning": "Aviso: Você não está usando a conta principal da sua carteira. Todas as transferências {{swapType}} recebidas serão enviadas para sua conta principal.",
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
@@ -1499,14 +1499,14 @@
         "connectionName": ""
       },
       "hasNoAccounts": {
-        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua Conta Principal.\n\n Você pode transferir fundos da sua Conta Principal para a conta com conexão Nostr em Configurações/Contas."
+        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
       },
       "noNotifications": {
         "wanringMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
-        "wanringMessage": "Para manter sua Conta Principal segura, a conta com conexão Nostr possui uma frase de recuperação separada.\n\nQualquer conta criada na sua carteira pode ser recuperada usando a frase de recuperação da sua Conta Principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase de recuperação.",
+        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase de recuperação separada.\n\nQualquer conta criada na sua carteira pode ser recuperada usando a frase de recuperação da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase de recuperação.",
         "viewSeed": "Ver frase de recuperação"
       }
     },
@@ -1563,7 +1563,7 @@
       "selectCreateAccountType": {
         "title": "Adicionar conta",
         "createNewAccountTitle": "Criar nova conta",
-        "createNewAccountDescription": "Recuperável pela frase de recuperação da Conta Principal",
+        "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outra carteira",
         "recoverRecoveryPhraseTitle": "Recuperar conta",
@@ -1911,7 +1911,7 @@
           "header": "Modo avançado",
           "currentIndexHead": "Índice atual - Vales-Blitz",
           "infoHead": "Como funcionam os Vales-Blitz",
-          "infoDesc1": "Os Vales-Blitz usam contas separadas criadas a partir da sua Conta Principal. Isso permite recuperar valores não resgatados enquanto mantém sua Conta Principal protegida.",
+          "infoDesc1": "Os Vales-Blitz usam contas separadas criadas a partir da sua conta principal. Isso permite recuperar valores não resgatados enquanto mantém sua conta principal protegida.",
           "infoDesc2": "O valor da maioria dos Vales-Blitz expirados podem ser recuperados na página Expirados. Se um Vale-Blitz não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um Vale-Blitz específico e verificar se ainda há fundos disponíveis.",
           "inputHead": "Digite o número do Vale-Blitz",
           "invalidGiftNum": "Digite um número de Vale-Blitz válido entre 1 e {{currentGiftIndex}}",
