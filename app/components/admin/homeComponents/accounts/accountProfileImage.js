@@ -7,7 +7,10 @@ import { COLORS, ICONS } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../contacts/internalComponents/profileImage';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { MAIN_ACCOUNT_UUID } from '../../../../../context-store/activeAccount';
+import {
+  MAIN_ACCOUNT_UUID,
+  NWC_ACCOUNT_UUID,
+} from '../../../../../context-store/activeAccount';
 
 export default function AccountProfileImage({ account, imageSize }) {
   const { cache } = useImageCache();
@@ -26,7 +29,7 @@ export default function AccountProfileImage({ account, imageSize }) {
 
   return (
     <View style={styles.badge}>
-      {account.name === 'NWC' ? (
+      {account.uuid === NWC_ACCOUNT_UUID ? (
         <Image
           style={{
             aspectRatio: 1,

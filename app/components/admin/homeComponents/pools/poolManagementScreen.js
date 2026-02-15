@@ -9,6 +9,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import PoolCard from './poolCard';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useTranslation } from 'react-i18next';
+import PoolsInfoCard from './poolsInfoCard';
 
 export default function PoolManagementScreen() {
   const navigate = useNavigation();
@@ -83,7 +84,7 @@ export default function PoolManagementScreen() {
 
     // Active section
     data.push({
-      title: t('constants.active'),
+      title: t('wallet.pools.active'),
       isHeader: true,
       poolId: 'header-active',
     });
@@ -131,6 +132,7 @@ export default function PoolManagementScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyState}
+        ListHeaderComponent={<PoolsInfoCard />}
       />
 
       <CustomButton

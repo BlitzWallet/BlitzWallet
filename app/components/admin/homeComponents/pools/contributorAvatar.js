@@ -18,12 +18,10 @@ function getColorForName(name, useGray) {
 }
 
 /**
- * Overlapping contributor avatar circles.
- * Shows first-letter avatars for up to maxVisible contributors with a "+N" overflow.
+ * Single contributor avatar — a colored circle with the first letter of the name.
  *
- * @param {Array} contributors - Array of { name: string, ... }
- * @param {number} maxVisible - Max avatars to show (default 3)
- * @param {number} avatarSize - Size of each avatar (default 28)
+ * @param {string} contributorName - Display name
+ * @param {number} avatarSize - Diameter in px (default 28)
  */
 export default function ContributorAvatar({
   contributorName = '',
@@ -32,41 +30,35 @@ export default function ContributorAvatar({
   const { theme, darkModeType } = useGlobalThemeContext();
 
   return (
-    <View style={styles.container}>
-      <View
-        style={[
-          styles.avatar,
+    <View
+      style={[
+        styles.avatar,
+        {
+          width: avatarSize,
+          height: avatarSize,
+          borderRadius: avatarSize / 2,
+          backgroundColor: getColorForName(
+            contributorName || '',
+            theme && darkModeType,
+          ),
+        },
+      ]}
+    >
+      <ThemeText
+        styles={[
+          styles.initial,
           {
-            width: avatarSize,
-            height: avatarSize,
-            borderRadius: avatarSize / 2,
-            backgroundColor: getColorForName(
-              contributorName || '',
-              theme && darkModeType,
-            ),
+            fontSize: avatarSize * 0.4,
+            color: '#ffffff',
           },
         ]}
-      >
-        <ThemeText
-          styles={[
-            styles.initial,
-            {
-              fontSize: avatarSize * 0.4,
-              color: '#ffffff',
-            },
-          ]}
-          content={contributorName.charAt(0).toUpperCase()}
-        />
-      </View>
+        content={contributorName.charAt(0).toUpperCase()}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   avatar: {
     justifyContent: 'center',
     alignItems: 'center',

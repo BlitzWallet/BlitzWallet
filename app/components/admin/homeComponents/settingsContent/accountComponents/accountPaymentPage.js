@@ -16,6 +16,7 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SATSPERBITCOIN,
 } from '../../../../../constants';
@@ -34,10 +35,16 @@ import {
 import { bulkUpdateSparkTransactions } from '../../../../../functions/spark/transactions';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { useWebView } from '../../../../../../context-store/webViewContext';
-import { HIDDEN_OPACITY } from '../../../../../constants/theme';
+import {
+  FONT,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import SectionCard from '../../../../../screens/inAccount/settingsHub/components/SectionCard';
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function AccountPaymentPage(props) {
@@ -62,7 +69,7 @@ export default function AccountPaymentPage(props) {
     paymentFee: 0,
     showConfirmScreen: false,
   });
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, textColor } = GetThemeColors();
   const { t } = useTranslation();
 
   const fromAccount =
@@ -276,13 +283,11 @@ export default function AccountPaymentPage(props) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={{ width: '100%' }}
-        contentContainerStyle={{ paddingBottom: 10 }}
+        contentContainerStyle={styles.scrollContent}
       >
-        <ThemeIcon
-          styles={{ marginTop: 40, marginBottom: 20, ...CENTER }}
-          iconName={'ArrowUpDown'}
-        />
+        {/* Hero Amount Card */}
         <TouchableOpacity
+          activeOpacity={0.7}
           onPress={() => {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'customInputText',
@@ -290,20 +295,23 @@ export default function AccountPaymentPage(props) {
               sliderHight: 0.5,
             });
           }}
+          style={[styles.heroCard]}
         >
           <FormattedBalanceInput
-            maxWidth={0.9}
+            maxWidth={0.85}
             amountValue={sendingAmount}
             inputDenomination={masterInfoObject.userBalanceDenomination}
           />
-
           <FormattedSatText
             containerStyles={{
               opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
-              marginBottom: 50,
+              marginTop: 4,
             }}
             neverHideBalance={true}
-            styles={{ includeFontPadding: false }}
+            styles={{
+              includeFontPadding: false,
+              fontSize: SIZES.smedium,
+            }}
             globalBalanceDenomination={
               masterInfoObject.userBalanceDenomination === 'sats' ||
               masterInfoObject.userBalanceDenomination === 'hidden'
@@ -314,30 +322,11 @@ export default function AccountPaymentPage(props) {
           />
         </TouchableOpacity>
 
-        <View
-          style={{
-            ...styles.transferAccountRow,
-            borderBottomColor: backgroundOffset,
-          }}
-        >
-          <View style={{ flexShrink: 1 }}>
-            <View style={styles.transferTextContainer}>
-              <ThemeIcon
-                size={20}
-                styles={styles.transferTextIcon}
-                iconName={'Upload'}
-              />
-              <ThemeText content={t('constants.from')} />
-            </View>
-            {fromAccount && (
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={{ opacity: 0.7, flexShrink: 1 }}
-                content={fromAccount}
-              />
-            )}
-          </View>
+        {/* Transfer Card (From / To) */}
+        <SectionCard title={t('constants.transfer').toUpperCase()}>
+          {/* From row */}
           <TouchableOpacity
+            activeOpacity={0.5}
             onPress={() => {
               navigate.navigate('CustomHalfModal', {
                 wantedContent: 'SelectAltAccount',
@@ -347,46 +336,59 @@ export default function AccountPaymentPage(props) {
                 transferType: 'from',
               });
             }}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginLeft: 10,
-            }}
+            style={[
+              styles.transferRow,
+              {
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                borderBottomColor: backgroundColor,
+              },
+            ]}
           >
+            <ThemeIcon iconName={'Upload'} size={20} />
+            <View style={styles.rowLabelContainer}>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.rowLabelInner}
+                content={t('constants.from')}
+              />
+              {fromAccount ? (
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.rowSubLabel}
+                  content={fromAccount}
+                />
+              ) : null}
+            </View>
             {fromAccount ? (
               <FormattedSatText
                 neverHideBalance={true}
-                styles={{ includeFontPadding: false }}
+                styles={styles.rowInlineValue}
                 balance={fromBalance}
               />
             ) : (
               <ThemeText
-                styles={{ flexShrink: 1 }}
                 CustomNumberOfLines={1}
+                styles={styles.rowInlineValue}
                 content={t(
                   'settings.accountComponents.accountPaymentPage.selectAccount',
                 )}
               />
             )}
-            <ThemeIcon size={20} iconName={'ChevronRight'} />
+            <ThemeIcon size={18} iconName={'ChevronRight'} />
           </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            ...styles.transferAccountRow,
-            borderBottomColor: backgroundOffset,
-          }}
-        >
-          <View style={styles.transferTextContainer}>
+
+          {/* Directional arrow divider */}
+          <View style={styles.arrowDivider}>
             <ThemeIcon
-              size={20}
-              styles={styles.transferTextIcon}
-              iconName={'Download'}
+              iconName={'ArrowDown'}
+              size={16}
+              colorOverride={COLORS.primary}
             />
-            <ThemeText content={t('constants.to')} />
           </View>
+
+          {/* To row */}
           <TouchableOpacity
-            style={styles.chooseAccountBTN}
+            activeOpacity={0.5}
             onPress={() => {
               navigate.navigate('CustomHalfModal', {
                 wantedContent: 'SelectAltAccount',
@@ -396,10 +398,17 @@ export default function AccountPaymentPage(props) {
                 transferType: 'to',
               });
             }}
+            style={styles.transferRow}
           >
+            <ThemeIcon iconName={'Download'} size={20} />
             <ThemeText
-              styles={{ flexShrink: 1 }}
               CustomNumberOfLines={1}
+              styles={styles.rowLabel}
+              content={t('constants.to')}
+            />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={[styles.rowInlineValue, { flexShrink: 1 }]}
               content={
                 toAccount
                   ? toAccount
@@ -408,77 +417,76 @@ export default function AccountPaymentPage(props) {
                     )
               }
             />
-            <ThemeIcon size={20} iconName={'ChevronRight'} />
+            <ThemeIcon size={18} iconName={'ChevronRight'} />
           </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            ...styles.transferAccountRow,
-            borderBottomColor: backgroundOffset,
-          }}
-        >
-          <View style={styles.transferTextContainer}>
+        </SectionCard>
+
+        {/* Details Card (Fee / Description) */}
+        <SectionCard title={t('constants.details').toUpperCase()}>
+          {/* Fee row — non-interactive */}
+          <View
+            style={[
+              styles.transferRow,
+              {
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                borderBottomColor: backgroundColor,
+              },
+            ]}
+          >
             <ThemeImage
-              styles={{
-                ...styles.transferTextIcon,
-              }}
+              styles={styles.receiptIcon}
               lightModeIcon={ICONS.receiptIcon}
               darkModeIcon={ICONS.receiptIcon}
               lightsOutIcon={ICONS.receiptWhite}
             />
-            <ThemeText content={t('constants.fee')} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.rowLabel}
+              content={t('constants.fee')}
+            />
+            {transferInfo.isCalculatingFee ? (
+              <FullLoadingScreen
+                containerStyles={{ flex: 0 }}
+                size="small"
+                showText={false}
+                loadingColor={theme ? textColor : COLORS.primary}
+              />
+            ) : (
+              <FormattedSatText
+                neverHideBalance={true}
+                styles={{
+                  includeFontPadding: false,
+                  fontSize: SIZES.small,
+                }}
+                balance={transferInfo.paymentFee}
+              />
+            )}
           </View>
 
-          {transferInfo.isCalculatingFee ? (
-            <FullLoadingScreen
-              containerStyles={{
-                flex: 0,
-              }}
-              size="small"
-              showText={false}
-              loadingColor={theme ? textColor : COLORS.primary}
+          {/* Description row — editable */}
+          <View style={styles.descriptionRow}>
+            <ThemeIcon size={20} iconName={'SquarePen'} />
+            <CustomSearchInput
+              inputText={memo}
+              setInputText={setMemo}
+              containerStyles={styles.descriptionContainer}
+              textInputStyles={styles.descriptionInput}
+              placeholderText={t(
+                'settings.accountComponents.accountPaymentPage.inputPlaceHolderText',
+              )}
+              onFocusFunction={() => setIsKeyboardFocused(true)}
+              onBlurFunction={() => setIsKeyboardFocused(false)}
+              maxLength={80}
             />
-          ) : (
-            <FormattedSatText
-              neverHideBalance={true}
-              styles={{ includeFontPadding: false }}
-              balance={transferInfo.paymentFee}
-            />
-          )}
-        </View>
-        <View
-          style={{
-            ...styles.transferAccountRow,
-            borderBottomColor: backgroundOffset,
-          }}
-        >
-          <View style={styles.transferTextContainer}>
-            <ThemeIcon
-              size={20}
-              styles={styles.transferTextIcon}
-              iconName={'SquarePen'}
-            />
-            <ThemeText content={t('constants.description')} />
           </View>
-          <CustomSearchInput
-            inputText={memo}
-            setInputText={setMemo}
-            containerStyles={styles.textInputContainerStyles}
-            textInputStyles={{ ...styles.textInputStyles, color: textColor }}
-            placeholderText={t(
-              'settings.accountComponents.accountPaymentPage.inputPlaceHolderText',
-            )}
-            onFocusFunction={() => setIsKeyboardFocused(true)}
-            onBlurFunction={() => setIsKeyboardFocused(false)}
-            maxLength={80}
-          />
-        </View>
+        </SectionCard>
       </ScrollView>
 
       <CustomButton
         textContent={t('constants.confirm')}
         buttonStyles={{
           ...CENTER,
+          marginTop: CONTENT_KEYBOARD_OFFSET,
         }}
         useLoading={transferInfo.isDoingTransfer}
         actionFunction={handlePayment}
@@ -488,13 +496,102 @@ export default function AccountPaymentPage(props) {
 }
 
 const styles = StyleSheet.create({
-  transferTextContainer: { flexDirection: 'row', alignItems: 'center' },
-  transferTextIcon: {
+  scrollContent: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+    paddingTop: 8,
+    paddingBottom: 10,
+    gap: 25,
+  },
+  heroCard: {
+    borderRadius: 16,
+    paddingVertical: 24,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  transferRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    minHeight: 48,
+  },
+  rowLabelContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  rowLabel: {
+    flex: 1,
+    fontSize: SIZES.medium,
+    marginLeft: 12,
+    includeFontPadding: false,
+  },
+  rowLabelInner: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+  },
+  rowSubLabel: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    includeFontPadding: false,
+    marginTop: 2,
+  },
+  rowInlineValue: {
+    fontSize: SIZES.small,
+    opacity: 0.5,
+    marginRight: 8,
+    includeFontPadding: false,
+  },
+  arrowDivider: {
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  receiptIcon: {
     width: 20,
     height: 20,
-    marginRight: 5,
+  },
+  descriptionRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    minHeight: 48,
+  },
+  descriptionContainer: {
+    flex: 1,
+    marginLeft: 12,
+    width: 'auto',
+  },
+  descriptionInput: {
+    backgroundColor: 'transparent',
+    padding: 0,
+    fontSize: SIZES.medium,
+  },
+  summaryContainer: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  summaryLabel: {
+    fontSize: SIZES.small,
+    opacity: 0.5,
+    includeFontPadding: false,
+  },
+  summaryTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: 8,
+  },
+  summaryTotal: {
+    fontSize: SIZES.medium,
+    fontFamily: FONT.Title_Medium,
+    includeFontPadding: false,
   },
   animationContainer: {
     alignItems: 'center',
@@ -504,33 +601,5 @@ const styles = StyleSheet.create({
   animation: {
     width: 250,
     height: 250,
-  },
-  transferAccountRow: {
-    width: '90%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 15,
-    alignItems: 'center',
-    ...CENTER,
-    borderBottomWidth: 1,
-    paddingBottom: 10,
-  },
-  chooseAccountBTN: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    includeFontPadding: false,
-    flexShrink: 1,
-  },
-  textInputContainerStyles: {
-    flexShrink: 1,
-    width: '100%',
-    marginLeft: 10,
-  },
-  textInputStyles: {
-    backgroundColor: 'transparent',
-    textAlign: 'right',
-    alignItems: 'flex-end',
-    width: '100%',
-    padding: 0,
   },
 });

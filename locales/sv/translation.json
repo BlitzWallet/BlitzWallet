@@ -124,7 +124,10 @@
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Beskrivning (valfritt)",
     "print": "Skriv ut",
-    "custom...": "Anpassad..."
+    "custom...": "Anpassad...",
+    "transfer": "Överföring",
+    "details": "Detaljer",
+    "total": "Totalt"
   },
   "languages": {
     "english": "English",
@@ -916,7 +919,19 @@
       "contributorCount_one": "{{count}} person",
       "contributorCount_other": "{{count}} personer",
       "pool_contribution_label": "Bidrag till pool: {{poolName}}",
-      "closing_pool_label": "Stänger pool: {{poolName}}"
+      "closing_pool_label": "Stänger pool: {{poolName}}",
+      "activitySection": "Aktivitet",
+      "active": "Aktiv",
+      "info": {
+        "title": "Om pools",
+        "whatArePools": "Vad är pools?",
+        "whatArePoolsBody": "Pools låter dig samla in Bitcoin-betalningar för ett gemensamt mål. Skapa en pool, ange ett målbelopp och dela den med vem du vill.",
+        "howItWorks": "Så fungerar det",
+        "howStep1": "\u2022 Skapa en ny pool med ett namn och ett målbelopp",
+        "howStep2": "\u2022 Dela poolens länk så att andra kan hitta den",
+        "howStep3": "\u2022 Bidragsgivare skickar Bitcoin direkt till poolen",
+        "howStep4": "\u2022 Stäng poolen när du är redo att flytta medlen till din wallet"
+      }
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"
@@ -1335,10 +1350,14 @@
       "qrText": "QR-kod",
       "showSeedWarning": "Är du säker på att du vill visa din fröfras?",
       "warning": {
-        "title": "Håll din återställningsfras hemlig",
-        "point1": "Din hemliga återställningsfras är som en huvudnyckel till din wallet.",
-        "point2": "Om någon får tag på den kan de stjäla dina medel. Förlorade medel kan inte återställas.",
-        "point3": "Dela den aldrig med någon — ingen person, webbplats eller app.",
+        "title_accounts": "Håll din återställningsfras hemlig",
+        "point1_accounts": "Din hemliga återställningsfras är som en huvudnyckel till din wallet.",
+        "point2_accounts": "Om någon får tag på den kan de stjäla dina medel. Förlorade medel kan inte återställas.",
+        "point3_accounts": "Dela den aldrig med någon — ingen person, webbplats eller app.",
+        "title_settings": "Håll din återställningsfras hemlig",
+        "point1_settings": "Din hemliga återställningsfras är som en huvudnyckel till din wallet.",
+        "point2_settings": "Om någon får tag på den kan de stjäla dina medel. Förlorade medel kan inte återställas.",
+        "point3_settings": "Dela den aldrig med någon — ingen person, webbplats eller app.",
         "checkbox": "Jag förstår att delning av min återställningsfras kan leda till permanent förlust av medel.",
         "continueButton": "Fortsätt"
       }
@@ -1732,7 +1751,8 @@
         "confReqired": "Confs krävs",
         "detailsBTN": "Tekniska detaljer",
         "contactPaymentType": "Kontakt",
-        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}",
+        "gift": "Gåva"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",

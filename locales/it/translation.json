@@ -124,7 +124,10 @@
     "rate": "Tasso",
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Descrizione (facoltativa)",
-    "print": "Stampa"
+    "print": "Stampa",
+    "transfer": "Trasferimento",
+    "details": "Dettagli",
+    "total": "Totale"
   },
   "languages": {
     "english": "English",
@@ -917,7 +920,19 @@
       "contributorCount_one": "{{count}} persona",
       "contributorCount_other": "{{count}} persone",
       "pool_contribution_label": "Contributo al pool: {{poolName}}",
-      "closing_pool_label": "Chiusura del pool: {{poolName}}"
+      "closing_pool_label": "Chiusura del pool: {{poolName}}",
+      "activitySection": "Attività",
+      "active": "Attivo",
+      "info": {
+        "title": "Informazioni sui pool",
+        "whatArePools": "Cosa sono i pool?",
+        "whatArePoolsBody": "I pool ti permettono di raccogliere pagamenti in Bitcoin per un obiettivo condiviso. Crea un pool, imposta un importo obiettivo e condividilo con chi vuoi.",
+        "howItWorks": "Come funziona",
+        "howStep1": "\u2022 Crea un nuovo pool con un nome e un importo obiettivo",
+        "howStep2": "\u2022 Condividi il link del pool affinché altri possano trovarlo",
+        "howStep3": "\u2022 I contributori inviano Bitcoin direttamente al pool",
+        "howStep4": "\u2022 Chiudi il pool quando sei pronto a trasferire i fondi al tuo wallet"
+      }
     },
     "manualInputPage": {
       "inputPlaceholder": "Inserisci o incolla un indirizzo o una fattura Liquid o Lightning"
@@ -1336,10 +1351,14 @@
       "qrText": "QR Code",
       "showSeedWarning": "Sei sicuro di voler mostrare la tua frase seed?",
       "warning": {
-        "title": "Mantieni segreta la tua frase di recupero",
-        "point1": "La tua frase segreta di recupero è come una chiave maestra del tuo wallet.",
-        "point2": "Se qualcuno la ottiene, può rubare i tuoi fondi. Non esiste alcun modo per recuperare fondi persi.",
-        "point3": "Non condividerla mai con nessuno: nessuna persona, sito web o app.",
+        "title_accounts": "Mantieni segreta la tua frase di recupero",
+        "point1_accounts": "La tua frase segreta di recupero è come una chiave maestra del tuo wallet.",
+        "point2_accounts": "Se qualcuno la ottiene, può rubare i tuoi fondi. Non esiste alcun modo per recuperare fondi persi.",
+        "point3_accounts": "Non condividerla mai con nessuno: nessuna persona, sito web o app.",
+        "title_settings": "Mantieni segreta la tua frase di recupero",
+        "point1_settings": "La tua frase segreta di recupero è come una chiave maestra del tuo wallet.",
+        "point2_settings": "Se qualcuno la ottiene, può rubare i tuoi fondi. Non esiste alcun modo per recuperare fondi persi.",
+        "point3_settings": "Non condividerla mai con nessuno: nessuna persona, sito web o app.",
         "checkbox": "Comprendo che condividere la mia frase di recupero potrebbe comportare la perdita permanente dei miei fondi.",
         "continueButton": "Continua"
       }
@@ -1733,7 +1752,8 @@
         "detailsBTN": "Dettagli tecnici",
         "contactPaymentType": "Contatto",
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
-        "confirmMessage_sent": "Importo inviato"
+        "confirmMessage_sent": "Importo inviato",
+        "gift": "Regalo"
       },
       "explorePage": {
         "timeLeft": "({{time}} rimanenti)",

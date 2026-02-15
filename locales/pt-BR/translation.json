@@ -124,7 +124,10 @@
     "rate": "Cotação",
     "swap": "Troca",
     "paymentDescriptionPlaceholder": "Descrição (opcional)",
-    "print": "Imprimir"
+    "print": "Imprimir",
+    "transfer": "Transferência",
+    "details": "Detalhes",
+    "total": "Total"
   },
   "languages": {
     "english": "English",
@@ -238,7 +241,7 @@
       },
       "pin": {
         "savePinError": "Não foi possível salvar o PIN",
-        "removeWalletError": "Erro ao remover a carteira",
+        "removeWalletError": "Erro ao excluir a carteira",
         "wrongPinError": "Tente novamente",
         "enterPinMessage": "Criar PIN",
         "confirmPin": "Confirmar Pin",
@@ -915,8 +918,20 @@
       "organizer": "Organizador",
       "contributorCount_one": "{{count}} pessoa",
       "contributorCount_other": "{{count}} pessoas",
-      "pool_contribution_label": "Contribuição para o Pool: {{PoolName}}",
-      "closing_pool_label": "Encerrando Pool: {{PoolName}}"
+      "pool_contribution_label": "Contribuição para o Pool: {{poolName}}",
+      "closing_pool_label": "Encerrando Pool: {{poolName}}",
+      "activitySection": "Atividade",
+      "active": "Abertos",
+      "info": {
+        "title": "Sobre os Pools",
+        "whatArePools": "O que são Pools?",
+        "whatArePoolsBody": "Os Pools permitem que você receba pagamentos em Bitcoin para um objetivo compartilhado. Crie um Pool, defina um valor alvo e compartilhe com quem quiser.",
+        "howItWorks": "Como funciona",
+        "howStep1": "\u2022 Crie um novo Pool com um nome e um valor alvo",
+        "howStep2": "\u2022 Compartilhe o link do Pool com outras pessoas",
+        "howStep3": "\u2022 Os contribuidores enviam Bitcoin diretamente para o Pool",
+        "howStep4": "\u2022 Encerre o Pool quando estiver pronto para mover os fundos para sua carteira"
+      }
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
@@ -1335,10 +1350,14 @@
       "qrText": "Código QR",
       "showSeedWarning": "Tem certeza de que deseja mostrar sua frase de recuperação?",
       "warning": {
-        "title": "Mantenha sua frase de recuperação em segredo",
-        "point1": "Sua frase secreta de recuperação é como uma chave mestra da sua carteira.",
-        "point2": "Se alguém acessar essa frase, poderá roubar os fundos. Não há como recuperar fundos perdidos.",
-        "point3": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
+        "title_accounts": "Mantenha sua frase de recuperação em segredo",
+        "point1_accounts": "Essa frase secreta de recuperação permite recuperar fundos somente dessa conta.",
+        "point2_accounts": "Se alguém acessar essa frase, poderá roubar os fundos dessa conta. Não há como recuperar fundos perdidos.",
+        "point3_accounts": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
+        "title_settings": "Mantenha sua frase de recuperação em segredo",
+        "point1_settings": "Essa frase secreta de recuperação permite recuperar fundos de todas suas contas na carteira Blitz.",
+        "point2_settings": "Se alguém acessar essa frase, poderá roubar os fundos de todas suas contas na carteira Blitz. Não há como recuperar fundos perdidos.",
+        "point3_settings": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "checkbox": "Entendo que compartilhar minha frase de recuperação pode resultar na perda permanente dos meus fundos.",
         "continueButton": "Continuar"
       }
@@ -1350,8 +1369,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
-      "mainWalletPlace": "Blitz Wallet",
-      "nwcWalletPlace": "NWC"
+      "mainWalletPlace": "Conta principal",
+      "nwcWalletPlace": "Conta NWC"
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1361,9 +1380,9 @@
       "balanceText": "Seu saldo é",
       "localStorageError": "Não foi possível excluir as informações armazenadas localmente",
       "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança",
-      "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua wallet.",
+      "boxNotChecked": "Marque a caixa para confirmar que deseja excluir sua carteira.",
       "title": "Excluir carteira",
-      "warningText": "Entendo que só posso recuperar meus fundos com minha frase de recuperação e que, se eu perdê-la, meus fundos não poderão ser recuperados."
+      "warningText": "Entendo que só posso recuperar meus fundos com minha frase seed e que, se eu perdê-la, meus fundos não poderão ser recuperados."
     },
     "sparkInfo": {
       "title": "Informações da carteira",
@@ -1449,7 +1468,7 @@
       "noLimit": "Sem limite",
       "transactionType": "Tipo de transação",
       "swapsType": "Trocas BTC <> USD",
-      "swapsFee": "{{PoolFee}}% de taxa do Pool + {{blitzFee}}% de taxa da Blitz Wallet",
+      "swapsFee": "{{poolFee}}% de taxa do Pool + {{blitzFee}}% de taxa da Blitz Wallet",
       "othersType": "Outros",
       "othersFee": "Taxas de rede"
     },
@@ -1593,11 +1612,11 @@
         "to": "Selecione a conta para a qual deseja receber."
       },
       "removeAccountPage": {
-        "title": "Remover conta",
+        "title": "Excluir conta",
         "explanation_derived": "Esta conta foi derivada da sua frase semente. Você pode restaurá-la a qualquer momento adicionando-a novamente.",
         "explanation_imported": "Esta conta foi importada. Se você removê-la, precisará importar novamente sua chave privada para acessá-la.",
         "cancelButton": "Cancelar",
-        "removeButton": "Remover conta"
+        "removeButton": "Excluir conta"
       }
     },
     "accountsPoolsScreen": {
@@ -1732,7 +1751,8 @@
         "confReqired": "Confirmações necessárias",
         "detailsBTN": "Detalhes técnicos",
         "contactPaymentType": "Contato",
-        "converstionRate": "{{satAmount}} por {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} por {{dollarAmount}}",
+        "gift": "Vale-Blitz"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",

@@ -124,7 +124,10 @@
     "rate": "Rate",
     "swap": "Swap",
     "paymentDescriptionPlaceholder": "Description (optional)",
-    "print": "Print"
+    "print": "Print",
+    "transfer": "Transfer",
+    "details": "Details",
+    "total": "Total"
   },
 
   "languages": {
@@ -886,7 +889,7 @@
     "pools": {
       "receiveViaPool": "Receive via pool",
       "createPool": "Create Pool",
-      "collectPaymentsDescription": "Collect payments for a goal",
+      "collectPaymentsDescription": "Set a goal, invite contributors, and track contributions.",
       "whatIsPoolFor": "What's this pool for?",
       "examplePlaceholder": "e.g. Trip to Miami",
       "creating": "Creating...",
@@ -931,7 +934,19 @@
       "contributorCount_one": "{{count}} person",
       "contributorCount_other": "{{count}} people",
       "pool_contribution_label": "Pool contribution: {{poolName}}",
-      "closing_pool_label": "Closing pool: {{poolName}}"
+      "closing_pool_label": "Closing pool: {{poolName}}",
+      "activitySection": "Activity",
+      "active": "Active",
+      "info": {
+        "title": "About Pools",
+        "whatArePools": "What are pools?",
+        "whatArePoolsBody": "Pools let you collect Bitcoin payments, and know who's constributed toward a shared goal. Create a pool, set a target amount, and share it with anyone you like.",
+        "howItWorks": "How it works",
+        "howStep1": "\u2022 Set up a new pool with a name and goal amount",
+        "howStep2": "\u2022 Share the pool link so others can find it",
+        "howStep3": "\u2022 Contributors send Bitcoin directly to the pool",
+        "howStep4": "\u2022 Close the pool when ready to move funds to your wallet"
+      }
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"
@@ -1360,10 +1375,14 @@
       "qrText": "QR Code",
       "showSeedWarning": "Are you sure you want to show your recovery phrase?",
       "warning": {
-        "title": "Keep Your Recovery Phrase Secret",
-        "point1": "Your secret recovery phrase is like a master key to your wallet.",
-        "point2": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
-        "point3": "Never share it with anyone—no person, website, or app.",
+        "title_accounts": "Keep Your Recovery Phrase Secret",
+        "point1_accounts": "Your secret recovery phrase is like a master key to your wallet.",
+        "point2_accounts": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
+        "point3_accounts": "Never share it with anyone—no person, website, or app.",
+        "title_settings": "Keep Your Recovery Phrase Secret",
+        "point1_settings": "Your secret recovery phrase is like a master key to your wallet.",
+        "point2_settings": "If someone gets it, they can steal your funds. There's no way to recover lost funds.",
+        "point3_settings": "Never share it with anyone—no person, website, or app.",
         "checkbox": "I understand that sharing my recovery phrase could result in permanent loss of funds.",
         "continueButton": "Continue"
       }
@@ -1377,7 +1396,7 @@
     "accounts": {
       "inputPlaceholder": "Search existing account",
       "mainWalletPlace": "Main Account",
-      "nwcWalletPlace": "NWC"
+      "nwcWalletPlace": "NWC Account"
     },
     "resetWallet": {
       "header": "Are you sure?",
@@ -1764,7 +1783,8 @@
         "confReqired": "Confs required",
         "detailsBTN": "Technical details",
         "contactPaymentType": "Contact",
-        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}",
+        "gift": "Gift"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
