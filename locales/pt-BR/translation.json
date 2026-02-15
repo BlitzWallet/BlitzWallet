@@ -1506,7 +1506,7 @@
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
-        "wanringMessage": "Para manter sua conta Blitz Wallet segura, a conta com conexão Nostr possui uma frase de recuperação separada.\n\nQualquer conta criada na sua carteira pode ser recuperada usando a frase de recuperação da sua conta Blitz Wallet.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase de recuperação.",
+        "wanringMessage": "Para manter sua Conta Principal segura, a conta com conexão Nostr possui uma frase de recuperação separada.\n\nQualquer conta criada na sua carteira pode ser recuperada usando a frase de recuperação da sua Conta Principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase de recuperação.",
         "viewSeed": "Ver frase de recuperação"
       }
     },
