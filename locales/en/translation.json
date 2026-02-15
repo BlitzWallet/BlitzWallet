@@ -889,7 +889,7 @@
     "pools": {
       "receiveViaPool": "Receive via pool",
       "createPool": "Create Pool",
-      "collectPaymentsDescription": "Collect payments for a goal",
+      "collectPaymentsDescription": "Set a goal, invite contributors, and track contributions.",
       "whatIsPoolFor": "What's this pool for?",
       "examplePlaceholder": "e.g. Trip to Miami",
       "creating": "Creating...",

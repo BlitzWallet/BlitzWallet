@@ -127,15 +127,15 @@ export default function PoolDetailScreen(props) {
         return;
       }
 
+      // Load contributions from SQLite if not yet in context, always load
+      await loadContributionsForPool(poolId);
+
       // purposly use a stale state here so if we transition from active to closed it is not blocked
       // but on the next session it will be blocked
       if (pool && pool.status === 'closed') {
         console.warn('Pool is closed, no refreshing...');
         return;
       }
-
-      // Load contributions from SQLite if not yet in context
-      await loadContributionsForPool(poolId);
 
       // Background sync — incremental fetch from Firestore
       const changed = await syncPool(poolId, !pool);
