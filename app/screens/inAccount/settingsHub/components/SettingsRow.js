@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     marginLeft: 12,
     includeFontPadding: false,
-    textTransform: 'capitalize',
   },
   inlineValue: {
     fontSize: SIZES.small,
