@@ -787,7 +787,17 @@
       "pool_contribution_label": "Contribución al pool: {{poolName}}",
       "closing_pool_label": "Cerrando pool: {{poolName}}",
       "activitySection": "Actividad",
-      "active": "Activo"
+      "active": "Activo",
+      "info": {
+        "title": "Acerca de los pools",
+        "whatArePools": "¿Qué son los pools?",
+        "whatArePoolsBody": "Los pools te permiten reunir pagos en Bitcoin para un objetivo compartido. Crea un pool, establece un monto objetivo y compártelo con quien quieras.",
+        "howItWorks": "Cómo funciona",
+        "howStep1": "\u2022 Crea un nuevo pool con un nombre y un monto objetivo",
+        "howStep2": "\u2022 Comparte el enlace del pool para que otros puedan encontrarlo",
+        "howStep3": "\u2022 Los contribuyentes envían Bitcoin directamente al pool",
+        "howStep4": "\u2022 Cierra el pool cuando estés listo para mover los fondos a tu wallet"
+      }
     },
     "manualInputPage": {
       "inputPlaceholder": "Introduce o pega una dirección/factura de Liquid o Lightning"
@@ -1204,10 +1214,14 @@
       "qrText": "Código QR",
       "showSeedWarning": "¿Estás seguro de que quieres mostrar tu frase inicial?",
       "warning": {
-        "title": "Mantén tu frase de recuperación en secreto",
-        "point1": "Tu frase secreta de recuperación es como una llave maestra de tu wallet.",
-        "point2": "Si alguien la obtiene, puede robar tus fondos. No hay forma de recuperar fondos perdidos.",
-        "point3": "Nunca la compartas con nadie: ninguna persona, sitio web o aplicación.",
+        "title_accounts": "Mantén tu frase de recuperación en secreto",
+        "point1_accounts": "Tu frase secreta de recuperación es como una llave maestra de tu wallet.",
+        "point2_accounts": "Si alguien la obtiene, puede robar tus fondos. No hay forma de recuperar fondos perdidos.",
+        "point3_accounts": "Nunca la compartas con nadie: ninguna persona, sitio web o aplicación.",
+        "title_settings": "Mantén tu frase de recuperación en secreto",
+        "point1_settings": "Tu frase secreta de recuperación es como una llave maestra de tu wallet.",
+        "point2_settings": "Si alguien la obtiene, puede robar tus fondos. No hay forma de recuperar fondos perdidos.",
+        "point3_settings": "Nunca la compartas con nadie: ninguna persona, sitio web o aplicación.",
         "checkbox": "Entiendo que compartir mi frase de recuperación podría resultar en la pérdida permanente de mis fondos.",
         "continueButton": "Continuar"
       }
@@ -1607,7 +1621,8 @@
         "confReqired": "Confirmaciones requeridas",
         "detailsBTN": "Detalles técnicos",
         "contactPaymentType": "Contacto",
-        "converstionRate": "{{satAmount}} por {{dollarAmount}}"
+        "converstionRate": "{{satAmount}} por {{dollarAmount}}",
+        "gift": "Regalo"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
