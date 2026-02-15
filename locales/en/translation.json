@@ -934,7 +934,9 @@
       "contributorCount_one": "{{count}} person",
       "contributorCount_other": "{{count}} people",
       "pool_contribution_label": "Pool contribution: {{poolName}}",
-      "closing_pool_label": "Closing pool: {{poolName}}"
+      "closing_pool_label": "Closing pool: {{poolName}}",
+      "activitySection": "Activity",
+      "active": "Active"
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"

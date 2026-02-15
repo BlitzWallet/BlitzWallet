@@ -83,7 +83,7 @@ export default function PoolManagementScreen() {
 
     // Active section
     data.push({
-      title: t('constants.active'),
+      title: t('wallet.pools.active'),
       isHeader: true,
       poolId: 'header-active',
     });

@@ -45,6 +45,7 @@ export default function PoolsPreview({
                 size={32}
                 strokeWidth={3}
                 showPercentage={false}
+                useAltBackground={true}
               />
               <ThemeText
                 CustomNumberOfLines={1}

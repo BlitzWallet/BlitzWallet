@@ -919,10 +919,12 @@
       "contributorCount_one": "{{count}} человек",
       "contributorCount_other": "{{count}} человек",
       "pool_contribution_label": "Взнос в пул: {{poolName}}",
-      "closing_pool_label": "Закрытие пула: {{poolName}}"
+      "closing_pool_label": "Закрытие пула: {{poolName}}",
+      "activitySection": "Активность"
     },
     "manualInputPage": {
-      "inputPlaceholder": "Адрес Liquid, Молнии или инвойс"
+      "inputPlaceholder": "Адрес Liquid, Молнии или инвойс",
+      "active": "Активный"
     },
     "cameraModal": {
       "noCamera": "Нет доступа к камере",

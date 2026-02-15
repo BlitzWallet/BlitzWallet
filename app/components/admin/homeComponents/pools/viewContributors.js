@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
-import { FlatList, Share, StyleSheet, View } from 'react-native';
+import { ScrollView, Share, StyleSheet, View } from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
+import { CENTER, SIZES } from '../../../../constants';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ContributorAvatar from './contributorAvatar';
@@ -13,6 +13,8 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useTranslation } from 'react-i18next';
+import SectionCard from '../../../../screens/inAccount/settingsHub/components/SectionCard';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function ViewContibutors(props) {
   const pool = props.route?.params?.pool;
@@ -20,10 +22,10 @@ export default function ViewContibutors(props) {
 
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
+  const { backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
   const contributers = [pool, ...contributions];
 
-  console.log(pool);
   const handleShare = useCallback(async () => {
     try {
       await Share.share({
@@ -34,59 +36,6 @@ export default function ViewContibutors(props) {
     }
   }, [pool]);
 
-  console.log(contributers);
-  const Contributor = useCallback(({ item, index }) => {
-    if (!item) return;
-
-    if (index === 0) {
-      return (
-        <View style={styles.contributionRow}>
-          <ContributorAvatar
-            avatarSize={50}
-            contributorName={
-              item?.creatorName || item?.contributorName || 'Unknwon'
-            }
-          />
-          <View>
-            <ThemeText
-              styles={styles.name}
-              content={item?.creatorName || item?.contributorName || 'Unknwon'}
-            />
-            <ThemeText
-              styles={styles.amount}
-              content={t('wallet.pools.organizer')}
-            />
-          </View>
-        </View>
-      );
-    } else {
-      return (
-        <View style={styles.contributionRow}>
-          <ContributorAvatar
-            avatarSize={50}
-            contributorName={
-              item?.creatorName || item?.contributorName || 'Unknwon'
-            }
-          />
-          <View>
-            <ThemeText
-              styles={styles.name}
-              content={item?.creatorName || item?.contributorName || 'Unknwon'}
-            />
-            <ThemeText
-              styles={styles.amount}
-              content={displayCorrectDenomination({
-                amount: item.amount,
-                masterInfoObject,
-                fiatStats,
-              })}
-            />
-          </View>
-        </View>
-      );
-    }
-  }, []);
-
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
@@ -95,12 +44,62 @@ export default function ViewContibutors(props) {
         })}
       />
 
-      <FlatList
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contributionContainer}
-        data={contributers}
-        renderItem={Contributor}
-      />
+        contentContainerStyle={styles.scrollContent}
+      >
+        <SectionCard>
+          {contributers.map((item, index) => {
+            if (!item) return null;
+
+            const name =
+              item?.creatorName || item?.contributorName || 'Unknown';
+            const isOrganizer = index === 0;
+            const isLast = index === contributers.length - 1;
+
+            return (
+              <View key={index}>
+                <View style={styles.row}>
+                  <ContributorAvatar
+                    avatarSize={40}
+                    contributorName={name}
+                  />
+                  <ThemeText
+                    styles={styles.name}
+                    CustomNumberOfLines={1}
+                    CustomEllipsizeMode={'tail'}
+                    content={name}
+                  />
+                  {isOrganizer ? (
+                    <ThemeText
+                      styles={styles.roleLabel}
+                      content={t('wallet.pools.organizer')}
+                    />
+                  ) : (
+                    <ThemeText
+                      styles={styles.amountLabel}
+                      content={displayCorrectDenomination({
+                        amount: item.amount,
+                        masterInfoObject,
+                        fiatStats,
+                      })}
+                    />
+                  )}
+                </View>
+                {!isLast && (
+                  <View
+                    style={[
+                      styles.separator,
+                      { borderBottomColor: backgroundColor },
+                    ]}
+                  />
+                )}
+              </View>
+            );
+          })}
+        </SectionCard>
+      </ScrollView>
+
       <CustomButton
         actionFunction={handleShare}
         buttonStyles={styles.button}
@@ -111,21 +110,40 @@ export default function ViewContibutors(props) {
 }
 
 const styles = StyleSheet.create({
-  contributionContainer: { width: WINDOWWIDTH, ...CENTER },
-  contributionRow: {
-    flexDirection: 'row',
-    gap: 10,
-    paddingVertical: 10,
-    alignItems: 'center',
+  scrollContent: {
+    width: WINDOWWIDTH,
+    ...CENTER,
+    flexGrow: 1,
   },
-  name: { includeFontPadding: false },
-  amount: {
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  name: {
+    flex: 1,
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+  },
+  roleLabel: {
+    fontSize: SIZES.small,
     opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
+    flexShrink: 0,
+  },
+  amountLabel: {
     fontSize: SIZES.smedium,
     includeFontPadding: false,
+    flexShrink: 0,
+  },
+  separator: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    marginLeft: 16 + 40 + 12, // paddingHorizontal + avatarSize + gap
   },
   button: {
     ...CENTER,
-    marginTop: CONTENT_KEYBOARD_OFFSET,
+    marginTop: 'auto',
   },
 });

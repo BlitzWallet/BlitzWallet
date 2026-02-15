@@ -920,7 +920,9 @@
       "contributorCount_one": "{{count}} persona",
       "contributorCount_other": "{{count}} persone",
       "pool_contribution_label": "Contributo al pool: {{poolName}}",
-      "closing_pool_label": "Chiusura del pool: {{poolName}}"
+      "closing_pool_label": "Chiusura del pool: {{poolName}}",
+      "activitySection": "Attività",
+      "active": "Attivo"
     },
     "manualInputPage": {
       "inputPlaceholder": "Inserisci o incolla un indirizzo o una fattura Liquid o Lightning"

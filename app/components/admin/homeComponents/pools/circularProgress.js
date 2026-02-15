@@ -5,6 +5,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { SIZES } from '../../../../constants';
 import { COLORS } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 /**
  * Circular progress ring component for pool progress display.
@@ -26,8 +27,10 @@ export default function CircularProgress({
   showPercentage = false,
   fundedAmount,
   goalAmount,
+  useAltBackground = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const { percentage, displayText } = useMemo(() => {
     const pct = goal > 0 ? (current / goal) * 100 : 0;
@@ -49,8 +52,8 @@ export default function CircularProgress({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   const progressColor =
-    theme && darkModeType ? COLORS.lightModeText : COLORS.primary;
-  const trackColor = theme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  const trackColor = useAltBackground ? backgroundColor : backgroundOffset;
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
