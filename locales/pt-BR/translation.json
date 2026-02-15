@@ -967,7 +967,7 @@
         "swapWarning": "Os pagamentos recebidos em endereços {{swapType}} serão transferidos para Bitcoin na Spark. Valores abaixo de {{amount}} não serão recebidos. Os fundos só serão recebidos após o pagamento {{swapType}} ser confirmado.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
-        "notUsingMainAccountWarning": "Aviso: Você não está usando a conta Blitz Wallet da sua carteira. Todas as transferências {{swapType}} recebidas serão enviadas para sua conta Blitz Wallet.",
+        "notUsingMainAccountWarning": "Aviso: Você não está usando a Conta Principal da sua carteira. Todas as transferências {{swapType}} recebidas serão enviadas para sua Conta Principal.",
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
