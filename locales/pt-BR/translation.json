@@ -890,7 +890,7 @@
       "failedToTransfer": "Falha ao transferir os fundos do Pool",
       "notFound": "Pool não encontrado",
       "closePoolTitle": "Fechar este Pool?",
-      "closePoolWarning": "Todos os fundos serão transferidos para sua conta Blitz Wallet. Este Pool deixará de aceitar pagamentos e não poderá ser reaberto.",
+      "closePoolWarning": "Todos os fundos serão transferidos para sua Conta Principal. Este Pool deixará de aceitar pagamentos e não poderá ser reaberto.",
       "closePool": "Fechar Pool",
       "goal": "Objetivo: ",
       "payment_one": "{{count}} pagamento",
