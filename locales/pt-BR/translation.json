@@ -921,16 +921,16 @@
       "pool_contribution_label": "Contribuição para o Pool: {{poolName}}",
       "closing_pool_label": "Encerrando Pool: {{poolName}}",
       "activitySection": "Atividade",
-      "active": "Abertos",
+      "active": "Selecionada",
       "info": {
-        "title": "Sobre os pools",
-        "whatArePools": "O que são pools?",
-        "whatArePoolsBody": "Os pools permitem que você receba pagamentos em Bitcoin para um objetivo compartilhado. Crie um pool, defina um valor alvo e compartilhe com quem quiser.",
+        "title": "Sobre os Pools",
+        "whatArePools": "O que são Pools?",
+        "whatArePoolsBody": "Os Pools permitem que você receba pagamentos em Bitcoin para um objetivo compartilhado. Crie um Pool, defina um valor alvo e compartilhe com quem quiser.",
         "howItWorks": "Como funciona",
-        "howStep1": "\u2022 Crie um novo pool com um nome e um valor alvo",
-        "howStep2": "\u2022 Compartilhe o link do pool para que outras pessoas possam encontrá-lo",
-        "howStep3": "\u2022 Os contribuidores enviam Bitcoin diretamente para o pool",
-        "howStep4": "\u2022 Encerre o pool quando estiver pronto para mover os fundos para sua wallet"
+        "howStep1": "\u2022 Crie um novo Pool com um nome e um valor alvo",
+        "howStep2": "\u2022 Compartilhe o link do Pool com outras pessoas",
+        "howStep3": "\u2022 Os contribuidores enviam Bitcoin diretamente para o Pool",
+        "howStep4": "\u2022 Encerre o Pool quando estiver pronto para mover os fundos para sua carteira"
       }
     },
     "manualInputPage": {
@@ -1351,11 +1351,11 @@
       "showSeedWarning": "Tem certeza de que deseja mostrar sua frase de recuperação?",
       "warning": {
         "title_accounts": "Mantenha sua frase de recuperação em segredo",
-        "point1_accounts": "Sua frase secreta de recuperação é como uma chave mestra da sua carteira.",
-        "point2_accounts": "Se alguém acessar essa frase, poderá roubar os fundos de todas suas contas na carteira Blitz. Não há como recuperar fundos perdidos.",
+        "point1_accounts": "Essa frase secreta de recuperação permite recuperar fundos somente dessa conta.",
+        "point2_accounts": "Se alguém acessar essa frase, poderá roubar os fundos dessa conta. Não há como recuperar fundos perdidos.",
         "point3_accounts": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "title_settings": "Mantenha sua frase de recuperação em segredo",
-        "point1_settings": "Sua frase secreta de recuperação é como uma chave mestra da sua carteira.",
+        "point1_settings": "Essa frase secreta de recuperação permite recuperar fundos de todas suas contas na carteira Blitz.",
         "point2_settings": "Se alguém acessar essa frase, poderá roubar os fundos de todas suas contas na carteira Blitz. Não há como recuperar fundos perdidos.",
         "point3_settings": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "checkbox": "Entendo que compartilhar minha frase de recuperação pode resultar na perda permanente dos meus fundos.",
@@ -1369,8 +1369,8 @@
     },
     "accounts": {
       "inputPlaceholder": "Buscar conta existente",
-      "mainWalletPlace": "Conta principal",
-      "nwcWalletPlace": "Conta NWC"
+      "mainWalletPlace": "Blitz Wallet",
+      "nwcWalletPlace": "NWC"
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1752,7 +1752,7 @@
         "detailsBTN": "Detalhes técnicos",
         "contactPaymentType": "Contato",
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
-        "gift": "Cartão-presente"
+        "gift": "Vale-Blitz"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
