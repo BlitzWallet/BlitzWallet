@@ -921,7 +921,7 @@
       "pool_contribution_label": "Contribuição para o Pool: {{poolName}}",
       "closing_pool_label": "Encerrando Pool: {{poolName}}",
       "activitySection": "Atividade",
-      "active": "Selecionada",
+      "active": "Abertos",
       "info": {
         "title": "Sobre os Pools",
         "whatArePools": "O que são Pools?",
