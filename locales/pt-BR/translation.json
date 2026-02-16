@@ -1525,16 +1525,16 @@
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
-        "wanringMessage": "Para manter sua wallet segura, o Nostr Wallet Connect cria uma frase de recuperação separada da frase de recuperação da sua wallet principal.\n\nVocê pode acessar essa frase de recuperação nas configurações do Blitz, em Contas.",
+        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr (NWC) possui uma frase de recuperação diferente da sua conta principal.\n\nVocê pode acessar essa frase de recuperação nas configurações da Blitz, em Contas.",
         "viewSeed": "Ver frase de recuperação"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Adicionar fundos à sua wallet NWC",
-        "accountFundingMessage": "Para enviar dinheiro da sua wallet Nostr Connect, primeiro você precisa adicionar fundos — recebendo dinheiro ou transferindo da sua wallet principal.\n\nVocê pode transferir fundos da sua wallet principal para a NWC na página de configurações da conta.",
+        "accountFundingHeader": "Adicionar fundos à sua conta NWC",
+        "accountFundingMessage": "Para enviar dinheiro da sua conta NWC, primeiro você precisa adicionar fundos — recebendo dinheiro ou transferindo da sua conta principal.\n\nVocê pode transferir fundos da sua conta principal para a conta NWC na página de configurações da conta.",
         "securityHeader": "Seguro e isolado",
-        "securityMessage": "O Nostr Wallet Connect cria uma wallet separada da sua wallet principal para maior segurança. Essa frase seed é armazenada com segurança e pode ser visualizada posteriormente na página Contas nas configurações, se necessário.",
+        "securityMessage": "A conta com conexão Nostr é uma conta separada da sua conta principal para proporcionar uma maior segurança. Essa frase de recuperação é armazenada com segurança e pode ser visualizada posteriormente na página Contas nas configurações, se necessário.",
         "continueButton": "Começar",
-        "initializingMessage": "Configurando sua wallet NWC...",
+        "initializingMessage": "Configurando sua conta NWC...",
         "errorTitle": "Falha na configuração",
         "errorRetry": "Tentar novamente"
       }
