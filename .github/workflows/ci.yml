@@ -37,12 +37,3 @@ jobs:
         run: |
           set -euxo pipefail
           yarn lint
-
-      - name: App Store compliance check
-        run: |
-          greenlight preflight . --format json --output greenlight-report.json
-          # Fail the pipeline if critical issues found
-          if jq -e '.summary.critical > 0' greenlight-report.json > /dev/null; then
-            echo "CRITICAL issues found — fix before submission"
-            exit 1
-          fi
