@@ -60,18 +60,24 @@ export default function CreateCustodyAccounts() {
   }, [custodyAccountsList, searchInput]);
 
   const handleNavigateEdit = useCallback(
-    account => {
-      if (
-        account.uuid === MAIN_ACCOUNT_UUID ||
-        account.uuid === NWC_ACCOUNT_UUID
-      )
-        return;
-      navigate.navigate('EditAccountPage', {
-        account,
-        from: 'SettingsContentHome',
-      });
+    async account => {
+      if (account.uuid === MAIN_ACCOUNT_UUID) return;
+
+      if (account.uuid === NWC_ACCOUNT_UUID) {
+        const mnemonic = await getAccountMnemonic(account);
+        navigate.navigate('SeedPhraseWarning', {
+          mnemonic: mnemonic,
+          extraData: { canViewQrCode: false },
+          fromPage: 'accounts',
+        });
+      } else {
+        navigate.navigate('EditAccountPage', {
+          account,
+          from: 'SettingsContentHome',
+        });
+      }
     },
-    [navigate],
+    [navigate, getAccountMnemonic],
   );
 
   const handleNavigateError = useCallback(

@@ -24,8 +24,7 @@ import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { retrieveData } from '../../../../functions';
-import NWCWalletSetup from './nwc/showSeedPage';
-import HasNoNostrAccounts from './nwc/hasNoAccounts';
+import CombinedOnboardingWarning from './nwc/combinedOnboardingWarning';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
@@ -39,6 +38,7 @@ export default function NosterWalletConnect() {
   const [currnetPushState, setCurrentPushState] = useState(null);
   const [hasSeenMnemoinc, setHasSeenMnemoinc] = useState('');
   const [accountName, setAccountName] = useState('');
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const { backgroundOffset } = GetThemeColors();
   const savedNWCAccounts = masterInfoObject.NWC;
   const notificationData = masterInfoObject.pushNotifications;
@@ -74,14 +74,7 @@ export default function NosterWalletConnect() {
     });
   };
 
-  if (!hasSeenMnemoinc) {
-    return (
-      <CustomPageWrapper>
-        <NWCWalletSetup setHasSeenMnemoinc={setHasSeenMnemoinc} />
-      </CustomPageWrapper>
-    );
-  }
-
+  // Step 1, enable push notifications
   if (!hasEnabledPushNotifications) {
     return (
       <CustomPageWrapper>
@@ -89,11 +82,11 @@ export default function NosterWalletConnect() {
       </CustomPageWrapper>
     );
   }
-
-  if (!didViewWarningMessage) {
+  // Step 2, combined onboarding (accounts + seed initialization)
+  if (!didViewWarningMessage || !hasSeenMnemoinc) {
     return (
       <CustomPageWrapper>
-        <HasNoNostrAccounts />
+        <CombinedOnboardingWarning setHasSeenMnemoinc={setHasSeenMnemoinc} />
       </CustomPageWrapper>
     );
   }
@@ -165,22 +158,26 @@ export default function NosterWalletConnect() {
     : [];
 
   return (
-    <CustomPageWrapper>
-      <CustomKeyboardAvoidingView
-        useTouchableWithoutFeedback={true}
-        globalThemeViewStyles={{
-          paddingTop: 10,
-          width: INSET_WINDOW_WIDTH,
-          ...CENTER,
-        }}
-      >
+    <CustomKeyboardAvoidingView
+      useTouchableWithoutFeedback={true}
+      useStandardWidth={true}
+      useLocalPadding={true}
+      isKeyboardActive={isKeyboardActive}
+    >
+      <CustomSettingsTopBar label={'NWC'} />
+      <View style={styles.contentContainer}>
         <CustomSearchInput
           inputText={accountName}
           setInputText={setAccountName}
           placeholderText={t('settings.nwc.searchAccountPlaceholder')}
-          containerStyles={{ marginBottom: CONTENT_KEYBOARD_OFFSET }}
+          containerStyles={{
+            marginBottom: CONTENT_KEYBOARD_OFFSET,
+            marginTop: 20,
+          }}
+          onFocusFunction={() => setIsKeyboardActive(true)}
+          onBlurFunction={() => setIsKeyboardActive(false)}
         />
-        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
           {nwcElements.length > 0 ? (
             nwcElements
           ) : (
@@ -190,7 +187,7 @@ export default function NosterWalletConnect() {
             />
           )}
         </ScrollView>
-        <View style={{ ...CENTER, paddingBottom: CONTENT_KEYBOARD_OFFSET }}>
+        <View style={{ ...CENTER }}>
           <CustomButton
             actionFunction={() => {
               navigate.navigate('CreateNostrConnectAccount');
@@ -198,8 +195,8 @@ export default function NosterWalletConnect() {
             textContent={t('settings.nwc.addAccount')}
           />
         </View>
-      </CustomKeyboardAvoidingView>
-    </CustomPageWrapper>
+      </View>
+    </CustomKeyboardAvoidingView>
   );
 }
 
@@ -234,8 +231,11 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
     alignItems: 'center',
   },
+  scrollContainer: { paddingBottom: 20, paddingTop: 10, flexGrow: 1 },
   contentItemContainer: {
     width: '100%',
     marginVertical: 10,

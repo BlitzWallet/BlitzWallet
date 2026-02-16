@@ -145,22 +145,23 @@ export default function AccountCard({
           </View>
         </View>
       )}
-      {account.uuid !== MAIN_ACCOUNT_UUID &&
-        account.uuid !== NWC_ACCOUNT_UUID &&
-        !useSelection && (
-          <View
-            style={[
-              styles.rightSection,
-              {
-                backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
-              },
-            ]}
-          >
-            <TouchableOpacity onPress={onEdit} style={styles.editButton}>
-              <ThemeIcon iconName={'Edit'} size={20} />
-            </TouchableOpacity>
-          </View>
-        )}
+      {account.uuid !== MAIN_ACCOUNT_UUID && !useSelection && (
+        <View
+          style={[
+            styles.rightSection,
+            {
+              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+            },
+          ]}
+        >
+          <TouchableOpacity onPress={onEdit} style={styles.editButton}>
+            <ThemeIcon
+              iconName={account.uuid === NWC_ACCOUNT_UUID ? 'Lock' : 'Edit'}
+              size={20}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
     </TouchableOpacity>
   );
 }
