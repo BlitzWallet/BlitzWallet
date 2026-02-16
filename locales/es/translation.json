@@ -788,6 +788,7 @@
       "closing_pool_label": "Cerrando pool: {{poolName}}",
       "activitySection": "Actividad",
       "active": "Activo",
+      "savingPoolError": "No se pudo crear este pool. Por favor, inténtalo de nuevo.",
       "info": {
         "title": "Acerca de los pools",
         "whatArePools": "¿Qué son los pools?",

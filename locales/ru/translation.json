@@ -921,6 +921,8 @@
       "pool_contribution_label": "Взнос в пул: {{poolName}}",
       "closing_pool_label": "Закрытие пула: {{poolName}}",
       "activitySection": "Активность",
+      "active": "Активный",
+      "savingPoolError": "Не удалось создать этот пул. Пожалуйста, попробуйте снова.",
       "info": {
         "title": "О пулах",
         "whatArePools": "Что такое пулы?",

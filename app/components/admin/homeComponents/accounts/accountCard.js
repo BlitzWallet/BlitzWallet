@@ -155,10 +155,7 @@ export default function AccountCard({
           ]}
         >
           <TouchableOpacity onPress={onEdit} style={styles.editButton}>
-            <ThemeIcon
-              iconName={account.uuid === NWC_ACCOUNT_UUID ? 'Lock' : 'Edit'}
-              size={20}
-            />
+            <ThemeIcon iconName={'Edit'} size={20} />
           </TouchableOpacity>
         </View>
       )}

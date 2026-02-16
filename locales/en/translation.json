@@ -937,6 +937,7 @@
       "closing_pool_label": "Closing pool: {{poolName}}",
       "activitySection": "Activity",
       "active": "Active",
+      "savingPoolError": "We were not able to create this pool. Please try again.",
       "info": {
         "title": "About Pools",
         "whatArePools": "What are pools?",
@@ -1548,23 +1549,23 @@
       },
 
       "hasNoAccounts": {
-        "wanringMessage": "To send money from your Nostr Connect wallet, you’ll first need to add funds—either by receiving money or transferring from your main wallet.\n\n You can transfer funds from your main wallet to NWC in the account settings page."
+        "wanringMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC in the account settings page."
       },
       "noNotifications": {
         "wanringMessage": "In order to use Nostr Wallet Connect you need to have push notifications for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again."
       },
       "showSeedPage": {
         "loadingMessage": "Generating recovery phrase",
-        "wanringMessage": "To keep your wallet safe, Nostr Wallet Connect creates a separate recovery phrase from your main wallet's recovery phrase.\n\nYou can access this recovery phrase in the accounts settings page.",
+        "wanringMessage": "To keep your account safe, Nostr Wallet Connect creates a separate recovery phrase from your main account's recovery phrase.\n\nYou can access this recovery phrase in the accounts settings page.",
         "viewSeed": "View recovery phrase"
       },
       "combinedOnboarding": {
-        "accountFundingHeader": "Funding Your NWC Wallet",
-        "accountFundingMessage": "To send money from your Nostr Connect wallet, you'll first need to add funds—either by receiving money or transferring from your main wallet.\n\nYou can transfer funds from your main wallet to NWC in the account settings page.",
+        "accountFundingHeader": "Funding Your NWC Account",
+        "accountFundingMessage": "To send money from your Nostr Connect account, you'll first need to add funds—either by receiving money or transferring from your main account.\n\nYou can transfer funds from your main account to NWC in the account settings page.",
         "securityHeader": "Secure & Isolated",
-        "securityMessage": "Nostr Wallet Connect creates a seperate wallet from your main wallet for added security. This seed phrase is securely stored and can be viewed later in the Accounts setting page if needed.",
+        "securityMessage": "Nostr Wallet Connect creates a seperate account from your main account for added security. This seed phrase is securely stored and can be viewed later in the Accounts setting page if needed.",
         "continueButton": "Get Started",
-        "initializingMessage": "Setting up your NWC wallet...",
+        "initializingMessage": "Setting up your NWC account...",
         "errorTitle": "Setup Failed",
         "errorRetry": "Retry Setup"
       }

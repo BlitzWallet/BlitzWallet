@@ -63,19 +63,10 @@ export default function CreateCustodyAccounts() {
     async account => {
       if (account.uuid === MAIN_ACCOUNT_UUID) return;
 
-      if (account.uuid === NWC_ACCOUNT_UUID) {
-        const mnemonic = await getAccountMnemonic(account);
-        navigate.navigate('SeedPhraseWarning', {
-          mnemonic: mnemonic,
-          extraData: { canViewQrCode: false },
-          fromPage: 'accounts',
-        });
-      } else {
-        navigate.navigate('EditAccountPage', {
-          account,
-          from: 'SettingsContentHome',
-        });
-      }
+      navigate.navigate('EditAccountPage', {
+        account,
+        from: 'SettingsContentHome',
+      });
     },
     [navigate, getAccountMnemonic],
   );

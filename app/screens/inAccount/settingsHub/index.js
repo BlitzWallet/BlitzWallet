@@ -289,19 +289,10 @@ export default function SettingsHub(props) {
 
   const handleAccountEdit = useCallback(
     async account => {
-      if (account.uuid === NWC_ACCOUNT_UUID) {
-        const mnemonic = await getAccountMnemonic(account);
-        navigate.navigate('SeedPhraseWarning', {
-          mnemonic: mnemonic,
-          extraData: { canViewQrCode: false },
-          fromPage: 'accounts',
-        });
-      } else {
-        navigate.navigate('EditAccountPage', {
-          account,
-          from: 'SettingsHome',
-        });
-      }
+      navigate.navigate('EditAccountPage', {
+        account,
+        from: 'SettingsHome',
+      });
     },
     [getAccountMnemonic],
   );

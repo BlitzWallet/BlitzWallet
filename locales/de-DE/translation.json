@@ -925,6 +925,7 @@
       "closing_pool_label": "Sparpool wird geschlossen: {{poolName}}",
       "activitySection": "Aktivität",
       "active": "Aktive Sparpools",
+      "savingPoolError": "Dieser Pool konnte nicht erstellt werden. Bitte versuche es erneut.",
       "info": {
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",

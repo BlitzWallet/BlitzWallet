@@ -922,6 +922,7 @@
       "closing_pool_label": "Stänger pool: {{poolName}}",
       "activitySection": "Aktivitet",
       "active": "Aktiv",
+      "savingPoolError": "Det gick inte att skapa denna pool. Försök igen.",
       "info": {
         "title": "Om pools",
         "whatArePools": "Vad är pools?",
