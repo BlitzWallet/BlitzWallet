@@ -50,12 +50,10 @@ import EditAccountName from '../app/components/admin/homeComponents/settingsCont
 import EmojiAvatarSelector from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectProfileImage';
 import RemoveAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/removeAccountPage';
 import RestoreDerivedAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/restoreDerivedAccountPage';
-import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
 import SeedPhraseWarning from '../app/components/admin/homeComponents/settingsContent/seedPhraseWarning';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
-import NWCWalletSetup from '../app/components/admin/homeComponents/settingsContent/nwc/showSeedPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import SparkSettingsPage from '../app/components/admin/homeComponents/settingsContent/sparkLrc20';
@@ -165,7 +163,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SelectCreateAccountType', component: SelectCreateAccountType },
   { name: 'RestoreDerivedAccount', component: RestoreDerivedAccountPage },
   { name: 'EditAccountName', component: EditAccountName },
-  { name: 'ViewCustodyAccount', component: ViewCustodyAccountPage },
   { name: 'EditAccountPage', component: EditAccountPage },
   { name: 'RemoveAccountPage', component: RemoveAccountPage },
   { name: 'SeedPhraseWarning', component: SeedPhraseWarning },
@@ -174,7 +171,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'NosterWalletConnect', component: NosterWalletConnect },
   { name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount },
   // {name: 'NWCWallet', component: NWCWallet},
-  { name: 'NWCWalletSetup', component: NWCWalletSetup },
   { name: 'SparkSettingsPage', component: SparkSettingsPage },
   { name: 'Nip5VerificationPage', component: Nip5VerificationPage },
   { name: 'SelectGiftCardForContacts', component: SelectGiftCardForContacts },

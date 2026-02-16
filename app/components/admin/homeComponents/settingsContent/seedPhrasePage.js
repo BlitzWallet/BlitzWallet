@@ -1,10 +1,9 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { KeyContainer } from '../../../login';
 import { useState } from 'react';
-import { COLORS, SIZES, CENTER } from '../../../../constants';
+import { COLORS, FONT, SIZES, CENTER } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import CustomButton from '../../../../functions/CustomElements/button';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -15,6 +14,8 @@ import calculateSeedQR from './seedQR';
 import { copyToClipboard } from '../../../../functions';
 import { useToast } from '../../../../../context-store/toastManager';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+
 export default function SeedPhrasePage({ extraData, route }) {
   const { showToast } = useToast();
   const { accountMnemoinc: contextMnemonic } = useKeysContext();
@@ -25,7 +26,7 @@ export default function SeedPhrasePage({ extraData, route }) {
 
   const mnemonic = mnemonicString.split(' ');
   const navigate = useNavigation();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
@@ -33,33 +34,50 @@ export default function SeedPhrasePage({ extraData, route }) {
   const canViewQrCode = extraData?.canViewQrCode;
   const qrValue = calculateSeedQR(mnemonicString);
 
+  const warningBorderColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed;
+  const warningAccentColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed;
+  const copyColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+
   return (
     <View style={styles.globalContainer}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewStyles}
       >
-        <ThemeText
-          styles={{ ...styles.headerPhrase }}
-          content={t('settings.seedPhrase.header')}
-        />
-        <ThemeText
-          styles={{
-            color:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
-            marginBottom: 50,
+        {/* Warning Banner */}
+        <View
+          style={[
+            styles.warningContainer,
+            {
+              backgroundColor: backgroundOffset,
+              borderColor: warningBorderColor,
+            },
+          ]}
+        >
+          <View style={styles.warningHeader}>
+            <ThemeIcon
+              iconName="ShieldAlert"
+              size={20}
+              colorOverride={warningAccentColor}
+            />
+            <ThemeText
+              styles={[styles.warningTitle, { color: warningAccentColor }]}
+              content={t('settings.seedPhrase.header')}
+            />
+          </View>
+          <ThemeText
+            styles={[styles.warningDescription]}
+            content={t('settings.seedPhrase.headerDesc')}
+          />
+        </View>
 
-            textAlign: 'center',
-          }}
-          content={t('settings.seedPhrase.headerDesc')}
-        />
+        {/* Phrase Grid or QR Code */}
         {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
           <View
-            style={{
-              height: seedContainerHeight,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            style={[styles.contentContainer, { height: seedContainerHeight }]}
           >
             <QrCodeWrapper QRData={qrValue} />
           </View>
@@ -68,11 +86,13 @@ export default function SeedPhrasePage({ extraData, route }) {
             onLayout={event => {
               setSeedContainerHeight(event.nativeEvent.layout.height);
             }}
-            style={styles.scrollViewContainer}
+            style={styles.seedContainer}
           >
             <KeyContainer keys={mnemonic} />
           </View>
         )}
+
+        {/* Words/QR Toggle */}
         <WordsQrToggle
           setSelectedDisplayOption={setSelectedDisplayOption}
           selectedDisplayOption={selectedDisplayOption}
@@ -84,16 +104,24 @@ export default function SeedPhrasePage({ extraData, route }) {
             })
           }
         />
-        <CustomButton
-          buttonStyles={{ marginTop: 10 }}
-          actionFunction={() =>
+
+        {/* Copy (text-only, secondary) */}
+        <TouchableOpacity
+          style={styles.copyButton}
+          onPress={() =>
             copyToClipboard(
               selectedDisplayOption === 'words' ? mnemonicString : qrValue,
               showToast,
             )
           }
-          textContent={t('constants.copy')}
-        />
+          activeOpacity={0.7}
+        >
+          <ThemeIcon iconName="Copy" size={16} colorOverride={copyColor} />
+          <ThemeText
+            styles={[styles.copyButtonText, { color: copyColor }]}
+            content={t('constants.copy')}
+          />
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -103,17 +131,61 @@ const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
   },
-  headerPhrase: {
-    marginBottom: 15,
-    fontSize: SIZES.xLarge,
-    textAlign: 'center',
-  },
-  scrollViewContainer: {},
   scrollViewStyles: {
     width: INSET_WINDOW_WIDTH,
+    flexGrow: 1,
     ...CENTER,
-    paddingTop: 40,
-    paddingBottom: 10,
     alignItems: 'center',
+    paddingTop: 20,
+  },
+
+  // Warning banner
+  warningContainer: {
+    width: '100%',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 24,
+    marginTop: 10,
+  },
+  warningHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  warningTitle: {
+    fontSize: SIZES.medium,
+    fontFamily: FONT.Title_Medium,
+    flexShrink: 1,
+    includeFontPadding: false,
+  },
+  warningDescription: {
+    fontSize: SIZES.smedium,
+    marginTop: 8,
+    paddingLeft: 28,
+  },
+
+  // Seed / QR containers
+  seedContainer: {
+    marginBottom: 24,
+    width: '100%',
+  },
+  contentContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+
+  copyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    marginTop: 10,
+    gap: 6,
+  },
+  copyButtonText: {
+    fontSize: SIZES.medium,
+    fontFamily: FONT.Title_Medium,
   },
 });

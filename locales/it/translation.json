@@ -1525,9 +1525,19 @@
         "wanringMessage": "Per usare Nostr Wallet Connect devi avere le notifiche push per Nostr Wallet Connect abilitate.\n\nAbilita le notifiche push nelle impostazioni e riprova."
       },
       "showSeedPage": {
-        "loadingMessage": "Generazione della frase seed",
-        "wanringMessage": "Per proteggere il tuo portafoglio, Nostr Wallet Connect crea una seed phrase separata da quella del tuo portafoglio principale.\n\nQuesto portafoglio utilizza il percorso di seconda derivazione e può sempre essere recuperato utilizzando la seed phrase del tuo portafoglio principale.\n\nSe non sei esperto di tecnologia e non sei sicuro di come recuperare l'indirizzo del portafoglio, annota questa seed phrase.",
-        "viewSeed": "Visualizza seed phrase"
+        "loadingMessage": "Generazione della frase di recupero",
+        "wanringMessage": "Per mantenere il tuo wallet sicuro, Nostr Wallet Connect crea una frase di recupero separata da quella del tuo wallet principale.\n\nPuoi accedere a questa frase di recupero nelle impostazioni di Blitz, nella sezione Account.",
+        "viewSeed": "Visualizza frase di recupero"
+      },
+      "combinedOnboarding": {
+        "accountFundingHeader": "Finanziare il tuo wallet NWC",
+        "accountFundingMessage": "Per inviare denaro dal tuo wallet Nostr Connect, devi prima aggiungere fondi, ricevendoli oppure trasferendoli dal tuo wallet principale.\n\nPuoi trasferire fondi dal tuo wallet principale a NWC nella pagina delle impostazioni dell’account.",
+        "securityHeader": "Sicuro e isolato",
+        "securityMessage": "Nostr Wallet Connect crea un wallet separato dal tuo wallet principale per maggiore sicurezza. Questa frase seed è archiviata in modo sicuro e può essere visualizzata successivamente nella pagina Account nelle impostazioni, se necessario.",
+        "continueButton": "Inizia",
+        "initializingMessage": "Configurazione del tuo wallet NWC...",
+        "errorTitle": "Configurazione non riuscita",
+        "errorRetry": "Riprova configurazione"
       }
     },
     "accountComponents": {

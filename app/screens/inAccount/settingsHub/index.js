@@ -37,6 +37,10 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+import {
+  NWC_ACCOUNT_UUID,
+  useActiveCustodyAccount,
+} from '../../../../context-store/activeAccount';
 
 const PREFERENCES_ROWS = [
   {
@@ -145,6 +149,7 @@ export default function SettingsHub(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
+  const { getAccountMnemonic } = useActiveCustodyAccount();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
   const { backgroundOffset } = GetThemeColors();
@@ -282,12 +287,24 @@ export default function SettingsHub(props) {
     copyToClipboard(myContact?.uniqueName, showToast);
   }, [myContact?.uniqueName]);
 
-  const handleAccountEdit = useCallback(account => {
-    navigate.navigate('EditAccountPage', {
-      account,
-      from: 'SettingsHome',
-    });
-  }, []);
+  const handleAccountEdit = useCallback(
+    async account => {
+      if (account.uuid === NWC_ACCOUNT_UUID) {
+        const mnemonic = await getAccountMnemonic(account);
+        navigate.navigate('SeedPhraseWarning', {
+          mnemonic: mnemonic,
+          extraData: { canViewQrCode: false },
+          fromPage: 'accounts',
+        });
+      } else {
+        navigate.navigate('EditAccountPage', {
+          account,
+          from: 'SettingsHome',
+        });
+      }
+    },
+    [getAccountMnemonic],
+  );
 
   const handleViewAllAccounts = useCallback(() => {
     navigate.navigate('SettingsContentHome', { for: 'Accounts' });

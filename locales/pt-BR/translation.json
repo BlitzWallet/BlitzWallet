@@ -1525,8 +1525,18 @@
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
-        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase de recuperação separada.\n\nQualquer conta criada na sua carteira pode ser recuperada usando a frase de recuperação da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase de recuperação.",
+        "wanringMessage": "Para manter sua wallet segura, o Nostr Wallet Connect cria uma frase de recuperação separada da frase de recuperação da sua wallet principal.\n\nVocê pode acessar essa frase de recuperação nas configurações do Blitz, em Contas.",
         "viewSeed": "Ver frase de recuperação"
+      },
+      "combinedOnboarding": {
+        "accountFundingHeader": "Adicionar fundos à sua wallet NWC",
+        "accountFundingMessage": "Para enviar dinheiro da sua wallet Nostr Connect, primeiro você precisa adicionar fundos — recebendo dinheiro ou transferindo da sua wallet principal.\n\nVocê pode transferir fundos da sua wallet principal para a NWC na página de configurações da conta.",
+        "securityHeader": "Seguro e isolado",
+        "securityMessage": "O Nostr Wallet Connect cria uma wallet separada da sua wallet principal para maior segurança. Essa frase seed é armazenada com segurança e pode ser visualizada posteriormente na página Contas nas configurações, se necessário.",
+        "continueButton": "Começar",
+        "initializingMessage": "Configurando sua wallet NWC...",
+        "errorTitle": "Falha na configuração",
+        "errorRetry": "Tentar novamente"
       }
     },
     "accountComponents": {

@@ -1525,9 +1525,19 @@
         "wanringMessage": "Pour pouvoir utiliser Nostr Wallet Connect, vous devez activer la notification push pour Nostr Wallet Connect.\n\nVeuillez activer les notifications push dans les paramètres et réessayer."
       },
       "showSeedPage": {
-        "loadingMessage": "Génération d'une phrase de semence",
-        "wanringMessage": "Pour assurer la sécurité de votre portefeuille, Nostr Wallet Connect crée une seed phrase distincte de celle de votre portefeuille principal.\n\nCe portefeuille utilise le deuxième chemin de dérivation et peut toujours être récupéré à l'aide de la seed phrase de votre portefeuille principal.\n\nSi vous n'êtes pas un expert en technologie et que vous n'êtes pas sûr de pouvoir récupérer l'adresse de votre portefeuille, veuillez noter cette phrase d'amorçage.",
-        "viewSeed": "Voir la phrase sur les semences"
+        "loadingMessage": "Génération de la phrase de récupération",
+        "wanringMessage": "Pour sécuriser votre wallet, Nostr Wallet Connect crée une phrase de récupération distincte de celle de votre wallet principal.\n\nVous pouvez accéder à cette phrase de récupération dans les paramètres de Blitz, sous Comptes.",
+        "viewSeed": "Voir la phrase de récupération"
+      },
+      "combinedOnboarding": {
+        "accountFundingHeader": "Approvisionner votre wallet NWC",
+        "accountFundingMessage": "Pour envoyer de l’argent depuis votre wallet Nostr Connect, vous devez d’abord ajouter des fonds, soit en recevant de l’argent, soit en effectuant un transfert depuis votre wallet principal.\n\nVous pouvez transférer des fonds depuis votre wallet principal vers NWC dans la page des paramètres du compte.",
+        "securityHeader": "Sécurisé et isolé",
+        "securityMessage": "Nostr Wallet Connect crée un wallet distinct de votre wallet principal pour plus de sécurité. Cette phrase seed est stockée en toute sécurité et peut être consultée ultérieurement dans la section Comptes des paramètres si nécessaire.",
+        "continueButton": "Commencer",
+        "initializingMessage": "Configuration de votre wallet NWC...",
+        "errorTitle": "Échec de la configuration",
+        "errorRetry": "Réessayer la configuration"
       }
     },
     "accountComponents": {

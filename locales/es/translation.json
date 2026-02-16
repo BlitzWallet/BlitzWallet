@@ -1390,9 +1390,19 @@
         "wanringMessage": "Para usar Nostr Wallet Connect necesitas tener habilitadas las notificaciones push para Nostr Wallet Connect.\n\nPor favor habilita las notificaciones en configuración e intenta de nuevo."
       },
       "showSeedPage": {
-        "loadingMessage": "Generando frase semilla",
-        "wanringMessage": "Para mantener tu billetera segura, Nostr Wallet Connect crea una frase semilla independiente de la frase semilla de tu billetera principal.\n\nEsta billetera usa la segunda ruta de derivación y siempre se puede recuperar usando la frase semilla de tu billetera principal.\n\nSi no tienes conocimientos técnicos y no estás seguro de cómo recuperar la dirección de la billetera, anota esta frase semilla.",
-        "viewSeed": "Ver frase semilla"
+        "loadingMessage": "Generando frase de recuperación",
+        "wanringMessage": "Para mantener tu wallet segura, Nostr Wallet Connect crea una frase de recuperación separada de la frase de recuperación de tu wallet principal.\n\nPuedes acceder a esta frase de recuperación en la configuración de Blitz, en la sección Cuentas.",
+        "viewSeed": "Ver frase de recuperación"
+      },
+      "combinedOnboarding": {
+        "accountFundingHeader": "Financiar tu wallet NWC",
+        "accountFundingMessage": "Para enviar dinero desde tu wallet Nostr Connect, primero debes agregar fondos, ya sea recibiendo dinero o transfiriéndolo desde tu wallet principal.\n\nPuedes transferir fondos desde tu wallet principal a NWC en la página de configuración de la cuenta.",
+        "securityHeader": "Seguro y aislado",
+        "securityMessage": "Nostr Wallet Connect crea una wallet separada de tu wallet principal para mayor seguridad. Esta frase seed se almacena de forma segura y puede verse más tarde en la página de Cuentas dentro de Configuración si es necesario.",
+        "continueButton": "Comenzar",
+        "initializingMessage": "Configurando tu wallet NWC...",
+        "errorTitle": "Error en la configuración",
+        "errorRetry": "Reintentar configuración"
       }
     },
     "accountComponents": {

@@ -1524,9 +1524,19 @@
         "wanringMessage": "För att kunna använda Nostr Wallet Connect måste du ha aktiverat push-notiser för Nostr Wallet Connect.\n\nVänligen aktivera push-meddelanden i inställningarna och försök igen."
       },
       "showSeedPage": {
-        "loadingMessage": "Generering av fröfras",
-        "wanringMessage": "För att hålla din plånbok säker skapar Nostr Wallet Connect en separat seed-fras från din huvudplånboks seed-fras.\n\nDenna plånbok använder den andra avledningsvägen och kan alltid återställas med hjälp av din huvudplånboks seed-fras.\n\nOm du inte är tekniskt kunnig och osäker på hur du återställer plånboksadressen, vänligen skriv ner denna seed-fras.",
-        "viewSeed": "Visa fröfras"
+        "loadingMessage": "Genererar återställningsfras",
+        "wanringMessage": "För att hålla din wallet säker skapar Nostr Wallet Connect en separat återställningsfras från din huvudwallets återställningsfras.\n\nDu kan komma åt denna återställningsfras i Blitz-inställningarna under Konton.",
+        "viewSeed": "Visa återställningsfras"
+      },
+      "combinedOnboarding": {
+        "accountFundingHeader": "Fyll på din NWC-wallet",
+        "accountFundingMessage": "För att skicka pengar från din Nostr Connect-wallet måste du först lägga till medel — antingen genom att ta emot pengar eller genom att överföra från din huvudwallet.\n\nDu kan överföra medel från din huvudwallet till NWC på sidan för kontoinställningar.",
+        "securityHeader": "Säker och isolerad",
+        "securityMessage": "Nostr Wallet Connect skapar en separat wallet från din huvudwallet för ökad säkerhet. Denna seed-fras lagras säkert och kan visas senare på sidan Konton i inställningarna vid behov.",
+        "continueButton": "Kom igång",
+        "initializingMessage": "Konfigurerar din NWC-wallet...",
+        "errorTitle": "Installationen misslyckades",
+        "errorRetry": "Försök igen"
       }
     },
     "accountComponents": {

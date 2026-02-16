@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   sliderContainer: {
     paddingVertical: 5,
     borderRadius: 40,
-    marginTop: 20,
+    marginTop: 'auto',
   },
   colorSchemeContainer: {
     flexDirection: 'row',

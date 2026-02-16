@@ -1529,9 +1529,19 @@
         "wanringMessage": "Um Nostr Wallet Connect zu nutzen, müssen Sie Push-Benachrichtigungen für Nostr Wallet Connect aktiviert haben.\n\nBitte aktivieren Sie Push-Benachrichtigungen in den Einstellungen und versuchen Sie es erneut."
       },
       "showSeedPage": {
-        "loadingMessage": "Seed-Phrase wird generiert …",
-        "wanringMessage": "Um Ihre Wallet sicher zu halten, erstellt Nostr Wallet Connect eine separate Seed-Phrase von der Seed-Phrase Ihrer Hauptwallet.\n\nDiese Wallet verwendet den zweiten Ableitungspfad und kann immer mit der Seed-Phrase Ihrer Hauptwallet wiederhergestellt werden.\n\nWenn Sie nicht technisch versiert sind und unsicher bezüglich der Wiederherstellung der Wallet-Adresse sind, schreiben Sie bitte diese Seed-Phrase auf.",
-        "viewSeed": "Seed-Phrase anzeigen"
+        "loadingMessage": "Wiederherstellungsphrase wird generiert",
+        "wanringMessage": "Um deine Wallet sicher zu halten, erstellt Nostr Wallet Connect eine separate Wiederherstellungsphrase von der Wiederherstellungsphrase deiner Haupt-Wallet.\n\nDu kannst diese Wiederherstellungsphrase in den Blitz-Einstellungen unter „Konten“ einsehen.",
+        "viewSeed": "Wiederherstellungsphrase anzeigen"
+      },
+      "combinedOnboarding": {
+        "accountFundingHeader": "Deine NWC-Wallet aufladen",
+        "accountFundingMessage": "Um Geld von deiner Nostr Connect Wallet zu senden, musst du zunächst Guthaben hinzufügen – entweder durch Empfangen von Geld oder durch eine Übertragung von deiner Haupt-Wallet.\n\nDu kannst Guthaben von deiner Haupt-Wallet in den Kontoeinstellungen auf NWC übertragen.",
+        "securityHeader": "Sicher & isoliert",
+        "securityMessage": "Nostr Wallet Connect erstellt aus Sicherheitsgründen eine separate Wallet von deiner Haupt-Wallet. Diese Seed-Phrase wird sicher gespeichert und kann bei Bedarf später auf der Seite „Konten“ in den Einstellungen eingesehen werden.",
+        "continueButton": "Loslegen",
+        "initializingMessage": "Deine NWC-Wallet wird eingerichtet...",
+        "errorTitle": "Einrichtung fehlgeschlagen",
+        "errorRetry": "Einrichtung erneut versuchen"
       }
     },
     "accountComponents": {
