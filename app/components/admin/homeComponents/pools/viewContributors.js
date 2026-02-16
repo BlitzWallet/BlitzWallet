@@ -65,7 +65,9 @@ export default function ViewContibutors(props) {
                     styles={styles.name}
                     CustomNumberOfLines={1}
                     CustomEllipsizeMode={'tail'}
-                    content={name}
+                    content={
+                      name === 'Anonymous' ? t('constants.annonName') : name
+                    }
                   />
                   {isOrganizer ? (
                     <ThemeText
