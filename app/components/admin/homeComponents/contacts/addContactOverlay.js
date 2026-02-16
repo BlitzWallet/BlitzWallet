@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -6,6 +6,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { AddContactContent } from './addContactsHalfModal';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export const AddContactOverlay = ({ visible, onClose, onContactAdded }) => {
   const opacity = useSharedValue(0);
@@ -18,6 +19,16 @@ export const AddContactOverlay = ({ visible, onClose, onContactAdded }) => {
     opacity: opacity.value,
     pointerEvents: opacity.value > 0 ? 'auto' : 'none',
   }));
+
+  // Handle Android back button
+  const handleBackPress = useCallback(() => {
+    console.log('running in back handler', visible);
+    if (!visible) return false;
+    onClose();
+    return true;
+  }, [visible, onClose]);
+
+  useHandleBackPressNew(handleBackPress);
 
   if (!visible) return null;
 
