@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Platform,
   RefreshControl,
@@ -65,6 +65,7 @@ export default function PoolDetailScreen(props) {
   const [refreshing, setRefreshing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [noPool, setNoPool] = useState(false);
+  const didHandleSave = useRef(false);
   const { t } = useTranslation();
 
   // Read pool from context (cache-first)
@@ -101,15 +102,15 @@ export default function PoolDetailScreen(props) {
     try {
       // If this is a freshly created pool, upload it first
       if (shouldSave && passedPool) {
+        if (didHandleSave.current) return;
+        didHandleSave.current = true;
         setIsSaving(true);
 
         const didSave = await savePoolToCloud(passedPool);
         setIsSaving(false);
 
         if (!didSave) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'Failed to save pool',
-          });
+          setNoPool(true);
           return;
         }
 
@@ -250,8 +251,15 @@ export default function PoolDetailScreen(props) {
             }}
           />
           <ThemeText
-            styles={{ fontSize: SIZES.large }}
-            content={t('wallet.pools.couldNotFind')}
+            styles={{
+              fontSize: SIZES.large,
+              textAlign: 'center',
+            }}
+            content={
+              shouldSave
+                ? t('wallet.pools.savingPoolError')
+                : t('wallet.pools.couldNotFind')
+            }
           />
           <CustomButton
             buttonStyles={{ marginTop: 'auto' }}
