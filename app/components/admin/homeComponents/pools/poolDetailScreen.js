@@ -427,7 +427,11 @@ export default function PoolDetailScreen(props) {
                             styles={styles.activityName}
                             CustomNumberOfLines={1}
                             CustomEllipsizeMode={'tail'}
-                            content={name}
+                            content={
+                              name === 'Anonymous'
+                                ? t('constants.annonName')
+                                : name
+                            }
                           />
                           {item.isOrganizer ? (
                             <ThemeText
