@@ -919,7 +919,7 @@
       "organizer": "Organisateur",
       "contributorCount_one": "{{count}} personne",
       "contributorCount_other": "{{count}} personnes",
-      "pool_contribution_label": "Contribution au pool : {{poolName}}",
+      "pool_contribution_label": "Contribution au pool \"{{poolName}}\"",
       "closing_pool_label": "Fermeture du pool : {{poolName}}",
       "activitySection": "Activité",
       "active": "Actif",

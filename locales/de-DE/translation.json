@@ -921,7 +921,7 @@
       "organizer": "Organisator",
       "contributorCount_one": "{{count}} Person",
       "contributorCount_other": "{{count}} Personen",
-      "pool_contribution_label": "Sparpool-Beitrag: {{poolName}}",
+      "pool_contribution_label": "Beitrag zum Sparpool \"{{poolName}}\"",
       "closing_pool_label": "Sparpool wird geschlossen: {{poolName}}",
       "activitySection": "Aktivität",
       "active": "Aktive Sparpools",

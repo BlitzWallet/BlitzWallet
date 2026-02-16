@@ -918,7 +918,7 @@
       "organizer": "Организатор",
       "contributorCount_one": "{{count}} человек",
       "contributorCount_other": "{{count}} человек",
-      "pool_contribution_label": "Взнос в пул: {{poolName}}",
+      "pool_contribution_label": "Взнос в пул \"{{poolName}}\"",
       "closing_pool_label": "Закрытие пула: {{poolName}}",
       "activitySection": "Активность",
       "active": "Активный",

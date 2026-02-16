@@ -933,7 +933,7 @@
       "organizer": "Organizer",
       "contributorCount_one": "{{count}} person",
       "contributorCount_other": "{{count}} people",
-      "pool_contribution_label": "Pool contribution: {{poolName}}",
+      "pool_contribution_label": "Contribution to pool \"{{poolName}}\"",
       "closing_pool_label": "Closing pool: {{poolName}}",
       "activitySection": "Activity",
       "active": "Active",
