@@ -46,6 +46,7 @@ const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
 }, {});
 
 export default function CreateCustodyAccountPage(props) {
+  const maxLength = 50;
   const accountType = props?.route?.params?.accountType || 'derived';
   const { masterInfoObject } = useGlobalContextProvider();
   const { createDerivedAccount, createImportedAccount, custodyAccountsList } =
@@ -70,6 +71,13 @@ export default function CreateCustodyAccountPage(props) {
   const keyRefs = useRef({});
 
   const { backgroundOffset, textColor, textInputColor } = GetThemeColors();
+
+  const isOverLimit = accountInformation.name.length >= maxLength;
+  const characterCountColor = isOverLimit
+    ? theme && darkModeType
+      ? textColor
+      : COLORS.cancelRed
+    : textColor;
 
   const navigate = useNavigation();
 
@@ -337,6 +345,7 @@ export default function CreateCustodyAccountPage(props) {
               return { ...prev, name: e };
             });
           }}
+          maxLength={maxLength}
           containerStyles={{
             borderRadius: 8,
           }}
@@ -350,6 +359,14 @@ export default function CreateCustodyAccountPage(props) {
             setIsKeyboardActive(true);
             setCurrentFocused(null);
           }}
+        />
+        <ThemeText
+          styles={{
+            textAlign: 'right',
+            color: characterCountColor,
+            marginTop: 5,
+          }}
+          content={`${accountInformation.name.length} / ${maxLength}`}
         />
 
         {accountType === 'imported' && (

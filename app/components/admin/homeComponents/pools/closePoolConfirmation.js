@@ -46,7 +46,7 @@ export default function ClosePoolConfirmation({
   }, []);
 
   const getBalanceWithRetry = useCallback(async poolMnemonic => {
-    const delays = [5000, 7000, 8000];
+    const delays = [5000, 7000, 8000, 8000];
     let attempt = 0;
 
     setLoadingMessage(t('wallet.pools.gettingBalance'));
@@ -58,7 +58,6 @@ export default function ClosePoolConfirmation({
     };
 
     let result = await getSparkBalance(poolMnemonic);
-    console.log(isCorrectBalance(result), 'is correct blaance');
     if (isCorrectBalance(result)) {
       return result;
     }
@@ -73,7 +72,7 @@ export default function ClosePoolConfirmation({
       await new Promise(res => setTimeout(res, delay));
 
       result = await getSparkBalance(poolMnemonic);
-      console.log(isCorrectBalance(result), 'is correct blaance');
+
       if (isCorrectBalance(result)) {
         return result;
       }

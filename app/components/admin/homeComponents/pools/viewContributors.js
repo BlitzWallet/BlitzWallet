@@ -60,10 +60,7 @@ export default function ViewContibutors(props) {
             return (
               <View key={index}>
                 <View style={styles.row}>
-                  <ContributorAvatar
-                    avatarSize={40}
-                    contributorName={name}
-                  />
+                  <ContributorAvatar avatarSize={40} contributorName={name} />
                   <ThemeText
                     styles={styles.name}
                     CustomNumberOfLines={1}

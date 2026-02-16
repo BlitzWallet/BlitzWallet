@@ -75,6 +75,10 @@ export default function PoolDetailScreen(props) {
 
   const isCreator = pool?.creatorUUID === masterInfoObject?.uuid;
   const isActive = pool?.status === 'active';
+  const hideContributorsForClosedPools =
+    isCreator &&
+    !isActive &&
+    (!pool?.currentAmount || contributions.length === 0);
 
   const formatAmount = useCallback(
     amount => {
@@ -326,23 +330,25 @@ export default function PoolDetailScreen(props) {
           />
 
           {/* Overlapping avatar stack + contributor count */}
-          <TouchableOpacity
-            style={styles.avatarRow}
-            onPress={handleContributorClick}
-            activeOpacity={0.7}
-          >
-            <AvatarStack
-              contributors={[...contributions]}
-              maxVisible={4}
-              avatarSize={32}
-            />
-            <ThemeText
-              styles={styles.contributorCountText}
-              content={t('wallet.pools.contributorCount', {
-                count: contributions.length,
-              })}
-            />
-          </TouchableOpacity>
+          {!hideContributorsForClosedPools && (
+            <TouchableOpacity
+              style={styles.avatarRow}
+              onPress={handleContributorClick}
+              activeOpacity={0.7}
+            >
+              <AvatarStack
+                contributors={[...contributions]}
+                maxVisible={4}
+                avatarSize={32}
+              />
+              <ThemeText
+                styles={styles.contributorCountText}
+                content={t('wallet.pools.contributorCount', {
+                  count: contributions.length,
+                })}
+              />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* ── Section 2: Actions or Closed Banner ── */}
@@ -353,6 +359,7 @@ export default function PoolDetailScreen(props) {
             <ThemeIcon iconName={'Lock'} size={20} />
             <View style={styles.closedTextContainer}>
               <ThemeText
+                styles={{ includeFontPadding: false }}
                 CustomNumberOfLines={1}
                 content={`${t('wallet.pools.closed')}${closedDate}`}
               />
@@ -389,80 +396,82 @@ export default function PoolDetailScreen(props) {
         )}
 
         {/* ── Section 3: Recent Activity ── */}
-        <View style={styles.activitySection}>
-          <SectionCard title={t('wallet.pools.activitySection')}>
-            {recentActivity.length <= 1 && contributions.length === 0 ? (
-              <View style={styles.emptyActivity}>
-                <ThemeText
-                  styles={styles.emptyActivityText}
-                  content={t('wallet.pools.noActivity')}
-                />
-              </View>
-            ) : (
-              <>
-                {recentActivity.map((item, index) => {
-                  if (!item) return null;
-                  const name =
-                    item?.creatorName || item?.contributorName || 'Unknown';
-                  const isLast = index === recentActivity.length - 1;
-                  const showSeparator =
-                    !isLast || contributions.length > MAX_VISIBLE_ACTIVITY;
+        {!hideContributorsForClosedPools && (
+          <View style={styles.activitySection}>
+            <SectionCard title={t('wallet.pools.activitySection')}>
+              {recentActivity.length <= 1 && contributions.length === 0 ? (
+                <View style={styles.emptyActivity}>
+                  <ThemeText
+                    styles={styles.emptyActivityText}
+                    content={t('wallet.pools.noActivity')}
+                  />
+                </View>
+              ) : (
+                <>
+                  {recentActivity.map((item, index) => {
+                    if (!item) return null;
+                    const name =
+                      item?.creatorName || item?.contributorName || 'Unknown';
+                    const isLast = index === recentActivity.length - 1;
+                    const showSeparator =
+                      !isLast || contributions.length > MAX_VISIBLE_ACTIVITY;
 
-                  return (
-                    <View key={index}>
-                      <View style={styles.activityRow}>
-                        <ContributorAvatar
-                          avatarSize={36}
-                          contributorName={name}
-                        />
-                        <ThemeText
-                          styles={styles.activityName}
-                          CustomNumberOfLines={1}
-                          CustomEllipsizeMode={'tail'}
-                          content={name}
-                        />
-                        {item.isOrganizer ? (
-                          <ThemeText
-                            styles={styles.activityRoleLabel}
-                            content={t('wallet.pools.organizer')}
+                    return (
+                      <View key={index}>
+                        <View style={styles.activityRow}>
+                          <ContributorAvatar
+                            avatarSize={36}
+                            contributorName={name}
                           />
-                        ) : (
                           <ThemeText
-                            styles={styles.activityAmount}
-                            content={formatAmount(item.amount)}
+                            styles={styles.activityName}
+                            CustomNumberOfLines={1}
+                            CustomEllipsizeMode={'tail'}
+                            content={name}
+                          />
+                          {item.isOrganizer ? (
+                            <ThemeText
+                              styles={styles.activityRoleLabel}
+                              content={t('wallet.pools.organizer')}
+                            />
+                          ) : (
+                            <ThemeText
+                              styles={styles.activityAmount}
+                              content={formatAmount(item.amount)}
+                            />
+                          )}
+                        </View>
+                        {showSeparator && (
+                          <View
+                            style={[
+                              styles.activitySeparator,
+                              { borderBottomColor: backgroundColor },
+                            ]}
                           />
                         )}
                       </View>
-                      {showSeparator && (
-                        <View
-                          style={[
-                            styles.activitySeparator,
-                            { borderBottomColor: backgroundColor },
-                          ]}
-                        />
-                      )}
-                    </View>
-                  );
-                })}
+                    );
+                  })}
 
-                {/* View All row */}
-                {contributions.length > MAX_VISIBLE_ACTIVITY && (
-                  <TouchableOpacity
-                    style={styles.viewAllRow}
-                    onPress={handleContributorClick}
-                    activeOpacity={0.7}
-                  >
-                    <ThemeText
-                      styles={styles.viewAllText}
-                      content={t('settings.hub.viewAll')}
-                    />
-                    <ThemeIcon iconName={'ChevronRight'} size={20} />
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
-          </SectionCard>
-        </View>
+                  {/* View All row */}
+                  {contributions.length > MAX_VISIBLE_ACTIVITY && (
+                    <TouchableOpacity
+                      style={styles.viewAllRow}
+                      onPress={handleContributorClick}
+                      activeOpacity={0.7}
+                    >
+                      <ThemeText
+                        styles={styles.viewAllText}
+                        content={t('settings.hub.viewAll')}
+                      />
+                      <ThemeIcon iconName={'ChevronRight'} size={20} />
+                    </TouchableOpacity>
+                  )}
+                </>
+              )}
+            </SectionCard>
+          </View>
+        )}
       </ScrollView>
     </GlobalThemeView>
   );
@@ -486,6 +495,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     opacity: 0.6,
     marginTop: 16,
+    includeFontPadding: false,
   },
   avatarRow: {
     flexDirection: 'row',
@@ -496,6 +506,7 @@ const styles = StyleSheet.create({
   contributorCountText: {
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
   },
 
   // ── Actions ──
@@ -528,6 +539,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.small,
     opacity: 0.7,
     marginTop: 2,
+    includeFontPadding: false,
   },
 
   // ── Activity Section ──
@@ -585,5 +597,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
+    includeFontPadding: false,
   },
 });

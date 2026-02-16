@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     textAlign: 'center',
     includeFontPadding: false,
-    marginBottom: 5,
+    marginBottom: 15,
   },
   successContainer: {
     alignItems: 'center',
