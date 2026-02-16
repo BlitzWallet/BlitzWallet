@@ -34,6 +34,8 @@ import Animated, {
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
 import getClipboardText from '../../../../functions/getClipboardText';
+import { AddContactOverlay } from '../contacts/addContactOverlay';
+import CustomButton from '../../../../functions/CustomElements/button';
 
 const ContactRow = ({
   contact,
@@ -260,6 +262,7 @@ export default function HalfModalSendOptions({
 }) {
   const [inputText, setInputText] = useState('');
   const [expandedContact, setExpandedContact] = useState(null);
+  const [showAddContact, setShowAddContact] = useState(false);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({}); // { [uuid]: y }
   const scrollOffsetRef = useRef(0);
@@ -277,6 +280,24 @@ export default function HalfModalSendOptions({
     decodedAddedContacts,
     contactsMessags,
   );
+
+  const contentOpacity = useSharedValue(1);
+  const contentTranslateX = useSharedValue(0);
+
+  useEffect(() => {
+    if (showAddContact) {
+      contentOpacity.value = withTiming(0, { duration: 250 });
+      contentTranslateX.value = withTiming(-30, { duration: 250 });
+    } else {
+      contentOpacity.value = withTiming(1, { duration: 250 });
+      contentTranslateX.value = withTiming(0, { duration: 250 });
+    }
+  }, [showAddContact]);
+
+  const contentStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+    transform: [{ translateX: contentTranslateX.value }],
+  }));
 
   const handleManualInputSubmit = useCallback(() => {
     if (!inputText.trim()) return;
@@ -434,6 +455,17 @@ export default function HalfModalSendOptions({
     [navigate, cache],
   );
 
+  const handleContactAdded = useCallback(
+    newContact => {
+      handleBackPressFunction(() => {
+        navigate.replace('ExpandedAddContactsPage', {
+          newContact: newContact,
+        });
+      });
+    },
+    [navigate],
+  );
+
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
       <ContactRow
@@ -468,180 +500,214 @@ export default function HalfModalSendOptions({
   ]);
 
   return (
-    <ScrollView
-      ref={scrollViewRef}
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{
-        ...styles.innerContainer,
-        paddingBottom: bottomPadding,
-      }}
-      stickyHeaderIndices={[4]}
-      onScroll={e => {
-        scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
-      }}
-      scrollEventThrottle={16}
-      onLayout={e => {
-        scrollViewHeightRef.current = e.nativeEvent.layout.height;
-      }}
-    >
-      {/* Search Input with Clipboard Icon */}
-      <View
-        style={[styles.searchContainer, { backgroundColor: backgroundColor }]}
-      >
-        <CustomSearchInput
-          placeholderText={t('wallet.halfModal.inputPlaceholder')}
-          textInputMultiline={true}
-          inputText={inputText}
-          setInputText={setInputText}
-          onBlurFunction={() => setIsKeyboardActive(false)}
-          onFocusFunction={() => setIsKeyboardActive(true)}
-          textInputStyles={{ paddingRight: 40 }}
-          containerStyles={{ maxHeight: 100 }}
-          returnKeyType="go"
-          onSubmitEditing={handleManualInputSubmit}
-        />
-        {inputText.trim() ? (
-          <TouchableOpacity
-            onPress={handleManualInputSubmit}
-            style={styles.clipboardButton}
-          >
-            <ThemeIcon
-              colorOverride={
-                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-              }
-              size={20}
-              iconName={'ArrowRight'}
-            />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={handleClipboardPaste}
-            style={styles.clipboardButton}
-          >
-            <ThemeIcon
-              colorOverride={
-                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-              }
-              size={20}
-              iconName={'Clipboard'}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Scan QR Code Button */}
-      <TouchableOpacity
-        style={[styles.scanButton, { marginBottom: 0 }]}
-        onPress={handleCameraScan}
-      >
-        <View
-          style={[
-            styles.scanIconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
-          ]}
+    <View style={styles.container}>
+      <Animated.View style={[styles.mainContent, contentStyle]}>
+        <ScrollView
+          ref={scrollViewRef}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            ...styles.innerContainer,
+            paddingBottom: bottomPadding,
+          }}
+          stickyHeaderIndices={[4]}
+          onScroll={e => {
+            scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+          }}
+          scrollEventThrottle={16}
+          onLayout={e => {
+            scrollViewHeightRef.current = e.nativeEvent.layout.height;
+          }}
         >
-          <ThemeIcon
-            colorOverride={
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-            }
-            size={24}
-            iconName={'ScanQrCode'}
-          />
-        </View>
-        <View style={styles.scanTextContainer}>
-          <ThemeText
-            styles={styles.scanButtonText}
-            content={t('wallet.halfModal.scanQrCode')}
-          />
-          <ThemeText
-            styles={styles.scanButtonSubtext}
-            content={t('wallet.halfModal.tapToScanQr')}
-          />
-        </View>
-      </TouchableOpacity>
+          {/* Search Input with Clipboard Icon */}
+          <View
+            style={[
+              styles.searchContainer,
+              { backgroundColor: backgroundColor },
+            ]}
+          >
+            <CustomSearchInput
+              placeholderText={t('wallet.halfModal.inputPlaceholder')}
+              textInputMultiline={true}
+              inputText={inputText}
+              setInputText={setInputText}
+              onBlurFunction={() => setIsKeyboardActive(false)}
+              onFocusFunction={() => setIsKeyboardActive(true)}
+              textInputStyles={{ paddingRight: 40 }}
+              containerStyles={{ maxHeight: 100 }}
+              returnKeyType="go"
+              onSubmitEditing={handleManualInputSubmit}
+            />
+            {inputText.trim() ? (
+              <TouchableOpacity
+                onPress={handleManualInputSubmit}
+                style={styles.clipboardButton}
+              >
+                <ThemeIcon
+                  colorOverride={
+                    theme && darkModeType
+                      ? COLORS.lightModeText
+                      : COLORS.primary
+                  }
+                  size={20}
+                  iconName={'ArrowRight'}
+                />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={handleClipboardPaste}
+                style={styles.clipboardButton}
+              >
+                <ThemeIcon
+                  colorOverride={
+                    theme && darkModeType
+                      ? COLORS.lightModeText
+                      : COLORS.primary
+                  }
+                  size={20}
+                  iconName={'Clipboard'}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
 
-      {/* Scan Image Button */}
-      <TouchableOpacity style={styles.scanButton} onPress={handleImageScan}>
-        <View
-          style={[
-            styles.scanIconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
-          ]}
-        >
-          <ThemeIcon
-            colorOverride={
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-            }
-            size={24}
-            iconName={'Image'}
-          />
-        </View>
-        <View style={styles.scanTextContainer}>
-          <ThemeText
-            styles={styles.scanButtonText}
-            content={t('wallet.halfModal.images')}
-          />
-          <ThemeText
-            styles={styles.scanButtonSubtext}
-            content={t('wallet.halfModal.tapToScan')}
-          />
-        </View>
-      </TouchableOpacity>
+          {/* Scan QR Code Button */}
+          <TouchableOpacity
+            style={[styles.scanButton, { marginBottom: 0 }]}
+            onPress={handleCameraScan}
+          >
+            <View
+              style={[
+                styles.scanIconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            >
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                }
+                size={24}
+                iconName={'ScanQrCode'}
+              />
+            </View>
+            <View style={styles.scanTextContainer}>
+              <ThemeText
+                styles={styles.scanButtonText}
+                content={t('wallet.halfModal.scanQrCode')}
+              />
+              <ThemeText
+                styles={styles.scanButtonSubtext}
+                content={t('wallet.halfModal.tapToScanQr')}
+              />
+            </View>
+          </TouchableOpacity>
 
-      {/* Divider */}
-      <View
-        style={[
-          styles.divider,
-          {
-            borderColor:
-              theme && darkModeType
-                ? 'rgba(255, 255, 255, 0.1)'
-                : 'rgba(0, 0, 0, 0.05)',
-          },
-        ]}
+          {/* Scan Image Button */}
+          <TouchableOpacity style={styles.scanButton} onPress={handleImageScan}>
+            <View
+              style={[
+                styles.scanIconContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            >
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                }
+                size={24}
+                iconName={'Image'}
+              />
+            </View>
+            <View style={styles.scanTextContainer}>
+              <ThemeText
+                styles={styles.scanButtonText}
+                content={t('wallet.halfModal.images')}
+              />
+              <ThemeText
+                styles={styles.scanButtonSubtext}
+                content={t('wallet.halfModal.tapToScan')}
+              />
+            </View>
+          </TouchableOpacity>
+
+          {/* Divider */}
+          <View
+            style={[
+              styles.divider,
+              {
+                borderColor:
+                  theme && darkModeType
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.05)',
+              },
+            ]}
+          />
+
+          <View
+            style={[
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+            ]}
+          >
+            <ThemeText
+              styles={styles.sectionHeader}
+              content={t('wallet.halfModal.addressBook', {
+                context: 'send',
+              })}
+            />
+          </View>
+
+          {/* Address Book Section */}
+          {decodedAddedContacts.length > 0 ? (
+            contactElements
+          ) : (
+            <View style={styles.emptyContactsContainer}>
+              <ThemeText
+                styles={[{ textAlign: 'center', marginBottom: 15 }]}
+                content={t('wallet.halfModal.noContacts')}
+              />
+              <CustomButton
+                textContent={t('contacts.editMyProfilePage.addContactBTN')}
+                actionFunction={() => setShowAddContact(true)}
+              />
+            </View>
+          )}
+        </ScrollView>
+      </Animated.View>
+
+      <AddContactOverlay
+        visible={showAddContact}
+        onClose={handleBackPressFunction}
+        onContactAdded={handleContactAdded}
       />
-
-      <View
-        style={[
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          },
-        ]}
-      >
-        <ThemeText
-          styles={styles.sectionHeader}
-          content={t('wallet.halfModal.addressBook', {
-            context: 'send',
-          })}
-        />
-      </View>
-
-      {/* Address Book Section */}
-      {decodedAddedContacts.length > 0 ? (
-        contactElements
-      ) : (
-        <ThemeText
-          styles={{ textAlign: 'center' }}
-          content={t('wallet.halfModal.noContacts')}
-        />
-      )}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  mainContent: {
+    flex: 1,
+  },
   innerContainer: {
     width: INSET_WINDOW_WIDTH,
     flexGrow: 1,
     ...CENTER,
+  },
+  emptyContactsContainer: {
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    alignItems: 'center',
   },
 
   searchContainer: {

@@ -35,6 +35,7 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import customUUID from '../../../../functions/customUUID';
+import { AddContactOverlay } from '../contacts/addContactOverlay';
 
 const ContactRow = ({
   expandedContact,
@@ -349,6 +350,7 @@ export default function HalfModalReceiveOptions({
   const [expandedOtherOptions, setExpandedOtherOptions] = useState(false);
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAmountInput, setShowAmountInput] = useState(false);
+  const [showAddContact, setShowAddContact] = useState(false);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({});
   const scrollOffsetRef = useRef(0);
@@ -373,7 +375,7 @@ export default function HalfModalReceiveOptions({
   );
 
   useEffect(() => {
-    if (showAmountInput) {
+    if (showAmountInput || showAddContact) {
       // Content slides left and fades out
       contentOpacity.value = withTiming(0, { duration: 250 });
       contentTranslateX.value = withTiming(-30, { duration: 250 });
@@ -382,7 +384,7 @@ export default function HalfModalReceiveOptions({
       contentOpacity.value = withTiming(1, { duration: 250 });
       contentTranslateX.value = withTiming(0, { duration: 250 });
     }
-  }, [showAmountInput]);
+  }, [showAmountInput, showAddContact]);
 
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
@@ -412,6 +414,17 @@ export default function HalfModalReceiveOptions({
         receiveAmount: satAmount,
         endReceiveType: 'USD',
         uuid: customUUID(),
+      });
+    },
+    [navigate],
+  );
+
+  const handleContactAdded = useCallback(
+    newContact => {
+      handleBackPressFunction(() => {
+        navigate.replace('ExpandedAddContactsPage', {
+          newContact: newContact,
+        });
       });
     },
     [navigate],
@@ -742,10 +755,16 @@ export default function HalfModalReceiveOptions({
           {decodedAddedContacts.length > 0 ? (
             contactElements
           ) : (
-            <ThemeText
-              styles={styles.emptyStateText}
-              content={t('wallet.halfModal.noContacts')}
-            />
+            <View style={styles.emptyContactsContainer}>
+              <ThemeText
+                styles={[styles.emptyStateText, { marginBottom: 15 }]}
+                content={t('wallet.halfModal.noContacts')}
+              />
+              <CustomButton
+                textContent={t('contacts.editMyProfilePage.addContactBTN')}
+                actionFunction={() => setShowAddContact(true)}
+              />
+            </View>
           )}
         </ScrollView>
       </Animated.View>
@@ -758,6 +777,12 @@ export default function HalfModalReceiveOptions({
         darkModeType={darkModeType}
         backgroundColor={backgroundColor}
         t={t}
+      />
+
+      <AddContactOverlay
+        visible={showAddContact}
+        onClose={handleBackPressFunction}
+        onContactAdded={handleContactAdded}
       />
     </View>
   );
@@ -903,6 +928,11 @@ const styles = StyleSheet.create({
 
   emptyStateText: {
     textAlign: 'center',
+  },
+  emptyContactsContainer: {
+    paddingTop: 30,
+    paddingHorizontal: 20,
+    alignItems: 'center',
   },
 
   overlayContainer: {

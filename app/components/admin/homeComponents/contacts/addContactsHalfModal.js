@@ -41,13 +41,28 @@ export default function AddContactsHalfModal({
   startingSearchValue,
   handleBackPressFunction,
 }) {
+  return (
+    <AddContactContent
+      setIsKeyboardActive={setIsKeyboardActive}
+      startingSearchValue={startingSearchValue}
+      handleBackPressFunction={handleBackPressFunction}
+      onContactAdded={null}
+    />
+  );
+}
+
+export function AddContactContent({
+  setIsKeyboardActive,
+  startingSearchValue,
+  handleBackPressFunction,
+  onContactAdded,
+}) {
   const { contactsPrivateKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { globalContactsInformation } = useGlobalContacts();
   const [searchInput, setSearchInput] = useState(startingSearchValue || '');
   const [users, setUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const sliderHight = slideHeight;
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
   const { refreshCacheObject } = useImageCache();
@@ -72,10 +87,10 @@ export default function AddContactsHalfModal({
 
   useFocusEffect(
     useCallback(() => {
-      if (!keyboardRef.current.isFocused()) {
+      if (keyboardRef.current && !keyboardRef.current.isFocused()) {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            keyboardRef.current.focus();
+            keyboardRef.current?.focus();
           });
         });
       }
@@ -83,7 +98,7 @@ export default function AddContactsHalfModal({
   );
 
   const handleTextInputBlur = () => {
-    setIsKeyboardActive(false);
+    if (setIsKeyboardActive) setIsKeyboardActive(false);
     if (!searchInput && !didClickCamera.current) {
       handleBackPressFunction?.();
     }
@@ -202,7 +217,11 @@ export default function AddContactsHalfModal({
 
       await getCachedProfileImage(newContact.uuid);
 
-      navigate.replace('ExpandedAddContactsPage', { newContact: newContact });
+      if (onContactAdded) {
+        onContactAdded(newContact);
+      } else {
+        navigate.replace('ExpandedAddContactsPage', { newContact: newContact });
+      }
     } catch (err) {
       setIsSearching(false);
       console.log('parse contact half modal error', err);
@@ -217,23 +236,29 @@ export default function AddContactsHalfModal({
   const clearHalfModalForLNURL = () => {
     if (!EMAIL_REGEX.test(searchInput)) return;
 
-    keyboardNavigate(() => {
-      navigate.replace('ExpandedAddContactsPage', {
-        newContact: {
-          name: searchInput.split('@')[0],
-          bio: '',
-          uniqueName: '',
-          isFavorite: false,
-          transactions: [],
-          unlookedTransactions: 0,
-          receiveAddress: searchInput,
-          isAdded: true,
-          isLNURL: true,
-          profileImage: '',
-          uuid: customUUID(),
-        },
+    const newContact = {
+      name: searchInput.split('@')[0],
+      bio: '',
+      uniqueName: '',
+      isFavorite: false,
+      transactions: [],
+      unlookedTransactions: 0,
+      receiveAddress: searchInput,
+      isAdded: true,
+      isLNURL: true,
+      profileImage: '',
+      uuid: customUUID(),
+    };
+
+    if (onContactAdded) {
+      onContactAdded(newContact);
+    } else {
+      keyboardNavigate(() => {
+        navigate.replace('ExpandedAddContactsPage', {
+          newContact: newContact,
+        });
       });
-    });
+    }
   };
 
   return (
@@ -289,7 +314,7 @@ export default function AddContactsHalfModal({
             />
           </TouchableOpacity>
         }
-        onFocusFunction={() => setIsKeyboardActive(true)}
+        onFocusFunction={() => setIsKeyboardActive && setIsKeyboardActive(true)}
         onBlurFunction={handleTextInputBlur}
       />
 
@@ -331,6 +356,7 @@ export default function AddContactsHalfModal({
                   contactsPrivateKey={contactsPrivateKey}
                   theme={theme}
                   darkModeType={darkModeType}
+                  onContactAdded={onContactAdded}
                 />
               )}
               keyExtractor={item => item?.uniqueName}
@@ -366,16 +392,20 @@ function ContactListItem(props) {
     isAdded: true,
   };
 
+  const handleContactPress = () => {
+    if (props.onContactAdded) {
+      props.onContactAdded(newContact);
+    } else {
+      keyboardNavigate(() =>
+        navigate.replace('ExpandedAddContactsPage', {
+          newContact: newContact,
+        }),
+      );
+    }
+  };
+
   return (
-    <TouchableOpacity
-      onPress={() => {
-        keyboardNavigate(() =>
-          navigate.replace('ExpandedAddContactsPage', {
-            newContact: newContact,
-          }),
-        );
-      }}
-    >
+    <TouchableOpacity onPress={handleContactPress}>
       <View style={[styles.contactListContainer, {}]}>
         <View
           style={[
