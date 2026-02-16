@@ -161,7 +161,7 @@ export default function CustomSearchInput({
         >
           <ThemeText
             styles={placeholderTextStyle}
-            CustomNumberOfLines={1}
+            CustomNumberOfLines={mutlilineValue ? 5 : 1}
             content={placeholderText}
           />
         </View>
