@@ -1621,8 +1621,8 @@
       },
       "removeAccountPage": {
         "title": "Remove",
-        "explanation_derived": "Even though you are removing this wallet from Blitz, you will be able to recover it using your recovery phrase.",
-        "explanation_imported": "You are removing an imported wallet. You will only be able to recover this wallet by re-entering the recovery phrase",
+        "explanation_derived": "Even though you are removing this account from Blitz, you will be able to recover it using your recovery phrase.",
+        "explanation_imported": "You are removing an imported account. You will only be able to recover this account by re-entering the recovery phrase",
         "cancelButton": "Cancel",
         "removeButton": "Remove"
       },
