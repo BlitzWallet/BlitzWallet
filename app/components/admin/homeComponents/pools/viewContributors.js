@@ -5,7 +5,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { CENTER, SIZES } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ContributorAvatar from './contributorAvatar';
@@ -141,6 +141,6 @@ const styles = StyleSheet.create({
   },
   button: {
     ...CENTER,
-    marginTop: 'auto',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });

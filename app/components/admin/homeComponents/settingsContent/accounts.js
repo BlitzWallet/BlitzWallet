@@ -230,6 +230,7 @@ export default function CreateCustodyAccounts() {
               {
                 backgroundColor:
                   theme && darkModeType ? backgroundOffset : COLORS.primary,
+                marginTop: CONTENT_KEYBOARD_OFFSET,
               },
             ]}
             onPress={handleNavigateAddAccount}

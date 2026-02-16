@@ -1,22 +1,23 @@
 import { Image } from 'expo-image';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { COLORS, ICONS } from '../../../../constants';
-import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../contacts/internalComponents/profileImage';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import {
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
 } from '../../../../../context-store/activeAccount';
+import { useState, useCallback } from 'react';
 
 export default function AccountProfileImage({ account, imageSize }) {
   const { cache } = useImageCache();
   const { masterInfoObject } = useGlobalContextProvider();
   const { textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const [emojiFontSize, setEmojiFontSize] = useState(null);
 
   const uri =
     account.uuid === MAIN_ACCOUNT_UUID
@@ -27,8 +28,14 @@ export default function AccountProfileImage({ account, imageSize }) {
       ? cache[masterInfoObject.uuid]?.updated
       : account.timeUploaded;
 
+  const handleContainerLayout = useCallback(e => {
+    const { width, height } = e.nativeEvent.layout;
+    const smallestSide = Math.min(width, height);
+    setEmojiFontSize(smallestSide * 0.48);
+  }, []);
+
   return (
-    <View style={styles.badge}>
+    <View style={styles.badge} onLayout={handleContainerLayout}>
       {account.uuid === NWC_ACCOUNT_UUID ? (
         <Image
           style={{
@@ -39,12 +46,19 @@ export default function AccountProfileImage({ account, imageSize }) {
           source={ICONS.nwcLogo}
         />
       ) : account.profileEmoji ? (
-        <ThemeText
-          CustomNumberOfLines={1}
-          adjustsFontSizeToFit={true}
-          styles={{ fontSize: imageSize * 0.25 }}
-          content={account.profileEmoji}
-        />
+        emojiFontSize !== null && (
+          <Text
+            style={[
+              styles.emojiText,
+              { fontSize: emojiFontSize, lineHeight: emojiFontSize * 1.2 },
+            ]}
+            numberOfLines={1}
+            adjustsFontSizeToFit={false}
+            allowFontScaling={false}
+          >
+            {account.profileEmoji}
+          </Text>
+        )
       ) : (
         <ContactProfileImage
           uri={uri}
@@ -56,6 +70,7 @@ export default function AccountProfileImage({ account, imageSize }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   badge: {
     width: '100%',
@@ -63,5 +78,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 1,
+  },
+  emojiText: {
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    textAlign: 'center',
   },
 });
