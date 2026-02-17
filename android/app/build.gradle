@@ -92,7 +92,7 @@ android {
         applicationId "com.blitzwallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 86
+        versionCode 87
         versionName "0.7.6"
         // ndk {
         //     abiFilters 'arm64-v8a', 'x86_64', 'x86', 'armeabi-v7a'// Exclude riscv64
