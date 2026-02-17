@@ -1588,7 +1588,7 @@
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
         "removeAccountLabel": "Excluir conta",
-        "activeAccountError": "Você não pode excluir a conta ativa no momento. Por favor, mude para uma conta diferente antes de excluir esta.",
+        "activeAccountError": "Você não pode excluir a conta que está seleciona. Por favor, mude para uma conta diferente antes de excluir esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta"
       },
