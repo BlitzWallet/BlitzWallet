@@ -444,6 +444,13 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   useEffect(() => {
     async function restoreIfNeeded() {
       const cloudIndex = masterInfoObject?.nextAccountDerivationIndex;
+
+      const hasRunRestore = await getLocalStorageItem('hasRunAutoRestore').then(
+        data => JSON.parse(data),
+      );
+      if (hasRunRestore) return;
+      await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
+
       if (
         hasAutoRestoreCheckRun.current ||
         !accountMnemoinc ||
