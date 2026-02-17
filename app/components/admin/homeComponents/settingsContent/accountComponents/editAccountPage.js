@@ -13,7 +13,7 @@ import {
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -31,10 +31,14 @@ export default function EditAccountPage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
 
-  const accountInformation =
-    custodyAccounts?.find(item => item.uuid === selectedAccount.uuid) ||
-    selectedAccount ||
-    {};
+  const accountInformation = useMemo(() => {
+    return (
+      custodyAccounts?.find(item => item.uuid === selectedAccount.uuid) ||
+      selectedAccount ||
+      {}
+    );
+  }, [custodyAccounts, selectedAccount.uuid]);
+
   const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
 
   const isPinned = pinnedAccountUUIDs.includes(
@@ -48,6 +52,14 @@ export default function EditAccountPage(props) {
     if (accountInformation.uuid === NWC_ACCOUNT_UUID) return;
     navigate.navigate('EmojiAvatarSelector', { account: accountInformation });
   };
+
+  console.log(
+    'Selected Account:',
+    selectedAccount,
+    accountInformation,
+    custodyAccounts,
+    'redndering',
+  );
 
   const handleNavigateView = useCallback(async () => {
     const mnemonic = await getAccountMnemonic(selectedAccount);

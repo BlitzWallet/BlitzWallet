@@ -444,12 +444,9 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
   useEffect(() => {
     async function restoreIfNeeded() {
       const cloudIndex = masterInfoObject?.nextAccountDerivationIndex;
-
       const hasRunRestore = await getLocalStorageItem('hasRunAutoRestore').then(
         data => JSON.parse(data),
       );
-      if (hasRunRestore) return;
-      await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
 
       if (
         hasAutoRestoreCheckRun.current ||
@@ -457,11 +454,13 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         custodyAccounts.length ||
         cloudIndex === undefined ||
         Number(cloudIndex) <= 0 ||
-        !didGetToHomepage
+        !didGetToHomepage ||
+        hasRunRestore
       ) {
         return;
       }
       hasAutoRestoreCheckRun.current = true;
+      await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
       await restoreDerivedAccountsFromCloud();
     }
     restoreIfNeeded();

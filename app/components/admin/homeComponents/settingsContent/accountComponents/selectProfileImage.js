@@ -103,9 +103,17 @@ const AvatarPreview = memo(
 
 export default function EmojiAvatarSelector(props) {
   const navigate = useNavigation();
-  const selectedAccount = props?.route?.params?.account;
-  const { updateAccount } = useActiveCustodyAccount();
+  const accountInformation = props?.route?.params?.account;
+  const { updateAccount, custodyAccounts } = useActiveCustodyAccount();
   const { t } = useTranslation();
+
+  const selectedAccount = useMemo(() => {
+    return (
+      custodyAccounts?.find(item => item.uuid === accountInformation.uuid) ||
+      accountInformation ||
+      {}
+    );
+  }, [custodyAccounts, accountInformation.uuid]);
 
   const [selectedEmoji, setSelectedEmoji] = useState(
     selectedAccount.profileEmoji || '',
