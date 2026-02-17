@@ -1471,7 +1471,7 @@
       "noLimit": "Sem limite",
       "transactionType": "Tipo de transação",
       "swapsType": "Trocas BTC <> USD",
-      "swapsFee": "{{poolFee}}% de taxa do Pool + {{blitzFee}}% de taxa da Blitz Wallet",
+      "swapsFee": "{{poolFee}}% de taxa da Pool de liquidez + {{blitzFee}}% de taxa da Blitz Wallet",
       "othersType": "Outros",
       "othersFee": "Taxas de rede"
     },
