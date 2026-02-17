@@ -125,7 +125,7 @@
     "swap": "Troca",
     "paymentDescriptionPlaceholder": "Descrição (opcional)",
     "print": "Imprimir",
-    "transfer": "Transferência",
+    "transfer": "Transferir",
     "details": "Detalhes",
     "total": "Total"
   },
@@ -919,7 +919,7 @@
       "organizer": "Organizador",
       "contributorCount_one": "{{count}} pessoa",
       "contributorCount_other": "{{count}} pessoas",
-      "pool_contribution_label": "Contribuição para o pool \"{{poolName}}\"",
+      "pool_contribution_label": "Contribuição para o Pool \"{{poolName}}\"",
       "closing_pool_label": "Encerrando Pool: {{poolName}}",
       "late_pool_contribution_label": "Contribuição tardia para \"{{poolName}}\"",
       "activitySection": "Atividade",
@@ -1545,7 +1545,7 @@
     "accountComponents": {
       "homepage": {
         "addNewAccount": "Nova conta",
-        "swap": "Transferir",
+        "swap": "Transferir entre contas",
         "viewSeed": "Ver frase de recuperação",
         "editAccount": "Editar conta",
         "swapAccountError": "Você precisa de pelo menos duas contas para fazer uma transferência.",
@@ -1560,7 +1560,7 @@
         "balanceError": "O valor excede seu saldo incluindo as taxas",
         "noSendAddressError": "Não foi possível obter o endereço de transferência",
         "noAccountInformation": "Não foi possível obter as informações da conta",
-        "title": "Transferência",
+        "title": "Transferir entre contas",
         "selectAccount": "Selecionar conta",
         "inputPlaceHolderText": "Transferência entre contas"
       },
@@ -1577,7 +1577,7 @@
         "seedHeader": "Frase de recuperação da conta"
       },
       "viewAccountPage": {
-        "informationMessage": "Tem certeza de que deseja mostrar este códdigo QR?\n\nLer sua frase de recuperação é conveniente, mas certifique-se de estar usando um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura."
+        "informationMessage": "Tem certeza de que deseja mostrar este código QR?\n\nLer sua frase de recuperação é conveniente, mas certifique-se de estar usando um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura."
       },
       "editAccountName": {
         "title": "Nome da conta",
