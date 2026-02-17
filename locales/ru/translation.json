@@ -921,6 +921,7 @@
       "contributorCount_other": "{{count}} человек",
       "pool_contribution_label": "Взнос в пул \"{{poolName}}\"",
       "closing_pool_label": "Закрытие пула: {{poolName}}",
+      "late_pool_contribution_label": "Поздний взнос в \"{{poolName}}\"",
       "activitySection": "Активность",
       "active": "Активный",
       "savingPoolError": "Не удалось создать этот пул. Пожалуйста, попробуйте снова.",

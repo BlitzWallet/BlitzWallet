@@ -922,6 +922,7 @@
       "contributorCount_other": "{{count}} persone",
       "pool_contribution_label": "Contributo al pool \"{{poolName}}\"",
       "closing_pool_label": "Chiusura del pool: {{poolName}}",
+      "late_pool_contribution_label": "Contributo tardivo a \"{{poolName}}\"",
       "activitySection": "Attività",
       "active": "Attivo",
       "savingPoolError": "Non è stato possibile creare questo pool. Riprova.",

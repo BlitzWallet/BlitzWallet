@@ -924,6 +924,7 @@
       "contributorCount_other": "{{count}} Personen",
       "pool_contribution_label": "Beitrag zum Sparpool \"{{poolName}}\"",
       "closing_pool_label": "Sparpool wird geschlossen: {{poolName}}",
+      "late_pool_contribution_label": "Später Beitrag zu \"{{poolName}}\"",
       "activitySection": "Aktivität",
       "active": "Aktive Sparpools",
       "savingPoolError": "Dieser Pool konnte nicht erstellt werden. Bitte versuche es erneut.",

@@ -176,8 +176,16 @@ export default function ClosePoolConfirmation({
         status: 'closed',
         closedAt: Date.now(),
         transferTxId,
-        currentAmount: poolBalance,
       };
+
+      // When rechecking pool for a balance, if we do find a balance
+      // we need to make sure to add it to the current pool balance
+      // and not make it the balance itself
+      if (autoStart) {
+        closedPool.currentAmount = pool.currentAmount + poolBalance;
+      } else {
+        closedPool.currentAmount = poolBalance;
+      }
 
       await updatePoolInDatabase(closedPool);
       await updatePool(closedPool);
@@ -195,9 +203,14 @@ export default function ClosePoolConfirmation({
           address: mainSparkAddress,
           time: new Date().getTime(),
           direction: 'INCOMING',
-          description: t('wallet.pools.closing_pool_label', {
-            poolName: pool.poolTitle,
-          }),
+          description: t(
+            `wallet.pools.${
+              autoStart ? 'late_pool_contribution_label' : 'closing_pool_label'
+            }`,
+            {
+              poolName: pool.poolTitle,
+            },
+          ),
           senderIdentityPublicKey:
             transferResponse.response.receiverIdentityPublicKey,
         },

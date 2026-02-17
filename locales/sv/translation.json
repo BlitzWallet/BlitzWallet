@@ -921,6 +921,7 @@
       "contributorCount_other": "{{count}} personer",
       "pool_contribution_label": "Bidrag till pool \"{{poolName}}\"",
       "closing_pool_label": "Stänger pool: {{poolName}}",
+      "late_pool_contribution_label": "Sen inbetalning till \"{{poolName}}\"",
       "activitySection": "Aktivitet",
       "active": "Aktiv",
       "savingPoolError": "Det gick inte att skapa denna pool. Försök igen.",
