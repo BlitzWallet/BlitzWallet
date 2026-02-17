@@ -57,18 +57,34 @@ export default function ViewContibutors(props) {
             const isOrganizer = index === 0;
             const isLast = index === contributers.length - 1;
 
+            const contributedDate = formatDate(item?.createdAt, t);
+
             return (
               <View key={index}>
                 <View style={styles.row}>
                   <ContributorAvatar avatarSize={40} contributorName={name} />
-                  <ThemeText
-                    styles={styles.name}
-                    CustomNumberOfLines={1}
-                    CustomEllipsizeMode={'tail'}
-                    content={
-                      name === 'Anonymous' ? t('constants.annonName') : name
-                    }
-                  />
+                  <View
+                    style={{
+                      flex: 1,
+                    }}
+                  >
+                    <ThemeText
+                      styles={styles.name}
+                      CustomNumberOfLines={1}
+                      CustomEllipsizeMode={'tail'}
+                      content={
+                        name === 'Anonymous' ? t('constants.annonName') : name
+                      }
+                    />
+                    {!isOrganizer && (
+                      <ThemeText
+                        styles={styles.dateLabel}
+                        CustomNumberOfLines={1}
+                        CustomEllipsizeMode={'tail'}
+                        content={contributedDate}
+                      />
+                    )}
+                  </View>
                   {isOrganizer ? (
                     <ThemeText
                       styles={styles.roleLabel}
@@ -108,6 +124,40 @@ export default function ViewContibutors(props) {
   );
 }
 
+const formatDate = (createdAt, t) => {
+  try {
+    if (!createdAt) return '';
+
+    let date;
+
+    if (typeof createdAt === 'number') {
+      date = new Date(createdAt);
+    } else if (typeof createdAt.toDate === 'function') {
+      date = createdAt.toDate();
+    } else if (createdAt.seconds !== undefined) {
+      date = new Date(createdAt.seconds * 1000);
+    } else {
+      return '';
+    }
+
+    const today = new Date();
+
+    const isSameDay =
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate();
+
+    if (isSameDay) return t('constants.today');
+
+    return date.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch (err) {
+    return '';
+  }
+};
+
 const styles = StyleSheet.create({
   scrollContent: {
     width: WINDOWWIDTH,
@@ -122,8 +172,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   name: {
-    flex: 1,
     fontSize: SIZES.medium,
+    includeFontPadding: false,
+  },
+  dateLabel: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
     includeFontPadding: false,
   },
   roleLabel: {
