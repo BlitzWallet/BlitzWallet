@@ -2189,7 +2189,7 @@
     "FSAG-4102": "O fluxo de autenticação não foi seguido corretamente.",
     "FSAG-4201": "A Pool de liquidez não possui liquidez suficiente para concluir a troca.",
     "FSAG-4202": "O preço se moveu além da tolerância de slippage permitida.",
-    "FSAG-4203": "Esta operação não pode ser realizada no estado atual da Pool.",
+    "FSAG-4203": "Esta operação não pode ser realizada no estado atual da Pool de liquidez.",
     "FSAG-4204": "Você não possui tokens LP suficientes para este saque.",
     "FSAG-4301": "A configuração de taxas é inválida.",
     "FSAG-4401": "Esta transferência Spark já foi utilizada em uma operação.",
