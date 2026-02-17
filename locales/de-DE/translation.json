@@ -877,6 +877,7 @@
     "pools": {
       "receiveViaPool": "Über einen Sparpool empfangen",
       "createPool": "Sparpool erstellen",
+      "addDescription": "Beschreibung hinzufügen",
       "collectPaymentsDescription": "Zahlungen für ein Ziel sammeln",
       "whatIsPoolFor": "Wofür ist dieser Sparpool?",
       "examplePlaceholder": "z. B. Urlaubsreise, Restaurantbesuch",

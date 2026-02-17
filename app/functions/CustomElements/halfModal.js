@@ -56,6 +56,7 @@ import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBit
 import AddReceiveMessageHalfModal from '../../components/admin/homeComponents/receiveBitcoin/addMessageHalfModal';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 import CreatePoolDescription from '../../components/admin/homeComponents/pools/createPoolDescription';
+import CreatePoolFlow from '../../components/admin/homeComponents/pools/createPoolFlow';
 import {
   SelectContactRequestCurrency,
   SelectPaymentType,
@@ -450,6 +451,15 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
+      case 'createPoolFlow':
+        return (
+          <CreatePoolFlow
+            route={props?.route}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+            navigate={navigation}
+          />
+        );
       case 'closePoolConfirmation':
         return (
           <ClosePoolConfirmation
@@ -527,12 +537,14 @@ export default function CustomHalfModal(props) {
               contentType === 'AddMessageReceivePage' ||
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
-              contentType === 'createPoolDescription'
+              contentType === 'createPoolDescription' ||
+              contentType === 'createPoolFlow'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
                     contentType === 'addContacts' ||
-                    contentType === 'sendOptions'
+                    contentType === 'sendOptions' ||
+                    contentType === 'createPoolFlow'
                   ? 0
                   : contentType === 'receiveOptions' ||
                     contentType === 'createPoolDescription'

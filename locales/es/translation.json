@@ -740,6 +740,7 @@
     "pools": {
       "receiveViaPool": "Recibir mediante un fondo",
       "createPool": "Crear fondo",
+      "addDescription": "Agregar descripción",
       "collectPaymentsDescription": "Recauda pagos para un objetivo",
       "whatIsPoolFor": "¿Para qué es este fondo?",
       "examplePlaceholder": "p. ej., Viaje a Miami",

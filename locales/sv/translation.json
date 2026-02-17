@@ -874,6 +874,7 @@
     "pools": {
       "receiveViaPool": "Ta emot via pool",
       "createPool": "Skapa pool",
+      "addDescription": "Lägg till beskrivning",
       "collectPaymentsDescription": "Samla in betalningar för ett mål",
       "whatIsPoolFor": "Vad är denna pool till för?",
       "examplePlaceholder": "t.ex. Resa till Miami",

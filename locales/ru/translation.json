@@ -874,6 +874,7 @@
     "pools": {
       "receiveViaPool": "Получить через пул",
       "createPool": "Создать пул",
+      "addDescription": "Добавить описание",
       "collectPaymentsDescription": "Собирайте платежи для цели",
       "whatIsPoolFor": "Для чего этот пул?",
       "examplePlaceholder": "например, Поездка в Майами",

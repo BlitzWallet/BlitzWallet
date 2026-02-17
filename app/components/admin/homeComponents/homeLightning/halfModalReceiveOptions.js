@@ -36,6 +36,8 @@ import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import customUUID from '../../../../functions/customUUID';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
+import PoolCreationOverlay from '../pools/poolCreationOverlay';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 const ContactRow = ({
   expandedContact,
@@ -253,6 +255,15 @@ const AmountInputOverlay = ({
     opacity: overlayOpacity.value,
   }));
 
+  // Handle Android back button
+  const handleBackPress = useCallback(() => {
+    if (!visible) return false;
+    onClose();
+    return true;
+  }, [visible, onClose]);
+
+  useHandleBackPressNew(handleBackPress);
+
   const handleDenominationToggle = () => {
     const nextDenom = getNextDenomination();
     setInputDenomination(nextDenom);
@@ -351,6 +362,7 @@ export default function HalfModalReceiveOptions({
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAmountInput, setShowAmountInput] = useState(false);
   const [showAddContact, setShowAddContact] = useState(false);
+  const [showPoolCreation, setShowPoolCreation] = useState(false);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({});
   const scrollOffsetRef = useRef(0);
@@ -375,7 +387,7 @@ export default function HalfModalReceiveOptions({
   );
 
   useEffect(() => {
-    if (showAmountInput || showAddContact) {
+    if (showAmountInput || showAddContact || showPoolCreation) {
       // Content slides left and fades out
       contentOpacity.value = withTiming(0, { duration: 250 });
       contentTranslateX.value = withTiming(-30, { duration: 250 });
@@ -384,7 +396,7 @@ export default function HalfModalReceiveOptions({
       contentOpacity.value = withTiming(1, { duration: 250 });
       contentTranslateX.value = withTiming(0, { duration: 250 });
     }
-  }, [showAmountInput, showAddContact]);
+  }, [showAmountInput, showAddContact, showPoolCreation]);
 
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
@@ -575,7 +587,7 @@ export default function HalfModalReceiveOptions({
             ...styles.innerContainer,
             paddingBottom: bottomPadding,
           }}
-          stickyHeaderIndices={[0, 5]}
+          stickyHeaderIndices={[0, 6]}
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}
@@ -677,6 +689,7 @@ export default function HalfModalReceiveOptions({
             </View>
           </TouchableOpacity>
 
+          {/* Pool */}
           <View
             style={[
               styles.stickyHeaderContainer,
@@ -695,7 +708,7 @@ export default function HalfModalReceiveOptions({
 
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => navigate.replace('CreatePoolAmount')}
+            onPress={() => setShowPoolCreation(true)}
           >
             <View
               style={[
@@ -781,8 +794,16 @@ export default function HalfModalReceiveOptions({
 
       <AddContactOverlay
         visible={showAddContact}
-        onClose={handleBackPressFunction}
+        onClose={() => setShowAddContact(false)}
         onContactAdded={handleContactAdded}
+      />
+
+      <PoolCreationOverlay
+        visible={showPoolCreation}
+        onClose={() => setShowPoolCreation(false)}
+        theme={theme}
+        darkModeType={darkModeType}
+        handleBackPressFunction={handleBackPressFunction}
       />
     </View>
   );

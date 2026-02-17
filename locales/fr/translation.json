@@ -875,6 +875,7 @@
     "pools": {
       "receiveViaPool": "Recevoir via une cagnotte",
       "createPool": "Créer une cagnotte",
+      "addDescription": "Ajouter une description",
       "collectPaymentsDescription": "Collecter des paiements pour un objectif",
       "whatIsPoolFor": "À quoi sert cette cagnotte ?",
       "examplePlaceholder": "ex. Voyage à Miami",

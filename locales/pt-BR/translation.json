@@ -874,6 +874,7 @@
     "pools": {
       "receiveViaPool": "Receber via Pool",
       "createPool": "Criar Pool",
+      "addDescription": "Adicionar descrição",
       "collectPaymentsDescription": "Colete pagamentos para um objetivo",
       "whatIsPoolFor": "Para que é este Pool?",
       "examplePlaceholder": "ex.: Viagem para Miami",

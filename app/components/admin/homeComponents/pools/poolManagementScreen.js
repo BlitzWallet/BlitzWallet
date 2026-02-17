@@ -28,7 +28,10 @@ export default function PoolManagementScreen() {
   const hasAnyPools = hasActivePools || hasClosedPools;
 
   const handleCreatePool = useCallback(() => {
-    navigate.navigate('CreatePoolAmount');
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'createPoolFlow',
+      sliderHight: 0.6,
+    });
   }, [navigate]);
 
   const handlePoolPress = useCallback(
