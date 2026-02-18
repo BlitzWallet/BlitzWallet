@@ -1588,7 +1588,7 @@
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
         "removeAccountLabel": "Excluir conta",
-        "activeAccountError": "Você não pode excluir a conta ativa no momento. Por favor, mude para uma conta diferente antes de excluir esta.",
+        "activeAccountError": "Você não pode excluir a conta que está selecionada. Por favor, mude para uma conta diferente antes de excluir esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta",
         "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada."
@@ -1599,8 +1599,8 @@
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outra carteira",
-        "recoverRecoveryPhraseTitle": "Recuperar conta",
-        "recoverRecoveryPhraseDescription": "Restaurar uma conta já criada"
+        "recoverRecoveryPhraseTitle": "Restaurar conta",
+        "recoverRecoveryPhraseDescription": "Recuperar uma conta anteriomente excluída"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",
