@@ -450,7 +450,6 @@ const styles = StyleSheet.create({
   employeeName: {
     textAlign: 'center',
     fontSize: SIZES.large,
-    textTransform: 'capitalize',
     marginRight: 'auto',
     marginLeft: 10,
     includeFontPadding: false,
