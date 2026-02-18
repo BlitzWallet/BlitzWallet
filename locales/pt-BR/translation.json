@@ -1594,7 +1594,7 @@
         "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada."
       },
       "selectCreateAccountType": {
-        "title": "Adicionar conta",
+        "title": "Criar ou restaurar conta",
         "createNewAccountTitle": "Criar nova conta",
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
@@ -1627,7 +1627,7 @@
       },
       "removeAccountPage": {
         "title": "Excluir conta",
-        "explanation_derived": "Mesmo que você exclua esta conta, é possível recuperá-la usando sua frase de recuperação.",
+        "explanation_derived": "Mesmo que você exclua esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
         "explanation_imported": "Esta conta foi importada. Se você excluí-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
         "removeButton": "Excluir conta"
