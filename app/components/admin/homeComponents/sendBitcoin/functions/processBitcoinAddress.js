@@ -18,6 +18,7 @@ export default async function processBitcoinAddress(input, context) {
     paymentInfo,
     currentWalletMnemoinc,
     sendWebViewRequest,
+    bitcoinBalance,
     t,
   } = context;
   const storedBitcoinAddress = JSON.parse(
@@ -70,6 +71,10 @@ export default async function processBitcoinAddress(input, context) {
       supportFee = paymentInfo.supportFee;
       feeQuote = paymentInfo.feeQuote;
     } else {
+      if (amountSat > bitcoinBalance) {
+        throw new Error(t('wallet.sendPages.acceptButton.balanceError'));
+      }
+
       const paymentFeeResponse = await sparkPaymenWrapper({
         getFee: true,
         address: input.data.address,
