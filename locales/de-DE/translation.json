@@ -922,12 +922,12 @@
       "organizer": "Organisator",
       "contributorCount_one": "{{count}} Person",
       "contributorCount_other": "{{count}} Personen",
-      "pool_contribution_label": "Beitrag zum Sparpool \"{{poolName}}\"",
+      "pool_contribution_label": "Sparpool-Beitrag: \"{{poolName}}\"",
       "closing_pool_label": "Sparpool wird geschlossen: {{poolName}}",
-      "late_pool_contribution_label": "Später Beitrag zu \"{{poolName}}\"",
+      "late_pool_contribution_label": "Verspäteter Beitrag zum Sparziel: \"{{poolName}}\"",
       "activitySection": "Aktivität",
       "active": "Aktive Sparpools",
-      "savingPoolError": "Dieser Pool konnte nicht erstellt werden. Bitte versuche es erneut.",
+      "savingPoolError": "Dieser Sparpool konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
       "info": {
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",
@@ -1078,7 +1078,7 @@
         "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird"
       },
       "lrc20Assets": {
-        "actionText": "Token {{action}}",
+        "Textaction": "USDB-Token {{action}}",
         "tokensSearchPlaceholder": "Token suchen …",
         "noTokensText": "Sie haben keine Token",
         "noTokensFoundText": "Keine Token gefunden"
