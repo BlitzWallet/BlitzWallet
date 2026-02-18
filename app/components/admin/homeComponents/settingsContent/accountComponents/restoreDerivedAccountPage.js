@@ -64,7 +64,9 @@ export default function RestoreDerivedAccountPage() {
 
       if (result.didWork) {
         // Navigate back to show the restored account
-        navigate.goBack();
+        navigate.popTo('SettingsContentHome', {
+          for: 'Accounts',
+        });
       } else {
         navigate.navigate('ErrorScreen', {
           errorMessage:
