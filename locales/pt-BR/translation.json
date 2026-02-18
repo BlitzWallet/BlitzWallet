@@ -1598,8 +1598,8 @@
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outra carteira",
-        "recoverRecoveryPhraseTitle": "Recuperar conta",
-        "recoverRecoveryPhraseDescription": "Restaurar uma conta anteriomente excluída"
+        "recoverRecoveryPhraseTitle": "Restaurar conta",
+        "recoverRecoveryPhraseDescription": "Recuperar uma conta anteriomente excluída"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",
