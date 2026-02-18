@@ -166,7 +166,7 @@ export default function EditAccountPage(props) {
                   )}
                 />
                 <TouchableOpacity onPress={handlePinInfo}>
-                  <ThemeIcon iconName={'Info'} />
+                  <ThemeIcon size={23} iconName={'Info'} />
                 </TouchableOpacity>
               </View>
               <View style={styles.rowRight}>
@@ -258,7 +258,7 @@ export default function EditAccountPage(props) {
                   )}
                 />
                 <TouchableOpacity onPress={handlePinInfo}>
-                  <ThemeIcon iconName={'Info'} />
+                  <ThemeIcon size={23} iconName={'Info'} />
                 </TouchableOpacity>
               </View>
               <View style={styles.rowRight}>

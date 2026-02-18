@@ -95,13 +95,16 @@ export default function usePaymentInputDisplay({
       }
     } else {
       // In BTC mode: toggle between sats and fiat
+      const nextDenomination =
+        inputDenomination === 'sats' || inputDenomination === 'hidden'
+          ? 'fiat'
+          : 'sats';
+      const nextIsUSDDisplay = nextDenomination === 'fiat' && isDeviceCurrencyUSD;
+
       return {
-        denomination:
-          inputDenomination === 'sats' || inputDenomination === 'hidden'
-            ? 'fiat'
-            : 'sats',
-        forceCurrency: null,
-        forceFiatStats: null,
+        denomination: nextDenomination,
+        forceCurrency: nextIsUSDDisplay ? 'USD' : null,
+        forceFiatStats: nextIsUSDDisplay ? usdFiatStats : null,
       };
     }
   }, [
@@ -115,14 +118,24 @@ export default function usePaymentInputDisplay({
 
   // CONVERSION STATS - Which fiat stats to use for conversions
   const conversionFiatStats = useMemo(() => {
-    if (isUSDMode) {
-      // In USD mode, use USD stats if showing USD, otherwise device currency stats
-      return primaryDisplay.forceCurrency === 'USD' ? usdFiatStats : fiatStats;
-    } else {
-      // In BTC mode, always use device currency stats
-      return fiatStats;
+    const isDisplayingUSD =
+      primaryDisplay.denomination === 'fiat' &&
+      (primaryDisplay.forceCurrency === 'USD' ||
+        (!primaryDisplay.forceCurrency && isDeviceCurrencyUSD));
+
+    if (isDisplayingUSD) {
+      // Keep USD conversions stable across BTC/USD payment mode switches.
+      return usdFiatStats || fiatStats;
     }
-  }, [isUSDMode, primaryDisplay.forceCurrency, usdFiatStats, fiatStats]);
+
+    return fiatStats;
+  }, [
+    primaryDisplay.denomination,
+    primaryDisplay.forceCurrency,
+    isDeviceCurrencyUSD,
+    usdFiatStats,
+    fiatStats,
+  ]);
 
   /**
    * Convert input amount to satoshis
@@ -210,11 +223,16 @@ export default function usePaymentInputDisplay({
         ) || ''
       );
     } else {
+      const toggleFiatStats =
+        inputDenomination === 'sats' || inputDenomination === 'hidden'
+          ? secondaryDisplay.forceFiatStats || conversionFiatStats
+          : conversionFiatStats;
+
       // Standard toggle
       return (
         convertTextInputValue(
           currentAmount,
-          conversionFiatStats,
+          toggleFiatStats,
           inputDenomination,
         ) || ''
       );
