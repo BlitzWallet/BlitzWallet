@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../../../../components/admin/homeComponents/contacts/internalComponents/profileImage';
@@ -17,6 +18,46 @@ export default function ProfileCard({
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
+  const editProfileLabel = t('settings.index.editProfile');
+  const showQrLabel = t('settings.index.showQR');
+  const [buttonContainerWidth, setButtonContainerWidth] = useState(0);
+  const [shouldStackButtons, setShouldStackButtons] = useState(false);
+  const [hasWrapped, setHasWrapped] = useState({
+    edit: null,
+    qr: null,
+  });
+
+  useEffect(() => {
+    setShouldStackButtons(false);
+    setHasWrapped({
+      edit: null,
+      qr: null,
+    });
+  }, [buttonContainerWidth, editProfileLabel, showQrLabel]);
+
+  useEffect(() => {
+    if (shouldStackButtons) return;
+    if (hasWrapped.edit == null || hasWrapped.qr == null) return;
+    if (hasWrapped.edit || hasWrapped.qr) setShouldStackButtons(true);
+  }, [hasWrapped, shouldStackButtons]);
+
+  const handleButtonContainerLayout = useCallback(e => {
+    const nextWidth = Math.round(e?.nativeEvent?.layout?.width || 0);
+    setButtonContainerWidth(prevWidth =>
+      prevWidth === nextWidth ? prevWidth : nextWidth,
+    );
+  }, []);
+
+  const handleLabelTextLayout = useCallback((key, e) => {
+    const lineCount = e?.nativeEvent?.lines?.length ?? 1;
+    const nextValue = lineCount > 1;
+
+    setHasWrapped(previousState =>
+      previousState[key] === nextValue
+        ? previousState
+        : { ...previousState, [key]: nextValue },
+    );
+  }, []);
 
   return (
     <View
@@ -51,33 +92,47 @@ export default function ProfileCard({
         />
       </TouchableOpacity>
 
-      <View style={styles.buttonContainer}>
+      <View
+        onLayout={handleButtonContainerLayout}
+        style={[
+          styles.buttonContainer,
+          shouldStackButtons
+            ? styles.buttonContainerStacked
+            : styles.buttonContainerColumns,
+        ]}
+      >
         <TouchableOpacity
           onPress={onEditPress}
           style={[
             styles.button,
+            shouldStackButtons ? styles.buttonStacked : styles.buttonColumn,
             {
               backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             },
           ]}
         >
           <ThemeText
+            CustomNumberOfLines={shouldStackButtons ? 1 : null}
             styles={{ includeFontPadding: false }}
-            content={t('settings.index.editProfile')}
+            onTextLayout={e => handleLabelTextLayout('edit', e)}
+            content={editProfileLabel}
           />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onShowQRPress}
           style={[
             styles.button,
+            shouldStackButtons ? styles.buttonStacked : styles.buttonColumn,
             {
               backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             },
           ]}
         >
           <ThemeText
+            CustomNumberOfLines={shouldStackButtons ? 1 : null}
             styles={{ includeFontPadding: false }}
-            content={t('settings.index.showQR')}
+            onTextLayout={e => handleLabelTextLayout('qr', e)}
+            content={showQrLabel}
           />
         </TouchableOpacity>
       </View>
@@ -143,23 +198,30 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
     gap: 10,
-    flexWrap: 'wrap',
+    alignItems: 'center',
     marginBottom: 15,
   },
-  button: {
-    flexBasis: `${(100 - 10) / 2}%`,
-    minHeight: 50,
-    flexGrow: 1,
+  buttonContainerColumns: {
     flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  buttonContainerStacked: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+  },
+  button: {
+    minHeight: 50,
+    paddingHorizontal: 12,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 12,
+  },
+  buttonColumn: {
+    flex: 1,
+  },
+  buttonStacked: {
+    width: '100%',
   },
   buttonImage: { width: 20, height: 20, marginRight: 15 },
   profileImage: {

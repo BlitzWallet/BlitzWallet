@@ -10,6 +10,7 @@ export default function ThemeText({
   CustomEllipsizeMode = 'tail',
   CustomNumberOfLines = null,
   onLayout = null,
+  onTextLayout = null,
   adjustsFontSizeToFit = false,
   minimumFontScale = 0.5,
 }) {
@@ -59,6 +60,7 @@ export default function ThemeText({
   return (
     <Text
       onLayout={layoutCallback}
+      onTextLayout={onTextLayout}
       ellipsizeMode={CustomEllipsizeMode}
       numberOfLines={CustomNumberOfLines}
       style={memorizedStyles}
