@@ -28,6 +28,7 @@ import LottieView from 'lottie-react-native';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { usePools } from '../../../../../context-store/poolContext';
 import { Timestamp } from '@react-native-firebase/firestore';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -49,13 +50,43 @@ export default function ContributeToPoolHalfModal({
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
-  const [step, setStep] = useState('select');
+  // Step can be 'select', 'custom', 'confirm', 'loading', 'success'
+  const [step, setStep] = useState(['select']);
   // Store the full preset object or custom amount details
   const [selectedPreset, setSelectedPreset] = useState(null);
   const [amountValue, setAmountValue] = useState('');
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination !== 'fiat' ? 'sats' : 'fiat',
   );
+  // extract current page for easier handling
+  const currentPage = step[step.length - 1];
+
+  // clear page specific states when going back
+  const clearPageStates = useCallback(() => {
+    setSelectedPreset(null);
+    setAmountValue('');
+  }, []);
+
+  // Handle Android back button with multi-step logic
+  const handleBackPress = useCallback(() => {
+    if (currentPage === 'success') {
+      // On success page, allow default back behavior to close the modal
+      return false;
+    } else if (currentPage === 'loading') {
+      // block actions on loading screen
+      return true;
+    } else if (step.length > 1) {
+      // On select or custom page, go back to the previous step
+      setStep(step.slice(0, -1));
+      clearPageStates();
+      return true;
+    } else {
+      // If select page, allow default back behavior to close the modal
+      return false;
+    }
+  }, [step, currentPage, setStep, clearPageStates]);
+
+  useHandleBackPressNew(handleBackPress);
 
   const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
 
@@ -90,14 +121,18 @@ export default function ContributeToPoolHalfModal({
   };
 
   useEffect(() => {
-    if (step === 'select') {
+    if (currentPage === 'select') {
       setContentHeight(500);
-    } else if (step === 'confirm' || step === 'loading' || step === 'success') {
+    } else if (
+      currentPage === 'confirm' ||
+      currentPage === 'loading' ||
+      currentPage === 'success'
+    ) {
       setContentHeight(500);
     } else {
       setContentHeight(550);
     }
-  }, [step]);
+  }, [currentPage]);
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -107,12 +142,16 @@ export default function ContributeToPoolHalfModal({
   }, [theme, darkModeType]);
 
   const handleCustomPress = useCallback(() => {
-    setStep('custom');
-  }, []);
+    setStep([...step, 'custom']);
+  }, [step]);
 
   const handleContinue = useCallback(() => {
-    if (step === 'custom') {
-      if (localSatAmount <= 0) return;
+    if (currentPage === 'custom') {
+      if (Number(localSatAmount) <= 0) {
+        setStep(['select']);
+        clearPageStates();
+        return;
+      }
       // Create a custom preset object
       setSelectedPreset({
         usd: (
@@ -124,14 +163,13 @@ export default function ContributeToPoolHalfModal({
         isCustom: true,
       });
     }
-    if (step === 'select' && !selectedPreset) return;
-    setStep('confirm');
-  }, [step, selectedPreset, localSatAmount, fiatStats]);
+    if (currentPage === 'select' && !selectedPreset) return;
+    setStep([...step, 'confirm']);
+  }, [currentPage, selectedPreset, localSatAmount, fiatStats]);
 
   const handleConfirmPayment = useCallback(async () => {
     try {
-      setStep('loading');
-
+      setStep([...step, 'loading']);
       // Use the appropriate sats value based on user's denomination preference
       const paymentAmountSats = isFiatMode
         ? selectedPreset.satValueOfUsd
@@ -176,7 +214,7 @@ export default function ContributeToPoolHalfModal({
 
       await addContributionToCache(contribution);
 
-      setStep('success');
+      setStep([...step, 'success']);
     } catch (err) {
       console.log('Error contributing to pool:', err);
       handleBackPressFunction(() => {
@@ -196,7 +234,7 @@ export default function ContributeToPoolHalfModal({
     handleBackPressFunction,
   ]);
 
-  if (step === 'loading') {
+  if (currentPage === 'loading') {
     return (
       <View style={styles.stepContainer}>
         <FullLoadingScreen text={t('wallet.pools.sendingContribution')} />
@@ -204,7 +242,7 @@ export default function ContributeToPoolHalfModal({
     );
   }
 
-  if (step === 'success') {
+  if (currentPage === 'success') {
     return (
       <View style={[styles.stepContainer, styles.successContainer]}>
         <LottieView
@@ -225,7 +263,7 @@ export default function ContributeToPoolHalfModal({
     );
   }
 
-  if (step === 'confirm') {
+  if (currentPage === 'confirm') {
     // Use the original values from the preset object
     const displayAmount = isFiatMode ? selectedPreset.usd : selectedPreset.sats;
 
@@ -267,7 +305,7 @@ export default function ContributeToPoolHalfModal({
     );
   }
 
-  if (step === 'custom') {
+  if (currentPage === 'custom') {
     return (
       <View style={styles.stepContainer}>
         <TouchableOpacity
@@ -304,7 +342,9 @@ export default function ContributeToPoolHalfModal({
         <CustomButton
           buttonStyles={{ ...CENTER, marginTop: 10 }}
           actionFunction={handleContinue}
-          textContent={t('constants.continue')}
+          textContent={
+            Number(amountValue) ? t('constants.continue') : t('constants.back')
+          }
         />
       </View>
     );
