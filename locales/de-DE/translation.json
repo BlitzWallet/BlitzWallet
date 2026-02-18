@@ -902,7 +902,7 @@
       "goal": "Ziel: ",
       "payment_one": "{{count}} Zahlung",
       "payment_other": "{{count}} Zahlungen",
-      "closed": "Geschlossene Sparpools",
+      "closed": "Geschlossene Sparpools ",
       "pool": "Sparpool",
       "couldNotFind": "Dieser Sparpool konnte nicht gefunden werden.",
       "createdBy": "Erstellt von ",
@@ -1595,7 +1595,8 @@
         "removeAccountLabel": "Wallet entfernen",
         "activeAccountError": "Sie können die derzeit aktive Wallet nicht löschen. Bitte wechseln Sie zu einer anderen Wallet, bevor Sie diese löschen.",
         "account_pin": "Wallet anheften",
-        "account_unpin": "Wallet lösen"
+        "account_unpin": "Wallet lösen",
+        "pin_account_info": "Wenn du ein Konto anheftest, wird es auf der Hauptseite der Einstellungen angezeigt, sodass du schnell zwischen deinem Hauptkonto und dem angehefteten Konto wechseln kannst."
       },
       "selectCreateAccountType": {
         "title": "Wallet hinzufügen",

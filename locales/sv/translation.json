@@ -1590,7 +1590,8 @@
         "removeAccountLabel": "Ta bort konto",
         "activeAccountError": "Du kan inte ta bort det för närvarande aktiva kontot. Vänligen byt till ett annat konto innan du tar bort detta.",
         "account_pin": "Fäst konto",
-        "account_unpin": "Lossa konto"
+        "account_unpin": "Lossa konto",
+        "pin_account_info": "När du fäster ett konto visas det på huvudsidan för Inställningar, vilket gör det enkelt att snabbt växla mellan ditt huvudkonto och det fästa kontot."
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",

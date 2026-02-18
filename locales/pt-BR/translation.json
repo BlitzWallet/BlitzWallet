@@ -1590,7 +1590,8 @@
         "removeAccountLabel": "Excluir conta",
         "activeAccountError": "Você não pode excluir a conta ativa no momento. Por favor, mude para uma conta diferente antes de excluir esta.",
         "account_pin": "Fixar conta",
-        "account_unpin": "Desafixar conta"
+        "account_unpin": "Desafixar conta",
+        "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada."
       },
       "selectCreateAccountType": {
         "title": "Adicionar conta",

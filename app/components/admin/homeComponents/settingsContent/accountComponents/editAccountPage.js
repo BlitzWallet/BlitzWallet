@@ -76,6 +76,15 @@ export default function EditAccountPage(props) {
     });
   }, [accountInformation]);
 
+  const handlePinInfo = useCallback(() => {
+    navigate.navigate('InformationPopup', {
+      textContent: t(
+        'settings.accountComponents.editAccountPage.pin_account_info',
+      ),
+      buttonText: t('constants.back'),
+    });
+  }, [navigate, t]);
+
   const handlePinToggle = useCallback(() => {
     const accountId = accountInformation.uuid || accountInformation.name;
     const currentPins = masterInfoObject.pinnedAccounts || [];
@@ -146,15 +155,20 @@ export default function EditAccountPage(props) {
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             {/* Account Name */}
             <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t(
-                  'settings.accountComponents.editAccountPage.account',
-                  {
-                    context: isPinned ? 'unpin' : 'pin',
-                  },
-                )}
-              />
+              <View style={styles.infoContainer}>
+                <ThemeText
+                  styles={[styles.rowLabel, { marginRight: 5 }]}
+                  content={t(
+                    'settings.accountComponents.editAccountPage.account',
+                    {
+                      context: isPinned ? 'unpin' : 'pin',
+                    },
+                  )}
+                />
+                <TouchableOpacity onPress={handlePinInfo}>
+                  <ThemeIcon iconName={'Info'} />
+                </TouchableOpacity>
+              </View>
               <View style={styles.rowRight}>
                 <View
                   style={[
@@ -233,15 +247,20 @@ export default function EditAccountPage(props) {
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             {/* Account Name */}
             <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
-              <ThemeText
-                styles={styles.rowLabel}
-                content={t(
-                  'settings.accountComponents.editAccountPage.account',
-                  {
-                    context: isPinned ? 'unpin' : 'pin',
-                  },
-                )}
-              />
+              <View style={styles.infoContainer}>
+                <ThemeText
+                  styles={[styles.rowLabel, { marginRight: 5 }]}
+                  content={t(
+                    'settings.accountComponents.editAccountPage.account',
+                    {
+                      context: isPinned ? 'unpin' : 'pin',
+                    },
+                  )}
+                />
+                <TouchableOpacity onPress={handlePinInfo}>
+                  <ThemeIcon iconName={'Info'} />
+                </TouchableOpacity>
+              </View>
               <View style={styles.rowRight}>
                 <View
                   style={[
@@ -364,6 +383,10 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 16,
     gap: 15,
+  },
+  infoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   rowLabel: {

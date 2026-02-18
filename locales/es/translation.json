@@ -1456,7 +1456,8 @@
         "removeAccountLabel": "Eliminar cuenta",
         "activeAccountError": "No puedes eliminar la cuenta activa actualmente. Por favor, cambia a una cuenta diferente antes de eliminar esta.",
         "account_pin": "Fijar cuenta",
-        "account_unpin": "Desfijar cuenta"
+        "account_unpin": "Desfijar cuenta",
+        "pin_account_info": "Cuando fijas una cuenta, aparece en la página principal de Configuración, lo que facilita cambiar rápidamente entre tu cuenta principal y la cuenta fijada."
       },
       "selectCreateAccountType": {
         "title": "Agregar cuenta",

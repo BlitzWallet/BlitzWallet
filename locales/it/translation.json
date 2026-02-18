@@ -1591,7 +1591,8 @@
         "removeAccountLabel": "Rimuovi account",
         "activeAccountError": "Non puoi eliminare l'account attualmente attivo. Passa a un altro account prima di eliminare questo.",
         "account_pin": "Fissa account",
-        "account_unpin": "Rimuovi fissaggio"
+        "account_unpin": "Rimuovi fissaggio",
+        "pin_account_info": "Quando fissi un account, viene visualizzato nella pagina principale delle Impostazioni, così puoi passare rapidamente tra il tuo account principale e quello fissato."
       },
       "selectCreateAccountType": {
         "title": "Aggiungi account",

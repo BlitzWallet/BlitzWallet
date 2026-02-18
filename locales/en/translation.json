@@ -1620,7 +1620,8 @@
         "removeAccountLabel": "Remove Account",
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
-        "account_unpin": "Unpin Account"
+        "account_unpin": "Unpin Account",
+        "pin_account_info": "When you pin an account, it appears on the main Settings page, making it easy to quickly switch between your main account and the pinned account."
       },
       "removeAccountPage": {
         "title": "Remove",

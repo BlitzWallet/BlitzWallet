@@ -1591,7 +1591,8 @@
         "removeAccountLabel": "Supprimer le compte",
         "activeAccountError": "Vous ne pouvez pas supprimer le compte actuellement actif. Veuillez passer à un autre compte avant de supprimer celui-ci.",
         "account_pin": "Épingler le compte",
-        "account_unpin": "Désépingler le compte"
+        "account_unpin": "Désépingler le compte",
+        "pin_account_info": "Lorsque vous épinglez un compte, il apparaît sur la page principale des paramètres, ce qui vous permet de basculer rapidement entre votre compte principal et le compte épinglé."
       },
       "selectCreateAccountType": {
         "title": "Ajouter un compte",

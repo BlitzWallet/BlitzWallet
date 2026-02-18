@@ -360,7 +360,7 @@ export default function PoolDetailScreen(props) {
             <View style={styles.closedTextContainer}>
               <ThemeText
                 styles={{ includeFontPadding: false }}
-                CustomNumberOfLines={1}
+                CustomNumberOfLines={2}
                 content={`${t('wallet.pools.closed')}${closedDate}`}
               />
               {isCreator && (

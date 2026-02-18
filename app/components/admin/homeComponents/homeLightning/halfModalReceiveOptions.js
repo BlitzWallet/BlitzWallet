@@ -719,7 +719,7 @@ export default function HalfModalReceiveOptions({
                 },
               ]}
             >
-              <ThemeIcon size={25} iconName={'Vault'} />
+              <ThemeIcon size={25} iconName={'PiggyBank'} />
             </View>
             <View style={styles.scanTextContainer}>
               <ThemeText
