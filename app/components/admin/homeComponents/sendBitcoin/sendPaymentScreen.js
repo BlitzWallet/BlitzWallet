@@ -120,6 +120,7 @@ export default function SendPaymentScreen(props) {
   const convertedSendAmountRef = useRef(null);
   const determinePaymentMethodRef = useRef(null);
   const didRequireChoiceRef = useRef(false);
+  const uiStateRef = useRef(null);
 
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
@@ -295,32 +296,6 @@ export default function SendPaymentScreen(props) {
   );
 
   useEffect(() => {
-    if (
-      prevSelectedPaymentInfo.current.preSelectedPaymentMethod !==
-        preSelectedPaymentMethod ||
-      prevSelectedPaymentInfo.current.enteredInfo !==
-        enteredPaymentInfo?.inputCurrency ||
-      prevSelectedPaymentInfo.current.selectedPaymentMethod !==
-        selectedPaymentMethod
-    ) {
-      setPaymentInfo(prev => ({
-        ...prev,
-        sendAmount: '',
-      }));
-      setUserSetInputDenomination(null);
-      prevSelectedPaymentInfo.current = {
-        preSelectedPaymentMethod,
-        enteredInfo: enteredPaymentInfo?.inputCurrency,
-        selectedPaymentMethod,
-      };
-    }
-  }, [
-    preSelectedPaymentMethod,
-    enteredPaymentInfo?.inputCurrency,
-    selectedPaymentMethod,
-  ]);
-
-  useEffect(() => {
     determinePaymentMethodRef.current = determinePaymentMethod;
   }, [determinePaymentMethod]);
 
@@ -430,6 +405,41 @@ export default function SendPaymentScreen(props) {
     preSelectedPaymentMethod,
     uiState,
   );
+
+  useEffect(() => {
+    uiStateRef.current = uiState;
+  }, [uiState]);
+
+  useEffect(() => {
+    if (
+      prevSelectedPaymentInfo.current.preSelectedPaymentMethod !==
+        preSelectedPaymentMethod ||
+      prevSelectedPaymentInfo.current.enteredInfo !==
+        enteredPaymentInfo?.inputCurrency ||
+      prevSelectedPaymentInfo.current.selectedPaymentMethod !==
+        selectedPaymentMethod
+    ) {
+      console.log(
+        'Payment method or input currency changed, resetting payment info',
+      );
+      if (uiStateRef.current !== 'EDIT_AMOUNT') return;
+      console.log('Resetting payment info for new selection');
+      setPaymentInfo(prev => ({
+        ...prev,
+        sendAmount: '',
+      }));
+      setUserSetInputDenomination(null);
+      prevSelectedPaymentInfo.current = {
+        preSelectedPaymentMethod,
+        enteredInfo: enteredPaymentInfo?.inputCurrency,
+        selectedPaymentMethod,
+      };
+    }
+  }, [
+    preSelectedPaymentMethod,
+    enteredPaymentInfo?.inputCurrency,
+    selectedPaymentMethod,
+  ]);
 
   const paymentValidation = usePaymentValidation({
     paymentInfo,

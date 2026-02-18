@@ -97,10 +97,10 @@ export default async function processBitcoinAddress(input, context) {
   const displayAmount = comingFromAccept
     ? enteredPaymentInfo.amount
     : masterInfoObject.userBalanceDenomination != 'fiat'
-    ? amountSat
+    ? Math.round(Number(amountSat))
     : canEditPayment
-    ? fiatValue
-    : amountSat;
+    ? fiatValue.toFixed(2)
+    : Math.round(Number(amountSat));
 
   return {
     data: newPaymentInfo,
