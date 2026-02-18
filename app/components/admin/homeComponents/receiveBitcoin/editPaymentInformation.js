@@ -44,6 +44,7 @@ export default function EditReceivePaymentInformation(props) {
   const receiveType = props.route.params.receiveType;
 
   const endReceiveType = props.route.params.endReceiveType;
+  const hasReceiveAmount = !!props.route.params.userReceiveAmount;
 
   const isUSDReceiveMode = endReceiveType === 'USD';
 
@@ -95,7 +96,23 @@ export default function EditReceivePaymentInformation(props) {
     const sendAmount = !Number(localSatAmount) ? 0 : Number(localSatAmount);
     crashlyticsLogReport(`Running in edit payment information submit function`);
 
-    if (!localSatAmount) {
+    if (hasReceiveAmount && !localSatAmount) {
+      if (fromPage === 'homepage') {
+        navigate.replace('ReceiveBTC', {
+          receiveAmount: 0,
+        });
+      } else {
+        navigate.popTo(
+          'ReceiveBTC',
+          {
+            receiveAmount: 0,
+            endReceiveType: endReceiveType,
+            uuid: customUUID(),
+          },
+          { merge: true },
+        );
+      }
+    } else if (!localSatAmount) {
       navigate.goBack();
       return;
     }
@@ -202,7 +219,11 @@ export default function EditReceivePaymentInformation(props) {
               }}
               actionFunction={handleSubmit}
               textContent={
-                !localSatAmount ? t('constants.back') : t('constants.request')
+                hasReceiveAmount && !localSatAmount
+                  ? t('constants.remove')
+                  : !hasReceiveAmount && !localSatAmount
+                  ? t('constants.back')
+                  : t('constants.request')
               }
             />
           </>

@@ -250,6 +250,7 @@ export default function ReceivePaymentHome(props) {
             poolInfoRef={poolInfoRef}
             isSharingRef={isSharingRef}
             paymentDescription={paymentDescription}
+            userReceiveAmount={userReceiveAmount}
           />
 
           <ButtonsContainer
@@ -404,6 +405,7 @@ function QrCode(props) {
     poolInfoRef,
     isSharingRef,
     paymentDescription,
+    userReceiveAmount,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
@@ -518,6 +520,7 @@ function QrCode(props) {
       from: 'receivePage',
       receiveType: selectedRecieveOption,
       endReceiveType,
+      userReceiveAmount,
     });
   };
 
