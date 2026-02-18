@@ -1627,7 +1627,7 @@
       },
       "removeAccountPage": {
         "title": "Excluir conta",
-        "explanation_derived": "Mesmo que você exclua esta conta, é possível restaurá-la usando a opção de restaurar conta ou importando sua frase de recuperação.",
+        "explanation_derived": "Mesmo que você exclua esta conta, é possível restaurá-la usando a opção Restaurar Conta ou importando sua Frase de Recuperação.",
         "explanation_imported": "Esta conta foi importada. Se você excluí-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
         "removeButton": "Excluir conta"
