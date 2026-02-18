@@ -1078,7 +1078,7 @@
         "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird"
       },
       "lrc20Assets": {
-        "Textaction": "USDB-Token {{action}}",
+        "actionText": "USDB-Token {{action}}",
         "tokensSearchPlaceholder": "Token suchen …",
         "noTokensText": "Sie haben keine Token",
         "noTokensFoundText": "Keine Token gefunden"
