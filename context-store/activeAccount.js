@@ -448,21 +448,25 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
         data => JSON.parse(data),
       );
 
-      if (
-        hasAutoRestoreCheckRun.current ||
-        !accountMnemoinc ||
-        custodyAccounts.length ||
-        cloudIndex === undefined ||
-        Number(cloudIndex) <= 0 ||
-        !didGetToHomepage ||
-        hasRunRestore
-      ) {
+      if (hasAutoRestoreCheckRun.current) return;
+      if (!accountMnemoinc) return;
+      if (cloudIndex === undefined) return;
+      if (Number(cloudIndex) <= 0) return;
+      if (!didGetToHomepage) return;
+      if (hasRunRestore) return;
+
+      if (custodyAccounts.length > 0) {
+        hasAutoRestoreCheckRun.current = true;
+        await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
         return;
       }
+
+      console.log('Running auto-restore of derived accounts from cloud...');
       hasAutoRestoreCheckRun.current = true;
       await setLocalStorageItem('hasRunAutoRestore', JSON.stringify(true));
       await restoreDerivedAccountsFromCloud();
     }
+
     restoreIfNeeded();
   }, [accountMnemoinc, custodyAccounts, masterInfoObject, didGetToHomepage]);
 

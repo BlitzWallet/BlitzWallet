@@ -25,7 +25,12 @@ export default function RemoveAccountPage(props) {
   const navigate = useNavigation();
 
   const handleRemove = useCallback(async () => {
-    await removeAccount(selectedAccount);
+    const response = await removeAccount(selectedAccount);
+    if (!response.didWork) {
+      navigate.navigate('ErrorScreen', { errorMessage: response.err });
+      return;
+    }
+
     if (fromPage === 'SettingsContentHome') {
       navigate.popTo('SettingsContentHome', {
         for: 'Accounts',
