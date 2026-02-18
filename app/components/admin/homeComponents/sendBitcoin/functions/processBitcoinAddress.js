@@ -36,7 +36,7 @@ export default async function processBitcoinAddress(input, context) {
       }),
     );
   crashlyticsLogReport('Begining decode Bitcoin address');
-  const bip21AmountSat = input.data.amount * SATSPERBITCOIN;
+  const bip21AmountSat = Math.round(input.data.amount * SATSPERBITCOIN);
 
   const amountSat = comingFromAccept
     ? enteredPaymentInfo.amount

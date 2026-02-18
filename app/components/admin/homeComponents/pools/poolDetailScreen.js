@@ -425,7 +425,7 @@ export default function PoolDetailScreen(props) {
                           />
                           <ThemeText
                             styles={styles.activityName}
-                            CustomNumberOfLines={1}
+                            CustomNumberOfLines={3}
                             CustomEllipsizeMode={'tail'}
                             content={
                               name === 'Anonymous'
