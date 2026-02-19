@@ -1637,7 +1637,7 @@
       "profileButton": "Perfil",
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
-      "noPoolsMessage": "Você ainda não criou nenhuma Vaquinha. Toque para criar sua primeira Vaquinha.",
+      "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
       "noActivePools": "Você não tem Vaquinhas abertas",
       "yourAccountsTitle": "Suas contas",
       "addAccountButton": "Adicionar conta"
