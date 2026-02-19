@@ -21,6 +21,7 @@ export default function SettingsItemWithSlider({
   showLoadingIcon = false,
   toggleSwitchStateValue,
   containerStyles = {},
+  CustomNumberOfLines = 1,
 }) {
   const { theme } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
@@ -46,7 +47,7 @@ export default function SettingsItemWithSlider({
         }}
       >
         <ThemeText
-          CustomNumberOfLines={1}
+          CustomNumberOfLines={CustomNumberOfLines}
           styles={styles.settingsTitle}
           content={settingsTitle}
         />

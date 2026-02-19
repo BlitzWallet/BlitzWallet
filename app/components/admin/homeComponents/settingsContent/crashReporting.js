@@ -25,7 +25,7 @@ export default function CrashReportingSettingsPage() {
   }, [isCrashReportingEnabled]);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
       <SettingsItemWithSlider
         settingsTitle={t('settings.crashReporting.crashreporting', {
           context: isCrashReportingEnabled ? 'enabled' : 'disabled',

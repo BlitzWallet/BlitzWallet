@@ -65,7 +65,7 @@ export default function SparkInfo() {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContianer}
     >
-      <View
+      {/* <View
         style={{
           ...styles.container,
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
@@ -78,7 +78,7 @@ export default function SparkInfo() {
         <View style={{ ...styles.infoContainer, marginBottom: 20 }}>
           <ThemeText
             CustomNumberOfLines={1}
-            styles={{ flex: 1 }}
+            styles={{ flexGrow: 1 }}
             content={t('settings.sparkInfo.sparkAddress')}
           />
           <TouchableOpacity
@@ -88,6 +88,8 @@ export default function SparkInfo() {
             }}
           >
             <ThemeText
+              CustomNumberOfLines={1}
+              adjustsFontSizeToFit={true}
               content={
                 sparkAddress.slice(0, 6) +
                 '....' +
@@ -100,7 +102,7 @@ export default function SparkInfo() {
         <View style={styles.infoContainer}>
           <ThemeText
             CustomNumberOfLines={1}
-            styles={{ flex: 1 }}
+            styles={{ flexGrow: 1 }}
             content={t('settings.sparkInfo.pubKey')}
           />
           <TouchableOpacity
@@ -110,6 +112,8 @@ export default function SparkInfo() {
             }}
           >
             <ThemeText
+              CustomNumberOfLines={1}
+              adjustsFontSizeToFit={true}
               content={
                 identityPubKey.slice(0, 6) +
                 '....' +
@@ -119,7 +123,7 @@ export default function SparkInfo() {
             <ThemeIcon styles={{ marginLeft: 5 }} size={20} iconName={'Copy'} />
           </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
       <SettingsItemWithSlider
         settingsTitle={t('settings.sparkLrc20.sliderTitle', {
           context: showTokensInformation ? 'enabled' : 'disabled',
@@ -184,9 +188,14 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flexDirection: 'row',
+    gap: 10,
   },
   buttonContainer: {
+    width: '100%',
+    flexShrink: 1,
     flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'red',
   },
   headerText: { marginRight: 5, includeFontPadding: false },
 });

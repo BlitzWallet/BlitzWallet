@@ -113,6 +113,7 @@ export default function NotificationPreferances() {
   return (
     <View style={styles.container}>
       <SettingsItemWithSlider
+        CustomNumberOfLines={2}
         showLoadingIcon={isUpdating}
         settingsTitle={t('settings.notifications.mainToggle', {
           context: !effectivePushStatus ? 'disabled' : 'enabled',
@@ -133,6 +134,7 @@ export default function NotificationPreferances() {
             showsVerticalScrollIndicator={false}
           >
             <SettingsItemWithSlider
+              CustomNumberOfLines={2}
               settingsTitle={t('settings.notifications.contact')}
               showDescription={false}
               handleSubmit={() =>
@@ -145,6 +147,7 @@ export default function NotificationPreferances() {
               switchPageName={'settingsNotifications'}
             />
             <SettingsItemWithSlider
+              CustomNumberOfLines={2}
               settingsTitle={t('settings.notifications.lnurl')}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('lnurlPayments')}
@@ -155,6 +158,7 @@ export default function NotificationPreferances() {
               switchPageName={'settingsNotifications'}
             />
             <SettingsItemWithSlider
+              CustomNumberOfLines={2}
               settingsTitle={t('settings.notifications.nostrZaps')}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('nostrPayments')}
@@ -165,6 +169,7 @@ export default function NotificationPreferances() {
               switchPageName={'settingsNotifications'}
             />
             <SettingsItemWithSlider
+              CustomNumberOfLines={2}
               settingsTitle={t('settings.notifications.nwc')}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('NWC')}
@@ -173,6 +178,7 @@ export default function NotificationPreferances() {
               switchPageName={'settingsNotifications'}
             />
             <SettingsItemWithSlider
+              CustomNumberOfLines={2}
               settingsTitle={t('settings.notifications.pos')}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('pointOfSale')}

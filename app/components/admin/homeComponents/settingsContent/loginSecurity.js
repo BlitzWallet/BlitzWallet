@@ -239,6 +239,7 @@ export default function LoginSecurity({ extraData }) {
   return (
     <View style={styles.innerContainer}>
       <SettingsItemWithSlider
+        CustomNumberOfLines={2}
         settingsTitle={t('settings.loginSecurity.text1')}
         showDescription={false}
         switchPageName={'LoginSecurityMode'}
@@ -308,6 +309,7 @@ export default function LoginSecurity({ extraData }) {
           </View>
           {securityLoginSettings.isPinEnabled && (
             <SettingsItemWithSlider
+              CustomNumberOfLines={2}
               settingsTitle={t(
                 'settings.loginSecurity.randomPinKeyboardToggle',
               )}
