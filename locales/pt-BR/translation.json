@@ -212,13 +212,13 @@
       }
     },
     "disclaimerPage": {
-      "header": "Sua wallet. Seu controle.",
-      "subHeader": "Algumas coisas para saber antes de começar.",
+      "header": "Sua carteira. Seu controle.",
+      "subHeader": "Algumas coisas importantes de saber antes de começar.",
       "row1Label": "Só você controla seus fundos",
-      "row1Description": "A Blitz nunca guarda nem acessa seu dinheiro.",
+      "row1Description": "A Blitz não custodia nem tem acesso ao seu dinheiro.",
       "row2Label": "Você terá uma frase de recuperação",
-      "row2Description": "Ela é a chave mestra da sua wallet. Encontre em Configurações → Backup da wallet.",
-      "row3Label": "Sem recuperação se for perdida",
+      "row2Description": "Ela é a chave que recupera os fundos de todas suas contas na Blitz. Encontre em Configurações → Backup da carteira.",
+      "row3Label": "Não pode ser recuperada se for perdida",
       "row3Description": "Não podemos restaurar o acesso. Guarde sua frase em um local seguro.",
       "acceptPrefix": "Eu aceito os ",
       "terms&Conditions": "Termos e Condições",
