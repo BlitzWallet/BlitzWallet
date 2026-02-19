@@ -212,18 +212,18 @@
       }
     },
     "disclaimerPage": {
-      "header": "Deine Wallet. Deine Kontrolle.",
-      "subHeader": "Ein paar Dinge, die du wissen solltest, bevor du startest.",
-      "row1Label": "Nur du kontrollierst deine Gelder",
-      "row1Description": "Blitz verwahrt oder greift niemals auf dein Geld zu.",
-      "row2Label": "Du erhältst eine Wiederherstellungsphrase",
-      "row2Description": "Sie ist der Generalschlüssel zu deiner Wallet. Du findest sie unter Einstellungen → Wallet sichern.",
-      "row3Label": "Keine Wiederherstellung bei Verlust",
-      "row3Description": "Wir können den Zugriff nicht wiederherstellen. Bewahre deine Phrase an einem sicheren Ort auf.",
-      "acceptPrefix": "Ich akzeptiere die ",
-      "terms&Conditions": "Allgemeinen Geschäftsbedingungen",
-      "acceptError": "Um fortzufahren, musst du die Allgemeinen Geschäftsbedingungen akzeptieren.",
-      "continueBTN": "Weiter"
+  "header": "Ihre Wallet. Ihre Kontrolle.",
+  "subHeader": "Ein paar Dinge, die Sie wissen sollten, bevor Sie starten.",
+  "row1Label": "Nur Sie kontrollieren Ihre Gelder",
+  "row1Description": "Blitz verwahrt oder greift niemals auf Ihre Gelder zu.",
+  "row2Label": "Sie erhalten eine Wiederherstellungsphrase",
+  "row2Description": "Sie ist der Generalschlüssel zu Ihrer Wallet. Sie finden sie unter Einstellungen → Wallet sichern.",
+  "row3Label": "Keine Wiederherstellung bei Verlust",
+  "row3Description": "Wir können verlorene Seed Phrasen nicht wiederherstellen. Bewahren Sie Ihre Seed Phrase sicher auf.",
+  "acceptPrefix": "Ich akzeptiere die ",
+  "termsAndConditions": "Allgemeinen Geschäftsbedingungen",
+  "acceptError": "Um fortzufahren, müssen Sie die Allgemeinen Geschäftsbedingungen akzeptieren.",
+  "continueBTN": "Weiter"
     },
     "verifyKeyPage": {
       "header": "Bestätigen Sie bitte Ihre Wiederherstellungsphrase (Seed-Phrase)"
@@ -900,7 +900,7 @@
       "goal": "Ziel: ",
       "payment_one": "{{count}} Zahlung",
       "payment_other": "{{count}} Zahlungen",
-      "closed": "Geschlossene Sparpools ",
+      "closed": "Geschlossene Sparpools",
       "pool": "Sparpool",
       "couldNotFind": "Dieser Sparpool konnte nicht gefunden werden.",
       "createdBy": "Erstellt von ",
@@ -1076,7 +1076,7 @@
         "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird"
       },
       "lrc20Assets": {
-        "actionText": "USDB-Token {{action}}",
+        "Textaction": "USDB-Token {{action}}",
         "tokensSearchPlaceholder": "Token suchen …",
         "noTokensText": "Sie haben keine Token",
         "noTokensFoundText": "Keine Token gefunden"
@@ -1594,7 +1594,7 @@
         "activeAccountError": "Sie können die derzeit aktive Wallet nicht löschen. Bitte wechseln Sie zu einer anderen Wallet, bevor Sie diese löschen.",
         "account_pin": "Wallet anheften",
         "account_unpin": "Wallet lösen",
-        "pin_account_info": "Wenn du ein Konto anheftest, wird es auf der Hauptseite der Einstellungen angezeigt, sodass du schnell zwischen deinem Hauptkonto und dem angehefteten Konto wechseln kannst."
+        "pin_account_info": "Wenn Sie eine Wallet anheften, wird sie auf der Hauptseite der Einstellungen angezeigt, sodass Sie schnell zwischen Ihrer Haupt-Wallet und der angehefteteten Wallet wechseln können."
       },
       "selectCreateAccountType": {
         "title": "Wallet hinzufügen",
