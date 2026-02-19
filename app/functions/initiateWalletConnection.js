@@ -122,7 +122,7 @@ export async function initializeSparkSession({
         : Number(balance.balance);
 
     const storageObject = {
-      balance: placeholderBalance,
+      balance: Number(balance.balance),
       tokens: balance.tokensObj,
       identityPubKey,
       sparkAddress: sparkAddress.response,
