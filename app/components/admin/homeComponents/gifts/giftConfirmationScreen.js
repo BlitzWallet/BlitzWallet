@@ -334,11 +334,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: 10,
   },
   detailLabel: {},
   detailValue: {},
   detailValueSecondary: {},
   detailDescription: {
+    flexShrink: 1,
     maxWidth: '60%',
     textAlign: 'right',
   },
