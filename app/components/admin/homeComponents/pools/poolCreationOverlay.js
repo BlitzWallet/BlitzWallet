@@ -32,7 +32,6 @@ export default function PoolCreationOverlay({
   darkModeType,
   handleBackPressFunction,
 }) {
-  const { backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
 
   const {
@@ -78,9 +77,7 @@ export default function PoolCreationOverlay({
   if (!visible) return null;
 
   return (
-    <Animated.View
-      style={[styles.container, overlayStyle, { backgroundColor }]}
-    >
+    <Animated.View style={[styles.container, overlayStyle]}>
       {/* Amount Step */}
       {currentStep !== 'description' && (
         <Animated.View
