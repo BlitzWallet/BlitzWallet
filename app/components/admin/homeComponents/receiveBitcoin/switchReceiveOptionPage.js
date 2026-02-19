@@ -199,7 +199,7 @@ export default function SwitchReceiveOptionPage({
             content={t(
               `wallet.receivePages.switchReceiveOptionPage.${name.toLowerCase()}Title`,
             )}
-            CustomNumberOfLines={1}
+            CustomNumberOfLines={2}
           />
           <ThemeText
             styles={styles.optionItemText}
