@@ -212,20 +212,18 @@
       }
     },
     "disclaimerPage": {
-      "header": "Selbstverwahrte Wallet",
-      "subHeader": "Übernehmen Sie die volle Kontrolle über Ihr Geld.",
-      "disclaimerBold": "Blitz kann Ihre Wallet nicht wiederherstellen. Bewahren Sie Ihre Wiederherstellungsphrase (Seed-Phrase) unbedingt sicher auf.",
-      "disclaimer": "Sie sind allein verantwortlich für die Sicherung und den Schutz Ihrer Gelder.",
-      "info1": "Ihr Geld gehört Ihnen",
-      "info1Description": "Nur Sie können auf Ihr Geld zugreifen oder es verwenden. Wir haben keinen Zugriff.",
-      "info2": "Sie behalten die Kontrolle",
-      "info2Description": "Blitz kann nicht auf Ihre Gelder zugreifen oder sie wiederherstellen, falls sie verloren gehen.",
-      "imgCaption": "„Mit großer Macht kommt große Verantwortung“ – Onkel Ben",
-      "acceptPrefix": "Sie akzeptiere die ",
-      "terms&Conditions": "Nutzungsbedingungen",
-      "acceptError": "Um fortzufahren, müssen Sie die Nutzungsbedingungen akzeptieren.",
-      "continueBTN": "Weiter",
-      "dislcaimer": "Sie sind allein verantwortlich für die Sicherung und den Schutz Ihrer Gelder."
+      "header": "Deine Wallet. Deine Kontrolle.",
+      "subHeader": "Ein paar Dinge, die du wissen solltest, bevor du startest.",
+      "row1Label": "Nur du kontrollierst deine Gelder",
+      "row1Description": "Blitz verwahrt oder greift niemals auf dein Geld zu.",
+      "row2Label": "Du erhältst eine Wiederherstellungsphrase",
+      "row2Description": "Sie ist der Generalschlüssel zu deiner Wallet. Du findest sie unter Einstellungen → Wallet sichern.",
+      "row3Label": "Keine Wiederherstellung bei Verlust",
+      "row3Description": "Wir können den Zugriff nicht wiederherstellen. Bewahre deine Phrase an einem sicheren Ort auf.",
+      "acceptPrefix": "Ich akzeptiere die ",
+      "terms&Conditions": "Allgemeinen Geschäftsbedingungen",
+      "acceptError": "Um fortzufahren, musst du die Allgemeinen Geschäftsbedingungen akzeptieren.",
+      "continueBTN": "Weiter"
     },
     "verifyKeyPage": {
       "header": "Bestätigen Sie bitte Ihre Wiederherstellungsphrase (Seed-Phrase)"

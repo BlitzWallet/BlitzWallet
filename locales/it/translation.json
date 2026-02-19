@@ -212,18 +212,17 @@
       }
     },
     "disclaimerPage": {
-      "header": "Wallet self-custodial",
-      "subHeader": "Assumi il pieno controllo del tuo denaro.",
-      "disclaimerBold": "Blitz non può recuperare il tuo wallet.",
-      "dislcaimer": "Sei l’unico responsabile di proteggere e mettere in sicurezza i tuoi fondi.",
-      "info1": "Il tuo denaro è tuo",
-      "info1Description": "Solo tu puoi accedere o utilizzare il tuo denaro. Noi non vi abbiamo accesso.",
-      "info2": "Sei tu a controllare",
-      "info2Description": "Blitz non può accedere ai tuoi fondi né aiutarti a recuperarli se vengono persi.",
-      "imgCaption": "'Da grandi poteri derivano grandi responsabilità' - Zio Ben",
-      "acceptPrefix": "Accetto il ",
+      "header": "Il tuo wallet. Il tuo controllo.",
+      "subHeader": "Alcune cose da sapere prima di iniziare.",
+      "row1Label": "Solo tu controlli i tuoi fondi",
+      "row1Description": "Blitz non detiene né accede mai al tuo denaro.",
+      "row2Label": "Avrai una frase di recupero",
+      "row2Description": "È la chiave maestra del tuo wallet. Trovala in Impostazioni → Backup wallet.",
+      "row3Label": "Nessun recupero se viene persa",
+      "row3Description": "Non possiamo ripristinare l’accesso. Conserva la tua frase in un luogo sicuro.",
+      "acceptPrefix": "Accetto i ",
       "terms&Conditions": "Termini e Condizioni",
-      "acceptError": "Per continuare, devi accettare i Termini e le Condizioni.",
+      "acceptError": "Per continuare, devi accettare i Termini e Condizioni.",
       "continueBTN": "Avanti"
     },
     "verifyKeyPage": {

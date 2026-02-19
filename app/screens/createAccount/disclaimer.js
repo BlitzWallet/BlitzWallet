@@ -1,13 +1,7 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, COLORS } from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
 import LoginNavbar from '../../components/login/navBar';
 import { useTranslation } from 'react-i18next';
@@ -69,12 +63,14 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.contentContainer]}
       >
-        <ThemeIcon
-          styles={{ alignSelf: 'center' }}
-          size={75}
-          strokeWidth={1.5}
-          iconName={'ShieldCheck'}
-        />
+        <View style={styles.iconContainer}>
+          <ThemeIcon
+            styles={{ alignSelf: 'center' }}
+            size={40}
+            colorOverride={COLORS.darkModeText}
+            iconName={'ShieldCheck'}
+          />
+        </View>
 
         <ThemeText
           styles={styles.headerText}
@@ -84,19 +80,46 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
           CustomNumberOfLines={1}
         />
         <ThemeText
+          adjustsFontSizeToFit={true}
+          minimumFontScale={0.53}
+          CustomNumberOfLines={1}
           styles={[styles.descriptionText, { marginBottom: 35 }]}
           content={t('createAccount.disclaimerPage.subHeader')}
         />
 
         <View style={styles.container}>
-          <View style={styles.card}>
-            <Text style={styles.text}>
-              <Text style={styles.bold}>
-                {t('createAccount.disclaimerPage.disclaimerBold')}
-              </Text>{' '}
-              {t('createAccount.disclaimerPage.dislcaimer')}
-            </Text>
-          </View>
+          {[
+            {
+              icon: 'Lock',
+              label: t('createAccount.disclaimerPage.row1Label'),
+              desc: t('createAccount.disclaimerPage.row1Description'),
+            },
+            {
+              icon: 'KeyRound',
+              label: t('createAccount.disclaimerPage.row2Label'),
+              desc: t('createAccount.disclaimerPage.row2Description'),
+            },
+            {
+              icon: 'TriangleAlert',
+              label: t('createAccount.disclaimerPage.row3Label'),
+              desc: t('createAccount.disclaimerPage.row3Description'),
+            },
+          ].map(({ icon, label, desc }) => (
+            <View key={icon} style={styles.infoRow}>
+              <View style={styles.infoIcon}>
+                <ThemeIcon
+                  size={15}
+                  iconName={icon}
+                  colorOverride={COLORS.darkModeText}
+                  styles={styles.infoIcon}
+                />
+              </View>
+              <View style={styles.infoText}>
+                <ThemeText styles={styles.infoLabel} content={label} />
+                <ThemeText styles={styles.infoDesc} content={desc} />
+              </View>
+            </View>
+          ))}
         </View>
       </ScrollView>
 
@@ -123,7 +146,7 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
           />
           <TouchableOpacity onPress={openTermsAndConditions}>
             <ThemeText
-              styles={styles.termsLinkText}
+              styles={styles.termsLinkInline}
               content={t('createAccount.disclaimerPage.terms&Conditions')}
             />
           </TouchableOpacity>
@@ -148,49 +171,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...CENTER,
   },
-  sheidlContainer: {
-    backgroundColor: COLORS.darkModeText,
-    marginBottom: 30,
-    width: 90,
-    height: 90,
-    borderRadius: 50,
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+
+    backgroundColor: COLORS.primary,
   },
   headerText: {
-    width: '80%',
+    width: '100%',
     fontSize: SIZES.huge,
+    fontWeight: 500,
     marginTop: 25,
-    marginBottom: 15,
+    marginBottom: 5,
     includeFontPadding: false,
     ...CENTER,
     textAlign: 'center',
   },
-  subHeaderText: {
-    width: '95%',
-    textAlign: 'center',
-    maxWidth: 400,
-    marginBottom: 'auto',
-    includeFontPadding: 'false',
-  },
-  strongText: {
-    fontWeight: 500,
-    marginBottom: 10,
-    includeFontPadding: false,
-  },
   descriptionText: {
+    width: '80%',
     textAlign: 'center',
-    fontSize: SIZES.smedium,
     opacity: 0.8,
     includeFontPadding: false,
   },
-  imgCaptionText: {
-    width: '85%',
-    fontStyle: 'italic',
-    textAlign: 'center',
-    marginBottom: 10,
-    marginTop: 'auto',
+  infoIcon: {
+    backgroundColor: COLORS.primary,
+    padding: 5,
+    borderRadius: 8,
   },
   buttonStyles: {
     width: 145,
@@ -230,31 +239,37 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     includeFontPadding: false,
   },
-  termsLinkText: {
+  container: {
+    width: '100%',
+    maxWidth: 400,
+    marginBottom: 32,
+    marginTop: 20,
+    gap: 25,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 14,
+  },
+  infoText: {
+    flex: 1,
+    gap: 2,
+    marginTop: -2,
+  },
+  infoLabel: {
+    fontSize: SIZES.medium,
+    fontWeight: '600',
+    includeFontPadding: false,
+  },
+  infoDesc: {
+    fontSize: SIZES.smedium,
+    opacity: 0.65,
+    includeFontPadding: false,
+  },
+  termsLinkInline: {
     fontSize: SIZES.small,
     color: COLORS.primary,
     textDecorationLine: 'underline',
     includeFontPadding: false,
-  },
-  container: {
-    width: '100%',
-    maxWidth: 400, // approximate of max-w-md
-    marginBottom: 32, // mb-8
-    paddingVertical: 8, // optional spacing between cards
-  },
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
-  },
-  text: {
-    fontFamily: FONT.Title_Regular,
-    color: '#2d2d2d',
-    lineHeight: 22, // leading-relaxed
-  },
-  bold: {
-    fontWeight: '600',
   },
 });

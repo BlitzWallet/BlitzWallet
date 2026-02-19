@@ -212,17 +212,17 @@
       }
     },
     "disclaimerPage": {
-      "header": "Självförvarad plånbok",
-      "subHeader": "Ta full kontroll över dina pengar.",
-      "disclaimerBold": "Blitz kan inte återställa din plånbok.",
-      "dislcaimer": "Du är ensam ansvarig för att säkra och skydda dina medel.",
-      "info1Description": "Endast du kan komma åt eller använda dina pengar. Vi har ingen tillgång till dem.",
-      "info2": "Du har kontrollen",
-      "info2Description": "Blitz kan inte komma åt dina medel eller hjälpa till att återställa dem om de går förlorade.",
-      "imgCaption": "\"Med stor makt kommer stort ansvar\" - Uncle Ben",
+      "header": "Din wallet. Din kontroll.",
+      "subHeader": "Några saker att veta innan du börjar.",
+      "row1Label": "Endast du kontrollerar dina medel",
+      "row1Description": "Blitz förvarar eller får aldrig tillgång till dina pengar.",
+      "row2Label": "Du får en återställningsfras",
+      "row2Description": "Det är huvudnyckeln till din wallet. Hitta den i Inställningar → Säkerhetskopiera wallet.",
+      "row3Label": "Ingen återställning om den förloras",
+      "row3Description": "Vi kan inte återställa åtkomst. Förvara din fras på en säker plats.",
       "acceptPrefix": "Jag accepterar ",
-      "terms&Conditions": "Villkor och anvisningar",
-      "acceptError": "För att fortsätta måste du acceptera villkoren.",
+      "terms&Conditions": "Villkoren",
+      "acceptError": "För att fortsätta måste du acceptera Villkoren.",
       "continueBTN": "Nästa"
     },
     "verifyKeyPage": {
