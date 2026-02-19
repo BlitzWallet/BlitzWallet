@@ -157,7 +157,7 @@ export default function EditAccountPage(props) {
             <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
               <View style={styles.infoContainer}>
                 <ThemeText
-                  styles={[styles.rowLabel, { marginRight: 5 }]}
+                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
                   content={t(
                     'settings.accountComponents.editAccountPage.account',
                     {
@@ -233,7 +233,7 @@ export default function EditAccountPage(props) {
           {/* Show Recovery Phrase */}
           <TouchableOpacity style={styles.row} onPress={handleNavigateView}>
             <ThemeText
-              styles={styles.rowLabel}
+              styles={[styles.rowLabel]}
               content={t(
                 'settings.accountComponents.editAccountPage.showRecoveryPhraseLabel',
               )}
@@ -249,7 +249,7 @@ export default function EditAccountPage(props) {
             <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
               <View style={styles.infoContainer}>
                 <ThemeText
-                  styles={[styles.rowLabel, { marginRight: 5 }]}
+                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
                   content={t(
                     'settings.accountComponents.editAccountPage.account',
                     {
@@ -390,6 +390,8 @@ const styles = StyleSheet.create({
   },
 
   rowLabel: {
+    width: '100%',
+    flexShrink: 1,
     includeFontPadding: false,
   },
 
@@ -420,6 +422,7 @@ const styles = StyleSheet.create({
   dangerText: {
     color: COLORS.cancelRed,
     includeFontPadding: false,
+    textAlign: 'center',
   },
   pinButton: {
     height: 35,
