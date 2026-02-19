@@ -314,7 +314,7 @@ export default function PoolDetailScreen(props) {
             current={pool.currentAmount}
             goal={pool.goalAmount}
             size={250}
-            strokeWidth={4}
+            strokeWidth={10}
             fundedAmount={formatAmount(pool.currentAmount)}
             goalAmount={formatAmount(pool.goalAmount)}
           />
