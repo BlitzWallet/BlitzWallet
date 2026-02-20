@@ -899,7 +899,7 @@
       "goal": "Objetivo: ",
       "payment_one": "{{count}} pagamento",
       "payment_other": "{{count}} pagamentos",
-      "closed": "Fechado ",
+      "closed": "Encerrada ",
       "pool": "Pool",
       "couldNotFind": "Não foi possível encontrar esta Vaquinha.",
       "createdBy": "Por ",
