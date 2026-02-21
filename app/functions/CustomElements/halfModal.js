@@ -55,7 +55,6 @@ import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitco
 import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
 import AddReceiveMessageHalfModal from '../../components/admin/homeComponents/receiveBitcoin/addMessageHalfModal';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
-import CreatePoolDescription from '../../components/admin/homeComponents/pools/createPoolDescription';
 import CreatePoolFlow from '../../components/admin/homeComponents/pools/createPoolFlow';
 import {
   SelectContactRequestCurrency,
@@ -63,6 +62,9 @@ import {
 } from '../../components/admin/homeComponents/contacts';
 import ClosePoolConfirmation from '../../components/admin/homeComponents/pools/closePoolConfirmation';
 import ContributeToPoolHalfModal from '../../components/admin/homeComponents/pools/contributeToPoolHalfModal';
+import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/savings/AddMoneyToSavingsHalfModal';
+import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
+import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -443,14 +445,6 @@ export default function CustomHalfModal(props) {
             darkModeType={darkModeType}
           />
         );
-      case 'createPoolDescription':
-        return (
-          <CreatePoolDescription
-            route={props?.route}
-            setContentHeight={setContentHeight}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
       case 'createPoolFlow':
         return (
           <CreatePoolFlow
@@ -478,6 +472,32 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
+      case 'addMoneyToSavings':
+        return (
+          <AddMoneyToSavingsHalfModal
+            selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'withdrawFromSavings':
+        return (
+          <WithdrawFromSavingsHalfModal
+            currentBalance={props?.route?.params?.currentBalance}
+            selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'howSavingsWorks':
+        return (
+          <HowSavingsWorks
+            currentBalance={props?.route?.params?.currentBalance}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -537,7 +557,6 @@ export default function CustomHalfModal(props) {
               contentType === 'AddMessageReceivePage' ||
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
-              contentType === 'createPoolDescription' ||
               contentType === 'createPoolFlow'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
@@ -546,8 +565,7 @@ export default function CustomHalfModal(props) {
                     contentType === 'sendOptions' ||
                     contentType === 'createPoolFlow'
                   ? 0
-                  : contentType === 'receiveOptions' ||
-                    contentType === 'createPoolDescription'
+                  : contentType === 'receiveOptions'
                   ? 0
                   : bottomPadding
                 : bottomPadding,

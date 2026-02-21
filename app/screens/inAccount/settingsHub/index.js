@@ -24,6 +24,7 @@ import { supportedLanguagesList } from '../../../../locales/localeslist';
 import ProfileCard from './components/ProfileCard';
 import AccountsPreview from './components/AccountsPreview';
 import PoolsPreview from './components/PoolsPreview';
+import SavingsPreview from './components/SavingsPreview';
 import SectionCard from './components/SectionCard';
 import SettingsRow from './components/SettingsRow';
 import PointOfSaleBanner from './components/PointOfSaleBanner';
@@ -474,6 +475,8 @@ export default function SettingsHub(props) {
           poolsArray={poolsArray}
           onViewAll={handleViewAllPools}
         />
+
+        <SavingsPreview />
 
         {renderSection(
           PREFERENCES_ROWS,

@@ -191,8 +191,7 @@ export default function AddMoneyToSavingsHalfModal({
 
     try {
       const savingsAddress = savingsWallet?.sparkAddress;
-      if (!savingsAddress)
-        throw new Error(t('savings.addMoney.errors.savingsWallet'));
+      if (!savingsAddress) throw new Error(t('savings.savingsWalletError'));
 
       // USD source → direct USDB token send, no swap needed.
       // BTC source → swap BTC→USDB first, then send tokens.
@@ -205,7 +204,7 @@ export default function AddMoneyToSavingsHalfModal({
           await simulationPromiseRef.current;
         }
         if (!simulationResult)
-          throw new Error(t('savings.addMoney.errors.swapSimulation'));
+          throw new Error(t('savings.swapSimulationError'));
 
         const btcFee = Math.round(
           dollarsToSats(

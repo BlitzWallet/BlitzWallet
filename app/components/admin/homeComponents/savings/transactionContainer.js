@@ -36,8 +36,12 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
         >
           <ThemeIcon iconName={ICON_BY_TYPE[item.type]} size={16} />
         </View>
-        <View>
-          <ThemeText styles={styles.activityTitle} content={item.description} />
+        <View style={{ flexShrink: 1 }}>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.activityTitle}
+            content={item.description}
+          />
           <ThemeText
             styles={styles.activityDate}
             content={formatTxDate(item.createdAt)}
@@ -71,6 +75,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activityLeft: {
+    flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -85,6 +90,7 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: SIZES.small,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   activityDate: {
     fontSize: SIZES.xSmall,

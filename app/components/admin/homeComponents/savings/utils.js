@@ -38,7 +38,6 @@ export async function fetchSavingsWalletBalance(sparkAddress) {
     if (res.status === 429) return null; // rate limited — caller falls back to wallet init
     if (!res.ok) return null;
     const data = await res.json();
-    console.log(data, sparkAddress);
     const usd =
       typeof data.totalValueUsd === 'number' ? data.totalValueUsd : null;
     if (usd === null) return null;
@@ -108,9 +107,17 @@ export function computeGoalBalanceMicros(goalId, transactions) {
     .reduce((sum, tx) => sum + signedTransactionAmountMicros(tx), 0);
 }
 
-export function toLegacyDisplayTransaction(transaction, goalName) {
+export function toLegacyDisplayTransaction(transaction, goalName, t) {
   const signedAmountMicros = signedTransactionAmountMicros(transaction);
   const isWithdrawal = transaction.type === 'withdrawal';
+
+  const key = isWithdrawal
+    ? goalName
+      ? 'savings.withdrawalWithGoal'
+      : 'savings.withdrawal'
+    : goalName
+    ? 'savings.depositWithGoal'
+    : 'savings.deposit';
 
   return {
     txId: transaction.id,
@@ -118,9 +125,7 @@ export function toLegacyDisplayTransaction(transaction, goalName) {
     type: transaction.type,
     amountMicros: signedAmountMicros,
     createdAt: transaction.timestamp,
-    description: isWithdrawal
-      ? `Withdrawal${goalName ? ` from ${goalName}` : ''}`
-      : `Deposit${goalName ? ` to ${goalName}` : ''}`,
+    description: t(key, { goalName }),
   };
 }
 
