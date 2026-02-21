@@ -121,6 +121,7 @@ import { GiftProvider } from './context-store/giftContext';
 import { PoolProvider } from './context-store/poolContext';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
+import { SavingsProvider } from './context-store/savingsContext';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
 import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
@@ -167,9 +168,11 @@ function App(): JSX.Element {
                                                       <PoolProvider>
                                                         <FlashnetProvider>
                                                           <UserBalanceProvider>
-                                                            {/* <Suspense
+                                                            <SavingsProvider>
+                                                              {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                            <ResetStack />
+                                                              <ResetStack />
+                                                            </SavingsProvider>
                                                           </UserBalanceProvider>
                                                         </FlashnetProvider>
                                                       </PoolProvider>

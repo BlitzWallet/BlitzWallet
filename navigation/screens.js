@@ -64,10 +64,18 @@ import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
 import CreateGift from '../app/components/admin/homeComponents/gifts/createGift';
 import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
-import CreatePoolAmount from '../app/components/admin/homeComponents/pools/createPoolAmount';
 import PoolManagementScreen from '../app/components/admin/homeComponents/pools/poolManagementScreen';
 import PoolDetailScreen from '../app/components/admin/homeComponents/pools/poolDetailScreen';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
+import SavingsHome from '../app/components/admin/homeComponents/savings/SavingsHome';
+import SavingsGoalEmoji from '../app/components/admin/homeComponents/savings/SavingsGoalEmoji';
+import SavingsGoalDescribe from '../app/components/admin/homeComponents/savings/SavingsGoalDescribe';
+import SavingsGoalAmount from '../app/components/admin/homeComponents/savings/SavingsGoalAmount';
+import SavingsGoalSuccess from '../app/components/admin/homeComponents/savings/SavingsGoalSuccess';
+import SavingsUpdateGoal from '../app/components/admin/homeComponents/savings/SavingsUpdateGoal';
+import SavingsRemoveGoalConfirm from '../app/components/admin/homeComponents/savings/SavingsRemoveGoalConfirm';
+import SavingsGoalRemovedSuccess from '../app/components/admin/homeComponents/savings/SavingsGoalRemovedSuccess';
+import SavingsGoalDetails from '../app/components/admin/homeComponents/savings/SavingsGoalDetails';
 import {
   CreateAccountHome,
   DislaimerPage,
@@ -179,8 +187,16 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'CreateGift', component: CreateGift },
   { name: 'AdvancedGiftClaim', component: AdvancedGiftClaim },
   { name: 'PoolManagementScreen', component: PoolManagementScreen },
-  { name: 'CreatePoolAmount', component: CreatePoolAmount },
   { name: 'PoolDetailScreen', component: PoolDetailScreen },
+  { name: 'SavingsHome', component: SavingsHome },
+  { name: 'SavingsGoalEmoji', component: SavingsGoalEmoji },
+  { name: 'SavingsGoalDescribe', component: SavingsGoalDescribe },
+  { name: 'SavingsGoalAmount', component: SavingsGoalAmount },
+  { name: 'SavingsGoalSuccess', component: SavingsGoalSuccess },
+  { name: 'SavingsUpdateGoal', component: SavingsUpdateGoal },
+  { name: 'SavingsRemoveGoalConfirm', component: SavingsRemoveGoalConfirm },
+  { name: 'SavingsGoalRemovedSuccess', component: SavingsGoalRemovedSuccess },
+  { name: 'SavingsGoalDetails', component: SavingsGoalDetails },
 ];
 
 const FADE_SCREENS = [

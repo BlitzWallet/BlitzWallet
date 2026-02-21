@@ -42,6 +42,10 @@ import { initGiftDb, isGiftDatabaseOpen } from '../functions/gift/giftsStorage';
 
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { initPoolDb } from '../functions/pools/poolsStorage';
+import {
+  initSavingsDb,
+  isSavingsDatabaseOpen,
+} from '../functions/savings/savingsStorage';
 const BlitzAnimation = require('../assets/BlitzAnimation.json');
 const errorTxAnimation = require('../assets/errorTxAnimation.json');
 
@@ -98,7 +102,8 @@ const SplashScreen = () => {
           isSavedPOSTxsDatabaseOpen() &&
           isSparkTxDatabaseOpen() &&
           isRoostockDatabaseOpen() &&
-          isGiftDatabaseOpen()
+          isGiftDatabaseOpen() &&
+          isSavingsDatabaseOpen()
         ) {
           console.log('Tables are already opened, blocking...');
         } else {
@@ -110,6 +115,7 @@ const SplashScreen = () => {
           const rootstockSwaps = await initRootstockSwapDB();
           const giftsDb = await initGiftDb();
           const poolsDB = await initPoolDb();
+          const savingsDB = await initSavingsDb();
 
           if (
             !didOpen ||
@@ -118,7 +124,8 @@ const SplashScreen = () => {
             !sparkTxs ||
             !rootstockSwaps ||
             !giftsDb ||
-            !poolsDB
+            !poolsDB ||
+            !savingsDB
           )
             throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
         }
