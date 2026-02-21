@@ -244,7 +244,7 @@
         "removeWalletError": "Erro ao excluir a carteira",
         "wrongPinError": "Tente novamente",
         "enterPinMessage": "Criar PIN",
-        "confirmPin": "Confirmar Pin",
+        "confirmPin": "Confirmar PIN",
         "attemptsText": "{{number}} tentativas restantes"
       }
     },
@@ -1598,7 +1598,7 @@
         "createNewAccountTitle": "Criar nova conta",
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
-        "importRecoveryPhraseDescription": "Importar contas de outra carteira",
+        "importRecoveryPhraseDescription": "Importar contas de outras carteiras",
         "recoverRecoveryPhraseTitle": "Restaurar conta excluída",
         "recoverRecoveryPhraseDescription": "Recuperar uma conta anteriomente criada"
       },
