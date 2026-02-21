@@ -1567,7 +1567,7 @@
         "editTitle": "Editar conta",
         "createTitle": "Criar conta",
         "updateTitle": "Atualizar conta",
-        "cannotDeleteActiveAccountError": "Não é possível arquivar a conta que está selecionada. Selecione outra conta antes de arquivar.",
+        "cannotDeleteActiveAccountError": "Não é possível arquivar a conta que está selecionada. Selecione outra conta antes de arquivar esta.",
         "deleteAccountConfirmation": "Tem certeza de que deseja arquivar esta conta?",
         "inputDesc": "Nome da conta",
         "nameTakenError": "Este nome está em uso no momento. Use um nome de conta diferente.",
