@@ -207,7 +207,7 @@
     "homePage": {
       "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
-        "button1": "Recuperar carteira",
+        "button1": "Restaurar acesso",
         "button2": "Criar nova carteira"
       }
     },
@@ -219,7 +219,7 @@
       "row2Label": "Você terá uma frase de recuperação",
       "row2Description": "Ela é a chave que recupera os fundos de todas suas contas na Blitz. Encontre em Configurações → Backup da carteira.",
       "row3Label": "Não pode ser recuperada se for perdida",
-      "row3Description": "Não podemos restaurar o acesso. Guarde sua frase em um local seguro.",
+      "row3Description": "Não é possível restaurar o acesso sem sua frase de recuperação. Guarde sua frase em um local seguro.",
       "acceptPrefix": "Eu aceito os ",
       "terms&Conditions": "Termos e Condições",
       "acceptError": "Para continuar, você deve aceitar os Termos e Condições.",
@@ -1567,8 +1567,8 @@
         "editTitle": "Editar conta",
         "createTitle": "Criar conta",
         "updateTitle": "Atualizar conta",
-        "cannotDeleteActiveAccountError": "Não é possível excluir a conta ativa. Selecione outra conta antes de excluir.",
-        "deleteAccountConfirmation": "Tem certeza de que deseja excluir esta conta?",
+        "cannotDeleteActiveAccountError": "Não é possível arquivar a conta que está selecionada. Selecione outra conta antes de arquivar esta.",
+        "deleteAccountConfirmation": "Tem certeza de que deseja arquivar esta conta?",
         "inputDesc": "Nome da conta",
         "nameTakenError": "Este nome está em uso no momento. Use um nome de conta diferente.",
         "nameInputPlaceholder": "Nome...",
@@ -1585,8 +1585,8 @@
         "title": "Editar conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
-        "removeAccountLabel": "Excluir conta",
-        "activeAccountError": "Você não pode excluir a conta que está selecionada. Por favor, mude para uma conta diferente antes de excluir esta.",
+        "removeAccountLabel": "Arquivar conta",
+        "activeAccountError": "Você não pode arquivar a conta que está selecionada. Por favor, mude para uma conta diferente antes de arquivar esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta",
         "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada."
@@ -1597,8 +1597,8 @@
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outras carteiras",
-        "recoverRecoveryPhraseTitle": "Restaurar conta excluída",
-        "recoverRecoveryPhraseDescription": "Recuperar uma conta anteriomente criada"
+        "recoverRecoveryPhraseTitle": "Restaurar conta",
+        "recoverRecoveryPhraseDescription": "Recuperar contas arquivadas"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",
@@ -1624,11 +1624,11 @@
         "to": "Selecione a conta para a qual deseja receber."
       },
       "removeAccountPage": {
-        "title": "Excluir conta",
-        "explanation_derived": "Mesmo que você exclua esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
-        "explanation_imported": "Esta conta foi importada. Se você excluí-la, precisará importar novamente a frase de recuperação para acessá-la.",
+        "title": "Arquivar conta",
+        "explanation_derived": "Mesmo que você arquive esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
+        "explanation_imported": "Esta conta foi importada. Se você arquivá-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
-        "removeButton": "Excluir conta"
+        "removeButton": "Arquivar conta"
       }
     },
     "accountsPoolsScreen": {
@@ -2067,7 +2067,7 @@
     "genericError": "Ocorreu um erro inesperado",
     "tryAgain": "Por favor, tente novamente",
     "contactSupport": "Entre em contato com o suporte se o problema persistir",
-    "deleteAccount": "Erro ao excluir conta.",
+    "deleteAccount": "Erro ao arquivar conta.",
     "failedToDecryptPin": "Falha ao descriptografar o PIN",
     "decodePinWithBio": "Não foi possível decodificar o PIN com biometria",
     "insufficientBalanceError": "Saldo insuficiente para comprar {{planType}}",
