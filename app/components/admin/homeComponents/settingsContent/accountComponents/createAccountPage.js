@@ -288,6 +288,7 @@ export default function CreateCustodyAccountPage(props) {
       () => {
         setCurrentFocused(null);
         setIsKeyboardActive(false);
+        Keyboard.dismiss();
       },
     );
 
