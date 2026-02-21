@@ -2251,5 +2251,150 @@
     "FSAG-5003": "An internal error occurred. Please contact support if this persists.",
     "FSAG-5004": "A system configuration error occurred.",
     "FSAG-5100": "An unexpected error occurred on the server."
+  },
+  "savings": {
+    "home": {
+      "title": "Savings",
+      "howItWorksLink": "How it works",
+      "setGoalTitle": "Set a goal",
+      "setGoalSubtitle": "Save for what matters most",
+      "savingsGoalFallback": "Savings goal",
+      "createAnotherGoal": "Create Another Goal",
+      "disclaimer": "Cash balances are held in USDB, a dollar-backed stablecoin issued by Brale and fully backed 1:1 by US Treasury Bills and cash equivalents held at regulated financial institutions."
+    },
+    "preview": {
+      "title": "Savings",
+      "earnInterest": "Earn 3.5% interest"
+    },
+    "goalEmoji": {
+      "screenTitle": "Choose Emoji",
+      "title": "Pick an emoji that fits your goal",
+      "subtitle": "What defines your goal the most?",
+      "continueButton": "Choose emoji"
+    },
+    "goalDescribe": {
+      "screenTitle": "Enter Description",
+      "title": "Describe your goal",
+      "placeholder": "Extra cash"
+    },
+    "goalAmount": {
+      "screenTitle": "Set Goal",
+      "goalFallbackName": "Savings goal",
+      "errors": {
+        "unableToSetGoal": "Unable to set goal"
+      }
+    },
+    "goalSuccess": {
+      "title": "Your goal is now set for {{amount}}",
+      "subtitle": "Start adding money to reach your goal."
+    },
+    "goalDetails": {
+      "screenTitleFallback": "Goal",
+      "updateGoalButton": "Update goal",
+      "emptyState": "No goal set"
+    },
+    "updateGoal": {
+      "screenTitle": "Update Goal",
+      "title": "Update goal",
+      "body": "You can either change how much you've set aside for your goal or remove it.",
+      "removeButton": "Remove goal",
+      "updateButton": "Update goal"
+    },
+    "removeGoalConfirm": {
+      "screenTitle": "Remove Goal",
+      "title": "Remove goal",
+      "warningProgressLost": "You will no longer see progress toward your {{goalName}} goal.",
+      "warningMoneyReturned": "Any money dedicated to this goal will automatically be transferred to Savings.",
+      "removeButton": "Remove Goal",
+      "errors": {
+        "unableToRemoveGoal": "Unable to remove goal"
+      }
+    },
+    "goalRemovedSuccess": {
+      "title": "Goal removed"
+    },
+    "actionButtons": {
+      "addMoney": "Add money",
+      "withdraw": "Withdraw"
+    },
+    "activity": {
+      "title": "Activity",
+      "emptyState": "Future transactions will appear here."
+    },
+    "addMoney": {
+      "chooseGoalTitle": "Add money to",
+      "generalSavings": "General savings",
+      "noSpecificGoal": "No specific goal",
+      "sourceTitle": "Add money from",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Confirm deposit",
+      "youAreAdding": "You are adding",
+      "fromBalance": "from {{source}} balance",
+      "confirmButton": "Confirm",
+      "processing": "Processing...",
+      "successTitle": "Money added",
+      "paymentLabel_unallocated": "Savings deposit",
+      "paymentLabel": "Savings deposit to {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteTransfer": "Unable to complete transfer"
+      }
+    },
+    "withdraw": {
+      "chooseGoalTitle": "Withdraw money from",
+      "withdrawAll": "Withdraw All",
+      "generalSavings": "General savings",
+      "destinationTitle": "Withdraw money to",
+      "availableHint": "Available: {{amount}}",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Confirm withdrawal",
+      "youAreWithdrawingAll": "You are withdrawing all savings",
+      "youAreWithdrawing": "You are withdrawing",
+      "toYourBalance": "to your {{destination}}",
+      "estimatedSats": "≈ {{sats}} sats after swap",
+      "confirmButton": "Confirm",
+      "processing": "Processing withdrawal...",
+      "successTitle": "Withdrawal complete",
+      "paymentLabel_unallocated": "Savings withdrawal",
+      "paymentLabel": "Savings withdrawal from {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteWithdrawal": "Unable to complete withdrawal"
+      }
+    },
+    "howItWorks": {
+      "headline1": "Your dollars,",
+      "headline2": "earning every day.",
+      "subtext": "A USD-backed stablecoin that automatically accrues rewards while you hold it.",
+      "features": {
+        "earnTitle": "Earn daily rewards",
+        "earnBody": "USDB accrues savings rewards automatically. No staking, no lock-ups — just hold and earn.",
+        "accessTitle": "Instant access",
+        "accessBody": "Withdraw to your Lightning wallet in seconds, any time. Your funds are never locked.",
+        "backedTitle": "Fully backed",
+        "backedBody": "Every USDB is backed 1:1 by USD held in segregated, audited reserve accounts.",
+        "goalTitle": "Set a savings goal",
+        "goalBody": "Track progress toward a goal — a vacation, an emergency fund, anything you choose."
+      },
+      "stats": {
+        "currentApyLabel": "APY",
+        "currentApyValue": "3.5%",
+        "accrualLabel": "Accrual",
+        "accrualValue": "Daily"
+      },
+      "context": {
+        "goalNameReqiured": "Goal name is reqiured",
+        "goalNotFound": "Goal not found"
+      },
+
+      "transparencyTitle": "Backed by real reserves",
+      "transparencyBody": "Reserves are held in segregated, audited accounts — primarily short-duration US Treasury instruments and money-market funds. Flashnet publishes monthly attestation reports.",
+      "disclaimer": "Rates are variable and subject to change. Not a bank deposit. See flashnet.xyz for full disclosures."
+    },
+
+    "withdrawal": "Withdrawal",
+    "withdrawalWithGoal": "Withdrawal from {{goalName}}",
+    "deposit": "Deposit",
+    "depositWithGoal": "Deposit to {{goalName}}",
+    "swapSimulationError": "Swap simulation not available",
+    "savingsWalletError": "Savings wallet not ready"
   }
 }
