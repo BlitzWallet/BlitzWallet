@@ -1598,7 +1598,7 @@
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outras carteiras",
         "recoverRecoveryPhraseTitle": "Restaurar conta",
-        "recoverRecoveryPhraseDescription": "Recuperar contas anteriomente arquivadas"
+        "recoverRecoveryPhraseDescription": "Recuperar contas arquivadas"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",
