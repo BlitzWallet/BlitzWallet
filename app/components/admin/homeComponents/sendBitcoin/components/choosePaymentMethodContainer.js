@@ -52,7 +52,7 @@ export default function ChoosePaymentMethod({
         })
       : displayCorrectDenomination({
           amount: formatBalanceAmount(
-            Number(dollarBalanceToken).toFixed(2),
+            dollarBalanceToken,
             false,
             masterInfoObject,
           ),

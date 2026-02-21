@@ -136,7 +136,7 @@ export default function SelectPaymentMethod({
             styles={styles.amountText}
             content={`${displayCorrectDenomination({
               amount: formatBalanceAmount(
-                Number(dollarBalanceToken).toFixed(2),
+                dollarBalanceToken,
                 false,
                 masterInfoObject,
               ),
