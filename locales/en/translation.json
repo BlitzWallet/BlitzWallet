@@ -2381,7 +2381,7 @@
         "accrualValue": "Daily"
       },
       "context": {
-        "goalNameReqiured": "Goal name is reqiured",
+        "goalNameReqiured": "Goal name is required",
         "goalNotFound": "Goal not found"
       },
 
