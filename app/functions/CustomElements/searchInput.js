@@ -3,7 +3,6 @@ import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import ThemeText from './textTheme';
 import { HIDDEN_OPACITY } from '../../constants/theme';
 
 export default function CustomSearchInput({
@@ -33,7 +32,6 @@ export default function CustomSearchInput({
   const isFocusedRef = useRef(false);
   const internalRef = useRef(null);
   const inputRef = textInputRef || internalRef;
-  const [placeholderHeight, setPlaceholderHeight] = useState(null);
 
   const mutlilineValue = useMemo(() => {
     return textInputMultiline != undefined ? textInputMultiline : false;
@@ -42,11 +40,6 @@ export default function CustomSearchInput({
   const textAlignVerticalValue = useMemo(() => {
     return textAlignVertical != undefined ? textAlignVertical : 'center';
   }, [textAlignVertical]);
-
-  const onPlaceholderLayout = useCallback(event => {
-    const { height } = event.nativeEvent.layout;
-    setPlaceholderHeight(height);
-  }, []);
 
   const memorizedStyles = useMemo(() => {
     const baseStyles = {
@@ -57,36 +50,8 @@ export default function CustomSearchInput({
       ...textInputStyles,
     };
 
-    // For multiline, set height based on placeholder if it wrapped
-    if (mutlilineValue && placeholderHeight) {
-      // Get maxHeight from containerStyles if it exists
-      const containerMaxHeight = containerStyles?.maxHeight;
-      const calculatedMinHeight = Math.max(50, placeholderHeight);
-
-      // Clamp minHeight to not exceed container's maxHeight
-      const finalMinHeight = containerMaxHeight
-        ? Math.min(calculatedMinHeight, containerMaxHeight)
-        : calculatedMinHeight;
-
-      return {
-        ...baseStyles,
-        minHeight: finalMinHeight,
-        maxHeight: containerMaxHeight, // Also set on input to enforce scrolling
-      };
-    }
-
     return baseStyles;
-  }, [
-    theme,
-    darkModeType,
-    textInputStyles,
-    editable,
-    mutlilineValue,
-    placeholderHeight,
-    textInputColor,
-    textInputBackground,
-    containerStyles,
-  ]);
+  }, [textInputStyles, editable, textInputColor, textInputBackground]);
   const viewContainerStyles = useMemo(() => {
     return { ...styles.inputContainer, ...containerStyles };
   }, [containerStyles]);
@@ -102,21 +67,6 @@ export default function CustomSearchInput({
       ? COLORS.blueDarkmodeTextInputPlaceholder
       : COLORS.opaicityGray;
   }, [theme, darkModeType, placeholderTextColor]);
-
-  const placeholderStyles = useMemo(
-    () => ({
-      ...styles.searchInput,
-      ...textInputStyles,
-      position: 'absolute',
-      zIndex: 1,
-      pointerEvents: 'none',
-    }),
-    [textInputStyles],
-  );
-
-  const placeholderTextStyle = useMemo(() => {
-    return { color: placeholderTextColorStyles, includeFontPadding: false };
-  }, [placeholderTextColorStyles]);
 
   const blurOnSubmitValue = useMemo(() => {
     return blurOnSubmit != undefined ? blurOnSubmit : true;
@@ -175,25 +125,12 @@ export default function CustomSearchInput({
     };
   }, [onBlurFunction, shouldDelayBlur]);
 
-  const showPlaceholder = !inputText && placeholderText;
-
   return (
     <View style={viewContainerStyles}>
-      {showPlaceholder && (
-        <ThemeText
-          onLayout={onPlaceholderLayout}
-          styles={{
-            ...placeholderStyles,
-            ...placeholderTextStyle,
-          }}
-          CustomNumberOfLines={mutlilineValue ? 5 : 1}
-          content={placeholderText}
-        />
-      )}
       <TextInput
         autoFocus={autoFocus}
         keyboardAppearance={keyboardAppearance}
-        placeholder={''}
+        placeholder={placeholderText}
         placeholderTextColor={placeholderTextColorStyles}
         value={inputText}
         ref={inputRef}
