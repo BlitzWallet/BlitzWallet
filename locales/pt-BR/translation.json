@@ -1025,6 +1025,8 @@
         "lnurlFailedAuthMessage": "Falha ao autenticar LNURL",
         "lnurlConfirmMessage": "LNURL autenticado com sucesso",
         "lnurlPayInvoiceError": "Falha ao gerar a fatura para pagamento LNURL. Tente novamente.",
+        "lnurlPayNoInvoiceError": "O serviço que você está tentando pagar está atualmente offline. Se o problema persistir, entre em contato com a empresa que você está tentando pagar.",
+        "lnurlPayInvalidFormat": "O serviço que você está tentando pagar não retornou os dados corretos. Se o problema persistir, entre em contato com a empresa que você está tentando pagar.",
         "lnurlWithdrawlStart": "Gerando fatura para saque",
         "lnurlWithdrawlInvoiceError": "Não foi possível gerar a fatura para retirada a partir do lnurl",
         "waitingForLnurlWithdrawl": "Aguardando pagamento...",

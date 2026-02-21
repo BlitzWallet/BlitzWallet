@@ -1041,6 +1041,8 @@
         "lnurlFailedAuthMessage": "Failed to authenticate using Lightning",
         "lnurlConfirmMessage": "Login successfull",
         "lnurlPayInvoiceError": "Failed to generate invoice for this Lightning address payment. Please try again.",
+        "lnurlPayNoInvoiceError": "The service you are trying to pay is currently offline. If the issue persists, contact the company you are trying to pay about the problem.",
+        "lnurlPayInvalidFormat": "The service you are trying to pay did not return the correct data. If the issue persists, contact the company you are trying to pay about the problem.",
         "lnurlWithdrawlStart": "Generating invoice for withdrawal",
         "lnurlWithdrawlInvoiceError": "Unable to generate invoice for Lightning withdrawal",
         "waitingForLnurlWithdrawl": "Waiting for payment...",

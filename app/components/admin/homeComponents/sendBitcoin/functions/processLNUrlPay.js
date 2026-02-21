@@ -118,7 +118,7 @@ export default async function processLNUrlPay(input, context) {
 
     if (!invoice)
       throw new Error(
-        t('wallet.sendPages.handlingAddressErrors.lnurlPayInvoiceError'),
+        t('wallet.sendPages.handlingAddressErrors.lnurlPayNoInvoiceError'),
       );
 
     // Now that we have the invoice, determine which fee estimates are needed
@@ -208,6 +208,12 @@ export default async function processLNUrlPay(input, context) {
         supportFee = paymentInfo.supportFee;
       }
     }
+  }
+
+  if (!input.data.maxSendable || !input.data.minSendable) {
+    throw new Error(
+      t('wallet.sendPages.handlingAddressErrors.lnurlPayInvalidFormat'),
+    );
   }
 
   const canEditPayment = !invoice;
