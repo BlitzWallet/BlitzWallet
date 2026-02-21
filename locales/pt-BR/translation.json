@@ -899,7 +899,7 @@
       "goal": "Objetivo: ",
       "payment_one": "{{count}} pagamento",
       "payment_other": "{{count}} pagamentos",
-      "closed": "Fechado ",
+      "closed": "Encerrada ",
       "pool": "Pool",
       "couldNotFind": "Não foi possível encontrar esta Vaquinha.",
       "createdBy": "Por ",
@@ -1447,7 +1447,7 @@
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
       "lnurl": "Endereço Lightning",
-      "nostrZaps": "Nostr zaps",
+      "nostrZaps": "Nostr Zaps",
       "nwc": "Conexão Nostr",
       "pos": "Ponto de venda"
     },
@@ -1637,7 +1637,7 @@
       "profileButton": "Perfil",
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
-      "noPoolsMessage": "Você ainda não criou nenhuma Vaquinha. Toque para criar sua primeira Vaquinha.",
+      "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
       "noActivePools": "Você não tem Vaquinhas abertas",
       "yourAccountsTitle": "Suas contas",
       "addAccountButton": "Adicionar conta"
