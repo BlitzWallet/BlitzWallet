@@ -212,17 +212,17 @@
       }
     },
     "disclaimerPage": {
-      "header": "Carteira sem custódia",
-      "subHeader": "Tenha controle total sobre seu dinheiro.",
-      "disclaimerBold": "A Blitz não pode recuperar sua carteira.",
-      "dislcaimer": "Você é o único responsável por proteger e guardar seus fundos.",
-      "info1Description": "Somente você pode acessar ou usar seu dinheiro. Não temos acesso a ele.",
-      "info2": "Você está no controle",
-      "info2Description": "A Blitz não pode acessar seus fundos nem ajudar a recuperá-los se forem perdidos.",
-      "imgCaption": "'Com grandes poderes, surgem grandes responsabilidades' - Tio Ben",
+      "header": "Sua wallet. Seu controle.",
+      "subHeader": "Algumas coisas para saber antes de começar.",
+      "row1Label": "Só você controla seus fundos",
+      "row1Description": "A Blitz nunca guarda nem acessa seu dinheiro.",
+      "row2Label": "Você terá uma frase de recuperação",
+      "row2Description": "Ela é a chave mestra da sua wallet. Encontre em Configurações → Backup da wallet.",
+      "row3Label": "Sem recuperação se for perdida",
+      "row3Description": "Não podemos restaurar o acesso. Guarde sua frase em um local seguro.",
       "acceptPrefix": "Eu aceito os ",
       "terms&Conditions": "Termos e Condições",
-      "acceptError": "Para continuar, você deve aceitar os termos e condições.",
+      "acceptError": "Para continuar, você deve aceitar os Termos e Condições.",
       "continueBTN": "Próximo"
     },
     "verifyKeyPage": {
@@ -1599,8 +1599,8 @@
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outra carteira",
-        "recoverRecoveryPhraseTitle": "Restaurar conta",
-        "recoverRecoveryPhraseDescription": "Recuperar uma conta anteriomente excluída"
+        "recoverRecoveryPhraseTitle": "Restaurar conta excluída",
+        "recoverRecoveryPhraseDescription": "Recuperar uma conta anteriomente criada"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",

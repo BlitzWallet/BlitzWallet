@@ -77,6 +77,7 @@ export default function SelectAltAccountHalfModal(props) {
     .map((account, index) => {
       return (
         <AccountCard
+          useAltBackground={theme && darkModeType}
           key={account.uuid || `Account ${index}`}
           account={account}
           isActive={false}

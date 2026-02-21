@@ -379,11 +379,7 @@ export default function AccountPaymentPage(props) {
 
           {/* Directional arrow divider */}
           <View style={styles.arrowDivider}>
-            <ThemeIcon
-              iconName={'ArrowDown'}
-              size={16}
-              colorOverride={COLORS.primary}
-            />
+            <ThemeIcon iconName={'ArrowDown'} size={16} />
           </View>
 
           {/* To row */}
@@ -470,7 +466,7 @@ export default function AccountPaymentPage(props) {
               inputText={memo}
               setInputText={setMemo}
               containerStyles={styles.descriptionContainer}
-              textInputStyles={styles.descriptionInput}
+              textInputStyles={{ ...styles.descriptionInput, color: textColor }}
               placeholderText={t(
                 'settings.accountComponents.accountPaymentPage.inputPlaceHolderText',
               )}

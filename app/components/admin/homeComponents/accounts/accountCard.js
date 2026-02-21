@@ -30,6 +30,7 @@ export default function AccountCard({
   isLoading,
   useSelection = false,
   fromSettings = false,
+  useAltBackground = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
@@ -48,7 +49,9 @@ export default function AccountCard({
         style={[
           styles.card,
           {
-            backgroundColor: backgroundOffset,
+            backgroundColor: useAltBackground
+              ? backgroundColor
+              : backgroundOffset,
             marginVertical: fromSettings ? 0 : 8,
             paddingHorizontal: fromSettings ? 0 : 15,
           },
@@ -56,8 +59,14 @@ export default function AccountCard({
       >
         <SkeletonPlaceholder
           enabled={true}
-          backgroundColor={theme ? backgroundColor : COLORS.opaicityGray}
-          highlightColor={backgroundOffset}
+          backgroundColor={
+            theme
+              ? useAltBackground
+                ? backgroundOffset
+                : backgroundColor
+              : COLORS.opaicityGray
+          }
+          highlightColor={useAltBackground ? backgroundColor : backgroundOffset}
         >
           <View style={styles.skeletonContainer}>
             <View style={styles.skeletonBadge} />
@@ -75,7 +84,9 @@ export default function AccountCard({
       style={[
         styles.card,
         {
-          backgroundColor: backgroundOffset,
+          backgroundColor: useAltBackground
+            ? backgroundColor
+            : backgroundOffset,
           marginVertical: fromSettings ? 0 : 8,
           paddingHorizontal: fromSettings ? 0 : 15,
         },
@@ -87,7 +98,9 @@ export default function AccountCard({
           style={[
             styles.badge,
             {
-              backgroundColor: backgroundColor,
+              backgroundColor: useAltBackground
+                ? backgroundOffset
+                : backgroundColor,
             },
           ]}
         >
@@ -136,7 +149,11 @@ export default function AccountCard({
           style={[
             styles.rightSection,
             {
-              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+              backgroundColor: theme
+                ? useAltBackground
+                  ? backgroundOffset
+                  : backgroundColor
+                : COLORS.darkModeText,
             },
           ]}
         >
@@ -150,7 +167,11 @@ export default function AccountCard({
           style={[
             styles.rightSection,
             {
-              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+              backgroundColor: theme
+                ? useAltBackground
+                  ? backgroundOffset
+                  : backgroundColor
+                : COLORS.darkModeText,
             },
           ]}
         >

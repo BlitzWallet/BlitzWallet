@@ -155,7 +155,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
             <View style={styles.middleSection}>
               <ThemeText
                 adjustsFontSizeToFit={true}
-                CustomNumberOfLines={3}
+                CustomNumberOfLines={6}
                 styles={styles.descriptionText}
                 content={
                   description || `${t('constants.gift')} ${formattedNumber}`
