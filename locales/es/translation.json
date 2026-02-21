@@ -891,6 +891,8 @@
         "lnurlFailedAuthMessage": "Falló la autenticación LNURL",
         "lnurlConfirmMessage": "LNURL autenticado con éxito",
         "lnurlPayInvoiceError": "No se pudo generar la factura para el pago LNURL. Inténtalo de nuevo.",
+        "lnurlPayNoInvoiceError": "El servicio que intentas pagar está actualmente fuera de línea. Si el problema persiste, contacta con la empresa a la que intentas pagar.",
+        "lnurlPayInvalidFormat": "El servicio que intentas pagar no devolvió los datos correctos. Si el problema persiste, contacta con la empresa a la que intentas pagar.",
         "lnurlWithdrawlStart": "Generando factura para retiro",
         "lnurlWithdrawlInvoiceError": "No se pudo generar la factura para retiro LNURL",
         "waitingForLnurlWithdrawl": "Esperando pago...",

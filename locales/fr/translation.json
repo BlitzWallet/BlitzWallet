@@ -1025,6 +1025,8 @@
         "lnurlFailedAuthMessage": "Échec de l'authentification de LNURL",
         "lnurlConfirmMessage": "LNURL authentifié avec succès",
         "lnurlPayInvoiceError": "Impossible de générer la facture pour le paiement LNURL. Veuillez réessayer.",
+        "lnurlPayNoInvoiceError": "Le service que vous essayez de payer est actuellement hors ligne. Si le problème persiste, contactez l’entreprise que vous essayez de payer.",
+        "lnurlPayInvalidFormat": "Le service que vous essayez de payer n’a pas renvoyé les données correctes. Si le problème persiste, contactez l’entreprise que vous essayez de payer.",
         "lnurlWithdrawlStart": "Générer une facture pour le retrait",
         "lnurlWithdrawlInvoiceError": "Impossible de générer une facture pour le retrait de lnurl",
         "waitingForLnurlWithdrawl": "En attente de paiement...",

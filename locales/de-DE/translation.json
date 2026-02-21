@@ -1027,6 +1027,8 @@
         "lnurlFailedAuthMessage": "LNURL-Authentifizierung fehlgeschlagen",
         "lnurlConfirmMessage": "LNURL erfolgreich authentifiziert",
         "lnurlPayInvoiceError": "Fehler beim Erstellen der Rechnung für die LNURL-Zahlung. Bitte versuchen Sie es erneut.",
+        "lnurlPayNoInvoiceError": "Der Dienst, den du bezahlen möchtest, ist derzeit offline. Wenn das Problem weiterhin besteht, kontaktiere das Unternehmen, das du bezahlen möchtest.",
+        "lnurlPayInvalidFormat": "Der Dienst, den du bezahlen möchtest, hat keine korrekten Daten zurückgegeben. Wenn das Problem weiterhin besteht, kontaktiere das Unternehmen, das du bezahlen möchtest.",
         "lnurlWithdrawlStart": "Rechnung für Auszahlung wird generiert...",
         "lnurlWithdrawlInvoiceError": "Rechnung für LNURL-Auszahlung konnte nicht generiert werden",
         "waitingForLnurlWithdrawl": "Warten auf Zahlung...",

@@ -1025,6 +1025,8 @@
         "lnurlFailedAuthMessage": "Misslyckades med att autentisera LNURL",
         "lnurlConfirmMessage": "LNURL framgångsrikt autentiserad",
         "lnurlPayInvoiceError": "Misslyckades med att skapa faktura för LNURL-betalning. Försök igen.",
+        "lnurlPayNoInvoiceError": "Tjänsten du försöker betala är för närvarande offline. Om problemet kvarstår, kontakta företaget du försöker betala.",
+        "lnurlPayInvalidFormat": "Tjänsten du försöker betala returnerade inte korrekt data. Om problemet kvarstår, kontakta företaget du försöker betala.",
         "lnurlWithdrawlStart": "Generera faktura för uttag",
         "lnurlWithdrawlInvoiceError": "Det går inte att generera faktura för lnurl-uttag",
         "waitingForLnurlWithdrawl": "Väntar på betalning...",
