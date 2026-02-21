@@ -312,6 +312,7 @@ export default function CreateCustodyAccountPage(props) {
   return (
     <CustomKeyboardAvoidingView
       globalThemeViewStyles={memorizedKeyboardStyle}
+      useLocalPadding={accountType === 'derived'}
       isKeyboardActive={isKeyboardActive}
     >
       <View style={{ width: '95%' }}>
@@ -441,10 +442,9 @@ export default function CreateCustodyAccountPage(props) {
           </>
         )}
       </ScrollView>
-      {!isKeyboardActive && (
+      {(!isKeyboardActive || accountType === 'derived') && (
         <CustomButton
           useLoading={isCreatingAccount}
-          loadingColor={COLORS.darkModeText}
           buttonStyles={{
             marginTop: 5,
             minWidth: 150,
