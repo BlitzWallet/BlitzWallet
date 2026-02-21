@@ -207,7 +207,7 @@
     "homePage": {
       "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
-        "button1": "Recuperar carteira",
+        "button1": "Restaurar acesso",
         "button2": "Criar nova carteira"
       }
     },
