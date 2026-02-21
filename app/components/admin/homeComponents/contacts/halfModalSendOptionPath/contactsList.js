@@ -134,12 +134,16 @@ export default function ChooseContactHalfModal() {
     cache,
   ]);
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+    };
+  }, [isKeyboardActive]);
+
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
-      globalThemeViewStyles={{
-        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
-      }}
+      globalThemeViewStyles={memorizedKeyboardStyle}
       useTouchableWithoutFeedback={true}
     >
       <CustomSettingsTopBar

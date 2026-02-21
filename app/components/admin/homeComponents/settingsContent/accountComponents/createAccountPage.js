@@ -296,18 +296,21 @@ export default function CreateCustodyAccountPage(props) {
     };
   }, []);
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      alignItems: 'center',
+      position: 'relative',
+      paddingBottom: isKeyboardActive
+        ? currentFocused
+          ? 0
+          : CONTENT_KEYBOARD_OFFSET
+        : bottomPadding,
+    };
+  }, [isKeyboardActive, currentFocused, bottomPadding]);
+
   return (
     <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      globalThemeViewStyles={{
-        alignItems: 'center',
-        position: 'relative',
-        paddingBottom: isKeyboardActive
-          ? currentFocused
-            ? 0
-            : CONTENT_KEYBOARD_OFFSET
-          : bottomPadding,
-      }}
+      globalThemeViewStyles={memorizedKeyboardStyle}
       isKeyboardActive={isKeyboardActive}
     >
       <View style={{ width: '95%' }}>

@@ -153,11 +153,15 @@ export default function ExpandedGiftCardPage(props) {
     numberOfGiftCards >= 1 &&
     (fromSelectGiftPage || EMAIL_REGEX.test(email));
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+    };
+  }, [isKeyboardActive]);
+
   return (
     <CustomKeyboardAvoidingView
-      globalThemeViewStyles={{
-        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
-      }}
+      globalThemeViewStyles={memorizedKeyboardStyle}
       useStandardWidth={true}
     >
       <CustomSettingsTopBar

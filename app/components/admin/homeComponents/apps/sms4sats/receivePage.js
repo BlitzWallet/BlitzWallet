@@ -356,12 +356,16 @@ export default function SMSMessagingReceivedPage(props) {
     return `service-${item?.key}-${index}`;
   }, []);
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+    };
+  }, [isKeyboardActive]);
+
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
-      globalThemeViewStyles={{
-        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
-      }}
+      globalThemeViewStyles={memorizedKeyboardStyle}
     >
       <View style={styles.topBar}>
         <TouchableOpacity

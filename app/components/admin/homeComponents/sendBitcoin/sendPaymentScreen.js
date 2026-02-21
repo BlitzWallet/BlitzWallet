@@ -838,6 +838,12 @@ export default function SendPaymentScreen(props) {
     }
   };
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: !isAmountFocused ? 0 : bottomPadding,
+    };
+  }, [isAmountFocused]);
+
   const sendingAsset =
     selectedLRC20Asset === 'Bitcoin'
       ? !isLightningPayment &&
@@ -864,11 +870,7 @@ export default function SendPaymentScreen(props) {
   }
 
   return (
-    <CustomKeyboardAvoidingView
-      globalThemeViewStyles={{
-        paddingBottom: !isAmountFocused ? 0 : bottomPadding,
-      }}
-    >
+    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
           label={t('constants.send') + ' ' + sendingAsset}
