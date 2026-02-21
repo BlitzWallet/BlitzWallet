@@ -1585,7 +1585,7 @@
         "title": "Editar conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
-        "removeAccountLabel": "Excluir conta",
+        "removeAccountLabel": "Arquivar conta",
         "activeAccountError": "Você não pode excluir a conta que está selecionada. Por favor, mude para uma conta diferente antes de excluir esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta",
@@ -1597,7 +1597,7 @@
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
         "importRecoveryPhraseDescription": "Importar contas de outras carteiras",
-        "recoverRecoveryPhraseTitle": "Restaurar conta excluída",
+        "recoverRecoveryPhraseTitle": "Restaurar conta arquivada",
         "recoverRecoveryPhraseDescription": "Recuperar uma conta anteriomente criada"
       },
       "selectProfileImage": {
@@ -1624,11 +1624,11 @@
         "to": "Selecione a conta para a qual deseja receber."
       },
       "removeAccountPage": {
-        "title": "Excluir conta",
-        "explanation_derived": "Mesmo que você exclua esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
-        "explanation_imported": "Esta conta foi importada. Se você excluí-la, precisará importar novamente a frase de recuperação para acessá-la.",
+        "title": "Arquivar conta",
+        "explanation_derived": "Mesmo que você arquive esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
+        "explanation_imported": "Esta conta foi importada. Se você arquivá-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
-        "removeButton": "Excluir conta"
+        "removeButton": "Arquivar conta"
       }
     },
     "accountsPoolsScreen": {
@@ -2067,7 +2067,7 @@
     "genericError": "Ocorreu um erro inesperado",
     "tryAgain": "Por favor, tente novamente",
     "contactSupport": "Entre em contato com o suporte se o problema persistir",
-    "deleteAccount": "Erro ao excluir conta.",
+    "deleteAccount": "Erro ao arquivar conta.",
     "failedToDecryptPin": "Falha ao descriptografar o PIN",
     "decodePinWithBio": "Não foi possível decodificar o PIN com biometria",
     "insufficientBalanceError": "Saldo insuficiente para comprar {{planType}}",
