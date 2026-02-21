@@ -18,6 +18,7 @@ import {
 } from '../app/functions/savings/savingsStorage';
 import customUUID from '../app/functions/customUUID';
 import {
+  DEFAULT_GOAL_EMOJI,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   USDB_TOKEN_ID,
 } from '../app/constants';
@@ -73,8 +74,6 @@ const SavingsContext = createContext(null);
  * @property {number} amountMicros
  * @property {number} timestamp
  */
-
-const DEFAULT_GOAL_EMOJI = '🎯';
 
 // Sentinel goalId used when a deposit/withdrawal is made against the savings
 // wallet directly (not attributed to any specific goal).

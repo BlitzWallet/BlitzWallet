@@ -129,6 +129,7 @@ const SCREEN_DIMENSIONS = Dimensions.get('screen');
 
 const USDB_TOKEN_ID =
   'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87';
+const DEFAULT_GOAL_EMOJI = '🎯';
 
 export {
   COLORS,
@@ -217,4 +218,5 @@ export {
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   POOL_DEEPLINK_REGEX,
   BASIC_ACCOUNT_NAME_REGEX,
+  DEFAULT_GOAL_EMOJI,
 };

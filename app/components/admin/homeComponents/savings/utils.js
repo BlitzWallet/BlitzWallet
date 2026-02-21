@@ -1,3 +1,5 @@
+import { DEFAULT_GOAL_EMOJI } from '../../../../constants';
+
 export const toMicros = value => {
   const numeric = Number(value || 0);
   if (!Number.isFinite(numeric) || numeric <= 0) return 0;
