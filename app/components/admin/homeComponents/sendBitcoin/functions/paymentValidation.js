@@ -6,6 +6,7 @@ import {
   USDB_TOKEN_ID,
 } from '../../../../../constants';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import { SEND_AMOUNT_INCREASE_BUFFER } from '../../../../../functions/spark/flashnet';
 
 export default function usePaymentValidation({
   // Payment info
@@ -192,6 +193,28 @@ export default function usePaymentValidation({
           result.errors.push('BELOW_USD_SWAP_MINIMUM');
           return result;
         }
+        // The sat-space totalCost underestimates what the AMM actually debits in USDB
+        // tokens (estimatedAmmFee is taken from tokens, not from sats). Compare the
+        // quote's authoritative token debit directly against dollarBalanceToken.
+        const USDB_DECIMALS = 6;
+        const tokenAmountRequired =
+          paymentInfo?.swapPaymentQuote?.tokenAmountRequired;
+        const amountIn = paymentInfo?.swapPaymentQuote?.amountIn;
+
+        const requiredDollarTokens = tokenAmountRequired
+          ? Number(tokenAmountRequired) / Math.pow(10, USDB_DECIMALS)
+          : amountIn
+          ? (Number(amountIn) * SEND_AMOUNT_INCREASE_BUFFER) /
+            Math.pow(10, USDB_DECIMALS)
+          : null;
+
+        if (
+          requiredDollarTokens !== null &&
+          dollarBalanceToken < requiredDollarTokens
+        ) {
+          result.errors.push('INSUFFICIENT_BALANCE');
+          return result;
+        }
       } else if (finalPaymentMethod === 'BTC') {
         // BTC → USD swap
         if (convertedSendAmount < swapLimits.bitcoin) {
@@ -235,6 +258,7 @@ export default function usePaymentValidation({
     selectedPaymentMethod,
     bitcoinBalance,
     dollarBalanceSat,
+    dollarBalanceToken,
     min_usd_swap_amount,
     swapLimits,
     isUsingLRC20,
