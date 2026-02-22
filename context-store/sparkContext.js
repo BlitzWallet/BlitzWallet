@@ -123,7 +123,7 @@ const SparkWalletProvider = ({ children }) => {
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
     useState(0);
 
-  const pendingSparkTxIds = useRef(new Set());
+  const pollingBoundaryTime = useRef(null);
   const txObjectCache = useRef(new Map());
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
@@ -154,8 +154,8 @@ const SparkWalletProvider = ({ children }) => {
   const isInitialRender = useRef(true);
   const authResetKeyRef = useRef(authResetkey);
   const currentUpdateIdRef = useRef(0);
-  const pendingTxRange = useRef({ start: -1, end: -1 });
-  const pendingTxCount = useRef(0);
+  const pendingHandleUpdatesRef = useRef(new Map());
+  const isHandleUpdateDrainScheduledRef = useRef(false);
   const balanceVersionRef = useRef(0);
   const handleUpdateQueueRef = useRef(Promise.resolve());
   const hasRunInitBalancePoll = useRef(false);
@@ -442,7 +442,7 @@ const SparkWalletProvider = ({ children }) => {
       try {
         await bulkUpdateSparkTransactions(
           paymentObjects,
-          'incomingPayment',
+          isSendingPaymentRef.current ? 'transactions' : 'incomingPayment',
           0,
           balance,
         );
@@ -493,58 +493,34 @@ const SparkWalletProvider = ({ children }) => {
       const isLatestRequest = updateId === currentUpdateIdRef.current;
 
       const applyPendingFlags = transactions => {
-        if (!transactions?.length) return transactions;
-
-        // Source of truth for pending state across overlapping full updates.
-        if (pendingSparkTxIds.current.size > 0) {
-          let hasPendingTx = false;
-          const withPendingFlags = transactions.map(tx => {
-            if (!pendingSparkTxIds.current.has(tx.sparkID)) return tx;
-            hasPendingTx = true;
-            return getCachedTx(tx, true);
-          });
-
-          if (hasPendingTx) {
-            pendingTxCount.current = transactions.length;
-            return withPendingFlags;
+        if (!transactions?.length || pollingBoundaryTime.current === null)
+          return transactions;
+        // Transactions are sorted newest-first. Walk from the top; once we've
+        // seen more than 10 consecutive non-pending TXs, all remaining are
+        // confirmed — splice them in unchanged to avoid scanning the full list.
+        const result = [];
+        let confirmedStreak = 0;
+        for (let i = 0; i < transactions.length; i++) {
+          const tx = transactions[i];
+          let addedAt;
+          try {
+            addedAt = JSON.parse(tx.details)?.dateAddedToDb;
+          } catch {
+            addedAt = undefined;
+          }
+          if (addedAt && addedAt > pollingBoundaryTime.current) {
+            result.push(getCachedTx(tx, true));
+            confirmedStreak = 0;
+          } else {
+            result.push(tx);
+            confirmedStreak++;
+            if (confirmedStreak > 10) {
+              // Rest of list is confirmed — append without processing
+              return result.concat(transactions.slice(i + 1));
+            }
           }
         }
-
-        const { start, end } = pendingTxRange.current;
-        const previousTxCount = pendingTxCount.current;
-
-        if (start === -1 || end === -1 || previousTxCount === 0)
-          return transactions;
-
-        const currentTxCount = transactions.length;
-        const txCountDiff = currentTxCount - previousTxCount;
-        const adjustedStart = start + txCountDiff;
-        const adjustedEnd = end + txCountDiff;
-
-        if (
-          adjustedStart < 0 ||
-          adjustedEnd >= currentTxCount ||
-          adjustedStart > adjustedEnd
-        ) {
-          console.warn('Pending range out of bounds, clearing pending state');
-          pendingTxRange.current = { start: -1, end: -1 };
-          pendingTxCount.current = 0;
-          return transactions;
-        }
-
-        const before =
-          adjustedStart > 0 ? transactions.slice(0, adjustedStart) : [];
-        const pending = [];
-        const after =
-          adjustedEnd < currentTxCount - 1
-            ? transactions.slice(adjustedEnd + 1)
-            : [];
-
-        for (let i = adjustedStart; i <= adjustedEnd; i++) {
-          pending.push(getCachedTx(transactions[i], true));
-        }
-
-        return [...before, ...pending, ...after];
+        return result;
       };
 
       if (
@@ -561,9 +537,7 @@ const SparkWalletProvider = ({ children }) => {
           }));
         }
       } else if (updateType === 'incomingPayment') {
-        pendingSparkTxIds.current.clear();
-        pendingTxRange.current = { start: -1, end: -1 };
-        pendingTxCount.current = 0;
+        pollingBoundaryTime.current = null;
 
         const myVersion = ++balanceVersionRef.current;
         handleBalanceCache({
@@ -609,42 +583,10 @@ const SparkWalletProvider = ({ children }) => {
         const pollingMnemonic = mnemonic;
 
         // Mark new txs as pending while we wait for balance confirmation
-        setSparkInformation(prev => {
-          const existingIds = new Set(prev.transactions.map(t => t.sparkID));
-
-          // Find the range of new transactions
-          let firstNewIndex = -1;
-          let lastNewIndex = -1;
-
-          for (let i = 0; i < txs.length; i++) {
-            if (!existingIds.has(txs[i].sparkID)) {
-              if (firstNewIndex === -1) firstNewIndex = i;
-              lastNewIndex = i;
-              pendingSparkTxIds.current.add(txs[i].sparkID);
-            } else if (firstNewIndex !== -1) {
-              // Found existing tx after new ones - stop looking
-              break;
-            }
-          }
-
-          // Do not overwrite existing pending range unless this cycle
-          // discovered a new visible contiguous range.
-          if (firstNewIndex !== -1 && lastNewIndex !== -1) {
-            pendingTxRange.current = {
-              start: firstNewIndex,
-              end: lastNewIndex,
-            };
-            pendingTxCount.current = txs.length;
-          } else if (pendingSparkTxIds.current.size === 0) {
-            pendingTxRange.current = { start: -1, end: -1 };
-            pendingTxCount.current = 0;
-          }
-
-          return {
-            ...prev,
-            transactions: applyPendingFlags(txs),
-          };
-        });
+        setSparkInformation(prev => ({
+          ...prev,
+          transactions: applyPendingFlags(txs),
+        }));
 
         const poller = createBalancePoller(
           mnemonic,
@@ -665,9 +607,7 @@ const SparkWalletProvider = ({ children }) => {
               );
               return;
             }
-            pendingSparkTxIds.current.clear();
-            pendingTxRange.current = { start: -1, end: -1 };
-            pendingTxCount.current = 0;
+            pollingBoundaryTime.current = null;
 
             const myVersion = ++balanceVersionRef.current;
             const freshTxs = await getAllSparkTransactions({
@@ -698,6 +638,14 @@ const SparkWalletProvider = ({ children }) => {
         if (response.reason === 'aborted') {
           console.warn('Polling aborted');
           return;
+        }
+        // Poller completed (success or max_retries) — clear ref so subsequent
+        // events don't see a stale non-aborted controller and return early.
+        balancePollingAbortControllerRef.current = null;
+        // If polling timed out without confirming, clear pending indicators so
+        // the user isn't stuck seeing a permanent pending state.
+        if (response.reason === 'max_retries') {
+          pollingBoundaryTime.current = null;
         }
       } else {
         const MAX_RETRIES = 3;
@@ -742,9 +690,7 @@ const SparkWalletProvider = ({ children }) => {
 
         if (updateType === 'paymentWrapperTx') {
           const updatedBalance = Math.round(newBalance - fee);
-          pendingSparkTxIds.current.clear();
-          pendingTxRange.current = { start: -1, end: -1 };
-          pendingTxCount.current = 0;
+          pollingBoundaryTime.current = null;
 
           handleBalanceCache({
             isCheck: false,
@@ -807,9 +753,7 @@ const SparkWalletProvider = ({ children }) => {
             });
           }
         } else if (updateType === 'fullUpdate') {
-          pendingSparkTxIds.current.clear();
-          pendingTxRange.current = { start: -1, end: -1 };
-          pendingTxCount.current = 0;
+          pollingBoundaryTime.current = null;
 
           handleBalanceCache({
             isCheck: false,
@@ -992,21 +936,34 @@ const SparkWalletProvider = ({ children }) => {
     (...args) => {
       const [updateType] = args;
 
-      if (
-        !(
-          updateType === 'lrc20Payments' ||
-          updateType === 'txStatusUpdate' ||
-          updateType === 'transactions' ||
-          updateType === 'contactDetailsUpdate' ||
-          updateType === 'incrementalRestore' ||
-          updateType === 'incomingPayment'
-        )
-      ) {
+      const isFullBalanceAwaitUpdate =
+        updateType === 'fullUpdate-waitBalance' ||
+        updateType === 'fullUpdate' ||
+        updateType === 'fullUpdate-tokens' ||
+        updateType === 'paymentWrapperTx';
+
+      if (isFullBalanceAwaitUpdate || updateType === 'incomingPayment') {
         console.log(`Aborting any existing poller for incoming ${updateType}`);
         if (balancePollingAbortControllerRef.current) {
           balancePollingAbortControllerRef.current.abort();
           balancePollingAbortControllerRef.current = null;
         }
+      }
+
+      if (!pollingBoundaryTime.current && isFullBalanceAwaitUpdate) {
+        const currentTxs = sparkInfoRef.current.transactions;
+        // Transactions are sorted by time DESC — top 5 is sufficient to find
+        // the highest dateAddedToDb without scanning the full list.
+        pollingBoundaryTime.current = currentTxs
+          .slice(0, 5)
+          .reduce((max, tx) => {
+            try {
+              const addedAt = JSON.parse(tx.details)?.dateAddedToDb;
+              return Math.max(max, addedAt || 0);
+            } catch {
+              return max;
+            }
+          }, 0);
       }
 
       // Then queue the actual work
@@ -1343,14 +1300,14 @@ const SparkWalletProvider = ({ children }) => {
       currentPollingMnemonicRef.current = null;
       didRunInitialRestore.current = false;
       hasRestoreCompleted.current = false;
-      pendingSparkTxIds.current.clear();
-      pendingTxRange.current = { start: -1, end: -1 };
-      pendingTxCount.current = 0;
+      pollingBoundaryTime.current = null;
       txObjectCache.current.clear();
       currentUpdateIdRef.current = 0;
       balanceVersionRef.current = 0;
       hasRunInitBalancePoll.current = false;
       handleUpdateQueueRef.current = Promise.resolve();
+      pendingHandleUpdatesRef.current.clear();
+      isHandleUpdateDrainScheduledRef.current = false;
 
       // Reset state variables
       setSparkConnectionError(null);
