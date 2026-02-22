@@ -204,7 +204,9 @@ export const sparkPaymenWrapper = async ({
             fee: Math.round(usdToSatFee + lnFee),
             totalFee: Math.round(usdToSatFee + lnFee),
             supportFee: 0,
-            amount: swapPaymentResponse.result.tokenAmountSpent,
+            amount:
+              swapPaymentResponse.result.tokenAmountSpent -
+              swapPaymentResponse.result.ammFeePaid,
             description: memo || '',
             address: address,
             time: new Date(

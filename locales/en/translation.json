@@ -1023,7 +1023,10 @@
         "switchTokenText": "Use Different Token",
         "zeroAmountInvoiceDollarPayments": "Zero amount invoices cannot be paid with USD. Please use BTC.",
         "decodingPayment": "Decoding payment information...",
-        "selectPaymentMethod": "Please select a payment method to continue"
+        "selectPaymentMethod": "Please select a payment method to continue",
+        "swapRatesChangedTitle": "Swap Rate Updated",
+        "swapRatesChangedBody": "The exchange rate for this swap changed while you were reviewing. Please re-enter your amount to continue.",
+        "swapRatesChangedButton": "Re-enter Amount"
       },
       "selectPaymentMethod": {
         "header": "How do you want to fund your payment?"

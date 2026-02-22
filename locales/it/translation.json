@@ -1007,7 +1007,10 @@
         "switchTokenText": "Usa un token diverso",
         "zeroAmountInvoiceDollarPayments": "Le fatture con importo zero non possono essere pagate in USD. Usa BTC.",
         "decodingPayment": "Decodifica delle informazioni di pagamento...",
-        "selectPaymentMethod": "Seleziona un metodo di pagamento per continuare."
+        "selectPaymentMethod": "Seleziona un metodo di pagamento per continuare.",
+        "swapRatesChangedTitle": "Tasso di cambio aggiornato",
+        "swapRatesChangedBody": "Il tasso di cambio per questo scambio è cambiato durante la revisione. Inserisci nuovamente l’importo per continuare.",
+        "swapRatesChangedButton": "Reinserisci importo"
       },
       "selectPaymentMethod": {
         "header": "Seleziona come desideri finanziare il pagamento."

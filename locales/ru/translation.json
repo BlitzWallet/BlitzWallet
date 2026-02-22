@@ -1008,7 +1008,10 @@
         "switchTokenText": "Использовать другой токен",
         "zeroAmountInvoiceDollarPayments": "Инвойсы с нулевой суммой нельзя оплатить в USD. Используйте BTC.",
         "decodingPayment": "Декодирование платежа...",
-        "selectPaymentMethod": "Выберите метод оплаты"
+        "selectPaymentMethod": "Выберите метод оплаты",
+        "swapRatesChangedTitle": "Курс обмена обновлён",
+        "swapRatesChangedBody": "Курс обмена для этой операции изменился во время проверки. Пожалуйста, введите сумму заново, чтобы продолжить.",
+        "swapRatesChangedButton": "Ввести сумму снова"
       },
       "selectPaymentMethod": {
         "header": "Выберите источник средств."

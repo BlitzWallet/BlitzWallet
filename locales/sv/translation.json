@@ -1007,7 +1007,10 @@
         "switchTokenText": "Använd en annan symbol",
         "zeroAmountInvoiceDollarPayments": "Fakturor med nollbelopp kan inte betalas med USD. Använd BTC.",
         "decodingPayment": "Avkodar betalningsinformation...",
-        "selectPaymentMethod": "Välj en betalningsmetod för att fortsätta."
+        "selectPaymentMethod": "Välj en betalningsmetod för att fortsätta.",
+        "swapRatesChangedTitle": "Växelkurs uppdaterad",
+        "swapRatesChangedBody": "Växelkursen för denna växling ändrades medan du granskade den. Ange beloppet igen för att fortsätta.",
+        "swapRatesChangedButton": "Ange belopp igen"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."

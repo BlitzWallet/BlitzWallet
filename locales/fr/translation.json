@@ -1007,7 +1007,10 @@
         "switchTokenText": "Utiliser un autre jeton",
         "zeroAmountInvoiceDollarPayments": "Les factures à montant zéro ne peuvent pas être payées en USD. Veuillez utiliser BTC.",
         "decodingPayment": "Décodage des informations de paiement...",
-        "selectPaymentMethod": "Veuillez sélectionner un mode de paiement pour continuer."
+        "selectPaymentMethod": "Veuillez sélectionner un mode de paiement pour continuer.",
+        "swapRatesChangedTitle": "Taux de change mis à jour",
+        "swapRatesChangedBody": "Le taux de change pour cet échange a changé pendant votre vérification. Veuillez saisir à nouveau le montant pour continuer.",
+        "swapRatesChangedButton": "Ressaisir le montant"
       },
       "selectPaymentMethod": {
         "header": "Veuillez sélectionner comment vous souhaitez financer votre paiement."
