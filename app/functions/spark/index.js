@@ -1157,11 +1157,13 @@ export const getSparkPaymentStatus = status => {
     status === LightningSendRequestStatus.PREIMAGE_PROVIDED ||
     status === SparkLeavesSwapRequestStatus.SUCCEEDED ||
     status === SparkUserRequestStatus.SUCCEEDED ||
-    status === ClaimStaticDepositStatus.TRANSFER_COMPLETED
+    status === ClaimStaticDepositStatus.TRANSFER_COMPLETED ||
+    status === ClaimStaticDepositStatus.SPEND_TX_BROADCAST
     ? 'completed'
     : status === 'TRANSFER_STATUS_RETURNED' ||
       status === 'TRANSFER_STATUS_EXPIRED' ||
       status === 'TRANSFER_STATUS_SENDER_INITIATED' ||
+      status === LightningSendRequestStatus.USER_SWAP_RETURNED ||
       status === LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED ||
       status === LightningSendRequestStatus.TRANSFER_FAILED ||
       status === LightningSendRequestStatus.USER_TRANSFER_VALIDATION_FAILED ||
