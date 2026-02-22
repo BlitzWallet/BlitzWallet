@@ -493,6 +493,23 @@ const SparkWalletProvider = ({ children }) => {
       const isLatestRequest = updateId === currentUpdateIdRef.current;
 
       const applyPendingFlags = transactions => {
+        if (!transactions?.length) return transactions;
+
+        // Source of truth for pending state across overlapping full updates.
+        if (pendingSparkTxIds.current.size > 0) {
+          let hasPendingTx = false;
+          const withPendingFlags = transactions.map(tx => {
+            if (!pendingSparkTxIds.current.has(tx.sparkID)) return tx;
+            hasPendingTx = true;
+            return getCachedTx(tx, true);
+          });
+
+          if (hasPendingTx) {
+            pendingTxCount.current = transactions.length;
+            return withPendingFlags;
+          }
+        }
+
         const { start, end } = pendingTxRange.current;
         const previousTxCount = pendingTxCount.current;
 
@@ -586,7 +603,8 @@ const SparkWalletProvider = ({ children }) => {
         updateType === 'fullUpdate' ||
         updateType === 'fullUpdate-tokens'
       ) {
-        balancePollingAbortControllerRef.current = new AbortController();
+        const pollerAbortController = new AbortController();
+        balancePollingAbortControllerRef.current = pollerAbortController;
         currentPollingMnemonicRef.current = mnemonic;
         const pollingMnemonic = mnemonic;
 
@@ -609,9 +627,18 @@ const SparkWalletProvider = ({ children }) => {
             }
           }
 
-          // Update range
-          pendingTxRange.current = { start: firstNewIndex, end: lastNewIndex };
-          pendingTxCount.current = txs.length;
+          // Do not overwrite existing pending range unless this cycle
+          // discovered a new visible contiguous range.
+          if (firstNewIndex !== -1 && lastNewIndex !== -1) {
+            pendingTxRange.current = {
+              start: firstNewIndex,
+              end: lastNewIndex,
+            };
+            pendingTxCount.current = txs.length;
+          } else if (pendingSparkTxIds.current.size === 0) {
+            pendingTxRange.current = { start: -1, end: -1 };
+            pendingTxCount.current = 0;
+          }
 
           return {
             ...prev,
@@ -622,8 +649,15 @@ const SparkWalletProvider = ({ children }) => {
         const poller = createBalancePoller(
           mnemonic,
           currentMnemonicRef,
-          balancePollingAbortControllerRef.current,
+          pollerAbortController,
           async balanceResult => {
+            // Ignore stale pollers that were replaced by a newer update cycle.
+            if (
+              balancePollingAbortControllerRef.current !== pollerAbortController
+            )
+              return;
+            if (pollingMnemonic !== currentMnemonicRef.current) return;
+
             if (!balanceResult.didWork) {
               sparkTransactionsEventEmitter.emit(
                 SPARK_TX_UPDATE_ENVENT_NAME,
@@ -641,7 +675,6 @@ const SparkWalletProvider = ({ children }) => {
               accountId: sparkInfoRef.current.identityPubKey,
             });
             setSparkInformation(prev => {
-              if (pollingMnemonic !== currentMnemonicRef.current) return prev;
               if (myVersion < balanceVersionRef.current) return prev;
               handleBalanceCache({
                 isCheck: false,
