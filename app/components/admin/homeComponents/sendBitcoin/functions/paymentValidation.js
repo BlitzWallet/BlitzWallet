@@ -230,7 +230,7 @@ export default function usePaymentValidation({
 
     const hasSufficientBalance =
       finalPaymentMethod === 'USD'
-        ? dollarBalanceSat >= totalCost
+        ? dollarBalanceSat + 1 >= totalCost
         : bitcoinBalance >= totalCost;
 
     if (!hasSufficientBalance) {
