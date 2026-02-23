@@ -2288,6 +2288,17 @@
       }
     },
     "withdraw": {
+      "balanceTypeTitle": "Que souhaitez-vous retirer ?",
+      "interestOption": "Intérêts gagnés",
+      "savingsOption": "Solde d’épargne",
+      "interestZeroHint": "Aucun intérêt gagné pour le moment",
+      "savingsZeroHint": "Aucune épargne pour le moment",
+      "interestBelowMinHint": "En dessous du minimum d’échange, solde bitcoin uniquement",
+      "loadingBalances": "Chargement des soldes...",
+      "balanceLoadError": "Impossible de charger le portefeuille. Revenez en arrière et réessayez.",
+      "fromInterest": "Depuis vos intérêts",
+      "fromSavings": "Depuis votre épargne",
+      "interestPaymentLabel": "Retrait d’intérêts",
       "chooseGoalTitle": "Retirer de l'argent depuis",
       "withdrawAll": "Tout retirer",
       "generalSavings": "Épargne générale",

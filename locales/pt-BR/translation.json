@@ -2288,6 +2288,17 @@
       }
     },
     "withdraw": {
+      "balanceTypeTitle": "O que você gostaria de sacar?",
+      "interestOption": "Juros acumulados",
+      "savingsOption": "Saldo de poupança",
+      "interestZeroHint": "Ainda não há juros acumulados",
+      "savingsZeroHint": "Nada salvo ainda",
+      "interestBelowMinHint": "Abaixo do mínimo para troca, apenas saldo em bitcoin",
+      "loadingBalances": "Carregando saldos...",
+      "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
+      "fromInterest": "Dos seus juros",
+      "fromSavings": "Da sua poupança",
+      "interestPaymentLabel": "Saque de juros",
       "chooseGoalTitle": "Sacar dinheiro de",
       "withdrawAll": "Sacar tudo",
       "generalSavings": "Poupança geral",

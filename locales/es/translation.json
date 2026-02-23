@@ -2168,6 +2168,17 @@
       }
     },
     "withdraw": {
+      "balanceTypeTitle": "¿Qué te gustaría retirar?",
+      "interestOption": "Intereses generados",
+      "savingsOption": "Saldo de ahorros",
+      "interestZeroHint": "Aún no se han generado intereses",
+      "savingsZeroHint": "Aún no hay ahorros",
+      "interestBelowMinHint": "Por debajo del mínimo de intercambio, solo saldo en bitcoin",
+      "loadingBalances": "Cargando saldos...",
+      "balanceLoadError": "No se pudo cargar la billetera. Regresa e inténtalo nuevamente.",
+      "fromInterest": "De tus intereses",
+      "fromSavings": "De tus ahorros",
+      "interestPaymentLabel": "Retiro de intereses",
       "chooseGoalTitle": "Retirar dinero de",
       "withdrawAll": "Retirar todo",
       "generalSavings": "Ahorros generales",

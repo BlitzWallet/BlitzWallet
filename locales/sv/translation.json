@@ -2288,6 +2288,17 @@
       }
     },
     "withdraw": {
+      "balanceTypeTitle": "Vad vill du ta ut?",
+      "interestOption": "Intjänad ränta",
+      "savingsOption": "Sparsaldo",
+      "interestZeroHint": "Ingen ränta intjänad ännu",
+      "savingsZeroHint": "Inget sparat ännu",
+      "interestBelowMinHint": "Under minsta växlingsbelopp, endast bitcoin-saldo",
+      "loadingBalances": "Laddar saldon...",
+      "balanceLoadError": "Det gick inte att ladda plånboken. Gå tillbaka och försök igen.",
+      "fromInterest": "Från din ränta",
+      "fromSavings": "Från ditt sparande",
+      "interestPaymentLabel": "Ränteuttag",
       "chooseGoalTitle": "Ta ut pengar från",
       "withdrawAll": "Ta ut allt",
       "generalSavings": "Allmänt sparande",

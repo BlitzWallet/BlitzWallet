@@ -2290,6 +2290,17 @@
       }
     },
     "withdraw": {
+      "balanceTypeTitle": "Was möchtest du auszahlen?",
+      "interestOption": "Erwirtschaftete Zinsen",
+      "savingsOption": "Sparguthaben",
+      "interestZeroHint": "Noch keine Zinsen erwirtschaftet",
+      "savingsZeroHint": "Noch nichts gespart",
+      "interestBelowMinHint": "Unter Mindestbetrag für Tausch, nur Bitcoin-Guthaben möglich",
+      "loadingBalances": "Guthaben werden geladen...",
+      "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehe zurück und versuche es erneut.",
+      "fromInterest": "Aus deinen Zinsen",
+      "fromSavings": "Aus deinen Ersparnissen",
+      "interestPaymentLabel": "Zinsauszahlung",
       "chooseGoalTitle": "Geld abheben von",
       "withdrawAll": "Alles abheben",
       "generalSavings": "Allgemeine Ersparnisse",

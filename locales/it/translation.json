@@ -2288,6 +2288,17 @@
       }
     },
     "withdraw": {
+      "balanceTypeTitle": "Cosa desideri prelevare?",
+      "interestOption": "Interessi maturati",
+      "savingsOption": "Saldo risparmi",
+      "interestZeroHint": "Nessun interesse maturato finora",
+      "savingsZeroHint": "Nessun risparmio ancora",
+      "interestBelowMinHint": "Sotto il minimo per lo swap, solo saldo bitcoin",
+      "loadingBalances": "Caricamento saldi...",
+      "balanceLoadError": "Impossibile caricare il wallet. Torna indietro e riprova.",
+      "fromInterest": "Dai tuoi interessi",
+      "fromSavings": "Dai tuoi risparmi",
+      "interestPaymentLabel": "Prelievo interessi",
       "chooseGoalTitle": "Preleva denaro da",
       "withdrawAll": "Preleva tutto",
       "generalSavings": "Risparmi generali",

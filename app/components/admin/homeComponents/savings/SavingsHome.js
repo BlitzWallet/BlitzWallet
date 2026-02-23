@@ -72,7 +72,7 @@ export default function SavingsHome() {
               colorOverride={COLORS.darkModeText}
               size={15}
               strokeWidth={3}
-              iconName={'ArrowUp'}
+              iconName={'TrendingUp'}
             />
 
             <ThemeText

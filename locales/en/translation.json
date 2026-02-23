@@ -2340,6 +2340,17 @@
       }
     },
     "withdraw": {
+      "balanceTypeTitle": "What would you like to withdraw?",
+      "interestOption": "Interest earned",
+      "savingsOption": "Savings balance",
+      "interestZeroHint": "No interest earned yet",
+      "savingsZeroHint": "Nothing saved yet",
+      "interestBelowMinHint": "Below swap minimum, bitcoin balance only",
+      "loadingBalances": "Loading balances...",
+      "balanceLoadError": "Unable to load wallet. Go back and try again.",
+      "fromInterest": "From your interest",
+      "fromSavings": "From your savings",
+      "interestPaymentLabel": "Interest withdrawal",
       "chooseGoalTitle": "Withdraw money from",
       "withdrawAll": "Withdraw All",
       "generalSavings": "General savings",

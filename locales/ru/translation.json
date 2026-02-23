@@ -2296,6 +2296,17 @@
       }
     },
     "withdraw": {
+      "balanceTypeTitle": "Что вы хотите вывести?",
+      "interestOption": "Начисленные проценты",
+      "savingsOption": "Сбережения",
+      "interestZeroHint": "Проценты пока не начислены",
+      "savingsZeroHint": "Сбережений пока нет",
+      "interestBelowMinHint": "Ниже минимальной суммы обмена, доступен только биткоин-баланс",
+      "loadingBalances": "Загрузка балансов...",
+      "balanceLoadError": "Не удалось загрузить кошелёк. Вернитесь назад и попробуйте снова.",
+      "fromInterest": "Из ваших процентов",
+      "fromSavings": "Из ваших сбережений",
+      "interestPaymentLabel": "Вывод процентов",
       "chooseGoalTitle": "Вывести средства из",
       "withdrawAll": "Вывести всё",
       "generalSavings": "Общие сбережения",
