@@ -123,22 +123,14 @@ export function SendRecieveBTNs({
     );
   });
 
-  return (
-    <View
-      style={{
-        ...styles.container,
-        marginBottom: isNWCWallet ? 0 : 30,
-      }}
-    >
-      {buttonElements}
-    </View>
-  );
+  return <View style={styles.container}>{buttonElements}</View>;
 }
 
 const styles = StyleSheet.create({
   container: {
+    width: '85%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
     ...CENTER,

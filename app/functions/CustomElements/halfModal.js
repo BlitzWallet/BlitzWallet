@@ -40,6 +40,7 @@ import ConfirmSMSReceiveCode from '../../components/admin/homeComponents/apps/sm
 import EditGiftHalfModal from '../../components/admin/homeComponents/contacts/internalComponents/editGiftHalfModal';
 import ViewGiftCardCodePage from '../../components/admin/homeComponents/contacts/viewGiftCardCode';
 import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/viewAllGiftCards';
+import ViewAllTokensHalfModal from '../../components/admin/homeComponents/homeLightning/viewAllTokensHalfModal';
 
 import Animated, {
   useSharedValue,
@@ -495,6 +496,13 @@ export default function CustomHalfModal(props) {
             currentBalance={props?.route?.params?.currentBalance}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'ViewAllTokensHalfModal':
+        return (
+          <ViewAllTokensHalfModal
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
           />
         );
 

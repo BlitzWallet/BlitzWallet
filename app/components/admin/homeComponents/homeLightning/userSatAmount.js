@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   informationText: { marginBottom: 20, textAlign: 'center' },
 
   valueText: {
-    fontSize: SIZES.xxLarge,
+    fontSize: SIZES.huge,
     textAlign: 'center',
     fontFamily: FONT.Title_Regular,
   },
