@@ -16,6 +16,7 @@ import {
 } from './pools/poolsStorage';
 import {
   deleteSavingsGoalsTable,
+  deleteSavingsPayoutsTable,
   deleteSavingsTransactionsTable,
 } from './savings/savingsStorage';
 
@@ -35,6 +36,7 @@ export default async function factoryResetWallet() {
     await deleteContributionsTable();
     await deleteSavingsGoalsTable();
     await deleteSavingsTransactionsTable();
+    await deleteSavingsPayoutsTable();
 
     try {
       await signOut(firebaseAuth);
