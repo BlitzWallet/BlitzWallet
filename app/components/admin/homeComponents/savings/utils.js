@@ -21,34 +21,6 @@ export const formatTxDate = timestamp => {
   });
 };
 
-export function lastDailyPayoutWindowMs() {
-  const now = new Date();
-  const todayWindow = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    1, // 01:00 UTC
-  );
-  return now.getTime() >= todayWindow ? todayWindow : todayWindow - 86_400_000;
-}
-
-export async function fetchSavingsWalletBalance(sparkAddress) {
-  try {
-    const res = await fetch(
-      `https://api.sparkscan.io/v1/address/${sparkAddress}`,
-    );
-    if (res.status === 429) return null; // rate limited — caller falls back to wallet init
-    if (!res.ok) return null;
-    const data = await res.json();
-    const usd =
-      typeof data.totalValueUsd === 'number' ? data.totalValueUsd : null;
-    if (usd === null) return null;
-    return Math.round(usd * 1_000_000); // convert dollars → micros
-  } catch {
-    return null;
-  }
-}
-
 export async function fetchSavingsInterestPayouts(
   pubKeyHex,
   limit = 10,
@@ -158,4 +130,21 @@ export function resolveGoalAndAmount(goalIdOrPayload, maybeAmount) {
     goalId: typeof goalIdOrPayload === 'string' ? goalIdOrPayload : undefined,
     amount: maybeAmount,
   };
+}
+
+export function mergeAndSortSavingsActivity(
+  contributions = [],
+  interestPayouts = [],
+) {
+  const normalised = interestPayouts.map(payout => ({
+    txId: payout.txId,
+    type: 'interest',
+    amountMicros: toMicros(payout.payoutSats),
+    createdAt: new Date(payout.createdAt).getTime(),
+    description: 'Interest Payout',
+  }));
+
+  return [...contributions, ...normalised].sort(
+    (a, b) => b.createdAt - a.createdAt,
+  );
 }

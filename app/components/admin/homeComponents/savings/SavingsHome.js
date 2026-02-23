@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSavings } from '../../../../../context-store/savingsContext';
@@ -12,7 +12,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CircularProgress from '../pools/circularProgress';
-import { fromMicros } from './utils';
+import { fromMicros, mergeAndSortSavingsActivity } from './utils';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -32,6 +32,7 @@ export default function SavingsHome() {
     allSavingsTransactions,
     refreshInterestPayouts,
     refreshBalances,
+    interestPayouts,
   } = useSavings();
 
   useFocusEffect(
@@ -39,6 +40,11 @@ export default function SavingsHome() {
       refreshBalances();
       refreshInterestPayouts();
     }, [refreshBalances, refreshInterestPayouts]),
+  );
+
+  const combinedTransactions = useMemo(
+    () => mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts),
+    [allSavingsTransactions, interestPayouts],
   );
 
   return (
@@ -74,7 +80,10 @@ export default function SavingsHome() {
               });
             }}
           >
-            <ThemeText styles={styles.interestText} content={t('savings.home.howItWorksLink')} />
+            <ThemeText
+              styles={styles.interestText}
+              content={t('savings.home.howItWorksLink')}
+            />
             <ThemeIcon iconName={'ChevronRight'} size={18} />
           </TouchableOpacity>
         </View>
@@ -99,7 +108,10 @@ export default function SavingsHome() {
                 <ThemeIcon iconName={'Target'} size={18} />
               </View>
               <View style={styles.goalCopyWrap}>
-                <ThemeText styles={styles.goalTitle} content={t('savings.home.setGoalTitle')} />
+                <ThemeText
+                  styles={styles.goalTitle}
+                  content={t('savings.home.setGoalTitle')}
+                />
                 <ThemeText
                   styles={styles.goalSubtitle}
                   content={t('savings.home.setGoalSubtitle')}
@@ -144,7 +156,9 @@ export default function SavingsHome() {
                     <View style={styles.goalContent}>
                       <ThemeText
                         styles={styles.goalTitle}
-                        content={goal.name || t('savings.home.savingsGoalFallback')}
+                        content={
+                          goal.name || t('savings.home.savingsGoalFallback')
+                        }
                       />
                       <ThemeText
                         styles={styles.goalSubtitle}
@@ -197,7 +211,7 @@ export default function SavingsHome() {
           )}
         </View>
 
-        <SavingsActivityContainer transactions={allSavingsTransactions} />
+        <SavingsActivityContainer transactions={combinedTransactions} />
 
         <ThemeText
           styles={styles.disclaimer}
