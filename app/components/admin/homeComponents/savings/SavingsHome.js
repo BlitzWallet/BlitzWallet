@@ -19,12 +19,14 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { WINDOWWIDTH } from '../../../../constants/theme';
 import SavingsActivityContainer from './SavingsActivityContainer';
 import SavingsActionButtons from './SavingsActionButtons';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 export default function SavingsHome() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
+  const { darkModeType, theme } = useGlobalThemeContext();
   const { fiatStats } = useNodeContext();
   const {
     savingsBalance,
@@ -33,6 +35,7 @@ export default function SavingsHome() {
     refreshInterestPayouts,
     refreshBalances,
     interestPayouts,
+    totalIntrestEarned,
   } = useSavings();
 
   useFocusEffect(
@@ -47,6 +50,8 @@ export default function SavingsHome() {
     [allSavingsTransactions, interestPayouts],
   );
 
+  console.log(interestPayouts, totalIntrestEarned);
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={t('savings.home.title')} />
@@ -56,8 +61,37 @@ export default function SavingsHome() {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.heroCard}>
+          <View
+            style={[
+              styles.earnedContainer,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : COLORS.primary,
+              },
+            ]}
+          >
+            <ThemeIcon
+              colorOverride={COLORS.darkModeText}
+              size={15}
+              strokeWidth={3}
+              iconName={'ArrowUp'}
+            />
+
+            <ThemeText
+              styles={{ color: COLORS.darkModeText, fontSize: SIZES.small }}
+              content={`Earned: ${displayCorrectDenomination({
+                amount: totalIntrestEarned,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'sats',
+                },
+                fiatStats,
+              })}`}
+            />
+          </View>
           <ThemeText
             adjustsFontSizeToFit={true}
+            CustomNumberOfLines={1}
             styles={styles.balanceValue}
             content={displayCorrectDenomination({
               amount: savingsBalance,
@@ -70,6 +104,7 @@ export default function SavingsHome() {
               convertAmount: false,
             })}
           />
+
           <TouchableOpacity
             style={styles.interestRow}
             activeOpacity={0.7}
@@ -230,13 +265,25 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   heroCard: {
+    width: '100%',
     alignItems: 'center',
     marginBottom: 12,
+    gap: 10,
   },
+
   balanceValue: {
     fontSize: SIZES.huge,
+    flexShrink: 1,
     includeFontPadding: false,
     marginTop: 20,
+  },
+  earnedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    gap: 4,
   },
   interestRow: {
     flexDirection: 'row',

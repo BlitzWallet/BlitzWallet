@@ -560,7 +560,7 @@ export default function AddMoneyToSavingsHalfModal({
                 },
                 fiatStats,
                 forceCurrency: 'USD',
-                convertAmount: false,
+                convertAmount: paymentMode === 'USD' ? false : true,
               }),
             })}
           />

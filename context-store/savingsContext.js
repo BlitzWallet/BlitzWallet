@@ -509,6 +509,10 @@ export function SavingsProvider({ children }) {
     return computeSavingsBalanceMicros(transactions);
   }, [walletBalanceMicros, transactions]);
 
+  const totalIntrestEarned = useMemo(() => {
+    return interestPayouts?.reduce((prev, curr) => prev + curr.payoutSats, 0);
+  }, [interestPayouts.length]);
+
   const value = useMemo(
     () => ({
       deriveSingleSavingsWallet,
@@ -543,6 +547,7 @@ export function SavingsProvider({ children }) {
       walletBalanceMicros,
       savingsWallet,
       totalGoalsBalance,
+      totalIntrestEarned,
     }),
     [
       deriveSingleSavingsWallet,
@@ -562,6 +567,7 @@ export function SavingsProvider({ children }) {
       walletBalanceMicros,
       savingsWallet,
       totalGoalsBalance,
+      totalIntrestEarned,
     ],
   );
 
