@@ -54,11 +54,11 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
           amount: amount,
           masterInfoObject: {
             ...masterInfoObject,
-            userBalanceDenomination: 'fiat',
+            userBalanceDenomination: item.type === 'interest' ? 'sats' : 'fiat',
           },
           fiatStats,
-          forceCurrency: 'USD',
-          convertAmount: false,
+          forceCurrency: item.type === 'interest' ? null : 'USD',
+          convertAmount: item.type === 'interest' ? true : false,
         })}`}
       />
     </View>
