@@ -363,6 +363,7 @@ export default function HalfModalReceiveOptions({
   const [showAmountInput, setShowAmountInput] = useState(false);
   const [showAddContact, setShowAddContact] = useState(false);
   const [showPoolCreation, setShowPoolCreation] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(8);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({});
   const scrollOffsetRef = useRef(0);
@@ -402,6 +403,13 @@ export default function HalfModalReceiveOptions({
     opacity: contentOpacity.value,
     transform: [{ translateX: contentTranslateX.value }],
   }));
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisibleCount(Infinity);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleReceiveOption = useCallback(
     async type => {
@@ -544,23 +552,25 @@ export default function HalfModalReceiveOptions({
   }, [expandedContact, sortedContacts]);
 
   const contactElements = useMemo(() => {
-    return sortedContacts.map(contact => (
-      <ContactRow
-        key={contact.uuid}
-        expandedContact={expandedContact}
-        contact={contact}
-        cache={cache}
-        theme={theme}
-        darkModeType={darkModeType}
-        backgroundOffset={backgroundOffset}
-        backgroundColor={backgroundColor}
-        textColor={textColor}
-        onToggleExpand={handleToggleExpand}
-        onSelectPaymentType={handleSelectPaymentType}
-        onRowLayout={handleRowLayout}
-        t={t}
-      />
-    ));
+    return sortedContacts
+      .slice(0, visibleCount)
+      .map(contact => (
+        <ContactRow
+          key={contact.uuid}
+          expandedContact={expandedContact}
+          contact={contact}
+          cache={cache}
+          theme={theme}
+          darkModeType={darkModeType}
+          backgroundOffset={backgroundOffset}
+          backgroundColor={backgroundColor}
+          textColor={textColor}
+          onToggleExpand={handleToggleExpand}
+          onSelectPaymentType={handleSelectPaymentType}
+          onRowLayout={handleRowLayout}
+          t={t}
+        />
+      ));
   }, [
     expandedContact,
     sortedContacts,
@@ -574,6 +584,7 @@ export default function HalfModalReceiveOptions({
     handleSelectPaymentType,
     handleRowLayout,
     t,
+    visibleCount,
   ]);
 
   return (
