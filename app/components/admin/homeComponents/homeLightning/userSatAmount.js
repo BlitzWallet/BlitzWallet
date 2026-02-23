@@ -116,6 +116,7 @@ export const UserSatAmount = memo(function UserSatAmount({
         onLayout={handleLayoutMeasurement}
       >
         <FormattedSatText
+          autoAdjustFontSize={true}
           styles={styles.valueText}
           balance={displayBalance}
           useSizing={true}
@@ -149,6 +150,7 @@ export const UserSatAmount = memo(function UserSatAmount({
           layout={layout}
         >
           <FormattedSatText
+            autoAdjustFontSize={true}
             styles={styles.valueText}
             balance={displayBalance}
             useSizing={true}

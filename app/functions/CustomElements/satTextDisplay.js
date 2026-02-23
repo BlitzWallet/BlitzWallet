@@ -34,6 +34,7 @@ export default function FormattedSatText({
   useSizing = false,
   forceCurrency = null,
   forceFiatStats = null,
+  autoAdjustFontSize = false,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats: globalFiatStats } = useNodeContext();
@@ -99,6 +100,8 @@ export default function FormattedSatText({
 
   const renderText = (content, extra = {}) => (
     <ThemeText
+      CustomNumberOfLines={autoAdjustFontSize ? 1 : undefined}
+      adjustsFontSizeToFit={autoAdjustFontSize}
       key={content}
       reversed={reversed}
       styles={{ includeFontPadding: false, ...styles, ...extra }}
@@ -107,6 +110,8 @@ export default function FormattedSatText({
   );
   const hiddenText = (content, key, extra = {}) => (
     <ThemeText
+      CustomNumberOfLines={autoAdjustFontSize ? 1 : undefined}
+      adjustsFontSizeToFit={autoAdjustFontSize}
       key={key}
       reversed={reversed}
       styles={{ includeFontPadding: false, ...styles, ...extra }}
