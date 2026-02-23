@@ -409,7 +409,7 @@ export function SavingsProvider({ children }) {
 
         if (!pastTxs?.transactions?.length) return;
 
-        for (const tokenTx of pastTxs.transactions) {
+        for (const tokenTx of pastTxs.transactions.slice(0, 50)) {
           const tokenOutputs = tokenTx.tokenTransaction?.tokenOutputs;
 
           if (!tokenOutputs?.length) continue;

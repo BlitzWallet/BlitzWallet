@@ -77,7 +77,7 @@ export async function initSavingsDb() {
         payoutSats INTEGER NOT NULL,
         status TEXT NOT NULL,
         txId TEXT NOT NULL UNIQUE,
-        createdAt TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
         day INTEGER NOT NULL,
         paidAt INTEGER NOT NULL
       );

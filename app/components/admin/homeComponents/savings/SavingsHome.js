@@ -50,8 +50,6 @@ export default function SavingsHome() {
     [allSavingsTransactions, interestPayouts],
   );
 
-  console.log(interestPayouts, totalIntrestEarned);
-
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={t('savings.home.title')} />
