@@ -1009,7 +1009,10 @@
         "switchTokenText": "Bitte verwenden Sie einen anderen Token.",
         "zeroAmountInvoiceDollarPayments": "Rechnungen mit Betrag null können nicht mit USD bezahlt werden. Bitte verwenden Sie BTC.",
         "decodingPayment": "Zahlungsinformationen werden dekodiert...",
-        "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren."
+        "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren.",
+"swapRatesChangedTitle": "Wechselkurs aktualisiert",
+"swapRatesChangedBody": "Der Wechselkurs für diesen Tausch hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
+"swapRatesChangedButton": "Betrag erneut eingeben"
       },
       "selectPaymentMethod": {
         "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung senden möchten (BTC oder USD)."
