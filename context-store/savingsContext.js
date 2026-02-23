@@ -11,24 +11,22 @@ import {
   createSavingsGoal,
   createSavingsTransaction,
   deleteSavingsGoal,
+  getAllPayoutsTransactions,
   getAllSavingsTransactions,
   getSavingsGoals,
-  initSavingsDb,
+  setPayoutsTransactions,
   updateSavingsGoal,
 } from '../app/functions/savings/savingsStorage';
 import customUUID from '../app/functions/customUUID';
 import {
   DEFAULT_GOAL_EMOJI,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
-  USDB_TOKEN_ID,
 } from '../app/constants';
 import {
   deriveSparkGiftMnemonic,
   deriveSparkIdentityKey,
   deriveSparkAddress,
 } from '../app/functions/gift/deriveGiftWallet';
-import { getSparkBalance } from '../app/functions/spark';
-import formatTokensNumber from '../app/functions/lrc20/formatTokensBalance';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
@@ -39,17 +37,19 @@ import {
   computeGoalBalanceMicros,
   computeSavingsBalanceMicros,
   fetchSavingsInterestPayouts,
-  fetchSavingsWalletBalance,
   fromMicros,
-  lastDailyPayoutWindowMs,
   normalizeGoalForUI,
-  parseGoalMetadata,
   resolveGoalAndAmount,
   serializeGoalMetadata,
   toLegacyDisplayTransaction,
   toMicros,
 } from '../app/components/admin/homeComponents/savings/utils';
+import {
+  getTokensBalance,
+  getTokenTransactions,
+} from '../app/functions/spark/walletViewer';
 import { useTranslation } from 'react-i18next';
+import tokenBufferAmountToDecimal from '../app/functions/lrc20/bufferToDecimal';
 
 const SavingsContext = createContext(null);
 
@@ -150,8 +150,6 @@ export function SavingsProvider({ children }) {
 
   const loadSavingsState = useCallback(async () => {
     try {
-      await initSavingsDb();
-
       // Load cached balance immediately so UI renders without loading state
       const [cachedBalance, cachedBalanceFetchTime, cachedPayoutFetchTime] =
         await Promise.all([
@@ -176,14 +174,23 @@ export function SavingsProvider({ children }) {
       }
 
       await deriveSingleSavingsWallet();
-      const [goalsFromStorage, transactionsFromStorage] = await Promise.all([
+      const [
+        goalsFromStorage,
+        transactionsFromStorage,
+        payoutsTransactionsFromStorage,
+      ] = await Promise.all([
         getSavingsGoals(),
         getAllSavingsTransactions(),
+        getAllPayoutsTransactions(),
       ]);
 
       setGoals(goalsFromStorage);
       setTransactions(transactionsFromStorage);
-    } catch (loadError) {}
+      setInterestPayouts(payoutsTransactionsFromStorage);
+      console.log('savigs loaded succesfully');
+    } catch (loadError) {
+      console.log(loadError, 'loading savings errro');
+    }
   }, [deriveSingleSavingsWallet]);
 
   useEffect(() => {
@@ -391,86 +398,103 @@ export function SavingsProvider({ children }) {
     );
   }, [goals, transactions]);
 
+  const handleRestorePayments = useCallback(
+    async balance => {
+      try {
+        if (!balance) return;
+        const txs = await getAllSavingsTransactions();
+        if (txs.length) return;
+
+        const pastTxs = await getTokenTransactions(savingsWallet.sparkAddress);
+
+        if (!pastTxs?.transactions?.length) return;
+
+        for (const tokenTx of pastTxs.transactions) {
+          const tokenOutputs = tokenTx.tokenTransaction?.tokenOutputs;
+
+          if (!tokenOutputs?.length) continue;
+
+          // Get tx hash as id
+          const txHash = Buffer.from(
+            Object.values(tokenTx.tokenTransactionHash),
+          ).toString('hex');
+
+          const ownerPublicKey = Buffer.from(
+            Object.values(tokenOutputs[0]?.ownerPublicKey),
+          ).toString('hex');
+
+          const savingsWalletPubKey = savingsWallet.identityPublicKeyHex; // however you access this
+
+          const didSend = ownerPublicKey !== savingsWalletPubKey;
+
+          // tokenAmount is a 16-byte big-endian buffer object
+          const rawAmount = tokenOutputs[0]?.tokenAmount;
+          const amountMicros = rawAmount
+            ? Number(tokenBufferAmountToDecimal(rawAmount))
+            : 0;
+
+          if (!amountMicros) continue;
+
+          const timestamp = new Date(
+            tokenTx.tokenTransaction.clientCreatedTimestamp,
+          ).getTime();
+
+          await createSavingsTransaction({
+            id: txHash,
+            goalId: UNALLOCATED_GOAL_ID,
+            type: didSend ? 'withdrawal' : 'deposit',
+            amountMicros,
+            timestamp,
+          }).catch(err => {
+            // Likely a duplicate — safe to ignore
+            console.log(`[RestorePayments] Skipping ${txHash}:`, err.message);
+          });
+        }
+
+        const finalTxs = await getAllSavingsTransactions();
+        setTransactions(finalTxs);
+      } catch (err) {
+        console.log('error restoring tx history', err);
+      }
+    },
+    [savingsWallet],
+  );
+
   const refreshBalances = useCallback(
     async ({ force = false } = {}) => {
       if (!savingsWallet?.sparkAddress) return { didWork: false };
 
-      // Skip if the balance is clean (no deposit/withdrawal since last fetch)
-      // AND the last successful fetch is still within the same daily payout window.
-      if (!force && !balanceDirtyRef.current) {
-        const lastPayoutWindow = lastDailyPayoutWindowMs();
-        if (balanceFetchTimeRef.current >= lastPayoutWindow) {
-          return { didWork: true, skipped: true };
-        }
-      }
-
-      // Primary: sparkscan API (fast, no wallet init needed)
-      const micros = await fetchSavingsWalletBalance(
-        savingsWallet.sparkAddress,
+      const balance = Number(
+        await getTokensBalance(savingsWallet.sparkAddress),
       );
-      if (micros !== null) {
-        updateWalletBalance(micros);
-        balanceFetchTimeRef.current = Date.now();
-        balanceDirtyRef.current = false;
+
+      if (balance) {
+        handleRestorePayments(balance);
+        updateWalletBalance(balance);
         return { didWork: true };
-      }
-
-      // Fallback: rederive the savings mnemonic and initialize the wallet directly
-      try {
-        const derived = await deriveSparkGiftMnemonic(
-          accountMnemoinc,
-          STARTING_INDEX_FOR_SAVINGS_DERIVE,
-        );
-        if (!derived?.success) return { didWork: false };
-
-        const result = await getSparkBalance(derived.derivedMnemonic);
-        if (result?.didWork) {
-          const usdbToken = result.tokensObj?.[USDB_TOKEN_ID];
-          if (
-            usdbToken?.balance != null &&
-            usdbToken?.tokenMetadata?.decimals != null
-          ) {
-            const dollarStr = formatTokensNumber(
-              usdbToken.balance,
-              usdbToken.tokenMetadata.decimals,
-            );
-            const dollarFloat = parseFloat(dollarStr) || 0;
-            updateWalletBalance(Math.round(dollarFloat * 1_000_000));
-            balanceFetchTimeRef.current = Date.now();
-            balanceDirtyRef.current = false;
-            return { didWork: true };
-          }
-        }
-      } catch (e) {
-        console.log('savings wallet init fallback failed', e);
       }
 
       return { didWork: false };
     },
-    [savingsWallet, accountMnemoinc, updateWalletBalance],
+    [
+      savingsWallet,
+      accountMnemoinc,
+      updateWalletBalance,
+      handleRestorePayments,
+    ],
   );
 
   const refreshInterestPayouts = useCallback(
     async ({ force = false } = {}) => {
       if (!savingsWallet?.identityPublicKeyHex) return { didWork: false };
 
-      // Only refetch if the daily 01:00 UTC payout window has elapsed since the last fetch.
-      if (!force) {
-        const lastPayoutWindow = lastDailyPayoutWindowMs();
-        if (payoutFetchTimeRef.current >= lastPayoutWindow) {
-          return { didWork: true, skipped: true };
-        }
-      }
-
       const payouts = await fetchSavingsInterestPayouts(
         savingsWallet.identityPublicKeyHex,
       );
+
+      setPayoutsTransactions(payouts);
       setInterestPayouts(payouts);
-      payoutFetchTimeRef.current = Date.now();
-      setLocalStorageItem(
-        SAVINGS_PAYOUTS_FETCH_TIME_KEY,
-        String(payoutFetchTimeRef.current),
-      );
+
       return { didWork: true };
     },
     [savingsWallet],

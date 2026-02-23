@@ -4,6 +4,7 @@ export const CACHED_SAVINGS = 'SAVED_SAVINGS';
 
 const GOALS_TABLE = 'savings_goals';
 const TRANSACTIONS_TABLE = 'savings_transactions';
+const PAYOUTS_TABLE = 'savings_payouts';
 
 let sqlLiteDB = null;
 let initPromise = null;
@@ -69,6 +70,16 @@ export async function initSavingsDb() {
         type TEXT NOT NULL CHECK(type IN ('deposit', 'withdrawal')),
         amountMicros INTEGER NOT NULL,
         timestamp INTEGER NOT NULL
+      );
+
+       CREATE TABLE IF NOT EXISTS ${PAYOUTS_TABLE} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        payoutSats INTEGER NOT NULL,
+        status TEXT NOT NULL,
+        txId TEXT NOT NULL UNIQUE,
+        createdAt TEXT NOT NULL,
+        day INTEGER NOT NULL,
+        paidAt INTEGER NOT NULL
       );
       
       CREATE INDEX IF NOT EXISTS idx_savings_goals_createdAt ON ${GOALS_TABLE}(createdAt DESC);
@@ -283,6 +294,103 @@ export async function getSavingsGoals() {
 }
 
 /**
+ * Upserts an array of payout transactions.
+ * Inserts new payouts.
+ * Updates existing payouts if they already exist.
+ *
+ * @param {PayoutTransaction[]} payouts
+ */
+export async function setPayoutsTransactions(payouts) {
+  const BATCH_SIZE = 25;
+  const db = await getDatabase();
+
+  try {
+    if (!Array.isArray(payouts)) {
+      throw new Error('payouts must be an array');
+    }
+
+    for (let i = 0; i < payouts.length; i += BATCH_SIZE) {
+      const batch = payouts.slice(i, i + BATCH_SIZE);
+
+      await db.execAsync('BEGIN TRANSACTION;');
+
+      for (const payout of batch) {
+        try {
+          if (!payout?.txId) continue;
+
+          const tx = {
+            payoutSats: payout.payoutSats,
+            status: payout.status,
+            txId: payout.txId,
+            createdAt: new Date(payout.createdAt).getTime(),
+            day: new Date(payout.day).getTime(),
+            paidAt: new Date(payout.paidAt).getTime(),
+          };
+
+          await db.runAsync(
+            `
+            INSERT INTO ${PAYOUTS_TABLE}
+              (payoutSats, status, txId, createdAt, day, paidAt)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(txId) DO UPDATE SET
+              payoutSats = excluded.payoutSats,
+              status     = excluded.status,
+              createdAt  = excluded.createdAt,
+              day        = excluded.day,
+              paidAt     = excluded.paidAt
+            `,
+            [
+              tx.payoutSats,
+              tx.status,
+              tx.txId,
+              tx.createdAt,
+              tx.day,
+              tx.paidAt,
+            ],
+          );
+        } catch (innerErr) {
+          console.error(
+            'Error inserting/updating payout:',
+            payout?.txId,
+            innerErr,
+          );
+        }
+      }
+
+      await db.execAsync('COMMIT;');
+    }
+
+    console.log('All payout batches processed successfully');
+    return true;
+  } catch (err) {
+    await db.execAsync('ROLLBACK;');
+    console.error('Fatal error in setPayoutsTransactions:', err);
+    return false;
+  }
+}
+
+/**
+ * @returns {Promise<PayoutTransaction[]>}
+ */
+export async function getAllPayoutsTransactions() {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync(
+    `SELECT *
+     FROM ${PAYOUTS_TABLE}
+     ORDER BY day DESC`,
+  );
+
+  return rows.map(row => ({
+    payoutSats: row.payoutSats,
+    status: row.status,
+    txId: row.txId,
+    createdAt: row.createdAt,
+    day: row.day,
+    paidAt: row.paidAt,
+  }));
+}
+
+/**
  * @param {SavingsTransaction} transaction
  * @returns {Promise<SavingsTransaction>}
  */
@@ -366,4 +474,8 @@ export async function deleteSavingsGoalsTable() {
 export async function deleteSavingsTransactionsTable() {
   const db = await getDatabase();
   await db.runAsync(`DROP TABLE IF EXISTS ${TRANSACTIONS_TABLE};`);
+}
+export async function deleteSavingsPayoutsTable() {
+  const db = await getDatabase();
+  await db.runAsync(`DROP TABLE IF EXISTS ${PAYOUTS_TABLE};`);
 }
