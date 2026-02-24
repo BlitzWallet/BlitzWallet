@@ -63,7 +63,7 @@
     "change": "Ändern",
     "unpin": "Lösen",
     "pin": "Anheften",
-    "noBioSet": "Sie haben noch keine Biografie hinterlegt.",
+    "noBioSet": "Sie haben noch keine Biografie erstellt.",
     "noTransactions": "Senden oder fordern Sie eine Zahlung an, um den Transaktionsverlauf anzuzeigen.",
     "leftPageMessage": "Sie haben die Seite verlassen.",
     "tryAgain": "Erneut versuchen",
@@ -216,10 +216,10 @@
       "subHeader": "Ein paar Dinge, die Sie wissen sollten, bevor Sie starten.",
       "row1Label": "Nur Sie kontrollieren Ihre Gelder",
       "row1Description": "Blitz verwahrt oder greift niemals auf Ihr Geld zu.",
-      "row2Label": "Sie erhalten eine Wiederherstellungsphrase (Seed Phrase)",
+      "row2Label": "Sie erhalten eine Wiederherstellungsphrase (Seed-Phrase)",
       "row2Description": "Sie ist der Generalschlüssel zu Ihrer Wallet. Sie finden sie unter Einstellungen → Wallet sichern.",
       "row3Label": "Keine Wiederherstellung bei Verlust",
-      "row3Description": "Wir können den Zugriff nicht wiederherstellen. Bewahren Sie Ihre Wiederherstellungsphrase (Seed Phrase) an einem sicheren Ort auf.",
+      "row3Description": "Wir können den Zugriff nicht wiederherstellen. Bewahren Sie Ihre Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf.",
       "acceptPrefix": "Ich akzeptiere die ",
       "terms&Conditions": "Allgemeinen Geschäftsbedingungen",
       "acceptError": "Um fortzufahren, müssen Sie die Allgemeinen Geschäftsbedingungen akzeptieren.",
@@ -358,7 +358,7 @@
         "title": "Guthaben aufladen",
         "description": "Um die neuesten KI-Modelle nutzen zu können, müssen Sie Guthaben kaufen. Wählen Sie unten eine Option aus.",
         "supportedModels": "Unterstützte Modelle",
-        "feeInfo": "Je nach Länge von Frage und Antwort variiert die Anzahl möglicher Anfragen. Blitz erhebt eine Gebühr von 150 sats + 0,5 % des Kaufpreises.",
+        "feeInfo": "Je nach Länge von Frage und Antwort variiert die Anzahl möglicher Anfragen. Blitz erhebt eine Gebühr von 150 SAT + 0,5 % des Kaufpreises.",
         "price": "Preis: ",
         "estSearches": "Geschätzte Anfragen: {{num}}",
         "casualPlanTitle": "Basis-Plan",
@@ -1063,11 +1063,11 @@
         "noSwapForBTCPaymentsError": "BTC-On-Chain-Zahlungen können nur mit BTC bezahlt werden, nicht mit USD. Swaps sind für On-Chain-Zahlungen nicht verfügbar.",
         "balanceFragmentationError": "Ihr Guthaben ist auf BTC und USD aufgeteilt. Um diese Zahlung abzuschließen, konsolidieren Sie Ihre Mittel oder passen Sie die Zahlungsmethode an.",
         "liquidError": "{{overFlowType}} Liquid-Zahlungsbetrag beträgt {{amount}}",
-        "onchainError": "BTC-On-Chain-Zahlungen erfordern einen Mindestbetrag von {{amount}}",
+        "onchainError": "BTC-On-Chain-Zahlungen erfordern einen Mindestbetrag von {{amount}}.",
         "lnurlPayError": "Der Zahlungsbetrag muss zwischen {{overFlowType}} von {{amount}} liegen",
-        "lrc20FeeError": "Sie benötigen mindestens {{amount}}, um die Transaktionsgebühr zu bezahlen. Ihr aktuelles Guthaben: {{balance}}",
-        "balanceError": "Unzureichendes Guthaben, um diese Zahlung abzuschließen",
-        "swapMinimumError": "{{currency1}}-zu-{{currency2}}-Swaps erfordern einen Mindestbetrag von {{amount}}",
+        "lrc20FeeError": "Sie benötigen mindestens {{amount}}, um die Transaktionsgebühr zu bezahlen. Ihr aktuelles Guthaben: {{balance}}.",
+        "balanceError": "Unzureichendes Guthaben, um diese Zahlung abzuschließen.",
+        "swapMinimumError": "{{currency1}}-zu-{{currency2}}-Swaps erfordern einen Mindestbetrag von {{amount}}.",
         "flashnetOffineError": "Umwandlungen zwischen USD und BTC sind derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
       }
     },
@@ -1078,7 +1078,7 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Alle Transaktionen anzeigen",
-        "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird"
+        "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird."
       },
       "lrc20Assets": {
         "actionText": "USDB-Token {{action}}",
@@ -1088,7 +1088,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Ziel eingeben",
-        "paymentTypesDesc": "Blitz Wallet kann an Spark-, On-Chain-, LNURL- und BOLT 11-Adressen senden"
+        "paymentTypesDesc": "Blitz Wallet kann an Spark-, On-Chain-, LNURL- und BOLT 11-Adressen senden."
       },
       "sparkErrorScreen": {
         "connectionError": "Wir haben Probleme, eine Verbindung zu Ihrer Wallet herzustellen. Bitte informieren Sie uns über dieses Problem.\n\nDenken Sie daran, Ihre Wiederherstellungsphrase hält Ihre Gelder sicher.",
@@ -1105,8 +1105,8 @@
       "paymentType": "Zahlungstyp",
       "description": "Beschreibung",
       "date": "Datum",
-      "txFees": "Transaktionsgebühren (sats)",
-      "amount": "Betrag (sats)",
+      "txFees": "Transaktionsgebühren (SAT)",
+      "amount": "Betrag (SAT)",
       "sent/received": "Gesendet/Empfangen",
       "title": "Exportieren Sie Ihren Zahlungsverlauf im CSV-Format (Komma-getrennte Werte).",
       "paymentsCounter": "{{number}} Zahlungen",
@@ -1131,8 +1131,8 @@
       "noContactsMessage": "Der Kontakt konnte nicht gefunden werden.",
       "title": "Kontakte hinzufügen",
       "searchPlaceholder": "Kontakte suchen...",
-      "lnurlAddMessage": "Sie sind dabei, hinzuzufügen",
-      "noProfilesFound": "Kein Profil entspricht dieser Suche",
+      "lnurlAddMessage": "Sie sind dabei, hinzuzufügen.",
+      "noProfilesFound": "Kein Profil entspricht dieser Suche.",
       "startTypingMessage": "Suchen Sie nach LNURL (z. B. name@service.com) oder Blitz-Benutzername."
     },
     "expandedContactPage": {
@@ -1147,13 +1147,13 @@
     "editMyProfilePage": {
       "navTitle": "Profil bearbeiten",
       "nameInputDesc": "Name",
-      "nameInputPlaceholder": "Geben Sie Ihren Namen ein",
+      "nameInputPlaceholder": "Geben Sie Ihren Namen ein.",
       "lnurlInputDesc": "LNURL-Adresse",
-      "lnurlInputPlaceholder": "Geben Sie Ihre LNURL-Adresse ein",
+      "lnurlInputPlaceholder": "Geben Sie Ihre LNURL-Adresse ein.",
       "uniqueNameInputDesc": "Benutzername",
-      "uniqueNameInputPlaceholder": "Geben Sie Ihren Benutzernamen ein",
+      "uniqueNameInputPlaceholder": "Geben Sie Ihren Benutzernamen ein.",
       "bioInputDesc": "Biografie",
-      "bioInputPlaceholder": "Geben Sie eine kurze Biografie ein",
+      "bioInputPlaceholder": "Geben Sie eine kurze Biografie ein.",
       "addContactBTN": "Kontakte hinzufügen",
       "unqiueNameRegexError": "Ihr Benutzername darf nur Buchstaben, Zahlen oder Unterstriche enthalten und muss mindestens einen Buchstaben enthalten.",
       "usernameAlreadyExistsError": "Dieser Benutzername existiert bereits, bitte wählen Sie einen anderen.",
@@ -1165,17 +1165,17 @@
       "header": "Wie möchten Sie senden?"
     },
     "selectCurrencyToRequest": {
-      "header": "Bitte wählen Sie die anzufordernde Währung aus"
+      "header": "Bitte wählen Sie die anzufordernde Währung aus."
     },
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Zahlungsbeschreibung",
       "profileMessage": "Bezahlung an {{name}}",
       "contactMessage": "{{name}} hat Ihnen bezahlt",
       "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz Wallet.",
-      "giftCardDescription": "Sie haben {{name}} eine {{giftCardName}} Geschenkkarte gesendet",
+      "giftCardDescription": "Sie haben {{name}} eine {{giftCardName}} Geschenkkarte gesendet.",
       "cardDetailsError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",
       "giftCardRange": "{{amount}} - {{amount2}} senden",
-      "giftCardAmountError": "Geben Sie einen Wert von mindestens {{amount}} und bis zu {{amount2}} ein",
+      "giftCardAmountError": "Geben Sie einen Wert von mindestens {{amount}} und bis zu {{amount2}} ein.",
       "sendGiftText": "Geschenk senden",
       "notVariableCard": "Diese Geschenkkarte hat einen festen Betrag. Sie können nur den oben angezeigten Preis senden.",
       "giftCardText": "{{giftName}} Geschenkkarte",
@@ -1207,7 +1207,7 @@
     },
     "selectGiftPage": {
       "noCards": "Keine Karten verfügbar",
-      "header": "Bitte wählen Sie die Geschenkkarte aus, die Sie senden möchten",
+      "header": "Bitte wählen Sie die Geschenkkarte aus, die Sie senden möchten.",
       "inputPlaceholder": "Nach einer Geschenkkarte suchen..."
     },
     "internalComponents": {
@@ -1300,13 +1300,13 @@
       "cameraSwipe": "Wischen für Kamera",
       "cameraSwipeDesc": "Wischen Sie auf einer Hauptseite nach rechts, um die Kamera zu öffnen.",
       "unkownSenders": "Unbekannte Absender ausblenden",
-      "unknownSenderDesc": "Transaktionen von unbekannten Kontakten ausblenden",
+      "unknownSenderDesc": "Transaktionen von unbekannten Kontakten ausblenden.",
       "text1": "Dunkelmodus-Stil",
       "text2": "Dunkel",
       "text3": "Gedimmt (augenschonend)",
       "text4": "Guthabenwährung",
       "text5": "Aktuelle Standardwährung",
-      "text6": "Bitte stellen Sie die Internetverbindung wieder her, um in Ihre Standardwährung zu wechseln",
+      "text6": "Bitte stellen Sie die Internetverbindung wieder her, um in Ihre Standardwährung zu wechseln.",
       "text7": "Wie anzeigen",
       "fiat": "Fiat",
       "hidden": "Ausgeblendet",
@@ -1329,7 +1329,7 @@
       "text1": "Fehler beim Hinzufügen des eingegebenen Werts, bitte versuchen Sie es erneut.",
       "text2": "Betrag darf nicht 0 sein",
       "text3": "Schnellzahlung aktivieren",
-      "text4": "Schnellzahlungsschwelle (sats)",
+      "text4": "Schnellzahlungsschwelle (SAT)",
       "text5": "Schnellzahlung ermöglicht es Ihnen, Rechnungen unterhalb eines festgelegten Schwellenwerts sofort ohne Wischbestätigung zu bezahlen."
     },
     "loginSecurity": {
@@ -1338,11 +1338,11 @@
       "text3": "PIN",
       "text4": "Biometrisch",
       "text5": "Gerät hat kein biometrisches Profil. Erstellen Sie eines in den Einstellungen, um fortzufahren.",
-      "text6": "Fehler beim Anmelden mit Biometrie",
-      "text7": "Gerät unterstützt keine biometrische Anmeldung",
-      "unsuccesfullLoginSwitch": "Anmeldetyp konnte nicht gewechselt werden",
+      "text6": "Fehler beim Anmelden mit Biometrie.",
+      "text7": "Gerät unterstützt keine biometrische Anmeldung.",
+      "unsuccesfullLoginSwitch": "Anmeldetyp konnte nicht gewechselt werden.",
       "toggleSecurityModeError": "Beim Wechseln Ihrer Sicherheitseinstellungen ist etwas schiefgelaufen. Bitte versuchen Sie es erneut.",
-      "noBiometricsError": "Gerät unterstützt keine biometrische Anmeldung",
+      "noBiometricsError": "Gerät unterstützt keine biometrische Anmeldung.",
       "noBiometricProfileError": "Gerät hat kein biometrisches Profil. Erstellen Sie eines in den Einstellungen, um fortzufahren.",
       "biometricSignInError": "Fehler beim Anmelden mit Biometrie",
       "migratingStorageMessgae": "Speicher wird auf neue Sicherheit migriert.",
@@ -1359,11 +1359,11 @@
       "qrText": "QR-Code",
       "showSeedWarning": "Sind Sie sicher, dass Sie Ihre Wiederherstellungsphrase anzeigen möchten?",
       "warning": {
-        "title_accounts": "Bewahren Sie Ihre Wiederherstellungsphrase geheim auf",
+        "title_accounts": "Bewahren Sie Ihre Wiederherstellungsphrase geheim auf.",
         "point1_accounts": "Ihre geheime Wiederherstellungsphrase ist wie ein Generalschlüssel für Ihre Wallet.",
         "point2_accounts": "Wenn jemand sie erhält, kann diese Person Ihre Gelder stehlen. Verlorene Gelder können nicht wiederhergestellt werden.",
         "point3_accounts": "Teilen Sie sie niemals mit jemandem - keiner Person, keiner Website und keiner App.",
-        "title_settings": "Bewahren Sie Ihre Wiederherstellungsphrase geheim auf",
+        "title_settings": "Bewahren Sie Ihre Wiederherstellungsphrase geheim auf.",
         "point1_settings": "Ihre geheime Wiederherstellungsphrase ist wie ein Generalschlüssel für Ihre Wallet.",
         "point2_settings": "Wenn jemand sie erhält, kann diese Person Ihre Gelder stehlen. Verlorene Gelder können nicht wiederhergestellt werden.",
         "point3_settings": "Teile sie niemals mit jemandem - keiner Person, keiner Website und keiner App.",
@@ -1374,7 +1374,7 @@
     "crashReporting": {
       "crashreporting_enabled": "Absturzberichte aktiviert",
       "crashreporting_disabled": "Absturzberichte deaktiviert",
-      "descriptionText": "Absturzdaten helfen uns, die Stabilität und Leistung unserer Anwendung zu verbessern.\n\nWenn ein Absturz auftritt, werden automatisch folgende Geräteinformationen aufgezeichnet:\n\n• Betriebssystem: OS-Version, Geräteausrichtung und Jailbreak-Status\n• Gerätedetails: Modell, Ausrichtung und verfügbarer RAM\n• Absturzinformationen: Datum des Absturzes und App-Version"
+      "descriptionText": "Absturzdaten helfen uns, die Stabilität und Leistung unserer Anwendung zu verbessern.\n\nWenn ein Absturz auftritt, werden automatisch folgende Geräteinformationen aufgezeichnet:\n\n• Betriebssystem: OS-Version, Geräteausrichtung und Jailbreak-Status\n• Gerätedetails: Modell, Ausrichtung und verfügbarer RAM\n• Absturzinformationen: Datum des Absturzes und App-Version."
     },
     "accounts": {
       "inputPlaceholder": "Kontoname",
@@ -1387,8 +1387,8 @@
       "dataDeleteDesc": "Dies wird alle Wallet-Daten von Ihrem Gerät löschen. Wenn Sie keine Kopie Ihrer Wiederherstellungsphrase gespeichert haben, VERLIEREN Sie den Zugriff auf Ihre Gelder.",
       "seedAndPinOpt": "Alle Daten von meinem Gerät löschen",
       "balanceText": "Ihr Guthaben beträgt",
-      "localStorageError": "Lokal gespeicherte Informationen konnten nicht gelöscht werden",
-      "secureStorageError": "Sicher gespeicherte Informationen konnten nicht gelöscht werden",
+      "localStorageError": "Lokal gespeicherte Informationen konnten nicht gelöscht werden.",
+      "secureStorageError": "Sicher gespeicherte Informationen konnten nicht gelöscht werden.",
       "boxNotChecked": "Bitte bestätigen Sie durch Ankreuzen, dass Sie Ihre Wallet löschen möchten.",
       "title": "Wallet löschen",
       "warningText": "Ich verstehe, dass ich meine Gelder nur mit meiner Wiederherstellungsphrase (Seed-Phrase) wiederherstellen kann und dass sie nicht wiederhergestellt werden können, wenn ich sie verliere."
@@ -1417,7 +1417,7 @@
     },
     "viewRoostockSwaps": {
       "loadingMessage": "Gespeicherte Rootstock-Übertragungen werden geladen...",
-      "noSwapsMessage": "Sie haben keine gespeicherten Rootstock-Übertragungen"
+      "noSwapsMessage": "Sie haben keine gespeicherten Rootstock-Übertragungen."
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
@@ -1432,7 +1432,7 @@
     "viewAllLiquidSwaps": {
       "rescanComplete": "Neu scannen abgeschlossen",
       "swapStartedMessage": "Die Übertragung wurde gestartet. Es kann 10–20 Sekunden dauern, bis die Zahlung angezeigt wird.",
-      "balanceError": "Der aktuelle Liquid-Saldo beträgt {{balance}}, aber der Mindestbetrag für eine Übertragung ist {{swapAmount}}",
+      "balanceError": "Der aktuelle Liquid-Saldo beträgt {{balance}}, aber der Mindestbetrag für eine Übertragung ist {{swapAmount}}.",
       "loadingMessage": "Liquid-Informationen werden abgerufen...",
       "breakdownHead": "Guthabenaufschlüsselung",
       "incoming": "{{amount}} ausstehende eingehende",
@@ -1484,7 +1484,7 @@
     "nip5": {
       "noNameError": "Name darf nicht leer sein.",
       "noPubKey": "Öffentlicher Schlüssel darf nicht leer sein.",
-      "nameLengthError": "Name muss weniger als 60 Zeichen haben",
+      "nameLengthError": "Name muss weniger als 60 Zeichen haben.",
       "regexError": "Name darf nur Buchstaben oder Zahlen enthalten.",
       "takenNameError": "Name bereits vergeben",
       "nameConfirmationMessage": "NIP-05 erfolgreich hinzugefügt! Bitte beachten Sie, dass es bis zu 24 Stunden dauern kann, bis es angezeigt wird, da die Liste einmal täglich aktualisiert wird.",
@@ -1496,10 +1496,10 @@
       "publicKeyLabel": "Öffentlicher Schlüssel",
       "publicKeyPlaceholder": "Npub...",
       "errors": {
-        "invalidPubKey": "Ungültiger öffentlicher Schlüssel: muss ein nicht-leerer Text sein",
+        "invalidPubKey": "Ungültiger öffentlicher Schlüssel: muss ein nicht-leerer Text sein.",
         "invalidNpub": "Ungültiges Npub-Format",
-        "decodeNpubError": "Npub konnte nicht dekodiert werden",
-        "invlaidFormat": "Ungültiges Format des öffentlichen Schlüssels: muss entweder eine 64-Zeichen-Hex-Text oder Npub sein"
+        "decodeNpubError": "Npub konnte nicht dekodiert werden.",
+        "invlaidFormat": "Ungültiges Format des öffentlichen Schlüssels: muss entweder eine 64-Zeichen-Hex-Text oder Npub sein."
       }
     },
     "nwc": {
@@ -1558,20 +1558,20 @@
         "noAccountsFound": "Keine Konten entsprechen Ihrer Suche."
       },
       "accountPaymentPage": {
-        "noAmountError": "Bitte geben Sie einen Betrag zum Übertragen ein",
-        "noAccountError": "Bitte wählen Sie ein Konto aus, von dem die Mittel übertragen werden sollen",
-        "noAccountToError": "Bitte wählen Sie ein Konto aus, auf das die Mittel übertragen werden sollen",
-        "loadingFeeError": "Übertragung kann nicht gestartet werden, während die Gebühr berechnet wird",
-        "alreadyStartedTransferError": "Es wurde bereits eine Übertragung gestartet",
-        "balanceError": "Der Betrag übersteigt Ihr Guthaben einschließlich Gebühren",
-        "noSendAddressError": "Die Übertragungsadresse konnte nicht abgerufen werden",
-        "noAccountInformation": "Kontoinformationen konnten nicht abgerufen werden",
+        "noAmountError": "Bitte geben Sie einen Betrag zum Übertragen ein.",
+        "noAccountError": "Bitte wählen Sie ein Konto aus, von dem die Mittel übertragen werden sollen.",
+        "noAccountToError": "Bitte wählen Sie ein Konto aus, auf das die Mittel übertragen werden sollen.",
+        "loadingFeeError": "Übertragung kann nicht gestartet werden, während die Gebühr berechnet wird.",
+        "alreadyStartedTransferError": "Es wurde bereits eine Übertragung gestartet.",
+        "balanceError": "Der Betrag übersteigt Ihr Guthaben einschließlich Gebühren.",
+        "noSendAddressError": "Die Übertragungsadresse konnte nicht abgerufen werden.",
+        "noAccountInformation": "Kontoinformationen konnten nicht abgerufen werden.",
         "title": "Übertragung",
         "selectAccount": "Konto auswählen",
         "inputPlaceHolderText": "Kontoübertragung"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Diese Wiederherstellungsphrase existiert bereits für ein andere Konto",
+        "alreadyUsingSeedError": "Diese Wiederherstellungsphrase existiert bereits für ein andere Konto.",
         "editTitle": "Konto bearbeiten",
         "createTitle": "Konto erstellen",
         "updateTitle": "Konto aktualisieren",
@@ -1602,11 +1602,11 @@
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",
         "createNewAccountTitle": "Neues Konto erstellen",
-        "createNewAccountDescription": "Wiederherstellbar über die Haupt-Wiederherstellungsphrase (Seed-Phrase)",
-        "importRecoveryPhraseTitle": "Wiederherstellungsphrase (Seed-Phrase) importieren",
-        "importRecoveryPhraseDescription": "Konten aus einer anderen Wallet importieren",
+        "createNewAccountDescription": "Wiederherstellbar über die Haupt-Wiederherstellungsphrase (Seed-Phrase).",
+        "importRecoveryPhraseTitle": "Wiederherstellungsphrase (Seed-Phrase) importieren.",
+        "importRecoveryPhraseDescription": "Konten aus einer anderen Wallet importieren.",
         "recoverRecoveryPhraseTitle": "Konto wiederherstellen",
-        "recoverRecoveryPhraseDescription": "Ein bereits erstellte Konto wiederherstellen"
+        "recoverRecoveryPhraseDescription": "Ein bereits erstellte Konto wiederherstellen."
       },
       "selectProfileImage": {
         "title": "Avatar auswählen",
@@ -1615,7 +1615,7 @@
       },
       "restoreDerivedAccount": {
         "title": "Konto wiederherstellen",
-        "emptyStateTitle": "Keine Konten zum Wiederherstellen",
+        "emptyStateTitle": "Keine Konten zum Wiederherstellen.",
         "emptyStateMessage": "Alle Konten sind derzeit wiederhergestellt. Keine fehlenden Konten gefunden.",
         "accountCardTitle": "Konto {{index}}",
         "accountCardSubtitle": "Ableitungsindex: {{index}}",
@@ -1624,8 +1624,8 @@
         "nameInputPlaceholder": "Konto {{index}}",
         "nameInputConfirm": "Konto wiederherstellen",
         "nameInputCancel": "Abbrechen",
-        "successMessage": "Konto {{index}} erfolgreich wiederhergestellt",
-        "errorMessage": "Fehler beim Wiederherstellen des Kontos"
+        "successMessage": "Konto {{index}} erfolgreich wiederhergestellt.",
+        "errorMessage": "Fehler beim Wiederherstellen des Kontos."
       },
       "selectAltAccount": {
         "from": "Wählen Sie das Konto, von dem Sie senden möchtest.",
@@ -1664,7 +1664,7 @@
         "storeNameInputPlaceholder": "Markennamen eingeben",
         "displayCurrencyDesc": "Standardwährung",
         "numAddeditems": "{{number}} hinzugefügte Artikel",
-        "differingCurrencyItemsError": "Ihre aktuelle Standardwährung unterscheidet sich von {{number}} Ihrer gespeicherten Elemente. Bitte aktualisieren Sie Ihre Elementpreise, um sicherzustellen, dass Sie den richtigen Betrag berechnen",
+        "differingCurrencyItemsError": "Ihre aktuelle Standardwährung unterscheidet sich von {{number}} Ihrer gespeicherten Elemente. Bitte aktualisieren Sie Ihre Elementpreise, um sicherzustellen, dass Sie den richtigen Betrag berechnen.",
         "itemsDescription": "Wenn Sie Elemente zu Ihrem Zahlungsterminal (POS) hinzufügen, müssen Mitarbeiter die Preise nicht mehr manuell eingeben. Sie klicken einfach auf den Produktnamen – der festgelegte Preis wird automatisch zum Gesamtbetrag hinzugefügt.",
         "updateItems": "Elemente aktualisieren",
         "addItem": "Element hinzufügen",
@@ -1672,14 +1672,14 @@
         "brandLogo": "Markenzeichen",
         "changeLogo": "Logo ändern",
         "removeLogo": "Entfernen",
-        "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen",
+        "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen.",
         "plurlEnding": "n"
       },
       "posInstructionsPath": {
         "title": "Anweisungen",
         "head1": "Wir akzeptieren",
         "head2": "BTC-Lightning-Zahlungen",
-        "step1": "Bitte scannen Sie den QR-Code mit Ihrer Kamera"
+        "step1": "Bitte scannen Sie den QR-Code mit Ihrer Kamera."
       },
       "totalTipsScreen": {
         "noTipBalanceError": "Der Benutzer hat kein Trinkgeldguthaben.",
@@ -1702,7 +1702,7 @@
         "title": "Zu zahlende Trinkgelder",
         "empNamePlaceholder": "Mitarbeitername",
         "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Zahlungsterminal (POS) erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeiter – und können ausgezahlt werden.",
-        "noTips": "Der Mitarbeiter hat keine Trinkgelder"
+        "noTips": "Der Mitarbeiter hat keine Trinkgelder."
       },
       "items": {
         "addItemHalfModal": {
@@ -1710,7 +1710,7 @@
           "addItemError": "Es gab ein Problem beim Hinzufügen Ihres Artikels zumZahlungsterminal (POS). Bitte versuchen Sie es erneut.",
           "editItem": "Artikel bearbeiten",
           "addItem": "Neuen Artikel hinzufügen",
-          "pricesLabel": "Die Preise basieren auf Ihrer gespeicherten Standardwährung ({{currency}})",
+          "pricesLabel": "Die Preise basieren auf Ihrer gespeicherten Standardwährung ({{currency}}).",
           "editMessage": "Die Standardwährung können Sie in den POS-Einstellungen ändern.",
           "itemNamePlaceholder": "Artikelname",
           "pricePlaceholder": "Preis ({{number}})",
@@ -1747,7 +1747,7 @@
         "soonMessage": "Wir freuen uns, dass Sie mehr Apps möchten. Schlagen Sie sie unten vor!",
         "title": "Shop",
         "shopTitle": "Mit BTC einkaufen",
-        "shopDescription": "Kaufen Sie Geschenkkarten von Tausenden verschiedener Händler weltweit",
+        "shopDescription": "Kaufen Sie Geschenkkarten von Tausenden verschiedener Händler weltweit.",
         "callToAction": "Möchten Sie hier etwas Bestimmtes?",
         "featuredApps": "Empfohlene Apps",
         "comingSoon": "Diese Funktion ist derzeit nicht verfügbar. Wir arbeiten daran, sie so schnell wie möglich wiederherzustellen."
@@ -1781,7 +1781,7 @@
         "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute"
       },
       "loadingScreen": {
-        "loadingMessage1": "Bitte schließen Sie die App nicht",
+        "loadingMessage1": "Bitte schließen Sie die App nicht.",
         "loadingMessage2": "Die Einrichtung wird vorbereitet.",
         "loadingText": "Die Einrichtung wird vorbereitet. Dies kann bis zu einer Minute dauern.",
         "dbInitError": "Datenbank konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
@@ -1817,7 +1817,7 @@
         "header_spark_usd": "USD über Spark",
         "header_liquid": "BTC über Liquid",
         "header_rootstock": "BTC über Rootstock",
-        "selectReceiveAssetHead": "Bitte das Asset zum Empfangen auswählen",
+        "selectReceiveAssetHead": "Bitte wählen Sie das Asset zum Empfangen aus.",
         "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
         "editDescriptionHead": "Was möchten Sie sagen?",
         "editDescriptionPlaceholder": "Beschreibung hinzufügen"
@@ -1879,7 +1879,7 @@
       },
       "giftPages": {
         "expired": "Abgelaufen",
-        "lessThanMin": "Weniger als eine Minute übrig",
+        "lessThanMin": "Weniger als eine Minute übrig.",
         "timeLeft": {
           "days_one": "{{count}} Tag übrig",
           "days_other": "{{count}} Tage übrig",
@@ -1888,7 +1888,7 @@
           "minutes_one": "{{count}} Minute übrig",
           "minutes_other": "{{count}} Minuten übrig"
         },
-        "shareMessage": "Sie haben ein Geschenk von {{amount}} erhalten! Hier bitte einlösen:\n{{link}}",
+        "shareMessage": "Sie haben ein Geschenk von {{amount}} erhalten! Hier bitte einlösen:\n{{link}}.",
         "fundGiftMessage": "Geschenk wird erstellt...",
         "reclaimGiftMessage": "Geschenk wird zurückgeholt...",
         "giftsHome": {
@@ -1896,7 +1896,7 @@
         },
         "giftsOverview": {
           "noGiftsHead": "Noch keine Geschenke",
-          "noGiftsDesc": "Erstellen Sie Ihr erstes Geschenk, um BTC oder USD mit Freunden und Familie zu teilen",
+          "noGiftsDesc": "Erstellen Sie Ihr erstes Geschenk, um BTC oder USD mit Freunden und Familie zu teilen.",
           "createGift": "Geschenk erstellen",
           "claimed": "Eingelöst",
           "expired": "Abgelaufen",
@@ -1905,7 +1905,7 @@
         },
         "createGift": {
           "noAmountError": "Bitte geben Sie einen Betrag ein, um Ihr Geschenk zu erstellen.",
-          "connectError": "Wir konnten Ihre Geschenk-Konto nicht einrichten.",
+          "connectError": "Wir konnten Ihr Geschenk-Konto nicht einrichten.",
           "addressError": "Wir konnten die Geschenkadresse nicht abrufen.",
           "saveError": "Wir konnten Ihr Geschenk nicht speichern.",
           "fundError": "Wir konnten keine Mittel hinzufügen.",
@@ -1921,7 +1921,7 @@
         },
         "giftConfirmation": {
           "header": "Geschenk erstellt!",
-          "whatToDo": "Teilen Sie dieses Geschenk per QR-Code oder Link",
+          "whatToDo": "Teilen Sie dieses Geschenk per QR-Code oder Link.",
           "details": "Geschenkdetails",
           "expire": "Läuft ab",
           "giftLink": "Geschenklink",
@@ -1931,7 +1931,7 @@
         },
         "claimHome": {
           "header": "Geschenklink eingeben",
-          "desc": "Fügen Sie den erhaltenen Link ein oder scannen Sie den QR-Code, um Ihr Geschenk einzulösen",
+          "desc": "Fügen Sie den erhaltenen Link ein oder scannen Sie den QR-Code, um Ihr Geschenk einzulösen.",
           "inputPlaceholder": "Geschenklink einfügen",
           "claim": "Einlösen",
           "noGiftLinkError": "Wir konnten leider keinen Geschenklink finden. Bitte scannen Sie oder fügen Sie den erhaltenen Link ein.",
@@ -1941,7 +1941,7 @@
           "header": "Geschenk zurückholen",
           "desc": "Geben Sie die Geschenk-ID ein oder wählen Sie aus, um ein abgelaufenes oder nicht eingelöstes Geschenk zurückzubekommen.",
           "inputPlaceholder": "Geschenk-ID eingeben",
-          "dropdownPlaceHolder": "Abgelaufenes Geschenk auswählen",
+          "dropdownPlaceHolder": "Abgelaufenes Geschenk auswählen.",
           "button": "Geschenk zurückholen",
           "noReclaimsMessage": "Derzeit haben Sie keine abgelaufenen Geschenke. Sobald ein Geschenk abläuft, können Sie es hier zurückholen.",
           "advancedModeBTN": "Erweiterter Modus"
@@ -1953,7 +1953,7 @@
           "infoDesc1": "Blitz-Geschenke verwenden separate Konten, die aus Ihrem Hauptkonto erstellt werden. Dadurch bleibt Ihr Hauptkonto geschützt, während nicht eingelöste Beträge wiederhergestellt werden können.",
           "infoDesc2": "Die meisten abgelaufenen Geschenke lassen sich über die normale Rückforderungsseite zurückholen. Wenn ein Geschenk nicht vollständig empfangen wurde oder die normale Rückforderung nicht funktioniert, können Sie auf dieser Seite ein bestimmtes Geschenk auswählen und prüfen, ob noch Guthaben vorhanden ist.",
           "inputHead": "Geschenknummer eingeben",
-          "invalidGiftNum": "Bitte geben Sie eine gültige Geschenknummer zwischen 1 und {{currentGiftIndex}} ein",
+          "invalidGiftNum": "Bitte geben Sie eine gültige Geschenknummer zwischen 1 und {{currentGiftIndex}} ein.",
           "restoreGiftBTN": "Geschenk wiederherstellen",
           "advancedWarning": "Diese erweiterte Funktion sollte nur verwendet werden, wenn der normale Rückforderungsprozess nicht funktioniert. Wenn Sie unsicher sind, probieren Sie zuerst die normale Rückforderungsseite aus."
         },
@@ -1970,18 +1970,18 @@
           "balanceMismatchError": "Es gab ein Problem beim Abrufen des Geschenkbetrags. Bitte versuchen Sie es erneut.",
           "paymentError": "Geschenk konnte nicht eingelöst werden.",
           "claimHead": "Geschenk annehmen",
-          "reclaimHead": "Geschenk erstatten",
+          "reclaimHead": "Geschenk zurückholen",
           "claimLoading": "Einlösen... bitte in der App bleiben.",
           "reclaimLoading": "Guthaben wird zurückgebucht... bitte in der App bleiben.",
           "claimAmountHead": "Erhaltener Betrag",
           "reclaimAmountHead": "Erstatteter Betrag",
           "reclaimAmountHeadExpert": "Geschenknummer wiederhergestellt",
-          "networkFeeWarningExpert": "Jeder gefundene Betrag abzüglich Netzwerkgebühren wird Ihrem Guthaben hinzugefügt",
-          "networkFeeWarning": "Dieser Betrag abzüglich Netzwerkgebühren wird Ihrem Guthaben hinzugefügt",
+          "networkFeeWarningExpert": "Jeder gefundene Betrag abzüglich Netzwerkgebühren wird Ihrem Guthaben hinzugefügt.",
+          "networkFeeWarning": "Dieser Betrag abzüglich Netzwerkgebühren wird Ihrem Guthaben hinzugefügt.",
           "buttonTextClaiming": "Wird eingelöst",
           "reclaimButton": "Geschenk zurückholen",
           "claimButton": "Geschenk annehmen",
-          "confirmMessage": "Ihr Geschenk wurde eingelöst; Sie erhalten Ihre Gelder in Kürze",
+          "confirmMessage": "Ihr Geschenk wurde eingelöst; Sie erhalten Ihre Gelder in Kürze.",
           "defaultDesc": "Blitz-Geschenk",
           "claimingGiftMessage1": "Geschenk wird vorbereitet...",
           "giftBalanceMessage_0": "Einen Moment, wir bereiten alles vor...",
@@ -1992,9 +1992,9 @@
         }
       },
       "swapsPage": {
-        "noPoolFoundBackup": "BTC/USDB-Sparpool nicht gefunden",
+        "noPoolFoundBackup": "BTC/USDB-Sparpool nicht gefunden.",
         "loadPoolError": "Sparpool-Informationen konnten nicht geladen werden",
-        "noPoolsFoundError": "Kein Sparpool für {{tokenAAddress}}/{{tokenBAddress}} gefunden",
+        "noPoolsFoundError": "Kein Sparpool für {{tokenAAddress}}/{{tokenBAddress}} gefunden.",
         "highPriceImpact": "Hoher Preiseinfluss: {{priceImpact}}",
         "slippageError": "Der Preis hat sich zu stark verändert. Versuchen Sie, die Preisabweichungstoleranz zu erhöhen.",
         "noLiquidity": "Nicht genügend Liquidität. Versuchen Sie einen kleineren Betrag oder einen anderen Pool.",
@@ -2004,8 +2004,8 @@
         "semiRecovered": "Einige Guthaben müssen manuell wiederhergestellt werden.",
         "willRecover": "Guthaben werden automatisch zurückerstattet.",
         "failedSimulation": "Simulation fehlgeschlagen",
-        "swapAmountCalculatorFailed": "Swap-Betrag konnte nicht berechnet werden",
-        "invalidAmount": "Bitte geben Sie einen gültigen Betrag ein",
+        "swapAmountCalculatorFailed": "Swap-Betrag konnte nicht berechnet werden.",
+        "invalidAmount": "Bitte geben Sie einen gültigen Betrag ein.",
         "priceImpact": "Preiseinfluss: {{impact}}%\nMöchten Sie trotzdem Umtauschen?",
         "swapFailedBackupError": "Swap fehlgeschlagen",
         "swapAutomaticRecovery": "\n\nIhr Guthaben wurde automatisch wiederhergestellt.",
@@ -2026,7 +2026,7 @@
         "min": "MIN",
         "half": "HALB",
         "max": "MAX",
-        "swappingMessageButton": "Umtauschen...",
+        "swappingMessageButton": "wird umgetauscht...",
         "loadingMessageButton": "Lädt...",
         "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
         "swapDisclaimer": "Swap-Dienste werden über Drittanbieter-APIs bereitgestellt.",
@@ -2062,11 +2062,11 @@
     }
   },
   "toastmessages": {
-    "confirmCopy": "In die Zwischenablage kopiert",
+    "confirmCopy": "In die Zwischenablage kopiert.",
     "failedCopy": "Kopieren fehlgeschlagen",
     "handleSwap": {
       "title": "Swap-Zahlung erhalten",
-      "desc": "Ihr Guthaben wird in Kürze aktualisiert"
+      "desc": "Ihr Guthaben wird in Kürze aktualisiert."
     }
   },
   "errormessages": {
@@ -2074,7 +2074,7 @@
     "genericError": "Ein unerwarteter Fehler ist aufgetreten.",
     "tryAgain": "Bitte versuchen Sie es erneut.",
     "contactSupport": "Bitte wenden Sie sich an den Support, falls das Problem weiterhin besteht.",
-    "deleteAccount": "Beim Löschen des Konto ist ein Fehler aufgetreten.",
+    "deleteAccount": "Beim Löschen des Kontos ist ein Fehler aufgetreten.",
     "failedToDecryptPin": "Der PIN konnte nicht entschlüsselt werden.",
     "decodePinWithBio": "Der PIN konnte mit Biometrie nicht entschlüsselt werden.",
     "insufficientBalanceError": "Ihr Guthaben reicht nicht aus, um den {{planType}} zu kaufen.",
@@ -2084,28 +2084,28 @@
     "payingInvoiceError": "Die Rechnung konnte nicht bezahlt werden. Bitte versuchen Sie es erneut.",
     "noMailAppsFoundError": "Auf Ihrem Gerät wurde keine E-Mail-App gefunden.",
     "retriveingPhotoesError": "Es gab einen Fehler beim Abrufen von Fotos, bitte versuchen Sie es erneut.",
-    "clipboardContentError": "Keine Daten in der Zwischenablage",
-    "userDataFetchError": "Benutzer konnte nicht aus der Datenbank abgerufen werden.",
+    "clipboardContentError": "Keine Daten in der Zwischenablage vorhanden.",
+    "userDataFetchError": "Benutzerdaten konnten nicht abgerufen werden.",
     "updateContactMessageError": "Es gab ein Problem beim Aktualisieren dieser Nachricht, bitte versuchen Sie es erneut.",
     "declinePaymentError": "Es gab ein Problem beim Ablehnen dieser Zahlung, bitte versuchen Sie es erneut.",
     "payingContactError": "Die Adresse des Kontakts konnte nicht abgerufen werden, bitte versuchen Sie es erneut.",
     "noUserFoundDeeplinkError": "Für diesen Benutzernamen konnte kein Benutzer gefunden werden.",
     "cannotAddSelfError": "Sie können sich nicht selbst als Kontakt hinzufügen.",
     "fullDeeplinkError": "Kontaktinformationen konnten nicht abgerufen werden, bitte versuchen Sie es erneut.",
-    "processingDeepLinkError": "Link konnte leider nicht verarbeitet werden: {{error}}",
-    "legacyContactError": "Der Kontakt hat seine Wallet noch nicht aktualisiert. Bitte bitten Sie ihn, seine Wallet zu aktualisieren, um dies zu senden.",
+    "processingDeepLinkError": "Der Link konnte nicht verarbeitet werden: {{error}}",
+    "legacyContactError": "Der Kontakt hat seine Wallet noch nicht aktualisiert. Bitten Sie ihn, dies nachzuholen, um diese Funktion zu nutzen.",
     "contactInvoiceGenerationError": "Fehler beim Generieren der Rechnung. Stellen Sie sicher, dass dies eine gültige LNURL-Adresse ist.",
     "explorePagenoDataError": "Die Anzahl der Blitz-Benutzer konnte nicht abgerufen werden.",
-    "savingFileError": "Fehler beim Speichern der Datei im Dokument",
-    "savingFilePermissionsError": "Fehler beim Abrufen von Berechtigungen",
-    "writtingFileError": "Fehler beim Schreiben der Datei ins Dateisystem",
+    "savingFileError": "Fehler beim Speichern der Datei im Dokument.",
+    "savingFilePermissionsError": "Fehler beim Abrufen der Berechtigungen.",
+    "writtingFileError": "Fehler beim Speichern der Datei.",
     "createTransactionsFileError": "Transaktionsdatei konnte nicht erstellt werden",
     "noQrInScanError": "QR-Code konnte im Bild nicht gefunden werden.",
     "noDataInQRError": "Daten konnten aus dem Bild nicht abgerufen werden.",
     "noInvoiceInImageError": "Rechnung konnte aus dem Bild nicht abgerufen werden.",
     "savingImageError": "Bild konnte nicht gespeichert werden, bitte versuchen Sie es erneut.",
-    "invalidSeedError": "Keine gültige Wiederherstellungsphrase eingegeben",
-    "invalidSeedWordLengthErorr": "Nicht jedes Wort hat die korrekte Länge",
+    "invalidSeedError": "Es wurde keine gültige Wiederherstellungsphrase eingegeben.",
+    "invalidSeedWordLengthErorr": "Nicht jedes Wort hat die korrekte Länge.",
     "invalidSeedLengthError": "Aus der kopierten Wiederherstellungsphrase konnten keine 12 Wörter gefunden werden.",
     "noGooglePlay": "Google Play-Dienste sind erforderlich, um Benachrichtigungen zu erhalten.",
     "noNotificationPermission": "Blitz hat keine Benachrichtigungsberechtigungen. Aktivieren Sie diese in den Einstellungen, um Benachrichtigungen zu nutzen.",
@@ -2118,16 +2118,16 @@
     "giftCardExpiration": "Geschenkkarten können nur innerhalb von 7 Tagen nach dem Versand wiederhergestellt werden. Wenn die App gelöscht wird oder der lokale Speicher nach dieser Zeit gelöscht wird, gehen Ihre Geschenkkarten verloren. Stellen Sie sicher, dass Sie die Einlösungslinks oder Geschenkkartencodes an einem sicheren Ort speichern.",
     "receivedRootstock": "Rootstock-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet.",
     "receivedLiquid": "Liquid-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet.",
-    "invalidData": "Die eingegebenen Daten sind ungültig",
+    "invalidData": "Die eingegebenen Daten sind ungültig.",
     "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App richtig und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
-    "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch ändern.",
+    "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch verändern.",
     "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut."
   },
   "loadingScreen": {
-    "message1": "Bitte schließen Sie die App nicht",
-    "message2": "Wir richten alles für Sie ein",
-    "loadingText": "Wir richten für Sie alles ein. Bleiben Sie dran! Dies kann bis zu einer Minute dauern.",
+    "message1": "Bitte schließen Sie die App nicht.",
+    "message2": "Die Einrichtung wird vorbereitet.",
+    "loadingText": "Wir richten alles für Sie ein. Bitte bleiben Sie dran. Dies kann bis zu einer Minute dauern.",
     "errorText1": "Fehler bei der Verbindung zu Ihrem Knoten. Versuchen Sie, die App neu zu laden."
   },
   "contexts": {
@@ -2136,7 +2136,7 @@
     }
   },
   "share": {
-    "contact": "Hallo, fügen Sie mich auf Blitz hinzu!"
+    "contact": "Hallo, fügen Sie mich auf Blitz hinzu.!"
   },
   "swapMessages": {
     "liquid": "Liquid-zu-Spark-Übertragung"
@@ -2149,18 +2149,18 @@
   "pushNotifications": {
     "paymentReceived": {
       "title": "Zahlung erhalten",
-      "body": "Sie haben {{totalAmount}} erhalten"
+      "body": "Sie haben {{totalAmount}} erhalten."
     },
     "LNURL": {
-      "zapped": "Sie wurden mit {{totalAmount}} gezappt",
-      "regular": "Sie haben gerade {{totalAmount}} erhalten"
+      "zapped": "Sie wurden mit {{totalAmount}} gezappt.",
+      "regular": "Sie haben gerade {{totalAmount}} erhalten."
     },
     "POS": "Bestellung erhalten: {{totalAmount}}",
     "contacts": {
       "updateMessage": "{{name}} {{option}} Ihre Anfrage",
-      "request": "{{name}} hat {{amount}} von Ihnen angefordert",
-      "payment": "{{name}} hat Ihnen {{amount}} bezahlt",
-      "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet"
+      "request": "{{name}} hat {{amount}} von Ihnen angefordert.",
+      "payment": "{{name}} hat Ihnen {{amount}} bezahlt.",
+      "giftCard": "{{name}} hat Ihnen eine {{giftCardName}} Geschenkkarte gesendet."
     }
   },
   "accountCard": {
@@ -2173,19 +2173,19 @@
     "FSAG-1003": "Ein Wert liegt außerhalb des zulässigen Bereichs.",
     "FSAG-1004": "Dieser Wert existiert bereits und muss eindeutig sein.",
     "FSAG-2001": "Die Signatur Ihrer Anfrage konnte nicht verifiziert werden.",
-    "FSAG-2002": "Die Token-Identität stimmt nicht mit dem erwarteten öffentlichen Schlüssel überein.",
+    "FSAG-2002": "Die Identität des Tokens stimmt nicht mit dem erwarteten öffentlichen Schlüssel überein.",
     "FSAG-2003": "Für diesen Vorgang ist eine Authentifizierung erforderlich.",
     "FSAG-2004": "Ihre Sitzung ist abgelaufen oder der Token ist ungültig.",
-    "FSAG-2005": "Der Einmal-Code (Nonce) ist ungültig oder wurde bereits verwendet. Bitte versuchen Sie es erneut – idealerweise laden Sie die Seite neu.",
+    "FSAG-2005": "Der Einmal-Code (Nonce) ist ungültig oder wurde bereits verwendet. Bitte versuchen Sie es erneut und laden Sie die Seite neu.",
     "FSAG-2101": "Der bereitgestellte öffentliche Schlüssel ist ungültig.",
     "FSAG-3001": "Es ist ein vorübergehendes Serviceproblem aufgetreten. Bitte versuchen Sie es in Kürze erneut.",
     "FSAG-3002": "Es ist ein vorübergehendes Serviceproblem aufgetreten. Bitte versuchen Sie es in Kürze erneut.",
     "FSAG-3101": "Es ist ein Datenbankfehler aufgetreten. Bitte versuchen Sie es erneut.",
-    "FSAG-3201": "Der Abwicklungsdienst ist derzeit vorübergehend nicht verfügbar.",
+    "FSAG-3201": "Der Abwicklungsdienst ist derzeit nicht verfügbar.",
     "FSAG-3201T1": "Der Abwicklungsdienst ist derzeit vorübergehend nicht verfügbar.",
     "FSAG-3201T2": "Die Abwicklungsanfrage hat das Zeitlimit überschritten.",
-    "FSAG-3202": "Ein abhängiger Dienst ist derzeit vorübergehend nicht verfügbar.",
-    "FSAG-3301": "Der AMM-Prozessor konnte Ihre Anfrage nicht entgegennehmen.",
+    "FSAG-3202": "Ein abhängiger Dienst ist derzeit nicht verfügbar.",
+    "FSAG-3301": "Der AMM-Prozessor konnte Ihre Anfrage nicht annehmen.",
     "FSAG-3302": "Der AMM-Prozessor hat beim Verarbeiten Ihrer Anfrage das Zeitlimit überschritten.",
     "FSAG-3401": "Es ist ein interner Verarbeitungsfehler aufgetreten.",
     "FSAG-3402": "Es ist ein interner Verarbeitungsfehler aufgetreten.",
@@ -2194,11 +2194,11 @@
     "FSAG-4101": "Ihre Authentifizierungssitzung wurde nicht gefunden oder ist abgelaufen.",
     "FSAG-4102": "Der Authentifizierungsablauf wurde nicht korrekt eingehalten.",
     "FSAG-4201": "Der Sparpool verfügt nicht über ausreichend Liquidität für diesen Umtausch.",
-    "FSAG-4202": "Der Preis hat sich stärker verändert als Ihre erlaubte Preisabweichungstoleranz.",
-    "FSAG-4203": "Dieser Vorgang kann im aktuellen Status des Sparpools nicht ausgeführt werden.",
+    "FSAG-4202": "Der Preis hat sich stärker verändert als Ihre erlaubte Preisabweichung.",
+    "FSAG-4203": "Dieser Vorgang kann im aktuellen Status des Sparpools nicht durchgeführt werden.",
     "FSAG-4204": "Sie haben nicht genügend LP-Token für diese Auszahlung.",
     "FSAG-4301": "Die Gebührenkonfiguration ist ungültig.",
-    "FSAG-4401": "Diese Spark-Übertragung wurde bereits in einem anderen Vorgang verwendet.",
+    "FSAG-4401": "Diese Spark-Übertragung wurde bereits verwendet.",
     "FSAG-5001": "Beim Verarbeiten Ihrer Anfrage ist ein interner Fehler aufgetreten.",
     "FSAG-5002": "Diese Funktion ist derzeit noch nicht verfügbar.",
     "FSAG-5003": "Es ist ein interner Fehler aufgetreten. Bitte kontaktieren Sie den Support, falls das Problem weiterhin besteht.",
