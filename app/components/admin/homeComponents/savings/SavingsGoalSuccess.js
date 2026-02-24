@@ -30,6 +30,7 @@ export default function SavingsGoalSuccess(props) {
 
   const handleGoHome = useCallback(() => {
     navigate.popTo('SavingsHome');
+    return true;
   }, []);
 
   const confirmAnimation = useMemo(() => {

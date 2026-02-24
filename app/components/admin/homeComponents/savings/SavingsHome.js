@@ -76,7 +76,11 @@ export default function SavingsHome() {
             />
 
             <ThemeText
-              styles={{ color: COLORS.darkModeText, fontSize: SIZES.small }}
+              styles={{
+                color: COLORS.darkModeText,
+                fontSize: SIZES.small,
+                includeFontPadding: false,
+              }}
               content={`Earned: ${displayCorrectDenomination({
                 amount: totalIntrestEarned,
                 masterInfoObject: {

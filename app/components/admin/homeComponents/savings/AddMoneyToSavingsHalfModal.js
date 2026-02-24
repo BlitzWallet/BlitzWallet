@@ -100,7 +100,7 @@ export default function AddMoneyToSavingsHalfModal({
   const paymentMode = selectedSource === 'dollar' ? 'USD' : 'BTC';
 
   const availableBalance =
-    paymentMode === 'USD' ? dollarBalanceToken.toFixed(2) : bitcoinBalance;
+    paymentMode === 'USD' ? dollarBalanceToken.toFixed(3) : bitcoinBalance;
 
   const {
     primaryDisplay,

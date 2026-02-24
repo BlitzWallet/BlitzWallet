@@ -24,6 +24,7 @@ export default function SavingsGoalRemovedSuccess() {
 
   const handleGoHome = useCallback(() => {
     navigate.popTo('SavingsHome');
+    return true;
   }, []);
 
   const confirmAnimation = useMemo(() => {
@@ -46,10 +47,16 @@ export default function SavingsGoalRemovedSuccess() {
             autoPlay={true}
             style={styles.animation}
           />
-          <ThemeText styles={styles.title} content={t('savings.goalRemovedSuccess.title')} />
+          <ThemeText
+            styles={styles.title}
+            content={t('savings.goalRemovedSuccess.title')}
+          />
         </View>
 
-        <CustomButton actionFunction={handleGoHome} textContent={t('constants.done')} />
+        <CustomButton
+          actionFunction={handleGoHome}
+          textContent={t('constants.done')}
+        />
       </View>
     </GlobalThemeView>
   );

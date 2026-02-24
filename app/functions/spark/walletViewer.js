@@ -28,7 +28,7 @@ export async function getTokensBalance(sparkAddress) {
         balance: tokensData.availableToSendBalance,
       };
     }
-    return currentTokensObj[USDB_TOKEN_ID].balance;
+    return currentTokensObj[USDB_TOKEN_ID]?.balance;
   } catch (err) {
     console.log('error getting token transactions', err);
     return 0;

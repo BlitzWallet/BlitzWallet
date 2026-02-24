@@ -464,13 +464,16 @@ export function SavingsProvider({ children }) {
     async ({ force = false } = {}) => {
       if (!savingsWallet?.sparkAddress) return { didWork: false };
 
-      const balance = Number(
-        await getTokensBalance(savingsWallet.sparkAddress),
-      );
+      const balance = await getTokensBalance(savingsWallet.sparkAddress);
 
-      if (balance) {
-        handleRestorePayments(balance);
-        updateWalletBalance(balance);
+      if (typeof balance === 'undefined') {
+        handleRestorePayments(0);
+        updateWalletBalance(0);
+        return { didWork: true };
+      } else if (balance) {
+        const converted = Number(balance);
+        handleRestorePayments(converted);
+        updateWalletBalance(converted);
         return { didWork: true };
       }
 
