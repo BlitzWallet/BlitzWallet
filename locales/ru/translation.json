@@ -1649,7 +1649,10 @@
       "pinAccount": "Закрепить",
       "unpinAccount": "Открепить",
       "maxPinsReached": "Максимум 2 закреплённых аккаунта. Сначала открепите один.",
-      "morePoolsCount": "+{{count}} ещё"
+      "morePoolsCount": "+{{count}} ещё",
+      "pos": {
+        "desc": "Легко принимайте платежи в биткоинах для вашего бизнеса"
+      }
     },
     "posPath": {
       "settings": {
@@ -1739,6 +1742,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Ваши токены",
+        "noTokens": "У вас нет токенов"
+      },
       "appStore": {
         "soonMessage": "Предлагайте новые приложения!",
         "title": "Магазин",
@@ -1894,7 +1901,8 @@
         "fundGiftMessage": "Создание подарка",
         "reclaimGiftMessage": "Возврат подарка",
         "giftsHome": {
-          "title": "Биткоин-подарки"
+          "title": "Биткоин-подарки",
+          "desc": "Делитесь биткоинами или долларами с друзьями и семьёй"
         },
         "giftsOverview": {
           "noGiftsHead": "Нет подарков",

@@ -1648,7 +1648,10 @@
       "pinAccount": "Fixar",
       "unpinAccount": "Desafixar",
       "maxPinsReached": "Máximo de 2 contas fixadas. Desafixe uma primeiro.",
-      "morePoolsCount": "+{{count}} mais"
+      "morePoolsCount": "+{{count}} mais",
+      "pos": {
+        "desc": "Aceite facilmente pagamentos em Bitcoin para o seu negócio"
+      }
     },
     "posPath": {
       "settings": {
@@ -1738,6 +1741,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Seus tokens",
+        "noTokens": "Você não tem tokens"
+      },
       "appStore": {
         "soonMessage": "Ótimo que você queira mais apps. Sugira-os abaixo!",
         "title": "Marketplace",
@@ -1887,7 +1894,8 @@
         "fundGiftMessage": "Vale-Blitz criado",
         "reclaimGiftMessage": "Vale-Blitz reembolsado",
         "giftsHome": {
-          "title": "Vales-Blitz"
+          "title": "Vales-Blitz",
+          "desc": "Compartilhe Bitcoin ou Dólares com amigos e família"
         },
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",

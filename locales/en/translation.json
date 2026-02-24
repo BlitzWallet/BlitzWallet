@@ -1678,7 +1678,10 @@
       "pinAccount": "Pin",
       "unpinAccount": "Unpin",
       "maxPinsReached": "Maximum 2 pinned accounts. Unpin one first.",
-      "morePoolsCount": "+{{count}} more"
+      "morePoolsCount": "+{{count}} more",
+      "pos": {
+        "desc": "Easily accept Bitcoin payments for your buisness"
+      }
     },
     "posPath": {
       "settings": {
@@ -1769,6 +1772,10 @@
 
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Your Tokens",
+        "noTokens": "You have no tokens"
+      },
       "appStore": {
         "soonMessage": "We love that you want more apps. Suggest them below!",
         "title": "Store",
@@ -1925,7 +1932,8 @@
         "reclaimGiftMessage": "Reclaiming Gift",
 
         "giftsHome": {
-          "title": "Blitz Gifts"
+          "title": "Blitz Gifts",
+          "desc": "Share Bitcoin or Dollars with friends and family"
         },
 
         "giftsOverview": {
@@ -1969,7 +1977,7 @@
           "header": "Enter gift link",
           "desc": "Paste the gift link you received or scan the QR code to claim your gift",
           "inputPlaceholder": "Enter gift link",
-          "claim": "Claim",
+          "claim": "Claim Gift",
           "noGiftLinkError": "We couldn’t find a gift link. Please scan or paste the link you received.",
           "invliadGiftFormat": "Invalid gift link. Please copy the full link and try again."
         },

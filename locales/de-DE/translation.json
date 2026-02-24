@@ -1650,7 +1650,10 @@
       "pinAccount": "Anheften",
       "unpinAccount": "Lösen",
       "maxPinsReached": "Maximal 2 angeheftete Wallets. Lösen Sie zuerst eines.",
-      "morePoolsCount": "+{{count}} weitere"
+      "morePoolsCount": "+{{count}} weitere",
+      "pos": {
+        "desc": "Akzeptiere ganz einfach Bitcoin-Zahlungen für dein Unternehmen"
+      }
     },
     "posPath": {
       "settings": {
@@ -1740,6 +1743,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Deine Tokens",
+        "noTokens": "Du hast keine Tokens"
+      },
       "appStore": {
         "soonMessage": "Wir freuen uns, dass Sie mehr Apps möchten. Schlagen Sie sie unten vor!",
         "title": "Shop",
@@ -1889,7 +1896,8 @@
         "fundGiftMessage": "Geschenk wird erstellt …",
         "reclaimGiftMessage": "Geschenk wird zurückgeholt …",
         "giftsHome": {
-          "title": "Blitz-Geschenke"
+          "title": "Blitz-Geschenke",
+          "desc": "Teile BTC oder USD mit Freunden und Familie"
         },
         "giftsOverview": {
           "noGiftsHead": "Noch keine Geschenke",

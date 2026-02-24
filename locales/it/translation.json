@@ -1648,7 +1648,10 @@
       "pinAccount": "Fissa",
       "unpinAccount": "Rimuovi",
       "maxPinsReached": "Massimo 2 account fissati. Rimuovine uno prima.",
-      "morePoolsCount": "+{{count}} altri"
+      "morePoolsCount": "+{{count}} altri",
+      "pos": {
+        "desc": "Accetta facilmente pagamenti in Bitcoin per la tua attività"
+      }
     },
     "posPath": {
       "settings": {
@@ -1738,6 +1741,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "I tuoi token",
+        "noTokens": "Non hai token"
+      },
       "appStore": {
         "soonMessage": "Ci piace che tu voglia più app. Suggeriscile qui sotto!",
         "title": "Negozio",
@@ -1887,7 +1894,8 @@
         "fundGiftMessage": "Creazione del regalo",
         "reclaimGiftMessage": "Recupero del regalo",
         "giftsHome": {
-          "title": "Regali in Blitz"
+          "title": "Regali in Blitz",
+          "desc": "Condividi Bitcoin o Dollari con amici e famiglia"
         },
         "giftsOverview": {
           "noGiftsHead": "Nessun regalo ancora",

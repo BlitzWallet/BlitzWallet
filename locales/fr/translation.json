@@ -1648,7 +1648,10 @@
       "pinAccount": "Épingler",
       "unpinAccount": "Désépingler",
       "maxPinsReached": "Maximum 2 comptes épinglés. Désépinglez-en un d'abord.",
-      "morePoolsCount": "+{{count}} de plus"
+      "morePoolsCount": "+{{count}} de plus",
+      "pos": {
+        "desc": "Acceptez facilement les paiements en Bitcoin pour votre entreprise"
+      }
     },
     "posPath": {
       "settings": {
@@ -1738,6 +1741,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Vos tokens",
+        "noTokens": "Vous n’avez aucun token"
+      },
       "appStore": {
         "soonMessage": "Nous sommes ravis que vous souhaitiez d'autres applications. Suggérez-les ci-dessous !",
         "title": "Magasin",
@@ -1887,7 +1894,8 @@
         "fundGiftMessage": "Créer un cadeau",
         "reclaimGiftMessage": "Récupérer le don",
         "giftsHome": {
-          "title": "Cadeaux en Blitz"
+          "title": "Cadeaux en Blitz",
+          "desc": "Partagez des Bitcoin ou des Dollars avec vos amis et votre famille"
         },
         "giftsOverview": {
           "noGiftsHead": "Aucun cadeau pour l'instant",

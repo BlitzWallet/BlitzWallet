@@ -1648,7 +1648,10 @@
       "pinAccount": "Fäst",
       "unpinAccount": "Lossa",
       "maxPinsReached": "Maximalt 2 fästa konton. Lossa ett först.",
-      "morePoolsCount": "+{{count}} till"
+      "morePoolsCount": "+{{count}} till",
+      "pos": {
+        "desc": "Acceptera enkelt Bitcoin-betalningar för ditt företag"
+      }
     },
     "posPath": {
       "settings": {
@@ -1738,6 +1741,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Dina tokens",
+        "noTokens": "Du har inga tokens"
+      },
       "appStore": {
         "soonMessage": "Vi älskar att du vill ha fler appar. Föreslå dem nedan!",
         "title": "Butik",
@@ -1887,7 +1894,8 @@
         "fundGiftMessage": "Skapande av gåva",
         "reclaimGiftMessage": "Återvinning av gåva",
         "giftsHome": {
-          "title": "Blitz gåvor"
+          "title": "Blitz gåvor",
+          "desc": "Dela Bitcoin eller Dollar med vänner och familj"
         },
         "giftsOverview": {
           "noGiftsHead": "Inga gåvor ännu",
