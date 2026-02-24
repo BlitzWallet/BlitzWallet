@@ -1,9 +1,9 @@
-import {StyleSheet, View, TouchableOpacity, Platform} from 'react-native';
-import {CENTER, ICONS} from '../../../../constants';
+import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
+import { CENTER, ICONS } from '../../../../constants';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import openWebBrowser from '../../../../functions/openWebBrowser';
-import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 const NAVITEMS = [
   {
@@ -37,15 +37,16 @@ export default function BlitzSocialOptions() {
         key={id}
         onPress={async () => {
           if (item.name !== 'View Code')
-            await openWebBrowser({navigate: navigate, link: item.link});
+            await openWebBrowser({ navigate: navigate, link: item.link });
           else
             navigate.navigate('CustomWebView', {
               webViewURL: item.link,
             });
         }}
-        style={styles.tochableOpacityContainer}>
+        style={styles.tochableOpacityContainer}
+      >
         <ThemeImage
-          styles={{width: 50, height: 50}}
+          styles={{ width: 50, height: 50 }}
           darkModeIcon={item.icon}
           lightModeIcon={item.icon}
           lightsOutIcon={item.whiteIcon}
@@ -54,19 +55,7 @@ export default function BlitzSocialOptions() {
     );
   });
 
-  const {bottomPadding} = useGlobalInsets();
-
-  return (
-    <View
-      style={[
-        styles.innerContainer,
-        {
-          marginBottom: bottomPadding,
-        },
-      ]}>
-      {navElements}
-    </View>
-  );
+  return <View style={[styles.innerContainer, {}]}>{navElements}</View>;
 }
 
 const styles = StyleSheet.create({
