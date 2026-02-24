@@ -4,7 +4,7 @@ import { CENTER, SIZES } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import {
   getSparkBalance,
@@ -23,12 +23,15 @@ export default function SelectAltAccountHalfModal(props) {
     accountBeingLoaded: '',
     isLoading: '',
   });
+  const hasSelectedAccount = useRef(null);
   const { t } = useTranslation();
 
   const { selectedFrom, selectedTo, transferType } = props;
 
   const handleAccountSelection = useCallback(
     async account => {
+      if (hasSelectedAccount.current) return;
+      hasSelectedAccount.current = true;
       if (
         (transferType === 'from' && selectedFrom === account.uuid) ||
         (transferType === 'to' && selectedTo === account.uuid)
@@ -86,6 +89,7 @@ export default function SelectAltAccountHalfModal(props) {
             isLoading.accountBeingLoaded === account.uuid && isLoading.isLoading
           }
           useSelection={true}
+          isAccountSwitching={isLoading.accountBeingLoaded}
         />
       );
     });

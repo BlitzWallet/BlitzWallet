@@ -60,6 +60,7 @@ export default function AccountsPreview({
                 (account.uuid || account.name) && isSwitchingAccount.isLoading
             }
             fromSettings
+            isAccountSwitching={isSwitchingAccount.isLoading}
           />
         ))}
       </View>
