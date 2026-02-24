@@ -207,19 +207,19 @@
     "homePage": {
       "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
-        "button1": "Recuperar carteira",
+        "button1": "Restaurar acesso",
         "button2": "Criar nova carteira"
       }
     },
     "disclaimerPage": {
-      "header": "Sua wallet. Seu controle.",
-      "subHeader": "Algumas coisas para saber antes de começar.",
+      "header": "Sua carteira. Seu controle.",
+      "subHeader": "Algumas informações importantes antes de começar.",
       "row1Label": "Só você controla seus fundos",
-      "row1Description": "A Blitz nunca guarda nem acessa seu dinheiro.",
+      "row1Description": "A Blitz não custodia nem tem acesso ao seu dinheiro.",
       "row2Label": "Você terá uma frase de recuperação",
-      "row2Description": "Ela é a chave mestra da sua wallet. Encontre em Configurações → Backup da wallet.",
-      "row3Label": "Sem recuperação se for perdida",
-      "row3Description": "Não podemos restaurar o acesso. Guarde sua frase em um local seguro.",
+      "row2Description": "Ela é a chave que recupera os fundos de todas suas contas na Blitz. Encontre em Configurações → Backup da carteira.",
+      "row3Label": "Não pode ser recuperada se for perdida",
+      "row3Description": "Não é possível restaurar o acesso sem sua frase de recuperação. Guarde sua frase em um local seguro.",
       "acceptPrefix": "Eu aceito os ",
       "terms&Conditions": "Termos e Condições",
       "acceptError": "Para continuar, você deve aceitar os Termos e Condições.",
@@ -244,7 +244,7 @@
         "removeWalletError": "Erro ao excluir a carteira",
         "wrongPinError": "Tente novamente",
         "enterPinMessage": "Criar PIN",
-        "confirmPin": "Confirmar Pin",
+        "confirmPin": "Confirmar PIN",
         "attemptsText": "{{number}} tentativas restantes"
       }
     },
@@ -899,7 +899,7 @@
       "goal": "Objetivo: ",
       "payment_one": "{{count}} pagamento",
       "payment_other": "{{count}} pagamentos",
-      "closed": "Fechado ",
+      "closed": "Encerrada ",
       "pool": "Pool",
       "couldNotFind": "Não foi possível encontrar esta Vaquinha.",
       "createdBy": "Por ",
@@ -1007,7 +1007,10 @@
         "switchTokenText": "Usar um token diferente",
         "zeroAmountInvoiceDollarPayments": "Faturas sem quantia definida não podem ser pagas em USD. Use BTC.",
         "decodingPayment": "Decodificando informações de pagamento...",
-        "selectPaymentMethod": "Selecione um método de pagamento para continuar."
+        "selectPaymentMethod": "Selecione um método de pagamento para continuar.",
+        "swapRatesChangedTitle": "Taxa de câmbio atualizada",
+        "swapRatesChangedBody": "A taxa de câmbio para esta troca mudou enquanto você estava revisando. Insira o valor novamente para continuar.",
+        "swapRatesChangedButton": "Inserir valor novamente"
       },
       "selectPaymentMethod": {
         "header": "Escolha o saldo para realizar esse pagamento."
@@ -1025,6 +1028,8 @@
         "lnurlFailedAuthMessage": "Falha ao autenticar LNURL",
         "lnurlConfirmMessage": "LNURL autenticado com sucesso",
         "lnurlPayInvoiceError": "Falha ao gerar a fatura para pagamento LNURL. Tente novamente.",
+        "lnurlPayNoInvoiceError": "O serviço que você está tentando pagar está atualmente offline. Se o problema persistir, entre em contato com a empresa que você está tentando pagar.",
+        "lnurlPayInvalidFormat": "O serviço que você está tentando pagar não retornou os dados corretos. Se o problema persistir, entre em contato com a empresa que você está tentando pagar.",
         "lnurlWithdrawlStart": "Gerando fatura para saque",
         "lnurlWithdrawlInvoiceError": "Não foi possível gerar a fatura para retirada a partir do lnurl",
         "waitingForLnurlWithdrawl": "Aguardando pagamento...",
@@ -1243,31 +1248,29 @@
       "seedPopup": "A frase de recuperação é uma lista de palavras que permite recuperar seus Bitcoins caso seu dispositivo seja perdido ou danificado. Anote as palavras e guarde em um local seguro. Nunca mostre as palavras para ninguém pois se alguém tiver acesso a elas, poderá roubar todos os seus Bitcoins."
     },
     "about": {
-      "header1": "Software",
-      "text2": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a ",
-      "text3": "Licença Apache",
-      "text4": " Versão 2.0",
-      "text5": "Esta é uma carteira Bitcoin Spark compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
-      "text6": "A Blitz Wallet usa ",
-      "text7": "o SDK da Breez Liquid, ",
-      "text8": "Spark, ",
-      "text9": "e ",
-      "text10": "a API da Boltz.",
-      "header2": "Bom saber",
-      "text12": "A Blitz Wallet usa o protocolo Spark. Spark é um ",
-      "text13": "protocolo off-chain ",
-      "text14": "onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da cadeia da blockchain ",
-      "text15": "permitindo transferências rápidas, de custo baixo e sem ceder a custódia dos fundos.",
-      "text16": "Criador",
-      "text17": "Versão:",
+      "licenseHeader": "Software",
+      "licenseBody": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a",
+      "licenseLinkLabel": "Licença Apache v2.0",
+      "walletHeader": "Blitz Wallet",
+      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodiada compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
+      "poweredByLabel": "Desenvolvido com",
+      "poweredByBreez": "Breez Liquid SDK",
+      "poweredBySpark": "Spark",
+      "poweredByFlashnet": "Flashnet",
+      "poweredByBoltz": "Boltz API",
+      "sparkHeader": "Bom Saber",
+      "sparkDescription": "A Blitz Wallet é alimentada pelo protocolo Spark. Spark é um protocolo off-chain onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da blockchain, permitindo transferências rápidas, de baixo custo e sem custódia de terceiros.",
       "learnMore": "Saiba mais",
-      "webpackVerified": "Webpack verificado",
-      "webpackUnvarified": "Webpack não verificado",
+      "creatorHeader": "Criador",
+      "uiUxHeader": "UX / UI",
+      "olliRole": "Engenharia",
+      "versionLabel": "Versão",
+      "bundleVerified": "Bundle verificado",
+      "bundleUnverified": "Bundle não verificado",
       "showTechnicals": "Mostrar detalhes técnicos",
       "hideTechnicals": "Ocultar detalhes técnicos",
       "backendHash": "Hash de backend",
-      "expectedHash": "Hash esperado",
-      "blitzWallet": "Blitz Wallet"
+      "expectedHash": "Hash esperado"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1447,7 +1450,7 @@
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
       "lnurl": "Endereço Lightning",
-      "nostrZaps": "Nostr zaps",
+      "nostrZaps": "Nostr Zaps",
       "nwc": "Conexão Nostr",
       "pos": "Ponto de venda"
     },
@@ -1569,8 +1572,8 @@
         "editTitle": "Editar conta",
         "createTitle": "Criar conta",
         "updateTitle": "Atualizar conta",
-        "cannotDeleteActiveAccountError": "Não é possível excluir a conta ativa. Selecione outra conta antes de excluir.",
-        "deleteAccountConfirmation": "Tem certeza de que deseja excluir esta conta?",
+        "cannotDeleteActiveAccountError": "Não é possível arquivar a conta que está selecionada. Selecione outra conta antes de arquivar esta.",
+        "deleteAccountConfirmation": "Tem certeza de que deseja arquivar esta conta?",
         "inputDesc": "Nome da conta",
         "nameTakenError": "Este nome está em uso no momento. Use um nome de conta diferente.",
         "nameInputPlaceholder": "Nome...",
@@ -1587,8 +1590,8 @@
         "title": "Editar conta",
         "accountNameLabel": "Nome da conta",
         "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
-        "removeAccountLabel": "Excluir conta",
-        "activeAccountError": "Você não pode excluir a conta que está selecionada. Por favor, mude para uma conta diferente antes de excluir esta.",
+        "removeAccountLabel": "Arquivar conta",
+        "activeAccountError": "Você não pode arquivar a conta que está selecionada. Por favor, mude para uma conta diferente antes de arquivar esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta",
         "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada."
@@ -1598,9 +1601,9 @@
         "createNewAccountTitle": "Criar nova conta",
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
-        "importRecoveryPhraseDescription": "Importar contas de outra carteira",
-        "recoverRecoveryPhraseTitle": "Restaurar conta excluída",
-        "recoverRecoveryPhraseDescription": "Recuperar uma conta anteriomente criada"
+        "importRecoveryPhraseDescription": "Importar contas de outras carteiras",
+        "recoverRecoveryPhraseTitle": "Restaurar conta",
+        "recoverRecoveryPhraseDescription": "Recuperar contas arquivadas"
       },
       "selectProfileImage": {
         "title": "Escolher avatar",
@@ -1626,18 +1629,18 @@
         "to": "Selecione a conta para a qual deseja receber."
       },
       "removeAccountPage": {
-        "title": "Excluir conta",
-        "explanation_derived": "Mesmo que você exclua esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
-        "explanation_imported": "Esta conta foi importada. Se você excluí-la, precisará importar novamente a frase de recuperação para acessá-la.",
+        "title": "Arquivar conta",
+        "explanation_derived": "Mesmo que você arquive esta conta, é possível restaurá-la usando a opção restaurar conta ou importando sua frase de recuperação.",
+        "explanation_imported": "Esta conta foi importada. Se você arquivá-la, precisará importar novamente a frase de recuperação para acessá-la.",
         "cancelButton": "Cancelar",
-        "removeButton": "Excluir conta"
+        "removeButton": "Arquivar conta"
       }
     },
     "accountsPoolsScreen": {
       "profileButton": "Perfil",
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
-      "noPoolsMessage": "Você ainda não criou nenhuma Vaquinha. Toque para criar sua primeira Vaquinha.",
+      "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
       "noActivePools": "Você não tem Vaquinhas abertas",
       "yourAccountsTitle": "Suas contas",
       "addAccountButton": "Adicionar conta"
@@ -2077,7 +2080,7 @@
     "genericError": "Ocorreu um erro inesperado",
     "tryAgain": "Por favor, tente novamente",
     "contactSupport": "Entre em contato com o suporte se o problema persistir",
-    "deleteAccount": "Erro ao excluir conta.",
+    "deleteAccount": "Erro ao arquivar conta.",
     "failedToDecryptPin": "Falha ao descriptografar o PIN",
     "decodePinWithBio": "Não foi possível decodificar o PIN com biometria",
     "insufficientBalanceError": "Saldo insuficiente para comprar {{planType}}",

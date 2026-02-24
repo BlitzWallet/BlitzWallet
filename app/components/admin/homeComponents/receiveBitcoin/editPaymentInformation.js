@@ -160,12 +160,14 @@ export default function EditReceivePaymentInformation(props) {
     conversionFiatStats,
   ]);
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: isKeyboardFocused ? 0 : bottomPadding,
+    };
+  }, [isKeyboardFocused]);
+
   return (
-    <CustomKeyboardAvoidingView
-      globalThemeViewStyles={{
-        paddingBottom: isKeyboardFocused ? 0 : bottomPadding,
-      }}
-    >
+    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}

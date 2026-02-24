@@ -605,12 +605,14 @@ export default function SendAndRequestPage(props) {
     setDescriptionValue(newDescription);
   };
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: !isDescriptionFocused ? bottomPadding : 0,
+    };
+  }, [isDescriptionFocused]);
+
   return (
-    <CustomKeyboardAvoidingView
-      globalThemeViewStyles={{
-        paddingBottom: !isDescriptionFocused ? bottomPadding : 0,
-      }}
-    >
+    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View
         style={[
           styles.replacementContainer,

@@ -66,6 +66,7 @@ import { useKeysContext } from '../../../../../context-store/keys';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import SwapRatesChangedState from './components/swapRatesChangedState';
 import {
   dollarsToSats,
   satsToDollars,
@@ -121,6 +122,13 @@ export default function SendPaymentScreen(props) {
   const determinePaymentMethodRef = useRef(null);
   const didRequireChoiceRef = useRef(false);
   const uiStateRef = useRef(null);
+  const primaryDisplayRef = useRef(null);
+  const conversionFiatStatsRef = useRef(null);
+
+  // Drives the SWAP_RATES_CHANGED uiState when Flashnet rate drift breaks swap viability.
+  const [rateChangeDetected, setRateChangeDetected] = useState(false);
+  // Captures swapUSDPriceDollars on CONFIRM_PAYMENT entry (ref = no extra re-render).
+  const rateAtConfirmEntryRef = useRef(null);
 
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
@@ -228,11 +236,7 @@ export default function SendPaymentScreen(props) {
   const canEditAmount = paymentInfo?.canEditPayment === true;
 
   const paymentFee =
-    !userPaymentMethod || userPaymentMethod === 'BTC'
-      ? (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0)
-      : (paymentInfo?.swapPaymentQuote?.fee ||
-          paymentInfo?.swapPaymentQuote?.satFee ||
-          0) + (paymentInfo?.swapPaymentQuote?.estimatedLightningFee || 0);
+    (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
   console.log(paymentInfo, 'payment info');
 
   const {
@@ -274,6 +278,7 @@ export default function SendPaymentScreen(props) {
     fiatStats,
     usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
     masterInfoObject,
+    isSendingPayment: isSendingPayment.current,
   });
 
   const displayAmount = canEditAmount
@@ -294,6 +299,13 @@ export default function SendPaymentScreen(props) {
         poolInfoRef.currentPriceAInB,
     ).toFixed(2) * Math.pow(10, 6),
   );
+
+  useEffect(() => {
+    primaryDisplayRef.current = primaryDisplay;
+  }, [primaryDisplay]);
+  useEffect(() => {
+    conversionFiatStatsRef.current = conversionFiatStats;
+  }, [conversionFiatStats]);
 
   useEffect(() => {
     determinePaymentMethodRef.current = determinePaymentMethod;
@@ -372,6 +384,12 @@ export default function SendPaymentScreen(props) {
       return 'EDIT_AMOUNT'; // Show number pad + description input
     }
 
+    // Rate-change intercept: show before CHOOSE_METHOD / CONFIRM_PAYMENT so it
+    // takes over the screen whenever the Flashnet rate broke swap viability.
+    if (rateChangeDetected) {
+      return 'SWAP_RATES_CHANGED';
+    }
+
     if (
       (needsToChoosePaymentMethod || !didSelectPaymentMethod) &&
       !isSendingPayment.current &&
@@ -387,6 +405,7 @@ export default function SendPaymentScreen(props) {
     return 'CONFIRM_PAYMENT'; // Show swipe button
   }, [
     canEditAmount,
+    rateChangeDetected,
     needsToChoosePaymentMethod,
     didSelectPaymentMethod,
     isBitcoinPayment,
@@ -474,6 +493,78 @@ export default function SendPaymentScreen(props) {
     uiState === 'CONFIRM_PAYMENT';
 
   const isUsingFastPay = canUseFastPay && canSendPayment && !canEditAmount;
+
+  // Rate-sensitive swap path: only Flashnet swaps (USD→BTC / BTC→USDB) are affected
+  // by live rate changes. Mirrors needsSwap in hasSufficientBalance / paymentValidation.
+  const needsRateSwap =
+    (determinePaymentMethod === 'USD' && receiverExpectsCurrency === 'sats') ||
+    (determinePaymentMethod === 'BTC' && receiverExpectsCurrency === 'tokens');
+
+  // Snapshot + detection effect.
+  // Captures the rate on CONFIRM_PAYMENT entry; when a subsequent rate tick
+  // breaks swap viability (convertedSendAmount shrinks, min_usd_swap_amount rises),
+  // sets rateChangeDetected → transitions to SWAP_RATES_CHANGED uiState.
+  // Resets completely when the user leaves the confirm flow.
+  useEffect(() => {
+    if (uiState === 'CONFIRM_PAYMENT') {
+      // Capture rate once on entry
+      if (rateAtConfirmEntryRef.current === null) {
+        rateAtConfirmEntryRef.current = swapUSDPriceDollars;
+      }
+      // Detect drift that broke viability
+      if (
+        rateAtConfirmEntryRef.current !== null &&
+        swapUSDPriceDollars !== rateAtConfirmEntryRef.current &&
+        !paymentValidation.canProceed &&
+        needsRateSwap &&
+        !isSendingPayment.current
+      ) {
+        setRateChangeDetected(true);
+      }
+    } else if (uiState !== 'SWAP_RATES_CHANGED') {
+      // Leaving the confirm flow entirely (EDIT / CHOOSE / back) — full reset.
+      // Guard against SWAP_RATES_CHANGED so the state doesn't clear itself.
+      rateAtConfirmEntryRef.current = null;
+      setRateChangeDetected(false);
+    }
+  }, [
+    uiState,
+    swapUSDPriceDollars,
+    paymentValidation.canProceed,
+    needsRateSwap,
+  ]);
+
+  const handleRateChangedReset = useCallback(() => {
+    rateAtConfirmEntryRef.current = null;
+    setRateChangeDetected(false);
+    if (isLNURLPayment || isSparkPayment) {
+      // Full reset — mirrors hasParamsChanged effect sequence exactly
+      setIsAmountFocused(true);
+      setPaymentInfo({});
+      isSendingPayment.current = null;
+      setPaymentDescription('');
+      hasTriggeredFastPay.current = false;
+      didRequireChoiceRef.current = false;
+      setUserSetInputDenomination(null);
+      setLoadingMessage(
+        sparkInformation.didConnect && sparkInformation.identityPubKey
+          ? t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage')
+          : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
+      );
+      setDidSelectPaymentMethod(false);
+      setShowProgressAnimation(false);
+      setRefreshDecode(x => x + 1);
+    } else {
+      navigate.goBack();
+    }
+  }, [
+    isLNURLPayment,
+    isSparkPayment,
+    navigate,
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    t,
+  ]);
 
   const errorMessageNavigation = useCallback(
     reason => {
@@ -569,6 +660,8 @@ export default function SendPaymentScreen(props) {
         swapLimits,
         // usd_multiplier_coefiicent,
         min_usd_swap_amount,
+        primaryDisplay: primaryDisplayRef.current,
+        conversionFiatStats: conversionFiatStatsRef.current,
       });
       setIsDecoding(false);
     }
@@ -838,6 +931,12 @@ export default function SendPaymentScreen(props) {
     }
   };
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: !isAmountFocused ? 0 : bottomPadding,
+    };
+  }, [isAmountFocused]);
+
   const sendingAsset =
     selectedLRC20Asset === 'Bitcoin'
       ? !isLightningPayment &&
@@ -864,35 +963,32 @@ export default function SendPaymentScreen(props) {
   }
 
   return (
-    <CustomKeyboardAvoidingView
-      globalThemeViewStyles={{
-        paddingBottom: !isAmountFocused ? 0 : bottomPadding,
-      }}
-    >
+    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
           label={t('constants.send') + ' ' + sendingAsset}
         />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={handleDenominationToggle}
-          >
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={displayAmount}
-              inputDenomination={primaryDisplay.denomination}
-              forceCurrency={primaryDisplay.forceCurrency}
-              forceFiatStats={primaryDisplay.forceFiatStats}
-              activeOpacity={!sendingAmount ? 0.5 : 1}
-              customCurrencyCode={
-                isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
-              }
-            />
+          {uiState !== 'SWAP_RATES_CHANGED' && (
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={handleDenominationToggle}
+            >
+              <FormattedBalanceInput
+                maxWidth={0.9}
+                amountValue={displayAmount}
+                inputDenomination={primaryDisplay.denomination}
+                forceCurrency={primaryDisplay.forceCurrency}
+                forceFiatStats={primaryDisplay.forceFiatStats}
+                activeOpacity={!sendingAmount ? 0.5 : 1}
+                customCurrencyCode={
+                  isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
+                }
+              />
 
-            {/* Alternate denomination display */}
-            {/* {isUsingLRC20 && (
+              {/* Alternate denomination display */}
+              {/* {isUsingLRC20 && (
           <FormattedSatText
             neverHideBalance={true}
             containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
@@ -905,23 +1001,24 @@ export default function SendPaymentScreen(props) {
             )}
           />
         )} */}
-            {!isUsingLRC20 && (
-              <FormattedSatText
-                containerStyles={{
-                  opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
-                }}
-                neverHideBalance={true}
-                styles={{
-                  includeFontPadding: false,
-                  ...styles.satValue,
-                }}
-                globalBalanceDenomination={secondaryDisplay.denomination}
-                forceCurrency={secondaryDisplay.forceCurrency}
-                balance={convertedSendAmount}
-                forceFiatStats={secondaryDisplay.forceFiatStats}
-              />
-            )}
-          </TouchableOpacity>
+              {!isUsingLRC20 && (
+                <FormattedSatText
+                  containerStyles={{
+                    opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
+                  }}
+                  neverHideBalance={true}
+                  styles={{
+                    includeFontPadding: false,
+                    ...styles.satValue,
+                  }}
+                  globalBalanceDenomination={secondaryDisplay.denomination}
+                  forceCurrency={secondaryDisplay.forceCurrency}
+                  balance={convertedSendAmount}
+                  forceFiatStats={secondaryDisplay.forceFiatStats}
+                />
+              )}
+            </TouchableOpacity>
+          )}
 
           {/* Send max button for edit mode */}
           {!useAltLayout && uiState === 'EDIT_AMOUNT' && showSendMax && (
@@ -976,6 +1073,9 @@ export default function SendPaymentScreen(props) {
               t={t}
             />
           )}
+
+          {/* SWAP_RATES_CHANGED — rate drifted and broke swap viability */}
+          {uiState === 'SWAP_RATES_CHANGED' && <SwapRatesChangedState />}
         </ScrollView>
 
         {/* EDIT_AMOUNT State - Show input controls */}
@@ -1102,6 +1202,7 @@ export default function SendPaymentScreen(props) {
                 selectedLRC20Asset={selectedLRC20Asset}
                 seletctedToken={seletctedToken}
                 inputDenomination={inputDenomination}
+                primaryDisplay={primaryDisplay}
               />
             )}
 
@@ -1144,6 +1245,8 @@ export default function SendPaymentScreen(props) {
                   inputDenomination={inputDenomination}
                   paymentValidation={paymentValidation}
                   setDidSelectPaymentMethod={setDidSelectPaymentMethod}
+                  conversionFiatStats={conversionFiatStats}
+                  primaryDisplay={primaryDisplay}
                 />
               )
             }
@@ -1159,6 +1262,19 @@ export default function SendPaymentScreen(props) {
             }}
             actionFunction={() => handleSelectPaymentMethod(true)}
             textContent={t('constants.review')}
+          />
+        )}
+
+        {/* SWAP_RATES_CHANGED — primary CTA to re-enter amount */}
+        {uiState === 'SWAP_RATES_CHANGED' && (
+          <CustomButton
+            buttonStyles={{
+              ...CENTER,
+            }}
+            actionFunction={handleRateChangedReset}
+            textContent={t(
+              'wallet.sendPages.sendPaymentScreen.swapRatesChangedButton',
+            )}
           />
         )}
 

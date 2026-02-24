@@ -40,7 +40,13 @@ export default function SettingsRow({
       ) : null}
       <ThemeText
         CustomNumberOfLines={1}
-        styles={[styles.label]}
+        styles={[
+          styles.label,
+          !iconName &&
+            !iconImage && {
+              marginLeft: 0,
+            },
+        ]}
         content={label}
       />
       {inlineValue ? (

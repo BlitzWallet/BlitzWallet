@@ -12,7 +12,7 @@ import {
 import { CountryCodeList } from 'react-native-country-picker-modal';
 import CountryFlag from 'react-native-country-flag';
 import { getCountryInfoAsync } from 'react-native-country-picker-modal/lib/CountryService';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -179,11 +179,15 @@ export default function CountryList(props) {
     keyboardGoBack(navigate);
   }, [navigate]);
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+    };
+  }, [isKeyboardActive]);
+
   return (
     <CustomKeyboardAvoidingView
-      globalThemeViewStyles={{
-        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
-      }}
+      globalThemeViewStyles={memorizedKeyboardStyle}
       useStandardWidth={true}
     >
       <CustomSettingsTopBar customBackFunction={keyboardDismissBack} />

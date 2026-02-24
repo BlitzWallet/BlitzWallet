@@ -288,6 +288,7 @@ export default function CreateCustodyAccountPage(props) {
       () => {
         setCurrentFocused(null);
         setIsKeyboardActive(false);
+        Keyboard.dismiss();
       },
     );
 
@@ -296,18 +297,22 @@ export default function CreateCustodyAccountPage(props) {
     };
   }, []);
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      alignItems: 'center',
+      position: 'relative',
+      paddingBottom: isKeyboardActive
+        ? currentFocused
+          ? 0
+          : CONTENT_KEYBOARD_OFFSET
+        : bottomPadding,
+    };
+  }, [isKeyboardActive, currentFocused, bottomPadding]);
+
   return (
     <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      globalThemeViewStyles={{
-        alignItems: 'center',
-        position: 'relative',
-        paddingBottom: isKeyboardActive
-          ? currentFocused
-            ? 0
-            : CONTENT_KEYBOARD_OFFSET
-          : bottomPadding,
-      }}
+      globalThemeViewStyles={memorizedKeyboardStyle}
+      useLocalPadding={accountType === 'derived'}
       isKeyboardActive={isKeyboardActive}
     >
       <View style={{ width: '95%' }}>
@@ -437,10 +442,9 @@ export default function CreateCustodyAccountPage(props) {
           </>
         )}
       </ScrollView>
-      {!isKeyboardActive && (
+      {(!isKeyboardActive || accountType === 'derived') && (
         <CustomButton
           useLoading={isCreatingAccount}
-          loadingColor={COLORS.darkModeText}
           buttonStyles={{
             marginTop: 5,
             minWidth: 150,

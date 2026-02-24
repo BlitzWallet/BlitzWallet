@@ -37,7 +37,9 @@ import SplashScreen from './app/screens/splashScreen';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 // import {GlobaleCashVariables} from './context-store/eCash';
-import { ChooseLangugaePage } from './app/screens/createAccount';
+import { CreateAccountHome } from './app/screens/createAccount';
+import { getLocales } from 'react-native-localize';
+import { supportedLanguagesList } from './locales/localeslist';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -516,7 +518,20 @@ function ResetStack(): JSX.Element | null {
         };
       });
 
-      i18n.changeLanguage(userSelectedLanguage);
+      let resolvedLanguage = userSelectedLanguage;
+      if (!resolvedLanguage) {
+        const [{ languageTag = 'en' }] = getLocales();
+        const deviceShortId = languageTag.split('-')[0];
+        const matched = supportedLanguagesList.find(
+          l => l.shortId === deviceShortId,
+        );
+        resolvedLanguage = matched ? matched.id : 'en';
+        setLocalStorageItem(
+          'userSelectedLanguage',
+          JSON.stringify(resolvedLanguage),
+        );
+      }
+      i18n.changeLanguage(resolvedLanguage);
     }
 
     if (appState === 'background') return;
@@ -591,7 +606,7 @@ function ResetStack(): JSX.Element | null {
         ? AdminLogin
         : ConnectingToNodeLoadingScreen;
     }
-    return ChooseLangugaePage;
+    return CreateAccountHome;
   }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
 
   if (theme === null || darkModeType === null) {

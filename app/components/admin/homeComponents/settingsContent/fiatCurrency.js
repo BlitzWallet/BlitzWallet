@@ -96,6 +96,12 @@ export default function FiatCurrencyPage() {
     );
   };
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: !isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+    };
+  }, [isKeyboardActive]);
+
   if (isLoading) {
     return (
       <GlobalThemeView useStandardWidth={true}>
@@ -110,9 +116,7 @@ export default function FiatCurrencyPage() {
 
   return (
     <CustomKeyboardAvoidingView
-      globalThemeViewStyles={{
-        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
-      }}
+      globalThemeViewStyles={memorizedKeyboardStyle}
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >

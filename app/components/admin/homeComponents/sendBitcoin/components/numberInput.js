@@ -8,6 +8,7 @@ export default function NumberInputSendPage({
   selectedLRC20Asset,
   seletctedToken,
   inputDenomination,
+  primaryDisplay,
 }) {
   const [amount, setAmount] = useState(paymentInfo?.sendAmount);
   const decimals = seletctedToken?.tokenMetadata?.decimals;
@@ -67,7 +68,8 @@ export default function NumberInputSendPage({
     <CustomNumberKeyboard
       showDot={
         (inputDenomination === 'fiat' && selectedLRC20Asset === 'Bitcoin') ||
-        selectedLRC20Asset !== 'Bitcoin'
+        selectedLRC20Asset !== 'Bitcoin' ||
+        primaryDisplay.denomination === 'fiat'
       }
       setInputValue={setAmount}
       usingForBalance={true}

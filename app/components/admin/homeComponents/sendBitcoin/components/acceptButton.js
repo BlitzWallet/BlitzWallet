@@ -50,6 +50,8 @@ export default function AcceptButtonSendPage({
   inputDenomination,
   paymentValidation,
   setDidSelectPaymentMethod,
+  conversionFiatStats,
+  primaryDisplay,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -348,6 +350,8 @@ export default function AcceptButtonSendPage({
         swapLimits,
         // usd_multiplier_coefiicent,
         min_usd_swap_amount,
+        conversionFiatStats,
+        primaryDisplay,
       });
     } catch (error) {
       console.log('Accept button error:', error);

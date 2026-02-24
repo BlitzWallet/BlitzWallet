@@ -1,13 +1,6 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { ThemeText } from '../../../../functions/CustomElements';
-import CustomButton from '../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
 import DeviceInfo from 'react-native-device-info';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -17,180 +10,174 @@ import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../../../context-store/webViewContext';
 import { useState } from 'react';
 import GetThemeColors from '../../../../hooks/themeColors';
+import SectionCard from '../../../../screens/inAccount/settingsHub/components/SectionCard';
+import SettingsRow from '../../../../screens/inAccount/settingsHub/components/SettingsRow';
 
 export default function AboutPage() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { fileHash } = useWebView();
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { backgroundOffset } = GetThemeColors();
-  const device_info = DeviceInfo.getVersion();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const deviceVersion = DeviceInfo.getVersion();
 
   const isVerified = fileHash === process.env.WEBVIEW_BUNDLE_HASH;
   const [showDetails, setShowDetails] = useState(false);
 
+  function openBrower(person) {
+    openWebBrowser({
+      navigate,
+      link: `https://x.com/${
+        person === 'blake' ? 'blakekaufman17' : 'Stromens'
+      }`,
+    });
+  }
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      style={styles.innerContainer}
+      style={styles.scrollView}
+      contentContainerStyle={styles.scrollContent}
     >
-      <ThemeText
-        content={t('settings.about.header1')}
-        styles={{ ...styles.sectionHeader, marginTop: 30 }}
-      />
-      <Text style={styles.contentText}>
-        <ThemeText content={t('settings.about.text2')} />
-        <ThemeText
-          styles={{
-            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={t('settings.about.text3')}
-        />
-        <ThemeText content={`,`} />
-        <ThemeText content={t('settings.about.text4')} />
-      </Text>
-      <ThemeText
-        content={t('settings.about.blitzWallet')}
-        styles={{ ...styles.sectionHeader }}
-      />
-      <ThemeText
-        content={t('settings.about.text5')}
-        styles={{
-          ...styles.contentText,
-        }}
-      />
-      <Text style={{ textAlign: 'center' }}>
-        <ThemeText content={t('settings.about.text6')} />
-        <ThemeText
-          styles={{
-            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={t('settings.about.text7')}
-        />
-      </Text>
-      <Text style={styles.contentText}>
-        <ThemeText
-          styles={{
-            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={t('settings.about.text8')}
-        />
-        <ThemeText content={t('settings.about.text9')} />
-        <ThemeText
-          styles={{
-            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={t('settings.about.text10')}
-        />
-      </Text>
-      <ThemeText
-        content={t('settings.about.header2')}
-        styles={{ ...styles.sectionHeader }}
-      />
-      <Text
-        style={{
-          ...styles.contentText,
-        }}
-      >
-        <ThemeText content={t('settings.about.text12')} />
-        <ThemeText
-          styles={{
-            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={t('settings.about.text13')}
-        />
-        <ThemeText content={t('settings.about.text14')} />
-        <ThemeText content={t('settings.about.text15')} />
-      </Text>
-      <TouchableOpacity
-        style={{ ...CENTER, marginBottom: 20 }}
-        onPress={() =>
-          navigate.navigate('CustomWebView', {
-            headerText: 'Spark',
-            webViewURL: 'https://docs.spark.money/learn/tldr',
-          })
-        }
-      >
-        <ThemeText
-          styles={{
-            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={t('settings.about.learnMore')}
-        />
-      </TouchableOpacity>
-      <View style={{ ...CENTER, alignItems: 'center' }}>
-        <ThemeText
-          styles={{ fontSize: SIZES.large }}
-          content={t('settings.about.text16')}
-        />
-        <CustomButton
-          buttonStyles={{
-            ...styles.customButtonContainer,
-            marginBottom: 10,
-            backgroundColor:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          textStyles={{
-            ...styles.buttonTextStyles,
-            color:
-              theme && darkModeType
-                ? COLORS.lightModeText
-                : COLORS.darkModeText,
-          }}
-          textContent={'Blake Kaufman'}
-          actionFunction={() => openBrower('blake')}
-        />
-        <ThemeText styles={{ fontSize: SIZES.large }} content={'UX/UI'} />
-        <CustomButton
-          buttonStyles={{
-            ...styles.customButtonContainer,
-            backgroundColor:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          textStyles={{
-            ...styles.buttonTextStyles,
-            color:
-              theme && darkModeType
-                ? COLORS.lightModeText
-                : COLORS.darkModeText,
-          }}
-          textContent={'Oliver Koblizek'}
-          actionFunction={() => openBrower('oliver')}
-        />
-      </View>
-      <ThemeText
-        styles={{ ...CENTER, marginTop: 20 }}
-        content={`${t('settings.about.text17')} ${device_info}`}
-      />
-
-      {/* Security Verification Badge */}
-      <View style={styles.verificationContainer}>
-        <View
-          style={[
-            styles.verificationBadge,
-            { backgroundColor: backgroundOffset },
-          ]}
-        >
+      {/* SOFTWARE / LICENSE */}
+      <SectionCard title={t('settings.about.licenseHeader')}>
+        <View style={styles.cardBody}>
           <ThemeText
-            styles={[styles.verificationTitle]}
-            content={
-              isVerified
-                ? t('settings.about.webpackVerified')
-                : t('settings.about.webpackUnvarified')
-            }
+            styles={styles.bodyText}
+            content={t('settings.about.licenseBody')}
           />
         </View>
+        <SettingsRow
+          iconName={'ScrollText'}
+          label={t('settings.about.licenseLinkLabel')}
+          isLast
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://www.apache.org/licenses/LICENSE-2.0',
+            })
+          }
+        />
+      </SectionCard>
 
+      {/* BLITZ WALLET */}
+      <SectionCard title={t('settings.about.walletHeader')}>
+        <View style={styles.cardBody}>
+          <ThemeText
+            styles={styles.bodyText}
+            content={t('settings.about.walletDescription')}
+          />
+        </View>
+        <View style={styles.poweredByHeader}>
+          <ThemeText
+            styles={styles.poweredByLabel}
+            content={t('settings.about.poweredByLabel')}
+          />
+        </View>
+        <SettingsRow
+          // iconName={'Zap'}
+          label={t('settings.about.poweredBySpark')}
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://spark.money',
+            })
+          }
+        />
+        <SettingsRow
+          // iconName={'Zap'}
+          label={t('settings.about.poweredByFlashnet')}
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://www.flashnet.xyz/',
+            })
+          }
+        />
+        <SettingsRow
+          // iconName={'Waves'}
+          label={t('settings.about.poweredByBreez')}
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://breez.technology',
+            })
+          }
+        />
+
+        <SettingsRow
+          // iconName={'ArrowLeftRight'}
+          label={t('settings.about.poweredByBoltz')}
+          isLast
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://boltz.exchange',
+            })
+          }
+        />
+      </SectionCard>
+
+      {/* GOOD TO KNOW / SPARK */}
+      <SectionCard title={t('settings.about.sparkHeader')}>
+        <View style={styles.cardBody}>
+          <ThemeText
+            styles={styles.bodyText}
+            content={t('settings.about.sparkDescription')}
+          />
+        </View>
+        <SettingsRow
+          iconName={'BookOpen'}
+          label={t('settings.about.learnMore')}
+          isLast
+          onPress={() =>
+            navigate.navigate('CustomWebView', {
+              headerText: 'Spark',
+              webViewURL: 'https://docs.spark.money/learn/tldr',
+            })
+          }
+        />
+      </SectionCard>
+
+      {/* CREATOR */}
+      <SectionCard title={t('settings.about.creatorHeader')}>
+        <SettingsRow
+          label={'Blake Kaufman'}
+          isLast
+          onPress={() => openBrower('blake')}
+        />
+      </SectionCard>
+
+      {/* UI/UX */}
+      <SectionCard title={t('settings.about.uiUxHeader')}>
+        <SettingsRow
+          label={'Oliver Koblizek'}
+          isLast
+          onPress={() => openBrower('oliver')}
+        />
+      </SectionCard>
+
+      {/* VERSION & VERIFICATION */}
+      <SectionCard title={t('settings.about.versionLabel')}>
+        {/* Row 1 — app version */}
+        <View style={styles.infoRow}>
+          <ThemeText styles={styles.infoRowText} content={deviceVersion} />
+        </View>
+        <View style={[styles.divider, { backgroundColor }]} />
+
+        {/* Row 2 — toggle technical details */}
         <TouchableOpacity
-          style={styles.detailsToggle}
-          onPress={() => setShowDetails(!showDetails)}
+          onPress={() => setShowDetails(prev => !prev)}
+          style={styles.infoRow}
         >
           <ThemeText
-            styles={{
-              color:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              fontSize: SIZES.small,
-            }}
+            styles={[
+              styles.infoRowText,
+              {
+                color:
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              },
+            ]}
             content={
               showDetails
                 ? t('settings.about.hideTechnicals')
@@ -202,90 +189,91 @@ export default function AboutPage() {
         {showDetails && (
           <View
             style={[
-              styles.technicalDetails,
+              styles.hashContainer,
               { backgroundColor: backgroundOffset },
             ]}
           >
             <ThemeText
-              styles={styles.detailLabel}
+              styles={styles.hashLabel}
               content={t('settings.about.backendHash')}
             />
-            <ThemeText styles={styles.detailHash} content={fileHash} />
+            <ThemeText styles={styles.hashValue} content={fileHash} />
             <ThemeText
-              styles={styles.detailLabel}
+              styles={[styles.hashLabel, styles.hashLabelSpacing]}
               content={t('settings.about.expectedHash')}
             />
             <ThemeText
-              styles={styles.detailHash}
+              styles={styles.hashValue}
               content={process.env.WEBVIEW_BUNDLE_HASH}
             />
           </View>
         )}
-      </View>
+      </SectionCard>
     </ScrollView>
   );
-
-  async function openBrower(person) {
-    await openWebBrowser({
-      navigate: navigate,
-      link: `https://x.com/${
-        person === 'blake' ? 'blakekaufman17' : 'Stromens'
-      }`,
-    });
-  }
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
+  scrollView: {
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  sectionHeader: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
-    marginBottom: 10,
+  scrollContent: {
+    paddingTop: 16,
+    paddingBottom: 40,
+    gap: 24,
   },
-  contentText: {
-    textAlign: 'center',
-    marginBottom: 20,
-    textAlignVertical: 'center',
+  cardBody: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 12,
   },
-  customButtonContainer: {
-    width: 'auto',
-    backgroundColor: COLORS.primary,
+  bodyText: {
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
+    includeFontPadding: false,
   },
-  buttonTextStyles: {
-    color: COLORS.darkModeText,
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    marginHorizontal: 16,
   },
-  verificationContainer: {
-    marginTop: 30,
-    marginBottom: 30,
-    alignItems: 'center',
+  poweredByHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 4,
   },
-  verificationBadge: {
-    borderRadius: 12,
-    padding: 24,
-    width: '90%',
-    alignItems: 'center',
-    marginBottom: 0,
+  poweredByLabel: {
+    fontSize: SIZES.small,
+    opacity: 0.5,
+    includeFontPadding: false,
   },
-
-  detailsToggle: {
-    padding: 10,
+  infoRow: {
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    minHeight: 48,
+    justifyContent: 'center',
   },
-  technicalDetails: {
-    width: '90%',
-    marginTop: 10,
-    padding: 15,
+  infoRowText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+  },
+  hashContainer: {
+    marginHorizontal: 16,
+    marginBottom: 14,
+    padding: 14,
     borderRadius: 8,
   },
-  detailLabel: {
+  hashLabel: {
     fontSize: SIZES.small,
-    marginTop: 10,
-    marginBottom: 5,
+    includeFontPadding: false,
   },
-  detailHash: {
+  hashLabelSpacing: {
+    marginTop: 10,
+  },
+  hashValue: {
     fontSize: SIZES.xSmall,
-    opacity: 0.7,
+    opacity: 0.6,
+    marginTop: 4,
+    includeFontPadding: false,
   },
 });

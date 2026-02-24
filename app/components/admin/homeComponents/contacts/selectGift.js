@@ -211,11 +211,15 @@ export default function SelectGiftCardForContacts(props) {
     ],
   );
 
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+    };
+  }, [isKeyboardActive]);
+
   return (
     <CustomKeyboardAvoidingView
-      globalThemeViewStyles={{
-        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
-      }}
+      globalThemeViewStyles={memorizedKeyboardStyle}
       useStandardWidth={true}
     >
       <View style={styles.topBar}>

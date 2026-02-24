@@ -6,6 +6,7 @@ import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { InputTypes, parseInput } from 'bitcoin-address-parser';
 import { getBolt11InvoiceForContact } from '../../../../../functions/contacts';
 import {
+  dollarsToSats,
   getLightningPaymentQuote,
   USD_ASSET_ADDRESS,
 } from '../../../../../functions/spark/flashnet';
@@ -28,6 +29,7 @@ export default async function processLNUrlPay(input, context) {
     dollarBalanceSat,
     convertedSendAmount,
     min_usd_swap_amount,
+    poolInfoRef,
   } = context;
   crashlyticsLogReport('Beiging decode LNURL pay');
 
@@ -118,7 +120,7 @@ export default async function processLNUrlPay(input, context) {
 
     if (!invoice)
       throw new Error(
-        t('wallet.sendPages.handlingAddressErrors.lnurlPayInvoiceError'),
+        t('wallet.sendPages.handlingAddressErrors.lnurlPayNoInvoiceError'),
       );
 
     // Now that we have the invoice, determine which fee estimates are needed
@@ -185,7 +187,13 @@ export default async function processLNUrlPay(input, context) {
             bitcoinBalance,
             dollarBalanceSat,
           };
-          paymentFee = paymentQuote.quote.fee;
+          const estimatedAmmFeeSat = Math.round(
+            dollarsToSats(
+              paymentQuote.quote.estimatedAmmFee / Math.pow(10, 6),
+              poolInfoRef.currentPriceAInB,
+            ),
+          );
+          paymentFee = paymentQuote.quote.fee + estimatedAmmFeeSat;
           supportFee = 0;
         }
       }
@@ -208,6 +216,12 @@ export default async function processLNUrlPay(input, context) {
         supportFee = paymentInfo.supportFee;
       }
     }
+  }
+
+  if (!input.data.maxSendable || !input.data.minSendable) {
+    throw new Error(
+      t('wallet.sendPages.handlingAddressErrors.lnurlPayInvalidFormat'),
+    );
   }
 
   const canEditPayment = !invoice;
