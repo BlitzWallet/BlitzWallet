@@ -1653,7 +1653,7 @@
       "maxPinsReached": "Máximo de 2 contas fixadas. Desafixe uma primeiro.",
       "morePoolsCount": "+{{count}} mais",
       "pos": {
-        "desc": "Aceite facilmente pagamentos em Bitcoin para o seu negócio"
+        "desc": "Aceite Bitcoin no seu negócio"
       }
     },
     "posPath": {
@@ -1898,7 +1898,7 @@
         "reclaimGiftMessage": "Vale-Blitz reembolsado",
         "giftsHome": {
           "title": "Vales-Blitz",
-          "desc": "Compartilhe Bitcoin ou Dólares com amigos e família"
+          "desc": "Presenteie amigos e família com Bitcoins"
         },
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",
@@ -2213,7 +2213,7 @@
   },
   "savings": {
     "home": {
-      "title": "Poupança",
+      "title": "Caixinha",
       "howItWorksLink": "Como funciona",
       "setGoalTitle": "Definir meta",
       "setGoalSubtitle": "Poupe para o que importa mais",
@@ -2222,7 +2222,7 @@
       "disclaimer": "Os saldos em dinheiro são mantidos em USDB, uma stablecoin lastreada em dólares emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas."
     },
     "preview": {
-      "title": "Poupança",
+      "title": "Caixinha",
       "earnInterest": "Ganhe 3,5% de juros"
     },
     "goalEmoji": {
@@ -2263,7 +2263,7 @@
       "screenTitle": "Remover meta",
       "title": "Remover meta",
       "warningProgressLost": "Você não verá mais o progresso para a sua meta «{{goalName}}».",
-      "warningMoneyReturned": "O dinheiro destinado a esta meta será transferido automaticamente para a Poupança.",
+      "warningMoneyReturned": "O dinheiro destinado a esta meta será transferido automaticamente para a Caixinha.",
       "removeButton": "Remover meta",
       "errors": {
         "unableToRemoveGoal": "Não foi possível remover a meta"
@@ -2336,7 +2336,7 @@
       "subtext": "Uma stablecoin lastreada em USD que acumula recompensas automaticamente enquanto você a mantém.",
       "features": {
         "earnTitle": "Ganhe recompensas diárias",
-        "earnBody": "USDB acumula recompensas de poupança automaticamente. Sem staking, sem bloqueios — basta manter e ganhar.",
+        "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter e ganhar.",
         "accessTitle": "Acesso imediato",
         "accessBody": "Saque para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
         "backedTitle": "Totalmente lastreado",
@@ -2345,9 +2345,9 @@
         "goalBody": "Acompanhe o progresso em direção a uma meta — viagem, fundo de emergência ou qualquer coisa que você queira."
       },
       "stats": {
-        "currentApyLabel": "APY",
+        "currentApyLabel": "Anual",
         "currentApyValue": "3,5%",
-        "accrualLabel": "Acúmulo",
+        "accrualLabel": "Rendimento",
         "accrualValue": "Diário"
       },
       "context": {
