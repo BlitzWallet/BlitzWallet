@@ -1,28 +1,31 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { CENTER, WEBSITE_REGEX } from '../../../../constants';
+import { CENTER } from '../../../../constants';
 import {
   COLORS,
   FONT,
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../constants/theme';
-import { ThemeText } from '../../../../functions/CustomElements';
-import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function ReclaimGift({ theme, darkModeType }) {
   const { expiredGiftsArray } = useGifts();
   const navigate = useNavigation();
-  const { bottomPadding } = useGlobalInsets();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [enteredLink, setEnteredLink] = useState('');
   const { textColor } = GetThemeColors();
   const { t } = useTranslation();
@@ -58,148 +61,133 @@ export default function ReclaimGift({ theme, darkModeType }) {
     navigate.navigate('AdvancedGiftClaim');
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        if (!enteredLink) return;
-        setEnteredLink('');
-      };
-    }, [enteredLink]),
-  );
-
   return (
-    <View style={styles.container}>
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      isKeyboardActive={isKeyboardActive}
+      useLocalPadding={true}
+    >
+      <CustomSettingsTopBar
+        label={t('screens.inAccount.giftPages.claimPage.reclaimButton')}
+      />
       <KeyboardAwareScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         bottomOffset={20}
       >
-        <View style={styles.content}>
-          <View style={styles.centerContent}>
-            {/* Icon */}
-            <View style={styles.iconContainer}>
-              <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
-                iconName={'RotateCcw'}
-              />
-            </View>
-
-            {/* Title & Description */}
-            <ThemeText
-              styles={styles.title}
-              content={t('screens.inAccount.giftPages.reclaimPage.header')}
+        <View style={styles.centerContent}>
+          {/* Icon */}
+          <View style={styles.iconContainer}>
+            <ThemeIcon
+              colorOverride={
+                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              }
+              iconName={'RotateCcw'}
             />
+          </View>
 
-            {hasExpiredGift && (
+          {/* Title & Description */}
+          <ThemeText
+            styles={styles.title}
+            content={t('screens.inAccount.giftPages.reclaimPage.header')}
+          />
+
+          {hasExpiredGift && (
+            <ThemeText
+              styles={styles.description}
+              content={t('screens.inAccount.giftPages.reclaimPage.desc')}
+            />
+          )}
+
+          {/* Input Container */}
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              },
+            ]}
+          >
+            {!hasExpiredGift && (
               <ThemeText
-                styles={styles.description}
-                content={t('screens.inAccount.giftPages.reclaimPage.desc')}
+                styles={{
+                  textAlign: 'center',
+                  fontSize: SIZES.small,
+                  includeFontPadding: false,
+                }}
+                content={t(
+                  'screens.inAccount.giftPages.reclaimPage.noReclaimsMessage',
+                )}
+              />
+            )}
+            {hasExpiredGift && (
+              <TextInput
+                value={enteredLink}
+                onChangeText={setEnteredLink}
+                style={[
+                  styles.input,
+                  { color: textColor, includeFontPadding: false },
+                ]}
+                placeholder={t(
+                  'screens.inAccount.giftPages.reclaimPage.inputPlaceholder',
+                )}
+                placeholderTextColor="#a3a3a3"
+                onFocus={() => setIsKeyboardActive(true)}
+                onBlur={() => setIsKeyboardActive(false)}
               />
             )}
 
-            {/* Input Container */}
-            <View
-              style={[
-                styles.inputContainer,
-                {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
-                },
-              ]}
-            >
-              {!hasExpiredGift && (
-                <ThemeText
-                  styles={{
-                    textAlign: 'center',
-                    fontSize: SIZES.small,
-                    includeFontPadding: false,
-                  }}
-                  content={t(
-                    'screens.inAccount.giftPages.reclaimPage.noReclaimsMessage',
-                  )}
-                />
-              )}
-              {hasExpiredGift && (
-                <TextInput
-                  value={enteredLink}
-                  onChangeText={setEnteredLink}
-                  style={[
-                    styles.input,
-                    { color: textColor, includeFontPadding: false },
-                  ]}
+            {hasExpiredGift && (
+              <View style={{ marginTop: 10 }}>
+                <DropdownMenu
+                  disableDropdownPress={!dropdownData.length}
+                  onSelect={handleDropdownSelection}
                   placeholder={t(
-                    'screens.inAccount.giftPages.reclaimPage.inputPlaceholder',
+                    'screens.inAccount.giftPages.reclaimPage.dropdownPlaceHolder',
                   )}
-                  placeholderTextColor="#a3a3a3"
+                  customButtonStyles={{ backgroundColor }}
+                  dropdownItemCustomStyles={{
+                    justifyContent: 'flex-start',
+                  }}
+                  dropdownTextCustomStyles={{
+                    fontSize: SIZES.small,
+                    margin: 0,
+                    padding: 0,
+                  }}
+                  options={dropdownData}
+                  showClearIcon={false}
+                  showFlag={false}
+                  showVerticalArrowsAbsolute={true}
                 />
-              )}
-
-              {hasExpiredGift && (
-                <View style={{ marginTop: 10 }}>
-                  <DropdownMenu
-                    disableDropdownPress={!dropdownData.length}
-                    onSelect={handleDropdownSelection}
-                    placeholder={t(
-                      'screens.inAccount.giftPages.reclaimPage.dropdownPlaceHolder',
-                    )}
-                    customButtonStyles={{ backgroundColor }}
-                    dropdownItemCustomStyles={{ justifyContent: 'start' }}
-                    dropdownTextCustomStyles={{
-                      fontSize: SIZES.small,
-                    }}
-                    options={dropdownData}
-                    showClearIcon={false}
-                    showVerticalArrowsAbsolute={true}
-                  />
-                </View>
-              )}
-            </View>
-            <CustomButton
-              buttonStyles={styles.advancedContainer}
-              textStyles={{ ...styles.advancedText, color: textColor }}
-              textContent={t(
-                'screens.inAccount.giftPages.reclaimPage.advancedModeBTN',
-              )}
-              actionFunction={handleAdvancedMode}
-            />
+              </View>
+            )}
           </View>
-        </View>
-      </KeyboardAwareScrollView>
-      {/* Claim Button */}
-      {hasExpiredGift && (
-        <TouchableOpacity
-          onPress={handleClaimGift}
-          style={[
-            styles.reclaimButton,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-              marginBottom: bottomPadding + 80,
-            },
-          ]}
-        >
-          <ThemeText
-            styles={{ includeFontPadding: false }}
-            content={t('screens.inAccount.giftPages.reclaimPage.button')}
+          <CustomButton
+            buttonStyles={styles.advancedContainer}
+            textStyles={{ ...styles.advancedText, color: textColor }}
+            textContent={t(
+              'screens.inAccount.giftPages.reclaimPage.advancedModeBTN',
+            )}
+            actionFunction={handleAdvancedMode}
           />
-        </TouchableOpacity>
-      )}
-    </View>
+        </View>
+
+        {/* Claim Button */}
+        {hasExpiredGift && (
+          <CustomButton
+            actionFunction={handleClaimGift}
+            textContent={t('screens.inAccount.giftPages.reclaimPage.button')}
+          />
+        )}
+      </KeyboardAwareScrollView>
+    </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scrollContent: {
     flexGrow: 1,
-  },
-  content: {
-    flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },

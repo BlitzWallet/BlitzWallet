@@ -66,6 +66,7 @@ import ContributeToPoolHalfModal from '../../components/admin/homeComponents/poo
 import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/savings/AddMoneyToSavingsHalfModal';
 import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
 import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
+import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -506,6 +507,14 @@ export default function CustomHalfModal(props) {
           />
         );
 
+      case 'ClaimGiftHomeHalfModal':
+        return (
+          <ClaimGiftHomeHalfModal
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            setIsKeyboardActive={setIsKeyboardActive}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -565,7 +574,8 @@ export default function CustomHalfModal(props) {
               contentType === 'AddMessageReceivePage' ||
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
-              contentType === 'createPoolFlow'
+              contentType === 'createPoolFlow' ||
+              contentType === 'ClaimGiftHomeHalfModal'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||

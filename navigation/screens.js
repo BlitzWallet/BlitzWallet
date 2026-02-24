@@ -99,6 +99,8 @@ import {
   SettingsHub,
 } from '../app/screens/inAccount';
 import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
+import GiftsPageHome from '../app/screens/inAccount/giftsHome';
+import ReclaimGift from '../app/components/admin/homeComponents/gifts/reclaimGift';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -129,6 +131,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     component: CreateAccountHome,
     options: { gestureEnabled: true },
   },
+  { name: 'SettingsIndex', component: SettingsIndex },
   { name: 'SettingsHome', component: SettingsHub },
   { name: 'ShowProfileQrSlideRight', component: ShowProfileQr },
   // {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
@@ -197,6 +200,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SavingsRemoveGoalConfirm', component: SavingsRemoveGoalConfirm },
   { name: 'SavingsGoalRemovedSuccess', component: SavingsGoalRemovedSuccess },
   { name: 'SavingsGoalDetails', component: SavingsGoalDetails },
+  { name: 'GiftsPageHome', component: GiftsPageHome },
+  { name: 'ReclaimGift', component: ReclaimGift },
 ];
 
 const FADE_SCREENS = [
