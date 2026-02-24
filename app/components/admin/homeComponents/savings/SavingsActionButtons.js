@@ -6,13 +6,15 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { COLORS } from '../../../../constants';
 import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
-import CustomButton from '../../../../functions/CustomElements/button';
 
-export default function SavingsActionButtons({ savingsBalance }) {
+export default function SavingsActionButtons({
+  savingsBalance,
+  selectedGoalUUID = null,
+}) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
-  const { theme } = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
 
   const addLabel = t('savings.actionButtons.addMoney'); // e.g. "Add funds"
   const withdrawLabel = t('savings.actionButtons.withdraw'); // e.g. "Withdraw"
@@ -20,7 +22,8 @@ export default function SavingsActionButtons({ savingsBalance }) {
   const { shouldStack, containerProps, getLabelProps } =
     useAdaptiveButtonLayout([addLabel, withdrawLabel]);
 
-  const depositBg = theme ? backgroundOffset : COLORS.primary;
+  const depositBg =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
   const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
   const canWithdraw = savingsBalance > 0;
 
@@ -34,7 +37,13 @@ export default function SavingsActionButtons({ savingsBalance }) {
     >
       {/* Add funds */}
       <TouchableOpacity
-        onPress={() => navigate.navigate('SavingsDeposit')}
+        onPress={() =>
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'addMoneyToSavings',
+            sliderHight: 0.5,
+            selectedGoalUUID,
+          })
+        }
         style={[
           styles.button,
           shouldStack ? styles.buttonStacked : styles.buttonColumn,
@@ -42,7 +51,13 @@ export default function SavingsActionButtons({ savingsBalance }) {
         ]}
       >
         <ThemeText
-          styles={{ includeFontPadding: false, color: COLORS.darkModeText }}
+          styles={{
+            includeFontPadding: false,
+            color:
+              theme && darkModeType
+                ? COLORS.lightModeText
+                : COLORS.darkModeText,
+          }}
           {...getLabelProps(0)}
           content={addLabel}
         />
@@ -52,8 +67,14 @@ export default function SavingsActionButtons({ savingsBalance }) {
       <TouchableOpacity
         onPress={() => {
           if (!canWithdraw) return;
-          navigate.navigate('SavingsWithdraw');
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'withdrawFromSavings',
+            sliderHight: 0.5,
+            currentBalance: savingsBalance,
+            selectedGoalUUID,
+          });
         }}
+        disabled={!canWithdraw}
         style={[
           styles.button,
           shouldStack ? styles.buttonStacked : styles.buttonColumn,
