@@ -81,14 +81,16 @@ export default function SavingsHome() {
                 fontSize: SIZES.small,
                 includeFontPadding: false,
               }}
-              content={`Earned: ${displayCorrectDenomination({
-                amount: totalIntrestEarned,
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: 'sats',
-                },
-                fiatStats,
-              })}`}
+              content={t('savings.home.earnedCard', {
+                amount: displayCorrectDenomination({
+                  amount: totalIntrestEarned,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'sats',
+                  },
+                  fiatStats,
+                }),
+              })}
             />
           </View>
           <ThemeText

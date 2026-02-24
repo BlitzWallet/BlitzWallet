@@ -2095,6 +2095,7 @@
     "home": {
       "title": "Ahorros",
       "howItWorksLink": "Cómo funciona",
+      "earnedCard": "Ganado: {{amount}}",
       "setGoalTitle": "Establecer meta",
       "setGoalSubtitle": "Ahorra para lo que más importa",
       "savingsGoalFallback": "Meta de ahorro",

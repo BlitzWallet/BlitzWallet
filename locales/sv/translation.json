@@ -2215,6 +2215,7 @@
     "home": {
       "title": "Sparande",
       "howItWorksLink": "Så här fungerar det",
+      "earnedCard": "Intjänat: {{amount}}",
       "setGoalTitle": "Sätt ett mål",
       "setGoalSubtitle": "Spara till det som betyder mest",
       "savingsGoalFallback": "Sparmål",

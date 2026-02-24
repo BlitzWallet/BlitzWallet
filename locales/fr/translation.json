@@ -2215,6 +2215,7 @@
     "home": {
       "title": "Épargne",
       "howItWorksLink": "Comment ça marche",
+      "earnedCard": "Gagné : {{amount}}",
       "setGoalTitle": "Définir un objectif",
       "setGoalSubtitle": "Épargne pour ce qui compte vraiment",
       "savingsGoalFallback": "Objectif d'épargne",

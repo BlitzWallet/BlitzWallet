@@ -2215,6 +2215,7 @@
     "home": {
       "title": "Risparmi",
       "howItWorksLink": "Come funziona",
+      "earnedCard": "Guadagnato: {{amount}}",
       "setGoalTitle": "Imposta un obiettivo",
       "setGoalSubtitle": "Risparmia per ciò che conta di più",
       "savingsGoalFallback": "Obiettivo di risparmio",

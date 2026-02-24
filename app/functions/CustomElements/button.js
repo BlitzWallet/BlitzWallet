@@ -116,16 +116,16 @@ export default function CustomButton({
 const styles = StyleSheet.create({
   buttonLocalStyles: {
     minWidth: 120,
-    minHeight: 45,
+    minHeight: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: 12,
     backgroundColor: COLORS.darkModeText,
   },
   text: {
     includeFontPadding: false,
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 12,
   },
   arrowStyles: {
     transform: [{ rotate: '180deg' }],

@@ -2215,6 +2215,7 @@
     "home": {
       "title": "Caixinha",
       "howItWorksLink": "Como funciona",
+      "earnedCard": "Ganho: {{amount}}",
       "setGoalTitle": "Definir meta",
       "setGoalSubtitle": "Poupe para o que importa mais",
       "savingsGoalFallback": "Meta de poupança",

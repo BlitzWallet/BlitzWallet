@@ -2267,6 +2267,7 @@
     "home": {
       "title": "Savings",
       "howItWorksLink": "How it works",
+      "earnedCard": "Earned: {{amount}}",
       "setGoalTitle": "Set a goal",
       "setGoalSubtitle": "Save for what matters most",
       "savingsGoalFallback": "Savings goal",

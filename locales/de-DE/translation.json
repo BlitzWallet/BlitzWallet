@@ -2217,6 +2217,7 @@
     "home": {
       "title": "Ersparnisse",
       "howItWorksLink": "So funktioniert es",
+      "earnedCard": "Verdient: {{amount}}",
       "setGoalTitle": "Ziel setzen",
       "setGoalSubtitle": "Spare für das, was dir wichtig ist",
       "savingsGoalFallback": "Sparziel",

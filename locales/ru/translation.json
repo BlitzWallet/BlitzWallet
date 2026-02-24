@@ -2223,6 +2223,7 @@
     "home": {
       "title": "Сбережения",
       "howItWorksLink": "Как это работает",
+      "earnedCard": "Заработано: {{amount}}",
       "setGoalTitle": "Поставить цель",
       "setGoalSubtitle": "Копи на то, что важно для тебя",
       "savingsGoalFallback": "Цель накопления",
