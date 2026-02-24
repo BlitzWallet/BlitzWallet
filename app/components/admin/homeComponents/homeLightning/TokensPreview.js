@@ -4,18 +4,22 @@ import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { Image as ExpoImage } from 'expo-image';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 
+const TOKEN_WIDTH = 50;
+const TOKEN_GAP = 15;
+
 export default function TokensPreview() {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor } = GetThemeColors();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
+  const [containerWidth, setContainerWidth] = useState(0);
   const navigate = useNavigation();
   const availableTokens = useMemo(() => {
     return sparkInformation?.tokens
@@ -23,7 +27,15 @@ export default function TokensPreview() {
       : [];
   }, [sparkInformation?.tokens]);
 
-  const displayedTokens = availableTokens.slice(0, 4);
+  const maxTokensThatFit = useMemo(() => {
+    if (!containerWidth) return 0;
+
+    return Math.floor((containerWidth + TOKEN_GAP) / (TOKEN_WIDTH + TOKEN_GAP));
+  }, [containerWidth]);
+
+  const displayedTokens = useMemo(() => {
+    return availableTokens.slice(0, maxTokensThatFit);
+  }, [availableTokens, maxTokensThatFit]);
 
   return (
     <TouchableOpacity
@@ -64,7 +76,12 @@ export default function TokensPreview() {
 
       {availableTokens.length > 0 ? (
         <>
-          <View style={[styles.tokenContianer]}>
+          <View
+            onLayout={e => {
+              setContainerWidth(e.nativeEvent.layout.width);
+            }}
+            style={[styles.tokenContianer]}
+          >
             {displayedTokens.map(item => {
               const [tokenIdentifier, details] = item;
               if (!tokenIdentifier || !details) return null;
@@ -129,7 +146,7 @@ function TokenItem({
             colorOverride={
               theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText
             }
-            size={25}
+            size={18}
             iconName={'Coins'}
           />
         )}
@@ -183,22 +200,22 @@ const styles = StyleSheet.create({
 
   tokenContianer: {
     width: '100%',
-    gap: 25,
+    gap: 15,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginTop: 5,
+    overflow: 'hidden',
   },
   tokenRowContainer: {
-    width: '100%',
-    flexShrink: 1,
+    width: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
   tokenInitialContainer: {
     width: '100%',
     aspectRatio: 1,
-    maxWidth: 60,
-    maxHeight: 60,
+    maxHeight: 40,
+
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
@@ -215,7 +232,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     flexShrink: 1,
     marginTop: 5,
-    fontSize: SIZES.small,
+    fontSize: SIZES.xSmall,
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
   },
