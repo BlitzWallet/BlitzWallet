@@ -30,6 +30,7 @@ import {
   FONT,
   INSET_WINDOW_WIDTH,
   SIZES,
+  WINDOWWIDTH,
 } from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {
@@ -445,7 +446,7 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   mainButton: {
-    width: INSET_WINDOW_WIDTH,
+    width: WINDOWWIDTH,
     alignSelf: 'center',
   },
 });

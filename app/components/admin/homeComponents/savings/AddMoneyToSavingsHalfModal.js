@@ -514,6 +514,15 @@ export default function AddMoneyToSavingsHalfModal({
             </TouchableOpacity>
           ))}
         </View>
+        {step.length > 1 && (
+          <CustomButton
+            buttonStyles={{ ...CENTER }}
+            actionFunction={() => {
+              setStep(prev => prev.slice(0, -1));
+            }}
+            textContent={t('constants.back')}
+          />
+        )}
       </View>
     );
   }
@@ -778,14 +787,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.6,
     fontSize: SIZES.small,
-    marginTop: 6,
+    marginTop: 10,
     includeFontPadding: false,
   },
   minHintText: {
     textAlign: 'center',
-    opacity: 0.5,
+    opacity: 0.6,
     fontSize: SIZES.small,
-    marginTop: 8,
+    marginTop: 2,
     includeFontPadding: false,
   },
   summaryCard: {

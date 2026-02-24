@@ -1479,14 +1479,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.6,
     fontSize: SIZES.small,
-    marginTop: 6,
+    marginTop: 10,
     includeFontPadding: false,
   },
   minHintText: {
     textAlign: 'center',
-    opacity: 0.5,
+    opacity: 0.6,
     fontSize: SIZES.small,
-    marginTop: 4,
+    marginTop: 2,
     includeFontPadding: false,
   },
   summaryCard: {

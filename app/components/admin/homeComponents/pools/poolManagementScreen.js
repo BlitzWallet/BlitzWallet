@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { usePools } from '../../../../../context-store/poolContext';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     ...CENTER,
+    width: WINDOWWIDTH,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });
