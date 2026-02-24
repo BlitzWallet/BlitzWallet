@@ -1,7 +1,6 @@
-import { Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import AccountCard from '../../../../components/admin/homeComponents/accounts/accountCard';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import {
@@ -9,9 +8,9 @@ import {
   NWC_ACCOUNT_UUID,
   useActiveCustodyAccount,
 } from '../../../../../context-store/activeAccount';
+import WidgetCard from './WidgetCard';
 
 export default function AccountsPreview({
-  accounts,
   pinnedAccountUUIDs,
   isUsingNostr,
   selectedAltAccount,
@@ -19,29 +18,23 @@ export default function AccountsPreview({
   onAccountPress,
   onAccountEdit,
   onViewAll,
+  onLongPress,
 }) {
-  const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
   const { custodyAccountsList, activeAccount } = useActiveCustodyAccount();
+  const accountList = custodyAccountsList || [];
   const displayAccounts = getDisplayAccounts(
-    custodyAccountsList,
+    accountList,
     pinnedAccountUUIDs,
     isUsingNostr,
-    selectedAltAccount[0],
+    selectedAltAccount?.[0],
     activeAccount,
   );
 
-  const hasMoreAccounts = custodyAccountsList?.length > displayAccounts?.length;
+  const hasMoreAccounts = accountList.length > displayAccounts.length;
 
   return (
-    <Pressable
-      onPress={onViewAll}
-      style={({ pressed }) => [
-        styles.card,
-        { backgroundColor: backgroundOffset },
-        pressed && styles.pressed,
-      ]}
-    >
+    <WidgetCard onPress={onViewAll} onLongPress={onLongPress}>
       {/* Header becomes just visual */}
       <View style={styles.header}>
         <ThemeText
@@ -75,11 +68,11 @@ export default function AccountsPreview({
         <ThemeText
           styles={styles.moreText}
           content={t('settings.hub.morePoolsCount', {
-            count: custodyAccountsList?.length - displayAccounts?.length,
+            count: accountList.length - displayAccounts.length,
           })}
         />
       )}
-    </Pressable>
+    </WidgetCard>
   );
 }
 
@@ -142,11 +135,6 @@ function getDisplayAccounts(
 }
 
 const styles = StyleSheet.create({
-  card: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 12,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -169,8 +157,5 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     marginTop: 4,
     includeFontPadding: false,
-  },
-  pressed: {
-    opacity: 0.7,
   },
 });

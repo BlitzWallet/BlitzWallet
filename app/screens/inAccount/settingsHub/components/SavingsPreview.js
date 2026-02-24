@@ -1,5 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSavings } from '../../../../../context-store/savingsContext';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -10,9 +9,9 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import WidgetCard from './WidgetCard';
 
-export default function SavingsPreview() {
-  const navigate = useNavigation();
+export default function SavingsPreview({ onPress }) {
   const { t } = useTranslation();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { savingsBalance } = useSavings();
@@ -21,64 +20,59 @@ export default function SavingsPreview() {
   const { theme, darkModeType } = useGlobalThemeContext();
 
   return (
-    <Pressable
-      onPress={() => navigate.navigate('SavingsHome')}
-      style={({ pressed }) => [
-        styles.card,
-        { backgroundColor: backgroundOffset },
-        pressed && styles.pressed,
-      ]}
-    >
-      <View>
-        <ThemeText styles={styles.title} content={t('savings.preview.title')} />
-        <ThemeText
-          styles={styles.balance}
-          content={displayCorrectDenomination({
-            amount: savingsBalance,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'fiat',
-            },
-            fiatStats,
-            forceCurrency: 'USD',
-            convertAmount: false,
-          })}
-        />
-        <ThemeText
-          styles={styles.rateText}
-          content={t('savings.preview.earnInterest')}
-        />
-      </View>
+    <WidgetCard onPress={onPress}>
+      <View style={styles.row}>
+        <View>
+          <ThemeText
+            styles={styles.title}
+            content={t('savings.preview.title')}
+          />
+          <ThemeText
+            styles={styles.balance}
+            content={displayCorrectDenomination({
+              amount: savingsBalance,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'fiat',
+              },
+              fiatStats,
+              forceCurrency: 'USD',
+              convertAmount: false,
+            })}
+          />
+          <ThemeText
+            styles={styles.rateText}
+            content={t('savings.preview.earnInterest')}
+          />
+        </View>
 
-      <View
-        style={[
-          styles.iconWrap,
-          {
-            backgroundColor:
-              theme && darkModeType
-                ? darkModeType
-                  ? backgroundColor
-                  : backgroundOffset
-                : COLORS.dollarGreen,
-          },
-        ]}
-      >
-        <ThemeImage
-          styles={{ width: 20, height: 20 }}
-          lightModeIcon={ICONS.dollarIcon}
-          darkModeIcon={ICONS.dollarIcon}
-          lightsOutIcon={ICONS.dollarIcon}
-        />
+        <View
+          style={[
+            styles.iconWrap,
+            {
+              backgroundColor:
+                theme && darkModeType
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : COLORS.dollarGreen,
+            },
+          ]}
+        >
+          <ThemeImage
+            styles={{ width: 20, height: 20 }}
+            lightModeIcon={ICONS.dollarIcon}
+            darkModeIcon={ICONS.dollarIcon}
+            lightsOutIcon={ICONS.dollarIcon}
+          />
+        </View>
       </View>
-    </Pressable>
+    </WidgetCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 14,
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -104,8 +98,5 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.dollarGreen,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  pressed: {
-    opacity: 0.75,
   },
 });

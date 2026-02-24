@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'column',
     alignItems: 'center',
-    // paddingBottom: 30,
+    paddingBottom: 30,
     // borderBottomWidth: 2,
   },
   profileUniqueName: { marginBottom: 20 },

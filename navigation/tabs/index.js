@@ -32,9 +32,9 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
 
   const firstRender = useRef(true);
 
-  const containerWidth = showShop ? 280 : 210;
+  const containerWidth = showShop ? 210 : 140;
   const adjustedWidth = containerWidth - 2 * 1;
-  const tabWidth = adjustedWidth / (showShop ? 4 : 3);
+  const tabWidth = adjustedWidth / (showShop ? 3 : 2);
 
   const overlayTranslateX = useSharedValue(0);
 
@@ -198,7 +198,7 @@ export function MyTabs(props) {
         options={{ lazy: false }}
       />
       <Tab.Screen name="Home" component={props.adminHome} />
-      <Tab.Screen name="Gifts" component={props.giftsPageHome} />
+      {/* <Tab.Screen name="Gifts" component={props.giftsPageHome} /> */}
       {showShop && <Tab.Screen name="App Store" component={props.appStore} />}
     </Tab.Navigator>
   );

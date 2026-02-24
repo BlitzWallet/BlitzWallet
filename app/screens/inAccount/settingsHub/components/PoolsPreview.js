@@ -1,16 +1,15 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CircularProgress from '../../../../components/admin/homeComponents/pools/circularProgress';
-import GetThemeColors from '../../../../hooks/themeColors';
 import { SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
+import WidgetCard from './WidgetCard';
 
 export default function PoolsPreview({
   activePoolsArray,
   poolsArray,
   onViewAll,
 }) {
-  const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
   const displayedPools = activePoolsArray.slice(0, 2);
@@ -18,11 +17,7 @@ export default function PoolsPreview({
   const remainingPoolsCount = activePoolsArray.length - 2;
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onViewAll}
-      style={[styles.card, { backgroundColor: backgroundOffset }]}
-    >
+    <WidgetCard onPress={onViewAll}>
       <View style={styles.header}>
         <ThemeText
           styles={styles.headerTitle}
@@ -42,7 +37,7 @@ export default function PoolsPreview({
               <CircularProgress
                 current={pool.currentAmount}
                 goal={pool.goalAmount}
-                size={32}
+                size={35}
                 strokeWidth={3}
                 showPercentage={false}
                 useAltBackground={true}
@@ -73,16 +68,11 @@ export default function PoolsPreview({
           }
         />
       )}
-    </TouchableOpacity>
+    </WidgetCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 16,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
