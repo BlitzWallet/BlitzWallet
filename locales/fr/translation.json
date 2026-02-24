@@ -1651,7 +1651,10 @@
       "pinAccount": "Épingler",
       "unpinAccount": "Désépingler",
       "maxPinsReached": "Maximum 2 comptes épinglés. Désépinglez-en un d'abord.",
-      "morePoolsCount": "+{{count}} de plus"
+      "morePoolsCount": "+{{count}} de plus",
+      "pos": {
+        "desc": "Acceptez facilement les paiements en Bitcoin pour votre entreprise"
+      }
     },
     "posPath": {
       "settings": {
@@ -1741,6 +1744,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Vos tokens",
+        "noTokens": "Vous n’avez aucun token"
+      },
       "appStore": {
         "soonMessage": "Nous sommes ravis que vous souhaitiez d'autres applications. Suggérez-les ci-dessous !",
         "title": "Magasin",
@@ -1890,7 +1897,8 @@
         "fundGiftMessage": "Créer un cadeau",
         "reclaimGiftMessage": "Récupérer le don",
         "giftsHome": {
-          "title": "Cadeaux en Blitz"
+          "title": "Cadeaux en Blitz",
+          "desc": "Partagez des Bitcoin ou des Dollars avec vos amis et votre famille"
         },
         "giftsOverview": {
           "noGiftsHead": "Aucun cadeau pour l'instant",
@@ -2202,5 +2210,159 @@
     "FSAG-5003": "Une erreur interne est survenue. Contactez le support si le problème persiste.",
     "FSAG-5004": "Une erreur de configuration du système est survenue.",
     "FSAG-5100": "Une erreur serveur inattendue est survenue."
+  },
+  "savings": {
+    "home": {
+      "title": "Épargne",
+      "howItWorksLink": "Comment ça marche",
+      "setGoalTitle": "Définir un objectif",
+      "setGoalSubtitle": "Épargne pour ce qui compte vraiment",
+      "savingsGoalFallback": "Objectif d'épargne",
+      "createAnotherGoal": "Créer un autre objectif",
+      "disclaimer": "Les soldes en espèces sont détenus en USDB, un stablecoin adossé au dollar émis par Brale et entièrement garanti 1:1 par des bons du Trésor américain et des équivalents de trésorerie détenus auprès d'institutions financières réglementées."
+    },
+    "preview": {
+      "title": "Épargne",
+      "earnInterest": "Gagnez 3,5 % d'intérêts"
+    },
+    "goalEmoji": {
+      "screenTitle": "Choisir un emoji",
+      "title": "Choisis un emoji pour ton objectif",
+      "subtitle": "Qu'est-ce qui représente le mieux ton objectif ?",
+      "continueButton": "Choisir un emoji"
+    },
+    "goalDescribe": {
+      "screenTitle": "Saisir une description",
+      "title": "Décris ton objectif",
+      "placeholder": "Réserve de cash"
+    },
+    "goalAmount": {
+      "screenTitle": "Définir l'objectif",
+      "goalFallbackName": "Objectif d'épargne",
+      "errors": {
+        "unableToSetGoal": "Impossible de définir l'objectif"
+      }
+    },
+    "goalSuccess": {
+      "title": "Ton objectif est fixé à {{amount}}",
+      "subtitle": "Commence à ajouter de l'argent pour atteindre ton objectif."
+    },
+    "goalDetails": {
+      "screenTitleFallback": "Objectif",
+      "updateGoalButton": "Mettre à jour l'objectif",
+      "emptyState": "Aucun objectif défini"
+    },
+    "updateGoal": {
+      "screenTitle": "Mettre à jour l'objectif",
+      "title": "Mettre à jour l'objectif",
+      "body": "Tu peux modifier le montant alloué à ton objectif ou le supprimer.",
+      "removeButton": "Supprimer l'objectif",
+      "updateButton": "Mettre à jour l'objectif"
+    },
+    "removeGoalConfirm": {
+      "screenTitle": "Supprimer l'objectif",
+      "title": "Supprimer l'objectif",
+      "warningProgressLost": "Tu ne verras plus la progression vers ton objectif « {{goalName}} ».",
+      "warningMoneyReturned": "L'argent dédié à cet objectif sera automatiquement transféré vers l'Épargne.",
+      "removeButton": "Supprimer l'objectif",
+      "errors": {
+        "unableToRemoveGoal": "Impossible de supprimer l'objectif"
+      }
+    },
+    "goalRemovedSuccess": {
+      "title": "Objectif supprimé"
+    },
+    "actionButtons": {
+      "addMoney": "Ajouter de l'argent",
+      "withdraw": "Retirer"
+    },
+    "activity": {
+      "title": "Activité",
+      "emptyState": "Les futures transactions apparaîtront ici."
+    },
+    "addMoney": {
+      "chooseGoalTitle": "Ajouter de l'argent à",
+      "generalSavings": "Épargne générale",
+      "noSpecificGoal": "Sans objectif précis",
+      "sourceTitle": "Ajouter de l'argent depuis",
+      "minHint": "Min : {{amount}}",
+      "confirmTitle": "Confirmer le dépôt",
+      "youAreAdding": "Tu ajoutes",
+      "fromBalance": "depuis ton solde {{source}}",
+      "confirmButton": "Confirmer",
+      "processing": "Traitement en cours…",
+      "successTitle": "Argent ajouté",
+      "paymentLabel_unallocated": "Dépôt d'épargne",
+      "paymentLabel": "Dépôt d'épargne vers {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteTransfer": "Impossible de finaliser le transfert"
+      }
+    },
+    "withdraw": {
+      "balanceTypeTitle": "Que souhaitez-vous retirer ?",
+      "interestOption": "Intérêts gagnés",
+      "savingsOption": "Solde d’épargne",
+      "interestZeroHint": "Aucun intérêt gagné pour le moment",
+      "savingsZeroHint": "Aucune épargne pour le moment",
+      "interestBelowMinHint": "En dessous du minimum d’échange, solde bitcoin uniquement",
+      "loadingBalances": "Chargement des soldes...",
+      "balanceLoadError": "Impossible de charger le portefeuille. Revenez en arrière et réessayez.",
+      "fromInterest": "Depuis vos intérêts",
+      "fromSavings": "Depuis votre épargne",
+      "interestPaymentLabel": "Retrait d’intérêts",
+      "chooseGoalTitle": "Retirer de l'argent depuis",
+      "withdrawAll": "Tout retirer",
+      "generalSavings": "Épargne générale",
+      "destinationTitle": "Retirer de l'argent vers",
+      "availableHint": "Disponible : {{amount}}",
+      "minHint": "Min : {{amount}}",
+      "confirmTitle": "Confirmer le retrait",
+      "youAreWithdrawingAll": "Tu retires toute ton épargne",
+      "youAreWithdrawing": "Tu retires",
+      "toYourBalance": "vers ton {{destination}}",
+      "estimatedSats": "≈ {{sats}} sats après échange",
+      "confirmButton": "Confirmer",
+      "processing": "Retrait en cours…",
+      "successTitle": "Retrait effectué",
+      "paymentLabel_unallocated": "Retrait d'épargne",
+      "paymentLabel": "Retrait d'épargne depuis {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteWithdrawal": "Impossible de finaliser le retrait"
+      }
+    },
+    "howItWorks": {
+      "headline1": "Ton argent,",
+      "headline2": "qui travaille chaque jour.",
+      "subtext": "Un stablecoin adossé au dollar qui accumule automatiquement des récompenses tant que tu le détiens.",
+      "features": {
+        "earnTitle": "Gagne des récompenses quotidiennes",
+        "earnBody": "USDB accumule automatiquement des récompenses d'épargne. Pas de staking, pas de blocage — il suffit de détenir et de gagner.",
+        "accessTitle": "Accès instantané",
+        "accessBody": "Retire vers ton portefeuille Lightning en quelques secondes, à tout moment. Tes fonds ne sont jamais bloqués.",
+        "backedTitle": "Entièrement garanti",
+        "backedBody": "Chaque USDB est garanti 1:1 par des USD détenus dans des comptes de réserve ségrégués et audités.",
+        "goalTitle": "Définir un objectif d'épargne",
+        "goalBody": "Suis ta progression vers un objectif — vacances, fonds d'urgence ou autre chose."
+      },
+      "stats": {
+        "currentApyLabel": "APY",
+        "currentApyValue": "3,5 %",
+        "accrualLabel": "Accumulation",
+        "accrualValue": "Quotidienne"
+      },
+      "context": {
+        "goalNameReqiured": "Le nom de l'objectif est requis",
+        "goalNotFound": "Objectif introuvable"
+      },
+      "transparencyTitle": "Garanti par de vraies réserves",
+      "transparencyBody": "Les réserves sont détenues dans des comptes ségrégués et audités — principalement des instruments du Trésor américain à court terme et des fonds du marché monétaire. Flashnet publie des rapports d'attestation mensuels.",
+      "disclaimer": "Les taux sont variables et susceptibles de changer. Ce n'est pas un dépôt bancaire. Consultez flashnet.xyz pour les informations complètes."
+    },
+    "withdrawal": "Retrait",
+    "withdrawalWithGoal": "Retrait depuis {{goalName}}",
+    "deposit": "Dépôt",
+    "depositWithGoal": "Dépôt vers {{goalName}}",
+    "swapSimulationError": "Simulation d'échange non disponible",
+    "savingsWalletError": "Portefeuille d'épargne non prêt"
   }
 }

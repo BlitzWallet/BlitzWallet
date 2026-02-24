@@ -1653,7 +1653,10 @@
       "pinAccount": "Anheften",
       "unpinAccount": "Lösen",
       "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines.",
-      "morePoolsCount": "+{{count}} weitere"
+      "morePoolsCount": "+{{count}} weitere",
+      "pos": {
+        "desc": "Akzeptiere ganz einfach Bitcoin-Zahlungen für dein Unternehmen"
+      }
     },
     "posPath": {
       "settings": {
@@ -1743,6 +1746,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Deine Tokens",
+        "noTokens": "Du hast keine Tokens"
+      },
       "appStore": {
         "soonMessage": "Wir freuen uns, dass Sie mehr Apps möchten. Schlagen Sie sie unten vor!",
         "title": "Shop",
@@ -1892,7 +1899,8 @@
         "fundGiftMessage": "Geschenk wird erstellt...",
         "reclaimGiftMessage": "Geschenk wird zurückgeholt...",
         "giftsHome": {
-          "title": "Blitz-Geschenke"
+          "title": "Blitz-Geschenke",
+          "desc": "Teile BTC oder USD mit Freunden und Familie"
         },
         "giftsOverview": {
           "noGiftsHead": "Noch keine Geschenke",
@@ -2204,5 +2212,159 @@
     "FSAG-5003": "Es ist ein interner Fehler aufgetreten. Bitte kontaktieren Sie den Support, falls das Problem weiterhin besteht.",
     "FSAG-5004": "Es ist ein Systemkonfigurationsfehler aufgetreten.",
     "FSAG-5100": "Es ist ein unerwarteter Serverfehler aufgetreten."
+  },
+  "savings": {
+    "home": {
+      "title": "Ersparnisse",
+      "howItWorksLink": "So funktioniert es",
+      "setGoalTitle": "Ziel setzen",
+      "setGoalSubtitle": "Spare für das, was dir wichtig ist",
+      "savingsGoalFallback": "Sparziel",
+      "createAnotherGoal": "Weiteres Ziel erstellen",
+      "disclaimer": "Guthaben wird in USDB gehalten, einem dollarhinterlegten Stablecoin, der von Brale ausgegeben und 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt ist."
+    },
+    "preview": {
+      "title": "Ersparnisse",
+      "earnInterest": "3,5 % Zinsen verdienen"
+    },
+    "goalEmoji": {
+      "screenTitle": "Emoji wählen",
+      "title": "Wähle ein Emoji für dein Ziel",
+      "subtitle": "Was beschreibt dein Ziel am besten?",
+      "continueButton": "Emoji wählen"
+    },
+    "goalDescribe": {
+      "screenTitle": "Beschreibung eingeben",
+      "title": "Beschreibe dein Ziel",
+      "placeholder": "Extra-Rücklage"
+    },
+    "goalAmount": {
+      "screenTitle": "Ziel festlegen",
+      "goalFallbackName": "Sparziel",
+      "errors": {
+        "unableToSetGoal": "Ziel konnte nicht gesetzt werden"
+      }
+    },
+    "goalSuccess": {
+      "title": "Dein Ziel wurde auf {{amount}} gesetzt",
+      "subtitle": "Fange an, Geld einzuzahlen, um dein Ziel zu erreichen."
+    },
+    "goalDetails": {
+      "screenTitleFallback": "Ziel",
+      "updateGoalButton": "Ziel aktualisieren",
+      "emptyState": "Kein Ziel gesetzt"
+    },
+    "updateGoal": {
+      "screenTitle": "Ziel aktualisieren",
+      "title": "Ziel aktualisieren",
+      "body": "Du kannst den gesetzten Betrag für dein Ziel ändern oder es entfernen.",
+      "removeButton": "Ziel entfernen",
+      "updateButton": "Ziel aktualisieren"
+    },
+    "removeGoalConfirm": {
+      "screenTitle": "Ziel entfernen",
+      "title": "Ziel entfernen",
+      "warningProgressLost": "Du siehst keinen Fortschritt mehr für dein Ziel {{goalName}}.",
+      "warningMoneyReturned": "Geld, das diesem Ziel zugeordnet ist, wird automatisch in Ersparnisse übertragen.",
+      "removeButton": "Ziel entfernen",
+      "errors": {
+        "unableToRemoveGoal": "Ziel konnte nicht entfernt werden"
+      }
+    },
+    "goalRemovedSuccess": {
+      "title": "Ziel entfernt"
+    },
+    "actionButtons": {
+      "addMoney": "Geld einzahlen",
+      "withdraw": "Abheben"
+    },
+    "activity": {
+      "title": "Aktivität",
+      "emptyState": "Zukünftige Transaktionen werden hier angezeigt."
+    },
+    "addMoney": {
+      "chooseGoalTitle": "Geld einzahlen auf",
+      "generalSavings": "Allgemeine Ersparnisse",
+      "noSpecificGoal": "Kein bestimmtes Ziel",
+      "sourceTitle": "Geld einzahlen von",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Einzahlung bestätigen",
+      "youAreAdding": "Du zahlst ein",
+      "fromBalance": "von deinem {{source}}-Guthaben",
+      "confirmButton": "Bestätigen",
+      "processing": "Wird verarbeitet…",
+      "successTitle": "Geld eingezahlt",
+      "paymentLabel_unallocated": "Spareinzahlung",
+      "paymentLabel": "Spareinzahlung für {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden"
+      }
+    },
+    "withdraw": {
+      "balanceTypeTitle": "Was möchtest du auszahlen?",
+      "interestOption": "Erwirtschaftete Zinsen",
+      "savingsOption": "Sparguthaben",
+      "interestZeroHint": "Noch keine Zinsen erwirtschaftet",
+      "savingsZeroHint": "Noch nichts gespart",
+      "interestBelowMinHint": "Unter Mindestbetrag für Tausch, nur Bitcoin-Guthaben möglich",
+      "loadingBalances": "Guthaben werden geladen...",
+      "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehe zurück und versuche es erneut.",
+      "fromInterest": "Aus deinen Zinsen",
+      "fromSavings": "Aus deinen Ersparnissen",
+      "interestPaymentLabel": "Zinsauszahlung",
+      "chooseGoalTitle": "Geld abheben von",
+      "withdrawAll": "Alles abheben",
+      "generalSavings": "Allgemeine Ersparnisse",
+      "destinationTitle": "Geld abheben auf",
+      "availableHint": "Verfügbar: {{amount}}",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Abhebung bestätigen",
+      "youAreWithdrawingAll": "Du hebst alle Ersparnisse ab",
+      "youAreWithdrawing": "Du hebst ab",
+      "toYourBalance": "auf dein {{destination}}",
+      "estimatedSats": "≈ {{sats}} Sats nach Tausch",
+      "confirmButton": "Bestätigen",
+      "processing": "Abhebung wird verarbeitet…",
+      "successTitle": "Abhebung abgeschlossen",
+      "paymentLabel_unallocated": "Sparabhebung",
+      "paymentLabel": "Sparabhebung von {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteWithdrawal": "Abhebung konnte nicht abgeschlossen werden"
+      }
+    },
+    "howItWorks": {
+      "headline1": "Dein Geld,",
+      "headline2": "jeden Tag im Einsatz.",
+      "subtext": "Ein USD-hinterlegter Stablecoin, der automatisch Erträge ansammelt, solange du ihn hältst.",
+      "features": {
+        "earnTitle": "Täglich Erträge erzielen",
+        "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – einfach halten und verdienen.",
+        "accessTitle": "Sofortiger Zugriff",
+        "accessBody": "Jederzeit in Sekunden auf dein Lightning-Wallet abheben. Dein Geld ist nie gesperrt.",
+        "backedTitle": "Vollständig gedeckt",
+        "backedBody": "Jeder USDB ist 1:1 durch USD in separaten, geprüften Reservekonten gedeckt.",
+        "goalTitle": "Sparziel setzen",
+        "goalBody": "Verfolge deinen Fortschritt – ob Urlaub, Notfallfonds oder irgendetwas anderes."
+      },
+      "stats": {
+        "currentApyLabel": "APY",
+        "currentApyValue": "3,5 %",
+        "accrualLabel": "Ansammlung",
+        "accrualValue": "Täglich"
+      },
+      "context": {
+        "goalNameReqiured": "Zielname ist erforderlich",
+        "goalNotFound": "Ziel nicht gefunden"
+      },
+      "transparencyTitle": "Durch echte Reserven gedeckt",
+      "transparencyBody": "Reserven werden in separaten, geprüften Konten gehalten – hauptsächlich kurzlaufende US-Staatsanleihen und Geldmarktfonds. Flashnet veröffentlicht monatliche Bestätigungsberichte.",
+      "disclaimer": "Zinssätze sind variabel und können sich ändern. Kein Bankeinlagen. Vollständige Angaben unter flashnet.xyz."
+    },
+    "withdrawal": "Abhebung",
+    "withdrawalWithGoal": "Abhebung von {{goalName}}",
+    "deposit": "Einzahlung",
+    "depositWithGoal": "Einzahlung für {{goalName}}",
+    "swapSimulationError": "Tauschsimulation nicht verfügbar",
+    "savingsWalletError": "Spar-Wallet nicht bereit"
   }
 }

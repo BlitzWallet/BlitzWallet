@@ -1,28 +1,69 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CircularProgress from '../../../../components/admin/homeComponents/pools/circularProgress';
-import GetThemeColors from '../../../../hooks/themeColors';
-import { SIZES } from '../../../../constants';
+import { COLORS, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
+import WidgetCard from './WidgetCard';
+import GetThemeColors from '../../../../hooks/themeColors';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function PoolsPreview({
   activePoolsArray,
   poolsArray,
   onViewAll,
 }) {
-  const { backgroundOffset } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
   const displayedPools = activePoolsArray.slice(0, 2);
   const hasMorePools = activePoolsArray.length > 2;
   const remainingPoolsCount = activePoolsArray.length - 2;
 
+  if (!poolsArray.length) {
+    return (
+      <WidgetCard onPress={onViewAll}>
+        <View style={styles.row}>
+          <View style={styles.left}>
+            <View style={[styles.header, { marginBottom: 0 }]}>
+              <ThemeText
+                styles={styles.headerTitle}
+                content={t('settings.accountsPoolsScreen.poolsTitle')}
+              />
+            </View>
+
+            <ThemeText
+              styles={styles.rateText}
+              content={t('wallet.pools.collectPaymentsDescription')}
+            />
+          </View>
+          <View
+            style={[
+              styles.iconWrap,
+              {
+                backgroundColor:
+                  theme && darkModeType
+                    ? darkModeType
+                      ? backgroundColor
+                      : backgroundOffset
+                    : COLORS.primary,
+              },
+            ]}
+          >
+            <ThemeIcon
+              colorOverride={COLORS.darkModeText}
+              iconName={'PiggyBank'}
+              size={22}
+            />
+          </View>
+        </View>
+      </WidgetCard>
+    );
+  }
+
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onViewAll}
-      style={[styles.card, { backgroundColor: backgroundOffset }]}
-    >
+    <WidgetCard onPress={onViewAll}>
       <View style={styles.header}>
         <ThemeText
           styles={styles.headerTitle}
@@ -42,7 +83,7 @@ export default function PoolsPreview({
               <CircularProgress
                 current={pool.currentAmount}
                 goal={pool.goalAmount}
-                size={32}
+                size={35}
                 strokeWidth={3}
                 showPercentage={false}
                 useAltBackground={true}
@@ -73,16 +114,11 @@ export default function PoolsPreview({
           }
         />
       )}
-    </TouchableOpacity>
+    </WidgetCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 16,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -120,5 +156,31 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     opacity: 0.5,
     includeFontPadding: false,
+  },
+
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  left: {
+    flexShrink: 1,
+  },
+  title: {
+    fontSize: SIZES.smedium,
+    fontWeight: '500',
+    includeFontPadding: false,
+  },
+  rateText: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+    includeFontPadding: false,
+  },
+  iconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

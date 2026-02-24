@@ -10,7 +10,15 @@ import {
 } from './spark/transactions';
 import { firebaseAuth } from '../../db/initializeFirebase';
 import { deleteGiftsTable } from './gift/giftsStorage';
-import { deletePoolTable, deleteContributionsTable } from './pools/poolsStorage';
+import {
+  deletePoolTable,
+  deleteContributionsTable,
+} from './pools/poolsStorage';
+import {
+  deleteSavingsGoalsTable,
+  deleteSavingsPayoutsTable,
+  deleteSavingsTransactionsTable,
+} from './savings/savingsStorage';
 
 export default async function factoryResetWallet() {
   try {
@@ -26,6 +34,9 @@ export default async function factoryResetWallet() {
     await deleteGiftsTable();
     await deletePoolTable();
     await deleteContributionsTable();
+    await deleteSavingsGoalsTable();
+    await deleteSavingsTransactionsTable();
+    await deleteSavingsPayoutsTable();
 
     try {
       await signOut(firebaseAuth);
