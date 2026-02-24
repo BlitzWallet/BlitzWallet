@@ -20,8 +20,10 @@ import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
-export default function ReclaimGift({ theme, darkModeType }) {
+export default function ReclaimGift() {
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { expiredGiftsArray } = useGifts();
   const navigate = useNavigation();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
