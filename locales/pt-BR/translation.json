@@ -1898,7 +1898,7 @@
         "reclaimGiftMessage": "Vale-Blitz reembolsado",
         "giftsHome": {
           "title": "Vales-Blitz",
-          "desc": "Presenteie amigos e família com Bitcoins"
+          "desc": "Presenteie amigos e família com Bitcoins ou Dólares"
         },
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",
@@ -2215,9 +2215,9 @@
     "home": {
       "title": "Caixinha",
       "howItWorksLink": "Como funciona",
-      "earnedCard": "Ganho: {{amount}}",
+      "earnedCard": "Rendeu: {{amount}}",
       "setGoalTitle": "Definir meta",
-      "setGoalSubtitle": "Poupe para o que importa mais",
+      "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
       "disclaimer": "Os saldos em dinheiro são mantidos em USDB, uma stablecoin lastreada em dólares emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas."
@@ -2337,7 +2337,7 @@
       "subtext": "Uma stablecoin lastreada em USD que acumula recompensas automaticamente enquanto você a mantém.",
       "features": {
         "earnTitle": "Ganhe recompensas diárias",
-        "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter e ganhar.",
+        "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
         "accessTitle": "Acesso imediato",
         "accessBody": "Saque para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
         "backedTitle": "Totalmente lastreado",
