@@ -23,7 +23,7 @@ export default function TokensPreview() {
       : [];
   }, [sparkInformation?.tokens]);
 
-  const displayedTokens = availableTokens.slice(0, 5);
+  const displayedTokens = availableTokens.slice(0, 4);
 
   return (
     <TouchableOpacity
@@ -35,7 +35,8 @@ export default function TokensPreview() {
       style={[
         styles.tokensContainer,
         {
-          borderColor: theme ? backgroundOffset : COLORS.offsetBackground,
+          // borderColor: theme ? backgroundOffset : COLORS.offsetBackground,
+          backgroundColor: backgroundOffset,
         },
       ]}
     >
@@ -146,7 +147,7 @@ const styles = StyleSheet.create({
   tokensContainer: {
     width: '85%',
     ...CENTER,
-    borderWidth: 1,
+    // borderWidth: 1,
     padding: 15,
     borderRadius: 20,
     marginTop: 35,
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 5,
     gap: 5,
   },
   headerTitle: {
@@ -182,12 +183,13 @@ const styles = StyleSheet.create({
 
   tokenContianer: {
     width: '100%',
-    gap: 10,
+    gap: 25,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginTop: 5,
   },
   tokenRowContainer: {
+    width: '100%',
     flexShrink: 1,
     alignItems: 'center',
     justifyContent: 'center',
