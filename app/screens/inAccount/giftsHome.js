@@ -14,7 +14,7 @@ export default function GiftsPageHome() {
     <GlobalThemeView useStandardWidth={true} style={[styles.container]}>
       <CustomSettingsTopBar
         label={t('screens.inAccount.giftPages.giftsHome.title')}
-        iconNew="History"
+        iconNew="RotateCcw"
         showLeftImage={true}
         leftImageFunction={() => navigate.navigate('ReclaimGift')}
       />
