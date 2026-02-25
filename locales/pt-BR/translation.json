@@ -2213,17 +2213,17 @@
   },
   "savings": {
     "home": {
-      "title": "Caixinha",
+      "title": "Caixinhas",
       "howItWorksLink": "Como funciona",
       "earnedCard": "Rendeu: {{amount}}",
-      "setGoalTitle": "Definir meta",
+      "setGoalTitle": "Escolha um desejo",
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
       "disclaimer": "Os saldos em dinheiro são mantidos em USDB, uma stablecoin lastreada em dólares emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas."
     },
     "preview": {
-      "title": "Caixinha",
+      "title": "Caixinhas",
       "earnInterest": "Ganhe 3,5% de juros"
     },
     "goalEmoji": {
@@ -2238,8 +2238,8 @@
       "placeholder": "Reserva extra"
     },
     "goalAmount": {
-      "screenTitle": "Definir meta",
-      "goalFallbackName": "Meta de poupança",
+      "screenTitle": "Quantia necessária",
+      "goalFallbackName": "Quantia necessária",
       "errors": {
         "unableToSetGoal": "Não foi possível definir a meta"
       }
@@ -2282,8 +2282,8 @@
       "emptyState": "As transações futuras aparecerão aqui."
     },
     "addMoney": {
-      "chooseGoalTitle": "Adicionar dinheiro a",
-      "generalSavings": "Poupança geral",
+      "chooseGoalTitle": "Adicionar dinheiro em",
+      "generalSavings": "Caixinha geral",
       "noSpecificGoal": "Sem meta específica",
       "sourceTitle": "Adicionar dinheiro do",
       "minHint": "Mín: {{amount}}",
@@ -2293,8 +2293,8 @@
       "confirmButton": "Confirmar",
       "processing": "Processando…",
       "successTitle": "Dinheiro adicionado",
-      "paymentLabel_unallocated": "Depósito em poupança",
-      "paymentLabel": "Depósito em poupança para {{savingsGoal}}",
+      "paymentLabel_unallocated": "Depósito na Caixinha",
+      "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
       }
@@ -2309,7 +2309,7 @@
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Dos seus juros",
-      "fromSavings": "Da sua poupança",
+      "fromSavings": "Da sua Caixinha",
       "interestPaymentLabel": "Saque de juros",
       "chooseGoalTitle": "Sacar dinheiro de",
       "withdrawAll": "Sacar tudo",
@@ -2325,8 +2325,8 @@
       "confirmButton": "Confirmar",
       "processing": "Processando saque…",
       "successTitle": "Saque concluído",
-      "paymentLabel_unallocated": "Saque de poupança",
-      "paymentLabel": "Saque de poupança de {{savingsGoal}}",
+      "paymentLabel_unallocated": "Saque da Caixinha",
+      "paymentLabel": "Saque da Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Não foi possível concluir o saque"
       }
