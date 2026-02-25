@@ -2292,6 +2292,12 @@
       "fromBalance": "från ditt {{source}}-saldo",
       "confirmButton": "Bekräfta",
       "processing": "Bearbetar…",
+      "steps": {
+        "processing": "Bearbetar...",
+        "swapping": "Växlar medel till dollar...",
+        "adding": "Lägger till på sparkontot...",
+        "complete": "Klart."
+      },
       "successTitle": "Pengar insatta",
       "paymentLabel_unallocated": "Sparinsättning",
       "paymentLabel": "Sparinsättning till {{savingsGoal}}",
@@ -2324,6 +2330,12 @@
       "estimatedSats": "≈ {{sats}} sats efter byte",
       "confirmButton": "Bekräfta",
       "processing": "Bearbetar uttag…",
+      "steps": {
+        "processing": "Bearbetar...",
+        "withdrawing": "Tar ut från sparkontot...",
+        "swapping": "Växlar till Bitcoin...",
+        "complete": "Klart."
+      },
       "successTitle": "Uttag genomfört",
       "paymentLabel_unallocated": "Sparuttag",
       "paymentLabel": "Sparuttag från {{savingsGoal}}",

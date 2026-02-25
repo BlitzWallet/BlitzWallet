@@ -2292,6 +2292,12 @@
       "fromBalance": "dal tuo saldo {{source}}",
       "confirmButton": "Conferma",
       "processing": "Elaborazione in corso…",
+      "steps": {
+        "processing": "Elaborazione in corso...",
+        "swapping": "Conversione dei fondi in dollari...",
+        "adding": "Aggiunta al conto risparmi...",
+        "complete": "Completato."
+      },
       "successTitle": "Denaro aggiunto",
       "paymentLabel_unallocated": "Deposito risparmio",
       "paymentLabel": "Deposito risparmio su {{savingsGoal}}",
@@ -2324,6 +2330,12 @@
       "estimatedSats": "≈ {{sats}} sats dopo lo scambio",
       "confirmButton": "Conferma",
       "processing": "Prelievo in corso…",
+      "steps": {
+        "processing": "Elaborazione in corso...",
+        "withdrawing": "Prelievo dal conto risparmi...",
+        "swapping": "Conversione in Bitcoin...",
+        "complete": "Completato."
+      },
       "successTitle": "Prelievo completato",
       "paymentLabel_unallocated": "Prelievo risparmio",
       "paymentLabel": "Prelievo risparmio da {{savingsGoal}}",

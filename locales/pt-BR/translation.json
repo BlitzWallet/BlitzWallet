@@ -2292,6 +2292,12 @@
       "fromBalance": "do seu saldo de {{source}}",
       "confirmButton": "Confirmar",
       "processing": "Processando…",
+      "steps": {
+        "processing": "Processando...",
+        "swapping": "Convertendo fundos para dólar...",
+        "adding": "Adicionando à conta de poupança...",
+        "complete": "Concluído."
+      },
       "successTitle": "Dinheiro adicionado",
       "paymentLabel_unallocated": "Depósito em poupança",
       "paymentLabel": "Depósito em poupança para {{savingsGoal}}",
@@ -2324,6 +2330,12 @@
       "estimatedSats": "≈ {{sats}} sats após troca",
       "confirmButton": "Confirmar",
       "processing": "Processando saque…",
+      "steps": {
+        "processing": "Processando...",
+        "withdrawing": "Sacando da conta de poupança...",
+        "swapping": "Convertendo para Bitcoin...",
+        "complete": "Concluído."
+      },
       "successTitle": "Saque concluído",
       "paymentLabel_unallocated": "Saque de poupança",
       "paymentLabel": "Saque de poupança de {{savingsGoal}}",
