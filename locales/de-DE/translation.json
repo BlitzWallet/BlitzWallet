@@ -214,7 +214,7 @@
     "disclaimerPage": {
       "header": "Ihre Wallet. Ihre Kontrolle.",
       "subHeader": "Ein paar Dinge, die Sie wissen sollten, bevor Sie starten.",
-      "row1Label": "Nur Sie kontrollieren Ihre Gelder",
+      "row1Label": "Nur Sie kontrollieren Ihre Gelder.",
       "row1Description": "Blitz verwahrt oder greift niemals auf Ihr Geld zu.",
       "row2Label": "Sie erhalten eine Wiederherstellungsphrase (Seed-Phrase)",
       "row2Description": "Sie ist der Generalschlüssel zu Ihrer Wallet. Sie finden sie unter Einstellungen → Wallet sichern.",
@@ -226,18 +226,18 @@
       "continueBTN": "Weiter"
     },
     "verifyKeyPage": {
-      "header": "Bestätigen Sie bitte Ihre Wiederherstellungsphrase (Seed-Phrase)"
+      "header": "Bestätigen Sie bitte Ihre Wiederherstellungsphrase (Seed-Phrase)!"
     },
     "keySetup": {
       "generateKey": {
         "header": "Dies ist Ihr Passwort für Ihr Geld. Verlieren Sie es, verlieren Sie Ihr Geld.",
         "subHeader": "Schreiben Sie die Wiederherstellungsphrase (Seed-Phrase) mit Stift und Papier auf und bewahren Sie sie sicher auf!",
-        "disclaimer": "WIR KÖNNEN IHNEN NICHT HELFEN, WENN SIE DIE SEED-PHRASE VERLIEREN",
-        "errorText": "Fehler beim Abrufen der Wiederherstellungsphrase",
-        "keyGenError": "Es konnte keine gültige Wiederherstellungsphrase generiert werden",
+        "disclaimer": "WIR KÖNNEN IHNEN NICHT HELFEN, WENN SIE DIE SEED-PHRASE VERLIEREN!",
+        "errorText": "Fehler beim Abrufen der Wiederherstellungsphrase.",
+        "keyGenError": "Es konnte keine gültige Wiederherstellungsphrase generiert werden.",
         "seedPrivacyMessage": "Achten Sie darauf, dass niemand Ihren Bildschirm sehen kann.",
         "showIt": "Anzeigen",
-        "invalidSeedError": "Es konnte keine gültige Wiederherstellungsphrase generiert werden"
+        "invalidSeedError": "Es konnte keine gültige Wiederherstellungsphrase generiert werden."
       },
       "pin": {
         "savePinError": "PIN konnte nicht gespeichert werden",
@@ -250,7 +250,7 @@
     },
     "restoreWallet": {
       "home": {
-        "header": "Geben Sie Ihre Wiederherstellungsphrase (Seed-Phrase) ein",
+        "header": "Geben Sie Ihre Wiederherstellungsphrase (Seed-Phrase) ein.",
         "continueBTN": "Wallet wiederherstellen",
         "error1": "Bitte geben Sie alle Wörter Ihrer Wiederherstellungsphrase ein.",
         "error2": "Dies ist keine gültige Wiederherstellungsphrase.",
@@ -264,7 +264,7 @@
       }
     },
     "skipMessage": {
-      "header": "Wir empfehlen dringend, Ihre Wiederherstellungsphrase (Seed-Phrase) aufzuschreiben",
+      "header": "Wir empfehlen dringend, Ihre Wiederherstellungsphrase (Seed-Phrase) aufzuschreiben.",
       "subHeader": "Ohne gesicherte Wiederherstellungsphrase (Seed-Phrase) riskieren Sie den vollständigen Verlust Ihrer Gelder.",
       "btn": "Ich verstehe"
     }
@@ -281,15 +281,15 @@
   "apps": {
     "appList": {
       "AI": "KI",
-      "AIDescription": "Chatten Sie mit den neuesten generativen KI-Modellen",
+      "AIDescription": "Chatten Sie mit den neuesten generativen KI-Modellen.",
       "SMS": "SMS",
-      "SMSDescription": "Senden und empfangen Sie SMS weltweit mit BTC",
+      "SMSDescription": "Senden und empfangen Sie SMS weltweit mit BTC.",
       "VPN": "VPN",
       "VPNDescription": "Sicher surfen und Privatsphäre schützen",
       "onlineListings": "Shops",
-      "onlineListingsDescription": "Verzeichnis von Online-Shops, die BTC-Zahlungen akzeptieren",
+      "onlineListingsDescription": "Verzeichnis von Online-Shops, die BTC-Zahlungen akzeptieren.",
       "Soon": "Bald verfügbar",
-      "SoonDescription": "Weitere Apps kommen bald"
+      "SoonDescription": "Weitere Apps kommen bald."
     },
     "VPN": {
       "VPNPlanPage": {
@@ -333,13 +333,13 @@
         "title": "Ihre Käufe",
         "retryClaim": "Datei erneut erstellen",
         "noPurchases": "Sie haben noch keine VPN-Konfigurationen gekauft.",
-        "assistanceText": "Bei Fragen wenden Sie sich bitte an LNVPN",
-        "noValidCountryCodeError": "Kein gültiger Ländercode gefunden",
+        "assistanceText": "Bei Fragen wenden Sie sich bitte an LNVPN.",
+        "noValidCountryCodeError": "Kein gültiger Ländercode gefunden.",
         "claimConfigError": "VPN-Konfiguration konnte nicht abgerufen werden. Bitte wenden Sie sich an LNVPN.",
         "contact": "Kontakt"
       },
       "home": {
-        "title": "Um dieses VPN zu nutzen, laden Sie bitte die WireGuard-App herunter",
+        "title": "Um dieses VPN zu nutzen, laden Sie bitte die WireGuard-App herunter.",
         "downloadApp": "Hier herunterladen",
         "status": "",
         "apiConnectionError": "LNVPN ist derzeit nicht erreichbar. Bitte versuchen Sie es später erneut.",
@@ -726,17 +726,17 @@
         "selectamount": "Betrag auswählen",
         "sendingto": "Senden an: ",
         "minMaxPurchaseAmount": "Sie können einen Betrag von {{min}} bis {{max}} {{currency}} kaufen.",
-        "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
+        "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein.",
         "purchaseBTN": "Geschenkkarte kaufen",
         "differentEmailMessage": "Die eingegebene E-Mail-Adresse unterscheidet sich von der gespeicherten. Möchten Sie diese als Standard festlegen?",
         "terms": "Bedingungen",
         "cardDescription": "Kartenbeschreibung",
         "cardTerms": "Kartenbedingungen",
         "dailyPurchaseAmountError": "Sie haben Ihr tägliches Kaufmaximum erreicht.",
-        "giftMessage": "Fügen Sie eine Nachricht zu Ihrem Geschenk hinzu",
+        "giftMessage": "Fügen Sie eine Nachricht zu Ihrem Geschenk hinzu.",
         "giftMessagePlaceholder": "Ihre Nachricht hier eingeben...",
         "selectForContactBTN": "Geschenkkarte auswählen",
-        "noAmountError": "Bitte wählen Sie einen Geschenkkartenbetrag aus"
+        "noAmountError": "Bitte wählen Sie einen Geschenkkartenbetrag aus."
       },
       "giftCardOrderDetails": {
         "title": "Bestelldetails",
@@ -755,7 +755,7 @@
     "sms4sats": {
       "home": {
         "pageDescription": "Senden und empfangen Sie SMS-Nachrichten, ohne Ihre persönliche Telefonnummer preiszugeben.",
-        "pricingError": "SMS-Preise konnten nicht abgerufen werden"
+        "pricingError": "SMS-Preise konnten nicht abgerufen werden."
       },
       "confirmationSlideUp": {
         "title": "Nummer bestätigen",
@@ -801,15 +801,15 @@
         "autoSelect": "Automatische Auswahl",
         "inputPlaceholder": "Nach einem Dienst suchen...",
         "loacationLoadingMessage": "Standortbasierte Dienste werden abgerufen...",
-        "noAvailableServices": "Dieser Standort hat keine verfügbaren Dienste",
+        "noAvailableServices": "Dieser Standort hat keine verfügbaren Dienste.",
         "orderDetailsLoading": "Bestelldetails werden abgerufen..."
       },
       "confirmCodePage": {
         "header": "Ihre Bestellung wurde erfolgreich initiiert. Folgendes passiert als Nächstes:",
         "phoneNumberLabel": "Ihre Nummer:",
         "step1": "• Tippen Sie auf das Rechnungssymbol oben rechts, um Ihren Bestellverlauf anzuzeigen",
-        "step2": "• Verwenden Sie die Schaltfläche „Code abrufen“, um Ihren Verifizierungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben",
-        "step3": "• Falls kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet",
+        "step2": "• Verwenden Sie die Schaltfläche „Code abrufen“, um Ihren Verifizierungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben.",
+        "step3": "• Falls kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet.",
         "automaticRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder wurden bereits zurückerstattet.",
         "waitedRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder werden nach 21 Minuten automatisch zurückerstattet."
       },
@@ -848,24 +848,24 @@
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
       "contacts": "Aus Kontakten",
-      "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein",
+      "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein.",
       "scanImage": "Bild scannen",
-      "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild zu extrahieren",
-      "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten",
-      "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden",
+      "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild zu extrahieren.",
+      "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten.",
+      "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden.",
       "addressBook": "Adressbuch",
       "selectAddressType": "Adresstyp auswählen",
-      "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen",
-      "tapToGenerate_bitcoin": "Tippen Sie, um eine BTC-Adresse zu erstellen",
-      "tapToGenerate_spark": "Tippen Sie, um eine Spark-Adresse zu erstellen",
-      "tapToGenerate_liquid": "Tippen Sie, um eine Liquid-Adresse zu erstellen",
-      "tapToGenerate_rootstock": "Tippen Sie, um eine Rootstock-Adresse zu erstellen",
-      "chooseWhatToReceive": "Bitte wählen Sie aus, was Sie anfordern möchten",
-      "instantLowFees": "Sofort und mit niedrigen Gebühren",
+      "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen.",
+      "tapToGenerate_bitcoin": "Tippen Sie, um eine BTC-Adresse zu erstellen.",
+      "tapToGenerate_spark": "Tippen Sie, um eine Spark-Adresse zu erstellen.",
+      "tapToGenerate_liquid": "Tippen Sie, um eine Liquid-Adresse zu erstellen.",
+      "tapToGenerate_rootstock": "Tippen Sie, um eine Rootstock-Adresse zu erstellen.",
+      "chooseWhatToReceive": "Bitte wählen Sie aus, was Sie anfordern möchten.",
+      "instantLowFees": "Sofort und mit niedrigen Gebühren.",
       "onChainTransaction": "On-Chain-Transaktion",
       "otherAddresses": "Weitere Optionen",
       "scanQrCode": "QR-Code scannen",
-      "tapToScanQr": "Tippen Sie, um einen QR-Code zu scannen",
+      "tapToScanQr": "Tippen Sie, um einen QR-Code zu scannen.",
       "addressBook_request": "Von einem Kontakt anfordern",
       "qrReceiveOptions": "Über QR-Code empfangen",
       "addressBook_send": "An einen Kontakt senden",
@@ -873,10 +873,10 @@
       "tapToGenerate_lightning_usd": "USD sofort empfangen"
     },
     "pools": {
-      "receiveViaPool": "Über einen Sparpool empfangen",
+      "receiveViaPool": "Über einen Sparpool empfangen.",
       "createPool": "Sparpool erstellen",
       "addDescription": "Beschreibung hinzufügen",
-      "collectPaymentsDescription": "Zahlungen für ein Ziel sammeln",
+      "collectPaymentsDescription": "Zahlungen für ein Ziel sammeln.",
       "whatIsPoolFor": "Wofür ist dieser Sparpool?",
       "examplePlaceholder": "z. B. Urlaubsreise, Restaurantbesuch",
       "creating": "Wird erstellt...",
@@ -886,13 +886,13 @@
       "preparingTransfer": "Übertragung wird vorbereitet...",
       "connectingToPool": "Verbindung zum Sparpool wird hergestellt...",
       "unableToConnect": "Verbindung zum Sparpool nicht möglich. Bitte versuchen Sie es erneut.",
-      "unableToGetBalance": "Sparpool-Guthaben konnte nicht abgerufen werden",
-      "noFundsFound": "Keine Gelder in diesem Sparpool gefunden",
+      "unableToGetBalance": "Sparpool-Guthaben konnte nicht abgerufen werden.",
+      "noFundsFound": "Keine Gelder in diesem Sparpool gefunden.",
       "closingPool": "Sparpool wird geschlossen...",
       "gettingAddress": "Ihre Kontoadresse wird abgerufen...",
-      "unableToGetAddress": "Ihre Hauptkontoadresse konnte nicht abgerufen werden",
+      "unableToGetAddress": "Ihre Hauptkontoadresse konnte nicht abgerufen werden.",
       "transferringFunds": "Gelder werden übertragen...",
-      "failedToTransfer": "Übertragung der Sparpool-Gelder fehlgeschlagen",
+      "failedToTransfer": "Übertragung der Sparpool-Gelder fehlgeschlagen.",
       "notFound": "Sparpool nicht gefunden",
       "closePoolTitle": "Diesen Sparpool schließen?",
       "closePoolWarning": "Alle Gelder werden an Ihr Hauptkonto übertragen. Dieses Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
@@ -904,11 +904,11 @@
       "pool": "Sparpool",
       "couldNotFind": "Dieser Sparpool konnte nicht gefunden werden.",
       "createdBy": "Erstellt von ",
-      "moneyTransferred": "Das Geld wurde an Ihr Hauptkonto übertragen",
+      "moneyTransferred": "Das Geld wurde an Ihr Hauptkonto übertragen.",
       "contribute": "Beitragen",
       "share": "Teilen",
       "noActivity": "Noch keine Aktivität. Seien Sie der Erste, der beiträgt!",
-      "noPoolsCreated": "Sie haben noch keine Sparpool erstellt",
+      "noPoolsCreated": "Sie haben noch keine Sparpool erstellt.",
       "noActivePools": "Keine aktiver Sparpool",
       "closedSection": "Geschlossene Sparpools",
       "noClosedPools": "Kein geschlossener Sparpool",
@@ -930,31 +930,31 @@
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",
         "whatArePoolsBody": "Mit Sparzielen können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie ein Sparziel, legen Sie einen Zielbetrag fest und teilen Sie es mit beliebigen Personen.",
-        "howItWorks": "So funktioniert es",
-        "howStep1": "• Erstellen Sie einen neuen Sparpool mit einem Namen und einem Zielbetrag",
-        "howStep2": "• Teilen Sie den Sparpool-Link, damit andere ihn finden können",
-        "howStep3": "• Unterstützer senden Bitcoin direkt an den Pool",
-        "howStep4": "• Schließen Sie den Sparpool, wenn Sie bereit sind, die Gelder in Ihr Hauptkonto zu übertragen"
+        "howItWorks": "So funktioniert es.",
+        "howStep1": "• Erstellen Sie einen neuen Sparpool mit einem Namen und einem Zielbetrag.",
+        "howStep2": "• Teilen Sie den Sparpool-Link, damit andere ihn finden können.",
+        "howStep3": "• Unterstützer senden Bitcoin direkt an den Pool.",
+        "howStep4": "• Schließen Sie den Sparpool, wenn Sie bereit sind, die Gelder in Ihr Hauptkonto zu übertragen."
       }
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Zahlungsanforderung ein oder fügen Sie sie ein."
     },
     "cameraModal": {
-      "noCamera": "Kein Zugriff auf die Kamera",
+      "noCamera": "Kein Zugriff auf die Kamera.",
       "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf die Kamera zu erlauben.",
       "noCameraDevice": "Kein Kameragerät verfügbar.",
       "noFlash": "Dieses Gerät verfügt über keine Taschenlampe.",
       "sanningResponse": "Es werden nur QR-Codes akzeptiert.",
-      "qrDecodeError": "Fehler beim Lesen des QR-Codes"
+      "qrDecodeError": "Fehler beim Lesen des QR-Codes."
     },
     "confirmClipboard": {
-      "clipboardContent": "Text in die Zwischenablage kopiert",
-      "errorWithCopy": "Fehler beim Kopieren in die Zwischenablage",
+      "clipboardContent": "Text in die Zwischenablage kopiert.",
+      "errorWithCopy": "Fehler beim Kopieren in die Zwischenablage.",
       "ok": "OK"
     },
     "see_all_txs": "Alle Transaktionen anzeigen",
-    "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit diese hier angezeigt wird",
+    "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit diese hier angezeigt wird.",
     "contactsPage": {
       "header": "Empfänger auswählen",
       "inputTextPlaceholder": "Benutzernamen suchen...",
@@ -963,17 +963,17 @@
     },
     "cameraPage": {
       "noCameraAccess": "Kein Zugriff auf die Kamera",
-      "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf Ihre Kamera zu erlauben",
+      "settingsText": "Gehen Sie zu den Einstellungen, um Blitz Wallet den Zugriff auf Ihre Kamera zu erlauben.",
       "noCameraDevice": "Ihr Gerät hat keine Kamera.",
-      "error1": "Ihr Gerät hat keine Taschenlampe",
-      "error2": "Sie haben diese Rechnung bereits bezahlt"
+      "error1": "Ihr Gerät hat keine Taschenlampe.",
+      "error2": "Sie haben diese Rechnung bereits bezahlt."
     },
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "Empfangsbetrag",
         "descriptionInputPlaceholder": "Beschreibung...",
         "editAmount": "Betrag bearbeiten",
-        "minUSDSwap": "Zahlungen, die in USD umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}"
+        "minUSDSwap": "Zahlungen, die in USD umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}."
       },
       "buttonContainer": {
         "format": "Andere Empfangsmethoden",
@@ -1010,9 +1010,9 @@
         "zeroAmountInvoiceDollarPayments": "Rechnungen mit Betrag null können nicht mit USD bezahlt werden. Bitte verwenden Sie BTC.",
         "decodingPayment": "Zahlungsinformationen werden dekodiert...",
         "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren.",
-"swapRatesChangedTitle": "Wechselkurs aktualisiert",
-"swapRatesChangedBody": "Der Wechselkurs für diesen Tausch hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
-"swapRatesChangedButton": "Betrag erneut eingeben"
+        "swapRatesChangedTitle": "Wechselkurs aktualisiert",
+        "swapRatesChangedBody": "Der Wechselkurs für diesen Tausch hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
+        "swapRatesChangedButton": "Betrag erneut eingeben"
       },
       "selectPaymentMethod": {
         "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung senden möchten (BTC oder USD)."
@@ -2204,5 +2204,160 @@
     "FSAG-5003": "Es ist ein interner Fehler aufgetreten. Bitte kontaktieren Sie den Support, falls das Problem weiterhin besteht.",
     "FSAG-5004": "Es ist ein Systemkonfigurationsfehler aufgetreten.",
     "FSAG-5100": "Es ist ein unerwarteter Serverfehler aufgetreten."
+  },
+  "savings": {
+    "home": {
+      "title": "Sparziele",
+      "howItWorksLink": "So funktioniert es",
+      "earnedCard": "Verdient: {{amount}}",
+      "setGoalTitle": "Sparziel setzen",
+      "setGoalSubtitle": "Sparen Sie für das, was Ihnen wichtig ist!",
+      "savingsGoalFallback": "Sparziel",
+      "createAnotherGoal": "Weiteres Sparziel erstellen.",
+      "disclaimer": "Guthaben wird in USDB gehalten, einem dollargedeckten Stablecoin von Brale. USDB ist 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt."
+    },
+    "preview": {
+      "title": "Ersparnisse",
+      "earnInterest": "3,5 % Zinsen verdienen!"
+    },
+    "goalEmoji": {
+      "screenTitle": "Emoji wählen",
+      "title": "Wählen Sie ein passendes Emoji für Ihr Sparziel.",
+      "subtitle": "Was beschreibt Ihr Sparziel am besten?",
+      "continueButton": "Emoji wählen"
+    },
+    "goalDescribe": {
+      "screenTitle": "Beschreibung eingeben",
+      "title": "Beschreiben Sie Ihr Sparziel.",
+      "placeholder": "Extra-Rücklage"
+    },
+    "goalAmount": {
+      "screenTitle": "Sparziel festlegen",
+      "goalFallbackName": "Sparziel",
+      "errors": {
+        "unableToSetGoal": "Sparziel konnte nicht gesetzt werden."
+      }
+    },
+    "goalSuccess": {
+      "title": "Ihr Sparziel wurde auf {{amount}} gesetzt.",
+      "subtitle": "Beginnen Sie mit Einzahlungen, um Ihr Sparziel zu erreichen."
+    },
+    "goalDetails": {
+      "screenTitleFallback": "Sparziel",
+      "updateGoalButton": "Sparziel aktualisieren",
+      "emptyState": "Kein Sparziel gesetzt"
+    },
+    "updateGoal": {
+      "screenTitle": "Sparziel aktualisieren",
+      "title": "Sparziel aktualisieren",
+      "body": "Sie können den gesetzten Betrag für Ihr Sparziel ändern oder es entfernen.",
+      "removeButton": "Sparziel entfernen",
+      "updateButton": "Sparziel aktualisieren"
+    },
+    "removeGoalConfirm": {
+      "screenTitle": "Sparziel entfernen",
+      "title": "Sparziel entfernen",
+      "warningProgressLost": "Sie sehen keinen Fortschritt mehr für Ihr Sparziel {{goalName}}.",
+      "warningMoneyReturned": "Ihr gespartes Geld wird automatisch zurück in Ihr Hauptguthaben übertragen.",
+      "removeButton": "Sparziel entfernen",
+      "errors": {
+        "unableToRemoveGoal": "Sparziel konnte nicht entfernt werden."
+      }
+    },
+    "goalRemovedSuccess": {
+      "title": "Sparziel entfernt"
+    },
+    "actionButtons": {
+      "addMoney": "Geld einzahlen",
+      "withdraw": "Abheben"
+    },
+    "activity": {
+      "title": "Aktivität",
+      "emptyState": "Zukünftige Transaktionen werden hier angezeigt."
+    },
+    "addMoney": {
+      "chooseGoalTitle": "Geld einzahlen auf",
+      "generalSavings": "Allgemeine Ersparnisse",
+      "noSpecificGoal": "Kein bestimmtes Sparziel.",
+      "sourceTitle": "Geld einzahlen von",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Einzahlung bestätigen",
+      "youAreAdding": "Sie zahlen ein",
+      "fromBalance": "von Ihrem {{source}}-Guthaben",
+      "confirmButton": "Bestätigen",
+      "processing": "Wird verarbeitet...",
+      "successTitle": "Geld eingezahlt",
+      "paymentLabel_unallocated": "Spareinzahlung",
+      "paymentLabel": "Spareinzahlung für {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
+      }
+    },
+    "withdraw": {
+      "balanceTypeTitle": "Was möchten Sie auszahlen?",
+      "interestOption": "Erwirtschaftete Zinsen",
+      "savingsOption": "Sparguthaben",
+      "interestZeroHint": "Noch keine Zinsen erwirtschaftet",
+      "savingsZeroHint": "Noch nichts gespart",
+      "interestBelowMinHint": "Betrag liegt unter dem Mindestbetrag für Umtausch. Nur Auszahlung auf Bitcoin-Guthaben möglich.",
+      "loadingBalances": "Guthaben werden geladen...",
+      "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehen Sie zurück und versuchen Sie es erneut.",
+      "fromInterest": "Aus Ihren Zinsen",
+      "fromSavings": "Aus Ihren Ersparnissen",
+      "interestPaymentLabel": "Zinsauszahlung",
+      "chooseGoalTitle": "Geld abheben von",
+      "withdrawAll": "Alles abheben",
+      "generalSavings": "Allgemeine Ersparnisse",
+      "destinationTitle": "Geld abheben auf",
+      "availableHint": "Verfügbar: {{amount}}",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Abhebung bestätigen",
+      "youAreWithdrawingAll": "Sie heben alle Ersparnisse ab",
+      "youAreWithdrawing": "Sie heben ab",
+      "toYourBalance": "auf Ihr {{destination}}",
+      "estimatedSats": "≈ {{sats}} Sats nach Umtausch",
+      "confirmButton": "Bestätigen",
+      "processing": "Abhebung wird verarbeitet…",
+      "successTitle": "Abhebung abgeschlossen",
+      "paymentLabel_unallocated": "Sparabhebung",
+      "paymentLabel": "Sparabhebung von {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteWithdrawal": "Abhebung konnte nicht abgeschlossen werden."
+      }
+    },
+    "howItWorks": {
+      "headline1": "Ihr Geld,",
+      "headline2": "jeden Tag im Einsatz.",
+      "subtext": "Ein USD-gedeckter Stablecoin, der automatisch Erträge ansammelt, solange Sie ihn halten.",
+      "features": {
+        "earnTitle": "Täglich Erträge erzielen",
+        "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – halten Sie einfach und verdienen Sie.",
+        "accessTitle": "Sofortiger Zugriff",
+        "accessBody": "Sie können jederzeit in Sekunden auf Ihr Lightning-Wallet abheben. Ihr Geld ist nie gesperrt.",
+        "backedTitle": "Vollständig gedeckt",
+        "backedBody": "Jeder USDB ist vollständig 1:1 durch USD in separaten, geprüften Reservekonten gedeckt.",
+        "goalTitle": "Sparziel setzen",
+        "goalBody": "Verfolgen Sie Ihren Fortschritt – ob Urlaub, Notgroschen oder irgendetwas anderes."
+      },
+      "stats": {
+        "currentApyLabel": "APY",
+        "currentApyValue": "3,5 %",
+        "accrualLabel": "Ansammlung",
+        "accrualValue": "Täglich"
+      },
+      "context": {
+        "goalNameReqiured": "Bitte geben Sie einen Sparziel-Namen ein.",
+        "goalNotFound": "Sparziel nicht gefunden."
+      },
+      "transparencyTitle": "Vollständig durch Reserven gedeckt.",
+      "transparencyBody": "Reserven werden in separaten, geprüften Konten gehalten – hauptsächlich kurzlaufende US-Staatsanleihen und Geldmarktfonds. Flashnet veröffentlicht monatliche Bestätigungsberichte.",
+      "disclaimer": "Zinssätze sind variabel und können sich ändern. Keine Bankeinlagen. Weitere Informationen unter flashnet.xyz."
+    },
+    "withdrawal": "Abhebung",
+    "withdrawalWithGoal": "Abhebung von {{goalName}}",
+    "deposit": "Einzahlung",
+    "depositWithGoal": "Einzahlung für {{goalName}}",
+    "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
+    "savingsWalletError": "Spar-Wallet nicht bereit"
   }
 }
