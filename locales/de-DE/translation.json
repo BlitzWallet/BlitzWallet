@@ -2358,6 +2358,6 @@
     "deposit": "Einzahlung",
     "depositWithGoal": "Einzahlung für {{goalName}}",
     "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
-    "savingsWalletError": "Spar-Wallet nicht bereit"
+    "savingsWalletError": "Spar-Wallet nicht bereit."
   }
 }
