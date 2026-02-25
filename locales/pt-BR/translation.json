@@ -2302,7 +2302,7 @@
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de sacar?",
       "interestOption": "Juros acumulados",
-      "savingsOption": "Saldo da Caixinha",
+      "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há juros acumulados",
       "savingsZeroHint": "Nada salvo ainda",
       "interestBelowMinHint": "Abaixo do mínimo para troca, apenas saldo em bitcoin",
