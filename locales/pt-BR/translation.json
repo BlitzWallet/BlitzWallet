@@ -2215,7 +2215,7 @@
     "home": {
       "title": "Caixinhas",
       "howItWorksLink": "Como funciona",
-      "earnedCard": "Rendeu: {{amount}}",
+      "earnedCard": "Rendimento: {{amount}}",
       "setGoalTitle": "Escolha um desejo",
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
