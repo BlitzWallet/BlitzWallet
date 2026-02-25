@@ -2256,7 +2256,7 @@
     "updateGoal": {
       "screenTitle": "Atualizar meta",
       "title": "Atualizar meta",
-      "body": "Você pode alterar o valor definido para sua meta ou removê-la.",
+      "body": "Você pode alterar a quantia necessária para sua meta ou removê-la.",
       "removeButton": "Remover meta",
       "updateButton": "Atualizar quantia"
     },
@@ -2302,7 +2302,7 @@
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de sacar?",
       "interestOption": "Juros acumulados",
-      "savingsOption": "Saldo de poupança",
+      "savingsOption": "Saldo da Caixinha",
       "interestZeroHint": "Ainda não há juros acumulados",
       "savingsZeroHint": "Nada salvo ainda",
       "interestBelowMinHint": "Abaixo do mínimo para troca, apenas saldo em bitcoin",
@@ -2313,12 +2313,12 @@
       "interestPaymentLabel": "Saque de juros",
       "chooseGoalTitle": "Sacar dinheiro de",
       "withdrawAll": "Sacar tudo",
-      "generalSavings": "Poupança geral",
+      "generalSavings": "Caixinha geral",
       "destinationTitle": "Sacar dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar saque",
-      "youAreWithdrawingAll": "Você está sacando toda a poupança",
+      "youAreWithdrawingAll": "Você está sacando de todas as Caixinhas",
       "youAreWithdrawing": "Você está sacando",
       "toYourBalance": "para o seu {{destination}}",
       "estimatedSats": "≈ {{sats}} sats após troca",
