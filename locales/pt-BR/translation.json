@@ -1252,7 +1252,7 @@
       "licenseBody": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a",
       "licenseLinkLabel": "Licença Apache v2.0",
       "walletHeader": "Blitz Wallet",
-      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodiada compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
+      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
       "poweredByLabel": "Desenvolvido com",
       "poweredByBreez": "Breez Liquid SDK",
       "poweredBySpark": "Spark",
