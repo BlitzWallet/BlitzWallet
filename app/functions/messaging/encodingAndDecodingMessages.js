@@ -34,7 +34,11 @@ function getSharedSecretCached(privkey, pubkey) {
     sharedSecretCache.delete(oldestKey);
   }
 
-  const shardPoint = getSharedSecret(privkey, '02' + pubkey);
+  const shardPoint = getSharedSecret(
+    Buffer.from(privkey, 'hex'),
+    Buffer.from('02' + pubkey, 'hex'),
+    true,
+  );
   const sharedX = shardPoint.slice(1, 33);
 
   sharedSecretCache.set(cacheKey, sharedX);
