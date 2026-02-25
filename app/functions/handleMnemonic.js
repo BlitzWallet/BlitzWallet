@@ -1,6 +1,6 @@
 import { generateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
-import * as CryptoES from 'crypto-es';
+import { AES, Utf8 } from 'crypto-es';
 import {
   BIOMETRIC_KEY,
   LOGIN_SECUITY_MODE_KEY,
@@ -45,7 +45,8 @@ export async function encryptAndStoreMnemonicWithBiometrics(mnemonic) {
   try {
     const key = await generateAndStoreEncryptionKeyForMnemoinc();
     if (!key) throw new Error('Unable to get encription key');
-    const cipherText = CryptoES.default.AES.encrypt(mnemonic, key).toString();
+
+    const cipherText = AES.encrypt(mnemonic, key).toString();
 
     await storeData('encryptedMnemonic', cipherText);
     return true;
@@ -159,8 +160,8 @@ export async function handleLoginSecuritySwitch(mnemoinc, pin, storageType) {
 
 export function decryptMnemonic(cipherText, pin) {
   try {
-    const bytes = CryptoES.default.AES.decrypt(cipherText, pin);
-    return bytes.toString(CryptoES.default.enc.Utf8);
+    const bytes = AES.decrypt(cipherText, pin);
+    return bytes.toString(Utf8);
   } catch (err) {
     console.log('error decrypting mnemoinc', err);
     return false;
@@ -169,7 +170,7 @@ export function decryptMnemonic(cipherText, pin) {
 
 export function encryptMnemonic(mnemonic, pin) {
   try {
-    return CryptoES.default.AES.encrypt(mnemonic, pin).toString();
+    return AES.encrypt(mnemonic, pin).toString();
   } catch (err) {
     console.log('error encripting mnemonic', err);
   }
