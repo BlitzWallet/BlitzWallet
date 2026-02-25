@@ -2258,7 +2258,7 @@
       "title": "Atualizar meta",
       "body": "Você pode alterar o valor definido para sua meta ou removê-la.",
       "removeButton": "Remover meta",
-      "updateButton": "Atualizar meta"
+      "updateButton": "Atualizar quantia"
     },
     "removeGoalConfirm": {
       "screenTitle": "Remover meta",
