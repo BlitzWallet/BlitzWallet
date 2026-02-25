@@ -1656,7 +1656,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@craftzdog/react-native-buffer@npm:6.1.0, @craftzdog/react-native-buffer@npm:^6.1.0":
+"@craftzdog/react-native-buffer@npm:^6.0.5":
+  version: 6.1.1
+  resolution: "@craftzdog/react-native-buffer@npm:6.1.1"
+  dependencies:
+    ieee754: ^1.2.1
+    react-native-quick-base64: ^2.2.2
+  checksum: bf8ae64b9631b14677d667c07c82fe6397ef5f317f58ab3d3617a716da757bd0eaf9cc092687103bc3f1448f095305be9672fb10d036331ed0ad4590b3036959
+  languageName: node
+  linkType: hard
+
+"@craftzdog/react-native-buffer@npm:^6.1.0":
   version: 6.1.0
   resolution: "@craftzdog/react-native-buffer@npm:6.1.0"
   dependencies:
@@ -4845,12 +4855,11 @@ __metadata:
     react-native-get-random-values: ^2.0.0
     react-native-keyboard-controller: 1.18.5
     react-native-localize: ^3.6.0
-    react-native-nitro-modules: ^0.33.9
     react-native-pager-view: 6.9.1
     react-native-pdf-from-image: ^0.3.6
     react-native-qrcode-svg: ^6.3.15
     react-native-quick-base64: ^2.2.2
-    react-native-quick-crypto: ^1.0.14
+    react-native-quick-crypto: 0.7.17
     react-native-reanimated: ^4.1.2
     react-native-restart: ^0.0.27
     react-native-safe-area-context: ~5.6.0
@@ -7731,7 +7740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"events@npm:3.3.0, events@npm:^3.3.0":
+"events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
@@ -12720,16 +12729,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-nitro-modules@npm:^0.33.9":
-  version: 0.33.9
-  resolution: "react-native-nitro-modules@npm:0.33.9"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: b9f1ebe7621f600046e0c4701e33f3a038a256fdca84394011cdf431bbf7d142a28f2fa042df4f78b8c879740697ff53e0afca933316063eee0f24f27e920131
-  languageName: node
-  linkType: hard
-
 "react-native-pager-view@npm:6.9.1":
   version: 6.9.1
   resolution: "react-native-pager-view@npm:6.9.1"
@@ -12775,29 +12774,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-quick-crypto@npm:^1.0.14":
-  version: 1.0.14
-  resolution: "react-native-quick-crypto@npm:1.0.14"
+"react-native-quick-crypto@npm:0.7.17":
+  version: 0.7.17
+  resolution: "react-native-quick-crypto@npm:0.7.17"
   dependencies:
-    "@craftzdog/react-native-buffer": 6.1.0
-    events: 3.3.0
-    readable-stream: 4.5.2
-    safe-buffer: ^5.2.1
+    "@craftzdog/react-native-buffer": ^6.0.5
+    events: ^3.3.0
+    readable-stream: ^4.5.2
     string_decoder: ^1.3.0
-    util: 0.12.5
-  peerDependencies:
-    expo: ">=48.0.0"
-    expo-build-properties: "*"
-    react: "*"
-    react-native: "*"
-    react-native-nitro-modules: ">=0.29.1"
-    react-native-quick-base64: ">=2.1.0"
-  peerDependenciesMeta:
-    expo:
-      optional: true
-    expo-build-properties:
-      optional: true
-  checksum: d2da6572553c24907a53a6eac1010aff6f532c3368690a6382eb8c6e3308e9381b94ea3bc40c93bf0e14c371f57e366576201f50fe909c5931793d99424b8a25
+    util: ^0.12.5
+  checksum: 5864b483900b504bff353721dffce2458635d7ad15a4bb87389a9161d83fd60a809c2881293a58ef03de3492ded8e9bf19efc8ae1d1694b500feedc26eee1e5c
   languageName: node
   linkType: hard
 
@@ -13019,19 +13005,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:4.5.2":
-  version: 4.5.2
-  resolution: "readable-stream@npm:4.5.2"
-  dependencies:
-    abort-controller: ^3.0.0
-    buffer: ^6.0.3
-    events: ^3.3.0
-    process: ^0.11.10
-    string_decoder: ^1.3.0
-  checksum: c4030ccff010b83e4f33289c535f7830190773e274b3fcb6e2541475070bdfd69c98001c3b0cb78763fc00c8b62f514d96c2b10a8bd35d5ce45203a25fa1d33a
-  languageName: node
-  linkType: hard
-
 "readable-stream@npm:^2.3.8":
   version: 2.3.8
   resolution: "readable-stream@npm:2.3.8"
@@ -13055,6 +13028,19 @@ __metadata:
     string_decoder: ^1.1.1
     util-deprecate: ^1.0.1
   checksum: bdcbe6c22e846b6af075e32cf8f4751c2576238c5043169a1c221c92ee2878458a816a4ea33f4c67623c0b6827c8a400409bfb3cf0bf3381392d0b1dfb52ac8d
+  languageName: node
+  linkType: hard
+
+"readable-stream@npm:^4.5.2":
+  version: 4.7.0
+  resolution: "readable-stream@npm:4.7.0"
+  dependencies:
+    abort-controller: ^3.0.0
+    buffer: ^6.0.3
+    events: ^3.3.0
+    process: ^0.11.10
+    string_decoder: ^1.3.0
+  checksum: 03ec762faed8e149dc6452798b60394a8650861a1bb4bf936fa07b94044826bc25abe73696f5f45372abc404eec01876c560f64b479eba108b56397312dbe2ae
   languageName: node
   linkType: hard
 
@@ -14826,7 +14812,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"util@npm:0.12.5, util@npm:^0.12.5":
+"util@npm:^0.12.5":
   version: 0.12.5
   resolution: "util@npm:0.12.5"
   dependencies:
