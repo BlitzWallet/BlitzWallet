@@ -257,6 +257,7 @@
     "restoreWallet": {
       "home": {
         "header": "Enter your recovery phrase",
+        "desc": "Add your 12 recovery words to get back into your wallet.",
         "continueBTN": "Restore wallet",
         "error1": "Please enter all of your recovery phrase words.",
         "error2": "This is not a valid recovery phrase.",

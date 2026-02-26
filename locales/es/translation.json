@@ -253,6 +253,7 @@
     "restoreWallet": {
       "home": {
         "header": "Ingrese su frase semilla",
+        "desc": "Agrega tus 12 palabras de recuperación para volver a acceder a tu billetera.",
         "continueBTN": "Restaurar billetera",
         "error1": "Por favor ingrese todas las palabras de su frase inicial.",
         "error2": "Esta no es una frase semilla válida.",

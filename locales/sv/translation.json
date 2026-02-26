@@ -251,6 +251,7 @@
     "restoreWallet": {
       "home": {
         "header": "Ange din fröfras",
+        "desc": "Lägg till dina 12 återställningsord för att få tillbaka åtkomsten till din plånbok.",
         "continueBTN": "Återställ plånboken",
         "error1": "Ange alla ord i din seedfras.",
         "error2": "Detta är inte en giltig fröfras.",

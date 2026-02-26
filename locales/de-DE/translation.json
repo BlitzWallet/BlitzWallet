@@ -251,6 +251,7 @@
     "restoreWallet": {
       "home": {
         "header": "Geben Sie Ihre Wiederherstellungsphrase (Seed-Phrase) ein.",
+        "desc": "Füge deine 12 Wiederherstellungswörter hinzu, um wieder Zugriff auf deine Wallet zu erhalten.",
         "continueBTN": "Wallet wiederherstellen",
         "error1": "Bitte geben Sie alle Wörter Ihrer Wiederherstellungsphrase ein.",
         "error2": "Dies ist keine gültige Wiederherstellungsphrase.",
@@ -1745,10 +1746,10 @@
     }
   },
   "screens": {
-  "inAccount": {
-    "tokens": {
-      "yourTokens": "Ihre Tokens",
-      "noTokens": "Sie haben noch keine Tokens"
+    "inAccount": {
+      "tokens": {
+        "yourTokens": "Ihre Tokens",
+        "noTokens": "Sie haben noch keine Tokens"
       },
       "appStore": {
         "soonMessage": "Wir freuen uns, dass Sie mehr Apps möchten. Schlagen Sie sie unten vor!",

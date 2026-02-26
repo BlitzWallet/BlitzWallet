@@ -251,6 +251,7 @@
     "restoreWallet": {
       "home": {
         "header": "Saisissez votre phrase de départ",
+        "desc": "Ajoutez vos 12 mots de récupération pour retrouver l’accès à votre portefeuille.",
         "continueBTN": "Restaurer le portefeuille",
         "error1": "Veuillez saisir tous les mots de votre phrase de semence.",
         "error2": "Il ne s'agit pas d'une phrase de semence valide.",

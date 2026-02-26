@@ -251,6 +251,7 @@
     "restoreWallet": {
       "home": {
         "header": "Ingrese su frase semilla",
+        "desc": "Inserisci le tue 12 parole di recupero per riaccedere al tuo wallet.",
         "continueBTN": "Ripristina portafoglio",
         "error1": "Inserisci tutte le parole della frase seme.",
         "error2": "Questa non è una frase seed valida.",
