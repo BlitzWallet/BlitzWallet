@@ -1568,7 +1568,7 @@
         "accountFundingHeader": "Funding Your NWC Account",
         "accountFundingMessage": "To send money from your Nostr Connect account, you'll first need to add funds—either by receiving money or transferring from your main account.\n\nYou can transfer funds from your main account to NWC in the account settings page.",
         "securityHeader": "Secure & Isolated",
-        "securityMessage": "Nostr Wallet Connect creates a seperate account from your main account for added security. This seed phrase is securely stored and can be viewed later in the Accounts setting page if needed.",
+        "securityMessage": "Nostr Wallet Connect creates a seperate account from your main account for added security. This recovery phrase is securely stored and can be viewed later in the Accounts setting page if needed.",
         "continueButton": "Get Started",
         "initializingMessage": "Setting up your NWC account...",
         "errorTitle": "Setup Failed",
