@@ -317,6 +317,7 @@ export default function PoolDetailScreen(props) {
             strokeWidth={10}
             fundedAmount={formatAmount(pool.currentAmount)}
             goalAmount={formatAmount(pool.goalAmount)}
+            useFillAnimation={true}
           />
 
           {/* Creator text */}

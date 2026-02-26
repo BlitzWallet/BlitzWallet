@@ -224,12 +224,15 @@ export default function SavingsHome() {
                     </View>
 
                     <CircularProgress
-                      current={goalProgress * 100}
-                      goal={100}
+                      current={goal.currentAmountMicros}
+                      goal={goal.amountMicros}
                       size={46}
-                      strokeWidth={4}
+                      strokeWidth={3}
                       showPercentage={false}
                       useAltBackground={true}
+                      showConfirmed={
+                        goal.currentAmountMicros >= goal.amountMicros
+                      }
                     />
                   </TouchableOpacity>
                 );

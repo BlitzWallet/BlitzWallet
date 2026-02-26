@@ -101,6 +101,7 @@ export default function SavingsGoalDetails(props) {
               forceCurrency: 'USD',
               convertAmount: false,
             })}
+            useFillAnimation={true}
           />
         </View>
 
@@ -120,7 +121,10 @@ export default function SavingsGoalDetails(props) {
         >
           <View style={styles.updateGoalLeft}>
             <ThemeIcon iconName={'Target'} size={18} />
-            <ThemeText content={t('savings.goalDetails.updateGoalButton')} />
+            <ThemeText
+              styles={{ includeFontPadding: false }}
+              content={t('savings.goalDetails.updateGoalButton')}
+            />
           </View>
           <ThemeIcon iconName={'ChevronRight'} size={16} />
         </TouchableOpacity>

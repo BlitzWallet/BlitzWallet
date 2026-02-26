@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -6,6 +6,15 @@ import { SIZES } from '../../../../constants';
 import { COLORS } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
+import Animated, {
+  useSharedValue,
+  useAnimatedProps,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 /**
  * Circular progress ring component for pool progress display.
@@ -17,6 +26,8 @@ import GetThemeColors from '../../../../hooks/themeColors';
  * @param {number} strokeWidth - Width of the progress stroke (default 6)
  * @param {string} centerText - Optional override text for center
  * @param {boolean} showPercentage - Show percentage instead of amounts
+ * @param {boolean} useFillAnimation - Show fill animation
+ * @param {boolean} showConfirmed - Show goal met
  */
 export default function CircularProgress({
   current = 0,
@@ -28,9 +39,13 @@ export default function CircularProgress({
   fundedAmount,
   goalAmount,
   useAltBackground = false,
+  useFillAnimation = false,
+  showConfirmed = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const animatedPercentage = useSharedValue(0);
+  const isInitialLoadRef = useRef(true);
 
   const { percentage, displayText } = useMemo(() => {
     const pct = goal > 0 ? (current / goal) * 100 : 0;
@@ -55,6 +70,32 @@ export default function CircularProgress({
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
   const trackColor = useAltBackground ? backgroundColor : backgroundOffset;
 
+  useEffect(() => {
+    if (useFillAnimation) {
+      setTimeout(
+        () => {
+          animatedPercentage.value = withTiming(percentage, {
+            duration: 600,
+            easing: Easing.out(Easing.cubic),
+          });
+        },
+        isInitialLoadRef.current ? 150 : 0,
+      );
+      isInitialLoadRef.current = false;
+    } else {
+      animatedPercentage.value = percentage;
+    }
+  }, [percentage]);
+
+  const animatedProps = useAnimatedProps(() => {
+    const strokeDashoffset =
+      circumference - (animatedPercentage.value / 100) * circumference;
+
+    return {
+      strokeDashoffset,
+    };
+  });
+
   return (
     <View style={[styles.container, { width: size, height: size }]}>
       <Svg width={size} height={size}>
@@ -69,7 +110,7 @@ export default function CircularProgress({
         />
         {/* Progress arc */}
         {percentage > 0 && (
-          <Circle
+          <AnimatedCircle
             cx={size / 2}
             cy={size / 2}
             r={radius}
@@ -77,13 +118,21 @@ export default function CircularProgress({
             strokeWidth={strokeWidth}
             fill="none"
             strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
+            animatedProps={animatedProps}
             strokeLinecap="round"
             transform={`rotate(-90 ${size / 2} ${size / 2})`}
           />
         )}
       </Svg>
-      {!showPercentage ? (
+      {showConfirmed ? (
+        <View style={[styles.centerTextContainer, { padding: 30 }]}>
+          <ThemeIcon
+            size={size / 2}
+            strokeWidth={strokeWidth}
+            iconName={'Check'}
+          />
+        </View>
+      ) : !showPercentage ? (
         <View style={[styles.centerTextContainer, { padding: 30 }]}>
           <ThemeText
             CustomNumberOfLines={1}
