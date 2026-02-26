@@ -2277,7 +2277,7 @@
     },
     "preview": {
       "title": "Savings",
-      "earnInterest": "Earn 3.5% interest paid in Bitcoin"
+      "earnInterest": "Earn interest paid in Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Choose Emoji",
@@ -2400,6 +2400,9 @@
       "headline1": "Your dollars,",
       "headline2": "earning every day.",
       "subtext": "A USD-backed stablecoin that automatically accrues rewards while you hold it.",
+      "transparencyIssuer": "USDB issued by Brale, Inc. · Yield via Flashnet",
+      "transparencyLegal": "Yield is variable and not guaranteed. Not a bank deposit. Not FDIC or SIPC insured.",
+      "disclaimerLegal": "Blitz Wallet is not a bank, broker, or investment advisor. Rates are variable and may change at any time. See Terms of Use for full risk disclosures.",
       "features": {
         "earnTitle": "Earn daily rewards",
         "earnBody": "USDB accrues savings rewards automatically. No staking, no lock-ups — just hold and earn.",

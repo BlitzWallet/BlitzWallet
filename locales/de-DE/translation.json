@@ -2227,7 +2227,7 @@
     },
     "preview": {
       "title": "Ersparnisse",
-      "earnInterest": "3,5 % Zinsen verdienen! Ausgezahlt in BTC"
+      "earnInterest": "Zinsen verdienen! Ausgezahlt in BTC"
     },
     "goalEmoji": {
       "screenTitle": "Emoji wählen",
@@ -2350,6 +2350,9 @@
       "headline1": "Ihr Geld,",
       "headline2": "jeden Tag im Einsatz.",
       "subtext": "Ein USD-gedeckter Stablecoin, der automatisch Erträge ansammelt, solange Sie ihn halten.",
+      "transparencyIssuer": "USDB ausgegeben von Brale, Inc. · Rendite über Flashnet",
+      "transparencyLegal": "Die Rendite ist variabel und nicht garantiert. Kein Bankeinlagenprodukt. Nicht durch FDIC oder SIPC versichert.",
+      "disclaimerLegal": "Blitz Wallet ist keine Bank, kein Broker und kein Anlageberater. Die Zinssätze sind variabel und können sich jederzeit ändern. Siehe Nutzungsbedingungen für vollständige Risikohinweise.",
       "features": {
         "earnTitle": "Täglich Erträge erzielen",
         "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – halten Sie einfach und verdienen Sie.",

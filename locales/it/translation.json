@@ -2225,7 +2225,7 @@
     },
     "preview": {
       "title": "Risparmi",
-      "earnInterest": "Guadagna il 3,5% di interessi pagati in Bitcoin"
+      "earnInterest": "Guadagna il di interessi pagati in Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Scegli emoji",
@@ -2348,6 +2348,9 @@
       "headline1": "Il tuo denaro,",
       "headline2": "che cresce ogni giorno.",
       "subtext": "Una stablecoin ancorata al dollaro che accumula automaticamente premi mentre la detieni.",
+      "transparencyIssuer": "USDB emesso da Brale, Inc. · Rendimento tramite Flashnet",
+      "transparencyLegal": "Il rendimento è variabile e non garantito. Non è un deposito bancario. Non assicurato da FDIC o SIPC.",
+      "disclaimerLegal": "Blitz Wallet non è una banca, un broker o un consulente finanziario. I tassi sono variabili e possono cambiare in qualsiasi momento. Consulta i Termini di utilizzo per le informazioni complete sui rischi.",
       "features": {
         "earnTitle": "Guadagna premi ogni giorno",
         "earnBody": "USDB accumula automaticamente premi di risparmio. Nessuno staking, nessun blocco — tienila e guadagna.",

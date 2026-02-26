@@ -2225,7 +2225,7 @@
     },
     "preview": {
       "title": "Sparande",
-      "earnInterest": "Tjäna 3,5 % ränta utbetald i Bitcoin"
+      "earnInterest": "Tjäna ränta utbetald i Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Välj emoji",
@@ -2348,6 +2348,9 @@
       "headline1": "Dina pengar,",
       "headline2": "växer varje dag.",
       "subtext": "En USD-säkrad stablecoin som automatiskt ackumulerar belöningar så länge du håller den.",
+      "transparencyIssuer": "USDB utfärdad av Brale, Inc. · Avkastning via Flashnet",
+      "transparencyLegal": "Avkastningen är rörlig och inte garanterad. Ingen bankinsättning. Inte försäkrad av FDIC eller SIPC.",
+      "disclaimerLegal": "Blitz Wallet är inte en bank, mäklare eller investeringsrådgivare. Räntor är rörliga och kan ändras när som helst. Se användarvillkoren för fullständig riskinformation.",
       "features": {
         "earnTitle": "Tjäna dagliga belöningar",
         "earnBody": "USDB ackumulerar sparbelöningar automatiskt. Ingen staking, inga låsningar — bara håll och tjäna.",

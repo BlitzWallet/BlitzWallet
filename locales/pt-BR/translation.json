@@ -2225,7 +2225,7 @@
     },
     "preview": {
       "title": "Caixinhas",
-      "earnInterest": "Ganhe 3,5% de juros pagos em Bitcoin"
+      "earnInterest": "Ganhe de juros pagos em Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Escolher emoji",
@@ -2348,6 +2348,9 @@
       "headline1": "O seu dinheiro,",
       "headline2": "rendendo todo dia.",
       "subtext": "Uma stablecoin lastreada em USD que rende juros automaticamente.",
+      "transparencyIssuer": "USDB emitido por Brale, Inc. · Rendimento via Flashnet",
+      "transparencyLegal": "O rendimento é variável e não garantido. Não é um depósito bancário. Não é segurado pela FDIC ou SIPC.",
+      "disclaimerLegal": "A Blitz Wallet não é um banco, corretora ou consultora de investimentos. As taxas são variáveis e podem mudar a qualquer momento. Consulte os Termos de Uso para ver todas as divulgações de risco.",
       "features": {
         "earnTitle": "Ganhe recompensas diárias",
         "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
