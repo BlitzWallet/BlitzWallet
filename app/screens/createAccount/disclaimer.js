@@ -105,7 +105,10 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
               desc: t('createAccount.disclaimerPage.row3Description'),
             },
           ].map(({ icon, label, desc }) => (
-            <View key={icon} style={styles.infoRow}>
+            <View
+              key={icon}
+              style={[styles.infoRow, { backgroundColor: backgroundOffset }]}
+            >
               <View style={styles.infoIcon}>
                 <ThemeIcon
                   size={15}
@@ -198,8 +201,8 @@ const styles = StyleSheet.create({
   },
   infoIcon: {
     backgroundColor: COLORS.primary,
-    padding: 5,
-    borderRadius: 8,
+    padding: 9,
+    borderRadius: 12,
   },
   buttonStyles: {
     width: 145,
@@ -244,12 +247,14 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     marginBottom: 32,
     marginTop: 20,
-    gap: 25,
+    gap: 15,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 14,
+    gap: 10,
+    padding: 16,
+    borderRadius: 12,
   },
   infoText: {
     flex: 1,
@@ -258,7 +263,7 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: SIZES.medium,
-    fontWeight: '600',
+    fontWeight: '500',
     includeFontPadding: false,
   },
   infoDesc: {
