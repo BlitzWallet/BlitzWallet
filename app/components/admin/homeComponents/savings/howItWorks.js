@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   featureText: { flex: 1, gap: 2 },
   featureTitle: {
     fontSize: SIZES.smedium,
-    fontFamily: FONT.Title_Medium,
+    fontWeight: 500,
     includeFontPadding: false,
   },
   featureBody: {
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   },
   transparencyTitle: {
     fontSize: SIZES.smedium,
-    fontFamily: FONT.Title_Medium,
+    fontWeight: 500,
     includeFontPadding: false,
   },
   transparencyBody: {
