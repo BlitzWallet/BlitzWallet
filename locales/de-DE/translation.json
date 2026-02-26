@@ -358,7 +358,7 @@
         "title": "Guthaben aufladen",
         "description": "Um die neuesten KI-Modelle nutzen zu können, müssen Sie Guthaben kaufen. Wählen Sie unten eine Option aus.",
         "supportedModels": "Unterstützte Modelle",
-        "feeInfo": "Je nach Länge von Frage und Antwort variiert die Anzahl möglicher Anfragen. Blitz erhebt eine Gebühr von 150 SAT + 0,5 % des Kaufpreises.",
+        "feeInfo": "Je nach Länge von Frage und Antwort variiert die Anzahl möglicher Anfragen. Blitz erhebt eine Gebühr von 150 sats + 0,5 % des Kaufpreises.",
         "price": "Preis: ",
         "estSearches": "Geschätzte Anfragen: {{num}}",
         "casualPlanTitle": "Basis-Plan",
@@ -1105,8 +1105,8 @@
       "paymentType": "Zahlungstyp",
       "description": "Beschreibung",
       "date": "Datum",
-      "txFees": "Transaktionsgebühren (SAT)",
-      "amount": "Betrag (SAT)",
+      "txFees": "Transaktionsgebühren (sats)",
+      "amount": "Betrag (sats)",
       "sent/received": "Gesendet/Empfangen",
       "title": "Exportieren Sie Ihren Zahlungsverlauf im CSV-Format (Komma-getrennte Werte).",
       "paymentsCounter": "{{number}} Zahlungen",
@@ -1329,7 +1329,7 @@
       "text1": "Fehler beim Hinzufügen des eingegebenen Werts, bitte versuchen Sie es erneut.",
       "text2": "Betrag darf nicht 0 sein",
       "text3": "Schnellzahlung aktivieren",
-      "text4": "Schnellzahlungsschwelle (SAT)",
+      "text4": "Schnellzahlungsschwelle (sats)",
       "text5": "Schnellzahlung ermöglicht es Ihnen, Rechnungen unterhalb eines festgelegten Schwellenwerts sofort ohne Wischbestätigung zu bezahlen."
     },
     "loginSecurity": {
@@ -1653,7 +1653,10 @@
       "pinAccount": "Anheften",
       "unpinAccount": "Lösen",
       "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines.",
-      "morePoolsCount": "+{{count}} weitere"
+      "morePoolsCount": "+{{count}} weitere",
+      "pos": {
+        "desc": "Akzeptieren Sie ganz einfach Bitcoin-Zahlungen für Ihr Unternehmen"
+      }
     },
     "posPath": {
       "settings": {
@@ -1742,7 +1745,11 @@
     }
   },
   "screens": {
-    "inAccount": {
+  "inAccount": {
+    "tokens": {
+      "yourTokens": "Ihre Tokens",
+      "noTokens": "Sie haben noch keine Tokens"
+      },
       "appStore": {
         "soonMessage": "Wir freuen uns, dass Sie mehr Apps möchten. Schlagen Sie sie unten vor!",
         "title": "Shop",
@@ -1892,7 +1899,8 @@
         "fundGiftMessage": "Geschenk wird erstellt...",
         "reclaimGiftMessage": "Geschenk wird zurückgeholt...",
         "giftsHome": {
-          "title": "Blitz-Geschenke"
+          "title": "Blitz-Geschenke",
+          "desc": "Teilen Sie BTC oder USD mit Freunden und Familie"
         },
         "giftsOverview": {
           "noGiftsHead": "Noch keine Geschenke",
@@ -2286,6 +2294,12 @@
       "fromBalance": "von Ihrem {{source}}-Guthaben",
       "confirmButton": "Bestätigen",
       "processing": "Wird verarbeitet...",
+      "steps": {
+        "processing": "Wird verarbeitet...",
+        "swapping": "Wird in USD umgetauscht...",
+        "adding": "Wird dem Sparkonto hinzugefügt...",
+        "complete": "Abgeschlossen."
+      },
       "successTitle": "Geld eingezahlt",
       "paymentLabel_unallocated": "Spareinzahlung",
       "paymentLabel": "Spareinzahlung für {{savingsGoal}}",
@@ -2312,12 +2326,18 @@
       "availableHint": "Verfügbar: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Abhebung bestätigen",
-      "youAreWithdrawingAll": "Sie heben alle Ersparnisse ab",
+      "youAreWithdrawingAll": "Sie heben alle Ersparnisse ab.",
       "youAreWithdrawing": "Sie heben ab",
       "toYourBalance": "auf Ihr {{destination}}",
       "estimatedSats": "≈ {{sats}} Sats nach Umtausch",
       "confirmButton": "Bestätigen",
-      "processing": "Abhebung wird verarbeitet…",
+      "processing": "Abhebung wird verarbeitet...",
+      "steps": {
+        "processing": "Wird verarbeitet...",
+        "withdrawing": "Vom Sparkonto wird ausgezahlt...",
+        "swapping": "Wird in BTC umgetauscht...",
+        "complete": "Abgeschlossen."
+      },
       "successTitle": "Abhebung abgeschlossen",
       "paymentLabel_unallocated": "Sparabhebung",
       "paymentLabel": "Sparabhebung von {{savingsGoal}}",
