@@ -88,6 +88,7 @@ export default function AddMoneyToSavingsHalfModal({
   const [loadingStep, setLoadingStep] = useState('processing');
   const [selectedSource, setSelectedSource] = useState(null);
   const [amountValue, setAmountValue] = useState('');
+  const stepRef = useRef(step);
 
   const [inputDenomination, setInputDenomination] = useState(
     selectedSource === 'dollar'
@@ -174,9 +175,18 @@ export default function AddMoneyToSavingsHalfModal({
     }
   }, [currentPage, setContentHeight]);
 
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
+
   const handleBackPress = useCallback(() => {
     if (currentPage === 'loading') return true; // block
-    if (currentPage === 'source' || currentPage === 'success') return false; // let parent close
+    if (
+      (currentPage === 'source' && stepRef.current.length === 1) ||
+      currentPage === 'success' ||
+      currentPage === 'chooseGoal'
+    )
+      return false; // let parent close
     setStep(prev => prev.slice(0, -1));
     return true;
   }, [currentPage]);
