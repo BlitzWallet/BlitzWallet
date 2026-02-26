@@ -2301,7 +2301,7 @@
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de sacar?",
-      "interestOption": "Somente o rendimento",
+      "interestOption": "Juros recebidos",
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há juros acumulados",
       "savingsZeroHint": "Nada salvo ainda",
