@@ -1157,7 +1157,7 @@ export default function WithdrawFromSavingsHalfModal({
         if (localSatAmount > interestSats) return false;
         if (selectedDestination === 'dollar') {
           // BTC→USDB swap requires meeting the swap minimum
-          if (localSatAmount <= swapLimits.bitcoin) return false;
+          if (localSatAmount < swapLimits.bitcoin) return false;
         }
         // interest→bitcoin: direct BTC send, no swap minimum
         return true;
@@ -1275,13 +1275,77 @@ export default function WithdrawFromSavingsHalfModal({
         />
 
         <CustomButton
-          buttonStyles={{ ...CENTER }}
+          buttonStyles={{
+            ...CENTER,
+            opacity: !canContinue && localSatAmount !== 0 ? HIDDEN_OPACITY : 1,
+          }}
           actionFunction={() => {
             if (!amountValue) {
               setStep(prev => prev.slice(0, -1));
               return;
             }
-            if (!canContinue) return;
+
+            if (selectedBalanceType === 'interest') {
+              if (localSatAmount > interestSats) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t(
+                    'screens.inAccount.swapsPage.insufficientBalance',
+                  ),
+                });
+                return;
+              }
+
+              if (
+                selectedDestination === 'dollar' &&
+                localSatAmount < swapLimits.bitcoin
+              ) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t('screens.inAccount.swapsPage.minBTCError', {
+                    min: displayCorrectDenomination({
+                      amount: swapLimits.bitcoin,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'sats',
+                      },
+                      fiatStats,
+                    }),
+                  }),
+                });
+                return;
+              }
+            }
+
+            if (
+              selectedDestination === 'bitcoin' &&
+              localSatAmount <=
+                dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB)
+            ) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t('screens.inAccount.swapsPage.minUSDError', {
+                  min: displayCorrectDenomination({
+                    amount: swapLimits.usd,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'fiat',
+                    },
+                    fiatStats,
+                    convertAmount: false,
+                    forceCurrency: 'USD',
+                  }),
+                }),
+              });
+              return;
+            }
+
+            if (fiatMicros > availableBalanceMicros) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t(
+                  'screens.inAccount.swapsPage.insufficientBalance',
+                ),
+              });
+              return;
+            }
+
             setStep(prev => [...prev, 'confirm']);
           }}
           textContent={

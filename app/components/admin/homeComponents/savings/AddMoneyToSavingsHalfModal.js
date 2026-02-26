@@ -556,6 +556,12 @@ export default function AddMoneyToSavingsHalfModal({
   }
 
   if (currentPage === 'amount') {
+    const deactivateButton =
+      ((paymentMode === 'BTC' && localSatAmount >= bitcoinBalance) ||
+        (paymentMode === 'USD' &&
+          fiatMicros >= dollarBalanceToken * Math.pow(10, 6)) ||
+        (paymentMode === 'BTC' && localSatAmount <= swapLimits.bitcoin)) &&
+      localSatAmount !== 0;
     return (
       <View style={styles.amountContainer}>
         <ScrollView
@@ -627,20 +633,42 @@ export default function AddMoneyToSavingsHalfModal({
         />
 
         <CustomButton
-          buttonStyles={{ ...CENTER }}
+          buttonStyles={{
+            ...CENTER,
+            opacity: deactivateButton ? HIDDEN_OPACITY : 1,
+          }}
           actionFunction={() => {
             if (!canContinue) {
               setStep(prev => prev.slice(0, -1));
               return;
             }
-            if (paymentMode === 'BTC' && localSatAmount >= bitcoinBalance)
-              return;
+
             if (
-              paymentMode === 'USD' &&
-              fiatMicros >= dollarBalanceToken * Math.pow(10, 6)
-            )
+              (paymentMode === 'BTC' && localSatAmount >= bitcoinBalance) ||
+              (paymentMode === 'USD' &&
+                fiatMicros >= dollarBalanceToken * Math.pow(10, 6))
+            ) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t(
+                  'screens.inAccount.swapsPage.insufficientBalance',
+                ),
+              });
               return;
+            }
+
             if (paymentMode === 'BTC' && localSatAmount <= swapLimits.bitcoin) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t('screens.inAccount.swapsPage.minBTCError', {
+                  min: displayCorrectDenomination({
+                    amount: swapLimits.bitcoin,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'sats',
+                    },
+                    fiatStats,
+                  }),
+                }),
+              });
               return;
             }
             setStep(prev => [...prev, 'confirm']);
