@@ -358,7 +358,7 @@
         "title": "Guthaben aufladen",
         "description": "Um die neuesten KI-Modelle nutzen zu können, müssen Sie Guthaben kaufen. Wählen Sie unten eine Option aus.",
         "supportedModels": "Unterstützte Modelle",
-        "feeInfo": "Je nach Länge von Frage und Antwort variiert die Anzahl möglicher Anfragen. Blitz erhebt eine Gebühr von 150 SAT + 0,5 % des Kaufpreises.",
+        "feeInfo": "Je nach Länge von Frage und Antwort variiert die Anzahl möglicher Anfragen. Blitz erhebt eine Gebühr von 150 sats + 0,5 % des Kaufpreises.",
         "price": "Preis: ",
         "estSearches": "Geschätzte Anfragen: {{num}}",
         "casualPlanTitle": "Basis-Plan",
@@ -1105,8 +1105,8 @@
       "paymentType": "Zahlungstyp",
       "description": "Beschreibung",
       "date": "Datum",
-      "txFees": "Transaktionsgebühren (SAT)",
-      "amount": "Betrag (SAT)",
+      "txFees": "Transaktionsgebühren (sats)",
+      "amount": "Betrag (sats)",
       "sent/received": "Gesendet/Empfangen",
       "title": "Exportieren Sie Ihren Zahlungsverlauf im CSV-Format (Komma-getrennte Werte).",
       "paymentsCounter": "{{number}} Zahlungen",
@@ -1329,7 +1329,7 @@
       "text1": "Fehler beim Hinzufügen des eingegebenen Werts, bitte versuchen Sie es erneut.",
       "text2": "Betrag darf nicht 0 sein",
       "text3": "Schnellzahlung aktivieren",
-      "text4": "Schnellzahlungsschwelle (SAT)",
+      "text4": "Schnellzahlungsschwelle (sats)",
       "text5": "Schnellzahlung ermöglicht es Ihnen, Rechnungen unterhalb eines festgelegten Schwellenwerts sofort ohne Wischbestätigung zu bezahlen."
     },
     "loginSecurity": {
