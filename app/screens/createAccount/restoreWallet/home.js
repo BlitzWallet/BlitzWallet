@@ -7,7 +7,13 @@ import {
   Platform,
 } from 'react-native';
 import { Back_BTN } from '../../../components/login';
-import { CENTER, COLORS, FONT, SIZES } from '../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+  SIZES,
+} from '../../../constants';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
 import { useTranslation } from 'react-i18next';
@@ -347,7 +353,12 @@ export default function RestoreWallet({
 
         {!currentFocused && (
           <View
-            style={{ paddingBottom: bottomPadding, width: '95%', ...CENTER }}
+            style={{
+              paddingBottom: bottomPadding,
+              width: '95%',
+              ...CENTER,
+              marginTop: CONTENT_KEYBOARD_OFFSET,
+            }}
           >
             {/* Paste + Scan row */}
             <View style={styles.secondaryButtonRow}>
