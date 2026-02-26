@@ -2226,7 +2226,7 @@
     },
     "preview": {
       "title": "Ersparnisse",
-      "earnInterest": "3,5 % Zinsen verdienen"
+      "earnInterest": "Verdiene 3,5 % Zinsen, ausgezahlt in BTC"
     },
     "goalEmoji": {
       "screenTitle": "Emoji wählen",
@@ -2294,6 +2294,12 @@
       "fromBalance": "von deinem {{source}}-Guthaben",
       "confirmButton": "Bestätigen",
       "processing": "Wird verarbeitet…",
+      "steps": {
+        "processing": "Wird verarbeitet...",
+        "swapping": "Tausche Guthaben in USD...",
+        "adding": "Wird dem Sparkonto hinzugefügt...",
+        "complete": "Abgeschlossen."
+      },
       "successTitle": "Geld eingezahlt",
       "paymentLabel_unallocated": "Spareinzahlung",
       "paymentLabel": "Spareinzahlung für {{savingsGoal}}",
@@ -2326,6 +2332,12 @@
       "estimatedSats": "≈ {{sats}} Sats nach Tausch",
       "confirmButton": "Bestätigen",
       "processing": "Abhebung wird verarbeitet…",
+      "steps": {
+        "processing": "Wird verarbeitet...",
+        "withdrawing": "Vom Sparkonto wird ausgezahlt...",
+        "swapping": "Wird in BTC getauscht...",
+        "complete": "Abgeschlossen."
+      },
       "successTitle": "Abhebung abgeschlossen",
       "paymentLabel_unallocated": "Sparabhebung",
       "paymentLabel": "Sparabhebung von {{savingsGoal}}",

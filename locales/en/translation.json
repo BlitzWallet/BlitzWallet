@@ -2276,7 +2276,7 @@
     },
     "preview": {
       "title": "Savings",
-      "earnInterest": "Earn 3.5% interest"
+      "earnInterest": "Earn 3.5% interest paid in Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Choose Emoji",
@@ -2344,6 +2344,12 @@
       "fromBalance": "from {{source}} balance",
       "confirmButton": "Confirm",
       "processing": "Processing...",
+      "steps": {
+        "processing": "Processing...",
+        "swapping": "Swapping funds to dollar...",
+        "adding": "Adding to Savings account...",
+        "complete": "Complete."
+      },
       "successTitle": "Money added",
       "paymentLabel_unallocated": "Savings deposit",
       "paymentLabel": "Savings deposit to {{savingsGoal}}",
@@ -2376,6 +2382,12 @@
       "estimatedSats": "≈ {{sats}} sats after swap",
       "confirmButton": "Confirm",
       "processing": "Processing withdrawal...",
+      "steps": {
+        "processing": "Processing...",
+        "withdrawing": "Withdrawing from Savings account...",
+        "swapping": "Swapping to Bitcoin...",
+        "complete": "Complete."
+      },
       "successTitle": "Withdrawal complete",
       "paymentLabel_unallocated": "Savings withdrawal",
       "paymentLabel": "Savings withdrawal from {{savingsGoal}}",

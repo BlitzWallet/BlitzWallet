@@ -2224,7 +2224,7 @@
     },
     "preview": {
       "title": "Caixinhas",
-      "earnInterest": "Ganhe 3,5% de juros"
+      "earnInterest": "Ganhe 3,5% de juros pagos em Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Escolher emoji",
@@ -2292,6 +2292,12 @@
       "fromBalance": "do seu saldo de {{source}}",
       "confirmButton": "Confirmar",
       "processing": "Processando…",
+      "steps": {
+        "processing": "Processando...",
+        "swapping": "Convertendo fundos para dólar...",
+        "adding": "Adicionando à conta da Caixinha...",
+        "complete": "Concluído."
+      },
       "successTitle": "Dinheiro adicionado",
       "paymentLabel_unallocated": "Depósito na Caixinha",
       "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
@@ -2324,6 +2330,12 @@
       "estimatedSats": "≈ {{sats}} sats após troca",
       "confirmButton": "Confirmar",
       "processing": "Processando saque…",
+      "steps": {
+        "processing": "Processando...",
+        "withdrawing": "Sacando da conta da Caixinha...",
+        "swapping": "Convertendo para Bitcoin...",
+        "complete": "Concluído."
+      },
       "successTitle": "Saque concluído",
       "paymentLabel_unallocated": "Saque da Caixinha",
       "paymentLabel": "Saque da Caixinha {{savingsGoal}}",

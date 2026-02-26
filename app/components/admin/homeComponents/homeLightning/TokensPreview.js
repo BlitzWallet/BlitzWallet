@@ -5,21 +5,29 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useMemo, useState } from 'react';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  SIZES,
+  SKELETON_ANIMATION_SPEED,
+} from '../../../../constants';
 import { Image as ExpoImage } from 'expo-image';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
+import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
+import { useAppStatus } from '../../../../../context-store/appStatus';
 
 const TOKEN_WIDTH = 50;
 const TOKEN_GAP = 15;
 
-export default function TokensPreview() {
+export default function TokensPreview({ didGetToHomepage }) {
   const { t } = useTranslation();
+  const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor } = GetThemeColors();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
-  const [containerWidth, setContainerWidth] = useState(0);
+  const containerWidth = screenDimensions.width * 0.85 - 30;
   const navigate = useNavigation();
   const availableTokens = useMemo(() => {
     return sparkInformation?.tokens
@@ -36,6 +44,11 @@ export default function TokensPreview() {
   const displayedTokens = useMemo(() => {
     return availableTokens.slice(0, maxTokensThatFit);
   }, [availableTokens, maxTokensThatFit]);
+
+  const showPlaceholder =
+    !sparkInformation.didConnect ||
+    !sparkInformation.identityPubKey ||
+    !didGetToHomepage;
 
   return (
     <TouchableOpacity
@@ -74,14 +87,26 @@ export default function TokensPreview() {
         )}
       </View>
 
-      {availableTokens.length > 0 ? (
+      {showPlaceholder ? (
+        <SkeletonPlaceholder
+          highlightColor={
+            theme
+              ? darkModeType
+                ? COLORS.lightsOutBackground
+                : COLORS.darkModeBackground
+              : COLORS.lightModeBackground
+          }
+          backgroundColor={COLORS.opaicityGray}
+          enabled={true}
+          speed={SKELETON_ANIMATION_SPEED}
+        >
+          <View style={styles.tokenContianer}>
+            {tokenSkeleton(maxTokensThatFit, theme, darkModeType)}
+          </View>
+        </SkeletonPlaceholder>
+      ) : availableTokens.length > 0 ? (
         <>
-          <View
-            onLayout={e => {
-              setContainerWidth(e.nativeEvent.layout.width);
-            }}
-            style={[styles.tokenContianer]}
-          >
+          <View style={[styles.tokenContianer]}>
             {displayedTokens.map(item => {
               const [tokenIdentifier, details] = item;
               if (!tokenIdentifier || !details) return null;
@@ -111,6 +136,15 @@ export default function TokensPreview() {
     </TouchableOpacity>
   );
 }
+
+const tokenSkeleton = count => {
+  return Array.from({ length: count }, (_, i) => (
+    <View key={i} style={styles.tokenRowContainer}>
+      <View style={styles.tokenInitialContainer} />
+      <View style={styles.tokenNameSkeleton} />
+    </View>
+  ));
+};
 
 function TokenItem({
   tokenIdentifier,
@@ -235,5 +269,11 @@ const styles = StyleSheet.create({
     fontSize: SIZES.xSmall,
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
+  },
+  tokenNameSkeleton: {
+    width: '100%',
+    height: SIZES.xSmall,
+    borderRadius: 4,
+    marginTop: 5,
   },
 });

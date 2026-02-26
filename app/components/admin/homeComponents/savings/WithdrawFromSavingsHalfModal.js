@@ -66,6 +66,9 @@ import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetT
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
+const MIN_STEP_MS = 800;
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 const HEIGHT_FOR_PAGE = {
   balanceType: 500,
   chooseGoal: 500,
@@ -123,6 +126,7 @@ export default function WithdrawFromSavingsHalfModal({
   // Tracks savings wallet init progress for the balanceType page
   // 'idle' | 'loading' | 'ready' | 'error' — does NOT trigger FullLoadingScreen
   const [sparkInitStatus, setSparkInitStatus] = useState('idle');
+  const [loadingStep, setLoadingStep] = useState('processing');
 
   const didInitSparkRef = useRef(false);
 
@@ -377,7 +381,11 @@ export default function WithdrawFromSavingsHalfModal({
 
   const handleConfirm = async () => {
     setStep(prev => [...prev, 'loading']);
+    setLoadingStep('processing');
     try {
+      // Step 1: Processing — mnemonic derivation, validation, spark init
+      const step1Start = Date.now();
+
       const savingsMnemonic = await getSavingsWalletMnemonic();
       const mainSparkAddress = sparkInformation?.sparkAddress;
       if (!mainSparkAddress) throw new Error(t('savings.savingsWalletError'));
@@ -396,7 +404,13 @@ export default function WithdrawFromSavingsHalfModal({
 
         const amountSats = localSatAmount;
 
-        // Stage 1: Send BTC sats from savings wallet to main wallet's Spark address
+        const elapsed1 = Date.now() - step1Start;
+        if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
+
+        // Step 2: Withdrawing from Savings account — send BTC from savings to main wallet
+        setLoadingStep('withdrawing');
+        const step2Start = Date.now();
+
         const sendResponse = await sparkPaymenWrapper({
           address: mainSparkAddress,
           paymentType: 'spark',
@@ -427,8 +441,12 @@ export default function WithdrawFromSavingsHalfModal({
           details: {},
         });
 
-        // Stage 2 (dollar destination only): Main wallet swaps received BTC → USDB
+        const elapsed2 = Date.now() - step2Start;
+        if (elapsed2 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed2);
+
         if (selectedDestination === 'dollar') {
+          setLoadingStep('swapping');
+
           // Hide the intermediate BTC transfer from the activity feed
           setFlashnetTransfer(sendResponse.response.id);
 
@@ -505,8 +523,13 @@ export default function WithdrawFromSavingsHalfModal({
         throw new Error(t('savings.savingsWalletError'));
       }
 
-      // Step 1: Savings wallet sends USDB tokens to the main wallet's Spark address.
-      // This works for both destinations — for BTC we then swap in the main wallet.
+      const elapsed1 = Date.now() - step1Start;
+      if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
+
+      // Step 2: Withdrawing from Savings account — send USDB tokens to main wallet
+      setLoadingStep('withdrawing');
+      const step2Start = Date.now();
+
       const sendResponse = await sparkPaymenWrapper({
         address: mainSparkAddress,
         paymentType: 'spark',
@@ -536,8 +559,14 @@ export default function WithdrawFromSavingsHalfModal({
         throw new Error(sendResponse?.error);
       }
 
-      // Step 2 (Bitcoin destination only): Main wallet swaps received USDB → BTC.
+      const elapsed2 = Date.now() - step2Start;
+      if (elapsed2 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed2);
+
+      // Step 3: Swapping to Bitcoin — optional USDB→BTC swap + DB record
+
       if (selectedDestination === 'bitcoin') {
+        setLoadingStep('swapping');
+
         if (simulationPromiseRef.current) {
           await simulationPromiseRef.current;
         }
@@ -650,6 +679,7 @@ export default function WithdrawFromSavingsHalfModal({
 
       setStep(prev => [...prev, 'success']);
     } catch (err) {
+      setLoadingStep('processing');
       handleBackPressFunction(() =>
         navigate.replace('ErrorScreen', {
           errorMessage:
@@ -1364,7 +1394,9 @@ export default function WithdrawFromSavingsHalfModal({
   }
 
   if (currentPage === 'loading') {
-    return <FullLoadingScreen text={t('savings.withdraw.processing')} />;
+    return (
+      <FullLoadingScreen text={t(`savings.withdraw.steps.${loadingStep}`)} />
+    );
   }
 
   // success

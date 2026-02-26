@@ -654,7 +654,7 @@ function QrCode(props) {
           )}
       </TouchableOpacity>
 
-      {canConvert && (
+      {/* {canConvert && (
         <QRInformationRow
           title={t('screens.inAccount.receiveBtcPage.receiveAsHeader')}
           info={t(
@@ -665,7 +665,7 @@ function QrCode(props) {
           rotateIcon={true}
           actionFunction={selectReceiveTypeAsset}
         />
-      )}
+      )} */}
 
       {canUseAmount && (
         <QRInformationRow
@@ -673,25 +673,6 @@ function QrCode(props) {
           info={
             !initialSendAmount
               ? t('screens.inAccount.receiveBtcPage.amountPlaceholder')
-              : endReceiveType === 'USD' &&
-                initialSendAmount >= minBTCUSDSwapAmountSat * 0.99 &&
-                initialSendAmount <= minBTCUSDSwapAmountSat * 1.01 &&
-                canConvert
-              ? t('screens.inAccount.receiveBtcPage.amount_USD_MIN', {
-                  swapAmountSat: displayCorrectDenomination({
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: 'fiat',
-                    },
-                    fiatStats: fiatStats,
-                    amount: satsToDollars(
-                      initialSendAmount,
-                      poolInfoRef?.currentPriceAInB,
-                    ).toFixed(2),
-                    convertAmount: false,
-                    forceCurrency: 'USD',
-                  }),
-                })
               : displayCorrectDenomination({
                   masterInfoObject: {
                     ...masterInfoObject,

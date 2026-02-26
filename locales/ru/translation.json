@@ -2232,7 +2232,7 @@
     },
     "preview": {
       "title": "Сбережения",
-      "earnInterest": "Зарабатывай 3,5% годовых"
+      "earnInterest": "Получайте 3,5% годовых, выплачиваемых в биткоинах"
     },
     "goalEmoji": {
       "screenTitle": "Выбор эмодзи",
@@ -2300,6 +2300,12 @@
       "fromBalance": "с баланса {{source}}",
       "confirmButton": "Подтвердить",
       "processing": "Обработка…",
+      "steps": {
+        "processing": "Обработка...",
+        "swapping": "Обмен средств на доллары...",
+        "adding": "Добавление на сберегательный счёт...",
+        "complete": "Завершено."
+      },
       "successTitle": "Деньги добавлены",
       "paymentLabel_unallocated": "Пополнение сбережений",
       "paymentLabel": "Пополнение сбережений: {{savingsGoal}}",
@@ -2332,6 +2338,12 @@
       "estimatedSats": "≈ {{sats}} сат после обмена",
       "confirmButton": "Подтвердить",
       "processing": "Обработка вывода…",
+      "steps": {
+        "processing": "Обработка...",
+        "withdrawing": "Вывод со сберегательного счёта...",
+        "swapping": "Обмен на биткоин...",
+        "complete": "Завершено."
+      },
       "successTitle": "Вывод выполнен",
       "paymentLabel_unallocated": "Вывод из сбережений",
       "paymentLabel": "Вывод из сбережений: {{savingsGoal}}",
