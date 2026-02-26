@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -18,6 +18,7 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { formatTimeRemaining } from '../../../../functions/gift/formatTimeRemaining';
 import { copyToClipboard } from '../../../../functions';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
+import { useNavigation } from '@react-navigation/native';
 
 export default function GiftCardItem({
   item,
@@ -31,6 +32,7 @@ export default function GiftCardItem({
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { showToast } = useToast();
+  const navigate = useNavigation();
 
   const {
     amount,
@@ -67,129 +69,146 @@ export default function GiftCardItem({
   const shouldShowActions =
     state !== 'Claimed' && state !== 'Reclaimed' && from !== 'preview';
 
-  return (
-    <View style={[styles.giftCard, containerStyle]}>
+  const handleAction = async () => {
+    if (isExpired) {
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'ClaimGiftScreen',
+        url: uuid,
+        sliderHight: 0.6,
+        claimType: 'reclaim',
+      });
+      return;
+    }
+
+    await handleGiftCardShare({
+      amount: displayCorrectDenomination({
+        amount: denomination === 'USD' ? dollarAmount : amount,
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: denomination === 'USD' ? 'fiat' : 'sats',
+          thousandsSeperator: 'space',
+        },
+        fiatStats,
+        convertAmount: denomination !== 'USD',
+        forceCurrency: denomination === 'USD' ? 'USD' : false,
+      }),
+      giftLink: claimURL,
+    });
+  };
+
+  const cardContent = (
+    <View
+      style={[
+        styles.cardContent,
+        { paddingVertical: from !== 'preview' ? 14 : 5 },
+      ]}
+    >
       <View
         style={[
-          styles.cardContent,
-          { paddingVertical: from !== 'preview' ? 14 : 5 },
+          styles.iconContainer,
+          {
+            backgroundColor:
+              theme && darkModeType
+                ? backgroundOffset
+                : denomination === 'USD'
+                ? COLORS.dollarGreen
+                : COLORS.bitcoinOrange,
+          },
         ]}
       >
-        <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType
-                  ? backgroundOffset
-                  : denomination === 'USD'
-                  ? COLORS.dollarGreen
-                  : COLORS.bitcoinOrange,
-            },
-          ]}
-        >
-          <ThemeImage
-            styles={styles.icon}
-            lightModeIcon={
-              denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
-            }
-            darkModeIcon={
-              denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
-            }
-            lightsOutIcon={
-              denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
-            }
-          />
-        </View>
+        <ThemeImage
+          styles={styles.icon}
+          lightModeIcon={
+            denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
+          }
+          darkModeIcon={
+            denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
+          }
+          lightsOutIcon={
+            denomination === 'USD' ? ICONS.dollarIcon : ICONS.bitcoinIcon
+          }
+        />
+      </View>
 
-        <View style={styles.middleSection}>
-          <ThemeText
-            adjustsFontSizeToFit={from !== 'preview'}
-            CustomNumberOfLines={from === 'preview' ? 1 : 6}
-            styles={styles.descriptionText}
-            content={description || `${t('constants.gift')} ${formattedNumber}`}
-          />
-          <View style={styles.statusRow}>
-            {description ? (
-              <>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.statusText}
-                  content={formattedNumber}
-                />
-                {getStatusText() ? (
-                  <View style={styles.combinedStatusContainer}>
-                    <ThemeText styles={styles.statusText} content="•" />
-                    <ThemeText
-                      CustomNumberOfLines={1}
-                      styles={styles.statusText}
-                      content={getStatusText()}
-                    />
-                  </View>
-                ) : null}
-              </>
-            ) : getStatusText() ? (
+      <View style={styles.middleSection}>
+        <ThemeText
+          adjustsFontSizeToFit={from !== 'preview'}
+          CustomNumberOfLines={from === 'preview' ? 1 : 6}
+          styles={styles.descriptionText}
+          content={description || `${t('constants.gift')} ${formattedNumber}`}
+        />
+        <View style={styles.statusRow}>
+          {description ? (
+            <>
               <ThemeText
                 CustomNumberOfLines={1}
                 styles={styles.statusText}
-                content={getStatusText()}
+                content={formattedNumber}
               />
-            ) : null}
-          </View>
-        </View>
-
-        <View style={styles.rightSection}>
-          <ThemeText
-            styles={styles.amountText}
-            content={displayCorrectDenomination({
-              amount: denomination === 'USD' ? dollarAmount : amount,
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination:
-                  denomination === 'USD' ? 'fiat' : 'sats',
-              },
-              fiatStats,
-              convertAmount: denomination !== 'USD',
-              forceCurrency: denomination === 'USD' ? 'USD' : false,
-            })}
-          />
-
-          {shouldShowActions ? (
-            <View style={styles.actionsContainer}>
-              <TouchableOpacity
-                onPress={async () => {
-                  if (isExpired) {
-                    await copyToClipboard(uuid, showToast);
-                    return;
-                  }
-
-                  await handleGiftCardShare({
-                    amount: displayCorrectDenomination({
-                      amount: denomination === 'USD' ? dollarAmount : amount,
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination:
-                          denomination === 'USD' ? 'fiat' : 'sats',
-                        thousandsSeperator: 'space',
-                      },
-                      fiatStats,
-                      convertAmount: denomination !== 'USD',
-                      forceCurrency: denomination === 'USD' ? 'USD' : false,
-                    }),
-                    giftLink: claimURL,
-                  });
-                }}
-                style={[
-                  styles.actionButton,
-                  { backgroundColor: backgroundOffset },
-                ]}
-              >
-                <ThemeIcon size={16} iconName={isExpired ? 'Copy' : 'Share'} />
-              </TouchableOpacity>
-            </View>
+              {getStatusText() ? (
+                <View style={styles.combinedStatusContainer}>
+                  <ThemeText styles={styles.statusText} content="•" />
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.statusText}
+                    content={getStatusText()}
+                  />
+                </View>
+              ) : null}
+            </>
+          ) : getStatusText() ? (
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.statusText}
+              content={getStatusText()}
+            />
           ) : null}
         </View>
       </View>
+
+      <View style={styles.rightSection}>
+        <ThemeText
+          styles={styles.amountText}
+          content={displayCorrectDenomination({
+            amount: denomination === 'USD' ? dollarAmount : amount,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: denomination === 'USD' ? 'fiat' : 'sats',
+            },
+            fiatStats,
+            convertAmount: denomination !== 'USD',
+            forceCurrency: denomination === 'USD' ? 'USD' : false,
+          })}
+        />
+
+        {shouldShowActions ? (
+          <View style={styles.actionsContainer}>
+            <Pressable
+              onPress={handleAction}
+              style={({ pressed }) => [
+                styles.actionButton,
+                { backgroundColor: backgroundOffset },
+                pressed && { opacity: 0.5 },
+              ]}
+            >
+              <ThemeIcon
+                size={16}
+                iconName={isExpired ? 'RotateCcw' : 'Share'}
+              />
+            </Pressable>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={[styles.giftCard, containerStyle]}>
+      {shouldShowActions ? (
+        <Pressable onPress={handleAction}>{cardContent}</Pressable>
+      ) : (
+        cardContent
+      )}
 
       {showDivider ? (
         <View style={[styles.divider, { backgroundColor: backgroundOffset }]} />

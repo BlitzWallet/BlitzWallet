@@ -566,7 +566,9 @@ export default function HomeLightning({ navigation }) {
           />
         </View>
 
-        {showTokensInformation && <TokensPreview />}
+        {showTokensInformation && (
+          <TokensPreview didGetToHomepage={didGetToHomepage} />
+        )}
 
         {/* Transactions list */}
 

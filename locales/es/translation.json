@@ -2104,7 +2104,7 @@
     },
     "preview": {
       "title": "Ahorros",
-      "earnInterest": "Gana un 3,5 % de interés"
+      "earnInterest": "Gana un 3,5 % de interés pagado en Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Elegir emoji",
@@ -2172,6 +2172,12 @@
       "fromBalance": "de tu saldo de {{source}}",
       "confirmButton": "Confirmar",
       "processing": "Procesando…",
+      "steps": {
+        "processing": "Procesando...",
+        "swapping": "Cambiando fondos a dólares...",
+        "adding": "Agregando a la cuenta de ahorros...",
+        "complete": "Completado."
+      },
       "successTitle": "Dinero añadido",
       "paymentLabel_unallocated": "Depósito de ahorro",
       "paymentLabel": "Depósito de ahorro a {{savingsGoal}}",
@@ -2204,6 +2210,12 @@
       "estimatedSats": "≈ {{sats}} sats tras el cambio",
       "confirmButton": "Confirmar",
       "processing": "Procesando retiro…",
+      "steps": {
+        "processing": "Procesando...",
+        "withdrawing": "Retirando de la cuenta de ahorros...",
+        "swapping": "Cambiando a Bitcoin...",
+        "complete": "Completado."
+      },
       "successTitle": "Retiro completado",
       "paymentLabel_unallocated": "Retiro de ahorro",
       "paymentLabel": "Retiro de ahorro de {{savingsGoal}}",

@@ -2224,7 +2224,7 @@
     },
     "preview": {
       "title": "Épargne",
-      "earnInterest": "Gagnez 3,5 % d'intérêts"
+      "earnInterest": "Gagnez 3,5 % d’intérêt versé en Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Choisir un emoji",
@@ -2292,6 +2292,12 @@
       "fromBalance": "depuis ton solde {{source}}",
       "confirmButton": "Confirmer",
       "processing": "Traitement en cours…",
+      "steps": {
+        "processing": "Traitement en cours...",
+        "swapping": "Conversion des fonds en dollars...",
+        "adding": "Ajout au compte d’épargne...",
+        "complete": "Terminé."
+      },
       "successTitle": "Argent ajouté",
       "paymentLabel_unallocated": "Dépôt d'épargne",
       "paymentLabel": "Dépôt d'épargne vers {{savingsGoal}}",
@@ -2324,6 +2330,12 @@
       "estimatedSats": "≈ {{sats}} sats après échange",
       "confirmButton": "Confirmer",
       "processing": "Retrait en cours…",
+      "steps": {
+        "processing": "Traitement en cours...",
+        "withdrawing": "Retrait du compte d’épargne...",
+        "swapping": "Conversion en Bitcoin...",
+        "complete": "Terminé."
+      },
       "successTitle": "Retrait effectué",
       "paymentLabel_unallocated": "Retrait d'épargne",
       "paymentLabel": "Retrait d'épargne depuis {{savingsGoal}}",

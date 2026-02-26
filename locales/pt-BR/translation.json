@@ -1252,7 +1252,7 @@
       "licenseBody": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a",
       "licenseLinkLabel": "Licença Apache v2.0",
       "walletHeader": "Blitz Wallet",
-      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodiada compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
+      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial compatível com a rede Lightning. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
       "poweredByLabel": "Desenvolvido com",
       "poweredByBreez": "Breez Liquid SDK",
       "poweredBySpark": "Spark",
@@ -1898,7 +1898,7 @@
         "reclaimGiftMessage": "Vale-Blitz reembolsado",
         "giftsHome": {
           "title": "Vales-Blitz",
-          "desc": "Presenteie amigos e família com Bitcoins"
+          "desc": "Presenteie amigos e familiares com bitcoins ou dólares"
         },
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",
@@ -2213,18 +2213,18 @@
   },
   "savings": {
     "home": {
-      "title": "Caixinha",
+      "title": "Caixinhas",
       "howItWorksLink": "Como funciona",
-      "earnedCard": "Ganho: {{amount}}",
-      "setGoalTitle": "Definir meta",
-      "setGoalSubtitle": "Poupe para o que importa mais",
+      "earnedCard": "Já rendeu: {{amount}}",
+      "setGoalTitle": "Escolha um desejo",
+      "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
       "disclaimer": "Os saldos em dinheiro são mantidos em USDB, uma stablecoin lastreada em dólares emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas."
     },
     "preview": {
-      "title": "Caixinha",
-      "earnInterest": "Ganhe 3,5% de juros"
+      "title": "Caixinhas",
+      "earnInterest": "Ganhe 3,5% de juros pagos em Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Escolher emoji",
@@ -2238,8 +2238,8 @@
       "placeholder": "Reserva extra"
     },
     "goalAmount": {
-      "screenTitle": "Definir meta",
-      "goalFallbackName": "Meta de poupança",
+      "screenTitle": "Quantia necessária",
+      "goalFallbackName": "Quantia necessária",
       "errors": {
         "unableToSetGoal": "Não foi possível definir a meta"
       }
@@ -2256,9 +2256,9 @@
     "updateGoal": {
       "screenTitle": "Atualizar meta",
       "title": "Atualizar meta",
-      "body": "Você pode alterar o valor definido para sua meta ou removê-la.",
+      "body": "Você pode alterar a quantia necessária para sua meta ou removê-la.",
       "removeButton": "Remover meta",
-      "updateButton": "Atualizar meta"
+      "updateButton": "Atualizar quantia"
     },
     "removeGoalConfirm": {
       "screenTitle": "Remover meta",
@@ -2282,51 +2282,63 @@
       "emptyState": "As transações futuras aparecerão aqui."
     },
     "addMoney": {
-      "chooseGoalTitle": "Adicionar dinheiro a",
-      "generalSavings": "Poupança geral",
+      "chooseGoalTitle": "Adicionar dinheiro em",
+      "generalSavings": "Caixinha geral",
       "noSpecificGoal": "Sem meta específica",
-      "sourceTitle": "Adicionar dinheiro de",
+      "sourceTitle": "Adicionar dinheiro do",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar depósito",
       "youAreAdding": "Você está adicionando",
       "fromBalance": "do seu saldo de {{source}}",
       "confirmButton": "Confirmar",
       "processing": "Processando…",
+      "steps": {
+        "processing": "Processando...",
+        "swapping": "Convertendo fundos para dólar...",
+        "adding": "Adicionando à conta da Caixinha...",
+        "complete": "Concluído."
+      },
       "successTitle": "Dinheiro adicionado",
-      "paymentLabel_unallocated": "Depósito em poupança",
-      "paymentLabel": "Depósito em poupança para {{savingsGoal}}",
+      "paymentLabel_unallocated": "Depósito na Caixinha",
+      "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
       }
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de sacar?",
-      "interestOption": "Juros acumulados",
-      "savingsOption": "Saldo de poupança",
+      "interestOption": "Juros recebidos",
+      "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há juros acumulados",
       "savingsZeroHint": "Nada salvo ainda",
       "interestBelowMinHint": "Abaixo do mínimo para troca, apenas saldo em bitcoin",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Dos seus juros",
-      "fromSavings": "Da sua poupança",
+      "fromSavings": "Da sua Caixinha",
       "interestPaymentLabel": "Saque de juros",
       "chooseGoalTitle": "Sacar dinheiro de",
-      "withdrawAll": "Sacar tudo",
-      "generalSavings": "Poupança geral",
+      "withdrawAll": "Todas as Caixinhas",
+      "generalSavings": "Caixinha geral",
       "destinationTitle": "Sacar dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar saque",
-      "youAreWithdrawingAll": "Você está sacando toda a poupança",
+      "youAreWithdrawingAll": "Você está sacando de todas as Caixinhas",
       "youAreWithdrawing": "Você está sacando",
       "toYourBalance": "para o seu {{destination}}",
       "estimatedSats": "≈ {{sats}} sats após troca",
       "confirmButton": "Confirmar",
       "processing": "Processando saque…",
+      "steps": {
+        "processing": "Processando...",
+        "withdrawing": "Sacando da conta da Caixinha...",
+        "swapping": "Convertendo para Bitcoin...",
+        "complete": "Concluído."
+      },
       "successTitle": "Saque concluído",
-      "paymentLabel_unallocated": "Saque de poupança",
-      "paymentLabel": "Saque de poupança de {{savingsGoal}}",
+      "paymentLabel_unallocated": "Saque da Caixinha",
+      "paymentLabel": "Saque da Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Não foi possível concluir o saque"
       }
@@ -2334,10 +2346,10 @@
     "howItWorks": {
       "headline1": "O seu dinheiro,",
       "headline2": "rendendo todo dia.",
-      "subtext": "Uma stablecoin lastreada em USD que acumula recompensas automaticamente enquanto você a mantém.",
+      "subtext": "Uma stablecoin lastreada em USD que rende juros automaticamente.",
       "features": {
         "earnTitle": "Ganhe recompensas diárias",
-        "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter e ganhar.",
+        "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
         "accessTitle": "Acesso imediato",
         "accessBody": "Saque para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
         "backedTitle": "Totalmente lastreado",

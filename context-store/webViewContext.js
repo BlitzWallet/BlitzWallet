@@ -658,7 +658,7 @@ export const WebViewProvider = ({ children }) => {
           }
 
           const shared = getSharedSecret(
-            Buffer.from(sessionKeyRef.current.privateKey).toString('hex'),
+            Buffer.from(sessionKeyRef.current.privateKey),
             Buffer.from(message.pubW, 'hex'),
             true,
           );

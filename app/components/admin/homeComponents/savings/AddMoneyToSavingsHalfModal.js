@@ -45,6 +45,9 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
+const MIN_STEP_MS = 800;
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 const HEIGHT_FOR_PAGE = {
   chooseGoal: 500,
   source: 500,
@@ -82,6 +85,7 @@ export default function AddMoneyToSavingsHalfModal({
   const [step, setStep] = useState([
     selectedGoalUUID || !savingsGoals.length ? 'source' : 'chooseGoal',
   ]);
+  const [loadingStep, setLoadingStep] = useState('processing');
   const [selectedSource, setSelectedSource] = useState(null);
   const [amountValue, setAmountValue] = useState('');
 
@@ -188,8 +192,12 @@ export default function AddMoneyToSavingsHalfModal({
 
   const handleConfirm = async () => {
     setStep(prev => [...prev, 'loading']);
+    setLoadingStep('processing');
 
     try {
+      // Step 1: Processing — validation and simulation wait
+      const step1Start = Date.now();
+
       const savingsAddress = savingsWallet?.sparkAddress;
       if (!savingsAddress) throw new Error(t('savings.savingsWalletError'));
 
@@ -228,6 +236,13 @@ export default function AddMoneyToSavingsHalfModal({
         };
       }
 
+      const elapsed1 = Date.now() - step1Start;
+      if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
+
+      // Step 2: Swapping funds to dollar — spark payment (includes BTC→USDB swap for BTC source)
+      setLoadingStep(selectedSource === 'dollar' ? 'adding' : 'swapping');
+      const step2Start = Date.now();
+
       const paymentResponse = await sparkPaymenWrapper({
         address: savingsAddress,
         paymentType: 'spark',
@@ -260,12 +275,15 @@ export default function AddMoneyToSavingsHalfModal({
         throw new Error(paymentResponse?.error);
       }
 
-      // Record the deposit against the chosen goal (or unallocated).
+      const elapsed2 = Date.now() - step2Start;
+      if (elapsed2 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed2);
+
       const dollarValue = fiatMicros / 1_000_000;
       await addMoney({ amount: dollarValue, goalId: selectedGoalId });
 
       setStep(prev => [...prev, 'success']);
     } catch (err) {
+      setLoadingStep('processing');
       handleBackPressFunction(() =>
         navigate.replace('ErrorScreen', {
           errorMessage:
@@ -675,7 +693,9 @@ export default function AddMoneyToSavingsHalfModal({
   }
 
   if (currentPage === 'loading') {
-    return <FullLoadingScreen text={t('savings.addMoney.processing')} />;
+    return (
+      <FullLoadingScreen text={t(`savings.addMoney.steps.${loadingStep}`)} />
+    );
   }
 
   // success
