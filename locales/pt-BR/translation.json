@@ -251,7 +251,7 @@
     "restoreWallet": {
       "home": {
         "header": "Insira sua frase de recuperação",
-        "desc": "Adicione suas 12 palavras de recuperação para voltar a acessar sua carteira.",
+        "desc": "Digite suas 12 palavras da frase de recuperação para voltar a acessar sua carteira.",
         "continueBTN": "Restaurar carteira",
         "error1": "Por favor, insira todas as suas palavras.",
         "error2": "Esta não é uma frase de recuperação válida",
