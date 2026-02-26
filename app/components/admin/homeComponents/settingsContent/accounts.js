@@ -17,39 +17,27 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import {
   MAIN_ACCOUNT_UUID,
-  NWC_ACCOUNT_UUID,
   useActiveCustodyAccount,
 } from '../../../../../context-store/activeAccount';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import { initWallet } from '../../../../functions/initiateWalletConnection';
-import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useTranslation } from 'react-i18next';
-import { useWebView } from '../../../../../context-store/webViewContext';
 import AccountCard from '../accounts/accountCard';
+import useAccountSwitcher from '../../../../hooks/useAccountSwitcher';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const {
-    selectedAltAccount,
-    updateAccountCacheOnly,
-    currentWalletMnemoinc,
-    toggleIsUsingNostr,
     getAccountMnemonic,
     isUsingNostr,
     custodyAccountsList,
     activeAccount,
   } = useActiveCustodyAccount();
-  const { setSparkInformation } = useSparkWallet();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
-  const [isLoading, setIsLoading] = useState({
-    accountBeingLoaded: '',
-    isLoading: false,
-  });
+  const { isSwitchingAccount, handleAccountPress } = useAccountSwitcher();
   const { t } = useTranslation();
-  const { sendWebViewRequest } = useWebView();
 
   const filteredAccounts = useMemo(() => {
     if (!searchInput.trim()) return custodyAccountsList;
@@ -71,13 +59,6 @@ export default function CreateCustodyAccounts() {
     [navigate, getAccountMnemonic],
   );
 
-  const handleNavigateError = useCallback(
-    errorMessage => {
-      navigate.navigate('ErrorScreen', { errorMessage });
-    },
-    [navigate],
-  );
-
   const handleNavigateAddAccount = useCallback(() => {
     navigate.navigate('SelectCreateAccountType', {});
   }, [navigate]);
@@ -93,66 +74,6 @@ export default function CreateCustodyAccounts() {
     navigate.navigate('CustodyAccountPaymentPage');
   }, [navigate, custodyAccountsList, t]);
 
-  const handleSelectAccount = useCallback(
-    async account => {
-      try {
-        const accountMnemonic = await getAccountMnemonic(account);
-        if (currentWalletMnemoinc === accountMnemonic) return;
-
-        setIsLoading({
-          accountBeingLoaded: account.uuid || account.name,
-          isLoading: true,
-        });
-
-        await new Promise(resolve => setTimeout(resolve, 250));
-
-        const initResponse = await initWallet({
-          setSparkInformation,
-          mnemonic: accountMnemonic,
-          sendWebViewRequest,
-        });
-
-        if (!initResponse.didWork) {
-          handleNavigateError(initResponse.error);
-          return;
-        }
-
-        const isMainWallet = account.uuid === MAIN_ACCOUNT_UUID;
-        const isNWC = account.uuid === NWC_ACCOUNT_UUID;
-
-        if (isMainWallet || isNWC) {
-          if (selectedAltAccount[0]) {
-            await updateAccountCacheOnly({
-              ...selectedAltAccount[0],
-              isActive: false,
-            });
-          }
-          toggleIsUsingNostr(isNWC);
-        } else {
-          await updateAccountCacheOnly({ ...account, isActive: true });
-          toggleIsUsingNostr(false);
-        }
-      } catch (error) {
-        handleNavigateError(error.message || 'An error occurred');
-      } finally {
-        setIsLoading({
-          accountBeingLoaded: '',
-          isLoading: false,
-        });
-      }
-    },
-    [
-      currentWalletMnemoinc,
-      setSparkInformation,
-      selectedAltAccount,
-      updateAccountCacheOnly,
-      toggleIsUsingNostr,
-      handleNavigateError,
-      sendWebViewRequest,
-      getAccountMnemonic,
-    ],
-  );
-
   const accountElements = useMemo(() => {
     return filteredAccounts.map((account, index) => {
       return (
@@ -160,21 +81,22 @@ export default function CreateCustodyAccounts() {
           key={account.uuid || `Account ${index}`}
           account={account}
           isActive={activeAccount.uuid === account.uuid}
-          onPress={() => handleSelectAccount(account)}
+          onPress={() => handleAccountPress(account)}
           onEdit={() => handleNavigateEdit(account)}
           isLoading={
-            isLoading.accountBeingLoaded === (account.uuid || account.name) &&
-            isLoading.isLoading
+            isSwitchingAccount.accountBeingLoaded ===
+              (account.uuid || account.name) && isSwitchingAccount.isLoading
           }
+          isAccountSwitching={isSwitchingAccount.isLoading}
         />
       );
     });
   }, [
     filteredAccounts,
     isUsingNostr,
-    isLoading,
     handleNavigateEdit,
-    handleSelectAccount,
+    handleAccountPress,
+    isSwitchingAccount,
     activeAccount,
   ]);
 

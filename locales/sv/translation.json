@@ -1007,7 +1007,10 @@
         "switchTokenText": "Använd en annan symbol",
         "zeroAmountInvoiceDollarPayments": "Fakturor med nollbelopp kan inte betalas med USD. Använd BTC.",
         "decodingPayment": "Avkodar betalningsinformation...",
-        "selectPaymentMethod": "Välj en betalningsmetod för att fortsätta."
+        "selectPaymentMethod": "Välj en betalningsmetod för att fortsätta.",
+        "swapRatesChangedTitle": "Växelkurs uppdaterad",
+        "swapRatesChangedBody": "Växelkursen för denna växling ändrades medan du granskade den. Ange beloppet igen för att fortsätta.",
+        "swapRatesChangedButton": "Ange belopp igen"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."
@@ -1648,7 +1651,10 @@
       "pinAccount": "Fäst",
       "unpinAccount": "Lossa",
       "maxPinsReached": "Maximalt 2 fästa konton. Lossa ett först.",
-      "morePoolsCount": "+{{count}} till"
+      "morePoolsCount": "+{{count}} till",
+      "pos": {
+        "desc": "Acceptera enkelt Bitcoin-betalningar för ditt företag"
+      }
     },
     "posPath": {
       "settings": {
@@ -1738,6 +1744,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Dina tokens",
+        "noTokens": "Du har inga tokens"
+      },
       "appStore": {
         "soonMessage": "Vi älskar att du vill ha fler appar. Föreslå dem nedan!",
         "title": "Butik",
@@ -1887,7 +1897,8 @@
         "fundGiftMessage": "Skapande av gåva",
         "reclaimGiftMessage": "Återvinning av gåva",
         "giftsHome": {
-          "title": "Blitz gåvor"
+          "title": "Blitz gåvor",
+          "desc": "Dela Bitcoin eller Dollar med vänner och familj"
         },
         "giftsOverview": {
           "noGiftsHead": "Inga gåvor ännu",
@@ -2199,5 +2210,160 @@
     "FSAG-5003": "Ett internt fel uppstod. Kontakta support om problemet kvarstår.",
     "FSAG-5004": "Ett systemkonfigurationsfel uppstod.",
     "FSAG-5100": "Ett oväntat serverfel uppstod."
+  },
+  "savings": {
+    "home": {
+      "title": "Sparande",
+      "howItWorksLink": "Så här fungerar det",
+      "earnedCard": "Intjänat: {{amount}}",
+      "setGoalTitle": "Sätt ett mål",
+      "setGoalSubtitle": "Spara till det som betyder mest",
+      "savingsGoalFallback": "Sparmål",
+      "createAnotherGoal": "Skapa ytterligare ett mål",
+      "disclaimer": "Kontantsaldon hålls i USDB, en dollarsäkrad stablecoin utfärdad av Brale och fullständigt täckt 1:1 av amerikanska statsskuldväxlar och kontantekvivalenter hos reglerade finansinstitut."
+    },
+    "preview": {
+      "title": "Sparande",
+      "earnInterest": "Tjäna 3,5 % ränta"
+    },
+    "goalEmoji": {
+      "screenTitle": "Välj emoji",
+      "title": "Välj en emoji för ditt mål",
+      "subtitle": "Vad beskriver ditt mål bäst?",
+      "continueButton": "Välj emoji"
+    },
+    "goalDescribe": {
+      "screenTitle": "Ange beskrivning",
+      "title": "Beskriv ditt mål",
+      "placeholder": "Extra buffert"
+    },
+    "goalAmount": {
+      "screenTitle": "Ange mål",
+      "goalFallbackName": "Sparmål",
+      "errors": {
+        "unableToSetGoal": "Det gick inte att ange målet"
+      }
+    },
+    "goalSuccess": {
+      "title": "Ditt mål är nu satt till {{amount}}",
+      "subtitle": "Börja sätta in pengar för att nå ditt mål."
+    },
+    "goalDetails": {
+      "screenTitleFallback": "Mål",
+      "updateGoalButton": "Uppdatera mål",
+      "emptyState": "Inget mål angivet"
+    },
+    "updateGoal": {
+      "screenTitle": "Uppdatera mål",
+      "title": "Uppdatera mål",
+      "body": "Du kan ändra hur mycket du sparat mot ditt mål eller ta bort det.",
+      "removeButton": "Ta bort mål",
+      "updateButton": "Uppdatera mål"
+    },
+    "removeGoalConfirm": {
+      "screenTitle": "Ta bort mål",
+      "title": "Ta bort mål",
+      "warningProgressLost": "Du kommer inte längre se framstegen mot ditt mål «{{goalName}}».",
+      "warningMoneyReturned": "Pengar som är dedikerade till det här målet överförs automatiskt till Sparande.",
+      "removeButton": "Ta bort mål",
+      "errors": {
+        "unableToRemoveGoal": "Det gick inte att ta bort målet"
+      }
+    },
+    "goalRemovedSuccess": {
+      "title": "Mål borttaget"
+    },
+    "actionButtons": {
+      "addMoney": "Sätt in pengar",
+      "withdraw": "Ta ut"
+    },
+    "activity": {
+      "title": "Aktivitet",
+      "emptyState": "Framtida transaktioner visas här."
+    },
+    "addMoney": {
+      "chooseGoalTitle": "Sätt in pengar till",
+      "generalSavings": "Allmänt sparande",
+      "noSpecificGoal": "Inget specifikt mål",
+      "sourceTitle": "Sätt in pengar från",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Bekräfta insättning",
+      "youAreAdding": "Du sätter in",
+      "fromBalance": "från ditt {{source}}-saldo",
+      "confirmButton": "Bekräfta",
+      "processing": "Bearbetar…",
+      "successTitle": "Pengar insatta",
+      "paymentLabel_unallocated": "Sparinsättning",
+      "paymentLabel": "Sparinsättning till {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteTransfer": "Det gick inte att slutföra överföringen"
+      }
+    },
+    "withdraw": {
+      "balanceTypeTitle": "Vad vill du ta ut?",
+      "interestOption": "Intjänad ränta",
+      "savingsOption": "Sparsaldo",
+      "interestZeroHint": "Ingen ränta intjänad ännu",
+      "savingsZeroHint": "Inget sparat ännu",
+      "interestBelowMinHint": "Under minsta växlingsbelopp, endast bitcoin-saldo",
+      "loadingBalances": "Laddar saldon...",
+      "balanceLoadError": "Det gick inte att ladda plånboken. Gå tillbaka och försök igen.",
+      "fromInterest": "Från din ränta",
+      "fromSavings": "Från ditt sparande",
+      "interestPaymentLabel": "Ränteuttag",
+      "chooseGoalTitle": "Ta ut pengar från",
+      "withdrawAll": "Ta ut allt",
+      "generalSavings": "Allmänt sparande",
+      "destinationTitle": "Ta ut pengar till",
+      "availableHint": "Tillgängligt: {{amount}}",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Bekräfta uttag",
+      "youAreWithdrawingAll": "Du tar ut alla dina besparingar",
+      "youAreWithdrawing": "Du tar ut",
+      "toYourBalance": "till din {{destination}}",
+      "estimatedSats": "≈ {{sats}} sats efter byte",
+      "confirmButton": "Bekräfta",
+      "processing": "Bearbetar uttag…",
+      "successTitle": "Uttag genomfört",
+      "paymentLabel_unallocated": "Sparuttag",
+      "paymentLabel": "Sparuttag från {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteWithdrawal": "Det gick inte att slutföra uttaget"
+      }
+    },
+    "howItWorks": {
+      "headline1": "Dina pengar,",
+      "headline2": "växer varje dag.",
+      "subtext": "En USD-säkrad stablecoin som automatiskt ackumulerar belöningar så länge du håller den.",
+      "features": {
+        "earnTitle": "Tjäna dagliga belöningar",
+        "earnBody": "USDB ackumulerar sparbelöningar automatiskt. Ingen staking, inga låsningar — bara håll och tjäna.",
+        "accessTitle": "Omedelbar åtkomst",
+        "accessBody": "Ta ut till din Lightning-plånbok på sekunder, när som helst. Dina pengar är aldrig låsta.",
+        "backedTitle": "Fullt täckt",
+        "backedBody": "Varje USDB är täckt 1:1 av USD på separerade, reviderade reservkonton.",
+        "goalTitle": "Sätt ett sparmål",
+        "goalBody": "Följ framstegen mot ett mål — en resa, en buffert eller vad du än väljer."
+      },
+      "stats": {
+        "currentApyLabel": "APY",
+        "currentApyValue": "3,5 %",
+        "accrualLabel": "Ackumulering",
+        "accrualValue": "Dagligen"
+      },
+      "context": {
+        "goalNameReqiured": "Målnamn krävs",
+        "goalNotFound": "Målet hittades inte"
+      },
+      "transparencyTitle": "Täckt av verkliga reserver",
+      "transparencyBody": "Reserverna hålls på separerade, reviderade konton — primärt kortfristiga amerikanska statsobligationer och penningmarknadsfonder. Flashnet publicerar månatliga attesteringsrapporter.",
+      "disclaimer": "Räntorna är rörliga och kan ändras. Inte en bankinsättning. Se flashnet.xyz för fullständig information."
+    },
+    "withdrawal": "Uttag",
+    "withdrawalWithGoal": "Uttag från {{goalName}}",
+    "deposit": "Insättning",
+    "depositWithGoal": "Insättning till {{goalName}}",
+    "swapSimulationError": "Bytessimulering inte tillgänglig",
+    "savingsWalletError": "Sparplånboken är inte redo"
   }
 }

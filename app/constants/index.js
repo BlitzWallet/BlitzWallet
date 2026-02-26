@@ -96,7 +96,8 @@ const CHATGPT_OUTPUT_COST = 30 / 1000000;
 const MAX_DERIVED_ACCOUNTS = 1000; // Indices 0-999 for user accounts
 const STARTING_INDEX_FOR_GIFTS_DERIVE = 1000; // Indices 1000-99999 for gifts
 const MAX_GIFTS = 99000; // Maximum 99000 gifts
-const STARTING_INDEX_FOR_POOLS_DERIVE = 100000; // Indices 100000+ for pools (unlimited)
+const STARTING_INDEX_FOR_POOLS_DERIVE = 100000; // Indices 100000+ for pools
+const STARTING_INDEX_FOR_SAVINGS_DERIVE = 200000; // Indices 200000+ for savings (unlimited)
 
 const POOL_DEEPLINK_REGEX =
   /^(?:blitz-wallet:\/\/pools\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/pools\/)[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\/?$/;
@@ -128,6 +129,7 @@ const SCREEN_DIMENSIONS = Dimensions.get('screen');
 
 const USDB_TOKEN_ID =
   'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87';
+const DEFAULT_GOAL_EMOJI = '🎯';
 
 export {
   COLORS,
@@ -213,6 +215,8 @@ export {
   FLASHNET_REFUND_REGEX,
   CUSTOM_TOKEN_CURRENCY_OPTIONS,
   STARTING_INDEX_FOR_POOLS_DERIVE,
+  STARTING_INDEX_FOR_SAVINGS_DERIVE,
   POOL_DEEPLINK_REGEX,
   BASIC_ACCOUNT_NAME_REGEX,
+  DEFAULT_GOAL_EMOJI,
 };

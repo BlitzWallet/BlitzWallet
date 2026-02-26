@@ -102,6 +102,10 @@ export default function ClaimGiftScreen({
 
     const savedGift = await getGiftByUuid(uuid);
 
+    if (!savedGift) {
+      throw new Error(t('screens.inAccount.giftPages.claimPage.parseError'));
+    }
+
     if (Date.now() < savedGift.expireTime) {
       throw new Error(t('screens.inAccount.giftPages.claimPage.notExpired'));
     }

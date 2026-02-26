@@ -8,6 +8,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
   STARTING_INDEX_FOR_POOLS_DERIVE,
+  STARTING_INDEX_FOR_SAVINGS_DERIVE,
 } from '../../../../../constants';
 import {
   HIDDEN_OPACITY,
@@ -72,6 +73,10 @@ export default function PoolDescriptionInput({
         masterInfoObject.currentDerivedPoolIndex || 0;
       const derivationIndex =
         STARTING_INDEX_FOR_POOLS_DERIVE + currentDerivedPoolIndex;
+
+      if (STARTING_INDEX_FOR_SAVINGS_DERIVE - 1 === derivationIndex) {
+        throw new Error('You have reached the maximum amount of pools');
+      }
 
       const derivedWallet = await derivePoolWallet(
         accountMnemoinc,

@@ -739,7 +739,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
               processedTx.paymentStatus,
               processedTx.paymentType,
               processedTx.accountId,
-              JSON.stringify(processedTx.details),
+              JSON.stringify({ ...processedTx.details, dateAddedToDb: Date.now() }),
             ],
           );
           // } else {
@@ -794,7 +794,7 @@ export const addSingleSparkTransaction = async (
         tx.paymentStatus,
         tx.paymentType ?? 'unknown',
         tx.accountId ?? 'unknown',
-        JSON.stringify(newDetails),
+        JSON.stringify({ ...newDetails, dateAddedToDb: Date.now() }),
       ],
     );
     // Emit event

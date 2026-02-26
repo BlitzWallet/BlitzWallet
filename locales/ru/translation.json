@@ -1008,7 +1008,10 @@
         "switchTokenText": "Использовать другой токен",
         "zeroAmountInvoiceDollarPayments": "Инвойсы с нулевой суммой нельзя оплатить в USD. Используйте BTC.",
         "decodingPayment": "Декодирование платежа...",
-        "selectPaymentMethod": "Выберите метод оплаты"
+        "selectPaymentMethod": "Выберите метод оплаты",
+        "swapRatesChangedTitle": "Курс обмена обновлён",
+        "swapRatesChangedBody": "Курс обмена для этой операции изменился во время проверки. Пожалуйста, введите сумму заново, чтобы продолжить.",
+        "swapRatesChangedButton": "Ввести сумму снова"
       },
       "selectPaymentMethod": {
         "header": "Выберите источник средств."
@@ -1649,7 +1652,10 @@
       "pinAccount": "Закрепить",
       "unpinAccount": "Открепить",
       "maxPinsReached": "Максимум 2 закреплённых аккаунта. Сначала открепите один.",
-      "morePoolsCount": "+{{count}} ещё"
+      "morePoolsCount": "+{{count}} ещё",
+      "pos": {
+        "desc": "Легко принимайте платежи в биткоинах для вашего бизнеса"
+      }
     },
     "posPath": {
       "settings": {
@@ -1739,6 +1745,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Ваши токены",
+        "noTokens": "У вас нет токенов"
+      },
       "appStore": {
         "soonMessage": "Предлагайте новые приложения!",
         "title": "Магазин",
@@ -1894,7 +1904,8 @@
         "fundGiftMessage": "Создание подарка",
         "reclaimGiftMessage": "Возврат подарка",
         "giftsHome": {
-          "title": "Биткоин-подарки"
+          "title": "Биткоин-подарки",
+          "desc": "Делитесь биткоинами или долларами с друзьями и семьёй"
         },
         "giftsOverview": {
           "noGiftsHead": "Нет подарков",
@@ -2207,5 +2218,160 @@
     "FSAG-5003": "Внутренняя ошибка. Свяжитесь с поддержкой.",
     "FSAG-5004": "Ошибка конфигурации системы.",
     "FSAG-5100": "Неожиданная ошибка сервера."
+  },
+  "savings": {
+    "home": {
+      "title": "Сбережения",
+      "howItWorksLink": "Как это работает",
+      "earnedCard": "Заработано: {{amount}}",
+      "setGoalTitle": "Поставить цель",
+      "setGoalSubtitle": "Копи на то, что важно для тебя",
+      "savingsGoalFallback": "Цель накопления",
+      "createAnotherGoal": "Создать ещё одну цель",
+      "disclaimer": "Денежные остатки хранятся в USDB — стейблкоине, привязанном к доллару, выпускаемом Brale и полностью обеспеченном 1:1 казначейскими облигациями США и денежными эквивалентами в регулируемых финансовых учреждениях."
+    },
+    "preview": {
+      "title": "Сбережения",
+      "earnInterest": "Зарабатывай 3,5% годовых"
+    },
+    "goalEmoji": {
+      "screenTitle": "Выбор эмодзи",
+      "title": "Выбери эмодзи для своей цели",
+      "subtitle": "Что лучше всего описывает твою цель?",
+      "continueButton": "Выбрать эмодзи"
+    },
+    "goalDescribe": {
+      "screenTitle": "Введите описание",
+      "title": "Опиши свою цель",
+      "placeholder": "Денежный резерв"
+    },
+    "goalAmount": {
+      "screenTitle": "Задать цель",
+      "goalFallbackName": "Цель накопления",
+      "errors": {
+        "unableToSetGoal": "Не удалось задать цель"
+      }
+    },
+    "goalSuccess": {
+      "title": "Цель установлена: {{amount}}",
+      "subtitle": "Начни пополнять счёт, чтобы достичь своей цели."
+    },
+    "goalDetails": {
+      "screenTitleFallback": "Цель",
+      "updateGoalButton": "Обновить цель",
+      "emptyState": "Цель не задана"
+    },
+    "updateGoal": {
+      "screenTitle": "Обновить цель",
+      "title": "Обновить цель",
+      "body": "Ты можешь изменить сумму, отложенную на цель, или удалить её.",
+      "removeButton": "Удалить цель",
+      "updateButton": "Обновить цель"
+    },
+    "removeGoalConfirm": {
+      "screenTitle": "Удалить цель",
+      "title": "Удалить цель",
+      "warningProgressLost": "Ты больше не будешь видеть прогресс по цели «{{goalName}}».",
+      "warningMoneyReturned": "Деньги, выделенные на эту цель, будут автоматически переведены в Сбережения.",
+      "removeButton": "Удалить цель",
+      "errors": {
+        "unableToRemoveGoal": "Не удалось удалить цель"
+      }
+    },
+    "goalRemovedSuccess": {
+      "title": "Цель удалена"
+    },
+    "actionButtons": {
+      "addMoney": "Пополнить",
+      "withdraw": "Вывести"
+    },
+    "activity": {
+      "title": "История",
+      "emptyState": "Будущие транзакции появятся здесь."
+    },
+    "addMoney": {
+      "chooseGoalTitle": "Пополнить",
+      "generalSavings": "Общие сбережения",
+      "noSpecificGoal": "Без конкретной цели",
+      "sourceTitle": "Пополнить из",
+      "minHint": "Мин: {{amount}}",
+      "confirmTitle": "Подтвердить пополнение",
+      "youAreAdding": "Ты пополняешь на",
+      "fromBalance": "с баланса {{source}}",
+      "confirmButton": "Подтвердить",
+      "processing": "Обработка…",
+      "successTitle": "Деньги добавлены",
+      "paymentLabel_unallocated": "Пополнение сбережений",
+      "paymentLabel": "Пополнение сбережений: {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteTransfer": "Не удалось выполнить перевод"
+      }
+    },
+    "withdraw": {
+      "balanceTypeTitle": "Что вы хотите вывести?",
+      "interestOption": "Начисленные проценты",
+      "savingsOption": "Сбережения",
+      "interestZeroHint": "Проценты пока не начислены",
+      "savingsZeroHint": "Сбережений пока нет",
+      "interestBelowMinHint": "Ниже минимальной суммы обмена, доступен только биткоин-баланс",
+      "loadingBalances": "Загрузка балансов...",
+      "balanceLoadError": "Не удалось загрузить кошелёк. Вернитесь назад и попробуйте снова.",
+      "fromInterest": "Из ваших процентов",
+      "fromSavings": "Из ваших сбережений",
+      "interestPaymentLabel": "Вывод процентов",
+      "chooseGoalTitle": "Вывести средства из",
+      "withdrawAll": "Вывести всё",
+      "generalSavings": "Общие сбережения",
+      "destinationTitle": "Вывести средства на",
+      "availableHint": "Доступно: {{amount}}",
+      "minHint": "Мин: {{amount}}",
+      "confirmTitle": "Подтвердить вывод",
+      "youAreWithdrawingAll": "Ты выводишь все сбережения",
+      "youAreWithdrawing": "Ты выводишь",
+      "toYourBalance": "на {{destination}}",
+      "estimatedSats": "≈ {{sats}} сат после обмена",
+      "confirmButton": "Подтвердить",
+      "processing": "Обработка вывода…",
+      "successTitle": "Вывод выполнен",
+      "paymentLabel_unallocated": "Вывод из сбережений",
+      "paymentLabel": "Вывод из сбережений: {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteWithdrawal": "Не удалось выполнить вывод"
+      }
+    },
+    "howItWorks": {
+      "headline1": "Твои деньги,",
+      "headline2": "работают каждый день.",
+      "subtext": "Стейблкоин, привязанный к доллару США, который автоматически начисляет вознаграждения, пока ты держишь его.",
+      "features": {
+        "earnTitle": "Ежедневные вознаграждения",
+        "earnBody": "USDB автоматически начисляет сберегательные вознаграждения. Никакого стейкинга, никаких блокировок — просто держи и зарабатывай.",
+        "accessTitle": "Мгновенный доступ",
+        "accessBody": "Выводи на Lightning-кошелёк за секунды в любое время. Твои средства никогда не заблокированы.",
+        "backedTitle": "Полное обеспечение",
+        "backedBody": "Каждый USDB обеспечен 1:1 долларами США на сегрегированных, прошедших аудит резервных счетах.",
+        "goalTitle": "Поставь цель накопления",
+        "goalBody": "Отслеживай прогресс к своей цели — отпуск, экстренный фонд или что угодно другое."
+      },
+      "stats": {
+        "currentApyLabel": "APY",
+        "currentApyValue": "3,5%",
+        "accrualLabel": "Начисление",
+        "accrualValue": "Ежедневно"
+      },
+      "context": {
+        "goalNameReqiured": "Название цели обязательно",
+        "goalNotFound": "Цель не найдена"
+      },
+      "transparencyTitle": "Обеспечено реальными резервами",
+      "transparencyBody": "Резервы хранятся на сегрегированных, прошедших аудит счетах — преимущественно в краткосрочных казначейских облигациях США и фондах денежного рынка. Flashnet публикует ежемесячные отчёты об аттестации.",
+      "disclaimer": "Ставки являются переменными и могут изменяться. Не является банковским вкладом. Полная информация — на flashnet.xyz."
+    },
+    "withdrawal": "Вывод",
+    "withdrawalWithGoal": "Вывод из {{goalName}}",
+    "deposit": "Пополнение",
+    "depositWithGoal": "Пополнение в {{goalName}}",
+    "swapSimulationError": "Симуляция обмена недоступна",
+    "savingsWalletError": "Сберегательный кошелёк не готов"
   }
 }

@@ -1,35 +1,29 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useCallback } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
-import { useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { COLORS, ICONS, SIZES } from '../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
+import { SIZES } from '../../../constants';
 import { CENTER } from '../../../constants/styles';
-import { useGlobalThemeContext } from '../../../../context-store/theme';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { useGlobalContacts } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
 import { useAppStatus } from '../../../../context-store/appStatus';
 import { usePools } from '../../../../context-store/poolContext';
 import { useToast } from '../../../../context-store/toastManager';
-import GetThemeColors from '../../../hooks/themeColors';
+import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import useAccountSwitcher from '../../../hooks/useAccountSwitcher';
 import { copyToClipboard } from '../../../functions';
-import { shareMessage } from '../../../functions/handleShare';
-import openWebBrowser from '../../../functions/openWebBrowser';
-import { supportedLanguagesList } from '../../../../locales/localeslist';
 
 import ProfileCard from './components/ProfileCard';
 import AccountsPreview from './components/AccountsPreview';
 import PoolsPreview from './components/PoolsPreview';
-import SectionCard from './components/SectionCard';
-import SettingsRow from './components/SettingsRow';
+import SavingsPreview from './components/SavingsPreview';
 import PointOfSaleBanner from './components/PointOfSaleBanner';
-import { BlitzSocialOptions } from '../../../components/admin/homeComponents/settingsContent';
-import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
-import { useGlobalInsets } from '../../../../context-store/insetsProvider';
+import GiftsPreview from './components/GiftsPreview';
+
 import Animated, {
   Extrapolation,
   interpolate,
@@ -37,128 +31,47 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import {
-  NWC_ACCOUNT_UUID,
-  useActiveCustodyAccount,
-} from '../../../../context-store/activeAccount';
+import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import SectionCard from './components/SectionCard';
+import SettingsRow from './components/SettingsRow';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
+import openWebBrowser from '../../../functions/openWebBrowser';
 
-const PREFERENCES_ROWS = [
-  {
-    name: 'Display Currency',
-    displayName: 'screens.inAccount.settingsContent.display currency',
-    iconName: 'Coins',
-    hasInlineValue: 'fiatCurrency',
-  },
-  {
-    name: 'Language',
-    displayName: 'screens.inAccount.settingsContent.language',
-    iconName: 'Languages',
-    hasInlineValue: 'language',
-  },
-  {
-    name: 'Display Options',
-    displayName: 'screens.inAccount.settingsContent.display options',
-    iconName: 'Palette',
-  },
-  {
-    name: 'Fast Pay',
-    displayName: 'screens.inAccount.settingsContent.fast pay',
-    iconName: 'ClockFading',
-  },
-  {
-    name: 'Notifications',
-    displayName: 'screens.inAccount.settingsContent.notifications',
-    iconName: 'Bell',
-  },
+const INITIAL_WIDGET_ORDER = [
+  { id: 'accounts', type: 'accounts' },
+  { id: 'savings', type: 'savings' },
+  { id: 'pools', type: 'pools' },
+  { id: 'gifts', type: 'gifts' },
+  { id: 'point-of-sale', type: 'point-of-sale' },
 ];
 
-const SECURITY_ROWS = [
-  {
-    name: 'Login Mode',
-    displayName: 'screens.inAccount.settingsContent.login mode',
-    iconName: 'ScanFace',
-  },
+const DOOMSDAY_ROW = [
   {
     name: 'Backup wallet',
     displayName: 'screens.inAccount.settingsContent.backup wallet',
     iconName: 'Lock',
   },
-];
-
-const TECHNICAL_ROWS = [
   {
-    name: 'Spark Info',
-    displayName: 'screens.inAccount.settingsContent.spark info',
-    iconName: 'VectorSquare',
-  },
-  {
-    name: 'Nostr',
-    displayName: 'screens.inAccount.settingsContent.nostr',
-    iconName: 'Link',
-  },
-  {
-    name: 'Blitz Fee Details',
-    displayName: 'screens.inAccount.settingsContent.blitz fee details',
-    iconImage: ICONS.receiptIcon,
-    iconImageWhite: ICONS.receiptWhite,
-  },
-  {
-    name: 'Crash Reports',
-    displayName: 'screens.inAccount.settingsContent.crash reports',
-    iconName: 'ShieldCheck',
-  },
-  {
-    name: 'ViewAllSwaps',
-    displayName: 'screens.inAccount.settingsContent.view all swaps',
-    iconName: 'SendToBack',
+    name: 'Delete Wallet',
+    displayName: 'screens.inAccount.settingsContent.delete wallet',
+    iconName: 'Trash2',
   },
 ];
-
-const OTHER_ROWS = [
-  {
-    name: 'About',
-    displayName: 'screens.inAccount.settingsContent.about',
-    iconName: 'Info',
-  },
-  {
-    name: 'Blitz Stats',
-    displayName: 'screens.inAccount.settingsContent.blitz stats',
-    iconName: 'ChartArea',
-  },
-];
-
-const DELETE_ROW = {
-  name: 'Delete Wallet',
-  displayName: 'screens.inAccount.settingsContent.delete wallet',
-  iconName: 'Trash2',
-  isDestructive: true,
-};
-
-const REQUIRES_INTERNET = [
-  'display currency',
-  'fast pay',
-  'point-of-sale',
-  'edit contact profile',
-];
-const SCROLL_THRESHOLD = 330;
+const SCROLL_THRESHOLD = 100;
 
 export default function SettingsHub(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
-  const { getAccountMnemonic } = useActiveCustodyAccount();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { backgroundOffset } = GetThemeColors();
   const { activePoolsArray, poolsArray } = usePools();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
 
   const {
-    accounts,
-    activeAccount,
     isSwitchingAccount,
     handleAccountPress,
     isUsingNostr,
@@ -168,39 +81,15 @@ export default function SettingsHub(props) {
   const isDoomsday = props?.route?.params?.isDoomsday;
   const myProfileImage = cache[masterInfoObject?.uuid];
   const myContact = globalContactsInformation?.myProfile;
-  const pinnedAccountUUIDs = masterInfoObject.pinnedAccounts;
-
-  const currentLanguage = supportedLanguagesList.find(
-    item => item.id === masterInfoObject.userSelectedLanguage,
-  )?.languageName;
+  const pinnedAccountUUIDs = masterInfoObject?.pinnedAccounts || [];
 
   const scrollY = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
+      console.log(event);
       scrollY.value = event.contentOffset.y;
     },
-  });
-
-  const shareIconStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [1, 0],
-      Extrapolation.CLAMP,
-    );
-
-    const translateY = interpolate(
-      scrollY.value,
-      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
-      [0, -10],
-      Extrapolation.CLAMP,
-    );
-
-    return {
-      opacity,
-      transform: [{ translateY }],
-    };
   });
 
   const profileTextStyle = useAnimatedStyle(() => {
@@ -246,25 +135,7 @@ export default function SettingsHub(props) {
       position: 'absolute',
     };
   });
-
-  const handleSettingsRowPress = useCallback(
-    row => {
-      if (
-        !isConnectedToTheInternet &&
-        REQUIRES_INTERNET.includes(row.name.toLowerCase())
-      ) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('errormessages.nointernet'),
-        });
-        return;
-      }
-      navigate.navigate('SettingsContentHome', {
-        for: row.name,
-        isDoomsday,
-      });
-    },
-    [isConnectedToTheInternet, isDoomsday],
-  );
+  const widgetOrder = INITIAL_WIDGET_ORDER;
 
   const handleEditProfile = useCallback(() => {
     if (!isConnectedToTheInternet) {
@@ -273,37 +144,42 @@ export default function SettingsHub(props) {
       });
       return;
     }
+
     navigate.navigate('SettingsContentHome', {
       for: 'edit contact profile',
       isDoomsday,
     });
-  }, [isConnectedToTheInternet, isDoomsday]);
+  }, [isConnectedToTheInternet, isDoomsday, navigate, t]);
 
   const handleShowQR = useCallback(() => {
     navigate.navigate('ShowProfileQr');
-  }, []);
+  }, [navigate]);
 
   const handleCopyUsername = useCallback(() => {
     copyToClipboard(myContact?.uniqueName, showToast);
-  }, [myContact?.uniqueName]);
+  }, [myContact?.uniqueName, showToast]);
 
   const handleAccountEdit = useCallback(
-    async account => {
+    account => {
       navigate.navigate('EditAccountPage', {
         account,
         from: 'SettingsHome',
       });
     },
-    [getAccountMnemonic],
+    [navigate],
   );
+
+  const handleSavingsPress = useCallback(() => {
+    navigate.navigate('SavingsHome');
+  }, [navigate]);
 
   const handleViewAllAccounts = useCallback(() => {
     navigate.navigate('SettingsContentHome', { for: 'Accounts' });
-  }, []);
+  }, [navigate]);
 
   const handleViewAllPools = useCallback(() => {
     navigate.navigate('SettingsContentHome', { for: 'pools' });
-  }, []);
+  }, [navigate]);
 
   const handlePOS = useCallback(() => {
     if (!isConnectedToTheInternet) {
@@ -312,29 +188,74 @@ export default function SettingsHub(props) {
       });
       return;
     }
+
     navigate.navigate('SettingsContentHome', { for: 'Point-of-sale' });
-  }, [isConnectedToTheInternet]);
+  }, [isConnectedToTheInternet, navigate, t]);
 
-  const handleBlitzRestore = useCallback(() => {
-    openWebBrowser({
-      navigate,
-      link: 'https://recover.blitzwalletapp.com/',
-    });
-  }, []);
+  const handleOpenGifts = useCallback(() => {
+    navigate.navigate('GiftsPageHome');
+  }, [navigate]);
 
-  const getInlineValue = useCallback(
-    row => {
-      if (row.hasInlineValue === 'fiatCurrency') {
-        return masterInfoObject.fiatCurrency?.toUpperCase();
+  const renderWidgetItem = useCallback(
+    ({ item }) => {
+      // Ordering is driven by INITIAL_WIDGET_ORDER and rendered as-is in FlashList.
+      switch (item.type) {
+        case 'accounts':
+          return (
+            <AccountsPreview
+              pinnedAccountUUIDs={pinnedAccountUUIDs}
+              isUsingNostr={isUsingNostr}
+              selectedAltAccount={selectedAltAccount}
+              isSwitchingAccount={isSwitchingAccount}
+              onAccountPress={handleAccountPress}
+              onAccountEdit={handleAccountEdit}
+              onViewAll={handleViewAllAccounts}
+            />
+          );
+        case 'pools':
+          return (
+            <PoolsPreview
+              activePoolsArray={activePoolsArray}
+              poolsArray={poolsArray}
+              onViewAll={handleViewAllPools}
+            />
+          );
+        case 'savings':
+          return <SavingsPreview onPress={handleSavingsPress} />;
+        case 'point-of-sale':
+          return <PointOfSaleBanner onPress={handlePOS} />;
+        case 'gifts':
+          return <GiftsPreview onPress={handleOpenGifts} />;
+        default:
+          return null;
       }
-      if (row.hasInlineValue === 'language') {
-        return currentLanguage;
-      }
-      return undefined;
     },
-    [masterInfoObject.fiatCurrency, currentLanguage],
+    [
+      activePoolsArray,
+      handleAccountEdit,
+      handleAccountPress,
+      handleOpenGifts,
+      handlePOS,
+      handleViewAllAccounts,
+      handleViewAllPools,
+      handleSavingsPress,
+      isSwitchingAccount,
+      isUsingNostr,
+      pinnedAccountUUIDs,
+      poolsArray,
+      selectedAltAccount,
+    ],
   );
 
+  const handleSettingsRowPress = useCallback(
+    row => {
+      navigate.navigate('SettingsContentHome', {
+        for: row.name,
+        isDoomsday,
+      });
+    },
+    [isConnectedToTheInternet, isDoomsday],
+  );
   const renderSection = useCallback(
     (rows, title) => {
       return (
@@ -346,7 +267,6 @@ export default function SettingsHub(props) {
               iconImage={row.iconImage}
               iconImageWhite={row.iconImageWhite}
               label={t(row.displayName)}
-              inlineValue={getInlineValue(row)}
               onPress={() => handleSettingsRowPress(row)}
               isLast={index === rows.length - 1}
               isDestructive={row.isDestructive}
@@ -355,53 +275,48 @@ export default function SettingsHub(props) {
         </SectionCard>
       );
     },
-    [t, getInlineValue, handleSettingsRowPress],
+    [t, handleSettingsRowPress],
   );
 
   if (isDoomsday) {
     return (
       <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
         <CustomSettingsTopBar label={t('settings.index.settingsHead')} />
-        <ScrollView
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: bottomPadding },
-          ]}
-        >
-          {renderSection(
-            [SECURITY_ROWS.find(r => r.name === 'Backup wallet')],
-            '',
-          )}
-          {renderSection([DELETE_ROW], '')}
+        <View style={styles.doomedayContianer}>
+          {renderSection(DOOMSDAY_ROW)}
+
           <TouchableOpacity
-            onPress={handleBlitzRestore}
-            style={[
-              styles.restoreBanner,
-              {
-                borderColor:
-                  theme && darkModeType ? COLORS.white : COLORS.primary,
-              },
-            ]}
+            onPress={() => {
+              openWebBrowser({
+                navigate,
+                link: 'https://recover.blitzwalletapp.com/',
+              });
+            }}
+            style={{
+              ...styles.posContainer,
+              borderColor:
+                theme && darkModeType ? COLORS.white : COLORS.primary,
+              marginTop: 30,
+            }}
           >
             <ThemeText
               styles={{
                 color: theme && darkModeType ? COLORS.white : COLORS.primary,
                 fontSize: SIZES.xLarge,
+                marginLeft: 10,
                 includeFontPadding: false,
               }}
               content={t('screens.inAccount.settingsContent.blitzRestore')}
             />
           </TouchableOpacity>
-        </ScrollView>
+        </View>
       </GlobalThemeView>
     );
   }
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      <View style={styles.customTopbar}>
+      <View style={styles.topBar}>
         <TouchableOpacity style={styles.goBackTopbar} onPress={navigate.goBack}>
           <ThemeIcon iconName={'ArrowLeft'} />
         </TouchableOpacity>
@@ -427,77 +342,40 @@ export default function SettingsHub(props) {
             />
           </Animated.View>
         </View>
-        {!isDoomsday && (
-          <Animated.View style={shareIconStyle}>
-            <TouchableOpacity
-              onPress={() => {
-                shareMessage({
-                  message: `${t(
-                    'share.contact',
-                  )}\nhttps://blitzwalletapp.com/u/${myContact?.uniqueName}`,
-                });
-              }}
-            >
-              <ThemeIcon iconName={'Share'} />
-            </TouchableOpacity>
-          </Animated.View>
-        )}
+        <TouchableOpacity
+          onPress={() => {
+            navigate.navigate('SettingsIndex');
+          }}
+        >
+          <ThemeIcon iconName={'Settings'} />
+        </TouchableOpacity>
       </View>
-      <Animated.ScrollView
-        onScroll={scrollHandler}
+
+      <FlatList
+        data={widgetOrder}
+        estimatedItemSize={132}
+        keyExtractor={item => item.id}
+        renderItem={renderWidgetItem}
+        // onScroll={scrollHandler}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <ProfileCard
-          profileImage={myProfileImage}
-          name={myContact?.name || t('constants.annonName')}
-          uniqueName={myContact?.uniqueName}
-          onEditPress={handleEditProfile}
-          onShowQRPress={handleShowQR}
-          onCopyUsername={handleCopyUsername}
-        />
-
-        <AccountsPreview
-          accounts={accounts}
-          pinnedAccountUUIDs={pinnedAccountUUIDs}
-          isUsingNostr={isUsingNostr}
-          selectedAltAccount={selectedAltAccount}
-          isSwitchingAccount={isSwitchingAccount}
-          onAccountPress={handleAccountPress}
-          onAccountEdit={handleAccountEdit}
-          onViewAll={handleViewAllAccounts}
-        />
-
-        <PoolsPreview
-          activePoolsArray={activePoolsArray}
-          poolsArray={poolsArray}
-          onViewAll={handleViewAllPools}
-        />
-
-        {renderSection(
-          PREFERENCES_ROWS,
-          t('screens.inAccount.settingsContent.preferences'),
-        )}
-
-        {renderSection(
-          SECURITY_ROWS,
-          t('screens.inAccount.settingsContent.security'),
-        )}
-
-        {renderSection(
-          TECHNICAL_ROWS,
-          t('screens.inAccount.settingsContent.technical settings'),
-        )}
-
-        {renderSection(OTHER_ROWS)}
-
-        {renderSection([DELETE_ROW])}
-
-        <PointOfSaleBanner onPress={handlePOS} />
-
-        <BlitzSocialOptions />
-      </Animated.ScrollView>
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: bottomPadding },
+        ]}
+        ListHeaderComponent={
+          <>
+            <ProfileCard
+              profileImage={myProfileImage}
+              name={myContact?.name || t('constants.annonName')}
+              uniqueName={myContact?.uniqueName}
+              onEditPress={handleEditProfile}
+              onShowQRPress={handleShowQR}
+              onCopyUsername={handleCopyUsername}
+            />
+          </>
+        }
+      />
     </GlobalThemeView>
   );
 }
@@ -514,40 +392,25 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     minHeight: 30,
   },
-  topBarTitle: {
+  goBackTopbar: {
+    marginRight: 'auto',
+  },
+  topBarLabel: {
     fontSize: SIZES.large,
     includeFontPadding: false,
   },
-  topBarSpacer: {
-    width: 24,
-  },
-  scrollContent: {
+  listContent: {
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
     paddingTop: 8,
-    gap: 25,
   },
-  restoreBanner: {
+  widgetsHeader: {
     width: '100%',
-    borderWidth: 2,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 16,
-    marginTop: 16,
-    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 14,
   },
-  customTopbar: {
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-    minHeight: 30,
-  },
-  goBackTopbar: { marginRight: 'auto' },
-  topBarLabel: {
+  widgetsTitle: {
     fontSize: SIZES.large,
-    flexShrink: 1,
     includeFontPadding: false,
   },
   headerTextContainer: {
@@ -556,5 +419,30 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  widgetsSubtitle: {
+    marginTop: 2,
+    fontSize: SIZES.small,
+    opacity: 0.55,
+    includeFontPadding: false,
+  },
+  posContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    borderWidth: 2,
+    ...CENTER,
+    paddingHorizontal: 25,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 10,
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  doomedayContianer: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+    marginTop: 20,
   },
 });

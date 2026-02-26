@@ -42,9 +42,10 @@ export default function SettingsRow({
         CustomNumberOfLines={1}
         styles={[
           styles.label,
-          !iconName && {
-            marginLeft: 0,
-          },
+          !iconName &&
+            !iconImage && {
+              marginLeft: 0,
+            },
         ]}
         content={label}
       />

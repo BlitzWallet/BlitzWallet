@@ -873,7 +873,10 @@
         "switchTokenText": "Usar un token diferente",
         "zeroAmountInvoiceDollarPayments": "Las facturas con monto cero no se pueden pagar con USD. Usa BTC.",
         "decodingPayment": "Decodificando información de pago...",
-        "selectPaymentMethod": "Selecciona un método de pago para continuar."
+        "selectPaymentMethod": "Selecciona un método de pago para continuar.",
+        "swapRatesChangedTitle": "Tipo de cambio actualizado",
+        "swapRatesChangedBody": "El tipo de cambio para este intercambio cambió mientras lo estabas revisando. Vuelve a ingresar el monto para continuar.",
+        "swapRatesChangedButton": "Volver a ingresar el monto"
       },
       "selectPaymentMethod": {
         "header": "Selecciona cómo deseas financiar tu pago."
@@ -1513,7 +1516,10 @@
       "pinAccount": "Fijar",
       "unpinAccount": "Desfijar",
       "maxPinsReached": "Máximo 2 cuentas fijadas. Desfija una primero.",
-      "morePoolsCount": "+{{count}} más"
+      "morePoolsCount": "+{{count}} más",
+      "pos": {
+        "desc": "Acepta fácilmente pagos en Bitcoin para tu negocio"
+      }
     },
     "posPath": {
       "settings": {
@@ -1607,6 +1613,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "Tus tokens",
+        "noTokens": "No tienes tokens"
+      },
       "appStore": {
         "soonMessage": "Nos encanta que quieras más aplicaciones. ¡Sugiere abajo!",
         "title": "Tienda",
@@ -1756,7 +1766,8 @@
         "fundGiftMessage": "Creando regalo",
         "reclaimGiftMessage": "Recuperando regalo",
         "giftsHome": {
-          "title": "Regalos en Blitz"
+          "title": "Regalos en Blitz",
+          "desc": "Comparte Bitcoin o dólares con amigos y familia"
         },
 
         "giftsOverview": {
@@ -2079,5 +2090,160 @@
     "FSAG-5003": "Se produjo un error interno. Contacta al soporte si persiste.",
     "FSAG-5004": "Se produjo un error de configuración del sistema.",
     "FSAG-5100": "Se produjo un error inesperado en el servidor."
+  },
+  "savings": {
+    "home": {
+      "title": "Ahorros",
+      "howItWorksLink": "Cómo funciona",
+      "earnedCard": "Ganado: {{amount}}",
+      "setGoalTitle": "Establecer meta",
+      "setGoalSubtitle": "Ahorra para lo que más importa",
+      "savingsGoalFallback": "Meta de ahorro",
+      "createAnotherGoal": "Crear otra meta",
+      "disclaimer": "Los saldos en efectivo se mantienen en USDB, una stablecoin respaldada por dólares emitida por Brale y respaldada al 100 % por Letras del Tesoro de EE. UU. y equivalentes de efectivo en instituciones financieras reguladas."
+    },
+    "preview": {
+      "title": "Ahorros",
+      "earnInterest": "Gana un 3,5 % de interés"
+    },
+    "goalEmoji": {
+      "screenTitle": "Elegir emoji",
+      "title": "Elige un emoji para tu meta",
+      "subtitle": "¿Qué representa mejor tu meta?",
+      "continueButton": "Elegir emoji"
+    },
+    "goalDescribe": {
+      "screenTitle": "Ingresar descripción",
+      "title": "Describe tu meta",
+      "placeholder": "Dinero extra"
+    },
+    "goalAmount": {
+      "screenTitle": "Fijar meta",
+      "goalFallbackName": "Meta de ahorro",
+      "errors": {
+        "unableToSetGoal": "No se pudo establecer la meta"
+      }
+    },
+    "goalSuccess": {
+      "title": "Tu meta se ha fijado en {{amount}}",
+      "subtitle": "Empieza a añadir dinero para alcanzar tu meta."
+    },
+    "goalDetails": {
+      "screenTitleFallback": "Meta",
+      "updateGoalButton": "Actualizar meta",
+      "emptyState": "Sin meta establecida"
+    },
+    "updateGoal": {
+      "screenTitle": "Actualizar meta",
+      "title": "Actualizar meta",
+      "body": "Puedes cambiar el importe de tu meta o eliminarla.",
+      "removeButton": "Eliminar meta",
+      "updateButton": "Actualizar meta"
+    },
+    "removeGoalConfirm": {
+      "screenTitle": "Eliminar meta",
+      "title": "Eliminar meta",
+      "warningProgressLost": "Ya no verás el progreso hacia tu meta «{{goalName}}».",
+      "warningMoneyReturned": "El dinero asignado a esta meta se transferirá automáticamente a Ahorros.",
+      "removeButton": "Eliminar meta",
+      "errors": {
+        "unableToRemoveGoal": "No se pudo eliminar la meta"
+      }
+    },
+    "goalRemovedSuccess": {
+      "title": "Meta eliminada"
+    },
+    "actionButtons": {
+      "addMoney": "Añadir dinero",
+      "withdraw": "Retirar"
+    },
+    "activity": {
+      "title": "Actividad",
+      "emptyState": "Las transacciones futuras aparecerán aquí."
+    },
+    "addMoney": {
+      "chooseGoalTitle": "Añadir dinero a",
+      "generalSavings": "Ahorros generales",
+      "noSpecificGoal": "Sin meta específica",
+      "sourceTitle": "Añadir dinero desde",
+      "minHint": "Mín: {{amount}}",
+      "confirmTitle": "Confirmar depósito",
+      "youAreAdding": "Estás añadiendo",
+      "fromBalance": "de tu saldo de {{source}}",
+      "confirmButton": "Confirmar",
+      "processing": "Procesando…",
+      "successTitle": "Dinero añadido",
+      "paymentLabel_unallocated": "Depósito de ahorro",
+      "paymentLabel": "Depósito de ahorro a {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteTransfer": "No se pudo completar la transferencia"
+      }
+    },
+    "withdraw": {
+      "balanceTypeTitle": "¿Qué te gustaría retirar?",
+      "interestOption": "Intereses generados",
+      "savingsOption": "Saldo de ahorros",
+      "interestZeroHint": "Aún no se han generado intereses",
+      "savingsZeroHint": "Aún no hay ahorros",
+      "interestBelowMinHint": "Por debajo del mínimo de intercambio, solo saldo en bitcoin",
+      "loadingBalances": "Cargando saldos...",
+      "balanceLoadError": "No se pudo cargar la billetera. Regresa e inténtalo nuevamente.",
+      "fromInterest": "De tus intereses",
+      "fromSavings": "De tus ahorros",
+      "interestPaymentLabel": "Retiro de intereses",
+      "chooseGoalTitle": "Retirar dinero de",
+      "withdrawAll": "Retirar todo",
+      "generalSavings": "Ahorros generales",
+      "destinationTitle": "Retirar dinero a",
+      "availableHint": "Disponible: {{amount}}",
+      "minHint": "Mín: {{amount}}",
+      "confirmTitle": "Confirmar retiro",
+      "youAreWithdrawingAll": "Estás retirando todos tus ahorros",
+      "youAreWithdrawing": "Estás retirando",
+      "toYourBalance": "a tu {{destination}}",
+      "estimatedSats": "≈ {{sats}} sats tras el cambio",
+      "confirmButton": "Confirmar",
+      "processing": "Procesando retiro…",
+      "successTitle": "Retiro completado",
+      "paymentLabel_unallocated": "Retiro de ahorro",
+      "paymentLabel": "Retiro de ahorro de {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteWithdrawal": "No se pudo completar el retiro"
+      }
+    },
+    "howItWorks": {
+      "headline1": "Tu dinero,",
+      "headline2": "ganando cada día.",
+      "subtext": "Una stablecoin respaldada en USD que acumula recompensas automáticamente mientras la mantienes.",
+      "features": {
+        "earnTitle": "Gana recompensas diarias",
+        "earnBody": "USDB acumula recompensas de ahorro automáticamente. Sin staking ni bloqueos — solo mantén y gana.",
+        "accessTitle": "Acceso inmediato",
+        "accessBody": "Retira a tu billetera Lightning en segundos, en cualquier momento. Tus fondos nunca están bloqueados.",
+        "backedTitle": "Totalmente respaldado",
+        "backedBody": "Cada USDB está respaldado 1:1 por USD en cuentas de reserva segregadas y auditadas.",
+        "goalTitle": "Establece una meta de ahorro",
+        "goalBody": "Sigue tu progreso hacia una meta — vacaciones, fondo de emergencia o lo que elijas."
+      },
+      "stats": {
+        "currentApyLabel": "APY",
+        "currentApyValue": "3,5 %",
+        "accrualLabel": "Acumulación",
+        "accrualValue": "Diaria"
+      },
+      "context": {
+        "goalNameReqiured": "El nombre de la meta es obligatorio",
+        "goalNotFound": "Meta no encontrada"
+      },
+      "transparencyTitle": "Respaldado por reservas reales",
+      "transparencyBody": "Las reservas se mantienen en cuentas segregadas y auditadas — principalmente instrumentos del Tesoro de EE. UU. a corto plazo y fondos del mercado monetario. Flashnet publica informes de attestación mensuales.",
+      "disclaimer": "Las tasas son variables y están sujetas a cambios. No es un depósito bancario. Consulta flashnet.xyz para ver las divulgaciones completas."
+    },
+    "withdrawal": "Retiro",
+    "withdrawalWithGoal": "Retiro de {{goalName}}",
+    "deposit": "Depósito",
+    "depositWithGoal": "Depósito a {{goalName}}",
+    "swapSimulationError": "Simulación de cambio no disponible",
+    "savingsWalletError": "Billetera de ahorros no lista"
   }
 }

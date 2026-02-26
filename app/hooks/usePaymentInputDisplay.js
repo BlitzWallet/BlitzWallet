@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { SATSPERBITCOIN } from '../constants';
 
 /**
@@ -19,13 +19,20 @@ export default function usePaymentInputDisplay({
   fiatStats,
   usdFiatStats,
   masterInfoObject,
+  isSendingPayment = false,
 }) {
+  const lockedDisplayRef = useRef({
+    primary: null,
+    secondary: null,
+  });
+  const wasSendingPaymentRef = useRef(false);
+
   const deviceCurrency = masterInfoObject?.fiatCurrency || 'USD';
   const isDeviceCurrencyUSD = deviceCurrency === 'USD';
   const isUSDMode = paymentMode === 'USD';
 
   // PRIMARY DISPLAY - What the user is actively typing/viewing
-  const primaryDisplay = useMemo(() => {
+  const livePrimaryDisplay = useMemo(() => {
     if (isUSDMode) {
       if (inputDenomination === 'fiat') {
         // In USD mode, showing fiat = showing USD
@@ -68,7 +75,7 @@ export default function usePaymentInputDisplay({
   ]);
 
   // SECONDARY DISPLAY - The converted amount shown below primary
-  const secondaryDisplay = useMemo(() => {
+  const liveSecondaryDisplay = useMemo(() => {
     if (isUSDMode) {
       if (inputDenomination === 'fiat') {
         // Showing USD, secondary shows device currency or sats
@@ -99,7 +106,8 @@ export default function usePaymentInputDisplay({
         inputDenomination === 'sats' || inputDenomination === 'hidden'
           ? 'fiat'
           : 'sats';
-      const nextIsUSDDisplay = nextDenomination === 'fiat' && isDeviceCurrencyUSD;
+      const nextIsUSDDisplay =
+        nextDenomination === 'fiat' && isDeviceCurrencyUSD;
 
       return {
         denomination: nextDenomination,
@@ -115,6 +123,35 @@ export default function usePaymentInputDisplay({
     fiatStats,
     usdFiatStats,
   ]);
+
+  useEffect(() => {
+    if (isSendingPayment && !wasSendingPaymentRef.current) {
+      // Freeze display configuration while sending so UI is not changed by updates.
+      lockedDisplayRef.current = {
+        primary: livePrimaryDisplay,
+        secondary: liveSecondaryDisplay,
+      };
+    }
+
+    if (!isSendingPayment && wasSendingPaymentRef.current) {
+      lockedDisplayRef.current = {
+        primary: null,
+        secondary: null,
+      };
+    }
+
+    wasSendingPaymentRef.current = isSendingPayment;
+  }, [isSendingPayment, livePrimaryDisplay, liveSecondaryDisplay]);
+
+  const primaryDisplay =
+    isSendingPayment && lockedDisplayRef.current.primary
+      ? lockedDisplayRef.current.primary
+      : livePrimaryDisplay;
+
+  const secondaryDisplay =
+    isSendingPayment && lockedDisplayRef.current.secondary
+      ? lockedDisplayRef.current.secondary
+      : liveSecondaryDisplay;
 
   // CONVERSION STATS - Which fiat stats to use for conversions
   const conversionFiatStats = useMemo(() => {

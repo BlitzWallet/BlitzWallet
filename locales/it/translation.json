@@ -1007,7 +1007,10 @@
         "switchTokenText": "Usa un token diverso",
         "zeroAmountInvoiceDollarPayments": "Le fatture con importo zero non possono essere pagate in USD. Usa BTC.",
         "decodingPayment": "Decodifica delle informazioni di pagamento...",
-        "selectPaymentMethod": "Seleziona un metodo di pagamento per continuare."
+        "selectPaymentMethod": "Seleziona un metodo di pagamento per continuare.",
+        "swapRatesChangedTitle": "Tasso di cambio aggiornato",
+        "swapRatesChangedBody": "Il tasso di cambio per questo scambio è cambiato durante la revisione. Inserisci nuovamente l’importo per continuare.",
+        "swapRatesChangedButton": "Reinserisci importo"
       },
       "selectPaymentMethod": {
         "header": "Seleziona come desideri finanziare il pagamento."
@@ -1648,7 +1651,10 @@
       "pinAccount": "Fissa",
       "unpinAccount": "Rimuovi",
       "maxPinsReached": "Massimo 2 account fissati. Rimuovine uno prima.",
-      "morePoolsCount": "+{{count}} altri"
+      "morePoolsCount": "+{{count}} altri",
+      "pos": {
+        "desc": "Accetta facilmente pagamenti in Bitcoin per la tua attività"
+      }
     },
     "posPath": {
       "settings": {
@@ -1738,6 +1744,10 @@
   },
   "screens": {
     "inAccount": {
+      "tokens": {
+        "yourTokens": "I tuoi token",
+        "noTokens": "Non hai token"
+      },
       "appStore": {
         "soonMessage": "Ci piace che tu voglia più app. Suggeriscile qui sotto!",
         "title": "Negozio",
@@ -1887,7 +1897,8 @@
         "fundGiftMessage": "Creazione del regalo",
         "reclaimGiftMessage": "Recupero del regalo",
         "giftsHome": {
-          "title": "Regali in Blitz"
+          "title": "Regali in Blitz",
+          "desc": "Condividi Bitcoin o Dollari con amici e famiglia"
         },
         "giftsOverview": {
           "noGiftsHead": "Nessun regalo ancora",
@@ -2199,5 +2210,160 @@
     "FSAG-5003": "Si è verificato un errore interno. Contatta l’assistenza se il problema persiste.",
     "FSAG-5004": "Si è verificato un errore di configurazione del sistema.",
     "FSAG-5100": "Si è verificato un errore imprevisto del server."
+  },
+  "savings": {
+    "home": {
+      "title": "Risparmi",
+      "howItWorksLink": "Come funziona",
+      "earnedCard": "Guadagnato: {{amount}}",
+      "setGoalTitle": "Imposta un obiettivo",
+      "setGoalSubtitle": "Risparmia per ciò che conta di più",
+      "savingsGoalFallback": "Obiettivo di risparmio",
+      "createAnotherGoal": "Crea un altro obiettivo",
+      "disclaimer": "I saldi in contanti sono detenuti in USDB, una stablecoin ancorata al dollaro emessa da Brale e completamente garantita 1:1 da Buoni del Tesoro USA ed equivalenti di cassa presso istituzioni finanziarie regolamentate."
+    },
+    "preview": {
+      "title": "Risparmi",
+      "earnInterest": "Guadagna il 3,5% di interessi"
+    },
+    "goalEmoji": {
+      "screenTitle": "Scegli emoji",
+      "title": "Scegli un emoji per il tuo obiettivo",
+      "subtitle": "Cosa rappresenta meglio il tuo obiettivo?",
+      "continueButton": "Scegli emoji"
+    },
+    "goalDescribe": {
+      "screenTitle": "Inserisci descrizione",
+      "title": "Descrivi il tuo obiettivo",
+      "placeholder": "Fondo extra"
+    },
+    "goalAmount": {
+      "screenTitle": "Imposta obiettivo",
+      "goalFallbackName": "Obiettivo di risparmio",
+      "errors": {
+        "unableToSetGoal": "Impossibile impostare l'obiettivo"
+      }
+    },
+    "goalSuccess": {
+      "title": "Il tuo obiettivo è stato impostato a {{amount}}",
+      "subtitle": "Inizia ad aggiungere denaro per raggiungere il tuo obiettivo."
+    },
+    "goalDetails": {
+      "screenTitleFallback": "Obiettivo",
+      "updateGoalButton": "Aggiorna obiettivo",
+      "emptyState": "Nessun obiettivo impostato"
+    },
+    "updateGoal": {
+      "screenTitle": "Aggiorna obiettivo",
+      "title": "Aggiorna obiettivo",
+      "body": "Puoi modificare l'importo dedicato al tuo obiettivo oppure rimuoverlo.",
+      "removeButton": "Rimuovi obiettivo",
+      "updateButton": "Aggiorna obiettivo"
+    },
+    "removeGoalConfirm": {
+      "screenTitle": "Rimuovi obiettivo",
+      "title": "Rimuovi obiettivo",
+      "warningProgressLost": "Non vedrai più i progressi verso il tuo obiettivo «{{goalName}}».",
+      "warningMoneyReturned": "Il denaro dedicato a questo obiettivo verrà trasferito automaticamente ai Risparmi.",
+      "removeButton": "Rimuovi obiettivo",
+      "errors": {
+        "unableToRemoveGoal": "Impossibile rimuovere l'obiettivo"
+      }
+    },
+    "goalRemovedSuccess": {
+      "title": "Obiettivo rimosso"
+    },
+    "actionButtons": {
+      "addMoney": "Aggiungi denaro",
+      "withdraw": "Preleva"
+    },
+    "activity": {
+      "title": "Attività",
+      "emptyState": "Le transazioni future appariranno qui."
+    },
+    "addMoney": {
+      "chooseGoalTitle": "Aggiungi denaro a",
+      "generalSavings": "Risparmi generali",
+      "noSpecificGoal": "Nessun obiettivo specifico",
+      "sourceTitle": "Aggiungi denaro da",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Conferma deposito",
+      "youAreAdding": "Stai aggiungendo",
+      "fromBalance": "dal tuo saldo {{source}}",
+      "confirmButton": "Conferma",
+      "processing": "Elaborazione in corso…",
+      "successTitle": "Denaro aggiunto",
+      "paymentLabel_unallocated": "Deposito risparmio",
+      "paymentLabel": "Deposito risparmio su {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteTransfer": "Impossibile completare il trasferimento"
+      }
+    },
+    "withdraw": {
+      "balanceTypeTitle": "Cosa desideri prelevare?",
+      "interestOption": "Interessi maturati",
+      "savingsOption": "Saldo risparmi",
+      "interestZeroHint": "Nessun interesse maturato finora",
+      "savingsZeroHint": "Nessun risparmio ancora",
+      "interestBelowMinHint": "Sotto il minimo per lo swap, solo saldo bitcoin",
+      "loadingBalances": "Caricamento saldi...",
+      "balanceLoadError": "Impossibile caricare il wallet. Torna indietro e riprova.",
+      "fromInterest": "Dai tuoi interessi",
+      "fromSavings": "Dai tuoi risparmi",
+      "interestPaymentLabel": "Prelievo interessi",
+      "chooseGoalTitle": "Preleva denaro da",
+      "withdrawAll": "Preleva tutto",
+      "generalSavings": "Risparmi generali",
+      "destinationTitle": "Preleva denaro su",
+      "availableHint": "Disponibile: {{amount}}",
+      "minHint": "Min: {{amount}}",
+      "confirmTitle": "Conferma prelievo",
+      "youAreWithdrawingAll": "Stai prelevando tutti i risparmi",
+      "youAreWithdrawing": "Stai prelevando",
+      "toYourBalance": "sul tuo {{destination}}",
+      "estimatedSats": "≈ {{sats}} sats dopo lo scambio",
+      "confirmButton": "Conferma",
+      "processing": "Prelievo in corso…",
+      "successTitle": "Prelievo completato",
+      "paymentLabel_unallocated": "Prelievo risparmio",
+      "paymentLabel": "Prelievo risparmio da {{savingsGoal}}",
+      "errors": {
+        "unableToCompleteWithdrawal": "Impossibile completare il prelievo"
+      }
+    },
+    "howItWorks": {
+      "headline1": "Il tuo denaro,",
+      "headline2": "che cresce ogni giorno.",
+      "subtext": "Una stablecoin ancorata al dollaro che accumula automaticamente premi mentre la detieni.",
+      "features": {
+        "earnTitle": "Guadagna premi ogni giorno",
+        "earnBody": "USDB accumula automaticamente premi di risparmio. Nessuno staking, nessun blocco — tienila e guadagna.",
+        "accessTitle": "Accesso immediato",
+        "accessBody": "Preleva sul tuo wallet Lightning in pochi secondi, in qualsiasi momento. I tuoi fondi non sono mai bloccati.",
+        "backedTitle": "Completamente garantito",
+        "backedBody": "Ogni USDB è garantito 1:1 da USD in conti di riserva segregati e certificati.",
+        "goalTitle": "Imposta un obiettivo di risparmio",
+        "goalBody": "Monitora i progressi verso un obiettivo — una vacanza, un fondo d'emergenza o qualsiasi altra cosa."
+      },
+      "stats": {
+        "currentApyLabel": "APY",
+        "currentApyValue": "3,5%",
+        "accrualLabel": "Accumulo",
+        "accrualValue": "Giornaliero"
+      },
+      "context": {
+        "goalNameReqiured": "Il nome dell'obiettivo è obbligatorio",
+        "goalNotFound": "Obiettivo non trovato"
+      },
+      "transparencyTitle": "Garantito da riserve reali",
+      "transparencyBody": "Le riserve sono detenute in conti segregati e certificati — principalmente titoli del Tesoro USA a breve termine e fondi del mercato monetario. Flashnet pubblica report di attestazione mensili.",
+      "disclaimer": "I tassi sono variabili e soggetti a modifiche. Non si tratta di un deposito bancario. Consulta flashnet.xyz per le informative complete."
+    },
+    "withdrawal": "Prelievo",
+    "withdrawalWithGoal": "Prelievo da {{goalName}}",
+    "deposit": "Deposito",
+    "depositWithGoal": "Deposito su {{goalName}}",
+    "swapSimulationError": "Simulazione di scambio non disponibile",
+    "savingsWalletError": "Wallet risparmio non pronto"
   }
 }

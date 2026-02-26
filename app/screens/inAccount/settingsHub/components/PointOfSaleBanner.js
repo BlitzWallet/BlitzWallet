@@ -1,53 +1,98 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { COLORS, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
+import WidgetCard from './WidgetCard';
+import GetThemeColors from '../../../../hooks/themeColors';
 
-export default function PointOfSaleBanner({ onPress }) {
+export default function PointOfSaleBanner({ onPress, onLongPress }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const accentColor = theme && darkModeType ? COLORS.white : COLORS.primary;
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.banner, { borderColor: accentColor }]}
-    >
-      <ThemeIcon
-        colorOverride={accentColor}
-        size={32}
-        strokeWidth={1.6}
-        iconName={'Calculator'}
-      />
-      <ThemeText
-        CustomNumberOfLines={1}
-        adjustsFontSizeToFit={true}
-        minimumFontScale={0.5}
-        styles={[styles.text, { color: accentColor }]}
-        content={t('screens.inAccount.settingsContent.point-of-sale')}
-      />
-    </TouchableOpacity>
+    <WidgetCard onPress={onPress} onLongPress={onLongPress}>
+      <View style={styles.row}>
+        <View style={styles.left}>
+          <View style={styles.header}>
+            <ThemeText
+              styles={styles.headerTitle}
+              content={t('settings.posPath.settings.title')}
+            />
+          </View>
+
+          <ThemeText
+            styles={styles.rateText}
+            content={t('settings.hub.pos.desc')}
+          />
+        </View>
+        <View
+          style={[
+            styles.iconWrap,
+            {
+              backgroundColor:
+                theme && darkModeType
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : COLORS.primary,
+            },
+          ]}
+        >
+          <ThemeIcon
+            colorOverride={COLORS.darkModeText}
+            iconName={'Calculator'}
+            size={22}
+          />
+        </View>
+      </View>
+    </WidgetCard>
   );
 }
 
 const styles = StyleSheet.create({
-  banner: {
-    width: '100%',
+  header: {
     flexDirection: 'row',
-    borderWidth: 2,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    // marginBottom: 8,
+  },
+  headerTitle: {
+    fontSize: SIZES.smedium,
+    fontWeight: '500',
+    includeFontPadding: false,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  left: {
+    flexShrink: 1,
+  },
+  title: {
+    fontSize: SIZES.smedium,
+    fontWeight: '500',
+    includeFontPadding: false,
+  },
+  balance: {
+    fontSize: SIZES.large,
+    includeFontPadding: false,
+  },
+  rateText: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+    includeFontPadding: false,
+  },
+  iconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  text: {
-    flexShrink: 1,
-    fontSize: SIZES.xLarge,
-    marginLeft: 10,
-    includeFontPadding: false,
   },
 });

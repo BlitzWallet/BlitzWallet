@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
   MAIN_ACCOUNT_UUID,
@@ -7,6 +7,7 @@ import {
 } from '../../context-store/activeAccount';
 import { useSparkWallet } from '../../context-store/sparkContext';
 import { initWallet } from '../functions/initiateWalletConnection';
+import { navigationRef } from '../../navigation/navigationService';
 
 export default function useAccountSwitcher() {
   const navigate = useNavigation();
@@ -26,12 +27,17 @@ export default function useAccountSwitcher() {
     accountBeingLoaded: '',
     isLoading: false,
   });
+  const isAccountPressRunning = useRef(false);
 
   const handleAccountPress = useCallback(
     async account => {
+      if (isAccountPressRunning.current) return;
+      isAccountPressRunning.current = true;
       try {
         const accountMnemonic = await getAccountMnemonic(account);
         if (currentWalletMnemoinc === accountMnemonic) {
+          if (navigationRef.getCurrentRoute()?.name === 'SettingsContentHome')
+            return;
           navigate.navigate('SettingsContentHome', {
             for: 'Accounts',
           });
@@ -81,6 +87,7 @@ export default function useAccountSwitcher() {
           accountBeingLoaded: '',
           isLoading: false,
         });
+        isAccountPressRunning.current = false;
       }
     },
     [currentWalletMnemoinc, selectedAltAccount],

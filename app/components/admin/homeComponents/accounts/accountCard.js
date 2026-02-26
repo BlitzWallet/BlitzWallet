@@ -31,6 +31,7 @@ export default function AccountCard({
   useSelection = false,
   fromSettings = false,
   useAltBackground = false,
+  isAccountSwitching = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
@@ -79,7 +80,7 @@ export default function AccountCard({
 
   return (
     <TouchableOpacity
-      activeOpacity={0.7}
+      activeOpacity={isAccountSwitching ? 1 : 0.7}
       onPress={onPress}
       style={[
         styles.card,

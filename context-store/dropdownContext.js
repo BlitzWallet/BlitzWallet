@@ -197,6 +197,7 @@ export const DropdownProvider = ({ children }) => {
                             />
                           )}
                           <ThemeText
+                            CustomNumberOfLines={2}
                             styles={[
                               styles.defTextStyle,
                               dropdownTextCustomStyles,

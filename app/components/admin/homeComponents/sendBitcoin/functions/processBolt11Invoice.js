@@ -5,6 +5,7 @@ import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { InputTypes } from 'bitcoin-address-parser';
 import hasAlredyPaidInvoice from './hasPaid';
 import {
+  dollarsToSats,
   getLightningPaymentQuote,
   USD_ASSET_ADDRESS,
 } from '../../../../../functions/spark/flashnet';
@@ -24,6 +25,7 @@ export default async function processBolt11Invoice(input, context) {
     dollarBalanceSat,
     min_usd_swap_amount,
     convertedSendAmount,
+    poolInfoRef,
   } = context;
 
   crashlyticsLogReport('Handling decode bolt11 invoices');
@@ -128,8 +130,14 @@ export default async function processBolt11Invoice(input, context) {
             bitcoinBalance,
             dollarBalanceSat,
           };
+          const estimatedAmmFeeSat = Math.round(
+            dollarsToSats(
+              paymentQuote.quote.estimatedAmmFee / Math.pow(10, 6),
+              poolInfoRef.currentPriceAInB,
+            ),
+          );
           fee = {
-            fee: paymentQuote.quote.fee,
+            fee: paymentQuote.quote.fee + estimatedAmmFeeSat,
             supportFee: 0,
           };
         }

@@ -47,6 +47,7 @@ import { BalanceDots } from './homeLightning/balanceDots';
 import { useUserBalanceContext } from '../../../../context-store/userBalanceContext';
 import { useFlashnet } from '../../../../context-store/flashnetContext';
 import { formatBalanceAmount } from '../../../functions';
+import TokensPreview from '../homeComponents/homeLightning/TokensPreview';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -211,7 +212,7 @@ export default function HomeLightning({ navigation }) {
 
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-  const enabledLRC20 = showTokensInformation;
+  const enabledLRC20 = false;
   const didViewSeedPhrase = masterInfoObject?.didViewSeedPhrase;
 
   const BALANCE_FADE_START = navbarHeight;
@@ -554,7 +555,7 @@ export default function HomeLightning({ navigation }) {
         <View
           style={[
             styles.buttonsContainer,
-            { backgroundColor: backgroundColor },
+            { marginBottom: !showTokensInformation ? 50 : 0 },
           ]}
         >
           <MemoizedSendRecieveBTNs
@@ -563,10 +564,9 @@ export default function HomeLightning({ navigation }) {
             isConnectedToTheInternet={isConnectedToTheInternet}
             scrollPosition={scrollPosition}
           />
-          {showTokensInformation && (
-            <MemoizedLRC20Assets theme={theme} darkModeType={darkModeType} />
-          )}
         </View>
+
+        {showTokensInformation && <TokensPreview />}
 
         {/* Transactions list */}
 
@@ -601,6 +601,7 @@ const styles = StyleSheet.create({
   balanceLabel: {
     textTransform: 'uppercase',
     includeFontPadding: false,
+    fontSize: SIZES.smedium,
   },
   balanceSection: {
     alignItems: 'center',
