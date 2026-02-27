@@ -855,6 +855,7 @@ export const querySparkHodlLightningPayments = async ({
         createdTime: request.createdTime,
         paymentHash: Buffer.from(request.paymentHash).toString('hex'),
         transferId: request.transfer.id,
+        satValue: request.transfer.totalValue,
       }));
       return { didWork: true, paidPreimages };
     }

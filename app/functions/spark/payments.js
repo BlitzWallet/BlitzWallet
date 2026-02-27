@@ -4,6 +4,7 @@ import {
   getSparkPaymentFeeEstimate,
   getSparkStaticBitcoinL1Address,
   receiveSparkLightningPayment,
+  receiveSparkHodlLightningPayment,
   sendSparkBitcoinPayment,
   sendSparkLightningPayment,
   sendSparkPayment,
@@ -605,12 +606,51 @@ export const sparkReceivePaymentWrapper = async ({
   performSwaptoUSD = false,
   includeSparkAddress = true,
   expirySeconds,
+  isHoldInvoice = false,
+  paymentHash,
+  holdExpirySeconds,
+  encryptedPreimage,
 }) => {
   try {
     // if (!sparkWallet[sha256Hash(mnemoinc)])
     //   throw new Error('sparkWallet not initialized');
 
     if (paymentType === 'lightning') {
+      if (isHoldInvoice) {
+        const invoiceResponse = await receiveSparkHodlLightningPayment({
+          amountSats,
+          paymentHash,
+          memo,
+          expirySeconds: holdExpirySeconds,
+          mnemonic: mnemoinc,
+        });
+        if (!invoiceResponse.didWork) throw new Error(invoiceResponse.error);
+        const invoice = invoiceResponse.response;
+        const tempTransaction = {
+          id: invoice.id,
+          amount: amountSats,
+          expiration: invoice.invoice.expiresAt,
+          description: memo || '',
+          shouldNavigate,
+          details: {
+            createdTime: new Date(invoice.createdAt).getTime(),
+            isLNURL: false,
+            shouldNavigate: true,
+            isBlitzContactPayment: false,
+            performSwaptoUSD: false,
+            isHoldInvoice: true,
+            encryptedPreimage,
+            paymentHash,
+          },
+        };
+        await addSingleUnpaidSparkLightningTransaction(tempTransaction);
+        return {
+          didWork: true,
+          data: invoice,
+          invoice: invoice.invoice.encodedInvoice,
+        };
+      }
+
       const invoiceResponse = await receiveSparkLightningPayment({
         amountSats,
         memo,

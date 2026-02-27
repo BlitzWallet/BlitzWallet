@@ -4,10 +4,11 @@ import {
   SATSPERBITCOIN,
 } from '../../constants';
 import { breezLiquidReceivePaymentWrapper } from '../breezLiquid';
-
+import { randomBytes } from 'react-native-quick-crypto';
 import customUUID from '../customUUID';
 import { crashlyticsLogReport } from '../crashlyticsLogs';
 import { sparkReceivePaymentWrapper } from '../spark/payments';
+import { encriptMessage } from '../messaging/encodingAndDecodingMessages';
 import { getRootstockAddress } from '../boltz/rootstock/submarineSwap';
 import { formatBip21Address } from '../spark/handleBip21SparkAddress';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
@@ -106,48 +107,85 @@ export async function initializeAddressProcess(wolletInfo) {
           ((wolletInfo.poolInfoRef.lpFeeBps + 100 + 10000) / 10000),
       );
 
-      const [response, swapResponse] = await Promise.all([
-        sparkReceivePaymentWrapper({
+      if (wolletInfo.isHoldInvoice && wolletInfo.endReceiveType === 'BTC') {
+        // Generate random preimage and derive payment hash
+        const preimage = randomBytes(32);
+        const paymentHash = sha256Hash(preimage).toString('hex');
+        const preimageHex = Buffer.from(preimage).toString('hex');
+
+        // Encrypt preimage to self using user's nostr key pair
+        const encryptedPreimage = encriptMessage(
+          wolletInfo.contactsPrivateKey,
+          wolletInfo.contactsPublicKey,
+          preimageHex,
+        );
+
+        const response = await sparkReceivePaymentWrapper({
           paymentType: 'lightning',
-          amountSats:
-            wolletInfo.endReceiveType === 'USD'
-              ? swapAmountWithFee
-              : uniqueAmount,
+          amountSats: uniqueAmount,
           memo: wolletInfo.description,
           mnemoinc: wolletInfo.currentWalletMnemoinc,
           sendWebViewRequest,
-          performSwaptoUSD: wolletInfo.endReceiveType === 'USD',
-          expirySeconds: wolletInfo.endReceiveType === 'USD' ? 600 : undefined,
-          includeSparkAddress: wolletInfo.endReceiveType !== 'USD',
-        }),
-        wolletInfo.endReceiveType === 'USD'
-          ? simulateSwap(wolletInfo.currentWalletMnemoinc, {
-              poolId: wolletInfo.poolInfoRef.lpPublicKey,
-              assetInAddress: BTC_ASSET_ADDRESS,
-              assetOutAddress: USD_ASSET_ADDRESS,
-              amountIn: swapAmountWithFee,
-            })
-          : Promise.resolve(null),
-      ]);
+          isHoldInvoice: true,
+          paymentHash,
+          holdExpirySeconds: wolletInfo.holdExpirySeconds,
+          includeSparkAddress: false,
+          encryptedPreimage,
+        });
 
-      if (!response.didWork) {
-        throw new Error('errormessages.lightningInvoiceError');
-      }
+        if (!response.didWork) {
+          throw new Error('errormessages.lightningInvoiceError');
+        }
 
-      stateTracker = {
-        generatedAddress: response.invoice,
-        fee: 0,
-      };
+        stateTracker = {
+          generatedAddress: response.invoice,
+          fee: 0,
+        };
+      } else {
+        const [response, swapResponse] = await Promise.all([
+          sparkReceivePaymentWrapper({
+            paymentType: 'lightning',
+            amountSats:
+              wolletInfo.endReceiveType === 'USD'
+                ? swapAmountWithFee
+                : uniqueAmount,
+            memo: wolletInfo.description,
+            mnemoinc: wolletInfo.currentWalletMnemoinc,
+            sendWebViewRequest,
+            performSwaptoUSD: wolletInfo.endReceiveType === 'USD',
+            expirySeconds:
+              wolletInfo.endReceiveType === 'USD' ? 600 : undefined,
+            includeSparkAddress: wolletInfo.endReceiveType !== 'USD',
+          }),
+          wolletInfo.endReceiveType === 'USD'
+            ? simulateSwap(wolletInfo.currentWalletMnemoinc, {
+                poolId: wolletInfo.poolInfoRef.lpPublicKey,
+                assetInAddress: BTC_ASSET_ADDRESS,
+                assetOutAddress: USD_ASSET_ADDRESS,
+                amountIn: swapAmountWithFee,
+              })
+            : Promise.resolve(null),
+        ]);
 
-      if (swapResponse && swapResponse?.didWork) {
-        stateTracker.swapResponse = swapResponse.simulation;
-        const showPriceImpact =
-          parseFloat(swapResponse.simulation.priceImpact) > 5;
-        if (showPriceImpact) {
-          stateTracker.errorMessageText = {
-            type: 'warning',
-            text: 'errormessages.priceImpact',
-          };
+        if (!response.didWork) {
+          throw new Error('errormessages.lightningInvoiceError');
+        }
+
+        stateTracker = {
+          generatedAddress: response.invoice,
+          fee: 0,
+        };
+
+        if (swapResponse && swapResponse?.didWork) {
+          stateTracker.swapResponse = swapResponse.simulation;
+          const showPriceImpact =
+            parseFloat(swapResponse.simulation.priceImpact) > 5;
+          if (showPriceImpact) {
+            stateTracker.errorMessageText = {
+              type: 'warning',
+              text: 'errormessages.priceImpact',
+            };
+          }
         }
       }
     }
