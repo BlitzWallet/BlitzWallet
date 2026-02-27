@@ -2256,12 +2256,12 @@
     },
     "goalDetails": {
       "screenTitleFallback": "Meta",
-      "updateGoalButton": "Atualizar meta",
+      "updateGoalButton": "Atualizar ou remover meta",
       "emptyState": "Nenhuma meta definida"
     },
     "updateGoal": {
-      "screenTitle": "Atualizar meta",
-      "title": "Atualizar meta",
+      "screenTitle": "Atualizar ou remover meta",
+      "title": "Atualizar ou remover meta",
       "body": "Você pode alterar a quantia necessária para sua meta ou removê-la.",
       "removeButton": "Remover meta",
       "updateButton": "Atualizar quantia"
@@ -2280,15 +2280,15 @@
       "title": "Meta removida"
     },
     "actionButtons": {
-      "addMoney": "Adicionar dinheiro",
-      "withdraw": "Sacar"
+      "addMoney": "Guardar dinheiro",
+      "withdraw": "Resgatar"
     },
     "activity": {
       "title": "Atividade",
       "emptyState": "As transações futuras aparecerão aqui."
     },
     "addMoney": {
-      "chooseGoalTitle": "Adicionar dinheiro em",
+      "chooseGoalTitle": "Guardar dinheiro em",
       "generalSavings": "Caixinha geral",
       "noSpecificGoal": "Sem meta específica",
       "sourceTitle": "Adicionar dinheiro do",
@@ -2301,18 +2301,18 @@
       "steps": {
         "processing": "Processando...",
         "swapping": "Convertendo fundos para dólar...",
-        "adding": "Adicionando à conta da Caixinha...",
+        "adding": "Guardando na Caixinha...",
         "complete": "Concluído."
       },
       "successTitle": "Dinheiro adicionado",
-      "paymentLabel_unallocated": "Depósito na Caixinha",
+      "paymentLabel_unallocated": "Depósito na Caixinha geral",
       "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
       }
     },
     "withdraw": {
-      "balanceTypeTitle": "O que você gostaria de sacar?",
+      "balanceTypeTitle": "O que você gostaria de resgatar?",
       "interestOption": "Juros recebidos",
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há juros acumulados",
@@ -2323,30 +2323,30 @@
       "fromInterest": "Dos seus juros",
       "fromSavings": "Da sua Caixinha",
       "interestPaymentLabel": "Saque de juros",
-      "chooseGoalTitle": "Sacar dinheiro de",
+      "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
-      "destinationTitle": "Sacar dinheiro para",
+      "destinationTitle": "Resgatar dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar saque",
-      "youAreWithdrawingAll": "Você está sacando de todas as Caixinhas",
-      "youAreWithdrawing": "Você está sacando",
+      "youAreWithdrawingAll": "Você está resgatando de todas as Caixinhas",
+      "youAreWithdrawing": "Você está resgatando",
       "toYourBalance": "para o seu {{destination}}",
       "estimatedSats": "≈ {{sats}} sats após troca",
       "confirmButton": "Confirmar",
       "processing": "Processando saque…",
       "steps": {
         "processing": "Processando...",
-        "withdrawing": "Sacando da conta da Caixinha...",
+        "withdrawing": "Resgatando da Caixinha...",
         "swapping": "Convertendo para Bitcoin...",
         "complete": "Concluído."
       },
-      "successTitle": "Saque concluído",
-      "paymentLabel_unallocated": "Saque da Caixinha",
-      "paymentLabel": "Saque da Caixinha {{savingsGoal}}",
+      "successTitle": "Resgate concluído",
+      "paymentLabel_unallocated": "Resgate da Caixinha",
+      "paymentLabel": "Resgate da Caixinha {{savingsGoal}}",
       "errors": {
-        "unableToCompleteWithdrawal": "Não foi possível concluir o saque"
+        "unableToCompleteWithdrawal": "Não foi possível concluir o resgate"
       }
     },
     "howItWorks": {
@@ -2357,10 +2357,10 @@
       "transparencyLegal": "O rendimento é variável e não garantido. Não é um depósito bancário. Não é segurado pela FDIC ou SIPC.",
       "disclaimerLegal": "A Blitz Wallet não é um banco, corretora ou consultora de investimentos. As taxas são variáveis e podem mudar a qualquer momento. Consulte os Termos de Uso para ver todas as divulgações de risco.",
       "features": {
-        "earnTitle": "Ganhe recompensas diárias",
+        "earnTitle": "Receba juros diariamente",
         "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
-        "accessTitle": "Acesso imediato",
-        "accessBody": "Saque para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
+        "accessTitle": "Liquidez imediata",
+        "accessBody": "Resgate para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
         "backedTitle": "Totalmente lastreado",
         "backedBody": "Cada USDB é lastreado 1:1 em USD em contas de reserva segregadas e auditadas.",
         "goalTitle": "Defina uma meta de poupança",
@@ -2369,7 +2369,7 @@
       "stats": {
         "currentApyLabel": "Anual",
         "currentApyValue": "3,5%",
-        "accrualLabel": "Rendimento",
+        "accrualLabel": "Pagamento",
         "accrualValue": "Diário"
       },
       "context": {
@@ -2380,8 +2380,8 @@
       "transparencyBody": "As reservas são mantidas em contas segregadas e auditadas — principalmente títulos do Tesouro dos EUA de curto prazo e fundos do mercado monetário. A Flashnet publica relatórios de atestação mensais.",
       "disclaimer": "As taxas são variáveis e sujeitas a alterações. Não é um depósito bancário. Acesse flashnet.xyz para ver as divulgações completas."
     },
-    "withdrawal": "Saque",
-    "withdrawalWithGoal": "Saque de {{goalName}}",
+    "withdrawal": "Resgate",
+    "withdrawalWithGoal": "Resgate de {{goalName}}",
     "deposit": "Depósito",
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
