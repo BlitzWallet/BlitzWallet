@@ -2250,12 +2250,12 @@
     },
     "goalDetails": {
       "screenTitleFallback": "Meta",
-      "updateGoalButton": "Atualizar meta",
+      "updateGoalButton": "Atualizar ou remover meta",
       "emptyState": "Nenhuma meta definida"
     },
     "updateGoal": {
-      "screenTitle": "Atualizar meta",
-      "title": "Atualizar meta",
+      "screenTitle": "Atualizar ou remover meta",
+      "title": "Atualizar ou remover meta",
       "body": "Você pode alterar a quantia necessária para sua meta ou removê-la.",
       "removeButton": "Remover meta",
       "updateButton": "Atualizar quantia"
