@@ -2295,7 +2295,7 @@
       "steps": {
         "processing": "Processando...",
         "swapping": "Convertendo fundos para dólar...",
-        "adding": "Guardando na conta da Caixinha...",
+        "adding": "Guardando na Caixinha...",
         "complete": "Concluído."
       },
       "successTitle": "Dinheiro adicionado",
@@ -2332,7 +2332,7 @@
       "processing": "Processando saque…",
       "steps": {
         "processing": "Processando...",
-        "withdrawing": "Resgatando da conta da Caixinha...",
+        "withdrawing": "Resgatando da Caixinha...",
         "swapping": "Convertendo para Bitcoin...",
         "complete": "Concluído."
       },
