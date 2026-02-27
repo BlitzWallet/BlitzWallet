@@ -205,14 +205,18 @@
       "title": "Sprache auswählen"
     },
     "homePage": {
+      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Geld Leicht Gemacht.)",
+      "money": "Geld",
+      "made": "Leicht",
+      "simple": "Gemacht.",
       "subtitle": "Ihre Wallet - Ihre Coins - 100 % Open Source.",
       "buttons": {
-        "button1": "Wallet wiederherstellen",
-        "button2": "Neue Wallet erstellen"
+        "button1": "Konto wiederherstellen",
+        "button2": "Loslegen"
       }
     },
     "disclaimerPage": {
-      "header": "Ihre Wallet. Ihre Kontrolle.",
+      "header": "Ihr Geld. Ihre Kontrolle.",
       "subHeader": "Ein paar Dinge, die Sie wissen sollten, bevor Sie starten.",
       "row1Label": "Nur Sie kontrollieren Ihre Gelder.",
       "row1Description": "Blitz verwahrt oder greift niemals auf Ihr Geld zu.",
@@ -220,8 +224,9 @@
       "row2Description": "Sie ist der Generalschlüssel zu Ihrer Wallet. Sie finden sie unter Einstellungen → Wallet sichern.",
       "row3Label": "Keine Wiederherstellung bei Verlust",
       "row3Description": "Wir können den Zugriff nicht wiederherstellen. Bewahren Sie Ihre Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf.",
-      "acceptPrefix": "Ich akzeptiere die ",
+      "acceptPrefix": "Ich verstehe, dass der Verlust meiner Wiederherstellungsphrase (Seed-Phrase) zum dauerhaften Verlust meiner Gelder führt, und ich stimme den",
       "terms&Conditions": "Allgemeinen Geschäftsbedingungen",
+      "acceptSuffix": " von Blitz Wallet zu.",
       "acceptError": "Um fortzufahren, müssen Sie die Allgemeinen Geschäftsbedingungen akzeptieren.",
       "continueBTN": "Weiter"
     },
@@ -251,6 +256,7 @@
     "restoreWallet": {
       "home": {
         "header": "Geben Sie Ihre Wiederherstellungsphrase (Seed-Phrase) ein.",
+        "desc": "Geben Sie Ihre 12 Wiederherstellungswörter ein, um wieder Zugriff auf Ihre Wallet zu erhalten.",
         "continueBTN": "Wallet wiederherstellen",
         "error1": "Bitte geben Sie alle Wörter Ihrer Wiederherstellungsphrase ein.",
         "error2": "Dies ist keine gültige Wiederherstellungsphrase.",
@@ -2226,7 +2232,7 @@
     },
     "preview": {
       "title": "Ersparnisse",
-      "earnInterest": "3,5 % Zinsen verdienen! Ausgezahlt in BTC"
+      "earnInterest": "Zinsen verdienen! Ausgezahlt in BTC"
     },
     "goalEmoji": {
       "screenTitle": "Emoji wählen",
@@ -2349,6 +2355,9 @@
       "headline1": "Ihr Geld,",
       "headline2": "jeden Tag im Einsatz.",
       "subtext": "Ein USD-gedeckter Stablecoin, der automatisch Erträge ansammelt, solange Sie ihn halten.",
+      "transparencyIssuer": "USDB ausgegeben von Brale, Inc. · Rendite über Flashnet",
+      "transparencyLegal": "Die Rendite ist variabel und nicht garantiert. Kein Bankeinlagenprodukt. Nicht durch FDIC oder SIPC versichert.",
+      "disclaimerLegal": "Blitz Wallet ist keine Bank, kein Broker und kein Anlageberater. Die Zinssätze sind variabel und können sich jederzeit ändern. Siehe Nutzungsbedingungen für vollständige Risikohinweise.",
       "features": {
         "earnTitle": "Täglich Erträge erzielen",
         "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – halten Sie einfach und verdienen Sie.",
