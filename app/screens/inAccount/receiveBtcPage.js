@@ -658,7 +658,9 @@ function QrCode(props) {
                 }}
               >
                 <QrCodeWrapper
-                  outerContainerStyle={{ backgroundColor: 'transparent' }}
+                  outerContainerStyle={{
+                    backgroundColor: 'transparent',
+                  }}
                   QRData={qrData}
                 />
               </Animated.View>
@@ -780,6 +782,7 @@ function QrCode(props) {
                   ? t('screens.inAccount.receiveBtcPage.confirmToClaimOn')
                   : t('screens.inAccount.receiveBtcPage.confirmToClaimOff')
               }
+              customNumberOfLines={5}
               iconName={isHoldInvoice ? 'LockOpen' : 'Lock'}
               showBoder={true}
               actionFunction={handleHoldToggle}
@@ -789,7 +792,7 @@ function QrCode(props) {
                 style={[
                   styles.qrInfoContainer,
                   {
-                    gap: 50,
+                    gap: 25,
                     borderBottomWidth: 2,
                     borderBottomColor: backgroundColor,
                   },
@@ -885,6 +888,7 @@ function QRInformationRow({
   actionFunction,
   showSkeleton = false,
   iconName,
+  customNumberOfLines = 1,
 }) {
   const { backgroundColor, textColor } = GetThemeColors();
 
@@ -903,6 +907,7 @@ function QRInformationRow({
     >
       <View style={styles.infoTextContiner}>
         <ThemeText
+          CustomNumberOfLines={customNumberOfLines}
           styles={{ includeFontPadding: false, fontSize: SIZES.small }}
           content={title}
         />
@@ -924,6 +929,7 @@ function QRInformationRow({
           </SkeletonPlaceholder>
         ) : (
           <ThemeText
+            CustomNumberOfLines={customNumberOfLines}
             styles={{
               includeFontPadding: false,
               fontSize: SIZES.small,
@@ -1009,7 +1015,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 10,
-    minHeight: 45,
+    minHeight: 50,
   },
   infoTextContiner: {
     flex: 1,

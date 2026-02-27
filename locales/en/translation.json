@@ -1814,7 +1814,8 @@
         "detailsBTN": "Technical details",
         "contactPaymentType": "Contact",
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
-        "gift": "Gift"
+        "gift": "Gift",
+        "claimPayment": "Claim payment"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
@@ -1866,7 +1867,18 @@
         "selectReceiveAssetHead": "Select the currency to receive",
         "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion.",
         "editDescriptionHead": "What would you like to say?",
-        "editDescriptionPlaceholder": "Add a description"
+        "editDescriptionPlaceholder": "Add a description",
+        "confirmToClaimTitle": "Confirm before receiving",
+        "confirmToClaimOff": "Off, payments are confirmed instantly",
+        "confirmToClaimOn": "On, you approve each payment",
+        "holdInvoiceExplainer": "When on, payments sent to this invoice are held untill you confirm them. If you don't claim in time, the payment automatically returns to the sender.",
+        "expiryTitle": "Expires after",
+        "expiry_3600": "1 hour",
+        "expiry_21600": "6 hours",
+        "expiry_86400": "24 hours",
+        "expiry_604800": "7 days",
+        "expiry_2592000": "30 days",
+        "expiry_7776000": "90 days"
       },
 
       "settingsContent": {

@@ -1784,7 +1784,8 @@
         "detailsBTN": "Technische Details",
         "contactPaymentType": "Kontakt",
         "converstionRate": "{{satAmount}} pro {{USDAmount}}",
-        "gift": "Geschenk"
+        "gift": "Geschenk",
+        "claimPayment": "Zahlung einfordern"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
@@ -1833,7 +1834,18 @@
         "selectReceiveAssetHead": "Bitte wählen Sie das Asset zum Empfangen aus.",
         "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
         "editDescriptionHead": "Was möchten Sie sagen?",
-        "editDescriptionPlaceholder": "Beschreibung hinzufügen"
+        "editDescriptionPlaceholder": "Beschreibung hinzufügen",
+        "confirmToClaimTitle": "Vor dem Empfang bestätigen",
+        "confirmToClaimOff": "Aus, Zahlungen werden sofort bestätigt",
+        "confirmToClaimOn": "An, du bestätigst jede Zahlung",
+        "holdInvoiceExplainer": "Wenn aktiviert, werden an diese Rechnung gesendete Zahlungen zurückgehalten, bis du sie bestätigst. Wenn du sie nicht rechtzeitig einforderst, wird die Zahlung automatisch an den Absender zurückgesendet.",
+        "expiryTitle": "Läuft ab nach",
+        "expiry_3600": "1 Stunde",
+        "expiry_21600": "6 Stunden",
+        "expiry_86400": "24 Stunden",
+        "expiry_604800": "7 Tage",
+        "expiry_2592000": "30 Tage",
+        "expiry_7776000": "90 Tage"
       },
       "settingsContent": {
         "about": "Über uns",
