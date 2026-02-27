@@ -205,14 +205,18 @@
       "title": "Sprache auswählen"
     },
     "homePage": {
+      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
+      "money": "Geld",
+      "made": "Einfach",
+      "simple": "Gemacht.",
       "subtitle": "Ihre Wallet - Ihre Coins - 100 % Open Source.",
       "buttons": {
-        "button1": "Wallet wiederherstellen",
-        "button2": "Neue Wallet erstellen"
+        "button1": "Konto wiederherstellen",
+        "button2": "Loslegen"
       }
     },
     "disclaimerPage": {
-      "header": "Ihre Wallet. Ihre Kontrolle.",
+      "header": "Ihre Geld. Ihre Kontrolle.",
       "subHeader": "Ein paar Dinge, die Sie wissen sollten, bevor Sie starten.",
       "row1Label": "Nur Sie kontrollieren Ihre Gelder.",
       "row1Description": "Blitz verwahrt oder greift niemals auf Ihr Geld zu.",
@@ -220,8 +224,9 @@
       "row2Description": "Sie ist der Generalschlüssel zu Ihrer Wallet. Sie finden sie unter Einstellungen → Wallet sichern.",
       "row3Label": "Keine Wiederherstellung bei Verlust",
       "row3Description": "Wir können den Zugriff nicht wiederherstellen. Bewahren Sie Ihre Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf.",
-      "acceptPrefix": "Ich akzeptiere die ",
+      "acceptPrefix": "Ich verstehe, dass der Verlust meiner Wiederherstellungsphrase zum dauerhaften Verlust meiner Gelder führt, und ich stimme den",
       "terms&Conditions": "Allgemeinen Geschäftsbedingungen",
+      "acceptSuffix": " von Blitz Wallet zu.",
       "acceptError": "Um fortzufahren, müssen Sie die Allgemeinen Geschäftsbedingungen akzeptieren.",
       "continueBTN": "Weiter"
     },

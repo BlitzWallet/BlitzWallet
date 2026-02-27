@@ -211,14 +211,18 @@
       "title": "Choose Language"
     },
     "homePage": {
+      "_COMMENT_": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
+      "money": "Money",
+      "made": "Made",
+      "simple": "Simple.",
       "subtitle": "Your wallet. Your money. Open-source.",
       "buttons": {
-        "button1": "Recover wallet",
-        "button2": "Create new wallet"
+        "button1": "Restore Account",
+        "button2": "Get Started"
       }
     },
     "disclaimerPage": {
-      "header": "Your wallet. Your Control.",
+      "header": "Your money. Your Control.",
       "subHeader": "A few things to know before you start.",
       "row1Label": "Only you control your funds",
       "row1Description": "Blitz never holds or accesses your money.",
@@ -226,9 +230,10 @@
       "row2Description": "It's the master key to your wallet. Find it in Settings → Backup wallet.",
       "row3Label": "No recovery if it's lost",
       "row3Description": "We can't restore access. Keep your recovery phrase somewhere safe.",
-      "acceptPrefix": "I accept the ",
-      "terms&Conditions": "Terms and Conditions",
-      "acceptError": "To continue, you must accept the Terms and Conditions.",
+      "acceptPrefix": "I understand that losing my recovery phrase means permanent loss of funds, and I agree to Blitz Wallet's",
+      "terms&Conditions": "Terms & Conditions",
+      "acceptSuffix": ".",
+      "acceptError": "Please accept the Terms & Conditions to continue.",
       "continueBTN": "Next"
     },
     "verifyKeyPage": {

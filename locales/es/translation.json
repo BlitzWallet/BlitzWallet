@@ -207,14 +207,18 @@
       "title": "Elegir idioma"
     },
     "homePage": {
+      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
+      "money": "Dinero",
+      "made": "Hecho",
+      "simple": "Simple.",
       "subtitle": "Tu billetera. Tu dinero. Código abierto.",
       "buttons": {
-        "button1": "Recuperar billetera",
-        "button2": "Crear nueva billetera"
+        "button1": "Restaurar cuenta",
+        "button2": "Comenzar"
       }
     },
     "disclaimerPage": {
-      "header": "Tu wallet. Tu control.",
+      "header": "Tu dinero. Tu control.",
       "subHeader": "Algunas cosas que debes saber antes de comenzar.",
       "row1Label": "Solo tú controlas tus fondos",
       "row1Description": "Blitz nunca guarda ni accede a tu dinero.",
@@ -222,8 +226,9 @@
       "row2Description": "Es la llave maestra de tu wallet. Encuéntrala en Configuración → Respaldo de wallet.",
       "row3Label": "Sin recuperación si se pierde",
       "row3Description": "No podemos restaurar el acceso. Guarda tu frase en un lugar seguro.",
-      "acceptPrefix": "Acepto los ",
-      "terms&Conditions": "Términos y Condiciones",
+      "acceptPrefix": "Entiendo que perder mi frase de recuperación significa la pérdida permanente de fondos y acepto los",
+      "terms&Conditions": "Términos y condiciones",
+      "acceptSuffix": " de Blitz Wallet.",
       "acceptError": "Para continuar, debes aceptar los Términos y Condiciones.",
       "continueBTN": "Siguiente"
     },

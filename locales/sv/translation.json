@@ -205,14 +205,18 @@
       "title": "Välj språk"
     },
     "homePage": {
+      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
+      "money": "Pengar",
+      "made": "Enkelt",
+      "simple": "Gjort.",
       "subtitle": "Din plånbok. Dina pengar. Öppen källkod.",
       "buttons": {
-        "button1": "Återställ plånbok",
-        "button2": "Skapa ny plånbok"
+        "button1": "Återställ konto",
+        "button2": "Kom igång"
       }
     },
     "disclaimerPage": {
-      "header": "Din wallet. Din kontroll.",
+      "header": "Dina pengar. Din kontroll.",
       "subHeader": "Några saker att veta innan du börjar.",
       "row1Label": "Endast du kontrollerar dina medel",
       "row1Description": "Blitz förvarar eller får aldrig tillgång till dina pengar.",
@@ -220,8 +224,9 @@
       "row2Description": "Det är huvudnyckeln till din wallet. Hitta den i Inställningar → Säkerhetskopiera wallet.",
       "row3Label": "Ingen återställning om den förloras",
       "row3Description": "Vi kan inte återställa åtkomst. Förvara din fras på en säker plats.",
-      "acceptPrefix": "Jag accepterar ",
-      "terms&Conditions": "Villkoren",
+      "acceptPrefix": "Jag förstår att om jag förlorar min återställningsfras innebär det permanent förlust av medel, och jag godkänner Blitz Wallets",
+      "terms&Conditions": "Villkor",
+      "acceptSuffix": ".",
       "acceptError": "För att fortsätta måste du acceptera Villkoren.",
       "continueBTN": "Nästa"
     },
