@@ -820,14 +820,6 @@ const SparkWalletProvider = ({ children }) => {
         details: JSON.parse(lastAddedTx.details),
       };
 
-      if (handledNavigatedTxs.current.has(parsedTx.sparkID)) {
-        console.log(
-          'Already handled transaction, skipping confirm tx page navigation',
-        );
-        return;
-      }
-      handledNavigatedTxs.current.add(parsedTx.sparkID);
-
       const details = parsedTx?.details;
 
       if (isFlashnetTransfer(parsedTx.sparkID)) {
@@ -872,6 +864,19 @@ const SparkWalletProvider = ({ children }) => {
         );
         return;
       }
+
+      if (details.isHoldInvoice && parsedTx.paymentStatus !== 'completed') {
+        console.log('Blocking unconfirmed hodl invoice from showing');
+        return;
+      }
+
+      if (handledNavigatedTxs.current.has(parsedTx.sparkID)) {
+        console.log(
+          'Already handled transaction, skipping confirm tx page navigation',
+        );
+        return;
+      }
+      handledNavigatedTxs.current.add(parsedTx.sparkID);
 
       const isOnReceivePage =
         navigationRef
