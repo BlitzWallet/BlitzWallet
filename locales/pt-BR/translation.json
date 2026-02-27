@@ -224,7 +224,7 @@
       "row2Description": "Ela é a chave que recupera os fundos de todas suas contas na Blitz. Encontre em Configurações → Backup da carteira.",
       "row3Label": "Não pode ser recuperada se for perdida",
       "row3Description": "Não é possível restaurar o acesso sem sua frase de recuperação. Guarde sua frase em um local seguro.",
-      "acceptPrefix": "Entendo que se eu perder minha frase de recuperação significa perda permanente de fundos e concordo com os",
+      "acceptPrefix": "Entendo que se eu perder minha frase de recuperação pode resultar em perda permanente de fundos e concordo com os",
       "terms&Conditions": "Termos e Condições",
       "acceptSuffix": " da Blitz Wallet.",
       "acceptError": "Para continuar, você deve aceitar os Termos e Condições.",
