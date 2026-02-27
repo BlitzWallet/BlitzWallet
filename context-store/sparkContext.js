@@ -30,6 +30,7 @@ import {
 } from '../app/functions/spark/transactions';
 import { useAppStatus } from './appStatus';
 import {
+  checkHodlInvoicePaymentStatuses,
   fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
@@ -1151,6 +1152,11 @@ const SparkWalletProvider = ({ children }) => {
             if (isInitialLRC20Run.current) {
               isInitialLRC20Run.current = false;
             }
+
+            await checkHodlInvoicePaymentStatuses(
+              currentMnemonicRef.current,
+              sparkInfoRef.current.identityPubKey,
+            );
           } catch (err) {
             console.error('Error during periodic restore:', err);
           }
