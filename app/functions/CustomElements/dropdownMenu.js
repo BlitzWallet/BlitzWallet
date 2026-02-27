@@ -29,6 +29,7 @@ const DropdownMenu = ({
   customFunction,
   translateLabelText = true,
   globalContainerStyles = {},
+  customVericalArrowsColor = null,
 }) => {
   const { t } = useTranslation();
   const dropdownRef = useRef(null);
@@ -120,7 +121,11 @@ const DropdownMenu = ({
                 },
               ]}
             >
-              <ThemeIcon size={20} iconName={'ChevronsUpDown'} />
+              <ThemeIcon
+                colorOverride={customVericalArrowsColor}
+                size={20}
+                iconName={'ChevronsUpDown'}
+              />
             </View>
           )}
         </TouchableOpacity>
