@@ -815,7 +815,6 @@ export const claimSparkHodlLightningPayment = async ({
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.claimHTLC(preimage);
-      console.log('HTLC claimed:', transfer.id);
       return { didWork: true, response };
     }
   } catch (err) {
@@ -849,7 +848,6 @@ export const querySparkHodlLightningPayments = async ({
         limit: 50,
         offset: 0,
       });
-      console.log('htlc query response', response);
       const paidPreimages = response.preimageRequests.map(request => ({
         status: request.status,
         createdTime: request.createdTime,
