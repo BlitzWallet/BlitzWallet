@@ -6,6 +6,7 @@ import {
   getSparkLightningSendRequest,
   getSparkPaymentStatus,
   getSparkTransactions,
+  querySparkHodlLightningPayments,
   sparkPaymentType,
 } from '.';
 import {
@@ -665,6 +666,10 @@ async function processLightningTransaction(
   const details = JSON.parse(txStateUpdate.details);
   const possibleOptions = unpaidInvoicesByAmount.get(details.amount) || [];
 
+  if (details.isHoldInvoice) {
+    console.warn('Hold invoice do not check');
+    return;
+  }
   if (
     !IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID) &&
     !possibleOptions.length
@@ -972,3 +977,91 @@ async function processSparkTransactions(
 
   return { updatedTxs, includesGift };
 }
+
+export const checkHodlInvoicePaymentStatuses = async (
+  mnemonic,
+  identityPubKey,
+) => {
+  try {
+    const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
+    if (!unpaidInvoices?.length) return;
+
+    const holdInvoices = unpaidInvoices
+      .map(inv => ({
+        ...inv,
+        details:
+          typeof inv.details === 'string'
+            ? JSON.parse(inv.details)
+            : inv.details,
+      }))
+      .filter(inv => inv.details?.isHoldInvoice === true);
+
+    if (!holdInvoices.length) return;
+
+    const paymentHashes = holdInvoices
+      .map(inv => inv.details.paymentHash)
+      .filter(Boolean);
+
+    const queryResult = await querySparkHodlLightningPayments({
+      paymentHashes,
+      mnemonic,
+    });
+    console.log(queryResult, 'query result');
+    if (!queryResult.didWork || !queryResult?.paidPreimages?.length) return;
+
+    const txsToAdd = [];
+    const idsToDelete = [];
+
+    for (const preimageRequest of queryResult.paidPreimages) {
+      // paymentHash is Uint8Array from native SDK; may be a plain object or string via WebView JSON
+      const hashHex =
+        typeof preimageRequest.paymentHash === 'string'
+          ? preimageRequest.paymentHash
+          : Buffer.from(preimageRequest.paymentHash).toString('hex');
+
+      const match = holdInvoices.find(
+        inv => inv.details.paymentHash === hashHex,
+      );
+      if (!match) continue;
+      if (!preimageRequest.transferId) continue;
+
+      // status 0 = PREIMAGE_REQUEST_STATUS_WAITING_FOR_PREIMAGE = paid but not yet claimed
+      if (preimageRequest.status === 0) {
+        txsToAdd.push({
+          id: preimageRequest.transferId,
+          paymentStatus: 'pending',
+          paymentType: 'lightning',
+          accountId: identityPubKey,
+          details: {
+            amount: match.amount || preimageRequest.satValue,
+            fee: 0,
+            time: preimageRequest.createdTime
+              ? new Date(preimageRequest.createdTime).getTime()
+              : Date.now(),
+            direction: 'INCOMING',
+            description: match.description,
+            isHoldInvoice: true,
+            encryptedPreimage: match.details.encryptedPreimage,
+            paymentHash: match.details.paymentHash,
+            dateAddedToDb: Date.now(),
+          },
+        });
+      }
+
+      // Remove from pending for paid (0) and returned/expired (2) states
+      if (preimageRequest.status === 0 || preimageRequest.status === 2) {
+        idsToDelete.push(match.sparkID);
+      }
+    }
+
+    if (txsToAdd.length > 0) {
+      await bulkUpdateSparkTransactions(txsToAdd);
+    }
+
+    for (const sparkID of idsToDelete) {
+      await deleteUnpaidSparkLightningTransaction(sparkID);
+    }
+  } catch (err) {
+    console.error('Error checking hold invoice payment statuses:', err);
+  }
+};

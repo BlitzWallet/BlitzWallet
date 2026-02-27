@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    // fontWeight: '600',
     letterSpacing: 0.1,
   },
   secondaryBtn: {
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   secondaryBtnText: {
-    fontWeight: '600',
+    // fontWeight: '600',
     fontSize: 16,
   },
   disclaimer: {

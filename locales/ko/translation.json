@@ -128,7 +128,6 @@
     "details": "세부사항",
     "total": "합계"
   },
-
   "languages": {
     "english": "English",
     "spanish": "Español",
@@ -139,7 +138,6 @@
     "swedish": "Svenska",
     "russian": "русский"
   },
-
   "weekdays": {
     "Mon": "Monday",
     "Tue": "Tuesday",
@@ -149,7 +147,6 @@
     "Sat": "Saturday",
     "Sun": "Sunday"
   },
-
   "months": {
     "Jan": "January",
     "Feb": "February",
@@ -164,7 +161,6 @@
     "Nov": "November",
     "Dec": "December"
   },
-
   "timeLabels": {
     "minute": "minute",
     "minutes": "minutes",
@@ -179,7 +175,6 @@
     "monthly": "Monthly",
     "yearly": "Yearly"
   },
-
   "transactionLabelText": {
     "notSent": "Payment not sent",
     "txTime_just_now": "Just now",
@@ -204,7 +199,6 @@
     "memo": "Memo",
     "roostockSwap": "Rootstock to Spark Transfer"
   },
-
   "createAccount": {
     "chooseLanguage": {
       "title": "Choose Language"
@@ -269,7 +263,6 @@
       "btn": "I understand"
     }
   },
-
   "adminLogin": {
     "pinPage": {
       "isBiometricEnabledConfirmAction": "We couldn’t verify your biometrics.\n\nDo you want to delete all wallet data? Only continue if your seed phrase is securely backed up.",
@@ -279,7 +272,6 @@
       "biometricsHeader": "Open with Biometrics"
     }
   },
-
   "apps": {
     "appList": {
       "AI": "AI",
@@ -387,14 +379,12 @@
         "price": "Price: ",
         "fee": "Fee: "
       },
-
       "switchModel": {
         "inputLabel": "Input: {{amount}}/M",
         "outputLabel": "Output: {{amount}}/M",
         "chooseModel": "Choose Model",
         "noModels": "No models match that name. Please check the spelling or try a different name."
       },
-
       "exampleSearchCards": {
         "title": "Example Search Cards",
         "examples": [
@@ -700,7 +690,6 @@
           }
         ]
       },
-
       "saveChat": {
         "errorMessage": "Sorry, we could not save your conversation."
       }
@@ -718,7 +707,6 @@
         "price": "Price: ",
         "fee": "Fee: "
       },
-
       "createAccount": {
         "title": "Powered by",
         "saveEmail": "You do not have an email saved. Speed up the checkout process by saving an email.",
@@ -758,7 +746,6 @@
         "customCopyMessage": "Support email copied"
       }
     },
-
     "sms4sats": {
       "home": {
         "pageDescription": "Send and receive SMS messages without giving away your personal phone number.",
@@ -771,7 +758,6 @@
         "invalidNumber": "Not a valid phone number",
         "receiveTitle": "Confirm Receive"
       },
-
       "sendPage": {
         "startingSendingMessage": "Creating send order",
         "phoneNumberInputDescription": "Enter phone number",
@@ -850,7 +836,6 @@
       "addListing": "Add Shop"
     }
   },
-
   "wallet": {
     "halfModal": {
       "images": "From Image",
@@ -900,7 +885,6 @@
         "format": "Other receiving methods",
         "infoMessage": "Custom amounts aren’t supported on Spark or Rootstock payments."
       },
-
       "switchReceiveOptionPage": {
         "title": "Receiving methods",
         "actionBTN": "Show {{action}}",
@@ -956,7 +940,6 @@
         "timeoutError": "The process took too long to complete. Please try again.",
         "payingToSameAddress": "You cannot send a {{addressType}} payment to yourself"
       },
-
       "errorScreen": {
         "ok": "OK",
         "title": "Error message"
@@ -966,7 +949,6 @@
         "backTextToAmount": "{{amount}}",
         "tenMinutes": "{{numMins}} minutes"
       },
-
       "selectLRC20Token": {
         "title": "Select Token",
         "searchPlaceholder": "Token name...",
@@ -998,7 +980,6 @@
         "see_all_txs": "See all transactions",
         "no_transaction_history": "Send or receive a transaction for it to show up here"
       },
-
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
         "tokensSearchPlaceholder": "Search tokens...",
@@ -1033,7 +1014,6 @@
       "loadingMessage": "Loading saved transactions"
     }
   },
-
   "contacts": {
     "contactsPage": {
       "contactsHeader": "Contacts",
@@ -1055,7 +1035,6 @@
       "noProfilesFound": "No profiles match this search",
       "startTypingMessage": "Search by a Lightning address (e.g. name@service.com) or a Blitz username."
     },
-
     "expandedContactPage": {
       "loadingContactError": "Unable to load contact, please try again.",
       "requestLNURLError": "You can only request money from Blitz contacts, not Lightning addresses.",
@@ -1082,7 +1061,6 @@
       "deleteProfileImageError": "Unable to delete profile image, please try again.",
       "deleateWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored."
     },
-
     "sendAndRequestPage": {
       "profileMessage": "Paying {{name}}",
       "contactMessage": "{{name}} paid you",
@@ -1112,13 +1090,11 @@
       "claimed": "Used",
       "markAsClaimed": "Mark as Used"
     },
-
     "selectGiftPage": {
       "noCards": "No cards available",
       "header": "Select the Gift Card you want to send",
       "inputPlaceholder": "Search for a Gift Card"
     },
-
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Do you want to {{option}} {{option2}} photo"
@@ -1151,7 +1127,6 @@
       "scanProfile": "Scan Profile"
     }
   },
-
   "settings": {
     "index": {
       "editProfile": "Edit Profile",
@@ -1274,7 +1249,6 @@
       "crashreporting_disabled": "Disabled crash reporting",
       "descriptionText": "Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version"
     },
-
     "accounts": {
       "inputPlaceholder": "Search existing account",
       "mainWalletPlace": "Main Wallet"
@@ -1311,7 +1285,6 @@
       "flashnet": "BTC <> USD",
       "pageTitle": "{{type}} Transfers"
     },
-
     "viewRoostockSwaps": {
       "loadingMessage": "Loading saved Roostock transfers",
       "noSwapsMessage": "You have no saved Roostock transfers"
@@ -1326,7 +1299,6 @@
       "invoice": "Invoice",
       "refundSwap": "Refund transfer"
     },
-
     "viewAllLiquidSwaps": {
       "rescanComplete": "Rescan complete",
       "swapStartedMessage": "The transfer has started. It may take 10–20 seconds for the payment to show up.",
@@ -1376,7 +1348,6 @@
       "othersType": "All other",
       "othersFee": "Network Fees"
     },
-
     "nip5": {
       "noNameError": "Name cannot be empty.",
       "noPubKey": "Public key cannot be empty.",
@@ -1422,7 +1393,6 @@
         "createConnection": "",
         "connectionName": ""
       },
-
       "hasNoAccounts": {
         "wanringMessage": "To send money from your Nostr Connect wallet, you’ll first need to add funds—either by receiving money or transferring from your main wallet.\n\n You can transfer funds from your main wallet to NWC in the account settings page."
       },
@@ -1566,7 +1536,6 @@
       }
     }
   },
-
   "screens": {
     "inAccount": {
       "appStore": {
@@ -1578,7 +1547,6 @@
         "featuredApps": "Anything you want here?",
         "comingSoon": "This feature is temporarily unavailable. We're working to restore it as soon as possible."
       },
-
       "confirmTxPage": {
         "failedToSend": "Failed to send",
         "confirmMessage": "{{direction}} successfully",
@@ -1607,7 +1575,6 @@
         "percentOfGoal": "{{goalPercent}}% of goal",
         "numAddedUsers": "+{{numNewUsers}} users today"
       },
-
       "loadingScreen": {
         "loadingMessage1": "Please don't close the app",
         "loadingMessage2": "We are setting things up",
@@ -1619,7 +1586,6 @@
         "dbInitError1": "We’re unable to set up your app.",
         "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your seed phrase."
       },
-
       "receiveBtcPage": {
         "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and a 0.1% Spark fee.\n\nIf you send money to yourself, you'll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you'll only pay the network fee once to claim it.",
         "liquidFeeMessage": "Payments received to Liquid addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
@@ -1647,9 +1613,19 @@
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Select the currency to receive",
-        "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion."
+        "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion.",
+        "confirmToClaimTitle": "Confirm to claim",
+        "confirmToClaimOff": "Off",
+        "confirmToClaimOn": "On — payment waits for you",
+        "holdInvoiceExplainer": "When on, payments sent to this invoice are held for up to 24 hours. You'll get a notification to claim them. If you don't claim in time, the payment automatically returns to the sender.",
+        "expiryTitle": "Expires after",
+        "expiry_3600": "1 hour",
+        "expiry_21600": "6 hours",
+        "expiry_86400": "24 hours",
+        "expiry_604800": "7 days",
+        "expiry_2592000": "30 days",
+        "expiry_7776000": "90 days"
       },
-
       "settingsContent": {
         "about": "About",
         "language": "Language",
@@ -1692,7 +1668,6 @@
       "viewAllTxPage": {
         "title": "Transactions"
       },
-
       "lrc20HalfModal": {
         "title": "Search Tokens",
         "searchPlaceholder": "Token name...",
@@ -1718,11 +1693,9 @@
         "shareMessage": "You've received a {{amount}} gift! Claim it here:\n{{link}}",
         "fundGiftMessage": "Creating Gift",
         "reclaimGiftMessage": "Reclaiming Gift",
-
         "giftsHome": {
           "title": "Blitz Gifts"
         },
-
         "giftsOverview": {
           "noGiftsHead": "No gifts yet",
           "noGiftsDesc": "Create your first gift to share Bitcoin or Dollars with friends and family",
@@ -1732,7 +1705,6 @@
           "unclaimed": "Unclaimed",
           "reclaimed": "Reclaimed"
         },
-
         "createGift": {
           "noAmountError": "Please enter an amount to create your gift.",
           "connectError": "We couldn’t set up your gift wallet. Please try again.",
@@ -1749,7 +1721,6 @@
           "durationText": "{{numDays}} days",
           "type": "Type"
         },
-
         "giftConfirmation": {
           "header": "Gift Created!",
           "whatToDo": "Share this gift with anyone using the QR code or link below",
@@ -1893,7 +1864,6 @@
       }
     }
   },
-
   "toastmessages": {
     "confirmCopy": "Copied to clipboard",
     "failedCopy": "Failed to copy",
@@ -1902,7 +1872,6 @@
       "desc": "Your balance will update shortly"
     }
   },
-
   "errormessages": {
     "nointernet": "Please reconnect to the internet to use this feature",
     "genericError": "An unexpected error occurred",
@@ -1957,7 +1926,6 @@
     "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again.",
     "priceImpact": "This payment is large, so the final amount you receive in Dollars may change."
   },
-
   "loadingScreen": {
     "message1": "Please don't close the app",
     "message2": "We are setting things up",
@@ -1972,7 +1940,6 @@
   "share": {
     "contact": "Hi, add me on Blitz!"
   },
-
   "swapMessages": {
     "liquid": "Liquid to Spark Transfer"
   },
@@ -1998,21 +1965,18 @@
       "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
     }
   },
-
   "flashnetUserMessages": {
     "FSAG-1000": "The request failed validation checks.",
     "FSAG-1001": "A required field is missing from your request.",
     "FSAG-1002": "One or more fields have an invalid format.",
     "FSAG-1003": "A value is outside the acceptable range.",
     "FSAG-1004": "This value already exists and must be unique.",
-
     "FSAG-2001": "Your request signature could not be verified.",
     "FSAG-2002": "The token identity doesn't match the expected public key.",
     "FSAG-2003": "Authentication is required for this operation.",
     "FSAG-2004": "Your session has expired or the token is invalid.",
     "FSAG-2005": "The request nonce is invalid or has already been used.",
     "FSAG-2101": "The provided public key is invalid.",
-
     "FSAG-3001": "A temporary service issue occurred. Please try again.",
     "FSAG-3002": "A temporary service issue occurred. Please try again.",
     "FSAG-3101": "A database error occurred. Please try again.",
@@ -2024,7 +1988,6 @@
     "FSAG-3302": "The AMM processor timed out while processing your request.",
     "FSAG-3401": "An internal processing error occurred.",
     "FSAG-3402": "An internal processing error occurred.",
-
     "FSAG-4001": "The specified pool does not exist.",
     "FSAG-4002": "The specified host namespace does not exist.",
     "FSAG-4101": "Your authentication session was not found or has expired.",
@@ -2035,7 +1998,6 @@
     "FSAG-4204": "You don't have enough LP tokens to complete this withdrawal.",
     "FSAG-4301": "The fee configuration is invalid.",
     "FSAG-4401": "This Spark transfer has already been used in an operation.",
-
     "FSAG-5001": "An internal error occurred while processing your request.",
     "FSAG-5002": "This feature is not yet available.",
     "FSAG-5003": "An internal error occurred. Please contact support if this persists.",

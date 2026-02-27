@@ -936,10 +936,10 @@
         "whatArePools": "Vad är pools?",
         "whatArePoolsBody": "Pools låter dig samla in Bitcoin-betalningar för ett gemensamt mål. Skapa en pool, ange ett målbelopp och dela den med vem du vill.",
         "howItWorks": "Så fungerar det",
-        "howStep1": "\u2022 Skapa en ny pool med ett namn och ett målbelopp",
-        "howStep2": "\u2022 Dela poolens länk så att andra kan hitta den",
-        "howStep3": "\u2022 Bidragsgivare skickar Bitcoin direkt till poolen",
-        "howStep4": "\u2022 Stäng poolen när du är redo att flytta medlen till din wallet"
+        "howStep1": "• Skapa en ny pool med ett namn och ett målbelopp",
+        "howStep2": "• Dela poolens länk så att andra kan hitta den",
+        "howStep3": "• Bidragsgivare skickar Bitcoin direkt till poolen",
+        "howStep4": "• Stäng poolen när du är redo att flytta medlen till din wallet"
       }
     },
     "manualInputPage": {
@@ -1782,7 +1782,8 @@
         "detailsBTN": "Tekniska detaljer",
         "contactPaymentType": "Kontakt",
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
-        "gift": "Gåva"
+        "gift": "Gåva",
+        "claimPayment": "Ta emot betalning"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",
@@ -1831,7 +1832,18 @@
         "selectReceiveAssetHead": "Välj tillgång att ta emot",
         "usd_convert_warning": "Det slutliga beloppet du får kan variera på grund av marknadsprisförändringar under konverteringen.",
         "editDescriptionHead": "Vad vill du säga?",
-        "editDescriptionPlaceholder": "Lägg till en beskrivning"
+        "editDescriptionPlaceholder": "Lägg till en beskrivning",
+        "confirmToClaimTitle": "Bekräfta innan mottagning",
+        "confirmToClaimOff": "Av, betalningar bekräftas direkt",
+        "confirmToClaimOn": "På, du godkänner varje betalning",
+        "holdInvoiceExplainer": "När det är aktiverat hålls betalningar som skickas till denna faktura tills du bekräftar dem. Om du inte gör anspråk i tid returneras betalningen automatiskt till avsändaren.",
+        "expiryTitle": "Upphör efter",
+        "expiry_3600": "1 timme",
+        "expiry_21600": "6 timmar",
+        "expiry_86400": "24 timmar",
+        "expiry_604800": "7 dagar",
+        "expiry_2592000": "30 dagar",
+        "expiry_7776000": "90 dagar"
       },
       "settingsContent": {
         "about": "Om",

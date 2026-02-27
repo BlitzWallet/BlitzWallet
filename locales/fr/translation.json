@@ -936,10 +936,10 @@
         "whatArePools": "Qu’est-ce qu’un pool ?",
         "whatArePoolsBody": "Les pools vous permettent de collecter des paiements en Bitcoin pour un objectif commun. Créez un pool, définissez un montant cible et partagez-le avec qui vous voulez.",
         "howItWorks": "Comment ça fonctionne",
-        "howStep1": "\u2022 Créez un nouveau pool avec un nom et un montant cible",
-        "howStep2": "\u2022 Partagez le lien du pool pour que d’autres puissent le trouver",
-        "howStep3": "\u2022 Les contributeurs envoient des bitcoins directement au pool",
-        "howStep4": "\u2022 Fermez le pool lorsque vous êtes prêt à transférer les fonds vers votre wallet"
+        "howStep1": "• Créez un nouveau pool avec un nom et un montant cible",
+        "howStep2": "• Partagez le lien du pool pour que d’autres puissent le trouver",
+        "howStep3": "• Les contributeurs envoient des bitcoins directement au pool",
+        "howStep4": "• Fermez le pool lorsque vous êtes prêt à transférer les fonds vers votre wallet"
       }
     },
     "manualInputPage": {
@@ -1782,7 +1782,8 @@
         "detailsBTN": "Détails techniques",
         "contactPaymentType": "Contact",
         "converstionRate": "{{satAmount}} par {{dollarAmount}}",
-        "gift": "Cadeau"
+        "gift": "Cadeau",
+        "claimPayment": "Réclamer le paiement"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -1831,7 +1832,18 @@
         "selectReceiveAssetHead": "Sélectionnez l’actif à recevoir",
         "usd_convert_warning": "Le montant final que vous recevrez peut varier en raison des fluctuations du prix du marché pendant la conversion.",
         "editDescriptionHead": "Que souhaitez-vous dire?",
-        "editDescriptionPlaceholder": "Ajouter une description"
+        "editDescriptionPlaceholder": "Ajouter une description",
+        "confirmToClaimTitle": "Confirmer avant de recevoir",
+        "confirmToClaimOff": "Désactivé, les paiements sont confirmés instantanément",
+        "confirmToClaimOn": "Activé, vous approuvez chaque paiement",
+        "holdInvoiceExplainer": "Lorsqu’elle est activée, les paiements envoyés à cette facture sont retenus jusqu’à ce que vous les confirmiez. Si vous ne les réclamez pas à temps, le paiement est automatiquement renvoyé à l’expéditeur.",
+        "expiryTitle": "Expire après",
+        "expiry_3600": "1 heure",
+        "expiry_21600": "6 heures",
+        "expiry_86400": "24 heures",
+        "expiry_604800": "7 jours",
+        "expiry_2592000": "30 jours",
+        "expiry_7776000": "90 jours"
       },
       "settingsContent": {
         "about": "A propos de",
