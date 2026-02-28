@@ -22,7 +22,7 @@ export default function SavingsPreview({ onPress }) {
   return (
     <WidgetCard onPress={onPress}>
       <View style={styles.row}>
-        <View>
+        <View style={{ flexShrink: 1, marginRight: 10 }}>
           <ThemeText
             styles={styles.title}
             content={t('savings.preview.title')}

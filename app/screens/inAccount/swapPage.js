@@ -1080,11 +1080,17 @@ export default function SwapsPage() {
                 <View style={styles.assetRow}>
                   <ThemeText
                     styles={[styles.reviewAmount, { fontSize: SIZES.large }]}
-                    content={`${formatBalanceAmount(
-                      fromAmount,
-                      false,
-                      masterInfoObject,
-                    )} ${fromAsset === 'BTC' ? 'SAT' : 'USD'}`}
+                    content={displayCorrectDenomination({
+                      amount: fromAmount || 0,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination:
+                          fromAsset === 'BTC' ? 'sats' : 'fiat',
+                      },
+                      fiatStats,
+                      convertAmount: fromAsset === 'BTC',
+                      forceCurrency: 'USD',
+                    })}
                   />
                 </View>
               </View>
@@ -1134,11 +1140,17 @@ export default function SwapsPage() {
                 <View style={[styles.assetRow]}>
                   <ThemeText
                     styles={[styles.reviewAmount, { fontSize: SIZES.large }]}
-                    content={`${formatBalanceAmount(
-                      toAmount,
-                      false,
-                      masterInfoObject,
-                    )} ${toAsset === 'BTC' ? 'SAT' : 'USD'}`}
+                    content={displayCorrectDenomination({
+                      amount: toAmount || 0,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination:
+                          toAsset === 'BTC' ? 'sats' : 'fiat',
+                      },
+                      fiatStats,
+                      convertAmount: toAsset === 'BTC',
+                      forceCurrency: 'USD',
+                    })}
                   />
                 </View>
               </View>
@@ -1400,12 +1412,17 @@ export default function SwapsPage() {
                           fromAmountAnimatedStyle,
                         ]}
                       >
-                        {formatBalanceAmount(
-                          fromAmount,
-                          false,
-                          masterInfoObject,
-                        ) || '0'}{' '}
-                        {fromAsset === 'BTC' ? 'SAT' : 'USD'}
+                        {displayCorrectDenomination({
+                          amount: fromAmount || 0,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination:
+                              fromAsset === 'BTC' ? 'sats' : 'fiat',
+                          },
+                          fiatStats,
+                          convertAmount: fromAsset === 'BTC',
+                          forceCurrency: 'USD',
+                        })}
                       </Animated.Text>
                     </TouchableOpacity>
                   </View>
@@ -1514,12 +1531,17 @@ export default function SwapsPage() {
                           toAmountAnimatedStyle,
                         ]}
                       >
-                        {formatBalanceAmount(
-                          toAmount,
-                          false,
-                          masterInfoObject,
-                        ) || '0'}{' '}
-                        {toAsset === 'BTC' ? 'SAT' : 'USD'}
+                        {displayCorrectDenomination({
+                          amount: toAmount || 0,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination:
+                              toAsset === 'BTC' ? 'sats' : 'fiat',
+                          },
+                          fiatStats,
+                          convertAmount: toAsset === 'BTC',
+                          forceCurrency: 'USD',
+                        })}
                       </Animated.Text>
                     </TouchableOpacity>
                   </View>

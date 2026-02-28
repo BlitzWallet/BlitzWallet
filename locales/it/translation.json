@@ -205,14 +205,18 @@
       "title": "Scegli la lingua"
     },
     "homePage": {
+      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
+      "money": "Denaro",
+      "made": "reso",
+      "simple": "semplice.",
       "subtitle": "Il tuo wallet. Il tuo denaro. Open source.",
       "buttons": {
-        "button1": "Ripristina wallet",
-        "button2": "Crea nuovo wallet"
+        "button1": "Ripristina account",
+        "button2": "Inizia"
       }
     },
     "disclaimerPage": {
-      "header": "Il tuo wallet. Il tuo controllo.",
+      "header": "Il tuo denaro. Il tuo controllo.",
       "subHeader": "Alcune cose da sapere prima di iniziare.",
       "row1Label": "Solo tu controlli i tuoi fondi",
       "row1Description": "Blitz non detiene né accede mai al tuo denaro.",
@@ -220,8 +224,9 @@
       "row2Description": "È la chiave maestra del tuo wallet. Trovala in Impostazioni → Backup wallet.",
       "row3Label": "Nessun recupero se viene persa",
       "row3Description": "Non possiamo ripristinare l’accesso. Conserva la tua frase in un luogo sicuro.",
-      "acceptPrefix": "Accetto i ",
-      "terms&Conditions": "Termini e Condizioni",
+      "acceptPrefix": "Comprendo che perdere la mia frase di recupero comporta la perdita permanente dei fondi e accetto i",
+      "terms&Conditions": "Termini e condizioni",
+      "acceptSuffix": " di Blitz Wallet.",
       "acceptError": "Per continuare, devi accettare i Termini e Condizioni.",
       "continueBTN": "Avanti"
     },
@@ -251,6 +256,7 @@
     "restoreWallet": {
       "home": {
         "header": "Ingrese su frase semilla",
+        "desc": "Inserisci le tue 12 parole di recupero per riaccedere al tuo wallet.",
         "continueBTN": "Ripristina portafoglio",
         "error1": "Inserisci tutte le parole della frase seme.",
         "error2": "Questa non è una frase seed valida.",
@@ -930,10 +936,10 @@
         "whatArePools": "Cosa sono i pool?",
         "whatArePoolsBody": "I pool ti permettono di raccogliere pagamenti in Bitcoin per un obiettivo condiviso. Crea un pool, imposta un importo obiettivo e condividilo con chi vuoi.",
         "howItWorks": "Come funziona",
-        "howStep1": "\u2022 Crea un nuovo pool con un nome e un importo obiettivo",
-        "howStep2": "\u2022 Condividi il link del pool affinché altri possano trovarlo",
-        "howStep3": "\u2022 I contributori inviano Bitcoin direttamente al pool",
-        "howStep4": "\u2022 Chiudi il pool quando sei pronto a trasferire i fondi al tuo wallet"
+        "howStep1": "• Crea un nuovo pool con un nome e un importo obiettivo",
+        "howStep2": "• Condividi il link del pool affinché altri possano trovarlo",
+        "howStep3": "• I contributori inviano Bitcoin direttamente al pool",
+        "howStep4": "• Chiudi il pool quando sei pronto a trasferire i fondi al tuo wallet"
       }
     },
     "manualInputPage": {
@@ -1776,7 +1782,8 @@
         "contactPaymentType": "Contatto",
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "confirmMessage_sent": "Importo inviato",
-        "gift": "Regalo"
+        "gift": "Regalo",
+        "claimPayment": "Richiedi pagamento"
       },
       "explorePage": {
         "timeLeft": "({{time}} rimanenti)",
@@ -1825,7 +1832,18 @@
         "selectReceiveAssetHead": "Seleziona l’asset da ricevere",
         "usd_convert_warning": "L'importo finale che riceverai può variare a causa delle variazioni di prezzo di mercato durante la conversione.",
         "editDescriptionHead": "Cosa vorresti dire?",
-        "editDescriptionPlaceholder": "Aggiungi una descrizione"
+        "editDescriptionPlaceholder": "Aggiungi una descrizione",
+        "confirmToClaimTitle": "Conferma prima di ricevere",
+        "confirmToClaimOff": "Disattivato, i pagamenti sono confermati immediatamente",
+        "confirmToClaimOn": "Attivato, approvi ogni pagamento",
+        "holdInvoiceExplainer": "Quando è attivo, i pagamenti inviati a questa fattura vengono trattenuti finché non li confermi. Se non li richiedi in tempo, il pagamento viene automaticamente restituito al mittente.",
+        "expiryTitle": "Scade dopo",
+        "expiry_3600": "1 ora",
+        "expiry_21600": "6 ore",
+        "expiry_86400": "24 ore",
+        "expiry_604800": "7 giorni",
+        "expiry_2592000": "30 giorni",
+        "expiry_7776000": "90 giorni"
       },
       "settingsContent": {
         "about": "Informazioni",
@@ -2224,7 +2242,7 @@
     },
     "preview": {
       "title": "Risparmi",
-      "earnInterest": "Guadagna il 3,5% di interessi pagati in Bitcoin"
+      "earnInterest": "Guadagna il di interessi pagati in Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Scegli emoji",
@@ -2311,7 +2329,7 @@
       "savingsOption": "Saldo risparmi",
       "interestZeroHint": "Nessun interesse maturato finora",
       "savingsZeroHint": "Nessun risparmio ancora",
-      "interestBelowMinHint": "Sotto il minimo per lo swap, solo saldo bitcoin",
+      "interestBelowMinHint": "Il tuo saldo in Bitcoin è inferiore all’importo minimo per lo scambio. Effettua il prelievo verso il tuo saldo Bitcoin.",
       "loadingBalances": "Caricamento saldi...",
       "balanceLoadError": "Impossibile caricare il wallet. Torna indietro e riprova.",
       "fromInterest": "Dai tuoi interessi",
@@ -2347,6 +2365,9 @@
       "headline1": "Il tuo denaro,",
       "headline2": "che cresce ogni giorno.",
       "subtext": "Una stablecoin ancorata al dollaro che accumula automaticamente premi mentre la detieni.",
+      "transparencyIssuer": "USDB emesso da Brale, Inc. · Rendimento tramite Flashnet",
+      "transparencyLegal": "Il rendimento è variabile e non garantito. Non è un deposito bancario. Non assicurato da FDIC o SIPC.",
+      "disclaimerLegal": "Blitz Wallet non è una banca, un broker o un consulente finanziario. I tassi sono variabili e possono cambiare in qualsiasi momento. Consulta i Termini di utilizzo per le informazioni complete sui rischi.",
       "features": {
         "earnTitle": "Guadagna premi ogni giorno",
         "earnBody": "USDB accumula automaticamente premi di risparmio. Nessuno staking, nessun blocco — tienila e guadagna.",
@@ -2376,6 +2397,7 @@
     "deposit": "Deposito",
     "depositWithGoal": "Deposito su {{goalName}}",
     "swapSimulationError": "Simulazione di scambio non disponibile",
-    "savingsWalletError": "Wallet risparmio non pronto"
+    "savingsWalletError": "Wallet risparmio non pronto",
+    "rewardsPayout": "Pagamento ricompense in Bitcoin"
   }
 }

@@ -1,7 +1,13 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { CENTER, COLORS } from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
+import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
 import LoginNavbar from '../../components/login/navBar';
 import { useTranslation } from 'react-i18next';
@@ -12,9 +18,9 @@ import { createAccountMnemonic } from '../../functions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../hooks/themeColors';
 
-export default function DislaimerPage({ navigation: { navigate }, route }) {
+export default function DisclaimerPage({ navigation: { navigate }, route }) {
   const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
-  const [termsAccepted, setTermsAccepted] = useState(false); // Add acceptance state
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
   const nextPageName = route?.params?.nextPage;
@@ -25,9 +31,8 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
         errorMessage: t('createAccount.disclaimerPage.acceptError'),
       });
       return;
-    } // Prevent navigation without acceptance
+    }
 
-    // Fully validate that a correctly formmated seed has been created
     if (
       nextPageName === 'PinSetup' &&
       accountMnemoinc.split(' ').length !== 12
@@ -46,23 +51,21 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
   };
 
   const openTermsAndConditions = () => {
-    crashlyticsLogReport('Navigating to custom webview from displaimer page');
+    crashlyticsLogReport('Navigating to custom webview from disclaimer page');
     navigate('CustomWebView', {
       webViewURL: 'https://blitzwalletapp.com/pages/terms/',
     });
   };
 
-  const toggleTermsAcceptance = () => {
-    setTermsAccepted(!termsAccepted);
-  };
-
   return (
     <GlobalThemeView useStandardWidth={true}>
       <LoginNavbar page={'disclaimer'} />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.contentContainer]}
+        contentContainerStyle={styles.contentContainer}
       >
+        {/* ── Shield icon ── */}
         <View style={styles.iconContainer}>
           <ThemeIcon
             styles={{ alignSelf: 'center' }}
@@ -72,6 +75,7 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
           />
         </View>
 
+        {/* ── Header ── */}
         <ThemeText
           styles={styles.headerText}
           content={t('createAccount.disclaimerPage.header')}
@@ -87,7 +91,8 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
           content={t('createAccount.disclaimerPage.subHeader')}
         />
 
-        <View style={styles.container}>
+        {/* ── Info rows ── */}
+        <View style={styles.infoContainer}>
           {[
             {
               icon: 'Lock',
@@ -105,13 +110,15 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
               desc: t('createAccount.disclaimerPage.row3Description'),
             },
           ].map(({ icon, label, desc }) => (
-            <View key={icon} style={styles.infoRow}>
+            <View
+              key={icon}
+              style={[styles.infoRow, { backgroundColor: backgroundOffset }]}
+            >
               <View style={styles.infoIcon}>
                 <ThemeIcon
                   size={15}
                   iconName={icon}
                   colorOverride={COLORS.darkModeText}
-                  styles={styles.infoIcon}
                 />
               </View>
               <View style={styles.infoText}>
@@ -123,10 +130,11 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
         </View>
       </ScrollView>
 
-      {/* Terms Acceptance Section */}
+      {/* ── Single checkbox — risk acknowledgment + T&C acceptance ── */}
       <TouchableOpacity
-        onPress={toggleTermsAcceptance}
+        onPress={() => setTermsAccepted(prev => !prev)}
         style={styles.checkboxContainer}
+        activeOpacity={0.7}
       >
         <View
           style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}
@@ -139,26 +147,26 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
             />
           )}
         </View>
+
+        {/* Inline sentence with tappable T&C link */}
         <View style={styles.termsTextContainer}>
-          <ThemeText
-            styles={styles.checkboxText}
-            content={t('createAccount.disclaimerPage.acceptPrefix')}
-          />
-          <TouchableOpacity onPress={openTermsAndConditions}>
-            <ThemeText
-              styles={styles.termsLinkInline}
-              content={t('createAccount.disclaimerPage.terms&Conditions')}
-            />
-          </TouchableOpacity>
+          <Text style={styles.checkboxText}>
+            {t('createAccount.disclaimerPage.acceptPrefix')}{' '}
+            <Text style={styles.termsLink} onPress={openTermsAndConditions}>
+              {t('createAccount.disclaimerPage.terms&Conditions')}
+            </Text>{' '}
+            {t('createAccount.disclaimerPage.acceptSuffix')}
+          </Text>
         </View>
       </TouchableOpacity>
 
+      {/* ── CTA ── */}
       <CustomButton
-        buttonStyles={{
-          ...styles.buttonStyles,
-          opacity: termsAccepted ? 1 : 0.6,
-        }}
-        textContent={t('constants.next')}
+        buttonStyles={[
+          styles.buttonStyles,
+          { opacity: termsAccepted ? 1 : 0.5 },
+        ]}
+        textContent={t('createAccount.disclaimerPage.continueBTN')}
         actionFunction={nextPage}
       />
     </GlobalThemeView>
@@ -171,24 +179,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...CENTER,
   },
+
+  // ── Icon ──
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
-
     backgroundColor: COLORS.primary,
   },
+
+  // ── Header ──
   headerText: {
     width: '100%',
     fontSize: SIZES.huge,
-    fontWeight: 500,
+    fontWeight: '500',
     marginTop: 25,
     marginBottom: 5,
     includeFontPadding: false,
-    ...CENTER,
     textAlign: 'center',
+    ...CENTER,
   },
   descriptionText: {
     width: '80%',
@@ -196,60 +207,26 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     includeFontPadding: false,
   },
-  infoIcon: {
-    backgroundColor: COLORS.primary,
-    padding: 5,
-    borderRadius: 8,
-  },
-  buttonStyles: {
-    width: 145,
-    ...CENTER,
-  },
 
-  checkboxContainer: {
-    paddingVertical: 15,
-    marginBottom: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...CENTER,
-  },
-  termsTextContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  },
-  checkbox: {
-    width: 15,
-    height: 15,
-    borderWidth: 2,
-    borderColor: COLORS.lightModeText,
-    borderRadius: 3,
-    marginRight: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-
-  checkboxText: {
-    fontSize: SIZES.small,
-    textAlign: 'left',
-    includeFontPadding: false,
-  },
-  container: {
+  // ── Info rows ──
+  infoContainer: {
     width: '100%',
     maxWidth: 400,
     marginBottom: 32,
     marginTop: 20,
-    gap: 25,
+    gap: 15,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 14,
+    gap: 10,
+    padding: 16,
+    borderRadius: 12,
+  },
+  infoIcon: {
+    backgroundColor: COLORS.primary,
+    padding: 9,
+    borderRadius: 12,
   },
   infoText: {
     flex: 1,
@@ -258,7 +235,7 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: SIZES.medium,
-    fontWeight: '600',
+    fontWeight: '500',
     includeFontPadding: false,
   },
   infoDesc: {
@@ -266,10 +243,56 @@ const styles = StyleSheet.create({
     opacity: 0.65,
     includeFontPadding: false,
   },
-  termsLinkInline: {
+
+  // ── Checkbox ──
+  checkboxContainer: {
+    paddingVertical: 15,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderWidth: 2,
+    borderColor: COLORS.lightModeText,
+    borderRadius: 4,
+    marginRight: 8,
+    marginTop: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  checkboxChecked: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  termsTextContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    flexShrink: 1,
+  },
+  checkboxText: {
+    fontFamily: FONT.Title_Regular,
+    fontSize: SIZES.small,
+    includeFontPadding: false,
+    lineHeight: 20,
+  },
+  termsLink: {
+    fontFamily: FONT.Title_Regular,
     fontSize: SIZES.small,
     color: COLORS.primary,
     textDecorationLine: 'underline',
     includeFontPadding: false,
+    lineHeight: 20,
+  },
+
+  // ── Button ──
+  buttonStyles: {
+    width: 145,
+    ...CENTER,
   },
 });

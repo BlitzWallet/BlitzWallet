@@ -117,6 +117,14 @@ export default function AccountPaymentPage(props) {
     debouncedSearch();
   }, [sendingAmount, toAccount, fromAccount]);
 
+  const canDoTransfer =
+    sendingAmount &&
+    fromAccount &&
+    toAccount &&
+    !transferInfo.isCalculatingFee &&
+    !transferInfo.isDoingTransfer &&
+    convertedSendAmount > transferInfo.paymentFee + fromBalance;
+
   const handlePayment = useCallback(async () => {
     try {
       if (!sendingAmount) {
@@ -483,6 +491,7 @@ export default function AccountPaymentPage(props) {
         buttonStyles={{
           ...CENTER,
           marginTop: CONTENT_KEYBOARD_OFFSET,
+          opacity: canDoTransfer ? 1 : HIDDEN_OPACITY,
         }}
         useLoading={transferInfo.isDoingTransfer}
         actionFunction={handlePayment}

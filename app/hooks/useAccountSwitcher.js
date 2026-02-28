@@ -11,7 +11,7 @@ import { navigationRef } from '../../navigation/navigationService';
 
 export default function useAccountSwitcher() {
   const navigate = useNavigation();
-  const { setSparkInformation } = useSparkWallet();
+  const { setSparkInformation, sparkInformation } = useSparkWallet();
   const {
     currentWalletMnemoinc,
     selectedAltAccount,
@@ -31,6 +31,7 @@ export default function useAccountSwitcher() {
 
   const handleAccountPress = useCallback(
     async account => {
+      const accountInfo = JSON.parse(JSON.stringify(sparkInformation));
       if (isAccountPressRunning.current) return;
       isAccountPressRunning.current = true;
       try {
@@ -48,18 +49,26 @@ export default function useAccountSwitcher() {
           accountBeingLoaded: account.uuid || account.name,
           isLoading: true,
         });
+        setSparkInformation(prev => ({
+          ...prev,
+          didConnect: null,
+          didConnectToFlashnet: null,
+          identityPubKey: '',
+        }));
 
         await new Promise(resolve => setTimeout(resolve, 250));
 
         const initResponse = await initWallet({
           setSparkInformation,
           mnemonic: accountMnemonic,
+          hasRestoreCompleted: false,
         });
 
         if (!initResponse.didWork) {
           navigate.navigate('ErrorScreen', {
             errorMessage: initResponse.error,
           });
+          setSparkInformation(accountInfo);
           return;
         }
 
@@ -82,6 +91,7 @@ export default function useAccountSwitcher() {
         navigate.navigate('ErrorScreen', {
           errorMessage: error.message || 'An error occurred',
         });
+        setSparkInformation(accountInfo);
       } finally {
         setIsSwitchingAccount({
           accountBeingLoaded: '',
@@ -90,7 +100,7 @@ export default function useAccountSwitcher() {
         isAccountPressRunning.current = false;
       }
     },
-    [currentWalletMnemoinc, selectedAltAccount],
+    [currentWalletMnemoinc, selectedAltAccount, sparkInformation],
   );
 
   return {

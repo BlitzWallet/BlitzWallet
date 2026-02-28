@@ -59,6 +59,9 @@ export const OPERATION_TYPES = {
   getSingleTxDetails: 'getSingleTxDetails',
   createSatsInvoice: 'createSatsInvoice',
   createTokensInvoice: 'createTokensInvoice',
+  claimSparkHodlLightningPayment: 'claimSparkHodlLightningPayment',
+  receiveSparkHodlLightningPayment: 'receiveSparkHodlLightningPayment',
+  querySparkHodlLightningPayments: 'querySparkHodlLightningPayments',
 
   // Flashnet
   initializeFlashnet: 'initializeFlashnet',
@@ -105,6 +108,8 @@ const longOperations = [
   OPERATION_TYPES.requestClawback,
   OPERATION_TYPES.runLeafOptimization,
   OPERATION_TYPES.runTokenOptimization,
+  OPERATION_TYPES.claimSparkHodlLightningPayment,
+  OPERATION_TYPES.receiveSparkHodlLightningPayment,
 ];
 
 const mediumOperations = [

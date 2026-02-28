@@ -87,6 +87,7 @@ export default function PoolsPreview({
                 strokeWidth={3}
                 showPercentage={false}
                 useAltBackground={true}
+                showConfirmed={pool.currentAmount >= pool.goalAmount}
               />
               <ThemeText
                 CustomNumberOfLines={1}

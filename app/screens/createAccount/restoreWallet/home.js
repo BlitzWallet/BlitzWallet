@@ -7,7 +7,13 @@ import {
   Platform,
 } from 'react-native';
 import { Back_BTN } from '../../../components/login';
-import { CENTER, COLORS, FONT, SIZES } from '../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+  SIZES,
+} from '../../../constants';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +24,7 @@ import {
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import { WINDOWWIDTH } from '../../../constants/theme';
+import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import getClipboardText from '../../../functions/getClipboardText';
 import { useNavigation } from '@react-navigation/native';
@@ -27,6 +33,7 @@ import { useKeysContext } from '../../../../context-store/keys';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { handleRestoreFromText } from '../../../functions/seed';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
+import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
 
 const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -328,80 +335,63 @@ export default function RestoreWallet({
       useTouchableWithoutFeedback={true}
     >
       <View style={styles.keyContainer}>
-        <View style={styles.navContainer}>
-          <Back_BTN />
-        </View>
-        <ThemeText
-          styles={styles.headerText}
-          content={
-            params
-              ? t('createAccount.verifyKeyPage.header')
-              : t('createAccount.restoreWallet.home.header')
-          }
-        />
-
+        <CustomSettingsTopBar />
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={styles.contentContainer}
-          contentContainerStyle={{
-            paddingBottom: 10,
-            paddingTop: 20,
-          }}
+          contentContainerStyle={styles.contentContainer}
         >
+          <ThemeText
+            styles={styles.headerText}
+            content={t('createAccount.restoreWallet.home.header')}
+          />
+          <ThemeText
+            styles={styles.subHeader}
+            content={t('createAccount.restoreWallet.home.desc')}
+          />
           {inputKeys}
         </ScrollView>
-        {!currentFocused && (
-          <CustomButton
-            buttonStyles={styles.pasteButton}
-            textContent={
-              params
-                ? t('constants.paste')
-                : t('createAccount.restoreWallet.home.scanQr')
-            }
-            actionFunction={
-              params
-                ? handleSeedFromClipboard
-                : () =>
-                    navigate.navigate('CameraModal', {
-                      updateBitcoinAdressFunc: handleCameraScan,
-                      fromPage: 'addContact',
-                    })
-            }
-          />
-        )}
+
         {!currentFocused && (
           <View
             style={{
-              ...styles.mainBTCContainer,
               paddingBottom: bottomPadding,
+              width: '95%',
+              ...CENTER,
+              marginTop: CONTENT_KEYBOARD_OFFSET,
             }}
           >
+            {/* Paste + Scan row */}
+            <View style={styles.secondaryButtonRow}>
+              <CustomButton
+                buttonStyles={styles.secondaryButton}
+                textStyles={{ color: COLORS.lightModeText }}
+                textContent={
+                  params ? t('constants.skip') : t('constants.paste')
+                }
+                actionFunction={() =>
+                  params
+                    ? navigate.navigate('PinSetup', { didRestoreWallet: false })
+                    : handleSeedFromClipboard()
+                }
+              />
+              <CustomButton
+                buttonStyles={styles.secondaryButton}
+                textContent={t('createAccount.restoreWallet.home.scanQr')}
+                actionFunction={() =>
+                  navigate.navigate('CameraModal', {
+                    updateBitcoinAdressFunc: handleCameraScan,
+                    fromPage: 'addContact',
+                  })
+                }
+              />
+            </View>
+
+            {/* Restore — full width */}
             <CustomButton
-              buttonStyles={styles.buttonContainer}
-              textStyles={{
-                color: COLORS.lightModeText,
-              }}
-              textContent={params ? t('constants.skip') : t('constants.paste')}
-              actionFunction={() =>
-                params
-                  ? navigate.navigate('PinSetup', { didRestoreWallet: false })
-                  : handleSeedFromClipboard()
-              }
-            />
-            <CustomButton
-              buttonStyles={[
-                styles.buttonContainer,
-                {
-                  backgroundColor: COLORS.primary,
-                },
-              ]}
-              textStyles={{
-                color: COLORS.darkModeText,
-              }}
-              textContent={
-                params ? t('constants.verify') : t('constants.restore')
-              }
-              actionFunction={params ? didEnterCorrectSeed : keyValidation}
+              buttonStyles={styles.restoreButton}
+              textStyles={{ color: COLORS.darkModeText }}
+              textContent={t('constants.restore')}
+              actionFunction={keyValidation}
             />
           </View>
         )}
@@ -431,14 +421,23 @@ const styles = StyleSheet.create({
   headerText: {
     width: '95%',
     fontSize: SIZES.xLarge,
+    fontWeight: 500,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
+    ...CENTER,
+  },
+  subHeader: {
+    width: '85%',
+    textAlign: 'center',
+    opacity: HIDDEN_OPACITY,
+    marginBottom: 30,
     ...CENTER,
   },
   contentContainer: {
-    flex: 1,
+    flexGrow: 1,
     width: '95%',
     ...CENTER,
+    paddingBottom: 20,
   },
   pasteButton: {
     // width: 145,
@@ -463,27 +462,29 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   numberText: {
-    fontSize: SIZES.large,
+    fontSize: SIZES.medium,
     includeFontPadding: false,
     marginRight: 10,
   },
   textInputStyle: {
     flex: 1,
     minHeight: Platform.OS === 'ios' ? 0 : 55,
-    fontSize: SIZES.large,
+    fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
     color: COLORS.lightModeText,
   },
-  buttonContainer: {
-    flexGrow: 1,
-    maxWidth: '50%',
-  },
-  mainBTCContainer: {
-    width: '90%',
+  secondaryButtonRow: {
+    width: '100%',
     flexDirection: 'row',
-    justifyContent: 'center',
     columnGap: 10,
-    ...CENTER,
+    marginBottom: 10,
+  },
+  secondaryButton: {
+    flex: 1,
+  },
+  restoreButton: {
+    width: '100%',
+    backgroundColor: COLORS.primary,
   },
 });

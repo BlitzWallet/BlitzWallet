@@ -135,13 +135,14 @@ export function resolveGoalAndAmount(goalIdOrPayload, maybeAmount) {
 export function mergeAndSortSavingsActivity(
   contributions = [],
   interestPayouts = [],
+  t,
 ) {
   const normalised = interestPayouts.map(payout => ({
     txId: payout.txId,
     type: 'interest',
     amountMicros: toMicros(payout.payoutSats),
     createdAt: new Date(payout.createdAt).getTime(),
-    description: 'Interest Payout',
+    description: t('savings.rewardsPayout'),
   }));
 
   return [...contributions, ...normalised].sort(

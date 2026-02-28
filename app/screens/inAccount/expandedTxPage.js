@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import {
   APPROXIMATE_SYMBOL,
@@ -40,6 +41,14 @@ import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar'
 import { currentPriceAinBToPriceDollars } from '../../functions/spark/flashnet';
 import { formatBalanceAmount } from '../../functions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import {
+  claimSparkHodlLightningPayment,
+  querySparkHodlLightningPayments,
+} from '../../functions/spark';
+import { useKeysContext } from '../../../context-store/keys';
+import { decryptMessage } from '../../functions/messaging/encodingAndDecodingMessages';
+import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
+import useAdaptiveButtonLayout from '../../hooks/useAdaptiveButtonLayout';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -53,7 +62,16 @@ export default function ExpandedTx(props) {
   const { bottomPadding } = useGlobalInsets();
   const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
+  const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
+  const [isClaimingHtlc, setIsClaimingHtlc] = useState(false);
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const isInitialRender = useRef(true);
+
+  const techicalDetailsLabel = t('screens.inAccount.expandedTxPage.detailsBTN');
+  const claimHTLCLabel = t('screens.inAccount.expandedTxPage.claimPayment');
+
+  const { shouldStack, containerProps, getLabelProps } =
+    useAdaptiveButtonLayout([techicalDetailsLabel, claimHTLCLabel]);
 
   const [transaction, setTransaction] = useState(
     props.route.params.transaction,
@@ -143,6 +161,72 @@ export default function ExpandedTx(props) {
       setTransaction(newTx);
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const claimHTLC = async () => {
+    try {
+      setIsClaimingHtlc(true);
+      const decodedPreimage = decryptMessage(
+        contactsPrivateKey,
+        contactsPublicKey,
+        transaction.details.encryptedPreimage,
+      );
+
+      const response = await claimSparkHodlLightningPayment({
+        preimage: decodedPreimage,
+        mnemonic: currentWalletMnemoinc,
+      });
+
+      if (!response.didWork) throw new Error('Failed to claim preimage');
+      if (response.didWork) {
+        let newTx = JSON.parse(JSON.stringify(transaction));
+        newTx.details.didClaimHTLC = true;
+        newTx.details.preimage = decodedPreimage;
+        newTx.id = transaction.sparkID;
+        newTx.paymentStatus = response.status === 1 ? 'completed' : 'failed';
+        await bulkUpdateSparkTransactions(
+          [newTx],
+          undefined,
+          undefined,
+          undefined,
+          true,
+        );
+        setTransaction(newTx);
+      }
+    } catch (err) {
+      console.log('Error claiming htlc in tx detials', err);
+
+      const htlcStatus = await querySparkHodlLightningPayments({
+        paymentHashes: [transaction.details.paymentHash],
+        mnemonic: currentWalletMnemoinc,
+      });
+
+      if (htlcStatus.paidPreimages?.length) {
+        const htlc = htlcStatus.paidPreimages[0];
+
+        if (htlc.status === 2 || htlc.status === 1) {
+          let newTx = JSON.parse(JSON.stringify(transaction));
+          newTx.details.didClaimHTLC = true;
+          newTx.id = transaction.sparkID;
+          newTx.paymentStatus = htlc.status === 1 ? 'completed' : 'failed';
+
+          await bulkUpdateSparkTransactions(
+            [newTx],
+            undefined,
+            undefined,
+            undefined,
+            true,
+          );
+          setTransaction(newTx);
+        } else {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Error when claiming payment.',
+          });
+        }
+      }
+    } finally {
+      setIsClaimingHtlc(false);
     }
   };
 
@@ -465,24 +549,79 @@ export default function ExpandedTx(props) {
             {/* Description */}
             {renderDescription()}
 
-            {/* Details Button */}
-            <CustomButton
-              buttonStyles={{
-                ...styles.detailsButton,
-                backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-              }}
-              textStyles={{
-                color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-              }}
-              textContent={t('screens.inAccount.expandedTxPage.detailsBTN')}
-              actionFunction={() => {
-                keyboardNavigate(() => {
-                  navigate.navigate('TechnicalTransactionDetails', {
-                    transaction: transaction,
+            <View
+              {...containerProps}
+              style={[
+                styles.actionContainer,
+                shouldStack
+                  ? styles.actionContainerStacked
+                  : styles.actionContainerRow,
+              ]}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  keyboardNavigate(() => {
+                    navigate.navigate('TechnicalTransactionDetails', {
+                      transaction: transaction,
+                    });
                   });
-                });
-              }}
-            />
+                }}
+                style={[
+                  styles.button,
+                  {
+                    backgroundColor: theme
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
+                  },
+                  shouldStack ? styles.buttonStacked : styles.buttonColumn,
+                ]}
+              >
+                <ThemeText
+                  styles={{
+                    includeFontPadding: false,
+                    color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+                  }}
+                  {...getLabelProps(0)}
+                  content={techicalDetailsLabel}
+                />
+              </TouchableOpacity>
+              {transaction.details.isHoldInvoice &&
+                isPending &&
+                !transaction.details.didClaimHTLC && (
+                  <TouchableOpacity
+                    onPress={claimHTLC}
+                    style={[
+                      styles.button,
+                      {
+                        backgroundColor: theme
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                      },
+                      shouldStack ? styles.buttonStacked : styles.buttonColumn,
+                    ]}
+                    disabled={isClaimingHtlc}
+                  >
+                    {isClaimingHtlc ? (
+                      <ActivityIndicator
+                        color={
+                          theme ? COLORS.lightModeText : COLORS.darkModeText
+                        }
+                      />
+                    ) : (
+                      <ThemeText
+                        styles={{
+                          includeFontPadding: false,
+                          color: theme
+                            ? COLORS.lightModeText
+                            : COLORS.darkModeText,
+                        }}
+                        {...getLabelProps(1)}
+                        content={claimHTLCLabel}
+                      />
+                    )}
+                  </TouchableOpacity>
+                )}
+            </View>
 
             {/* Receipt Dots */}
             <ReceiptDots screenDimensions={screenDimensions} />
@@ -821,12 +960,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
-  detailsButton: {
-    width: 'auto',
-    ...CENTER,
-    marginVertical: 24,
-    borderRadius: 8,
-  },
   receiptDotsContainer: {
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? -10 : -8,
@@ -859,11 +992,6 @@ const styles = StyleSheet.create({
     padding: 4,
   },
 
-  memoInput: {
-    fontSize: SIZES.medium,
-    minHeight: 76,
-    textAlignVertical: 'top',
-  },
   actionButtons: {
     width: '100%',
     flexDirection: 'row',
@@ -877,5 +1005,36 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
+  },
+
+  actionContainer: {
+    width: '100%',
+    gap: 10,
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  actionContainerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  actionContainerStacked: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+  },
+  button: {
+    minHeight: 50,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonColumn: {
+    flex: 1,
+  },
+  buttonStacked: {
+    width: '100%',
+  },
+  disabled: {
+    opacity: 0.4,
   },
 });

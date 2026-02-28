@@ -28,7 +28,6 @@ function StatsRow({
   const { width: windowWidth } = useWindowDimensions();
   const containerWidth = windowWidth - H_PADDING * 2;
 
-  // Track measured natural widths for each card
   const [naturalWidths, setNaturalWidths] = useState({});
 
   const onCardLayout = useCallback((index, event) => {
@@ -260,6 +259,7 @@ export default function HowSavingsWorks() {
         ))}
       </View>
 
+      {/* ── Transparency card — expanded with reserve + legal disclaimer ── */}
       <View
         style={[
           styles.transparencyCard,
@@ -275,18 +275,56 @@ export default function HowSavingsWorks() {
           <ThemeText
             styles={styles.transparencyTitle}
             content={t('savings.howItWorks.transparencyTitle')}
+            // "Backed by real reserves"
           />
         </View>
+
+        {/* Reserve backing body */}
         <ThemeText
           styles={styles.transparencyBody}
           content={t('savings.howItWorks.transparencyBody')}
+          // "Reserves are held in segregated, audited accounts — primarily
+          //  short-duration US Treasury Bills and money-market funds.
+          //  Flashnet publishes monthly attestation reports."
+        />
+
+        {/* Divider */}
+        <View style={styles.transparencyDivider} />
+
+        {/* Issuer row */}
+        <View style={styles.transparencyMetaRow}>
+          <ThemeIcon
+            iconName="Building2"
+            size={13}
+            colorOverride={theme && darkModeType ? textColor : COLORS.primary}
+          />
+          <ThemeText
+            styles={styles.transparencyMeta}
+            content={t('savings.howItWorks.transparencyIssuer')}
+            // "USDB issued by Brale, Inc. · Yield via Flashnet"
+          />
+        </View>
+
+        {/* In-card legal note */}
+        <ThemeText
+          styles={styles.transparencyLegal}
+          content={t('savings.howItWorks.transparencyLegal')}
+          // "Yield is variable and not guaranteed. Not a bank deposit.
+          //  Not FDIC or SIPC insured."
         />
       </View>
 
-      <ThemeText
-        styles={styles.disclaimer}
-        content={t('savings.howItWorks.disclaimer')}
-      />
+      {/* ── Bottom disclaimer — two tiers ── */}
+      <View style={styles.disclaimerBlock}>
+        <ThemeText
+          styles={styles.disclaimer}
+          content={
+            t('savings.howItWorks.disclaimer') +
+            ' ' +
+            t('savings.howItWorks.disclaimerLegal')
+          }
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -296,7 +334,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: H_PADDING,
     paddingTop: 4,
-    paddingBottom: 24,
     gap: 20,
   },
 
@@ -344,14 +381,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   statCellAuto: {
-    flex: 0, // don't stretch when centered on its own row
+    flex: 0,
   },
   statCellBorderRight: {
     borderRightWidth: StyleSheet.hairlineWidth,
     borderRightColor: COLORS.gray2,
   },
   statCellMeasuring: {
-    // Sits in the hidden measure container; needs to size to content
     flex: 0,
   },
 
@@ -392,7 +428,7 @@ const styles = StyleSheet.create({
   featureText: { flex: 1, gap: 2 },
   featureTitle: {
     fontSize: SIZES.smedium,
-    fontFamily: FONT.Title_Medium,
+    fontWeight: 500,
     includeFontPadding: false,
   },
   featureBody: {
@@ -402,7 +438,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
 
-  // Transparency
+  // Transparency card
   transparencyCard: {
     borderRadius: 16,
     padding: 16,
@@ -415,7 +451,7 @@ const styles = StyleSheet.create({
   },
   transparencyTitle: {
     fontSize: SIZES.smedium,
-    fontFamily: FONT.Title_Medium,
+    fontWeight: 500,
     includeFontPadding: false,
   },
   transparencyBody: {
@@ -424,14 +460,45 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     includeFontPadding: false,
   },
+  // ── new transparency styles ──────────────────────────────────────
+  transparencyDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: COLORS.gray2,
+    marginVertical: 2,
+  },
+  transparencyMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  transparencyMeta: {
+    fontSize: SIZES.xSmall,
+    opacity: 0.55,
+    includeFontPadding: false,
+  },
+  transparencyLegal: {
+    fontSize: SIZES.xSmall,
+    opacity: 0.45,
+    lineHeight: 15,
+    includeFontPadding: false,
+  },
 
-  // Disclaimer
+  // Disclaimer block — two tiers
+  disclaimerBlock: {
+    gap: 4,
+  },
   disclaimer: {
     fontSize: SIZES.xSmall,
     opacity: 0.45,
     lineHeight: 15,
     textAlign: 'center',
     includeFontPadding: false,
-    paddingBottom: 4,
+  },
+  disclaimerLegal: {
+    fontSize: SIZES.xSmall,
+    opacity: 0.45,
+    lineHeight: 14,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
 });

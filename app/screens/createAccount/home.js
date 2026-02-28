@@ -1,6 +1,15 @@
 import React, { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
-import { COLORS, SIZES } from '../../constants';
+import { StyleSheet, View } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSequence,
+  withDelay,
+  Easing,
+} from 'react-native-reanimated';
+import Svg, { Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { CENTER, COLORS, SIZES } from '../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
@@ -10,87 +19,250 @@ import {
   crashlyticsRecordErrorReport,
 } from '../../functions/crashlyticsLogs';
 import { useKeysContext } from '../../../context-store/keys';
-import { MAX_CONTENT_WIDTH } from '../../constants/theme';
+import {
+  FONT,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../constants/theme';
+import { useAppStatus } from '../../../context-store/appStatus';
 
+// ─── Design tokens ─────────────────────────────────────────────────────────────
+const BOX_STROKE = '#D8DCE3';
+
+// ─── Box-grid SVG background ──────────────────────────────────────────────────
+function BoxGrid({ W, H }) {
+  const BOX = 52;
+  const GAP = 0;
+  const STEP = BOX + GAP;
+  const cols = Math.ceil(W / STEP) + 1;
+  const rows = Math.ceil(H / STEP) + 1;
+
+  const boxes = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      boxes.push({ x: c * STEP, y: r * STEP, key: `${r}-${c}` });
+    }
+  }
+
+  return (
+    <Svg
+      width={W}
+      height={H}
+      style={StyleSheet.absoluteFill}
+      pointerEvents="none"
+    >
+      <Defs>
+        <LinearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+          <Stop
+            offset="0%"
+            stopColor={COLORS.lightModeBackground}
+            stopOpacity="0"
+          />
+          <Stop
+            offset="68%"
+            stopColor={COLORS.lightModeBackground}
+            stopOpacity="0"
+          />
+          <Stop
+            offset="100%"
+            stopColor={COLORS.lightModeBackground}
+            stopOpacity="1"
+          />
+        </LinearGradient>
+      </Defs>
+
+      {boxes.map(b => (
+        <Rect
+          key={b.key}
+          x={b.x}
+          y={b.y}
+          width={BOX}
+          height={BOX}
+          fill={COLORS.lightModeBackground}
+          stroke={BOX_STROKE}
+          strokeWidth={0.8}
+        />
+      ))}
+
+      <Rect x={0} y={0} width={W} height={H} fill="url(#fade)" />
+    </Svg>
+  );
+}
+
+// ─── Easing config ────────────────────────────────────────────────────────────
+const easeOut = Easing.out(Easing.cubic);
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function CreateAccountHome({ navigation: { navigate } }) {
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
+  const { screenDimensions } = useAppStatus();
+
+  // Shared values
+  const logoOpacity = useSharedValue(0);
+  const headingOpacity = useSharedValue(0);
+  const headingY = useSharedValue(24);
+  const btnsOpacity = useSharedValue(0);
+
+  // Animated styles
+  const logoStyle = useAnimatedStyle(() => ({
+    opacity: logoOpacity.value,
+  }));
+
+  const headingStyle = useAnimatedStyle(() => ({
+    opacity: headingOpacity.value,
+    transform: [{ translateY: headingY.value }],
+  }));
+
+  const btnsStyle = useAnimatedStyle(() => ({
+    opacity: btnsOpacity.value,
+  }));
 
   useEffect(() => {
-    async function initializeWallet() {
-      try {
-        crashlyticsLogReport('Creating account mnemoinc');
+    // Sequence: logo → heading → buttons
+    logoOpacity.value = withTiming(1, { duration: 480, easing: easeOut });
 
-        const mnemoinc = await createAccountMnemonic();
-        setAccountMnemonic(mnemoinc);
-      } catch (err) {
-        console.log('error creating account mnemoinc', err);
-        crashlyticsRecordErrorReport(err.message);
-      }
-    }
-    initializeWallet();
+    headingOpacity.value = withDelay(
+      480,
+      withTiming(1, { duration: 520, easing: easeOut }),
+    );
+    headingY.value = withDelay(
+      480,
+      withTiming(0, { duration: 520, easing: easeOut }),
+    );
+
+    btnsOpacity.value = withDelay(
+      1000,
+      withTiming(1, { duration: 400, easing: easeOut }),
+    );
   }, []);
 
-  const navigateFunction = (page, nextPage) => {
+  useEffect(() => {
+    (async () => {
+      try {
+        crashlyticsLogReport('Creating account mnemonic');
+        const mnemonic = await createAccountMnemonic();
+        setAccountMnemonic(mnemonic);
+      } catch (err) {
+        crashlyticsRecordErrorReport(err.message);
+      }
+    })();
+  }, []);
+
+  const go = (page, nextPage) => {
     crashlyticsLogReport(`Navigating to ${page} from create account home`);
     navigate(page, { nextPage });
   };
 
   return (
-    <GlobalThemeView styles={styles.container} useStandardWidth={true}>
-      <ThemeText styles={styles.blitz} content={'Blitz'} />
+    <GlobalThemeView>
+      <BoxGrid W={screenDimensions.width} H={screenDimensions.height} />
 
-      <CustomButton
-        buttonStyles={{
-          ...styles.buttonStyle,
-          backgroundColor: COLORS.primary,
-        }}
-        textStyles={{ color: COLORS.darkModeText }}
-        textContent={t('createAccount.homePage.buttons.button2')}
-        actionFunction={() => navigateFunction('DisclaimerPage', 'PinSetup')}
-      />
-      <CustomButton
-        buttonStyles={styles.buttonStyle}
-        textStyles={{ color: COLORS.lightModeText }}
-        textContent={t('createAccount.homePage.buttons.button1')}
-        actionFunction={() =>
-          navigateFunction('DisclaimerPage', 'RestoreWallet')
-        }
-      />
+      <View style={styles.container}>
+        {/* ── Headline ── */}
+        <Animated.View style={[styles.heroWrap, headingStyle]}>
+          <ThemeText
+            styles={styles.headline}
+            content={t('createAccount.homePage.money')}
+            isLight={true}
+          />
+          <ThemeText
+            styles={styles.headline}
+            content={t('createAccount.homePage.made')}
+            isLight={true}
+          />
+          <ThemeText
+            styles={[styles.headline, { color: COLORS.primary }]}
+            content={t('createAccount.homePage.simple')}
+            isLight={true}
+          />
+        </Animated.View>
 
-      <ThemeText
-        styles={styles.disclamer_text}
-        content={t('createAccount.homePage.subtitle')}
-      />
+        <View style={styles.spacer} />
+
+        {/* ── CTAs ── */}
+        <Animated.View style={[styles.ctaSection, btnsStyle]}>
+          <CustomButton
+            buttonStyles={styles.primaryBtn}
+            textStyles={styles.primaryBtnText}
+            textContent={t('createAccount.homePage.buttons.button2')}
+            actionFunction={() => go('DisclaimerPage', 'PinSetup')}
+          />
+
+          <CustomButton
+            buttonStyles={styles.secondaryBtn}
+            textStyles={styles.secondaryBtnText}
+            textContent={t('createAccount.homePage.buttons.button1')}
+            actionFunction={() => go('DisclaimerPage', 'RestoreWallet')}
+          />
+
+          <ThemeText
+            styles={styles.disclaimer}
+            content={t('createAccount.homePage.subtitle')}
+            isLight={true}
+          />
+        </Animated.View>
+      </View>
     </GlobalThemeView>
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
+  heroWrap: {
+    flex: 1,
     justifyContent: 'center',
   },
-  blitz: {
-    fontSize: 80,
-    fontStyle: 'italic',
-    fontWeight: '800',
-    color: COLORS.primary,
-    marginBottom: 30,
-    marginTop: 'auto',
+  headline: {
+    fontSize: 64,
+    fontFamily: FONT.Title_Bold,
+    marginVertical: -8,
+    letterSpacing: -2.5,
     includeFontPadding: false,
   },
-  buttonStyle: {
-    width: '95%',
-    maxWidth: 300,
-    marginBottom: 20,
+  spacer: { height: 0 },
+  ctaSection: {
+    width: '100%',
+    gap: 12,
+    alignItems: 'center',
   },
-
-  disclamer_text: {
-    marginTop: 'auto',
-    fontSize: SIZES.small,
+  primaryBtn: {
+    width: '100%',
+    backgroundColor: COLORS.primary,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  primaryBtnText: {
+    color: '#FFFFFF',
+    // fontWeight: '600',
+    letterSpacing: 0.1,
+  },
+  secondaryBtn: {
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  secondaryBtnText: {
+    // fontWeight: '600',
+    fontSize: 16,
+  },
+  disclaimer: {
+    fontSize: SIZES.xSmall,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
     includeFontPadding: false,
+    marginTop: 4,
+    textTransform: 'uppercase',
   },
 });

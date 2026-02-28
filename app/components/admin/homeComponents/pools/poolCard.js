@@ -41,8 +41,9 @@ export default function PoolCard({ pool, onPress }) {
           current={pool.currentAmount}
           goal={pool.goalAmount}
           size={55}
-          strokeWidth={2}
+          strokeWidth={3}
           showPercentage={true}
+          showConfirmed={pool.currentAmount >= pool.goalAmount}
         />
       </View>
 

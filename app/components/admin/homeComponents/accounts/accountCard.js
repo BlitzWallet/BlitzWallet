@@ -55,6 +55,7 @@ export default function AccountCard({
               : backgroundOffset,
             marginVertical: fromSettings ? 0 : 8,
             paddingHorizontal: fromSettings ? 0 : 15,
+            paddingVertical: fromSettings ? 0 : 10,
           },
         ]}
       >
@@ -90,6 +91,7 @@ export default function AccountCard({
             : backgroundOffset,
           marginVertical: fromSettings ? 0 : 8,
           paddingHorizontal: fromSettings ? 0 : 15,
+          paddingVertical: fromSettings ? 0 : 10,
         },
       ]}
     >

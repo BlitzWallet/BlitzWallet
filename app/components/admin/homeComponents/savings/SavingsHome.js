@@ -46,20 +46,30 @@ export default function SavingsHome() {
   );
 
   const combinedTransactions = useMemo(
-    () => mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts),
-    [allSavingsTransactions, interestPayouts],
+    () =>
+      mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts, t),
+    [allSavingsTransactions, interestPayouts, t],
   );
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('savings.home.title')} />
+      <CustomSettingsTopBar
+        label={t('savings.home.title')}
+        iconNew="Info"
+        showLeftImage={true}
+        leftImageFunction={() =>
+          navigate.navigate('CustomWebView', {
+            webViewURL: 'https://docs.flashnet.xyz/usdb/faq',
+          })
+        }
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.heroCard}>
-          <View
+          {/* <View
             style={[
               styles.earnedContainer,
               {
@@ -92,7 +102,11 @@ export default function SavingsHome() {
                 }),
               })}
             />
-          </View>
+          </View> */}
+          <ThemeText
+            styles={styles.balanceLabel}
+            content={t('constants.total_balance')}
+          />
           <ThemeText
             adjustsFontSizeToFit={true}
             CustomNumberOfLines={1}
@@ -108,14 +122,13 @@ export default function SavingsHome() {
               convertAmount: false,
             })}
           />
-
+          {/* 
           <TouchableOpacity
             style={styles.interestRow}
             activeOpacity={0.7}
             onPress={() => {
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'howSavingsWorks',
-                sliderHight: 0.9,
+              navigate.navigate('CustomWebView', {
+                webViewURL: 'https://docs.flashnet.xyz/usdb/faq',
               });
             }}
           >
@@ -124,7 +137,7 @@ export default function SavingsHome() {
               content={t('savings.home.howItWorksLink')}
             />
             <ThemeIcon iconName={'ChevronRight'} size={18} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <SavingsActionButtons savingsBalance={savingsBalance} />
@@ -224,12 +237,15 @@ export default function SavingsHome() {
                     </View>
 
                     <CircularProgress
-                      current={goalProgress * 100}
-                      goal={100}
+                      current={goal.currentAmountMicros}
+                      goal={goal.amountMicros}
                       size={46}
-                      strokeWidth={4}
+                      strokeWidth={3}
                       showPercentage={false}
                       useAltBackground={true}
+                      showConfirmed={
+                        goal.currentAmountMicros >= goal.amountMicros
+                      }
                     />
                   </TouchableOpacity>
                 );
@@ -271,15 +287,19 @@ const styles = StyleSheet.create({
   heroCard: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 12,
-    gap: 10,
+    marginTop: 30,
+    marginBottom: 30,
+    // gap: 10,
   },
-
+  balanceLabel: {
+    textTransform: 'uppercase',
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
+  },
   balanceValue: {
     fontSize: SIZES.huge,
     flexShrink: 1,
     includeFontPadding: false,
-    marginTop: 20,
   },
   earnedContainer: {
     flexDirection: 'row',
@@ -292,7 +312,7 @@ const styles = StyleSheet.create({
   interestRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    // gap: 1,
     marginBottom: 20,
   },
   interestText: {

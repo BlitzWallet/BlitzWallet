@@ -23,6 +23,7 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import { useTranslation } from 'react-i18next';
 import AccountCard from '../accounts/accountCard';
 import useAccountSwitcher from '../../../../hooks/useAccountSwitcher';
+import CustomButton from '../../../../functions/CustomElements/button';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
@@ -146,35 +147,25 @@ export default function CreateCustodyAccounts() {
 
       {!isKeyboardFocused && (
         <>
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : COLORS.primary,
-                marginTop: CONTENT_KEYBOARD_OFFSET,
-              },
-            ]}
-            onPress={handleNavigateAddAccount}
-          >
-            <ThemeText
-              styles={styles.actionButtonText}
-              CustomNumberOfLines={1}
-              content={t(
-                'settings.accountComponents.selectCreateAccountType.title',
-              )}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionButton]}
-            onPress={handleNavigateSwap}
-          >
-            <ThemeText
-              CustomNumberOfLines={1}
-              content={t('settings.accountComponents.homepage.swap')}
-            />
-          </TouchableOpacity>
+          <CustomButton
+            buttonStyles={{
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : COLORS.primary,
+              marginTop: CONTENT_KEYBOARD_OFFSET,
+            }}
+            actionFunction={handleNavigateAddAccount}
+            textStyles={styles.actionButtonText}
+            textContent={t(
+              'settings.accountComponents.selectCreateAccountType.title',
+            )}
+          />
+          <CustomButton
+            buttonStyles={{
+              backgroundColor: undefined,
+            }}
+            actionFunction={handleNavigateSwap}
+            textContent={t('settings.accountComponents.homepage.swap')}
+          />
         </>
       )}
     </CustomKeyboardAvoidingView>
@@ -205,7 +196,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   actionButtonText: {
-    fontWeight: '500',
     color: COLORS.darkModeText,
     includeFontPadding: false,
     flexShrink: 1,

@@ -205,6 +205,10 @@
       "title": "Escolha o idioma"
     },
     "homePage": {
+      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
+      "money": "Pagamentos",
+      "made": "Rápido",
+      "simple": "Simples.",
       "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
         "button1": "Restaurar acesso",
@@ -212,7 +216,7 @@
       }
     },
     "disclaimerPage": {
-      "header": "Sua carteira. Seu controle.",
+      "header": "Seu dinheiro. Seu controle.",
       "subHeader": "Algumas informações importantes antes de começar.",
       "row1Label": "Só você controla seus fundos",
       "row1Description": "A Blitz não custodia nem tem acesso ao seu dinheiro.",
@@ -220,8 +224,9 @@
       "row2Description": "Ela é a chave que recupera os fundos de todas suas contas na Blitz. Encontre em Configurações → Backup da carteira.",
       "row3Label": "Não pode ser recuperada se for perdida",
       "row3Description": "Não é possível restaurar o acesso sem sua frase de recuperação. Guarde sua frase em um local seguro.",
-      "acceptPrefix": "Eu aceito os ",
+      "acceptPrefix": "Entendo que se eu perder minha frase de recuperação, pode resultar em perda permanente de fundos e concordo com os",
       "terms&Conditions": "Termos e Condições",
+      "acceptSuffix": " da Blitz Wallet.",
       "acceptError": "Para continuar, você deve aceitar os Termos e Condições.",
       "continueBTN": "Próximo"
     },
@@ -251,6 +256,7 @@
     "restoreWallet": {
       "home": {
         "header": "Insira sua frase de recuperação",
+        "desc": "Digite suas 12 palavras da frase de recuperação para restaurar o acesso a sua carteira.",
         "continueBTN": "Restaurar carteira",
         "error1": "Por favor, insira todas as suas palavras.",
         "error2": "Esta não é uma frase de recuperação válida",
@@ -930,10 +936,10 @@
         "whatArePools": "O que são Vaquinhas?",
         "whatArePoolsBody": "As Vaquinhas permitem que você colete pagamentos em Bitcoin para um objetivo qualquer. Crie uma Vaquinha, defina um valor alvo e compartilhe com quem quiser.",
         "howItWorks": "Como funciona",
-        "howStep1": "\u2022 Crie uma nova Vaquinha com um nome e um valor alvo",
-        "howStep2": "\u2022 Compartilhe o link da Vaquinha com outras pessoas",
-        "howStep3": "\u2022 Os contribuidores enviam Bitcoin diretamente para a Vaquinha",
-        "howStep4": "\u2022 Encerre a Vaquinha quando estiver pronto para mover os fundos para sua carteira"
+        "howStep1": "• Crie uma nova Vaquinha com um nome e um valor alvo",
+        "howStep2": "• Compartilhe o link da Vaquinha com outras pessoas",
+        "howStep3": "• Os contribuidores enviam Bitcoin diretamente para a Vaquinha",
+        "howStep4": "• Encerre a Vaquinha quando estiver pronto para mover os fundos para sua carteira"
       }
     },
     "manualInputPage": {
@@ -1776,7 +1782,8 @@
         "detailsBTN": "Detalhes técnicos",
         "contactPaymentType": "Contato",
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
-        "gift": "Vale-Blitz"
+        "gift": "Vale-Blitz",
+        "claimPayment": "Reivindicar pagamento"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -1825,7 +1832,18 @@
         "selectReceiveAssetHead": "O que você deseja receber?",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
-        "editDescriptionPlaceholder": "Adicionar uma descrição"
+        "editDescriptionPlaceholder": "Adicionar uma descrição",
+        "confirmToClaimTitle": "Confirmar antes de receber",
+        "confirmToClaimOff": "Desativado, os pagamentos são confirmados instantaneamente",
+        "confirmToClaimOn": "Ativado, você aprova cada pagamento",
+        "holdInvoiceExplainer": "Quando ativado, os pagamentos enviados para esta fatura ficam retidos até que você os confirme. Se você não reivindicar a tempo, o pagamento retorna automaticamente ao remetente.",
+        "expiryTitle": "Expira após",
+        "expiry_3600": "1 hora",
+        "expiry_21600": "6 horas",
+        "expiry_86400": "24 horas",
+        "expiry_604800": "7 dias",
+        "expiry_2592000": "30 dias",
+        "expiry_7776000": "90 dias"
       },
       "settingsContent": {
         "about": "Sobre",
@@ -2220,11 +2238,11 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "Os saldos em dinheiro são mantidos em USDB, uma stablecoin lastreada em dólares emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas."
+      "disclaimer": "Os saldos em dinheiro são mantidos em USDB, uma stablecoin lastreada em dólares emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. O rendimento é gerado através da Flashnet e é variável, não garantido e pode ser zero. O USDB não é segurado pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
-      "earnInterest": "Ganhe 3,5% de juros pagos em Bitcoin"
+      "earnInterest": "Ganhe de juros pagos em Bitcoin"
     },
     "goalEmoji": {
       "screenTitle": "Escolher emoji",
@@ -2250,12 +2268,12 @@
     },
     "goalDetails": {
       "screenTitleFallback": "Meta",
-      "updateGoalButton": "Atualizar meta",
+      "updateGoalButton": "Atualizar ou remover meta",
       "emptyState": "Nenhuma meta definida"
     },
     "updateGoal": {
-      "screenTitle": "Atualizar meta",
-      "title": "Atualizar meta",
+      "screenTitle": "Atualizar ou remover meta",
+      "title": "Atualizar ou remover meta",
       "body": "Você pode alterar a quantia necessária para sua meta ou removê-la.",
       "removeButton": "Remover meta",
       "updateButton": "Atualizar quantia"
@@ -2274,15 +2292,15 @@
       "title": "Meta removida"
     },
     "actionButtons": {
-      "addMoney": "Adicionar dinheiro",
-      "withdraw": "Sacar"
+      "addMoney": "Guardar dinheiro",
+      "withdraw": "Resgatar"
     },
     "activity": {
       "title": "Atividade",
       "emptyState": "As transações futuras aparecerão aqui."
     },
     "addMoney": {
-      "chooseGoalTitle": "Adicionar dinheiro em",
+      "chooseGoalTitle": "Guardar dinheiro em",
       "generalSavings": "Caixinha geral",
       "noSpecificGoal": "Sem meta específica",
       "sourceTitle": "Adicionar dinheiro do",
@@ -2295,63 +2313,66 @@
       "steps": {
         "processing": "Processando...",
         "swapping": "Convertendo fundos para dólar...",
-        "adding": "Adicionando à conta da Caixinha...",
+        "adding": "Guardando na Caixinha...",
         "complete": "Concluído."
       },
       "successTitle": "Dinheiro adicionado",
-      "paymentLabel_unallocated": "Depósito na Caixinha",
+      "paymentLabel_unallocated": "Depósito na Caixinha geral",
       "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
       }
     },
     "withdraw": {
-      "balanceTypeTitle": "O que você gostaria de sacar?",
+      "balanceTypeTitle": "O que você gostaria de resgatar?",
       "interestOption": "Juros recebidos",
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há juros acumulados",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Abaixo do mínimo para troca, apenas saldo em bitcoin",
+      "interestBelowMinHint": "Seu saldo em Bitcoin está abaixo do valor mínimo para troca. Por favor, saque para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Dos seus juros",
       "fromSavings": "Da sua Caixinha",
       "interestPaymentLabel": "Saque de juros",
-      "chooseGoalTitle": "Sacar dinheiro de",
+      "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
-      "destinationTitle": "Sacar dinheiro para",
+      "destinationTitle": "Resgatar dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar saque",
-      "youAreWithdrawingAll": "Você está sacando de todas as Caixinhas",
-      "youAreWithdrawing": "Você está sacando",
+      "youAreWithdrawingAll": "Você está resgatando de todas as Caixinhas",
+      "youAreWithdrawing": "Você está resgatando",
       "toYourBalance": "para o seu {{destination}}",
       "estimatedSats": "≈ {{sats}} sats após troca",
       "confirmButton": "Confirmar",
       "processing": "Processando saque…",
       "steps": {
         "processing": "Processando...",
-        "withdrawing": "Sacando da conta da Caixinha...",
+        "withdrawing": "Resgatando da Caixinha...",
         "swapping": "Convertendo para Bitcoin...",
         "complete": "Concluído."
       },
-      "successTitle": "Saque concluído",
-      "paymentLabel_unallocated": "Saque da Caixinha",
-      "paymentLabel": "Saque da Caixinha {{savingsGoal}}",
+      "successTitle": "Resgate concluído",
+      "paymentLabel_unallocated": "Resgate da Caixinha",
+      "paymentLabel": "Resgate da Caixinha {{savingsGoal}}",
       "errors": {
-        "unableToCompleteWithdrawal": "Não foi possível concluir o saque"
+        "unableToCompleteWithdrawal": "Não foi possível concluir o resgate"
       }
     },
     "howItWorks": {
       "headline1": "O seu dinheiro,",
       "headline2": "rendendo todo dia.",
       "subtext": "Uma stablecoin lastreada em USD que rende juros automaticamente.",
+      "transparencyIssuer": "USDB emitido por Brale, Inc. · Rendimento via Flashnet",
+      "transparencyLegal": "O rendimento é variável e não garantido. Não é um depósito bancário. Não é segurado pela FDIC ou SIPC.",
+      "disclaimerLegal": "A Blitz Wallet não é um banco, corretora ou consultora de investimentos. As taxas são variáveis e podem mudar a qualquer momento. Consulte os Termos de Uso para ver todas as divulgações de risco.",
       "features": {
-        "earnTitle": "Ganhe recompensas diárias",
+        "earnTitle": "Receba juros diariamente",
         "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
-        "accessTitle": "Acesso imediato",
-        "accessBody": "Saque para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
+        "accessTitle": "Liquidez imediata",
+        "accessBody": "Resgate para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
         "backedTitle": "Totalmente lastreado",
         "backedBody": "Cada USDB é lastreado 1:1 em USD em contas de reserva segregadas e auditadas.",
         "goalTitle": "Defina uma meta de poupança",
@@ -2360,7 +2381,7 @@
       "stats": {
         "currentApyLabel": "Anual",
         "currentApyValue": "3,5%",
-        "accrualLabel": "Rendimento",
+        "accrualLabel": "Pagamento",
         "accrualValue": "Diário"
       },
       "context": {
@@ -2371,11 +2392,12 @@
       "transparencyBody": "As reservas são mantidas em contas segregadas e auditadas — principalmente títulos do Tesouro dos EUA de curto prazo e fundos do mercado monetário. A Flashnet publica relatórios de atestação mensais.",
       "disclaimer": "As taxas são variáveis e sujeitas a alterações. Não é um depósito bancário. Acesse flashnet.xyz para ver as divulgações completas."
     },
-    "withdrawal": "Saque",
-    "withdrawalWithGoal": "Saque de {{goalName}}",
+    "withdrawal": "Resgate",
+    "withdrawalWithGoal": "Resgate de {{goalName}}",
     "deposit": "Depósito",
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
-    "savingsWalletError": "Carteira de poupança não está pronta"
+    "savingsWalletError": "Carteira de poupança não está pronta",
+    "rewardsPayout": "Pagamento de recompensas em Bitcoin"
   }
 }

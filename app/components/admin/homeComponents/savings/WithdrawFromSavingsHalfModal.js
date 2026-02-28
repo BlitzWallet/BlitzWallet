@@ -222,6 +222,7 @@ export default function WithdrawFromSavingsHalfModal({
 
   // NEW: for interest below swap minimum, restrict to bitcoin-only destination
   const visibleDestinationOptions = useMemo(() => {
+    return destinationOptions;
     if (selectedBalanceType !== 'interest') return destinationOptions;
     if (interestSats > 0 && interestSats < swapLimits.bitcoin) {
       return destinationOptions.filter(opt => opt.key === 'bitcoin');
@@ -1051,88 +1052,98 @@ export default function WithdrawFromSavingsHalfModal({
         />
 
         <View style={styles.optionsList}>
-          {visibleDestinationOptions.map(option => (
-            <TouchableOpacity
-              key={option.key}
-              activeOpacity={0.7}
-              style={[
-                styles.optionRow,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                },
-              ]}
-              onPress={() => {
-                setSelectedDestination(option.key);
-                setInputDenomination(
-                  option.key === 'dollar'
-                    ? 'fiat'
-                    : masterInfoObject.userBalanceDenomination != 'fiat'
-                    ? 'sats'
-                    : 'fiat',
-                );
-                // Withdraw All skips the amount step — amount is the full balance.
-                setStep(prev => [
-                  ...prev,
-                  isWithdrawAll ? 'confirm' : 'amount',
-                ]);
-              }}
-            >
-              <View style={styles.optionLeft}>
-                <View
-                  style={[
-                    styles.iconContainer,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? darkModeType
-                            ? backgroundOffset
-                            : backgroundColor
-                          : option.key === 'dollar'
-                          ? COLORS.dollarGreen
-                          : COLORS.bitcoinOrange,
-                    },
-                  ]}
-                >
-                  <ThemeImage
-                    styles={{ width: 25, height: 25 }}
-                    lightModeIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                    darkModeIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                    lightsOutIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                  />
+          {visibleDestinationOptions.map(option => {
+            const isDisabled =
+              selectedBalanceType === 'interest' &&
+              option.key === 'dollar' &&
+              interestSats > 0 &&
+              interestSats < swapLimits.bitcoin;
+            return (
+              <TouchableOpacity
+                key={option.key}
+                activeOpacity={0.7}
+                style={[
+                  styles.optionRow,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                    opacity: isDisabled ? 0.5 : 1,
+                  },
+                ]}
+                onPress={() => {
+                  if (isDisabled && option.key === 'dollar') {
+                    navigate.navigate('ErrorScreen', {
+                      errorMessage: t('savings.withdraw.interestBelowMinHint'),
+                    });
+                    return;
+                  }
+                  setSelectedDestination(option.key);
+                  setInputDenomination(
+                    option.key === 'dollar'
+                      ? 'fiat'
+                      : masterInfoObject.userBalanceDenomination != 'fiat'
+                      ? 'sats'
+                      : 'fiat',
+                  );
+                  // Withdraw All skips the amount step — amount is the full balance.
+                  setStep(prev => [
+                    ...prev,
+                    isWithdrawAll ? 'confirm' : 'amount',
+                  ]);
+                }}
+              >
+                <View style={styles.optionLeft}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? darkModeType
+                              ? backgroundOffset
+                              : backgroundColor
+                            : option.key === 'dollar'
+                            ? COLORS.dollarGreen
+                            : COLORS.bitcoinOrange,
+                      },
+                    ]}
+                  >
+                    <ThemeImage
+                      styles={{ width: 25, height: 25 }}
+                      lightModeIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                      darkModeIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                      lightsOutIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                    />
+                  </View>
+                  <View>
+                    <ThemeText
+                      styles={styles.optionTitle}
+                      content={option.title}
+                    />
+                    <ThemeText
+                      styles={styles.optionSubtitle}
+                      content={option.subtitle}
+                    />
+                  </View>
                 </View>
-                <View>
-                  <ThemeText
-                    styles={styles.optionTitle}
-                    content={option.title}
-                  />
-                  <ThemeText
-                    styles={styles.optionSubtitle}
-                    content={option.subtitle}
-                  />
-                </View>
-              </View>
-              <ThemeIcon iconName="ChevronRight" size={16} />
-            </TouchableOpacity>
-          ))}
-          {interestBelowSwapMin && selectedBalanceType === 'interest' && (
-            <ThemeText
-              styles={styles.minHintText}
-              content={t('savings.withdraw.interestBelowMinHint')}
-            />
-          )}
+                <ThemeIcon iconName="ChevronRight" size={16} />
+              </TouchableOpacity>
+            );
+          })}
         </View>
         {step.length > 1 && (
           <CustomButton
@@ -1157,7 +1168,7 @@ export default function WithdrawFromSavingsHalfModal({
         if (localSatAmount > interestSats) return false;
         if (selectedDestination === 'dollar') {
           // BTC→USDB swap requires meeting the swap minimum
-          if (localSatAmount <= swapLimits.bitcoin) return false;
+          if (localSatAmount < swapLimits.bitcoin) return false;
         }
         // interest→bitcoin: direct BTC send, no swap minimum
         return true;
@@ -1275,13 +1286,77 @@ export default function WithdrawFromSavingsHalfModal({
         />
 
         <CustomButton
-          buttonStyles={{ ...CENTER }}
+          buttonStyles={{
+            ...CENTER,
+            opacity: !canContinue && localSatAmount !== 0 ? HIDDEN_OPACITY : 1,
+          }}
           actionFunction={() => {
             if (!amountValue) {
               setStep(prev => prev.slice(0, -1));
               return;
             }
-            if (!canContinue) return;
+
+            if (selectedBalanceType === 'interest') {
+              if (localSatAmount > interestSats) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t(
+                    'screens.inAccount.swapsPage.insufficientBalance',
+                  ),
+                });
+                return;
+              }
+
+              if (
+                selectedDestination === 'dollar' &&
+                localSatAmount < swapLimits.bitcoin
+              ) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t('screens.inAccount.swapsPage.minBTCError', {
+                    min: displayCorrectDenomination({
+                      amount: swapLimits.bitcoin,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'sats',
+                      },
+                      fiatStats,
+                    }),
+                  }),
+                });
+                return;
+              }
+            }
+
+            if (
+              selectedDestination === 'bitcoin' &&
+              localSatAmount <=
+                dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB)
+            ) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t('screens.inAccount.swapsPage.minUSDError', {
+                  min: displayCorrectDenomination({
+                    amount: swapLimits.usd,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'fiat',
+                    },
+                    fiatStats,
+                    convertAmount: false,
+                    forceCurrency: 'USD',
+                  }),
+                }),
+              });
+              return;
+            }
+
+            if (fiatMicros > availableBalanceMicros) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t(
+                  'screens.inAccount.swapsPage.insufficientBalance',
+                ),
+              });
+              return;
+            }
+
             setStep(prev => [...prev, 'confirm']);
           }}
           textContent={

@@ -308,6 +308,31 @@ export const getAllUnpaidSparkLightningInvoices = async () => {
     console.error('Error fetching transactions:', error);
   }
 };
+
+export const getAllUnpaidHoldInvoicesFromTxs = async () => {
+  try {
+    await ensureSparkDatabaseReady();
+    const query = `
+      SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+      WHERE (
+        json_extract(details, '$.didClaimHTLC') IS NULL
+        OR json_extract(details, '$.didClaimHTLC') = 0
+      )
+      AND json_extract(details, '$.isHoldInvoice') = 1
+      AND paymentStatus = 'pending'
+    `;
+
+    const result = await sqlLiteDB.getAllAsync(query);
+    return result.map(row => ({
+      ...row,
+      details: row.details ? JSON.parse(row.details) : {},
+    }));
+  } catch (err) {
+    console.log('error getting all hold invoices from txs', err);
+    return [];
+  }
+};
+
 export const addSingleUnpaidSparkLightningTransaction = async tx => {
   if (!tx || !tx.id) {
     console.error('Invalid transaction object');
@@ -739,7 +764,10 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
               processedTx.paymentStatus,
               processedTx.paymentType,
               processedTx.accountId,
-              JSON.stringify({ ...processedTx.details, dateAddedToDb: Date.now() }),
+              JSON.stringify({
+                ...processedTx.details,
+                dateAddedToDb: Date.now(),
+              }),
             ],
           );
           // } else {

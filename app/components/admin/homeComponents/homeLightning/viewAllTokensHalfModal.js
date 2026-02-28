@@ -376,9 +376,6 @@ export default function ViewAllTokensHalfModal({
   const customBackHandler = useCallback(() => {
     if ((selectedIdentifier, selectedToken)) {
       handleBack();
-      true;
-    } else {
-      handleBackPressFunction();
       return true;
     }
   }, [handleBack]);

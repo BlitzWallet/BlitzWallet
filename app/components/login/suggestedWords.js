@@ -1,10 +1,17 @@
-import React, {useMemo, useCallback, useState, useRef, useEffect} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {wordlist} from '@scure/bip39/wordlists/english';
-import {COLORS, SIZES} from '../../constants';
-import {ThemeText} from '../../functions/CustomElements';
+import React, {
+  useMemo,
+  useCallback,
+  useState,
+  useRef,
+  useEffect,
+} from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { wordlist } from '@scure/bip39/wordlists/english';
+import { COLORS, SIZES } from '../../constants';
+import { ThemeText } from '../../functions/CustomElements';
 import useDebounce from '../../hooks/useDebounce';
 import customUUID from '../../functions/customUUID';
+import GetThemeColors from '../../hooks/themeColors';
 
 const MAX_SUGGESTIONS = 3;
 
@@ -14,6 +21,7 @@ export default function SuggestedWordContainer({
   setInputedKey,
   keyRefs,
 }) {
+  const { backgroundColor } = GetThemeColors();
   const searchingWord = inputedKey[`key${selectedKey}`] || '';
   const [debouncedSearchword, setDebouncedSearchWord] = useState('');
   const searchTrackerRef = useRef(null);
@@ -89,7 +97,7 @@ export default function SuggestedWordContainer({
 
   const handleWordPress = useCallback(
     word => {
-      setInputedKey(prev => ({...prev, [`key${selectedKey}`]: word}));
+      setInputedKey(prev => ({ ...prev, [`key${selectedKey}`]: word }));
       if (selectedKey === 12) {
         keyRefs.current[12].blur();
       } else {
@@ -103,11 +111,17 @@ export default function SuggestedWordContainer({
     (word, showBorder = false) => (
       <View
         key={word}
-        style={[styles.wordContainer, showBorder && styles.borderRight]}>
+        style={[
+          styles.wordContainer,
+          showBorder && styles.borderRight,
+          { borderTopWidth: 2, borderColor: backgroundColor },
+        ]}
+      >
         <TouchableOpacity
           style={styles.keyElementContainer}
           onPress={() => handleWordPress(word)}
-          activeOpacity={0.7}>
+          activeOpacity={0.7}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.keyElementText}
@@ -116,7 +130,7 @@ export default function SuggestedWordContainer({
         </TouchableOpacity>
       </View>
     ),
-    [handleWordPress],
+    [handleWordPress, backgroundColor],
   );
 
   const renderSuggestions = () => {
@@ -124,7 +138,12 @@ export default function SuggestedWordContainer({
 
     if (count === 0) {
       return (
-        <View style={styles.wordContainer}>
+        <View
+          style={[
+            styles.wordContainer,
+            { borderTopWidth: 2, borderTopColor: backgroundColor },
+          ]}
+        >
           <View style={styles.keyElementContainer} />
         </View>
       );
