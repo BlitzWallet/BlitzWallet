@@ -2397,7 +2397,7 @@
     "deposit": "Depósito",
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
-    "savingsWalletError": "Conta da Caixinha não está pronta"
+    "savingsWalletError": "Conta da Caixinha não está pronta",
     "rewardsPayout": "Pagamento de juros"
   }
 }
