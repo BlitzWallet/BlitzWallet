@@ -2326,7 +2326,7 @@
       "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
-      "destinationTitle": "Resgatar dinheiro para",
+      "destinationTitle": "Enviar dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar resgate",
