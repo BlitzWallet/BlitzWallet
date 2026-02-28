@@ -2252,7 +2252,7 @@
     },
     "goalSuccess": {
       "title": "Sua meta foi definida em {{amount}}",
-      "subtitle": "Comece a adicionar dinheiro para alcançar sua meta."
+      "subtitle": "Comece a guardar dinheiro para alcançar sua meta."
     },
     "goalDetails": {
       "screenTitleFallback": "Meta",
@@ -2291,10 +2291,10 @@
       "chooseGoalTitle": "Guardar dinheiro em",
       "generalSavings": "Caixinha geral",
       "noSpecificGoal": "Sem meta específica",
-      "sourceTitle": "Adicionar dinheiro do",
+      "sourceTitle": " Transferir dinheiro do",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar depósito",
-      "youAreAdding": "Você está adicionando",
+      "youAreAdding": "Você está transferindo",
       "fromBalance": "do seu saldo de {{source}}",
       "confirmButton": "Confirmar",
       "processing": "Processando…",
@@ -2304,7 +2304,7 @@
         "adding": "Guardando na Caixinha...",
         "complete": "Concluído."
       },
-      "successTitle": "Dinheiro adicionado",
+      "successTitle": "Dinheiro transferido",
       "paymentLabel_unallocated": "Depósito na Caixinha geral",
       "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
@@ -2326,7 +2326,7 @@
       "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
-      "destinationTitle": "Enviar dinheiro para",
+      "destinationTitle": "Transferir dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar resgate",
