@@ -177,14 +177,20 @@ export default function ExpandedTx(props) {
         preimage: decodedPreimage,
         mnemonic: currentWalletMnemoinc,
       });
+      const responseStatus = await querySparkHodlLightningPayments({
+        paymentHashes: [transaction.details.paymentHash],
+        mnemonic: currentWalletMnemoinc,
+      });
 
       if (!response.didWork) throw new Error('Failed to claim preimage');
       if (response.didWork) {
+        const htlcTrueStatus = responseStatus.paidPreimages;
         let newTx = JSON.parse(JSON.stringify(transaction));
         newTx.details.didClaimHTLC = true;
         newTx.details.preimage = decodedPreimage;
         newTx.id = transaction.sparkID;
-        newTx.paymentStatus = response.status === 1 ? 'completed' : 'failed';
+        newTx.paymentStatus =
+          htlcTrueStatus[0].status === 1 ? 'completed' : 'failed';
         await bulkUpdateSparkTransactions(
           [newTx],
           undefined,
