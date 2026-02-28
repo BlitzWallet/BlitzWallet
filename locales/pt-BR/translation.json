@@ -2329,7 +2329,7 @@
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há juros acumulados",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Seu saldo em Bitcoin está abaixo do valor mínimo para troca. Por favor, transfira para o seu saldo em Bitcoin.",
+      "interestBelowMinHint": "Seu saldo de juros recebidos está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Dos seus juros",
