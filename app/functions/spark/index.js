@@ -1269,7 +1269,9 @@ export const getSparkPaymentStatus = status => {
     status === SparkLeavesSwapRequestStatus.SUCCEEDED ||
     status === SparkUserRequestStatus.SUCCEEDED ||
     status === ClaimStaticDepositStatus.TRANSFER_COMPLETED ||
-    status === ClaimStaticDepositStatus.SPEND_TX_BROADCAST
+    status === ClaimStaticDepositStatus.SPEND_TX_BROADCAST ||
+    status === LightningSendRequestStatus.LIGHTNING_PAYMENT_SUCCEEDED ||
+    status == LightningReceiveRequestStatus.LIGHTNING_PAYMENT_RECEIVED
     ? 'completed'
     : status === 'TRANSFER_STATUS_RETURNED' ||
       status === 'TRANSFER_STATUS_EXPIRED' ||

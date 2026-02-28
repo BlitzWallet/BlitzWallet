@@ -41,7 +41,10 @@ import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar'
 import { currentPriceAinBToPriceDollars } from '../../functions/spark/flashnet';
 import { formatBalanceAmount } from '../../functions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import { claimSparkHodlLightningPayment } from '../../functions/spark';
+import {
+  claimSparkHodlLightningPayment,
+  querySparkHodlLightningPayments,
+} from '../../functions/spark';
 import { useKeysContext } from '../../../context-store/keys';
 import { decryptMessage } from '../../functions/messaging/encodingAndDecodingMessages';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
@@ -174,12 +177,14 @@ export default function ExpandedTx(props) {
         preimage: decodedPreimage,
         mnemonic: currentWalletMnemoinc,
       });
-      console.log(response);
+
+      if (!response.didWork) throw new Error('Failed to claim preimage');
       if (response.didWork) {
         let newTx = JSON.parse(JSON.stringify(transaction));
         newTx.details.didClaimHTLC = true;
         newTx.details.preimage = decodedPreimage;
         newTx.id = transaction.sparkID;
+        newTx.paymentStatus = response.status === 1 ? 'completed' : 'failed';
         await bulkUpdateSparkTransactions(
           [newTx],
           undefined,
@@ -191,6 +196,35 @@ export default function ExpandedTx(props) {
       }
     } catch (err) {
       console.log('Error claiming htlc in tx detials', err);
+
+      const htlcStatus = await querySparkHodlLightningPayments({
+        paymentHashes: [transaction.details.paymentHash],
+        mnemonic: currentWalletMnemoinc,
+      });
+
+      if (htlcStatus.paidPreimages?.length) {
+        const htlc = htlcStatus.paidPreimages[0];
+
+        if (htlc.status === 2 || htlc.status === 1) {
+          let newTx = JSON.parse(JSON.stringify(transaction));
+          newTx.details.didClaimHTLC = true;
+          newTx.id = transaction.sparkID;
+          newTx.paymentStatus = htlc.status === 1 ? 'completed' : 'failed';
+
+          await bulkUpdateSparkTransactions(
+            [newTx],
+            undefined,
+            undefined,
+            undefined,
+            true,
+          );
+          setTransaction(newTx);
+        } else {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Error when claiming payment.',
+          });
+        }
+      }
     } finally {
       setIsClaimingHtlc(false);
     }

@@ -27,6 +27,7 @@ import {
   getAllSparkTransactions,
   getAllSparkContactInvoices,
   getAllUnpaidSparkLightningInvoices,
+  getAllUnpaidHoldInvoicesFromTxs,
 } from './transactions';
 import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
@@ -983,8 +984,12 @@ export const checkHodlInvoicePaymentStatuses = async (
   identityPubKey,
 ) => {
   try {
-    const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
-    if (!unpaidInvoices?.length) return;
+    const [unpaidInvoices, pendingHoldInvoices] = await Promise.all([
+      getAllUnpaidSparkLightningInvoices(),
+      getAllUnpaidHoldInvoicesFromTxs(),
+    ]);
+
+    if (!unpaidInvoices?.length && !pendingHoldInvoices?.length) return;
 
     const holdInvoices = unpaidInvoices
       .map(inv => ({
@@ -996,9 +1001,9 @@ export const checkHodlInvoicePaymentStatuses = async (
       }))
       .filter(inv => inv.details?.isHoldInvoice === true);
 
-    if (!holdInvoices.length) return;
+    if (!holdInvoices.length && !pendingHoldInvoices.length) return;
 
-    const paymentHashes = holdInvoices
+    const paymentHashes = [...holdInvoices, ...pendingHoldInvoices]
       .map(inv => inv.details.paymentHash)
       .filter(Boolean);
 
@@ -1010,52 +1015,93 @@ export const checkHodlInvoicePaymentStatuses = async (
     if (!queryResult.didWork || !queryResult?.paidPreimages?.length) return;
 
     const txsToAdd = [];
+    const txsToUpdate = [];
     const idsToDelete = [];
 
+    const unpaidByHash = new Map(
+      holdInvoices
+        .filter(inv => inv.details?.paymentHash)
+        .map(inv => [inv.details.paymentHash, inv]),
+    );
+
+    const pendingByHash = new Map(
+      pendingHoldInvoices
+        .filter(inv => inv.details?.paymentHash)
+        .map(inv => [inv.details.paymentHash, inv]),
+    );
+
     for (const preimageRequest of queryResult.paidPreimages) {
-      // paymentHash is Uint8Array from native SDK; may be a plain object or string via WebView JSON
+      console.log(preimageRequest, 'reimagme requset in array');
       const hashHex =
         typeof preimageRequest.paymentHash === 'string'
           ? preimageRequest.paymentHash
           : Buffer.from(preimageRequest.paymentHash).toString('hex');
 
-      const match = holdInvoices.find(
-        inv => inv.details.paymentHash === hashHex,
-      );
-      if (!match) continue;
-      if (!preimageRequest.transferId) continue;
+      // Check both lists for a match
+      const matchFromUnpaid = unpaidByHash.get(hashHex);
+      const matchFromPending = pendingByHash.get(hashHex);
 
-      // status 0 = PREIMAGE_REQUEST_STATUS_WAITING_FOR_PREIMAGE = paid but not yet claimed
-      if (preimageRequest.status === 0) {
-        txsToAdd.push({
-          id: preimageRequest.transferId,
-          paymentStatus: 'pending',
-          paymentType: 'lightning',
-          accountId: identityPubKey,
-          details: {
-            amount: match.amount || preimageRequest.satValue,
-            fee: 0,
-            time: preimageRequest.createdTime
-              ? new Date(preimageRequest.createdTime).getTime()
-              : Date.now(),
-            direction: 'INCOMING',
-            description: match.description,
-            isHoldInvoice: true,
-            encryptedPreimage: match.details.encryptedPreimage,
-            paymentHash: match.details.paymentHash,
-            dateAddedToDb: Date.now(),
-          },
-        });
+      // Handle unpaid invoice matches (existing logic)
+      if (matchFromUnpaid) {
+        if (!preimageRequest.transferId) continue;
+
+        if (preimageRequest.status === 0) {
+          txsToAdd.push({
+            id: preimageRequest.transferId,
+            paymentStatus: 'pending',
+            paymentType: 'lightning',
+            accountId: identityPubKey,
+            details: {
+              amount: matchFromUnpaid.amount || preimageRequest.satValue,
+              fee: 0,
+              time: preimageRequest.createdTime
+                ? new Date(preimageRequest.createdTime).getTime()
+                : Date.now(),
+              direction: 'INCOMING',
+              description: matchFromUnpaid.description,
+              isHoldInvoice: true,
+              encryptedPreimage: matchFromUnpaid.details.encryptedPreimage,
+              paymentHash: matchFromUnpaid.details.paymentHash,
+              dateAddedToDb: Date.now(),
+            },
+          });
+        }
+
+        if (preimageRequest.status === 0 || preimageRequest.status === 2) {
+          idsToDelete.push(matchFromUnpaid.sparkID);
+        }
       }
 
-      // Remove from pending for paid (0) and returned/expired (2) states
-      if (preimageRequest.status === 0 || preimageRequest.status === 2) {
-        idsToDelete.push(match.sparkID);
+      // Handle pending hold invoice matches (new logic)
+      if (matchFromPending) {
+        if (preimageRequest.status === 1) {
+          txsToUpdate.push({
+            id: matchFromPending.sparkID,
+            paymentStatus: 'completed',
+            paymentType: matchFromPending.paymentType,
+            accountId: identityPubKey,
+            details: {
+              ...matchFromPending.details,
+            },
+          });
+        } else if (preimageRequest.status === 2) {
+          txsToUpdate.push({
+            id: matchFromPending.sparkID,
+            paymentStatus: 'failed',
+            paymentType: matchFromPending.paymentType,
+            accountId: identityPubKey,
+            details: {
+              ...matchFromPending.details,
+            },
+          });
+        }
       }
     }
 
-    if (txsToAdd.length > 0) {
-      await bulkUpdateSparkTransactions(txsToAdd);
+    const allTxChanges = [...txsToAdd, ...txsToUpdate];
+
+    if (allTxChanges.length > 0) {
+      await bulkUpdateSparkTransactions(allTxChanges);
     }
 
     for (const sparkID of idsToDelete) {
