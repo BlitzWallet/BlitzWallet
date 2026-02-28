@@ -220,9 +220,9 @@
       "subHeader": "Ein paar Dinge, die Sie wissen sollten, bevor Sie starten.",
       "row1Label": "Nur Sie kontrollieren Ihre Gelder.",
       "row1Description": "Blitz verwahrt oder greift niemals auf Ihr Geld zu.",
-      "row2Label": "Sie erhalten eine Wiederherstellungsphrase (Seed-Phrase)",
+      "row2Label": "Sie erhalten eine Wiederherstellungsphrase (Seed-Phrase).",
       "row2Description": "Sie ist der Generalschlüssel zu Ihrer Wallet. Sie finden sie unter Einstellungen → Wallet sichern.",
-      "row3Label": "Keine Wiederherstellung bei Verlust",
+      "row3Label": "Keine Wiederherstellung bei Verlust.",
       "row3Description": "Wir können den Zugriff nicht wiederherstellen. Bewahren Sie Ihre Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf.",
       "acceptPrefix": "Ich verstehe, dass der Verlust meiner Wiederherstellungsphrase (Seed-Phrase) zum dauerhaften Verlust meiner Gelder führt, und ich stimme den",
       "terms&Conditions": "Allgemeinen Geschäftsbedingungen",
@@ -291,7 +291,7 @@
       "SMS": "SMS",
       "SMSDescription": "Senden und empfangen Sie SMS weltweit mit BTC.",
       "VPN": "VPN",
-      "VPNDescription": "Sicher surfen und Privatsphäre schützen",
+      "VPNDescription": "Sicher surfen und Privatsphäre schützen.",
       "onlineListings": "Shops",
       "onlineListingsDescription": "Verzeichnis von Online-Shops, die BTC-Zahlungen akzeptieren.",
       "Soon": "Bald verfügbar",
@@ -1784,7 +1784,8 @@
         "detailsBTN": "Technische Details",
         "contactPaymentType": "Kontakt",
         "converstionRate": "{{satAmount}} pro {{USDAmount}}",
-        "gift": "Geschenk"
+        "gift": "Geschenk",
+        "claimPayment": "Zahlung einfordern"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
@@ -1833,7 +1834,18 @@
         "selectReceiveAssetHead": "Bitte wählen Sie das Asset zum Empfangen aus.",
         "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
         "editDescriptionHead": "Was möchten Sie sagen?",
-        "editDescriptionPlaceholder": "Beschreibung hinzufügen"
+        "editDescriptionPlaceholder": "Beschreibung hinzufügen",
+        "confirmToClaimTitle": "Vor dem Empfang bestätigen",
+        "confirmToClaimOff": "Aus, Zahlungen werden sofort bestätigt",
+        "confirmToClaimOn": "An, Sie bestätigen jede Zahlung",
+        "holdInvoiceExplainer": "Wenn aktiviert, werden an diese Rechnung gesendete Zahlungen zurückgehalten, bis Sie sie bestätigen. Wenn Sie sie nicht rechtzeitig einfordern, wird die Zahlung automatisch an den Absender zurückgesendet.",
+        "expiryTitle": "Läuft ab nach",
+        "expiry_3600": "1 Stunde",
+        "expiry_21600": "6 Stunden",
+        "expiry_86400": "24 Stunden",
+        "expiry_604800": "7 Tage",
+        "expiry_2592000": "30 Tage",
+        "expiry_7776000": "90 Tage"
       },
       "settingsContent": {
         "about": "Über uns",
