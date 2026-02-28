@@ -1751,10 +1751,10 @@
     }
   },
   "screens": {
-  "inAccount": {
-    "tokens": {
-      "yourTokens": "Ihre Tokens",
-      "noTokens": "Sie haben noch keine Tokens"
+    "inAccount": {
+      "tokens": {
+        "yourTokens": "Ihre Tokens",
+        "noTokens": "Sie haben noch keine Tokens"
       },
       "appStore": {
         "soonMessage": "Wir freuen uns, dass Sie mehr Apps möchten. Schlagen Sie sie unten vor!",
