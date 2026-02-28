@@ -2242,7 +2242,7 @@
     },
     "preview": {
       "title": "Caixinhas",
-      "earnInterest": "Ganhe de juros pagos em Bitcoin"
+      "earnInterest": "Defina metas, acompanhe o progresso e poupe nos seus termos."
     },
     "goalEmoji": {
       "screenTitle": "Escolher emoji",
@@ -2264,7 +2264,7 @@
     },
     "goalSuccess": {
       "title": "Sua meta foi definida em {{amount}}",
-      "subtitle": "Comece a adicionar dinheiro para alcançar sua meta."
+      "subtitle": "Comece a guardar dinheiro para alcançar sua meta."
     },
     "goalDetails": {
       "screenTitleFallback": "Meta",
@@ -2303,10 +2303,10 @@
       "chooseGoalTitle": "Guardar dinheiro em",
       "generalSavings": "Caixinha geral",
       "noSpecificGoal": "Sem meta específica",
-      "sourceTitle": "Adicionar dinheiro do",
+      "sourceTitle": " Transferir dinheiro do",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar depósito",
-      "youAreAdding": "Você está adicionando",
+      "youAreAdding": "Você está transferindo",
       "fromBalance": "do seu saldo de {{source}}",
       "confirmButton": "Confirmar",
       "processing": "Processando…",
@@ -2316,7 +2316,7 @@
         "adding": "Guardando na Caixinha...",
         "complete": "Concluído."
       },
-      "successTitle": "Dinheiro adicionado",
+      "successTitle": "Dinheiro transferido",
       "paymentLabel_unallocated": "Depósito na Caixinha geral",
       "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
@@ -2334,20 +2334,20 @@
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Dos seus juros",
       "fromSavings": "Da sua Caixinha",
-      "interestPaymentLabel": "Saque de juros",
+      "interestPaymentLabel": "Resgate de juros",
       "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
-      "destinationTitle": "Resgatar dinheiro para",
+      "destinationTitle": "Transferir dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
-      "confirmTitle": "Confirmar saque",
+      "confirmTitle": "Confirmar resgate",
       "youAreWithdrawingAll": "Você está resgatando de todas as Caixinhas",
       "youAreWithdrawing": "Você está resgatando",
       "toYourBalance": "para o seu {{destination}}",
       "estimatedSats": "≈ {{sats}} sats após troca",
       "confirmButton": "Confirmar",
-      "processing": "Processando saque…",
+      "processing": "Processando resgate…",
       "steps": {
         "processing": "Processando...",
         "withdrawing": "Resgatando da Caixinha...",
@@ -2397,7 +2397,7 @@
     "deposit": "Depósito",
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
-    "savingsWalletError": "Carteira de poupança não está pronta",
+    "savingsWalletError": "Conta da Caixinha não está pronta"
     "rewardsPayout": "Pagamento de juros"
   }
 }
