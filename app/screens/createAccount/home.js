@@ -234,11 +234,6 @@ const styles = StyleSheet.create({
   primaryBtn: {
     width: '100%',
     backgroundColor: COLORS.primary,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 5,
   },
   primaryBtnText: {
     color: '#FFFFFF',
@@ -247,11 +242,6 @@ const styles = StyleSheet.create({
   },
   secondaryBtn: {
     width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
   },
   secondaryBtnText: {
     // fontWeight: '600',
