@@ -936,10 +936,10 @@
         "whatArePools": "Cosa sono i pool?",
         "whatArePoolsBody": "I pool ti permettono di raccogliere pagamenti in Bitcoin per un obiettivo condiviso. Crea un pool, imposta un importo obiettivo e condividilo con chi vuoi.",
         "howItWorks": "Come funziona",
-        "howStep1": "\u2022 Crea un nuovo pool con un nome e un importo obiettivo",
-        "howStep2": "\u2022 Condividi il link del pool affinché altri possano trovarlo",
-        "howStep3": "\u2022 I contributori inviano Bitcoin direttamente al pool",
-        "howStep4": "\u2022 Chiudi il pool quando sei pronto a trasferire i fondi al tuo wallet"
+        "howStep1": "• Crea un nuovo pool con un nome e un importo obiettivo",
+        "howStep2": "• Condividi il link del pool affinché altri possano trovarlo",
+        "howStep3": "• I contributori inviano Bitcoin direttamente al pool",
+        "howStep4": "• Chiudi il pool quando sei pronto a trasferire i fondi al tuo wallet"
       }
     },
     "manualInputPage": {
@@ -1782,7 +1782,8 @@
         "contactPaymentType": "Contatto",
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "confirmMessage_sent": "Importo inviato",
-        "gift": "Regalo"
+        "gift": "Regalo",
+        "claimPayment": "Richiedi pagamento"
       },
       "explorePage": {
         "timeLeft": "({{time}} rimanenti)",
@@ -1831,7 +1832,18 @@
         "selectReceiveAssetHead": "Seleziona l’asset da ricevere",
         "usd_convert_warning": "L'importo finale che riceverai può variare a causa delle variazioni di prezzo di mercato durante la conversione.",
         "editDescriptionHead": "Cosa vorresti dire?",
-        "editDescriptionPlaceholder": "Aggiungi una descrizione"
+        "editDescriptionPlaceholder": "Aggiungi una descrizione",
+        "confirmToClaimTitle": "Conferma prima di ricevere",
+        "confirmToClaimOff": "Disattivato, i pagamenti sono confermati immediatamente",
+        "confirmToClaimOn": "Attivato, approvi ogni pagamento",
+        "holdInvoiceExplainer": "Quando è attivo, i pagamenti inviati a questa fattura vengono trattenuti finché non li confermi. Se non li richiedi in tempo, il pagamento viene automaticamente restituito al mittente.",
+        "expiryTitle": "Scade dopo",
+        "expiry_3600": "1 ora",
+        "expiry_21600": "6 ore",
+        "expiry_86400": "24 ore",
+        "expiry_604800": "7 giorni",
+        "expiry_2592000": "30 giorni",
+        "expiry_7776000": "90 giorni"
       },
       "settingsContent": {
         "about": "Informazioni",
@@ -2317,7 +2329,7 @@
       "savingsOption": "Saldo risparmi",
       "interestZeroHint": "Nessun interesse maturato finora",
       "savingsZeroHint": "Nessun risparmio ancora",
-      "interestBelowMinHint": "Sotto il minimo per lo swap, solo saldo bitcoin",
+      "interestBelowMinHint": "Il tuo saldo in Bitcoin è inferiore all’importo minimo per lo scambio. Effettua il prelievo verso il tuo saldo Bitcoin.",
       "loadingBalances": "Caricamento saldi...",
       "balanceLoadError": "Impossibile caricare il wallet. Torna indietro e riprova.",
       "fromInterest": "Dai tuoi interessi",
@@ -2385,6 +2397,7 @@
     "deposit": "Deposito",
     "depositWithGoal": "Deposito su {{goalName}}",
     "swapSimulationError": "Simulazione di scambio non disponibile",
-    "savingsWalletError": "Wallet risparmio non pronto"
+    "savingsWalletError": "Wallet risparmio non pronto",
+    "rewardsPayout": "Pagamento ricompense in Bitcoin"
   }
 }

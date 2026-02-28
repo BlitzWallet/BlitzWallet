@@ -129,7 +129,6 @@
     "details": "Detalles",
     "total": "Total"
   },
-
   "languages": {
     "english": "English",
     "spanish": "Español",
@@ -140,7 +139,6 @@
     "swedish": "Svenska",
     "russian": "Русский"
   },
-
   "weekdays": {
     "Mon": "Lunes",
     "Tue": "Martes",
@@ -568,7 +566,6 @@
         "errorMessage": "Lo sentimos, no pudimos guardar tu conversación."
       }
     },
-
     "giftCards": {
       "giftCardsPage": {
         "searchPlaceholder": "Buscar una tarjeta de regalo",
@@ -582,7 +579,6 @@
         "price": "Precio: ",
         "fee": "Tarifa: "
       },
-
       "createAccount": {
         "title": "Con tecnología de",
         "saveEmail": "No tienes un correo electrónico guardado. Acelera el proceso de pago guardando un correo.",
@@ -801,10 +797,10 @@
         "whatArePools": "¿Qué son los pools?",
         "whatArePoolsBody": "Los pools te permiten reunir pagos en Bitcoin para un objetivo compartido. Crea un pool, establece un monto objetivo y compártelo con quien quieras.",
         "howItWorks": "Cómo funciona",
-        "howStep1": "\u2022 Crea un nuevo pool con un nombre y un monto objetivo",
-        "howStep2": "\u2022 Comparte el enlace del pool para que otros puedan encontrarlo",
-        "howStep3": "\u2022 Los contribuyentes envían Bitcoin directamente al pool",
-        "howStep4": "\u2022 Cierra el pool cuando estés listo para mover los fondos a tu wallet"
+        "howStep1": "• Crea un nuevo pool con un nombre y un monto objetivo",
+        "howStep2": "• Comparte el enlace del pool para que otros puedan encontrarlo",
+        "howStep3": "• Los contribuyentes envían Bitcoin directamente al pool",
+        "howStep4": "• Cierra el pool cuando estés listo para mover los fondos a tu wallet"
       }
     },
     "manualInputPage": {
@@ -869,7 +865,6 @@
         "usernameInputDesc": "Editar nombre de usuario"
       }
     },
-
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparación de detalles de facturas",
@@ -1281,12 +1276,10 @@
       "flashnet": "BTC <> USD",
       "pageTitle": "Transferencias de {{type}}"
     },
-
     "viewRoostockSwaps": {
       "loadingMessage": "Cargando transferencias de Roostock guardadas",
       "noSwapsMessage": "No tienes transferencias de Roostock guardadas"
     },
-
     "rootstockSwapInfo": {
       "title": "Intercambio Submarino",
       "id": "ID",
@@ -1651,7 +1644,8 @@
         "detailsBTN": "Detalles técnicos",
         "contactPaymentType": "Contacto",
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
-        "gift": "Regalo"
+        "gift": "Regalo",
+        "claimPayment": "Reclamar pago"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -1700,7 +1694,18 @@
         "selectReceiveAssetHead": "Selecciona el activo a recibir",
         "usd_convert_warning": "El monto final que recibas puede variar debido a cambios en el precio del mercado durante la conversión.",
         "editDescriptionHead": "¿Qué te gustaría decir?",
-        "editDescriptionPlaceholder": "Agregar una descripción"
+        "editDescriptionPlaceholder": "Agregar una descripción",
+        "confirmToClaimTitle": "Confirmar antes de recibir",
+        "confirmToClaimOff": "Desactivado, los pagos se confirman al instante",
+        "confirmToClaimOn": "Activado, apruebas cada pago",
+        "holdInvoiceExplainer": "Cuando está activado, los pagos enviados a esta factura se retienen hasta que los confirmes. Si no los reclamas a tiempo, el pago se devuelve automáticamente al remitente.",
+        "expiryTitle": "Expira después de",
+        "expiry_3600": "1 hora",
+        "expiry_21600": "6 horas",
+        "expiry_86400": "24 horas",
+        "expiry_604800": "7 días",
+        "expiry_2592000": "30 días",
+        "expiry_7776000": "90 días"
       },
       "settingsContent": {
         "about": "Acerca de",
@@ -1775,7 +1780,6 @@
           "title": "Regalos en Blitz",
           "desc": "Comparte Bitcoin o dólares con amigos y familia"
         },
-
         "giftsOverview": {
           "noGiftsHead": "Aún no hay regalos",
           "noGiftsDesc": "Crea tu primer regalo para compartir Bitcoin o dólares con amigos y familiares.",
@@ -1785,7 +1789,6 @@
           "unclaimed": "No canjeado",
           "reclaimed": "Recuperado"
         },
-
         "createGift": {
           "noAmountError": "Ingresa un monto para crear tu regalo.",
           "connectError": "No pudimos configurar tu billetera del regalo. Inténtalo de nuevo.",
@@ -1802,7 +1805,6 @@
           "durationText": "{{numDays}} días",
           "type": "Tipo"
         },
-
         "giftConfirmation": {
           "header": "¡Regalo creado!",
           "whatToDo": "Comparte este regalo con cualquiera usando el código QR o el enlace",
@@ -1813,7 +1815,6 @@
           "createAnother": "Crear otro",
           "done": "Listo"
         },
-
         "claimHome": {
           "header": "Ingresa el enlace del regalo",
           "desc": "Pega el enlace que recibiste o escanea el código QR para reclamar tu regalo",
@@ -1822,7 +1823,6 @@
           "noGiftLinkError": "No pudimos encontrar un enlace de regalo. Escanea o pega el enlace que recibiste.",
           "invliadGiftFormat": "Enlace de regalo no válido. Copia el enlace completo e inténtalo de nuevo."
         },
-
         "reclaimPage": {
           "header": "Recupera tu regalo",
           "desc": "Ingresa o selecciona el ID del regalo para devolver un regalo expirado o no reclamado.",
@@ -1832,7 +1832,6 @@
           "noReclaimsMessage": "No tienes regalos vencidos en este momento. Vuelve cuando algún regalo haya vencido para recuperarlo.",
           "advancedModeBTN": "Modo avanzado"
         },
-
         "advancedMode": {
           "header": "Modo avanzado",
           "currentIndexHead": "Índice actual del regalo",
@@ -1844,7 +1843,6 @@
           "restoreGiftBTN": "Restaurar regalo",
           "advancedWarning": "Esta función avanzada solo debe usarse cuando el proceso normal de recuperación no funciona. Si no estás seguro, prueba primero la página de recuperación normal."
         },
-
         "claimPage": {
           "parseError": "No pudimos leer los detalles del regalo desde este enlace.",
           "noGiftForReclaim": "No encontramos este regalo. Puede que ya haya sido reclamado.",
@@ -2018,11 +2016,9 @@
     "loadingText": "Estamos configurando todo. ¡Espera un momento! Esto podría tardar hasta un minuto.",
     "errorText1": "Error al conectar con tu nodo. Intenta recargar la app."
   },
-
   "swapMessages": {
     "liquid": "Transferencia de Liquid a Spark"
   },
-
   "tabs": {
     "home": "Billetera",
     "appStore": "Tienda",
@@ -2053,11 +2049,9 @@
       "giftCard": "{{name}} te envió una tarjeta regalo de {{giftCardName}}."
     }
   },
-
   "accountCard": {
     "fallbackAccountName": "Cuenta {{index}}"
   },
-
   "flashnetUserMessages": {
     "FSAG-1000": "La solicitud no superó las validaciones.",
     "FSAG-1001": "Falta un campo obligatorio en tu solicitud.",
@@ -2197,7 +2191,7 @@
       "savingsOption": "Saldo de ahorros",
       "interestZeroHint": "Aún no se han generado intereses",
       "savingsZeroHint": "Aún no hay ahorros",
-      "interestBelowMinHint": "Por debajo del mínimo de intercambio, solo saldo en bitcoin",
+      "interestBelowMinHint": "Tu saldo de Bitcoin está por debajo del monto mínimo de intercambio. Por favor, retira a tu saldo de Bitcoin.",
       "loadingBalances": "Cargando saldos...",
       "balanceLoadError": "No se pudo cargar la billetera. Regresa e inténtalo nuevamente.",
       "fromInterest": "De tus intereses",
@@ -2265,6 +2259,7 @@
     "deposit": "Depósito",
     "depositWithGoal": "Depósito a {{goalName}}",
     "swapSimulationError": "Simulación de cambio no disponible",
-    "savingsWalletError": "Billetera de ahorros no lista"
+    "savingsWalletError": "Billetera de ahorros no lista",
+    "rewardsPayout": "Pago de recompensas en Bitcoin"
   }
 }

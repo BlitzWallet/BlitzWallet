@@ -30,6 +30,7 @@ import {
 } from '../app/functions/spark/transactions';
 import { useAppStatus } from './appStatus';
 import {
+  checkHodlInvoicePaymentStatuses,
   fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
@@ -819,14 +820,6 @@ const SparkWalletProvider = ({ children }) => {
         details: JSON.parse(lastAddedTx.details),
       };
 
-      if (handledNavigatedTxs.current.has(parsedTx.sparkID)) {
-        console.log(
-          'Already handled transaction, skipping confirm tx page navigation',
-        );
-        return;
-      }
-      handledNavigatedTxs.current.add(parsedTx.sparkID);
-
       const details = parsedTx?.details;
 
       if (isFlashnetTransfer(parsedTx.sparkID)) {
@@ -871,6 +864,19 @@ const SparkWalletProvider = ({ children }) => {
         );
         return;
       }
+
+      if (details.isHoldInvoice && parsedTx.paymentStatus !== 'completed') {
+        console.log('Blocking unconfirmed hodl invoice from showing');
+        return;
+      }
+
+      if (handledNavigatedTxs.current.has(parsedTx.sparkID)) {
+        console.log(
+          'Already handled transaction, skipping confirm tx page navigation',
+        );
+        return;
+      }
+      handledNavigatedTxs.current.add(parsedTx.sparkID);
 
       const isOnReceivePage =
         navigationRef
@@ -1151,6 +1157,11 @@ const SparkWalletProvider = ({ children }) => {
             if (isInitialLRC20Run.current) {
               isInitialLRC20Run.current = false;
             }
+
+            await checkHodlInvoicePaymentStatuses(
+              currentMnemonicRef.current,
+              sparkInfoRef.current.identityPubKey,
+            );
           } catch (err) {
             console.error('Error during periodic restore:', err);
           }

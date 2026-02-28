@@ -936,10 +936,10 @@
         "whatArePools": "O que são Vaquinhas?",
         "whatArePoolsBody": "As Vaquinhas permitem que você colete pagamentos em Bitcoin para um objetivo qualquer. Crie uma Vaquinha, defina um valor alvo e compartilhe com quem quiser.",
         "howItWorks": "Como funciona",
-        "howStep1": "\u2022 Crie uma nova Vaquinha com um nome e um valor alvo",
-        "howStep2": "\u2022 Compartilhe o link da Vaquinha com outras pessoas",
-        "howStep3": "\u2022 Os contribuidores enviam Bitcoin diretamente para a Vaquinha",
-        "howStep4": "\u2022 Encerre a Vaquinha quando estiver pronto para mover os fundos para sua carteira"
+        "howStep1": "• Crie uma nova Vaquinha com um nome e um valor alvo",
+        "howStep2": "• Compartilhe o link da Vaquinha com outras pessoas",
+        "howStep3": "• Os contribuidores enviam Bitcoin diretamente para a Vaquinha",
+        "howStep4": "• Encerre a Vaquinha quando estiver pronto para mover os fundos para sua carteira"
       }
     },
     "manualInputPage": {
@@ -1782,7 +1782,8 @@
         "detailsBTN": "Detalhes técnicos",
         "contactPaymentType": "Contato",
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
-        "gift": "Vale-Blitz"
+        "gift": "Vale-Blitz",
+        "claimPayment": "Reivindicar pagamento"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -1831,7 +1832,18 @@
         "selectReceiveAssetHead": "O que você deseja receber?",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
-        "editDescriptionPlaceholder": "Adicionar uma descrição"
+        "editDescriptionPlaceholder": "Adicionar uma descrição",
+        "confirmToClaimTitle": "Confirmar antes de receber",
+        "confirmToClaimOff": "Desativado, os pagamentos são confirmados instantaneamente",
+        "confirmToClaimOn": "Ativado, você aprova cada pagamento",
+        "holdInvoiceExplainer": "Quando ativado, os pagamentos enviados para esta fatura ficam retidos até que você os confirme. Se você não reivindicar a tempo, o pagamento retorna automaticamente ao remetente.",
+        "expiryTitle": "Expira após",
+        "expiry_3600": "1 hora",
+        "expiry_21600": "6 horas",
+        "expiry_86400": "24 horas",
+        "expiry_604800": "7 dias",
+        "expiry_2592000": "30 dias",
+        "expiry_7776000": "90 dias"
       },
       "settingsContent": {
         "about": "Sobre",
@@ -2317,7 +2329,7 @@
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há juros acumulados",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Abaixo do mínimo para troca, apenas saldo em bitcoin",
+      "interestBelowMinHint": "Seu saldo em Bitcoin está abaixo do valor mínimo para troca. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Dos seus juros",
@@ -2386,5 +2398,6 @@
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
     "savingsWalletError": "Conta da Caixinha não está pronta"
+    "rewardsPayout": "Pagamento de juros"
   }
 }

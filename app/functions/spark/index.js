@@ -794,6 +794,117 @@ export const receiveSparkLightningPayment = async ({
   }
 };
 
+export const claimSparkHodlLightningPayment = async ({
+  preimage,
+  mnemonic,
+}) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.claimSparkHodlLightningPayment,
+        {
+          preimage,
+          mnemonic,
+        },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to get hold lightning invoice request',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.claimHTLC(preimage);
+      return { didWork: true, response };
+    }
+  } catch (err) {
+    console.log('Receive HODL lightning payment error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const querySparkHodlLightningPayments = async ({
+  paymentHashes = [],
+  mnemonic,
+}) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.querySparkHodlLightningPayments,
+        {
+          paymentHashes,
+          mnemonic,
+        },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to get hold lightning invoice request',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await await wallet.queryHTLC({
+        paymentHashes,
+        limit: 50,
+        offset: 0,
+      });
+      const paidPreimages = response.preimageRequests.map(request => ({
+        status: request.status,
+        createdTime: request.createdTime,
+        paymentHash: Buffer.from(request.paymentHash).toString('hex'),
+        transferId: request.transfer.id,
+        satValue: request.transfer.totalValue,
+      }));
+      return { didWork: true, paidPreimages };
+    }
+  } catch (err) {
+    console.log('Receive HODL lightning payment error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const receiveSparkHodlLightningPayment = async ({
+  amountSats,
+  paymentHash,
+  memo,
+  expirySeconds,
+  mnemonic,
+}) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.receiveSparkHodlLightningPayment,
+        {
+          amountSats,
+          paymentHash,
+          memo,
+          expirySeconds,
+          mnemonic,
+        },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to get hold lightning invoice request',
+      );
+    } else {
+      // createLightningHodlInvoice is native-SDK only; always use native runtime
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.createLightningHodlInvoice({
+        amountSats,
+        paymentHash,
+        memo,
+        expirySeconds,
+        includeSparkAddress: false,
+      });
+      return { didWork: true, response };
+    }
+  } catch (err) {
+    console.log('Receive HODL lightning payment error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
 export const getSparkLightningSendRequest = async (id, mnemonic) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -1158,7 +1269,9 @@ export const getSparkPaymentStatus = status => {
     status === SparkLeavesSwapRequestStatus.SUCCEEDED ||
     status === SparkUserRequestStatus.SUCCEEDED ||
     status === ClaimStaticDepositStatus.TRANSFER_COMPLETED ||
-    status === ClaimStaticDepositStatus.SPEND_TX_BROADCAST
+    status === ClaimStaticDepositStatus.SPEND_TX_BROADCAST ||
+    status === LightningSendRequestStatus.LIGHTNING_PAYMENT_SUCCEEDED ||
+    status == LightningReceiveRequestStatus.LIGHTNING_PAYMENT_RECEIVED
     ? 'completed'
     : status === 'TRANSFER_STATUS_RETURNED' ||
       status === 'TRANSFER_STATUS_EXPIRED' ||

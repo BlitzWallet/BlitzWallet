@@ -45,6 +45,8 @@ import { dollarsToSats, satsToDollars } from '../../functions/spark/flashnet';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { shareMessage } from '../../functions/handleShare';
+import { useKeysContext } from '../../../context-store/keys';
+import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -64,6 +66,8 @@ export default function ReceivePaymentHome(props) {
   const { startLiquidEventListener } = useLiquidEvent();
   const userReceiveAmount = props.route.params?.receiveAmount || 0;
   const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
+  const [holdExpirySeconds, setHoldExpirySeconds] = useState(2592000);
+  const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
   const { bottomPadding } = useGlobalInsets();
   const isSharingRef = useRef(null);
 
@@ -87,6 +91,7 @@ export default function ReceivePaymentHome(props) {
       ? ''
       : `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
     isGeneratingInvoice: false,
+    isHoldInvoice: false,
     minMaxSwapAmount: {
       min: 0,
       max: 0,
@@ -104,6 +109,38 @@ export default function ReceivePaymentHome(props) {
     addressStateRef.current = addressState;
   }, [addressState]);
 
+  const handleHoldToggle = useCallback(() => {
+    if (!addressState.isHoldInvoice) {
+      // Turning ON — show explanation first
+      navigate.navigate('InformationPopup', {
+        textContent: t('screens.inAccount.receiveBtcPage.holdInvoiceExplainer'),
+        buttonText: t('constants.understandText'),
+        customNavigation: () => proceedWithHoldToggle(true),
+      });
+      return;
+    }
+    proceedWithHoldToggle(false);
+  }, [addressState.isHoldInvoice]);
+
+  const proceedWithHoldToggle = useCallback(async newValue => {
+    if (newValue) navigate.goBack();
+    setAddressState(prev => ({
+      ...prev,
+      isHoldInvoice: newValue,
+      generatedAddress: '',
+      isGeneratingInvoice: newValue,
+    }));
+  }, []);
+
+  const handleExpirySelect = useCallback(async seconds => {
+    setAddressState(prev => ({
+      ...prev,
+      generatedAddress: '',
+      isGeneratingInvoice: true,
+    }));
+    setHoldExpirySeconds(seconds.value);
+  }, []);
+
   useEffect(() => {
     async function runAddressInit() {
       crashlyticsLogReport('Begining adddress initialization');
@@ -116,7 +153,9 @@ export default function ReceivePaymentHome(props) {
           prevRequstInfo.current.selectedRecieveOption.toLowerCase() &&
         paymentDescription === prevRequstInfo.current.paymentDescription &&
         !addressStateRef.current.errorMessageText.text &&
-        endReceiveType === prevRequstInfo.current.endReceiveType
+        endReceiveType === prevRequstInfo.current.endReceiveType &&
+        addressState.isHoldInvoice === prevRequstInfo.current.isHoldInvoice &&
+        holdExpirySeconds === prevRequstInfo.current.holdExpirySeconds
       ) {
         // This checks if we had a previous requst
         // And all other formation is the same
@@ -130,13 +169,16 @@ export default function ReceivePaymentHome(props) {
         selectedRecieveOption,
         paymentDescription,
         endReceiveType,
+        isHoldInvoice: addressState.isHoldInvoice,
+        holdExpirySeconds,
       };
       if (
         !userReceiveAmount &&
         selectedRecieveOption.toLowerCase() === 'lightning' &&
         !isUsingAltAccount &&
         endReceiveType === 'BTC' &&
-        !paymentDescription
+        !paymentDescription &&
+        !addressState.isHoldInvoice
       ) {
         setInitialSendAmount(0);
         setAddressState(prev => ({
@@ -166,6 +208,10 @@ export default function ReceivePaymentHome(props) {
         setInitialSendAmount,
         userReceiveAmount,
         poolInfoRef,
+        isHoldInvoice: addressState.isHoldInvoice,
+        holdExpirySeconds,
+        contactsPrivateKey,
+        contactsPublicKey,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener(60);
@@ -180,6 +226,8 @@ export default function ReceivePaymentHome(props) {
     selectedRecieveOption,
     requestUUID,
     endReceiveType,
+    addressState.isHoldInvoice,
+    holdExpirySeconds,
   ]);
 
   const headerContext =
@@ -251,6 +299,10 @@ export default function ReceivePaymentHome(props) {
             isSharingRef={isSharingRef}
             paymentDescription={paymentDescription}
             userReceiveAmount={userReceiveAmount}
+            handleHoldToggle={handleHoldToggle}
+            handleExpirySelect={handleExpirySelect}
+            isHoldInvoice={addressState.isHoldInvoice}
+            holdExpirySeconds={holdExpirySeconds}
           />
 
           <ButtonsContainer
@@ -406,17 +458,22 @@ function QrCode(props) {
     isSharingRef,
     paymentDescription,
     userReceiveAmount,
+    handleHoldToggle,
+    handleExpirySelect,
+    isHoldInvoice,
+    holdExpirySeconds,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
 
   const isUsingLnurl =
     selectedRecieveOption.toLowerCase() === 'lightning' &&
     !initialSendAmount &&
     !isUsingAltAccount &&
     endReceiveType === 'BTC' &&
-    !paymentDescription;
+    !paymentDescription &&
+    !isHoldInvoice;
 
   const qrOpacity = useSharedValue(addressState.generatedAddress ? 1 : 0);
   const loadingOpacity = useSharedValue(isUsingLnurl ? 0 : 1);
@@ -601,7 +658,9 @@ function QrCode(props) {
                 }}
               >
                 <QrCodeWrapper
-                  outerContainerStyle={{ backgroundColor: 'transparent' }}
+                  outerContainerStyle={{
+                    backgroundColor: 'transparent',
+                  }}
                   QRData={qrData}
                 />
               </Animated.View>
@@ -713,6 +772,90 @@ function QrCode(props) {
         />
       )}
 
+      {selectedRecieveOption?.toLowerCase() === 'lightning' &&
+        endReceiveType !== 'USD' && (
+          <>
+            <QRInformationRow
+              title={t('screens.inAccount.receiveBtcPage.confirmToClaimTitle')}
+              info={
+                isHoldInvoice
+                  ? t('screens.inAccount.receiveBtcPage.confirmToClaimOn')
+                  : t('screens.inAccount.receiveBtcPage.confirmToClaimOff')
+              }
+              customNumberOfLines={5}
+              iconName={isHoldInvoice ? 'LockOpen' : 'Lock'}
+              showBoder={true}
+              actionFunction={handleHoldToggle}
+            />
+            {isHoldInvoice && (
+              <View
+                style={[
+                  styles.qrInfoContainer,
+                  {
+                    gap: 25,
+                    borderBottomWidth: 2,
+                    borderBottomColor: backgroundColor,
+                  },
+                ]}
+              >
+                <ThemeText
+                  styles={{
+                    flexGrow: 1,
+                    includeFontPadding: false,
+                    fontSize: SIZES.small,
+                  }}
+                  content={t('screens.inAccount.receiveBtcPage.expiryTitle')}
+                />
+                <DropdownMenu
+                  options={[
+                    {
+                      label: t('screens.inAccount.receiveBtcPage.expiry_86400'),
+                      value: 86400,
+                    },
+                    {
+                      label: t(
+                        'screens.inAccount.receiveBtcPage.expiry_604800',
+                      ),
+                      value: 604800,
+                    },
+                    {
+                      label: t(
+                        'screens.inAccount.receiveBtcPage.expiry_2592000',
+                      ),
+                      value: 2592000,
+                    },
+                    {
+                      label: t(
+                        'screens.inAccount.receiveBtcPage.expiry_7776000',
+                      ),
+                      value: 7776000,
+                    },
+                  ]}
+                  customVericalArrowsColor={textColor}
+                  selectedValue={t(
+                    `screens.inAccount.receiveBtcPage.expiry_${holdExpirySeconds}`,
+                  )}
+                  onSelect={handleExpirySelect}
+                  showClearIcon={false}
+                  translateLabelText={false}
+                  showVerticalArrows={true}
+                  showVerticalArrowsAbsolute={true}
+                  customButtonStyles={{
+                    backgroundColor,
+                    justifyContent: 'center',
+                  }}
+                  dropdownItemCustomStyles={{
+                    justifyContent: 'center',
+                  }}
+                  globalContainerStyles={{
+                    flexShrink: 1,
+                  }}
+                />
+              </View>
+            )}
+          </>
+        )}
+
       <QRInformationRow
         title={t('screens.inAccount.receiveBtcPage.invoiceDescription', {
           context: invoiceContext,
@@ -741,30 +884,13 @@ function QrCode(props) {
 function QRInformationRow({
   title = '',
   info = '',
-  lightModeIcon,
-  darkModeIcon,
-  lightsOutIcon,
   showBoder,
   actionFunction,
   showSkeleton = false,
-  rotateIcon = false,
   iconName,
+  customNumberOfLines = 1,
 }) {
   const { backgroundColor, textColor } = GetThemeColors();
-
-  const [layout, setLayout] = useState({ height: 5 });
-  const maxLayoutRef = useRef({ height: 5 });
-
-  const handleLayoutMeasurement = useCallback(event => {
-    const { height } = event.nativeEvent.layout;
-
-    const newMaxHeight = Math.max(maxLayoutRef.current.height, height);
-
-    if (newMaxHeight !== maxLayoutRef.current.height) {
-      maxLayoutRef.current = { height: newMaxHeight };
-      setLayout({ height: newMaxHeight });
-    }
-  }, []);
 
   return (
     <TouchableOpacity
@@ -779,102 +905,52 @@ function QRInformationRow({
         if (actionFunction) actionFunction();
       }}
     >
-      {/* Hidden component for layout measurement */}
-      <View
-        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-        onLayout={handleLayoutMeasurement}
-      >
-        <View style={styles.infoTextContiner}>
-          <ThemeText
-            styles={{ includeFontPadding: false, fontSize: SIZES.small }}
-            content={title}
-          />
-          {showSkeleton ? (
-            <SkeletonPlaceholder
-              highlightColor={backgroundColor}
-              backgroundColor={COLORS.opaicityGray}
-              enabled={true}
-              speed={SKELETON_ANIMATION_SPEED}
-            >
-              <View
-                style={{
-                  width: '100%',
-                  height: SIZES.small,
-                  marginVertical: 3,
-                  borderRadius: 8,
-                }}
-              ></View>
-            </SkeletonPlaceholder>
-          ) : (
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={{
-                includeFontPadding: false,
-                fontSize: SIZES.small,
-                opacity: 0.6,
-                flexShrink: 1,
+      <View style={styles.infoTextContiner}>
+        <ThemeText
+          CustomNumberOfLines={customNumberOfLines}
+          styles={{ includeFontPadding: false, fontSize: SIZES.small }}
+          content={title}
+        />
+        {showSkeleton ? (
+          <SkeletonPlaceholder
+            highlightColor={backgroundColor}
+            backgroundColor={COLORS.opaicityGray}
+            enabled={true}
+            speed={SKELETON_ANIMATION_SPEED}
+          >
+            <View
+              style={{
+                width: '100%',
+                height: SIZES.medium,
+                marginVertical: 3,
+                borderRadius: 8,
               }}
-              content={info}
             />
-          )}
-        </View>
+          </SkeletonPlaceholder>
+        ) : (
+          <ThemeText
+            CustomNumberOfLines={customNumberOfLines}
+            styles={{
+              includeFontPadding: false,
+              fontSize: SIZES.small,
+              opacity: 0.6,
+            }}
+            content={info}
+          />
+        )}
       </View>
-
-      {/* Visible component with fixed height */}
       <View
         style={{
-          height: layout.height,
+          width: 30,
+          height: 30,
+          backgroundColor,
+          alignItems: 'center',
           justifyContent: 'center',
-          width: '100%',
-          flexDirection: 'row',
+          borderRadius: 8,
+          flexShrink: 0,
         }}
       >
-        <View style={styles.infoTextContiner}>
-          <ThemeText
-            styles={{ includeFontPadding: false, fontSize: SIZES.small }}
-            content={title}
-          />
-          {showSkeleton ? (
-            <SkeletonPlaceholder
-              highlightColor={backgroundColor}
-              backgroundColor={COLORS.opaicityGray}
-              enabled={true}
-              speed={SKELETON_ANIMATION_SPEED}
-            >
-              <View
-                style={{
-                  width: '100%',
-                  height: SIZES.medium,
-                  marginVertical: 3,
-                  borderRadius: 8,
-                }}
-              ></View>
-            </SkeletonPlaceholder>
-          ) : (
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={{
-                includeFontPadding: false,
-                fontSize: SIZES.small,
-                opacity: 0.6,
-                flexShrink: 1,
-              }}
-              content={info}
-            />
-          )}
-        </View>
-        <View
-          style={{
-            width: 30,
-            height: 30,
-            backgroundColor,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 8,
-          }}
-        >
-          <ThemeIcon colorOverride={textColor} size={15} iconName={iconName} />
-        </View>
+        <ThemeIcon colorOverride={textColor} size={15} iconName={iconName} />
       </View>
     </TouchableOpacity>
   );
@@ -939,11 +1015,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 10,
-    minHeight: 45,
+    minHeight: 50,
   },
   infoTextContiner: {
-    width: '100%',
-    flexShrink: 1,
+    flex: 1,
     marginRight: 10,
   },
   dollarPrice: {
