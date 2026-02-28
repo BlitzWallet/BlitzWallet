@@ -2290,7 +2290,7 @@
       "setGoalSubtitle": "Save for what matters most",
       "savingsGoalFallback": "Savings goal",
       "createAnotherGoal": "Create Another Goal",
-      "disclaimer": "Cash balances are held in USDB, a dollar-backed stablecoin issued by Brale and fully backed 1:1 by US Treasury Bills and cash equivalents held at regulated financial institutions. Yield is generated through Flashnet and is variable, not guaranteed, and may be zero. USDB is not FDIC insured. Not a bank product."
+      "disclaimer": "Cash balances are held in USDB, a dollar-backed stablecoin issued by Brale and fully backed 1:1 by US Treasury Bills and cash equivalents held at regulated financial institutions. Bitcoin rewards are generated through Flashnet and are variable, not guaranteed, and may be zero. USDB is not FDIC insured. Not a bank product."
     },
     "preview": {
       "title": "Savings",
@@ -2377,16 +2377,16 @@
     },
     "withdraw": {
       "balanceTypeTitle": "What would you like to withdraw?",
-      "interestOption": "Interest earned",
+      "interestOption": "Bitcoin balance",
       "savingsOption": "Savings balance",
-      "interestZeroHint": "No interest earned yet",
+      "interestZeroHint": "No Bitcoin rewards yet",
       "savingsZeroHint": "Nothing saved yet",
-      "interestBelowMinHint": "Below swap minimum, bitcoin balance only",
+      "interestBelowMinHint": "Your Bitcoin balance is below the minimum swap amount. Please withdraw to your Bitcoin balance.",
       "loadingBalances": "Loading balances...",
       "balanceLoadError": "Unable to load wallet. Go back and try again.",
-      "fromInterest": "From your interest",
+      "fromInterest": "From your Bitcoin",
       "fromSavings": "From your savings",
-      "interestPaymentLabel": "Interest withdrawal",
+      "interestPaymentLabel": "Bitcoin withdrawal",
       "chooseGoalTitle": "Withdraw money from",
       "withdrawAll": "Withdraw All",
       "generalSavings": "General savings",
@@ -2451,6 +2451,7 @@
     "deposit": "Deposit",
     "depositWithGoal": "Deposit to {{goalName}}",
     "swapSimulationError": "Swap simulation not available",
-    "savingsWalletError": "Savings wallet not ready"
+    "savingsWalletError": "Savings wallet not ready",
+    "rewardsPayout": "Bitcoin rewards payout"
   }
 }

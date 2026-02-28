@@ -2329,7 +2329,7 @@
       "savingsOption": "Saldo risparmi",
       "interestZeroHint": "Nessun interesse maturato finora",
       "savingsZeroHint": "Nessun risparmio ancora",
-      "interestBelowMinHint": "Sotto il minimo per lo swap, solo saldo bitcoin",
+      "interestBelowMinHint": "Il tuo saldo in Bitcoin è inferiore all’importo minimo per lo scambio. Effettua il prelievo verso il tuo saldo Bitcoin.",
       "loadingBalances": "Caricamento saldi...",
       "balanceLoadError": "Impossibile caricare il wallet. Torna indietro e riprova.",
       "fromInterest": "Dai tuoi interessi",
@@ -2397,6 +2397,7 @@
     "deposit": "Deposito",
     "depositWithGoal": "Deposito su {{goalName}}",
     "swapSimulationError": "Simulazione di scambio non disponibile",
-    "savingsWalletError": "Wallet risparmio non pronto"
+    "savingsWalletError": "Wallet risparmio non pronto",
+    "rewardsPayout": "Pagamento ricompense in Bitcoin"
   }
 }

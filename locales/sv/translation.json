@@ -2329,7 +2329,7 @@
       "savingsOption": "Sparsaldo",
       "interestZeroHint": "Ingen ränta intjänad ännu",
       "savingsZeroHint": "Inget sparat ännu",
-      "interestBelowMinHint": "Under minsta växlingsbelopp, endast bitcoin-saldo",
+      "interestBelowMinHint": "Ditt Bitcoin-saldo är under minsta växlingsbelopp. Vänligen ta ut till ditt Bitcoin-saldo.",
       "loadingBalances": "Laddar saldon...",
       "balanceLoadError": "Det gick inte att ladda plånboken. Gå tillbaka och försök igen.",
       "fromInterest": "Från din ränta",
@@ -2397,6 +2397,7 @@
     "deposit": "Insättning",
     "depositWithGoal": "Insättning till {{goalName}}",
     "swapSimulationError": "Bytessimulering inte tillgänglig",
-    "savingsWalletError": "Sparplånboken är inte redo"
+    "savingsWalletError": "Sparplånboken är inte redo",
+    "rewardsPayout": "Utbetalning av Bitcoin-belöningar"
   }
 }

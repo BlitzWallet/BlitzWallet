@@ -2329,7 +2329,7 @@
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há juros acumulados",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Abaixo do mínimo para troca, apenas saldo em bitcoin",
+      "interestBelowMinHint": "Seu saldo em Bitcoin está abaixo do valor mínimo para troca. Por favor, saque para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Dos seus juros",
@@ -2397,6 +2397,7 @@
     "deposit": "Depósito",
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
-    "savingsWalletError": "Carteira de poupança não está pronta"
+    "savingsWalletError": "Carteira de poupança não está pronta",
+    "rewardsPayout": "Pagamento de recompensas em Bitcoin"
   }
 }

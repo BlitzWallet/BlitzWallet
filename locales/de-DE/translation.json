@@ -2331,7 +2331,7 @@
       "savingsOption": "Sparguthaben",
       "interestZeroHint": "Noch keine Zinsen erwirtschaftet",
       "savingsZeroHint": "Noch nichts gespart",
-      "interestBelowMinHint": "Betrag liegt unter dem Mindestbetrag für Umtausch. Nur Auszahlung auf Bitcoin-Guthaben möglich.",
+      "interestBelowMinHint": "Dein BTC-Guthaben liegt unter dem Mindestbetrag für einen Tausch. Bitte zahle auf dein BTC-Guthaben aus.",
       "loadingBalances": "Guthaben werden geladen...",
       "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehen Sie zurück und versuchen Sie es erneut.",
       "fromInterest": "Aus Ihren Zinsen",
@@ -2399,6 +2399,7 @@
     "deposit": "Einzahlung",
     "depositWithGoal": "Einzahlung für {{goalName}}",
     "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
-    "savingsWalletError": "Spar-Wallet nicht bereit."
+    "savingsWalletError": "Spar-Wallet nicht bereit.",
+    "rewardsPayout": "BTC-Belohnungsauszahlung"
   }
 }

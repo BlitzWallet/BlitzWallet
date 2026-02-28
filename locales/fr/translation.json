@@ -2329,7 +2329,7 @@
       "savingsOption": "Solde d’épargne",
       "interestZeroHint": "Aucun intérêt gagné pour le moment",
       "savingsZeroHint": "Aucune épargne pour le moment",
-      "interestBelowMinHint": "En dessous du minimum d’échange, solde bitcoin uniquement",
+      "interestBelowMinHint": "Votre solde en Bitcoin est inférieur au montant minimum d’échange. Veuillez retirer vers votre solde Bitcoin.",
       "loadingBalances": "Chargement des soldes...",
       "balanceLoadError": "Impossible de charger le portefeuille. Revenez en arrière et réessayez.",
       "fromInterest": "Depuis vos intérêts",
@@ -2397,6 +2397,7 @@
     "deposit": "Dépôt",
     "depositWithGoal": "Dépôt vers {{goalName}}",
     "swapSimulationError": "Simulation d'échange non disponible",
-    "savingsWalletError": "Portefeuille d'épargne non prêt"
+    "savingsWalletError": "Portefeuille d'épargne non prêt",
+    "rewardsPayout": "Versement de récompenses en Bitcoin"
   }
 }

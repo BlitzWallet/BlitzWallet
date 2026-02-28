@@ -2191,7 +2191,7 @@
       "savingsOption": "Saldo de ahorros",
       "interestZeroHint": "Aún no se han generado intereses",
       "savingsZeroHint": "Aún no hay ahorros",
-      "interestBelowMinHint": "Por debajo del mínimo de intercambio, solo saldo en bitcoin",
+      "interestBelowMinHint": "Tu saldo de Bitcoin está por debajo del monto mínimo de intercambio. Por favor, retira a tu saldo de Bitcoin.",
       "loadingBalances": "Cargando saldos...",
       "balanceLoadError": "No se pudo cargar la billetera. Regresa e inténtalo nuevamente.",
       "fromInterest": "De tus intereses",
@@ -2259,6 +2259,7 @@
     "deposit": "Depósito",
     "depositWithGoal": "Depósito a {{goalName}}",
     "swapSimulationError": "Simulación de cambio no disponible",
-    "savingsWalletError": "Billetera de ahorros no lista"
+    "savingsWalletError": "Billetera de ahorros no lista",
+    "rewardsPayout": "Pago de recompensas en Bitcoin"
   }
 }

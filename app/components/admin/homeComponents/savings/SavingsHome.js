@@ -46,8 +46,9 @@ export default function SavingsHome() {
   );
 
   const combinedTransactions = useMemo(
-    () => mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts),
-    [allSavingsTransactions, interestPayouts],
+    () =>
+      mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts, t),
+    [allSavingsTransactions, interestPayouts, t],
   );
 
   return (
