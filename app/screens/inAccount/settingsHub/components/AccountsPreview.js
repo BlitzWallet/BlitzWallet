@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
   moreText: {
     fontSize: SIZES.small,
     opacity: 0.6,
-    marginTop: 4,
     includeFontPadding: false,
   },
 });
