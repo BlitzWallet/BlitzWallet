@@ -1923,7 +1923,16 @@
         "senders": "sender's"
       },
       "viewAllTxPage": {
-        "title": "Transactions"
+        "title": "Transactions",
+        "filterAll": "All",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Contacts",
+        "filterGifts": "Gifts",
+        "filterSwaps": "Swaps",
+        "filterSavings": "Savings",
+        "filterPools": "Pools"
       },
 
       "lrc20HalfModal": {

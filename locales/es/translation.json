@@ -1749,7 +1749,16 @@
         "senders": "del remitente"
       },
       "viewAllTxPage": {
-        "title": "Transacciones"
+        "title": "Transacciones",
+        "filterAll": "Todos",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Contactos",
+        "filterGifts": "Regalos",
+        "filterSwaps": "Intercambios",
+        "filterSavings": "Ahorros",
+        "filterPools": "Fondos"
       },
       "lrc20HalfModal": {
         "title": "Buscar tokens",
