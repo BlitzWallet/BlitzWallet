@@ -907,7 +907,7 @@
       "payment_one": "{{count}} Zahlung",
       "payment_other": "{{count}} Zahlungen",
       "closed": "Geschlossene Sparpools ",
-      "pool": "Sparpool",
+      "pool": "Sparpools",
       "couldNotFind": "Dieser Sparpool konnte nicht gefunden werden.",
       "createdBy": "Erstellt von ",
       "moneyTransferred": "Das Geld wurde an Ihr Hauptkonto übertragen.",
@@ -1678,7 +1678,7 @@
         "updateItems": "Elemente aktualisieren",
         "addItem": "Element hinzufügen",
         "openPos": "POS öffnen",
-        "brandLogo": "Markenzeichen",
+        "brandLogo": "Markenlogo",
         "changeLogo": "Logo ändern",
         "removeLogo": "Entfernen",
         "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen.",
@@ -1708,7 +1708,7 @@
       },
       "transactions": {
         "unpaidtips": "Trinkgelder: {{number}}",
-        "title": "Zu zahlende Trinkgelder",
+        "title": "Zu zahlende Trinkgelder an die Mitarbeiter",
         "empNamePlaceholder": "Mitarbeitername",
         "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Zahlungsterminal (POS) erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeiter – und können ausgezahlt werden.",
         "noTips": "Der Mitarbeiter hat keine Trinkgelder."
@@ -1898,9 +1898,9 @@
       },
       "lrc20TokenDataHalfModal": {
         "balance": "Guthaben",
-        "maxSupply": "Maximales Angebot",
+        "maxSupply": "Max. Supply",
         "tokenTicker": "Token-Ticker",
-        "tokenPubKey": "Öffentlicher Token-Schlüssel"
+        "tokenPubKey": "Token-Adresse"
       },
       "giftPages": {
         "expired": "Abgelaufen",
@@ -2239,7 +2239,7 @@
       "setGoalTitle": "Sparziel setzen",
       "setGoalSubtitle": "Sparen Sie für das, was Ihnen wichtig ist!",
       "savingsGoalFallback": "Sparziel",
-      "createAnotherGoal": "Weiteres Sparziel erstellen.",
+      "createAnotherGoal": "Weiteres Sparziel erstellen",
       "disclaimer": "Guthaben wird in USDB gehalten, einem dollargedeckten Stablecoin von Brale. USDB ist 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt."
     },
     "preview": {
@@ -2254,7 +2254,7 @@
     },
     "goalDescribe": {
       "screenTitle": "Beschreibung eingeben",
-      "title": "Beschreiben Sie Ihr Sparziel.",
+      "title": "Beschreiben Sie Ihr Sparziel",
       "placeholder": "Extra-Rücklage"
     },
     "goalAmount": {
