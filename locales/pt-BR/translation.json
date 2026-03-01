@@ -207,8 +207,8 @@
     "homePage": {
       "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
       "money": "Dinheiro",
-      "made": "Feito",
-      "simple": "Simples.",
+      "made": "Soberania",
+      "simple": "Liberdade",
       "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
         "button1": "Restaurar acesso",
@@ -2238,7 +2238,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "Os saldos em dinheiro são mantidos em USDB, uma stablecoin lastreada em dólares emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. O rendimento é gerado através da Flashnet e é variável, não garantido e pode ser zero. O USDB não é segurado pelo FDIC. Não é um produto bancário."
+      "disclaimer": "Os saldos em dólar são mantidos em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. O rendimento é gerado através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
