@@ -15,7 +15,7 @@ import {
 import sha256Hash from '../../../functions/hash';
 import { useKeysContext } from '../../../../context-store/keys';
 import { useTranslation } from 'react-i18next';
-import RNRestart from 'react-native-restart';
+import RNRestart from 'react-native-restart-newarch';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import { useAppStatus } from '../../../../context-store/appStatus';
 

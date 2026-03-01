@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useCallback, useMemo, useState } from 'react';
-import RNRestart from 'react-native-restart';
+import RNRestart from 'react-native-restart-newarch';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';

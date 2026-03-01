@@ -3527,8 +3527,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-restart (0.0.27):
-    - React-Core
   - react-native-safe-area-context (5.6.1):
     - boost
     - DoubleConversion
@@ -4178,6 +4176,34 @@ PODS:
     - React-utils (= 0.81.4)
     - SocketRocket
   - RecaptchaInterop (101.0.0)
+  - RestartNewArch (1.0.85):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - RNCAsyncStorage (2.2.0):
     - boost
     - DoubleConversion
@@ -4752,7 +4778,6 @@ DEPENDENCIES:
   - react-native-pdf-from-image (from `../node_modules/react-native-pdf-from-image`)
   - react-native-quick-base64 (from `../node_modules/react-native-quick-base64`)
   - react-native-quick-crypto (from `../node_modules/react-native-quick-crypto`)
-  - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -4786,6 +4811,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RestartNewArch (from `../node_modules/react-native-restart-newarch`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCMaskedView (from `../node_modules/@react-native-masked-view/masked-view`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
@@ -5007,8 +5033,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-quick-base64"
   react-native-quick-crypto:
     :path: "../node_modules/react-native-quick-crypto"
-  react-native-restart:
-    :path: "../node_modules/react-native-restart"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-view-shot:
@@ -5075,6 +5099,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RestartNewArch:
+    :path: "../node_modules/react-native-restart-newarch"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCMaskedView:
@@ -5230,7 +5256,6 @@ SPEC CHECKSUMS:
   react-native-pdf-from-image: af6ff3b4b4dd840d02fb733e0e7b047b9ebab4ae
   react-native-quick-base64: 6568199bb2ac8e72ecdfdc73a230fbc5c1d3aac4
   react-native-quick-crypto: 2c53f72c27485924b444dda124639ee363cf1d69
-  react-native-restart: 0bc732f4461709022a742bb29bcccf6bbc5b4863
   react-native-safe-area-context: ee1e8e2a7abf737a8d4d9d1a5686a7f2e7466236
   react-native-view-shot: aab9ffbcc2f01035ee8ffd9a00c773e215b35c8b
   react-native-webview: d73728424a0e24989d71ffdc6fcf15d5f74ff4a2
@@ -5265,6 +5290,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 2cfa890e84ecf7f3a708f1ed9c0f2c0b22a23c9a
   ReactCommon: e9ab32f1d1482d207867b4fdd139361302b9dcc6
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
+  RestartNewArch: 658794e23d94410cb51e6f8c1831edadf09c77b2
   RNCAsyncStorage: fd44f4b03e007e642e98df6726737bc66e9ba609
   RNCMaskedView: d707a83784c67099b54b37d056ababb2767ce15e
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
