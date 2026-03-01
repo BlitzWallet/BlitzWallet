@@ -50,6 +50,7 @@ export default function ViewAllTxPage() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const [txs, setTxs] = useState([]);
   const searchUUIDRef = useRef('');
+  const isInitialLoad = useRef(true);
   const scrollViewRef = useRef(null);
   const pillLayoutsRef = useRef({}); // { [key]: { x, width } }
   const scrollViewWidthRef = useRef(0);
@@ -62,53 +63,57 @@ export default function ViewAllTxPage() {
   const { bottomPadding } = useGlobalInsets();
 
   useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      async function handleLoadTxs() {
-        try {
-          let transactions;
-          if (currentFilter.item === 'All') {
-            transactions = sparkInformation.transactions;
-          } else {
-            transactions = await getFilteredTransactions(currentFilter.item, {
-              accountId: sparkInformation.identityPubKey,
+    const debounceTimer = setTimeout(
+      () => {
+        async function handleLoadTxs() {
+          try {
+            let transactions;
+            if (currentFilter.item === 'All') {
+              transactions = sparkInformation.transactions;
+            } else {
+              transactions = await getFilteredTransactions(currentFilter.item, {
+                accountId: sparkInformation.identityPubKey,
+              });
+            }
+
+            const formattedTxs = getFormattedHomepageTxsForSpark({
+              currentTime,
+              sparkInformation: {
+                ...sparkInformation,
+                transactions,
+              },
+              navigate,
+              frompage: 'viewAllTx',
+              viewAllTxText: t('wallet.see_all_txs'),
+              noTransactionHistoryText: t('wallet.no_transaction_history'),
+              todayText: t('constants.today'),
+              yesterdayText: t('constants.yesterday'),
+              dayText: t('constants.day'),
+              monthText: t('constants.month'),
+              yearText: t('constants.year'),
+              agoText: t('transactionLabelText.ago'),
+              theme,
+              darkModeType,
+              userBalanceDenomination,
+              didGetToHomepage: true,
+              enabledLRC20,
+              poolInfoRef,
             });
-          }
 
-          const formattedTxs = getFormattedHomepageTxsForSpark({
-            currentTime,
-            sparkInformation: {
-              ...sparkInformation,
-              transactions,
-            },
-            navigate,
-            frompage: 'viewAllTx',
-            viewAllTxText: t('wallet.see_all_txs'),
-            noTransactionHistoryText: t('wallet.no_transaction_history'),
-            todayText: t('constants.today'),
-            yesterdayText: t('constants.yesterday'),
-            dayText: t('constants.day'),
-            monthText: t('constants.month'),
-            yearText: t('constants.year'),
-            agoText: t('transactionLabelText.ago'),
-            theme,
-            darkModeType,
-            userBalanceDenomination,
-            didGetToHomepage: true,
-            enabledLRC20,
-            poolInfoRef,
-          });
-
-          if (searchUUIDRef.current === currentFilter.searchUUID) {
-            setTxs(formattedTxs);
-          }
-        } finally {
-          if (searchUUIDRef.current === currentFilter.searchUUID) {
-            setIsLoadingNewTxs(false);
+            if (searchUUIDRef.current === currentFilter.searchUUID) {
+              setTxs(formattedTxs);
+            }
+          } finally {
+            isInitialLoad.current = false;
+            if (searchUUIDRef.current === currentFilter.searchUUID) {
+              setIsLoadingNewTxs(false);
+            }
           }
         }
-      }
-      handleLoadTxs();
-    }, FILTER_DEBOUNCE_MS);
+        handleLoadTxs();
+      },
+      isInitialLoad.current ? 0 : FILTER_DEBOUNCE_MS,
+    );
 
     return () => clearTimeout(debounceTimer);
   }, [
