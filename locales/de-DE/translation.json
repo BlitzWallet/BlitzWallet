@@ -1710,7 +1710,7 @@
         "unpaidtips": "Trinkgelder: {{number}}",
         "title": "Zu zahlende Trinkgelder an die Mitarbeiter",
         "empNamePlaceholder": "Mitarbeitername",
-        "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Zahlungsterminal (POS) erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeiter – und können ausgezahlt werden.",
+        "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Zahlungsterminal (POS) erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeitern – und können ausgezahlt werden.",
         "noTips": "Der Mitarbeiter hat keine Trinkgelder."
       },
       "items": {
@@ -2328,8 +2328,8 @@
     "withdraw": {
       "balanceTypeTitle": "Was möchten Sie auszahlen?",
       "interestOption": "Erwirtschaftete Zinsen",
-      "savingsOption": "Sparguthaben",
-      "interestZeroHint": "Noch keine Zinsen erwirtschaftet",
+      "savingsOption": "Sparziel-Guthaben",
+      "interestZeroHint": "Keine Zinsen vorhanden",
       "savingsZeroHint": "Noch nichts gespart",
       "interestBelowMinHint": "Dein BTC-Guthaben liegt unter dem Mindestbetrag für einen Tausch. Bitte zahle auf dein BTC-Guthaben aus.",
       "loadingBalances": "Guthaben werden geladen...",
