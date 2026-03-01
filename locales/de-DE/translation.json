@@ -2294,8 +2294,8 @@
       "title": "Sparziel entfernt"
     },
     "actionButtons": {
-      "addMoney": "Geld einzahlen",
-      "withdraw": "Abheben"
+      "addMoney": "Einzahlen",
+      "withdraw": "Auszahlen"
     },
     "activity": {
       "title": "Aktivität",
@@ -2337,30 +2337,30 @@
       "fromInterest": "Aus Ihren Zinsen",
       "fromSavings": "Aus Ihren Ersparnissen",
       "interestPaymentLabel": "Zinsauszahlung",
-      "chooseGoalTitle": "Geld abheben von",
-      "withdrawAll": "Alles abheben",
+      "chooseGoalTitle": "Geld auszahlen von",
+      "withdrawAll": "Alles auszahlen",
       "generalSavings": "Allgemeine Ersparnisse",
-      "destinationTitle": "Geld abheben auf",
+      "destinationTitle": "Geld auszahlen auf",
       "availableHint": "Verfügbar: {{amount}}",
       "minHint": "Min: {{amount}}",
-      "confirmTitle": "Abhebung bestätigen",
-      "youAreWithdrawingAll": "Sie heben alle Ersparnisse ab.",
-      "youAreWithdrawing": "Sie heben ab",
+      "confirmTitle": "Auszahlung bestätigen",
+      "youAreWithdrawingAll": "Sie zahlen alle Ersparnisse aus",
+      "youAreWithdrawing": "Sie zahlen aus",
       "toYourBalance": "auf Ihr {{destination}}",
       "estimatedSats": "≈ {{sats}} Sats nach Umtausch",
       "confirmButton": "Bestätigen",
-      "processing": "Abhebung wird verarbeitet...",
+      "processing": "Auszahlung wird verarbeitet...",
       "steps": {
-        "processing": "Wird verarbeitet...",
+        "processing": "Auszahlung wird verarbeitet...",
         "withdrawing": "Vom Sparkonto wird ausgezahlt...",
         "swapping": "Wird in BTC umgetauscht...",
         "complete": "Abgeschlossen."
       },
-      "successTitle": "Abhebung abgeschlossen",
-      "paymentLabel_unallocated": "Sparabhebung",
-      "paymentLabel": "Sparabhebung von {{savingsGoal}}",
+      "successTitle": "Auszahlung abgeschlossen",
+      "paymentLabel_unallocated": "Sparauszahlung",
+      "paymentLabel": "Sparauszahlung von {{savingsGoal}}",
       "errors": {
-        "unableToCompleteWithdrawal": "Abhebung konnte nicht abgeschlossen werden."
+        "unableToCompleteWithdrawal": "Auszahlung konnte nicht abgeschlossen werden"
       }
     },
     "howItWorks": {
@@ -2374,7 +2374,7 @@
         "earnTitle": "Täglich Erträge erzielen",
         "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – halten Sie einfach und verdienen Sie.",
         "accessTitle": "Sofortiger Zugriff",
-        "accessBody": "Sie können jederzeit in Sekunden auf Ihr Lightning-Wallet abheben. Ihr Geld ist nie gesperrt.",
+        "accessBody": "Sie können jederzeit in Sekunden auf Ihr Lightning-Wallet auszahlen. Ihr Geld ist nie gesperrt.",
         "backedTitle": "Vollständig gedeckt",
         "backedBody": "Jeder USDB ist vollständig 1:1 durch USD in separaten, geprüften Reservekonten gedeckt.",
         "goalTitle": "Sparziel setzen",
@@ -2394,8 +2394,8 @@
       "transparencyBody": "Reserven werden in separaten, geprüften Konten gehalten – hauptsächlich kurzlaufende US-Staatsanleihen und Geldmarktfonds. Flashnet veröffentlicht monatliche Bestätigungsberichte.",
       "disclaimer": "Zinssätze sind variabel und können sich ändern. Keine Bankeinlagen. Weitere Informationen unter flashnet.xyz."
     },
-    "withdrawal": "Abhebung",
-    "withdrawalWithGoal": "Abhebung von {{goalName}}",
+    "withdrawal": "Auszahlung",
+    "withdrawalWithGoal": "Auszahlung von {{goalName}}",
     "deposit": "Einzahlung",
     "depositWithGoal": "Einzahlung für {{goalName}}",
     "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
