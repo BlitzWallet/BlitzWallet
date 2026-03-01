@@ -41,11 +41,7 @@ export default function AccountProfileImage({ account, imageSize }) {
           style={{
             aspectRatio: 1,
             width: '60%',
-            tintColor: theme
-              ? darkModeType
-                ? textColor
-                : COLORS.primary
-              : undefined,
+            tintColor: theme && darkModeType ? textColor : undefined,
           }}
           source={ICONS.nwcLogo}
         />
