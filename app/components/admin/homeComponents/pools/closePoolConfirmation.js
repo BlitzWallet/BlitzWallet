@@ -203,6 +203,7 @@ export default function ClosePoolConfirmation({
           address: mainSparkAddress,
           time: new Date().getTime(),
           direction: 'INCOMING',
+          isPoolPayment: true,
           description: t(
             `wallet.pools.${
               autoStart ? 'late_pool_contribution_label' : 'closing_pool_label'
