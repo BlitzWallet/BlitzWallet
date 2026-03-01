@@ -187,6 +187,7 @@ export default function ContributeToPoolHalfModal({
         sparkInformation,
         mnemonic: currentWalletMnemoinc,
         poolInfoRef,
+        extraDetails: { isPoolPayment: true },
       });
 
       if (!paymentResponse.didWork) {

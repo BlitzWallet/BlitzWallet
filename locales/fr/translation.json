@@ -1887,7 +1887,16 @@
         "senders": "de l'expéditeur"
       },
       "viewAllTxPage": {
-        "title": "Transactions"
+        "title": "Transactions",
+        "filterAll": "Tous",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Contacts",
+        "filterGifts": "Cadeaux",
+        "filterSwaps": "Échanges",
+        "filterSavings": "Épargne",
+        "filterPools": "Cagnottes"
       },
       "lrc20HalfModal": {
         "title": "Jetons de recherche",

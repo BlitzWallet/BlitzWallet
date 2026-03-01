@@ -1887,7 +1887,16 @@
         "senders": "del mittente"
       },
       "viewAllTxPage": {
-        "title": "Transazioni"
+        "title": "Transazioni",
+        "filterAll": "Tutti",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Contatti",
+        "filterGifts": "Regali",
+        "filterSwaps": "Scambi",
+        "filterSavings": "Risparmi",
+        "filterPools": "Pool"
       },
       "lrc20HalfModal": {
         "title": "Cerca Token",
