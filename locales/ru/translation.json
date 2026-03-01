@@ -1888,7 +1888,16 @@
         "senders": "отправителя"
       },
       "viewAllTxPage": {
-        "title": "Транзакции"
+        "title": "Транзакции",
+        "filterAll": "Все",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Контакты",
+        "filterGifts": "Подарки",
+        "filterSwaps": "Обмены",
+        "filterSavings": "Сбережения",
+        "filterPools": "Пулы"
       },
       "lrc20HalfModal": {
         "title": "Поиск токенов",

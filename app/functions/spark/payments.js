@@ -70,6 +70,7 @@ export const sparkPaymenWrapper = async ({
   paymentInfo,
   fiatValueConvertedSendAmount,
   poolInfoRef,
+  extraDetails = {},
 }) => {
   try {
     console.log('Begining spark payment');
@@ -569,6 +570,12 @@ export const sparkPaymenWrapper = async ({
     );
     // Only save immediately if we have identityPubKey (otherwise the tx will not show up)
     if (sparkInformation.identityPubKey) {
+      if (extraDetails && Object.keys(extraDetails).length > 0) {
+        response = {
+          ...response,
+          details: { ...response.details, ...extraDetails },
+        };
+      }
       await bulkUpdateSparkTransactions([response], 'paymentWrapperTx', 0);
     }
 

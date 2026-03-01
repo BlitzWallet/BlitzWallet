@@ -494,6 +494,7 @@ export default function WithdrawFromSavingsHalfModal({
                       direction: 'INCOMING',
                       showSwapLabel: true,
                       currentPriceAInB: swapResult.swap.executionPrice,
+                      isSavings: true,
                     },
                   },
                 ],
@@ -632,6 +633,7 @@ export default function WithdrawFromSavingsHalfModal({
               direction: 'INCOMING',
               showSwapLabel: true,
               currentPriceAInB: result.swap.executionPrice,
+              isSavings: true,
             },
           };
           bulkUpdateSparkTransactions([incomingTransfer], 'fullUpdate');
