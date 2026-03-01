@@ -2378,10 +2378,10 @@
         "backedTitle": "Vollständig gedeckt",
         "backedBody": "Jeder USDB ist vollständig 1:1 durch USD in separaten, geprüften Reservekonten gedeckt.",
         "goalTitle": "Sparziel setzen",
-        "goalBody": "Verfolgen Sie Ihren Fortschritt – ob Urlaub, Notgroschen oder irgendetwas anderes."
+        "goalBody": "Verfolgen Sie Ihren Fortschritt – ob Urlaub, Notgroschen oder was auch immer Ihnen wichtig ist."
       },
       "stats": {
-        "currentApyLabel": "APY",
+        "currentApyLabel": "Zinssatz (APY)",
         "currentApyValue": "3,5 %",
         "accrualLabel": "Ansammlung",
         "accrualValue": "Täglich"
