@@ -853,9 +853,10 @@ const memoizedStyles = StyleSheet.create({
     paddingVertical: 10,
   },
   rowNameAndUnkonwnContainer: {
+    width: '100%',
     flexDirection: 'column',
-    flexGrow: 1,
-    marginRight: 5,
+    marginRight: 10,
+    flexShrink: 1,
   },
   contactDateText: {
     fontSize: SIZES.small,
