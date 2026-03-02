@@ -43,7 +43,7 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
         </View>
         <View style={{ flexShrink: 1 }}>
           <ThemeText
-            CustomNumberOfLines={1}
+            CustomNumberOfLines={2}
             styles={styles.activityTitle}
             content={item.description}
           />
@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 5,
   },
   activityLeft: {
     flexShrink: 1,
