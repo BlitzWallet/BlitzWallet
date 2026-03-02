@@ -2325,7 +2325,7 @@
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",
-      "interestOption": "Recompensas recebidas",
+      "interestOption": "Recompensas",
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há recompensas acumuladas",
       "savingsZeroHint": "Nada salvo ainda",
