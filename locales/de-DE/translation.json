@@ -2411,6 +2411,7 @@
     "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
     "savingsWalletError": "Spar-Wallet nicht bereit.",
     "rewardsPayout": "BTC-Belohnungsauszahlung",
-    "rewardsWithdrawl": "BTC-Belohnungsauszahlung"
+    "rewardsWithdrawl": "BTC-Belohnungsauszahlung",
+    "total_balance": "Gesamtguthaben"
   }
 }
