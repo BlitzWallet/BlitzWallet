@@ -2238,7 +2238,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "Os saldos em dólar são mantidos em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. O rendimento é gerado através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
+      "disclaimer": "Os saldos em dólar são mantidos em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
@@ -2325,16 +2325,16 @@
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",
-      "interestOption": "Juros recebidos",
+      "interestOption": "Recompensas recebidas",
       "savingsOption": "Saldo de Caixinhas",
-      "interestZeroHint": "Ainda não há juros acumulados",
+      "interestZeroHint": "Ainda não há recompensas acumuladas",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Seu saldo de juros recebidos está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
+      "interestBelowMinHint": "Seu saldo de recompensas está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
-      "fromInterest": "Dos seus juros",
+      "fromInterest": "Das seus recompensas",
       "fromSavings": "Da sua Caixinha",
-      "interestPaymentLabel": "Resgate de juros",
+      "interestPaymentLabel": "Resgate de recompensas",
       "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
@@ -2364,13 +2364,13 @@
     "howItWorks": {
       "headline1": "O seu dinheiro,",
       "headline2": "rendendo todo dia.",
-      "subtext": "Uma stablecoin lastreada em USD que rende juros automaticamente.",
+      "subtext": "Uma stablecoin lastreada em USD que paga recompensas automaticamente.",
       "transparencyIssuer": "USDB emitido por Brale, Inc. · Rendimento via Flashnet",
       "transparencyLegal": "O rendimento é variável e não garantido. Não é um depósito bancário. Não é segurado pela FDIC ou SIPC.",
       "disclaimerLegal": "A Blitz Wallet não é um banco, corretora ou consultora de investimentos. As taxas são variáveis e podem mudar a qualquer momento. Consulte os Termos de Uso para ver todas as divulgações de risco.",
       "features": {
-        "earnTitle": "Receba juros diariamente",
-        "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
+        "earnTitle": "Receba recompensas diariamente",
+        "earnBody": "USDB paga recompensas automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
         "accessTitle": "Liquidez imediata",
         "accessBody": "Resgate para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
         "backedTitle": "Totalmente lastreado",
@@ -2398,6 +2398,6 @@
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
     "savingsWalletError": "Conta da Caixinha não está pronta",
-    "rewardsPayout": "Pagamento de juros"
+    "rewardsPayout": "Pagamento de recompensas"
   }
 }
