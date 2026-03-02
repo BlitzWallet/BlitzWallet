@@ -58,7 +58,7 @@ export default function AddReceiveMessageHalfModal({
   };
   useEffect(() => {
     // manualy set content height
-    setContentHeight(250);
+    setContentHeight(300);
   }, []);
 
   return (
