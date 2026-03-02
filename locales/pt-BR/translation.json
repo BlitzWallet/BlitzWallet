@@ -2332,7 +2332,7 @@
       "interestBelowMinHint": "Seu saldo de recompensas está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
-      "fromInterest": "Das seus recompensas",
+      "fromInterest": "Das suas recompensas",
       "fromSavings": "Da sua Caixinha",
       "interestPaymentLabel": "Resgate de recompensas",
       "chooseGoalTitle": "Resgatar dinheiro de",
