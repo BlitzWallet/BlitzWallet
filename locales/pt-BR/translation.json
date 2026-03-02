@@ -2238,7 +2238,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "Os saldos em dólar são mantidos em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
+      "disclaimer": "Os saldos em dólar são mantidos em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
@@ -2329,7 +2329,7 @@
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Ainda não há recompensas acumuladas",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Seu saldo de recompensas está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
+      "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
@@ -2364,13 +2364,13 @@
     "howItWorks": {
       "headline1": "O seu dinheiro,",
       "headline2": "rendendo todo dia.",
-      "subtext": "Uma stablecoin lastreada em USD que paga recompensas automaticamente.",
+      "subtext": "Uma stablecoin lastreada em USD que paga recompensas em Bitcoin de forma automática.",
       "transparencyIssuer": "USDB emitido por Brale, Inc. · Rendimento via Flashnet",
       "transparencyLegal": "O rendimento é variável e não garantido. Não é um depósito bancário. Não é segurado pela FDIC ou SIPC.",
       "disclaimerLegal": "A Blitz Wallet não é um banco, corretora ou consultora de investimentos. As taxas são variáveis e podem mudar a qualquer momento. Consulte os Termos de Uso para ver todas as divulgações de risco.",
       "features": {
-        "earnTitle": "Receba recompensas diariamente",
-        "earnBody": "USDB paga recompensas automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
+        "earnTitle": "Receba recompensas em Bitcoin diariamente",
+        "earnBody": "USDB paga recompensas em Bitcoin automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
         "accessTitle": "Liquidez imediata",
         "accessBody": "Resgate para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
         "backedTitle": "Totalmente lastreado",
