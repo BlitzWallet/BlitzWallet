@@ -2324,7 +2324,8 @@
       "minHint": "Мин: {{amount}}",
       "confirmTitle": "Подтвердить пополнение",
       "youAreAdding": "Ты пополняешь на",
-      "fromBalance": "с баланса {{source}}",
+      "fromBalance_dollar": "с долларового баланса",
+      "fromBalance_bitcoin": "с биткоин-баланса",
       "confirmButton": "Подтвердить",
       "processing": "Обработка…",
       "steps": {

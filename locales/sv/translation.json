@@ -2316,7 +2316,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Bekräfta insättning",
       "youAreAdding": "Du sätter in",
-      "fromBalance": "från ditt {{source}}-saldo",
+      "fromBalance_dollar": "från dollarsaldot",
+      "fromBalance_bitcoin": "från Bitcoin-saldot",
       "confirmButton": "Bekräfta",
       "processing": "Bearbetar…",
       "steps": {

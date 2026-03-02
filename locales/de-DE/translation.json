@@ -2318,7 +2318,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Einzahlung bestätigen",
       "youAreAdding": "Sie zahlen ein",
-      "fromBalance": "von Ihrem {{source}}-Guthaben",
+      "fromBalance_dollar": "vom USD-Guthaben",
+      "fromBalance_bitcoin": "vom BTC-Guthaben",
       "confirmButton": "Bestätigen",
       "processing": "Wird verarbeitet...",
       "steps": {

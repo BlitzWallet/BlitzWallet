@@ -2368,7 +2368,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Confirm deposit",
       "youAreAdding": "You are adding",
-      "fromBalance": "from {{source}} balance",
+      "fromBalance_dollar": "from dollar balance",
+      "fromBalance_bitcoin": "from Bitcoin balance",
       "confirmButton": "Confirm",
       "processing": "Processing...",
       "steps": {

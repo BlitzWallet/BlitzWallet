@@ -718,7 +718,7 @@ export default function AddMoneyToSavingsHalfModal({
           <ThemeText
             styles={styles.summaryLabel}
             content={t('savings.addMoney.fromBalance', {
-              source: selectedSource || 'wallet',
+              context: selectedSource,
             })}
           />
         </View>

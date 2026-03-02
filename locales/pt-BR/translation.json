@@ -2316,7 +2316,8 @@
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar depósito",
       "youAreAdding": "Você está transferindo",
-      "fromBalance": "do seu saldo de {{source}}",
+      "fromBalance_dollar": "do saldo em dólares",
+      "fromBalance_bitcoin": "do saldo em Bitcoin",
       "confirmButton": "Confirmar",
       "processing": "Processando…",
       "steps": {
