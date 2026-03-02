@@ -47,3 +47,15 @@ export async function getTokenTransactions(sparkAddress) {
     return false;
   }
 }
+
+export async function getBitcoinWithdrawls(sparkAddress) {
+  try {
+    await initializeSparkWalletViewer();
+    return await walletViewer.getTransfers({
+      sparkAddress: sparkAddress,
+    });
+  } catch (err) {
+    console.log('error getting token transactions', err);
+    return false;
+  }
+}

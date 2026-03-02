@@ -2461,6 +2461,7 @@
     "depositWithGoal": "Deposit to {{goalName}}",
     "swapSimulationError": "Swap simulation not available",
     "savingsWalletError": "Savings wallet not ready",
-    "rewardsPayout": "Bitcoin rewards payout"
+    "rewardsPayout": "Bitcoin rewards payout",
+    "rewardsWithdrawl": "Bitcoin rewards withdrawl"
   }
 }

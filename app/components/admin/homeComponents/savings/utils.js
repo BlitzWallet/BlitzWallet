@@ -84,6 +84,7 @@ export function computeGoalBalanceMicros(goalId, transactions) {
 export function toLegacyDisplayTransaction(transaction, goalName, t) {
   const signedAmountMicros = signedTransactionAmountMicros(transaction);
   const isWithdrawal = transaction.type === 'withdrawal';
+  const isBtcWithdrawl = transaction.type === 'bitcoinWithdrawal';
 
   const key = isWithdrawal
     ? goalName
@@ -99,7 +100,9 @@ export function toLegacyDisplayTransaction(transaction, goalName, t) {
     type: transaction.type,
     amountMicros: signedAmountMicros,
     createdAt: transaction.timestamp,
-    description: t(key, { goalName }),
+    description: isBtcWithdrawl
+      ? t('savings.rewardsWithdrawl')
+      : t(key, { goalName }),
   };
 }
 

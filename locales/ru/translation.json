@@ -2415,6 +2415,7 @@
     "depositWithGoal": "Пополнение в {{goalName}}",
     "swapSimulationError": "Симуляция обмена недоступна",
     "savingsWalletError": "Сберегательный кошелёк не готов",
-    "rewardsPayout": "Выплата вознаграждений в биткоинах"
+    "rewardsPayout": "Выплата вознаграждений в биткоинах",
+    "rewardsWithdrawl": "Вывод вознаграждений в биткоинах"
   }
 }

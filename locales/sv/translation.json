@@ -2407,6 +2407,7 @@
     "depositWithGoal": "Insättning till {{goalName}}",
     "swapSimulationError": "Bytessimulering inte tillgänglig",
     "savingsWalletError": "Sparplånboken är inte redo",
-    "rewardsPayout": "Utbetalning av Bitcoin-belöningar"
+    "rewardsPayout": "Utbetalning av Bitcoin-belöningar",
+    "rewardsWithdrawl": "Uttag av Bitcoin-belöningar"
   }
 }

@@ -42,6 +42,7 @@ import { useActiveCustodyAccount } from '../../../../../context-store/activeAcco
 import { deriveSparkGiftMnemonic } from '../../../../functions/gift/deriveGiftWallet';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {
+  FONT,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
@@ -63,8 +64,18 @@ import {
   bulkUpdateSparkTransactions,
 } from '../../../../functions/spark/transactions';
 import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
+import SkeletonTextPlaceholder from '../../../../functions/CustomElements/skeletonTextView';
+import { createBalancePoller } from '../../../../functions/pollingManager';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '../../../../functions/localStorage';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
+
+// Persists { pollTimestamp: number, balance: number } so the balance poller
+// can be skipped when no new interest payment has arrived since the last poll.
+const SAVINGS_INTEREST_POLL_CACHE_KEY = 'savings_interest_poll_cache';
 
 const MIN_STEP_MS = 800;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -98,6 +109,7 @@ export default function WithdrawFromSavingsHalfModal({
     useUserBalanceContext();
   const {
     withdrawMoney,
+    withdrawlFromRewards,
     refreshSavings,
     refreshBalances,
     savingsGoals,
@@ -107,6 +119,7 @@ export default function WithdrawFromSavingsHalfModal({
     savingsBalance,
     savingsWallet,
     totalIntrestEarned,
+    interestPayouts,
   } = useSavings();
   const { sparkInformation } = useSparkWallet();
 
@@ -126,9 +139,19 @@ export default function WithdrawFromSavingsHalfModal({
   // Tracks savings wallet init progress for the balanceType page
   // 'idle' | 'loading' | 'ready' | 'error' — does NOT trigger FullLoadingScreen
   const [sparkInitStatus, setSparkInitStatus] = useState('idle');
+  const [balanceReady, setBalanceReady] = useState(false);
   const [loadingStep, setLoadingStep] = useState('processing');
+  const [skeletonLayout, setSkeletonLayout] = useState({
+    width: 80,
+    height: 23,
+  });
+  const maxLayoutRef = useRef({
+    width: 80,
+    height: 23,
+  });
 
   const didInitSparkRef = useRef(false);
+  const pollerAbortRef = useRef(null);
 
   // Cached savings wallet mnemonic — derived lazily on first use
   const savingsWalletMnemonicRef = useRef(null);
@@ -236,6 +259,21 @@ export default function WithdrawFromSavingsHalfModal({
     destinationOptions,
   ]);
 
+  const handleSkeletonLayout = useCallback(event => {
+    const { height, width } = event.nativeEvent.layout;
+    console.log(height, width);
+    const newH = Math.max(maxLayoutRef.current.height, height);
+    const newW = Math.max(maxLayoutRef.current.width, width);
+    console.log(height, width);
+    if (
+      newH !== maxLayoutRef.current.height ||
+      newW !== maxLayoutRef.current.width
+    ) {
+      maxLayoutRef.current = { height: newH, width: newW };
+      setSkeletonLayout({ height: newH, width: newW });
+    }
+  }, []);
+
   const localSatAmount = convertDisplayToSats(amountValue);
 
   // USD value of what the user wants to withdraw (in micros)
@@ -302,14 +340,21 @@ export default function WithdrawFromSavingsHalfModal({
     getSavingsWalletMnemonic,
   ]);
 
-  // Spark wallet init effect, scoped to the balanceType page.
-  // Initialises the savings wallet early so balances are verified before the
-  // user proceeds. Because initializeSparkWallet is idempotent, handleConfirm's
-  // own init call returns immediately after this.
+  // ─── BACKGROUND INIT EFFECT ───────────────────────────────────────────────
+  // Fires once when the balanceType page first mounts. The page renders
+  // immediately — the interest balance shows a skeleton shimmer until the
+  // balance poller settles on a confirmed value.
+  //
+  //  1. initializeSparkWallet — full init needed before any send can execute.
+  //  2. createBalancePoller   — polls getSparkBalance until it stabilises,
+  //                             then sets walletBTCBalance and balanceReady.
+  // ─────────────────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (currentPage !== 'balanceType') return;
-    if (didInitSparkRef.current === true) return;
-    let cancelled = false;
+    if (didInitSparkRef.current) return;
+    didInitSparkRef.current = true;
+
+    const abortController = new AbortController();
+    pollerAbortRef.current = abortController;
 
     const initWallet = async () => {
       setSparkInitStatus('loading');
@@ -318,26 +363,85 @@ export default function WithdrawFromSavingsHalfModal({
         const initResponse = await initializeSparkWallet(
           savingsMnemonic,
           false,
-          {
-            maxRetries: 4,
-          },
+          { maxRetries: 4 },
         );
-        if (cancelled) return;
-        const balance = await getSparkBalance(savingsMnemonic);
-        if (!balance.didWork) throw new Error('Balance error');
-        setWalletBTCBalance(Number(balance.balance));
-        setSparkInitStatus(initResponse ? 'ready' : 'error');
-        didInitSparkRef.current = true;
+
+        if (abortController.signal.aborted) return;
+
+        if (!initResponse) {
+          setSparkInitStatus('error');
+          return;
+        }
+
+        const sparkBalance = await getSparkBalance(savingsMnemonic);
+
+        setSparkInitStatus('ready');
+
+        // Savings balance only changes on interest payment receipt — skip poll
+        // if no new interest payment has arrived since the last successful poll.
+        let shouldPoll = true;
+        try {
+          const rawCache = await getLocalStorageItem(
+            SAVINGS_INTEREST_POLL_CACHE_KEY,
+          );
+          if (rawCache) {
+            const { pollTimestamp = 0, balance = null } = JSON.parse(rawCache);
+            const mostRecentPayoutPaidAt = interestPayouts[0]?.paidAt ?? 0;
+            const hasNewInterestPayment =
+              mostRecentPayoutPaidAt > pollTimestamp;
+
+            if (
+              !hasNewInterestPayment &&
+              balance !== null &&
+              sparkBalance.didWork &&
+              Number(sparkBalance.balance) === balance
+            ) {
+              shouldPoll = false;
+              setWalletBTCBalance(balance);
+              setBalanceReady(true);
+            }
+          }
+        } catch {
+          // Parse failure — fall through to poll conservatively
+        }
+
+        if (!shouldPoll) return;
+
+        // Now poll until the balance stabilises so we show a confirmed number.
+        const mnemonicRef = { current: savingsMnemonic };
+        const poller = createBalancePoller(
+          savingsMnemonic,
+          mnemonicRef,
+          abortController,
+          async balanceResult => {
+            const newBalance = Number(balanceResult.balance);
+            setWalletBTCBalance(newBalance);
+            setBalanceReady(true);
+            // Persist poll result so future opens can skip the poller when
+            // no new interest payment has arrived.
+            setLocalStorageItem(
+              SAVINGS_INTEREST_POLL_CACHE_KEY,
+              JSON.stringify({
+                pollTimestamp: Date.now(),
+                balance: newBalance,
+              }),
+            );
+          },
+          null, // no initial balance — let poller establish the baseline
+          1,
+        );
+
+        await poller.start();
       } catch {
-        if (!cancelled) setSparkInitStatus('error');
+        if (!abortController.signal.aborted) setSparkInitStatus('error');
       }
     };
 
     initWallet();
     return () => {
-      cancelled = true;
+      abortController.abort();
     };
-  }, [currentPage, getSavingsWalletMnemonic]);
+  }, [getSavingsWalletMnemonic]);
 
   const handleDenominationToggle = () => {
     const nextDenom = getNextDenomination();
@@ -434,13 +538,45 @@ export default function WithdrawFromSavingsHalfModal({
 
         if (!sendResponse?.didWork) throw new Error(sendResponse?.error);
 
-        // Record the incoming BTC transfer as unpaid until confirmed
-        addSingleUnpaidSparkTransaction({
-          id: sendResponse.response.id,
-          description: t('savings.withdraw.interestPaymentLabel'),
-          sendersPubkey: '',
-          details: {},
-        });
+        // Invalidate the balance cache so the next modal open reflects the
+        // post-withdrawal balance without needing to re-poll.
+        const remainingBalance = Math.max(
+          0,
+          (walletBTCBalance ?? 0) - amountSats,
+        );
+        setLocalStorageItem(
+          SAVINGS_INTEREST_POLL_CACHE_KEY,
+          JSON.stringify({
+            pollTimestamp: Date.now(),
+            balance: remainingBalance,
+          }),
+        );
+
+        await bulkUpdateSparkTransactions(
+          [
+            {
+              id: sendResponse.response.id,
+              paymentStatus: 'completed',
+              paymentType: 'spark',
+              accountId: sparkInformation.identityPubKey,
+              details: {
+                fee: 0,
+                totalFee: 0,
+                supportFee: 0,
+                amount: amountSats,
+                description: t('savings.withdraw.interestPaymentLabel'),
+                address: sparkInformation.sparkAddress,
+                time: Date.now() + 1000,
+                createdAt: Date.now() + 1000,
+                direction: 'INCOMING',
+                isSavings: true,
+              },
+            },
+          ],
+          'fullUpdate',
+        );
+
+        await withdrawlFromRewards(amountSats);
 
         const elapsed2 = Date.now() - step2Start;
         if (elapsed2 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed2);
@@ -694,8 +830,8 @@ export default function WithdrawFromSavingsHalfModal({
   };
 
   const handleDone = async () => {
-    await refreshSavings();
-    if (refreshBalances) await refreshBalances({ force: true });
+    refreshSavings();
+    if (refreshBalances) refreshBalances({ force: true });
     handleBackPressFunction();
   };
 
@@ -758,26 +894,73 @@ export default function WithdrawFromSavingsHalfModal({
                       colorOverride={COLORS.white}
                     />
                   </View>
-                  <View>
+                  <View style={{ flexShrink: 1 }}>
                     <ThemeText
                       styles={styles.optionTitle}
                       content={t('savings.withdraw.interestOption')}
                     />
-                    <ThemeText
-                      styles={styles.optionSubtitle}
-                      content={
-                        isInterestDisabled
-                          ? t('savings.withdraw.interestZeroHint')
-                          : displayCorrectDenomination({
+
+                    {isInterestDisabled ? (
+                      <ThemeText
+                        content={t('savings.withdraw.interestZeroHint')}
+                      />
+                    ) : (
+                      <>
+                        {/* Hidden component for layout measurement */}
+                        <View
+                          style={{
+                            position: 'absolute',
+                            opacity: 0,
+                            pointerEvents: 'none',
+                          }}
+                          onLayout={handleSkeletonLayout}
+                        >
+                          <FormattedSatText
+                            styles={styles.optionSubtitle}
+                            balance={displayCorrectDenomination({
                               amount: interestSats,
                               masterInfoObject: {
                                 ...masterInfoObject,
                                 userBalanceDenomination: 'sats',
                               },
                               fiatStats,
-                            })
-                      }
-                    />
+                            })}
+                            useSizing={true}
+                          />
+                        </View>
+
+                        {/* Show skeleton shimmer until poller settles */}
+                        <View
+                          style={{
+                            height: skeletonLayout.height,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexShrink: 1,
+                          }}
+                        >
+                          <SkeletonTextPlaceholder
+                            enabled={!balanceReady}
+                            layout={skeletonLayout}
+                          >
+                            <ThemeText
+                              styles={styles.optionSubtitle}
+                              content={
+                                isInterestDisabled
+                                  ? t('savings.withdraw.interestZeroHint')
+                                  : displayCorrectDenomination({
+                                      amount: interestSats,
+                                      masterInfoObject: {
+                                        ...masterInfoObject,
+                                        userBalanceDenomination: 'sats',
+                                      },
+                                      fiatStats,
+                                    })
+                              }
+                            />
+                          </SkeletonTextPlaceholder>
+                        </View>
+                      </>
+                    )}
                   </View>
                 </View>
                 {!isInterestDisabled && (
@@ -821,7 +1004,7 @@ export default function WithdrawFromSavingsHalfModal({
                 >
                   <ThemeText styles={styles.emojiText} content="🏦" />
                 </View>
-                <View>
+                <View style={{ flexShrink: 1 }}>
                   <ThemeText
                     styles={styles.optionTitle}
                     content={t('savings.withdraw.savingsOption')}
@@ -901,7 +1084,7 @@ export default function WithdrawFromSavingsHalfModal({
                   colorOverride={COLORS.white}
                 />
               </View>
-              <View>
+              <View style={{ flexShrink: 1 }}>
                 <ThemeText
                   styles={styles.optionTitle}
                   content={t('savings.withdraw.withdrawAll')}
@@ -953,7 +1136,7 @@ export default function WithdrawFromSavingsHalfModal({
               >
                 <ThemeText styles={styles.emojiText} content="🏦" />
               </View>
-              <View>
+              <View style={{ flexShrink: 1 }}>
                 <ThemeText
                   styles={styles.optionTitle}
                   content={t('savings.withdraw.generalSavings')}
@@ -1009,7 +1192,7 @@ export default function WithdrawFromSavingsHalfModal({
                   >
                     <ThemeText styles={styles.emojiText} content={goal.emoji} />
                   </View>
-                  <View>
+                  <View style={{ flexShrink: 1 }}>
                     <ThemeText
                       styles={styles.optionTitle}
                       content={goal.name}
@@ -1131,7 +1314,7 @@ export default function WithdrawFromSavingsHalfModal({
                       }
                     />
                   </View>
-                  <View>
+                  <View style={{ flexShrink: 1 }}>
                     <ThemeText
                       styles={styles.optionTitle}
                       content={option.title}
@@ -1299,6 +1482,7 @@ export default function WithdrawFromSavingsHalfModal({
             }
 
             if (selectedBalanceType === 'interest') {
+              // balance is in Bitcoin
               if (localSatAmount > interestSats) {
                 navigate.navigate('ErrorScreen', {
                   errorMessage: t(
@@ -1308,6 +1492,7 @@ export default function WithdrawFromSavingsHalfModal({
                 return;
               }
 
+              // if amount is less than the swap amount
               if (
                 selectedDestination === 'dollar' &&
                 localSatAmount < swapLimits.bitcoin
@@ -1326,37 +1511,38 @@ export default function WithdrawFromSavingsHalfModal({
                 });
                 return;
               }
-            }
-
-            if (
-              selectedDestination === 'bitcoin' &&
-              localSatAmount <=
-                dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB)
-            ) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t('screens.inAccount.swapsPage.minUSDError', {
-                  min: displayCorrectDenomination({
-                    amount: swapLimits.usd,
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: 'fiat',
-                    },
-                    fiatStats,
-                    convertAmount: false,
-                    forceCurrency: 'USD',
+            } else {
+              // balance is in dollars
+              if (
+                selectedDestination === 'bitcoin' &&
+                localSatAmount <=
+                  dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB)
+              ) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t('screens.inAccount.swapsPage.minUSDError', {
+                    min: displayCorrectDenomination({
+                      amount: swapLimits.usd,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'fiat',
+                      },
+                      fiatStats,
+                      convertAmount: false,
+                      forceCurrency: 'USD',
+                    }),
                   }),
-                }),
-              });
-              return;
-            }
+                });
+                return;
+              }
 
-            if (fiatMicros > availableBalanceMicros) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t(
-                  'screens.inAccount.swapsPage.insufficientBalance',
-                ),
-              });
-              return;
+              if (fiatMicros > availableBalanceMicros) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t(
+                    'screens.inAccount.swapsPage.insufficientBalance',
+                  ),
+                });
+                return;
+              }
             }
 
             setStep(prev => [...prev, 'confirm']);
@@ -1554,6 +1740,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     alignItems: 'center',
+    flexShrink: 1,
   },
   iconContainer: {
     width: 48,
@@ -1570,10 +1757,15 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     fontSize: SIZES.large,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   optionSubtitle: {
+    width: '100%',
     opacity: 0.7,
     includeFontPadding: false,
+    fontSize: SIZES.medium,
+    fontFamily: FONT.Title_Regular,
+    flexShrink: 1,
   },
   amountContainer: {
     flex: 1,

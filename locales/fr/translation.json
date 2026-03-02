@@ -2407,6 +2407,7 @@
     "depositWithGoal": "Dépôt vers {{goalName}}",
     "swapSimulationError": "Simulation d'échange non disponible",
     "savingsWalletError": "Portefeuille d'épargne non prêt",
-    "rewardsPayout": "Versement de récompenses en Bitcoin"
+    "rewardsPayout": "Versement de récompenses en Bitcoin",
+    "rewardsWithdrawl": "Retrait des récompenses en Bitcoin"
   }
 }

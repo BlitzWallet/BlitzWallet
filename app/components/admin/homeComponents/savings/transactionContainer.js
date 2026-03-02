@@ -12,6 +12,7 @@ const ICON_BY_TYPE = {
   interest: 'Sparkles',
   deposit: 'ArrowDown',
   withdrawal: 'ArrowUp',
+  bitcoinWithdrawal: 'ArrowUp',
 };
 
 export default function SavingsTransactionComponenet({ item, isLastIndex }) {
@@ -20,6 +21,10 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
   const { fiatStats } = useNodeContext();
   const amount = fromMicros(item.amountMicros);
   const isPositive = amount >= 0;
+
+  const showSats =
+    item.type === 'interest' || item.type === 'bitcoinWithdrawal';
+
   return (
     <View
       style={[
@@ -54,11 +59,11 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
           amount: amount,
           masterInfoObject: {
             ...masterInfoObject,
-            userBalanceDenomination: item.type === 'interest' ? 'sats' : 'fiat',
+            userBalanceDenomination: showSats ? 'sats' : 'fiat',
           },
           fiatStats,
-          forceCurrency: item.type === 'interest' ? null : 'USD',
-          convertAmount: item.type === 'interest' ? true : false,
+          forceCurrency: showSats ? null : 'USD',
+          convertAmount: showSats ? true : false,
         })}`}
       />
     </View>

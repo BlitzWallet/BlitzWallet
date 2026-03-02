@@ -140,6 +140,7 @@ export const createBalancePoller = (
   abortController,
   onBalanceUpdate,
   initialBalance,
+  customConfims = 3,
 ) => {
   let hasIncreasedAtLeastOnce = false;
   let sameValueIndex = 0;
@@ -193,8 +194,8 @@ export const createBalancePoller = (
       sameValueIndex++;
 
       if (
-        (hasIncreasedAtLeastOnce && sameValueIndex >= 4) ||
-        (!hasIncreasedAtLeastOnce && sameValueIndex >= 3)
+        (hasIncreasedAtLeastOnce && sameValueIndex >= customConfims + 1) ||
+        (!hasIncreasedAtLeastOnce && sameValueIndex >= customConfims)
       ) {
         return true;
       }

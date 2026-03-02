@@ -2409,6 +2409,7 @@
     "depositWithGoal": "Einzahlung für {{goalName}}",
     "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
     "savingsWalletError": "Spar-Wallet nicht bereit.",
-    "rewardsPayout": "BTC-Belohnungsauszahlung"
+    "rewardsPayout": "BTC-Belohnungsauszahlung",
+    "rewardsWithdrawl": "BTC-Belohnungsauszahlung"
   }
 }
