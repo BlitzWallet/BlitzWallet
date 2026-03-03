@@ -1888,15 +1888,15 @@
       },
       "viewAllTxPage": {
         "title": "Transações",
-        "filterAll": "Todos",
+        "filterAll": "Todas",
         "filterLightning": "Lightning",
         "filterBitcoin": "Bitcoin",
         "filterSpark": "Spark",
         "filterContacts": "Contatos",
-        "filterGifts": "Presentes",
+        "filterGifts": "Vales-Blitz",
         "filterSwaps": "Trocas",
-        "filterSavings": "Poupança",
-        "filterPools": "Fundos"
+        "filterSavings": "Caixinhas",
+        "filterPools": "Vaquinhas"
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
