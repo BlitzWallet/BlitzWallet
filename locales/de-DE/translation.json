@@ -1909,7 +1909,7 @@
         "balance": "Guthaben",
         "maxSupply": "Max. Supply",
         "tokenTicker": "Token-Ticker",
-        "tokenPubKey": "Token-Adresse"
+        "tokenPubKey": "Öffentl.Token-Adresse"
       },
       "giftPages": {
         "expired": "Abgelaufen",
@@ -2318,7 +2318,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Einzahlung bestätigen",
       "youAreAdding": "Sie zahlen ein",
-      "fromBalance": "von Ihrem {{source}}-Guthaben",
+      "fromBalance_dollar": "von Ihrem USD-Guthaben",
+      "fromBalance_bitcoin": "von Ihrem BTC-Guthaben",
       "confirmButton": "Bestätigen",
       "processing": "Wird verarbeitet...",
       "steps": {
@@ -2409,6 +2410,8 @@
     "depositWithGoal": "Einzahlung für {{goalName}}",
     "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
     "savingsWalletError": "Spar-Wallet nicht bereit.",
-    "rewardsPayout": "BTC-Belohnungsauszahlung"
+    "rewardsPayout": "BTC-Belohnungsauszahlung",
+    "rewardsWithdrawl": "BTC-Belohnungsauszahlung",
+    "total_balance": "Gesamtguthaben"
   }
 }
