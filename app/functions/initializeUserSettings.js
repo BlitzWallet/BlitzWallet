@@ -50,7 +50,9 @@ export default async function initializeUserSettingsFromHistory({
       localStoredData,
       //  freshExploreData
     ] = await Promise.all([
-      preloadedData && firebaseAuth.currentUser.uid === publicKey
+      preloadedData &&
+      firebaseAuth.currentUser.uid === publicKey &&
+      preloadedData.uuid === publicKey
         ? Promise.resolve(preloadedData)
         : getDataFromCollection('blitzWalletUsers', publicKey),
       fetchLocalStorageItems(),

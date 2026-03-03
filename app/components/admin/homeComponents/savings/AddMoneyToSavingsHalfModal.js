@@ -258,6 +258,7 @@ export default function AddMoneyToSavingsHalfModal({
         paymentType: 'spark',
         amountSats: localSatAmount,
         masterInfoObject,
+        extraDetails: { isSavings: true },
         memo: t('savings.addMoney.paymentLabel', {
           context: selectedGoalId,
           savingsGoal: savingsGoals.find(item => item.id === selectedGoalId)
@@ -717,7 +718,7 @@ export default function AddMoneyToSavingsHalfModal({
           <ThemeText
             styles={styles.summaryLabel}
             content={t('savings.addMoney.fromBalance', {
-              source: selectedSource || 'wallet',
+              context: selectedSource,
             })}
           />
         </View>
