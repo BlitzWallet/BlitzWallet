@@ -1888,7 +1888,16 @@
         "senders": "отправителя"
       },
       "viewAllTxPage": {
-        "title": "Транзакции"
+        "title": "Транзакции",
+        "filterAll": "Все",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Контакты",
+        "filterGifts": "Подарки",
+        "filterSwaps": "Обмены",
+        "filterSavings": "Сбережения",
+        "filterPools": "Пулы"
       },
       "lrc20HalfModal": {
         "title": "Поиск токенов",
@@ -2315,7 +2324,8 @@
       "minHint": "Мин: {{amount}}",
       "confirmTitle": "Подтвердить пополнение",
       "youAreAdding": "Ты пополняешь на",
-      "fromBalance": "с баланса {{source}}",
+      "fromBalance_dollar": "с долларового баланса",
+      "fromBalance_bitcoin": "с биткоин-баланса",
       "confirmButton": "Подтвердить",
       "processing": "Обработка…",
       "steps": {
@@ -2406,6 +2416,8 @@
     "depositWithGoal": "Пополнение в {{goalName}}",
     "swapSimulationError": "Симуляция обмена недоступна",
     "savingsWalletError": "Сберегательный кошелёк не готов",
-    "rewardsPayout": "Выплата вознаграждений в биткоинах"
+    "rewardsPayout": "Выплата вознаграждений в биткоинах",
+    "rewardsWithdrawl": "Вывод вознаграждений в биткоинах",
+    "total_balance": "Общий баланс"
   }
 }

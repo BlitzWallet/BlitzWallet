@@ -15,7 +15,6 @@ import {
 } from '../../../../constants';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -28,9 +27,7 @@ import Icon from '../../../../functions/CustomElements/Icon';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import { useKeysContext } from '../../../../../context-store/keys';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
-import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import ContactProfileImage from './internalComponents/profileImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import {
@@ -51,9 +48,9 @@ import { TAB_ITEM_HEIGHT } from '../../../../../navigation/tabs';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import ProfileImageSettingsNavigator from '../../../../functions/CustomElements/profileSettingsNavigator';
+import { useNavigateToContact } from './utils/navigateToExpandedContact';
 
 export default function ContactsPage({ navigation }) {
-  const { contactsPrivateKey, publicKey } = useKeysContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
@@ -63,7 +60,6 @@ export default function ContactsPage({ navigation }) {
     decodedAddedContacts,
     globalContactsInformation,
     contactsMessags,
-    toggleGlobalContactsInformation,
     giftCardsList,
   } = useGlobalContacts();
   const scrollViewRef = useRef(null);
@@ -138,56 +134,7 @@ export default function ContactsPage({ navigation }) {
     return giftCardsList && !!giftCardsList?.length;
   }, [giftCardsList]);
 
-  const navigateToExpandedContact = useCallback(
-    async contact => {
-      try {
-        crashlyticsLogReport(
-          'Navigating to expanded contact from contacts page',
-        );
-        if (!contact.isAdded) {
-          let newAddedContacts = [...decodedAddedContacts];
-          const indexOfContact = decodedAddedContacts.findIndex(
-            obj => obj.uuid === contact.uuid,
-          );
-
-          let newContact = newAddedContacts[indexOfContact];
-          newContact['isAdded'] = true;
-
-          toggleGlobalContactsInformation(
-            {
-              myProfile: { ...globalContactsInformation.myProfile },
-              addedContacts: encriptMessage(
-                contactsPrivateKey,
-                publicKey,
-                JSON.stringify(newAddedContacts),
-              ),
-            },
-            true,
-          );
-        }
-        requestAnimationFrame(() => {
-          navigate.navigate('ExpandedContactsPage', {
-            uuid: contact.uuid,
-          });
-        });
-      } catch (err) {
-        console.log('error navigating to expanded contact', err);
-        requestAnimationFrame(() => {
-          navigate.navigate('ExpandedContactsPage', {
-            uuid: contact.uuid,
-          });
-        });
-      }
-    },
-    [
-      decodedAddedContacts,
-      globalContactsInformation,
-      toggleGlobalContactsInformation,
-      contactsPrivateKey,
-      publicKey,
-      navigate,
-    ],
-  );
+  const navigateToExpandedContact = useNavigateToContact();
 
   const pinnedContacts = useMemo(() => {
     return contactInfoList
@@ -519,7 +466,7 @@ const PinnedContactElement = memo(
     }, [contact, navigate]);
 
     const handlePress = useCallback(() => {
-      navigateToExpandedContact(contact);
+      navigateToExpandedContact(contact, 'contacts');
     }, [contact, navigateToExpandedContact]);
 
     const handleTextLayout = useCallback(event => {
@@ -853,9 +800,10 @@ const memoizedStyles = StyleSheet.create({
     paddingVertical: 10,
   },
   rowNameAndUnkonwnContainer: {
+    width: '100%',
     flexDirection: 'column',
-    flexGrow: 1,
-    marginRight: 5,
+    marginRight: 10,
+    flexShrink: 1,
   },
   contactDateText: {
     fontSize: SIZES.small,

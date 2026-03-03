@@ -67,7 +67,7 @@ export async function initSavingsDb() {
       CREATE TABLE IF NOT EXISTS ${TRANSACTIONS_TABLE} (
         id TEXT PRIMARY KEY NOT NULL,
         goalId TEXT NOT NULL,
-        type TEXT NOT NULL CHECK(type IN ('deposit', 'withdrawal')),
+        type TEXT NOT NULL CHECK(type IN ('deposit', 'withdrawal', 'bitcoinWithdrawal')),
         amountMicros INTEGER NOT NULL,
         timestamp INTEGER NOT NULL
       );
@@ -87,7 +87,8 @@ export async function initSavingsDb() {
       CREATE INDEX IF NOT EXISTS idx_savings_tx_timestamp ON ${TRANSACTIONS_TABLE}(timestamp DESC);
     `);
 
-    await migrateRemoveTransactionsForeignKey();
+    await migrateTransactionsTable();
+    await sqlLiteDB.execAsync('PRAGMA foreign_keys = ON;');
 
     isInitialized = true;
     return true;
@@ -103,42 +104,77 @@ export async function initSavingsDb() {
  * by recreating the table. Safe to run on every init — the guard checks whether
  * the FK is present before doing anything.
  */
-async function migrateRemoveTransactionsForeignKey() {
+async function migrateTransactionsTable() {
   try {
-    // Check if the old FK-bearing table exists by inspecting its CREATE statement.
     const row = await sqlLiteDB.getFirstAsync(
       `SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`,
       [TRANSACTIONS_TABLE],
     );
 
-    if (!row?.sql || !row.sql.includes('FOREIGN KEY')) {
-      return; // Already migrated or freshly created — nothing to do.
+    if (!row?.sql) return;
+
+    const normalizedSql = String(row.sql).toUpperCase();
+
+    if (
+      normalizedSql.includes('BITCOINWITHDRAWAL') &&
+      !normalizedSql.includes('FOREIGN KEY')
+    ) {
+      return; // Already migrated
     }
 
-    // Recreate the table without the FK using SQLite's recommended pattern.
-    await sqlLiteDB.execAsync(`
-      PRAGMA foreign_keys = OFF;
+    // Disable FK constraints before DDL
+    await sqlLiteDB.runAsync('PRAGMA foreign_keys = OFF');
 
-      ALTER TABLE ${TRANSACTIONS_TABLE} RENAME TO ${TRANSACTIONS_TABLE}_old;
-
-      CREATE TABLE ${TRANSACTIONS_TABLE} (
-        id TEXT PRIMARY KEY NOT NULL,
-        goalId TEXT NOT NULL,
-        type TEXT NOT NULL CHECK(type IN ('deposit', 'withdrawal')),
-        amountMicros INTEGER NOT NULL,
-        timestamp INTEGER NOT NULL
+    await sqlLiteDB.withTransactionAsync(async () => {
+      await sqlLiteDB.runAsync(
+        `DROP TABLE IF EXISTS ${TRANSACTIONS_TABLE}_old`,
       );
 
-      INSERT INTO ${TRANSACTIONS_TABLE} (id, goalId, type, amountMicros, timestamp)
-        SELECT id, goalId, type, amountMicros, timestamp FROM ${TRANSACTIONS_TABLE}_old;
+      await sqlLiteDB.runAsync(
+        `ALTER TABLE ${TRANSACTIONS_TABLE} RENAME TO ${TRANSACTIONS_TABLE}_old`,
+      );
 
-      DROP TABLE ${TRANSACTIONS_TABLE}_old;
+      await sqlLiteDB.runAsync(`
+        CREATE TABLE ${TRANSACTIONS_TABLE} (
+          id TEXT PRIMARY KEY NOT NULL,
+          goalId TEXT NOT NULL,
+          type TEXT NOT NULL CHECK(type IN ('deposit', 'withdrawal', 'bitcoinWithdrawal')),
+          amountMicros INTEGER NOT NULL,
+          timestamp INTEGER NOT NULL
+        )
+      `);
 
-      CREATE INDEX IF NOT EXISTS idx_savings_tx_goal_timestamp ON ${TRANSACTIONS_TABLE}(goalId, timestamp DESC);
-      CREATE INDEX IF NOT EXISTS idx_savings_tx_timestamp ON ${TRANSACTIONS_TABLE}(timestamp DESC);
-    `);
+      await sqlLiteDB.runAsync(`
+        INSERT INTO ${TRANSACTIONS_TABLE} (id, goalId, type, amountMicros, timestamp)
+        SELECT
+          id,
+          goalId,
+          CASE
+            WHEN type IN ('deposit', 'withdrawal', 'bitcoinWithdrawal') THEN type
+            WHEN LOWER(type) IN ('bitcoin_withdrawal', 'bitcoinwithdrawal') THEN 'bitcoinWithdrawal'
+            ELSE 'withdrawal'
+          END,
+          amountMicros,
+          timestamp
+        FROM ${TRANSACTIONS_TABLE}_old
+      `);
+
+      await sqlLiteDB.runAsync(`DROP TABLE ${TRANSACTIONS_TABLE}_old`);
+
+      await sqlLiteDB.runAsync(`
+        CREATE INDEX IF NOT EXISTS idx_savings_tx_goal_timestamp
+          ON ${TRANSACTIONS_TABLE}(goalId, timestamp DESC)
+      `);
+
+      await sqlLiteDB.runAsync(`
+        CREATE INDEX IF NOT EXISTS idx_savings_tx_timestamp
+          ON ${TRANSACTIONS_TABLE}(timestamp DESC)
+      `);
+    });
   } catch (err) {
-    console.error('migrateRemoveTransactionsForeignKey error:', err);
+    console.error('migrateTransactionsTable error:', err);
+  } finally {
+    await sqlLiteDB.runAsync('PRAGMA foreign_keys = ON');
   }
 }
 
@@ -399,7 +435,9 @@ export async function createSavingsTransaction(transaction) {
 
   if (!transaction?.id) throw new Error('Transaction id is required');
   if (!transaction?.goalId) throw new Error('goalId is required');
-  if (!['deposit', 'withdrawal'].includes(transaction.type)) {
+  if (
+    !['deposit', 'withdrawal', 'bitcoinWithdrawal'].includes(transaction.type)
+  ) {
     throw new Error('Transaction type must be "deposit" or "withdrawal"');
   }
 
@@ -416,11 +454,78 @@ export async function createSavingsTransaction(transaction) {
 
   await db.runAsync(
     `INSERT INTO ${TRANSACTIONS_TABLE} (id, goalId, type, amountMicros, timestamp)
-     VALUES (?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       goalId = excluded.goalId,
+       type = excluded.type,
+       amountMicros = excluded.amountMicros,
+       timestamp = excluded.timestamp`,
     [tx.id, tx.goalId, tx.type, tx.amountMicros, tx.timestamp],
   );
 
   return tx;
+}
+
+/**
+ * @param {SavingsTransaction[]} transactions
+ * @returns {Promise<SavingsTransaction[]>}
+ */
+export async function createSavingsTransactions(transactions) {
+  if (!Array.isArray(transactions)) {
+    throw new Error('transactions must be an array');
+  }
+
+  if (transactions.length === 0) return [];
+
+  const db = await getDatabase();
+
+  const normalized = transactions.map(transaction => {
+    if (!transaction?.id) throw new Error('Transaction id is required');
+    if (!transaction?.goalId) throw new Error('goalId is required');
+    if (
+      !['deposit', 'withdrawal', 'bitcoinWithdrawal'].includes(transaction.type)
+    ) {
+      throw new Error('Transaction type must be "deposit" or "withdrawal"');
+    }
+
+    return {
+      id: transaction.id,
+      goalId: transaction.goalId,
+      type: transaction.type,
+      amountMicros: Math.max(
+        0,
+        Math.round(Number(transaction.amountMicros || 0)),
+      ),
+      timestamp: Number(transaction.timestamp || Date.now()),
+    };
+  });
+
+  // Build multi-row insert
+  const placeholders = normalized.map(() => `(?, ?, ?, ?, ?)`).join(', ');
+
+  const values = normalized.flatMap(tx => [
+    tx.id,
+    tx.goalId,
+    tx.type,
+    tx.amountMicros,
+    tx.timestamp,
+  ]);
+
+  await db.withTransactionAsync(async () => {
+    await db.runAsync(
+      `INSERT INTO ${TRANSACTIONS_TABLE} 
+       (id, goalId, type, amountMicros, timestamp)
+       VALUES ${placeholders}
+       ON CONFLICT(id) DO UPDATE SET
+         goalId = excluded.goalId,
+         type = excluded.type,
+         amountMicros = excluded.amountMicros,
+         timestamp = excluded.timestamp`,
+      values,
+    );
+  });
+
+  return normalized;
 }
 
 /**

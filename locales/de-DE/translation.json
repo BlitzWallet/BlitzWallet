@@ -1889,7 +1889,16 @@
         "senders": "Absender"
       },
       "viewAllTxPage": {
-        "title": "Transaktionen"
+        "title": "Transaktionen",
+        "filterAll": "Alle",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Kontakte",
+        "filterGifts": "Geschenke",
+        "filterSwaps": "Tausche",
+        "filterSavings": "Sparen",
+        "filterPools": "Pools"
       },
       "lrc20HalfModal": {
         "title": "Token suchen",
@@ -2309,7 +2318,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Einzahlung bestätigen",
       "youAreAdding": "Sie zahlen ein",
-      "fromBalance": "von Ihrem {{source}}-Guthaben",
+      "fromBalance_dollar": "vom USD-Guthaben",
+      "fromBalance_bitcoin": "vom BTC-Guthaben",
       "confirmButton": "Bestätigen",
       "processing": "Wird verarbeitet...",
       "steps": {
@@ -2400,6 +2410,8 @@
     "depositWithGoal": "Einzahlung für {{goalName}}",
     "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
     "savingsWalletError": "Spar-Wallet nicht bereit.",
-    "rewardsPayout": "BTC-Belohnungsauszahlung"
+    "rewardsPayout": "BTC-Belohnungsauszahlung",
+    "rewardsWithdrawl": "BTC-Belohnungsauszahlung",
+    "total_balance": "Gesamtguthaben"
   }
 }

@@ -1887,7 +1887,16 @@
         "senders": "avsändarens"
       },
       "viewAllTxPage": {
-        "title": "Transaktioner"
+        "title": "Transaktioner",
+        "filterAll": "Alla",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Kontakter",
+        "filterGifts": "Gåvor",
+        "filterSwaps": "Växlingar",
+        "filterSavings": "Sparande",
+        "filterPools": "Pooler"
       },
       "lrc20HalfModal": {
         "title": "Söka Tokens",
@@ -2307,7 +2316,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Bekräfta insättning",
       "youAreAdding": "Du sätter in",
-      "fromBalance": "från ditt {{source}}-saldo",
+      "fromBalance_dollar": "från dollarsaldot",
+      "fromBalance_bitcoin": "från Bitcoin-saldot",
       "confirmButton": "Bekräfta",
       "processing": "Bearbetar…",
       "steps": {
@@ -2398,6 +2408,8 @@
     "depositWithGoal": "Insättning till {{goalName}}",
     "swapSimulationError": "Bytessimulering inte tillgänglig",
     "savingsWalletError": "Sparplånboken är inte redo",
-    "rewardsPayout": "Utbetalning av Bitcoin-belöningar"
+    "rewardsPayout": "Utbetalning av Bitcoin-belöningar",
+    "rewardsWithdrawl": "Uttag av Bitcoin-belöningar",
+    "total_balance": "Totalt saldo"
   }
 }

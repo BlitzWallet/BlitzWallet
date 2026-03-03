@@ -10,6 +10,7 @@ import React, {
 import {
   createSavingsGoal,
   createSavingsTransaction,
+  createSavingsTransactions,
   deleteSavingsGoal,
   getAllPayoutsTransactions,
   getAllSavingsTransactions,
@@ -45,6 +46,7 @@ import {
   toMicros,
 } from '../app/components/admin/homeComponents/savings/utils';
 import {
+  getBitcoinWithdrawls,
   getTokensBalance,
   getTokenTransactions,
 } from '../app/functions/spark/walletViewer';
@@ -369,6 +371,17 @@ export function SavingsProvider({ children }) {
     [recordTransaction],
   );
 
+  const withdrawlFromRewards = useCallback(
+    async amount => {
+      return recordTransaction({
+        goalId: UNALLOCATED_GOAL_ID,
+        type: 'bitcoinWithdrawal',
+        amount,
+      });
+    },
+    [recordTransaction],
+  );
+
   const savingsGoals = useMemo(
     () =>
       goals.map(goal => {
@@ -405,56 +418,70 @@ export function SavingsProvider({ children }) {
         const txs = await getAllSavingsTransactions();
         if (txs.length) return;
 
-        const pastTxs = await getTokenTransactions(savingsWallet.sparkAddress);
+        const [pastTxs, pastBitcoinTxs] = await Promise.all([
+          getTokenTransactions(savingsWallet.sparkAddress),
+          getBitcoinWithdrawls(savingsWallet.sparkAddress),
+        ]);
 
-        if (!pastTxs?.transactions?.length) return;
+        const tokenTxs = (pastTxs?.transactions ?? [])
+          .slice(0, 50)
+          .reduce((acc, tokenTx) => {
+            const tokenOutputs = tokenTx.tokenTransaction?.tokenOutputs;
+            if (!tokenOutputs?.length) return acc;
 
-        for (const tokenTx of pastTxs.transactions.slice(0, 50)) {
-          const tokenOutputs = tokenTx.tokenTransaction?.tokenOutputs;
+            const txHash = Buffer.from(
+              Object.values(tokenTx.tokenTransactionHash),
+            ).toString('hex');
 
-          if (!tokenOutputs?.length) continue;
+            const ownerPublicKey = Buffer.from(
+              Object.values(tokenOutputs[0]?.ownerPublicKey),
+            ).toString('hex');
 
-          // Get tx hash as id
-          const txHash = Buffer.from(
-            Object.values(tokenTx.tokenTransactionHash),
-          ).toString('hex');
+            const amountMicros = tokenOutputs[0]?.tokenAmount
+              ? Number(tokenBufferAmountToDecimal(tokenOutputs[0].tokenAmount))
+              : 0;
 
-          const ownerPublicKey = Buffer.from(
-            Object.values(tokenOutputs[0]?.ownerPublicKey),
-          ).toString('hex');
+            if (!amountMicros) return acc;
 
-          const savingsWalletPubKey = savingsWallet.identityPublicKeyHex; // however you access this
+            acc.push({
+              id: txHash,
+              goalId: UNALLOCATED_GOAL_ID,
+              type:
+                ownerPublicKey !== savingsWallet.identityPublicKeyHex
+                  ? 'withdrawal'
+                  : 'deposit',
+              amountMicros,
+              timestamp: new Date(
+                tokenTx.tokenTransaction.clientCreatedTimestamp,
+              ).getTime(),
+            });
 
-          const didSend = ownerPublicKey !== savingsWalletPubKey;
+            return acc;
+          }, []);
 
-          // tokenAmount is a 16-byte big-endian buffer object
-          const rawAmount = tokenOutputs[0]?.tokenAmount;
-          const amountMicros = rawAmount
-            ? Number(tokenBufferAmountToDecimal(rawAmount))
-            : 0;
-
-          if (!amountMicros) continue;
-
-          const timestamp = new Date(
-            tokenTx.tokenTransaction.clientCreatedTimestamp,
-          ).getTime();
-
-          await createSavingsTransaction({
-            id: txHash,
+        const bitcoinTxs = (pastBitcoinTxs?.transfers ?? [])
+          .filter(
+            transfer =>
+              Buffer.from(transfer.senderIdentityPublicKey).toString('hex') ===
+              savingsWallet.identityPublicKeyHex,
+          )
+          .map(tx => ({
+            id: tx.id,
             goalId: UNALLOCATED_GOAL_ID,
-            type: didSend ? 'withdrawal' : 'deposit',
-            amountMicros,
-            timestamp,
-          }).catch(err => {
-            // Likely a duplicate — safe to ignore
-            console.log(`[RestorePayments] Skipping ${txHash}:`, err.message);
-          });
+            type: 'bitcoinWithdrawal',
+            amountMicros: toMicros(tx.totalValue),
+            timestamp: new Date(tx.createdTime).getTime(),
+          }));
+
+        const newTxs = [...tokenTxs, ...bitcoinTxs];
+
+        if (newTxs.length) {
+          await createSavingsTransactions(newTxs);
         }
 
-        const finalTxs = await getAllSavingsTransactions();
-        setTransactions(finalTxs);
+        setTransactions(await getAllSavingsTransactions());
       } catch (err) {
-        console.log('error restoring tx history', err);
+        console.error('error restoring tx history', err);
       }
     },
     [savingsWallet],
@@ -543,6 +570,7 @@ export function SavingsProvider({ children }) {
         contributeToGoal({ amount, goalId }),
       withdrawMoney: async ({ amount, goalId }) =>
         withdrawFromGoal({ amount, goalId }),
+      withdrawlFromRewards,
       refreshSavings: loadSavingsState,
       refreshBalances,
       refreshInterestPayouts,
@@ -557,6 +585,7 @@ export function SavingsProvider({ children }) {
       createGoal,
       contributeToGoal,
       withdrawFromGoal,
+      withdrawlFromRewards,
       savingsGoals,
       allSavingsTransactions,
       transactions,

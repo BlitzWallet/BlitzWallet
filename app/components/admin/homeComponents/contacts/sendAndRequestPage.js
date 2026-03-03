@@ -629,6 +629,16 @@ export default function SendAndRequestPage(props) {
           }
           containerStyles={{ marginBottom: 0 }}
         />
+        {paymentType === 'request' && (
+          <ThemeText
+            styles={styles.requestTypeIndicator}
+            content={
+              selectedRequestMethod === 'BTC'
+                ? t('constants.bitcoin_upper')
+                : t('constants.dollars_upper')
+            }
+          />
+        )}
 
         <View style={styles.identityBadge}>
           <View
@@ -908,6 +918,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
 
+  requestTypeIndicator: { textAlign: 'center', opacity: HIDDEN_OPACITY },
   identityBadge: {
     alignItems: 'center',
     alignSelf: 'center',

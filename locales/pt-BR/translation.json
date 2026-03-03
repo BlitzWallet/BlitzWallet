@@ -1887,7 +1887,16 @@
         "senders": "do pagador"
       },
       "viewAllTxPage": {
-        "title": "Transações"
+        "title": "Transações",
+        "filterAll": "Todos",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Contatos",
+        "filterGifts": "Presentes",
+        "filterSwaps": "Trocas",
+        "filterSavings": "Poupança",
+        "filterPools": "Fundos"
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
@@ -2307,7 +2316,8 @@
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar depósito",
       "youAreAdding": "Você está transferindo",
-      "fromBalance": "do seu saldo de {{source}}",
+      "fromBalance_dollar": "do saldo em dólares",
+      "fromBalance_bitcoin": "do saldo em Bitcoin",
       "confirmButton": "Confirmar",
       "processing": "Processando…",
       "steps": {
@@ -2399,5 +2409,7 @@
     "swapSimulationError": "Simulação de troca não disponível",
     "savingsWalletError": "Conta da Caixinha não está pronta",
     "rewardsPayout": "Pagamento de recompensas"
+    "rewardsWithdrawl": "Saque de recompensas em Bitcoin",
+    "total_balance": "Total Balance"
   }
 }

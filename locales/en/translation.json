@@ -1923,7 +1923,16 @@
         "senders": "sender's"
       },
       "viewAllTxPage": {
-        "title": "Transactions"
+        "title": "Transactions",
+        "filterAll": "All",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Contacts",
+        "filterGifts": "Gifts",
+        "filterSwaps": "Swaps",
+        "filterSavings": "Savings",
+        "filterPools": "Pools"
       },
 
       "lrc20HalfModal": {
@@ -2359,7 +2368,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Confirm deposit",
       "youAreAdding": "You are adding",
-      "fromBalance": "from {{source}} balance",
+      "fromBalance_dollar": "from dollar balance",
+      "fromBalance_bitcoin": "from Bitcoin balance",
       "confirmButton": "Confirm",
       "processing": "Processing...",
       "steps": {
@@ -2452,6 +2462,8 @@
     "depositWithGoal": "Deposit to {{goalName}}",
     "swapSimulationError": "Swap simulation not available",
     "savingsWalletError": "Savings wallet not ready",
-    "rewardsPayout": "Bitcoin rewards payout"
+    "rewardsPayout": "Bitcoin rewards payout",
+    "rewardsWithdrawl": "Bitcoin rewards withdrawl",
+    "total_balance": "Total Balance"
   }
 }

@@ -12,6 +12,7 @@ const ICON_BY_TYPE = {
   interest: 'Sparkles',
   deposit: 'ArrowDown',
   withdrawal: 'ArrowUp',
+  bitcoinWithdrawal: 'ArrowUp',
 };
 
 export default function SavingsTransactionComponenet({ item, isLastIndex }) {
@@ -20,6 +21,10 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
   const { fiatStats } = useNodeContext();
   const amount = fromMicros(item.amountMicros);
   const isPositive = amount >= 0;
+
+  const showSats =
+    item.type === 'interest' || item.type === 'bitcoinWithdrawal';
+
   return (
     <View
       style={[
@@ -38,7 +43,7 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
         </View>
         <View style={{ flexShrink: 1 }}>
           <ThemeText
-            CustomNumberOfLines={1}
+            CustomNumberOfLines={2}
             styles={styles.activityTitle}
             content={item.description}
           />
@@ -54,11 +59,11 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
           amount: amount,
           masterInfoObject: {
             ...masterInfoObject,
-            userBalanceDenomination: item.type === 'interest' ? 'sats' : 'fiat',
+            userBalanceDenomination: showSats ? 'sats' : 'fiat',
           },
           fiatStats,
-          forceCurrency: item.type === 'interest' ? null : 'USD',
-          convertAmount: item.type === 'interest' ? true : false,
+          forceCurrency: showSats ? null : 'USD',
+          convertAmount: showSats ? true : false,
         })}`}
       />
     </View>
@@ -73,6 +78,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 5,
   },
   activityLeft: {
     flexShrink: 1,

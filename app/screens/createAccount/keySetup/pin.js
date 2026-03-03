@@ -8,7 +8,7 @@ import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import KeyForKeyboard from '../../../functions/CustomElements/key';
 import PinDot from '../../../functions/CustomElements/pinDot';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
-import RNRestart from 'react-native-restart';
+import RNRestart from 'react-native-restart-newarch';
 import { useKeysContext } from '../../../../context-store/keys';
 import { storeMnemonicWithPinSecurity } from '../../../functions/handleMnemonic';
 import { privateKeyFromSeedWords } from '../../../functions/nostrCompatability';

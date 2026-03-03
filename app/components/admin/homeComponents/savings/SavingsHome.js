@@ -105,7 +105,7 @@ export default function SavingsHome() {
           </View> */}
           <ThemeText
             styles={styles.balanceLabel}
-            content={t('constants.total_balance')}
+            content={t('savings.total_balance')}
           />
           <ThemeText
             adjustsFontSizeToFit={true}
