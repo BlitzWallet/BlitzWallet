@@ -170,7 +170,7 @@ export default function WithdrawFromSavingsHalfModal({
   }, [accountMnemoinc]);
 
   const [inputDenomination, setInputDenomination] = useState(
-    selectedDestination === 'dollar'
+    selectedBalanceType !== 'interest'
       ? 'fiat'
       : masterInfoObject.userBalanceDenomination != 'fiat'
       ? 'sats'
@@ -183,7 +183,7 @@ export default function WithdrawFromSavingsHalfModal({
   const currentPage = step[step.length - 1];
 
   // Dollar destination → user types USD; Bitcoin destination → user types sats/fiat
-  const paymentMode = selectedDestination === 'dollar' ? 'USD' : 'BTC';
+  const paymentMode = selectedBalanceType !== 'interest' ? 'USD' : 'BTC';
 
   // Interest balance (BTC sats held in savings wallet from payouts)
   const interestSats = walletBTCBalance ?? totalIntrestEarned ?? 0;
@@ -873,6 +873,7 @@ export default function WithdrawFromSavingsHalfModal({
                 onPress={() => {
                   if (isInterestDisabled) return;
                   setSelectedBalanceType('interest');
+                  setInputDenomination('sats');
                   setStep(prev => [...prev, 'destination']);
                 }}
               >
@@ -983,7 +984,8 @@ export default function WithdrawFromSavingsHalfModal({
               onPress={() => {
                 if (isSavingsDisabled) return;
                 setSelectedBalanceType('savings');
-                if (selectedGoalUUID || !savingsGoals.length) {
+                setInputDenomination('fiat');
+                if (selectedGoalUUID && !savingsGoals.length) {
                   setStep(prev => [...prev, 'destination']);
                 } else {
                   setStep(prev => [...prev, 'chooseGoal']);
@@ -1265,13 +1267,6 @@ export default function WithdrawFromSavingsHalfModal({
                     return;
                   }
                   setSelectedDestination(option.key);
-                  setInputDenomination(
-                    option.key === 'dollar'
-                      ? 'fiat'
-                      : masterInfoObject.userBalanceDenomination != 'fiat'
-                      ? 'sats'
-                      : 'fiat',
-                  );
                   // Withdraw All skips the amount step — amount is the full balance.
                   setStep(prev => [
                     ...prev,
@@ -1448,15 +1443,15 @@ export default function WithdrawFromSavingsHalfModal({
                   amount:
                     selectedBalanceType === 'interest'
                       ? swapLimits.bitcoin
-                      : dollarsToSats(
-                          swapLimits.usd,
-                          poolInfoRef.currentPriceAInB,
-                        ),
+                      : swapLimits.usd,
                   masterInfoObject: {
                     ...masterInfoObject,
-                    userBalanceDenomination: 'sats',
+                    userBalanceDenomination:
+                      selectedBalanceType === 'interest' ? 'sats' : 'fiat',
                   },
                   fiatStats,
+                  convertAmount: selectedBalanceType === 'interest',
+                  forceCurrency: 'USD',
                 }),
               })}
             />

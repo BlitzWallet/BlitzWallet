@@ -306,8 +306,8 @@ export default function AddMoneyToSavingsHalfModal({
   };
 
   const handleDone = async () => {
-    await refreshSavings();
-    if (refreshBalances) await refreshBalances();
+    refreshSavings();
+    if (refreshBalances) refreshBalances();
     handleBackPressFunction();
   };
 
