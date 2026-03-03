@@ -479,8 +479,19 @@ export default function AddMoneyToSavingsHalfModal({
                 {
                   backgroundColor:
                     theme && darkModeType ? backgroundColor : backgroundOffset,
+                  opacity:
+                    (option.key === 'dollar' && dollarBalanceToken < 0.01) ||
+                    (option.key === 'bitcoin' &&
+                      bitcoinBalance < swapLimits.bitcoin)
+                      ? HIDDEN_OPACITY
+                      : 1,
                 },
               ]}
+              disabled={
+                (option.key === 'dollar' && dollarBalanceToken < 0.01) ||
+                (option.key === 'bitcoin' &&
+                  bitcoinBalance < swapLimits.bitcoin)
+              }
               onPress={() => {
                 setSelectedSource(option.key);
                 setInputDenomination(

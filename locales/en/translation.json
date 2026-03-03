@@ -2299,7 +2299,7 @@
       "setGoalSubtitle": "Save for what matters most",
       "savingsGoalFallback": "Savings goal",
       "createAnotherGoal": "Create Another Goal",
-      "disclaimer": "Cash balances are held in USDB, a dollar-backed stablecoin issued by Brale and fully backed 1:1 by US Treasury Bills and cash equivalents held at regulated financial institutions. Bitcoin rewards are generated through Flashnet and are variable, not guaranteed, and may be zero. USDB is not FDIC insured. Not a bank product."
+      "disclaimer": "Savings balance is held in USDB, a dollar-backed stablecoin issued by Brale. Bitcoin rewards are generated through Flashnet and are variable, not guaranteed, and may be zero. USDB is not FDIC insured. Not a bank product."
     },
     "preview": {
       "title": "Savings",
