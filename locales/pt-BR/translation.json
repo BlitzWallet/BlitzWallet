@@ -2408,8 +2408,8 @@
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
     "savingsWalletError": "Conta da Caixinha não está pronta",
-    "rewardsPayout": "Pagamento de recompensas",
-    "rewardsWithdrawl": "Resgate de recompensas",
-    "total_balance": "Total Balance"
+    "rewardsPayout": "Pagamento de juros",
+    "rewardsWithdrawl": "Saque de recompensas em Bitcoin",
+    "total_balance": "Saldo total Caixinhas"
   }
 }
