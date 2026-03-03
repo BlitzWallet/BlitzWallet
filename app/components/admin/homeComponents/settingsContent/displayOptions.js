@@ -119,7 +119,7 @@ export default function DisplayOptions() {
     }
   };
 
-  const containerBackground = theme ? backgroundOffset : COLORS.darkModeText;
+  const containerBackground = backgroundOffset;
 
   return (
     <ScrollView

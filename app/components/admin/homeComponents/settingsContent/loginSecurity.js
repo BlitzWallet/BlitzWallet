@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   COLORS,
@@ -17,13 +17,34 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic';
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+
+const SettingsSection = ({ title, children, style }) => (
+  <View style={[styles.section, style]}>
+    {title ? <ThemeText styles={styles.sectionTitle} content={title} /> : null}
+    {children}
+  </View>
+);
+
+const SettingsItem = ({ label, children, isLast, dividerColor }) => (
+  <>
+    <View style={styles.settingsItem}>
+      <View style={styles.settingsItemText}>
+        <ThemeText styles={styles.settingsItemLabel} content={label} />
+      </View>
+      {children}
+    </View>
+    {!isLast && (
+      <View style={[styles.divider, { backgroundColor: dividerColor }]} />
+    )}
+  </>
+);
 
 export default function LoginSecurity({ extraData }) {
   const [securityLoginSettings, setSecurityLoginSettings] = useState({
@@ -38,7 +59,7 @@ export default function LoginSecurity({ extraData }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { theme } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const updateSecuritySettings = async newSettings => {
     setSecurityLoginSettings(newSettings);
@@ -237,135 +258,198 @@ export default function LoginSecurity({ extraData }) {
   }
 
   return (
-    <View style={styles.innerContainer}>
-      <SettingsItemWithSlider
-        CustomNumberOfLines={2}
-        settingsTitle={t('settings.loginSecurity.text1')}
-        showDescription={false}
-        switchPageName={'LoginSecurityMode'}
-        handleSubmit={toggleSecurityEnabled}
-        toggleSwitchStateValue={securityLoginSettings.isSecurityEnabled}
-        containerStyles={styles.switchContainer}
-      />
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={styles.innerContainer}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <SettingsSection>
+        <View
+          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
+        >
+          <SettingsItem
+            isLast
+            dividerColor={backgroundColor}
+            label={t('settings.loginSecurity.text1')}
+          >
+            <CustomToggleSwitch
+              page="LoginSecurityMode"
+              toggleSwitchFunction={toggleSecurityEnabled}
+              stateValue={securityLoginSettings.isSecurityEnabled}
+            />
+          </SettingsItem>
+        </View>
+      </SettingsSection>
 
       {showSecurityChoice && (
-        <View style={{ width: '90%', ...CENTER }}>
-          <ThemeText
-            styles={styles.infoHeaders}
-            content={t('settings.loginSecurity.text2')}
-          />
-          <TouchableOpacity
-            onPress={() => handleInitialSecurityChoice('pin')}
-            style={styles.toggleSecurityMode}
+        <SettingsSection title={t('settings.loginSecurity.text2')}>
+          <View
+            style={[
+              styles.sectionContent,
+              { backgroundColor: backgroundOffset },
+            ]}
           >
-            <ThemeText
-              styles={{ includeFontPadding: false }}
-              content={t('settings.loginSecurity.text3')}
-            />
-            <CheckMarkCircle isActive={false} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleInitialSecurityChoice('biometric')}
-            style={styles.toggleSecurityMode}
-          >
-            <ThemeText
-              styles={{ includeFontPadding: false }}
-              content={t('settings.loginSecurity.text4')}
-            />
-            <CheckMarkCircle isActive={false} />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              onPress={() => handleInitialSecurityChoice('pin')}
+              style={styles.securityMethodRow}
+            >
+              <ThemeText
+                styles={styles.settingsItemLabel}
+                content={t('settings.loginSecurity.text3')}
+              />
+              <CheckMarkCircle containerSize={25} isActive={false} />
+            </TouchableOpacity>
+            <View style={[styles.divider, { backgroundColor }]} />
+            <TouchableOpacity
+              onPress={() => handleInitialSecurityChoice('biometric')}
+              style={styles.securityMethodRow}
+            >
+              <ThemeText
+                styles={styles.settingsItemLabel}
+                content={t('settings.loginSecurity.text4')}
+              />
+              <CheckMarkCircle containerSize={25} isActive={false} />
+            </TouchableOpacity>
+          </View>
+        </SettingsSection>
       )}
 
       {securityLoginSettings.isSecurityEnabled && (
         <>
-          <View style={{ width: '90%', ...CENTER }}>
-            <ThemeText
-              styles={styles.infoHeaders}
-              content={t('settings.loginSecurity.text2')}
-            />
-            <TouchableOpacity
-              onPress={() => toggleLoginSecurity('pin')}
-              style={styles.toggleSecurityMode}
+          <SettingsSection title={t('settings.loginSecurity.text2')}>
+            <View
+              style={[
+                styles.sectionContent,
+                { backgroundColor: backgroundOffset },
+              ]}
             >
-              <ThemeText
-                styles={{ includeFontPadding: false }}
-                content={t('settings.loginSecurity.text3')}
-              />
-              <CheckMarkCircle isActive={securityLoginSettings.isPinEnabled} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => toggleLoginSecurity('biometric')}
-              style={styles.toggleSecurityMode}
-            >
-              <ThemeText
-                styles={{ includeFontPadding: false }}
-                content={t('settings.loginSecurity.text4')}
-              />
-              <CheckMarkCircle
-                isActive={securityLoginSettings.isBiometricEnabled}
-              />
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                onPress={() => toggleLoginSecurity('pin')}
+                style={styles.securityMethodRow}
+              >
+                <ThemeText
+                  styles={styles.settingsItemLabel}
+                  content={t('settings.loginSecurity.text3')}
+                />
+                <CheckMarkCircle
+                  containerSize={25}
+                  isActive={securityLoginSettings.isPinEnabled}
+                />
+              </TouchableOpacity>
+              <View style={[styles.divider, { backgroundColor }]} />
+              <TouchableOpacity
+                onPress={() => toggleLoginSecurity('biometric')}
+                style={styles.securityMethodRow}
+              >
+                <ThemeText
+                  styles={styles.settingsItemLabel}
+                  content={t('settings.loginSecurity.text4')}
+                />
+                <CheckMarkCircle
+                  containerSize={25}
+                  isActive={securityLoginSettings.isBiometricEnabled}
+                />
+              </TouchableOpacity>
+            </View>
+          </SettingsSection>
+
           {securityLoginSettings.isPinEnabled && (
-            <SettingsItemWithSlider
-              CustomNumberOfLines={2}
-              settingsTitle={t(
-                'settings.loginSecurity.randomPinKeyboardToggle',
-              )}
-              showDescription={false}
-              switchPageName={'useRanomPinLayout'}
-              handleSubmit={toggleUseRandomPinLayout}
-              toggleSwitchStateValue={useRandomPinLayout}
-              containerStyles={styles.switchContainer}
-              showInformationPopup={true}
-              informationPopupText={t(
-                'settings.loginSecurity.randomPinKeyboardInfo',
-              )}
-              informationPopupBTNText={t('constants.iunderstand')}
-            />
+            <SettingsSection style={styles.lastSection}>
+              <View
+                style={[
+                  styles.sectionContent,
+                  { backgroundColor: backgroundOffset },
+                ]}
+              >
+                <SettingsItem
+                  isLast
+                  dividerColor={backgroundColor}
+                  label={t('settings.loginSecurity.randomPinKeyboardToggle')}
+                >
+                  <View style={styles.rightContainer}>
+                    <TouchableOpacity
+                      style={styles.infoButton}
+                      onPress={() =>
+                        navigate.navigate('InformationPopup', {
+                          textContent: t(
+                            'settings.loginSecurity.randomPinKeyboardInfo',
+                          ),
+                          buttonText: t('constants.iunderstand'),
+                        })
+                      }
+                    >
+                      <ThemeIcon size={20} iconName="Info" />
+                    </TouchableOpacity>
+                    <CustomToggleSwitch
+                      page="useRanomPinLayout"
+                      toggleSwitchFunction={toggleUseRandomPinLayout}
+                      stateValue={useRandomPinLayout}
+                    />
+                  </View>
+                </SettingsItem>
+              </View>
+            </SettingsSection>
           )}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   innerContainer: {
-    flex: 1,
     width: INSET_WINDOW_WIDTH,
-    paddingTop: 20,
     ...CENTER,
   },
-  contentContainer: {
-    width: '100%',
-    padding: 10,
-    borderRadius: 8,
+  scrollContent: {
+    paddingTop: 24,
+    paddingBottom: 40,
   },
-  contentText: {
+  section: {
+    marginBottom: 24,
+    width: '100%',
+  },
+  lastSection: {
+    marginBottom: 0,
+  },
+  sectionTitle: {
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+    marginBottom: 16,
     includeFontPadding: false,
   },
-  switchContainer: { marginVertical: 0 },
-
-  faceIDContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  infoHeaders: {
-    width: '100%',
-    marginBottom: 10,
-    marginTop: 20,
-  },
-  toggleSecurityMode: {
+  sectionContent: {
     width: '100%',
     borderRadius: 8,
+    padding: 16,
+  },
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingsItemText: {
+    flex: 1,
+    flexShrink: 1,
+    marginRight: 8,
+  },
+  settingsItemLabel: {
+    includeFontPadding: false,
+  },
+  divider: {
+    height: 1,
+    marginVertical: 8,
+  },
+  securityMethodRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
-    paddingHorizontal: 0,
+  },
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoButton: {
+    marginRight: 8,
   },
 });

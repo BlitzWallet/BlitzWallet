@@ -319,16 +319,16 @@
         "fee": "Commissione: "
       },
       "durationSlider": {
+        "3": "mes",
+        "8": "trimestre",
+        "30": "año",
         "durationOption": "1 {{duration}}",
         "price": "Prezzo: ",
         "noDurations": "Nessuna durata disponibile",
         "duration": "Durata",
         "0.1": "hora",
         "0.5": "día",
-        "1.5": "semana",
-        "3": "mes",
-        "8": "trimestre",
-        "30": "año"
+        "1.5": "semana"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Sei sicuro di voler rimuovere questa VPN?",
@@ -1333,7 +1333,9 @@
       "text2": "L'importo non può essere 0",
       "text3": "Abilita Fast Pay",
       "text4": "Soglia Fast Pay (SAT)",
-      "text5": "Fast pay ti permette di pagare istantaneamente fatture al di sotto di una soglia specificata senza bisogno di scorrere per la conferma."
+      "text5": "Fast pay ti permette di pagare istantaneamente fatture al di sotto di una soglia specificata senza bisogno di scorrere per la conferma.",
+      "text6": "Attuale",
+      "text7": "Nuovo"
     },
     "loginSecurity": {
       "text1": "Abilita Sicurezza Login",
@@ -1455,10 +1457,15 @@
       "mainToggleDesc": "Le notifiche ti tengono informato su eventi e aggiornamenti importanti che accadono nell'app.",
       "optionsTitle": "Opzioni notifiche",
       "contact": "Contatto",
+      "contactDesc": "Pagamenti ricevuti dai tuoi contatti salvati",
       "lnurl": "LNURL",
+      "lnurlDesc": "Pagamenti ricevuti tramite il tuo indirizzo Lightning",
       "nostrZaps": "Nostr zaps",
+      "nostrZapsDesc": "Pagamenti Zap inviati al tuo profilo Nostr",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Terminale POS"
+      "nwcDesc": "Pagamenti autorizzati tramite Nostr Wallet Connect",
+      "pos": "Terminale POS",
+      "posDesc": "Pagamenti ricevuti al tuo punto vendita"
     },
     "nostrHome": {
       "nip5Title": "Verifica Nip5",

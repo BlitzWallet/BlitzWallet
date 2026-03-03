@@ -319,16 +319,16 @@
         "fee": "Avgift: "
       },
       "durationSlider": {
+        "3": "månad",
+        "8": "kvartal",
+        "30": "år",
         "durationOption": "1 {{duration}}",
         "price": "Pris: ",
         "noDurations": "Inga tillgängliga varaktigheter",
         "duration": "Varaktighet",
         "0.1": "timme",
         "0.5": "dag",
-        "1.5": "vecka",
-        "3": "månad",
-        "8": "kvartal",
-        "30": "år"
+        "1.5": "vecka"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Är du säker på att du vill ta bort detta VPN.",
@@ -1333,7 +1333,9 @@
       "text2": "Beloppet kan inte vara 0",
       "text3": "Aktivera snabb betalning",
       "text4": "Tröskelvärde för snabb utbetalning (SAT)",
-      "text5": "Med Fast pay kan du omedelbart betala fakturor under en viss gräns utan att behöva swisha för att få en bekräftelse."
+      "text5": "Med Fast pay kan du omedelbart betala fakturor under en viss gräns utan att behöva swisha för att få en bekräftelse.",
+      "text6": "Nuvarande",
+      "text7": "Nytt"
     },
     "loginSecurity": {
       "text1": "Aktivera inloggningssäkerhet",
@@ -1455,10 +1457,15 @@
       "mainToggleDesc": "Med aviseringar kan du hålla dig informerad om viktiga händelser och uppdateringar som sker i appen.",
       "optionsTitle": "Alternativ för avisering",
       "contact": "Kontakt",
+      "contactDesc": "Betalningar mottagna från dina sparade kontakter",
       "lnurl": "LNURL",
+      "lnurlDesc": "Betalningar mottagna via din Lightning-adress",
       "nostrZaps": "Nostr zappar",
+      "nostrZapsDesc": "Zap-betalningar skickade till din Nostr-profil",
       "nwc": "Nostr Plånbok Connect",
-      "pos": "Försäljningsställen"
+      "nwcDesc": "Betalningar godkända via Nostr Wallet Connect",
+      "pos": "Försäljningsställen",
+      "posDesc": "Betalningar mottagna vid ditt försäljningsställe"
     },
     "nostrHome": {
       "nip5Title": "Nip5 Verifiering",
