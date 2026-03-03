@@ -100,7 +100,7 @@ export function SendRecieveBTNs({
           {btnType === 'swap' ? (
             <ThemeIcon
               size={30}
-              iconName={`ArrowUpDown`}
+              iconName={`ArrowRightLeft`}
               colorOverride={
                 theme && darkModeType
                   ? COLORS.lightModeText
