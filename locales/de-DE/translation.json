@@ -907,7 +907,7 @@
       "payment_one": "{{count}} Zahlung",
       "payment_other": "{{count}} Zahlungen",
       "closed": "Geschlossene Sparpools ",
-      "pool": "Sparpool",
+      "pool": "Sparpools",
       "couldNotFind": "Dieser Sparpool konnte nicht gefunden werden.",
       "createdBy": "Erstellt von ",
       "moneyTransferred": "Das Geld wurde an Ihr Hauptkonto übertragen.",
@@ -1678,7 +1678,7 @@
         "updateItems": "Elemente aktualisieren",
         "addItem": "Element hinzufügen",
         "openPos": "POS öffnen",
-        "brandLogo": "Markenzeichen",
+        "brandLogo": "Markenlogo",
         "changeLogo": "Logo ändern",
         "removeLogo": "Entfernen",
         "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen.",
@@ -1708,9 +1708,9 @@
       },
       "transactions": {
         "unpaidtips": "Trinkgelder: {{number}}",
-        "title": "Zu zahlende Trinkgelder",
+        "title": "Zu zahlende Trinkgelder an die Mitarbeiter",
         "empNamePlaceholder": "Mitarbeitername",
-        "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Zahlungsterminal (POS) erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeiter – und können ausgezahlt werden.",
+        "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Zahlungsterminal (POS) erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeitern – und können ausgezahlt werden.",
         "noTips": "Der Mitarbeiter hat keine Trinkgelder."
       },
       "items": {
@@ -1892,13 +1892,13 @@
         "title": "Transaktionen",
         "filterAll": "Alle",
         "filterLightning": "Lightning",
-        "filterBitcoin": "Bitcoin",
+        "filterBitcoin": "On-Chain",
         "filterSpark": "Spark",
         "filterContacts": "Kontakte",
         "filterGifts": "Geschenke",
-        "filterSwaps": "Tausche",
-        "filterSavings": "Sparen",
-        "filterPools": "Pools"
+        "filterSwaps": "Umtausch",
+        "filterSavings": "Sparziele",
+        "filterPools": "Sparpools"
       },
       "lrc20HalfModal": {
         "title": "Token suchen",
@@ -1907,9 +1907,9 @@
       },
       "lrc20TokenDataHalfModal": {
         "balance": "Guthaben",
-        "maxSupply": "Maximales Angebot",
+        "maxSupply": "Max. Supply",
         "tokenTicker": "Token-Ticker",
-        "tokenPubKey": "Öffentlicher Token-Schlüssel"
+        "tokenPubKey": "Öffentl.Token-Adresse"
       },
       "giftPages": {
         "expired": "Abgelaufen",
@@ -2248,7 +2248,7 @@
       "setGoalTitle": "Sparziel setzen",
       "setGoalSubtitle": "Sparen Sie für das, was Ihnen wichtig ist!",
       "savingsGoalFallback": "Sparziel",
-      "createAnotherGoal": "Weiteres Sparziel erstellen.",
+      "createAnotherGoal": "Weiteres Sparziel erstellen",
       "disclaimer": "Guthaben wird in USDB gehalten, einem dollargedeckten Stablecoin von Brale. USDB ist 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt."
     },
     "preview": {
@@ -2263,7 +2263,7 @@
     },
     "goalDescribe": {
       "screenTitle": "Beschreibung eingeben",
-      "title": "Beschreiben Sie Ihr Sparziel.",
+      "title": "Beschreiben Sie Ihr Sparziel",
       "placeholder": "Extra-Rücklage"
     },
     "goalAmount": {
@@ -2303,8 +2303,8 @@
       "title": "Sparziel entfernt"
     },
     "actionButtons": {
-      "addMoney": "Geld einzahlen",
-      "withdraw": "Abheben"
+      "addMoney": "Einzahlen",
+      "withdraw": "Auszahlen"
     },
     "activity": {
       "title": "Aktivität",
@@ -2318,8 +2318,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Einzahlung bestätigen",
       "youAreAdding": "Sie zahlen ein",
-      "fromBalance_dollar": "vom USD-Guthaben",
-      "fromBalance_bitcoin": "vom BTC-Guthaben",
+      "fromBalance_dollar": "von Ihrem USD-Guthaben",
+      "fromBalance_bitcoin": "von Ihrem BTC-Guthaben",
       "confirmButton": "Bestätigen",
       "processing": "Wird verarbeitet...",
       "steps": {
@@ -2338,8 +2338,8 @@
     "withdraw": {
       "balanceTypeTitle": "Was möchten Sie auszahlen?",
       "interestOption": "Erwirtschaftete Zinsen",
-      "savingsOption": "Sparguthaben",
-      "interestZeroHint": "Noch keine Zinsen erwirtschaftet",
+      "savingsOption": "Sparziel-Guthaben",
+      "interestZeroHint": "Keine Zinsen vorhanden",
       "savingsZeroHint": "Noch nichts gespart",
       "interestBelowMinHint": "Dein BTC-Guthaben liegt unter dem Mindestbetrag für einen Tausch. Bitte zahle auf dein BTC-Guthaben aus.",
       "loadingBalances": "Guthaben werden geladen...",
@@ -2347,51 +2347,51 @@
       "fromInterest": "Aus Ihren Zinsen",
       "fromSavings": "Aus Ihren Ersparnissen",
       "interestPaymentLabel": "Zinsauszahlung",
-      "chooseGoalTitle": "Geld abheben von",
-      "withdrawAll": "Alles abheben",
+      "chooseGoalTitle": "Geld auszahlen von",
+      "withdrawAll": "Alles auszahlen",
       "generalSavings": "Allgemeine Ersparnisse",
-      "destinationTitle": "Geld abheben auf",
+      "destinationTitle": "Geld auszahlen auf",
       "availableHint": "Verfügbar: {{amount}}",
       "minHint": "Min: {{amount}}",
-      "confirmTitle": "Abhebung bestätigen",
-      "youAreWithdrawingAll": "Sie heben alle Ersparnisse ab.",
-      "youAreWithdrawing": "Sie heben ab",
+      "confirmTitle": "Auszahlung bestätigen",
+      "youAreWithdrawingAll": "Sie zahlen alle Ersparnisse aus",
+      "youAreWithdrawing": "Sie zahlen aus",
       "toYourBalance": "auf Ihr {{destination}}",
       "estimatedSats": "≈ {{sats}} Sats nach Umtausch",
       "confirmButton": "Bestätigen",
-      "processing": "Abhebung wird verarbeitet...",
+      "processing": "Auszahlung wird verarbeitet...",
       "steps": {
-        "processing": "Wird verarbeitet...",
+        "processing": "Auszahlung wird verarbeitet...",
         "withdrawing": "Vom Sparkonto wird ausgezahlt...",
         "swapping": "Wird in BTC umgetauscht...",
         "complete": "Abgeschlossen."
       },
-      "successTitle": "Abhebung abgeschlossen",
-      "paymentLabel_unallocated": "Sparabhebung",
-      "paymentLabel": "Sparabhebung von {{savingsGoal}}",
+      "successTitle": "Auszahlung abgeschlossen",
+      "paymentLabel_unallocated": "Sparauszahlung",
+      "paymentLabel": "Sparauszahlung von {{savingsGoal}}",
       "errors": {
-        "unableToCompleteWithdrawal": "Abhebung konnte nicht abgeschlossen werden."
+        "unableToCompleteWithdrawal": "Auszahlung konnte nicht abgeschlossen werden"
       }
     },
     "howItWorks": {
       "headline1": "Ihr Geld,",
       "headline2": "jeden Tag im Einsatz.",
       "subtext": "Ein USD-gedeckter Stablecoin, der automatisch Erträge ansammelt, solange Sie ihn halten.",
-      "transparencyIssuer": "USDB ausgegeben von Brale, Inc. · Rendite über Flashnet",
+      "transparencyIssuer": "USDB ausgegeben von Brale, Inc. · Rendite über Flashnet.",
       "transparencyLegal": "Die Rendite ist variabel und nicht garantiert. Kein Bankeinlagenprodukt. Nicht durch FDIC oder SIPC versichert.",
       "disclaimerLegal": "Blitz Wallet ist keine Bank, kein Broker und kein Anlageberater. Die Zinssätze sind variabel und können sich jederzeit ändern. Siehe Nutzungsbedingungen für vollständige Risikohinweise.",
       "features": {
         "earnTitle": "Täglich Erträge erzielen",
         "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – halten Sie einfach und verdienen Sie.",
         "accessTitle": "Sofortiger Zugriff",
-        "accessBody": "Sie können jederzeit in Sekunden auf Ihr Lightning-Wallet abheben. Ihr Geld ist nie gesperrt.",
+        "accessBody": "Sie können jederzeit in Sekunden auf Ihr Lightning-Wallet auszahlen. Ihr Geld ist nie gesperrt.",
         "backedTitle": "Vollständig gedeckt",
         "backedBody": "Jeder USDB ist vollständig 1:1 durch USD in separaten, geprüften Reservekonten gedeckt.",
         "goalTitle": "Sparziel setzen",
-        "goalBody": "Verfolgen Sie Ihren Fortschritt – ob Urlaub, Notgroschen oder irgendetwas anderes."
+        "goalBody": "Verfolgen Sie Ihren Fortschritt – ob Urlaub, Notgroschen oder was auch immer Ihnen wichtig ist."
       },
       "stats": {
-        "currentApyLabel": "APY",
+        "currentApyLabel": "Zinssatz (APY)",
         "currentApyValue": "3,5 %",
         "accrualLabel": "Ansammlung",
         "accrualValue": "Täglich"
@@ -2404,8 +2404,8 @@
       "transparencyBody": "Reserven werden in separaten, geprüften Konten gehalten – hauptsächlich kurzlaufende US-Staatsanleihen und Geldmarktfonds. Flashnet veröffentlicht monatliche Bestätigungsberichte.",
       "disclaimer": "Zinssätze sind variabel und können sich ändern. Keine Bankeinlagen. Weitere Informationen unter flashnet.xyz."
     },
-    "withdrawal": "Abhebung",
-    "withdrawalWithGoal": "Abhebung von {{goalName}}",
+    "withdrawal": "Auszahlung",
+    "withdrawalWithGoal": "Auszahlung von {{goalName}}",
     "deposit": "Einzahlung",
     "depositWithGoal": "Einzahlung für {{goalName}}",
     "swapSimulationError": "Umtauschsimulation nicht verfügbar.",
