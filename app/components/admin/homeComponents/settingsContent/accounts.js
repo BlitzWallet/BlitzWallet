@@ -12,6 +12,7 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
+  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -149,9 +150,11 @@ export default function CreateCustodyAccounts() {
         <>
           <CustomButton
             buttonStyles={{
+              width: WINDOWWIDTH,
               backgroundColor:
                 theme && darkModeType ? backgroundOffset : COLORS.primary,
               marginTop: CONTENT_KEYBOARD_OFFSET,
+              ...CENTER,
             }}
             actionFunction={handleNavigateAddAccount}
             textStyles={styles.actionButtonText}
@@ -162,6 +165,8 @@ export default function CreateCustodyAccounts() {
           <CustomButton
             buttonStyles={{
               backgroundColor: undefined,
+              width: WINDOWWIDTH,
+              ...CENTER,
             }}
             actionFunction={handleNavigateSwap}
             textContent={t('settings.accountComponents.homepage.swap')}

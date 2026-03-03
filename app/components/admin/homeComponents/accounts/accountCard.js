@@ -147,41 +147,45 @@ export default function AccountCard({
       </View>
 
       {/* Right: Edit Button or Select Text */}
-      {useSelection && (
-        <View
-          style={[
-            styles.rightSection,
-            {
-              backgroundColor: theme
-                ? useAltBackground
-                  ? backgroundOffset
-                  : backgroundColor
-                : COLORS.darkModeText,
-            },
-          ]}
-        >
-          <View style={styles.editButton}>
-            <ThemeIcon iconName={'ChevronRight'} size={18} />
-          </View>
-        </View>
-      )}
-      {account.uuid !== MAIN_ACCOUNT_UUID && !useSelection && (
-        <View
-          style={[
-            styles.rightSection,
-            {
-              backgroundColor: theme
-                ? useAltBackground
-                  ? backgroundOffset
-                  : backgroundColor
-                : COLORS.darkModeText,
-            },
-          ]}
-        >
-          <TouchableOpacity onPress={onEdit} style={styles.editButton}>
-            <ThemeIcon iconName={'Edit'} size={20} />
-          </TouchableOpacity>
-        </View>
+      {!fromSettings && (
+        <>
+          {useSelection && (
+            <View
+              style={[
+                styles.rightSection,
+                {
+                  backgroundColor: theme
+                    ? useAltBackground
+                      ? backgroundOffset
+                      : backgroundColor
+                    : COLORS.darkModeText,
+                },
+              ]}
+            >
+              <View style={styles.editButton}>
+                <ThemeIcon iconName={'ChevronRight'} size={18} />
+              </View>
+            </View>
+          )}
+          {account.uuid !== MAIN_ACCOUNT_UUID && !useSelection && (
+            <View
+              style={[
+                styles.rightSection,
+                {
+                  backgroundColor: theme
+                    ? useAltBackground
+                      ? backgroundOffset
+                      : backgroundColor
+                    : COLORS.darkModeText,
+                },
+              ]}
+            >
+              <TouchableOpacity onPress={onEdit} style={styles.editButton}>
+                <ThemeIcon iconName={'Edit'} size={20} />
+              </TouchableOpacity>
+            </View>
+          )}
+        </>
       )}
     </TouchableOpacity>
   );
