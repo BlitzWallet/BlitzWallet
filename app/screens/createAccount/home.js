@@ -25,6 +25,7 @@ import {
   INSET_WINDOW_WIDTH,
 } from '../../constants/theme';
 import { useAppStatus } from '../../../context-store/appStatus';
+import useAdaptiveFontSize from '../../hooks/useAdaptiveFontSIze';
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const BOX_STROKE = '#D8DCE3';
@@ -118,6 +119,16 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
     opacity: btnsOpacity.value,
   }));
 
+  const { fontSize, getLabelProps } = useAdaptiveFontSize(
+    [
+      'createAccount.homePage.money',
+      t('createAccount.homePage.made'),
+      t('createAccount.homePage.simple'),
+    ],
+    64,
+  );
+  const headlineMargin = -(fontSize * 0.12);
+
   useEffect(() => {
     // Sequence: logo → heading → buttons
     logoOpacity.value = withTiming(1, { duration: 480, easing: easeOut });
@@ -162,19 +173,35 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
         {/* ── Headline ── */}
         <Animated.View style={[styles.heroWrap, headingStyle]}>
           <ThemeText
-            styles={styles.headline}
+            styles={[
+              styles.headline,
+              { fontSize, marginVertical: headlineMargin },
+            ]}
             content={t('createAccount.homePage.money')}
             isLight={true}
+            {...getLabelProps(0)}
           />
           <ThemeText
-            styles={styles.headline}
+            styles={[
+              styles.headline,
+              { fontSize, marginVertical: headlineMargin },
+            ]}
             content={t('createAccount.homePage.made')}
             isLight={true}
+            {...getLabelProps(1)}
           />
           <ThemeText
-            styles={[styles.headline, { color: COLORS.primary }]}
+            styles={[
+              styles.headline,
+              {
+                color: COLORS.primary,
+                fontSize,
+                marginVertical: headlineMargin,
+              },
+            ]}
             content={t('createAccount.homePage.simple')}
             isLight={true}
+            {...getLabelProps(2)}
           />
         </Animated.View>
 
@@ -219,7 +246,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headline: {
-    fontSize: 64,
     fontFamily: FONT.Title_Bold,
     marginVertical: -8,
     letterSpacing: -2.5,

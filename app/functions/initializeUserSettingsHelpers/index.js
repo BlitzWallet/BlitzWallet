@@ -2,6 +2,7 @@ import { NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY } from '../../constants';
 import { BLITZ_FEE_PERCET, BLITZ_FEE_SATS } from '../../constants/math';
 import { getLocalStorageItem } from '../localStorage';
 import { isNewDaySince } from '../rotateAddressDateChecker';
+import { getNoonChicagoUtcMs } from '../timeFormatter';
 
 const keys = [
   'homepageTxPreferance',
@@ -118,26 +119,20 @@ export function shouldLoadExploreData(savedExploreRawData, currentServerTime) {
       return true;
     }
 
-    const UTC_MINUS_6_OFFSET = -6;
+    // Compute today's noon in America/Chicago as a real UTC ms value.
+    // The GCF runs at 12:00 PM US Central (America/Chicago), which is
+    // 18:00 UTC in winter (CST/UTC-6) and 17:00 UTC in summer (CDT/UTC-5).
+    // getNoonChicagoUtcMs handles the DST boundary automatically.
+    const todayNoonChicagoUtcMs = getNoonChicagoUtcMs(currentServerTime);
+    console.log(todayNoonChicagoUtcMs, currentServerTime);
 
-    const targetTimezoneMs =
-      currentServerTime + UTC_MINUS_6_OFFSET * 60 * 60 * 1000;
-    const targetDate = new Date(targetTimezoneMs);
-    targetDate.setUTCHours(12, 0, 0, 0);
-
-    const current12PMUtcMinus6 = targetDate.getTime();
-
-    console.log(savedExploreRawData, currentServerTime, current12PMUtcMinus6);
-
-    console.log(
-      currentServerTime >= current12PMUtcMinus6,
-      savedExploreRawData.lastUpdated < current12PMUtcMinus6,
-    );
-
-    // Check if we've passed 12 PM UTC-6 since last update
+    // Fetch only when: the server has already updated today (current UTC time
+    // is at or past Chicago noon) AND our cache pre-dates that update window.
+    // Both currentServerTime and lastUpdated are real UTC ms, so this
+    // comparison is in the same unit and timezone (UTC).
     if (
-      currentServerTime >= current12PMUtcMinus6 &&
-      savedExploreRawData.lastUpdated < current12PMUtcMinus6
+      currentServerTime >= todayNoonChicagoUtcMs &&
+      savedExploreRawData.lastUpdated < todayNoonChicagoUtcMs
     ) {
       shouldFetchUserCount = true;
     }
