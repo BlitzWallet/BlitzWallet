@@ -1263,11 +1263,17 @@ export default function WithdrawFromSavingsHalfModal({
 
         <View style={styles.optionsList}>
           {visibleDestinationOptions.map(option => {
-            const isDisabled =
+            const disabledForIntrest =
               selectedBalanceType === 'interest' &&
               option.key === 'dollar' &&
               interestSats > 0 &&
               interestSats < swapLimits.bitcoin;
+
+            const disableForBalance =
+              selectedBalanceType === 'savings' &&
+              ((option.key === 'dollar' && balanceUsd < 0.01) ||
+                (option.key === 'bitcoin' && balanceUsd < swapLimits.usd));
+
             return (
               <TouchableOpacity
                 key={option.key}
@@ -1279,11 +1285,12 @@ export default function WithdrawFromSavingsHalfModal({
                       theme && darkModeType
                         ? backgroundColor
                         : backgroundOffset,
-                    opacity: isDisabled ? 0.5 : 1,
+                    opacity: disabledForIntrest || disableForBalance ? 0.5 : 1,
                   },
                 ]}
+                disabled={disableForBalance}
                 onPress={() => {
-                  if (isDisabled && option.key === 'dollar') {
+                  if (disabledForIntrest && option.key === 'dollar') {
                     navigate.navigate('ErrorScreen', {
                       errorMessage: t('savings.withdraw.interestBelowMinHint'),
                     });
