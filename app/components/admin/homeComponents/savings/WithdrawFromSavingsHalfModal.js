@@ -17,6 +17,7 @@ import {
   ICONS,
   SIZES,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
+  USDB_TOKEN_ID,
 } from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
@@ -631,6 +632,8 @@ export default function WithdrawFromSavingsHalfModal({
                       showSwapLabel: true,
                       currentPriceAInB: swapResult.swap.executionPrice,
                       isSavings: true,
+                      isLRC20Payment: true,
+                      LRC20Token: USDB_TOKEN_ID,
                     },
                   },
                 ],
@@ -717,7 +720,7 @@ export default function WithdrawFromSavingsHalfModal({
                 ?.name,
             }),
             sendersPubkey: '',
-            details: {},
+            details: { isSavings: true },
           });
           throw new Error(t('savings.swapSimulationError'));
         }
@@ -775,16 +778,36 @@ export default function WithdrawFromSavingsHalfModal({
           bulkUpdateSparkTransactions([incomingTransfer], 'fullUpdate');
         }
       } else {
-        addSingleUnpaidSparkTransaction({
-          id: sendResponse.response.id,
-          description: t('savings.withdraw.paymentLabel', {
-            context: selectedGoalId,
-            savingsGoal: savingsGoals.find(item => item.id === selectedGoalId)
-              ?.name,
-          }),
-          sendersPubkey: '',
-          details: {},
-        });
+        await bulkUpdateSparkTransactions(
+          [
+            {
+              id: sendResponse.response.id,
+              paymentStatus: 'completed',
+              paymentType: 'spark',
+              accountId: sparkInformation.identityPubKey,
+              details: {
+                fee: 0,
+                totalFee: 0,
+                supportFee: 0,
+                amount: confirmSats,
+                description: t('savings.withdraw.paymentLabel', {
+                  context: selectedGoalId,
+                  savingsGoal: savingsGoals.find(
+                    item => item.id === selectedGoalId,
+                  )?.name,
+                }),
+                address: sparkInformation.sparkAddress,
+                time: Date.now() + 1000,
+                createdAt: Date.now() + 1000,
+                direction: 'INCOMING',
+                isSavings: true,
+                isLRC20Payment: true,
+                LRC20Token: USDB_TOKEN_ID,
+              },
+            },
+          ],
+          'fullUpdate',
+        );
       }
 
       // Record withdrawal(s) in savings database.
