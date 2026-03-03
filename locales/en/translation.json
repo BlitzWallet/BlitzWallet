@@ -2463,6 +2463,7 @@
     "swapSimulationError": "Swap simulation not available",
     "savingsWalletError": "Savings wallet not ready",
     "rewardsPayout": "Bitcoin rewards payout",
-    "rewardsWithdrawl": "Bitcoin rewards withdrawl"
+    "rewardsWithdrawl": "Bitcoin rewards withdrawl",
+    "total_balance": "Total Balance"
   }
 }

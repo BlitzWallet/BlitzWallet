@@ -20,6 +20,7 @@ import {
 } from '../../../../constants';
 import {
   COLORS,
+  FONT,
   HIDDEN_OPACITY,
   WINDOWWIDTH,
 } from '../../../../constants/theme';
@@ -40,6 +41,7 @@ import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
 import SectionCard from '../../../../screens/inAccount/settingsHub/components/SectionCard';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
 const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 
 const MAX_VISIBLE_ACTIVITY = 3;
@@ -79,6 +81,12 @@ export default function PoolDetailScreen(props) {
     isCreator &&
     !isActive &&
     (!pool?.currentAmount || contributions.length === 0);
+
+  const contributeLabel = t('wallet.pools.contribute');
+  const shareLabel = t('wallet.pools.share');
+
+  const { shouldStack, containerProps, getLabelProps } =
+    useAdaptiveButtonLayout([contributeLabel, shareLabel]);
 
   const formatAmount = useCallback(
     amount => {
@@ -373,9 +381,20 @@ export default function PoolDetailScreen(props) {
             </View>
           </View>
         ) : (
-          <View style={styles.actionsRow}>
+          <View
+            {...containerProps}
+            style={[
+              styles.actionsRow,
+              shouldStack ? styles.containerStacked : styles.containerRow,
+            ]}
+          >
             <CustomButton
-              buttonStyles={styles.actionButton}
+              buttonStyles={[
+                styles.actionButton,
+                shouldStack ? styles.buttonStacked : styles.buttonColumn,
+              ]}
+              enableElipsis={false}
+              {...getLabelProps(0)}
               textContent={t('wallet.pools.contribute')}
               actionFunction={handleContribute}
             />
@@ -388,7 +407,10 @@ export default function PoolDetailScreen(props) {
                       ? COLORS.lightModeText
                       : COLORS.primary,
                 },
+                shouldStack ? styles.buttonStacked : styles.buttonColumn,
               ]}
+              {...getLabelProps(1)}
+              enableElipsis={false}
               textStyles={{ color: COLORS.darkModeText }}
               textContent={t('wallet.pools.share')}
               actionFunction={handleShare}
@@ -516,10 +538,23 @@ const styles = StyleSheet.create({
 
   // ── Actions ──
   actionsRow: {
-    flexDirection: 'row',
-    gap: 12,
+    gap: 10,
     marginTop: 20,
     width: '100%',
+  },
+  containerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  containerStacked: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+  },
+  buttonStacked: {
+    width: '100%',
+  },
+  buttonColumn: {
+    flex: 1,
   },
   actionButton: {
     flexGrow: 1,

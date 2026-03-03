@@ -2409,6 +2409,7 @@
     "swapSimulationError": "Simulazione di scambio non disponibile",
     "savingsWalletError": "Wallet risparmio non pronto",
     "rewardsPayout": "Pagamento ricompense in Bitcoin",
-    "rewardsWithdrawl": "Prelievo delle ricompense in Bitcoin"
+    "rewardsWithdrawl": "Prelievo delle ricompense in Bitcoin",
+    "total_balance": "Saldo Totale"
   }
 }

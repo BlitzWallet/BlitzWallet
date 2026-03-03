@@ -1,32 +1,26 @@
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useFocusEffect } from '@react-navigation/native';
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { InteractionManager, StyleSheet } from 'react-native';
 import { SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
+import { getNoonChicagoUtcMs } from '../../../../functions/timeFormatter';
 
-export default function DateCountdown({
-  getServerTime,
-  currentTimeZoneOffsetInHours,
-}) {
+export default function DateCountdown({ getServerTime }) {
   const [minuteTick, setMinuteTick] = useState();
   const intervalRef = useRef(null);
   const { t } = useTranslation();
   useFocusEffect(
     useCallback(() => {
       console.log('Starting stable time interval');
-      setMinuteTick(
-        getFommattedTime(getServerTime, currentTimeZoneOffsetInHours),
-      );
+      setMinuteTick(getFommattedTime(getServerTime));
 
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
 
       intervalRef.current = setInterval(() => {
-        setMinuteTick(
-          getFommattedTime(getServerTime, currentTimeZoneOffsetInHours),
-        );
+        setMinuteTick(getFommattedTime(getServerTime));
       }, 1000);
 
       return () => {
@@ -52,27 +46,26 @@ export default function DateCountdown({
   );
 }
 
-function getFommattedTime(getServerTime, currentTimeZoneOffsetInHours) {
-  const date = getServerTime();
+function getFommattedTime(getServerTime) {
+  const currentUtcMs = getServerTime();
 
-  // Convert to target timezone (UTC-6) by adding offset in milliseconds
-  const targetTimezoneMs = date + currentTimeZoneOffsetInHours * 60 * 60 * 1000;
-  const targetDate = new Date(targetTimezoneMs);
+  // Compute today's 12:00 PM America/Chicago as real UTC ms.
+  // getNoonChicagoUtcMs uses Intl to handle CDT (UTC-5) vs CST (UTC-6)
+  // automatically, so the target shifts by 1 hour across DST boundaries.
+  const todayNoonChicagoUtcMs = getNoonChicagoUtcMs(currentUtcMs);
 
-  const current12PM = new Date(targetTimezoneMs);
-  current12PM.setUTCHours(12, 0, 0, 0);
+  // If we're already past today's noon, target tomorrow's noon.
+  // Adding 25h guarantees we land in the next Chicago calendar day even
+  // across a DST "fall-back" (23-hour day) boundary.
+  const targetUtcMs =
+    currentUtcMs >= todayNoonChicagoUtcMs
+      ? getNoonChicagoUtcMs(currentUtcMs + 25 * 60 * 60 * 1000)
+      : todayNoonChicagoUtcMs;
 
-  let next12PM;
-  if (targetDate.getUTCHours() >= 12) {
-    next12PM = new Date(current12PM.getTime() + 24 * 60 * 60 * 1000);
-  } else {
-    next12PM = current12PM;
-  }
+  // Both values are real UTC ms, so the difference is the true wall-clock
+  // duration remaining — no timezone shift applied to either side.
+  const diffMs = targetUtcMs - currentUtcMs;
 
-  // Calculate time difference in milliseconds
-  const diffMs = next12PM - targetDate;
-
-  // Convert to hours, minutes, and seconds
   const totalSeconds = Math.floor(diffMs / 1000);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);

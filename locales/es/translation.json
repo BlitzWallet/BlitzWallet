@@ -2271,6 +2271,7 @@
     "swapSimulationError": "Simulación de cambio no disponible",
     "savingsWalletError": "Billetera de ahorros no lista",
     "rewardsPayout": "Pago de recompensas en Bitcoin",
-    "rewardsWithdrawl": "Retiro de recompensas en Bitcoin"
+    "rewardsWithdrawl": "Retiro de recompensas en Bitcoin",
+    "total_balance": "Saldo total"
   }
 }

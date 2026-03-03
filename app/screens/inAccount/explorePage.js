@@ -38,7 +38,10 @@ import {
   useServerTime,
   useServerTimeOnly,
 } from '../../../context-store/serverTime';
-import { formatLocalTimeNumericMonthDay } from '../../functions/timeFormatter';
+import {
+  formatLocalTimeNumericMonthDay,
+  getNoonChicagoUtcMs,
+} from '../../functions/timeFormatter';
 
 export default function ExploreUsers() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -57,16 +60,19 @@ export default function ExploreUsers() {
   const data = dataObject ? dataObject[timeFrame].reverse() : [];
   const getServerTime = useServerTimeOnly();
   const currentTime = getServerTime();
-  const currentTimeZoneOffsetInHours = -6;
+  // const currentTimeZoneOffsetInHours = -6;
 
   const formattedCurrentTime = useMemo(() => {
-    // Convert to target timezone (UTC-6) by adding offset in milliseconds
-    const targetTimezoneMs =
-      currentTime + currentTimeZoneOffsetInHours * 60 * 60 * 1000;
-    const targetDate = new Date(targetTimezoneMs);
-    targetDate.setUTCHours(12, 0, 0, 0); // Set to 12pm of the current day
+    // const targetTimezoneMs =
+    //   currentTime + currentTimeZoneOffsetInHours * 60 * 60 * 1000;
+    // const targetDate = new Date(targetTimezoneMs);
+    // targetDate.setUTCHours(12, 0, 0, 0); // Set to 12pm of the current day
 
-    return targetDate.getTime();
+    // return targetDate.getTime();
+    // Real UTC ms of 12:00 PM America/Chicago today — used as the chart
+    // date reference. DST-aware: CDT (UTC-5) and CST (UTC-6) are handled
+    // automatically by getNoonChicagoUtcMs via the IANA tz database.
+    return getNoonChicagoUtcMs(currentTime);
   }, [currentTime]);
 
   const min = data.reduce((prev, current) => {
@@ -246,7 +252,7 @@ export default function ExploreUsers() {
             content={t('constants.today')}
           />
           <DateCountdown
-            currentTimeZoneOffsetInHours={currentTimeZoneOffsetInHours}
+            // currentTimeZoneOffsetInHours={currentTimeZoneOffsetInHours}
             getServerTime={getServerTime}
           />
         </View>

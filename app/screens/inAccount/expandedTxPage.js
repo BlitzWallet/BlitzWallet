@@ -49,6 +49,7 @@ import { useKeysContext } from '../../../context-store/keys';
 import { decryptMessage } from '../../functions/messaging/encodingAndDecodingMessages';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import useAdaptiveButtonLayout from '../../hooks/useAdaptiveButtonLayout';
+import { useNavigateToContact } from '../../components/admin/homeComponents/contacts/utils/navigateToExpandedContact';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -139,6 +140,8 @@ export default function ExpandedTx(props) {
   // const year = paymentDate.getFullYear();
 
   console.log(transaction);
+
+  const navigateToExpandedContact = useNavigateToContact();
 
   const handleSave = async memoText => {
     try {
@@ -364,7 +367,13 @@ export default function ExpandedTx(props) {
   const renderContactRow = () => {
     if (!sendingContactUUID) return null;
     return (
-      <View style={styles.contactRow}>
+      <TouchableOpacity
+        onPress={() =>
+          selectedContact &&
+          navigateToExpandedContact(selectedContact, 'expandedTx')
+        }
+        style={styles.contactRow}
+      >
         <View
           style={[
             styles.profileImage,
@@ -385,7 +394,7 @@ export default function ExpandedTx(props) {
           CustomNumberOfLines={1}
           content={selectedContact?.name || selectedContact?.uniqueName}
         />
-      </View>
+      </TouchableOpacity>
     );
   };
 
