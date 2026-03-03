@@ -187,7 +187,11 @@ export default function GiftCardItem({
               onPress={handleAction}
               style={({ pressed }) => [
                 styles.actionButton,
-                { backgroundColor: backgroundOffset },
+                {
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
                 pressed && { opacity: 0.5 },
               ]}
             >
