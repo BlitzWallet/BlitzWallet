@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ICONS, SIZES } from '../../../../../constants';
+import { CENTER, ICONS, SIZES } from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function ViewPOSTransactions() {
   const { groupedTxs } = usePOSTransactions();
@@ -42,7 +43,10 @@ export default function ViewPOSTransactions() {
       const [name, { totalTipAmount }] = item;
       return (
         <TouchableOpacity
-          style={[styles.transactionCard, {backgroundColor: backgroundOffset}]}
+          style={[
+            styles.transactionCard,
+            { backgroundColor: backgroundOffset },
+          ]}
           onPress={() =>
             keyboardNavigate(() =>
               navigate.navigate('TotalTipsScreen', { item }),
@@ -87,35 +91,37 @@ export default function ViewPOSTransactions() {
         containerStyles={{ marginBottom: 0 }}
         label={t('settings.posPath.transactions.title')}
       />
-      <CustomSearchInput
-        placeholderText={t(
-          'settings.posPath.transactions.empNamePlaceholder',
+      <View style={{ flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER }}>
+        <CustomSearchInput
+          placeholderText={t(
+            'settings.posPath.transactions.empNamePlaceholder',
+          )}
+          inputText={employeeName}
+          setInputText={setEmployeeName}
+          containerStyles={styles.searchContainer}
+        />
+        {filteredList.length ? (
+          <FlatList
+            keyboardShouldPersistTaps="handled"
+            style={styles.flatList}
+            contentContainerStyle={{ paddingBottom: bottomPadding + 16 }}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+            data={filteredList}
+            renderItem={transactionItem}
+            keyExtractor={([name]) => name}
+          />
+        ) : (
+          <ThemeText
+            styles={styles.emptyText}
+            content={
+              groupedTxs.length
+                ? t('settings.posPath.transactions.noTips')
+                : t('settings.posPath.transactions.noEmployees')
+            }
+          />
         )}
-        inputText={employeeName}
-        setInputText={setEmployeeName}
-        containerStyles={styles.searchContainer}
-      />
-      {filteredList.length ? (
-        <FlatList
-          keyboardShouldPersistTaps="handled"
-          style={styles.flatList}
-          contentContainerStyle={{ paddingBottom: bottomPadding + 16 }}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={true}
-          data={filteredList}
-          renderItem={transactionItem}
-          keyExtractor={([name]) => name}
-        />
-      ) : (
-        <ThemeText
-          styles={styles.emptyText}
-          content={
-            groupedTxs.length
-              ? t('settings.posPath.transactions.noTips')
-              : t('settings.posPath.transactions.noEmployees')
-          }
-        />
-      )}
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
@@ -143,7 +149,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   nameText: {
-    textTransform: 'capitalize',
     includeFontPadding: false,
   },
   tipText: {
