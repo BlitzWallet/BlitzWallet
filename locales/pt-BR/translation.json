@@ -1463,8 +1463,8 @@
       "nostrZaps": "Nostr Zaps",
       "nostrZapsDesc": "Pagamentos Zap enviados ao seu perfil Nostr",
       "nwc": "Conexão Nostr",
-      "nwcDesc": "Pagamentos autorizados pelo Nostr Wallet Connect",
-      "pos": "Ponto de venda",
+      "nwcDesc": "Pagamentos autorizados pela conta NWC",
+      "pos": "PDV",
       "posDesc": "Pagamentos recebidos no seu ponto de venda"
     },
     "nostrHome": {
