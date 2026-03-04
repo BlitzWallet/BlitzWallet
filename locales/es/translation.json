@@ -1545,7 +1545,8 @@
         "brandLogo": "Logo de la marca",
         "changeLogo": "Cambiar logo",
         "removeLogo": "Eliminar",
-        "uploadLogo": "Toca para subir el logo de la marca"
+        "uploadLogo": "Toca para subir el logo de la marca",
+        "addProducts": "Agregar productos"
       },
       "posInstructionsPath": {
         "title": "Instrucciones",

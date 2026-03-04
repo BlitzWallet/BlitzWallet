@@ -130,7 +130,10 @@ const ItemsSection = ({ itemCount, showErrorIcon, onNavigate, onInfo }) => {
 
   return (
     <View style={styles.inputSection}>
-      <ThemeText styles={styles.sectionCardLabel} content={'Add products'} />
+      <ThemeText
+        styles={styles.sectionCardLabel}
+        content={t('settings.posPath.settings.addProducts')}
+      />
       <View
         style={[styles.addItemContainer, { backgroundColor: backgroundOffset }]}
       >

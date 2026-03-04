@@ -1689,7 +1689,8 @@
         "changeLogo": "Logo ändern",
         "removeLogo": "Entfernen",
         "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen.",
-        "plurlEnding": "n"
+        "plurlEnding": "n",
+        "addProducts": "Produkte hinzufügen"
       },
       "posInstructionsPath": {
         "title": "Anweisungen",

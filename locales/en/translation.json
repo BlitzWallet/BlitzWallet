@@ -1332,7 +1332,7 @@
       "text1": "Error adding input value. Please try again.",
       "text2": "Amount cannot be 0",
       "text3": "Enable Fast Pay",
-      "text4": "Fast pay threshold (SAT)",
+      "text4": "Fast pay threshold",
       "text5": "Fast pay allows you to instantly send payments below a specified threshold without needing to swipe for confirmation.",
       "text6": "Current",
       "text7": "New"
@@ -1687,7 +1687,8 @@
         "brandLogo": "Brand Logo",
         "changeLogo": "Change Logo",
         "removeLogo": "Remove",
-        "uploadLogo": "Tap to upload brand logo"
+        "uploadLogo": "Tap to upload brand logo",
+        "addProducts": "Add products"
       },
       "posInstructionsPath": {
         "title": "Instructions",

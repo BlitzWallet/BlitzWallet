@@ -1687,7 +1687,8 @@
         "brandLogo": "Logo del marchio",
         "changeLogo": "Cambia logo",
         "removeLogo": "Rimuovi",
-        "uploadLogo": "Tocca per caricare il logo del marchio"
+        "uploadLogo": "Tocca per caricare il logo del marchio",
+        "addProducts": "Aggiungi prodotti"
       },
       "posInstructionsPath": {
         "title": "Istruzioni",

@@ -1687,7 +1687,8 @@
         "brandLogo": "Varumärkeslogo",
         "changeLogo": "Byt logo",
         "removeLogo": "Ta bort",
-        "uploadLogo": "Tryck för att ladda upp varumärkeslogo"
+        "uploadLogo": "Tryck för att ladda upp varumärkeslogo",
+        "addProducts": "Lägg till produkter"
       },
       "posInstructionsPath": {
         "title": "Instruktioner",

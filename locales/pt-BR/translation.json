@@ -1687,7 +1687,8 @@
         "brandLogo": "Logo da marca",
         "changeLogo": "Alterar logo",
         "removeLogo": "Remover",
-        "uploadLogo": "Toque para enviar o logo da marca"
+        "uploadLogo": "Toque para enviar o logo da marca",
+        "addProducts": "Adicionar produtos"
       },
       "posInstructionsPath": {
         "title": "Instruções",
