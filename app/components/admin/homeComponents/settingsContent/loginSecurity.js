@@ -297,7 +297,11 @@ export default function LoginSecurity({ extraData }) {
                 styles={styles.settingsItemLabel}
                 content={t('settings.loginSecurity.text3')}
               />
-              <CheckMarkCircle containerSize={25} isActive={false} />
+              <CheckMarkCircle
+                containerSize={25}
+                isActive={false}
+                switchDarkMode={true}
+              />
             </TouchableOpacity>
             <View style={[styles.divider, { backgroundColor }]} />
             <TouchableOpacity
@@ -308,7 +312,11 @@ export default function LoginSecurity({ extraData }) {
                 styles={styles.settingsItemLabel}
                 content={t('settings.loginSecurity.text4')}
               />
-              <CheckMarkCircle containerSize={25} isActive={false} />
+              <CheckMarkCircle
+                containerSize={25}
+                isActive={false}
+                switchDarkMode={true}
+              />
             </TouchableOpacity>
           </View>
         </SettingsSection>
@@ -334,6 +342,7 @@ export default function LoginSecurity({ extraData }) {
                 <CheckMarkCircle
                   containerSize={25}
                   isActive={securityLoginSettings.isPinEnabled}
+                  switchDarkMode={true}
                 />
               </TouchableOpacity>
               <View style={[styles.divider, { backgroundColor }]} />
@@ -348,6 +357,7 @@ export default function LoginSecurity({ extraData }) {
                 <CheckMarkCircle
                   containerSize={25}
                   isActive={securityLoginSettings.isBiometricEnabled}
+                  switchDarkMode={true}
                 />
               </TouchableOpacity>
             </View>

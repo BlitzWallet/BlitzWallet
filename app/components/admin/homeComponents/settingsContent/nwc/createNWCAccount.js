@@ -7,13 +7,17 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   NOSTR_RELAY_URL,
 } from '../../../../../constants';
-import SettingsItemWithSlider from '../../../../../functions/CustomElements/settings/settingsItemWithSlider';
+import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -39,6 +43,27 @@ const BUDGET_RENEWAL_OPTIONS = [
   { label: 'timeLabels.yearly', value: 'Yearly' },
 ];
 const BUDGET_AMOUNT_OPTIONS = [50_000, 100_000, 'Unlimited', 'Custom...'];
+
+const SettingsSection = ({ title, children, style }) => (
+  <View style={[styles.section, style]}>
+    {title ? <ThemeText styles={styles.sectionTitle} content={title} /> : null}
+    {children}
+  </View>
+);
+
+const SettingsItem = ({ label, children, isLast, dividerColor }) => (
+  <>
+    <View style={styles.settingsItem}>
+      <View style={styles.settingsItemText}>
+        <ThemeText styles={styles.settingsItemLabel} content={label} />
+      </View>
+      {children}
+    </View>
+    {!isLast && (
+      <View style={[styles.divider, { backgroundColor: dividerColor }]} />
+    )}
+  </>
+);
 
 export default function CreateNostrConnectAccount(props) {
   const navigate = useNavigation();
@@ -67,7 +92,7 @@ export default function CreateNostrConnectAccount(props) {
   });
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-  const { textColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -192,13 +217,15 @@ export default function CreateNostrConnectAccount(props) {
   }, [props?.route?.params?.amount]);
 
   const budgetElements = BUDGET_AMOUNT_OPTIONS.map(option => {
+    const isSelected =
+      option === budgetRenewalSettings.amount ||
+      (option === 'Custom...' && props?.route?.params?.amount);
     return (
       <TouchableOpacity
         onPress={() => {
           if (option === 'Custom...') {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'customInputText',
-              //   sliderHight: 0.5,
               returnLocation: 'CreateNostrConnectAccount',
               passedParams,
             });
@@ -212,24 +239,16 @@ export default function CreateNostrConnectAccount(props) {
             amount: prev.amount === option ? '' : option,
           }));
         }}
-        style={{
-          // maxWidth: '48%',
-          minWidth: '48%',
-          flexGrow: 1,
-          borderWidth: 1,
-          borderColor:
-            option === budgetRenewalSettings.amount ||
-            (option === 'Custom...' && props?.route?.params?.amount)
-              ? theme
-                ? backgroundOffset
+        style={[
+          styles.budgetButton,
+          {
+            borderColor: isSelected
+              ? theme && darkModeType
+                ? textColor
                 : COLORS.primary
               : textColor,
-          padding: 10,
-          paddingVertical: 20,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: 8,
-        }}
+          },
+        ]}
         key={option.toString()}
       >
         {typeof option === 'number' ? (
@@ -279,129 +298,151 @@ export default function CreateNostrConnectAccount(props) {
             pointerEvents="auto"
             scrollEnabled={outerScrollEnabled}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingTop: 10,
-              paddingBottom: 20,
-              width: INSET_WINDOW_WIDTH,
-              ...CENTER,
-            }}
+            style={styles.innerContainer}
+            contentContainerStyle={styles.scrollContent}
           >
-            <CustomSearchInput
-              inputText={accountName}
-              setInputText={setAccountName}
-              placeholderText={t(
-                'settings.nwc.createNWCAccount.nameInputPlaceholder',
-              )}
-              onBlurFunction={() => setIsKeyboardActive(false)}
-              onFocusFunction={() => setIsKeyboardActive(true)}
-            />
-            <ThemeText
-              styles={{ marginTop: 30, marginBottom: 10 }}
-              content={t('settings.nwc.createNWCAccount.permissionsHeader')}
-            />
+            <SettingsSection>
+              <CustomSearchInput
+                inputText={accountName}
+                setInputText={setAccountName}
+                placeholderText={t(
+                  'settings.nwc.createNWCAccount.nameInputPlaceholder',
+                )}
+                onBlurFunction={() => setIsKeyboardActive(false)}
+                onFocusFunction={() => setIsKeyboardActive(true)}
+              />
+            </SettingsSection>
 
-            <SettingsItemWithSlider
-              settingsTitle={t('settings.nwc.createNWCAccount.receivePayments')}
-              showDescription={false}
-              handleSubmit={() =>
-                setAccountPermissions(prev => ({
-                  ...prev,
-                  receivePayments: !prev.receivePayments,
-                }))
-              }
-              toggleSwitchStateValue={accountPermissions.receivePayments}
-              containerStyles={styles.toggleContainers}
-              switchPageName="nwcAccount"
-            />
-            <SettingsItemWithSlider
-              settingsTitle={t('settings.nwc.createNWCAccount.sendPayments')}
-              showDescription={false}
-              handleSubmit={() =>
-                setAccountPermissions(prev => ({
-                  ...prev,
-                  sendPayments: !prev.sendPayments,
-                }))
-              }
-              toggleSwitchStateValue={accountPermissions.sendPayments}
-              containerStyles={styles.toggleContainers}
-              switchPageName="nwcAccount"
-            />
-            <SettingsItemWithSlider
-              settingsTitle={t('settings.nwc.createNWCAccount.getBalance')}
-              showDescription={false}
-              handleSubmit={() =>
-                setAccountPermissions(prev => ({
-                  ...prev,
-                  getBalance: !prev.getBalance,
-                }))
-              }
-              toggleSwitchStateValue={accountPermissions.getBalance}
-              containerStyles={{ marginTop: 0 }}
-              switchPageName="nwcAccount"
-            />
-            <SettingsItemWithSlider
-              settingsTitle={t('settings.nwc.createNWCAccount.transactions')}
-              showDescription={false}
-              handleSubmit={() =>
-                setAccountPermissions(prev => ({
-                  ...prev,
-                  transactionHistory: !prev.transactionHistory,
-                }))
-              }
-              toggleSwitchStateValue={accountPermissions.transactionHistory}
-              containerStyles={{ marginTop: 0 }}
-              switchPageName="nwcAccount"
-            />
-            <SettingsItemWithSlider
-              settingsTitle={t('settings.nwc.createNWCAccount.lookupInvoice')}
-              showDescription={false}
-              handleSubmit={() =>
-                setAccountPermissions(prev => ({
-                  ...prev,
-                  lookupInvoice: !prev.lookupInvoice,
-                }))
-              }
-              toggleSwitchStateValue={accountPermissions.lookupInvoice}
-              containerStyles={{ marginTop: 0, marginBottom: 0 }}
-              switchPageName="nwcAccount"
-            />
-            <ThemeText
-              styles={{ marginTop: 30, marginBottom: 10 }}
-              content={t('settings.nwc.createNWCAccount.budgetRenewalHeader')}
-            />
-            <DropdownMenu
-              placeholder={t('settings.nwc.createNWCAccount.bugetPlaceholder')}
-              selectedValue={
-                budgetRenewalSettings.option
-                  ? t(
-                      `timeLabels.${budgetRenewalSettings.option?.toLowerCase()}`,
-                    )
-                  : ''
-              }
-              showVerticalArrowsAbsolute={true}
-              onSelect={item => {
-                setBudgetRenewalSettings(prev => ({
-                  ...prev,
-                  option: item.value,
-                }));
-              }}
-              options={BUDGET_RENEWAL_OPTIONS}
-              onScrollStart={handleDropdownScrollStart}
-              onScrollEnd={handleDropdownScrollEnd}
-            />
-            <View
-              style={{
-                width: '100%',
-                flexWrap: 'wrap',
-                rowGap: 10,
-                columnGap: 10,
-                flexDirection: 'row',
-                marginTop: 20,
-              }}
+            <SettingsSection
+              title={t('settings.nwc.createNWCAccount.permissionsHeader')}
             >
-              {budgetElements}
-            </View>
+              <View
+                style={[
+                  styles.sectionContent,
+                  { backgroundColor: backgroundOffset },
+                ]}
+              >
+                <SettingsItem
+                  dividerColor={backgroundColor}
+                  label={t('settings.nwc.createNWCAccount.receivePayments')}
+                >
+                  <CustomToggleSwitch
+                    page="nwcAccount"
+                    toggleSwitchFunction={() =>
+                      setAccountPermissions(prev => ({
+                        ...prev,
+                        receivePayments: !prev.receivePayments,
+                      }))
+                    }
+                    stateValue={accountPermissions.receivePayments}
+                  />
+                </SettingsItem>
+                <SettingsItem
+                  dividerColor={backgroundColor}
+                  label={t('settings.nwc.createNWCAccount.sendPayments')}
+                >
+                  <CustomToggleSwitch
+                    page="nwcAccount"
+                    toggleSwitchFunction={() =>
+                      setAccountPermissions(prev => ({
+                        ...prev,
+                        sendPayments: !prev.sendPayments,
+                      }))
+                    }
+                    stateValue={accountPermissions.sendPayments}
+                  />
+                </SettingsItem>
+                <SettingsItem
+                  dividerColor={backgroundColor}
+                  label={t('settings.nwc.createNWCAccount.getBalance')}
+                >
+                  <CustomToggleSwitch
+                    page="nwcAccount"
+                    toggleSwitchFunction={() =>
+                      setAccountPermissions(prev => ({
+                        ...prev,
+                        getBalance: !prev.getBalance,
+                      }))
+                    }
+                    stateValue={accountPermissions.getBalance}
+                  />
+                </SettingsItem>
+                <SettingsItem
+                  dividerColor={backgroundColor}
+                  label={t('settings.nwc.createNWCAccount.transactions')}
+                >
+                  <CustomToggleSwitch
+                    page="nwcAccount"
+                    toggleSwitchFunction={() =>
+                      setAccountPermissions(prev => ({
+                        ...prev,
+                        transactionHistory: !prev.transactionHistory,
+                      }))
+                    }
+                    stateValue={accountPermissions.transactionHistory}
+                  />
+                </SettingsItem>
+                <SettingsItem
+                  isLast
+                  dividerColor={backgroundColor}
+                  label={t('settings.nwc.createNWCAccount.lookupInvoice')}
+                >
+                  <CustomToggleSwitch
+                    page="nwcAccount"
+                    toggleSwitchFunction={() =>
+                      setAccountPermissions(prev => ({
+                        ...prev,
+                        lookupInvoice: !prev.lookupInvoice,
+                      }))
+                    }
+                    stateValue={accountPermissions.lookupInvoice}
+                  />
+                </SettingsItem>
+              </View>
+            </SettingsSection>
+
+            <SettingsSection
+              title={t('settings.nwc.createNWCAccount.budgetRenewalHeader')}
+            >
+              <View
+                style={[
+                  styles.sectionContent,
+                  { backgroundColor: backgroundOffset },
+                ]}
+              >
+                <DropdownMenu
+                  placeholder={t(
+                    'settings.nwc.createNWCAccount.bugetPlaceholder',
+                  )}
+                  selectedValue={
+                    budgetRenewalSettings.option
+                      ? t(
+                          `timeLabels.${budgetRenewalSettings.option?.toLowerCase()}`,
+                        )
+                      : ''
+                  }
+                  showVerticalArrowsAbsolute={true}
+                  onSelect={item => {
+                    setBudgetRenewalSettings(prev => ({
+                      ...prev,
+                      option: item.value,
+                    }));
+                  }}
+                  showClearIcon={false}
+                  placeholderCustomLines={2}
+                  options={BUDGET_RENEWAL_OPTIONS}
+                  onScrollStart={handleDropdownScrollStart}
+                  onScrollEnd={handleDropdownScrollEnd}
+                  customButtonStyles={{ backgroundColor }}
+                />
+              </View>
+            </SettingsSection>
+
+            <SettingsSection style={styles.lastSection}>
+              <View style={styles.budgetAmountContainer}>{budgetElements}</View>
+            </SettingsSection>
           </ScrollView>
+
           {!isKeyboardActive && (
             <CustomButton
               actionFunction={handleAccountCreation}
@@ -419,8 +460,64 @@ export default function CreateNostrConnectAccount(props) {
 }
 
 const styles = StyleSheet.create({
-  toggleContainers: {
-    marginTop: 0,
-    marginBottom: 20,
+  innerContainer: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
+  scrollContent: {
+    paddingTop: 24,
+    paddingBottom: 20,
+  },
+  section: {
+    marginBottom: 24,
+    width: '100%',
+  },
+  lastSection: {
+    marginBottom: 0,
+  },
+  sectionTitle: {
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+    marginBottom: 16,
+    includeFontPadding: false,
+  },
+  sectionContent: {
+    width: '100%',
+    borderRadius: 8,
+    padding: 16,
+  },
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingsItemText: {
+    flex: 1,
+    flexShrink: 1,
+    marginRight: 8,
+  },
+  settingsItemLabel: {
+    includeFontPadding: false,
+  },
+  divider: {
+    height: 1,
+    marginVertical: 8,
+  },
+  budgetAmountContainer: {
+    width: '100%',
+    flexWrap: 'wrap',
+    rowGap: 10,
+    columnGap: 10,
+    flexDirection: 'row',
+  },
+  budgetButton: {
+    minWidth: '48%',
+    flexGrow: 1,
+    borderWidth: 1,
+    padding: 10,
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
   },
 });

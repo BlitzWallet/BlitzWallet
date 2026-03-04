@@ -30,6 +30,7 @@ const DropdownMenu = ({
   translateLabelText = true,
   globalContainerStyles = {},
   customVericalArrowsColor = null,
+  placeholderCustomLines = 1,
 }) => {
   const { t } = useTranslation();
   const dropdownRef = useRef(null);
@@ -107,7 +108,7 @@ const DropdownMenu = ({
                   ...textStyles,
                 },
               ]}
-              CustomNumberOfLines={1}
+              CustomNumberOfLines={placeholderCustomLines}
               content={selectedValue ? selectedValue : placeholderText}
             />
           )}

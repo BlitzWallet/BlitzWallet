@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { CENTER } from '../../../../constants';
@@ -8,129 +8,130 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
+const SettingsSection = ({ children, style }) => (
+  <View style={[styles.section, style]}>{children}</View>
+);
+
 export default function NostrHome() {
-  const navitate = useNavigation();
+  const navigate = useNavigation();
   const { darkModeType, theme } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
+
   return (
-    <View style={styles.container}>
-      <View
-        style={{
-          ...styles.itemRow,
-          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-        }}
-      >
-        <View style={styles.itemTextContainer}>
-          <ThemeText
-            styles={{ ...styles.itemHeader, marginBottom: 10 }}
-            content={t('settings.nostrHome.nip5Title')}
-          />
-          <ThemeText
-            styles={styles.itemDescription}
-            content={t('settings.nostrHome.nip5Desc')}
-          />
-        </View>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={styles.innerContainer}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <SettingsSection>
         <TouchableOpacity
-          onPress={() => navitate.navigate('Nip5VerificationPage')}
-          style={{
-            ...styles.clickContainer,
-            backgroundColor: theme ? backgroundColor : COLORS.primary,
-          }}
+          onPress={() => navigate.navigate('Nip5VerificationPage')}
+          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
         >
-          <ThemeIcon
-            colorOverride={COLORS.darkModeText}
-            iconName={'ChevronRight'}
-          />
-        </TouchableOpacity>
-      </View>
-      <View
-        style={{
-          ...styles.itemRow,
-          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-        }}
-      >
-        <View style={styles.itemTextContainer}>
-          <View style={styles.itemHeaderContainer}>
-            <ThemeText
-              styles={styles.itemHeader}
-              content={t('settings.nostrHome.nwcTitle')}
-            />
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={{
-                ...styles.itemHeaderDesc,
-                color:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              }}
-              content={t('constants.experimentalLower')}
-            />
+          <View style={styles.settingsItem}>
+            <View style={styles.settingsItemText}>
+              <ThemeText
+                styles={styles.settingsItemLabel}
+                content={t('settings.nostrHome.nip5Title')}
+              />
+              <ThemeText
+                styles={styles.settingsItemDescription}
+                content={t('settings.nostrHome.nip5Desc')}
+              />
+            </View>
+            <ThemeIcon iconName="ChevronRight" />
           </View>
-          <ThemeText
-            styles={styles.itemDescription}
-            content={t('settings.nostrHome.nwcDesc')}
-          />
-        </View>
-        <TouchableOpacity
-          onPress={() => {
-            navitate.navigate('NosterWalletConnect');
-          }}
-          style={{
-            ...styles.clickContainer,
-            backgroundColor: theme ? backgroundColor : COLORS.primary,
-          }}
-        >
-          <ThemeIcon
-            colorOverride={COLORS.darkModeText}
-            iconName={'ChevronRight'}
-          />
         </TouchableOpacity>
-      </View>
-    </View>
+      </SettingsSection>
+
+      <SettingsSection style={styles.lastSection}>
+        <TouchableOpacity
+          onPress={() => navigate.navigate('NosterWalletConnect')}
+          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
+        >
+          <View style={styles.settingsItem}>
+            <View style={styles.settingsItemText}>
+              <View style={styles.labelRow}>
+                <ThemeText
+                  styles={styles.settingsItemLabel}
+                  content={t('settings.nostrHome.nwcTitle')}
+                />
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={[
+                    styles.experimentalBadge,
+                    {
+                      color:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                    },
+                  ]}
+                  content={t('constants.experimentalLower')}
+                />
+              </View>
+              <ThemeText
+                styles={styles.settingsItemDescription}
+                content={t('settings.nostrHome.nwcDesc')}
+              />
+            </View>
+            <ThemeIcon iconName="ChevronRight" />
+          </View>
+        </TouchableOpacity>
+      </SettingsSection>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  innerContainer: {
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  itemRow: {
+  scrollContent: {
+    paddingTop: 24,
+    paddingBottom: 40,
+  },
+  section: {
+    marginBottom: 24,
     width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-    padding: 10,
+  },
+  lastSection: {
+    marginBottom: 0,
+  },
+  sectionContent: {
+    width: '100%',
     borderRadius: 8,
-    justifyContent: 'space-between',
+    padding: 16,
   },
-  itemTextContainer: {
-    flexShrink: 1,
-    marginRight: 15,
-  },
-  itemHeaderContainer: {
-    width: '100%',
-    marginBottom: 10,
+  settingsItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  itemHeader: {
+  settingsItemText: {
+    flex: 1,
+    flexShrink: 1,
+    marginRight: 8,
+  },
+  settingsItemLabel: {
     includeFontPadding: false,
   },
-  itemHeaderDesc: {
+  settingsItemDescription: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+    includeFontPadding: false,
+    marginTop: 4,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flexShrink: 1,
+  },
+  experimentalBadge: {
     fontSize: SIZES.small,
     marginLeft: 5,
     includeFontPadding: false,
-  },
-
-  itemDescription: { fontSize: SIZES.small, includeFontPadding: false },
-  clickContainer: {
-    borderRadius: 8,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexShrink: 1,
   },
 });
