@@ -14,6 +14,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 export default function SeedPhraseWarning(props) {
   const routeMnemonic = props?.route?.params?.mnemonic || props?.mnemonic;
@@ -25,6 +26,7 @@ export default function SeedPhraseWarning(props) {
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
+  const { toggleMasterInfoObject } = useGlobalContextProvider();
 
   const toggleTermsAcceptance = useCallback(() => {
     setTermsAccepted(!termsAccepted);
@@ -41,6 +43,8 @@ export default function SeedPhraseWarning(props) {
 
     if (routeMnemonic) {
       extraData.mnemonic = routeMnemonic;
+    } else {
+      toggleMasterInfoObject({ didViewSeedPhrase: true });
     }
 
     navigate.replace('SettingsContentHome', {
