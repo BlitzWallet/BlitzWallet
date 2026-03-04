@@ -133,10 +133,15 @@ const transformElementsForMask = (children, textColor) => {
       if (child.type === Text) {
         props.style = [
           child.props?.style,
+          child.props?.styles,
           { color: textColor, backgroundColor: 'transparent' },
         ];
       } else {
-        props.style = [child.props?.style, { backgroundColor: 'transparent' }];
+        props.style = [
+          child.props?.style,
+          child.props?.styles,
+          { backgroundColor: 'transparent' },
+        ];
       }
 
       if (child.props?.children) {
@@ -152,6 +157,7 @@ const transformElementsForMask = (children, textColor) => {
             key={index}
             style={[
               child.props?.styles,
+              child.props?.style,
               {
                 color: textColor,
                 backgroundColor: 'transparent',

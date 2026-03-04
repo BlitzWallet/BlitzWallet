@@ -14,7 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../functions/CustomElements';
 import KeyForKeyboard from '../../../functions/CustomElements/key';
-import RNRestart from 'react-native-restart';
+import RNRestart from 'react-native-restart-newarch';
 import PinDot from '../../../functions/CustomElements/pinDot';
 import { useNavigation } from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';

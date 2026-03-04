@@ -206,9 +206,9 @@
     },
     "homePage": {
       "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
-      "money": "Pagamentos",
-      "made": "Rápido",
-      "simple": "Simples.",
+      "money": "Dinheiro",
+      "made": "Soberania",
+      "simple": "Liberdade",
       "subtitle": "Sua carteira. Seu dinheiro. Código aberto.",
       "buttons": {
         "button1": "Restaurar acesso",
@@ -1887,7 +1887,16 @@
         "senders": "do pagador"
       },
       "viewAllTxPage": {
-        "title": "Transações"
+        "title": "Transações",
+        "filterAll": "Todas",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Contatos",
+        "filterGifts": "Vales-Blitz",
+        "filterSwaps": "Trocas",
+        "filterSavings": "Caixinhas",
+        "filterPools": "Vaquinhas"
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
@@ -2238,11 +2247,11 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "Os saldos em dinheiro são mantidos em USDB, uma stablecoin lastreada em dólares emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. O rendimento é gerado através da Flashnet e é variável, não garantido e pode ser zero. O USDB não é segurado pelo FDIC. Não é um produto bancário."
+      "disclaimer": "Os saldos em dólar são mantidos em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
-      "earnInterest": "Ganhe de juros pagos em Bitcoin"
+      "earnInterest": "Guarde dinheiro e realize seus sonhos."
     },
     "goalEmoji": {
       "screenTitle": "Escolher emoji",
@@ -2264,7 +2273,7 @@
     },
     "goalSuccess": {
       "title": "Sua meta foi definida em {{amount}}",
-      "subtitle": "Comece a adicionar dinheiro para alcançar sua meta."
+      "subtitle": "Comece a guardar dinheiro para alcançar sua meta."
     },
     "goalDetails": {
       "screenTitleFallback": "Meta",
@@ -2303,11 +2312,12 @@
       "chooseGoalTitle": "Guardar dinheiro em",
       "generalSavings": "Caixinha geral",
       "noSpecificGoal": "Sem meta específica",
-      "sourceTitle": "Adicionar dinheiro do",
+      "sourceTitle": " Transferir dinheiro do",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar depósito",
-      "youAreAdding": "Você está adicionando",
-      "fromBalance": "do seu saldo de {{source}}",
+      "youAreAdding": "Você está transferindo",
+      "fromBalance_dollar": "do saldo em dólares",
+      "fromBalance_bitcoin": "do saldo em Bitcoin",
       "confirmButton": "Confirmar",
       "processing": "Processando…",
       "steps": {
@@ -2316,7 +2326,7 @@
         "adding": "Guardando na Caixinha...",
         "complete": "Concluído."
       },
-      "successTitle": "Dinheiro adicionado",
+      "successTitle": "Dinheiro transferido",
       "paymentLabel_unallocated": "Depósito na Caixinha geral",
       "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
@@ -2325,29 +2335,29 @@
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",
-      "interestOption": "Juros recebidos",
+      "interestOption": "Recompensas",
       "savingsOption": "Saldo de Caixinhas",
-      "interestZeroHint": "Ainda não há juros acumulados",
+      "interestZeroHint": "Ainda não há recompensas acumuladas",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Seu saldo em Bitcoin está abaixo do valor mínimo para troca. Por favor, saque para o seu saldo em Bitcoin.",
+      "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
-      "fromInterest": "Dos seus juros",
+      "fromInterest": "Das suas recompensas",
       "fromSavings": "Da sua Caixinha",
-      "interestPaymentLabel": "Saque de juros",
+      "interestPaymentLabel": "Resgate de recompensas",
       "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
-      "destinationTitle": "Resgatar dinheiro para",
+      "destinationTitle": "Transferir dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
-      "confirmTitle": "Confirmar saque",
+      "confirmTitle": "Confirmar resgate",
       "youAreWithdrawingAll": "Você está resgatando de todas as Caixinhas",
       "youAreWithdrawing": "Você está resgatando",
       "toYourBalance": "para o seu {{destination}}",
       "estimatedSats": "≈ {{sats}} sats após troca",
       "confirmButton": "Confirmar",
-      "processing": "Processando saque…",
+      "processing": "Processando resgate…",
       "steps": {
         "processing": "Processando...",
         "withdrawing": "Resgatando da Caixinha...",
@@ -2364,13 +2374,13 @@
     "howItWorks": {
       "headline1": "O seu dinheiro,",
       "headline2": "rendendo todo dia.",
-      "subtext": "Uma stablecoin lastreada em USD que rende juros automaticamente.",
+      "subtext": "Uma stablecoin lastreada em USD que paga recompensas em Bitcoin de forma automática.",
       "transparencyIssuer": "USDB emitido por Brale, Inc. · Rendimento via Flashnet",
       "transparencyLegal": "O rendimento é variável e não garantido. Não é um depósito bancário. Não é segurado pela FDIC ou SIPC.",
       "disclaimerLegal": "A Blitz Wallet não é um banco, corretora ou consultora de investimentos. As taxas são variáveis e podem mudar a qualquer momento. Consulte os Termos de Uso para ver todas as divulgações de risco.",
       "features": {
-        "earnTitle": "Receba juros diariamente",
-        "earnBody": "USDB paga juros automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
+        "earnTitle": "Receba recompensas em Bitcoin diariamente",
+        "earnBody": "USDB paga recompensas em Bitcoin automaticamente. Sem staking, sem bloqueios — basta manter o saldo e ganhar.",
         "accessTitle": "Liquidez imediata",
         "accessBody": "Resgate para sua carteira Lightning em segundos, a qualquer hora. Seus fundos nunca ficam bloqueados.",
         "backedTitle": "Totalmente lastreado",
@@ -2397,7 +2407,9 @@
     "deposit": "Depósito",
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
-    "savingsWalletError": "Carteira de poupança não está pronta",
-    "rewardsPayout": "Pagamento de recompensas em Bitcoin"
+    "savingsWalletError": "Conta da Caixinha não está pronta",
+    "rewardsPayout": "Pagamento de juros",
+    "rewardsWithdrawl": "Saque de recompensas em Bitcoin",
+    "total_balance": "Saldo total Caixinhas"
   }
 }

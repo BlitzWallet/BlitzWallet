@@ -772,7 +772,7 @@ function QrCode(props) {
         />
       )}
 
-      {selectedRecieveOption?.toLowerCase() === 'lightning' &&
+      {/* {selectedRecieveOption?.toLowerCase() === 'lightning' &&
         endReceiveType !== 'USD' && (
           <>
             <QRInformationRow
@@ -854,7 +854,7 @@ function QrCode(props) {
               </View>
             )}
           </>
-        )}
+        )} */}
 
       <QRInformationRow
         title={t('screens.inAccount.receiveBtcPage.invoiceDescription', {

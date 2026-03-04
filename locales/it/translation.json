@@ -1887,7 +1887,16 @@
         "senders": "del mittente"
       },
       "viewAllTxPage": {
-        "title": "Transazioni"
+        "title": "Transazioni",
+        "filterAll": "Tutti",
+        "filterLightning": "Lightning",
+        "filterBitcoin": "Bitcoin",
+        "filterSpark": "Spark",
+        "filterContacts": "Contatti",
+        "filterGifts": "Regali",
+        "filterSwaps": "Scambi",
+        "filterSavings": "Risparmi",
+        "filterPools": "Pool"
       },
       "lrc20HalfModal": {
         "title": "Cerca Token",
@@ -2307,7 +2316,8 @@
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Conferma deposito",
       "youAreAdding": "Stai aggiungendo",
-      "fromBalance": "dal tuo saldo {{source}}",
+      "fromBalance_dollar": "dal saldo in dollari",
+      "fromBalance_bitcoin": "dal saldo Bitcoin",
       "confirmButton": "Conferma",
       "processing": "Elaborazione in corso…",
       "steps": {
@@ -2398,6 +2408,8 @@
     "depositWithGoal": "Deposito su {{goalName}}",
     "swapSimulationError": "Simulazione di scambio non disponibile",
     "savingsWalletError": "Wallet risparmio non pronto",
-    "rewardsPayout": "Pagamento ricompense in Bitcoin"
+    "rewardsPayout": "Pagamento ricompense in Bitcoin",
+    "rewardsWithdrawl": "Prelievo delle ricompense in Bitcoin",
+    "total_balance": "Saldo Totale"
   }
 }

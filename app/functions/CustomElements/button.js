@@ -15,6 +15,8 @@ export default function CustomButton({
   loadingColor = COLORS.lightModeText,
   useArrow = false,
   disabled = false,
+  onTextLayout,
+  enableElipsis = true,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
 
@@ -104,7 +106,8 @@ export default function CustomButton({
         />
       ) : (
         <ThemeText
-          CustomNumberOfLines={1}
+          onTextLayout={onTextLayout}
+          CustomNumberOfLines={enableElipsis ? 1 : undefined}
           content={textContent}
           styles={memorizedTextStyles}
         />

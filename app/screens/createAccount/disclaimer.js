@@ -17,6 +17,7 @@ import { useKeysContext } from '../../../context-store/keys';
 import { createAccountMnemonic } from '../../functions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../hooks/themeColors';
+import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 
 export default function DisclaimerPage({ navigation: { navigate }, route }) {
   const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
@@ -59,7 +60,7 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <LoginNavbar page={'disclaimer'} />
+      <CustomSettingsTopBar containerStyles={{ marginBottom: 0 }} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -213,7 +214,6 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     marginBottom: 32,
-    marginTop: 20,
     gap: 15,
   },
   infoRow: {
