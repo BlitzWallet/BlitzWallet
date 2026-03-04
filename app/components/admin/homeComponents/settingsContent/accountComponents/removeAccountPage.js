@@ -7,13 +7,13 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { CENTER } from '../../../../../constants';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import IconActionCircle from '../../../../../functions/CustomElements/actionCircleContainer';
 
 export default function RemoveAccountPage(props) {
   const selectedAccount = props?.route?.params?.account;
@@ -53,25 +53,7 @@ export default function RemoveAccountPage(props) {
       >
         <View style={styles.contentContainer}>
           {/* Icon */}
-          <View
-            style={[
-              styles.iconContainer,
-              {
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-            ]}
-          >
-            <ThemeIcon
-              iconName="Trash2"
-              size={40}
-              colorOverride={
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText
-              }
-            />
-          </View>
+          <IconActionCircle bottomOffset={32} icon={'Trash2'} />
 
           {/* Title */}
           <ThemeText
@@ -97,12 +79,7 @@ export default function RemoveAccountPage(props) {
       {/* Buttons */}
       <View style={styles.buttonsContainer}>
         <CustomButton
-          buttonStyles={[
-            styles.button,
-            styles.cancelButton,
-            { backgroundColor: backgroundOffset },
-          ]}
-          textStyles={{ color: textColor }}
+          buttonStyles={[styles.button, styles.cancelButton]}
           textContent={t(
             'settings.accountComponents.removeAccountPage.cancelButton',
           )}
@@ -141,14 +118,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: 'center',
     paddingHorizontal: 20,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
   },
   title: {
     fontSize: SIZES.large,

@@ -18,10 +18,10 @@ import { useGifts } from '../../../../../context-store/giftContext';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 
 export default function ReclaimGift() {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -81,23 +81,7 @@ export default function ReclaimGift() {
       >
         <View style={styles.centerContent}>
           {/* Icon */}
-          <View
-            style={[
-              styles.iconContainer,
-              {
-                backgroundColor: backgroundOffset,
-                borderColor: backgroundColor,
-              },
-            ]}
-          >
-            <ThemeIcon
-              colorOverride={
-                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-              }
-              iconName={'RotateCcw'}
-            />
-          </View>
-
+          <IconActionCircle bottomOffset={32} size={80} icon={'RotateCcw'} />
           {/* Title & Description */}
           <ThemeText
             styles={styles.title}
@@ -210,15 +194,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     marginTop: 40,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 32,
   },
   title: {
     fontSize: SIZES.large,

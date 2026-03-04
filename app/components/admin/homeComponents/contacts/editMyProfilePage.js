@@ -530,10 +530,10 @@ function InnerContent({
         </TouchableOpacity>
 
         <ProfileInputFields {...inputFieldsProps} />
-
+        <View style={{ height: 40 }} />
         <CustomButton
           buttonStyles={{
-            width: 'auto',
+            width: '100%',
             ...CENTER,
             marginTop: 'auto',
             marginBottom: isKeyboardActive

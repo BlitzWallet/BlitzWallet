@@ -14,7 +14,7 @@ import { useCallback, useMemo } from 'react';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
@@ -87,7 +87,7 @@ export default function SavingsGoalSuccess(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     justifyContent: 'space-between',
     ...CENTER,
   },
@@ -113,6 +113,6 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
+    // alignSelf: 'center',
   },
 });

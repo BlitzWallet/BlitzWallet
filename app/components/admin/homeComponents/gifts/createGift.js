@@ -63,6 +63,7 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import DenominationToggle from './denominationsToggle';
 import { formatBalanceAmount } from '../../../../functions';
+import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 
 export default function CreateGift(props) {
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
@@ -642,23 +643,7 @@ export default function CreateGift(props) {
             contentContainerStyle={[styles.scrollContent]}
             bottomOffset={100}
           >
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor: backgroundOffset,
-                  borderColor: backgroundColor,
-                },
-              ]}
-            >
-              <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
-                iconName={'Gift'}
-              />
-            </View>
-
+            <IconActionCircle size={80} bottomOffset={32} icon={'Gift'} />
             <View style={styles.form}>
               <View
                 style={[
@@ -840,16 +825,7 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     paddingTop: 32,
     ...CENTER,
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 2,
     alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    marginBottom: 32,
   },
   form: {
     gap: 16,

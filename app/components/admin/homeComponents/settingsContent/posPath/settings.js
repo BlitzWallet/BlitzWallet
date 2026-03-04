@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   mainButton: {
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     alignSelf: 'center',
   },
 });

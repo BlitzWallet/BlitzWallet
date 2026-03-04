@@ -447,7 +447,7 @@ export default function CreateCustodyAccountPage(props) {
           useLoading={isCreatingAccount}
           buttonStyles={{
             marginTop: 5,
-            minWidth: 150,
+            width: INSET_WINDOW_WIDTH,
             ...CENTER,
             opacity:
               !accountInformation.name ||

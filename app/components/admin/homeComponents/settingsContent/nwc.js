@@ -197,7 +197,11 @@ export default function NosterWalletConnect() {
         actionFunction={() => {
           navigate.navigate('CreateNostrConnectAccount');
         }}
-        buttonStyles={{ ...CENTER, marginTop: CONTENT_KEYBOARD_OFFSET }}
+        buttonStyles={{
+          ...CENTER,
+          marginTop: CONTENT_KEYBOARD_OFFSET,
+          width: INSET_WINDOW_WIDTH,
+        }}
         textContent={t('settings.nwc.addAccount')}
       />
     </CustomKeyboardAvoidingView>

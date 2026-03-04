@@ -452,6 +452,7 @@ export default function CreateNostrConnectAccount(props) {
               actionFunction={handleAccountCreation}
               buttonStyles={{
                 ...CENTER,
+                width: INSET_WINDOW_WIDTH,
                 marginTop: CONTENT_KEYBOARD_OFFSET,
               }}
               textContent={t('constants.save')}

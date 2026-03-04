@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   addItemButton: {
+    width: INSET_WINDOW_WIDTH,
     marginTop: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
   },

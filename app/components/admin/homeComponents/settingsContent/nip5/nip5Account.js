@@ -165,6 +165,7 @@ export default function Nip5VerificationPage() {
             useLoading={isLoading}
             actionFunction={saveNip5Information}
             buttonStyles={{
+              width: INSET_WINDOW_WIDTH,
               ...CENTER,
               marginBottom: CONTENT_KEYBOARD_OFFSET,
               marginTop: CONTENT_KEYBOARD_OFFSET,

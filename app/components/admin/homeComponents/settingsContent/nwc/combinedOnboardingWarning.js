@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },

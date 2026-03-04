@@ -90,10 +90,7 @@ export default function RestoreDerivedAccountPage() {
     if (index === isRestoring) {
       return (
         <View
-          style={[
-            styles.accountCard,
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-          ]}
+          style={[styles.accountCard, { backgroundColor: backgroundOffset }]}
         >
           <SkeletonPlaceholder
             enabled={true}
@@ -116,7 +113,7 @@ export default function RestoreDerivedAccountPage() {
         style={[
           styles.accountCard,
           {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            backgroundColor: backgroundOffset,
           },
         ]}
       >
