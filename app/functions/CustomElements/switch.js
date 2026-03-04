@@ -82,31 +82,46 @@ const CustomToggleSwitch = ({
     });
   };
 
+  const useAltStyle =
+    page === 'cameraSlider' ||
+    page === 'eCash' ||
+    page === 'bankSettings' ||
+    page === 'hideUnknownContacts' ||
+    page === 'useTrampoline' ||
+    page === 'LoginSecurityMode' ||
+    page === 'fastPay' ||
+    page === 'nwcAccount' ||
+    page === 'lrc20Settings' ||
+    page === 'useRanomPinLayout' ||
+    page === 'settingsNotifications' ||
+    page === 'settingsCrashReporting' ||
+    page === 'tipPaymentStatus' ||
+    page === 'liquidSwap';
+
   const circleColor = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [
-      COLORS.darkModeText,
-      darkModeType && theme ? COLORS.lightsOutBackground : COLORS.darkModeText,
+      useAltStyle
+        ? theme
+          ? COLORS.darkModeText
+          : COLORS.primary
+        : COLORS.darkModeText,
+      useAltStyle
+        ? theme
+          ? backgroundColor
+          : COLORS.darkModeText
+        : darkModeType && theme
+        ? COLORS.lightsOutBackground
+        : COLORS.darkModeText,
     ], // From inactive to active color
   });
   const switchColor = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [
-      page === 'cameraSlider' ||
-      page === 'eCash' ||
-      page === 'bankSettings' ||
-      page === 'hideUnknownContacts' ||
-      page === 'useTrampoline' ||
-      page === 'LoginSecurityMode' ||
-      page === 'fastPay' ||
-      page === 'nwcAccount' ||
-      page === 'lrc20Settings' ||
-      page === 'useRanomPinLayout' ||
-      page === 'settingsNotifications' ||
-      page === 'settingsCrashReporting' ||
-      page === 'tipPaymentStatus' ||
-      page === 'liquidSwap'
-        ? backgroundColor
+      useAltStyle
+        ? theme
+          ? backgroundColor
+          : COLORS.darkModeText
         : backgroundOffset,
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
     ], // From inactive to active color

@@ -271,7 +271,9 @@ export default function DisplayOptions() {
             onSelect={item =>
               toggleMasterInfoObject({ homepageTxPreferance: item.value })
             }
-            customButtonStyles={{ backgroundColor }}
+            customButtonStyles={{
+              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+            }}
             options={dropdownOptions}
             showClearIcon={false}
             showVerticalArrows={true}

@@ -20,6 +20,7 @@ import { formatCurrency } from '../../../../../../functions/formatCurrency';
 import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
+import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
 
 export default function AddPOSItemsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -51,16 +52,16 @@ export default function AddPOSItemsPage() {
           return false;
         return (
           <View
-            style={{
-              ...styles.posItemContainer,
-              backgroundColor: backgroundOffset,
-            }}
+            style={[
+              styles.posItemContainer,
+              { backgroundColor: backgroundOffset },
+            ]}
             key={item.uuid}
           >
-            <View style={{ flex: 1, marginRight: 10 }}>
+            <View style={styles.posItemInfo}>
               <ThemeText styles={styles.posItemName} content={item.name} />
               <ThemeText
-                styles={{ includeFontPadding: false }}
+                styles={styles.posItemPrice}
                 content={
                   formatCurrency({
                     amount: item.price.toFixed(2),
@@ -70,14 +71,15 @@ export default function AddPOSItemsPage() {
               />
               {currentCurrency !== item.initialCurrency && (
                 <ThemeText
-                  styles={{
-                    includeFontPadding: false,
-                    fontSize: SIZES.small,
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.cancelRed,
-                  }}
+                  styles={[
+                    styles.posItemError,
+                    {
+                      color:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.cancelRed,
+                    },
+                  ]}
                   content={t(
                     'settings.posPath.items.addPOSItemsPage.denominationError',
                     {
@@ -116,7 +118,7 @@ export default function AddPOSItemsPage() {
         );
       })
       .filter(Boolean);
-  }, [posItemSearch, posItems, currentCurrency]);
+  }, [posItemSearch, posItems, currentCurrency, backgroundOffset]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -131,14 +133,12 @@ export default function AddPOSItemsPage() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={[0]}
-        contentContainerStyle={{
-          paddingTop: 10,
-        }}
+        contentContainerStyle={styles.scrollContent}
       >
         <CustomSearchInput
           inputText={posItemSearch}
           setInputText={setPosItemSearch}
-          containerStyles={{ ...styles.searchInput, backgroundColor }}
+          containerStyles={[styles.searchInput, { backgroundColor }]}
           placeholderText={t(
             'settings.posPath.items.addPOSItemsPage.itemSearchPlaceholder',
           )}
@@ -148,9 +148,9 @@ export default function AddPOSItemsPage() {
         {formattedElements.length ? (
           formattedElements
         ) : (
-          <View style={{ marginTop: 20, alignItems: 'center' }}>
+          <View style={styles.emptyState}>
             <ThemeText
-              styles={{ width: '90%', textAlign: 'center' }}
+              styles={styles.emptyStateText}
               content={
                 posItems?.length
                   ? t('settings.posPath.items.addPOSItemsPage.noItemsSearch')
@@ -175,21 +175,37 @@ export default function AddPOSItemsPage() {
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    width: INSET_WINDOW_WIDTH,
+    paddingTop: 8,
+    gap: 16,
+    ...CENTER,
+  },
   posItemContainer: {
     width: '100%',
-    marginVertical: 10,
     borderRadius: 8,
     ...CENTER,
-    padding: 10,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  posItemInfo: {
+    flex: 1,
+    marginRight: 8,
   },
   posItemName: {
     textTransform: 'capitalize',
     includeFontPadding: false,
   },
+  posItemPrice: {
+    includeFontPadding: false,
+  },
+  posItemError: {
+    includeFontPadding: false,
+    fontSize: SIZES.small,
+  },
   buttonsContainer: {
-    width: 65,
+    width: 64,
     marginLeft: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
@@ -201,5 +217,13 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     paddingBottom: CONTENT_KEYBOARD_OFFSET,
+  },
+  emptyState: {
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  emptyStateText: {
+    width: '90%',
+    textAlign: 'center',
   },
 });

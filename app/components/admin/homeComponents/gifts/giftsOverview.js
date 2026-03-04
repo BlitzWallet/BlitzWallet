@@ -41,7 +41,7 @@ export default function GiftsOverview() {
     }, [checkForRefunds]),
   );
 
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const handleRefresh = async () => {
     await checkForRefunds();
@@ -86,7 +86,15 @@ export default function GiftsOverview() {
         />
       ) : (
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.noGifts}>
+          <View
+            style={[
+              styles.noGifts,
+              {
+                backgroundColor: backgroundOffset,
+                borderColor: backgroundColor,
+              },
+            ]}
+          >
             <ThemeIcon
               colorOverride={
                 theme && darkModeType ? COLORS.lightModeText : COLORS.primary
@@ -105,7 +113,7 @@ export default function GiftsOverview() {
         </ScrollView>
       )}
 
-      <View style={{ gap: 10, marginTop: CONTENT_KEYBOARD_OFFSET }}>
+      <View style={styles.buttonGroup}>
         <CustomButton
           actionFunction={() => navigate.navigate('CreateGift')}
           textContent={t(
@@ -145,12 +153,14 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#e5e5e5',
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 32,
+  },
+  buttonGroup: {
+    gap: 8,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   title: {
     fontSize: SIZES.large,

@@ -433,7 +433,11 @@ export default function CreateNostrConnectAccount(props) {
                   options={BUDGET_RENEWAL_OPTIONS}
                   onScrollStart={handleDropdownScrollStart}
                   onScrollEnd={handleDropdownScrollEnd}
-                  customButtonStyles={{ backgroundColor }}
+                  customButtonStyles={{
+                    backgroundColor: theme
+                      ? backgroundColor
+                      : COLORS.darkModeText,
+                  }}
                 />
               </View>
             </SettingsSection>

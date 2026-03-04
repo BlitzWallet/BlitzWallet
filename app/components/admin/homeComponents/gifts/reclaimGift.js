@@ -21,6 +21,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 
 export default function ReclaimGift() {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -80,7 +81,15 @@ export default function ReclaimGift() {
       >
         <View style={styles.centerContent}>
           {/* Icon */}
-          <View style={styles.iconContainer}>
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: backgroundOffset,
+                borderColor: backgroundColor,
+              },
+            ]}
+          >
             <ThemeIcon
               colorOverride={
                 theme && darkModeType ? COLORS.lightModeText : COLORS.primary
@@ -106,49 +115,47 @@ export default function ReclaimGift() {
           <View
             style={[
               styles.inputContainer,
-              {
-                backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-              },
+              { backgroundColor: backgroundOffset },
             ]}
           >
             {!hasExpiredGift && (
               <ThemeText
-                styles={{
-                  textAlign: 'center',
-                  fontSize: SIZES.small,
-                  includeFontPadding: false,
-                }}
+                styles={styles.noReclaimsText}
                 content={t(
                   'screens.inAccount.giftPages.reclaimPage.noReclaimsMessage',
                 )}
               />
             )}
             {hasExpiredGift && (
-              <TextInput
-                value={enteredLink}
-                onChangeText={setEnteredLink}
-                style={[
-                  styles.input,
-                  { color: textColor, includeFontPadding: false },
-                ]}
-                placeholder={t(
+              <CustomSearchInput
+                inputText={enteredLink}
+                setInputText={setEnteredLink}
+                textInputStyles={{
+                  backgroundColor: theme
+                    ? backgroundColor
+                    : COLORS.darkModeText,
+                }}
+                placeholderText={t(
                   'screens.inAccount.giftPages.reclaimPage.inputPlaceholder',
                 )}
-                placeholderTextColor="#a3a3a3"
-                onFocus={() => setIsKeyboardActive(true)}
-                onBlur={() => setIsKeyboardActive(false)}
+                onFocusFunction={() => setIsKeyboardActive(true)}
+                onBlurFunction={() => setIsKeyboardActive(false)}
               />
             )}
 
             {hasExpiredGift && (
-              <View style={{ marginTop: 10 }}>
+              <View style={styles.dropdownWrapper}>
                 <DropdownMenu
                   disableDropdownPress={!dropdownData.length}
                   onSelect={handleDropdownSelection}
                   placeholder={t(
                     'screens.inAccount.giftPages.reclaimPage.dropdownPlaceHolder',
                   )}
-                  customButtonStyles={{ backgroundColor }}
+                  customButtonStyles={{
+                    backgroundColor: theme
+                      ? backgroundColor
+                      : COLORS.darkModeText,
+                  }}
                   dropdownItemCustomStyles={{
                     justifyContent: 'flex-start',
                   }}
@@ -188,6 +195,9 @@ export default function ReclaimGift() {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
     flexGrow: 1,
     width: INSET_WINDOW_WIDTH,
@@ -205,9 +215,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#ffffff',
     borderWidth: 2,
-    borderColor: '#e5e5e5',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 32,
@@ -228,31 +236,26 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '100%',
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 8,
+    padding: 16,
     justifyContent: 'center',
   },
   input: {
     height: 56,
     borderWidth: 1,
-    borderColor: '#d4d4d4',
-    borderRadius: 12,
+    borderRadius: 8,
     paddingHorizontal: 16,
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
   },
-
-  reclaimButton: {
-    width: INSET_WINDOW_WIDTH,
-    paddingVertical: 15,
-    marginVertical: 10,
-    ...CENTER,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+  noReclaimsText: {
+    textAlign: 'center',
+    fontSize: SIZES.small,
+    includeFontPadding: false,
   },
-
+  dropdownWrapper: {
+    marginTop: 8,
+  },
   advancedContainer: {
     backgroundColor: 'unset',
     marginBottom: 20,

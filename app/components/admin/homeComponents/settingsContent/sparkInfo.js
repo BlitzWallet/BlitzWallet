@@ -225,7 +225,9 @@ export default function SparkInfo() {
             onSelect={handleDefaultTokenSelection}
             showVerticalArrowsAbsolute={true}
             showVerticalArrows={!!dropdownOptions.length}
-            customButtonStyles={{ backgroundColor }}
+            customButtonStyles={{
+              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+            }}
             textStyles={
               isBitcoinToken
                 ? styles.dropdownTextBitcoin

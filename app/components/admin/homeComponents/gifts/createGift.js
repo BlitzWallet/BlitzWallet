@@ -642,7 +642,15 @@ export default function CreateGift(props) {
             contentContainerStyle={[styles.scrollContent]}
             bottomOffset={100}
           >
-            <View style={styles.iconContainer}>
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor: backgroundOffset,
+                  borderColor: backgroundColor,
+                },
+              ]}
+            >
               <ThemeIcon
                 colorOverride={
                   theme && darkModeType ? COLORS.lightModeText : COLORS.primary
@@ -655,15 +663,11 @@ export default function CreateGift(props) {
               <View
                 style={[
                   styles.fieldContainer,
-                  {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
-                  },
+                  { backgroundColor: backgroundOffset },
                 ]}
               >
                 <ThemeText
-                  styles={[styles.label, { marginBottom: 12 }]}
+                  styles={[styles.label, styles.labelBottom]}
                   content={t('constants.amount')}
                 />
                 <TouchableOpacity
@@ -675,7 +679,15 @@ export default function CreateGift(props) {
                       sliderHight: 0.5,
                     });
                   }}
-                  style={styles.amountInputWrapper}
+                  style={[
+                    styles.amountInputWrapper,
+                    {
+                      borderColor: backgroundColor,
+                      backgroundColor: theme
+                        ? backgroundColor
+                        : COLORS.darkModeText,
+                    },
+                  ]}
                 >
                   <ThemeText
                     styles={{ includeFontPadding: false }}
@@ -706,15 +718,11 @@ export default function CreateGift(props) {
               <View
                 style={[
                   styles.fieldContainer,
-                  {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
-                  },
+                  { backgroundColor: backgroundOffset },
                 ]}
               >
                 <ThemeText
-                  styles={[styles.label, { marginBottom: 12 }]}
+                  styles={[styles.label, styles.labelBottom]}
                   content={t('screens.inAccount.giftPages.createGift.type')}
                 />
                 <DenominationToggle
@@ -726,11 +734,7 @@ export default function CreateGift(props) {
               <View
                 style={[
                   styles.fieldContainer,
-                  {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
-                  },
+                  { backgroundColor: backgroundOffset },
                 ]}
               >
                 <View style={styles.descriptionContainer}>
@@ -746,11 +750,19 @@ export default function CreateGift(props) {
                 </View>
 
                 <TextInput
-                  style={[styles.textArea, { color: textColor }]}
+                  style={[
+                    styles.textArea,
+                    {
+                      color: textColor,
+                      borderColor: backgroundColor,
+                      backgroundColor: theme
+                        ? backgroundColor
+                        : COLORS.darkModeText,
+                    },
+                  ]}
                   placeholder={t(
                     'screens.inAccount.giftPages.createGift.inputPlaceholder',
                   )}
-                  placeholderTextColor="#a3a3a3"
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
@@ -762,11 +774,7 @@ export default function CreateGift(props) {
               <View
                 style={[
                   styles.fieldContainer,
-                  {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
-                  },
+                  { backgroundColor: backgroundOffset },
                 ]}
               >
                 <View style={styles.descriptionContainer}>
@@ -776,7 +784,11 @@ export default function CreateGift(props) {
                   />
                 </View>
                 <DropdownMenu
-                  customButtonStyles={{ backgroundColor }}
+                  customButtonStyles={{
+                    backgroundColor: theme
+                      ? backgroundColor
+                      : COLORS.darkModeText,
+                  }}
                   selectedValue={t(
                     'screens.inAccount.giftPages.createGift.durationText',
                     { numDays: duration.value },
@@ -833,25 +845,25 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#ffffff',
     borderWidth: 2,
-    borderColor: '#e5e5e5',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
     marginBottom: 32,
   },
   form: {
-    gap: 24,
-    marginBottom: 20,
+    gap: 16,
+    marginBottom: 16,
   },
   fieldContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 8,
+    padding: 16,
   },
   label: {
     fontWeight: '500',
+  },
+  labelBottom: {
+    marginBottom: 12,
   },
   optional: {
     fontSize: SIZES.small,
@@ -861,10 +873,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#d4d4d4',
-    borderRadius: 12,
+    borderRadius: 8,
     paddingHorizontal: 16,
-    height: 64,
+    height: 56,
   },
   descriptionContainer: {
     flexDirection: 'row',
@@ -874,11 +885,10 @@ const styles = StyleSheet.create({
 
   textArea: {
     borderWidth: 1,
-    borderColor: '#d4d4d4',
-    borderRadius: 12,
+    borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    minHeight: 100,
+    minHeight: 96,
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
   },
