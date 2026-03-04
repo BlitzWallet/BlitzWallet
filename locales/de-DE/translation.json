@@ -1909,7 +1909,7 @@
         "balance": "Guthaben",
         "maxSupply": "Max. Supply",
         "tokenTicker": "Token-Ticker",
-        "tokenPubKey": "Öffentl.Token-Adresse"
+        "tokenPubKey": "Öffentl. Token-Adresse"
       },
       "giftPages": {
         "expired": "Abgelaufen",
