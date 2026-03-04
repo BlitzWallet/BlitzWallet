@@ -11,7 +11,13 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
+import {
+  APPROXIMATE_SYMBOL,
+  CENTER,
+  COLORS,
+  ICONS,
+  SIZES,
+} from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -731,6 +737,19 @@ export default function AddMoneyToSavingsHalfModal({
             content={t('savings.addMoney.fromBalance', {
               context: selectedSource,
             })}
+          />
+          <ThemeText
+            styles={styles.summaryLabel}
+            content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+              amount: swapUSDPriceDollars?.toFixed(2),
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'fiat',
+              },
+              fiatStats,
+              convertAmount: false,
+              forceCurrency: 'USD',
+            })}`}
           />
         </View>
         <CustomButton
