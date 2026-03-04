@@ -1465,7 +1465,7 @@
       "nwc": "Conexão Nostr",
       "nwcDesc": "Pagamentos autorizados pela conta NWC",
       "pos": "Ponto de venda",
-      "posDesc": "Pagamentos recebidos no seu ponto de venda"
+      "posDesc": "Pagamentos recebidos no seu ponto de venda (PDV)"
     },
     "nostrHome": {
       "nip5Title": "Verificação Nip5",
