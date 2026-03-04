@@ -319,16 +319,16 @@
         "fee": "Frais : "
       },
       "durationSlider": {
+        "3": "mois",
+        "8": "trimestre",
+        "30": "année",
         "durationOption": "1 {{duration}}",
         "price": "Prix : ",
         "noDurations": "Pas de durée disponible",
         "duration": "Durée de l'accord",
         "0.1": "heure",
         "0.5": "jour",
-        "1.5": "semaine",
-        "3": "mois",
-        "8": "trimestre",
-        "30": "année"
+        "1.5": "semaine"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Êtes-vous sûr de vouloir supprimer ce VPN.",
@@ -1333,7 +1333,9 @@
       "text2": "Le montant ne peut être égal à 0",
       "text3": "Activer le Fast Pay",
       "text4": "Seuil de rémunération rapide (SAT)",
-      "text5": "Le paiement rapide vous permet de payer instantanément les factures inférieures à un seuil spécifié, sans avoir à les glisser dans le lecteur pour obtenir une confirmation."
+      "text5": "Le paiement rapide vous permet de payer instantanément les factures inférieures à un seuil spécifié, sans avoir à les glisser dans le lecteur pour obtenir une confirmation.",
+      "text6": "Actuel",
+      "text7": "Nouveau"
     },
     "loginSecurity": {
       "text1": "Activer la sécurité de connexion",
@@ -1455,10 +1457,15 @@
       "mainToggleDesc": "Les notifications vous permettent de rester informé des événements importants et des mises à jour de l'application.",
       "optionsTitle": "Options de notification",
       "contact": "Contact",
+      "contactDesc": "Paiements reçus de vos contacts enregistrés",
       "lnurl": "LNURL",
+      "lnurlDesc": "Paiements reçus via votre adresse Lightning",
       "nostrZaps": "Nostr zaps",
+      "nostrZapsDesc": "Paiements Zap envoyés à votre profil Nostr",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Point de vente"
+      "nwcDesc": "Paiements autorisés via Nostr Wallet Connect",
+      "pos": "Point de vente",
+      "posDesc": "Paiements reçus à votre point de vente"
     },
     "nostrHome": {
       "nip5Title": "Vérification du Nip5",
@@ -1680,7 +1687,8 @@
         "brandLogo": "Logo de la marque",
         "changeLogo": "Changer le logo",
         "removeLogo": "Supprimer",
-        "uploadLogo": "Appuyez pour télécharger le logo de la marque"
+        "uploadLogo": "Appuyez pour télécharger le logo de la marque",
+        "addProducts": "Ajouter des produits"
       },
       "posInstructionsPath": {
         "title": "Instructions",

@@ -14,6 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import factoryResetWallet from '../../../../functions/factoryResetWallet';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 
 export default function ResetPage(props) {
   const [wantsToReset, setWantsToReset] = useState(false);
@@ -56,23 +57,10 @@ export default function ResetPage(props) {
 
   return (
     <View style={styles.resetContainer}>
-      <View
-        style={[
-          styles.iconContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          },
-        ]}
-      >
-        <ThemeIcon
-          iconName="ShieldAlert"
-          size={40}
-          colorOverride={
-            theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText
-          }
-        />
+      <View style={styles.iconContainer}>
+        <IconActionCircle bottomOffset={32} icon={'ShieldAlert'} />
       </View>
+
       <ThemeText
         styles={styles.title}
         content={t('settings.resetWallet.title')}
@@ -114,6 +102,7 @@ export default function ResetPage(props) {
       <CustomButton
         buttonStyles={[
           {
+            width: '100%',
             opacity: wantsToReset ? 1 : HIDDEN_OPACITY,
           },
         ]}
@@ -132,12 +121,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
     marginTop: 'auto',
   },
   title: {

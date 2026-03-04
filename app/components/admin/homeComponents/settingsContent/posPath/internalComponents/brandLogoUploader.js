@@ -158,7 +158,10 @@ export default function BrandLogoUploader({
 
   return (
     <View style={styles.logoSection}>
-      <ThemeText content={t('settings.posPath.settings.brandLogo')} />
+      <ThemeText
+        styles={styles.sectionCardLabel}
+        content={t('settings.posPath.settings.brandLogo')}
+      />
       <View
         style={[styles.logoContainer, { backgroundColor: backgroundOffset }]}
       >
@@ -212,8 +215,14 @@ export default function BrandLogoUploader({
 }
 const styles = StyleSheet.create({
   logoSection: {
-    marginTop: 20,
-    marginBottom: 10,
+    // marginTop: 20,
+  },
+  sectionCardLabel: {
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+    includeFontPadding: false,
+    marginBottom: 8,
   },
   logoContainer: {
     marginTop: 10,

@@ -14,7 +14,7 @@ import {
 } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import GetThemeColors from '../../../../hooks/themeColors';
 
@@ -87,7 +87,7 @@ export default function SavingsGoalEmoji() {
         <CustomButton
           buttonStyles={{
             marginTop: CONTENT_KEYBOARD_OFFSET,
-            alignSelf: 'center',
+            // alignSelf: 'center',
           }}
           actionFunction={() =>
             navigate.navigate('SavingsGoalDescribe', { emoji: selectedEmoji })
@@ -102,7 +102,7 @@ export default function SavingsGoalEmoji() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     justifyContent: 'space-between',
     ...CENTER,
   },

@@ -307,16 +307,16 @@
         "fee": "Fee: "
       },
       "durationSlider": {
+        "3": "month",
+        "8": "quarter",
+        "30": "year",
         "durationOption": "1 {{duration}}",
         "price": "Price: ",
         "noDurations": "No available durations",
         "duration": "Duration",
         "0.1": "hour",
         "0.5": "day",
-        "1.5": "week",
-        "3": "month",
-        "8": "quarter",
-        "30": "year"
+        "1.5": "week"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Are you sure you want to remove this VPN?",
@@ -1215,7 +1215,9 @@
       "text2": "Amount cannot be 0",
       "text3": "Enable Fast Pay",
       "text4": "Fast pay threshold (SAT)",
-      "text5": "Fast pay allows you to instantly pay invoices below a specified threshold without needing to swipe for confirmation."
+      "text5": "Fast pay allows you to instantly pay invoices below a specified threshold without needing to swipe for confirmation.",
+      "text6": "현재",
+      "text7": "새로운"
     },
     "loginSecurity": {
       "text1": "Enable Login Security",
@@ -1319,10 +1321,15 @@
       "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
+      "contactDesc": "Payments received from your saved contacts",
       "lnurl": "Lightning address",
+      "lnurlDesc": "Payments received via your Lightning address",
       "nostrZaps": "Nostr zaps",
+      "nostrZapsDesc": "Zap payments sent to your Nostr profile",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Point-of-sale"
+      "nwcDesc": "Payments authorized through Nostr Wallet Connect",
+      "pos": "Point-of-sale",
+      "posDesc": "Payments received at your point-of-sale"
     },
     "nostrHome": {
       "nip5Title": "Nip5 Verification",

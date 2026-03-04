@@ -344,7 +344,7 @@ export default function TotalTipsScreen(props) {
 
         <TouchableOpacity
           onPress={() => removeEmployee(name)}
-          style={{ marginLeft: 15 }}
+          style={styles.deleteButton}
         >
           <ThemeIcon size={25} iconName={'Trash2'} />
         </TouchableOpacity>
@@ -352,33 +352,20 @@ export default function TotalTipsScreen(props) {
 
       <FlatList
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
+        contentContainerStyle={styles.listContent}
         data={sourtedTxs}
         keyExtractor={item => item.dbDateAdded.toString()}
         renderItem={renderItem}
       />
-      <View
-        style={{
-          paddingHorizontal: 20,
-          paddingBottom: 20,
-          paddingTop: 10,
-          backgroundColor: borderColor,
-          borderWidth: 2,
-          borderColor: backgroundOffset,
-          borderRadius: 8,
-        }}
-      >
+      <View style={[styles.summaryCard, { backgroundColor: backgroundOffset }]}>
         <View style={styles.attributeContainer}>
           <ThemeText
             CustomNumberOfLines={1}
-            styles={{
-              textTransform: 'capitalize',
-              includeFontPadding: false,
-            }}
+            styles={styles.attributeLabel}
             content={t('settings.posPath.totalTipsScreen.tipBalance')}
           />
           <ThemeText
-            styles={{ includeFontPadding: false }}
+            styles={styles.attributeValue}
             content={displayCorrectDenomination({
               amount: totalTipAmount,
               masterInfoObject,
@@ -388,16 +375,12 @@ export default function TotalTipsScreen(props) {
         </View>
         <View style={styles.attributeContainer}>
           <ThemeText
-            styles={{
-              textTransform: 'capitalize',
-              includeFontPadding: false,
-              fontSize: SIZES.smedium,
-            }}
             CustomNumberOfLines={1}
+            styles={styles.attributeLabelSmall}
             content={t('constants.paidLower')}
           />
           <ThemeText
-            styles={{ includeFontPadding: false, fontSize: SIZES.smedium }}
+            styles={styles.attributeValueSmall}
             content={displayCorrectDenomination({
               amount: totalPaidTxs,
               masterInfoObject,
@@ -407,16 +390,12 @@ export default function TotalTipsScreen(props) {
         </View>
         <View style={styles.attributeContainer}>
           <ThemeText
-            styles={{
-              textTransform: 'capitalize',
-              includeFontPadding: false,
-              fontSize: SIZES.smedium,
-            }}
             CustomNumberOfLines={1}
+            styles={styles.attributeLabelSmall}
             content={t('constants.unpaidLower')}
           />
           <ThemeText
-            styles={{ includeFontPadding: false, fontSize: SIZES.smedium }}
+            styles={styles.attributeValueSmall}
             content={displayCorrectDenomination({
               amount: totalUnpaidTxs,
               masterInfoObject,
@@ -426,7 +405,7 @@ export default function TotalTipsScreen(props) {
         </View>
 
         <CustomButton
-          buttonStyles={{ marginTop: 5 }}
+          buttonStyles={styles.payButton}
           actionFunction={handlePayment}
           textContent={t('constants.pay')}
         />
@@ -446,29 +425,61 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
-
+  listContent: {
+    paddingTop: 8,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+  },
   employeeName: {
     textAlign: 'center',
     fontSize: SIZES.large,
     marginRight: 'auto',
-    marginLeft: 10,
+    marginLeft: 8,
     includeFontPadding: false,
     flexShrink: 1,
   },
+  deleteButton: {
+    marginLeft: 16,
+  },
+  summaryCard: {
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
   attributeContainer: {
-    width: '90%',
-    marginBottom: 5,
+    width: '100%',
+    marginBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    ...CENTER,
+  },
+  attributeLabel: {
+    textTransform: 'capitalize',
+    includeFontPadding: false,
+  },
+  attributeValue: {
+    includeFontPadding: false,
+  },
+  attributeLabelSmall: {
+    textTransform: 'capitalize',
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
+  },
+  attributeValueSmall: {
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
+  },
+  payButton: {
+    marginTop: 8,
   },
   navBarButtons: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    padding: 20,
-    borderBottomWidth: 3,
+    padding: 16,
+    borderBottomWidth: 1,
   },
 });

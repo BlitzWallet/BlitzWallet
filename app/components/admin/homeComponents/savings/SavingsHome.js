@@ -16,7 +16,7 @@ import { fromMicros, mergeAndSortSavingsActivity } from './utils';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import SavingsActivityContainer from './SavingsActivityContainer';
 import SavingsActionButtons from './SavingsActionButtons';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -279,7 +279,7 @@ export default function SavingsHome() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     gap: 16,
     flexGrow: 1,
     ...CENTER,

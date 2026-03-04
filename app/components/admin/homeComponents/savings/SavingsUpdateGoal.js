@@ -11,7 +11,8 @@ import { CENTER, COLORS, SIZES } from '../../../../constants';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
+import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 
 export default function SavingsUpdateGoal(props) {
   const navigate = useNavigation();
@@ -28,25 +29,7 @@ export default function SavingsUpdateGoal(props) {
 
       <View style={styles.container}>
         <View style={styles.content}>
-          <View
-            style={[
-              styles.iconCircle,
-              {
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-            ]}
-          >
-            <ThemeIcon
-              iconName={'RefreshCcw'}
-              size={26}
-              colorOverride={
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText
-              }
-            />
-          </View>
+          <IconActionCircle bottomOffset={32} icon={'RefreshCcw'} />
           <ThemeText
             styles={styles.title}
             content={t('savings.updateGoal.title')}
@@ -97,7 +80,7 @@ export default function SavingsUpdateGoal(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     justifyContent: 'space-between',
     ...CENTER,
   },
@@ -105,13 +88,6 @@ const styles = StyleSheet.create({
     marginTop: 56,
     alignItems: 'center',
     gap: 10,
-  },
-  iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
     fontSize: SIZES.large,

@@ -4,7 +4,11 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { COLORS, SIZES } from '../../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import { CENTER } from '../../../../../constants/styles';
 import QRCode from 'react-native-qrcode-svg';
 import { copyToClipboard } from '../../../../../functions';
@@ -164,6 +168,7 @@ export default function POSInstructionsPath() {
         buttonStyles={{
           backgroundColor: COLORS.lightModeText,
           ...CENTER,
+          width: INSET_WINDOW_WIDTH,
           marginTop: CONTENT_KEYBOARD_OFFSET,
         }}
         textStyles={{ color: COLORS.darkModeText }}

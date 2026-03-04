@@ -6,7 +6,11 @@ import {
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
-import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ContributorAvatar from './contributorAvatar';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -160,7 +164,7 @@ const formatDate = (createdAt, t) => {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
     flexGrow: 1,
   },
@@ -196,6 +200,7 @@ const styles = StyleSheet.create({
     marginLeft: 16 + 40 + 12, // paddingHorizontal + avatarSize + gap
   },
   button: {
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },

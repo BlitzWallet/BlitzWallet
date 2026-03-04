@@ -1,6 +1,8 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
+import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useEffect, useState } from 'react';
 import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
@@ -8,6 +10,40 @@ import { CENTER } from '../../../../constants';
 import { usePushNotification } from '../../../../../context-store/notificationManager';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import GetThemeColors from '../../../../hooks/themeColors';
+
+const SettingsSection = ({ title, children, style }) => (
+  <View style={[styles.section, style]}>
+    {title ? <ThemeText styles={styles.sectionTitle} content={title} /> : null}
+    {children}
+  </View>
+);
+
+const SettingsItem = ({
+  label,
+  description,
+  children,
+  isLast,
+  dividerColor,
+}) => (
+  <>
+    <View style={styles.settingsItem}>
+      <View style={styles.settingsItemText}>
+        <ThemeText styles={styles.settingsItemLabel} content={label} />
+        {description && (
+          <ThemeText
+            styles={styles.settingsItemDescription}
+            content={description}
+          />
+        )}
+      </View>
+      {children}
+    </View>
+    {!isLast && (
+      <View style={[styles.divider, { backgroundColor: dividerColor }]} />
+    )}
+  </>
+);
 
 export default function NotificationPreferances() {
   const navigate = useNavigation();
@@ -21,6 +57,7 @@ export default function NotificationPreferances() {
   } = usePushNotification();
   const [currnetPushState, setCurrentPushState] = useState(null);
   const { t } = useTranslation();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const notificationData = masterInfoObject.pushNotifications;
 
   const userWantsNotifications = notificationData.isEnabled;
@@ -111,99 +148,228 @@ export default function NotificationPreferances() {
   );
 
   return (
-    <View style={styles.container}>
-      <SettingsItemWithSlider
-        CustomNumberOfLines={2}
-        showLoadingIcon={isUpdating}
-        settingsTitle={t('settings.notifications.mainToggle', {
-          context: !effectivePushStatus ? 'disabled' : 'enabled',
-        })}
-        showDescription={false}
-        handleSubmit={() => toggleNotificationPreferance('isEnabled')}
-        toggleSwitchStateValue={effectivePushStatus}
-        showInformationPopup={true}
-        informationPopupText={t('settings.notifications.mainToggleDesc')}
-        informationPopupBTNText={t('constants.continue')}
-        switchPageName={'settingsNotifications'}
-      />
-      {effectivePushStatus && (
-        <>
-          <ThemeText content={t('settings.notifications.optionsTitle')} />
-          <ScrollView
-            style={styles.notificaionChoicesContainer}
-            showsVerticalScrollIndicator={false}
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={styles.innerContainer}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <SettingsSection>
+        <View
+          style={[styles.sectionContent, { backgroundColor: backgroundOffset }]}
+        >
+          <SettingsItem
+            isLast
+            dividerColor={backgroundColor}
+            label={t('settings.notifications.mainToggle', {
+              context: !effectivePushStatus ? 'disabled' : 'enabled',
+            })}
           >
-            <SettingsItemWithSlider
-              CustomNumberOfLines={2}
-              settingsTitle={t('settings.notifications.contact')}
-              showDescription={false}
-              handleSubmit={() =>
-                toggleNotificationPreferance('contactPayments')
-              }
-              toggleSwitchStateValue={
-                notificationData.enabledServices.contactPayments
-              }
-              containerStyles={styles.toggleContainers}
-              switchPageName={'settingsNotifications'}
-            />
-            <SettingsItemWithSlider
-              CustomNumberOfLines={2}
-              settingsTitle={t('settings.notifications.lnurl')}
-              showDescription={false}
-              handleSubmit={() => toggleNotificationPreferance('lnurlPayments')}
-              toggleSwitchStateValue={
-                notificationData.enabledServices.lnurlPayments
-              }
-              containerStyles={styles.toggleContainers}
-              switchPageName={'settingsNotifications'}
-            />
-            <SettingsItemWithSlider
-              CustomNumberOfLines={2}
-              settingsTitle={t('settings.notifications.nostrZaps')}
-              showDescription={false}
-              handleSubmit={() => toggleNotificationPreferance('nostrPayments')}
-              toggleSwitchStateValue={
-                notificationData.enabledServices.nostrPayments
-              }
-              containerStyles={styles.toggleContainers}
-              switchPageName={'settingsNotifications'}
-            />
-            <SettingsItemWithSlider
-              CustomNumberOfLines={2}
-              settingsTitle={t('settings.notifications.nwc')}
-              showDescription={false}
-              handleSubmit={() => toggleNotificationPreferance('NWC')}
-              toggleSwitchStateValue={notificationData.enabledServices.NWC}
-              containerStyles={styles.toggleContainers}
-              switchPageName={'settingsNotifications'}
-            />
-            <SettingsItemWithSlider
-              CustomNumberOfLines={2}
-              settingsTitle={t('settings.notifications.pos')}
-              showDescription={false}
-              handleSubmit={() => toggleNotificationPreferance('pointOfSale')}
-              toggleSwitchStateValue={
-                notificationData.enabledServices.pointOfSale
-              }
-              containerStyles={styles.toggleContainers}
-              switchPageName={'settingsNotifications'}
-            />
-          </ScrollView>
-        </>
+            <View style={styles.rightContainer}>
+              {isUpdating && (
+                <FullLoadingScreen
+                  containerStyles={styles.loadingContainer}
+                  size="small"
+                  showText={false}
+                />
+              )}
+              <TouchableOpacity
+                style={styles.infoButton}
+                onPress={() =>
+                  navigate.navigate('InformationPopup', {
+                    textContent: t('settings.notifications.mainToggleDesc'),
+                    buttonText: t('constants.continue'),
+                  })
+                }
+              >
+                <ThemeIcon size={20} iconName="Info" />
+              </TouchableOpacity>
+              <CustomToggleSwitch
+                page="settingsNotifications"
+                toggleSwitchFunction={() =>
+                  toggleNotificationPreferance('isEnabled')
+                }
+                stateValue={effectivePushStatus}
+              />
+            </View>
+          </SettingsItem>
+        </View>
+      </SettingsSection>
+
+      {effectivePushStatus && (
+        <SettingsSection
+          title={t('settings.notifications.optionsTitle')}
+          style={styles.lastSection}
+        >
+          <View
+            style={[
+              styles.sectionContent,
+              styles.cardGap,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            <SettingsItem
+              isLast
+              label={t('settings.notifications.contact')}
+              description={t('settings.notifications.contactDesc')}
+            >
+              <CustomToggleSwitch
+                page="settingsNotifications"
+                toggleSwitchFunction={() =>
+                  toggleNotificationPreferance('contactPayments')
+                }
+                stateValue={notificationData.enabledServices.contactPayments}
+              />
+            </SettingsItem>
+          </View>
+          <View
+            style={[
+              styles.sectionContent,
+              styles.cardGap,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            <SettingsItem
+              isLast
+              label={t('settings.notifications.lnurl')}
+              description={t('settings.notifications.lnurlDesc')}
+            >
+              <CustomToggleSwitch
+                page="settingsNotifications"
+                toggleSwitchFunction={() =>
+                  toggleNotificationPreferance('lnurlPayments')
+                }
+                stateValue={notificationData.enabledServices.lnurlPayments}
+              />
+            </SettingsItem>
+          </View>
+          <View
+            style={[
+              styles.sectionContent,
+              styles.cardGap,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            <SettingsItem
+              isLast
+              label={t('settings.notifications.nostrZaps')}
+              description={t('settings.notifications.nostrZapsDesc')}
+            >
+              <CustomToggleSwitch
+                page="settingsNotifications"
+                toggleSwitchFunction={() =>
+                  toggleNotificationPreferance('nostrPayments')
+                }
+                stateValue={notificationData.enabledServices.nostrPayments}
+              />
+            </SettingsItem>
+          </View>
+          <View
+            style={[
+              styles.sectionContent,
+              styles.cardGap,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            <SettingsItem
+              isLast
+              label={t('settings.notifications.nwc')}
+              description={t('settings.notifications.nwcDesc')}
+            >
+              <CustomToggleSwitch
+                page="settingsNotifications"
+                toggleSwitchFunction={() => toggleNotificationPreferance('NWC')}
+                stateValue={notificationData.enabledServices.NWC}
+              />
+            </SettingsItem>
+          </View>
+          <View
+            style={[
+              styles.sectionContent,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            <SettingsItem
+              isLast
+              label={t('settings.notifications.pos')}
+              description={t('settings.notifications.posDesc')}
+            >
+              <CustomToggleSwitch
+                page="settingsNotifications"
+                toggleSwitchFunction={() =>
+                  toggleNotificationPreferance('pointOfSale')
+                }
+                stateValue={notificationData.enabledServices.pointOfSale}
+              />
+            </SettingsItem>
+          </View>
+        </SettingsSection>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
-  notificaionChoicesContainer: {
-    width: '100%',
-    marginLeft: 'auto',
-  },
-  toggleContainers: {
-    width: '100%',
-    marginVertical: 10,
+  innerContainer: {
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
+  },
+  scrollContent: {
+    paddingTop: 24,
+    paddingBottom: 40,
+  },
+  section: {
+    marginBottom: 24,
+    width: '100%',
+  },
+  lastSection: {
+    marginBottom: 0,
+  },
+  sectionTitle: {
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+    marginBottom: 16,
+    includeFontPadding: false,
+  },
+  sectionContent: {
+    width: '100%',
+    borderRadius: 8,
+    padding: 16,
+  },
+  cardGap: {
+    marginBottom: 8,
+  },
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingsItemText: {
+    flex: 1,
+    flexShrink: 1,
+    marginRight: 8,
+  },
+  settingsItemLabel: {
+    includeFontPadding: false,
+  },
+  settingsItemDescription: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+    includeFontPadding: false,
+    marginTop: 4,
+  },
+  divider: {
+    height: 1,
+    marginVertical: 8,
+  },
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoButton: {
+    marginRight: 8,
+  },
+  loadingContainer: {
+    flex: 0,
+    marginRight: 8,
   },
 });

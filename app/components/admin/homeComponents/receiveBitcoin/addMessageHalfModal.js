@@ -146,13 +146,6 @@ const styles = StyleSheet.create({
     height: 45,
     flex: 1,
   },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   disclaimerText: {
     fontSize: SIZES.small,
     opacity: HIDDEN_OPACITY,

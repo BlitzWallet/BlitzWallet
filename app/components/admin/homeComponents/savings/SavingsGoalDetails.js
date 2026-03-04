@@ -13,7 +13,7 @@ import { CENTER, COLORS, SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CircularProgress from '../pools/circularProgress';
 import { fromMicros } from './utils';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import SavingsActivityContainer from './SavingsActivityContainer';
 import SavingsActionButtons from './SavingsActionButtons';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -137,7 +137,7 @@ export default function SavingsGoalDetails(props) {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
     gap: 16,
   },

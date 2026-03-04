@@ -319,16 +319,16 @@
         "fee": "Taxa: "
       },
       "durationSlider": {
+        "3": "mês",
+        "8": "trimestre",
+        "30": "ano",
         "durationOption": "1 {{duration}}",
         "price": "Preço: ",
         "noDurations": "Nenhuma duração disponível",
         "duration": "Validade",
         "0.1": "hora",
         "0.5": "dia",
-        "1.5": "semana",
-        "3": "mês",
-        "8": "trimestre",
-        "30": "ano"
+        "1.5": "semana"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Tem certeza de que deseja remover esta VPN?",
@@ -1333,7 +1333,9 @@
       "text2": "A quantia não pode ser 0",
       "text3": "Pagamentos Rápidos",
       "text4": "Limite máximo (SAT)",
-      "text5": "A função Pagamento Rápidos permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento."
+      "text5": "A função Pagamento Rápidos permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento.",
+      "text6": "Atual",
+      "text7": "Novo"
     },
     "loginSecurity": {
       "text1": "Segurança de acesso",
@@ -1455,10 +1457,15 @@
       "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
+      "contactDesc": "Pagamentos recebidos dos seus contatos salvos",
       "lnurl": "Endereço Lightning",
+      "lnurlDesc": "Pagamentos recebidos pelo seu endereço Lightning",
       "nostrZaps": "Nostr Zaps",
+      "nostrZapsDesc": "Pagamentos Zap enviados ao seu perfil Nostr",
       "nwc": "Conexão Nostr",
-      "pos": "Ponto de venda"
+      "nwcDesc": "Pagamentos autorizados pelo Nostr Wallet Connect",
+      "pos": "Ponto de venda",
+      "posDesc": "Pagamentos recebidos no seu ponto de venda"
     },
     "nostrHome": {
       "nip5Title": "Verificação Nip5",
@@ -1680,7 +1687,8 @@
         "brandLogo": "Logo da marca",
         "changeLogo": "Alterar logo",
         "removeLogo": "Remover",
-        "uploadLogo": "Toque para enviar o logo da marca"
+        "uploadLogo": "Toque para enviar o logo da marca",
+        "addProducts": "Adicionar produtos"
       },
       "posInstructionsPath": {
         "title": "Instruções",

@@ -319,16 +319,16 @@
         "fee": "Tarifa: "
       },
       "durationSlider": {
+        "3": "mese",
+        "8": "trimestre",
+        "30": "anno",
         "durationOption": "1 {{duration}}",
         "price": "Precio: ",
         "noDurations": "No hay duraciones disponibles",
         "duration": "Duración",
         "0.1": "ora",
         "0.5": "giorno",
-        "1.5": "settimana",
-        "3": "mese",
-        "8": "trimestre",
-        "30": "anno"
+        "1.5": "settimana"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "¿Estás seguro de que quieres eliminar este VPN?",
@@ -1191,7 +1191,9 @@
       "text2": "La cantidad no puede ser 0",
       "text3": "Habilitar Fast Pay",
       "text4": "Umbral de Fast Pay (SAT)",
-      "text5": "Fast Pay te permite pagar al instante facturas por debajo de un umbral especificado sin necesidad de deslizar para confirmar."
+      "text5": "Fast Pay te permite pagar al instante facturas por debajo de un umbral especificado sin necesidad de deslizar para confirmar.",
+      "text6": "Actual",
+      "text7": "Nuevo"
     },
     "loginSecurity": {
       "text1": "Habilitar seguridad de inicio de sesión",
@@ -1313,10 +1315,15 @@
       "mainToggleDesc": "Las notificaciones te mantienen informado sobre eventos importantes y actualizaciones en la aplicación.",
       "optionsTitle": "Opciones de notificación",
       "contact": "Contacto",
+      "contactDesc": "Pagos recibidos de tus contactos guardados",
       "lnurl": "LNURL",
+      "lnurlDesc": "Pagos recibidos a través de tu dirección Lightning",
       "nostrZaps": "Nostr zaps",
+      "nostrZapsDesc": "Pagos Zap enviados a tu perfil de Nostr",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Punto de venta"
+      "nwcDesc": "Pagos autorizados a través de Nostr Wallet Connect",
+      "pos": "Punto de venta",
+      "posDesc": "Pagos recibidos en tu punto de venta"
     },
     "nostrHome": {
       "nip5Title": "Verificación Nip5",
@@ -1538,7 +1545,8 @@
         "brandLogo": "Logo de la marca",
         "changeLogo": "Cambiar logo",
         "removeLogo": "Eliminar",
-        "uploadLogo": "Toca para subir el logo de la marca"
+        "uploadLogo": "Toca para subir el logo de la marca",
+        "addProducts": "Agregar productos"
       },
       "posInstructionsPath": {
         "title": "Instrucciones",

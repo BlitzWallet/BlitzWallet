@@ -107,50 +107,34 @@ export default function TextInputWithSliderSettingsItem({
 
 const styles = StyleSheet.create({
   contentContainer: {
-    minHeight: 60,
     width: '100%',
     borderRadius: 8,
-    paddingVertical: 10,
-    marginVertical: 20,
-    justifyContent: 'center',
+    overflow: 'hidden',
   },
-  titleStyle: { includeFontPadding: false, flex: 1, marginRight: 5 },
+  titleStyle: {
+    includeFontPadding: false,
+    flex: 1,
+    marginRight: 8,
+  },
   sliderContianer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-
-    paddingRight: 10,
-    paddingBottom: 10,
-    marginBottom: 10,
-    marginLeft: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    minHeight: 56,
     borderBottomWidth: 1,
   },
   textContainer: {
-    paddingRight: 10,
-    marginLeft: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
   textInput: {
     maxWidth: '50%',
-    padding: 10,
+    padding: 8,
     borderRadius: 8,
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-  },
-
-  container: {
-    width: '100%',
-  },
-  labelsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingLeft: 5,
-  },
-
-  slider: {
-    width: '100%',
-    height: 40,
-    marginTop: 20,
   },
 });

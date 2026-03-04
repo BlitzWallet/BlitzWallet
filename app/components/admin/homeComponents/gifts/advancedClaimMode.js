@@ -112,12 +112,7 @@ export default function AdvancedGiftClaim() {
         </View>
 
         {/* Information Container */}
-        <View
-          style={[
-            styles.infoCard,
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-          ]}
-        >
+        <View style={[styles.infoCard, { backgroundColor: backgroundOffset }]}>
           <View style={styles.infoHeader}>
             <ThemeText
               styles={styles.infoTitle}
@@ -137,12 +132,7 @@ export default function AdvancedGiftClaim() {
         </View>
 
         {/* Input Card */}
-        <View
-          style={[
-            styles.inputCard,
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-          ]}
-        >
+        <View style={[styles.inputCard, { backgroundColor: backgroundOffset }]}>
           <ThemeText
             styles={styles.inputLabel}
             content={t('screens.inAccount.giftPages.advancedMode.inputHead')}
@@ -153,7 +143,6 @@ export default function AdvancedGiftClaim() {
             placeholderText={`1 - ${currentGiftIndex}`}
             keyboardType="number-pad"
             textInputStyles={{
-              backgroundColor,
               color: textColor,
             }}
             maxLength={String(currentGiftIndex).length}

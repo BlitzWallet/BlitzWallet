@@ -11,7 +11,11 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../../../constants/theme';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -66,7 +70,7 @@ export default function SavingsGoalAmount(props) {
       <CustomSettingsTopBar label={t('savings.goalAmount.screenTitle')} />
       <View style={styles.container}>
         <TouchableOpacity
-          style={{ marginTop: 'auto' }}
+          // style={{ marginTop: 'auto' }}
           activeOpacity={1}
           onPress={handleDenominationToggle}
         >
@@ -88,48 +92,47 @@ export default function SavingsGoalAmount(props) {
             balance={localSatAmount}
           />
         </TouchableOpacity>
-
-        <CustomNumberKeyboard
-          showDot={false}
-          setInputValue={setAmountValue}
-          usingForBalance={true}
-          fiatStats={conversionFiatStats}
-        />
-
-        <CustomButton
-          buttonStyles={[styles.primaryButton]}
-          actionFunction={async () => {
-            if (fiatAmount <= 0) {
-              navigate.goBack();
-            } else {
-              const result = await setSavingsGoal({
-                name: goalName || t('savings.goalAmount.goalFallbackName'),
-                amount: fiatAmount,
-                emoji,
-                mode,
-                goalId:
-                  mode === 'update' ? goalId || selectedGoal?.id : undefined,
-              });
-
-              if (!result?.didWork) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage:
-                    result?.error ||
-                    t('savings.goalAmount.errors.unableToSetGoal'),
-                });
-                return;
-              }
-
-              navigate.navigate('SavingsGoalSuccess', {
-                amount: fiatAmount,
-              });
-            }
-          }}
-          textContent={
-            fiatAmount <= 0 ? t('constants.back') : t('constants.continue')
-          }
-        />
       </View>
+      <CustomNumberKeyboard
+        showDot={false}
+        setInputValue={setAmountValue}
+        usingForBalance={true}
+        fiatStats={conversionFiatStats}
+      />
+
+      <CustomButton
+        buttonStyles={[styles.primaryButton]}
+        actionFunction={async () => {
+          if (fiatAmount <= 0) {
+            navigate.goBack();
+          } else {
+            const result = await setSavingsGoal({
+              name: goalName || t('savings.goalAmount.goalFallbackName'),
+              amount: fiatAmount,
+              emoji,
+              mode,
+              goalId:
+                mode === 'update' ? goalId || selectedGoal?.id : undefined,
+            });
+
+            if (!result?.didWork) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage:
+                  result?.error ||
+                  t('savings.goalAmount.errors.unableToSetGoal'),
+              });
+              return;
+            }
+
+            navigate.navigate('SavingsGoalSuccess', {
+              amount: fiatAmount,
+            });
+          }
+        }}
+        textContent={
+          fiatAmount <= 0 ? t('constants.back') : t('constants.continue')
+        }
+      />
     </GlobalThemeView>
   );
 }
@@ -137,8 +140,10 @@ export default function SavingsGoalAmount(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: WINDOWWIDTH,
-    justifyContent: 'space-between',
+    width: INSET_WINDOW_WIDTH,
+    // justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     ...CENTER,
   },
   title: {
@@ -162,6 +167,7 @@ const styles = StyleSheet.create({
     color: COLORS.lightModeText,
   },
   primaryButton: {
+    width: INSET_WINDOW_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',

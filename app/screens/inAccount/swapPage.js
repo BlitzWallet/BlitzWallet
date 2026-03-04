@@ -938,34 +938,33 @@ export default function SwapsPage() {
             }}
             content={t('screens.inAccount.swapsPage.swapConfimred')}
           />
-          {/* Action Buttons */}
-          <CustomButton
-            buttonStyles={{
-              width: 'auto',
-              minWidth: 300,
-              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-              marginTop: 'auto',
-            }}
-            textStyles={{
-              color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-            }}
-            actionFunction={navigate.goBack}
-            textContent={t('constants.done')}
-          />
-          <CustomButton
-            buttonStyles={{
-              width: 'auto',
-              minWidth: 300,
-              backgroundColor: 'transparent',
-            }}
-            textStyles={{ color: textColor }}
-            actionFunction={() => {
-              setConfirmedSwap(null);
-              clearPageStates();
-            }}
-            textContent={t('screens.inAccount.swapsPage.newSwap')}
-          />
         </ScrollView>
+        {/* Action Buttons */}
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+            marginTop: 'auto',
+          }}
+          textStyles={{
+            color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+          }}
+          actionFunction={navigate.goBack}
+          textContent={t('constants.done')}
+        />
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            // minWidth: 300,
+            backgroundColor: 'transparent',
+          }}
+          textStyles={{ color: textColor }}
+          actionFunction={() => {
+            setConfirmedSwap(null);
+            clearPageStates();
+          }}
+          textContent={t('screens.inAccount.swapsPage.newSwap')}
+        />
       </GlobalThemeView>
     );
   }
@@ -1064,9 +1063,7 @@ export default function SwapsPage() {
                 style={[
                   styles.card,
                   {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
+                    backgroundColor: backgroundOffset,
                   },
                 ]}
               >
@@ -1124,9 +1121,7 @@ export default function SwapsPage() {
                 style={[
                   styles.card,
                   {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
+                    backgroundColor: backgroundOffset,
                   },
                 ]}
               >
@@ -1161,9 +1156,7 @@ export default function SwapsPage() {
               style={[
                 styles.card,
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                   marginBottom: 20,
                 },
               ]}
@@ -1205,9 +1198,7 @@ export default function SwapsPage() {
               style={[
                 styles.card,
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                   marginBottom: 20,
                 },
               ]}
@@ -1229,9 +1220,7 @@ export default function SwapsPage() {
               style={[
                 styles.card,
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                 },
               ]}
             >
@@ -1274,7 +1263,9 @@ export default function SwapsPage() {
                     minWidth: 'unset',
                     flex: 0,
                     marginLeft: 'auto',
-                    backgroundColor,
+                    backgroundColor: theme
+                      ? backgroundColor
+                      : COLORS.darkModeText,
                   }}
                   showClearIcon={false}
                 />
@@ -1328,9 +1319,7 @@ export default function SwapsPage() {
                   style={[
                     styles.card,
                     {
-                      backgroundColor: theme
-                        ? backgroundOffset
-                        : COLORS.darkModeText,
+                      backgroundColor: backgroundOffset,
                     },
                   ]}
                 >
@@ -1459,9 +1448,7 @@ export default function SwapsPage() {
                   style={[
                     styles.card,
                     {
-                      backgroundColor: theme
-                        ? backgroundOffset
-                        : COLORS.darkModeText,
+                      backgroundColor: backgroundOffset,
                     },
                   ]}
                 >

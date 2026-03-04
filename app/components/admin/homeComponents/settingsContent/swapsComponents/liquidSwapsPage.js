@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   swapButton: {
-    alignSelf: 'center',
+    width: '100%',
   },
   swapButtonDisabled: {
     opacity: HIDDEN_OPACITY,

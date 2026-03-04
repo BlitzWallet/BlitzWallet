@@ -45,29 +45,39 @@ import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import BrandLogoUploader from './internalComponents/brandLogoUploader';
 
-const StoreNameInput = ({ value, onChange, onFocus, onBlur }) => {
+const StoreNameInput = ({ value, onChange, onFocus, onBlur, theme }) => {
   const { t } = useTranslation();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   return (
     <View style={styles.inputSection}>
-      <ThemeText content={t('settings.posPath.settings.storeNameInputDesc')} />
-      <CustomSearchInput
-        setInputText={onChange}
-        inputText={value}
-        placeholderText={t(
-          'settings.posPath.settings.storeNameInputPlaceholder',
-        )}
-        containerStyles={styles.inputContainer}
-        onBlurFunction={onBlur}
-        onFocusFunction={onFocus}
-        shouldDelayBlur={false}
+      <ThemeText
+        styles={styles.sectionCardLabel}
+        content={t('settings.posPath.settings.storeNameInputDesc')}
       />
+      <View style={[styles.sectionCard, { backgroundColor: backgroundOffset }]}>
+        <CustomSearchInput
+          setInputText={onChange}
+          inputText={value}
+          placeholderText={t(
+            'settings.posPath.settings.storeNameInputPlaceholder',
+          )}
+          containerStyles={[
+            styles.inputContainer,
+            { backgroundColor: theme ? backgroundColor : COLORS.darkModeText },
+          ]}
+          onBlurFunction={onBlur}
+          onFocusFunction={onFocus}
+          shouldDelayBlur={false}
+        />
+      </View>
     </View>
   );
 };
 
-const CurrencySelector = ({ currentCurrency, onCurrencyChange }) => {
+const CurrencySelector = ({ currentCurrency, onCurrencyChange, theme }) => {
   const { t } = useTranslation();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const currencyOptions = fiatCurrencies
     .sort((a, b) => a.id.localeCompare(b.id))
@@ -82,28 +92,33 @@ const CurrencySelector = ({ currentCurrency, onCurrencyChange }) => {
 
   return (
     <View style={styles.inputSection}>
-      <ThemeText content={t('settings.posPath.settings.displayCurrencyDesc')} />
-      <DropdownMenu
-        options={currencyOptions}
-        selectedValue={selectedCurrencyLabel}
-        onSelect={value => {
-          const selectedOption = currencyOptions.find(
-            opt => opt.label === value.label,
-          );
-          console.log(value);
-          if (selectedOption) {
-            onCurrencyChange(selectedOption.value);
-          }
-        }}
-        dropdownItemCustomStyles={{
-          justifyContent: 'flex-start',
-        }}
-        placeholder={currentCurrency}
-        showClearIcon={false}
-        showVerticalArrowsAbsolute={true}
-        globalContainerStyles={styles.dropdownContainer}
-        translateLabelText={false}
+      <ThemeText
+        styles={styles.sectionCardLabel}
+        content={t('settings.posPath.settings.displayCurrencyDesc')}
       />
+      <View style={[styles.sectionCard, { backgroundColor: backgroundOffset }]}>
+        <DropdownMenu
+          options={currencyOptions}
+          selectedValue={selectedCurrencyLabel}
+          onSelect={value => {
+            const selectedOption = currencyOptions.find(
+              opt => opt.label === value.label,
+            );
+            if (selectedOption) {
+              onCurrencyChange(selectedOption.value);
+            }
+          }}
+          dropdownItemCustomStyles={styles.dropdownItemStyles}
+          placeholder={currentCurrency}
+          showClearIcon={false}
+          showVerticalArrowsAbsolute={true}
+          // globalContainerStyles={styles.dropdownContainer}
+          customButtonStyles={{
+            backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+          }}
+          translateLabelText={false}
+        />
+      </View>
     </View>
   );
 };
@@ -114,43 +129,47 @@ const ItemsSection = ({ itemCount, showErrorIcon, onNavigate, onInfo }) => {
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   return (
-    <View
-      style={[
-        styles.addItemContainer,
-        {
-          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-        },
-      ]}
-    >
+    <View style={styles.inputSection}>
       <ThemeText
-        CustomNumberOfLines={1}
-        styles={styles.itemsText}
-        content={t('settings.posPath.settings.numAddeditems', {
-          number: itemCount,
-          isPlurl:
-            itemCount !== 1 ? t('settings.posPath.settings.plurlEnding') : '',
-        })}
+        styles={styles.sectionCardLabel}
+        content={t('settings.posPath.settings.addProducts')}
       />
-      <TouchableOpacity onPress={onInfo} style={styles.infoButton}>
-        {showErrorIcon ? (
-          <ThemeIcon
-            size={20}
-            colorOverride={
-              theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
-            }
-            iconName={'CircleAlert'}
-          />
-        ) : (
-          <ThemeIcon size={20} iconName={'Info'} />
-        )}
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={onNavigate}
-        style={[styles.chevronButton, { backgroundColor }]}
+      <View
+        style={[styles.addItemContainer, { backgroundColor: backgroundOffset }]}
       >
-        <ThemeIcon iconName={'ChevronRight'} />
-      </TouchableOpacity>
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.itemsText}
+          content={t('settings.posPath.settings.numAddeditems', {
+            number: itemCount,
+            isPlurl:
+              itemCount !== 1 ? t('settings.posPath.settings.plurlEnding') : '',
+          })}
+        />
+        <TouchableOpacity onPress={onInfo} style={styles.infoButton}>
+          {showErrorIcon ? (
+            <ThemeIcon
+              size={20}
+              colorOverride={
+                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
+              }
+              iconName={'CircleAlert'}
+            />
+          ) : (
+            <ThemeIcon size={20} iconName={'Info'} />
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={onNavigate}
+          style={[
+            styles.chevronButton,
+            { backgroundColor: theme ? backgroundColor : COLORS.darkModeText },
+          ]}
+        >
+          <ThemeIcon size={20} iconName={'ChevronRight'} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -230,7 +249,6 @@ export default function PosSettingsPage() {
 
   const handleCurrencyChange = useCallback(
     currencyId => {
-      console.log(currencyId);
       Keyboard.dismiss();
       savePOSSettings({ storeCurrency: currencyId }, 'currency');
     },
@@ -328,12 +346,15 @@ export default function PosSettingsPage() {
         </TouchableOpacity>
       </View>
       <ScrollView
-        style={[styles.scrollView, { ...CENTER }]}
-        contentContainerStyle={{
-          paddingBottom: isKeyboardActive
-            ? CONTENT_KEYBOARD_OFFSET
-            : bottomPadding,
-        }}
+        style={[styles.scrollView, CENTER]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingBottom: isKeyboardActive
+              ? CONTENT_KEYBOARD_OFFSET
+              : bottomPadding,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -351,11 +372,13 @@ export default function PosSettingsPage() {
           onChange={setStoreNameInput}
           onFocus={() => setIsKeyboardActive(true)}
           onBlur={() => setIsKeyboardActive(false)}
+          theme={theme}
         />
 
         <CurrencySelector
           currentCurrency={currentCurrency}
           onCurrencyChange={handleCurrencyChange}
+          theme={theme}
         />
         <ItemsSection
           itemCount={posItemsList.length}
@@ -391,15 +414,12 @@ export default function PosSettingsPage() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   topbar: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   backArrow: { position: 'absolute', top: 0, left: 0, zIndex: 1 },
   topBarText: {
@@ -412,41 +432,57 @@ const styles = StyleSheet.create({
   receiptIcon: { position: 'absolute', top: 0, right: 0, zIndex: 1 },
   scrollView: {
     flex: 1,
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
   },
-
-  inputSection: {
-    marginBottom: 15,
+  scrollContent: {
+    paddingTop: 16,
+    gap: 16,
+  },
+  inputSection: {},
+  sectionCard: {
+    width: '100%',
+    borderRadius: 8,
+    padding: 16,
+  },
+  sectionCardLabel: {
+    fontSize: SIZES.small,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+    includeFontPadding: false,
+    marginBottom: 8,
   },
   inputContainer: {
-    marginTop: 10,
+    marginTop: 8,
+    borderRadius: 8,
   },
   dropdownContainer: {
-    marginTop: 5,
+    marginTop: 8,
+  },
+  dropdownItemStyles: {
+    justifyContent: 'flex-start',
   },
   addItemContainer: {
     width: '100%',
     borderRadius: 8,
-    padding: 10,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
   },
   itemsText: {
     includeFontPadding: false,
-    marginRight: 5,
+    marginRight: 8,
     flexShrink: 1,
   },
   infoButton: {
-    marginRight: 5,
+    marginRight: 8,
   },
   chevronButton: {
-    padding: 5,
+    padding: 8,
     borderRadius: 8,
     marginLeft: 'auto',
   },
   mainButton: {
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     alignSelf: 'center',
   },
 });
