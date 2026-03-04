@@ -1064,6 +1064,9 @@ export default function WithdrawFromSavingsHalfModal({
   }
 
   if (currentPage === 'chooseGoal') {
+    const shouldShowWithdrawlAll =
+      fromMicros(totalWithdrawMicros) != savingsBalance - totalGoalsBalance;
+
     return (
       <View style={styles.container}>
         <ThemeText
@@ -1078,59 +1081,63 @@ export default function WithdrawFromSavingsHalfModal({
           showsVerticalScrollIndicator={false}
         >
           {/* Withdraw All — drains the entire savings wallet in one action */}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={[
-              styles.optionRow,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-            onPress={() => {
-              setIsWithdrawAll(true);
-              setSelectedGoalId(UNALLOCATED_GOAL_ID);
-              setStep(prev => [...prev, 'destination']);
-            }}
-          >
-            <View style={styles.optionLeft}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType ? backgroundOffset : COLORS.primary,
-                  },
-                ]}
-              >
-                <ThemeIcon
-                  iconName="ArrowDownToLine"
-                  size={22}
-                  colorOverride={COLORS.white}
-                />
-              </View>
-              <View style={{ flexShrink: 1 }}>
-                <ThemeText
-                  styles={styles.optionTitle}
-                  content={t('savings.withdraw.withdrawAll')}
-                />
-                <ThemeText
-                  styles={styles.optionSubtitle}
-                  content={displayCorrectDenomination({
-                    amount: fromMicros(totalWithdrawMicros),
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: 'fiat',
+          {shouldShowWithdrawlAll && (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={[
+                styles.optionRow,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+              onPress={() => {
+                setIsWithdrawAll(true);
+                setSelectedGoalId(UNALLOCATED_GOAL_ID);
+                setStep(prev => [...prev, 'destination']);
+              }}
+            >
+              <View style={styles.optionLeft}>
+                <View
+                  style={[
+                    styles.iconContainer,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundOffset
+                          : COLORS.primary,
                     },
-                    fiatStats,
-                    forceCurrency: 'USD',
-                    convertAmount: false,
-                  })}
-                />
+                  ]}
+                >
+                  <ThemeIcon
+                    iconName="ArrowDownToLine"
+                    size={22}
+                    colorOverride={COLORS.white}
+                  />
+                </View>
+                <View style={{ flexShrink: 1 }}>
+                  <ThemeText
+                    styles={styles.optionTitle}
+                    content={t('savings.withdraw.withdrawAll')}
+                  />
+                  <ThemeText
+                    styles={styles.optionSubtitle}
+                    content={displayCorrectDenomination({
+                      amount: fromMicros(totalWithdrawMicros),
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'fiat',
+                      },
+                      fiatStats,
+                      forceCurrency: 'USD',
+                      convertAmount: false,
+                    })}
+                  />
+                </View>
               </View>
-            </View>
-            <ThemeIcon iconName="ChevronRight" size={16} />
-          </TouchableOpacity>
+              <ThemeIcon iconName="ChevronRight" size={16} />
+            </TouchableOpacity>
+          )}
 
           {/* General savings — always shown */}
           <TouchableOpacity
