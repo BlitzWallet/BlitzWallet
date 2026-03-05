@@ -88,6 +88,35 @@ if (!global.blitzWalletSparkIntervalState) {
 const { intervalTracker, listenerLock, allIntervalIds, depositIntervalIds } =
   global.blitzWalletSparkIntervalState;
 
+const TX_REFRESH_UPDATE_TYPES = new Set([
+  'transactions',
+  'txStatusUpdate',
+  'lrc20Payments',
+  'contactDetailsUpdate',
+  'incrementalRestore',
+  'incomingPayment',
+  'fullUpdate',
+  'fullUpdate-waitBalance',
+  'fullUpdate-tokens',
+  'paymentWrapperTx',
+]);
+
+const BALANCE_INTENT_UPDATE_TYPES = new Set([
+  'fullUpdate-waitBalance',
+  'paymentWrapperTx',
+  'fullUpdate',
+  'fullUpdate-tokens',
+]);
+
+const SKIP_CONFIRM_NAV_UPDATE_TYPES = new Set([
+  'paymentWrapperTx',
+  'transactions',
+  'txStatusUpdate',
+  'lrc20Payments',
+  'contactDetailsUpdate',
+  'incrementalRestore',
+]);
+
 // Initiate context
 const SparkWalletManager = createContext(null);
 
@@ -124,8 +153,6 @@ const SparkWalletProvider = ({ children }) => {
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
     useState(0);
 
-  const pollingBoundaryTime = useRef(null);
-  const txObjectCache = useRef(new Map());
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
@@ -154,12 +181,28 @@ const SparkWalletProvider = ({ children }) => {
   const currentPollingMnemonicRef = useRef(null);
   const isInitialRender = useRef(true);
   const authResetKeyRef = useRef(authResetkey);
-  const currentUpdateIdRef = useRef(0);
-  const pendingHandleUpdatesRef = useRef(new Map());
-  const isHandleUpdateDrainScheduledRef = useRef(false);
   const balanceVersionRef = useRef(0);
-  const handleUpdateQueueRef = useRef(Promise.resolve());
   const hasRunInitBalancePoll = useRef(false);
+
+  const txLaneQueueRef = useRef(Promise.resolve());
+  const uiLaneQueueRef = useRef(Promise.resolve());
+  const queueDepthRef = useRef(0);
+  const eventSequenceRef = useRef(0);
+  const preSendBoundaryRef = useRef(null);
+
+  const balanceEpochRef = useRef({
+    target: 0,
+    applied: 0,
+  });
+  const balanceSupervisorRunIdRef = useRef(0);
+  const forcedPendingBySparkIdRef = useRef(new Map());
+  const lastConfirmedTxBoundaryRef = useRef(null);
+
+  const isBalancePollerRunningRef = useRef(false);
+  const lastBalancePollEventRef = useRef({
+    updateType: null,
+    timestamp: 0,
+  });
 
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
@@ -336,6 +379,12 @@ const SparkWalletProvider = ({ children }) => {
         txPollingAbortControllerRef.current.abort();
         txPollingAbortControllerRef.current = null;
       }
+      // Snapshot boundary before the send tx is written to DB
+      preSendBoundaryRef.current = getBoundaryFromTxs(
+        sparkInfoRef.current.transactions || [],
+      );
+    } else {
+      preSendBoundaryRef.current = null;
     }
     isSendingPaymentRef.current = isSending;
   }, []);
@@ -374,7 +423,28 @@ const SparkWalletProvider = ({ children }) => {
         'Processing debounced incoming payments:',
         transferIdsToProcess,
       );
-      // let transfersOffset = 0;
+
+      // ─── Step 1: Immediately write placeholders so the restore handler
+      //     sees these transfer IDs as already-present in SQLite and skips them.
+      const placeholders = transferIdsToProcess.map(transferId => ({
+        id: transferId,
+        paymentStatus: 'pending',
+        paymentType: 'unknown',
+        accountId: sparkInfoRef.current.identityPubKey,
+        details: {
+          createdTime: Date.now(),
+          isPlaceholder: true,
+          direction: 'INCOMING',
+        },
+      }));
+
+      try {
+        await bulkUpdateSparkTransactions(placeholders, 'transactions');
+      } catch (error) {
+        console.error('Error writing placeholder transactions:', error);
+      }
+
+      // ─── Step 2: Fetch full tx details (blocked untill app is foregrounded)
       let cachedTransfers = [];
 
       for (const transferId of transferIdsToProcess) {
@@ -454,34 +524,324 @@ const SparkWalletProvider = ({ children }) => {
     [sendWebViewRequest],
   );
 
-  const getCachedTx = (tx, isPending) => {
-    const key = `${tx.sparkID}-${isPending}`;
-    const cached = txObjectCache.current.get(key);
-
-    if (cached) return cached;
-
-    const newTx = isPending ? { ...tx, isBalancePending: true } : tx;
-    txObjectCache.current.set(key, newTx);
-    return newTx;
+  const getTxAddedAt = tx => {
+    try {
+      return Number(JSON.parse(tx.details)?.dateAddedToDb) || 0;
+    } catch {
+      return 0;
+    }
   };
 
-  const handleUpdateInternal = useCallback(async (...args) => {
-    try {
-      const [updateType = 'transactions', fee = 0, passedBalance = 0] = args;
-      const mnemonic = currentMnemonicRef.current;
-      const { identityPubKey, balance: prevBalance } = sparkInfoRef.current;
+  const getBoundaryFromTxs = transactions =>
+    (transactions || []).slice(0, 10).reduce((max, tx) => {
+      return Math.max(max, getTxAddedAt(tx));
+    }, 0);
 
-      const updateId = ++currentUpdateIdRef.current;
-      const runtime = await selectSparkRuntime(mnemonic);
-      console.log(
-        'running update in spark context from db changes',
-        updateType,
-        runtime,
-      );
+  const ensureConfirmedBoundary = transactions => {
+    if (lastConfirmedTxBoundaryRef.current != null) return;
+    const boundary = getBoundaryFromTxs(transactions);
+    lastConfirmedTxBoundaryRef.current = boundary || 0;
+  };
 
+  const registerForcedPendingForEpoch = (transactions, epoch) => {
+    if (!epoch || !transactions?.length) return;
+    ensureConfirmedBoundary(sparkInfoRef.current.transactions || transactions);
+
+    // Use pre-send boundary if available so the outgoing tx (written before
+    // paymentWrapperTx fires) lands above the watermark and gets registered.
+    const boundary =
+      preSendBoundaryRef.current ?? lastConfirmedTxBoundaryRef.current ?? 0;
+
+    let confirmedStreak = 0;
+    for (let index = 0; index < transactions.length; index++) {
+      const tx = transactions[index];
+      const addedAt = getTxAddedAt(tx);
+
+      if (addedAt > boundary) {
+        const existing = forcedPendingBySparkIdRef.current.get(tx.sparkID);
+        // Keep the first pending epoch for a tx. Re-bucketing the same tx
+        // into newer epochs causes sticky pending state during overlapping
+        // balance intents.
+        if (!existing) {
+          forcedPendingBySparkIdRef.current.set(tx.sparkID, {
+            epoch,
+            addedAt,
+          });
+        }
+        confirmedStreak = 0;
+      } else {
+        confirmedStreak += 1;
+        if (confirmedStreak > 25) break;
+      }
+    }
+  };
+
+  const releaseForcedPendingUpToEpoch = epoch => {
+    let maxReleasedBoundary = lastConfirmedTxBoundaryRef.current ?? 0;
+    for (const [sparkId, meta] of forcedPendingBySparkIdRef.current.entries()) {
+      if ((meta?.epoch || 0) <= epoch) {
+        maxReleasedBoundary = Math.max(maxReleasedBoundary, meta?.addedAt || 0);
+        forcedPendingBySparkIdRef.current.delete(sparkId);
+      }
+    }
+
+    // Safety valve: if a tx is at or behind the most recently confirmed
+    // boundary, it must not remain force-pending even if a later epoch
+    // was enqueued while polling.
+    for (const [sparkId, meta] of forcedPendingBySparkIdRef.current.entries()) {
+      if ((meta?.addedAt || 0) <= maxReleasedBoundary) {
+        forcedPendingBySparkIdRef.current.delete(sparkId);
+      }
+    }
+
+    lastConfirmedTxBoundaryRef.current = maxReleasedBoundary;
+  };
+
+  const releaseForcedPendingUpToBoundary = boundary => {
+    if (!Number.isFinite(boundary)) return;
+    const normalizedBoundary = Number(boundary) || 0;
+
+    for (const [sparkId, meta] of forcedPendingBySparkIdRef.current.entries()) {
+      if ((meta?.addedAt || 0) <= normalizedBoundary) {
+        forcedPendingBySparkIdRef.current.delete(sparkId);
+      }
+    }
+
+    lastConfirmedTxBoundaryRef.current = Math.max(
+      lastConfirmedTxBoundaryRef.current || 0,
+      normalizedBoundary,
+    );
+  };
+
+  const applyForcedPendingFlags = transactions => {
+    if (!transactions?.length) return transactions;
+    if (!forcedPendingBySparkIdRef.current.size) return transactions;
+
+    const appliedEpoch = balanceEpochRef.current.applied;
+    return transactions.map(tx => {
+      const pendingMeta = forcedPendingBySparkIdRef.current.get(tx.sparkID);
+      if (!pendingMeta || pendingMeta.epoch <= appliedEpoch) return tx;
+      if (tx.isBalancePending) return tx;
+      return { ...tx, isBalancePending: true };
+    });
+  };
+
+  const enqueueTxLane = useCallback((updateType, task) => {
+    queueDepthRef.current += 1;
+    console.log(
+      `[TxLane] +1 (${updateType}) -> depth: ${queueDepthRef.current}`,
+    );
+
+    txLaneQueueRef.current = txLaneQueueRef.current
+      .then(task)
+      .catch(err => console.log('[TxLane] task error', updateType, err))
+      .finally(() => {
+        queueDepthRef.current -= 1;
+        console.log(
+          `[TxLane] -1 (${updateType}) -> depth: ${queueDepthRef.current}`,
+        );
+      });
+
+    return txLaneQueueRef.current;
+  }, []);
+
+  const enqueueUiLane = useCallback((updateType, task) => {
+    uiLaneQueueRef.current = uiLaneQueueRef.current
+      .then(task)
+      .catch(err => console.log('[UiLane] task error', updateType, err));
+
+    return uiLaneQueueRef.current;
+  }, []);
+
+  const maybeHandleConfirmNavigation = useCallback(
+    async (updateType, txs = null, from) => {
+      try {
+        if (SKIP_CONFIRM_NAV_UPDATE_TYPES.has(updateType)) return;
+
+        const { identityPubKey } = sparkInfoRef.current;
+        if (!identityPubKey) return;
+
+        let lastAddedTx;
+        if (txs) {
+          lastAddedTx = txs[0];
+        } else {
+          [lastAddedTx] = getAllSparkTransactions({
+            accountId: identityPubKey,
+            limit: 1,
+          });
+        }
+
+        console.log(lastAddedTx, txs);
+        if (!lastAddedTx) return;
+
+        let parsedDetails = {};
+        try {
+          parsedDetails = JSON.parse(lastAddedTx.details || '{}');
+        } catch {
+          parsedDetails = {};
+        }
+
+        const parsedTx = {
+          ...lastAddedTx,
+          details: parsedDetails,
+        };
+        const details = parsedTx.details || {};
+        console.log(parsedTx, details, from, 'testing notifications');
+
+        if (parsedTx.isBalancePending) {
+          console.log(
+            'Payment balance is still being confimed, will be handled once balance pollar is done',
+          );
+          return;
+        }
+
+        if (parsedTx.paymentStatus === 'pending') {
+          // Run a tx status check. Will delay toast message
+          // but will prevent a stale pending stae from making the trasnsaction show pending after toast message
+          const { updated } = await updateSparkTxStatus(
+            currentMnemonicRef.current,
+            sparkInfoRef.current.identityPubKey,
+            sendWebViewRequest,
+            true,
+          );
+          const didUpdateStatus = updated.find(
+            tx =>
+              tx.tempId === parsedTx.sparkID &&
+              tx.paymentStatus === 'completed',
+          );
+          console.log(updated, didUpdateStatus);
+          if (!didUpdateStatus) {
+            console.log('Payment is pending, show navigation once confimred');
+            return;
+          }
+        }
+
+        if (isFlashnetTransfer(parsedTx.sparkID)) {
+          console.log('Failed swap refund, do not show tosat here');
+          return;
+        }
+
+        if (
+          details.senderIdentityPublicKey === process.env.SPARK_IDENTITY_PUBKEY
+        ) {
+          console.log('Refund from Spark, do not show tosat here');
+          return;
+        }
+
+        const txTime = new Date(details.time).getTime();
+        if (Number.isFinite(txTime) && txTime < sessionTimeRef.current) {
+          console.log(
+            'created before session time was set, skipping confirm tx page navigation',
+          );
+          return;
+        }
+
+        if (parsedTx?.paymentStatus?.toLowerCase() === 'failed') {
+          console.log('This payment is of type failed, do not navigate here');
+          return;
+        }
+
+        if (details.performSwaptoUSD) {
+          console.log(
+            'This payment is being used to perform a swap, do not navigate here.',
+          );
+          return;
+        }
+
+        if (isSendingPaymentRef.current) {
+          console.log(
+            'Is sending payment, skipping confirm tx page navigation',
+          );
+          return;
+        }
+
+        if (details.direction === 'OUTGOING') {
+          console.log(
+            'Only incoming payments navigate here, skipping confirm tx page navigation',
+          );
+          return;
+        }
+
+        if (details.isHoldInvoice && parsedTx.paymentStatus !== 'completed') {
+          console.log('Blocking unconfirmed hodl invoice from showing');
+          return;
+        }
+
+        if (handledNavigatedTxs.current.has(parsedTx.sparkID)) {
+          console.log(
+            'Already handled transaction, skipping confirm tx page navigation',
+          );
+          return;
+        }
+        handledNavigatedTxs.current.add(parsedTx.sparkID);
+
+        const isOnReceivePage =
+          navigationRef
+            .getRootState()
+            .routes?.filter(item => item.name === 'ReceiveBTC').length === 1;
+
+        const hasPaymentTime = !!details.createdTime || !!details.time;
+        const isNewestPayment = hasPaymentTime
+          ? new Date(details.createdTime || details.time).getTime() >
+            newestPaymentTimeRef.current
+          : false;
+
+        let shouldShowConfirm = false;
+        if (
+          (lastAddedTx.paymentType?.toLowerCase() === 'lightning' &&
+            !details.isLNURL &&
+            !details.shouldNavigate &&
+            isOnReceivePage &&
+            isNewestPayment) ||
+          (lastAddedTx.paymentType?.toLowerCase() === 'spark' &&
+            !details.isLRC20Payment &&
+            isOnReceivePage &&
+            isNewestPayment)
+        ) {
+          if (lastAddedTx.paymentType?.toLowerCase() === 'spark') {
+            const unpaidLNInvoices = await getAllUnpaidSparkLightningInvoices();
+            const lastMatch = unpaidLNInvoices.findLast(invoice => {
+              const savedInvoiceDetails = JSON.parse(invoice.details);
+              return (
+                !savedInvoiceDetails.sendingUUID &&
+                !savedInvoiceDetails.isLNURL &&
+                invoice.amount === details.amount
+              );
+            });
+
+            if (lastMatch && !usedSavedTxIds.current.has(lastMatch.id)) {
+              usedSavedTxIds.current.add(lastMatch.id);
+              const lastInvoiceDetails = JSON.parse(lastMatch.details);
+              if (details.time - lastInvoiceDetails.createdTime < 60 * 1000) {
+                shouldShowConfirm = true;
+              }
+            }
+          } else {
+            shouldShowConfirm = true;
+          }
+        }
+
+        // Handle confirm animation here
+        setPendingNavigation({
+          tx: parsedTx,
+          amount: details.amount,
+          LRC20Token: details.LRC20Token,
+          isLRC20Payment: !!details.LRC20Token,
+          showFullAnimation: shouldShowConfirm,
+        });
+      } catch (err) {
+        console.log('[UiLane] confirm navigation error', err);
+      }
+    },
+    [],
+  );
+
+  const projectTransactionsForEvent = useCallback(
+    async event => {
+      const { identityPubKey } = sparkInfoRef.current;
       if (!identityPubKey) {
         console.warn(
-          'handleUpdate called but identityPubKey is not available yet',
+          'Skipping tx projection because identityPubKey is not ready yet',
         );
         return;
       }
@@ -491,496 +851,277 @@ const SparkWalletProvider = ({ children }) => {
         accountId: identityPubKey,
       });
 
-      const isLatestRequest = updateId === currentUpdateIdRef.current;
+      if (event.balanceEpoch) {
+        registerForcedPendingForEpoch(txs, event.balanceEpoch);
+      } else {
+        ensureConfirmedBoundary(txs);
+      }
 
-      const applyPendingFlags = transactions => {
-        if (!transactions?.length || pollingBoundaryTime.current === null)
-          return transactions;
-        // Transactions are sorted newest-first. Walk from the top; once we've
-        // seen more than 10 consecutive non-pending TXs, all remaining are
-        // confirmed — splice them in unchanged to avoid scanning the full list.
-        const result = [];
-        let confirmedStreak = 0;
-        for (let i = 0; i < transactions.length; i++) {
-          const tx = transactions[i];
-          let addedAt;
-          try {
-            addedAt = JSON.parse(tx.details)?.dateAddedToDb;
-          } catch {
-            addedAt = undefined;
-          }
-          if (addedAt && addedAt > pollingBoundaryTime.current) {
-            result.push(getCachedTx(tx, true));
-            confirmedStreak = 0;
-          } else {
-            result.push(tx);
-            confirmedStreak++;
-            if (confirmedStreak > 10) {
-              // Rest of list is confirmed — append without processing
-              return result.concat(transactions.slice(i + 1));
-            }
-          }
-        }
-        return result;
-      };
+      const txListWithPendingFlags = applyForcedPendingFlags(txs);
 
-      if (
-        updateType === 'lrc20Payments' ||
-        updateType === 'txStatusUpdate' ||
-        updateType === 'transactions' ||
-        updateType === 'contactDetailsUpdate' ||
-        updateType === 'incrementalRestore'
-      ) {
-        if (isLatestRequest) {
-          setSparkInformation(prev => ({
-            ...prev,
-            transactions: applyPendingFlags(txs),
-          }));
-        }
-      } else if (updateType === 'incomingPayment') {
-        pollingBoundaryTime.current = null;
+      setSparkInformation(prev => ({
+        ...prev,
+        transactions: txListWithPendingFlags,
+      }));
 
-        const myVersion = ++balanceVersionRef.current;
+      enqueueUiLane(event.updateType, () =>
+        maybeHandleConfirmNavigation(
+          event.updateType,
+          txListWithPendingFlags,
+          'project transactions for event',
+        ),
+      );
+    },
+    [enqueueUiLane, maybeHandleConfirmNavigation],
+  );
+
+  const applyConfirmedBalanceSnapshot = useCallback(
+    async (epoch, result) => {
+      const mnemonic = currentMnemonicRef.current;
+      const { identityPubKey } = sparkInfoRef.current;
+
+      balanceEpochRef.current.applied = Math.max(
+        balanceEpochRef.current.applied,
+        epoch,
+      );
+
+      const numericBalance = Number(result?.balance);
+      if (Number.isFinite(numericBalance)) {
         handleBalanceCache({
           isCheck: false,
-          passedBalance: Number(passedBalance),
+          passedBalance: numericBalance,
           mnemonic,
         });
-        const balanceResponse = await getSparkBalance(mnemonic);
+      }
 
-        if (isLatestRequest) {
-          setSparkInformation(prev => {
-            if (myVersion < balanceVersionRef.current) return prev;
-            return {
-              ...prev,
-              transactions: txs || prev.transactions,
-              balance: Number(passedBalance),
-              tokens: balanceResponse.didWork
-                ? balanceResponse.tokensObj
-                : prev.tokens,
-            };
-          });
-        } else {
-          setSparkInformation(prev => {
-            if (myVersion < balanceVersionRef.current) return prev;
-            return {
-              ...prev,
-              balance: Number(passedBalance),
-              tokens: balanceResponse.didWork
-                ? balanceResponse.tokensObj
-                : prev.tokens,
-            };
-          });
-        }
-      } else if (
-        updateType === 'fullUpdate-waitBalance' ||
-        updateType === 'paymentWrapperTx' ||
-        updateType === 'fullUpdate' ||
-        updateType === 'fullUpdate-tokens'
-      ) {
-        const pollerAbortController = new AbortController();
-        balancePollingAbortControllerRef.current = pollerAbortController;
-        currentPollingMnemonicRef.current = mnemonic;
-        const pollingMnemonic = mnemonic;
+      const freshTxs = identityPubKey
+        ? await getAllSparkTransactions({
+            limit: null,
+            accountId: identityPubKey,
+          })
+        : sparkInfoRef.current.transactions || [];
 
-        // Mark new txs as pending while we wait for balance confirmation
-        setSparkInformation(prev => ({
+      releaseForcedPendingUpToEpoch(epoch);
+      releaseForcedPendingUpToBoundary(getBoundaryFromTxs(freshTxs));
+      ensureConfirmedBoundary(freshTxs);
+      const projectedTxs = applyForcedPendingFlags(freshTxs);
+      await maybeHandleConfirmNavigation(
+        'afterBalancePoller',
+        projectedTxs,
+        'apply confimred balance snapshot',
+      );
+
+      const myVersion = ++balanceVersionRef.current;
+      setSparkInformation(prev => {
+        if (myVersion < balanceVersionRef.current) return prev;
+        return {
           ...prev,
-          transactions: applyPendingFlags(txs),
-        }));
+          balance: Number.isFinite(numericBalance)
+            ? numericBalance
+            : prev.balance,
+          tokens: result?.didWork ? result.tokensObj : prev.tokens,
+          transactions: projectedTxs || prev.transactions,
+        };
+      });
+    },
+    [maybeHandleConfirmNavigation],
+  );
+
+  const runBalanceSupervisor = useCallback(async () => {
+    if (isBalancePollerRunningRef.current) return;
+    const mnemonic = currentMnemonicRef.current;
+    if (!mnemonic) return;
+
+    isBalancePollerRunningRef.current = true;
+    const runId = ++balanceSupervisorRunIdRef.current;
+    currentPollingMnemonicRef.current = mnemonic;
+
+    try {
+      while (
+        balanceEpochRef.current.applied < balanceEpochRef.current.target &&
+        mnemonic === currentMnemonicRef.current
+      ) {
+        const epochToResolve = balanceEpochRef.current.target;
+        const abortController = new AbortController();
+        balancePollingAbortControllerRef.current = abortController;
+
+        console.log(
+          `[BalanceLane] starting poll for epoch ${epochToResolve} (${
+            lastBalancePollEventRef.current.updateType || 'unknown'
+          })`,
+        );
 
         const poller = createBalancePoller(
           mnemonic,
           currentMnemonicRef,
-          pollerAbortController,
+          abortController,
           async balanceResult => {
-            // Ignore stale pollers that were replaced by a newer update cycle.
-            if (
-              balancePollingAbortControllerRef.current !== pollerAbortController
-            )
-              return;
-            if (pollingMnemonic !== currentMnemonicRef.current) return;
-
-            if (!balanceResult.didWork) {
-              sparkTransactionsEventEmitter.emit(
-                SPARK_TX_UPDATE_ENVENT_NAME,
-                'fullUpdate-waitBalance',
-              );
-              return;
-            }
-            pollingBoundaryTime.current = null;
-
-            const myVersion = ++balanceVersionRef.current;
-            const freshTxs = await getAllSparkTransactions({
-              limit: null,
-              accountId: sparkInfoRef.current.identityPubKey,
-            });
-            setSparkInformation(prev => {
-              if (myVersion < balanceVersionRef.current) return prev;
-              handleBalanceCache({
-                isCheck: false,
-                passedBalance: Number(balanceResult.balance),
-
-                mnemonic: pollingMnemonic,
-              });
-              return {
-                ...prev,
-                balance: Number(balanceResult.balance),
-                tokens: balanceResult.tokensObj,
-                transactions: freshTxs, //removes all pending flags since we have the updated balance now
-              };
-            });
+            if (abortController.signal.aborted) return;
+            if (runId !== balanceSupervisorRunIdRef.current) return;
+            await applyConfirmedBalanceSnapshot(epochToResolve, balanceResult);
           },
-          prevBalance,
+          sparkInfoRef.current.balance,
         );
 
         balancePollingTimeoutRef.current = poller;
         const response = await poller.start();
-        if (response.reason === 'aborted') {
-          console.warn('Polling aborted');
-          return;
-        }
-        // Poller completed (success or max_retries) — clear ref so subsequent
-        // events don't see a stale non-aborted controller and return early.
-        balancePollingAbortControllerRef.current = null;
-        // If polling timed out without confirming, clear pending indicators so
-        // the user isn't stuck seeing a permanent pending state.
+
+        if (runId !== balanceSupervisorRunIdRef.current) return;
+        if (abortController.signal.aborted) return;
+        if (mnemonic !== currentMnemonicRef.current) return;
+        if (response.reason === 'aborted') return;
+
         if (response.reason === 'max_retries') {
-          pollingBoundaryTime.current = null;
-        }
-      } else {
-        const MAX_RETRIES = 3;
-        const RETRY_DELAY = 2000;
-        let balanceResponse = await getSparkBalance(mnemonic);
-
-        const shouldRetry = balanceResponse => {
-          return (
-            balanceResponse.didWork &&
-            Object.entries(balanceResponse.tokensObj).length &&
-            !Object.entries(balanceResponse.tokensObj).find(item => {
-              const [key, value] = item;
-              return !!value.balance;
-            }) &&
-            (updateType === 'fullUpdate-tokens' || updateType === 'fullUpdate')
-          );
-        };
-
-        if (shouldRetry(balanceResponse)) {
-          console.log('Invalid balance returned retrying balance:');
-
-          for (let index = 0; index < MAX_RETRIES; index++) {
-            balanceResponse = await getSparkBalance(mnemonic);
-            if (shouldRetry(balanceResponse)) {
-              console.log(
-                'Invalid balance returned retrying balance, waiting for timeout',
-              );
-              await new Promise(res => setTimeout(res, RETRY_DELAY));
-              continue;
-            } else {
-              break;
-            }
-          }
+          const fallbackResult =
+            response.result?.didWork === true
+              ? response.result
+              : await getSparkBalance(mnemonic);
+          await applyConfirmedBalanceSnapshot(epochToResolve, fallbackResult);
         }
 
-        const newBalance = balanceResponse.didWork
-          ? Number(balanceResponse.balance)
-          : prevBalance;
-
-        const stillLatest = updateId === currentUpdateIdRef.current;
-        const myVersion = ++balanceVersionRef.current;
-
-        if (updateType === 'paymentWrapperTx') {
-          const updatedBalance = Math.round(newBalance - fee);
-          pollingBoundaryTime.current = null;
-
-          handleBalanceCache({
-            isCheck: false,
-            passedBalance: updatedBalance,
-            mnemonic,
-          });
-
-          if (stillLatest) {
-            setSparkInformation(prev => {
-              if (myVersion < balanceVersionRef.current) return prev;
-              return {
-                ...prev,
-                transactions: txs || prev.transactions,
-                balance: updatedBalance,
-                tokens: balanceResponse.didWork
-                  ? balanceResponse.tokensObj
-                  : prev.tokens,
-              };
-            });
-          } else {
-            setSparkInformation(prev => {
-              if (myVersion < balanceVersionRef.current) return prev;
-              return {
-                ...prev,
-                balance: updatedBalance,
-                tokens: balanceResponse.didWork
-                  ? balanceResponse.tokensObj
-                  : prev.tokens,
-              };
-            });
-          }
-        } else if (updateType === 'fullUpdate-tokens') {
-          handleBalanceCache({
-            isCheck: false,
-            passedBalance: newBalance,
-            mnemonic,
-          });
-          if (stillLatest) {
-            setSparkInformation(prev => {
-              if (myVersion < balanceVersionRef.current) return prev;
-              return {
-                ...prev,
-                transactions: applyPendingFlags(txs),
-                balance: newBalance,
-                tokens: balanceResponse.didWork
-                  ? balanceResponse.tokensObj
-                  : prev.tokens,
-              };
-            });
-          } else {
-            setSparkInformation(prev => {
-              if (myVersion < balanceVersionRef.current) return prev;
-              return {
-                ...prev,
-                balance: newBalance,
-                tokens: balanceResponse.didWork
-                  ? balanceResponse.tokensObj
-                  : prev.tokens,
-              };
-            });
-          }
-        } else if (updateType === 'fullUpdate') {
-          pollingBoundaryTime.current = null;
-
-          handleBalanceCache({
-            isCheck: false,
-            passedBalance: newBalance,
-            mnemonic,
-          });
-
-          if (stillLatest) {
-            setSparkInformation(prev => {
-              if (myVersion < balanceVersionRef.current) return prev;
-              return {
-                ...prev,
-                balance: newBalance,
-                transactions: txs || prev.transactions,
-                tokens: balanceResponse.didWork
-                  ? balanceResponse.tokensObj
-                  : prev.tokens,
-              };
-            });
-          } else {
-            setSparkInformation(prev => {
-              if (myVersion < balanceVersionRef.current) return prev;
-              return {
-                ...prev,
-                balance: newBalance,
-                tokens: balanceResponse.didWork
-                  ? balanceResponse.tokensObj
-                  : prev.tokens,
-              };
-            });
-          }
-        }
+        balanceEpochRef.current.applied = Math.max(
+          balanceEpochRef.current.applied,
+          epochToResolve,
+        );
+        releaseForcedPendingUpToEpoch(balanceEpochRef.current.applied);
       }
+    } catch (err) {
+      console.log('[BalanceLane] poller error', err);
+    } finally {
+      isBalancePollerRunningRef.current = false;
+      balancePollingAbortControllerRef.current = null;
 
       if (
-        updateType === 'paymentWrapperTx' ||
-        updateType === 'transactions' ||
-        updateType === 'txStatusUpdate' ||
-        updateType === 'lrc20Payments' ||
-        updateType === 'contactDetailsUpdate' ||
-        updateType === 'incrementalRestore'
+        balanceEpochRef.current.applied < balanceEpochRef.current.target &&
+        mnemonic === currentMnemonicRef.current
       ) {
-        console.log(
-          'Payment type is send payment, transaction, lrc20 first render, updateContactDetails, or txstatus update, skipping confirm tx page navigation',
-        );
-        return;
+        setTimeout(() => {
+          runBalanceSupervisor();
+        }, 60);
       }
-      const [lastAddedTx] = await getAllSparkTransactions({
-        accountId: identityPubKey,
-        limit: 1,
-      });
+    }
+  }, [applyConfirmedBalanceSnapshot]);
 
-      if (!lastAddedTx) {
-        console.log(
-          'No transaction found, skipping confirm tx page navigation',
-        );
-
-        return;
-      }
-
-      const parsedTx = {
-        ...lastAddedTx,
-        details: JSON.parse(lastAddedTx.details),
+  const requestBalanceReconcile = useCallback(
+    (updateType, options = {}) => {
+      const { shouldForcePending = true } = options;
+      const epoch = balanceEpochRef.current.target + 1;
+      balanceEpochRef.current.target = epoch;
+      lastBalancePollEventRef.current = {
+        updateType,
+        timestamp: Date.now(),
       };
 
-      const details = parsedTx?.details;
-
-      if (isFlashnetTransfer(parsedTx.sparkID)) {
-        console.log('Failed swap refund, do not show tosat here');
-        return;
+      if (shouldForcePending) {
+        const currentTxs = sparkInfoRef.current.transactions || [];
+        registerForcedPendingForEpoch(currentTxs, epoch);
+        setSparkInformation(prev => ({
+          ...prev,
+          transactions: applyForcedPendingFlags(prev.transactions || []),
+        }));
       }
 
-      if (
-        details.senderIdentityPublicKey === process.env.SPARK_IDENTITY_PUBKEY
-      ) {
-        console.log('Refund from Spark, do not show tosat here');
-        return;
-      }
+      runBalanceSupervisor();
+      return epoch;
+    },
+    [runBalanceSupervisor],
+  );
 
-      if (new Date(details.time).getTime() < sessionTimeRef.current) {
-        console.log(
-          'created before session time was set, skipping confirm tx page navigation',
-        );
-        return;
-      }
+  const applyIncomingPaymentSnapshot = useCallback(async passedBalance => {
+    const mnemonic = currentMnemonicRef.current;
+    const { identityPubKey } = sparkInfoRef.current;
 
-      if (parsedTx?.paymentStatus?.toLowerCase() === 'failed') {
-        console.log('This payment is of type failed, do not navigate here');
-        return;
-      }
-
-      if (details.performSwaptoUSD) {
-        console.log(
-          'This payment is being used to perform a swap, do not navigate here.',
-        );
-        return;
-      }
-
-      if (isSendingPaymentRef.current) {
-        console.log('Is sending payment, skipping confirm tx page navigation');
-        return;
-      }
-
-      if (details.direction === 'OUTGOING') {
-        console.log(
-          'Only incoming payments navigate here, skipping confirm tx page navigation',
-        );
-        return;
-      }
-
-      if (details.isHoldInvoice && parsedTx.paymentStatus !== 'completed') {
-        console.log('Blocking unconfirmed hodl invoice from showing');
-        return;
-      }
-
-      if (handledNavigatedTxs.current.has(parsedTx.sparkID)) {
-        console.log(
-          'Already handled transaction, skipping confirm tx page navigation',
-        );
-        return;
-      }
-      handledNavigatedTxs.current.add(parsedTx.sparkID);
-
-      const isOnReceivePage =
-        navigationRef
-          .getRootState()
-          .routes?.filter(item => item.name === 'ReceiveBTC').length === 1;
-
-      const isNewestPayment =
-        !!details?.createdTime || !!details?.time
-          ? new Date(details.createdTime || details?.time).getTime() >
-            newestPaymentTimeRef.current
-          : false;
-
-      let shouldShowConfirm = false;
-
-      if (
-        (lastAddedTx.paymentType?.toLowerCase() === 'lightning' &&
-          !details.isLNURL &&
-          !details?.shouldNavigate &&
-          isOnReceivePage &&
-          isNewestPayment) ||
-        (lastAddedTx.paymentType?.toLowerCase() === 'spark' &&
-          !details.isLRC20Payment &&
-          isOnReceivePage &&
-          isNewestPayment)
-      ) {
-        if (lastAddedTx.paymentType?.toLowerCase() === 'spark') {
-          const upaidLNInvoices = await getAllUnpaidSparkLightningInvoices();
-          const lastMatch = upaidLNInvoices.findLast(invoice => {
-            const savedInvoiceDetails = JSON.parse(invoice.details);
-            return (
-              !savedInvoiceDetails.sendingUUID &&
-              !savedInvoiceDetails.isLNURL &&
-              invoice.amount === details.amount
-            );
-          });
-
-          if (lastMatch && !usedSavedTxIds.current.has(lastMatch.id)) {
-            usedSavedTxIds.current.add(lastMatch.id);
-            const lastInvoiceDetails = JSON.parse(lastMatch.details);
-            if (details.time - lastInvoiceDetails.createdTime < 60 * 1000) {
-              shouldShowConfirm = true;
-            }
-          }
-        } else {
-          shouldShowConfirm = true;
-        }
-      }
-
-      // Handle confirm animation here
-      setPendingNavigation({
-        tx: parsedTx,
-        amount: details.amount,
-        LRC20Token: details.LRC20Token,
-        isLRC20Payment: !!details.LRC20Token,
-        showFullAnimation: shouldShowConfirm,
-      });
-    } catch (err) {
-      console.log('error in spark handle db update function', err);
+    if (balancePollingAbortControllerRef.current) {
+      balancePollingAbortControllerRef.current.abort();
+      balancePollingAbortControllerRef.current = null;
     }
+    balanceSupervisorRunIdRef.current += 1;
+    isBalancePollerRunningRef.current = false;
+
+    const settledEpoch = balanceEpochRef.current.target + 1;
+    balanceEpochRef.current.target = settledEpoch;
+    balanceEpochRef.current.applied = settledEpoch;
+    forcedPendingBySparkIdRef.current.clear();
+
+    const [balanceResponse, freshTxs] = await Promise.all([
+      getSparkBalance(mnemonic),
+      identityPubKey
+        ? getAllSparkTransactions({
+            limit: null,
+            accountId: identityPubKey,
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const numericPassedBalance = Number(passedBalance);
+    if (Number.isFinite(numericPassedBalance)) {
+      handleBalanceCache({
+        isCheck: false,
+        passedBalance: numericPassedBalance,
+        mnemonic,
+      });
+    }
+
+    ensureConfirmedBoundary(freshTxs);
+    lastConfirmedTxBoundaryRef.current = Math.max(
+      lastConfirmedTxBoundaryRef.current || 0,
+      getBoundaryFromTxs(freshTxs),
+    );
+
+    const myVersion = ++balanceVersionRef.current;
+    setSparkInformation(prev => {
+      if (myVersion < balanceVersionRef.current) return prev;
+      return {
+        ...prev,
+        transactions: applyForcedPendingFlags(freshTxs || prev.transactions),
+        balance: Number.isFinite(numericPassedBalance)
+          ? numericPassedBalance
+          : prev.balance,
+        tokens: balanceResponse.didWork
+          ? balanceResponse.tokensObj
+          : prev.tokens,
+      };
+    });
   }, []);
 
   const handleUpdate = useCallback(
     (...args) => {
-      const [updateType] = args;
+      const [updateType = 'transactions', fee = 0, passedBalance = 0] = args;
 
-      const isFullBalanceAwaitUpdate =
-        updateType === 'fullUpdate-waitBalance' ||
-        updateType === 'fullUpdate' ||
-        updateType === 'fullUpdate-tokens' ||
-        updateType === 'paymentWrapperTx';
+      const event = {
+        seq: ++eventSequenceRef.current,
+        updateType,
+        fee,
+        passedBalance,
+        balanceEpoch: null,
+      };
 
-      if (isFullBalanceAwaitUpdate || updateType === 'incomingPayment') {
-        console.log(`Aborting any existing poller for incoming ${updateType}`);
-        if (balancePollingAbortControllerRef.current) {
-          balancePollingAbortControllerRef.current.abort();
-          balancePollingAbortControllerRef.current = null;
-        }
+      if (BALANCE_INTENT_UPDATE_TYPES.has(updateType)) {
+        event.balanceEpoch = requestBalanceReconcile(updateType, {
+          shouldForcePending: true,
+        });
       }
 
-      if (!pollingBoundaryTime.current && isFullBalanceAwaitUpdate) {
-        const currentTxs = sparkInfoRef.current.transactions;
-        // Transactions are sorted by time DESC — top 5 is sufficient to find
-        // the highest dateAddedToDb without scanning the full list.
-        pollingBoundaryTime.current = currentTxs
-          .slice(0, 5)
-          .reduce((max, tx) => {
-            try {
-              const addedAt = JSON.parse(tx.details)?.dateAddedToDb;
-              return Math.max(max, addedAt || 0);
-            } catch {
-              return max;
-            }
-          }, 0);
-      }
-
-      // Then queue the actual work
-      handleUpdateQueueRef.current = handleUpdateQueueRef.current
-        .then(() => handleUpdateInternal(...args))
-        .catch(err =>
-          console.log('error in serialized handleUpdate queue', err),
+      if (updateType === 'incomingPayment') {
+        applyIncomingPaymentSnapshot(passedBalance).catch(err =>
+          console.log('[BalanceLane] incoming payment snapshot error', err),
         );
-      return handleUpdateQueueRef.current;
+      }
+
+      if (!TX_REFRESH_UPDATE_TYPES.has(updateType)) {
+        return Promise.resolve();
+      }
+
+      return enqueueTxLane(updateType, () =>
+        projectTransactionsForEvent(event),
+      );
     },
-    [handleUpdateInternal],
+    [
+      enqueueTxLane,
+      projectTransactionsForEvent,
+      requestBalanceReconcile,
+      applyIncomingPaymentSnapshot,
+    ],
   );
 
   const transferHandler = useCallback((transferId, balance) => {
@@ -1158,10 +1299,10 @@ const SparkWalletProvider = ({ children }) => {
               isInitialLRC20Run.current = false;
             }
 
-            await checkHodlInvoicePaymentStatuses(
-              currentMnemonicRef.current,
-              sparkInfoRef.current.identityPubKey,
-            );
+            // await checkHodlInvoicePaymentStatuses(
+            //   currentMnemonicRef.current,
+            //   sparkInfoRef.current.identityPubKey,
+            // );
           } catch (err) {
             console.error('Error during periodic restore:', err);
           }
@@ -1224,15 +1365,14 @@ const SparkWalletProvider = ({ children }) => {
       clearInterval(updatePendingPaymentsIntervalRef.current);
       updatePendingPaymentsIntervalRef.current = null;
     }
-    //Clear balance polling
-    // if (balancePollingTimeoutRef.current) {
-    //   clearTimeout(balancePollingTimeoutRef.current);
-    //   balancePollingTimeoutRef.current = null;
-    // }
-    // if (balancePollingAbortControllerRef.current) {
-    //   balancePollingAbortControllerRef.current.abort();
-    //   balancePollingAbortControllerRef.current = null;
-    // }
+    // Clear balance polling lane
+    if (balancePollingAbortControllerRef.current) {
+      balancePollingAbortControllerRef.current.abort();
+      balancePollingAbortControllerRef.current = null;
+    }
+    balanceSupervisorRunIdRef.current += 1;
+    isBalancePollerRunningRef.current = false;
+
     if (txPollingTimeoutRef.current) {
       clearTimeout(txPollingTimeoutRef.current);
       txPollingTimeoutRef.current = null;
@@ -1304,6 +1444,9 @@ const SparkWalletProvider = ({ children }) => {
       prevAppState.current = 'active';
       prevAccountId.current = null;
       isSendingPaymentRef.current = false;
+      if (balancePollingAbortControllerRef.current) {
+        balancePollingAbortControllerRef.current.abort();
+      }
       balancePollingTimeoutRef.current = null;
       balancePollingAbortControllerRef.current = null;
       txPollingAbortControllerRef.current = null;
@@ -1311,14 +1454,28 @@ const SparkWalletProvider = ({ children }) => {
       currentPollingMnemonicRef.current = null;
       didRunInitialRestore.current = false;
       hasRestoreCompleted.current = false;
-      pollingBoundaryTime.current = null;
-      txObjectCache.current.clear();
-      currentUpdateIdRef.current = 0;
       balanceVersionRef.current = 0;
       hasRunInitBalancePoll.current = false;
-      handleUpdateQueueRef.current = Promise.resolve();
-      pendingHandleUpdatesRef.current.clear();
-      isHandleUpdateDrainScheduledRef.current = false;
+
+      txLaneQueueRef.current = Promise.resolve();
+      uiLaneQueueRef.current = Promise.resolve();
+      queueDepthRef.current = 0;
+      eventSequenceRef.current = 0;
+
+      balanceEpochRef.current = {
+        target: 0,
+        applied: 0,
+      };
+      balanceSupervisorRunIdRef.current = 0;
+      forcedPendingBySparkIdRef.current.clear();
+      lastConfirmedTxBoundaryRef.current = null;
+
+      isBalancePollerRunningRef.current = false;
+      lastBalancePollEventRef.current = {
+        updateType: null,
+        timestamp: 0,
+      };
+      preSendBoundaryRef.current = null;
 
       // Reset state variables
       setSparkConnectionError(null);
@@ -1572,12 +1729,12 @@ const SparkWalletProvider = ({ children }) => {
       }
     };
 
-    const addPendingTransaction = async (quote, address, sparkInformation) => {
+    const addPendingTransaction = async (quote, address, sparkState) => {
       const pendingTx = {
         id: quote.transactionId,
         paymentStatus: 'pending',
         paymentType: 'bitcoin',
-        accountId: sparkInformation.identityPubKey,
+        accountId: sparkState.identityPubKey,
         details: {
           fee: 0,
           amount: quote.creditAmountSats,
@@ -1671,112 +1828,21 @@ const SparkWalletProvider = ({ children }) => {
     fetchTransactions();
   }, [restoreCompleted]);
 
-  // Always-poll-on-init: after wallet connects and state is set (listeners attached),
-  // poll getSparkBalance() until it stabilizes, then set the confirmed balance.
+  // Run an initial balance reconciliation once per wallet session.
   useEffect(() => {
     if (!sparkInformation.didConnect) return;
     if (!sparkInformation.identityPubKey) return;
     if (hasRunInitBalancePoll.current) return;
+
     hasRunInitBalancePoll.current = true;
-
-    const mnemonic = currentMnemonicRef.current;
-    const initialBalance = sparkInformation.initialBalance;
-
-    // If no initialBalance was provided (e.g. balance fetch failed), skip polling
-    if (initialBalance == null) {
-      console.log(
-        'No initialBalance from init — skipping balance confirmation poll',
-      );
-      return;
-    }
-
-    console.log(
-      'Starting init balance confirmation poll. Initial SDK read:',
-      initialBalance,
-    );
-
-    if (balancePollingAbortControllerRef.current) {
-      balancePollingAbortControllerRef.current.abort();
-    }
-    balancePollingAbortControllerRef.current = new AbortController();
-    currentPollingMnemonicRef.current = mnemonic;
-
-    const pollingMnemonic = mnemonic;
-
-    const poller = createBalancePoller(
-      mnemonic,
-      currentMnemonicRef,
-      balancePollingAbortControllerRef.current,
-      async balanceResult => {
-        // Balance has stabilized — this is our confirmed value
-        console.log(
-          'Init balance confirmed via polling:',
-          balanceResult.balance,
-        );
-        const myVersion = ++balanceVersionRef.current;
-
-        handleBalanceCache({
-          isCheck: false,
-          passedBalance: Number(balanceResult.balance),
-          mnemonic: pollingMnemonic,
-        });
-
-        const freshTxs = await getAllSparkTransactions({
-          limit: null,
-          accountId: sparkInfoRef.current.identityPubKey,
-        });
-
-        setSparkInformation(prev => {
-          if (pollingMnemonic !== currentMnemonicRef.current) return prev;
-          if (myVersion < balanceVersionRef.current) return prev;
-          return {
-            ...prev,
-            balance: Number(balanceResult.balance),
-            tokens: balanceResult.tokensObj,
-            transactions: freshTxs || prev.transactions,
-            initialBalance: undefined, // Clean up — no longer needed
-          };
-        });
-      },
-      initialBalance, // Seed the poller with the first SDK read
-    );
-
-    balancePollingTimeoutRef.current = poller;
-    poller.start().then(response => {
-      if (response.reason === 'aborted') {
-        console.log('Init balance poll aborted');
-      } else if (response.reason === 'max_retries') {
-        // Polling exhausted without stabilization — accept last known value
-        console.log(
-          'Init balance poll exhausted retries, accepting current balance',
-        );
-        const myVersion = ++balanceVersionRef.current;
-        const lastBalance = response.result;
-        if (lastBalance != null) {
-          handleBalanceCache({
-            isCheck: false,
-            passedBalance: lastBalance,
-            mnemonic: pollingMnemonic,
-          });
-          setSparkInformation(prev => {
-            if (pollingMnemonic !== currentMnemonicRef.current) return prev;
-            if (myVersion < balanceVersionRef.current) return prev;
-            return {
-              ...prev,
-              balance: lastBalance,
-              initialBalance: undefined,
-            };
-          });
-        }
-      }
+    requestBalanceReconcile('initialConnect', {
+      shouldForcePending: false,
     });
-
-    return () => {
-      if (balancePollingAbortControllerRef.current) {
-        balancePollingAbortControllerRef.current.abort();
-      }
-    };
-  }, [sparkInformation.didConnect, sparkInformation.identityPubKey]);
+  }, [
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    requestBalanceReconcile,
+  ]);
 
   // This function connects to the spark node and sets the session up
 
