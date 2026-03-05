@@ -1336,7 +1336,9 @@
       "text2": "Betrag darf nicht 0 sein",
       "text3": "Schnellzahlung aktivieren",
       "text4": "Schnellzahlungsschwelle (sats)",
-      "text5": "Schnellzahlung ermöglicht es Ihnen, Rechnungen unterhalb eines festgelegten Schwellenwerts sofort ohne Wischbestätigung zu bezahlen."
+      "text5": "Schnellzahlung ermöglicht es Ihnen, Rechnungen unterhalb eines festgelegten Schwellenwerts sofort ohne Wischbestätigung zu bezahlen.",
+      "text6": "Aktuell",
+      "text7": "Neu"
     },
     "loginSecurity": {
       "text1": "Anmeldesicherheit aktivieren",
@@ -1455,13 +1457,18 @@
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",
       "mainToggle_disabled": "Benachrichtigungen deaktiviert",
-      "mainToggleDesc": "Benachrichtigungen informieren Sie über wichtige Ereignisse und Updates in der App.",
+      "mainToggleDesc": "Benachrichtigungen informieren Sie über wichtige Ereignisse und Updates in der App",
       "optionsTitle": "Benachrichtigungsoptionen",
       "contact": "Kontakte",
+      "contactDesc": "Zahlungen von Ihren gespeicherten Kontakten",
       "lnurl": "LNURL",
+      "lnurlDesc": "Zahlungen über Ihre Lightning-Adresse",
       "nostrZaps": "Nostr-Zaps",
+      "nostrZapsDesc": "Zap Zahlungen an Ihr Nostr-Profil",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Zahlungsterminal (POS)"
+      "nwcDesc": "Über Nostr Wallet Connect autorisierte Zahlungen",
+      "pos": "Zahlungsterminal (POS)",
+      "posDesc": "Zahlungen an Ihr Kassensystem"
     },
     "nostrHome": {
       "nip5Title": "NIP-05-Verifizierung",
@@ -1682,7 +1689,8 @@
         "changeLogo": "Logo ändern",
         "removeLogo": "Entfernen",
         "uploadLogo": "Tippen Sie hier, um das Markenzeichen hochzuladen.",
-        "plurlEnding": "n"
+        "plurlEnding": "n",
+        "addProducts": "Produkte hinzufügen"
       },
       "posInstructionsPath": {
         "title": "Anweisungen",
