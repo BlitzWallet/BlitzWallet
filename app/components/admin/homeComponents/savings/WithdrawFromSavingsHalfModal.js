@@ -576,6 +576,11 @@ export default function WithdrawFromSavingsHalfModal({
           ],
           'fullUpdate',
         );
+        if (selectedDestination === 'dollar') {
+          // Hide the intermediate BTC transfer from the activity feed
+          // Run before sleep to prevent race conditions
+          setFlashnetTransfer(sendResponse.response.id);
+        }
 
         await withdrawlFromRewards(amountSats);
 
@@ -584,9 +589,6 @@ export default function WithdrawFromSavingsHalfModal({
 
         if (selectedDestination === 'dollar') {
           setLoadingStep('swapping');
-
-          // Hide the intermediate BTC transfer from the activity feed
-          setFlashnetTransfer(sendResponse.response.id);
 
           const swapResult = await swapBitcoinToToken(currentWalletMnemoinc, {
             tokenAddress: USD_ASSET_ADDRESS,
@@ -752,7 +754,7 @@ export default function WithdrawFromSavingsHalfModal({
 
           const incomingTransfer = {
             id: swap.outboundTransferId,
-            paymentStatus: 'completed',
+            paymentStatus: 'pending',
             paymentType: 'spark',
             accountId: sparkInformation.identityPubKey,
             details: {

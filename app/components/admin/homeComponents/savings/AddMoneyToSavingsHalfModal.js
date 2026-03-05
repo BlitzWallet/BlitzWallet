@@ -104,7 +104,9 @@ export default function AddMoneyToSavingsHalfModal({
       : 'fiat',
   );
   const fiatStats = globalFiatStats;
-  const [selectedGoalId, setSelectedGoalId] = useState(selectedGoalUUID);
+  const [selectedGoalId, setSelectedGoalId] = useState(
+    selectedGoalUUID || UNALLOCATED_GOAL_ID,
+  );
 
   const currentPage = step[step.length - 1];
 
@@ -738,19 +740,21 @@ export default function AddMoneyToSavingsHalfModal({
               context: selectedSource,
             })}
           />
-          <ThemeText
-            styles={styles.summaryLabel}
-            content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
-              amount: swapUSDPriceDollars?.toFixed(2),
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'fiat',
-              },
-              fiatStats,
-              convertAmount: false,
-              forceCurrency: 'USD',
-            })}`}
-          />
+          {selectedSource !== 'dollar' && (
+            <ThemeText
+              styles={styles.summaryLabel}
+              content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+                amount: swapUSDPriceDollars?.toFixed(2),
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'fiat',
+                },
+                fiatStats,
+                convertAmount: false,
+                forceCurrency: 'USD',
+              })}`}
+            />
+          )}
         </View>
         <CustomButton
           buttonStyles={styles.primaryButton}
