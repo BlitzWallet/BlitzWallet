@@ -928,14 +928,14 @@
       "contributorCount_other": "{{count}} Personen",
       "pool_contribution_label": "Sparpool-Beitrag: \"{{poolName}}\"",
       "closing_pool_label": "Sparpool wird geschlossen: {{poolName}}",
-      "late_pool_contribution_label": "Verspäteter Beitrag zum Sparziel: \"{{poolName}}\"",
+      "late_pool_contribution_label": "Verspäteter Beitrag zum Sparpool: \"{{poolName}}\"",
       "activitySection": "Aktivität",
       "active": "Aktive Sparpools",
       "savingPoolError": "Dieser Sparpool konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
       "info": {
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",
-        "whatArePoolsBody": "Mit Sparzielen können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie ein Sparziel, legen Sie einen Zielbetrag fest und teilen Sie es mit beliebigen Personen.",
+        "whatArePoolsBody": "Mit Sparpools können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie einen Sparpool, legen Sie einen Zielbetrag fest und teilen Sie es mit beliebigen Personen.",
         "howItWorks": "So funktioniert es.",
         "howStep1": "• Erstellen Sie einen neuen Sparpool mit einem Namen und einem Zielbetrag.",
         "howStep2": "• Teilen Sie den Sparpool-Link, damit andere ihn finden können.",
@@ -1468,7 +1468,7 @@
       "nwc": "Nostr Wallet Connect",
       "nwcDesc": "Über Nostr Wallet Connect autorisierte Zahlungen",
       "pos": "Zahlungsterminal (POS)",
-      "posDesc": "Zahlungen an Ihr Kassensystem"
+      "posDesc": "Zahlungen an Ihr Zahlungsterminal (POS)"
     },
     "nostrHome": {
       "nip5Title": "NIP-05-Verifizierung",
@@ -2260,7 +2260,7 @@
       "disclaimer": "Guthaben wird in USDB gehalten, einem dollargedeckten Stablecoin von Brale. USDB ist 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt."
     },
     "preview": {
-      "title": "Ersparnisse",
+      "title": "Gesamt-Ersparnisse",
       "earnInterest": "Zinsen verdienen! Ausgezahlt in BTC"
     },
     "goalEmoji": {
@@ -2405,7 +2405,7 @@
         "accrualValue": "Täglich"
       },
       "context": {
-        "goalNameReqiured": "Bitte geben Sie einen Sparziel-Namen ein.",
+        "goalNameRequired": "Bitte geben Sie einen Sparziel-Namen ein.",
         "goalNotFound": "Sparziel nicht gefunden."
       },
       "transparencyTitle": "Vollständig durch Reserven gedeckt.",
