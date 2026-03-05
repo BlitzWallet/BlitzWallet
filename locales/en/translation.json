@@ -2354,7 +2354,7 @@
       "balanceLoadError": "Unable to load wallet. Go back and try again.",
       "fromInterest": "From your Bitcoin",
       "fromSavings": "From your savings",
-      "interestPaymentLabel": "Bitcoin withdrawal",
+      "interestPaymentLabel": "Bitcoin rewards withdrawal",
       "chooseGoalTitle": "Withdraw money from",
       "withdrawAll": "Withdraw All",
       "generalSavings": "General savings",
