@@ -2337,7 +2337,7 @@
       "balanceTypeTitle": "O que você gostaria de resgatar?",
       "interestOption": "Recompensas",
       "savingsOption": "Saldo de Caixinhas",
-      "interestZeroHint": "Ainda não há recompensas acumuladas",
+      "interestZeroHint": "Não há recompensas para resgatar",
       "savingsZeroHint": "Nada salvo ainda",
       "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
