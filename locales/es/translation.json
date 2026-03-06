@@ -2232,7 +2232,8 @@
       "processing": "Procesando retiro…",
       "steps": {
         "processing": "Procesando...",
-        "withdrawing": "Retirando de la cuenta de ahorros...",
+        "withdrawing_savings": "Retirando de la cuenta de ahorros...",
+        "withdrawing_rewards": "Retirando desde la cuenta de recompensas en Bitcoin...",
         "swapping": "Cambiando a Bitcoin...",
         "complete": "Completado."
       },

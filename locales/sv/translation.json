@@ -2370,7 +2370,8 @@
       "processing": "Bearbetar uttag…",
       "steps": {
         "processing": "Bearbetar...",
-        "withdrawing": "Tar ut från sparkontot...",
+        "withdrawing_savings": "Tar ut från sparkontot...",
+        "withdrawing_rewards": "Tar ut från Bitcoin-belöningskontot...",
         "swapping": "Växlar till Bitcoin...",
         "complete": "Klart."
       },

@@ -2370,7 +2370,8 @@
       "processing": "Prelievo in corso…",
       "steps": {
         "processing": "Elaborazione in corso...",
-        "withdrawing": "Prelievo dal conto risparmi...",
+        "withdrawing_savings": "Prelievo dal conto risparmi...",
+        "withdrawing_rewards": "Prelievo dal conto premi Bitcoin...",
         "swapping": "Conversione in Bitcoin...",
         "complete": "Completato."
       },

@@ -2378,7 +2378,8 @@
       "processing": "Обработка вывода…",
       "steps": {
         "processing": "Обработка...",
-        "withdrawing": "Вывод со сберегательного счёта...",
+        "withdrawing_savings": "Вывод со сберегательного счёта...",
+        "withdrawing_rewards": "Вывод с аккаунта Bitcoin-вознаграждений...",
         "swapping": "Обмен на биткоин...",
         "complete": "Завершено."
       },

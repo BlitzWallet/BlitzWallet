@@ -514,7 +514,7 @@ export default function WithdrawFromSavingsHalfModal({
         if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
 
         // Step 2: Withdrawing from Savings account — send BTC from savings to main wallet
-        setLoadingStep('withdrawing');
+        setLoadingStep('withdrawing_rewards');
         const step2Start = Date.now();
 
         const sendResponse = await sparkPaymenWrapper({
@@ -670,7 +670,7 @@ export default function WithdrawFromSavingsHalfModal({
       if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
 
       // Step 2: Withdrawing from Savings account — send USDB tokens to main wallet
-      setLoadingStep('withdrawing');
+      setLoadingStep('withdrawing_savings');
       const step2Start = Date.now();
 
       const sendResponse = await sparkPaymenWrapper({
@@ -1692,7 +1692,11 @@ export default function WithdrawFromSavingsHalfModal({
 
   if (currentPage === 'loading') {
     return (
-      <FullLoadingScreen text={t(`savings.withdraw.steps.${loadingStep}`)} />
+      <FullLoadingScreen
+        containerStyles={{ width: INSET_WINDOW_WIDTH, ...CENTER }}
+        textStyles={{ textAlign: 'center' }}
+        text={t(`savings.withdraw.steps.${loadingStep}`)}
+      />
     );
   }
 

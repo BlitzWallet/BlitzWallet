@@ -2372,7 +2372,8 @@
       "processing": "Processing withdrawal...",
       "steps": {
         "processing": "Processing...",
-        "withdrawing": "Withdrawing from Savings account...",
+        "withdrawing_savings": "Withdrawing from Savings account...",
+        "withdrawing_rewards": "Withdrawing from Bitcoin rewards account...",
         "swapping": "Swapping to Bitcoin...",
         "complete": "Complete."
       },

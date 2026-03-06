@@ -2370,7 +2370,8 @@
       "processing": "Retrait en cours…",
       "steps": {
         "processing": "Traitement en cours...",
-        "withdrawing": "Retrait du compte d’épargne...",
+        "withdrawing_savings": "Retrait du compte d’épargne...",
+        "withdrawing_rewards": "Retrait depuis le compte de récompenses Bitcoin...",
         "swapping": "Conversion en Bitcoin...",
         "complete": "Terminé."
       },

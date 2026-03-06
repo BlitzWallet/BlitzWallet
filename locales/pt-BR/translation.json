@@ -2370,7 +2370,8 @@
       "processing": "Processando resgate…",
       "steps": {
         "processing": "Processando...",
-        "withdrawing": "Resgatando da Caixinha...",
+        "withdrawing_savings": "Resgatando da Caixinha...",
+        "withdrawing_rewards": "Sacando da conta de recompensas em Bitcoin...",
         "swapping": "Convertendo para Bitcoin...",
         "complete": "Concluído."
       },
