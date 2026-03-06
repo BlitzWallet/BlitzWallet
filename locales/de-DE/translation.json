@@ -2372,7 +2372,8 @@
       "processing": "Auszahlung wird verarbeitet...",
       "steps": {
         "processing": "Auszahlung wird verarbeitet...",
-        "withdrawing": "Vom Sparkonto wird ausgezahlt...",
+        "withdrawing_savings": "Vom Sparkonto wird ausgezahlt...",
+        "withdrawing_rewards": "Wird vom BTC-Sparkonto ausgezahlt...",
         "swapping": "Wird in BTC umgetauscht...",
         "complete": "Abgeschlossen."
       },
