@@ -10,6 +10,7 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function ConfirmActionPage(props) {
   const navigate = useNavigation();
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
     borderRadius: 8,
   },

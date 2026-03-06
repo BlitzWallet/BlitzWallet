@@ -49,6 +49,7 @@ import { formatDisplayName } from './utils/formatListDisplayName';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import ProfileImageSettingsNavigator from '../../../../functions/CustomElements/profileSettingsNavigator';
 import { useNavigateToContact } from './utils/navigateToExpandedContact';
+import { WINDOWWIDTH } from '../../../../constants/theme';
 
 export default function ContactsPage({ navigation }) {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -73,7 +74,7 @@ export default function ContactsPage({ navigation }) {
   const navigate = useNavigation();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = myProfile?.didEditProfile;
-
+  console.log(contactsMessags, 'cm');
   useFocusEffect(
     useCallback(() => {
       if (!navigation) return;
@@ -792,7 +793,7 @@ const memoizedStyles = StyleSheet.create({
   },
 
   contactRowContainer: {
-    width: '95%',
+    width: WINDOWWIDTH,
     flexDirection: 'row',
     alignItems: 'center',
 

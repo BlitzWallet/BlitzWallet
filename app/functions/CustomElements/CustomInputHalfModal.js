@@ -182,12 +182,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 50,
   },
-
-  textInputContainer: {
-    width: '95%',
-  },
-  textInputStyles: {
-    width: '90%',
-    includeFontPadding: false,
-  },
 });

@@ -746,13 +746,11 @@ const styles = StyleSheet.create({
   hideProfileContainer: {
     flex: 1,
     alignItems: 'center',
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
   innerContainer: {
     flex: 1,
-    width: '95%',
-    ...CENTER,
   },
   selectFromPhotos: {
     width: 30,

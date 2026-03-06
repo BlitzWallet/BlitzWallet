@@ -15,6 +15,7 @@ import { copyToClipboard } from '../../../../functions';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../../../context-store/webViewContext';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 export default function SparkErrorScreen(props) {
   const { accountMnemoinc } = useKeysContext();
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
     borderRadius: 8,
     padding: 20,

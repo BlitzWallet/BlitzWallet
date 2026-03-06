@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import { FONT } from '../../../../../constants/theme';
+import { FONT, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../../context-store/keys';
@@ -76,6 +76,8 @@ export default function CreateGiftCardAccount(props) {
                 paddingTop: 20,
                 marginBottom: 10,
                 flexGrow: 1,
+                width: INSET_WINDOW_WIDTH,
+                ...CENTER,
               }}
               contentContainerStyle={{
                 alignItems: 'center',
@@ -89,7 +91,7 @@ export default function CreateGiftCardAccount(props) {
                       ? COLORS.darkModeText
                       : COLORS.primary,
                   fontSize: SIZES.xLarge,
-                  fontWeight: 500,
+                  fontWeight: '500',
                   marginBottom: 20,
                 }}
                 content={t('apps.giftCards.createAccount.title')}
@@ -211,9 +213,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textInput: {
-    width: '95%',
-    paddingVertical: Platform.OS === 'ios' ? 15 : null,
-    paddingHorizontal: 15,
+    width: '100%',
     borderRadius: 8,
     marginBottom: 30,
     marginTop: 50,
@@ -225,6 +225,7 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
 
+  warningContainer: { width: INSET_WINDOW_WIDTH },
   warningText: {
     fontSize: SIZES.small,
     fontFamily: FONT.Descriptoin_Regular,

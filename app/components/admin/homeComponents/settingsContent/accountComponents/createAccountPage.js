@@ -314,14 +314,14 @@ export default function CreateCustodyAccountPage(props) {
       globalThemeViewStyles={memorizedKeyboardStyle}
       useLocalPadding={accountType === 'derived'}
       isKeyboardActive={isKeyboardActive}
+      useStandardWidth={true}
     >
-      <View style={{ width: '95%' }}>
-        <CustomSettingsTopBar
-          shouldDismissKeyboard={true}
-          label={t('settings.accountComponents.createAccountPage.createTitle')}
-          iconNew="Trash2"
-        />
-      </View>
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={t('settings.accountComponents.createAccountPage.createTitle')}
+        iconNew="Trash2"
+      />
+
       <ScrollView
         style={{ width: INSET_WINDOW_WIDTH }}
         contentContainerStyle={{ paddingTop: 10, paddingBottom: 10 }}
@@ -475,56 +475,6 @@ export default function CreateCustodyAccountPage(props) {
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
-    flex: 1,
-    width: '95%',
-    ...CENTER,
-  },
-  selectFromPhotos: {
-    width: 30,
-    height: 30,
-    borderRadius: 20,
-    backgroundColor: COLORS.darkModeText,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    right: 12.5,
-    bottom: 12.5,
-    zIndex: 2,
-  },
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 125,
-    backgroundColor: 'red',
-    ...CENTER,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-    overflow: 'hidden',
-  },
-
-  textInput: {
-    fontSize: SIZES.medium,
-    padding: 10,
-    fontFamily: FONT.Title_Regular,
-    includeFontPadding: false,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  textInputContainer: { width: '100%' },
-  textInputContainerDescriptionText: {
-    marginBottom: 5,
-  },
-
-  keyContainer: {
-    flex: 1,
-    width: WINDOWWIDTH,
-    ...CENTER,
-  },
-  navContainer: {
-    marginRight: 'auto',
-  },
   contentContainer: {
     flex: 1,
     width: '90%',
@@ -538,12 +488,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     ...CENTER,
   },
-  pasteButtonRestore: {
-    width: 145,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    marginRight: 10,
-  },
+
   seedRow: {
     width: '100%',
     flexDirection: 'row',
@@ -568,12 +513,5 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-  },
-
-  mainBTCContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    ...CENTER,
   },
 });

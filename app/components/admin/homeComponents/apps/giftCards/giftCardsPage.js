@@ -33,6 +33,7 @@ import { Image } from 'expo-image';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function GiftCardPage() {
   const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
@@ -114,7 +115,7 @@ export default function GiftCardPage() {
           style={[
             styles.giftCardGridItem,
             {
-              width: (windowDimensions.width * 0.95 - 15 * 2) / 3,
+              width: (windowDimensions.width * 0.855 - 15 * 2) / 3,
             },
           ]}
         >
@@ -223,59 +224,64 @@ export default function GiftCardPage() {
           />
         </TouchableOpacity>
       </View>
-      <CustomSearchInput
-        inputText={giftCardSearch}
-        setInputText={setGiftCardSearch}
-        placeholderText={t('apps.giftCards.giftCardsPage.searchPlaceholder')}
-        containerStyles={{
-          marginTop: 20,
-          paddingBottom: CONTENT_KEYBOARD_OFFSET,
-        }}
-        onFocusFunction={() => setIsKeyboardActive(true)}
-        onBlurFunction={() => setIsKeyboardActive(false)}
-      />
-
-      {filteredGiftCards.length === 0 || errorMessage || !showList ? (
-        <FullLoadingScreen
+      <View style={styles.contentContainer}>
+        <CustomSearchInput
+          inputText={giftCardSearch}
+          setInputText={setGiftCardSearch}
+          placeholderText={t('apps.giftCards.giftCardsPage.searchPlaceholder')}
           containerStyles={{
-            justifyContent:
-              giftCards.length === 0 && !errorMessage ? 'center' : 'flex-start',
-            marginTop: giftCards.length === 0 && !errorMessage ? 0 : 30,
+            marginTop: 20,
+            paddingBottom: CONTENT_KEYBOARD_OFFSET,
           }}
-          showLoadingIcon={
-            giftCards.length === 0 && !errorMessage ? true : false
-          }
-          text={
-            !showList
-              ? t('apps.giftCards.giftCardsPage.leftPageMessage')
-              : giftCards.length === 0 && !errorMessage
-              ? t('apps.giftCards.giftCardsPage.loadingCardsMessage')
-              : errorMessage
-          }
+          onFocusFunction={() => setIsKeyboardActive(true)}
+          onBlurFunction={() => setIsKeyboardActive(false)}
         />
-      ) : (
-        <FlatList
-          numColumns={3}
-          initialNumToRender={20}
-          maxToRenderPerBatch={20}
-          windowSize={3}
-          data={filteredGiftCards}
-          renderItem={renderItem}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{
-            ...styles.flatListContainer,
-            paddingBottom: bottomPadding,
-          }}
-          showsVerticalScrollIndicator={false}
-          columnWrapperStyle={styles.row}
-        />
-      )}
+
+        {filteredGiftCards.length === 0 || errorMessage || !showList ? (
+          <FullLoadingScreen
+            containerStyles={{
+              justifyContent:
+                giftCards.length === 0 && !errorMessage
+                  ? 'center'
+                  : 'flex-start',
+              marginTop: giftCards.length === 0 && !errorMessage ? 0 : 30,
+            }}
+            showLoadingIcon={
+              giftCards.length === 0 && !errorMessage ? true : false
+            }
+            text={
+              !showList
+                ? t('apps.giftCards.giftCardsPage.leftPageMessage')
+                : giftCards.length === 0 && !errorMessage
+                ? t('apps.giftCards.giftCardsPage.loadingCardsMessage')
+                : errorMessage
+            }
+          />
+        ) : (
+          <FlatList
+            numColumns={3}
+            initialNumToRender={20}
+            maxToRenderPerBatch={20}
+            windowSize={3}
+            data={filteredGiftCards}
+            renderItem={renderItem}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={{
+              ...styles.flatListContainer,
+              paddingBottom: bottomPadding,
+            }}
+            showsVerticalScrollIndicator={false}
+            columnWrapperStyle={styles.row}
+          />
+        )}
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   globalContainer: { paddingBottom: 0 },
+  contentContainer: { width: INSET_WINDOW_WIDTH, ...CENTER },
   topBar: {
     width: '100%',
     flexDirection: 'row',

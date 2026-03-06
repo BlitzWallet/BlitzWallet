@@ -14,6 +14,7 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../../context-store/keys';
 
 import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function ContactsPageLongPressActions({
   route: {
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
     backgroundColor: COLORS.lightModeBackground,
 

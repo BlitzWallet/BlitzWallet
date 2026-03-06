@@ -30,7 +30,11 @@ import {
   ICONS,
   SHOPS_DIRECTORY_KEY,
 } from '../../../../../constants';
-import { SIZES } from '../../../../../constants/theme';
+import {
+  INSET_WINDOW_WIDTH,
+  SIZES,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
@@ -457,7 +461,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     maxHeight: 100,
   },
-  flatList: { flex: 1, width: '95%', alignSelf: 'center' },
+  flatList: { flex: 1, width: INSET_WINDOW_WIDTH, alignSelf: 'center' },
   listContent: { paddingTop: 10, paddingBottom: 20 },
   card: { borderRadius: 8, padding: 10, marginBottom: 12 },
   flagContainer: {
@@ -513,5 +517,9 @@ const styles = StyleSheet.create({
   buttonText: { marginLeft: 5 },
   textStyles: { flexGrow: 1 },
   noItemsText: { textAlign: 'center' },
-  submitListingBTN: { marginTop: CONTENT_KEYBOARD_OFFSET, alignSelf: 'center' },
+  submitListingBTN: {
+    marginTop: CONTENT_KEYBOARD_OFFSET,
+    alignSelf: 'center',
+    width: INSET_WINDOW_WIDTH,
+  },
 });

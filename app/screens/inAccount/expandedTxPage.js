@@ -50,6 +50,7 @@ import { decryptMessage } from '../../functions/messaging/encodingAndDecodingMes
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import useAdaptiveButtonLayout from '../../hooks/useAdaptiveButtonLayout';
 import { useNavigateToContact } from '../../components/admin/homeComponents/contacts/utils/navigateToExpandedContact';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../constants/theme';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -825,7 +826,7 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
   },
   scrollContent: {
-    width: '95%',
+    width: WINDOWWIDTH,
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',

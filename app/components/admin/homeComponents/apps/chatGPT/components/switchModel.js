@@ -1,22 +1,22 @@
-import {useNavigation} from '@react-navigation/native';
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CONTENT_KEYBOARD_OFFSET, SIZES} from '../../../../../../constants';
-import {ThemeText} from '../../../../../../functions/CustomElements';
-import {AI_MODEL_COST} from '../contants/AIModelCost';
-import {useTranslation} from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../../../constants';
+import { ThemeText } from '../../../../../../functions/CustomElements';
+import { AI_MODEL_COST } from '../contants/AIModelCost';
+import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
-import {INSET_WINDOW_WIDTH} from '../../../../../../constants/theme';
-import {useCallback, useState} from 'react';
-import {useGlobalInsets} from '../../../../../../../context-store/insetsProvider';
+import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
+import { useCallback, useState } from 'react';
+import { useGlobalInsets } from '../../../../../../../context-store/insetsProvider';
 
 export default function SwitchGenerativeAIModel({
   setSelectedRecieveOption,
   setIsKeyboardActive,
 }) {
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [modelSearch, setModelSearch] = useState('');
-  const {bottomPadding} = useGlobalInsets();
+  const { bottomPadding } = useGlobalInsets();
 
   const handleClick = useCallback(
     selectedOption => {
@@ -31,12 +31,13 @@ export default function SwitchGenerativeAIModel({
   );
 
   const listItem = useCallback(
-    ({item}) => {
+    ({ item }) => {
       return (
         <TouchableOpacity
           key={item.id}
           onPress={() => handleClick(item.shortName)}
-          style={styles.optionItemContainer}>
+          style={styles.optionItemContainer}
+        >
           <View style={styles.row}>
             <ThemeText
               styles={styles.optionItemTextHeader}
@@ -75,7 +76,7 @@ export default function SwitchGenerativeAIModel({
         onFocusFunction={() => setIsKeyboardActive(true)}
         onBlurFunction={() => setIsKeyboardActive(false)}
         placeholderText="OpenAI: o4 Mini"
-        containerStyles={{marginBottom: CONTENT_KEYBOARD_OFFSET}}
+        containerStyles={{ marginBottom: CONTENT_KEYBOARD_OFFSET }}
       />
       {filteredList.length ? (
         <FlatList
@@ -83,7 +84,7 @@ export default function SwitchGenerativeAIModel({
           renderItem={listItem}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="always"
-          contentContainerStyle={{paddingBottom: bottomPadding}}
+          contentContainerStyle={{ paddingBottom: bottomPadding }}
         />
       ) : (
         <ThemeText
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
   },
 
   optionItemContainer: {
-    width: '95%',
+    width: '100%',
     marginVertical: 10,
     alignSelf: 'center',
   },

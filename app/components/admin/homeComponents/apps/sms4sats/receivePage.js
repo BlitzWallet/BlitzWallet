@@ -15,7 +15,7 @@ import {
   SIZES,
 } from '../../../../../constants';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import { COLORS } from '../../../../../constants/theme';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
@@ -31,7 +31,7 @@ import { useActiveCustodyAccount } from '../../../../../../context-store/activeA
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import { useKeysContext } from '../../../../../../context-store/keys';
-import { KEYBOARDTIMEOUT } from '../../../../../constants/styles';
+import { CENTER, KEYBOARDTIMEOUT } from '../../../../../constants/styles';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import CountryFlag from 'react-native-country-flag';
@@ -500,8 +500,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   searchContainer: {
-    width: '100%',
+    width: INSET_WINDOW_WIDTH,
     marginBottom: 10,
+    ...CENTER,
   },
   itemSearch: {
     marginTop: 0,

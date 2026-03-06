@@ -182,6 +182,8 @@ export default function ExpandedGiftCardPage(props) {
         <ScrollView
           contentContainerStyle={{
             paddingBottom: bottomPadding,
+            width: INSET_WINDOW_WIDTH,
+            ...CENTER,
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -741,7 +743,7 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   purchaseButton: {
-    minWidth: '70%',
+    minWidth: '100%',
     alignSelf: 'center',
   },
   purchaseButtonText: {

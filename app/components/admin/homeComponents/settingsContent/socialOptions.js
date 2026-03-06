@@ -4,6 +4,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useNavigation } from '@react-navigation/native';
 import openWebBrowser from '../../../../functions/openWebBrowser';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 const NAVITEMS = [
   {
@@ -60,7 +61,7 @@ export default function BlitzSocialOptions() {
 
 const styles = StyleSheet.create({
   innerContainer: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 200,
     display: 'flex',
     flexDirection: 'row',

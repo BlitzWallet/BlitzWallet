@@ -14,6 +14,7 @@ import { openInbox } from 'react-native-email-link';
 
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function GiftCardOrderDetails(props) {
   const { backgroundColor, transparentOveraly } = GetThemeColors();
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
     backgroundColor: COLORS.lightModeBackground,
 

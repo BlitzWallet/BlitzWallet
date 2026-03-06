@@ -20,6 +20,7 @@ import { getTimeDisplay } from './contacts';
 import { isFlashnetTransfer } from './spark/handleFlashnetTransferIds';
 import { satsToDollars } from './spark/flashnet';
 import ThemeIcon from './CustomElements/themeIcon';
+import { INSET_WINDOW_WIDTH } from '../constants/theme';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -642,7 +643,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   noTransactionsText: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
     textAlign: 'center',
   },
