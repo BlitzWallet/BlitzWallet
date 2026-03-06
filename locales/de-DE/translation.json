@@ -2337,8 +2337,8 @@
         "complete": "Abgeschlossen."
       },
       "successTitle": "Geld eingezahlt",
-      "paymentLabel_unallocated": "Spareinzahlung",
-      "paymentLabel": "Spareinzahlung für {{savingsGoal}}",
+      "paymentLabel_unallocated": "Sparzieleinzahlung",
+      "paymentLabel": "Sparzieleinzahlung für {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
       }
