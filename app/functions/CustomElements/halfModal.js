@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import {
   HalfModalSendOptions,
@@ -80,6 +80,7 @@ export default function CustomHalfModal(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(
     contentType === 'AddMessageReceivePage' ? true : false,
   );
+  const isScreenActive = useRef(false);
   const { bottomPadding, topPadding } = useGlobalInsets();
   const didHandleBackpress = useRef(false);
 
@@ -92,8 +93,18 @@ export default function CustomHalfModal(props) {
     }
   }, [contentHeight]);
 
+  useFocusEffect(
+    useCallback(() => {
+      isScreenActive.current = true;
+      return () => {
+        isScreenActive.current = false;
+      };
+    }, []),
+  );
+
   const handleBackPressFunction = useCallback(
     customBackFunction => {
+      if (!isScreenActive.current) return;
       if (didHandleBackpress.current) return true;
       didHandleBackpress.current = true;
       const keyboardVisible = Keyboard.isVisible();
@@ -138,6 +149,7 @@ export default function CustomHalfModal(props) {
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
+            isScreenActive={isScreenActive}
           />
         );
       case 'receiveOptions':
@@ -150,6 +162,7 @@ export default function CustomHalfModal(props) {
             scrollPosition={props.route.params?.scrollPosition}
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            isScreenActive={isScreenActive}
           />
         );
       case 'confirmSMS':
@@ -237,6 +250,7 @@ export default function CustomHalfModal(props) {
             setIsKeyboardActive={setIsKeyboardActive}
             startingSearchValue={props.route.params?.startingSearchValue}
             handleBackPressFunction={handleBackPressFunction}
+            isScreenActive={isScreenActive}
           />
         );
 

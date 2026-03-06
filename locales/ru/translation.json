@@ -1138,7 +1138,9 @@
       "searchPlaceholder": "Найти контакт",
       "lnurlAddMessage": "Вы добавляете",
       "noProfilesFound": "Профили не найдены",
-      "startTypingMessage": "Ищите по адресу Молнии (name@service.com) или юзернейму Blitz."
+      "startTypingMessage": "Ищите по адресу Молнии (name@service.com) или юзернейму Blitz.",
+      "loadingMessage": "Поиск контакта...",
+      "profileImage": "Загрузка фото профиля..."
     },
     "expandedContactPage": {
       "loadingContactError": "Не удалось загрузить контакт.",

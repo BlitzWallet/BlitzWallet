@@ -1137,7 +1137,9 @@
       "searchPlaceholder": "Find a contact",
       "lnurlAddMessage": "You are about to add",
       "noProfilesFound": "No profiles match this search",
-      "startTypingMessage": "Search by a Lightning address (e.g. name@service.com) or a Blitz username."
+      "startTypingMessage": "Search by a Lightning address (e.g. name@service.com) or a Blitz username.",
+      "loadingMessage": "Looking up contact...",
+      "profileImage": "Loading profile photo..."
     },
     "expandedContactPage": {
       "loadingContactError": "Unable to load contact, please try again.",

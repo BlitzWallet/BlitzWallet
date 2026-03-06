@@ -357,6 +357,7 @@ export default function HalfModalReceiveOptions({
   darkModeType,
   scrollPosition,
   handleBackPressFunction,
+  isScreenActive,
 }) {
   const [expandedOtherOptions, setExpandedOtherOptions] = useState(false);
   const [expandedContact, setExpandedContact] = useState(null);
@@ -807,6 +808,7 @@ export default function HalfModalReceiveOptions({
         visible={showAddContact}
         onClose={() => setShowAddContact(false)}
         onContactAdded={handleContactAdded}
+        isScreenActive={isScreenActive}
       />
 
       <PoolCreationOverlay

@@ -1137,7 +1137,9 @@
       "searchPlaceholder": "Trouver un contact",
       "lnurlAddMessage": "Vous êtes sur le point d'ajouter",
       "noProfilesFound": "Aucun profil ne correspond à cette recherche",
-      "startTypingMessage": "Recherche par LNURL (par exemple name@service.com) ou par nom d'utilisateur Blitz."
+      "startTypingMessage": "Recherche par LNURL (par exemple name@service.com) ou par nom d'utilisateur Blitz.",
+      "loadingMessage": "Recherche du contact...",
+      "profileImage": "Chargement de la photo de profil..."
     },
     "expandedContactPage": {
       "loadingContactError": "Impossible de charger le contact, veuillez réessayer.",

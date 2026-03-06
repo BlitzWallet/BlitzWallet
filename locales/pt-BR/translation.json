@@ -1137,7 +1137,9 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz."
+      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz.",
+      "loadingMessage": "Procurando contato...",
+      "profileImage": "Carregando foto de perfil..."
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente.",

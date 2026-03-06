@@ -1137,7 +1137,9 @@
       "searchPlaceholder": "Hitta en kontaktperson",
       "lnurlAddMessage": "Du är på väg att lägga till",
       "noProfilesFound": "Inga profiler matchar denna sökning",
-      "startTypingMessage": "Sök efter LNURL (t.ex. name@service.com) eller Blitz-användarnamn."
+      "startTypingMessage": "Sök efter LNURL (t.ex. name@service.com) eller Blitz-användarnamn.",
+      "loadingMessage": "Söker efter kontakt...",
+      "profileImage": "Laddar profilbild..."
     },
     "expandedContactPage": {
       "loadingContactError": "Det gick inte att ladda kontakten, försök igen.",

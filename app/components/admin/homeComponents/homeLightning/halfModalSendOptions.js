@@ -259,6 +259,7 @@ export default function HalfModalSendOptions({
   theme,
   darkModeType,
   handleBackPressFunction,
+  isScreenActive,
 }) {
   const [inputText, setInputText] = useState('');
   const [expandedContact, setExpandedContact] = useState(null);
@@ -696,8 +697,9 @@ export default function HalfModalSendOptions({
 
       <AddContactOverlay
         visible={showAddContact}
-        onClose={handleBackPressFunction}
+        onClose={() => setShowAddContact(false)}
         onContactAdded={handleContactAdded}
+        isScreenActive={isScreenActive}
       />
     </View>
   );
