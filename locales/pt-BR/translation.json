@@ -2371,7 +2371,7 @@
       "steps": {
         "processing": "Processando...",
         "withdrawing_savings": "Resgatando da Caixinha...",
-        "withdrawing_rewards": "Sacando da conta de recompensas em Bitcoin...",
+        "withdrawing_rewards": "Resgatando recompensas",
         "swapping": "Convertendo para Bitcoin...",
         "complete": "Concluído."
       },
