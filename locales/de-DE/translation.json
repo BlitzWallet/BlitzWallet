@@ -1472,7 +1472,7 @@
     },
     "nostrHome": {
       "nip5Title": "NIP-05-Verifizierung",
-      "nip5Desc": "Verifizieren Sie Ihre Nostr-Identität schnell mit Blitz.",
+      "nip5Desc": "Verifizieren Sie Ihre Nostr-Identität schnell mit Blitz",
       "nwcTitle": "Nostr Wallet Connect",
       "nwcDesc": "Verbinden Sie Ihre Blitz Wallet mit Apps, die auf Nostr basieren."
     },
