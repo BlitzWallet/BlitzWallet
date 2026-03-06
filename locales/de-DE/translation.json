@@ -1139,7 +1139,9 @@
       "searchPlaceholder": "Kontakte suchen...",
       "lnurlAddMessage": "Sie sind dabei, hinzuzufügen.",
       "noProfilesFound": "Kein Profil entspricht dieser Suche.",
-      "startTypingMessage": "Suchen Sie nach LNURL (z. B. name@service.com) oder Blitz-Benutzername."
+      "startTypingMessage": "Suchen Sie nach LNURL (z. B. name@service.com) oder Blitz-Benutzername.",
+      "loadingMessage": "Kontakt wird gesucht...",
+      "profileImage": "Profilbild wird geladen..."
     },
     "expandedContactPage": {
       "loadingContactError": "Die Kontakte konnten nicht geladen werden, bitte versuchen Sie es erneut.",
