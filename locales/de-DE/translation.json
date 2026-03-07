@@ -2096,7 +2096,14 @@
         "percentConvertSelector": "% zum Umwandeln",
         "slippage": "Preisabweichung",
         "slippageDesc": "Die Preisabweichung ist der prozentuale Preisunterschied, den Sie akzeptieren. Eine niedrige Preisabweichung kann dazu führen, dass Transaktionen fehlschlagen, während eine höhere Preisabweichung dazu führen kann, dass Sie weniger als erwartet erhalten.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Tauschen",
+          "amount": "Betrag",
+          "details": "Details"
+        },
+        "chooseCurrencyTitle": "Wählen Sie die Währung, von der Sie tauschen möchten",
+        "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Der Swap-Verlauf konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",
