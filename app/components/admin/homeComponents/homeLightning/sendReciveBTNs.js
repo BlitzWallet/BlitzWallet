@@ -98,7 +98,7 @@ export function SendRecieveBTNs({
   return (
     <View style={styles.container}>
       {/* Send — primary */}
-      <TouchableOpacity onPress={handleSend} activeOpacity={0.2}>
+      <TouchableOpacity onPress={handleSend} activeOpacity={1}>
         <View style={styles.buttonWrapper}>
           <View
             style={[
@@ -123,7 +123,7 @@ export function SendRecieveBTNs({
       </TouchableOpacity>
 
       {/* Receive — primary */}
-      <TouchableOpacity onPress={handleReceive} activeOpacity={0.2}>
+      <TouchableOpacity onPress={handleReceive} activeOpacity={1}>
         <View style={styles.buttonWrapper}>
           <View
             style={[
@@ -149,7 +149,7 @@ export function SendRecieveBTNs({
 
       {/* Camera/Scan — secondary */}
       {!isNWCWallet && (
-        <TouchableOpacity onPress={handleCamera}>
+        <TouchableOpacity activeOpacity={1} onPress={handleCamera}>
           <View style={styles.buttonWrapper}>
             <View
               style={[
@@ -175,7 +175,7 @@ export function SendRecieveBTNs({
       )}
 
       {/* Swap — secondary */}
-      <TouchableOpacity onPress={handleSwap}>
+      <TouchableOpacity activeOpacity={1} onPress={handleSwap}>
         <View style={styles.buttonWrapper}>
           <View
             style={[
