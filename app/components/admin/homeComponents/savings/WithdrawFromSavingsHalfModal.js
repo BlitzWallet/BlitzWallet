@@ -395,6 +395,7 @@ export default function WithdrawFromSavingsHalfModal({
               !hasNewInterestPayment &&
               balance !== null &&
               sparkBalance.didWork &&
+              Number(sparkBalance.balance) &&
               Number(sparkBalance.balance) === balance
             ) {
               shouldPoll = false;
@@ -926,7 +927,7 @@ export default function WithdrawFromSavingsHalfModal({
                       content={t('savings.withdraw.interestOption')}
                     />
 
-                    {isInterestDisabled ? (
+                    {isInterestDisabled && balanceReady ? (
                       <ThemeText
                         content={t('savings.withdraw.interestZeroHint')}
                       />
