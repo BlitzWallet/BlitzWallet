@@ -12,7 +12,10 @@ import {
   SKELETON_ANIMATION_SPEED,
 } from '../../../../constants';
 import { Image as ExpoImage } from 'expo-image';
-import { HIDDEN_OPACITY } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
@@ -196,7 +199,7 @@ function TokenItem({
 
 const styles = StyleSheet.create({
   tokensContainer: {
-    width: '85%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
     // borderWidth: 1,
     padding: 15,

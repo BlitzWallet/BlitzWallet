@@ -194,5 +194,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.huge,
     textAlign: 'center',
     fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
   },
 });

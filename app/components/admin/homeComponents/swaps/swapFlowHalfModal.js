@@ -186,6 +186,7 @@ export default function SwapFlowHalfModal({
 
   // Android hardware back press — intercepts step-level navigation
   const handleBackPressAndroid = useCallback(() => {
+    if (isSwapping) return true;
     if (currentStep === 'historyExpanded') {
       navigateToStep('routeSelection', 'backward');
       return true;
@@ -199,7 +200,7 @@ export default function SwapFlowHalfModal({
       return true;
     }
     return false;
-  }, [currentStep, navigateToStep]);
+  }, [currentStep, navigateToStep, isSwapping]);
   useHandleBackPressNew(handleBackPressAndroid);
 
   // Derived state

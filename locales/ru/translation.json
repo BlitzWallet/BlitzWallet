@@ -1083,7 +1083,9 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Все транзакции",
-        "no_transaction_history": "Здесь появятся ваши транзакции"
+        "no_transaction_history": "Здесь появятся ваши транзакции",
+        "activity": "Активность",
+        "see_all": "Показать всё"
       },
       "lrc20Assets": {
         "actionText": "{{action}} токены",

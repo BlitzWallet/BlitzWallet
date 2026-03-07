@@ -24,6 +24,10 @@ import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
 import { useWebView } from '../../../context-store/webViewContext';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import {
+  getCachedSparkTransactions,
+  getSparkIdentityPubKey,
+} from '../../functions/spark';
 // import { initializeSparkDatabase } from '../../functions/spark/transactions';
 // import { getCachedSparkTransactions } from '../../functions/spark';
 // import { getLocalStorageItem, setLocalStorageItem } from '../../functions';
@@ -52,6 +56,7 @@ export default function ConnectingToNodeLoadingScreen({
   const {
     // setNumberOfCachedTxs,
     connectToSparkWallet,
+    setSparkInformation,
   } = useSparkWallet();
   const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
   // const {
@@ -123,7 +128,10 @@ export default function ConnectingToNodeLoadingScreen({
         }
         connectToSparkWallet();
 
-        const privateKey = await privateKeyFromSeedWords(accountMnemoinc);
+        const [privateKey, identityPubKey] = await Promise.all([
+          privateKeyFromSeedWords(accountMnemoinc),
+          getSparkIdentityPubKey(accountMnemoinc),
+        ]);
         const publicKey = privateKey ? getPublicKey(privateKey) : null;
 
         if (!privateKey || !publicKey)
@@ -142,6 +150,7 @@ export default function ConnectingToNodeLoadingScreen({
             // sparkTxs,
             // rootstockSwaps,
             didLoadUserSettings,
+            placeholderTxs,
           ] = await Promise.all([
             // initializeDatabase(),
             // initializeGiftCardDatabase(),
@@ -159,6 +168,7 @@ export default function ConnectingToNodeLoadingScreen({
               privateKey,
               publicKey,
             }),
+            getCachedSparkTransactions(20, identityPubKey),
           ]);
 
           console.log('Process 2', new Date().getTime());
@@ -169,6 +179,10 @@ export default function ConnectingToNodeLoadingScreen({
               t('screens.inAccount.loadingScreen.userSettingsError'),
             );
           crashlyticsLogReport('Loaded users settings from firebase');
+          setSparkInformation(prev => ({
+            ...prev,
+            transactions: placeholderTxs,
+          }));
         }
 
         toggleContactsPrivateKey(privateKey);

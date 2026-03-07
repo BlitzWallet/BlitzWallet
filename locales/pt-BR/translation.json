@@ -1082,7 +1082,9 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Ver tudo",
-        "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui"
+        "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
+        "activity": "Atividade",
+        "see_all": "Ver tudo"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",

@@ -1084,7 +1084,9 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Alle Transaktionen anzeigen",
-        "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird."
+        "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird.",
+        "activity": "Aktivität",
+        "see_all": "Alle anzeigen"
       },
       "lrc20Assets": {
         "actionText": "USDB-Token {{action}}",
