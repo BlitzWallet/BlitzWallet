@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
 
   // ── Button ──
   buttonStyles: {
-    width: 145,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
 });
