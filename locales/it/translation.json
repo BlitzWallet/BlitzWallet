@@ -2094,7 +2094,14 @@
         "percentConvertSelector": "% da convertire",
         "slippage": "Slippage",
         "slippageDesc": "Lo slippage è la percentuale di variazione del prezzo che sei disposto ad accettare. Uno slippage basso può causare il fallimento della transazione, mentre uno slippage alto può portare a ricevere un importo inferiore a quello previsto.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Scambia",
+          "amount": "Importo",
+          "details": "Dettagli"
+        },
+        "chooseCurrencyTitle": "Scegli la valuta da cui effettuare lo scambio.",
+        "enterAmountTitle": "Inserisci l’importo da scambiare."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Impossibile caricare la cronologia degli swap. Riprova più tardi.",

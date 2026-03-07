@@ -2094,7 +2094,14 @@
         "percentConvertSelector": "% do saldo",
         "slippage": "Slippage",
         "slippageDesc": "Slippage é a diferença percentual na variação de preço que você está disposto a aceitar. Um slippage baixo pode causar falhas na transação, enquanto um slippage alto pode resultar em receber menos do que o esperado.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Trocar",
+          "amount": "Valor",
+          "details": "Detalhes"
+        },
+        "chooseCurrencyTitle": "Escolha a moeda da qual deseja trocar.",
+        "enterAmountTitle": "Insira o valor que deseja trocar."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",

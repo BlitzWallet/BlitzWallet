@@ -80,7 +80,10 @@ export function SendRecieveBTNs({
             return;
           }
           if (btnType === 'swap') {
-            navigate.navigate('SwapsPage');
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'swapFlow',
+              sliderHight: 0.5,
+            });
           } else {
             crashlyticsLogReport(
               `Running in send and receive buttons on homepage for button send BTC page`,

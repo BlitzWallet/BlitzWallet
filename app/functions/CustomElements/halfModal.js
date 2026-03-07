@@ -67,6 +67,7 @@ import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/sa
 import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
 import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
+import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -527,6 +528,13 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
             setIsKeyboardActive={setIsKeyboardActive}
+          />
+        );
+      case 'swapFlow':
+        return (
+          <SwapFlowHalfModal
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       default:

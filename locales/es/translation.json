@@ -1956,7 +1956,14 @@
         "percentConvertSelector": "% a convertir",
         "slippage": "Deslizamiento",
         "slippageDesc": "El deslizamiento es el porcentaje de variación de precio que estás dispuesto a aceptar. Un deslizamiento bajo puede causar fallos en la transacción, mientras que uno alto puede resultar en recibir menos de lo esperado.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Intercambiar",
+          "amount": "Cantidad",
+          "details": "Detalles"
+        },
+        "chooseCurrencyTitle": "Elige la moneda desde la que deseas intercambiar.",
+        "enterAmountTitle": "Ingresa la cantidad que deseas intercambiar."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "No se pudo cargar el historial de intercambios. Inténtalo de nuevo más tarde.",
