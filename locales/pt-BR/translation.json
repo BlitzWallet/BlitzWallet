@@ -2097,11 +2097,11 @@
         "auto": "Auto",
         "navbar": {
           "swap": "Trocar",
-          "amount": "Valor",
+          "amount": "Quantia",
           "details": "Detalhes"
         },
         "chooseCurrencyTitle": "Escolha a moeda da qual deseja trocar.",
-        "enterAmountTitle": "Insira o valor que deseja trocar."
+        "enterAmountTitle": "Insira a quantia que deseja trocar."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
