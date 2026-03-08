@@ -128,9 +128,10 @@ export default function ConnectingToNodeLoadingScreen({
         }
         connectToSparkWallet();
 
-        const [privateKey, identityPubKey] = await Promise.all([
+        const [privateKey, identityPubKey, placeholderTxs] = await Promise.all([
           privateKeyFromSeedWords(accountMnemoinc),
           getSparkIdentityPubKey(accountMnemoinc),
+          getCachedSparkTransactions(20, identityPubKey),
         ]);
         const publicKey = privateKey ? getPublicKey(privateKey) : null;
 
@@ -150,7 +151,6 @@ export default function ConnectingToNodeLoadingScreen({
             // sparkTxs,
             // rootstockSwaps,
             didLoadUserSettings,
-            placeholderTxs,
           ] = await Promise.all([
             // initializeDatabase(),
             // initializeGiftCardDatabase(),
@@ -168,7 +168,6 @@ export default function ConnectingToNodeLoadingScreen({
               privateKey,
               publicKey,
             }),
-            getCachedSparkTransactions(20, identityPubKey),
           ]);
 
           console.log('Process 2', new Date().getTime());
@@ -179,13 +178,12 @@ export default function ConnectingToNodeLoadingScreen({
               t('screens.inAccount.loadingScreen.userSettingsError'),
             );
           crashlyticsLogReport('Loaded users settings from firebase');
-          setSparkInformation(prev => ({
-            ...prev,
-            transactions: placeholderTxs,
-          }));
         }
-
         toggleContactsPrivateKey(privateKey);
+        setSparkInformation(prev => ({
+          ...prev,
+          transactions: placeholderTxs,
+        }));
         console.log('Process 3', new Date().getTime());
 
         const elapsedTime = Date.now() - startTime;
