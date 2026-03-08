@@ -37,9 +37,9 @@ export async function initializeFirebase(publicKey, privateKey) {
     try {
       // Initialize App Check first
       // Sign in anonymously
-      if (__DEV__) {
-        connectFunctionsEmulator(getFunctions(), process.env.DEVICE_IP, 5001);
-      }
+      // if (__DEV__) {
+      //   connectFunctionsEmulator(getFunctions(), process.env.DEVICE_IP, 5001);
+      // }
 
       const currentUser = firebaseAuth.currentUser;
       console.log('current auth', {
