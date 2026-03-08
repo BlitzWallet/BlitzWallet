@@ -4,29 +4,63 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import SavingsTransactionComponenet from './transactionContainer';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import CustomButton from '../../../../functions/CustomElements/button';
 
 export default function SavingsActivityContainer({ transactions = [] }) {
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
+  const [visibleTransactionsCount, setVisibleTransactionsCount] = useState(10);
+
+  const visibleTransactions = useMemo(
+    () => transactions.slice(0, visibleTransactionsCount),
+    [transactions, visibleTransactionsCount],
+  );
+
+  useEffect(() => {
+    setVisibleTransactionsCount(prevCount =>
+      Math.max(10, Math.min(prevCount, transactions.length)),
+    );
+  }, [transactions.length]);
+
+  const handleLoadMoreTransactions = useCallback(() => {
+    setVisibleTransactionsCount(prevCount =>
+      Math.min(prevCount + 10, transactions.length),
+    );
+  }, [transactions.length]);
+
+  const hasMoreTransactions = visibleTransactionsCount < transactions.length;
+
   return (
     <View style={styles.container}>
-      <ThemeText styles={styles.activityHeader} content={t('savings.activity.title')} />
+      <ThemeText
+        styles={styles.activityHeader}
+        content={t('savings.activity.title')}
+      />
       <View style={[styles.sectionCard, { backgroundColor: backgroundOffset }]}>
-        {!transactions.length ? (
+        {!visibleTransactions.length ? (
           <ThemeText
             styles={styles.emptyActivity}
             content={t('savings.activity.emptyState')}
           />
         ) : (
-          transactions.map((item, index) => (
+          visibleTransactions.map((item, index) => (
             <SavingsTransactionComponenet
-              isLastIndex={index === transactions.length - 1}
+              isLastIndex={index === visibleTransactions.length - 1}
               key={item.txId}
               item={item}
             />
           ))
         )}
       </View>
+
+      {hasMoreTransactions && (
+        <CustomButton
+          buttonStyles={styles.loadMoreButton}
+          actionFunction={handleLoadMoreTransactions}
+          textContent={t('constants.loadMore')}
+        />
+      )}
     </View>
   );
 }
@@ -52,5 +86,8 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     includeFontPadding: false,
     padding: 14,
+  },
+  loadMoreButton: {
+    marginTop: 10,
   },
 });
