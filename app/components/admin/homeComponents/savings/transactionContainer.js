@@ -19,7 +19,9 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
   const { backgroundOffset } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const amount = fromMicros(item.amountMicros);
+  const amount =
+    fromMicros(item.amountMicros) *
+    (item.type === 'bitcoinWithdrawal' ? -1 : 1);
   const isPositive = amount >= 0;
 
   const showSats =
