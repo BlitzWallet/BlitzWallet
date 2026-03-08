@@ -1086,7 +1086,8 @@
         "see_all_txs": "Alle Transaktionen anzeigen",
         "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird.",
         "activity": "Aktivität",
-        "see_all": "Alle anzeigen"
+        "see_all": "Alle anzeigen",
+        "noTxs": "Noch keine Transaktionen"
       },
       "lrc20Assets": {
         "actionText": "USDB-Token {{action}}",

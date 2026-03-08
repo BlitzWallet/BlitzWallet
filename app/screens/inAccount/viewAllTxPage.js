@@ -98,6 +98,7 @@ export default function ViewAllTxPage() {
               didGetToHomepage: true,
               enabledLRC20,
               poolInfoRef,
+              t,
             });
 
             if (searchUUIDRef.current === currentFilter.searchUUID) {

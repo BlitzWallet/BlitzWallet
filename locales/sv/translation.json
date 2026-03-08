@@ -1084,7 +1084,8 @@
         "see_all_txs": "Se alla transaktioner",
         "no_transaction_history": "Skicka eller ta emot en transaktion för att den ska visas här",
         "activity": "Aktivitet",
-        "see_all": "Visa alla"
+        "see_all": "Visa alla",
+        "noTxs": "Inga transaktioner ännu"
       },
       "lrc20Assets": {
         "actionText": "{{action}} symboler",

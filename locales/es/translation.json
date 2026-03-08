@@ -945,7 +945,8 @@
         "see_all_txs": "Ver todas las transacciones",
         "no_transaction_history": "Envía o recibe una transacción para que aparezca aquí",
         "activity": "Actividad",
-        "see_all": "Ver todo"
+        "see_all": "Ver todo",
+        "noTxs": "Aún no hay transacciones"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",

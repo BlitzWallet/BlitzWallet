@@ -1084,7 +1084,8 @@
         "see_all_txs": "See all transactions",
         "no_transaction_history": "Send or receive a transaction for it to show up here",
         "activity": "Activity",
-        "see_all": "See all"
+        "see_all": "See all",
+        "noTxs": "No transactions yet"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",

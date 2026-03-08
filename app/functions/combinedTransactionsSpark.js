@@ -224,6 +224,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     enabledLRC20,
     scrollPosition,
     poolInfoRef,
+    t,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -448,10 +449,8 @@ export default function getFormattedHomepageTxsForSpark(props) {
 
               <View style={styles.transactionContent}>
                 <ThemeText
-                  CustomEllipsizeMode="tail"
-                  CustomNumberOfLines={1}
                   styles={styles.descriptionText}
-                  content={'No transactions yet'}
+                  content={t('wallet.homeLightning.home.noTxs')}
                 />
               </View>
             </View>

@@ -325,6 +325,7 @@ export default function HomeLightning({ navigation }) {
         enabledLRC20,
         scrollPosition,
         poolInfoRef,
+        t,
       }) || []
     );
   }, [
