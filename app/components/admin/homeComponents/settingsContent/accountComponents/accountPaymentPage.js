@@ -269,6 +269,7 @@ export default function AccountPaymentPage(props) {
           textContent={t('constants.back')}
           buttonStyles={{
             ...CENTER,
+            width: INSET_WINDOW_WIDTH,
           }}
           actionFunction={navigate.goBack}
         />

@@ -143,6 +143,7 @@ export default function AdvancedGiftClaim() {
             placeholderText={`1 - ${currentGiftIndex}`}
             keyboardType="number-pad"
             textInputStyles={{
+              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
               color: textColor,
             }}
             maxLength={String(currentGiftIndex).length}

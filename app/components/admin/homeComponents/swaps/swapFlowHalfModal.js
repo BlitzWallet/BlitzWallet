@@ -1188,6 +1188,7 @@ export default function SwapFlowHalfModal({
                     <CheckMarkCircle
                       isActive={fromAsset === 'BTC'}
                       containerSize={25}
+                      switchDarkMode={theme && !darkModeType}
                     />
                   </TouchableOpacity>
 

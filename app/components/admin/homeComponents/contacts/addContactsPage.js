@@ -5,6 +5,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 export default function AddContactsPage({ selectedContact }) {
   const newContact = selectedContact;
   const { textInputBackground, textInputColor } = GetThemeColors();
@@ -52,7 +53,7 @@ export default function AddContactsPage({ selectedContact }) {
         actionFunction={() => {
           addContact(newContact);
         }}
-        buttonStyles={{ marginTop: 'auto' }}
+        buttonStyles={{ marginTop: 'auto', width: INSET_WINDOW_WIDTH }}
         textContent={t('contacts.editMyProfilePage.addContactBTN')}
       />
     </View>
