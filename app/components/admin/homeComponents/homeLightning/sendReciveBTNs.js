@@ -103,7 +103,7 @@ export function SendRecieveBTNs({
       t('constants.swap'),
     ],
     SIZES.small,
-    8,
+    10,
   );
 
   return (
@@ -227,6 +227,7 @@ export function SendRecieveBTNs({
 
 const styles = StyleSheet.create({
   container: {
+    maxWidth: 350,
     width: '85%',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -247,6 +248,7 @@ const styles = StyleSheet.create({
   },
 
   labelSecondary: {
+    width: '100%',
     fontSize: SIZES.small,
     includeFontPadding: false,
     marginTop: 7,
