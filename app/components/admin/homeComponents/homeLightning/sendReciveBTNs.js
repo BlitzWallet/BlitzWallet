@@ -7,7 +7,7 @@ import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import useAdaptiveFontSize from '../../../../hooks/useAdaptiveFontSIze';
 
 export function SendRecieveBTNs({
   theme,
@@ -95,88 +95,82 @@ export function SendRecieveBTNs({
     });
   }, [handleSettingsCheck, navigate, t]);
 
+  const { fontSize, getLabelProps } = useAdaptiveFontSize(
+    [
+      t('constants.send'),
+      t('constants.receive'),
+      t('constants.scan'),
+      t('constants.swap'),
+    ],
+    SIZES.small,
+    8,
+  );
+
   return (
     <View style={styles.container}>
       {/* Send — primary */}
-      <TouchableOpacity onPress={handleSend} activeOpacity={1}>
-        <View style={styles.buttonWrapper}>
-          <View
-            style={[
-              styles.btn,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : COLORS.primary,
-              },
-            ]}
-          >
-            <ThemeIcon
-              size={25}
-              iconName="ArrowUp"
-              colorOverride={arrowIconColor}
-            />
-          </View>
-          {/* <ThemeText
-            content={t('constants.send')}
-            styles={styles.labelSecondary}
-          /> */}
+      <TouchableOpacity
+        style={styles.buttonWrapper}
+        onPress={handleSend}
+        activeOpacity={1}
+      >
+        <View
+          style={[
+            styles.btn,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : COLORS.primary,
+            },
+          ]}
+        >
+          <ThemeIcon
+            size={25}
+            iconName="ArrowUp"
+            colorOverride={arrowIconColor}
+          />
         </View>
+        <ThemeText
+          content={t('constants.send')}
+          styles={[styles.labelSecondary, { fontSize }]}
+          {...getLabelProps(0)}
+        />
       </TouchableOpacity>
 
       {/* Receive — primary */}
-      <TouchableOpacity onPress={handleReceive} activeOpacity={1}>
-        <View style={styles.buttonWrapper}>
-          <View
-            style={[
-              styles.btn,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : COLORS.primary,
-              },
-            ]}
-          >
-            <ThemeIcon
-              size={25}
-              iconName="ArrowDown"
-              colorOverride={arrowIconColor}
-            />
-          </View>
-          {/* <ThemeText
-            content={t('constants.receive')}
-            styles={styles.labelSecondary}
-          /> */}
+      <TouchableOpacity
+        style={styles.buttonWrapper}
+        onPress={handleReceive}
+        activeOpacity={1}
+      >
+        <View
+          style={[
+            styles.btn,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : COLORS.primary,
+            },
+          ]}
+        >
+          <ThemeIcon
+            size={25}
+            iconName="ArrowDown"
+            colorOverride={arrowIconColor}
+          />
         </View>
+        <ThemeText
+          content={t('constants.receive')}
+          styles={[styles.labelSecondary, { fontSize }]}
+          {...getLabelProps(1)}
+        />
       </TouchableOpacity>
 
       {/* Camera/Scan — secondary */}
       {!isNWCWallet && (
-        <TouchableOpacity activeOpacity={1} onPress={handleCamera}>
-          <View style={styles.buttonWrapper}>
-            <View
-              style={[
-                styles.btn,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundOffset : COLORS.primary,
-                },
-              ]}
-            >
-              <ThemeIcon
-                size={25}
-                iconName="ScanQrCode"
-                colorOverride={arrowIconColor}
-              />
-            </View>
-            {/* <ThemeText
-              content={t('constants.scan')}
-              styles={styles.labelSecondary}
-            /> */}
-          </View>
-        </TouchableOpacity>
-      )}
-
-      {/* Swap — secondary */}
-      <TouchableOpacity activeOpacity={1} onPress={handleSwap}>
-        <View style={styles.buttonWrapper}>
+        <TouchableOpacity
+          style={styles.buttonWrapper}
+          activeOpacity={1}
+          onPress={handleCamera}
+        >
           <View
             style={[
               styles.btn,
@@ -188,15 +182,44 @@ export function SendRecieveBTNs({
           >
             <ThemeIcon
               size={25}
-              iconName="ArrowRightLeft"
+              iconName="ScanQrCode"
               colorOverride={arrowIconColor}
             />
           </View>
-          {/* <ThemeText
-            content={t('constants.swap')}
-            styles={styles.labelSecondary}
-          /> */}
+          <ThemeText
+            content={t('constants.scan')}
+            styles={[styles.labelSecondary, { fontSize }]}
+            {...getLabelProps(2)}
+          />
+        </TouchableOpacity>
+      )}
+
+      {/* Swap — secondary */}
+      <TouchableOpacity
+        style={styles.buttonWrapper}
+        activeOpacity={1}
+        onPress={handleSwap}
+      >
+        <View
+          style={[
+            styles.btn,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : COLORS.primary,
+            },
+          ]}
+        >
+          <ThemeIcon
+            size={25}
+            iconName="ArrowRightLeft"
+            colorOverride={arrowIconColor}
+          />
         </View>
+        <ThemeText
+          content={t('constants.swap')}
+          styles={[styles.labelSecondary, { fontSize }]}
+          {...getLabelProps(3)}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -204,15 +227,16 @@ export function SendRecieveBTNs({
 
 const styles = StyleSheet.create({
   container: {
-    width: INSET_WINDOW_WIDTH,
+    width: '85%',
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'flex-start',
-    gap: 12,
+    gap: 10,
     ...CENTER,
   },
   buttonWrapper: {
     alignItems: 'center',
+    flex: 1,
   },
   btn: {
     width: 70,

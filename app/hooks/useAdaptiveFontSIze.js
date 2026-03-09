@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 const STEP = 2;
-const MIN_SIZE = 20;
 
-export default function useAdaptiveFontSize(labels = [], startSize = 64) {
+export default function useAdaptiveFontSize(
+  labels = [],
+  startSize = 64,
+  MIN_SIZE = 20,
+) {
   const labelKey = labels.join('|');
 
   const [fontSize, setFontSize] = useState(startSize);

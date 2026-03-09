@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Scansiona",
     "next": "Avanti",
     "skip_all": "Salta tutto",
     "copy": "Copia",

@@ -127,7 +127,8 @@
     "print": "Print",
     "transfer": "Transfer",
     "details": "Details",
-    "total": "Total"
+    "total": "Total",
+    "scan": "Scan"
   },
   "languages": {
     "english": "English",

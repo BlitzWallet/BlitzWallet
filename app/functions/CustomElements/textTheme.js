@@ -13,6 +13,7 @@ export default function ThemeText({
   onTextLayout = null,
   adjustsFontSizeToFit = false,
   minimumFontScale = 0.5,
+  allowFontScaling = true,
 }) {
   const { theme } = useGlobalThemeContext();
 
@@ -59,6 +60,7 @@ export default function ThemeText({
 
   return (
     <Text
+      allowFontScaling={allowFontScaling}
       onLayout={layoutCallback}
       onTextLayout={onTextLayout}
       ellipsizeMode={CustomEllipsizeMode}
