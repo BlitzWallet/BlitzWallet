@@ -35,7 +35,7 @@ export default function CreateCustodyAccounts() {
     custodyAccountsList,
     activeAccount,
   } = useActiveCustodyAccount();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const { isSwitchingAccount, handleAccountPress } = useAccountSwitcher();
@@ -168,6 +168,7 @@ export default function CreateCustodyAccounts() {
               width: WINDOWWIDTH,
               ...CENTER,
             }}
+            textStyles={{ color: textColor }}
             actionFunction={handleNavigateSwap}
             textContent={t('settings.accountComponents.homepage.swap')}
           />

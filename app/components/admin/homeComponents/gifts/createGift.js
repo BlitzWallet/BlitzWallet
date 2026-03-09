@@ -748,6 +748,11 @@ export default function CreateGift(props) {
                   placeholder={t(
                     'screens.inAccount.giftPages.createGift.inputPlaceholder',
                   )}
+                  placeholderTextColor={
+                    theme && !darkModeType
+                      ? COLORS.blueDarkmodeTextInputPlaceholder
+                      : COLORS.opaicityGray
+                  }
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"

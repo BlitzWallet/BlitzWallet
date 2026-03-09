@@ -228,7 +228,7 @@ export default function GiftConfirmation({
               <ThemeIcon
                 size={20}
                 colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
                 }
                 iconName={'Copy'}
               />
