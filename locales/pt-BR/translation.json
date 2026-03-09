@@ -1091,8 +1091,8 @@
         "noTxs": "Nenhuma transação ainda",
         "send": "Enviar",
         "receive": "Receber",
-        "scan": "Escanear",
-        "swap": "Troca"
+        "scan": "Ler",
+        "swap": "Trocar"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
