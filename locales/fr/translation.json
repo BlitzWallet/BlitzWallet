@@ -1909,7 +1909,9 @@
         "filterGifts": "Cadeaux",
         "filterSwaps": "Échanges",
         "filterSavings": "Épargne",
-        "filterPools": "Cagnottes"
+        "filterPools": "Cagnottes",
+        "noTxHistoryTitle": "Aucun historique de transactions",
+        "noTxHistorySub": "Vos transactions apparaîtront ici une fois que vous en aurez envoyé ou reçu une."
       },
       "lrc20HalfModal": {
         "title": "Jetons de recherche",

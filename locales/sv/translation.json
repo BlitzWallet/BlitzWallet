@@ -1909,7 +1909,9 @@
         "filterGifts": "Gåvor",
         "filterSwaps": "Växlingar",
         "filterSavings": "Sparande",
-        "filterPools": "Pooler"
+        "filterPools": "Pooler",
+        "noTxHistoryTitle": "Ingen transaktionshistorik",
+        "noTxHistorySub": "Dina transaktioner visas här när du skickar eller tar emot en."
       },
       "lrc20HalfModal": {
         "title": "Söka Tokens",

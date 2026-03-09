@@ -1910,7 +1910,9 @@
         "filterGifts": "Gifts",
         "filterSwaps": "Swaps",
         "filterSavings": "Savings",
-        "filterPools": "Pools"
+        "filterPools": "Pools",
+        "noTxHistoryTitle": "No Transaction History",
+        "noTxHistorySub": "Your transactions will appear here once you send or receive one."
       },
       "lrc20HalfModal": {
         "title": "Search Tokens",

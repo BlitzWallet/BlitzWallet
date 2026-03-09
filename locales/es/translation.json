@@ -1771,7 +1771,9 @@
         "filterGifts": "Regalos",
         "filterSwaps": "Intercambios",
         "filterSavings": "Ahorros",
-        "filterPools": "Fondos"
+        "filterPools": "Fondos",
+        "noTxHistoryTitle": "Sin historial de transacciones",
+        "noTxHistorySub": "Tus transacciones aparecerán aquí cuando envíes o recibas una."
       },
       "lrc20HalfModal": {
         "title": "Buscar tokens",

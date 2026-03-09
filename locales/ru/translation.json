@@ -1910,7 +1910,9 @@
         "filterGifts": "Подарки",
         "filterSwaps": "Обмены",
         "filterSavings": "Сбережения",
-        "filterPools": "Пулы"
+        "filterPools": "Пулы",
+        "noTxHistoryTitle": "Нет истории транзакций",
+        "noTxHistorySub": "Ваши транзакции появятся здесь, как только вы отправите или получите одну."
       },
       "lrc20HalfModal": {
         "title": "Поиск токенов",

@@ -1909,7 +1909,9 @@
         "filterGifts": "Vales-Blitz",
         "filterSwaps": "Trocas",
         "filterSavings": "Caixinhas",
-        "filterPools": "Vaquinhas"
+        "filterPools": "Vaquinhas",
+        "noTxHistoryTitle": "Sem histórico de transações",
+        "noTxHistorySub": "Suas transações aparecerão aqui quando você enviar ou receber uma."
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",

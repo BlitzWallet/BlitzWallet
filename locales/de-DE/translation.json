@@ -1911,7 +1911,9 @@
         "filterGifts": "Geschenke",
         "filterSwaps": "Umtausch",
         "filterSavings": "Sparziele",
-        "filterPools": "Sparpools"
+        "filterPools": "Sparpools",
+        "noTxHistoryTitle": "Keine Transaktionshistorie",
+        "noTxHistorySub": "Deine Transaktionen erscheinen hier, sobald du eine sendest oder empfängst."
       },
       "lrc20HalfModal": {
         "title": "Token suchen",

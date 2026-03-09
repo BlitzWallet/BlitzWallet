@@ -6,7 +6,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { COLORS, CONTENT_KEYBOARD_OFFSET, ICONS } from '../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  SIZES,
+} from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -22,6 +27,8 @@ import { useFlashnet } from '../../../context-store/flashnetContext';
 import GetThemeColors from '../../hooks/themeColors';
 import { getFilteredTransactions } from '../../functions/spark/transactions';
 import customUUID from '../../functions/customUUID';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 
 const FILTER_DEBOUNCE_MS = 500;
 
@@ -196,6 +203,8 @@ export default function ViewAllTxPage() {
     });
   }, [backgroundOffset, currentFilter, handleFilterSwitch, t]);
 
+  const doesNotHaveTransactions = txs.length === 1 && txs[0].key === 'noTx';
+
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <CustomSettingsTopBar
@@ -209,26 +218,40 @@ export default function ViewAllTxPage() {
           });
         }}
       />
-      <View>
-        <ScrollView
-          ref={scrollViewRef}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterPillScroll}
-          horizontal
-          onScroll={e => {
-            scrollOffsetRef.current = e.nativeEvent.contentOffset.x;
-          }}
-          scrollEventThrottle={16}
-          onLayout={e => {
-            scrollViewWidthRef.current = e.nativeEvent.layout.width;
-          }}
-        >
-          {filterOptions}
-        </ScrollView>
-      </View>
+      {!doesNotHaveTransactions && (
+        <View>
+          <ScrollView
+            ref={scrollViewRef}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterPillScroll}
+            horizontal
+            onScroll={e => {
+              scrollOffsetRef.current = e.nativeEvent.contentOffset.x;
+            }}
+            scrollEventThrottle={16}
+            onLayout={e => {
+              scrollViewWidthRef.current = e.nativeEvent.layout.width;
+            }}
+          >
+            {filterOptions}
+          </ScrollView>
+        </View>
+      )}
 
       {!txs.length || isLoadingNewTxs ? (
         <FullLoadingScreen />
+      ) : doesNotHaveTransactions ? (
+        <View style={styles.noTxContainer}>
+          <ThemeIcon iconName={'Clock'} />
+          <ThemeText
+            styles={styles.emptyTitle}
+            content={t('screens.inAccount.viewAllTxPage.noTxHistoryTitle')}
+          />
+          <ThemeText
+            styles={styles.emptySubtext}
+            content={t('screens.inAccount.viewAllTxPage.noTxHistorySub')}
+          />
+        </View>
       ) : (
         <FlatList
           initialNumToRender={20}
@@ -264,5 +287,24 @@ const styles = StyleSheet.create({
   },
   pillText: {
     includeFontPadding: false,
+  },
+  noTxContainer: {
+    width: INSET_WINDOW_WIDTH,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...CENTER,
+  },
+  emptyTitle: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
   },
 });

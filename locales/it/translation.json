@@ -1909,7 +1909,9 @@
         "filterGifts": "Regali",
         "filterSwaps": "Scambi",
         "filterSavings": "Risparmi",
-        "filterPools": "Pool"
+        "filterPools": "Pool",
+        "noTxHistoryTitle": "Nessuna cronologia delle transazioni",
+        "noTxHistorySub": "Le tue transazioni appariranno qui una volta che ne invii o ricevi una."
       },
       "lrc20HalfModal": {
         "title": "Cerca Token",
