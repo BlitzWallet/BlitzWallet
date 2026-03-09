@@ -102,7 +102,7 @@ export function SendRecieveBTNs({
       t('wallet.homeLightning.home.scan'),
       t('wallet.homeLightning.home.swap'),
     ],
-    SIZES.smedium,
+    SIZES.medium,
     5,
   );
 
@@ -240,8 +240,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   btn: {
-    width: 70,
-    height: 70,
+    width: 65,
+    height: 65,
     borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: SIZES.small,
     includeFontPadding: false,
-    marginTop: 7,
+    marginTop: 5,
     textAlign: 'center',
   },
 });
