@@ -1918,7 +1918,7 @@
         "filterSavings": "Caixinhas",
         "filterPools": "Vaquinhas",
         "noTxHistoryTitle": "Sem histórico de transações",
-        "noTxHistorySub": "Suas transações aparecerão aqui quando você enviar ou receber uma."
+        "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta."
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
