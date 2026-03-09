@@ -122,8 +122,7 @@ export default function AccountPaymentPage(props) {
     fromAccount &&
     toAccount &&
     !transferInfo.isCalculatingFee &&
-    !transferInfo.isDoingTransfer &&
-    convertedSendAmount < transferInfo.paymentFee + fromBalance;
+    convertedSendAmount <= transferInfo.paymentFee + fromBalance;
 
   const handlePayment = useCallback(async () => {
     try {
