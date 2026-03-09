@@ -65,7 +65,6 @@ import {
   bulkUpdateSparkTransactions,
 } from '../../../../functions/spark/transactions';
 import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
-import SkeletonTextPlaceholder from '../../../../functions/CustomElements/skeletonTextView';
 import { createBalancePoller } from '../../../../functions/pollingManager';
 import {
   getLocalStorageItem,
@@ -982,7 +981,7 @@ export default function WithdrawFromSavingsHalfModal({
                     </View>
                   </SkeletonPlaceholder>
                 )}
-                {!isInterestDisabled && (
+                {!isInterestDisabled && balanceReady && (
                   <ThemeIcon iconName="ChevronRight" size={16} />
                 )}
               </TouchableOpacity>

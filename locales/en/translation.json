@@ -2271,18 +2271,18 @@
   },
   "savings": {
     "home": {
-      "title": "Savings",
+      "title": "Dollar Goals",
       "howItWorksLink": "How it works",
       "earnedCard": "Earned: {{amount}}",
       "setGoalTitle": "Set a goal",
-      "setGoalSubtitle": "Save for what matters most",
-      "savingsGoalFallback": "Savings goal",
+      "setGoalSubtitle": "Set money aside for what matters most",
+      "savingsGoalFallback": "Goal",
       "createAnotherGoal": "Create Another Goal",
-      "disclaimer": "Savings balance is held in USDB, a dollar-backed stablecoin issued by Brale. Bitcoin rewards are generated through Flashnet and are variable, not guaranteed, and may be zero. USDB is not FDIC insured. Not a bank product."
+      "disclaimer": "Goal balances is held in USDB, a dollar-backed stablecoin issued by Brale. Bitcoin rewards are generated through Flashnet and are variable, not guaranteed, and may be zero. USDB is not FDIC insured. Not a bank product."
     },
     "preview": {
-      "title": "Savings",
-      "earnInterest": "Set goals, track progress, and save on your own terms."
+      "title": "Dollar Goals",
+      "earnInterest": "Set goals, track progress, and hold dollars on your own terms."
     },
     "goalEmoji": {
       "screenTitle": "Choose Emoji",
@@ -2297,7 +2297,7 @@
     },
     "goalAmount": {
       "screenTitle": "Set Goal",
-      "goalFallbackName": "Savings goal",
+      "goalFallbackName": "Goal",
       "errors": {
         "unableToSetGoal": "Unable to set goal"
       }
@@ -2322,7 +2322,7 @@
       "screenTitle": "Remove Goal",
       "title": "Remove goal",
       "warningProgressLost": "You will no longer see progress toward your {{goalName}} goal.",
-      "warningMoneyReturned": "Any money dedicated to this goal will automatically be transferred to Savings.",
+      "warningMoneyReturned": "Any money dedicated to this goal will automatically be transferred to your main balance.",
       "removeButton": "Remove Goal",
       "errors": {
         "unableToRemoveGoal": "Unable to remove goal"
@@ -2341,7 +2341,7 @@
     },
     "addMoney": {
       "chooseGoalTitle": "Add money to",
-      "generalSavings": "General savings",
+      "generalSavings": "General goal",
       "noSpecificGoal": "No specific goal",
       "sourceTitle": "Add money from",
       "minHint": "Min: {{amount}}",
@@ -2354,12 +2354,12 @@
       "steps": {
         "processing": "Processing...",
         "swapping": "Swapping funds to dollar...",
-        "adding": "Adding to Savings account...",
+        "adding": "Adding to account...",
         "complete": "Complete."
       },
       "successTitle": "Money added",
-      "paymentLabel_unallocated": "Savings deposit",
-      "paymentLabel": "Savings deposit to {{savingsGoal}}",
+      "paymentLabel_unallocated": "Goal deposit",
+      "paymentLabel": "Deposit to {{savingsGoal}} goal",
       "errors": {
         "unableToCompleteTransfer": "Unable to complete transfer"
       }
@@ -2367,23 +2367,23 @@
     "withdraw": {
       "balanceTypeTitle": "What would you like to withdraw?",
       "interestOption": "Bitcoin balance",
-      "savingsOption": "Savings balance",
+      "savingsOption": "Goals balance",
       "interestZeroHint": "No Bitcoin rewards yet",
       "savingsZeroHint": "Nothing saved yet",
       "interestBelowMinHint": "Your Bitcoin balance is below the minimum swap amount. Please withdraw to your Bitcoin balance.",
       "loadingBalances": "Loading balances...",
       "balanceLoadError": "Unable to load wallet. Go back and try again.",
       "fromInterest": "From your Bitcoin",
-      "fromSavings": "From your savings",
+      "fromSavings": "From your goals",
       "interestPaymentLabel": "Bitcoin rewards withdrawal",
       "chooseGoalTitle": "Withdraw money from",
       "withdrawAll": "Withdraw All",
-      "generalSavings": "General savings",
+      "generalSavings": "General goal",
       "destinationTitle": "Withdraw money to",
       "availableHint": "Available: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Confirm withdrawal",
-      "youAreWithdrawingAll": "You are withdrawing all savings",
+      "youAreWithdrawingAll": "You are withdrawing all goal balances",
       "youAreWithdrawing": "You are withdrawing",
       "toYourBalance": "to your {{destination}}",
       "estimatedSats": "≈ {{sats}} sats after swap",
@@ -2391,14 +2391,14 @@
       "processing": "Processing withdrawal...",
       "steps": {
         "processing": "Processing...",
-        "withdrawing_savings": "Withdrawing from Savings account...",
+        "withdrawing_savings": "Withdrawing from account...",
         "withdrawing_rewards": "Withdrawing from Bitcoin rewards account...",
         "swapping": "Swapping to Bitcoin...",
         "complete": "Complete."
       },
       "successTitle": "Withdrawal complete",
-      "paymentLabel_unallocated": "Savings withdrawal",
-      "paymentLabel": "Savings withdrawal from {{savingsGoal}}",
+      "paymentLabel_unallocated": "Goal withdrawal",
+      "paymentLabel": "Withdrawal from {{savingsGoal}} goal",
       "errors": {
         "unableToCompleteWithdrawal": "Unable to complete withdrawal"
       }
@@ -2439,7 +2439,7 @@
     "deposit": "Deposit",
     "depositWithGoal": "Deposit to {{goalName}}",
     "swapSimulationError": "Swap simulation not available",
-    "savingsWalletError": "Savings wallet not ready",
+    "savingsWalletError": "Goal wallet not ready",
     "rewardsPayout": "Bitcoin rewards payout",
     "rewardsWithdrawl": "Bitcoin rewards withdrawl",
     "total_balance": "Total Balance"
