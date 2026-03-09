@@ -878,7 +878,7 @@
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
       "noAddedContactsTitle": "Nenhum contato adicionado",
-      "noAddedContactsDesc": "Seus contatos aparecerão aqui quando você adicionar um."
+      "noAddedContactsDesc": "Seus contatos também aparecerão aqui."
     },
     "pools": {
       "receiveViaPool": "Receber via Vaquinha",
