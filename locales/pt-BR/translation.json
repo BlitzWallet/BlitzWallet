@@ -1646,8 +1646,8 @@
         "errorMessage": "Falha ao restaurar a conta"
       },
       "selectAltAccount": {
-        "from": "Selecione a conta da qual deseja enviar.",
-        "to": "Selecione a conta para a qual deseja receber."
+        "from": "Selecione a conta que você deseja enviar.",
+        "to": "Selecione a conta que você deseja receber."
       },
       "removeAccountPage": {
         "title": "Arquivar conta",
@@ -2105,11 +2105,11 @@
         "auto": "Auto",
         "navbar": {
           "swap": "Trocar",
-          "amount": "Valor",
+          "amount": "Quantia",
           "details": "Detalhes"
         },
-        "chooseCurrencyTitle": "Escolha a moeda da qual deseja trocar.",
-        "enterAmountTitle": "Insira o valor que deseja trocar."
+        "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar.",
+        "enterAmountTitle": "Insira a quantia que deseja trocar."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
