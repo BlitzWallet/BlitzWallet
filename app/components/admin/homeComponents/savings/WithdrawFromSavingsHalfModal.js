@@ -71,8 +71,31 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../../../functions/localStorage';
+import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
+import { useAppStatus } from '../../../../../context-store/appStatus';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
+
+const SKELETON_STYLES = {
+  icon: {
+    height: 48,
+    width: 48,
+    borderRadius: 100,
+  },
+  content: {
+    flex: 1,
+    height: 30,
+  },
+  line: {
+    flex: 1,
+    marginBottom: 10,
+    borderRadius: 100,
+  },
+  lastLine: {
+    flex: 1,
+    borderRadius: 100,
+  },
+};
 
 // Persists { pollTimestamp: number, balance: number } so the balance poller
 // can be skipped when no new interest payment has arrived since the last poll.
@@ -106,6 +129,7 @@ export default function WithdrawFromSavingsHalfModal({
   const { swapUSDPriceDollars, poolInfoRef, swapLimits } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { screenDimensions } = useAppStatus();
   const { bitcoinBalance, dollarBalanceToken, dollarBalanceSat } =
     useUserBalanceContext();
   const {
@@ -122,7 +146,7 @@ export default function WithdrawFromSavingsHalfModal({
     interestPayouts,
   } = useSavings();
   const { sparkInformation } = useSparkWallet();
-
+  console.log(screenDimensions);
   const [step, setStep] = useState([
     selectedGoalUUID ? 'destination' : 'balanceType',
   ]);
@@ -882,93 +906,82 @@ export default function WithdrawFromSavingsHalfModal({
                   setStep(prev => [...prev, 'destination']);
                 }}
               >
-                <View style={styles.optionLeft}>
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundOffset
-                            : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    <ThemeIcon
-                      iconName="TrendingUp"
-                      size={22}
-                      colorOverride={COLORS.white}
-                    />
-                  </View>
-                  <View style={{ flexShrink: 1 }}>
-                    <ThemeText
-                      styles={styles.optionTitle}
-                      content={t('savings.withdraw.interestOption')}
-                    />
-
-                    {isInterestDisabled && balanceReady ? (
-                      <ThemeText
-                        content={t('savings.withdraw.interestZeroHint')}
+                {balanceReady ? (
+                  <View style={styles.optionLeft}>
+                    <View
+                      style={[
+                        styles.iconContainer,
+                        {
+                          backgroundColor:
+                            theme && darkModeType
+                              ? backgroundOffset
+                              : COLORS.primary,
+                        },
+                      ]}
+                    >
+                      <ThemeIcon
+                        iconName="TrendingUp"
+                        size={22}
+                        colorOverride={COLORS.white}
                       />
-                    ) : (
-                      <>
-                        {/* Hidden component for layout measurement */}
-                        <View
-                          style={{
-                            position: 'absolute',
-                            opacity: 0,
-                            pointerEvents: 'none',
-                          }}
-                          onLayout={handleSkeletonLayout}
-                        >
-                          <FormattedSatText
-                            styles={styles.optionSubtitle}
-                            balance={displayCorrectDenomination({
-                              amount: interestSats,
-                              masterInfoObject: {
-                                ...masterInfoObject,
-                                userBalanceDenomination: 'sats',
-                              },
-                              fiatStats,
-                            })}
-                            useSizing={true}
-                          />
-                        </View>
+                    </View>
+                    <View style={{ flexShrink: 1 }}>
+                      <ThemeText
+                        styles={styles.optionTitle}
+                        content={t('savings.withdraw.interestOption')}
+                      />
 
-                        {/* Show skeleton shimmer until poller settles */}
-                        <View
-                          style={{
-                            height: skeletonLayout.height,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexShrink: 1,
-                          }}
-                        >
-                          <SkeletonTextPlaceholder
-                            enabled={!balanceReady}
-                            layout={skeletonLayout}
-                          >
-                            <ThemeText
-                              styles={styles.optionSubtitle}
-                              content={
-                                isInterestDisabled
-                                  ? t('savings.withdraw.interestZeroHint')
-                                  : displayCorrectDenomination({
-                                      amount: interestSats,
-                                      masterInfoObject: {
-                                        ...masterInfoObject,
-                                        userBalanceDenomination: 'sats',
-                                      },
-                                      fiatStats,
-                                    })
-                              }
-                            />
-                          </SkeletonTextPlaceholder>
-                        </View>
-                      </>
-                    )}
+                      {isInterestDisabled ? (
+                        <ThemeText
+                          content={t('savings.withdraw.interestZeroHint')}
+                        />
+                      ) : (
+                        <ThemeText
+                          styles={styles.optionSubtitle}
+                          content={
+                            isInterestDisabled
+                              ? t('savings.withdraw.interestZeroHint')
+                              : displayCorrectDenomination({
+                                  amount: interestSats,
+                                  masterInfoObject: {
+                                    ...masterInfoObject,
+                                    userBalanceDenomination: 'sats',
+                                  },
+                                  fiatStats,
+                                })
+                          }
+                        />
+                      )}
+                    </View>
                   </View>
-                </View>
+                ) : (
+                  <SkeletonPlaceholder
+                    enabled={true}
+                    backgroundColor={COLORS.opaicityGray}
+                    highlightColor={
+                      theme
+                        ? darkModeType
+                          ? COLORS.lightsOutBackground
+                          : COLORS.darkModeBackground
+                        : COLORS.lightModeBackground
+                    }
+                  >
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        width: screenDimensions.width * 0.9 - 48,
+                        gap: 10,
+                      }}
+                    >
+                      <View style={SKELETON_STYLES.icon} />
+                      <View style={SKELETON_STYLES.content}>
+                        <View style={SKELETON_STYLES.line} />
+                        <View style={SKELETON_STYLES.lastLine} />
+                      </View>
+                    </View>
+                  </SkeletonPlaceholder>
+                )}
                 {!isInterestDisabled && (
                   <ThemeIcon iconName="ChevronRight" size={16} />
                 )}
@@ -1709,7 +1722,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: SIZES.xLarge,
+    fontSize: SIZES.large,
     fontWeight: 500,
     includeFontPadding: false,
     marginBottom: 16,
@@ -1773,7 +1786,6 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     fontWeight: 500,
-    fontSize: SIZES.large,
     includeFontPadding: false,
     flexShrink: 1,
   },

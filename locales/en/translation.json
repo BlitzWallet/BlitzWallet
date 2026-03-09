@@ -2114,7 +2114,7 @@
           "amount": "Amount",
           "details": "Details"
         },
-        "chooseCurrencyTitle": "Choose the currency to swap from.",
+        "chooseCurrencyTitle": "Choose the currency to swap from",
         "enterAmountTitle": "Enter the amount to swap."
       },
       "swapHistory": {

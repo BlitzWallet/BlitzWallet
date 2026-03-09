@@ -800,7 +800,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: SIZES.xLarge,
+    fontSize: SIZES.large,
     fontWeight: 500,
     includeFontPadding: false,
     marginBottom: 16,
@@ -860,7 +860,6 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontWeight: 500,
     flexShrink: 1,
-    fontSize: SIZES.large,
     includeFontPadding: false,
   },
   optionSubtitle: {
