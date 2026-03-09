@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Escanear",
     "next": "Próximo",
     "skip_all": "Pular tudo",
     "copy": "Copiar",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Receber via código QR",
       "addressBook_send": "Enviar para contatos",
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
-      "tapToGenerate_lightning_usd": "Receber USD instantaneamente"
+      "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
+      "noAddedContactsTitle": "Nenhum contato adicionado",
+      "noAddedContactsDesc": "Seus contatos aparecerão aqui quando você adicionar um."
     },
     "pools": {
       "receiveViaPool": "Receber via Vaquinha",
@@ -1082,7 +1085,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Ver tudo",
-        "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui"
+        "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
+        "activity": "Atividade",
+        "see_all": "Ver tudo",
+        "noTxs": "Nenhuma transação ainda"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
@@ -1906,7 +1912,9 @@
         "filterGifts": "Vales-Blitz",
         "filterSwaps": "Trocas",
         "filterSavings": "Caixinhas",
-        "filterPools": "Vaquinhas"
+        "filterPools": "Vaquinhas",
+        "noTxHistoryTitle": "Sem histórico de transações",
+        "noTxHistorySub": "Suas transações aparecerão aqui quando você enviar ou receber uma."
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",

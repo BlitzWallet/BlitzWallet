@@ -119,7 +119,6 @@ export default function WithdrawFromSavingsHalfModal({
     totalGoalsBalance,
     savingsBalance,
     savingsWallet,
-    totalIntrestEarned,
     interestPayouts,
   } = useSavings();
   const { sparkInformation } = useSparkWallet();
@@ -128,6 +127,7 @@ export default function WithdrawFromSavingsHalfModal({
     selectedGoalUUID ? 'destination' : 'balanceType',
   ]);
   const [walletBTCBalance, setWalletBTCBalance] = useState(null);
+  const [cachedBalance, setCachedBalance] = useState(0);
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [amountValue, setAmountValue] = useState('');
   // When true the user chose "Withdraw All" — skips amount step and drains
@@ -187,7 +187,7 @@ export default function WithdrawFromSavingsHalfModal({
   const paymentMode = selectedBalanceType !== 'interest' ? 'USD' : 'BTC';
 
   // Interest balance (BTC sats held in savings wallet from payouts)
-  const interestSats = walletBTCBalance ?? totalIntrestEarned ?? 0;
+  const interestSats = walletBTCBalance ?? cachedBalance ?? 0;
 
   // Savings balance in USD (fromMicros of walletBalanceMicros)
   const savingsBalanceUsd = Number(savingsBalance || 0);
@@ -360,6 +360,13 @@ export default function WithdrawFromSavingsHalfModal({
     const initWallet = async () => {
       setSparkInitStatus('loading');
       try {
+        const rawCache = await getLocalStorageItem(
+          SAVINGS_INTEREST_POLL_CACHE_KEY,
+        );
+        if (rawCache) {
+          const { balance = 0 } = JSON.parse(rawCache);
+          setCachedBalance(balance);
+        }
         const savingsMnemonic = await getSavingsWalletMnemonic();
         const initResponse = await initializeSparkWallet(
           savingsMnemonic,
@@ -374,40 +381,9 @@ export default function WithdrawFromSavingsHalfModal({
           return;
         }
 
-        const sparkBalance = await getSparkBalance(savingsMnemonic);
+        // const sparkBalance = await getSparkBalance(savingsMnemonic);
 
         setSparkInitStatus('ready');
-
-        // Savings balance only changes on interest payment receipt — skip poll
-        // if no new interest payment has arrived since the last successful poll.
-        let shouldPoll = true;
-        try {
-          const rawCache = await getLocalStorageItem(
-            SAVINGS_INTEREST_POLL_CACHE_KEY,
-          );
-          if (rawCache) {
-            const { pollTimestamp = 0, balance = null } = JSON.parse(rawCache);
-            const mostRecentPayoutPaidAt = interestPayouts[0]?.paidAt ?? 0;
-            const hasNewInterestPayment =
-              mostRecentPayoutPaidAt > pollTimestamp;
-
-            if (
-              !hasNewInterestPayment &&
-              balance !== null &&
-              sparkBalance.didWork &&
-              Number(sparkBalance.balance) &&
-              Number(sparkBalance.balance) === balance
-            ) {
-              shouldPoll = false;
-              setWalletBTCBalance(balance);
-              setBalanceReady(true);
-            }
-          }
-        } catch {
-          // Parse failure — fall through to poll conservatively
-        }
-
-        if (!shouldPoll) return;
 
         // Now poll until the balance stabilises so we show a confirmed number.
         const mnemonicRef = { current: savingsMnemonic };
@@ -885,7 +861,9 @@ export default function WithdrawFromSavingsHalfModal({
             {/* Interest option — BTC sats from savings payouts */}
             <View>
               <TouchableOpacity
-                activeOpacity={isInterestDisabled ? HIDDEN_OPACITY : 0.7}
+                activeOpacity={
+                  isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 0.7
+                }
                 style={[
                   styles.optionRow,
                   {
@@ -893,11 +871,12 @@ export default function WithdrawFromSavingsHalfModal({
                       theme && darkModeType
                         ? backgroundColor
                         : backgroundOffset,
-                    opacity: isInterestDisabled ? HIDDEN_OPACITY : 1,
+                    opacity:
+                      isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 1,
                   },
                 ]}
                 onPress={() => {
-                  if (isInterestDisabled) return;
+                  if (isInterestDisabled || !balanceReady) return;
                   setSelectedBalanceType('interest');
                   setInputDenomination('sats');
                   setStep(prev => [...prev, 'destination']);

@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Skanna",
     "next": "Nästa",
     "skip_all": "Hoppa över alla",
     "copy": "Kopia",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Ta emot via QR-kod",
       "addressBook_send": "Skicka till en kontakt",
       "tapToGenerate_lightning_btc": "Ta emot BTC direkt",
-      "tapToGenerate_lightning_usd": "Ta emot USD direkt"
+      "tapToGenerate_lightning_usd": "Ta emot USD direkt",
+      "noAddedContactsTitle": "Inga tillagda kontakter",
+      "noAddedContactsDesc": "Dina kontakter visas här när du lägger till en."
     },
     "pools": {
       "receiveViaPool": "Ta emot via pool",
@@ -1082,7 +1085,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Se alla transaktioner",
-        "no_transaction_history": "Skicka eller ta emot en transaktion för att den ska visas här"
+        "no_transaction_history": "Skicka eller ta emot en transaktion för att den ska visas här",
+        "activity": "Aktivitet",
+        "see_all": "Visa alla",
+        "noTxs": "Inga transaktioner ännu"
       },
       "lrc20Assets": {
         "actionText": "{{action}} symboler",
@@ -1906,7 +1912,9 @@
         "filterGifts": "Gåvor",
         "filterSwaps": "Växlingar",
         "filterSavings": "Sparande",
-        "filterPools": "Pooler"
+        "filterPools": "Pooler",
+        "noTxHistoryTitle": "Ingen transaktionshistorik",
+        "noTxHistorySub": "Dina transaktioner visas här när du skickar eller tar emot en."
       },
       "lrc20HalfModal": {
         "title": "Söka Tokens",

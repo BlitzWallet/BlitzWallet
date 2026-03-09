@@ -81,6 +81,7 @@ const FONT = {
   Title_Medium: 'Poppins-Medium',
   Title_Regular: 'Poppins-Regular',
   Title_Bold: 'Poppins-Bold',
+  Title_SemiBold: 'Poppins-SemiBold',
 
   Descriptoin_light: 'Poppins-Light',
   Descriptoin_Medium: 'Poppins-Medium',

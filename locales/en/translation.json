@@ -127,7 +127,8 @@
     "print": "Print",
     "transfer": "Transfer",
     "details": "Details",
-    "total": "Total"
+    "total": "Total",
+    "scan": "Scan"
   },
   "languages": {
     "english": "English",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Receive via QR code",
       "addressBook_send": "Send to a contact",
       "tapToGenerate_lightning_btc": "Receive BTC instantly",
-      "tapToGenerate_lightning_usd": "Receive USD instantly"
+      "tapToGenerate_lightning_usd": "Receive USD instantly",
+      "noAddedContactsTitle": "No Added Contacts",
+      "noAddedContactsDesc": "Your contacts will appear here once you add one"
     },
     "pools": {
       "receiveViaPool": "Receive via pool",
@@ -1082,7 +1085,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "See all transactions",
-        "no_transaction_history": "Send or receive a transaction for it to show up here"
+        "no_transaction_history": "Send or receive a transaction for it to show up here",
+        "activity": "Activity",
+        "see_all": "See all",
+        "noTxs": "No transactions yet"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
@@ -1907,7 +1913,9 @@
         "filterGifts": "Gifts",
         "filterSwaps": "Swaps",
         "filterSavings": "Savings",
-        "filterPools": "Pools"
+        "filterPools": "Pools",
+        "noTxHistoryTitle": "No Transaction History",
+        "noTxHistorySub": "Your transactions will appear here once you send or receive one."
       },
       "lrc20HalfModal": {
         "title": "Search Tokens",

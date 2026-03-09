@@ -1,5 +1,6 @@
 import {
   StyleSheet,
+  TouchableOpacity,
   View,
   Platform,
   RefreshControl,
@@ -25,7 +26,7 @@ import LRC20Assets from './homeLightning/lrc20Assets';
 import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
 import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
-import { COLORS, SIZES } from '../../../constants';
+import { COLORS, FONT, SIZES } from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
 import Animated, {
   useSharedValue,
@@ -34,7 +35,9 @@ import Animated, {
   interpolate,
   useHandler,
   useEvent,
+  runOnJS,
 } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
 import { useActiveCustodyAccount } from '../../../../context-store/activeAccount';
 import { fullRestoreSparkState } from '../../../functions/spark/restore';
@@ -48,6 +51,7 @@ import { useUserBalanceContext } from '../../../../context-store/userBalanceCont
 import { useFlashnet } from '../../../../context-store/flashnetContext';
 import { formatBalanceAmount } from '../../../functions';
 import TokensPreview from '../homeComponents/homeLightning/TokensPreview';
+import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -173,11 +177,12 @@ export default function HomeLightning({ navigation }) {
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const screenWidth = useWindowDimensions().width;
 
   const balanceScrollX = useSharedValue(0);
   const pagerRef = useRef(null);
+  const currentPageIndexRef = useRef(0);
 
   const scrollY = useSharedValue(0);
   const [navbarHeight, setNavbarHeight] = useState(0);
@@ -320,6 +325,7 @@ export default function HomeLightning({ navigation }) {
         enabledLRC20,
         scrollPosition,
         poolInfoRef,
+        t,
       }) || []
     );
   }, [
@@ -380,10 +386,41 @@ export default function HomeLightning({ navigation }) {
     e => {
       const page = e.nativeEvent.position;
       console.log(page, 'page');
+      currentPageIndexRef.current = page;
       updateScrollPosition(page);
     },
     [updateScrollPosition],
   );
+
+  const goToNextPage = useCallback(() => {
+    const next = Math.min(
+      currentPageIndexRef.current + 1,
+      BALANCE_PAGES.length - 1,
+    );
+    pagerRef.current?.setPage(next);
+    currentPageIndexRef.current = next;
+    updateScrollPosition(next);
+  }, [updateScrollPosition]);
+
+  const goToPrevPage = useCallback(() => {
+    const prev = Math.max(currentPageIndexRef.current - 1, 0);
+    pagerRef.current?.setPage(prev);
+    currentPageIndexRef.current = prev;
+    updateScrollPosition(prev);
+  }, [updateScrollPosition]);
+
+  const buttonSwipeGesture = Gesture.Pan()
+    .activeOffsetX([-8, 8])
+    .failOffsetY([-5, 5])
+    .onEnd(event => {
+      'worklet';
+      const { translationX, velocityX } = event;
+      if (translationX < -40 || velocityX < -300) {
+        runOnJS(goToNextPage)();
+      } else if (translationX > 40 || velocityX > 300) {
+        runOnJS(goToPrevPage)();
+      }
+    });
 
   const colors = useMemo(
     () =>
@@ -542,29 +579,32 @@ export default function HomeLightning({ navigation }) {
               </View>
             ))}
           </AnimatedPagerView>
-
-          <BalanceDots
-            scrollX={balanceScrollX}
-            pageCount={BALANCE_PAGES.length}
-            screenWidth={screenWidth}
-            theme={theme}
-            darkModeType={darkModeType}
-          />
         </View>
+        <GestureDetector gesture={buttonSwipeGesture}>
+          <View>
+            <BalanceDots
+              scrollX={balanceScrollX}
+              pageCount={BALANCE_PAGES.length}
+              screenWidth={screenWidth}
+              theme={theme}
+              darkModeType={darkModeType}
+            />
 
-        <View
-          style={[
-            styles.buttonsContainer,
-            { marginBottom: !showTokensInformation ? 50 : 0 },
-          ]}
-        >
-          <MemoizedSendRecieveBTNs
-            theme={theme}
-            darkModeType={darkModeType}
-            isConnectedToTheInternet={isConnectedToTheInternet}
-            scrollPosition={scrollPosition}
-          />
-        </View>
+            <View
+              style={[
+                styles.buttonsContainer,
+                { marginBottom: !showTokensInformation ? 50 : 0 },
+              ]}
+            >
+              <MemoizedSendRecieveBTNs
+                theme={theme}
+                darkModeType={darkModeType}
+                isConnectedToTheInternet={isConnectedToTheInternet}
+                scrollPosition={scrollPosition}
+              />
+            </View>
+          </View>
+        </GestureDetector>
 
         {showTokensInformation && (
           <TokensPreview didGetToHomepage={didGetToHomepage} />
@@ -572,9 +612,40 @@ export default function HomeLightning({ navigation }) {
 
         {/* Transactions list */}
 
-        {flatListDataForSpark.map((tx, idx) => (
-          <View key={idx}>{tx.item}</View>
-        ))}
+        {flatListDataForSpark.length > 0 && (
+          <View style={styles.sectionHeader}>
+            <ThemeText
+              content={t('wallet.homeLightning.home.activity')}
+              styles={styles.sectionTitle}
+            />
+            <TouchableOpacity
+              onPress={() => navigate.navigate('ViewAllTxPage')}
+            >
+              <ThemeText
+                content={t('wallet.homeLightning.home.see_all')}
+                styles={[
+                  styles.seeAllLink,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+        <View
+          style={[
+            styles.txListContainer,
+            { backgroundColor: backgroundOffset },
+          ]}
+        >
+          {flatListDataForSpark.map((tx, idx) => (
+            <View key={idx}>{tx.item}</View>
+          ))}
+        </View>
       </Animated.ScrollView>
     </GlobalThemeView>
   );
@@ -610,14 +681,42 @@ const styles = StyleSheet.create({
   },
   pagerView: {
     width: '100%',
-    height: 180,
+    height: 160,
   },
   pageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingTop: 32,
   },
   buttonsContainer: {
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    marginTop: 20,
+  },
+  sectionHeader: {
+    width: INSET_WINDOW_WIDTH,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    alignSelf: 'center',
+    paddingTop: 8,
+    paddingBottom: 10,
+  },
+  sectionTitle: {
+    includeFontPadding: false,
+    letterSpacing: -0.2,
+  },
+  seeAllLink: {
+    fontSize: SIZES.smedium,
+    color: COLORS.primary,
+    includeFontPadding: false,
+  },
+  txListContainer: {
+    width: INSET_WINDOW_WIDTH,
+    alignSelf: 'center',
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 16,
+    padding: 13,
   },
 });

@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Сканировать",
     "next": "Далее",
     "skip_all": "Пропустить всё",
     "copy": "Копировать",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Получить через QR-код",
       "addressBook_send": "Отправить контакту",
       "tapToGenerate_lightning_btc": "Мгновенно получить BTC",
-      "tapToGenerate_lightning_usd": "Мгновенно получить USD"
+      "tapToGenerate_lightning_usd": "Мгновенно получить USD",
+      "noAddedContactsTitle": "Нет добавленных контактов",
+      "noAddedContactsDesc": "Ваши контакты появятся здесь, как только вы добавите один."
     },
     "pools": {
       "receiveViaPool": "Получить через пул",
@@ -1083,7 +1086,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Все транзакции",
-        "no_transaction_history": "Здесь появятся ваши транзакции"
+        "no_transaction_history": "Здесь появятся ваши транзакции",
+        "activity": "Активность",
+        "see_all": "Показать всё",
+        "noTxs": "Пока нет транзакций"
       },
       "lrc20Assets": {
         "actionText": "{{action}} токены",
@@ -1907,7 +1913,9 @@
         "filterGifts": "Подарки",
         "filterSwaps": "Обмены",
         "filterSavings": "Сбережения",
-        "filterPools": "Пулы"
+        "filterPools": "Пулы",
+        "noTxHistoryTitle": "Нет истории транзакций",
+        "noTxHistorySub": "Ваши транзакции появятся здесь, как только вы отправите или получите одну."
       },
       "lrc20HalfModal": {
         "title": "Поиск токенов",

@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Scanner",
     "next": "Suivant",
     "skip_all": "Tout ignorer",
     "copy": "Copie",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Recevoir via code QR",
       "addressBook_send": "Envoyer à un contact",
       "tapToGenerate_lightning_btc": "Recevoir BTC instantanément",
-      "tapToGenerate_lightning_usd": "Recevoir USD instantanément"
+      "tapToGenerate_lightning_usd": "Recevoir USD instantanément",
+      "noAddedContactsTitle": "Aucun contact ajouté",
+      "noAddedContactsDesc": "Vos contacts apparaîtront ici une fois que vous en aurez ajouté un."
     },
     "pools": {
       "receiveViaPool": "Recevoir via une cagnotte",
@@ -1082,7 +1085,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Voir toutes les transactions",
-        "no_transaction_history": "Envoyer ou recevoir une transaction pour qu'elle apparaisse ici"
+        "no_transaction_history": "Envoyer ou recevoir une transaction pour qu'elle apparaisse ici",
+        "activity": "Activité",
+        "see_all": "Voir tout",
+        "noTxs": "Aucune transaction pour le moment"
       },
       "lrc20Assets": {
         "actionText": "{{action}} jetons",
@@ -1906,7 +1912,9 @@
         "filterGifts": "Cadeaux",
         "filterSwaps": "Échanges",
         "filterSavings": "Épargne",
-        "filterPools": "Cagnottes"
+        "filterPools": "Cagnottes",
+        "noTxHistoryTitle": "Aucun historique de transactions",
+        "noTxHistorySub": "Vos transactions apparaîtront ici une fois que vous en aurez envoyé ou reçu une."
       },
       "lrc20HalfModal": {
         "title": "Jetons de recherche",

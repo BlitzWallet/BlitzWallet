@@ -7,24 +7,30 @@ import { COLORS } from '../../../../constants';
 
 const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
   const animatedStyle = useAnimatedStyle(() => {
+    const progress = scrollX.value / screenWidth;
+
     const opacity = interpolate(
-      scrollX.value / screenWidth,
+      progress,
       [index - 1, index, index + 1],
-      [0.3, 1, 0.3],
+      [0.35, 1, 0.35],
       'clamp',
     );
 
-    const scale = interpolate(
-      scrollX.value / screenWidth,
+    const width = interpolate(
+      progress,
       [index - 1, index, index + 1],
-      [0.8, 1.2, 0.8],
+      [5, 18, 5],
       'clamp',
     );
 
-    return {
-      opacity,
-      transform: [{ scale }],
-    };
+    const borderRadius = interpolate(
+      progress,
+      [index - 1, index, index + 1],
+      [2.5, 3, 2.5],
+      'clamp',
+    );
+
+    return { opacity, width, borderRadius };
   });
 
   return (
@@ -68,16 +74,15 @@ const styles = StyleSheet.create({
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-
-    position: 'absolute',
-    bottom: 30,
+    marginTop: 8,
+    paddingBottom: 12,
   },
 
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 4,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    marginHorizontal: 2.5,
   },
 
   balanceLabel: {

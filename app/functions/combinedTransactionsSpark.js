@@ -4,15 +4,18 @@ import {
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   CENTER,
   COLORS,
+  FONT,
   HIDDEN_BALANCE_TEXT,
+  ICONS,
   SIZES,
   SKELETON_ANIMATION_SPEED,
   USDB_TOKEN_ID,
 } from '../constants';
+import GetThemeColors from '../hooks/themeColors';
 import { ThemeText } from './CustomElements';
 import FormattedSatText from './CustomElements/satTextDisplay';
 import { useTranslation } from 'react-i18next';
-import { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { crashlyticsLogReport } from './crashlyticsLogs';
 import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
@@ -20,7 +23,7 @@ import { getTimeDisplay } from './contacts';
 import { isFlashnetTransfer } from './spark/handleFlashnetTransferIds';
 import { satsToDollars } from './spark/flashnet';
 import ThemeIcon from './CustomElements/themeIcon';
-import { INSET_WINDOW_WIDTH } from '../constants/theme';
+import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../constants/theme';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -37,9 +40,9 @@ const TRANSACTION_CONSTANTS = {
 
 const SKELETON_STYLES = {
   icon: {
-    height: 50,
-    width: 50,
-    marginRight: 10,
+    height: 40,
+    width: 40,
+    marginRight: 12,
     borderRadius: 100,
   },
   content: {
@@ -93,8 +96,8 @@ const generateBannerText = (timeDifference, texts) => {
 const getContainerWidth = frompage => {
   return frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
     Dimensions.get('screen').width < 370
-    ? '90%'
-    : '85%';
+    ? INSET_WINDOW_WIDTH
+    : '100%';
 };
 
 const createLoadingSkeleton = (
@@ -113,6 +116,8 @@ const createLoadingSkeleton = (
         ...styles.transactionContainer,
         width: containerWidth,
         ...CENTER,
+        paddingVertical:
+          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ? 13 : 0,
       }}
     >
       <View style={SKELETON_STYLES.icon} />
@@ -151,6 +156,51 @@ const createDateBanner = bannerText => (
   </View>
 );
 
+// Add this helper OUTSIDE the component (after TRANSACTION_CONSTANTS)
+const getTxIconName = (
+  details,
+  transactionPaymentType,
+  showSwapConversion,
+  isFailedPayment,
+  isReceive,
+) => {
+  // Default: Lightning / Bitcoin / Spark — directional arrows
+  return { icon: isReceive ? 'ArrowDown' : 'ArrowUp', bg: null };
+  if (isFailedPayment) return { icon: 'CircleX', bg: null };
+
+  // Pending / swap pending
+  if (showSwapConversion) return { icon: 'Clock', bg: null };
+
+  // Savings
+  // if (details.isSavings) {
+  //   // Determine which asset icon to use
+  //   const useDollars =
+  //     details.direction === 'OUTGOING' ||
+  //     (details.direction === 'INCOMING' && details.isLRC20Payment);
+  //   return { icon: null, isSavings: true, useDollars };
+  // }
+
+  // Gifts
+  if (details.isGift) return { icon: 'Gift', bg: null };
+
+  // Pools
+  if (details.isPoolPayment) return { icon: 'PiggyBank', bg: null };
+
+  // Contacts (has a sendingUUID)
+  if (details.sendingUUID?.trim()) return { icon: 'UsersRound', bg: null };
+
+  // Swaps (showSwapLabel = incoming swap, or LRC20 outgoing on ln/btc rails)
+  if (
+    details.showSwapLabel ||
+    (details.isLRC20Payment &&
+      details.direction === 'OUTGOING' &&
+      (transactionPaymentType === 'lightning' ||
+        transactionPaymentType === 'bitcoin'))
+  ) {
+    return { icon: 'ArrowLeftRight', bg: null };
+  }
+};
+
 export default function getFormattedHomepageTxsForSpark(props) {
   const {
     currentTime,
@@ -174,6 +224,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     enabledLRC20,
     scrollPosition,
     poolInfoRef,
+    t,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -186,15 +237,6 @@ export default function getFormattedHomepageTxsForSpark(props) {
   const sparkTransactions = sparkInformation?.transactions;
   const sparkTransactionsLength = sparkTransactions?.length || 0;
 
-  // Early return with loading skeleton
-  if (
-    !sparkInformation.didConnect ||
-    !sparkInformation.identityPubKey ||
-    !didGetToHomepage
-  ) {
-    return [createLoadingSkeleton(20, frompage, theme, darkModeType)];
-  }
-
   let formattedTxs = [];
   let ln_funding_txIds = new Set();
   let currentGroupedDate = '';
@@ -202,6 +244,16 @@ export default function getFormattedHomepageTxsForSpark(props) {
     frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
       ? sparkTransactionsLength
       : homepageTxPreferance;
+
+  // Early return with loading skeleton
+  if (
+    (!sparkInformation.didConnect ||
+      !sparkInformation.identityPubKey ||
+      !didGetToHomepage) &&
+    sparkTransactionsLength
+  ) {
+    formattedTxs.push(createLoadingSkeleton(1, frompage, theme, darkModeType));
+  }
 
   // Pre-calculate text objects to avoid recreation
   const bannerTexts = {
@@ -352,42 +404,113 @@ export default function getFormattedHomepageTxsForSpark(props) {
   }
 
   if (!formattedTxs?.length) {
-    return [
-      {
-        type: 'tx',
-        item: (
-          <View style={styles.noTransactionsContainer} key="noTx">
-            <ThemeText
-              content={noTransactionHistoryText}
-              styles={styles.noTransactionsText}
-            />
-          </View>
-        ),
-        key: 'noTx',
-      },
-    ];
+    if (frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE) {
+      return [
+        {
+          type: 'tx',
+          item: (
+            <View style={styles.noTransactionsContainer} key="noTx">
+              <ThemeText
+                content={noTransactionHistoryText}
+                styles={styles.noTransactionsText}
+              />
+            </View>
+          ),
+          key: 'noTx',
+        },
+      ];
+    } else {
+      return [
+        {
+          type: 'tx',
+          item: (
+            <View
+              style={[styles.transactionContainer, { paddingVertical: 0 }]}
+              key="noTx"
+            >
+              <View
+                style={[
+                  styles.icons,
+                  {
+                    backgroundColor: theme
+                      ? 'rgba(255,255,255,0.07)'
+                      : 'rgba(0,0,0,0.055)',
+                  },
+                ]}
+              >
+                <ThemeIcon
+                  size={22}
+                  iconName={'Clock'}
+                  colorOverride={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
+                />
+              </View>
+
+              <View style={styles.transactionContent}>
+                <ThemeText
+                  styles={styles.descriptionText}
+                  content={t('wallet.homeLightning.home.noTxs')}
+                />
+              </View>
+            </View>
+          ),
+          key: 'noTx',
+        },
+      ];
+    }
+  }
+
+  // Mark the first and last tx item so they can adjust their dividers/styles
+  if (frompage === TRANSACTION_CONSTANTS.HOME) {
+    let firstTxIdx = -1;
+    let lastTxIdx = -1;
+
+    formattedTxs.forEach((item, idx) => {
+      if (item.type === 'tx') {
+        if (firstTxIdx === -1) firstTxIdx = idx;
+        lastTxIdx = idx;
+      }
+    });
+
+    if (firstTxIdx >= 0) {
+      const firstEntry = formattedTxs[firstTxIdx];
+      formattedTxs[firstTxIdx] = {
+        ...firstEntry,
+        item: React.cloneElement(firstEntry.item, { isFirstItem: true }),
+      };
+    }
+
+    if (lastTxIdx >= 0) {
+      const lastEntry = formattedTxs[lastTxIdx];
+      formattedTxs[lastTxIdx] = {
+        ...lastEntry,
+        item: React.cloneElement(lastEntry.item, { isLastItem: true }),
+      };
+    }
   }
 
   // Add "View All" button if conditions are met
-  if (
-    frompage !== TRANSACTION_CONSTANTS.VIEW_ALL_PAGE &&
-    frompage !== TRANSACTION_CONSTANTS.SPARK_WALLET &&
-    formattedTxs.length === homepageTxPreferance
-  ) {
-    formattedTxs.push({
-      type: 'tx',
-      item: (
-        <TouchableOpacity
-          key="view_all_tx_btn"
-          style={[styles.viewAllButton, CENTER]}
-          onPress={() => navigate.navigate('ViewAllTxPage')}
-        >
-          <ThemeText content={viewAllTxText} styles={styles.headerText} />
-        </TouchableOpacity>
-      ),
-      key: 'view_all_tx_btn',
-    });
-  }
+  // if (
+  //   frompage !== TRANSACTION_CONSTANTS.VIEW_ALL_PAGE &&
+  //   frompage !== TRANSACTION_CONSTANTS.SPARK_WALLET &&
+  //   frompage !== TRANSACTION_CONSTANTS.HOME &&
+  //   formattedTxs.length === homepageTxPreferance
+  // ) {
+  //   formattedTxs.push({
+  //     type: 'tx',
+  //     item: (
+  //       <TouchableOpacity
+  //         key="view_all_tx_btn"
+  //         style={[styles.viewAllButton, CENTER]}
+  //         onPress={() => navigate.navigate('ViewAllTxPage')}
+  //       >
+  //         <ThemeText content={viewAllTxText} styles={styles.headerText} />
+  //       </TouchableOpacity>
+  //     ),
+  //     key: 'view_all_tx_btn',
+  //   });
+  // }
 
   return formattedTxs;
 }
@@ -408,8 +531,11 @@ export const UserTransaction = memo(function UserTransaction({
   isLRC20Payment,
   poolInfoRef,
   showSwapConversion,
+  isLastItem,
+  isFirstItem,
 }) {
   const { t } = useTranslation();
+  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
 
   const timeDifference = useMemo(
     () => calculateTimeDifference(currentTime, paymentDate),
@@ -437,6 +563,38 @@ export const UserTransaction = memo(function UserTransaction({
     transaction.paymentStatus === TRANSACTION_CONSTANTS.PENDING ||
     transaction.isBalancePending ||
     showSwapConversion;
+
+  const isReceive =
+    transaction.details.direction === TRANSACTION_CONSTANTS.INCOMING;
+
+  const txIconMeta = getTxIconName(
+    transaction.details,
+    transactionPaymentType,
+    showSwapConversion,
+    isFailedPayment,
+    isReceive,
+  );
+
+  const isGrayMode = theme && darkModeType;
+
+  const iconBg =
+    frompage === TRANSACTION_CONSTANTS.HOME
+      ? backgroundColor
+      : backgroundOffset;
+
+  const iconColor = isGrayMode
+    ? isReceive
+      ? 'rgba(255,255,255,0.75)' // visible gray arrow for incoming
+      : textColor // outgoing uses normal text color on darker bg
+    : isReceive
+    ? COLORS.primary
+    : isFailedPayment
+    ? theme && darkModeType
+      ? COLORS.darkModeText
+      : COLORS.cancelRed
+    : textColor;
+
+  const amountColor = textColor;
   const paymentDescription = transaction.details?.description?.trim();
   const isDefaultDescription =
     paymentDescription === BLITZ_DEFAULT_PAYMENT_DESCRIPTION;
@@ -496,31 +654,32 @@ export const UserTransaction = memo(function UserTransaction({
       style={{
         ...styles.transactionContainer,
         width: containerWidth,
+        paddingTop:
+          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+            ? 13
+            : isFirstItem
+            ? 0
+            : 13,
+        paddingBottom:
+          frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+            ? 13
+            : isLastItem
+            ? 0
+            : 13,
       }}
       activeOpacity={frompage === TRANSACTION_CONSTANTS.SPARK_WALLET ? 1 : 0.5}
       onPress={handlePress}
     >
       {showPendingTransactionStatusIcon ? (
-        <View style={styles.icons}>
-          <ThemeIcon iconName={'Clock'} />
-        </View>
-      ) : isFailedPayment ? (
-        <View style={styles.icons}>
-          <ThemeIcon
-            colorOverride={
-              theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
-            }
-            iconName={'CircleX'}
-          />
+        <View style={[styles.icons, { backgroundColor: iconBg }]}>
+          <ThemeIcon size={22} iconName="Clock" colorOverride={iconColor} />
         </View>
       ) : (
-        <View style={styles.icons}>
+        <View style={[styles.icons, { backgroundColor: iconBg }]}>
           <ThemeIcon
-            iconName={
-              transaction.details.direction === TRANSACTION_CONSTANTS.INCOMING
-                ? 'ArrowDown'
-                : 'ArrowUp'
-            }
+            size={22}
+            iconName={txIconMeta.icon}
+            colorOverride={iconColor}
           />
         </View>
       )}
@@ -550,6 +709,7 @@ export const UserTransaction = memo(function UserTransaction({
                 frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
               }
               containerStyles={styles.amountContainer}
+              styles={{ color: amountColor }}
               frontText={APPROXIMATE_SYMBOL}
               balance={
                 satsToDollars(
@@ -568,6 +728,7 @@ export const UserTransaction = memo(function UserTransaction({
                 frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
               }
               containerStyles={styles.amountContainer}
+              styles={{ color: amountColor }}
               frontText={
                 userBalanceDenomination !== 'hidden'
                   ? transaction.details.direction ===
@@ -591,6 +752,9 @@ export const UserTransaction = memo(function UserTransaction({
           )}
         </View>
       )}
+      {!isLastItem && (
+        <View style={[styles.txDivider, { backgroundColor: textColor }]} />
+      )}
     </TouchableOpacity>
   );
 });
@@ -600,21 +764,23 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12.5,
+    paddingVertical: 13,
+    position: 'relative',
     ...CENTER,
   },
   icons: {
-    width: 30,
-    height: 30,
-    marginRight: 5,
-    marginLeft: -5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   transactionContent: {
     flex: 1,
     width: '100%',
-    marginRight: 20,
+    marginRight: 12,
   },
   descriptionText: {
     includeFontPadding: false,
@@ -622,6 +788,15 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: SIZES.small,
     includeFontPadding: false,
+    opacity: HIDDEN_OPACITY,
+  },
+  txDivider: {
+    position: 'absolute',
+    bottom: 0,
+    left: 68,
+    right: 0,
+    height: StyleSheet.hairlineWidth,
+    opacity: 0.08,
   },
 
   amountContainer: {
@@ -640,7 +815,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 15,
+    // marginTop: 15,
   },
   noTransactionsText: {
     width: INSET_WINDOW_WIDTH,

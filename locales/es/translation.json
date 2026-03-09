@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Escanear",
     "next": "Siguiente",
     "skip_all": "Saltar todo",
     "copy": "Copiar",
@@ -736,7 +737,9 @@
       "qrReceiveOptions": "Recibir mediante código QR",
       "addressBook_send": "Enviar a un contacto",
       "tapToGenerate_lightning_btc": "Recibir BTC al instante",
-      "tapToGenerate_lightning_usd": "Recibir USD al instante"
+      "tapToGenerate_lightning_usd": "Recibir USD al instante",
+      "noAddedContactsTitle": "No hay contactos agregados",
+      "noAddedContactsDesc": "Tus contactos aparecerán aquí cuando agregues uno."
     },
     "pools": {
       "receiveViaPool": "Recibir mediante un fondo",
@@ -943,7 +946,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Ver todas las transacciones",
-        "no_transaction_history": "Envía o recibe una transacción para que aparezca aquí"
+        "no_transaction_history": "Envía o recibe una transacción para que aparezca aquí",
+        "activity": "Actividad",
+        "see_all": "Ver todo",
+        "noTxs": "Aún no hay transacciones"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
@@ -1768,7 +1774,9 @@
         "filterGifts": "Regalos",
         "filterSwaps": "Intercambios",
         "filterSavings": "Ahorros",
-        "filterPools": "Fondos"
+        "filterPools": "Fondos",
+        "noTxHistoryTitle": "Sin historial de transacciones",
+        "noTxHistorySub": "Tus transacciones aparecerán aquí cuando envíes o recibas una."
       },
       "lrc20HalfModal": {
         "title": "Buscar tokens",

@@ -121,7 +121,7 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
 
   const { fontSize, getLabelProps } = useAdaptiveFontSize(
     [
-      'createAccount.homePage.money',
+      t('createAccount.homePage.money'),
       t('createAccount.homePage.made'),
       t('createAccount.homePage.simple'),
     ],

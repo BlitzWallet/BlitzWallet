@@ -1,7 +1,7 @@
-identifier: com.blitzwallet
-name: Blitz Wallet
-summary: The simplest self-custodial bitcoin wallet. Send, spend, and receive BTC.
 repository: https://github.com/BlitzWallet/BlitzWallet
+description: The complete Bitcoin ecosystem in your pocket. Send, spend, gift, convert and accept payments with lightning speed.
+summary: Bitcoin Payments Made Simple
 license: Apache 2.0
-assets:
-  - ^Android-v\d+\.\d+\.\d+\.apk$
+website: https://blitzwalletapp.com/
+metadata_sources:
+  - github

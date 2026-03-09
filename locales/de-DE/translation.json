@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Scannen",
     "next": "Weiter",
     "skip_all": "Alle überspringen",
     "copy": "Kopieren",
@@ -876,7 +877,9 @@
       "qrReceiveOptions": "Über QR-Code empfangen",
       "addressBook_send": "An einen Kontakt senden",
       "tapToGenerate_lightning_btc": "BTC sofort empfangen",
-      "tapToGenerate_lightning_usd": "USD sofort empfangen"
+      "tapToGenerate_lightning_usd": "USD sofort empfangen",
+      "noAddedContactsTitle": "Keine hinzugefügten Kontakte",
+      "noAddedContactsDesc": "Deine Kontakte erscheinen hier, sobald du einen hinzufügst."
     },
     "pools": {
       "receiveViaPool": "Über einen Sparpool empfangen.",
@@ -1084,7 +1087,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Alle Transaktionen anzeigen",
-        "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird."
+        "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird.",
+        "activity": "Aktivität",
+        "see_all": "Alle anzeigen",
+        "noTxs": "Noch keine Transaktionen"
       },
       "lrc20Assets": {
         "actionText": "USDB-Token {{action}}",
@@ -1908,7 +1914,9 @@
         "filterGifts": "Geschenke",
         "filterSwaps": "Umtausch",
         "filterSavings": "Sparziele",
-        "filterPools": "Sparpools"
+        "filterPools": "Sparpools",
+        "noTxHistoryTitle": "Keine Transaktionshistorie",
+        "noTxHistorySub": "Deine Transaktionen erscheinen hier, sobald du eine sendest oder empfängst."
       },
       "lrc20HalfModal": {
         "title": "Token suchen",
