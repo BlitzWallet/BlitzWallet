@@ -876,7 +876,9 @@
       "qrReceiveOptions": "Ta emot via QR-kod",
       "addressBook_send": "Skicka till en kontakt",
       "tapToGenerate_lightning_btc": "Ta emot BTC direkt",
-      "tapToGenerate_lightning_usd": "Ta emot USD direkt"
+      "tapToGenerate_lightning_usd": "Ta emot USD direkt",
+      "noAddedContactsTitle": "Inga tillagda kontakter",
+      "noAddedContactsDesc": "Dina kontakter visas här när du lägger till en."
     },
     "pools": {
       "receiveViaPool": "Ta emot via pool",

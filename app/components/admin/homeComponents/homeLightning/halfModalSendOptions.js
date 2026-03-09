@@ -682,11 +682,17 @@ export default function HalfModalSendOptions({
             contactElements
           ) : (
             <View style={styles.emptyContactsContainer}>
+              <ThemeIcon iconName={'UsersRound'} />
               <ThemeText
-                styles={[{ textAlign: 'center', marginBottom: 15 }]}
-                content={t('wallet.halfModal.noContacts')}
+                styles={styles.emptyTitle}
+                content={t('wallet.halfModal.noAddedContactsTitle')}
+              />
+              <ThemeText
+                styles={styles.emptySubtext}
+                content={t('wallet.halfModal.noAddedContactsDesc')}
               />
               <CustomButton
+                buttonStyles={{ width: '100%' }}
                 textContent={t('contacts.editMyProfilePage.addContactBTN')}
                 actionFunction={() => setShowAddContact(true)}
               />
@@ -718,9 +724,24 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   emptyContactsContainer: {
-    paddingVertical: 30,
-    paddingHorizontal: 20,
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+    paddingTop: 30,
     alignItems: 'center',
+  },
+  emptyTitle: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    marginBottom: 16,
   },
 
   searchContainer: {

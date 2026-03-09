@@ -876,7 +876,9 @@
       "qrReceiveOptions": "Получить через QR-код",
       "addressBook_send": "Отправить контакту",
       "tapToGenerate_lightning_btc": "Мгновенно получить BTC",
-      "tapToGenerate_lightning_usd": "Мгновенно получить USD"
+      "tapToGenerate_lightning_usd": "Мгновенно получить USD",
+      "noAddedContactsTitle": "Нет добавленных контактов",
+      "noAddedContactsDesc": "Ваши контакты появятся здесь, как только вы добавите один."
     },
     "pools": {
       "receiveViaPool": "Получить через пул",

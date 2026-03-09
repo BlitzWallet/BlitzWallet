@@ -876,7 +876,9 @@
       "qrReceiveOptions": "Ricevi tramite codice QR",
       "addressBook_send": "Invia a un contatto",
       "tapToGenerate_lightning_btc": "Ricevi BTC istantaneamente",
-      "tapToGenerate_lightning_usd": "Ricevi USD istantaneamente"
+      "tapToGenerate_lightning_usd": "Ricevi USD istantaneamente",
+      "noAddedContactsTitle": "Nessun contatto aggiunto",
+      "noAddedContactsDesc": "I tuoi contatti appariranno qui quando ne aggiungerai uno."
     },
     "pools": {
       "receiveViaPool": "Ricevi tramite pool",

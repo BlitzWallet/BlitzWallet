@@ -103,7 +103,7 @@ export function SendRecieveBTNs({
       t('constants.swap'),
     ],
     SIZES.small,
-    10,
+    5,
   );
 
   return (
