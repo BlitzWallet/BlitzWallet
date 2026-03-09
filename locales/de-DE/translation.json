@@ -1090,7 +1090,11 @@
         "no_transaction_history": "Senden oder empfangen Sie eine Transaktion, damit sie hier angezeigt wird.",
         "activity": "Aktivität",
         "see_all": "Alle anzeigen",
-        "noTxs": "Noch keine Transaktionen"
+        "noTxs": "Noch keine Transaktionen",
+        "send": "Senden",
+        "receive": "Empfangen",
+        "scan": "Scannen",
+        "swap": "Tauschen"
       },
       "lrc20Assets": {
         "actionText": "USDB-Token {{action}}",
