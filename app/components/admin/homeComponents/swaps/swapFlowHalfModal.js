@@ -1272,9 +1272,14 @@ export default function SwapFlowHalfModal({
                   <CustomButton
                     buttonStyles={{ ...CENTER, marginTop: 12 }}
                     textContent={t('constants.continue')}
-                    actionFunction={() =>
-                      navigateToStep('amountInput', 'forward')
-                    }
+                    actionFunction={() => {
+                      if (
+                        !bitcoinBalanceIsAboveSwapLimit &&
+                        !dollarBalanceIsAboveSwapLimit
+                      )
+                        return;
+                      navigateToStep('amountInput', 'forward');
+                    }}
                   />
                 </>
               )}
