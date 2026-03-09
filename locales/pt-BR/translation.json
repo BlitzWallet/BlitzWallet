@@ -1640,8 +1640,8 @@
         "errorMessage": "Falha ao restaurar a conta"
       },
       "selectAltAccount": {
-        "from": "Selecione a conta da qual deseja enviar.",
-        "to": "Selecione a conta para a qual deseja receber."
+        "from": "Selecione a conta que você deseja enviar.",
+        "to": "Selecione a conta que você deseja receber."
       },
       "removeAccountPage": {
         "title": "Arquivar conta",
@@ -2100,7 +2100,7 @@
           "amount": "Quantia",
           "details": "Detalhes"
         },
-        "chooseCurrencyTitle": "Escolha a moeda da qual deseja trocar.",
+        "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar.",
         "enterAmountTitle": "Insira a quantia que deseja trocar."
       },
       "swapHistory": {
