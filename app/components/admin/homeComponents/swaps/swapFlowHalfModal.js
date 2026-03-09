@@ -1647,7 +1647,7 @@ export default function SwapFlowHalfModal({
                     {isSimulating ? (
                       <FullLoadingScreen
                         showText={false}
-                        containerStyles={{ flex: 1, height: 28 }}
+                        containerStyles={{ flex: 0, marginRight: 'auto' }}
                         size="small"
                       />
                     ) : (
