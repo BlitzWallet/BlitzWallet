@@ -131,6 +131,7 @@ export default function ClaimGiftHomeHalfModal({
       <CustomButton
         buttonStyles={[
           {
+            alignSelf: 'center',
             marginTop: 'auto',
           },
         ]}

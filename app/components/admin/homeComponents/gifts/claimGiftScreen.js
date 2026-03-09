@@ -701,6 +701,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 'auto',
+    alignSelf: 'center',
   },
   tempClaimMessageContainer: {
     flex: 1,

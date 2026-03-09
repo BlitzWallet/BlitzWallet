@@ -28,7 +28,7 @@ export default function GiftCardItem({
 }) {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { showToast } = useToast();
@@ -100,7 +100,10 @@ export default function GiftCardItem({
     <View
       style={[
         styles.cardContent,
-        { paddingVertical: from !== 'preview' ? 14 : 5 },
+        {
+          paddingVertical: from !== 'preview' ? 14 : 5,
+          paddingHorizontal: from !== 'preview' ? 16 : 0,
+        },
       ]}
     >
       <View
@@ -187,7 +190,11 @@ export default function GiftCardItem({
               onPress={handleAction}
               style={({ pressed }) => [
                 styles.actionButton,
-                { backgroundColor: backgroundOffset },
+                {
+                  backgroundColor: theme
+                    ? backgroundColor
+                    : COLORS.darkModeText,
+                },
                 pressed && { opacity: 0.5 },
               ]}
             >
@@ -203,16 +210,18 @@ export default function GiftCardItem({
   );
 
   return (
-    <View style={[styles.giftCard, containerStyle]}>
+    <View
+      style={[
+        styles.giftCard,
+        { backgroundColor: backgroundOffset },
+        containerStyle,
+      ]}
+    >
       {shouldShowActions ? (
         <Pressable onPress={handleAction}>{cardContent}</Pressable>
       ) : (
         cardContent
       )}
-
-      {showDivider ? (
-        <View style={[styles.divider, { backgroundColor: backgroundOffset }]} />
-      ) : null}
     </View>
   );
 }
@@ -220,13 +229,16 @@ export default function GiftCardItem({
 const styles = StyleSheet.create({
   giftCard: {
     width: '100%',
+    borderRadius: 8,
+    marginBottom: 8,
+    overflow: 'hidden',
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingVertical: 14,
-    paddingHorizontal: 4,
+    paddingHorizontal: 16,
   },
   iconContainer: {
     width: 42,
@@ -281,8 +293,5 @@ const styles = StyleSheet.create({
   actionButton: {
     padding: 8,
     borderRadius: 8,
-  },
-  divider: {
-    height: 1,
   },
 });

@@ -8,7 +8,7 @@ import {
 } from '../../../../functions/CustomElements';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
   keyboardGoBack,
@@ -42,10 +42,16 @@ export default function SavingsGoalDescribe(props) {
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar shouldDismissKeyboard={true} label={t('savings.goalDescribe.screenTitle')} />
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={t('savings.goalDescribe.screenTitle')}
+      />
       <View style={styles.container}>
         <View>
-          <ThemeText styles={styles.title} content={t('savings.goalDescribe.title')} />
+          <ThemeText
+            styles={styles.title}
+            content={t('savings.goalDescribe.title')}
+          />
 
           <CustomSearchInput
             containerStyles={styles.inputWrap}
@@ -82,7 +88,9 @@ export default function SavingsGoalDescribe(props) {
               });
             }
           }}
-          textContent={!goalName.trim() ? t('constants.back') : t('constants.continue')}
+          textContent={
+            !goalName.trim() ? t('constants.back') : t('constants.continue')
+          }
         />
       </View>
     </CustomKeyboardAvoidingView>
@@ -92,7 +100,7 @@ export default function SavingsGoalDescribe(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     justifyContent: 'space-between',
     ...CENTER,
   },
@@ -112,7 +120,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
+    // alignSelf: 'center',
   },
   disabledButton: {
     opacity: 0.45,

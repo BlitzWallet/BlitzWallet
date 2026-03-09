@@ -123,7 +123,7 @@ export default function AccountPaymentPage(props) {
     toAccount &&
     !transferInfo.isCalculatingFee &&
     !transferInfo.isDoingTransfer &&
-    convertedSendAmount > transferInfo.paymentFee + fromBalance;
+    convertedSendAmount < transferInfo.paymentFee + fromBalance;
 
   const handlePayment = useCallback(async () => {
     try {
@@ -490,6 +490,7 @@ export default function AccountPaymentPage(props) {
         textContent={t('constants.confirm')}
         buttonStyles={{
           ...CENTER,
+          width: INSET_WINDOW_WIDTH,
           marginTop: CONTENT_KEYBOARD_OFFSET,
           opacity: canDoTransfer ? 1 : HIDDEN_OPACITY,
         }}

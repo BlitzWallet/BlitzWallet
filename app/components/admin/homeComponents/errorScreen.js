@@ -12,6 +12,7 @@ import GetThemeColors from '../../../hooks/themeColors';
 import { ThemeText } from '../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 
 export default function ErrorScreen(props) {
   const { textColor, backgroundColor, backgroundOffset, transparentOveraly } =
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
     borderRadius: 8,
     maxHeight: '70%',

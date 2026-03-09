@@ -1,8 +1,9 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {CENTER, COLORS, SIZES} from '../../../../../constants';
-import {Image} from 'expo-image';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { CENTER, COLORS, SIZES } from '../../../../../constants';
+import { Image } from 'expo-image';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function GiftCardTxItem({
   txParsed,
@@ -33,7 +34,8 @@ export default function GiftCardTxItem({
           isOutgoingPayment,
         });
       }}
-      style={styles.transactionContainer}>
+      style={styles.transactionContainer}
+    >
       {/* Gift Card Logo with subtle styling */}
       <View
         style={[
@@ -44,15 +46,16 @@ export default function GiftCardTxItem({
             borderWidth: theme ? 0.5 : 2,
             borderColor: backgroundOffset,
           },
-        ]}>
+        ]}
+      >
         <Image
           style={styles.cardLogo}
-          source={{uri: txParsed.giftCardInfo.logo}}
+          source={{ uri: txParsed.giftCardInfo.logo }}
           contentFit="contain"
         />
       </View>
 
-      <View style={{width: '100%', flex: 1}}>
+      <View style={{ width: '100%', flex: 1 }}>
         {/* Gift card name with subtle emphasis */}
         <ThemeText
           CustomEllipsizeMode={'tail'}
@@ -100,7 +103,7 @@ export default function GiftCardTxItem({
 
 const styles = StyleSheet.create({
   transactionContainer: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12.5,

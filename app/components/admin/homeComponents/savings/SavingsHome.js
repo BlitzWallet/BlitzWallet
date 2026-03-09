@@ -16,7 +16,7 @@ import { fromMicros, mergeAndSortSavingsActivity } from './utils';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import SavingsActivityContainer from './SavingsActivityContainer';
 import SavingsActionButtons from './SavingsActionButtons';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -35,7 +35,6 @@ export default function SavingsHome() {
     refreshInterestPayouts,
     refreshBalances,
     interestPayouts,
-    totalIntrestEarned,
   } = useSavings();
 
   useFocusEffect(
@@ -69,40 +68,6 @@ export default function SavingsHome() {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.heroCard}>
-          {/* <View
-            style={[
-              styles.earnedContainer,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : COLORS.primary,
-              },
-            ]}
-          >
-            <ThemeIcon
-              colorOverride={COLORS.darkModeText}
-              size={15}
-              strokeWidth={3}
-              iconName={'TrendingUp'}
-            />
-
-            <ThemeText
-              styles={{
-                color: COLORS.darkModeText,
-                fontSize: SIZES.small,
-                includeFontPadding: false,
-              }}
-              content={t('savings.home.earnedCard', {
-                amount: displayCorrectDenomination({
-                  amount: totalIntrestEarned,
-                  masterInfoObject: {
-                    ...masterInfoObject,
-                    userBalanceDenomination: 'sats',
-                  },
-                  fiatStats,
-                }),
-              })}
-            />
-          </View> */}
           <ThemeText
             styles={styles.balanceLabel}
             content={t('savings.total_balance')}
@@ -122,22 +87,6 @@ export default function SavingsHome() {
               convertAmount: false,
             })}
           />
-          {/* 
-          <TouchableOpacity
-            style={styles.interestRow}
-            activeOpacity={0.7}
-            onPress={() => {
-              navigate.navigate('CustomWebView', {
-                webViewURL: 'https://docs.flashnet.xyz/usdb/faq',
-              });
-            }}
-          >
-            <ThemeText
-              styles={styles.interestText}
-              content={t('savings.home.howItWorksLink')}
-            />
-            <ThemeIcon iconName={'ChevronRight'} size={18} />
-          </TouchableOpacity> */}
         </View>
 
         <SavingsActionButtons savingsBalance={savingsBalance} />
@@ -279,7 +228,7 @@ export default function SavingsHome() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     gap: 16,
     flexGrow: 1,
     ...CENTER,

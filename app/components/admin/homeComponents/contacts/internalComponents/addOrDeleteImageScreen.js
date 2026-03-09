@@ -10,6 +10,7 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function AddOrDeleteContactImage(props) {
   const { textColor, backgroundColor } = GetThemeColors();
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
     backgroundColor: COLORS.lightModeBackground,
 

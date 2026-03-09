@@ -34,6 +34,7 @@ export default async function processLNUrlPay(input, context) {
   crashlyticsLogReport('Beiging decode LNURL pay');
 
   const [username, domain] = input.data.address?.split('@');
+  console.log(username, domain);
 
   if (
     username?.toLowerCase() ===
@@ -70,11 +71,20 @@ export default async function processLNUrlPay(input, context) {
       ? contactInfo?.payingContactMessage
       : enteredPaymentInfo.description) || '';
 
-  const defaultLNURLDescription =
-    JSON.parse(input.data.metadata)?.find(item => {
-      const [tag, value] = item;
-      if (tag === 'text/plain') return true;
-    }) || [];
+  let defaultLNURLDescription = [];
+  try {
+    const metadata =
+      typeof input.data.metadata === 'string'
+        ? JSON.parse(input.data.metadata)
+        : input.data.metadata;
+
+    if (Array.isArray(metadata)) {
+      defaultLNURLDescription =
+        metadata.find(item => item[0] === 'text/plain') ?? [];
+    }
+  } catch {
+    // malformed JSON, default stays []
+  }
 
   if (comingFromAccept || paymentInfo.sendAmount) {
     // Generate invoice first (must be sequential with retries)

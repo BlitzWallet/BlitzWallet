@@ -1591,9 +1591,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.6.5":
-  version: 0.6.5
-  resolution: "@buildonspark/spark-sdk@npm:0.6.5"
+"@buildonspark/spark-sdk@npm:^0.6.7":
+  version: 0.6.7
+  resolution: "@buildonspark/spark-sdk@npm:0.6.7"
   dependencies:
     "@bufbuild/protobuf": ^2.2.5
     "@lightsparkdev/core": ^1.4.9
@@ -1639,7 +1639,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 256c6e3ca70ee5030c4136087bffc90534fe12c707e8aea1ac18b76113639b7fe03ead68db373f1e677e179932069571f1c7d0366cf47ab0a06170ce273c492a
+  checksum: ad3f4c7b580fbc80142d61e275eba1defe3deb9c0ba7218dd274e22894179e0ec890dac1a84e249e36b2dcdbab434f9327134ae5956b8326bb3548e901085b2b
   languageName: node
   linkType: hard
 
@@ -1656,17 +1656,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@craftzdog/react-native-buffer@npm:^6.0.5":
-  version: 6.1.1
-  resolution: "@craftzdog/react-native-buffer@npm:6.1.1"
-  dependencies:
-    ieee754: ^1.2.1
-    react-native-quick-base64: ^2.2.2
-  checksum: bf8ae64b9631b14677d667c07c82fe6397ef5f317f58ab3d3617a716da757bd0eaf9cc092687103bc3f1448f095305be9672fb10d036331ed0ad4590b3036959
-  languageName: node
-  linkType: hard
-
-"@craftzdog/react-native-buffer@npm:^6.1.0":
+"@craftzdog/react-native-buffer@npm:6.1.0, @craftzdog/react-native-buffer@npm:^6.1.0":
   version: 6.1.0
   resolution: "@craftzdog/react-native-buffer@npm:6.1.0"
   dependencies:
@@ -2715,16 +2705,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@flashnet/sdk@npm:^0.5.6":
-  version: 0.5.6
-  resolution: "@flashnet/sdk@npm:0.5.6"
+"@flashnet/sdk@npm:^0.5.7":
+  version: 0.5.7
+  resolution: "@flashnet/sdk@npm:0.5.7"
   dependencies:
     bech32: ^2.0.0
     fast-sha256: 1.3.0
     light-bolt11-decoder: ^3.2.0
   peerDependencies:
-    "@buildonspark/issuer-sdk": ^0.1.12
-    "@buildonspark/spark-sdk": ^0.6.2
+    "@buildonspark/issuer-sdk": "*"
+    "@buildonspark/spark-sdk": "*"
     react-native-get-random-values: ">=1.11.0"
     typescript: ^5
   peerDependenciesMeta:
@@ -2734,7 +2724,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 3292355e84cc040b4089c59860469bd84fb9759706b358f71c981eaf58de00df8ce79a4fb022514df3b18eb567a4c24c956f91b4461cc10eff422bcc0212d9a8
+  checksum: fb6e004c6c30b3cc6b9ff97848e80f9e0cbe7bf246a02a1d5602b1c218558419772fa0f9e4432d27b5c50e8d1bc152924a12de4a4d3b366b14a2038fb772a611
   languageName: node
   linkType: hard
 
@@ -4768,9 +4758,9 @@ __metadata:
     "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
-    "@buildonspark/spark-sdk": ^0.6.5
+    "@buildonspark/spark-sdk": ^0.6.7
     "@craftzdog/react-native-buffer": ^6.1.0
-    "@flashnet/sdk": ^0.5.6
+    "@flashnet/sdk": ^0.5.7
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
     "@noble/secp256k1": ^3.0.0
@@ -4855,11 +4845,12 @@ __metadata:
     react-native-get-random-values: ^2.0.0
     react-native-keyboard-controller: 1.18.5
     react-native-localize: ^3.6.0
+    react-native-nitro-modules: ^0.35.0
     react-native-pager-view: 6.9.1
     react-native-pdf-from-image: ^0.3.6
     react-native-qrcode-svg: ^6.3.15
     react-native-quick-base64: ^2.2.2
-    react-native-quick-crypto: 0.7.17
+    react-native-quick-crypto: ^1.0.16
     react-native-reanimated: ^4.1.2
     react-native-restart-newarch: ^1.0.85
     react-native-safe-area-context: ~5.6.0
@@ -4871,7 +4862,7 @@ __metadata:
     react-native-worklets: 0.5.1
     react-test-renderer: 19.1.0
     rn-qr-generator: ^2.0.0
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#d97589eb04b1535b26fd843aefa3c96eaf7fcd6e"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#e58cb420f9d6394e08abd54dd58170a3b1c14b4a"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     text-encoding-polyfill: ^0.6.7
@@ -7740,7 +7731,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"events@npm:^3.3.0":
+"events@npm:3.3.0, events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
@@ -12729,6 +12720,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-nitro-modules@npm:^0.35.0":
+  version: 0.35.0
+  resolution: "react-native-nitro-modules@npm:0.35.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: f006daa1aa58f1a0165a4d6fc087c8d190f2857a7acfd6b47080e5979f05beb20455ed3c66831d489df4eb57d2f430d1610094ed4d6ae3946e17d83362161aa6
+  languageName: node
+  linkType: hard
+
 "react-native-pager-view@npm:6.9.1":
   version: 6.9.1
   resolution: "react-native-pager-view@npm:6.9.1"
@@ -12774,16 +12775,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-quick-crypto@npm:0.7.17":
-  version: 0.7.17
-  resolution: "react-native-quick-crypto@npm:0.7.17"
+"react-native-quick-crypto@npm:^1.0.16":
+  version: 1.0.16
+  resolution: "react-native-quick-crypto@npm:1.0.16"
   dependencies:
-    "@craftzdog/react-native-buffer": ^6.0.5
-    events: ^3.3.0
-    readable-stream: ^4.5.2
+    "@craftzdog/react-native-buffer": 6.1.0
+    events: 3.3.0
+    readable-stream: 4.5.2
+    safe-buffer: ^5.2.1
     string_decoder: ^1.3.0
-    util: ^0.12.5
-  checksum: 5864b483900b504bff353721dffce2458635d7ad15a4bb87389a9161d83fd60a809c2881293a58ef03de3492ded8e9bf19efc8ae1d1694b500feedc26eee1e5c
+    util: 0.12.5
+  peerDependencies:
+    expo: ">=48.0.0"
+    expo-build-properties: "*"
+    react: "*"
+    react-native: "*"
+    react-native-nitro-modules: ">=0.29.1"
+    react-native-quick-base64: ">=2.1.0"
+  peerDependenciesMeta:
+    expo:
+      optional: true
+    expo-build-properties:
+      optional: true
+  checksum: 73cc7507e66c8a2d2d87ba9b5858acc6973b7dd08fabdb2db10c09ad112666496813a6e48f50018708468f5b6060ca52eb6ad85a7a0eae6b9a7b3eae2e203bb8
   languageName: node
   linkType: hard
 
@@ -13004,6 +13018,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"readable-stream@npm:4.5.2":
+  version: 4.5.2
+  resolution: "readable-stream@npm:4.5.2"
+  dependencies:
+    abort-controller: ^3.0.0
+    buffer: ^6.0.3
+    events: ^3.3.0
+    process: ^0.11.10
+    string_decoder: ^1.3.0
+  checksum: c4030ccff010b83e4f33289c535f7830190773e274b3fcb6e2541475070bdfd69c98001c3b0cb78763fc00c8b62f514d96c2b10a8bd35d5ce45203a25fa1d33a
+  languageName: node
+  linkType: hard
+
 "readable-stream@npm:^2.3.8":
   version: 2.3.8
   resolution: "readable-stream@npm:2.3.8"
@@ -13027,19 +13054,6 @@ __metadata:
     string_decoder: ^1.1.1
     util-deprecate: ^1.0.1
   checksum: bdcbe6c22e846b6af075e32cf8f4751c2576238c5043169a1c221c92ee2878458a816a4ea33f4c67623c0b6827c8a400409bfb3cf0bf3381392d0b1dfb52ac8d
-  languageName: node
-  linkType: hard
-
-"readable-stream@npm:^4.5.2":
-  version: 4.7.0
-  resolution: "readable-stream@npm:4.7.0"
-  dependencies:
-    abort-controller: ^3.0.0
-    buffer: ^6.0.3
-    events: ^3.3.0
-    process: ^0.11.10
-    string_decoder: ^1.3.0
-  checksum: 03ec762faed8e149dc6452798b60394a8650861a1bb4bf936fa07b94044826bc25abe73696f5f45372abc404eec01876c560f64b479eba108b56397312dbe2ae
   languageName: node
   linkType: hard
 
@@ -13819,16 +13833,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#d97589eb04b1535b26fd843aefa3c96eaf7fcd6e":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#e58cb420f9d6394e08abd54dd58170a3b1c14b4a":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=d97589eb04b1535b26fd843aefa3c96eaf7fcd6e"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=e58cb420f9d6394e08abd54dd58170a3b1c14b4a"
   dependencies:
-    "@buildonspark/spark-sdk": ^0.6.5
+    "@buildonspark/spark-sdk": ^0.6.7
     "@ecies/ciphers": ^0.2.4
-    "@flashnet/sdk": ^0.5.6
+    "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: 384a3e430bd2c1c5129611e4d60a2210ecb9d48c039ee73f0945fd04dd1efacd0f45c237d8b0aa72913719d0131106fe32ba906ed401d1c13d29d868c26a7807
+  checksum: c9dd60c290846f78c17b6540ecd31ea6e01f150c6b03dff00c142123242d91300fa526ed2e4e6f2b3d5ae38f310994a12162845214d3e138c2b66a4b061a8c54
   languageName: node
   linkType: hard
 
@@ -14811,7 +14825,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"util@npm:^0.12.5":
+"util@npm:0.12.5, util@npm:^0.12.5":
   version: 0.12.5
   resolution: "util@npm:0.12.5"
   dependencies:

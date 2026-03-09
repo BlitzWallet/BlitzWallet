@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Сканировать",
     "next": "Далее",
     "skip_all": "Пропустить всё",
     "copy": "Копировать",
@@ -319,16 +320,16 @@
         "fee": "Комиссия: "
       },
       "durationSlider": {
+        "3": "месяц",
+        "8": "квартал",
+        "30": "год",
         "durationOption": "1 {{duration}}",
         "price": "Цена: ",
         "noDurations": "Нет доступных вариантов",
         "duration": "Длительность",
         "0.1": "час",
         "0.5": "день",
-        "1.5": "неделя",
-        "3": "месяц",
-        "8": "квартал",
-        "30": "год"
+        "1.5": "неделя"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Вы уверены, что хотите удалить этот VPN?",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Получить через QR-код",
       "addressBook_send": "Отправить контакту",
       "tapToGenerate_lightning_btc": "Мгновенно получить BTC",
-      "tapToGenerate_lightning_usd": "Мгновенно получить USD"
+      "tapToGenerate_lightning_usd": "Мгновенно получить USD",
+      "noAddedContactsTitle": "Нет добавленных контактов",
+      "noAddedContactsDesc": "Ваши контакты появятся здесь, как только вы добавите один."
     },
     "pools": {
       "receiveViaPool": "Получить через пул",
@@ -1083,7 +1086,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Все транзакции",
-        "no_transaction_history": "Здесь появятся ваши транзакции"
+        "no_transaction_history": "Здесь появятся ваши транзакции",
+        "activity": "Активность",
+        "see_all": "Показать всё",
+        "noTxs": "Пока нет транзакций"
       },
       "lrc20Assets": {
         "actionText": "{{action}} токены",
@@ -1138,7 +1144,9 @@
       "searchPlaceholder": "Найти контакт",
       "lnurlAddMessage": "Вы добавляете",
       "noProfilesFound": "Профили не найдены",
-      "startTypingMessage": "Ищите по адресу Молнии (name@service.com) или юзернейму Blitz."
+      "startTypingMessage": "Ищите по адресу Молнии (name@service.com) или юзернейму Blitz.",
+      "loadingMessage": "Поиск контакта...",
+      "profileImage": "Загрузка фото профиля..."
     },
     "expandedContactPage": {
       "loadingContactError": "Не удалось загрузить контакт.",
@@ -1334,7 +1342,9 @@
       "text2": "Сумма не может быть 0",
       "text3": "Включить быструю оплату",
       "text4": "Лимит быстрой оплаты (SAT)",
-      "text5": "Быстрая оплата позволяет мгновенно оплачивать инвойсы ниже лимита без подтверждения свайпом."
+      "text5": "Быстрая оплата позволяет мгновенно оплачивать инвойсы ниже лимита без подтверждения свайпом.",
+      "text6": "Текущий",
+      "text7": "Новый"
     },
     "loginSecurity": {
       "text1": "Безопасность входа",
@@ -1456,10 +1466,15 @@
       "mainToggleDesc": "Узнавайте о важных событиях в приложении.",
       "optionsTitle": "Опции уведомлений",
       "contact": "Контакты",
+      "contactDesc": "Платежи от ваших сохранённых контактов",
       "lnurl": "Адрес Молнии",
+      "lnurlDesc": "Платежи, полученные на ваш Lightning-адрес",
       "nostrZaps": "Nostr zaps",
+      "nostrZapsDesc": "Zap-платежи, отправленные на ваш профиль Nostr",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Терминал (POS)"
+      "nwcDesc": "Платежи, авторизованные через Nostr Wallet Connect",
+      "pos": "Терминал (POS)",
+      "posDesc": "Платежи, полученные на вашем терминале"
     },
     "nostrHome": {
       "nip5Title": "Верификация NIP-05",
@@ -1681,7 +1696,8 @@
         "brandLogo": "Логотип бренда",
         "changeLogo": "Изменить логотип",
         "removeLogo": "Удалить",
-        "uploadLogo": "Нажмите, чтобы загрузить логотип бренда"
+        "uploadLogo": "Нажмите, чтобы загрузить логотип бренда",
+        "addProducts": "Добавить продукты"
       },
       "posInstructionsPath": {
         "title": "Инструкции",
@@ -1897,7 +1913,9 @@
         "filterGifts": "Подарки",
         "filterSwaps": "Обмены",
         "filterSavings": "Сбережения",
-        "filterPools": "Пулы"
+        "filterPools": "Пулы",
+        "noTxHistoryTitle": "Нет истории транзакций",
+        "noTxHistorySub": "Ваши транзакции появятся здесь, как только вы отправите или получите одну."
       },
       "lrc20HalfModal": {
         "title": "Поиск токенов",
@@ -2092,7 +2110,14 @@
         "percentConvertSelector": "% для конвертации",
         "slippage": "Проскальзывание",
         "slippageDesc": "Допустимый процент изменения цены. Низкое значение может вызвать ошибку, высокое — получение меньшей суммы.",
-        "auto": "Авто"
+        "auto": "Авто",
+        "navbar": {
+          "swap": "Обмен",
+          "amount": "Сумма",
+          "details": "Детали"
+        },
+        "chooseCurrencyTitle": "Выберите валюту, из которой вы хотите обменять.",
+        "enterAmountTitle": "Введите сумму для обмена."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Не удалось загрузить историю обменов. Пожалуйста, попробуйте позже.",
@@ -2368,7 +2393,8 @@
       "processing": "Обработка вывода…",
       "steps": {
         "processing": "Обработка...",
-        "withdrawing": "Вывод со сберегательного счёта...",
+        "withdrawing_savings": "Вывод со сберегательного счёта...",
+        "withdrawing_rewards": "Вывод с аккаунта Bitcoin-вознаграждений...",
         "swapping": "Обмен на биткоин...",
         "complete": "Завершено."
       },

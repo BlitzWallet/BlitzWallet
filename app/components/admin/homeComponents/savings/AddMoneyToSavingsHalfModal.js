@@ -11,7 +11,13 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
+import {
+  APPROXIMATE_SYMBOL,
+  CENTER,
+  COLORS,
+  ICONS,
+  SIZES,
+} from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -98,7 +104,9 @@ export default function AddMoneyToSavingsHalfModal({
       : 'fiat',
   );
   const fiatStats = globalFiatStats;
-  const [selectedGoalId, setSelectedGoalId] = useState(selectedGoalUUID);
+  const [selectedGoalId, setSelectedGoalId] = useState(
+    selectedGoalUUID || UNALLOCATED_GOAL_ID,
+  );
 
   const currentPage = step[step.length - 1];
 
@@ -306,8 +314,8 @@ export default function AddMoneyToSavingsHalfModal({
   };
 
   const handleDone = async () => {
-    await refreshSavings();
-    if (refreshBalances) await refreshBalances();
+    refreshSavings();
+    if (refreshBalances) refreshBalances();
     handleBackPressFunction();
   };
 
@@ -479,8 +487,19 @@ export default function AddMoneyToSavingsHalfModal({
                 {
                   backgroundColor:
                     theme && darkModeType ? backgroundColor : backgroundOffset,
+                  opacity:
+                    (option.key === 'dollar' && dollarBalanceToken < 0.01) ||
+                    (option.key === 'bitcoin' &&
+                      bitcoinBalance < swapLimits.bitcoin)
+                      ? HIDDEN_OPACITY
+                      : 1,
                 },
               ]}
+              disabled={
+                (option.key === 'dollar' && dollarBalanceToken < 0.01) ||
+                (option.key === 'bitcoin' &&
+                  bitcoinBalance < swapLimits.bitcoin)
+              }
               onPress={() => {
                 setSelectedSource(option.key);
                 setInputDenomination(
@@ -721,6 +740,21 @@ export default function AddMoneyToSavingsHalfModal({
               context: selectedSource,
             })}
           />
+          {selectedSource !== 'dollar' && (
+            <ThemeText
+              styles={styles.summaryLabel}
+              content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+                amount: swapUSDPriceDollars?.toFixed(2),
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'fiat',
+                },
+                fiatStats,
+                convertAmount: false,
+                forceCurrency: 'USD',
+              })}`}
+            />
+          )}
         </View>
         <CustomButton
           buttonStyles={styles.primaryButton}

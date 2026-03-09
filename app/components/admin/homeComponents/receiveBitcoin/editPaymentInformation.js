@@ -257,20 +257,4 @@ const styles = StyleSheet.create({
   satValue: {
     textAlign: 'center',
   },
-
-  textInputContainer: {
-    width: '95%',
-  },
-
-  textInputStyles: {
-    width: '90%',
-    includeFontPadding: false,
-  },
-  feeWarningText: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Regular,
-    width: 200,
-    textAlign: 'center',
-    ...CENTER,
-  },
 });

@@ -495,6 +495,7 @@ export const updateSparkTxStatus = async (
   mnemoninc,
   accountId,
   sendWebViewRequest,
+  forceRefresh = false,
 ) => {
   try {
     if (isUpdatingSparkTxStatus) {
@@ -544,6 +545,7 @@ export const updateSparkTxStatus = async (
         mnemoninc,
         sendWebViewRequest,
         accountId,
+        forceRefresh,
       ),
       processSparkTransactions(txsByType.spark, mnemoninc, sendWebViewRequest),
     ]);
@@ -798,6 +800,7 @@ async function processBitcoinTransactions(
   mnemonic,
   sendWebViewRequest,
   accountId,
+  forceRefresh,
 ) {
   const lastRun = await getLocalStorageItem('lastRunBitcoinTxUpdate');
 
@@ -805,7 +808,7 @@ async function processBitcoinTransactions(
   const cooldownPeriod = 1000 * 60; // 60 seconds
   let shouldBlockSendCheck = null;
 
-  if (lastRun && now - JSON.parse(lastRun) < cooldownPeriod) {
+  if (lastRun && now - JSON.parse(lastRun) < cooldownPeriod && !forceRefresh) {
     console.log('Blocking bitcoin transaction processing');
     shouldBlockSendCheck = true;
     return [];

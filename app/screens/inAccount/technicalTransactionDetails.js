@@ -7,6 +7,7 @@ import { useToast } from '../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
@@ -130,7 +131,7 @@ export default function TechnicalTransactionDetails(props) {
 
 const styles = StyleSheet.create({
   innerContainer: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
   headerContainer: {

@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
-import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import {
   COLORS,
   INSET_WINDOW_WIDTH,
@@ -20,10 +19,10 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GiftCardItem from './giftCardItem';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 
 export default function GiftsOverview() {
   const navigate = useNavigation();
@@ -41,7 +40,7 @@ export default function GiftsOverview() {
     }, [checkForRefunds]),
   );
 
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const handleRefresh = async () => {
     await checkForRefunds();
@@ -86,14 +85,7 @@ export default function GiftsOverview() {
         />
       ) : (
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.noGifts}>
-            <ThemeIcon
-              colorOverride={
-                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-              }
-              iconName={'Gift'}
-            />
-          </View>
+          <IconActionCircle bottomOffset={32} icon={'Gift'} />
           <ThemeText
             styles={styles.title}
             content={t('screens.inAccount.giftPages.giftsOverview.noGiftsHead')}
@@ -105,7 +97,7 @@ export default function GiftsOverview() {
         </ScrollView>
       )}
 
-      <View style={{ gap: 10, marginTop: CONTENT_KEYBOARD_OFFSET }}>
+      <View style={styles.buttonGroup}>
         <CustomButton
           actionFunction={() => navigate.navigate('CreateGift')}
           textContent={t(
@@ -141,16 +133,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  noGifts: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#e5e5e5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 32,
+  buttonGroup: {
+    gap: 8,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   title: {
     fontSize: SIZES.large,

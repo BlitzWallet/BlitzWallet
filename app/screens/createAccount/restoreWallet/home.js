@@ -24,7 +24,11 @@ import {
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import getClipboardText from '../../../functions/getClipboardText';
 import { useNavigation } from '@react-navigation/native';
@@ -341,10 +345,14 @@ export default function RestoreWallet({
           contentContainerStyle={styles.contentContainer}
         >
           <ThemeText
+            CustomNumberOfLines={1}
+            adjustsFontSizeToFit={true}
             styles={styles.headerText}
             content={t('createAccount.restoreWallet.home.header')}
           />
           <ThemeText
+            CustomNumberOfLines={2}
+            adjustsFontSizeToFit={true}
             styles={styles.subHeader}
             content={t('createAccount.restoreWallet.home.desc')}
           />
@@ -355,7 +363,7 @@ export default function RestoreWallet({
           <View
             style={{
               paddingBottom: bottomPadding,
-              width: '95%',
+              width: INSET_WINDOW_WIDTH,
               ...CENTER,
               marginTop: CONTENT_KEYBOARD_OFFSET,
             }}
@@ -419,7 +427,7 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
   },
   headerText: {
-    width: '95%',
+    width: '100%',
     fontSize: SIZES.xLarge,
     fontWeight: 500,
     textAlign: 'center',
@@ -427,7 +435,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   subHeader: {
-    width: '85%',
+    width: INSET_WINDOW_WIDTH,
     textAlign: 'center',
     opacity: HIDDEN_OPACITY,
     marginBottom: 30,
@@ -435,7 +443,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
     paddingBottom: 20,
   },

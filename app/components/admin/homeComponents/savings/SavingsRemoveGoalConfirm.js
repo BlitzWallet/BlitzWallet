@@ -10,9 +10,11 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useMemo } from 'react';
+import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function SavingsRemoveGoalConfirm(props) {
   const navigate = useNavigation();
@@ -20,6 +22,7 @@ export default function SavingsRemoveGoalConfirm(props) {
   const goalId = props?.route?.params?.goalId;
   const { savingsGoals, removeSavingsGoal } = useSavings();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const selectedGoal = useMemo(() => {
     return savingsGoals.find(goal => goal.id === goalId) || null;
@@ -45,27 +48,8 @@ export default function SavingsRemoveGoalConfirm(props) {
         label={t('savings.removeGoalConfirm.screenTitle')}
       />
       <View style={styles.container}>
-        <View>
-          <View
-            style={[
-              styles.iconCircle,
-              {
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-            ]}
-          >
-            <ThemeIcon
-              iconName={'Trash2'}
-              size={26}
-              colorOverride={
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText
-              }
-            />
-          </View>
-
+        <View style={{ width: '100%', alignItems: 'center' }}>
+          <IconActionCircle bottomOffset={32} icon={'Trash2'} />
           <ThemeText
             styles={styles.title}
             content={t('savings.removeGoalConfirm.title')}
@@ -73,29 +57,30 @@ export default function SavingsRemoveGoalConfirm(props) {
 
           <View style={styles.warningPointsContainer}>
             {warningPoints.map(point => (
-              <View key={point.text} style={styles.warningPoint}>
-                <View style={styles.warningIconContainer}>
-                  <View
-                    style={[
-                      styles.warningIconBadge,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    <ThemeIcon
-                      iconName={point.icon}
-                      size={15}
-                      colorOverride={
-                        theme && darkModeType
-                          ? COLORS.lightModeText
-                          : COLORS.darkModeText
-                      }
-                    />
-                  </View>
+              <View
+                key={point.text}
+                style={[
+                  styles.warningPoint,
+                  { backgroundColor: backgroundOffset },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.warningIconContainer,
+                    {
+                      backgroundColor: theme ? backgroundColor : COLORS.primary,
+                    },
+                  ]}
+                >
+                  <ThemeIcon
+                    iconName={point.icon}
+                    size={15}
+                    colorOverride={
+                      theme && darkModeType
+                        ? COLORS.lightModeText
+                        : COLORS.darkModeText
+                    }
+                  />
                 </View>
                 <ThemeText styles={styles.warningText} content={point.text} />
               </View>
@@ -143,36 +128,33 @@ export default function SavingsRemoveGoalConfirm(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     justifyContent: 'space-between',
     ...CENTER,
-  },
-  iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginTop: 56,
-    alignSelf: 'center',
   },
   title: {
-    marginTop: 10,
     fontSize: SIZES.large,
     includeFontPadding: false,
     alignSelf: 'center',
   },
   warningPointsContainer: {
-    gap: 16,
+    width: '100%',
+    maxWidth: 400,
+    marginBottom: 32,
+    gap: 15,
     marginTop: 20,
   },
   warningPoint: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,
+    padding: 16,
+    borderRadius: 12,
   },
   warningIconContainer: {
-    marginTop: 2,
+    padding: 9,
+    borderRadius: 12,
   },
   warningIconBadge: {
     padding: 5,

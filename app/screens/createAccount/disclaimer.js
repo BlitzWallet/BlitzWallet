@@ -18,6 +18,7 @@ import { createAccountMnemonic } from '../../functions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../hooks/themeColors';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
+import IconActionCircle from '../../functions/CustomElements/actionCircleContainer';
 
 export default function DisclaimerPage({ navigation: { navigate }, route }) {
   const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
@@ -67,14 +68,7 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
         contentContainerStyle={styles.contentContainer}
       >
         {/* ── Shield icon ── */}
-        <View style={styles.iconContainer}>
-          <ThemeIcon
-            styles={{ alignSelf: 'center' }}
-            size={40}
-            colorOverride={COLORS.darkModeText}
-            iconName={'ShieldCheck'}
-          />
-        </View>
+        <IconActionCircle icon={'ShieldCheck'} />
 
         {/* ── Header ── */}
         <ThemeText
@@ -181,16 +175,6 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
 
-  // ── Icon ──
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.primary,
-  },
-
   // ── Header ──
   headerText: {
     width: '100%',
@@ -292,7 +276,7 @@ const styles = StyleSheet.create({
 
   // ── Button ──
   buttonStyles: {
-    width: 145,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
 });

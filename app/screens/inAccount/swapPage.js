@@ -742,8 +742,8 @@ export default function SwapsPage() {
                   },
                 ),
                 address: sparkInformation.sparkAddress,
-                time: Date.now() + 1000,
-                createdAt: Date.now() + 1000,
+                time: Date.now(),
+                createdAt: Date.now(),
                 direction: 'INCOMING',
                 isLRC20Payment: true,
                 LRC20Token: USDB_TOKEN_ID,
@@ -797,8 +797,8 @@ export default function SwapsPage() {
                   },
                 ),
                 address: sparkInformation.sparkAddress,
-                time: Date.now() + 1000,
-                createdAt: Date.now() + 1000,
+                time: Date.now(),
+                createdAt: Date.now(),
                 direction: 'INCOMING',
                 showSwapLabel: true,
                 currentPriceAInB: result.swap.executionPrice,
@@ -938,34 +938,33 @@ export default function SwapsPage() {
             }}
             content={t('screens.inAccount.swapsPage.swapConfimred')}
           />
-          {/* Action Buttons */}
-          <CustomButton
-            buttonStyles={{
-              width: 'auto',
-              minWidth: 300,
-              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-              marginTop: 'auto',
-            }}
-            textStyles={{
-              color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-            }}
-            actionFunction={navigate.goBack}
-            textContent={t('constants.done')}
-          />
-          <CustomButton
-            buttonStyles={{
-              width: 'auto',
-              minWidth: 300,
-              backgroundColor: 'transparent',
-            }}
-            textStyles={{ color: textColor }}
-            actionFunction={() => {
-              setConfirmedSwap(null);
-              clearPageStates();
-            }}
-            textContent={t('screens.inAccount.swapsPage.newSwap')}
-          />
         </ScrollView>
+        {/* Action Buttons */}
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+            marginTop: 'auto',
+          }}
+          textStyles={{
+            color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+          }}
+          actionFunction={navigate.goBack}
+          textContent={t('constants.done')}
+        />
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            // minWidth: 300,
+            backgroundColor: 'transparent',
+          }}
+          textStyles={{ color: textColor }}
+          actionFunction={() => {
+            setConfirmedSwap(null);
+            clearPageStates();
+          }}
+          textContent={t('screens.inAccount.swapsPage.newSwap')}
+        />
       </GlobalThemeView>
     );
   }
@@ -1064,9 +1063,7 @@ export default function SwapsPage() {
                 style={[
                   styles.card,
                   {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
+                    backgroundColor: backgroundOffset,
                   },
                 ]}
               >
@@ -1124,9 +1121,7 @@ export default function SwapsPage() {
                 style={[
                   styles.card,
                   {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
+                    backgroundColor: backgroundOffset,
                   },
                 ]}
               >
@@ -1161,9 +1156,7 @@ export default function SwapsPage() {
               style={[
                 styles.card,
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                   marginBottom: 20,
                 },
               ]}
@@ -1205,9 +1198,7 @@ export default function SwapsPage() {
               style={[
                 styles.card,
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                   marginBottom: 20,
                 },
               ]}
@@ -1229,9 +1220,7 @@ export default function SwapsPage() {
               style={[
                 styles.card,
                 {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
+                  backgroundColor: backgroundOffset,
                 },
               ]}
             >
@@ -1274,7 +1263,9 @@ export default function SwapsPage() {
                     minWidth: 'unset',
                     flex: 0,
                     marginLeft: 'auto',
-                    backgroundColor,
+                    backgroundColor: theme
+                      ? backgroundColor
+                      : COLORS.darkModeText,
                   }}
                   showClearIcon={false}
                 />
@@ -1328,9 +1319,7 @@ export default function SwapsPage() {
                   style={[
                     styles.card,
                     {
-                      backgroundColor: theme
-                        ? backgroundOffset
-                        : COLORS.darkModeText,
+                      backgroundColor: backgroundOffset,
                     },
                   ]}
                 >
@@ -1459,9 +1448,7 @@ export default function SwapsPage() {
                   style={[
                     styles.card,
                     {
-                      backgroundColor: theme
-                        ? backgroundOffset
-                        : COLORS.darkModeText,
+                      backgroundColor: backgroundOffset,
                     },
                   ]}
                 >
@@ -1746,7 +1733,7 @@ function HandleKeyboardRender({
 const styles = StyleSheet.create({
   scrollContainer: { flexGrow: 1, paddingTop: 10, alignItems: 'center' },
   contentWrapper: {
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     maxWidth: 600,
     flexGrow: 1,
   },
@@ -1889,78 +1876,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  paymentTable: {
-    width: '95%',
-    maxWidth: 300,
-    rowGap: 20,
-  },
-  paymentTableRow: {
-    width: '100%',
-    minWidth: 200,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  labelText: {
-    flexShrink: 1,
-    marginRight: 5,
-  },
 
-  detailsCard: {
-    width: '100%',
-    maxWidth: 400,
-    marginTop: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    position: 'relative',
-  },
-  detailSection: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  detailLabel: {
-    fontSize: SIZES.small,
-    opacity: 0.5,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  detailAmount: {
-    fontSize: SIZES.xLarge,
-    includeFontPadding: false,
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    zIndex: 99,
-    borderRadius: 40,
-    padding: 5,
-  },
-
-  transactionDetails: {
-    width: '100%',
-    marginTop: 20,
-    paddingTop: 20,
-    borderTopWidth: 2,
-    marginBottom: 30,
-    gap: 16,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: 200,
-    ...CENTER,
-    gap: 10,
-  },
-  detailRowLabel: {
-    fontSize: SIZES.medium,
-    opacity: 0.6,
-    flexShrink: 1,
-  },
 
   reviewLabel: {
     fontSize: SIZES.smedium,

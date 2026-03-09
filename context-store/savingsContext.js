@@ -409,7 +409,7 @@ export function SavingsProvider({ children }) {
     return transactions.map(tx =>
       toLegacyDisplayTransaction(tx, goalNameById.get(tx.goalId), t),
     );
-  }, [goals, transactions]);
+  }, [goals, transactions, t]);
 
   const handleRestorePayments = useCallback(
     async balance => {

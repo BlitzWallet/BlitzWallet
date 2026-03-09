@@ -34,12 +34,14 @@ import { useImageCache } from '../../../../../context-store/imageCache';
 import { useTranslation } from 'react-i18next';
 import getDeepLinkUser from './internalComponents/getDeepLinkUser';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
 export default function AddContactsHalfModal({
   slideHeight,
   setIsKeyboardActive,
   startingSearchValue,
   handleBackPressFunction,
+  isScreenActive,
 }) {
   return (
     <AddContactContent
@@ -47,6 +49,7 @@ export default function AddContactsHalfModal({
       startingSearchValue={startingSearchValue}
       handleBackPressFunction={handleBackPressFunction}
       onContactAdded={null}
+      isScreenActive={isScreenActive}
     />
   );
 }
@@ -56,6 +59,7 @@ export function AddContactContent({
   startingSearchValue,
   handleBackPressFunction,
   onContactAdded,
+  isScreenActive,
 }) {
   const { contactsPrivateKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -63,20 +67,26 @@ export function AddContactContent({
   const [searchInput, setSearchInput] = useState(startingSearchValue || '');
   const [users, setUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [remoteLoadingMessage, setRemoteLoadingMessage] = useState('');
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
   const { refreshCacheObject } = useImageCache();
   const searchTrackerRef = useRef(null);
   const didClickCamera = useRef(null);
   const { t } = useTranslation();
+  const isFocused = useRef(false);
 
   const isUsingLNURL =
     searchInput?.includes('@') && searchInput?.indexOf('@') !== 0;
 
   useEffect(() => {
+    isFocused.current = true;
     if (startingSearchValue) {
       handleSearch(startingSearchValue);
     }
+    return () => {
+      isFocused.current = false;
+    };
   }, []);
 
   const handleSearchTrackerRef = () => {
@@ -176,6 +186,9 @@ export function AddContactContent({
   const parseContact = async data => {
     try {
       setIsSearching(true);
+      setRemoteLoadingMessage(
+        t('contacts.addContactsHalfModal.loadingMessage'),
+      );
       let newContact;
       if (VALID_URL_REGEX.test(data)) {
         const {
@@ -215,8 +228,13 @@ export function AddContactContent({
         newContact = userProfile;
       }
 
+      setRemoteLoadingMessage(t('contacts.addContactsHalfModal.profileImage'));
       await getCachedProfileImage(newContact.uuid);
 
+      if (!isFocused.current) {
+        console.log('Page is not focused, do not navigate');
+        return;
+      }
       if (onContactAdded) {
         onContactAdded(newContact);
       } else {
@@ -230,6 +248,7 @@ export function AddContactContent({
       });
     } finally {
       setIsSearching(false);
+      setRemoteLoadingMessage('');
     }
   };
 
@@ -260,6 +279,15 @@ export function AddContactContent({
       });
     }
   };
+
+  if (remoteLoadingMessage.length) {
+    return (
+      <FullLoadingScreen
+        textStyles={{ textAlign: 'center' }}
+        text={remoteLoadingMessage}
+      />
+    );
+  }
 
   return (
     <View style={styles.innerContainer}>
@@ -293,6 +321,7 @@ export function AddContactContent({
           <TouchableOpacity
             onPress={() => {
               didClickCamera.current = true;
+              if (isScreenActive) isScreenActive.current = false;
               keyboardNavigate(() =>
                 navigate.navigate('CameraModal', {
                   updateBitcoinAdressFunc: parseContact,
@@ -448,6 +477,7 @@ const styles = StyleSheet.create({
 
   titleText: {
     fontSize: SIZES.large,
+    fontWeight: '500',
     textAlign: 'left',
     marginRight: 10,
   },

@@ -87,7 +87,7 @@ export default function DenominationToggle({
       style={[
         styles.sliderContainer,
         {
-          backgroundColor: backgroundColor,
+          backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
           alignItems: 'center',
           width: containerWidth,
         },

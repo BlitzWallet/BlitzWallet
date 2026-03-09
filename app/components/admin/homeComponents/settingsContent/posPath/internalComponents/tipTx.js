@@ -41,11 +41,8 @@ export default function TipsTXItem({
     <View
       style={[
         styles.txContainer,
-        {
-          borderBottomColor: borderColor,
-          borderBottomWidth: isLastIndex ? 0 : 3,
-          paddingBottom: isLastIndex ? 0 : 10,
-        },
+        { backgroundColor: backgroundColor },
+        isLastIndex ? null : styles.txContainerGap,
       ]}
     >
       <View style={styles.leftContainer}>
@@ -125,10 +122,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderBottomWidth: 3,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     ...CENTER,
+  },
+  txContainerGap: {
+    marginBottom: 8,
   },
   leftContainer: {
     flex: 1,

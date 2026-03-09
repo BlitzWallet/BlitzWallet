@@ -13,7 +13,7 @@ import LottieView from 'lottie-react-native';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -65,7 +65,7 @@ export default function SavingsGoalRemovedSuccess() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     justifyContent: 'space-between',
     ...CENTER,
   },

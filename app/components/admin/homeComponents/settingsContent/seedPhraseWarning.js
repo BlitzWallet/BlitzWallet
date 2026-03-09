@@ -5,12 +5,7 @@ import {
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import {
-  COLORS,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-  WINDOWWIDTH,
-} from '../../../../constants/theme';
+import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +13,8 @@ import { useCallback, useState } from 'react';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 export default function SeedPhraseWarning(props) {
   const routeMnemonic = props?.route?.params?.mnemonic || props?.mnemonic;
@@ -26,9 +23,10 @@ export default function SeedPhraseWarning(props) {
 
   const { t } = useTranslation();
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
+  const { toggleMasterInfoObject } = useGlobalContextProvider();
 
   const toggleTermsAcceptance = useCallback(() => {
     setTermsAccepted(!termsAccepted);
@@ -45,6 +43,8 @@ export default function SeedPhraseWarning(props) {
 
     if (routeMnemonic) {
       extraData.mnemonic = routeMnemonic;
+    } else {
+      toggleMasterInfoObject({ didViewSeedPhrase: true });
     }
 
     navigate.replace('SettingsContentHome', {
@@ -81,27 +81,7 @@ export default function SeedPhraseWarning(props) {
         >
           <View style={styles.contentContainer}>
             {/* Icon */}
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.lightModeText
-                      : COLORS.primary,
-                },
-              ]}
-            >
-              <ThemeIcon
-                iconName="ShieldAlert"
-                size={40}
-                colorOverride={
-                  theme && darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.darkModeText
-                }
-              />
-            </View>
+            <IconActionCircle icon={'ShieldAlert'} bottomOffset={32} />
 
             {/* Title */}
             <ThemeText
@@ -114,30 +94,28 @@ export default function SeedPhraseWarning(props) {
             {/* Warning Points */}
             <View style={styles.warningPointsContainer}>
               {warningPoints.map((point, index) => (
-                <View key={index} style={styles.warningPoint}>
-                  <View style={styles.warningIconContainer}>
-                    <View
-                      style={[
-                        {
-                          padding: 5,
-                          borderRadius: 8,
-                          backgroundColor:
-                            theme && darkModeType
-                              ? COLORS.darkModeText
-                              : COLORS.primary,
-                        },
-                      ]}
-                    >
-                      <ThemeIcon
-                        iconName={point.icon}
-                        size={15}
-                        colorOverride={
-                          theme && darkModeType
-                            ? COLORS.lightModeText
-                            : COLORS.darkModeText
-                        }
-                      />
-                    </View>
+                <View
+                  key={index}
+                  style={[
+                    styles.warningPoint,
+                    { backgroundColor: backgroundOffset },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.warningIconContainer,
+                      {
+                        backgroundColor: theme
+                          ? backgroundColor
+                          : COLORS.primary,
+                      },
+                    ]}
+                  >
+                    <ThemeIcon
+                      iconName={point.icon}
+                      size={15}
+                      colorOverride={COLORS.darkModeText}
+                    />
                   </View>
                   <ThemeText
                     styles={[styles.warningText, { color: textColor }]}
@@ -229,14 +207,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 20,
   },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
-  },
   title: {
     fontSize: SIZES.xLarge,
     fontWeight: '500',
@@ -245,20 +215,24 @@ const styles = StyleSheet.create({
   },
   warningPointsContainer: {
     width: '100%',
-    gap: 20,
+    maxWidth: 400,
+    gap: 15,
   },
   warningPoint: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,
+    padding: 16,
+    borderRadius: 12,
   },
   warningIconContainer: {
-    paddingTop: 2,
+    padding: 9,
+    borderRadius: 12,
   },
   warningText: {
     flex: 1,
-    fontSize: SIZES.medium,
     includeFontPadding: false,
+    marginTop: -2,
   },
   checkboxContainer: {
     paddingTop: CONTENT_KEYBOARD_OFFSET,
@@ -284,7 +258,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   continueButton: {
-    width: 145,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
 });

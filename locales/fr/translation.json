@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Scanner",
     "next": "Suivant",
     "skip_all": "Tout ignorer",
     "copy": "Copie",
@@ -319,16 +320,16 @@
         "fee": "Frais : "
       },
       "durationSlider": {
+        "3": "mois",
+        "8": "trimestre",
+        "30": "année",
         "durationOption": "1 {{duration}}",
         "price": "Prix : ",
         "noDurations": "Pas de durée disponible",
         "duration": "Durée de l'accord",
         "0.1": "heure",
         "0.5": "jour",
-        "1.5": "semaine",
-        "3": "mois",
-        "8": "trimestre",
-        "30": "année"
+        "1.5": "semaine"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Êtes-vous sûr de vouloir supprimer ce VPN.",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Recevoir via code QR",
       "addressBook_send": "Envoyer à un contact",
       "tapToGenerate_lightning_btc": "Recevoir BTC instantanément",
-      "tapToGenerate_lightning_usd": "Recevoir USD instantanément"
+      "tapToGenerate_lightning_usd": "Recevoir USD instantanément",
+      "noAddedContactsTitle": "Aucun contact ajouté",
+      "noAddedContactsDesc": "Vos contacts apparaîtront ici une fois que vous en aurez ajouté un."
     },
     "pools": {
       "receiveViaPool": "Recevoir via une cagnotte",
@@ -1082,7 +1085,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Voir toutes les transactions",
-        "no_transaction_history": "Envoyer ou recevoir une transaction pour qu'elle apparaisse ici"
+        "no_transaction_history": "Envoyer ou recevoir une transaction pour qu'elle apparaisse ici",
+        "activity": "Activité",
+        "see_all": "Voir tout",
+        "noTxs": "Aucune transaction pour le moment"
       },
       "lrc20Assets": {
         "actionText": "{{action}} jetons",
@@ -1137,7 +1143,9 @@
       "searchPlaceholder": "Trouver un contact",
       "lnurlAddMessage": "Vous êtes sur le point d'ajouter",
       "noProfilesFound": "Aucun profil ne correspond à cette recherche",
-      "startTypingMessage": "Recherche par LNURL (par exemple name@service.com) ou par nom d'utilisateur Blitz."
+      "startTypingMessage": "Recherche par LNURL (par exemple name@service.com) ou par nom d'utilisateur Blitz.",
+      "loadingMessage": "Recherche du contact...",
+      "profileImage": "Chargement de la photo de profil..."
     },
     "expandedContactPage": {
       "loadingContactError": "Impossible de charger le contact, veuillez réessayer.",
@@ -1333,7 +1341,9 @@
       "text2": "Le montant ne peut être égal à 0",
       "text3": "Activer le Fast Pay",
       "text4": "Seuil de rémunération rapide (SAT)",
-      "text5": "Le paiement rapide vous permet de payer instantanément les factures inférieures à un seuil spécifié, sans avoir à les glisser dans le lecteur pour obtenir une confirmation."
+      "text5": "Le paiement rapide vous permet de payer instantanément les factures inférieures à un seuil spécifié, sans avoir à les glisser dans le lecteur pour obtenir une confirmation.",
+      "text6": "Actuel",
+      "text7": "Nouveau"
     },
     "loginSecurity": {
       "text1": "Activer la sécurité de connexion",
@@ -1455,10 +1465,15 @@
       "mainToggleDesc": "Les notifications vous permettent de rester informé des événements importants et des mises à jour de l'application.",
       "optionsTitle": "Options de notification",
       "contact": "Contact",
+      "contactDesc": "Paiements reçus de vos contacts enregistrés",
       "lnurl": "LNURL",
+      "lnurlDesc": "Paiements reçus via votre adresse Lightning",
       "nostrZaps": "Nostr zaps",
+      "nostrZapsDesc": "Paiements Zap envoyés à votre profil Nostr",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Point de vente"
+      "nwcDesc": "Paiements autorisés via Nostr Wallet Connect",
+      "pos": "Point de vente",
+      "posDesc": "Paiements reçus à votre point de vente"
     },
     "nostrHome": {
       "nip5Title": "Vérification du Nip5",
@@ -1680,7 +1695,8 @@
         "brandLogo": "Logo de la marque",
         "changeLogo": "Changer le logo",
         "removeLogo": "Supprimer",
-        "uploadLogo": "Appuyez pour télécharger le logo de la marque"
+        "uploadLogo": "Appuyez pour télécharger le logo de la marque",
+        "addProducts": "Ajouter des produits"
       },
       "posInstructionsPath": {
         "title": "Instructions",
@@ -1896,7 +1912,9 @@
         "filterGifts": "Cadeaux",
         "filterSwaps": "Échanges",
         "filterSavings": "Épargne",
-        "filterPools": "Cagnottes"
+        "filterPools": "Cagnottes",
+        "noTxHistoryTitle": "Aucun historique de transactions",
+        "noTxHistorySub": "Vos transactions apparaîtront ici une fois que vous en aurez envoyé ou reçu une."
       },
       "lrc20HalfModal": {
         "title": "Jetons de recherche",
@@ -2084,7 +2102,14 @@
         "percentConvertSelector": "% à convertir",
         "slippage": "Glissement",
         "slippageDesc": "Le glissement est le pourcentage de variation de prix que vous êtes prêt à accepter. Un glissement faible peut entraîner des échecs de transaction, tandis qu’un glissement élevé peut entraîner la réception d’un montant inférieur à celui attendu.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Échanger",
+          "amount": "Montant",
+          "details": "Détails"
+        },
+        "chooseCurrencyTitle": "Choisissez la devise à partir de laquelle échanger.",
+        "enterAmountTitle": "Entrez le montant à échanger."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Impossible de charger l’historique des échanges. Veuillez réessayer plus tard.",
@@ -2360,7 +2385,8 @@
       "processing": "Retrait en cours…",
       "steps": {
         "processing": "Traitement en cours...",
-        "withdrawing": "Retrait du compte d’épargne...",
+        "withdrawing_savings": "Retrait du compte d’épargne...",
+        "withdrawing_rewards": "Retrait depuis le compte de récompenses Bitcoin...",
         "swapping": "Conversion en Bitcoin...",
         "complete": "Terminé."
       },

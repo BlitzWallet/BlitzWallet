@@ -8,7 +8,12 @@ import Animated, {
 import { AddContactContent } from './addContactsHalfModal';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
-export const AddContactOverlay = ({ visible, onClose, onContactAdded }) => {
+export const AddContactOverlay = ({
+  visible,
+  onClose,
+  onContactAdded,
+  isScreenActive,
+}) => {
   const opacity = useSharedValue(0);
 
   useEffect(() => {
@@ -39,6 +44,7 @@ export const AddContactOverlay = ({ visible, onClose, onContactAdded }) => {
         setIsKeyboardActive={null}
         startingSearchValue=""
         handleBackPressFunction={onClose}
+        isScreenActive={isScreenActive}
       />
     </Animated.View>
   );

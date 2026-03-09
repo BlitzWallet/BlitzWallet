@@ -17,6 +17,7 @@ import {
   ICONS,
   SIZES,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
+  USDB_TOKEN_ID,
 } from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
@@ -118,7 +119,6 @@ export default function WithdrawFromSavingsHalfModal({
     totalGoalsBalance,
     savingsBalance,
     savingsWallet,
-    totalIntrestEarned,
     interestPayouts,
   } = useSavings();
   const { sparkInformation } = useSparkWallet();
@@ -127,6 +127,7 @@ export default function WithdrawFromSavingsHalfModal({
     selectedGoalUUID ? 'destination' : 'balanceType',
   ]);
   const [walletBTCBalance, setWalletBTCBalance] = useState(null);
+  const [cachedBalance, setCachedBalance] = useState(0);
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [amountValue, setAmountValue] = useState('');
   // When true the user chose "Withdraw All" — skips amount step and drains
@@ -170,7 +171,7 @@ export default function WithdrawFromSavingsHalfModal({
   }, [accountMnemoinc]);
 
   const [inputDenomination, setInputDenomination] = useState(
-    selectedDestination === 'dollar'
+    selectedBalanceType !== 'interest'
       ? 'fiat'
       : masterInfoObject.userBalanceDenomination != 'fiat'
       ? 'sats'
@@ -183,10 +184,10 @@ export default function WithdrawFromSavingsHalfModal({
   const currentPage = step[step.length - 1];
 
   // Dollar destination → user types USD; Bitcoin destination → user types sats/fiat
-  const paymentMode = selectedDestination === 'dollar' ? 'USD' : 'BTC';
+  const paymentMode = selectedBalanceType !== 'interest' ? 'USD' : 'BTC';
 
   // Interest balance (BTC sats held in savings wallet from payouts)
-  const interestSats = walletBTCBalance ?? totalIntrestEarned ?? 0;
+  const interestSats = walletBTCBalance ?? cachedBalance ?? 0;
 
   // Savings balance in USD (fromMicros of walletBalanceMicros)
   const savingsBalanceUsd = Number(savingsBalance || 0);
@@ -359,6 +360,13 @@ export default function WithdrawFromSavingsHalfModal({
     const initWallet = async () => {
       setSparkInitStatus('loading');
       try {
+        const rawCache = await getLocalStorageItem(
+          SAVINGS_INTEREST_POLL_CACHE_KEY,
+        );
+        if (rawCache) {
+          const { balance = 0 } = JSON.parse(rawCache);
+          setCachedBalance(balance);
+        }
         const savingsMnemonic = await getSavingsWalletMnemonic();
         const initResponse = await initializeSparkWallet(
           savingsMnemonic,
@@ -373,39 +381,9 @@ export default function WithdrawFromSavingsHalfModal({
           return;
         }
 
-        const sparkBalance = await getSparkBalance(savingsMnemonic);
+        // const sparkBalance = await getSparkBalance(savingsMnemonic);
 
         setSparkInitStatus('ready');
-
-        // Savings balance only changes on interest payment receipt — skip poll
-        // if no new interest payment has arrived since the last successful poll.
-        let shouldPoll = true;
-        try {
-          const rawCache = await getLocalStorageItem(
-            SAVINGS_INTEREST_POLL_CACHE_KEY,
-          );
-          if (rawCache) {
-            const { pollTimestamp = 0, balance = null } = JSON.parse(rawCache);
-            const mostRecentPayoutPaidAt = interestPayouts[0]?.paidAt ?? 0;
-            const hasNewInterestPayment =
-              mostRecentPayoutPaidAt > pollTimestamp;
-
-            if (
-              !hasNewInterestPayment &&
-              balance !== null &&
-              sparkBalance.didWork &&
-              Number(sparkBalance.balance) === balance
-            ) {
-              shouldPoll = false;
-              setWalletBTCBalance(balance);
-              setBalanceReady(true);
-            }
-          }
-        } catch {
-          // Parse failure — fall through to poll conservatively
-        }
-
-        if (!shouldPoll) return;
 
         // Now poll until the balance stabilises so we show a confirmed number.
         const mnemonicRef = { current: savingsMnemonic };
@@ -513,7 +491,7 @@ export default function WithdrawFromSavingsHalfModal({
         if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
 
         // Step 2: Withdrawing from Savings account — send BTC from savings to main wallet
-        setLoadingStep('withdrawing');
+        setLoadingStep('withdrawing_rewards');
         const step2Start = Date.now();
 
         const sendResponse = await sparkPaymenWrapper({
@@ -566,8 +544,8 @@ export default function WithdrawFromSavingsHalfModal({
                 amount: amountSats,
                 description: t('savings.withdraw.interestPaymentLabel'),
                 address: sparkInformation.sparkAddress,
-                time: Date.now() + 1000,
-                createdAt: Date.now() + 1000,
+                time: Date.now(),
+                createdAt: Date.now(),
                 direction: 'INCOMING',
                 isSavings: true,
               },
@@ -575,6 +553,11 @@ export default function WithdrawFromSavingsHalfModal({
           ],
           'fullUpdate',
         );
+        if (selectedDestination === 'dollar') {
+          // Hide the intermediate BTC transfer from the activity feed
+          // Run before sleep to prevent race conditions
+          setFlashnetTransfer(sendResponse.response.id);
+        }
 
         await withdrawlFromRewards(amountSats);
 
@@ -583,9 +566,6 @@ export default function WithdrawFromSavingsHalfModal({
 
         if (selectedDestination === 'dollar') {
           setLoadingStep('swapping');
-
-          // Hide the intermediate BTC transfer from the activity feed
-          setFlashnetTransfer(sendResponse.response.id);
 
           const swapResult = await swapBitcoinToToken(currentWalletMnemoinc, {
             tokenAddress: USD_ASSET_ADDRESS,
@@ -625,12 +605,14 @@ export default function WithdrawFromSavingsHalfModal({
                       amount: parseFloat(swap.amountOut),
                       description: t('savings.withdraw.interestPaymentLabel'),
                       address: sparkInformation.sparkAddress,
-                      time: Date.now() + 1000,
-                      createdAt: Date.now() + 1000,
+                      time: Date.now(),
+                      createdAt: Date.now(),
                       direction: 'INCOMING',
                       showSwapLabel: true,
                       currentPriceAInB: swapResult.swap.executionPrice,
                       isSavings: true,
+                      isLRC20Payment: true,
+                      LRC20Token: USDB_TOKEN_ID,
                     },
                   },
                 ],
@@ -665,7 +647,7 @@ export default function WithdrawFromSavingsHalfModal({
       if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
 
       // Step 2: Withdrawing from Savings account — send USDB tokens to main wallet
-      setLoadingStep('withdrawing');
+      setLoadingStep('withdrawing_savings');
       const step2Start = Date.now();
 
       const sendResponse = await sparkPaymenWrapper({
@@ -717,7 +699,7 @@ export default function WithdrawFromSavingsHalfModal({
                 ?.name,
             }),
             sendersPubkey: '',
-            details: {},
+            details: { isSavings: true },
           });
           throw new Error(t('savings.swapSimulationError'));
         }
@@ -749,7 +731,7 @@ export default function WithdrawFromSavingsHalfModal({
 
           const incomingTransfer = {
             id: swap.outboundTransferId,
-            paymentStatus: 'completed',
+            paymentStatus: 'pending',
             paymentType: 'spark',
             accountId: sparkInformation.identityPubKey,
             details: {
@@ -764,8 +746,8 @@ export default function WithdrawFromSavingsHalfModal({
                 )?.name,
               }),
               address: sparkInformation.sparkAddress,
-              time: Date.now() + 1000,
-              createdAt: Date.now() + 1000,
+              time: Date.now(),
+              createdAt: Date.now(),
               direction: 'INCOMING',
               showSwapLabel: true,
               currentPriceAInB: result.swap.executionPrice,
@@ -775,16 +757,36 @@ export default function WithdrawFromSavingsHalfModal({
           bulkUpdateSparkTransactions([incomingTransfer], 'fullUpdate');
         }
       } else {
-        addSingleUnpaidSparkTransaction({
-          id: sendResponse.response.id,
-          description: t('savings.withdraw.paymentLabel', {
-            context: selectedGoalId,
-            savingsGoal: savingsGoals.find(item => item.id === selectedGoalId)
-              ?.name,
-          }),
-          sendersPubkey: '',
-          details: {},
-        });
+        await bulkUpdateSparkTransactions(
+          [
+            {
+              id: sendResponse.response.id,
+              paymentStatus: 'completed',
+              paymentType: 'spark',
+              accountId: sparkInformation.identityPubKey,
+              details: {
+                fee: 0,
+                totalFee: 0,
+                supportFee: 0,
+                amount: confirmMicros,
+                description: t('savings.withdraw.paymentLabel', {
+                  context: selectedGoalId,
+                  savingsGoal: savingsGoals.find(
+                    item => item.id === selectedGoalId,
+                  )?.name,
+                }),
+                address: sparkInformation.sparkAddress,
+                time: Date.now(),
+                createdAt: Date.now(),
+                direction: 'INCOMING',
+                isSavings: true,
+                isLRC20Payment: true,
+                LRC20Token: USDB_TOKEN_ID,
+              },
+            },
+          ],
+          'fullUpdate',
+        );
       }
 
       // Record withdrawal(s) in savings database.
@@ -859,7 +861,9 @@ export default function WithdrawFromSavingsHalfModal({
             {/* Interest option — BTC sats from savings payouts */}
             <View>
               <TouchableOpacity
-                activeOpacity={isInterestDisabled ? HIDDEN_OPACITY : 0.7}
+                activeOpacity={
+                  isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 0.7
+                }
                 style={[
                   styles.optionRow,
                   {
@@ -867,12 +871,14 @@ export default function WithdrawFromSavingsHalfModal({
                       theme && darkModeType
                         ? backgroundColor
                         : backgroundOffset,
-                    opacity: isInterestDisabled ? HIDDEN_OPACITY : 1,
+                    opacity:
+                      isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 1,
                   },
                 ]}
                 onPress={() => {
-                  if (isInterestDisabled) return;
+                  if (isInterestDisabled || !balanceReady) return;
                   setSelectedBalanceType('interest');
+                  setInputDenomination('sats');
                   setStep(prev => [...prev, 'destination']);
                 }}
               >
@@ -900,7 +906,7 @@ export default function WithdrawFromSavingsHalfModal({
                       content={t('savings.withdraw.interestOption')}
                     />
 
-                    {isInterestDisabled ? (
+                    {isInterestDisabled && balanceReady ? (
                       <ThemeText
                         content={t('savings.withdraw.interestZeroHint')}
                       />
@@ -983,7 +989,8 @@ export default function WithdrawFromSavingsHalfModal({
               onPress={() => {
                 if (isSavingsDisabled) return;
                 setSelectedBalanceType('savings');
-                if (selectedGoalUUID || !savingsGoals.length) {
+                setInputDenomination('fiat');
+                if (selectedGoalUUID && !savingsGoals.length) {
                   setStep(prev => [...prev, 'destination']);
                 } else {
                   setStep(prev => [...prev, 'chooseGoal']);
@@ -1039,6 +1046,9 @@ export default function WithdrawFromSavingsHalfModal({
   }
 
   if (currentPage === 'chooseGoal') {
+    const shouldShowWithdrawlAll =
+      fromMicros(totalWithdrawMicros) != savingsBalance - totalGoalsBalance;
+
     return (
       <View style={styles.container}>
         <ThemeText
@@ -1053,59 +1063,63 @@ export default function WithdrawFromSavingsHalfModal({
           showsVerticalScrollIndicator={false}
         >
           {/* Withdraw All — drains the entire savings wallet in one action */}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={[
-              styles.optionRow,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-            onPress={() => {
-              setIsWithdrawAll(true);
-              setSelectedGoalId(UNALLOCATED_GOAL_ID);
-              setStep(prev => [...prev, 'destination']);
-            }}
-          >
-            <View style={styles.optionLeft}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType ? backgroundOffset : COLORS.primary,
-                  },
-                ]}
-              >
-                <ThemeIcon
-                  iconName="ArrowDownToLine"
-                  size={22}
-                  colorOverride={COLORS.white}
-                />
-              </View>
-              <View style={{ flexShrink: 1 }}>
-                <ThemeText
-                  styles={styles.optionTitle}
-                  content={t('savings.withdraw.withdrawAll')}
-                />
-                <ThemeText
-                  styles={styles.optionSubtitle}
-                  content={displayCorrectDenomination({
-                    amount: fromMicros(totalWithdrawMicros),
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination: 'fiat',
+          {shouldShowWithdrawlAll && (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={[
+                styles.optionRow,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+              onPress={() => {
+                setIsWithdrawAll(true);
+                setSelectedGoalId(UNALLOCATED_GOAL_ID);
+                setStep(prev => [...prev, 'destination']);
+              }}
+            >
+              <View style={styles.optionLeft}>
+                <View
+                  style={[
+                    styles.iconContainer,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundOffset
+                          : COLORS.primary,
                     },
-                    fiatStats,
-                    forceCurrency: 'USD',
-                    convertAmount: false,
-                  })}
-                />
+                  ]}
+                >
+                  <ThemeIcon
+                    iconName="ArrowDownToLine"
+                    size={22}
+                    colorOverride={COLORS.white}
+                  />
+                </View>
+                <View style={{ flexShrink: 1 }}>
+                  <ThemeText
+                    styles={styles.optionTitle}
+                    content={t('savings.withdraw.withdrawAll')}
+                  />
+                  <ThemeText
+                    styles={styles.optionSubtitle}
+                    content={displayCorrectDenomination({
+                      amount: fromMicros(totalWithdrawMicros),
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'fiat',
+                      },
+                      fiatStats,
+                      forceCurrency: 'USD',
+                      convertAmount: false,
+                    })}
+                  />
+                </View>
               </View>
-            </View>
-            <ThemeIcon iconName="ChevronRight" size={16} />
-          </TouchableOpacity>
+              <ThemeIcon iconName="ChevronRight" size={16} />
+            </TouchableOpacity>
+          )}
 
           {/* General savings — always shown */}
           <TouchableOpacity
@@ -1238,11 +1252,17 @@ export default function WithdrawFromSavingsHalfModal({
 
         <View style={styles.optionsList}>
           {visibleDestinationOptions.map(option => {
-            const isDisabled =
+            const disabledForIntrest =
               selectedBalanceType === 'interest' &&
               option.key === 'dollar' &&
               interestSats > 0 &&
               interestSats < swapLimits.bitcoin;
+
+            const disableForBalance =
+              selectedBalanceType === 'savings' &&
+              ((option.key === 'dollar' && balanceUsd < 0.01) ||
+                (option.key === 'bitcoin' && balanceUsd < swapLimits.usd));
+
             return (
               <TouchableOpacity
                 key={option.key}
@@ -1254,24 +1274,18 @@ export default function WithdrawFromSavingsHalfModal({
                       theme && darkModeType
                         ? backgroundColor
                         : backgroundOffset,
-                    opacity: isDisabled ? 0.5 : 1,
+                    opacity: disabledForIntrest || disableForBalance ? 0.5 : 1,
                   },
                 ]}
+                disabled={disableForBalance}
                 onPress={() => {
-                  if (isDisabled && option.key === 'dollar') {
+                  if (disabledForIntrest && option.key === 'dollar') {
                     navigate.navigate('ErrorScreen', {
                       errorMessage: t('savings.withdraw.interestBelowMinHint'),
                     });
                     return;
                   }
                   setSelectedDestination(option.key);
-                  setInputDenomination(
-                    option.key === 'dollar'
-                      ? 'fiat'
-                      : masterInfoObject.userBalanceDenomination != 'fiat'
-                      ? 'sats'
-                      : 'fiat',
-                  );
                   // Withdraw All skips the amount step — amount is the full balance.
                   setStep(prev => [
                     ...prev,
@@ -1448,15 +1462,15 @@ export default function WithdrawFromSavingsHalfModal({
                   amount:
                     selectedBalanceType === 'interest'
                       ? swapLimits.bitcoin
-                      : dollarsToSats(
-                          swapLimits.usd,
-                          poolInfoRef.currentPriceAInB,
-                        ),
+                      : swapLimits.usd,
                   masterInfoObject: {
                     ...masterInfoObject,
-                    userBalanceDenomination: 'sats',
+                    userBalanceDenomination:
+                      selectedBalanceType === 'interest' ? 'sats' : 'fiat',
                   },
                   fiatStats,
+                  convertAmount: selectedBalanceType === 'interest',
+                  forceCurrency: 'USD',
                 }),
               })}
             />
@@ -1658,7 +1672,11 @@ export default function WithdrawFromSavingsHalfModal({
 
   if (currentPage === 'loading') {
     return (
-      <FullLoadingScreen text={t(`savings.withdraw.steps.${loadingStep}`)} />
+      <FullLoadingScreen
+        containerStyles={{ width: INSET_WINDOW_WIDTH, ...CENTER }}
+        textStyles={{ textAlign: 'center' }}
+        text={t(`savings.withdraw.steps.${loadingStep}`)}
+      />
     );
   }
 

@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Scansiona",
     "next": "Avanti",
     "skip_all": "Salta tutto",
     "copy": "Copia",
@@ -319,16 +320,16 @@
         "fee": "Commissione: "
       },
       "durationSlider": {
+        "3": "mes",
+        "8": "trimestre",
+        "30": "año",
         "durationOption": "1 {{duration}}",
         "price": "Prezzo: ",
         "noDurations": "Nessuna durata disponibile",
         "duration": "Durata",
         "0.1": "hora",
         "0.5": "día",
-        "1.5": "semana",
-        "3": "mes",
-        "8": "trimestre",
-        "30": "año"
+        "1.5": "semana"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Sei sicuro di voler rimuovere questa VPN?",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Ricevi tramite codice QR",
       "addressBook_send": "Invia a un contatto",
       "tapToGenerate_lightning_btc": "Ricevi BTC istantaneamente",
-      "tapToGenerate_lightning_usd": "Ricevi USD istantaneamente"
+      "tapToGenerate_lightning_usd": "Ricevi USD istantaneamente",
+      "noAddedContactsTitle": "Nessun contatto aggiunto",
+      "noAddedContactsDesc": "I tuoi contatti appariranno qui quando ne aggiungerai uno."
     },
     "pools": {
       "receiveViaPool": "Ricevi tramite pool",
@@ -1082,7 +1085,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Vedi tutte le transazioni",
-        "no_transaction_history": "Invia o ricevi una transazione per visualizzarla qui"
+        "no_transaction_history": "Invia o ricevi una transazione per visualizzarla qui",
+        "activity": "Attività",
+        "see_all": "Vedi tutto",
+        "noTxs": "Nessuna transazione ancora"
       },
       "lrc20Assets": {
         "actionText": "token {{action}}",
@@ -1137,7 +1143,9 @@
       "searchPlaceholder": "Trova un contatto",
       "lnurlAddMessage": "Stai per aggiungere",
       "noProfilesFound": "Nessun profilo corrisponde a questa ricerca",
-      "startTypingMessage": "Cerca per LNURL (ad es. name@service.com) o nome utente Blitz."
+      "startTypingMessage": "Cerca per LNURL (ad es. name@service.com) o nome utente Blitz.",
+      "loadingMessage": "Ricerca del contatto...",
+      "profileImage": "Caricamento della foto del profilo..."
     },
     "expandedContactPage": {
       "loadingContactError": "Impossibile caricare il contatto, riprova.",
@@ -1333,7 +1341,9 @@
       "text2": "L'importo non può essere 0",
       "text3": "Abilita Fast Pay",
       "text4": "Soglia Fast Pay (SAT)",
-      "text5": "Fast pay ti permette di pagare istantaneamente fatture al di sotto di una soglia specificata senza bisogno di scorrere per la conferma."
+      "text5": "Fast pay ti permette di pagare istantaneamente fatture al di sotto di una soglia specificata senza bisogno di scorrere per la conferma.",
+      "text6": "Attuale",
+      "text7": "Nuovo"
     },
     "loginSecurity": {
       "text1": "Abilita Sicurezza Login",
@@ -1455,10 +1465,15 @@
       "mainToggleDesc": "Le notifiche ti tengono informato su eventi e aggiornamenti importanti che accadono nell'app.",
       "optionsTitle": "Opzioni notifiche",
       "contact": "Contatto",
+      "contactDesc": "Pagamenti ricevuti dai tuoi contatti salvati",
       "lnurl": "LNURL",
+      "lnurlDesc": "Pagamenti ricevuti tramite il tuo indirizzo Lightning",
       "nostrZaps": "Nostr zaps",
+      "nostrZapsDesc": "Pagamenti Zap inviati al tuo profilo Nostr",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Terminale POS"
+      "nwcDesc": "Pagamenti autorizzati tramite Nostr Wallet Connect",
+      "pos": "Terminale POS",
+      "posDesc": "Pagamenti ricevuti al tuo punto vendita"
     },
     "nostrHome": {
       "nip5Title": "Verifica Nip5",
@@ -1680,7 +1695,8 @@
         "brandLogo": "Logo del marchio",
         "changeLogo": "Cambia logo",
         "removeLogo": "Rimuovi",
-        "uploadLogo": "Tocca per caricare il logo del marchio"
+        "uploadLogo": "Tocca per caricare il logo del marchio",
+        "addProducts": "Aggiungi prodotti"
       },
       "posInstructionsPath": {
         "title": "Istruzioni",
@@ -1896,7 +1912,9 @@
         "filterGifts": "Regali",
         "filterSwaps": "Scambi",
         "filterSavings": "Risparmi",
-        "filterPools": "Pool"
+        "filterPools": "Pool",
+        "noTxHistoryTitle": "Nessuna cronologia delle transazioni",
+        "noTxHistorySub": "Le tue transazioni appariranno qui una volta che ne invii o ricevi una."
       },
       "lrc20HalfModal": {
         "title": "Cerca Token",
@@ -2084,7 +2102,14 @@
         "percentConvertSelector": "% da convertire",
         "slippage": "Slippage",
         "slippageDesc": "Lo slippage è la percentuale di variazione del prezzo che sei disposto ad accettare. Uno slippage basso può causare il fallimento della transazione, mentre uno slippage alto può portare a ricevere un importo inferiore a quello previsto.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Scambia",
+          "amount": "Importo",
+          "details": "Dettagli"
+        },
+        "chooseCurrencyTitle": "Scegli la valuta da cui effettuare lo scambio.",
+        "enterAmountTitle": "Inserisci l’importo da scambiare."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Impossibile caricare la cronologia degli swap. Riprova più tardi.",
@@ -2360,7 +2385,8 @@
       "processing": "Prelievo in corso…",
       "steps": {
         "processing": "Elaborazione in corso...",
-        "withdrawing": "Prelievo dal conto risparmi...",
+        "withdrawing_savings": "Prelievo dal conto risparmi...",
+        "withdrawing_rewards": "Prelievo dal conto premi Bitcoin...",
         "swapping": "Conversione in Bitcoin...",
         "complete": "Completato."
       },

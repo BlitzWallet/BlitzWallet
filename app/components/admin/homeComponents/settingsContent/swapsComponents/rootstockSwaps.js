@@ -1,22 +1,22 @@
-import {useCallback, useState} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
-import {loadSwaps} from '../../../../../functions/boltz/rootstock/swapDb';
+import { useCallback, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { loadSwaps } from '../../../../../functions/boltz/rootstock/swapDb';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {CENTER, COLORS, SIZES} from '../../../../../constants';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
-import {useTranslation} from 'react-i18next';
+import { CENTER, COLORS, SIZES } from '../../../../../constants';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { useTranslation } from 'react-i18next';
 
 export default function RoostockSwapsPage() {
   const [swapList, setSwapList] = useState(null);
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   useFocusEffect(
     useCallback(() => {
@@ -29,14 +29,15 @@ export default function RoostockSwapsPage() {
   );
 
   const roostockElement = useCallback(
-    ({item}) => {
+    ({ item }) => {
       return (
         <View
           style={[
             styles.swapContainer,
-            {backgroundColor: theme ? backgroundOffset : COLORS.darkModeText},
+            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
           ]}
-          key={item.id}>
+          key={item.id}
+        >
           <View style={styles.textContainer}>
             <ThemeText content={item.id} />
             <ThemeText styles={styles.swapType} content={item.type} />
@@ -47,7 +48,7 @@ export default function RoostockSwapsPage() {
                 swap: item,
               })
             }
-            buttonStyles={{backgroundColor: backgroundColor}}
+            buttonStyles={{ backgroundColor: backgroundColor }}
             useArrow={true}
           />
         </View>
@@ -77,7 +78,8 @@ export default function RoostockSwapsPage() {
     <FlatList
       contentContainerStyle={styles.swapElementsContainer}
       renderItem={roostockElement}
-      data={swapList}></FlatList>
+      data={swapList}
+    ></FlatList>
   );
 }
 const styles = StyleSheet.create({

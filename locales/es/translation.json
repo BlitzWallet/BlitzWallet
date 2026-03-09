@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Escanear",
     "next": "Siguiente",
     "skip_all": "Saltar todo",
     "copy": "Copiar",
@@ -319,16 +320,16 @@
         "fee": "Tarifa: "
       },
       "durationSlider": {
+        "3": "mese",
+        "8": "trimestre",
+        "30": "anno",
         "durationOption": "1 {{duration}}",
         "price": "Precio: ",
         "noDurations": "No hay duraciones disponibles",
         "duration": "Duración",
         "0.1": "ora",
         "0.5": "giorno",
-        "1.5": "settimana",
-        "3": "mese",
-        "8": "trimestre",
-        "30": "anno"
+        "1.5": "settimana"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "¿Estás seguro de que quieres eliminar este VPN?",
@@ -736,7 +737,9 @@
       "qrReceiveOptions": "Recibir mediante código QR",
       "addressBook_send": "Enviar a un contacto",
       "tapToGenerate_lightning_btc": "Recibir BTC al instante",
-      "tapToGenerate_lightning_usd": "Recibir USD al instante"
+      "tapToGenerate_lightning_usd": "Recibir USD al instante",
+      "noAddedContactsTitle": "No hay contactos agregados",
+      "noAddedContactsDesc": "Tus contactos aparecerán aquí cuando agregues uno."
     },
     "pools": {
       "receiveViaPool": "Recibir mediante un fondo",
@@ -943,7 +946,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Ver todas las transacciones",
-        "no_transaction_history": "Envía o recibe una transacción para que aparezca aquí"
+        "no_transaction_history": "Envía o recibe una transacción para que aparezca aquí",
+        "activity": "Actividad",
+        "see_all": "Ver todo",
+        "noTxs": "Aún no hay transacciones"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
@@ -998,7 +1004,9 @@
       "searchPlaceholder": "Encontrar un contacto",
       "lnurlAddMessage": "Estás a punto de añadir",
       "noProfilesFound": "No hay perfiles que coincidan con esta búsqueda",
-      "startTypingMessage": "Buscar por LNURL (por ejemplo, nombre@servicio.com) o nombre de usuario de Blitz."
+      "startTypingMessage": "Buscar por LNURL (por ejemplo, nombre@servicio.com) o nombre de usuario de Blitz.",
+      "loadingMessage": "Buscando contacto...",
+      "profileImage": "Cargando foto de perfil..."
     },
     "expandedContactPage": {
       "loadingContactError": "No se pudo cargar el contacto, intenta de nuevo.",
@@ -1191,7 +1199,9 @@
       "text2": "La cantidad no puede ser 0",
       "text3": "Habilitar Fast Pay",
       "text4": "Umbral de Fast Pay (SAT)",
-      "text5": "Fast Pay te permite pagar al instante facturas por debajo de un umbral especificado sin necesidad de deslizar para confirmar."
+      "text5": "Fast Pay te permite pagar al instante facturas por debajo de un umbral especificado sin necesidad de deslizar para confirmar.",
+      "text6": "Actual",
+      "text7": "Nuevo"
     },
     "loginSecurity": {
       "text1": "Habilitar seguridad de inicio de sesión",
@@ -1313,10 +1323,15 @@
       "mainToggleDesc": "Las notificaciones te mantienen informado sobre eventos importantes y actualizaciones en la aplicación.",
       "optionsTitle": "Opciones de notificación",
       "contact": "Contacto",
+      "contactDesc": "Pagos recibidos de tus contactos guardados",
       "lnurl": "LNURL",
+      "lnurlDesc": "Pagos recibidos a través de tu dirección Lightning",
       "nostrZaps": "Nostr zaps",
+      "nostrZapsDesc": "Pagos Zap enviados a tu perfil de Nostr",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Punto de venta"
+      "nwcDesc": "Pagos autorizados a través de Nostr Wallet Connect",
+      "pos": "Punto de venta",
+      "posDesc": "Pagos recibidos en tu punto de venta"
     },
     "nostrHome": {
       "nip5Title": "Verificación Nip5",
@@ -1538,7 +1553,8 @@
         "brandLogo": "Logo de la marca",
         "changeLogo": "Cambiar logo",
         "removeLogo": "Eliminar",
-        "uploadLogo": "Toca para subir el logo de la marca"
+        "uploadLogo": "Toca para subir el logo de la marca",
+        "addProducts": "Agregar productos"
       },
       "posInstructionsPath": {
         "title": "Instrucciones",
@@ -1758,7 +1774,9 @@
         "filterGifts": "Regalos",
         "filterSwaps": "Intercambios",
         "filterSavings": "Ahorros",
-        "filterPools": "Fondos"
+        "filterPools": "Fondos",
+        "noTxHistoryTitle": "Sin historial de transacciones",
+        "noTxHistorySub": "Tus transacciones aparecerán aquí cuando envíes o recibas una."
       },
       "lrc20HalfModal": {
         "title": "Buscar tokens",
@@ -1946,7 +1964,14 @@
         "percentConvertSelector": "% a convertir",
         "slippage": "Deslizamiento",
         "slippageDesc": "El deslizamiento es el porcentaje de variación de precio que estás dispuesto a aceptar. Un deslizamiento bajo puede causar fallos en la transacción, mientras que uno alto puede resultar en recibir menos de lo esperado.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Intercambiar",
+          "amount": "Cantidad",
+          "details": "Detalles"
+        },
+        "chooseCurrencyTitle": "Elige la moneda desde la que deseas intercambiar.",
+        "enterAmountTitle": "Ingresa la cantidad que deseas intercambiar."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "No se pudo cargar el historial de intercambios. Inténtalo de nuevo más tarde.",
@@ -2222,7 +2247,8 @@
       "processing": "Procesando retiro…",
       "steps": {
         "processing": "Procesando...",
-        "withdrawing": "Retirando de la cuenta de ahorros...",
+        "withdrawing_savings": "Retirando de la cuenta de ahorros...",
+        "withdrawing_rewards": "Retirando desde la cuenta de recompensas en Bitcoin...",
         "swapping": "Cambiando a Bitcoin...",
         "complete": "Completado."
       },

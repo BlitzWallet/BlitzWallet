@@ -175,8 +175,9 @@ export const getFilteredTransactions = async (filterType, options = {}) => {
 
       case 'Contacts':
         query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE json_extract(details, '$.sendingUUID') IS NOT NULL
-            AND accountId = ?
+          WHERE accountId = ?
+            AND json_type(details, '$.sendingUUID') = 'text'
+            AND TRIM(json_extract(details, '$.sendingUUID')) != ''
           ORDER BY json_extract(details, '$.time') DESC`;
         params = [accountId];
         break;

@@ -18,6 +18,7 @@ const optimizationState = {
  * Abort any running optimization immediately
  */
 export const abortOptimization = async mnemonic => {
+  return;
   console.log('Aborting optimization immediately...');
 
   const runtime = await selectSparkRuntime(mnemonic);
@@ -46,6 +47,7 @@ export const abortOptimization = async mnemonic => {
  * Check if any optimization is currently running
  */
 export const isOptimizationRunning = async mnemonic => {
+  return;
   const runtime = await selectSparkRuntime(mnemonic);
   if (runtime === 'native') {
     return (
@@ -66,6 +68,7 @@ export const isOptimizationRunning = async mnemonic => {
  * Check if optimization is needed for a wallet
  */
 export const checkIfOptimizationNeeded = async mnemonic => {
+  return;
   try {
     const runtime = await selectSparkRuntime(mnemonic);
 
@@ -103,6 +106,7 @@ export const checkIfOptimizationNeeded = async mnemonic => {
  * Run leaf optimization
  */
 export const runLeafOptimization = async (mnemonic, identityPubKey) => {
+  return;
   if (await isOptimizationRunning(mnemonic)) {
     console.log('Optimization already running, skipping');
     return { didWork: false, reason: 'already_running' };
@@ -165,6 +169,7 @@ export const runLeafOptimization = async (mnemonic, identityPubKey) => {
  * Run token optimization
  */
 export const runTokenOptimization = async (mnemonic, identityPubKey) => {
+  return;
   if (await isOptimizationRunning(mnemonic)) {
     console.log('Optimization already running, skipping');
     return { didWork: false, reason: 'already_running' };
@@ -216,6 +221,7 @@ export const scheduleOptimization = async (
   identityPubKey,
   delayMs = 5000,
 ) => {
+  return;
   // Clear any existing scheduled optimization
   if (optimizationState.timeout) {
     clearTimeout(optimizationState.timeout);
@@ -253,6 +259,7 @@ export const scheduleOptimization = async (
  * Cleanup optimization state (call on logout/unmount)
  */
 export const cleanupOptimization = mnemoinc => {
+  return;
   if (!mnemoinc) return;
   abortOptimization(mnemoinc);
 };

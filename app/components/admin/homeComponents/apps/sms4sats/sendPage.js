@@ -273,7 +273,7 @@ export default function SMSMessagingSendPage() {
                 {focusedElement !== 'message' && (
                   <CustomButton
                     buttonStyles={{
-                      width: 'auto',
+                      width: INSET_WINDOW_WIDTH,
                       marginTop: 10,
                       opacity:
                         phoneNumber.length === 0 ||

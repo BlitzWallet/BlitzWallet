@@ -51,7 +51,7 @@ export default function SelectCreateAccountType() {
           style={[
             styles.rowContainer,
             {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              backgroundColor: backgroundOffset,
             },
           ]}
         >
@@ -92,7 +92,7 @@ export default function SelectCreateAccountType() {
           style={[
             styles.rowContainer,
             {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              backgroundColor: backgroundOffset,
             },
           ]}
         >
@@ -131,7 +131,7 @@ export default function SelectCreateAccountType() {
           style={[
             styles.rowContainer,
             {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              backgroundColor: backgroundOffset,
               opacity: restorableIndices.length ? 1 : HIDDEN_OPACITY,
             },
           ]}

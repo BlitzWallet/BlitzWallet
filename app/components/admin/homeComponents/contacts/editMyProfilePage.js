@@ -530,10 +530,10 @@ function InnerContent({
         </TouchableOpacity>
 
         <ProfileInputFields {...inputFieldsProps} />
-
+        <View style={{ height: 40 }} />
         <CustomButton
           buttonStyles={{
-            width: 'auto',
+            width: '100%',
             ...CENTER,
             marginTop: 'auto',
             marginBottom: isKeyboardActive
@@ -746,13 +746,11 @@ const styles = StyleSheet.create({
   hideProfileContainer: {
     flex: 1,
     alignItems: 'center',
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
   innerContainer: {
     flex: 1,
-    width: '95%',
-    ...CENTER,
   },
   selectFromPhotos: {
     width: 30,

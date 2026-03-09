@@ -1,24 +1,13 @@
 import LottieView from 'lottie-react-native';
 import React, { useEffect, useMemo, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import {
-  COLORS,
-  INSET_WINDOW_WIDTH,
-  SIZES,
-  WINDOWWIDTH,
-} from '../../../../constants/theme';
+import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
@@ -27,7 +16,7 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useNavigation } from '@react-navigation/native';
 import { formatDateToDayMonthYear } from '../../../../functions/rotateAddressDateChecker';
 import { useToast } from '../../../../../context-store/toastManager';
-import { copyToClipboard, formatBalanceAmount } from '../../../../functions';
+import { copyToClipboard } from '../../../../functions';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
@@ -54,11 +43,9 @@ export default function GiftConfirmation({
   const { fiatStats } = useNodeContext();
   const animationRef = useRef(null);
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
-
-  const containerBackgrounds = theme ? backgroundOffset : COLORS.darkModeText;
 
   const handleCopy = data => {
     copyToClipboard(data, showToast);
@@ -100,7 +87,7 @@ export default function GiftConfirmation({
   }, [theme, darkModeType]);
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={{ paddingBottom: 0 }}>
+    <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         iconNew="Share"
         showLeftImage={true}
@@ -111,22 +98,18 @@ export default function GiftConfirmation({
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Success Icon */}
+        {/* Success Animation */}
         <View style={styles.header}>
           <LottieView
             ref={animationRef}
             source={confirmAnimation}
             loop={false}
-            style={{
-              width: 100,
-              height: 100,
-            }}
+            style={styles.lottieAnimation}
           />
           <ThemeText
             styles={styles.title}
             content={t('screens.inAccount.giftPages.giftConfirmation.header')}
           />
-
           <ThemeText
             styles={styles.subtitle}
             content={t('screens.inAccount.giftPages.giftConfirmation.whatToDo')}
@@ -134,23 +117,10 @@ export default function GiftConfirmation({
         </View>
 
         {/* QR Code */}
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-              padding: 10,
-            },
-          ]}
-        >
+        <View style={[styles.qrCard, { backgroundColor: backgroundOffset }]}>
           <TouchableOpacity onPress={() => handleCopy(giftLink)}>
             <QrCodeWrapper
-              outerContainerStyle={{
-                backgroundColor: 'unset',
-                width: 250,
-                height: 250,
-                overflow: 'hidden',
-              }}
+              outerContainerStyle={styles.qrContainer}
               QRData={giftLink}
               qrSize={250}
             />
@@ -158,13 +128,10 @@ export default function GiftConfirmation({
         </View>
 
         {/* Gift Details */}
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-          ]}
-        >
-          <View style={styles.cardHeader}>
+        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+          <View
+            style={[styles.cardHeader, { borderBottomColor: backgroundColor }]}
+          >
             <ThemeIcon size={25} iconName={'Gift'} />
             <ThemeText
               styles={styles.cardHeaderText}
@@ -228,21 +195,25 @@ export default function GiftConfirmation({
             )}
           </View>
         </View>
+
         {/* Gift Link */}
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            },
-          ]}
-        >
+        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
           <ThemeText
             styles={styles.inputLabel}
             content={t('screens.inAccount.giftPages.giftConfirmation.giftLink')}
           />
           <View style={styles.inputRow}>
-            <View style={styles.linkContainer}>
+            <View
+              style={[
+                styles.linkContainer,
+                {
+                  borderColor: backgroundColor,
+                  backgroundColor: theme
+                    ? backgroundColor
+                    : COLORS.darkModeText,
+                },
+              ]}
+            >
               <ThemeText
                 CustomNumberOfLines={1}
                 styles={styles.linkText}
@@ -251,7 +222,7 @@ export default function GiftConfirmation({
             </View>
             <TouchableOpacity
               onPress={() => handleCopy(giftLink)}
-              style={styles.copyButton}
+              style={[styles.copyButton]}
               activeOpacity={0.7}
             >
               <ThemeIcon
@@ -267,7 +238,7 @@ export default function GiftConfirmation({
       </ScrollView>
 
       {/* Fixed Bottom Buttons */}
-      <View style={[styles.bottomButtons, { paddingBottom: bottomPadding }]}>
+      <View style={[styles.bottomButtons]}>
         <CustomButton
           actionFunction={navigate.goBack}
           textContent={t('screens.inAccount.giftPages.giftConfirmation.done')}
@@ -290,14 +261,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
+    paddingBottom: 24,
     ...CENTER,
   },
   header: {
     alignItems: 'center',
     marginBottom: 24,
   },
-
+  lottieAnimation: {
+    width: 100,
+    height: 100,
+  },
   title: {
     fontSize: SIZES.large,
     fontWeight: '500',
@@ -309,10 +284,22 @@ const styles = StyleSheet.create({
     maxWidth: 320,
     lineHeight: 22,
   },
+  qrCard: {
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  qrContainer: {
+    backgroundColor: 'unset',
+    width: 250,
+    height: 250,
+    overflow: 'hidden',
+  },
   card: {
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 24,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -321,7 +308,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
   },
   cardHeaderText: {
     includeFontPadding: false,
@@ -352,14 +338,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-
   linkContainer: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#e5e5e5',
   },
   linkText: {
     fontSize: SIZES.small,
@@ -368,46 +352,12 @@ const styles = StyleSheet.create({
   copyButton: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#d4d4d4',
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
   bottomButtons: {
     width: INSET_WINDOW_WIDTH,
     paddingTop: CONTENT_KEYBOARD_OFFSET,
-    gap: 12,
     ...CENTER,
-  },
-  shareButton: {
-    backgroundColor: COLORS.darkModeText,
-    borderRadius: 8,
-    height: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  shareButtonText: {
-    color: COLORS.lightModeText,
-    includeFontPadding: false,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  buttonFlex: {
-    flex: 1,
-    minWidth: '49%',
-  },
-  secondaryButton: {
-    borderRadius: 24,
-    height: 48,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

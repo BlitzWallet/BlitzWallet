@@ -5,7 +5,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { CENTER, COLORS, SIZES } from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  SIZES,
+} from '../../../../../constants';
 import { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -197,7 +202,8 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
 
           <CustomButton
             buttonStyles={{
-              width: 'auto',
+              width: INSET_WINDOW_WIDTH,
+              marginTop: CONTENT_KEYBOARD_OFFSET,
               ...CENTER,
             }}
             actionFunction={() => {

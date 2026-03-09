@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { useNodeContext } from '../../../context-store/nodeContext';
@@ -16,6 +16,18 @@ import formatBalanceAmount from '../formatNumber';
 import { satsToDollars } from '../spark/flashnet';
 
 export default function CustomInputHalfModal(props) {
+  const {
+    handleBackPressFunction,
+    theme,
+    darkModeType,
+    slideHeight,
+    setContentHeight,
+    message,
+    type,
+    returnLocation,
+    passedParams,
+    forceUSD,
+  } = props;
   const navigate = useNavigation();
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -23,13 +35,12 @@ export default function CustomInputHalfModal(props) {
   const [amountValue, setAmountValue] = useState('');
   const initialValue = useRef(0);
   const [inputDenomination, setInputDenomination] = useState(
-    props.forceUSD
+    forceUSD
       ? 'fiat'
       : masterInfoObject.userBalanceDenomination != 'fiat'
       ? 'sats'
       : 'fiat',
   );
-  const forceUSD = props.forceUSD;
   const fiatStats = forceUSD
     ? { value: swapUSDPriceDollars, coin: 'USD' }
     : globalFiatStats;
@@ -57,16 +68,16 @@ export default function CustomInputHalfModal(props) {
           ).toFixed(2),
         );
   const handleSubmit = () => {
-    props.handleBackPressFunction(() => {
+    handleBackPressFunction(() => {
       if (props?.passedParams) {
-        navigate.popTo(props.returnLocation, {
+        navigate.popTo(returnLocation, {
           ...props?.passedParams,
           amount: !amountValue ? 0 : localSatAmount,
-          type: props.type,
+          type: type,
         });
       } else {
         navigate.popTo(
-          props.returnLocation,
+          returnLocation,
           {
             amount: !amountValue ? 0 : localSatAmount,
             amountValue:
@@ -86,21 +97,20 @@ export default function CustomInputHalfModal(props) {
     });
   };
 
+  useEffect(() => {
+    // Set content at fixed height
+    setContentHeight(600);
+  }, []);
+
   return (
     <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
-      onContentSizeChange={(contentWidth, contentHeight) => {
-        // Get the actual content height
-        if (!initialValue.current) {
-          initialValue.current = contentHeight;
-          props.setContentHeight(contentHeight + 90);
-        }
-      }}
     >
-      {props.message && (
+      {message && (
         <ThemeText
           styles={{ textAlign: 'center', width: '80%', ...CENTER }}
-          content={props.message}
+          content={message}
         />
       )}
       <TouchableOpacity
@@ -181,13 +191,5 @@ const styles = StyleSheet.create({
   satValue: {
     textAlign: 'center',
     marginBottom: 50,
-  },
-
-  textInputContainer: {
-    width: '95%',
-  },
-  textInputStyles: {
-    width: '90%',
-    includeFontPadding: false,
   },
 });

@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Escanear",
     "next": "Próximo",
     "skip_all": "Pular tudo",
     "copy": "Copiar",
@@ -319,16 +320,16 @@
         "fee": "Taxa: "
       },
       "durationSlider": {
+        "3": "mês",
+        "8": "trimestre",
+        "30": "ano",
         "durationOption": "1 {{duration}}",
         "price": "Preço: ",
         "noDurations": "Nenhuma duração disponível",
         "duration": "Validade",
         "0.1": "hora",
         "0.5": "dia",
-        "1.5": "semana",
-        "3": "mês",
-        "8": "trimestre",
-        "30": "ano"
+        "1.5": "semana"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Tem certeza de que deseja remover esta VPN?",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Receber via código QR",
       "addressBook_send": "Enviar para contatos",
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
-      "tapToGenerate_lightning_usd": "Receber USD instantaneamente"
+      "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
+      "noAddedContactsTitle": "Nenhum contato adicionado",
+      "noAddedContactsDesc": "Seus contatos aparecerão aqui quando você adicionar um."
     },
     "pools": {
       "receiveViaPool": "Receber via Vaquinha",
@@ -1082,7 +1085,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Ver tudo",
-        "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui"
+        "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
+        "activity": "Atividade",
+        "see_all": "Ver tudo",
+        "noTxs": "Nenhuma transação ainda"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
@@ -1137,7 +1143,9 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz."
+      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz.",
+      "loadingMessage": "Procurando contato...",
+      "profileImage": "Carregando foto de perfil..."
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
@@ -1333,7 +1341,9 @@
       "text2": "A quantia não pode ser 0",
       "text3": "Pagamentos Rápidos",
       "text4": "Limite máximo (SAT)",
-      "text5": "A função Pagamento Rápidos permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento."
+      "text5": "A função Pagamento Rápidos permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento.",
+      "text6": "Atual",
+      "text7": "Novo"
     },
     "loginSecurity": {
       "text1": "Segurança de acesso",
@@ -1455,10 +1465,15 @@
       "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
+      "contactDesc": "Pagamentos recebidos dos seus contatos salvos",
       "lnurl": "Endereço Lightning",
+      "lnurlDesc": "Pagamentos recebidos pelo seu endereço Lightning",
       "nostrZaps": "Nostr Zaps",
+      "nostrZapsDesc": "Pagamentos Zap enviados ao seu perfil Nostr",
       "nwc": "Conexão Nostr",
-      "pos": "Ponto de venda"
+      "nwcDesc": "Pagamentos autorizados pelo Nostr Wallet Connect",
+      "pos": "Ponto de venda",
+      "posDesc": "Pagamentos recebidos no seu ponto de venda"
     },
     "nostrHome": {
       "nip5Title": "Verificação Nip5",
@@ -1631,8 +1646,8 @@
         "errorMessage": "Falha ao restaurar a conta"
       },
       "selectAltAccount": {
-        "from": "Selecione a conta da qual deseja enviar.",
-        "to": "Selecione a conta para a qual deseja receber."
+        "from": "Selecione a conta que você deseja enviar.",
+        "to": "Selecione a conta que você deseja receber."
       },
       "removeAccountPage": {
         "title": "Arquivar conta",
@@ -1680,7 +1695,8 @@
         "brandLogo": "Logo da marca",
         "changeLogo": "Alterar logo",
         "removeLogo": "Remover",
-        "uploadLogo": "Toque para enviar o logo da marca"
+        "uploadLogo": "Toque para enviar o logo da marca",
+        "addProducts": "Adicionar produtos"
       },
       "posInstructionsPath": {
         "title": "Instruções",
@@ -1896,7 +1912,9 @@
         "filterGifts": "Vales-Blitz",
         "filterSwaps": "Trocas",
         "filterSavings": "Caixinhas",
-        "filterPools": "Vaquinhas"
+        "filterPools": "Vaquinhas",
+        "noTxHistoryTitle": "Sem histórico de transações",
+        "noTxHistorySub": "Suas transações aparecerão aqui quando você enviar ou receber uma."
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
@@ -2084,7 +2102,14 @@
         "percentConvertSelector": "% do saldo",
         "slippage": "Slippage",
         "slippageDesc": "Slippage é a diferença percentual na variação de preço que você está disposto a aceitar. Um slippage baixo pode causar falhas na transação, enquanto um slippage alto pode resultar em receber menos do que o esperado.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Trocar",
+          "amount": "Quantia",
+          "details": "Detalhes"
+        },
+        "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar.",
+        "enterAmountTitle": "Insira a quantia que deseja trocar."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
@@ -2247,7 +2272,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "Os saldos em dólar são mantidos em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
+      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
@@ -2360,7 +2385,8 @@
       "processing": "Processando resgate…",
       "steps": {
         "processing": "Processando...",
-        "withdrawing": "Resgatando da Caixinha...",
+        "withdrawing_savings": "Resgatando da Caixinha...",
+        "withdrawing_rewards": "Resgatando recompensas",
         "swapping": "Convertendo para Bitcoin...",
         "complete": "Concluído."
       },
@@ -2408,8 +2434,8 @@
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
     "savingsWalletError": "Conta da Caixinha não está pronta",
-    "rewardsPayout": "Pagamento de juros",
-    "rewardsWithdrawl": "Saque de recompensas em Bitcoin",
+    "rewardsPayout": "Pagamento de recompensas",
+    "rewardsWithdrawl": "Resgate de recompensas",
     "total_balance": "Saldo total Caixinhas"
   }
 }

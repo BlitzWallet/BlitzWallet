@@ -1,5 +1,6 @@
 {
   "constants": {
+    "scan": "Skanna",
     "next": "Nästa",
     "skip_all": "Hoppa över alla",
     "copy": "Kopia",
@@ -319,16 +320,16 @@
         "fee": "Avgift: "
       },
       "durationSlider": {
+        "3": "månad",
+        "8": "kvartal",
+        "30": "år",
         "durationOption": "1 {{duration}}",
         "price": "Pris: ",
         "noDurations": "Inga tillgängliga varaktigheter",
         "duration": "Varaktighet",
         "0.1": "timme",
         "0.5": "dag",
-        "1.5": "vecka",
-        "3": "månad",
-        "8": "kvartal",
-        "30": "år"
+        "1.5": "vecka"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Är du säker på att du vill ta bort detta VPN.",
@@ -875,7 +876,9 @@
       "qrReceiveOptions": "Ta emot via QR-kod",
       "addressBook_send": "Skicka till en kontakt",
       "tapToGenerate_lightning_btc": "Ta emot BTC direkt",
-      "tapToGenerate_lightning_usd": "Ta emot USD direkt"
+      "tapToGenerate_lightning_usd": "Ta emot USD direkt",
+      "noAddedContactsTitle": "Inga tillagda kontakter",
+      "noAddedContactsDesc": "Dina kontakter visas här när du lägger till en."
     },
     "pools": {
       "receiveViaPool": "Ta emot via pool",
@@ -1082,7 +1085,10 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Se alla transaktioner",
-        "no_transaction_history": "Skicka eller ta emot en transaktion för att den ska visas här"
+        "no_transaction_history": "Skicka eller ta emot en transaktion för att den ska visas här",
+        "activity": "Aktivitet",
+        "see_all": "Visa alla",
+        "noTxs": "Inga transaktioner ännu"
       },
       "lrc20Assets": {
         "actionText": "{{action}} symboler",
@@ -1137,7 +1143,9 @@
       "searchPlaceholder": "Hitta en kontaktperson",
       "lnurlAddMessage": "Du är på väg att lägga till",
       "noProfilesFound": "Inga profiler matchar denna sökning",
-      "startTypingMessage": "Sök efter LNURL (t.ex. name@service.com) eller Blitz-användarnamn."
+      "startTypingMessage": "Sök efter LNURL (t.ex. name@service.com) eller Blitz-användarnamn.",
+      "loadingMessage": "Söker efter kontakt...",
+      "profileImage": "Laddar profilbild..."
     },
     "expandedContactPage": {
       "loadingContactError": "Det gick inte att ladda kontakten, försök igen.",
@@ -1333,7 +1341,9 @@
       "text2": "Beloppet kan inte vara 0",
       "text3": "Aktivera snabb betalning",
       "text4": "Tröskelvärde för snabb utbetalning (SAT)",
-      "text5": "Med Fast pay kan du omedelbart betala fakturor under en viss gräns utan att behöva swisha för att få en bekräftelse."
+      "text5": "Med Fast pay kan du omedelbart betala fakturor under en viss gräns utan att behöva swisha för att få en bekräftelse.",
+      "text6": "Nuvarande",
+      "text7": "Nytt"
     },
     "loginSecurity": {
       "text1": "Aktivera inloggningssäkerhet",
@@ -1455,10 +1465,15 @@
       "mainToggleDesc": "Med aviseringar kan du hålla dig informerad om viktiga händelser och uppdateringar som sker i appen.",
       "optionsTitle": "Alternativ för avisering",
       "contact": "Kontakt",
+      "contactDesc": "Betalningar mottagna från dina sparade kontakter",
       "lnurl": "LNURL",
+      "lnurlDesc": "Betalningar mottagna via din Lightning-adress",
       "nostrZaps": "Nostr zappar",
+      "nostrZapsDesc": "Zap-betalningar skickade till din Nostr-profil",
       "nwc": "Nostr Plånbok Connect",
-      "pos": "Försäljningsställen"
+      "nwcDesc": "Betalningar godkända via Nostr Wallet Connect",
+      "pos": "Försäljningsställen",
+      "posDesc": "Betalningar mottagna vid ditt försäljningsställe"
     },
     "nostrHome": {
       "nip5Title": "Nip5 Verifiering",
@@ -1680,7 +1695,8 @@
         "brandLogo": "Varumärkeslogo",
         "changeLogo": "Byt logo",
         "removeLogo": "Ta bort",
-        "uploadLogo": "Tryck för att ladda upp varumärkeslogo"
+        "uploadLogo": "Tryck för att ladda upp varumärkeslogo",
+        "addProducts": "Lägg till produkter"
       },
       "posInstructionsPath": {
         "title": "Instruktioner",
@@ -1896,7 +1912,9 @@
         "filterGifts": "Gåvor",
         "filterSwaps": "Växlingar",
         "filterSavings": "Sparande",
-        "filterPools": "Pooler"
+        "filterPools": "Pooler",
+        "noTxHistoryTitle": "Ingen transaktionshistorik",
+        "noTxHistorySub": "Dina transaktioner visas här när du skickar eller tar emot en."
       },
       "lrc20HalfModal": {
         "title": "Söka Tokens",
@@ -2084,7 +2102,14 @@
         "percentConvertSelector": "% att konvertera",
         "slippage": "Slippage",
         "slippageDesc": "Slippage är den procentuella prisförändring du är villig att acceptera. Låg slippage kan leda till att transaktionen misslyckas, medan hög slippage kan innebära att du får mindre än förväntat.",
-        "auto": "Auto"
+        "auto": "Auto",
+        "navbar": {
+          "swap": "Växla",
+          "amount": "Belopp",
+          "details": "Detaljer"
+        },
+        "chooseCurrencyTitle": "Välj valutan du vill växla från.",
+        "enterAmountTitle": "Ange beloppet du vill växla."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Det gick inte att läsa in swap-historiken. Försök igen senare.",
@@ -2360,7 +2385,8 @@
       "processing": "Bearbetar uttag…",
       "steps": {
         "processing": "Bearbetar...",
-        "withdrawing": "Tar ut från sparkontot...",
+        "withdrawing_savings": "Tar ut från sparkontot...",
+        "withdrawing_rewards": "Tar ut från Bitcoin-belöningskontot...",
         "swapping": "Växlar till Bitcoin...",
         "complete": "Klart."
       },

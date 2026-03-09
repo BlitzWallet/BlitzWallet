@@ -1258,6 +1258,7 @@ export default function SendPaymentScreen(props) {
           <CustomButton
             buttonStyles={{
               ...CENTER,
+              width: INSET_WINDOW_WIDTH,
               opacity: paymentValidation.isValid ? 1 : HIDDEN_OPACITY,
             }}
             actionFunction={() => handleSelectPaymentMethod(true)}

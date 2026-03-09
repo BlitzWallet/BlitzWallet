@@ -22,6 +22,7 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { formatBalanceAmount } from '../../../../../functions';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 const ConfirmedOrSentTransaction = React.memo(
   ({
@@ -570,7 +571,7 @@ export default function ContactsTransactionItem(props) {
 
 const styles = StyleSheet.create({
   transactionContainer: {
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     flexDirection: 'row',
     alignItems: 'flex-start',
     paddingVertical: 12.5,
