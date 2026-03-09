@@ -97,10 +97,10 @@ export function SendRecieveBTNs({
 
   const { fontSize, getLabelProps } = useAdaptiveFontSize(
     [
-      t('constants.send'),
-      t('constants.receive'),
-      t('constants.scan'),
-      t('constants.swap'),
+      t('wallet.homeLightning.home.send'),
+      t('wallet.homeLightning.home.receive'),
+      t('wallet.homeLightning.home.scan'),
+      t('wallet.homeLightning.home.swap'),
     ],
     SIZES.small,
     5,
@@ -130,7 +130,7 @@ export function SendRecieveBTNs({
           />
         </View>
         <ThemeText
-          content={t('constants.send')}
+          content={t('wallet.homeLightning.home.send')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(0)}
         />
@@ -158,7 +158,7 @@ export function SendRecieveBTNs({
           />
         </View>
         <ThemeText
-          content={t('constants.receive')}
+          content={t('wallet.homeLightning.home.receive')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(1)}
         />
@@ -187,7 +187,7 @@ export function SendRecieveBTNs({
             />
           </View>
           <ThemeText
-            content={t('constants.scan')}
+            content={t('wallet.homeLightning.home.scan')}
             styles={[styles.labelSecondary, { fontSize }]}
             {...getLabelProps(2)}
           />
@@ -216,7 +216,7 @@ export function SendRecieveBTNs({
           />
         </View>
         <ThemeText
-          content={t('constants.swap')}
+          content={t('wallet.homeLightning.home.swap')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(3)}
         />
@@ -253,6 +253,5 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     marginTop: 7,
     textAlign: 'center',
-    opacity: 0.5,
   },
 });
