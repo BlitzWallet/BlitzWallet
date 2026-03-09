@@ -183,7 +183,7 @@ function TokenItem({
             colorOverride={
               theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText
             }
-            size={18}
+            size={22}
             iconName={'Coins'}
           />
         )}
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   headerTitle: {
-    fontSize: SIZES.smedium,
+    fontSize: SIZES.medium,
     includeFontPadding: false,
   },
   viewAll: {
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   tokenInitialContainer: {
     width: '100%',
     aspectRatio: 1,
-    maxHeight: 40,
+    maxHeight: 50,
 
     borderRadius: 999,
     alignItems: 'center',

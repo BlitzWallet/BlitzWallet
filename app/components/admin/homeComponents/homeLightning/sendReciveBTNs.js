@@ -102,7 +102,7 @@ export function SendRecieveBTNs({
       t('wallet.homeLightning.home.scan'),
       t('wallet.homeLightning.home.swap'),
     ],
-    SIZES.small,
+    SIZES.smedium,
     5,
   );
 

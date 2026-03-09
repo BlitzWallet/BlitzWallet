@@ -166,5 +166,5 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
   },
   companyLogo: { width: 55, height: 55, marginRight: 10, borderRadius: 10 },
-  supportBTN: { width: 'auto', ...CENTER, position: 'absolute' },
+  supportBTN: { width: INSET_WINDOW_WIDTH, ...CENTER, position: 'absolute' },
 });
