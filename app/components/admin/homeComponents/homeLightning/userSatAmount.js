@@ -64,7 +64,6 @@ export const UserSatAmount = memo(function UserSatAmount({
   }, []);
 
   const handleBalanceChange = useCallback(() => {
-    if (mode !== 'total') return;
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('errormessages.nointernet'),
@@ -72,6 +71,28 @@ export const UserSatAmount = memo(function UserSatAmount({
       return;
     }
     if (!sparkInformation.identityPubKey) return;
+
+    if (mode !== 'total') {
+      if (masterInfoObject.userBalanceDenomination !== 'hidden') {
+        handleDBStateChange(
+          { userBalanceDenomination: 'hidden' },
+          setMasterInfoObject,
+          toggleMasterInfoObject,
+          saveTimeoutRef,
+          initialValueRef,
+        );
+      } else {
+        handleDBStateChange(
+          { userBalanceDenomination: mode === 'sats' ? 'sats' : 'fiat' },
+          setMasterInfoObject,
+          toggleMasterInfoObject,
+          saveTimeoutRef,
+          initialValueRef,
+        );
+      }
+
+      return;
+    }
 
     if (masterInfoObject.userBalanceDenomination === 'sats')
       handleDBStateChange(
@@ -108,7 +129,6 @@ export const UserSatAmount = memo(function UserSatAmount({
       // onLayout={handleLayout}
       style={styles.balanceContainer}
       onPress={handleBalanceChange}
-      activeOpacity={mode === 'total' ? 0.2 : 1}
     >
       {/* Hidden component for layout measurement */}
       <View
