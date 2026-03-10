@@ -236,8 +236,8 @@ export default function ConnectingToNodeLoadingScreen({
           autoPlay
           loop={true}
           style={{
-            width: Math.min(screenDimensions.width * 0.6, 400),
-            height: Math.min(screenDimensions.width * 0.6, 400),
+            width: Math.min(screenDimensions.width * 0.4, 400),
+            height: Math.min(screenDimensions.width * 0.4, 400),
           }}
         />
 
