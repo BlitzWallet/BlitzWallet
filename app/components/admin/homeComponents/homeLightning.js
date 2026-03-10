@@ -601,6 +601,7 @@ export default function HomeLightning({ navigation }) {
                 darkModeType={darkModeType}
                 isConnectedToTheInternet={isConnectedToTheInternet}
                 scrollPosition={scrollPosition}
+                buttonSwipeGesture={buttonSwipeGesture}
               />
             </View>
           </View>
@@ -691,7 +692,6 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    marginTop: 20,
   },
   sectionHeader: {
     width: INSET_WINDOW_WIDTH,

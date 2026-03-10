@@ -112,7 +112,7 @@ export function SendRecieveBTNs({
       <TouchableOpacity
         style={styles.buttonWrapper}
         onPress={handleSend}
-        activeOpacity={1}
+        // activeOpacity={1}
       >
         <View
           style={[
@@ -140,7 +140,7 @@ export function SendRecieveBTNs({
       <TouchableOpacity
         style={styles.buttonWrapper}
         onPress={handleReceive}
-        activeOpacity={1}
+        // activeOpacity={1}
       >
         <View
           style={[
@@ -168,7 +168,7 @@ export function SendRecieveBTNs({
       {!isNWCWallet && (
         <TouchableOpacity
           style={styles.buttonWrapper}
-          activeOpacity={1}
+          // activeOpacity={1}
           onPress={handleCamera}
         >
           <View
@@ -197,7 +197,7 @@ export function SendRecieveBTNs({
       {/* Swap — secondary */}
       <TouchableOpacity
         style={styles.buttonWrapper}
-        activeOpacity={1}
+        // activeOpacity={1}
         onPress={handleSwap}
       >
         <View
