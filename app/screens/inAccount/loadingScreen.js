@@ -214,7 +214,7 @@ export default function ConnectingToNodeLoadingScreen({
     if (preloadedUserData.isLoading && !preloadedUserData.data) return;
     if (didRunConnectionRef.current) return;
     didRunConnectionRef.current = true;
-    return;
+
     requestAnimationFrame(startConnectProcess);
   }, [preloadedUserData, masterInfoObject]);
 
