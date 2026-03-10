@@ -129,11 +129,11 @@ export function SendRecieveBTNs({
             colorOverride={arrowIconColor}
           />
         </View>
-        <ThemeText
+        {/* <ThemeText
           content={t('wallet.homeLightning.home.send')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(0)}
-        />
+        /> */}
       </TouchableOpacity>
 
       {/* Receive — primary */}
@@ -157,11 +157,11 @@ export function SendRecieveBTNs({
             colorOverride={arrowIconColor}
           />
         </View>
-        <ThemeText
+        {/* <ThemeText
           content={t('wallet.homeLightning.home.receive')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(1)}
-        />
+        /> */}
       </TouchableOpacity>
 
       {/* Camera/Scan — secondary */}
@@ -186,11 +186,11 @@ export function SendRecieveBTNs({
               colorOverride={arrowIconColor}
             />
           </View>
-          <ThemeText
+          {/* <ThemeText
             content={t('wallet.homeLightning.home.scan')}
             styles={[styles.labelSecondary, { fontSize }]}
             {...getLabelProps(2)}
-          />
+          /> */}
         </TouchableOpacity>
       )}
 
@@ -215,11 +215,11 @@ export function SendRecieveBTNs({
             colorOverride={arrowIconColor}
           />
         </View>
-        <ThemeText
+        {/* <ThemeText
           content={t('wallet.homeLightning.home.swap')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(3)}
-        />
+        /> */}
       </TouchableOpacity>
     </View>
   );
@@ -230,18 +230,18 @@ const styles = StyleSheet.create({
     maxWidth: 350,
     width: '85%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'flex-start',
-    gap: 10,
+    gap: 8,
     ...CENTER,
   },
   buttonWrapper: {
     alignItems: 'center',
-    flex: 1,
+    // flex: 1,
   },
   btn: {
-    width: 65,
-    height: 65,
+    width: 70,
+    height: 70,
     borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',

@@ -583,9 +583,7 @@ export const UserTransaction = memo(function UserTransaction({
       : backgroundOffset;
 
   const iconColor = isGrayMode
-    ? isReceive
-      ? 'rgba(255,255,255,0.75)' // visible gray arrow for incoming
-      : textColor // outgoing uses normal text color on darker bg
+    ? textColor
     : isReceive
     ? COLORS.primary
     : isFailedPayment
