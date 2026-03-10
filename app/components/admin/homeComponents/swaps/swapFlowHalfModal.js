@@ -1271,7 +1271,15 @@ export default function SwapFlowHalfModal({
                   </TouchableOpacity>
 
                   <CustomButton
-                    buttonStyles={{ ...CENTER, marginTop: 12 }}
+                    buttonStyles={{
+                      ...CENTER,
+                      marginTop: 12,
+                      opacity:
+                        !bitcoinBalanceIsAboveSwapLimit &&
+                        !dollarBalanceIsAboveSwapLimit
+                          ? HIDDEN_OPACITY
+                          : 1,
+                    }}
                     textContent={t('constants.continue')}
                     actionFunction={() => {
                       if (
