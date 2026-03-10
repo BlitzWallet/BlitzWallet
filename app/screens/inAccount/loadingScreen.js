@@ -214,7 +214,7 @@ export default function ConnectingToNodeLoadingScreen({
     if (preloadedUserData.isLoading && !preloadedUserData.data) return;
     if (didRunConnectionRef.current) return;
     didRunConnectionRef.current = true;
-
+    return;
     requestAnimationFrame(startConnectProcess);
   }, [preloadedUserData, masterInfoObject]);
 
@@ -236,8 +236,8 @@ export default function ConnectingToNodeLoadingScreen({
           autoPlay
           loop={true}
           style={{
-            width: Math.max(screenDimensions.width * 0.5, 450),
-            height: Math.max(screenDimensions.width * 0.5, 450),
+            width: Math.min(screenDimensions.width * 0.6, 400),
+            height: Math.min(screenDimensions.width * 0.6, 400),
           }}
         />
 
