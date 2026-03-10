@@ -202,10 +202,12 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
     // borderWidth: 1,
-    padding: 15,
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+    paddingTop: 5,
     borderRadius: 20,
     marginTop: 35,
-    marginBottom: 25,
+    marginBottom: 20,
   },
   leftContainer: {
     flexDirection: 'row',
@@ -218,6 +220,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 5,
     gap: 5,
+    height: 45,
   },
   headerTitle: {
     fontSize: SIZES.medium,
@@ -240,7 +243,6 @@ const styles = StyleSheet.create({
     gap: 15,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    marginTop: 5,
     overflow: 'hidden',
   },
   tokenRowContainer: {

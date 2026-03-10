@@ -52,6 +52,7 @@ import { useFlashnet } from '../../../../context-store/flashnetContext';
 import { formatBalanceAmount } from '../../../functions';
 import TokensPreview from '../homeComponents/homeLightning/TokensPreview';
 import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
+import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -177,7 +178,7 @@ export default function HomeLightning({ navigation }) {
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const screenWidth = useWindowDimensions().width;
 
   const balanceScrollX = useSharedValue(0);
@@ -613,36 +614,40 @@ export default function HomeLightning({ navigation }) {
 
         {/* Transactions list */}
 
-        {flatListDataForSpark.length > 0 && (
-          <View style={styles.sectionHeader}>
-            <ThemeText
-              content={t('wallet.homeLightning.home.activity')}
-              styles={styles.sectionTitle}
-            />
-            <TouchableOpacity
-              onPress={() => navigate.navigate('ViewAllTxPage')}
-            >
-              <ThemeText
-                content={t('wallet.homeLightning.home.see_all')}
-                styles={[
-                  styles.seeAllLink,
-                  {
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
-                  },
-                ]}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
         <View
           style={[
             styles.txListContainer,
             { backgroundColor: backgroundOffset },
           ]}
         >
+          {flatListDataForSpark.length > 0 && (
+            <View style={styles.sectionHeader}>
+              <ThemeText
+                content={t('wallet.homeLightning.home.activity')}
+                styles={styles.sectionTitle}
+              />
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                }}
+                onPress={() => navigate.navigate('ViewAllTxPage')}
+              >
+                <View style={[styles.leftContainer, { opacity: 0.5 }]}>
+                  <ThemeText
+                    styles={styles.seeAllLink}
+                    content={t('settings.hub.viewAll')}
+                  />
+                  <ThemeIcon
+                    colorOverride={textColor}
+                    size={15}
+                    iconName={'ChevronRight'}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
           {flatListDataForSpark.map((tx, idx) => (
             <View key={idx}>{tx.item}</View>
           ))}
@@ -694,29 +699,36 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
   },
   sectionHeader: {
-    width: INSET_WINDOW_WIDTH,
+    width: '100%',
+    height: 45,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     alignSelf: 'center',
-    paddingTop: 8,
-    paddingBottom: 10,
+    marginBottom: 10,
+    gap: 5,
   },
   sectionTitle: {
+    fontSize: SIZES.medium,
     includeFontPadding: false,
-    letterSpacing: -0.2,
   },
   seeAllLink: {
-    fontSize: SIZES.smedium,
-    color: COLORS.primary,
+    fontSize: SIZES.small,
     includeFontPadding: false,
+  },
+  leftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   txListContainer: {
     width: INSET_WINDOW_WIDTH,
     alignSelf: 'center',
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
     marginBottom: 16,
-    padding: 13,
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+    paddingTop: 5,
   },
 });
