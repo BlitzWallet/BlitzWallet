@@ -1,6 +1,6 @@
 {
   "constants": {
-    "scan": "Escanear",
+    "scan": "Ler",
     "next": "Próximo",
     "skip_all": "Pular tudo",
     "copy": "Copiar",
@@ -2112,8 +2112,8 @@
           "amount": "Quantia",
           "details": "Detalhes"
         },
-        "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar.",
-        "enterAmountTitle": "Insira a quantia que deseja trocar."
+        "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar",
+        "enterAmountTitle": "Insira a quantia que deseja trocar"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
