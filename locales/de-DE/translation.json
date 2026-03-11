@@ -206,10 +206,10 @@
       "title": "Sprache auswählen"
     },
     "homePage": {
-      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Geld Leicht Gemacht.)",
+      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Geld Ganz Einfach.)",
       "money": "Geld",
-      "made": "Leicht",
-      "simple": "Gemacht.",
+      "made": "Ganz",
+      "simple": "Einfach.",
       "subtitle": "Ihre Wallet - Ihre Coins - 100 % Open Source.",
       "buttons": {
         "button1": "Konto wiederherstellen",
@@ -879,7 +879,7 @@
       "tapToGenerate_lightning_btc": "BTC sofort empfangen",
       "tapToGenerate_lightning_usd": "USD sofort empfangen",
       "noAddedContactsTitle": "Keine hinzugefügten Kontakte",
-      "noAddedContactsDesc": "Deine Kontakte erscheinen hier, sobald du einen hinzufügst."
+      "noAddedContactsDesc": "Ihre Kontakte erscheinen hier, sobald Sie einen hinzufügen."
     },
     "pools": {
       "receiveViaPool": "Über einen Sparpool empfangen.",
@@ -1920,7 +1920,7 @@
         "filterSavings": "Sparziele",
         "filterPools": "Sparpools",
         "noTxHistoryTitle": "Keine Transaktionshistorie",
-        "noTxHistorySub": "Deine Transaktionen erscheinen hier, sobald du eine sendest oder empfängst."
+        "noTxHistorySub": "Ihre Transaktionen erscheinen hier, sobald Sie welche senden oder empfangen."
       },
       "lrc20HalfModal": {
         "title": "Token suchen",
@@ -2370,7 +2370,7 @@
       "savingsOption": "Sparziel-Guthaben",
       "interestZeroHint": "Keine Zinsen vorhanden",
       "savingsZeroHint": "Noch nichts gespart",
-      "interestBelowMinHint": "Dein BTC-Guthaben liegt unter dem Mindestbetrag für einen Tausch. Bitte zahle auf dein BTC-Guthaben aus.",
+      "interestBelowMinHint": "Ihr BTC-Guthaben liegt unter dem Mindestbetrag für einen Tausch. Bitte zahlen Sie auf Ihr BTC-Guthaben aus.",
       "loadingBalances": "Guthaben werden geladen...",
       "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehen Sie zurück und versuchen Sie es erneut.",
       "fromInterest": "Aus Ihren Zinsen",
