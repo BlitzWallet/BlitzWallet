@@ -584,13 +584,11 @@ export const UserTransaction = memo(function UserTransaction({
 
   const iconColor = isGrayMode
     ? textColor
-    : isReceive
-    ? COLORS.primary
     : isFailedPayment
     ? theme && darkModeType
       ? COLORS.darkModeText
       : COLORS.cancelRed
-    : textColor;
+    : COLORS.primary;
 
   const amountColor = textColor;
   const paymentDescription = transaction.details?.description?.trim();
