@@ -107,7 +107,7 @@ export default function PoolsPreview({
         </>
       ) : (
         <ThemeText
-          styles={styles.emptyText}
+          styles={styles.rateText}
           content={
             !poolsArray.length
               ? t('settings.accountsPoolsScreen.noPoolsMessage')
@@ -149,13 +149,8 @@ const styles = StyleSheet.create({
   },
   moreText: {
     fontSize: SIZES.small,
-    opacity: 0.6,
+    opacity: 0.7,
     marginTop: 4,
-    includeFontPadding: false,
-  },
-  emptyText: {
-    fontSize: SIZES.smedium,
-    opacity: 0.5,
     includeFontPadding: false,
   },
 

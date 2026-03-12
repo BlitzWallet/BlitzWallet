@@ -14,7 +14,10 @@ import { openInbox } from 'react-native-email-link';
 
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../../constants/theme';
 
 export default function GiftCardOrderDetails(props) {
   const { backgroundColor, transparentOveraly } = GetThemeColors();
@@ -47,7 +50,7 @@ export default function GiftCardOrderDetails(props) {
             />
 
             <ThemeText
-              styles={styles.itemDescription}
+              styles={[styles.itemDescription, { marginTop: 20 }]}
               content={t('apps.giftCards.giftCardOrderDetails.invoice')}
             />
             <TouchableOpacity
@@ -56,7 +59,11 @@ export default function GiftCardOrderDetails(props) {
                 copyToClipboard(item.invoice, showToast);
               }}
             >
-              <ThemeText CustomNumberOfLines={2} content={item.invoice} />
+              <ThemeText
+                CustomNumberOfLines={2}
+                styles={styles.itemValue}
+                content={item.invoice}
+              />
             </TouchableOpacity>
             <ThemeText
               styles={styles.itemDescription}
@@ -68,7 +75,7 @@ export default function GiftCardOrderDetails(props) {
                 copyToClipboard(JSON.stringify(item.id), showToast);
               }}
             >
-              <ThemeText content={item.id} />
+              <ThemeText styles={styles.itemValue} content={item.id} />
             </TouchableOpacity>
             <ThemeText
               styles={styles.itemDescription}
@@ -80,12 +87,16 @@ export default function GiftCardOrderDetails(props) {
                 copyToClipboard(item.uuid, showToast);
               }}
             >
-              <ThemeText CustomNumberOfLines={1} content={item.uuid} />
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.itemValue}
+                content={item.uuid}
+              />
             </TouchableOpacity>
             <CustomButton
               buttonStyles={{
                 marginTop: 20,
-                width: 'auto',
+                width: '100%',
                 ...CENTER,
               }}
               actionFunction={async () => {
@@ -130,6 +141,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   itemDescription: {
-    fontWeight: 500,
+    // fontWeight: 500,
+  },
+  itemValue: {
+    opacity: HIDDEN_OPACITY,
+    fontSize: SIZES.small,
   },
 });

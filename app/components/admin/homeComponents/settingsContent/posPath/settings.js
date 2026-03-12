@@ -47,7 +47,7 @@ import BrandLogoUploader from './internalComponents/brandLogoUploader';
 
 const StoreNameInput = ({ value, onChange, onFocus, onBlur, theme }) => {
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
 
   return (
     <View style={styles.inputSection}>
@@ -62,10 +62,11 @@ const StoreNameInput = ({ value, onChange, onFocus, onBlur, theme }) => {
           placeholderText={t(
             'settings.posPath.settings.storeNameInputPlaceholder',
           )}
-          containerStyles={[
-            styles.inputContainer,
-            { backgroundColor: theme ? backgroundColor : COLORS.darkModeText },
-          ]}
+          textInputStyles={{
+            backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+            color: theme ? textColor : COLORS.lightModeText,
+          }}
+          containerStyles={styles.inputContainer}
           onBlurFunction={onBlur}
           onFocusFunction={onFocus}
           shouldDelayBlur={false}

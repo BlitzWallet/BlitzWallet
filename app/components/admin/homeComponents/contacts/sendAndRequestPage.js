@@ -1045,7 +1045,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
   },
   descriptionInput: {
-    maxWidth: 350,
     marginTop: 8,
   },
 });

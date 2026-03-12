@@ -83,7 +83,7 @@ export default function GiftsPreview({ onPress }) {
       ))}
       {hasMoreGifts && (
         <ThemeText
-          styles={styles.viewAll}
+          styles={styles.rateText}
           content={t('settings.hub.morePoolsCount', {
             count: numberOfMoreGifts,
           })}

@@ -1188,6 +1188,7 @@ export default function SwapFlowHalfModal({
                     <CheckMarkCircle
                       isActive={fromAsset === 'BTC'}
                       containerSize={25}
+                      switchDarkMode={theme && !darkModeType}
                     />
                   </TouchableOpacity>
 
@@ -1270,7 +1271,15 @@ export default function SwapFlowHalfModal({
                   </TouchableOpacity>
 
                   <CustomButton
-                    buttonStyles={{ ...CENTER, marginTop: 12 }}
+                    buttonStyles={{
+                      ...CENTER,
+                      marginTop: 12,
+                      opacity:
+                        !bitcoinBalanceIsAboveSwapLimit &&
+                        !dollarBalanceIsAboveSwapLimit
+                          ? HIDDEN_OPACITY
+                          : 1,
+                    }}
                     textContent={t('constants.continue')}
                     actionFunction={() => {
                       if (
@@ -1647,7 +1656,7 @@ export default function SwapFlowHalfModal({
                     {isSimulating ? (
                       <FullLoadingScreen
                         showText={false}
-                        containerStyles={{ flex: 1, height: 28 }}
+                        containerStyles={{ flex: 0, marginRight: 'auto' }}
                         size="small"
                       />
                     ) : (

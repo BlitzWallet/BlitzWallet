@@ -244,7 +244,6 @@ export default function GiftCardPage() {
                 giftCards.length === 0 && !errorMessage
                   ? 'center'
                   : 'flex-start',
-              marginTop: giftCards.length === 0 && !errorMessage ? 0 : 30,
             }}
             showLoadingIcon={
               giftCards.length === 0 && !errorMessage ? true : false
@@ -281,7 +280,11 @@ export default function GiftCardPage() {
 
 const styles = StyleSheet.create({
   globalContainer: { paddingBottom: 0 },
-  contentContainer: { width: INSET_WINDOW_WIDTH, ...CENTER },
+  contentContainer: {
+    flexGrow: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
   topBar: {
     width: '100%',
     flexDirection: 'row',

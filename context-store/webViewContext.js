@@ -1186,6 +1186,7 @@ export const WebViewProvider = ({ children }) => {
 
     const debouceID = setTimeout(() => {
       // forceReactNativeUse = true;
+      // didRunHandshakeRef.current = true
       startHandshake(); //remove this and app fully uses RN
     }, 250);
 
@@ -1209,6 +1210,7 @@ export const WebViewProvider = ({ children }) => {
         expectedNonceRef.current = nonceHex;
         setVerifiedPath(htmlPath);
       } catch (err) {
+        didRunHandshakeRef.current = true;
         console.log(
           'WebView bundle verification failed. Using react-native bundle',
           err,

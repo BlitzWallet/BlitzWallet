@@ -118,6 +118,7 @@ export default function ReclaimGift() {
                   backgroundColor: theme
                     ? backgroundColor
                     : COLORS.darkModeText,
+                  color: theme ? textColor : COLORS.lightModeText,
                 }}
                 placeholderText={t(
                   'screens.inAccount.giftPages.reclaimPage.inputPlaceholder',

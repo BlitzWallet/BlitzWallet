@@ -88,7 +88,7 @@ export default function EditAccountName(props) {
         />
       </ScrollView>
       <CustomButton
-        buttonStyles={{ ...CENTER }}
+        buttonStyles={{ ...CENTER, width: WINDOWWIDTH }}
         textContent={canSave ? t('constants.save') : t('constants.back')}
         actionFunction={handleNameUpage}
       />

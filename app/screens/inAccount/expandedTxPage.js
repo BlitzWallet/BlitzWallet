@@ -341,7 +341,6 @@ export default function ExpandedTx(props) {
         CustomNumberOfLines={1}
         styles={{
           ...styles.infoValue,
-          ...(isLarge ? styles.infoValueLarge : {}),
           ...customStyles,
         }}
       />
@@ -760,9 +759,10 @@ const MemoSection = ({ initialDescription, onSave, t }) => {
               textAlignVertical={'top'}
               maxLength={200}
               textInputStyles={{
-                minHeight: '100%',
-                padding: 0,
-                margin: 0,
+                paddingTop: 0,
+                paddingBottom: 0,
+                paddingLeft: 0,
+                paddingRight: 0,
                 backgroundColor: 'transparent',
                 color: textColor,
               }}
@@ -959,7 +959,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   infoValueLarge: {
-    fontSize: SIZES.large,
+    // fontSize: SIZES.large,
   },
   tokenText: {
     fontSize: SIZES.large,

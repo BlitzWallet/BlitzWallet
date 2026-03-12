@@ -122,8 +122,7 @@ export default function AccountPaymentPage(props) {
     fromAccount &&
     toAccount &&
     !transferInfo.isCalculatingFee &&
-    !transferInfo.isDoingTransfer &&
-    convertedSendAmount < transferInfo.paymentFee + fromBalance;
+    convertedSendAmount <= transferInfo.paymentFee + fromBalance;
 
   const handlePayment = useCallback(async () => {
     try {
@@ -270,6 +269,7 @@ export default function AccountPaymentPage(props) {
           textContent={t('constants.back')}
           buttonStyles={{
             ...CENTER,
+            width: INSET_WINDOW_WIDTH,
           }}
           actionFunction={navigate.goBack}
         />
