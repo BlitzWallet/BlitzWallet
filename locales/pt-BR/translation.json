@@ -1650,8 +1650,8 @@
         "errorMessage": "Falha ao restaurar a conta"
       },
       "selectAltAccount": {
-        "from": "Selecione a conta que você deseja enviar.",
-        "to": "Selecione a conta que você deseja receber."
+        "from": "Selecione a conta de origem",
+        "to": "Selecione a conta de destino"
       },
       "removeAccountPage": {
         "title": "Arquivar conta",
