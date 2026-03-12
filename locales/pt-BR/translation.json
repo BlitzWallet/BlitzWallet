@@ -1022,7 +1022,7 @@
         "swapRatesChangedButton": "Inserir valor novamente"
       },
       "selectPaymentMethod": {
-        "header": "Escolha o saldo para realizar esse pagamento."
+        "header": "Escolha o saldo para realizar esse pagamento"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
