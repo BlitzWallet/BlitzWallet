@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
@@ -21,6 +22,7 @@ import { useGlobalThemeContext } from '../../../../../../../context-store/theme'
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
+import NoContentSceen from '../../../../../../functions/CustomElements/noContentScreen';
 
 export default function AddPOSItemsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -120,6 +122,31 @@ export default function AddPOSItemsPage() {
       .filter(Boolean);
   }, [posItemSearch, posItems, currentCurrency, backgroundOffset]);
 
+  if (!posItems.length) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          shouldDismissKeyboard={true}
+          label={t('settings.posPath.items.addPOSItemsPage.title')}
+        />
+        <NoContentSceen
+          iconName="ShoppingCart"
+          titleText={t('settings.posPath.items.addPOSItemsPage.noPosTitle')}
+          subTitleText={t('settings.posPath.items.addPOSItemsPage.noPosSub')}
+        />
+        <CustomButton
+          buttonStyles={styles.addItemButton}
+          actionFunction={() =>
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'addPOSItemsHalfModal',
+            })
+          }
+          textContent={t('settings.posPath.items.addPOSItemsPage.ctaBTN')}
+        />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <CustomKeyboardAvoidingView
       isKeyboardActive={isKeyboardActive}
@@ -151,11 +178,9 @@ export default function AddPOSItemsPage() {
           <View style={styles.emptyState}>
             <ThemeText
               styles={styles.emptyStateText}
-              content={
-                posItems?.length
-                  ? t('settings.posPath.items.addPOSItemsPage.noItemsSearch')
-                  : t('settings.posPath.items.addPOSItemsPage.noItemsAdded')
-              }
+              content={t(
+                'settings.posPath.items.addPOSItemsPage.noItemsSearch',
+              )}
             />
           </View>
         )}
@@ -220,11 +245,10 @@ const styles = StyleSheet.create({
     paddingBottom: CONTENT_KEYBOARD_OFFSET,
   },
   emptyState: {
-    marginTop: 24,
     alignItems: 'center',
   },
   emptyStateText: {
-    width: '90%',
+    width: '100%',
     textAlign: 'center',
   },
 });

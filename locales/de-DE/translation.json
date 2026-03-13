@@ -286,6 +286,7 @@
     }
   },
   "apps": {
+    "noPurchaseTitle": "Keine Einkäufe",
     "appList": {
       "AI": "KI",
       "AIDescription": "Chatten Sie mit den neuesten generativen KI-Modellen.",
@@ -755,7 +756,7 @@
       "historicalPurchasesPage": {
         "confirmRemoval": "Möchten Sie diese Geschenkkarte wirklich entfernen?",
         "purchased": "Gekauft am:",
-        "noPurchases": "Sie haben noch keine Geschenkkarten gekauft.",
+        "noPurchases": "Sie haben noch keine Geschenkkarten gekauft. Sobald Sie eine kaufen, wird sie hier angezeigt.",
         "customCopyMessage": "Support-E-Mail wurde kopiert"
       }
     },
@@ -799,7 +800,8 @@
         "refundedOrder": "Die Bestellung wurde erstattet. Die Gelder werden nach 21 Minuten automatisch auf Ihre Wallet zurückgebucht.",
         "reclaimComplete": "Wiederholung abgeschlossen. Falls kein Code generiert wird, erhalten Sie nach 21 Minuten automatisch eine Rückerstattung.",
         "noCode": "Kein Code",
-        "rateLimitError": "Zu viele Anfragen. Sie können nur 5 Anfragen alle 30 Sekunden stellen. Bitte warten Sie einen Moment."
+        "rateLimitError": "Zu viele Anfragen. Sie können nur 5 Anfragen alle 30 Sekunden stellen. Bitte warten Sie einen Moment.",
+        "noPurchasesTitle": "Sie haben noch keine SMS-Nachrichten gesendet oder empfangen. Sobald Sie das tun, erscheinen sie hier."
       },
       "receivePage": {
         "paymentMemo": "Shop - SMS Empfang",
@@ -944,7 +946,9 @@
         "howStep2": "• Teilen Sie den Sparpool-Link, damit andere ihn finden können.",
         "howStep3": "• Unterstützer senden Bitcoin direkt an den Pool.",
         "howStep4": "• Schließen Sie den Sparpool, wenn Sie bereit sind, die Gelder in Ihr Hauptkonto zu übertragen."
-      }
+      },
+      "noPoolsTitle": "Keine erstellten Pools",
+      "noPoolsSubTitle": "Sobald du einen Pool erstellt hast, wird er hier als aktiv oder inaktiv angezeigt."
     },
     "manualInputPage": {
       "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Zahlungsanforderung ein oder fügen Sie sie ein."
@@ -1731,7 +1735,9 @@
         "title": "Zu zahlende Trinkgelder an die Mitarbeiter",
         "empNamePlaceholder": "Mitarbeitername",
         "noEmployees": "Aktuell liegen keine offenen Trinkgelder vor. Sobald Mitarbeiter Trinkgelder über das Zahlungsterminal (POS) erfassen (z. B. per Lightning-Zahlung oder Blitz Wallet), erscheinen die Beträge hier – sortiert nach Mitarbeitern – und können ausgezahlt werden.",
-        "noTips": "Der Mitarbeiter hat keine Trinkgelder."
+        "noTips": "Der Mitarbeiter hat keine Trinkgelder.",
+        "noEmployeeTitle": "Keine Trinkgelder zu zahlen",
+        "noEmployeeSubTitle": "Du hast noch keine Trinkgelder zu zahlen. Wenn ein Mitarbeiter ein Trinkgeld erhält, wird es hier angezeigt."
       },
       "items": {
         "addItemHalfModal": {
@@ -1753,7 +1759,9 @@
           "itemSearchPlaceholder": "Artikelname...",
           "noItemsSearch": "Keine Artikel entsprechen Ihrer Suche.",
           "noItemsAdded": "Fügen Sie einen Artikel hinzu, damit er hier angezeigt wird.",
-          "ctaBTN": "Artikel hinzufügen"
+          "ctaBTN": "Artikel hinzufügen",
+          "noPosTitle": "Keine POS-Artikel",
+          "noPosSub": "Du hast noch keine POS-Artikel gespeichert. Sobald du einen gespeichert hast, wird er hier angezeigt."
         }
       },
       "internalComponents": {

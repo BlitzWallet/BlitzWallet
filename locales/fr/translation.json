@@ -286,6 +286,7 @@
     }
   },
   "apps": {
+    "noPurchaseTitle": "Aucun Achat",
     "appList": {
       "AI": "AI",
       "AIDescription": "Chat avec les derniers modèles génératifs d'intelligence artificielle",
@@ -755,7 +756,7 @@
       "historicalPurchasesPage": {
         "confirmRemoval": "Êtes-vous sûr de vouloir supprimer cette carte-cadeau ?",
         "purchased": "Acheté :",
-        "noPurchases": "Vous n'avez pas acheté de carte cadeau",
+        "noPurchases": "Vous n'avez pas encore acheté de carte-cadeau. Une fois que vous le faites, elle apparaîtra ici.",
         "customCopyMessage": "Courriel d'assistance copié"
       }
     },
@@ -799,7 +800,8 @@
         "refundedOrder": "La commande a été remboursée, les fonds seront automatiquement reversés dans votre portefeuille après 21 minutes.",
         "reclaimComplete": "Rety terminé. Si aucun code n'est généré, vous serez automatiquement remboursé après 21 minutes.",
         "noCode": "Pas de code",
-        "rateLimitError": "Trop de demandes. Vous ne pouvez effectuer que 5 demandes toutes les 30 secondes. Veuillez patienter avant de réessayer."
+        "rateLimitError": "Trop de demandes. Vous ne pouvez effectuer que 5 demandes toutes les 30 secondes. Veuillez patienter avant de réessayer.",
+        "noPurchasesTitle": "Vous n'avez encore ni envoyé ni reçu de SMS. Une fois que vous le faites, ils apparaîtront ici."
       },
       "receivePage": {
         "paymentMemo": "Stocker - Recevoir des SMS",
@@ -943,7 +945,9 @@
         "howStep2": "• Partagez le lien du pool pour que d’autres puissent le trouver",
         "howStep3": "• Les contributeurs envoient des bitcoins directement au pool",
         "howStep4": "• Fermez le pool lorsque vous êtes prêt à transférer les fonds vers votre wallet"
-      }
+      },
+      "noPoolsTitle": "Aucun Pool Créé",
+      "noPoolsSubTitle": "Une fois que vous avez créé un pool, il apparaîtra ici comme actif ou inactif."
     },
     "manualInputPage": {
       "inputPlaceholder": "Saisir ou coller un liquide, ou une adresse/facture Lightning"
@@ -1729,7 +1733,9 @@
         "title": "Conseils pour payer",
         "empNamePlaceholder": "Nom de l'employé",
         "noEmployees": "Vous n’avez actuellement aucun employé avec des pourboires enregistrés. Une fois qu’un employé utilise le point de vente, ses pourboires apparaîtront ici afin que vous puissiez les payer.",
-        "noTips": "L'employé n'a pas de pourboire"
+        "noTips": "L'employé n'a pas de pourboire",
+        "noEmployeeTitle": "Aucun Pourboire à Payer",
+        "noEmployeeSubTitle": "Vous n'avez pas encore de pourboires à payer. Lorsqu'un employé reçoit un pourboire, il apparaîtra ici."
       },
       "items": {
         "addItemHalfModal": {
@@ -1751,7 +1757,9 @@
           "itemSearchPlaceholder": "Nom de l'article...",
           "noItemsSearch": "Aucun article ne correspond à votre recherche.",
           "noItemsAdded": "Ajoutez un élément pour qu'il apparaisse ici.",
-          "ctaBTN": "Ajouter un article"
+          "ctaBTN": "Ajouter un article",
+          "noPosTitle": "Aucun Article POS",
+          "noPosSub": "Vous n'avez pas encore d'articles POS enregistrés. Une fois que vous en enregistrez un, il apparaîtra ici."
         }
       },
       "internalComponents": {

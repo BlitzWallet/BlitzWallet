@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 
 export default function HistoricalGiftCardPurchases() {
   const { decodedGiftCards, toggleGlobalAppDataInformation } =
@@ -72,58 +73,61 @@ export default function HistoricalGiftCardPurchases() {
     </TouchableOpacity>
   );
 
+  if (
+    !decodedGiftCards.purchasedCards ||
+    decodedGiftCards?.purchasedCards?.length === 0
+  ) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar containerStyles={styles.topBar} />
+        <NoContentSceen
+          iconName="Receipt"
+          titleText={t('apps.noPurchaseTitle')}
+          subTitleText={t('apps.giftCards.historicalPurchasesPage.noPurchases')}
+        />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
       <CustomSettingsTopBar containerStyles={styles.topBar} />
-
-      {!decodedGiftCards.purchasedCards ||
-      decodedGiftCards?.purchasedCards?.length === 0 ? (
-        <View style={styles.noPurchaseContainer}>
-          <ThemeText
-            styles={styles.noPurchaseText}
-            content={t('apps.giftCards.historicalPurchasesPage.noPurchases')}
-          />
-        </View>
-      ) : (
-        <>
-          <FlatList
-            data={decodedGiftCards.purchasedCards}
-            renderItem={renderItem}
-            keyExtractor={item => item.id.toString()} // Assuming each gift card has a unique 'id'
-            style={{ width: '90%' }}
-            showsVerticalScrollIndicator={false}
-            ListFooterComponent={
-              <View
-                style={{
-                  height: bottomPadding + 60,
-                }}
-              />
-            }
-          />
-          <CustomButton
-            buttonStyles={{
-              ...styles.supportBTN,
-              bottom: bottomPadding,
+      <FlatList
+        data={decodedGiftCards.purchasedCards}
+        renderItem={renderItem}
+        keyExtractor={item => item.id.toString()} // Assuming each gift card has a unique 'id'
+        style={{ width: '90%' }}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={
+          <View
+            style={{
+              height: bottomPadding + 60,
             }}
-            actionFunction={async () => {
-              try {
-                await openComposer({
-                  to: 'support@thebitcoincompany.com',
-                  subject: 'Gift cards payment error',
-                });
-              } catch (err) {
-                copyToClipboard(
-                  'support@thebitcoincompany.com',
-                  showToast,
-                  null,
-                  t('apps.giftCards.historicalPurchasesPage.customCopyMessage'),
-                );
-              }
-            }}
-            textContent={t('constants.support')}
           />
-        </>
-      )}
+        }
+      />
+      <CustomButton
+        buttonStyles={{
+          ...styles.supportBTN,
+          bottom: bottomPadding,
+        }}
+        actionFunction={async () => {
+          try {
+            await openComposer({
+              to: 'support@thebitcoincompany.com',
+              subject: 'Gift cards payment error',
+            });
+          } catch (err) {
+            copyToClipboard(
+              'support@thebitcoincompany.com',
+              showToast,
+              null,
+              t('apps.giftCards.historicalPurchasesPage.customCopyMessage'),
+            );
+          }
+        }}
+        textContent={t('constants.support')}
+      />
     </GlobalThemeView>
   );
 

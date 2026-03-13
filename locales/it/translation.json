@@ -286,6 +286,7 @@
     }
   },
   "apps": {
+    "noPurchaseTitle": "Nessun Acquisto",
     "appList": {
       "AI": "IA",
       "AIDescription": "Chatta con i più recenti modelli generativi di IA",
@@ -755,7 +756,7 @@
       "historicalPurchasesPage": {
         "confirmRemoval": "Sei sicuro di voler rimuovere questa carta regalo?",
         "purchased": "Acquistata:",
-        "noPurchases": "Non hai acquisti di carte regalo",
+        "noPurchases": "Non hai ancora acquistato nessuna carta regalo. Una volta che lo fai, apparirà qui.",
         "customCopyMessage": "Email di assistenza copiata"
       }
     },
@@ -799,7 +800,8 @@
         "refundedOrder": "L'ordine è stato rimborsato, i fondi torneranno automaticamente nel tuo portafoglio dopo 21 minuti.",
         "reclaimComplete": "Rety completato. Se non viene generato alcun codice, verrà automaticamente rimborsato dopo 21 minuti.",
         "noCode": "Nessun codice",
-        "rateLimitError": "Troppe richieste. Puoi fare solo 5 richieste ogni 30 secondi. Per favore, aspettati prima di riprovare."
+        "rateLimitError": "Troppe richieste. Puoi fare solo 5 richieste ogni 30 secondi. Per favore, aspettati prima di riprovare.",
+        "noPurchasesTitle": "Non hai ancora inviato o ricevuto messaggi SMS. Una volta che lo fai, appariranno qui."
       },
       "receivePage": {
         "paymentMemo": "Negozio - Ricezione SMS",
@@ -943,7 +945,9 @@
         "howStep2": "• Condividi il link del pool affinché altri possano trovarlo",
         "howStep3": "• I contributori inviano Bitcoin direttamente al pool",
         "howStep4": "• Chiudi il pool quando sei pronto a trasferire i fondi al tuo wallet"
-      }
+      },
+      "noPoolsTitle": "Nessun Pool Creato",
+      "noPoolsSubTitle": "Una volta creato un pool, apparirà qui come attivo o inattivo."
     },
     "manualInputPage": {
       "inputPlaceholder": "Inserisci o incolla un indirizzo o una fattura Liquid o Lightning"
@@ -1729,7 +1733,9 @@
         "title": "Mance da pagare",
         "empNamePlaceholder": "Nome dipendente",
         "noEmployees": "Al momento non hai dipendenti con mance salvate. Una volta che un dipendente utilizza il punto vendita, le sue mance appariranno qui così potrai pagarle.",
-        "noTips": "Il dipendente non ha mance"
+        "noTips": "Il dipendente non ha mance",
+        "noEmployeeTitle": "Nessuna Mancia da Pagare",
+        "noEmployeeSubTitle": "Non hai ancora mance da pagare. Quando un dipendente riceve una mancia, apparirà qui."
       },
       "items": {
         "addItemHalfModal": {
@@ -1751,7 +1757,9 @@
           "itemSearchPlaceholder": "Nome articolo...",
           "noItemsSearch": "Nessun articolo corrisponde alla tua ricerca.",
           "noItemsAdded": "Aggiungi un articolo perché appaia qui.",
-          "ctaBTN": "Aggiungi Articolo"
+          "ctaBTN": "Aggiungi Articolo",
+          "noPosTitle": "Nessun Articolo POS",
+          "noPosSub": "Non hai ancora articoli POS salvati. Una volta salvato uno, apparirà qui."
         }
       },
       "internalComponents": {

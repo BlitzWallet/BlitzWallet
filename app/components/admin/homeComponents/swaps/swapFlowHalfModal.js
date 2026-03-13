@@ -76,6 +76,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { getTimeDisplay } from '../../../../functions/contacts';
 import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -1472,21 +1473,15 @@ export default function SwapFlowHalfModal({
                   );
                 }}
                 ListEmptyComponent={
-                  <View style={styles.emptyContainer}>
-                    <ThemeIcon iconName={'ArrowUpDown'} />
-                    <ThemeText
-                      styles={styles.emptyTitle}
-                      content={t(
-                        'screens.inAccount.swapHistory.noHisotorytitle',
-                      )}
-                    />
-                    <ThemeText
-                      styles={styles.emptySubtext}
-                      content={t(
-                        'screens.inAccount.swapHistory.noHisotorydesc',
-                      )}
-                    />
-                  </View>
+                  <NoContentSceen
+                    iconName="ArrowUpDown"
+                    titleText={t(
+                      'screens.inAccount.swapHistory.noHisotorytitle',
+                    )}
+                    subTitleText={t(
+                      'screens.inAccount.swapHistory.noHisotorydesc',
+                    )}
+                  />
                 }
                 ListFooterComponent={
                   swapHistory.swaps.length < swapHistory.totalCount ? (
