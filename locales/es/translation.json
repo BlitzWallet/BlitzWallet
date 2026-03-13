@@ -949,7 +949,11 @@
         "no_transaction_history": "Envía o recibe una transacción para que aparezca aquí",
         "activity": "Actividad",
         "see_all": "Ver todo",
-        "noTxs": "Aún no hay transacciones"
+        "noTxs": "Aún no hay transacciones",
+        "send": "Enviar",
+        "receive": "Recibir",
+        "scan": "Escanear",
+        "swap": "Intercambiar"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",

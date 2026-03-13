@@ -25,6 +25,7 @@ import {
   deriveSparkAddress,
   deriveSparkIdentityKey,
 } from '../../functions/gift/deriveGiftWallet';
+import { useAppStatus } from '../../../context-store/appStatus';
 
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
@@ -46,6 +47,7 @@ export default function ConnectingToNodeLoadingScreen({
   const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContacts();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
+  const { screenDimensions } = useAppStatus();
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
   const [message, setMessage] = useState(
@@ -234,18 +236,20 @@ export default function ConnectingToNodeLoadingScreen({
           autoPlay
           loop={true}
           style={{
-            width: 150,
-            height: 150,
+            width: Math.min(screenDimensions.width * 0.4, 400),
+            height: Math.min(screenDimensions.width * 0.4, 400),
           }}
         />
 
-        <ThemeText
-          styles={{
-            ...styles.waitingText,
-            color: theme ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={hasError ? hasError : message}
-        />
+        {hasError && (
+          <ThemeText
+            styles={{
+              ...styles.waitingText,
+              color: theme ? COLORS.darkModeText : COLORS.primary,
+            }}
+            content={hasError ? hasError : message}
+          />
+        )}
       </View>
     </GlobalThemeView>
   );

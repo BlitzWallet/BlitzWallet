@@ -76,13 +76,15 @@ export default function EditMyProfilePage(props) {
 
   if (hideProfileImage) {
     return (
-      <InnerContent
-        isEditingMyProfile={isEditingMyProfile}
-        selectedAddedContact={selectedAddedContact}
-        fromInitialAdd={props.fromInitialAdd}
-        fromSettings={fromSettings}
-        hideProfileImage={true}
-      />
+      <View style={{ flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER }}>
+        <InnerContent
+          isEditingMyProfile={isEditingMyProfile}
+          selectedAddedContact={selectedAddedContact}
+          fromInitialAdd={props.fromInitialAdd}
+          fromSettings={fromSettings}
+          hideProfileImage={true}
+        />
+      </View>
     );
   }
 
@@ -119,13 +121,21 @@ export default function EditMyProfilePage(props) {
         }
         showLeftImage={!isEditingMyProfile}
       />
-      <InnerContent
-        isEditingMyProfile={isEditingMyProfile}
-        selectedAddedContact={selectedAddedContact}
-        fromInitialAdd={props.fromInitialAdd}
-        fromSettings={fromSettings}
-        hideProfileImage={false}
-      />
+      <View
+        style={{
+          flex: 1,
+          width: fromSettings ? '100%' : INSET_WINDOW_WIDTH,
+          ...CENTER,
+        }}
+      >
+        <InnerContent
+          isEditingMyProfile={isEditingMyProfile}
+          selectedAddedContact={selectedAddedContact}
+          fromInitialAdd={props.fromInitialAdd}
+          fromSettings={fromSettings}
+          hideProfileImage={false}
+        />
+      </View>
     </CustomKeyboardAvoidingView>
   );
 }

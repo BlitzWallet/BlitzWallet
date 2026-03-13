@@ -77,7 +77,7 @@ export default function SavingsRemoveGoalConfirm(props) {
                     size={15}
                     colorOverride={
                       theme && darkModeType
-                        ? COLORS.lightModeText
+                        ? COLORS.darkModeText
                         : COLORS.darkModeText
                     }
                   />

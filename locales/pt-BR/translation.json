@@ -1,6 +1,6 @@
 {
   "constants": {
-    "scan": "Escanear",
+    "scan": "Ler",
     "next": "Próximo",
     "skip_all": "Pular tudo",
     "copy": "Copiar",
@@ -123,7 +123,7 @@
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dólares",
     "rate": "Cotação",
-    "swap": "Troca",
+    "swap": "Trocar",
     "paymentDescriptionPlaceholder": "Descrição (opcional)",
     "print": "Imprimir",
     "transfer": "Transferir",
@@ -878,7 +878,7 @@
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
       "noAddedContactsTitle": "Nenhum contato adicionado",
-      "noAddedContactsDesc": "Seus contatos aparecerão aqui quando você adicionar um."
+      "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui."
     },
     "pools": {
       "receiveViaPool": "Receber via Vaquinha",
@@ -1088,7 +1088,11 @@
         "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
         "activity": "Atividade",
         "see_all": "Ver tudo",
-        "noTxs": "Nenhuma transação ainda"
+        "noTxs": "Nenhuma transação ainda",
+        "send": "Enviar",
+        "receive": "Receber",
+        "scan": "Ler",
+        "swap": "Trocar"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
@@ -1273,7 +1277,7 @@
       "poweredByFlashnet": "Flashnet",
       "poweredByBoltz": "Boltz API",
       "sparkHeader": "Bom Saber",
-      "sparkDescription": "A Blitz Wallet é alimentada pelo protocolo Spark. Spark é um protocolo off-chain onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da blockchain, permitindo transferências rápidas, de baixo custo e sem custódia de terceiros.",
+      "sparkDescription": "A Blitz Wallet funciona com o protocolo Spark. Spark é um protocolo off-chain onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da blockchain, permitindo transferências rápidas, de baixo custo e sem custódia de terceiros.",
       "learnMore": "Saiba mais",
       "creatorHeader": "Criador",
       "uiUxHeader": "UX / UI",
@@ -1319,7 +1323,7 @@
       "text5": "Denominação atual",
       "text6": "Por favor, reconecte-se à internet para mudar a denominação",
       "text7": "Como exibir",
-      "fiat": "Fiat",
+      "fiat": "Moeda estatal",
       "hidden": "Oculto",
       "symbol": "Símbolo",
       "word": "Palavra",
@@ -1471,9 +1475,9 @@
       "nostrZaps": "Nostr Zaps",
       "nostrZapsDesc": "Pagamentos Zap enviados ao seu perfil Nostr",
       "nwc": "Conexão Nostr",
-      "nwcDesc": "Pagamentos autorizados pelo Nostr Wallet Connect",
+      "nwcDesc": "Pagamentos autorizados pela conta NWC",
       "pos": "Ponto de venda",
-      "posDesc": "Pagamentos recebidos no seu ponto de venda"
+      "posDesc": "Pagamentos recebidos no seu ponto de venda (PDV)"
     },
     "nostrHome": {
       "nip5Title": "Verificação Nip5",
@@ -1914,7 +1918,7 @@
         "filterSavings": "Caixinhas",
         "filterPools": "Vaquinhas",
         "noTxHistoryTitle": "Sem histórico de transações",
-        "noTxHistorySub": "Suas transações aparecerão aqui quando você enviar ou receber uma."
+        "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta."
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
@@ -2108,8 +2112,8 @@
           "amount": "Quantia",
           "details": "Detalhes"
         },
-        "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar.",
-        "enterAmountTitle": "Insira a quantia que deseja trocar."
+        "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar",
+        "enterAmountTitle": "Insira a quantia que deseja trocar"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
@@ -2362,7 +2366,7 @@
       "balanceTypeTitle": "O que você gostaria de resgatar?",
       "interestOption": "Recompensas",
       "savingsOption": "Saldo de Caixinhas",
-      "interestZeroHint": "Ainda não há recompensas acumuladas",
+      "interestZeroHint": "Não há recompensas para resgatar",
       "savingsZeroHint": "Nada salvo ainda",
       "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",

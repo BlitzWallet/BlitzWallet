@@ -29,7 +29,7 @@ export default function IconActionCircle({
     >
       <ThemeIcon
         colorOverride={
-          theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+          theme && darkModeType ? COLORS.darkModeText : COLORS.primary
         }
         iconName={icon}
       />

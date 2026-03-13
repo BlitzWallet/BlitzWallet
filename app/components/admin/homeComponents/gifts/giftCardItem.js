@@ -112,7 +112,9 @@ export default function GiftCardItem({
           {
             backgroundColor:
               theme && darkModeType
-                ? backgroundOffset
+                ? from === 'preview' || from === 'overview'
+                  ? backgroundColor
+                  : backgroundOffset
                 : denomination === 'USD'
                 ? COLORS.dollarGreen
                 : COLORS.bitcoinOrange,

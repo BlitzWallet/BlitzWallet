@@ -97,12 +97,12 @@ export function SendRecieveBTNs({
 
   const { fontSize, getLabelProps } = useAdaptiveFontSize(
     [
-      t('constants.send'),
-      t('constants.receive'),
-      t('constants.scan'),
-      t('constants.swap'),
+      t('wallet.homeLightning.home.send'),
+      t('wallet.homeLightning.home.receive'),
+      t('wallet.homeLightning.home.scan'),
+      t('wallet.homeLightning.home.swap'),
     ],
-    SIZES.small,
+    SIZES.medium,
     5,
   );
 
@@ -112,7 +112,7 @@ export function SendRecieveBTNs({
       <TouchableOpacity
         style={styles.buttonWrapper}
         onPress={handleSend}
-        activeOpacity={1}
+        // activeOpacity={1}
       >
         <View
           style={[
@@ -129,18 +129,18 @@ export function SendRecieveBTNs({
             colorOverride={arrowIconColor}
           />
         </View>
-        <ThemeText
-          content={t('constants.send')}
+        {/* <ThemeText
+          content={t('wallet.homeLightning.home.send')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(0)}
-        />
+        /> */}
       </TouchableOpacity>
 
       {/* Receive — primary */}
       <TouchableOpacity
         style={styles.buttonWrapper}
         onPress={handleReceive}
-        activeOpacity={1}
+        // activeOpacity={1}
       >
         <View
           style={[
@@ -157,18 +157,18 @@ export function SendRecieveBTNs({
             colorOverride={arrowIconColor}
           />
         </View>
-        <ThemeText
-          content={t('constants.receive')}
+        {/* <ThemeText
+          content={t('wallet.homeLightning.home.receive')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(1)}
-        />
+        /> */}
       </TouchableOpacity>
 
       {/* Camera/Scan — secondary */}
       {!isNWCWallet && (
         <TouchableOpacity
           style={styles.buttonWrapper}
-          activeOpacity={1}
+          // activeOpacity={1}
           onPress={handleCamera}
         >
           <View
@@ -186,18 +186,18 @@ export function SendRecieveBTNs({
               colorOverride={arrowIconColor}
             />
           </View>
-          <ThemeText
-            content={t('constants.scan')}
+          {/* <ThemeText
+            content={t('wallet.homeLightning.home.scan')}
             styles={[styles.labelSecondary, { fontSize }]}
             {...getLabelProps(2)}
-          />
+          /> */}
         </TouchableOpacity>
       )}
 
       {/* Swap — secondary */}
       <TouchableOpacity
         style={styles.buttonWrapper}
-        activeOpacity={1}
+        // activeOpacity={1}
         onPress={handleSwap}
       >
         <View
@@ -215,11 +215,11 @@ export function SendRecieveBTNs({
             colorOverride={arrowIconColor}
           />
         </View>
-        <ThemeText
-          content={t('constants.swap')}
+        {/* <ThemeText
+          content={t('wallet.homeLightning.home.swap')}
           styles={[styles.labelSecondary, { fontSize }]}
           {...getLabelProps(3)}
-        />
+        /> */}
       </TouchableOpacity>
     </View>
   );
@@ -230,14 +230,14 @@ const styles = StyleSheet.create({
     maxWidth: 350,
     width: '85%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'flex-start',
-    gap: 10,
+    gap: 8,
     ...CENTER,
   },
   buttonWrapper: {
     alignItems: 'center',
-    flex: 1,
+    // flex: 1,
   },
   btn: {
     width: 70,
@@ -251,8 +251,7 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: SIZES.small,
     includeFontPadding: false,
-    marginTop: 7,
+    marginTop: 5,
     textAlign: 'center',
-    opacity: 0.5,
   },
 });

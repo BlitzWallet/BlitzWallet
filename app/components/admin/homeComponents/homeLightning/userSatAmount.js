@@ -1,4 +1,10 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {
   COLORS,
   FONT,
@@ -24,6 +30,8 @@ export const UserSatAmount = memo(function UserSatAmount({
   sparkInformation,
   mode,
 }) {
+  const startX = useRef(0);
+  const startY = useRef(0);
   // const didMount = useRef(null);
   const { bitcoinBalance, dollarBalanceToken, totalSatValue } =
     useUserBalanceContext();
@@ -64,7 +72,6 @@ export const UserSatAmount = memo(function UserSatAmount({
   }, []);
 
   const handleBalanceChange = useCallback(() => {
-    if (mode !== 'total') return;
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('errormessages.nointernet'),
@@ -72,6 +79,28 @@ export const UserSatAmount = memo(function UserSatAmount({
       return;
     }
     if (!sparkInformation.identityPubKey) return;
+
+    if (mode !== 'total') {
+      if (masterInfoObject.userBalanceDenomination !== 'hidden') {
+        handleDBStateChange(
+          { userBalanceDenomination: 'hidden' },
+          setMasterInfoObject,
+          toggleMasterInfoObject,
+          saveTimeoutRef,
+          initialValueRef,
+        );
+      } else {
+        handleDBStateChange(
+          { userBalanceDenomination: mode === 'sats' ? 'sats' : 'fiat' },
+          setMasterInfoObject,
+          toggleMasterInfoObject,
+          saveTimeoutRef,
+          initialValueRef,
+        );
+      }
+
+      return;
+    }
 
     if (masterInfoObject.userBalanceDenomination === 'sats')
       handleDBStateChange(
@@ -104,11 +133,23 @@ export const UserSatAmount = memo(function UserSatAmount({
   ]);
 
   return (
-    <TouchableOpacity
-      // onLayout={handleLayout}
-      style={styles.balanceContainer}
-      onPress={handleBalanceChange}
-      activeOpacity={mode === 'total' ? 0.2 : 1}
+    <Pressable
+      style={({ pressed }) => [
+        styles.balanceContainer,
+        { opacity: pressed ? 0.2 : 1 },
+      ]}
+      onPressIn={e => {
+        startX.current = e.nativeEvent.pageX;
+        startY.current = e.nativeEvent.pageY;
+      }}
+      onPress={e => {
+        const dx = Math.abs(e.nativeEvent.pageX - startX.current);
+        const dy = Math.abs(e.nativeEvent.pageY - startY.current);
+
+        if (dx > 10 || dy > 10) return; // user was swiping
+
+        handleBalanceChange();
+      }}
     >
       {/* Hidden component for layout measurement */}
       <View
@@ -168,7 +209,7 @@ export const UserSatAmount = memo(function UserSatAmount({
           />
         </SkeletonTextPlaceholder>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 });
 

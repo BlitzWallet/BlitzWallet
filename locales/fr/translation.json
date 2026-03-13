@@ -1088,7 +1088,11 @@
         "no_transaction_history": "Envoyer ou recevoir une transaction pour qu'elle apparaisse ici",
         "activity": "Activité",
         "see_all": "Voir tout",
-        "noTxs": "Aucune transaction pour le moment"
+        "noTxs": "Aucune transaction pour le moment",
+        "send": "Envoyer",
+        "receive": "Recevoir",
+        "scan": "Scanner",
+        "swap": "Swap"
       },
       "lrc20Assets": {
         "actionText": "{{action}} jetons",

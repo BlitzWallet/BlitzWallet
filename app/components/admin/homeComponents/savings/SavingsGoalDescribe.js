@@ -19,7 +19,7 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function SavingsGoalDescribe(props) {
-  const [isKeyboardActive, setIsKeyboardActive] = useState(true);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const { t } = useTranslation();
   const emoji = props?.route?.params?.emoji || '🎯';
@@ -60,7 +60,7 @@ export default function SavingsGoalDescribe(props) {
             inputText={goalName}
             onFocusFunction={() => setIsKeyboardActive(true)}
             onBlurFunction={() => setIsKeyboardActive(false)}
-            autoFocus={true}
+            // autoFocus={true}
             maxLength={50}
           />
           <ThemeText
