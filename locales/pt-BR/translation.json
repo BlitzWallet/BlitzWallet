@@ -286,7 +286,7 @@
     }
   },
   "apps": {
-    "noPurchaseTitle": "Nenhuma Compra",
+    "noPurchaseTitle": "Nenhuma compra",
     "appList": {
       "AI": "IA",
       "AIDescription": "Converse com os mais recentes modelos de IA generativa",
