@@ -672,7 +672,7 @@ export function FlashnetProvider({ children }) {
       try {
         if (
           sparkInformation.didConnect === true &&
-          sparkInformation.didConnectToFlashnet === false &&
+          !sparkInformation.didConnectToFlashnet &&
           appState === 'active' &&
           currentWalletMnemoincRef.current
         ) {
@@ -758,7 +758,7 @@ export function FlashnetProvider({ children }) {
 
     if (
       sparkInformation.didConnect === true &&
-      sparkInformation.didConnectToFlashnet === false &&
+      !sparkInformation.didConnectToFlashnet &&
       appState === 'active'
     ) {
       // Reset delay when starting fresh

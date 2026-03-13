@@ -66,13 +66,17 @@ export async function initializeSparkSession({
   try {
     // Clean DB state but do not hold up process
     cleanStalePendingSparkLightningTransactions();
-    const [balance, sparkAddress, identityPubKey, flashnetResponse] =
-      await Promise.all([
-        getSparkBalance(mnemonic),
-        getSparkAddress(mnemonic),
-        getSparkIdentityPubKey(mnemonic),
-        initializeFlashnet(mnemonic),
-      ]);
+    const [
+      balance,
+      sparkAddress,
+      identityPubKey,
+      // flashnetResponse
+    ] = await Promise.all([
+      getSparkBalance(mnemonic),
+      getSparkAddress(mnemonic),
+      getSparkIdentityPubKey(mnemonic),
+      // initializeFlashnet(mnemonic),
+    ]);
 
     setPrivacyEnabled(mnemonic);
     const transactions = await getCachedSparkTransactions(null, identityPubKey);
@@ -86,7 +90,7 @@ export async function initializeSparkSession({
         identityPubKey,
         sparkAddress: sparkAddress.response,
         didConnect: true,
-        didConnectToFlashnet: flashnetResponse,
+        // didConnectToFlashnet: flashnetResponse,
       };
       await new Promise(res => setTimeout(res, 500));
       setSparkInformation(prev => ({ ...prev, ...storageObject }));
@@ -127,7 +131,7 @@ export async function initializeSparkSession({
       identityPubKey,
       sparkAddress: sparkAddress.response,
       didConnect: true,
-      didConnectToFlashnet: flashnetResponse,
+      // didConnectToFlashnet: flashnetResponse,
       initialBalance: Number(balance.balance),
     };
     console.log('Spark storage object', storageObject);
