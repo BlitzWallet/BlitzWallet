@@ -1265,6 +1265,7 @@
     "index": {
       "editProfile": "Modifica profilo",
       "showQR": "Mostra QR",
+      "identiconMessage": "Questo design è unico per il tuo wallet e aiuta gli altri a confermare che sei davvero tu quando aggiungono il tuo contatto.",
       "profileHead": "Profilo",
       "settingsHead": "Impostazioni",
       "seedPopup": "Una frase di recupero è un elenco di parole che ti permette di recuperare i tuoi Bitcoin se il tuo dispositivo viene perso o danneggiato. Scrivila e conservala in un posto sicuro. Non darla mai a nessuno—se qualcuno la ottiene, può prendere tutti i tuoi Bitcoin."

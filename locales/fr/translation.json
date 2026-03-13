@@ -1265,6 +1265,7 @@
     "index": {
       "editProfile": "Modifier le profil",
       "showQR": "Montrer QR",
+      "identiconMessage": "Ce design est unique à votre portefeuille et aide les autres à confirmer qu’il s’agit bien de vous lorsqu’ils ajoutent votre contact.",
       "profileHead": "Profil",
       "settingsHead": "Paramètres",
       "seedPopup": "Une phrase d'initialisation est une liste de mots qui vous permet de récupérer votre bitcoin en cas de perte ou d'endommagement de votre appareil. Notez-la et conservez-la en toute sécurité. Ne la donnez jamais à personne : si quelqu'un l'obtient, il peut s'emparer de tous vos bitcoins."

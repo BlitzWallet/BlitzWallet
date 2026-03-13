@@ -1126,6 +1126,7 @@
     "index": {
       "editProfile": "Editar perfil",
       "showQR": "Mostrar QR",
+      "identiconMessage": "Este diseño es único para tu billetera y ayuda a otros a confirmar que realmente eres tú cuando agregan tu contacto.",
       "profileHead": "Perfil",
       "settingsHead": "Configuración",
       "seedPopup": "Una frase semilla es una lista de palabras que te permite recuperar tus Bitcoin si tu dispositivo se pierde o se daña. Escríbela y guárdala en un lugar seguro. Nunca se la des a nadie—si alguien la obtiene, puede tomar todos tus Bitcoin."

@@ -1265,6 +1265,7 @@
     "index": {
       "editProfile": "Redigera profil",
       "showQR": "Visa QR",
+      "identiconMessage": "Den här designen är unik för din plånbok och hjälper andra att bekräfta att det verkligen är du när de lägger till din kontakt.",
       "profileHead": "Profil",
       "settingsHead": "Inställningar",
       "seedPopup": "En seed phrase är en lista med ord som gör att du kan återställa dina Bitcoin om din enhet försvinner eller skadas. Skriv ner den och förvara den på ett säkert sätt. Ge den aldrig till någon - om någon får tag på den kan de ta alla dina bitcoin."

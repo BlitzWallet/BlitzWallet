@@ -1265,6 +1265,7 @@
     "index": {
       "editProfile": "Edit Profile",
       "showQR": "Show QR",
+      "identiconMessage": "This design is unique to your wallet and helps others confirm it’s really you when adding your contact.",
       "profileHead": "Profile",
       "settingsHead": "Settings",
       "seedPopup": "A recovery phrase is a list of words that lets you recover your Bitcoin if your device is lost or damaged. Write it down and store it safely. Never give it to anyone—if someone gets it, they can take all your money."

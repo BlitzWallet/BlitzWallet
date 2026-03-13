@@ -14,6 +14,7 @@ import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import AddContactsPage from './addContactsPage';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import ContactRingAvatar from './internalComponents/contactsRingAvatar';
 
 // Memoized shared header component
 const SharedHeader = memo(
@@ -29,21 +30,27 @@ const SharedHeader = memo(
   }) => {
     return (
       <View style={styles.profileImageContainer}>
-        <View
-          style={[
-            styles.profileImage,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}
+        <ContactRingAvatar
+          contactUUID={selectedContact.uuid}
+          size={150}
+          theme={theme}
         >
-          <ContactProfileImage
-            updated={imageData?.updated}
-            uri={imageData?.localUri}
-            darkModeType={darkModeType}
-            theme={theme}
-          />
-        </View>
+          <View
+            style={[
+              styles.profileImage,
+              {
+                backgroundColor: backgroundOffset,
+              },
+            ]}
+          >
+            <ContactProfileImage
+              updated={imageData?.updated}
+              uri={imageData?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+        </ContactRingAvatar>
       </View>
     );
   },
@@ -192,8 +199,8 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   profileImage: {
-    width: 150,
-    height: 150,
+    width: '100%',
+    height: '100%',
     borderRadius: 125,
     ...CENTER,
     alignItems: 'center',
