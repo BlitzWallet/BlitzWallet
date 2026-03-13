@@ -1022,7 +1022,7 @@
         "swapRatesChangedButton": "Inserir valor novamente"
       },
       "selectPaymentMethod": {
-        "header": "Escolha o saldo para realizar esse pagamento."
+        "header": "Escolha o saldo para realizar esse pagamento"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
@@ -1650,8 +1650,8 @@
         "errorMessage": "Falha ao restaurar a conta"
       },
       "selectAltAccount": {
-        "from": "Selecione a conta que você deseja enviar.",
-        "to": "Selecione a conta que você deseja receber."
+        "from": "Selecione a conta de origem",
+        "to": "Selecione a conta de destino"
       },
       "removeAccountPage": {
         "title": "Arquivar conta",
