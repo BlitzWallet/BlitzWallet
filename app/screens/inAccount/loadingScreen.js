@@ -84,8 +84,9 @@ export default function ConnectingToNodeLoadingScreen({
         );
         removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
         console.log('Process 1', new Date().getTime());
-        connectToSparkWallet();
-
+        if (didRunHandshakeRef.current) {
+          connectToSparkWallet();
+        }
         const [privateKey, identityPubKey] = await Promise.all([
           privateKeyFromSeedWords(accountMnemoinc),
           deriveSparkIdentityKey(accountMnemoinc),
@@ -153,6 +154,7 @@ export default function ConnectingToNodeLoadingScreen({
             currentRun += 1;
             await new Promise(res => setTimeout(res, 1000));
           }
+          connectToSparkWallet();
         }
 
         const [placeholderTxs, { initialBalance, tokens }] = await Promise.all([
