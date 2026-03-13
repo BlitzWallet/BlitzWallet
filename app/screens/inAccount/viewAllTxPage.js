@@ -219,7 +219,7 @@ export default function ViewAllTxPage() {
           });
         }}
       />
-      {!doesNotHaveTransactions && (
+      {(!doesNotHaveTransactions || currentFilter.item !== 'All') && (
         <View>
           <ScrollView
             ref={scrollViewRef}
