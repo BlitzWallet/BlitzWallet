@@ -286,6 +286,7 @@
     }
   },
   "apps": {
+    "noPurchaseTitle": "Nenhuma Compra",
     "appList": {
       "AI": "IA",
       "AIDescription": "Converse com os mais recentes modelos de IA generativa",
@@ -755,7 +756,7 @@
       "historicalPurchasesPage": {
         "confirmRemoval": "Tem certeza de que deseja remover este cartão-presente?",
         "purchased": "Comprado:",
-        "noPurchases": "Você não tem compras de cartão-presente",
+        "noPurchases": "Você ainda não comprou nenhum cartão-presente. Quando comprar, ele aparecerá aqui.",
         "customCopyMessage": "E-mail de suporte copiado"
       }
     },
@@ -799,7 +800,8 @@
         "refundedOrder": "A ordem foi reembolsada, os fundos retornarão automaticamente para sua carteira após 21 minutos",
         "reclaimComplete": "Reenvio concluído. Se nenhum código for gerado, você será reembolsado automaticamente após 21 minutos.",
         "noCode": "Sem código",
-        "rateLimitError": "Excesso de solicitações. Você só pode fazer 5 solicitações a cada 30 segundos. Aguarde antes de tentar novamente."
+        "rateLimitError": "Excesso de solicitações. Você só pode fazer 5 solicitações a cada 30 segundos. Aguarde antes de tentar novamente.",
+        "noPurchasesTitle": "Você ainda não enviou nem recebeu nenhuma mensagem SMS. Quando fizer isso, elas aparecerão aqui."
       },
       "receivePage": {
         "paymentMemo": "Loja - Receber SMS",
@@ -943,7 +945,9 @@
         "howStep2": "• Compartilhe o link da Vaquinha com outras pessoas",
         "howStep3": "• Os contribuidores enviam Bitcoin diretamente para a Vaquinha",
         "howStep4": "• Encerre a Vaquinha quando estiver pronto para mover os fundos para sua carteira"
-      }
+      },
+      "noPoolsTitle": "Nenhum Pool Criado",
+      "noPoolsSubTitle": "Quando você criar um pool, ele aparecerá aqui como ativo ou inativo."
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
@@ -1729,7 +1733,9 @@
         "title": "Gorjetas a pagar",
         "empNamePlaceholder": "Nome do funcionário",
         "noEmployees": "No momento, você não tem funcionários com gorjetas salvas. Assim que um funcionário usar o ponto de venda, suas gorjetas aparecerão aqui para que você possa pagá-las.",
-        "noTips": "O funcionário não tem gorjetas"
+        "noTips": "O funcionário não tem gorjetas",
+        "noEmployeeTitle": "Nenhuma Gorjeta a Pagar",
+        "noEmployeeSubTitle": "Você ainda não tem gorjetas a pagar. Quando um funcionário receber uma gorjeta, ela aparecerá aqui."
       },
       "items": {
         "addItemHalfModal": {
@@ -1751,7 +1757,9 @@
           "itemSearchPlaceholder": "Nome do item...",
           "noItemsSearch": "Nenhum item corresponde à sua pesquisa.",
           "noItemsAdded": "Adicione um item para que ele apareça aqui.",
-          "ctaBTN": "Adicionar item"
+          "ctaBTN": "Adicionar item",
+          "noPosTitle": "Nenhum Item POS",
+          "noPosSub": "Você ainda não tem itens POS salvos. Quando salvar um, ele aparecerá aqui."
         }
       },
       "internalComponents": {

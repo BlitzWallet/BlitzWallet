@@ -10,6 +10,7 @@ import {
 } from '../../../../constants/theme';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -22,6 +23,7 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 export default function ReclaimGift() {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -63,6 +65,30 @@ export default function ReclaimGift() {
   const handleAdvancedMode = () => {
     navigate.navigate('AdvancedGiftClaim');
   };
+
+  if (!hasExpiredGift) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          label={t('screens.inAccount.giftPages.claimPage.reclaimButton')}
+        />
+        <NoContentSceen
+          iconName="RotateCcw"
+          titleText={t('screens.inAccount.giftPages.reclaimPage.header')}
+          subTitleText={t(
+            'screens.inAccount.giftPages.reclaimPage.noReclaimsMessage',
+          )}
+        />
+        <CustomButton
+          buttonStyles={{ width: INSET_WINDOW_WIDTH, ...CENTER }}
+          textContent={t(
+            'screens.inAccount.giftPages.reclaimPage.advancedModeBTN',
+          )}
+          actionFunction={handleAdvancedMode}
+        />
+      </GlobalThemeView>
+    );
+  }
 
   return (
     <CustomKeyboardAvoidingView
@@ -233,6 +259,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   advancedContainer: {
+    width: '100%',
     backgroundColor: 'unset',
     marginBottom: 20,
   },

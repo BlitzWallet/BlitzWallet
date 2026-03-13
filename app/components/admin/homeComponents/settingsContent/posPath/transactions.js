@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { CENTER, ICONS, SIZES } from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
@@ -18,6 +19,7 @@ import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 
 export default function ViewPOSTransactions() {
   const { groupedTxs } = usePOSTransactions();
@@ -78,6 +80,26 @@ export default function ViewPOSTransactions() {
     [backgroundOffset, masterInfoObject, fiatStats, t, navigate],
   );
 
+  if (!groupedTxs.length) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          shouldDismissKeyboard={true}
+          showLeftImage={false}
+          leftImageBlue={ICONS.receiptIcon}
+          LeftImageDarkMode={ICONS.receiptWhite}
+          containerStyles={{ marginBottom: 0 }}
+          label={t('settings.posPath.transactions.title')}
+        />
+        <NoContentSceen
+          iconName="Receipt"
+          titleText={t('settings.posPath.transactions.noEmployeeTitle')}
+          subTitleText={t('settings.posPath.transactions.noEmployeeSubTitle')}
+        />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <CustomKeyboardAvoidingView
       styles={styles.globalContainer}
@@ -114,11 +136,7 @@ export default function ViewPOSTransactions() {
         ) : (
           <ThemeText
             styles={styles.emptyText}
-            content={
-              groupedTxs.length
-                ? t('settings.posPath.transactions.noTips')
-                : t('settings.posPath.transactions.noEmployees')
-            }
+            content={t('settings.posPath.transactions.noTips')}
           />
         )}
       </View>
@@ -158,7 +176,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   emptyText: {
-    marginTop: 24,
     textAlign: 'center',
   },
 });

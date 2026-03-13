@@ -286,6 +286,7 @@
     }
   },
   "apps": {
+    "noPurchaseTitle": "No Purchases",
     "appList": {
       "AI": "AI",
       "AIDescription": "Chat with the latest generative AI models",
@@ -755,7 +756,7 @@
       "historicalPurchasesPage": {
         "confirmRemoval": "Are you sure you want to remove this gift card?",
         "purchased": "Purchased:",
-        "noPurchases": "You have no gift card purchases",
+        "noPurchases": "You haven’t purchased any gift cards. Once you do, they’ll show up here.",
         "customCopyMessage": "Support email copied"
       }
     },
@@ -799,7 +800,8 @@
         "refundedOrder": "Order has been refunded, funds will automatically return to your wallet after 21 minutes",
         "reclaimComplete": "Retry complete. If no code is generated, you will be auto-refunded after 21 minutes.",
         "noCode": "No code",
-        "rateLimitError": "Too many requests. You can only make 5 requests every 30 seconds. Please wait before trying again."
+        "rateLimitError": "Too many requests. You can only make 5 requests every 30 seconds. Please wait before trying again.",
+        "noPurchasesTitle": "You haven’t sent or received any SMS messages yet. Once you do, they’ll show up here."
       },
       "receivePage": {
         "paymentMemo": "Store - SMS Receive",
@@ -943,7 +945,9 @@
         "howStep2": "• Share the pool link so others can find it",
         "howStep3": "• Contributors send Bitcoin directly to the pool",
         "howStep4": "• Close the pool when ready to move funds to your wallet"
-      }
+      },
+      "noPoolsTitle": "No Created Pools",
+      "noPoolsSubTitle": "Once you create a pool, it’ll show up here as active or inactive."
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"
@@ -1729,7 +1733,9 @@
         "title": "Tips to pay",
         "empNamePlaceholder": "Employee name",
         "noEmployees": "You currently don’t have any employees with saved tips. Once an employee uses the point-of-sale, their tips will appear here so you can pay them.",
-        "noTips": "Employee has no tips"
+        "noTips": "Employee has no tips",
+        "noEmployeeTitle": "No Tips To Pay",
+        "noEmployeeSubTitle": "You don’t have any tips to pay yet. When an employee receives a tip, it’ll show up here."
       },
       "items": {
         "addItemHalfModal": {
@@ -1751,7 +1757,9 @@
           "itemSearchPlaceholder": "Item name...",
           "noItemsSearch": "No items match your search.",
           "noItemsAdded": "Add an item for it to show up here.",
-          "ctaBTN": "Add Item"
+          "ctaBTN": "Add Item",
+          "noPosTitle": "No POS Items",
+          "noPosSub": "You don’t have any POS items saved yet. Once you save one, it will show up here."
         }
       },
       "internalComponents": {

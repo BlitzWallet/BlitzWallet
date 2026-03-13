@@ -28,6 +28,7 @@ import GetThemeColors from '../../hooks/themeColors';
 import { getFilteredTransactions } from '../../functions/spark/transactions';
 import customUUID from '../../functions/customUUID';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import NoContentSceen from '../../functions/CustomElements/noContentScreen';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 
 const FILTER_DEBOUNCE_MS = 500;
@@ -241,17 +242,11 @@ export default function ViewAllTxPage() {
       {!txs.length || isLoadingNewTxs ? (
         <FullLoadingScreen />
       ) : doesNotHaveTransactions ? (
-        <View style={styles.noTxContainer}>
-          <ThemeIcon iconName={'Clock'} />
-          <ThemeText
-            styles={styles.emptyTitle}
-            content={t('screens.inAccount.viewAllTxPage.noTxHistoryTitle')}
-          />
-          <ThemeText
-            styles={styles.emptySubtext}
-            content={t('screens.inAccount.viewAllTxPage.noTxHistorySub')}
-          />
-        </View>
+        <NoContentSceen
+          iconName="Clock"
+          titleText={t('screens.inAccount.viewAllTxPage.noTxHistoryTitle')}
+          subTitleText={t('screens.inAccount.viewAllTxPage.noTxHistorySub')}
+        />
       ) : (
         <FlatList
           initialNumToRender={20}
