@@ -548,7 +548,7 @@ export default function HalfModalSendOptions({
               textInputStyles={{ paddingRight: 40 }}
               containerStyles={{ maxHeight: 100 }}
               returnKeyType="go"
-              onSubmitEditing={handleManualInputSubmit}
+              onSubmitEditingFunction={handleManualInputSubmit}
             />
             {inputText.trim() ? (
               <TouchableOpacity
