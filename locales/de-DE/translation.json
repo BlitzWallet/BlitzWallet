@@ -112,7 +112,7 @@
     "recover": "Wiederherstellen",
     "search": "Suchen",
     "review": "Überprüfen",
-    "loadMore": "Mehr laden",
+    "loadMore": "Mehr anzeigen",
     "invoice": "Rechnung",
     "annonName": "Anonymer Benutzer",
     "claim": "Einlösen",
@@ -1268,6 +1268,7 @@
     "index": {
       "editProfile": "Profil bearbeiten",
       "showQR": "QR anzeigen",
+      "identiconMessage": "Dieses Design ist einzigartig für Ihre Wallet und hilft anderen zu bestätigen, dass Sie es wirklich sind, wenn sie Ihren Kontakt hinzufügen.",
       "profileHead": "Profil",
       "settingsHead": "Einstellungen",
       "seedPopup": "Ihre Wiederherstellungsphrase (Seed-Phrase) ist eine Liste von Wörtern, mit der Sie Ihre BTC wiederherstellen können, falls Ihr Gerät verloren geht oder kaputtgeht. Schreiben Sie sie unbedingt auf und bewahren Sie sie an einem sicheren Ort auf. Niemals weitergeben – wer diese Wörter hat, kann alle Ihre BTC stehlen."
@@ -1781,7 +1782,7 @@
   "screens": {
     "inAccount": {
       "tokens": {
-        "yourTokens": "Ihre Tokens",
+        "yourTokens": "Ihre Token",
         "noTokens": "Sie haben noch keine Tokens"
       },
       "appStore": {
