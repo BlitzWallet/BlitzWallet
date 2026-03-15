@@ -1,15 +1,28 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import { CENTER } from '../../../../constants';
 import { useEffect, useState } from 'react';
 import GetThemeColors from '../../../../hooks/themeColors';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import CustomButton from '../../../../functions/CustomElements/button';
 
 const TYPE_KEYS = [
-  'Lightning', 'Bitcoin', 'Spark', 'Contacts',
-  'Gifts', 'Swaps', 'Savings', 'Pools',
+  'Lightning',
+  'Bitcoin',
+  'Spark',
+  'Contacts',
+  'Gifts',
+  'Swaps',
+  'Savings',
+  'Pools',
 ];
 
 const DATE_OPTIONS = [
@@ -31,7 +44,8 @@ export default function TxFilterHalfModal({
   setContentHeight,
 }) {
   const { t } = useTranslation();
-  const { textColor } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
 
   const [draft, setDraft] = useState({
     directions: currentFilter?.directions ?? [],
@@ -78,15 +92,25 @@ export default function TxFilterHalfModal({
   };
 
   const ns = 'screens.inAccount.viewAllTxPage';
-  const inactiveBorderColor = textColor + '30';
+  const inactiveBorderColor =
+    theme && darkModeType ? backgroundColor : backgroundOffset;
+
+  const hasItemsSeleceted =
+    draft.directions.length || draft.dateRange || draft.types.length;
 
   return (
     <View style={styles.container}>
       <ThemeText styles={styles.title} content={t(`${ns}.filterModalTitle`)} />
 
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
+      >
         {/* --- Direction --- */}
-        <ThemeText styles={styles.sectionLabel} content={t(`${ns}.filterDirectionTitle`)} />
+        <ThemeText
+          styles={styles.sectionLabel}
+          content={t(`${ns}.filterDirectionTitle`)}
+        />
         <View style={styles.directionRow}>
           {DIRECTION_OPTIONS.map(({ dir, icon, labelKey }) => {
             const isActive = draft.directions.includes(dir);
@@ -96,8 +120,20 @@ export default function TxFilterHalfModal({
                 style={[
                   styles.directionCard,
                   isActive
-                    ? styles.cardActive
-                    : [styles.cardInactive, { borderColor: inactiveBorderColor }],
+                    ? {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? backgroundColor
+                            : COLORS.primary,
+                        borderColor:
+                          theme && darkModeType
+                            ? backgroundColor
+                            : COLORS.primary,
+                      }
+                    : [
+                        styles.cardInactive,
+                        { borderColor: inactiveBorderColor },
+                      ],
                 ]}
                 onPress={() => toggleDirection(dir)}
                 activeOpacity={0.7}
@@ -107,18 +143,27 @@ export default function TxFilterHalfModal({
                   size={20}
                   colorOverride={isActive ? '#fff' : textColor}
                 />
-                <Text style={[styles.directionLabel, { color: isActive ? '#fff' : textColor }]}>
-                  {t(`${ns}.${labelKey}`)}
-                </Text>
+                <ThemeText
+                  styles={[
+                    styles.directionLabel,
+                    { color: isActive ? '#fff' : textColor },
+                  ]}
+                  content={t(`${ns}.${labelKey}`)}
+                />
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <View style={[styles.divider, { borderTopColor: inactiveBorderColor }]} />
+        <View
+          style={[styles.divider, { borderTopColor: inactiveBorderColor }]}
+        />
 
         {/* --- Date Range --- */}
-        <ThemeText styles={styles.sectionLabel} content={t(`${ns}.filterDateTitle`)} />
+        <ThemeText
+          styles={styles.sectionLabel}
+          content={t(`${ns}.filterDateTitle`)}
+        />
         <View style={styles.pillRow}>
           {DATE_OPTIONS.map(({ key, labelKey }) => {
             const isActive = draft.dateRange === key;
@@ -128,24 +173,45 @@ export default function TxFilterHalfModal({
                 style={[
                   styles.pill,
                   isActive
-                    ? styles.pillActive
-                    : [styles.pillInactive, { borderColor: inactiveBorderColor }],
+                    ? {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? backgroundColor
+                            : COLORS.primary,
+                        borderColor:
+                          theme && darkModeType
+                            ? backgroundColor
+                            : COLORS.primary,
+                      }
+                    : [
+                        styles.pillInactive,
+                        { borderColor: inactiveBorderColor },
+                      ],
                 ]}
                 onPress={() => toggleDate(key)}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.pillText, { color: isActive ? '#fff' : textColor }]}>
-                  {t(`${ns}.${labelKey}`)}
-                </Text>
+                <ThemeText
+                  styles={[
+                    styles.pillText,
+                    { color: isActive ? '#fff' : textColor },
+                  ]}
+                  content={t(`${ns}.${labelKey}`)}
+                />
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <View style={[styles.divider, { borderTopColor: inactiveBorderColor }]} />
+        <View
+          style={[styles.divider, { borderTopColor: inactiveBorderColor }]}
+        />
 
         {/* --- Transaction Type --- */}
-        <ThemeText styles={styles.sectionLabel} content={t(`${ns}.filterTypeTitle`)} />
+        <ThemeText
+          styles={styles.sectionLabel}
+          content={t(`${ns}.filterTypeTitle`)}
+        />
         <View style={styles.pillRow}>
           {TYPE_KEYS.map(type => {
             const isActive = draft.types.includes(type);
@@ -155,15 +221,31 @@ export default function TxFilterHalfModal({
                 style={[
                   styles.pill,
                   isActive
-                    ? styles.pillActive
-                    : [styles.pillInactive, { borderColor: inactiveBorderColor }],
+                    ? {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? backgroundColor
+                            : COLORS.primary,
+                        borderColor:
+                          theme && darkModeType
+                            ? backgroundColor
+                            : COLORS.primary,
+                      }
+                    : [
+                        styles.pillInactive,
+                        { borderColor: inactiveBorderColor },
+                      ],
                 ]}
                 onPress={() => toggleType(type)}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.pillText, { color: isActive ? '#fff' : textColor }]}>
-                  {t(`${ns}.filter${type}`)}
-                </Text>
+                <ThemeText
+                  styles={[
+                    styles.pillText,
+                    { color: isActive ? '#fff' : textColor },
+                  ]}
+                  content={t(`${ns}.filter${type}`)}
+                />
               </TouchableOpacity>
             );
           })}
@@ -174,14 +256,18 @@ export default function TxFilterHalfModal({
 
       {/* --- Sticky bottom bar --- */}
       <View style={[styles.bottomBar, { borderTopColor: inactiveBorderColor }]}>
-        <TouchableOpacity onPress={handleClear} activeOpacity={0.7}>
-          <Text style={[styles.clearText, { color: textColor }]}>
-            {t(`${ns}.filterClearAll`)}
-          </Text>
+        <TouchableOpacity
+          style={{ opacity: hasItemsSeleceted ? 1 : HIDDEN_OPACITY }}
+          onPress={handleClear}
+          activeOpacity={hasItemsSeleceted ? 0.2 : HIDDEN_OPACITY}
+        >
+          <ThemeText content={t(`${ns}.filterClearAll`)} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.applyButton} onPress={handleApply} activeOpacity={0.8}>
-          <Text style={styles.applyText}>{t(`${ns}.filterApply`)}</Text>
-        </TouchableOpacity>
+        <CustomButton
+          buttonStyles={styles.applyButton}
+          actionFunction={handleApply}
+          textContent={t(`${ns}.filterApply`)}
+        />
       </View>
     </View>
   );
@@ -269,14 +355,11 @@ const styles = StyleSheet.create({
   },
   clearText: {
     fontSize: SIZES.medium,
-    textDecorationLine: 'underline',
     includeFontPadding: false,
   },
   applyButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 28,
-    borderRadius: 10,
+    width: '50%',
+    flexShrink: 1,
   },
   applyText: {
     color: '#fff',

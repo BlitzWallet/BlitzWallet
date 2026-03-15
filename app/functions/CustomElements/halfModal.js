@@ -544,6 +544,7 @@ export default function CustomHalfModal(props) {
             currentFilter={props?.route?.params?.currentFilter}
             onSelectFilter={props?.route?.params?.onSelectFilter}
             handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
           />
         );
       default:

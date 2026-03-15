@@ -18,31 +18,9 @@ import { getFilteredTransactions } from '../../functions/spark/transactions';
 import customUUID from '../../functions/customUUID';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import NoContentSceen from '../../functions/CustomElements/noContentScreen';
-import {
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-  WINDOWWIDTH,
-} from '../../constants/theme';
+import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../constants/theme';
 
 const FILTER_DEBOUNCE_MS = 500;
-
-const DATE_LABEL_KEYS = {
-  '7d': 'filterDate7d',
-  '30d': 'filterDate30d',
-  '90d': 'filterDate90d',
-  '1y': 'filterDate1y',
-};
-
-function buildFilterSummary(filter, t) {
-  const ns = 'screens.inAccount.viewAllTxPage';
-  const parts = [
-    filter.directions.includes('sent') ? t(`${ns}.filterSent`) : null,
-    filter.directions.includes('received') ? t(`${ns}.filterReceived`) : null,
-    filter.dateRange ? t(`${ns}.${DATE_LABEL_KEYS[filter.dateRange]}`) : null,
-    ...filter.types.map(type => t(`${ns}.filter${type}`)),
-  ].filter(Boolean);
-  return parts.length > 0 ? parts.join(' · ') : t(`${ns}.filterAll`);
-}
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
@@ -161,7 +139,6 @@ export default function ViewAllTxPage() {
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={styles.contentContainer}>
         <CustomSettingsTopBar
-          containerStyles={{ marginBottom: 0 }}
           showLeftImage={true}
           iconNew="SlidersHorizontal"
           badgeCount={badgeCount}
@@ -178,10 +155,6 @@ export default function ViewAllTxPage() {
               onSelectFilter: filters => handleFilterApply(filters),
             });
           }}
-        />
-        <ThemeText
-          styles={styles.filterName}
-          content={buildFilterSummary(currentFilter, t)}
         />
 
         <View style={{ flex: 1 }}>

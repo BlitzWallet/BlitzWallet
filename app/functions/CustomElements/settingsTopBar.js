@@ -6,7 +6,7 @@ import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from './themeIcon';
-
+import { useGlobalThemeContext } from '../../../context-store/theme';
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -26,6 +26,7 @@ export default function CustomSettingsTopBar({
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
+  const { theme, darkModeType } = useGlobalThemeContext();
 
   return (
     <View style={{ ...styles.topbar, ...containerStyles }}>
@@ -57,13 +58,7 @@ export default function CustomSettingsTopBar({
       />
       {showLeftImage && (
         <View style={{ position: 'absolute', right: 0, zIndex: 1 }}>
-          <TouchableOpacity
-            style={[
-              styles.iconButton,
-              badgeCount > 0 && { borderColor: COLORS.primary },
-            ]}
-            onPress={leftImageFunction}
-          >
+          <TouchableOpacity onPress={leftImageFunction}>
             {iconNew ? (
               <ThemeIcon
                 colorOverride={iconNewColor}
@@ -80,8 +75,36 @@ export default function CustomSettingsTopBar({
             )}
           </TouchableOpacity>
           {badgeCount > 0 && (
-            <View style={styles.badge} pointerEvents="none">
-              <Text style={styles.badgeText}>{badgeCount}</Text>
+            <View
+              style={[
+                styles.badge,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
+                  borderColor:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
+                },
+              ]}
+              pointerEvents="none"
+            >
+              <ThemeText
+                adjustsFontSizeToFit={true}
+                allowFontScaling={true}
+                styles={[
+                  styles.badgeText,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.lightModeText
+                        : COLORS.darkModeText,
+                  },
+                ]}
+                content={badgeCount}
+              />
             </View>
           )}
         </View>
@@ -107,12 +130,7 @@ const styles = StyleSheet.create({
     ...CENTER,
     includeFontPadding: false,
   },
-  iconButton: {
-    padding: 6,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
+
   badge: {
     position: 'absolute',
     top: -4,
@@ -120,15 +138,13 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: COLORS.primary,
     borderWidth: 1.5,
-    borderColor: '#fff',
+
     alignItems: 'center',
     justifyContent: 'center',
   },
   badgeText: {
-    color: '#fff',
-    fontSize: 10,
+    fontSize: SIZES.small,
     fontWeight: 'bold',
     includeFontPadding: false,
   },
