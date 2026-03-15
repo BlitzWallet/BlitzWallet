@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, FONT, ICONS, SIZES } from '../../constants';
+import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from './themeIcon';
@@ -21,6 +21,7 @@ export default function CustomSettingsTopBar({
   customBackColor,
   iconNew = '',
   iconNewColor = undefined,
+  badgeVisible = false,
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
@@ -73,6 +74,19 @@ export default function CustomSettingsTopBar({
               lightsOutIcon={LeftImageDarkMode}
               darkModeIcon={leftImageBlue}
               lightModeIcon={leftImageBlue}
+            />
+          )}
+          {badgeVisible && (
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: COLORS.primary,
+              }}
             />
           )}
         </TouchableOpacity>
