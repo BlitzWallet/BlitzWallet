@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import { useNavigation } from '@react-navigation/native';
@@ -6,6 +6,7 @@ import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from './themeIcon';
+
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -21,10 +22,11 @@ export default function CustomSettingsTopBar({
   customBackColor,
   iconNew = '',
   iconNewColor = undefined,
-  badgeVisible = false,
+  badgeCount = 0,
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
+
   return (
     <View style={{ ...styles.topbar, ...containerStyles }}>
       <TouchableOpacity
@@ -54,42 +56,35 @@ export default function CustomSettingsTopBar({
         }}
       />
       {showLeftImage && (
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            right: 0,
-            zIndex: 1,
-          }}
-          onPress={leftImageFunction}
-        >
-          {iconNew ? (
-            <ThemeIcon
-              colorOverride={iconNewColor}
-              size={leftImageStyles?.height}
-              iconName={iconNew}
-            />
-          ) : (
-            <ThemeImage
-              styles={{ ...leftImageStyles }}
-              lightsOutIcon={LeftImageDarkMode}
-              darkModeIcon={leftImageBlue}
-              lightModeIcon={leftImageBlue}
-            />
+        <View style={[styles.iconWrapper, { position: 'absolute', right: 0, zIndex: 1 }]}>
+          <TouchableOpacity
+            style={[
+              styles.iconButton,
+              badgeCount > 0 && { borderColor: COLORS.primary },
+            ]}
+            onPress={leftImageFunction}
+          >
+            {iconNew ? (
+              <ThemeIcon
+                colorOverride={iconNewColor}
+                size={leftImageStyles?.height}
+                iconName={iconNew}
+              />
+            ) : (
+              <ThemeImage
+                styles={{ ...leftImageStyles }}
+                lightsOutIcon={LeftImageDarkMode}
+                darkModeIcon={leftImageBlue}
+                lightModeIcon={leftImageBlue}
+              />
+            )}
+          </TouchableOpacity>
+          {badgeCount > 0 && (
+            <View style={styles.badge} pointerEvents="none">
+              <Text style={styles.badgeText}>{badgeCount}</Text>
+            </View>
           )}
-          {badgeVisible && (
-            <View
-              style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                backgroundColor: COLORS.primary,
-              }}
-            />
-          )}
-        </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -110,6 +105,32 @@ const styles = StyleSheet.create({
     fontFamily: FONT.Title_Regular,
     textAlign: 'center',
     ...CENTER,
+    includeFontPadding: false,
+  },
+  iconWrapper: {
+    position: 'relative',
+  },
+  iconButton: {
+    padding: 6,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
     includeFontPadding: false,
   },
 });
