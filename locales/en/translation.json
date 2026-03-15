@@ -1928,7 +1928,9 @@
         "filterSavings": "Dollar goals",
         "filterPools": "Pools",
         "noTxHistoryTitle": "No Transaction History",
-        "noTxHistorySub": "Your transactions will appear here once you send or receive one."
+        "noTxHistorySub": "Your transactions will appear here once you send or receive one.",
+        "filterModalTitle": "Filter Transactions",
+        "exportButton": "Export"
       },
       "lrc20HalfModal": {
         "title": "Search Tokens",

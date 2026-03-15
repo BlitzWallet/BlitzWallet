@@ -1927,7 +1927,9 @@
         "filterSavings": "Sparande",
         "filterPools": "Pooler",
         "noTxHistoryTitle": "Ingen transaktionshistorik",
-        "noTxHistorySub": "Dina transaktioner visas här när du skickar eller tar emot en."
+        "noTxHistorySub": "Dina transaktioner visas här när du skickar eller tar emot en.",
+        "filterModalTitle": "Filter Transactions",
+        "exportButton": "Export"
       },
       "lrc20HalfModal": {
         "title": "Söka Tokens",

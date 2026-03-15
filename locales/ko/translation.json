@@ -1673,7 +1673,9 @@
         "senders": "sender's"
       },
       "viewAllTxPage": {
-        "title": "Transactions"
+        "title": "Transactions",
+        "filterModalTitle": "Filter Transactions",
+        "exportButton": "Export"
       },
       "lrc20HalfModal": {
         "title": "Search Tokens",

@@ -1929,7 +1929,9 @@
         "filterSavings": "Sparziele",
         "filterPools": "Sparpools",
         "noTxHistoryTitle": "Keine Transaktionshistorie",
-        "noTxHistorySub": "Ihre Transaktionen erscheinen hier, sobald Sie welche senden oder empfangen."
+        "noTxHistorySub": "Ihre Transaktionen erscheinen hier, sobald Sie welche senden oder empfangen.",
+        "filterModalTitle": "Filter Transactions",
+        "exportButton": "Export"
       },
       "lrc20HalfModal": {
         "title": "Token suchen",

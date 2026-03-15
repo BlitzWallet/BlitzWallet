@@ -1927,7 +1927,9 @@
         "filterSavings": "Épargne",
         "filterPools": "Cagnottes",
         "noTxHistoryTitle": "Aucun historique de transactions",
-        "noTxHistorySub": "Vos transactions apparaîtront ici une fois que vous en aurez envoyé ou reçu une."
+        "noTxHistorySub": "Vos transactions apparaîtront ici une fois que vous en aurez envoyé ou reçu une.",
+        "filterModalTitle": "Filter Transactions",
+        "exportButton": "Export"
       },
       "lrc20HalfModal": {
         "title": "Jetons de recherche",

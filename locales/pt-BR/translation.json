@@ -1927,7 +1927,9 @@
         "filterSavings": "Caixinhas",
         "filterPools": "Vaquinhas",
         "noTxHistoryTitle": "Sem histórico de transações",
-        "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta."
+        "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta.",
+        "filterModalTitle": "Filter Transactions",
+        "exportButton": "Export"
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",

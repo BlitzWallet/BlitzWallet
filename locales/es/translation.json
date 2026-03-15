@@ -1789,7 +1789,9 @@
         "filterSavings": "Ahorros",
         "filterPools": "Fondos",
         "noTxHistoryTitle": "Sin historial de transacciones",
-        "noTxHistorySub": "Tus transacciones aparecerán aquí cuando envíes o recibas una."
+        "noTxHistorySub": "Tus transacciones aparecerán aquí cuando envíes o recibas una.",
+        "filterModalTitle": "Filter Transactions",
+        "exportButton": "Export"
       },
       "lrc20HalfModal": {
         "title": "Buscar tokens",

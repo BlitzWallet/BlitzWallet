@@ -1927,7 +1927,9 @@
         "filterSavings": "Risparmi",
         "filterPools": "Pool",
         "noTxHistoryTitle": "Nessuna cronologia delle transazioni",
-        "noTxHistorySub": "Le tue transazioni appariranno qui una volta che ne invii o ricevi una."
+        "noTxHistorySub": "Le tue transazioni appariranno qui una volta che ne invii o ricevi una.",
+        "filterModalTitle": "Filter Transactions",
+        "exportButton": "Export"
       },
       "lrc20HalfModal": {
         "title": "Cerca Token",
