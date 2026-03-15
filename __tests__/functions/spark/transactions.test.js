@@ -55,18 +55,16 @@ describe('buildFilterQuery', () => {
   });
 
   it('adds date cutoff as absolute ms timestamp for 7d', () => {
-    const before = Date.now();
+    const fixedNow = 1000000000000; // fixed timestamp
     const { query, params } = buildFilterQuery(
       { directions: [], dateRange: '7d', types: [] },
       ACC,
+      fixedNow,
     );
-    const after = Date.now();
     expect(query).toContain("json_extract(details, '$.time') >= ?");
-    // The cutoff param is a large ms timestamp (not a small offset duration)
-    const cutoff = params.find(p => typeof p === 'number' && p > 1_000_000_000_000);
+    const cutoff = params.find(p => typeof p === 'number' && p > 1_000_000_000_000 - 7 * 24 * 60 * 60 * 1001);
     expect(cutoff).toBeDefined();
-    expect(cutoff).toBeGreaterThanOrEqual(before - 7 * 24 * 60 * 60 * 1000);
-    expect(cutoff).toBeLessThanOrEqual(after - 7 * 24 * 60 * 60 * 1000 + 100);
+    expect(cutoff).toBe(fixedNow - 7 * 24 * 60 * 60 * 1000);
   });
 
   it('adds Lightning type as paymentType condition', () => {
@@ -111,16 +109,15 @@ describe('buildFilterQuery', () => {
   });
 
   it('adds 1y date cutoff as absolute ms timestamp', () => {
-    const before = Date.now();
+    const fixedNow = 1000000000000;
     const { params } = buildFilterQuery(
       { directions: [], dateRange: '1y', types: [] },
       ACC,
+      fixedNow,
     );
-    const after = Date.now();
-    const cutoff = params.find(p => typeof p === 'number' && p > 1_000_000_000_000);
+    const cutoff = params.find(p => typeof p === 'number' && p > 1_000_000_000_000 - 365 * 24 * 60 * 60 * 1001);
     expect(cutoff).toBeDefined();
-    expect(cutoff).toBeGreaterThanOrEqual(before - 365 * 24 * 60 * 60 * 1000);
-    expect(cutoff).toBeLessThanOrEqual(after - 365 * 24 * 60 * 60 * 1000 + 100);
+    expect(cutoff).toBe(fixedNow - 365 * 24 * 60 * 60 * 1000);
   });
 
   it('Swaps type generates clause with showSwapLabel and isLRC20Payment conditions', () => {

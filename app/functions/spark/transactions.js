@@ -139,20 +139,20 @@ const DATE_OFFSETS = {
 };
 
 const TYPE_SQL = {
-  Lightning: { clause: `paymentType = ?`, params: () => ['lightning'] },
-  Bitcoin: { clause: `paymentType = ?`, params: () => ['bitcoin'] },
-  Spark: { clause: `paymentType = ?`, params: () => ['spark'] },
+  Lightning: { clause: `paymentType = ?`, params: ['lightning'] },
+  Bitcoin: { clause: `paymentType = ?`, params: ['bitcoin'] },
+  Spark: { clause: `paymentType = ?`, params: ['spark'] },
   Contacts: {
     clause: `json_type(details, '$.sendingUUID') = 'text' AND TRIM(json_extract(details, '$.sendingUUID')) != ''`,
-    params: () => [],
+    params: [],
   },
-  Gifts: { clause: `json_extract(details, '$.isGift') = 1`, params: () => [] },
+  Gifts: { clause: `json_extract(details, '$.isGift') = 1`, params: [] },
   Swaps: {
     clause: `(json_extract(details, '$.showSwapLabel') = 1 OR (json_extract(details, '$.isLRC20Payment') = 1 AND json_extract(details, '$.direction') = 'OUTGOING' AND paymentType IN ('lightning', 'bitcoin')))`,
-    params: () => [],
+    params: [],
   },
-  Savings: { clause: `json_extract(details, '$.isSavings') = 1`, params: () => [] },
-  Pools: { clause: `json_extract(details, '$.isPoolPayment') = 1`, params: () => [] },
+  Savings: { clause: `json_extract(details, '$.isSavings') = 1`, params: [] },
+  Pools: { clause: `json_extract(details, '$.isPoolPayment') = 1`, params: [] },
 };
 
 /**
@@ -163,7 +163,7 @@ const TYPE_SQL = {
  * @param {string} accountId
  * @returns {{ query: string, params: Array }}
  */
-export function buildFilterQuery(filters, accountId) {
+export function buildFilterQuery(filters, accountId, now = Date.now()) {
   const { directions = [], dateRange = null, types = [] } = filters;
   const conditions = [`accountId = ?`];
   const params = [String(accountId)];
@@ -181,7 +181,7 @@ export function buildFilterQuery(filters, accountId) {
 
   if (dateRange && DATE_OFFSETS[dateRange]) {
     conditions.push(`json_extract(details, '$.time') >= ?`);
-    params.push(Date.now() - DATE_OFFSETS[dateRange]);
+    params.push(now - DATE_OFFSETS[dateRange]);
   }
 
   if (types.length > 0) {
@@ -190,7 +190,9 @@ export function buildFilterQuery(filters, accountId) {
       const expr = TYPE_SQL[type];
       if (expr) {
         typeClauses.push(`(${expr.clause})`);
-        params.push(...expr.params());
+        params.push(...expr.params);
+      } else {
+        console.warn(`buildFilterQuery: unknown type "${type}", ignoring`);
       }
     }
     if (typeClauses.length > 0) {
@@ -228,7 +230,7 @@ export const getFilteredTransactions = async (filters, options = {}) => {
     const result = await sqlLiteDB.getAllAsync(query, params);
     return result || [];
   } catch (error) {
-    console.error('Error in getFilteredTransactions:', error);
+    console.error('Error in getFilteredTransactions:', JSON.stringify(filters), error);
     return [];
   }
 };
