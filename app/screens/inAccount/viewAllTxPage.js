@@ -195,7 +195,13 @@ export default function ViewAllTxPage() {
         }}
       >
         <View style={styles.paddingContainer}>
-          <ThemeIcon iconName="Share" size={18} />
+          <ThemeIcon
+            colorOverride={
+              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            }
+            iconName="Share"
+            size={18}
+          />
           <ThemeText
             styles={styles.exportButtonText}
             content={t('screens.inAccount.viewAllTxPage.exportButton')}
@@ -237,5 +243,6 @@ const styles = StyleSheet.create({
   exportButtonText: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
+    color: COLORS.lightModeText,
   },
 });

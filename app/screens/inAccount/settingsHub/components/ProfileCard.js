@@ -49,6 +49,7 @@ export default function ProfileCard({
     edit: null,
     qr: null,
   });
+  const [infoMessageHeight, setInfoMessageHeight] = useState(0);
 
   useEffect(() => {
     setShouldStackButtons(false);
@@ -82,10 +83,30 @@ export default function ProfileCard({
     );
   }, []);
 
+  console.log(infoMessageHeight, 'info message height');
+
   return (
     <View
       style={[styles.profileContainer, { borderBottomColor: backgroundOffset }]}
     >
+      {/* Hidden text to make sure content doesn't reformat */}
+      <ThemeText
+        onLayout={e => {
+          console.log(e.nativeEvent.layout.height, 'testing');
+          if (e.nativeEvent.layout.height)
+            setInfoMessageHeight(e.nativeEvent.layout.height + 25);
+        }}
+        styles={[
+          styles.identiconMessage,
+          {
+            position: 'absolute',
+            zIndex: -1,
+            opacity: 0,
+            pointerEvents: 'none',
+          },
+        ]}
+        content={t('settings.index.identiconMessage')}
+      />
       <ContactRingAvatar
         contactUUID={masterInfoObject.uuid}
         size={125}
@@ -109,7 +130,14 @@ export default function ProfileCard({
         </View>
       </ContactRingAvatar>
 
-      <Animated.View style={{ alignItems: 'center', opacity: fadeAnim }}>
+      <Animated.View
+        style={{
+          marginTop: 10,
+          alignItems: 'center',
+          opacity: fadeAnim,
+          minHeight: infoMessageHeight,
+        }}
+      >
         {isIdenticonShown ? (
           <ThemeText
             styles={styles.identiconMessage}
@@ -300,7 +328,6 @@ const styles = StyleSheet.create({
   identiconMessage: {
     textAlign: 'center',
     opacity: 0.7,
-    paddingHorizontal: 20,
     marginBottom: 20,
     fontSize: SIZES.smedium,
   },
