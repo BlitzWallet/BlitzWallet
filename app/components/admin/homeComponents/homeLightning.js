@@ -617,10 +617,13 @@ export default function HomeLightning({ navigation }) {
         <View
           style={[
             styles.txListContainer,
-            { backgroundColor: backgroundOffset },
+            {
+              backgroundColor: backgroundOffset,
+              paddingTop: flatListDataForSpark.length > 1 ? 5 : 15,
+            },
           ]}
         >
-          {flatListDataForSpark.length > 0 && (
+          {flatListDataForSpark.length > 1 && (
             <View style={styles.sectionHeader}>
               <ThemeText
                 content={t('wallet.homeLightning.home.activity')}
