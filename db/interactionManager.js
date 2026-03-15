@@ -8,7 +8,7 @@ const PRESET_LOCAL_DATA = {
   userFaceIDPereferance: false,
   fiatCurrenciesList: [],
   failedTransactions: [],
-  satDisplay: 'word',
+  satDisplay: 'symbol',
   enabledEcash: false,
   hideUnknownContacts: false,
   useTrampoline: true,
