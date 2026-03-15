@@ -68,6 +68,7 @@ import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/
 import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
+import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -534,6 +535,14 @@ export default function CustomHalfModal(props) {
         return (
           <SwapFlowHalfModal
             setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'txFilter':
+        return (
+          <TxFilterHalfModal
+            currentFilter={props?.route?.params?.currentFilter}
+            onSelectFilter={props?.route?.params?.onSelectFilter}
             handleBackPressFunction={handleBackPressFunction}
           />
         );
