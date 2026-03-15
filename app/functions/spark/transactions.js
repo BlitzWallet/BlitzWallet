@@ -131,109 +131,104 @@ export const getAllSparkTransactions = async (options = {}) => {
   }
 };
 
+const DATE_OFFSETS = {
+  '7d': 7 * 24 * 60 * 60 * 1000,
+  '30d': 30 * 24 * 60 * 60 * 1000,
+  '90d': 90 * 24 * 60 * 60 * 1000,
+  '1y': 365 * 24 * 60 * 60 * 1000,
+};
+
+const TYPE_SQL = {
+  Lightning: { clause: `paymentType = ?`, params: () => ['lightning'] },
+  Bitcoin: { clause: `paymentType = ?`, params: () => ['bitcoin'] },
+  Spark: { clause: `paymentType = ?`, params: () => ['spark'] },
+  Contacts: {
+    clause: `json_type(details, '$.sendingUUID') = 'text' AND TRIM(json_extract(details, '$.sendingUUID')) != ''`,
+    params: () => [],
+  },
+  Gifts: { clause: `json_extract(details, '$.isGift') = 1`, params: () => [] },
+  Swaps: {
+    clause: `(json_extract(details, '$.showSwapLabel') = 1 OR (json_extract(details, '$.isLRC20Payment') = 1 AND json_extract(details, '$.direction') = 'OUTGOING' AND paymentType IN ('lightning', 'bitcoin')))`,
+    params: () => [],
+  },
+  Savings: { clause: `json_extract(details, '$.isSavings') = 1`, params: () => [] },
+  Pools: { clause: `json_extract(details, '$.isPoolPayment') = 1`, params: () => [] },
+};
+
 /**
- * Fetch transactions matching a named filter.
+ * Pure function — builds a SQLite SELECT query and params array from a filter
+ * object. No DB access; safe to unit-test.
  *
- * @param {'All'|'Lightning'|'Bitcoin'|'Spark'|'Contacts'|'Gifts'|'Swaps'|'Savings'} filterType
+ * @param {{ directions: string[], dateRange: string|null, types: string[] }} filters
+ * @param {string} accountId
+ * @returns {{ query: string, params: Array }}
+ */
+export function buildFilterQuery(filters, accountId) {
+  const { directions = [], dateRange = null, types = [] } = filters;
+  const conditions = [`accountId = ?`];
+  const params = [String(accountId)];
+
+  if (directions.length > 0) {
+    const dirMap = { sent: 'OUTGOING', received: 'INCOMING' };
+    const dirValues = directions.map(d => dirMap[d]).filter(Boolean);
+    if (dirValues.length > 0) {
+      conditions.push(
+        `json_extract(details, '$.direction') IN (${dirValues.map(() => '?').join(',')})`,
+      );
+      params.push(...dirValues);
+    }
+  }
+
+  if (dateRange && DATE_OFFSETS[dateRange]) {
+    conditions.push(`json_extract(details, '$.time') >= ?`);
+    params.push(Date.now() - DATE_OFFSETS[dateRange]);
+  }
+
+  if (types.length > 0) {
+    const typeClauses = [];
+    for (const type of types) {
+      const expr = TYPE_SQL[type];
+      if (expr) {
+        typeClauses.push(`(${expr.clause})`);
+        params.push(...expr.params());
+      }
+    }
+    if (typeClauses.length > 0) {
+      conditions.push(`(${typeClauses.join(' OR ')})`);
+    }
+  }
+
+  const query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+    WHERE ${conditions.join(' AND ')}
+    ORDER BY json_extract(details, '$.time') DESC`;
+
+  return { query, params };
+}
+
+/**
+ * Fetch transactions matching a combinable filter object.
+ *
+ * @param {{ directions: string[], dateRange: string|null, types: string[] }} filters
  * @param {{ accountId: string }} options
  * @returns {Promise<Object[]>}
  */
-export const getFilteredTransactions = async (filterType, options = {}) => {
+export const getFilteredTransactions = async (filters, options = {}) => {
   const { accountId } = options;
+  const { directions = [], dateRange = null, types = [] } = filters;
+  const hasActiveFilters =
+    directions.length > 0 || dateRange !== null || types.length > 0;
 
-  if (filterType === 'All') {
+  if (!hasActiveFilters) {
     return getAllSparkTransactions({ accountId });
   }
 
   try {
     await ensureSparkDatabaseReady();
-
-    let query;
-    let params;
-
-    switch (filterType) {
-      case 'Lightning':
-        query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE paymentType = ? AND accountId = ?
-          ORDER BY json_extract(details, '$.time') DESC`;
-        params = ['lightning', accountId];
-        break;
-
-      case 'Bitcoin':
-        query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE paymentType = ? AND accountId = ?
-          ORDER BY json_extract(details, '$.time') DESC`;
-        params = ['bitcoin', accountId];
-        break;
-
-      case 'Spark':
-        query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE paymentType = ? AND accountId = ?
-          ORDER BY json_extract(details, '$.time') DESC`;
-        params = ['spark', accountId];
-        break;
-
-      case 'Contacts':
-        query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE accountId = ?
-            AND json_type(details, '$.sendingUUID') = 'text'
-            AND TRIM(json_extract(details, '$.sendingUUID')) != ''
-          ORDER BY json_extract(details, '$.time') DESC`;
-        params = [accountId];
-        break;
-
-      case 'Gifts':
-        query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE json_extract(details, '$.isGift') = 1
-            AND accountId = ?
-          ORDER BY json_extract(details, '$.time') DESC`;
-        params = [accountId];
-        break;
-
-      case 'Swaps':
-        // Covers three directions:
-        //  - INCOMING: LN→USDB or BTC→USDB (showSwapLabel=1)
-        //  - OUTGOING: USDB→LN or USDB→BTC (isLRC20Payment + lightning/bitcoin rails)
-        query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE accountId = ? AND (
-            json_extract(details, '$.showSwapLabel') = 1
-            OR (
-              json_extract(details, '$.isLRC20Payment') = 1
-              AND json_extract(details, '$.direction') = 'OUTGOING'
-              AND paymentType IN ('lightning', 'bitcoin')
-            )
-          )
-          ORDER BY json_extract(details, '$.time') DESC`;
-        params = [accountId];
-        break;
-
-      case 'Savings':
-        query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE json_extract(details, '$.isSavings') = 1
-            AND accountId = ?
-          ORDER BY json_extract(details, '$.time') DESC`;
-        params = [accountId];
-        break;
-
-      case 'Pools':
-        query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
-          WHERE json_extract(details, '$.isPoolPayment') = 1
-            AND accountId = ?
-          ORDER BY json_extract(details, '$.time') DESC`;
-        params = [accountId];
-        break;
-
-      default:
-        console.warn(
-          `getFilteredTransactions: unknown filterType "${filterType}", returning all`,
-        );
-        return getAllSparkTransactions({ accountId });
-    }
-
+    const { query, params } = buildFilterQuery(filters, accountId);
     const result = await sqlLiteDB.getAllAsync(query, params);
     return result || [];
   } catch (error) {
-    console.error(`Error in getFilteredTransactions (${filterType}):`, error);
+    console.error('Error in getFilteredTransactions:', error);
     return [];
   }
 };
