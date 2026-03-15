@@ -19,6 +19,11 @@ const DATE_OPTIONS = [
   { key: '1y', labelKey: 'filterDate1y' },
 ];
 
+const DIRECTION_OPTIONS = [
+  { dir: 'sent', icon: 'ArrowUp', labelKey: 'filterSent' },
+  { dir: 'received', icon: 'ArrowDown', labelKey: 'filterReceived' },
+];
+
 export default function TxFilterHalfModal({
   currentFilter,
   onSelectFilter,
@@ -58,7 +63,7 @@ export default function TxFilterHalfModal({
     setDraft(prev => ({
       ...prev,
       types: prev.types.includes(type)
-        ? prev.types.filter(t => t !== type)
+        ? prev.types.filter(existingType => existingType !== type)
         : [...prev.types, type],
     }));
   };
@@ -79,14 +84,11 @@ export default function TxFilterHalfModal({
     <View style={styles.container}>
       <ThemeText styles={styles.title} content={t(`${ns}.filterModalTitle`)} />
 
-      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
         {/* --- Direction --- */}
         <ThemeText styles={styles.sectionLabel} content={t(`${ns}.filterDirectionTitle`)} />
         <View style={styles.directionRow}>
-          {[
-            { dir: 'sent', icon: 'ArrowUp', labelKey: 'filterSent' },
-            { dir: 'received', icon: 'ArrowDown', labelKey: 'filterReceived' },
-          ].map(({ dir, icon, labelKey }) => {
+          {DIRECTION_OPTIONS.map(({ dir, icon, labelKey }) => {
             const isActive = draft.directions.includes(dir);
             return (
               <TouchableOpacity
@@ -191,6 +193,9 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
+  scrollView: {
+    flex: 1,
+  },
   title: {
     fontSize: SIZES.large,
     textAlign: 'center',
@@ -224,9 +229,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  cardInactive: {
-    borderWidth: 1.5,
-  },
+  cardInactive: {},
   directionLabel: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
@@ -252,9 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  pillInactive: {
-    borderWidth: 1.5,
-  },
+  pillInactive: {},
   pillText: {
     fontSize: SIZES.smedium,
     includeFontPadding: false,
