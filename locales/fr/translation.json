@@ -1929,7 +1929,18 @@
         "noTxHistoryTitle": "Aucun historique de transactions",
         "noTxHistorySub": "Vos transactions apparaîtront ici une fois que vous en aurez envoyé ou reçu une.",
         "filterModalTitle": "Filter Transactions",
-        "exportButton": "Export"
+        "exportButton": "Export",
+        "filterDirectionTitle": "Direction",
+        "filterSent": "Sent",
+        "filterReceived": "Received",
+        "filterDateTitle": "Date Range",
+        "filterDate7d": "Last 7 days",
+        "filterDate30d": "Last 30 days",
+        "filterDate90d": "Last 90 days",
+        "filterDate1y": "Last 12 months",
+        "filterTypeTitle": "Transaction Type",
+        "filterApply": "Apply Filters",
+        "filterClearAll": "Clear All"
       },
       "lrc20HalfModal": {
         "title": "Jetons de recherche",
