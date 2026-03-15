@@ -18,7 +18,13 @@ import { getFilteredTransactions } from '../../functions/spark/transactions';
 import customUUID from '../../functions/customUUID';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import NoContentSceen from '../../functions/CustomElements/noContentScreen';
-import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../constants/theme';
+import CustomButton from '../../functions/CustomElements/button';
 
 const FILTER_DEBOUNCE_MS = 500;
 
@@ -175,18 +181,12 @@ export default function ViewAllTxPage() {
               showsVerticalScrollIndicator={false}
               data={txs}
               renderItem={({ item }) => item?.item}
-              ListFooterComponent={
-                <View style={{ width: '100%', height: 8 }} />
-              }
             />
           )}
         </View>
       </View>
       <TouchableOpacity
-        style={[
-          styles.exportButton,
-          { backgroundColor: backgroundOffset, paddingBottom: bottomPadding },
-        ]}
+        style={styles.exportButton}
         onPress={() => {
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'exportTransactions',
@@ -194,17 +194,19 @@ export default function ViewAllTxPage() {
           });
         }}
       >
-        <ThemeIcon iconName="Share" size={18} />
-        <ThemeText
-          styles={styles.exportButtonText}
-          content={t('screens.inAccount.viewAllTxPage.exportButton')}
-        />
+        <View style={styles.paddingContainer}>
+          <ThemeIcon iconName="Share" size={18} />
+          <ThemeText
+            styles={styles.exportButtonText}
+            content={t('screens.inAccount.viewAllTxPage.exportButton')}
+          />
+        </View>
       </TouchableOpacity>
     </GlobalThemeView>
   );
 }
 const styles = StyleSheet.create({
-  globalContainer: { paddingBottom: 0, width: '100%' },
+  globalContainer: { width: '100%' },
   contentContainer: {
     width: WINDOWWIDTH,
     flex: 1,
@@ -216,12 +218,21 @@ const styles = StyleSheet.create({
     marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   exportButton: {
-    width: '100%',
+    minHeight: 50,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
+    borderRadius: 12,
+    backgroundColor: COLORS.darkModeText,
+  },
+  paddingContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 8,
-    paddingTop: 14,
   },
   exportButtonText: {
     fontSize: SIZES.medium,

@@ -81,7 +81,7 @@ function BoxGrid({ W, H }) {
           height={BOX}
           fill={COLORS.lightModeBackground}
           stroke={BOX_STROKE}
-          strokeWidth={0.8}
+          strokeWidth={1}
         />
       ))}
 
