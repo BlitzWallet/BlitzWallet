@@ -56,7 +56,7 @@ export default function CustomSettingsTopBar({
         }}
       />
       {showLeftImage && (
-        <View style={[styles.iconWrapper, { position: 'absolute', right: 0, zIndex: 1 }]}>
+        <View style={{ position: 'absolute', right: 0, zIndex: 1 }}>
           <TouchableOpacity
             style={[
               styles.iconButton,
@@ -107,9 +107,6 @@ const styles = StyleSheet.create({
     ...CENTER,
     includeFontPadding: false,
   },
-  iconWrapper: {
-    position: 'relative',
-  },
   iconButton: {
     padding: 6,
     borderRadius: 20,
@@ -124,6 +121,8 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     backgroundColor: COLORS.primary,
+    borderWidth: 1.5,
+    borderColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
