@@ -1,11 +1,12 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, FONT, ICONS, SIZES } from '../../constants';
+import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from './themeIcon';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -21,9 +22,12 @@ export default function CustomSettingsTopBar({
   customBackColor,
   iconNew = '',
   iconNewColor = undefined,
+  badgeCount = 0,
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+
   return (
     <View style={{ ...styles.topbar, ...containerStyles }}>
       <TouchableOpacity
@@ -53,29 +57,57 @@ export default function CustomSettingsTopBar({
         }}
       />
       {showLeftImage && (
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            right: 0,
-            zIndex: 1,
-          }}
-          onPress={leftImageFunction}
-        >
-          {iconNew ? (
-            <ThemeIcon
-              colorOverride={iconNewColor}
-              size={leftImageStyles?.height}
-              iconName={iconNew}
-            />
-          ) : (
-            <ThemeImage
-              styles={{ ...leftImageStyles }}
-              lightsOutIcon={LeftImageDarkMode}
-              darkModeIcon={leftImageBlue}
-              lightModeIcon={leftImageBlue}
-            />
+        <View style={{ position: 'absolute', right: 0, zIndex: 1 }}>
+          <TouchableOpacity onPress={leftImageFunction}>
+            {iconNew ? (
+              <ThemeIcon
+                colorOverride={iconNewColor}
+                size={leftImageStyles?.height}
+                iconName={iconNew}
+              />
+            ) : (
+              <ThemeImage
+                styles={{ ...leftImageStyles }}
+                lightsOutIcon={LeftImageDarkMode}
+                darkModeIcon={leftImageBlue}
+                lightModeIcon={leftImageBlue}
+              />
+            )}
+          </TouchableOpacity>
+          {badgeCount > 0 && (
+            <View
+              style={[
+                styles.badge,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
+                  borderColor:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
+                },
+              ]}
+              pointerEvents="none"
+            >
+              <ThemeText
+                adjustsFontSizeToFit={true}
+                allowFontScaling={true}
+                styles={[
+                  styles.badgeText,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.lightModeText
+                        : COLORS.darkModeText,
+                  },
+                ]}
+                content={badgeCount}
+              />
+            </View>
           )}
-        </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -96,6 +128,24 @@ const styles = StyleSheet.create({
     fontFamily: FONT.Title_Regular,
     textAlign: 'center',
     ...CENTER,
+    includeFontPadding: false,
+  },
+
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1.5,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    fontSize: SIZES.small,
+    fontWeight: 'bold',
     includeFontPadding: false,
   },
 });

@@ -133,7 +133,10 @@ const styles = StyleSheet.create({
   },
   textInput: {
     fontSize: SIZES.medium,
-    padding: 10,
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingLeft: 10,
+    paddingRight: 10,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
     borderRadius: 8,

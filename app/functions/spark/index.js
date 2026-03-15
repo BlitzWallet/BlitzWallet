@@ -534,6 +534,14 @@ export const claimnSparkStaticDepositAddress = async ({
 
 export const getSparkAddress = async mnemonic => {
   try {
+    const derivedIdentityPubKey = await deriveSparkIdentityKey(mnemonic, 1);
+    const derivedSparkAddress = deriveSparkAddress(
+      derivedIdentityPubKey.publicKey,
+    );
+    if (derivedSparkAddress.address) {
+      return { didWork: true, response: derivedSparkAddress.address };
+    }
+
     const runtime = await selectSparkRuntime(mnemonic);
 
     if (runtime === 'webview') {

@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 import GiftCardItem from './giftCardItem';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 export default function GiftsOverview() {
   const navigate = useNavigation();
@@ -84,17 +84,14 @@ export default function GiftsOverview() {
           showsVerticalScrollIndicator={false}
         />
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          <IconActionCircle bottomOffset={32} icon={'Gift'} />
-          <ThemeText
-            styles={styles.title}
-            content={t('screens.inAccount.giftPages.giftsOverview.noGiftsHead')}
-          />
-          <ThemeText
-            styles={styles.noGiftsDesc}
-            content={t('screens.inAccount.giftPages.giftsOverview.noGiftsDesc')}
-          />
-        </ScrollView>
+        <NoContentSceen
+          containerStyles={{ width: '100%' }}
+          iconName="Gift"
+          titleText={t('screens.inAccount.giftPages.giftsOverview.noGiftsHead')}
+          subTitleText={t(
+            'screens.inAccount.giftPages.giftsOverview.noGiftsDesc',
+          )}
+        />
       )}
 
       <View style={styles.buttonGroup}>
@@ -125,7 +122,7 @@ export default function GiftsOverview() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, width: WINDOWWIDTH, alignSelf: 'center' },
+  container: { flex: 1, width: INSET_WINDOW_WIDTH, alignSelf: 'center' },
   flatlistStyle: { paddingTop: 0 },
   flatListContent: { flexGrow: 1, paddingTop: 20 },
   scrollView: {

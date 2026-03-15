@@ -286,6 +286,7 @@
     }
   },
   "apps": {
+    "noPurchaseTitle": "Inga Köp",
     "appList": {
       "AI": "AI",
       "AIDescription": "Chatta med de senaste generativa Ai-modellerna",
@@ -755,7 +756,7 @@
       "historicalPurchasesPage": {
         "confirmRemoval": "Är du säker att du vill ta bort det här presentkortet?",
         "purchased": "Köpte:",
-        "noPurchases": "Du har inga presentkortsköp",
+        "noPurchases": "Du har inte köpt några presentkort ännu. När du gör det visas de här.",
         "customCopyMessage": "Support e-post kopierad"
       }
     },
@@ -799,7 +800,8 @@
         "refundedOrder": "Ordern har återbetalats, pengarna kommer automatiskt tillbaka till din plånbok efter 21 minuter",
         "reclaimComplete": "Rety komplett. Om ingen kod genereras kommer du att få en automatisk återbetalning efter 21 minuter.",
         "noCode": "Ingen kod",
-        "rateLimitError": "För många förfrågningar. Du kan bara göra 5 förfrågningar var 30:e sekund. Vänligen vänta innan du försöker igen."
+        "rateLimitError": "För många förfrågningar. Du kan bara göra 5 förfrågningar var 30:e sekund. Vänligen vänta innan du försöker igen.",
+        "noPurchasesTitle": "Du har ännu inte skickat eller tagit emot några SMS-meddelanden. När du gör det visas de här."
       },
       "receivePage": {
         "paymentMemo": "Butik - SMS-mottagning",
@@ -943,7 +945,9 @@
         "howStep2": "• Dela poolens länk så att andra kan hitta den",
         "howStep3": "• Bidragsgivare skickar Bitcoin direkt till poolen",
         "howStep4": "• Stäng poolen när du är redo att flytta medlen till din wallet"
-      }
+      },
+      "noPoolsTitle": "Inga skapade pooler",
+      "noPoolsSubTitle": "När du skapar en pool visas den här som aktiv eller inaktiv."
     },
     "manualInputPage": {
       "inputPlaceholder": "Ange eller klistra in en Liquid- eller Lightning-adress/faktura"
@@ -1261,6 +1265,7 @@
     "index": {
       "editProfile": "Redigera profil",
       "showQR": "Visa QR",
+      "identiconMessage": "Den här designen är unik för din plånbok och hjälper andra att bekräfta att det verkligen är du när de lägger till din kontakt.",
       "profileHead": "Profil",
       "settingsHead": "Inställningar",
       "seedPopup": "En seed phrase är en lista med ord som gör att du kan återställa dina Bitcoin om din enhet försvinner eller skadas. Skriv ner den och förvara den på ett säkert sätt. Ge den aldrig till någon - om någon får tag på den kan de ta alla dina bitcoin."
@@ -1729,7 +1734,9 @@
         "title": "Tips för att betala",
         "empNamePlaceholder": "Anställdas namn",
         "noEmployees": "Du har för närvarande inga anställda med sparade dricks. När en anställd använder kassasystemet kommer deras dricks att visas här så att du kan betala ut dem.",
-        "noTips": "Medarbetaren har inga tips"
+        "noTips": "Medarbetaren har inga tips",
+        "noEmployeeTitle": "Inga dricks att betala",
+        "noEmployeeSubTitle": "Du har inga dricks att betala ännu. När en anställd får ett dricks visas det här."
       },
       "items": {
         "addItemHalfModal": {
@@ -1751,7 +1758,9 @@
           "itemSearchPlaceholder": "Artikelns namn...",
           "noItemsSearch": "Inga objekt motsvarar din sökning.",
           "noItemsAdded": "Lägg till ett objekt för att det ska visas här.",
-          "ctaBTN": "Lägg till artikel"
+          "ctaBTN": "Lägg till artikel",
+          "noPosTitle": "Inga POS-artiklar",
+          "noPosSub": "Du har inga sparade POS-artiklar ännu. När du sparar en visas den här."
         }
       },
       "internalComponents": {
@@ -1918,7 +1927,20 @@
         "filterSavings": "Sparande",
         "filterPools": "Pooler",
         "noTxHistoryTitle": "Ingen transaktionshistorik",
-        "noTxHistorySub": "Dina transaktioner visas här när du skickar eller tar emot en."
+        "noTxHistorySub": "Dina transaktioner visas här när du skickar eller tar emot en.",
+        "filterModalTitle": "Filtrera transaktioner",
+        "exportButton": "Exportera",
+        "filterDirectionTitle": "Riktning",
+        "filterSent": "Skickat",
+        "filterReceived": "Mottaget",
+        "filterDateTitle": "Datumintervall",
+        "filterDate7d": "Senaste 7 dagarna",
+        "filterDate30d": "Senaste 30 dagarna",
+        "filterDate90d": "Senaste 90 dagarna",
+        "filterDate1y": "Senaste 12 månaderna",
+        "filterTypeTitle": "Transaktionstyp",
+        "filterApply": "Använd filter",
+        "filterClearAll": "Rensa alla"
       },
       "lrc20HalfModal": {
         "title": "Söka Tokens",

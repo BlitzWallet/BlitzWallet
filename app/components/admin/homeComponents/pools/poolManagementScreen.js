@@ -10,6 +10,7 @@ import PoolCard from './poolCard';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useTranslation } from 'react-i18next';
 import PoolsInfoCard from './poolsInfoCard';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 export default function PoolManagementScreen() {
   const navigate = useNavigation();
@@ -69,12 +70,11 @@ export default function PoolManagementScreen() {
   );
 
   const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <ThemeText
-        styles={styles.emptyText}
-        content={t('wallet.pools.noPoolsCreated')}
-      />
-    </View>
+    <NoContentSceen
+      iconName="PiggyBank"
+      titleText={t('wallet.pools.noPoolsTitle')}
+      subTitleText={t('wallet.pools.noPoolsSubTitle')}
+    />
   );
 
   // Build data array based on what exists

@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../../../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
+import ContactRingAvatar from '../../../../components/admin/homeComponents/contacts/internalComponents/contactsRingAvatar';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 export default function ProfileCard({
   profileImage,
@@ -15,11 +17,32 @@ export default function ProfileCard({
   onShowQRPress,
   onCopyUsername,
 }) {
+  const { masterInfoObject } = useGlobalContextProvider();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const editProfileLabel = t('settings.index.editProfile');
   const showQrLabel = t('settings.index.showQR');
+  const [isIdenticonShown, setIsIdenticonShown] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  const handleToggle = useCallback(
+    isShown => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start(() => {
+        setIsIdenticonShown(isShown);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
+      });
+    },
+    [fadeAnim],
+  );
   const [buttonContainerWidth, setButtonContainerWidth] = useState(0);
   const [shouldStackButtons, setShouldStackButtons] = useState(false);
   const [hasWrapped, setHasWrapped] = useState({
@@ -63,34 +86,52 @@ export default function ProfileCard({
     <View
       style={[styles.profileContainer, { borderBottomColor: backgroundOffset }]}
     >
-      <View
-        style={[
-          styles.profileImage,
-          {
-            backgroundColor: backgroundOffset,
-          },
-        ]}
+      <ContactRingAvatar
+        contactUUID={masterInfoObject.uuid}
+        size={125}
+        theme={theme}
+        onToggle={handleToggle}
       >
-        <ContactProfileImage
-          updated={profileImage?.updated}
-          uri={profileImage?.localUri}
-          darkModeType={darkModeType}
-          theme={theme}
-        />
-      </View>
+        <View
+          style={[
+            styles.profileImage,
+            {
+              backgroundColor: backgroundOffset,
+            },
+          ]}
+        >
+          <ContactProfileImage
+            updated={profileImage?.updated}
+            uri={profileImage?.localUri}
+            darkModeType={darkModeType}
+            theme={theme}
+          />
+        </View>
+      </ContactRingAvatar>
 
-      <ThemeText
-        CustomNumberOfLines={1}
-        styles={{ opacity: name ? 0.5 : 0.8 }}
-        content={name || t('constants.annonName')}
-      />
-      <TouchableOpacity onPress={onCopyUsername}>
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.profileUniqueName}
-          content={`@${uniqueName}`}
-        />
-      </TouchableOpacity>
+      <Animated.View style={{ alignItems: 'center', opacity: fadeAnim }}>
+        {isIdenticonShown ? (
+          <ThemeText
+            styles={styles.identiconMessage}
+            content={t('settings.index.identiconMessage')}
+          />
+        ) : (
+          <>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={{ opacity: name ? 0.5 : 0.8 }}
+              content={name || t('constants.annonName')}
+            />
+            <TouchableOpacity onPress={onCopyUsername}>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.profileUniqueName}
+                content={`@${uniqueName}`}
+              />
+            </TouchableOpacity>
+          </>
+        )}
+      </Animated.View>
 
       <View
         onLayout={handleButtonContainerLayout}
@@ -225,15 +266,15 @@ const styles = StyleSheet.create({
   },
   buttonImage: { width: 20, height: 20, marginRight: 15 },
   profileImage: {
-    width: 125,
-    height: 125,
+    width: '100%',
+    height: '100%',
     borderRadius: 125,
     backgroundColor: 'red',
     ...CENTER,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 15,
-    marginTop: 20,
+    // marginBottom: 15,
+    // marginTop: 20,
     overflow: 'hidden',
   },
   selectFromPhotos: {
@@ -256,4 +297,11 @@ const styles = StyleSheet.create({
     // borderBottomWidth: 2,
   },
   profileUniqueName: { marginBottom: 20 },
+  identiconMessage: {
+    textAlign: 'center',
+    opacity: 0.7,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    fontSize: SIZES.smedium,
+  },
 });

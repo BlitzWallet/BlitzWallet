@@ -22,6 +22,7 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 
 const API_ENDPOINTS = {
   ORDER_STATUS: 'https://api2.sms4sats.com/orderstatus',
@@ -329,6 +330,23 @@ export default function HistoricalSMSMessagingPage({ route }) {
     copyToClipboard('support@sms4sats.com', showToast);
   }, [showToast]);
 
+  if (!messageElements.length) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          label={t(
+            `apps.sms4sats.sentPayments.title${selectedPage.toLowerCase()}`,
+          )}
+        />
+        <NoContentSceen
+          iconName="Receipt"
+          titleText={t('apps.noPurchaseTitle')}
+          subTitleText={t('apps.sms4sats.sentPayments.noPurchasesTitle')}
+        />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
@@ -338,39 +356,26 @@ export default function HistoricalSMSMessagingPage({ route }) {
       />
 
       <View style={styles.homepage}>
-        {messageElements.length === 0 ? (
-          <View style={styles.centered}>
-            <ThemeText
-              content={t(
-                `apps.sms4sats.sentPayments.noPayments${selectedPage.toLowerCase()}`,
-              )}
-              styles={styles.emptyStateText}
-            />
-          </View>
-        ) : (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContainer}
-          >
-            {messageElements}
-          </ScrollView>
-        )}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          {messageElements}
+        </ScrollView>
 
-        {!!messageElements.length && (
-          <TouchableOpacity
-            onPress={handleSupportContact}
-            style={styles.supportContainer}
-          >
-            <ThemeText
-              styles={styles.supportText}
-              content={t('apps.sms4sats.sentPayments.helpMessage')}
-            />
-            <ThemeText
-              styles={styles.supportEmail}
-              content="support@sms4sats.com"
-            />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          onPress={handleSupportContact}
+          style={styles.supportContainer}
+        >
+          <ThemeText
+            styles={styles.supportText}
+            content={t('apps.sms4sats.sentPayments.helpMessage')}
+          />
+          <ThemeText
+            styles={styles.supportEmail}
+            content="support@sms4sats.com"
+          />
+        </TouchableOpacity>
       </View>
     </GlobalThemeView>
   );

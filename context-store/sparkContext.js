@@ -46,7 +46,6 @@ import getDepositAddressTxIds from '../app/functions/spark/getDepositAdressTxIds
 import { useKeysContext } from './keys';
 import { navigationRef } from '../navigation/navigationService';
 import { transformTxToPaymentObject } from '../app/functions/spark/transformTxToPayment';
-import handleBalanceCache from '../app/functions/spark/handleBalanceCache';
 import EventEmitter from 'events';
 import { getLRC20Transactions } from '../app/functions/lrc20';
 import { useActiveCustodyAccount } from './activeAccount';
@@ -65,7 +64,7 @@ import {
   createBalancePoller,
   createRestorePoller,
 } from '../app/functions/pollingManager';
-import { USDB_TOKEN_ID } from '../app/constants';
+import { BALANCE_SNAPSHOT_KEY, USDB_TOKEN_ID } from '../app/constants';
 import {
   cleanupOptimization,
   checkIfOptimizationNeeded,
@@ -73,6 +72,7 @@ import {
   runTokenOptimization,
 } from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
+import { encriptMessage } from '../app/functions/messaging/encodingAndDecodingMessages';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -498,11 +498,6 @@ const SparkWalletProvider = ({ children }) => {
       }
 
       if (!paymentObjects.length) {
-        handleBalanceCache({
-          isCheck: false,
-          passedBalance: balance,
-          mnemonic: currentMnemonicRef.current,
-        });
         setSparkInformation(prev => ({
           ...prev,
           balance: balance,
@@ -877,7 +872,6 @@ const SparkWalletProvider = ({ children }) => {
 
   const applyConfirmedBalanceSnapshot = useCallback(
     async (epoch, result) => {
-      const mnemonic = currentMnemonicRef.current;
       const { identityPubKey } = sparkInfoRef.current;
 
       balanceEpochRef.current.applied = Math.max(
@@ -886,12 +880,23 @@ const SparkWalletProvider = ({ children }) => {
       );
 
       const numericBalance = Number(result?.balance);
-      if (Number.isFinite(numericBalance)) {
-        handleBalanceCache({
-          isCheck: false,
-          passedBalance: numericBalance,
-          mnemonic,
-        });
+      try {
+        const sparkBalanceStorage = encriptMessage(
+          contactsPrivateKey,
+          publicKey,
+          JSON.stringify({
+            balance: Number.isFinite(numericBalance)
+              ? numericBalance
+              : sparkInfoRef.current.balance,
+            tokens: result?.didWork
+              ? result.tokensObj
+              : sparkInfoRef.current.tokens,
+          }),
+        );
+
+        setLocalStorageItem(BALANCE_SNAPSHOT_KEY, sparkBalanceStorage);
+      } catch (err) {
+        console.log('Error saving spark balance to local storage', err);
       }
 
       const freshTxs = identityPubKey
@@ -924,7 +929,7 @@ const SparkWalletProvider = ({ children }) => {
         };
       });
     },
-    [maybeHandleConfirmNavigation],
+    [maybeHandleConfirmNavigation, contactsPrivateKey, publicKey],
   );
 
   const runBalanceSupervisor = useCallback(async () => {
@@ -1027,62 +1032,76 @@ const SparkWalletProvider = ({ children }) => {
     [runBalanceSupervisor],
   );
 
-  const applyIncomingPaymentSnapshot = useCallback(async passedBalance => {
-    const mnemonic = currentMnemonicRef.current;
-    const { identityPubKey } = sparkInfoRef.current;
+  const applyIncomingPaymentSnapshot = useCallback(
+    async passedBalance => {
+      const mnemonic = currentMnemonicRef.current;
+      const { identityPubKey } = sparkInfoRef.current;
 
-    if (balancePollingAbortControllerRef.current) {
-      balancePollingAbortControllerRef.current.abort();
-      balancePollingAbortControllerRef.current = null;
-    }
-    balanceSupervisorRunIdRef.current += 1;
-    isBalancePollerRunningRef.current = false;
+      if (balancePollingAbortControllerRef.current) {
+        balancePollingAbortControllerRef.current.abort();
+        balancePollingAbortControllerRef.current = null;
+      }
+      balanceSupervisorRunIdRef.current += 1;
+      isBalancePollerRunningRef.current = false;
 
-    const settledEpoch = balanceEpochRef.current.target + 1;
-    balanceEpochRef.current.target = settledEpoch;
-    balanceEpochRef.current.applied = settledEpoch;
-    forcedPendingBySparkIdRef.current.clear();
+      const settledEpoch = balanceEpochRef.current.target + 1;
+      balanceEpochRef.current.target = settledEpoch;
+      balanceEpochRef.current.applied = settledEpoch;
+      forcedPendingBySparkIdRef.current.clear();
 
-    const [balanceResponse, freshTxs] = await Promise.all([
-      getSparkBalance(mnemonic),
-      identityPubKey
-        ? getAllSparkTransactions({
-            limit: null,
-            accountId: identityPubKey,
-          })
-        : Promise.resolve([]),
-    ]);
+      const [balanceResponse, freshTxs] = await Promise.all([
+        getSparkBalance(mnemonic),
+        identityPubKey
+          ? getAllSparkTransactions({
+              limit: null,
+              accountId: identityPubKey,
+            })
+          : Promise.resolve([]),
+      ]);
 
-    const numericPassedBalance = Number(passedBalance);
-    if (Number.isFinite(numericPassedBalance)) {
-      handleBalanceCache({
-        isCheck: false,
-        passedBalance: numericPassedBalance,
-        mnemonic,
+      const numericPassedBalance = Number(passedBalance);
+      try {
+        const sparkBalanceStorage = encriptMessage(
+          contactsPrivateKey,
+          publicKey,
+          JSON.stringify({
+            balance: Number.isFinite(numericPassedBalance)
+              ? numericPassedBalance
+              : sparkInfoRef.current.balance,
+            tokens: balanceResponse.didWork
+              ? balanceResponse.tokensObj
+              : sparkInfoRef.current.tokens,
+          }),
+        );
+
+        setLocalStorageItem(BALANCE_SNAPSHOT_KEY, sparkBalanceStorage);
+      } catch (err) {
+        console.log('Error saving spark balance to local storage', err);
+      }
+
+      ensureConfirmedBoundary(freshTxs);
+      lastConfirmedTxBoundaryRef.current = Math.max(
+        lastConfirmedTxBoundaryRef.current || 0,
+        getBoundaryFromTxs(freshTxs),
+      );
+
+      const myVersion = ++balanceVersionRef.current;
+      setSparkInformation(prev => {
+        if (myVersion < balanceVersionRef.current) return prev;
+        return {
+          ...prev,
+          transactions: applyForcedPendingFlags(freshTxs || prev.transactions),
+          balance: Number.isFinite(numericPassedBalance)
+            ? numericPassedBalance
+            : prev.balance,
+          tokens: balanceResponse.didWork
+            ? balanceResponse.tokensObj
+            : prev.tokens,
+        };
       });
-    }
-
-    ensureConfirmedBoundary(freshTxs);
-    lastConfirmedTxBoundaryRef.current = Math.max(
-      lastConfirmedTxBoundaryRef.current || 0,
-      getBoundaryFromTxs(freshTxs),
-    );
-
-    const myVersion = ++balanceVersionRef.current;
-    setSparkInformation(prev => {
-      if (myVersion < balanceVersionRef.current) return prev;
-      return {
-        ...prev,
-        transactions: applyForcedPendingFlags(freshTxs || prev.transactions),
-        balance: Number.isFinite(numericPassedBalance)
-          ? numericPassedBalance
-          : prev.balance,
-        tokens: balanceResponse.didWork
-          ? balanceResponse.tokensObj
-          : prev.tokens,
-      };
-    });
-  }, []);
+    },
+    [contactsPrivateKey, publicKey],
+  );
 
   const handleUpdate = useCallback(
     (...args) => {
@@ -1846,24 +1865,28 @@ const SparkWalletProvider = ({ children }) => {
 
   // This function connects to the spark node and sets the session up
 
-  const connectToSparkWallet = useCallback(async () => {
-    const { didWork, error } = await initWallet({
-      setSparkInformation,
-      // toggleGlobalContactsInformation,
-      // globalContactsInformation,
-      mnemonic: accountMnemoinc,
-      sendWebViewRequest,
-      hasRestoreCompleted: hasRestoreCompleted.current,
-    });
-    setDidRunNormalConnection(true);
-    // lastConnectedTimeRef.current = Date.now();
-    if (!didWork) {
-      setSparkInformation(prev => ({ ...prev, didConnect: false }));
-      setSparkConnectionError(error);
-      console.log('Error connecting to spark wallet:', error);
-      return;
-    }
-  }, [accountMnemoinc, sendWebViewRequest]);
+  const connectToSparkWallet = useCallback(
+    async identityPubKey => {
+      const { didWork, error } = await initWallet({
+        setSparkInformation,
+        // toggleGlobalContactsInformation,
+        // globalContactsInformation,
+        mnemonic: accountMnemoinc,
+        sendWebViewRequest,
+        hasRestoreCompleted: hasRestoreCompleted.current,
+        identityPubKey,
+      });
+      setDidRunNormalConnection(true);
+      // lastConnectedTimeRef.current = Date.now();
+      if (!didWork) {
+        setSparkInformation(prev => ({ ...prev, didConnect: false }));
+        setSparkConnectionError(error);
+        console.log('Error connecting to spark wallet:', error);
+        return;
+      }
+    },
+    [accountMnemoinc, sendWebViewRequest],
+  );
 
   // Function to update db when all reqiured information is loaded
   useEffect(() => {

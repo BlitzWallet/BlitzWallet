@@ -1,7 +1,11 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
+import {
+  BALANCE_SNAPSHOT_KEY,
+  COLORS,
+  PERSISTED_LOGIN_COUNT_KEY,
+} from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
@@ -14,18 +18,18 @@ import { useKeysContext } from '../../../context-store/keys';
 import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTransformer';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useSparkWallet } from '../../../context-store/sparkContext';
-import { removeLocalStorageItem } from '../../functions/localStorage';
+import {
+  getLocalStorageItem,
+  removeLocalStorageItem,
+} from '../../functions/localStorage';
 import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
 import { useWebView } from '../../../context-store/webViewContext';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { getCachedSparkTransactions } from '../../functions/spark';
-import { SparkReadonlyClient } from '@buildonspark/spark-sdk';
-import {
-  deriveSparkAddress,
-  deriveSparkIdentityKey,
-} from '../../functions/gift/deriveGiftWallet';
+import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
 import { useAppStatus } from '../../../context-store/appStatus';
+import { decryptMessage } from '../../functions/messaging/encodingAndDecodingMessages';
 
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
@@ -43,36 +47,19 @@ export default function ConnectingToNodeLoadingScreen({
   const { didRunHandshakeRef } = useWebView();
   const { connectToSparkWallet, setSparkInformation } = useSparkWallet();
   const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
-  const { theme, darkModeType } = useGlobalThemeContext();
-  const { toggleGlobalContactsInformation, globalContactsInformation } =
-    useGlobalContacts();
+  const { theme } = useGlobalThemeContext();
+  const { toggleGlobalContactsInformation } = useGlobalContacts();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
   const { screenDimensions } = useAppStatus();
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
-  const [message, setMessage] = useState(
-    t('screens.inAccount.loadingScreen.loadingMessage1'),
-  );
   const didRunConnectionRef = useRef(null);
 
-  const transformedAnimation = useMemo(() => {
-    return updateMascatWalkingAnimation(
-      mascotAnimation,
-      theme ? 'white' : 'blue',
-    );
-  }, [theme]);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setMessage(prevMessage =>
-        prevMessage === t('screens.inAccount.loadingScreen.loadingMessage1')
-          ? t('screens.inAccount.loadingScreen.loadingMessage2')
-          : t('screens.inAccount.loadingScreen.loadingMessage1'),
-      );
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  }, []);
+  const transformedAnimation = useMemo(
+    () =>
+      updateMascatWalkingAnimation(mascotAnimation, theme ? 'white' : 'blue'),
+    [theme],
+  );
 
   useEffect(() => {
     async function startConnectProcess() {
@@ -83,127 +70,102 @@ export default function ConnectingToNodeLoadingScreen({
           'Begining app connnection procress in loading screen',
         );
         removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
-        console.log('Process 1', new Date().getTime());
 
-        const [privateKey, identityPubKey] = await Promise.all([
-          privateKeyFromSeedWords(accountMnemoinc),
-          deriveSparkIdentityKey(accountMnemoinc),
+        if (didRunHandshakeRef.current) {
+          connectToSparkWallet();
+        }
+
+        // ── Phase 1: Derive keys + wait for webview handshake in parallel ──
+        const waitForHandshake = async () => {
+          if (didRunHandshakeRef.current) return;
+          console.warn('Webview has not finished setting up: wait here');
+          for (let i = 0; i < 10; i++) {
+            if (didRunHandshakeRef.current) break;
+            console.log('Waiting for webview to finish. Retry number:', i);
+            await new Promise(res => setTimeout(res, 1000));
+          }
+          connectToSparkWallet();
+        };
+
+        const [[privateKey, identityPubKey]] = await Promise.all([
+          Promise.all([
+            privateKeyFromSeedWords(accountMnemoinc),
+            deriveSparkIdentityKey(accountMnemoinc),
+          ]),
+          waitForHandshake(),
         ]);
 
-        const sparkAddress = deriveSparkAddress(identityPubKey.publicKey);
         const publicKey = privateKey ? getPublicKey(privateKey) : null;
-
         if (!privateKey || !publicKey)
           throw new Error(
             t('screens.inAccount.loadingScreen.userSettingsError'),
           );
 
-        const READONLY_TIMEOUT_MS = 6000;
-        const readonlyFetchPromise = Promise.race([
-          (async () => {
-            try {
-              const client = await SparkReadonlyClient.createWithMasterKey(
-                { network: 'MAINNET' },
-                accountMnemoinc,
-              );
-              const [balance, tokenMap] = await Promise.all([
-                client.getAvailableBalance(sparkAddress.address),
-                client.getTokenBalance(sparkAddress.address),
-              ]);
-
-              const tokens = {};
-              for (const [tokenId, info] of tokenMap) {
-                tokens[tokenId] = {
-                  balance: info.availableToSendBalance,
-                  tokenMetadata: info.tokenMetadata,
-                };
-              }
-
-              return { initialBalance: Number(balance), tokens };
-            } catch (err) {
-              console.log('Readonly balance fetch failed (non-fatal):', err);
-              return { initialBalance: 0, tokens: {} };
-            }
-          })(),
-          new Promise(resolve =>
-            setTimeout(() => {
-              console.log(
-                'Readonly balance fetch timed out — proceeding with defaults',
-              );
-              resolve({ initialBalance: 0, tokens: {} });
-            }, READONLY_TIMEOUT_MS),
-          ),
-        ]);
-
-        const placeholderTxsPromise = getCachedSparkTransactions(
-          20,
-          identityPubKey.publicKeyHex,
-        );
-
-        if (!didRunHandshakeRef.current) {
-          console.warn('Webview has not finished setting up: wait here');
-          const MAX_RUNS = 10;
-          let currentRun = 0;
-          while (!didRunHandshakeRef.current && currentRun < MAX_RUNS) {
-            console.log(
-              'Waiting for webview to finish. Retry number:',
-              currentRun,
-            );
-            currentRun += 1;
-            await new Promise(res => setTimeout(res, 1000));
-          }
-        }
-        connectToSparkWallet();
-
-        const [placeholderTxs, { initialBalance, tokens }] = await Promise.all([
-          placeholderTxsPromise,
-          readonlyFetchPromise,
-        ]);
-
         const hasSavedInfo = Object.keys(masterInfoObject || {}).length > 5;
 
-        if (!hasSavedInfo) {
-          const [didLoadUserSettings] = await Promise.all([
-            initializeUserSettingsFromHistory({
-              setMasterInfoObject,
-              toggleGlobalContactsInformation,
-              toggleGlobalAppDataInformation,
-              toggleMasterInfoObject,
-              preloadedData: preloadedUserData.data,
-              setPreLoadedUserData,
-              privateKey,
-              publicKey,
-            }),
+        // ── Phase 2: Cache reads + settings init all in parallel ──────────
+        const [placeholderTxs, balanceSnapshot, didLoadUserSettings] =
+          await Promise.all([
+            getCachedSparkTransactions(20, identityPubKey.publicKeyHex),
+            getLocalStorageItem(BALANCE_SNAPSHOT_KEY),
+            hasSavedInfo
+              ? Promise.resolve(true)
+              : initializeUserSettingsFromHistory({
+                  setMasterInfoObject,
+                  toggleGlobalContactsInformation,
+                  toggleGlobalAppDataInformation,
+                  toggleMasterInfoObject,
+                  preloadedData: preloadedUserData.data,
+                  setPreLoadedUserData,
+                  privateKey,
+                  publicKey,
+                }),
           ]);
 
+        if (!hasSavedInfo) {
           crashlyticsLogReport('Opened all SQL lite tables');
-
           if (!didLoadUserSettings)
             throw new Error(
               t('screens.inAccount.loadingScreen.userSettingsError'),
             );
           crashlyticsLogReport('Loaded users settings from firebase');
         }
+
         toggleContactsPrivateKey(privateKey);
-        setSparkInformation(prev => ({
-          ...prev,
-          transactions: placeholderTxs,
-          balance: initialBalance,
-          tokens,
-        }));
-        console.log('Process 3', new Date().getTime());
 
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(
-          0,
-          (hasSavedInfo ? 500 : 1500) - elapsedTime,
-        );
+        console.log(balanceSnapshot, placeholderTxs);
 
-        if (remainingTime > 0) {
-          await new Promise(resolve => setTimeout(resolve, remainingTime));
+        // ── Phase 3: Apply cached balance ─────────────────────────────────
+        if (balanceSnapshot) {
+          try {
+            const balance = JSON.parse(
+              decryptMessage(privateKey, publicKey, balanceSnapshot),
+            );
+            setSparkInformation(prev => ({
+              ...prev,
+              transactions: placeholderTxs,
+              ...balance,
+            }));
+          } catch (err) {
+            console.log('Error parsing cached balance', err);
+            setSparkInformation(prev => ({
+              ...prev,
+              transactions: placeholderTxs,
+            }));
+          }
         } else {
-          await new Promise(resolve => setTimeout(resolve, 60));
+          setSparkInformation(prev => ({
+            ...prev,
+            transactions: placeholderTxs,
+          }));
         }
+
+        // ── Phase 4: Minimum perceived loading time then navigate ─────────
+        const elapsed = Date.now() - startTime;
+        const minDuration = hasSavedInfo ? 500 : 1500;
+        await new Promise(resolve =>
+          setTimeout(resolve, Math.max(60, minDuration - elapsed)),
+        );
 
         replace('HomeAdmin', { screen: 'Home' });
       } catch (err) {
@@ -211,6 +173,7 @@ export default function ConnectingToNodeLoadingScreen({
         setHasError(err.message);
       }
     }
+
     if (preloadedUserData.isLoading && !preloadedUserData.data) return;
     if (didRunConnectionRef.current) return;
     didRunConnectionRef.current = true;
@@ -240,14 +203,13 @@ export default function ConnectingToNodeLoadingScreen({
             height: Math.min(screenDimensions.width * 0.4, 400),
           }}
         />
-
         {hasError && (
           <ThemeText
             styles={{
               ...styles.waitingText,
               color: theme ? COLORS.darkModeText : COLORS.primary,
             }}
-            content={hasError ? hasError : message}
+            content={hasError}
           />
         )}
       </View>

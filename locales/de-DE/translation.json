@@ -1929,7 +1929,20 @@
         "filterSavings": "Sparziele",
         "filterPools": "Sparpools",
         "noTxHistoryTitle": "Keine Transaktionshistorie",
-        "noTxHistorySub": "Ihre Transaktionen erscheinen hier, sobald Sie welche senden oder empfangen."
+        "noTxHistorySub": "Ihre Transaktionen erscheinen hier, sobald Sie welche senden oder empfangen.",
+        "filterModalTitle": "Transaktionen filtern",
+        "exportButton": "Exportieren",
+        "filterDirectionTitle": "Richtung",
+        "filterSent": "Gesendet",
+        "filterReceived": "Empfangen",
+        "filterDateTitle": "Zeitraum",
+        "filterDate7d": "Letzte 7 Tage",
+        "filterDate30d": "Letzte 30 Tage",
+        "filterDate90d": "Letzte 90 Tage",
+        "filterDate1y": "Letzte 12 Monate",
+        "filterTypeTitle": "Transaktionstyp",
+        "filterApply": "Filter anwenden",
+        "filterClearAll": "Alles löschen"
       },
       "lrc20HalfModal": {
         "title": "Token suchen",

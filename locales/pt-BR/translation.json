@@ -286,6 +286,7 @@
     }
   },
   "apps": {
+    "noPurchaseTitle": "Nenhuma compra",
     "appList": {
       "AI": "IA",
       "AIDescription": "Converse com os mais recentes modelos de IA generativa",
@@ -755,7 +756,7 @@
       "historicalPurchasesPage": {
         "confirmRemoval": "Tem certeza de que deseja remover este cartão-presente?",
         "purchased": "Comprado:",
-        "noPurchases": "Você não tem compras de cartão-presente",
+        "noPurchases": "Você ainda não comprou nenhum cartão-presente. Quando comprar, ele aparecerá aqui.",
         "customCopyMessage": "E-mail de suporte copiado"
       }
     },
@@ -799,7 +800,8 @@
         "refundedOrder": "A ordem foi reembolsada, os fundos retornarão automaticamente para sua carteira após 21 minutos",
         "reclaimComplete": "Reenvio concluído. Se nenhum código for gerado, você será reembolsado automaticamente após 21 minutos.",
         "noCode": "Sem código",
-        "rateLimitError": "Excesso de solicitações. Você só pode fazer 5 solicitações a cada 30 segundos. Aguarde antes de tentar novamente."
+        "rateLimitError": "Excesso de solicitações. Você só pode fazer 5 solicitações a cada 30 segundos. Aguarde antes de tentar novamente.",
+        "noPurchasesTitle": "Você ainda não enviou nem recebeu nenhuma mensagem SMS. Quando fizer isso, elas aparecerão aqui."
       },
       "receivePage": {
         "paymentMemo": "Loja - Receber SMS",
@@ -943,7 +945,9 @@
         "howStep2": "• Compartilhe o link da Vaquinha com outras pessoas",
         "howStep3": "• Os contribuidores enviam Bitcoin diretamente para a Vaquinha",
         "howStep4": "• Encerre a Vaquinha quando estiver pronto para mover os fundos para sua carteira"
-      }
+      },
+      "noPoolsTitle": "Nenhum Vaquinha criada",
+      "noPoolsSubTitle": "Quando você criar uma Vaquinha, ela aparecerá aqui como aberta ou encerrada."
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
@@ -1022,7 +1026,7 @@
         "swapRatesChangedButton": "Inserir valor novamente"
       },
       "selectPaymentMethod": {
-        "header": "Escolha o saldo para realizar esse pagamento."
+        "header": "Escolha o saldo para realizar esse pagamento"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
@@ -1261,6 +1265,7 @@
     "index": {
       "editProfile": "Editar perfil",
       "showQR": "Código QR",
+      "identiconMessage": "Este design é único para sua carteira e ajuda outras pessoas a confirmar que é realmente você ao adicionar seu contato.",
       "profileHead": "Perfil",
       "settingsHead": "Configurações",
       "seedPopup": "A frase de recuperação é uma lista de palavras que permite recuperar seus Bitcoins caso seu dispositivo seja perdido ou danificado. Anote as palavras e guarde em um local seguro. Nunca mostre as palavras para ninguém pois se alguém tiver acesso a elas, poderá roubar todos os seus Bitcoins."
@@ -1650,8 +1655,8 @@
         "errorMessage": "Falha ao restaurar a conta"
       },
       "selectAltAccount": {
-        "from": "Selecione a conta que você deseja enviar.",
-        "to": "Selecione a conta que você deseja receber."
+        "from": "Selecione a conta de origem",
+        "to": "Selecione a conta de destino"
       },
       "removeAccountPage": {
         "title": "Arquivar conta",
@@ -1729,7 +1734,9 @@
         "title": "Gorjetas a pagar",
         "empNamePlaceholder": "Nome do funcionário",
         "noEmployees": "No momento, você não tem funcionários com gorjetas salvas. Assim que um funcionário usar o ponto de venda, suas gorjetas aparecerão aqui para que você possa pagá-las.",
-        "noTips": "O funcionário não tem gorjetas"
+        "noTips": "O funcionário não tem gorjetas",
+        "noEmployeeTitle": "Nenhuma gorjeta a pagar",
+        "noEmployeeSubTitle": "Você ainda não tem gorjetas a pagar. Quando um funcionário receber uma gorjeta, ela aparecerá aqui."
       },
       "items": {
         "addItemHalfModal": {
@@ -1751,7 +1758,9 @@
           "itemSearchPlaceholder": "Nome do item...",
           "noItemsSearch": "Nenhum item corresponde à sua pesquisa.",
           "noItemsAdded": "Adicione um item para que ele apareça aqui.",
-          "ctaBTN": "Adicionar item"
+          "ctaBTN": "Adicionar item",
+          "noPosTitle": "Nenhum item PDV",
+          "noPosSub": "Você ainda não tem itens PDV salvos. Quando salvar um, ele aparecerá aqui."
         }
       },
       "internalComponents": {
@@ -1918,7 +1927,20 @@
         "filterSavings": "Caixinhas",
         "filterPools": "Vaquinhas",
         "noTxHistoryTitle": "Sem histórico de transações",
-        "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta."
+        "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta.",
+        "filterModalTitle": "Filtrar transações",
+        "exportButton": "Exportar",
+        "filterDirectionTitle": "Direção",
+        "filterSent": "Enviado",
+        "filterReceived": "Recebido",
+        "filterDateTitle": "Intervalo de datas",
+        "filterDate7d": "Últimos 7 dias",
+        "filterDate30d": "Últimos 30 dias",
+        "filterDate90d": "Últimos 90 dias",
+        "filterDate1y": "Últimos 12 meses",
+        "filterTypeTitle": "Tipo de transação",
+        "filterApply": "Aplicar filtros",
+        "filterClearAll": "Limpar tudo"
       },
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
@@ -2280,7 +2302,7 @@
     },
     "preview": {
       "title": "Caixinhas",
-      "earnInterest": "Guarde dinheiro e realize seus sonhos."
+      "earnInterest": "Guarde dinheiro e realize seus sonhos"
     },
     "goalEmoji": {
       "screenTitle": "Escolher emoji",

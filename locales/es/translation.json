@@ -286,6 +286,7 @@
     }
   },
   "apps": {
+    "noPurchaseTitle": "Sin Compras",
     "appList": {
       "AI": "IA",
       "AIDescription": "Chatea con los últimos modelos generativos de IA",
@@ -615,7 +616,7 @@
       "historicalPurchasesPage": {
         "confirmRemoval": "¿Estás seguro de que quieres eliminar esta tarjeta de regalo?",
         "purchased": "Comprado:",
-        "noPurchases": "No tienes compras de tarjetas de regalo",
+        "noPurchases": "Todavía no has comprado ninguna tarjeta de regalo. Una vez que lo hagas, aparecerá aquí.",
         "customCopyMessage": "Correo de soporte copiado"
       }
     },
@@ -659,7 +660,8 @@
         "refundedOrder": "El pedido ha sido reembolsado, los fondos se devolverán automáticamente a tu billetera después de 21 minutos.",
         "reclaimComplete": "Rety completo. Si no se genera un código, se te reembolsará automáticamente después de 21 minutos.",
         "noCode": "No hay código",
-        "rateLimitError": "Demasiadas solicitudes. Solo puedes hacer 5 solicitudes cada 30 segundos. Por favor, espera antes de intentar nuevamente."
+        "rateLimitError": "Demasiadas solicitudes. Solo puedes hacer 5 solicitudes cada 30 segundos. Por favor, espera antes de intentar nuevamente.",
+        "noPurchasesTitle": "Aún no has enviado ni recibido ningún SMS. Una vez que lo hagas, aparecerán aquí."
       },
       "receivePage": {
         "paymentMemo": "Tienda - Recepción de SMS",
@@ -804,7 +806,9 @@
         "howStep2": "• Comparte el enlace del pool para que otros puedan encontrarlo",
         "howStep3": "• Los contribuyentes envían Bitcoin directamente al pool",
         "howStep4": "• Cierra el pool cuando estés listo para mover los fondos a tu wallet"
-      }
+      },
+      "noPoolsTitle": "Sin Pools Creados",
+      "noPoolsSubTitle": "Una vez que crees un pool, aparecerá aquí como activo o inactivo."
     },
     "manualInputPage": {
       "inputPlaceholder": "Introduce o pega una dirección/factura de Liquid o Lightning"
@@ -1122,6 +1126,7 @@
     "index": {
       "editProfile": "Editar perfil",
       "showQR": "Mostrar QR",
+      "identiconMessage": "Este diseño es único para tu billetera y ayuda a otros a confirmar que realmente eres tú cuando agregan tu contacto.",
       "profileHead": "Perfil",
       "settingsHead": "Configuración",
       "seedPopup": "Una frase semilla es una lista de palabras que te permite recuperar tus Bitcoin si tu dispositivo se pierde o se daña. Escríbela y guárdala en un lugar seguro. Nunca se la des a nadie—si alguien la obtiene, puede tomar todos tus Bitcoin."
@@ -1588,7 +1593,9 @@
         "title": "Propinas a pagar",
         "empNamePlaceholder": "Nombre del empleado",
         "noEmployees": "Actualmente no tienes empleados con propinas guardadas. Cuando un empleado use el punto de venta, sus propinas aparecerán aquí para que puedas pagarlas.",
-        "noTips": "El empleado no tiene propinas"
+        "noTips": "El empleado no tiene propinas",
+        "noEmployeeTitle": "Sin Propinas que Pagar",
+        "noEmployeeSubTitle": "Aún no tienes propinas que pagar. Cuando un empleado reciba una propina, aparecerá aquí."
       },
       "items": {
         "addItemHalfModal": {
@@ -1610,7 +1617,9 @@
           "itemSearchPlaceholder": "Nombre del artículo...",
           "noItemsSearch": "Ningún artículo coincide con tu búsqueda.",
           "noItemsAdded": "Agrega un artículo para que aparezca aquí.",
-          "ctaBTN": "Añadir artículo"
+          "ctaBTN": "Añadir artículo",
+          "noPosTitle": "Sin Artículos POS",
+          "noPosSub": "Aún no tienes artículos POS guardados. Una vez que guardes uno, aparecerá aquí."
         }
       },
       "internalComponents": {
@@ -1780,7 +1789,20 @@
         "filterSavings": "Ahorros",
         "filterPools": "Fondos",
         "noTxHistoryTitle": "Sin historial de transacciones",
-        "noTxHistorySub": "Tus transacciones aparecerán aquí cuando envíes o recibas una."
+        "noTxHistorySub": "Tus transacciones aparecerán aquí cuando envíes o recibas una.",
+        "filterModalTitle": "Filtrar transacciones",
+        "exportButton": "Exportar",
+        "filterDirectionTitle": "Dirección",
+        "filterSent": "Enviado",
+        "filterReceived": "Recibido",
+        "filterDateTitle": "Rango de fechas",
+        "filterDate7d": "Últimos 7 días",
+        "filterDate30d": "Últimos 30 días",
+        "filterDate90d": "Últimos 90 días",
+        "filterDate1y": "Últimos 12 meses",
+        "filterTypeTitle": "Tipo de transacción",
+        "filterApply": "Aplicar filtros",
+        "filterClearAll": "Borrar todo"
       },
       "lrc20HalfModal": {
         "title": "Buscar tokens",

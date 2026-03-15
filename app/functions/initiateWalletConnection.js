@@ -8,7 +8,6 @@ import {
   initializeSparkWallet,
   setPrivacyEnabled,
 } from './spark';
-import handleBalanceCache from './spark/handleBalanceCache';
 import { cleanStalePendingSparkLightningTransactions } from './spark/transactions';
 
 export async function initWallet({
@@ -18,6 +17,7 @@ export async function initWallet({
   mnemonic,
   sendWebViewRequest,
   hasRestoreCompleted = true,
+  identityPubKey,
 }) {
   try {
     crashlyticsLogReport('Trying to connect to nodes');
@@ -36,6 +36,7 @@ export async function initWallet({
         mnemonic,
         sendWebViewRequest,
         hasRestoreCompleted,
+        identityPubKey,
       });
 
       if (!didSetSpark)
@@ -57,69 +58,51 @@ export async function initWallet({
 
 export async function initializeSparkSession({
   setSparkInformation,
-  // globalContactsInformation,
-  // toggleGlobalContactsInformation,
   mnemonic,
   sendWebViewRequest,
   hasRestoreCompleted,
+  identityPubKey: cachedIdentityPubKey,
 }) {
   try {
-    // Clean DB state but do not hold up process
+    // Fire immediately — never blocks the critical path
     cleanStalePendingSparkLightningTransactions();
-    const [balance, sparkAddress, identityPubKey, flashnetResponse] =
-      await Promise.all([
-        getSparkBalance(mnemonic),
-        getSparkAddress(mnemonic),
-        getSparkIdentityPubKey(mnemonic),
-        initializeFlashnet(mnemonic),
-      ]);
 
-    setPrivacyEnabled(mnemonic);
-    const transactions = await getCachedSparkTransactions(null, identityPubKey);
+    // If we already have the identity key, we can fetch cached txs right now
+    // in parallel with the other spark calls — otherwise it has to wait
+    const txsPromise = cachedIdentityPubKey
+      ? getCachedSparkTransactions(null, cachedIdentityPubKey)
+      : null;
+
+    const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
+      getSparkBalance(mnemonic),
+      getSparkAddress(mnemonic),
+      cachedIdentityPubKey
+        ? Promise.resolve(cachedIdentityPubKey)
+        : getSparkIdentityPubKey(mnemonic),
+    ]);
+
+    // Resolve txs: if we pre-fetched use that, otherwise fetch now with fresh key
+    const transactions = await (txsPromise ??
+      getCachedSparkTransactions(null, freshIdentityPubKey));
 
     if (transactions === undefined)
       throw new Error('Unable to initialize spark from history');
 
+    // Fire and forget — non-blocking
+    setPrivacyEnabled(mnemonic);
+
+    const identityPubKey = freshIdentityPubKey;
+
     if (!balance.didWork) {
       const storageObject = {
-        transactions: transactions,
+        transactions,
         identityPubKey,
         sparkAddress: sparkAddress.response,
         didConnect: true,
-        didConnectToFlashnet: flashnetResponse,
       };
-      await new Promise(res => setTimeout(res, 500));
       setSparkInformation(prev => ({ ...prev, ...storageObject }));
       return storageObject;
     }
-
-    // if (
-    //   !globalContactsInformation.myProfile.sparkAddress ||
-    //   !globalContactsInformation.myProfile.sparkIdentityPubKey
-    // ) {
-    //   toggleGlobalContactsInformation(
-    //     {
-    //       myProfile: {
-    //         ...globalContactsInformation.myProfile,
-    //         sparkAddress: sparkAddress,
-    //         sparkIdentityPubKey: identityPubKey,
-    //       },
-    //     },
-    //     true,
-    //   );
-    // }
-
-    // Get cached balance from last session to use as placeholder while polling confirms the real balance
-    const cachedBalance = await handleBalanceCache({
-      returnBalanceOnly: true,
-      mnemonic,
-    });
-
-    // Use cached balance as placeholder; polling in sparkContext will confirm the real balance
-    const placeholderBalance =
-      cachedBalance != null && cachedBalance > 0
-        ? cachedBalance
-        : Number(balance.balance);
 
     const storageObject = {
       balance: Number(balance.balance),
@@ -127,35 +110,17 @@ export async function initializeSparkSession({
       identityPubKey,
       sparkAddress: sparkAddress.response,
       didConnect: true,
-      didConnectToFlashnet: flashnetResponse,
       initialBalance: Number(balance.balance),
     };
-    console.log('Spark storage object', storageObject);
-    await new Promise(res => setTimeout(res, 500));
-    setSparkInformation(prev => {
-      let txToUse;
 
-      // Restore has not run yet:
-      if (
+    setSparkInformation(prev => {
+      const txToUse =
         !hasRestoreCompleted ||
         (prev.identityPubKey && prev.identityPubKey !== identityPubKey)
-      ) {
-        // We show cached transactions immediately to avoid blanks.
-        // But DO NOT overwrite later once restore writes.
-        // Fully overwrite if identityPubKey changed (new wallet).
-        txToUse = transactions;
-      } else {
-        // Restore has finished:
-        // Never insert fetchedTransactions (they may be stale)
-        // Use whatever DB restore already put in state.
-        txToUse = prev.transactions;
-      }
+          ? transactions
+          : prev.transactions;
 
-      return {
-        ...prev,
-        ...storageObject,
-        transactions: txToUse,
-      };
+      return { ...prev, ...storageObject, transactions: txToUse };
     });
     return storageObject;
   } catch (err) {
