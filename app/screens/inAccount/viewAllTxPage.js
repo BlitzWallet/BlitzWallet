@@ -1,13 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import {
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {
-  SIZES,
-} from '../../constants';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -25,13 +18,38 @@ import { getFilteredTransactions } from '../../functions/spark/transactions';
 import customUUID from '../../functions/customUUID';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import NoContentSceen from '../../functions/CustomElements/noContentScreen';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../constants/theme';
 
 const FILTER_DEBOUNCE_MS = 500;
+
+const DATE_LABEL_KEYS = {
+  '7d': 'filterDate7d',
+  '30d': 'filterDate30d',
+  '90d': 'filterDate90d',
+  '1y': 'filterDate1y',
+};
+
+function buildFilterSummary(filter, t) {
+  const ns = 'screens.inAccount.viewAllTxPage';
+  const parts = [
+    filter.directions.includes('sent') ? t(`${ns}.filterSent`) : null,
+    filter.directions.includes('received') ? t(`${ns}.filterReceived`) : null,
+    filter.dateRange ? t(`${ns}.${DATE_LABEL_KEYS[filter.dateRange]}`) : null,
+    ...filter.types.map(type => t(`${ns}.filter${type}`)),
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(' · ') : t(`${ns}.filterAll`);
+}
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
   const [currentFilter, setCurrentFilter] = useState({
-    item: 'All',
+    directions: [],
+    dateRange: null,
+    types: [],
     searchUUID: '',
   });
   const [isLoadingNewTxs, setIsLoadingNewTxs] = useState(false);
@@ -54,13 +72,23 @@ export default function ViewAllTxPage() {
       () => {
         async function handleLoadTxs() {
           try {
+            const hasActiveFilters =
+              currentFilter.directions.length > 0 ||
+              currentFilter.dateRange !== null ||
+              currentFilter.types.length > 0;
+
             let transactions;
-            if (currentFilter.item === 'All') {
+            if (!hasActiveFilters) {
               transactions = sparkInformation.transactions;
             } else {
-              transactions = await getFilteredTransactions(currentFilter.item, {
-                accountId: sparkInformation.identityPubKey,
-              });
+              transactions = await getFilteredTransactions(
+                {
+                  directions: currentFilter.directions,
+                  dateRange: currentFilter.dateRange,
+                  types: currentFilter.types,
+                },
+                { accountId: sparkInformation.identityPubKey },
+              );
             }
 
             const formattedTxs = getFormattedHomepageTxsForSpark({
@@ -116,54 +144,70 @@ export default function ViewAllTxPage() {
     currentFilter,
   ]);
 
-  const handleFilterSwitch = useCallback(item => {
+  const handleFilterApply = useCallback(filters => {
     searchUUIDRef.current = customUUID();
     setIsLoadingNewTxs(true);
-    setCurrentFilter({ item, searchUUID: searchUUIDRef.current });
+    setCurrentFilter({ ...filters, searchUUID: searchUUIDRef.current });
   }, []);
 
   const doesNotHaveTransactions = txs.length === 1 && txs[0].key === 'noTx';
 
+  const badgeCount =
+    currentFilter.directions.length +
+    (currentFilter.dateRange ? 1 : 0) +
+    currentFilter.types.length;
+
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      <CustomSettingsTopBar
-        showLeftImage={true}
-        iconNew="SlidersHorizontal"
-        badgeVisible={currentFilter.item !== 'All'}
-        label={t('screens.inAccount.viewAllTxPage.title')}
-        leftImageFunction={() => {
-          navigate.navigate('CustomHalfModal', {
-            wantedContent: 'txFilter',
-            sliderHight: 0.5,
-            currentFilter: currentFilter.item,
-            onSelectFilter: item => handleFilterSwitch(item),
-          });
-        }}
-      />
+      <View style={styles.contentContainer}>
+        <CustomSettingsTopBar
+          containerStyles={{ marginBottom: 0 }}
+          showLeftImage={true}
+          iconNew="SlidersHorizontal"
+          badgeCount={badgeCount}
+          label={t('screens.inAccount.viewAllTxPage.title')}
+          leftImageFunction={() => {
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'txFilter',
+              sliderHight: 0.65,
+              currentFilter: {
+                directions: currentFilter.directions,
+                dateRange: currentFilter.dateRange,
+                types: currentFilter.types,
+              },
+              onSelectFilter: filters => handleFilterApply(filters),
+            });
+          }}
+        />
+        <ThemeText
+          styles={styles.filterName}
+          content={buildFilterSummary(currentFilter, t)}
+        />
 
-      <View style={{ flex: 1 }}>
-        {!txs.length || isLoadingNewTxs ? (
-          <FullLoadingScreen />
-        ) : doesNotHaveTransactions ? (
-          <NoContentSceen
-            iconName="Clock"
-            titleText={t('screens.inAccount.viewAllTxPage.noTxHistoryTitle')}
-            subTitleText={t('screens.inAccount.viewAllTxPage.noTxHistorySub')}
-          />
-        ) : (
-          <FlatList
-            initialNumToRender={20}
-            maxToRenderPerBatch={20}
-            windowSize={3}
-            style={{ flex: 1, width: '100%' }}
-            showsVerticalScrollIndicator={false}
-            data={txs}
-            renderItem={({ item }) => item?.item}
-            ListFooterComponent={
-              <View style={{ width: '100%', height: 8 }} />
-            }
-          />
-        )}
+        <View style={{ flex: 1 }}>
+          {!txs.length || isLoadingNewTxs ? (
+            <FullLoadingScreen />
+          ) : doesNotHaveTransactions ? (
+            <NoContentSceen
+              iconName="Clock"
+              titleText={t('screens.inAccount.viewAllTxPage.noTxHistoryTitle')}
+              subTitleText={t('screens.inAccount.viewAllTxPage.noTxHistorySub')}
+            />
+          ) : (
+            <FlatList
+              initialNumToRender={20}
+              maxToRenderPerBatch={20}
+              windowSize={3}
+              style={{ flex: 1, width: '100%' }}
+              showsVerticalScrollIndicator={false}
+              data={txs}
+              renderItem={({ item }) => item?.item}
+              ListFooterComponent={
+                <View style={{ width: '100%', height: 8 }} />
+              }
+            />
+          )}
+        </View>
       </View>
       <TouchableOpacity
         style={[
@@ -187,7 +231,17 @@ export default function ViewAllTxPage() {
   );
 }
 const styles = StyleSheet.create({
-  globalContainer: { paddingBottom: 0 },
+  globalContainer: { paddingBottom: 0, width: '100%' },
+  contentContainer: {
+    width: WINDOWWIDTH,
+    flex: 1,
+    ...CENTER,
+  },
+  filterName: {
+    textAlign: 'center',
+    opacity: HIDDEN_OPACITY,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
+  },
   exportButton: {
     width: '100%',
     flexDirection: 'row',
