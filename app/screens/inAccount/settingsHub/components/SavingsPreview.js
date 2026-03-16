@@ -22,7 +22,7 @@ export default function SavingsPreview({ onPress }) {
   return (
     <WidgetCard onPress={onPress}>
       <View style={styles.row}>
-        <View style={{ flexShrink: 1 }}>
+        <View style={styles.left}>
           <ThemeText
             styles={styles.title}
             content={t('savings.preview.title')}
@@ -77,6 +77,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 10,
+  },
+  left: {
+    flexShrink: 1,
   },
   title: {
     fontSize: SIZES.smedium,

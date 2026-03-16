@@ -1683,7 +1683,7 @@
       "maxPinsReached": "Maximum 2 pinned accounts. Unpin one first.",
       "morePoolsCount": "+{{count}} more",
       "pos": {
-        "desc": "Easily accept Bitcoin payments for your buisness"
+        "desc": "Easily accept Bitcoin payments for your buisness."
       }
     },
     "posPath": {
@@ -1970,11 +1970,11 @@
         "reclaimGiftMessage": "Reclaiming Gift",
         "giftsHome": {
           "title": "Blitz Gifts",
-          "desc": "Share Bitcoin or Dollars with friends and family"
+          "desc": "Share Bitcoin or Dollars with friends and family."
         },
         "giftsOverview": {
           "noGiftsHead": "No gifts yet",
-          "noGiftsDesc": "Create your first gift to share Bitcoin or Dollars with friends and family",
+          "noGiftsDesc": "Create your first gift to share Bitcoin or Dollars with friends and family.",
           "createGift": "Create Gift",
           "claimed": "Claimed",
           "expired": "Expired",
@@ -2297,7 +2297,7 @@
       "howItWorksLink": "How it works",
       "earnedCard": "Earned: {{amount}}",
       "setGoalTitle": "Set a goal",
-      "setGoalSubtitle": "Set money aside for what matters most",
+      "setGoalSubtitle": "Set money aside for what matters most.",
       "savingsGoalFallback": "Goal",
       "createAnotherGoal": "Create Another Goal",
       "disclaimer": "Goal balances is held in USDB, a dollar-backed stablecoin issued by Brale. Bitcoin rewards are generated through Flashnet and are variable, not guaranteed, and may be zero. USDB is not FDIC insured. Not a bank product."
