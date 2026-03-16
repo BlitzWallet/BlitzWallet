@@ -25,7 +25,7 @@ export default function NumberInputSendPage({
     });
   }, [amount]);
 
-  // Effect to update amount when paymentInfo.sendAmount changes
+  // Effect to update amount when paymentInfo.sendAmount changes externally (e.g. parent reset)
   useEffect(() => {
     if (paymentInfo?.sendAmount !== amount) {
       setAmount(paymentInfo.sendAmount);
