@@ -57,8 +57,8 @@ export default function SavingsTransactionComponenet({ item, isLastIndex }) {
       </View>
       <ThemeText
         styles={[styles.activityAmount]}
-        content={`${isPositive ? '+' : ''}${displayCorrectDenomination({
-          amount: amount,
+        content={`${isPositive ? '+' : '-'}${displayCorrectDenomination({
+          amount: Math.abs(amount),
           masterInfoObject: {
             ...masterInfoObject,
             userBalanceDenomination: showSats ? 'sats' : 'fiat',
