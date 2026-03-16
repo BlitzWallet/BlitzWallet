@@ -2136,7 +2136,7 @@
           "amount": "Betrag",
           "details": "Details"
         },
-        "chooseCurrencyTitle": "WWählen Sie die Währung, die Sie umtauschen möchten.",
+        "chooseCurrencyTitle": "Wählen Sie die Währung, die Sie umtauschen möchten.",
         "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten"
       },
       "swapHistory": {
@@ -2218,7 +2218,7 @@
   },
   "contexts": {
     "spark": {
-      "depositLabel": "Eingehende Zahlung",
+      "depositLabel": "Eingehende Zahlung"
     }
   },
   "share": {
