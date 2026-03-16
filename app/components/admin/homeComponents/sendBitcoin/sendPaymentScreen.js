@@ -112,7 +112,7 @@ export default function SendPaymentScreen(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
-
+  const [rerenderInput, setRerenderInput] = useState(0);
   const useAltLayout = screenDimensions.height < 720;
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
@@ -878,6 +878,7 @@ export default function SendPaymentScreen(props) {
 
   const handleSelectPaymentMethod = useCallback(
     showNextScreen => {
+      setRerenderInput(prev => (prev += 1));
       if (showNextScreen) {
         if (!paymentValidation.isValid) {
           const error = paymentValidation.getErrorMessage(
@@ -1196,6 +1197,7 @@ export default function SendPaymentScreen(props) {
 
             {isAmountFocused && (
               <NumberInputSendPage
+                key={`${rerenderInput}-${inputDenomination}`}
                 paymentInfo={paymentInfo}
                 setPaymentInfo={setPaymentInfo}
                 fiatStats={conversionFiatStats}
