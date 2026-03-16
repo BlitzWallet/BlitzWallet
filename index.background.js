@@ -26,7 +26,9 @@ async function formatPushNotification(data) {
     getLocalStorageItem('userSelectedLanguage').then(
       data => JSON.parse(data) || 'en',
     ),
-    getLocalStorageItem('satDisplay').then(data => JSON.parse(data) || 'word'),
+    getLocalStorageItem('satDisplay').then(
+      data => JSON.parse(data) || 'symbol',
+    ),
     getLocalStorageItem('thousandsSeperator').then(
       data => JSON.parse(data) || 'space',
     ),
