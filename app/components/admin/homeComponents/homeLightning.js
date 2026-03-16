@@ -5,6 +5,7 @@ import {
   Platform,
   RefreshControl,
   useWindowDimensions,
+  Pressable,
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { UserSatAmount } from './homeLightning/userSatAmount';
@@ -624,18 +625,25 @@ export default function HomeLightning({ navigation }) {
           ]}
         >
           {flatListDataForSpark.length > 1 && (
-            <View style={styles.sectionHeader}>
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => navigate.navigate('ViewAllTxPage')}
+              style={styles.sectionHeader}
+            >
               <ThemeText
                 content={t('wallet.homeLightning.home.activity')}
                 styles={styles.sectionTitle}
               />
-              <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                }}
+              <Pressable
                 onPress={() => navigate.navigate('ViewAllTxPage')}
+                style={({ pressed }) => [
+                  {
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                  },
+                  pressed && { opacity: 0.5 },
+                ]}
               >
                 <View style={[styles.leftContainer, { opacity: 0.5 }]}>
                   <ThemeText
@@ -648,8 +656,8 @@ export default function HomeLightning({ navigation }) {
                     iconName={'ChevronRight'}
                   />
                 </View>
-              </TouchableOpacity>
-            </View>
+              </Pressable>
+            </TouchableOpacity>
           )}
           {flatListDataForSpark.map((tx, idx) => (
             <View key={idx}>{tx.item}</View>
