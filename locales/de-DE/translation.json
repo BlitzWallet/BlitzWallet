@@ -859,7 +859,7 @@
       "contacts": "Aus Kontakten",
       "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein.",
       "scanImage": "Bild scannen",
-      "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild zu extrahieren.",
+      "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild auszulesen.",
       "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten.",
       "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden.",
       "addressBook": "Adressbuch",
@@ -884,7 +884,7 @@
       "noAddedContactsDesc": "Ihre Kontakte erscheinen hier, sobald Sie einen hinzufügen."
     },
     "pools": {
-      "receiveViaPool": "Über einen Sparpool empfangen.",
+      "receiveViaPool": "Über einen Sparpool empfangen",
       "createPool": "Sparpool erstellen",
       "addDescription": "Beschreibung hinzufügen",
       "collectPaymentsDescription": "Zahlungen für ein Ziel sammeln.",
@@ -941,7 +941,7 @@
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",
         "whatArePoolsBody": "Mit Sparpools können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie einen Sparpool, legen Sie einen Zielbetrag fest und teilen Sie es mit beliebigen Personen.",
-        "howItWorks": "So funktioniert es.",
+        "howItWorks": "So funktioniert es:",
         "howStep1": "• Erstellen Sie einen neuen Sparpool mit einem Namen und einem Zielbetrag.",
         "howStep2": "• Teilen Sie den Sparpool-Link, damit andere ihn finden können.",
         "howStep3": "• Unterstützer senden Bitcoin direkt an den Pool.",
@@ -989,7 +989,7 @@
         "minUSDSwap": "Zahlungen, die in USD umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}."
       },
       "buttonContainer": {
-        "format": "Andere Empfangsmethoden",
+        "format": "Weitere Empfangsmethoden",
         "infoMessage": "Benutzerdefinierte Beträge werden bei Spark- oder Rootstock-Zahlungen nicht unterstützt."
       },
       "switchReceiveOptionPage": {
@@ -1008,7 +1008,7 @@
         "rootstockTitle": "Rootstock-Adresse"
       },
       "editLNURLContact": {
-        "informationMessage": "Beim Ändern Ihres Benutzernamens ändert sich auch Ihre Lightning-Adresse (benutzername@blitzwalletapp.com). Dadurch finden andere Sie einfacher in ihren Blitz-Kontakten. Ihre Lightning-Adresse funktioniert wie eine E-Mail-Adresse für BTC: Geben Sie anderen einfach benutzername@blitzwalletapp.com an – und schon können sie Ihnen BTC senden.",
+        "informationMessage": "Beim Ändern Ihres Benutzernamens ändert sich auch Ihre Lightning-Adresse (benutzername@blitzwalletapp.com). Dadurch finden andere Sie einfacher in Ihren Blitz-Kontakten. Ihre Lightning-Adresse funktioniert wie eine E-Mail-Adresse für BTC: Geben Sie anderen einfach benutzername@blitzwalletapp.com an – und schon können sie Ihnen BTC senden.",
         "usernameInputDesc": "Benutzernamen bearbeiten"
       }
     },
@@ -1245,7 +1245,7 @@
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Geschenkkarte",
-        "noCardsText": "Hier werden Geschenkkarten angezeigt, die Ihnen ein Kontakt sendet.",
+        "noCardsText": "Hier werden Geschenkkarten angezeigt, die Ihnen ein Kontakt gesendet hat.",
         "header": "Ihre Geschenkkarten",
         "cardsLengthSingular": "{{num}} Karte",
         "cardsLengthPlural": "{{num}} Karten"
@@ -1285,9 +1285,9 @@
       "poweredByFlashnet": "Flashnet",
       "poweredByBoltz": "Boltz API",
       "sparkHeader": "Gut zu wissen",
-      "sparkDescription": "Blitz nutzt das Spark-Protokoll. Spark ist ein Off-Chain-Protokoll, bei dem Operatoren den Eigentümerstatus von Bitcoin außerhalb der Blockchain verwalten. Dies ermöglicht schnelle, kostengünstige und nicht-verwahrende Überweisungen ohne On-Chain-Transaktionen.",
+      "sparkDescription": "Blitz nutzt das Spark-Protokoll. Spark ist ein Off-Chain-Protokoll, bei dem Operatoren den Eigentümerstatus von Bitcoin außerhalb der Blockchain verwalten. Dies ermöglicht schnelle, kostengünstige und nicht verwahrende Überweisungen ohne On-Chain-Transaktionen.",
       "learnMore": "Mehr erfahren",
-      "creatorHeader": "Ersteller",
+      "creatorHeader": "Entwickler",
       "uiUxHeader": "UX / UI",
       "olliRole": "Entwicklung",
       "versionLabel": "Version",
@@ -1581,7 +1581,7 @@
     "accountComponents": {
       "homepage": {
         "addNewAccount": "Hinzufügen",
-        "swap": "Übertragen",
+        "swap": "Guthaben übertragen",
         "viewSeed": "Wiederherstellungsphrase (Seed-Phrase) anzeigen",
         "editAccount": "Konto bearbeiten",
         "swapAccountError": "Sie benötigen mindestens zwei Konten, um eine Überweisung durchzuführen.",
@@ -1626,7 +1626,7 @@
         "removeAccountLabel": "Konto entfernen",
         "activeAccountError": "Sie können das derzeit aktive Konto nicht löschen. Bitte wechseln Sie zu einem anderen Konto, bevor Sie es löschen.",
         "account_pin": "Konto anheften",
-        "account_unpin": "Konto lösen",
+        "account_unpin": "Konto loslösen",
         "pin_account_info": "Wenn Sie ein Konto anheften, wird es auf der Hauptseite der Einstellungen angezeigt, sodass Sie schnell zwischen Ihrem Hauptkonto und dem angehefteten Konto wechseln können."
       },
       "selectCreateAccountType": {
@@ -1685,7 +1685,7 @@
       "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines.",
       "morePoolsCount": "+{{count}} weitere",
       "pos": {
-        "desc": "Akzeptieren Sie ganz einfach Bitcoin-Zahlungen für Ihr Unternehmen"
+        "desc": "Akzeptieren Sie ganz einfach Bitcoin-Zahlungen für Ihr Unternehmen."
       }
     },
     "posPath": {
@@ -1884,7 +1884,7 @@
         "edit contact profile": "Kontaktprofil bearbeiten",
         "view all swaps": "Netzwerk-Einstellungen",
         "fast pay": "Schnellzahlungen",
-        "blitz fee details": "Blitz-Gebührendetails",
+        "blitz fee details": "Gebührenübersicht",
         "crash reports": "Absturzberichte (Logs)",
         "notifications": "Benachrichtigungen",
         "blitz stats": "Blitz-Statistiken",
@@ -1932,17 +1932,17 @@
         "noTxHistorySub": "Ihre Transaktionen erscheinen hier, sobald Sie welche senden oder empfangen.",
         "filterModalTitle": "Transaktionen filtern",
         "exportButton": "Exportieren",
-        "filterDirectionTitle": "Richtung",
+        "filterDirectionTitle": "Art",
         "filterSent": "Gesendet",
         "filterReceived": "Empfangen",
         "filterDateTitle": "Zeitraum",
         "filterDate7d": "Letzte 7 Tage",
         "filterDate30d": "Letzte 30 Tage",
         "filterDate90d": "Letzte 90 Tage",
-        "filterDate1y": "Letzte 12 Monate",
+        "filterDate1y": "Letztes Jahr",
         "filterTypeTitle": "Transaktionstyp",
         "filterApply": "Filter anwenden",
-        "filterClearAll": "Alles löschen"
+        "filterClearAll": "Filter zurücksetzen"
       },
       "lrc20HalfModal": {
         "title": "Token suchen",
@@ -1952,8 +1952,8 @@
       "lrc20TokenDataHalfModal": {
         "balance": "Guthaben",
         "maxSupply": "Max. Supply",
-        "tokenTicker": "Token-Ticker",
-        "tokenPubKey": "Öffentl. Token-Adresse"
+        "tokenTicker": "Token-Symbol",
+        "tokenPubKey": "Öffentliche Token-Adresse"
       },
       "giftPages": {
         "expired": "Abgelaufen",
@@ -1992,7 +1992,7 @@
           "startProcess2": "Einrichten...",
           "startProcess3": "Guthaben wird hinzugefügt...",
           "header": "Geschenk erstellen",
-          "inputPlaceholder": "Nachricht oder Notiz hinzufügen...",
+          "inputPlaceholder": "Nachricht hinzufügen...",
           "button": "Geschenk erstellen",
           "disclaimer": "Wenn Sie ein Geschenk erstellen, bleibt das Geld {{numDays}} Tage lang gesperrt. Wenn es in dieser Zeit niemand einlöst, können Sie zur Rückforderungsseite gehen, um es zurückzubekommen.",
           "durationText": "{{numDays}} Tage",
@@ -2136,7 +2136,7 @@
           "amount": "Betrag",
           "details": "Details"
         },
-        "chooseCurrencyTitle": "Wählen Sie die Währung, von der Sie tauschen möchten",
+        "chooseCurrencyTitle": "WWählen Sie die Währung, die Sie umtauschen möchten.",
         "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten"
       },
       "swapHistory": {
@@ -2218,7 +2218,7 @@
   },
   "contexts": {
     "spark": {
-      "depositLabel": "Zahlung an Einzahlungsadresse"
+      "depositLabel": "Eingehende Zahlung",
     }
   },
   "share": {
@@ -2294,7 +2294,7 @@
   "savings": {
     "home": {
       "title": "Sparziele",
-      "howItWorksLink": "So funktioniert es",
+      "howItWorksLink": "So funktioniert es:",
       "earnedCard": "Verdient: {{amount}}",
       "setGoalTitle": "Sparziel setzen",
       "setGoalSubtitle": "Sparen Sie für das, was Ihnen wichtig ist!",
@@ -2303,7 +2303,7 @@
       "disclaimer": "Guthaben wird in USDB gehalten, einem dollargedeckten Stablecoin von Brale. USDB ist 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt."
     },
     "preview": {
-      "title": "Gesamt-Ersparnisse",
+      "title": "Gesamtersparnisse",
       "earnInterest": "Verdienen Sie Zinsen, ausgezahlt in BTC"
     },
     "goalEmoji": {
@@ -2381,7 +2381,7 @@
       },
       "successTitle": "Geld eingezahlt",
       "paymentLabel_unallocated": "Sparzieleinzahlung",
-      "paymentLabel": "Sparzieleinzahlung für {{savingsGoal}}",
+      "paymentLabel": "Einzahlung vom {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
       }
@@ -2420,7 +2420,7 @@
       },
       "successTitle": "Auszahlung abgeschlossen",
       "paymentLabel_unallocated": "Sparauszahlung",
-      "paymentLabel": "Sparauszahlung von {{savingsGoal}}",
+      "paymentLabel": "Auszahlung vom {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Auszahlung konnte nicht abgeschlossen werden."
       }
