@@ -15,6 +15,8 @@ import {
 import { parseInput, InputTypes } from 'bitcoin-address-parser';
 import { decodeSparkInvoice } from '../../../../../functions/spark/decodeInvoices';
 import { deriveSparkAddress } from '../../../../../functions/gift/deriveGiftWallet';
+import { getPayLinkDoc, addDataToCollection } from '../../../../../../db';
+import { receiveSparkLightningPayment } from '../../../../../functions/spark';
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -53,10 +55,56 @@ export default async function decodeSendAddress(props) {
     primaryDisplay,
   } = props;
 
+  let paylinkPublishFunc = null;
+
   try {
     console.log(btcAdress, 'scanned address');
     if (typeof btcAdress !== 'string')
       throw new Error(t('wallet.sendPages.handlingAddressErrors.invlidFormat'));
+
+    if (btcAdress.toLowerCase().startsWith('paylink://')) {
+      const payLinkId = btcAdress.slice('paylink://'.length);
+      setLoadingMessage(t('wallet.payLinks.preparingPayment'));
+
+      const result = await getPayLinkDoc(payLinkId);
+      if (!result.didWork) {
+        return goBackFunction(result.error || t('wallet.payLinks.notFound'));
+      }
+
+      const { amount, description, identityPubKey, isPaid } = result.data;
+      if (isPaid) {
+        return goBackFunction(t('wallet.payLinks.alreadyPaid'));
+      }
+
+      const lnInvoice = await receiveSparkLightningPayment({
+        amountSats: amount,
+        memo: description,
+        mnemonic: accountMnemoinc,
+        includeSparkAddress: false,
+        receiverIdentityPubkey: identityPubKey,
+      });
+
+      if (!lnInvoice.didWork) {
+        return goBackFunction(
+          lnInvoice.error || t('wallet.payLinks.invoiceError'),
+        );
+      }
+
+      btcAdress = lnInvoice.response.invoice.encodedInvoice;
+      enteredPaymentInfo = {
+        ...enteredPaymentInfo,
+        fromContacts: true,
+        amount,
+        description,
+      };
+      paylinkPublishFunc = async () => {
+        await addDataToCollection(
+          { datePaid: Date.now(), isPaid: true },
+          'blitzPaylinks',
+          payLinkId,
+        );
+      };
+    }
 
     if (isSupportedPNPQR(btcAdress)) {
       crashlyticsLogReport('Handling crypto qr code');
@@ -196,6 +244,13 @@ export default async function decodeSendAddress(props) {
         err.message ||
           t('wallet.sendPages.handlingAddressErrors.paymentProcessingError'),
       );
+    }
+
+    if (paylinkPublishFunc && processedPaymentInfo) {
+      processedPaymentInfo = {
+        ...processedPaymentInfo,
+        publishMessageFunc: paylinkPublishFunc,
+      };
     }
 
     if (processedPaymentInfo) {
