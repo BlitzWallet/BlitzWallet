@@ -37,6 +37,7 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import customUUID from '../../../../functions/customUUID';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
 import PoolCreationOverlay from '../pools/poolCreationOverlay';
+import PayLinkCreationOverlay from '../payLinks/payLinkCreationOverlay';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 const ContactRow = ({
@@ -358,12 +359,14 @@ export default function HalfModalReceiveOptions({
   scrollPosition,
   handleBackPressFunction,
   isScreenActive,
+  setContentHeight,
 }) {
   const [expandedOtherOptions, setExpandedOtherOptions] = useState(false);
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAmountInput, setShowAmountInput] = useState(false);
   const [showAddContact, setShowAddContact] = useState(false);
   const [showPoolCreation, setShowPoolCreation] = useState(false);
+  const [showPayLinkCreation, setShowPayLinkCreation] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({});
@@ -389,7 +392,12 @@ export default function HalfModalReceiveOptions({
   );
 
   useEffect(() => {
-    if (showAmountInput || showAddContact || showPoolCreation) {
+    if (
+      showAmountInput ||
+      showAddContact ||
+      showPoolCreation ||
+      showPayLinkCreation
+    ) {
       // Content slides left and fades out
       contentOpacity.value = withTiming(0, { duration: 250 });
       contentTranslateX.value = withTiming(-30, { duration: 250 });
@@ -398,7 +406,7 @@ export default function HalfModalReceiveOptions({
       contentOpacity.value = withTiming(1, { duration: 250 });
       contentTranslateX.value = withTiming(0, { duration: 250 });
     }
-  }, [showAmountInput, showAddContact, showPoolCreation]);
+  }, [showAmountInput, showAddContact, showPoolCreation, showPayLinkCreation]);
 
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
@@ -626,7 +634,7 @@ export default function HalfModalReceiveOptions({
           {/* Lightning */}
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => handleReceiveOption('lightning')}
+            onPress={() => setShowPayLinkCreation(true)}
           >
             <View
               style={[
@@ -823,6 +831,15 @@ export default function HalfModalReceiveOptions({
         theme={theme}
         darkModeType={darkModeType}
         handleBackPressFunction={handleBackPressFunction}
+      />
+
+      <PayLinkCreationOverlay
+        visible={showPayLinkCreation}
+        onClose={() => setShowPayLinkCreation(false)}
+        theme={theme}
+        darkModeType={darkModeType}
+        handleBackPressFunction={handleBackPressFunction}
+        setContentHeight={setContentHeight}
       />
     </View>
   );
