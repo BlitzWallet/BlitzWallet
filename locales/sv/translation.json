@@ -882,6 +882,29 @@
       "noAddedContactsTitle": "Inga tillagda kontakter",
       "noAddedContactsDesc": "Dina kontakter visas här när du lägger till en."
     },
+    "payLinks": {
+      "skip": "Hoppa över",
+      "next": "Nästa",
+      "share": "Dela",
+      "createPayLink": "Skapa betalningslänk",
+      "showQR": "Visa QR-kod",
+      "creating": "Skapar...",
+      "descriptionPlaceholder": "Vad är detta för? (valfritt)",
+      "descriptionTitle": "Lägg till en beskrivning",
+      "preparingPayment": "Förbereder betalning...",
+      "alreadyPaid": "Den här betalningslänken har redan betalats.",
+      "notFound": "Betalningslänk hittades inte.",
+      "invoiceError": "Misslyckades med att skapa faktura.",
+      "howItWorks": {
+        "step1Label": "Dela länken",
+        "step1Desc": "Skicka den via meddelande, e-post eller vilken app som helst. Alla med länken kan betala dig.",
+        "step2Label": "De öppnar den i en webbläsare",
+        "step2Desc": "Ingen app behövs. Länken öppnar en betalningssida där de kan betala med Lightning, USDC eller USDT.",
+        "step3Label": "Pengarna kommer direkt",
+        "step3Desc": "När betalningen är klar kommer pengarna direkt till din plånbok."
+      },
+      "copyLink": "Kopiera länk"
+    },
     "pools": {
       "receiveViaPool": "Ta emot via pool",
       "createPool": "Skapa pool",

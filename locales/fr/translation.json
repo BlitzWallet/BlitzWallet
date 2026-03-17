@@ -882,6 +882,29 @@
       "noAddedContactsTitle": "Aucun contact ajouté",
       "noAddedContactsDesc": "Vos contacts apparaîtront ici une fois que vous en aurez ajouté un."
     },
+    "payLinks": {
+      "skip": "Passer",
+      "next": "Suivant",
+      "share": "Partager",
+      "createPayLink": "Créer un lien de paiement",
+      "showQR": "Afficher le QR code",
+      "creating": "Création...",
+      "descriptionPlaceholder": "À quoi cela sert-il ? (optionnel)",
+      "descriptionTitle": "Ajouter une description",
+      "preparingPayment": "Préparation du paiement...",
+      "alreadyPaid": "Ce lien de paiement a déjà été payé.",
+      "notFound": "Lien de paiement introuvable.",
+      "invoiceError": "Échec de la création de la facture.",
+      "howItWorks": {
+        "step1Label": "Partagez le lien",
+        "step1Desc": "Envoyez-le par message, e-mail ou toute autre application. Toute personne disposant du lien peut vous payer.",
+        "step2Label": "Ils l’ouvrent dans un navigateur",
+        "step2Desc": "Aucune application nécessaire. Le lien ouvre une page de paiement où ils peuvent payer avec Lightning, USDC ou USDT.",
+        "step3Label": "Les fonds arrivent instantanément",
+        "step3Desc": "Une fois le paiement effectué, l’argent arrive dans votre portefeuille."
+      },
+      "copyLink": "Copier le lien"
+    },
     "pools": {
       "receiveViaPool": "Recevoir via une cagnotte",
       "createPool": "Créer une cagnotte",

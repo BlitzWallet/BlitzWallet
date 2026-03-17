@@ -883,6 +883,29 @@
       "noAddedContactsTitle": "Keine hinzugefügten Kontakte",
       "noAddedContactsDesc": "Ihre Kontakte erscheinen hier, sobald Sie einen hinzufügen."
     },
+    "payLinks": {
+      "skip": "Überspringen",
+      "next": "Weiter",
+      "share": "Teilen",
+      "createPayLink": "Zahlungslink erstellen",
+      "showQR": "QR-Code anzeigen",
+      "creating": "Wird erstellt...",
+      "descriptionPlaceholder": "Wofür ist das? (optional)",
+      "descriptionTitle": "Beschreibung hinzufügen",
+      "preparingPayment": "Zahlung wird vorbereitet...",
+      "alreadyPaid": "Dieser Zahlungslink wurde bereits bezahlt.",
+      "notFound": "Zahlungslink nicht gefunden.",
+      "invoiceError": "Rechnung konnte nicht erstellt werden.",
+      "howItWorks": {
+        "step1Label": "Link teilen",
+        "step1Desc": "Senden Sie ihn per Nachricht, E-Mail oder über eine beliebige App. Jeder mit dem Link kann Ihnen Geld senden.",
+        "step2Label": "Im Browser öffnen",
+        "step2Desc": "Keine App erforderlich. Der Link öffnet eine Zahlungsseite, auf der mit Lightning, USDC oder USDT bezahlt werden kann.",
+        "step3Label": "Geld kommt sofort an",
+        "step3Desc": "Sobald die Zahlung abgeschlossen ist, wird das Geld sofort in Ihrer Wallet gutgeschrieben."
+      },
+      "copyLink": "Link kopieren"
+    },
     "pools": {
       "receiveViaPool": "Über einen Sparpool empfangen",
       "createPool": "Sparpool erstellen",
