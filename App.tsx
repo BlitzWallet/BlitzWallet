@@ -365,9 +365,21 @@ function ResetStack(): JSX.Element | null {
           if (PAYLINK_DEEPLINK_REGEX.test(url)) {
             const match = url.match(/paylink\/([A-Za-z0-9]{9})/i);
             if (match) {
-              navigationRef.current.navigate('ConfirmPaymentScreen', {
-                btcAdress: `paylink://${match[1]}`,
-                fromPage: 'paylink',
+              navigationRef.current.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeAdmin',
+                    params: { screen: 'Home' },
+                  },
+                  {
+                    name: 'ConfirmPaymentScreen',
+                    params: {
+                      btcAdress: `paylink://${match[1]}`,
+                      fromPage: 'paylink',
+                    },
+                  },
+                ],
               });
             }
           } else if (POOL_DEEPLINK_REGEX.test(url)) {
