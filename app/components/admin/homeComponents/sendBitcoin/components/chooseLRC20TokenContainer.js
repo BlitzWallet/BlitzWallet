@@ -43,7 +43,6 @@ export default function ChooseLRC20TokenContainer({
             userBalanceDenomination: 'sats',
           },
           fiatStats,
-          convertAmount: false,
         })
       : displayCorrectDenomination({
           amount: formatTokensNumber(

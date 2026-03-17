@@ -1029,7 +1029,7 @@ export default function SwapFlowHalfModal({
             ...masterInfoObject,
             userBalanceDenomination: 'sats',
           },
-          convertAmount: false,
+    
         })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
           amount: Number(satsToDollars(1, poolInfo.currentPriceAInB)).toFixed(
             6,
