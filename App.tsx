@@ -363,10 +363,11 @@ function ResetStack(): JSX.Element | null {
           let isContactLink = false;
 
           if (PAYLINK_DEEPLINK_REGEX.test(url)) {
-            const match = url.match(/paylink\/([A-Za-z0-9]{7})/i);
+            const match = url.match(/paylink\/([A-Za-z0-9]{9})/i);
             if (match) {
-              navigationRef.current.navigate('PayLinkPaymentScreen', {
-                payLinkId: match[1],
+              navigationRef.current.navigate('ConfirmPaymentScreen', {
+                btcAdress: `paylink://${match[1]}`,
+                fromPage: 'paylink',
               });
             }
           } else if (POOL_DEEPLINK_REGEX.test(url)) {

@@ -4,7 +4,7 @@ type RootStackParamList = {
   Home: { someParam?: string };
   Details: { someParam?: string };
   ExpandedAddContactsPage: { newContact: object };
-  ConfirmPaymentScreen: { btcAdress: string };
+  ConfirmPaymentScreen: { btcAdress: string; fromPage: string };
   ErrorScreen: { errorMessage: string; useTranslationString?: boolean };
   CustomHalfModal: {
     wantedContent: string;
