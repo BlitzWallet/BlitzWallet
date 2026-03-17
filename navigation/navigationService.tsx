@@ -15,6 +15,9 @@ type RootStackParamList = {
   PoolDetailScreen: {
     poolId: string;
   };
+  PayLinkPaymentScreen: {
+    payLinkId: string;
+  };
 };
 
 // Correct way to define the navigationRef

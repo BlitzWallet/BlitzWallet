@@ -49,6 +49,7 @@ import {
   CONTACT_UNIVERSAL_LINK_REGEX,
   GIFT_DEEPLINK_REGEX,
   POOL_DEEPLINK_REGEX,
+  PAYLINK_DEEPLINK_REGEX,
   LOGIN_SECUITY_MODE_KEY,
   LOGIN_SECURITY_MODE_TYPE_KEY,
 } from './app/constants';
@@ -361,7 +362,14 @@ function ResetStack(): JSX.Element | null {
         if (!blockSoftReset) {
           let isContactLink = false;
 
-          if (POOL_DEEPLINK_REGEX.test(url)) {
+          if (PAYLINK_DEEPLINK_REGEX.test(url)) {
+            const match = url.match(/paylink\/([A-Za-z0-9]{7})/i);
+            if (match) {
+              navigationRef.current.navigate('PayLinkPaymentScreen', {
+                payLinkId: match[1],
+              });
+            }
+          } else if (POOL_DEEPLINK_REGEX.test(url)) {
             const poolIdMatch = url.match(/pools\/([0-9a-f-]{36})/i);
             if (poolIdMatch) {
               navigationRef.current.navigate('PoolDetailScreen', {
