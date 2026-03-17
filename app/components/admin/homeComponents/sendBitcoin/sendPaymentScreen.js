@@ -133,6 +133,8 @@ export default function SendPaymentScreen(props) {
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
+  const resolvedPublishMessageFunc =
+    paymentInfo?.publishMessageFunc ?? publishMessageFunc;
   const prevSelectedPaymentInfo = useRef({
     preSelectedPaymentMethod,
     enteredInfo: enteredPaymentInfo?.inputCurrency,
@@ -795,8 +797,11 @@ export default function SendPaymentScreen(props) {
       }
 
       if (paymentResponse.didWork) {
-        if (fromPage === 'contacts' && paymentResponse.response?.id) {
-          publishMessageFunc(paymentResponse.response.id);
+        if (
+          (fromPage === 'contacts' && paymentResponse.response?.id) ||
+          fromPage === 'paylink'
+        ) {
+          resolvedPublishMessageFunc(paymentResponse.response.id);
         }
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -868,7 +873,7 @@ export default function SendPaymentScreen(props) {
     sendWebViewRequest,
     contactInfo,
     fromPage,
-    publishMessageFunc,
+    resolvedPublishMessageFunc,
     navigate,
     errorMessageNavigation,
     determinePaymentMethod,
@@ -1107,21 +1112,21 @@ export default function SendPaymentScreen(props) {
               paymentInfo.type === 'spark' &&
               canEditAmount &&
               useFullTokensDisplay
-            ) &&
-              !isBitcoinPayment && (
-                <ChoosePaymentMethod
-                  theme={theme}
-                  darkModeType={darkModeType}
-                  determinePaymentMethod={determinePaymentMethod}
-                  handleSelectPaymentMethod={handleSelectPaymentMethod}
-                  bitcoinBalance={bitcoinBalance}
-                  dollarBalanceToken={dollarBalanceToken}
-                  masterInfoObject={masterInfoObject}
-                  fiatStats={fiatStats}
-                  uiState={uiState}
-                  t={t}
-                />
-              )}
+            ) && (
+              <ChoosePaymentMethod
+                theme={theme}
+                darkModeType={darkModeType}
+                determinePaymentMethod={determinePaymentMethod}
+                handleSelectPaymentMethod={handleSelectPaymentMethod}
+                bitcoinBalance={bitcoinBalance}
+                dollarBalanceToken={dollarBalanceToken}
+                masterInfoObject={masterInfoObject}
+                fiatStats={fiatStats}
+                uiState={uiState}
+                t={t}
+                showBitcoinCardOnly={isBitcoinPayment}
+              />
+            )}
             <CustomSearchInput
               onFocusFunction={() => setIsAmountFocused(false)}
               onBlurFunction={() => setIsAmountFocused(true)}
@@ -1167,7 +1172,7 @@ export default function SendPaymentScreen(props) {
                   setPaymentInfo={setPaymentInfo}
                   setLoadingMessage={setLoadingMessage}
                   fromPage={fromPage}
-                  publishMessageFunc={publishMessageFunc}
+                  publishMessageFunc={resolvedPublishMessageFunc}
                   // webViewRef={webViewRef}
                   minLNURLSatAmount={minLNURLSatAmount}
                   maxLNURLSatAmount={maxLNURLSatAmount}
@@ -1223,7 +1228,7 @@ export default function SendPaymentScreen(props) {
                   setPaymentInfo={setPaymentInfo}
                   setLoadingMessage={setLoadingMessage}
                   fromPage={fromPage}
-                  publishMessageFunc={publishMessageFunc}
+                  publishMessageFunc={resolvedPublishMessageFunc}
                   // webViewRef={webViewRef}
                   minLNURLSatAmount={minLNURLSatAmount}
                   maxLNURLSatAmount={maxLNURLSatAmount}
