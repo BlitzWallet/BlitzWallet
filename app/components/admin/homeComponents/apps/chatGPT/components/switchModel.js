@@ -2,11 +2,11 @@ import { useNavigation } from '@react-navigation/native';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../../../constants';
 import { ThemeText } from '../../../../../../functions/CustomElements';
-import { AI_MODEL_COST } from '../contants/AIModelCost';
+import { getAIModels } from '../contants/modelCache';
 import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
 import { INSET_WINDOW_WIDTH } from '../../../../../../constants/theme';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useGlobalInsets } from '../../../../../../../context-store/insetsProvider';
 
 export default function SwitchGenerativeAIModel({
@@ -16,7 +16,12 @@ export default function SwitchGenerativeAIModel({
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [modelSearch, setModelSearch] = useState('');
+  const [models, setModels] = useState([]);
   const { bottomPadding } = useGlobalInsets();
+
+  useEffect(() => {
+    getAIModels().then(setModels).catch(console.error);
+  }, []);
 
   const handleClick = useCallback(
     selectedOption => {
@@ -26,7 +31,7 @@ export default function SwitchGenerativeAIModel({
     [navigate, setSelectedRecieveOption],
   );
 
-  const filteredList = AI_MODEL_COST.filter(item =>
+  const filteredList = models.filter(item =>
     item.name?.toLowerCase()?.startsWith(modelSearch.toLowerCase()),
   );
 
