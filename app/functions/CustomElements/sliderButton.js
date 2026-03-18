@@ -5,8 +5,8 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   Easing,
-  runOnJS,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import FullLoadingScreen from './loadingScreen';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -116,7 +116,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   };
 
   const reset = () => {
-    runOnJS(setShowLoadingIcon)(false);
+    scheduleOnRN(setShowLoadingIcon, false);
     containerAnimatedWidth.value = withTiming(layoutWidth, { duration: 200 });
     loadingAnimationOpacity.value = withTiming(0, { duration: 200 });
   };
@@ -124,7 +124,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   const animateViewOnSuccess = () => {
     if (!shouldAnimateViewOnSuccess) return;
     const thumbSize = height + 3 + 2;
-    runOnJS(setShowLoadingIcon)(true);
+    scheduleOnRN(setShowLoadingIcon, true);
 
     containerAnimatedWidth.value = withTiming(thumbSize, { duration: 200 });
     loadingAnimationOpacity.value = withTiming(1, { duration: 200 });

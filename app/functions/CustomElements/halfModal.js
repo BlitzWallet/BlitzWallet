@@ -47,8 +47,8 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
-  runOnJS,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
@@ -560,7 +560,7 @@ export default function CustomHalfModal(props) {
     })
     .onEnd(e => {
       if (e.translationY > 100) {
-        runOnJS(handleBackPressFunction)();
+        scheduleOnRN(handleBackPressFunction);
       } else {
         translateY.value = withSpring(0);
       }
