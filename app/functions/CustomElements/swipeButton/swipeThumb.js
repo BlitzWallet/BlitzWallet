@@ -9,8 +9,8 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import GetThemeColors from '../../../hooks/themeColors';
 import {
@@ -62,7 +62,7 @@ export const SwipeThumb = ({
     widthSV.value = withTiming(defaultContainerWidth, {
       duration: DEFAULT_ANIMATION_DURATION,
     });
-    if (handleSwipeProgress) runOnJS(handleSwipeProgress)(0);
+    if (handleSwipeProgress) scheduleOnRN(handleSwipeProgress, 0);
   }, [defaultContainerWidth, handleSwipeProgress, widthSV]);
 
   const invokeOnSwipeSuccess = () => {
@@ -106,7 +106,7 @@ export const SwipeThumb = ({
   const panGesture = Gesture.Pan()
     .onBegin(() => {
       if (disabled) return;
-      if (onSwipeStart) runOnJS(onSwipeStart)();
+      if (onSwipeStart) scheduleOnRN(onSwipeStart);
     })
     .onUpdate(e => {
       if (disabled) return;
@@ -117,16 +117,16 @@ export const SwipeThumb = ({
         rtlMultiplier * reverseMultiplier * e.translationX;
 
       if (newWidth < defaultContainerWidth) {
-        runOnJS(reset)();
+        scheduleOnRN(reset);
       } else if (newWidth > maxWidth) {
         widthSV.value = maxWidth;
-        if (handleSwipeProgress) runOnJS(handleSwipeProgress)(1);
+        if (handleSwipeProgress) scheduleOnRN(handleSwipeProgress, 1);
       } else {
         widthSV.value = newWidth;
         const progress =
           (newWidth - defaultContainerWidth) /
           (maxWidth - defaultContainerWidth);
-        if (handleSwipeProgress) runOnJS(handleSwipeProgress)(progress);
+        if (handleSwipeProgress) scheduleOnRN(handleSwipeProgress, progress);
       }
     })
     .onEnd(e => {
@@ -139,9 +139,9 @@ export const SwipeThumb = ({
       const successThresholdWidth = maxWidth * (swipeSuccessThreshold / 100);
 
       if (newWidth < successThresholdWidth) {
-        runOnJS(onSwipeNotMetSuccessThreshold)();
+        scheduleOnRN(onSwipeNotMetSuccessThreshold);
       } else {
-        runOnJS(onSwipeMetSuccessThreshold)(newWidth);
+        scheduleOnRN(onSwipeMetSuccessThreshold, newWidth);
       }
     });
 

@@ -9,9 +9,9 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 import Animated, {
   useSharedValue,
   withTiming,
-  runOnJS,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import ThemeIcon from './themeIcon';
 
 export default function InformationPopup(props) {
@@ -43,9 +43,9 @@ export default function InformationPopup(props) {
       BlurViewAnimation.value = withTiming(0, { duration: 500 }, isFinished => {
         if (isFinished) {
           if (customNavigation) {
-            runOnJS(customNavigation)();
+            scheduleOnRN(customNavigation);
           } else {
-            runOnJS(navigate.goBack)();
+            scheduleOnRN(navigate.goBack);
           }
         }
       });

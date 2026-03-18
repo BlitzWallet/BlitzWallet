@@ -7,11 +7,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { MAX_CONTENT_WIDTH } from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
@@ -39,9 +39,9 @@ export default function SkipCreateAccountPathMessage() {
     if (goBack) {
       blurViewAnimation.value = withTiming(0, { duration: 500 }, isFinished => {
         if (isFinished) {
-          runOnJS(navigate.goBack)();
+          scheduleOnRN(navigate.goBack);
           if (goToPinRef.current) {
-            runOnJS(navigate.navigate)('PinSetup', { isInitialLoad: true });
+            scheduleOnRN(navigate.navigate, 'PinSetup', { isInitialLoad: true });
           }
         }
       });
