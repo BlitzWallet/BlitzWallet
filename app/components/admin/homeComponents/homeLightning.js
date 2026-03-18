@@ -36,7 +36,6 @@ import Animated, {
   interpolate,
   useHandler,
   useEvent,
-  runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
@@ -418,9 +417,9 @@ export default function HomeLightning({ navigation }) {
       'worklet';
       const { translationX, velocityX } = event;
       if (translationX < -40 || velocityX < -300) {
-        runOnJS(goToNextPage)();
+        scheduleOnRN(goToNextPage);
       } else if (translationX > 40 || velocityX > 300) {
-        runOnJS(goToPrevPage)();
+        scheduleOnRN(goToPrevPage);
       }
     });
 

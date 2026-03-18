@@ -18,8 +18,8 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 
@@ -72,7 +72,7 @@ export default function ConfirmPinForLoginMode() {
     })
     .onEnd(e => {
       if (e.translationY > 100) {
-        runOnJS(handleBackPressFunction)();
+        scheduleOnRN(handleBackPressFunction);
       } else {
         panY.value = withTiming(0, { duration: 200 });
       }
