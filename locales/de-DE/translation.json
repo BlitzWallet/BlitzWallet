@@ -857,7 +857,7 @@
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
       "contacts": "Aus Kontakten",
-      "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein.",
+      "inputPlaceholder": "Adresse, @blitz oder Rechnung",
       "scanImage": "Bild scannen",
       "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild auszulesen.",
       "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten.",
