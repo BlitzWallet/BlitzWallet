@@ -14,9 +14,8 @@ export function SendRecieveBTNs({
   darkModeType,
   isConnectedToTheInternet,
   isNWCWallet = false,
-  scrollPosition,
+  scrollPositionRef,
 }) {
-  console.log('Loading send and receive btns componeent');
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { backgroundOffset, textColor } = GetThemeColors();
@@ -61,11 +60,11 @@ export function SendRecieveBTNs({
       return;
     }
     navigate.navigate('CustomHalfModal', {
-      scrollPosition: scrollPosition === 'usd' ? 'USD' : 'BTC',
+      scrollPosition: scrollPositionRef?.current === 'usd' ? 'USD' : 'BTC',
       wantedContent: 'receiveOptions',
       sliderHight: 0.8,
     });
-  }, [handleSettingsCheck, navigate, scrollPosition, t]);
+  }, [handleSettingsCheck, navigate, scrollPositionRef, t]);
 
   const handleCamera = useCallback(() => {
     const areSettingsSet = handleSettingsCheck();

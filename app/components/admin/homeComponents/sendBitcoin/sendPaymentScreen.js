@@ -74,6 +74,7 @@ import {
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import normalizeLNURLAddress from '../../../../functions/lnurl/normalizeLNURLAddress';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -813,6 +814,11 @@ export default function SendPaymentScreen(props) {
                   name: 'ConfirmTxPage',
                   params: {
                     transaction: paymentResponse.response,
+                    lnurlAddress:
+                      paymentInfo?.type === InputTypes.LNURL_PAY
+                        ? normalizeLNURLAddress(paymentInfo?.data?.address)
+                        : undefined,
+                    blitzContactInfo: paymentInfo?.blitzContactInfo,
                   },
                 },
               ],
@@ -836,6 +842,11 @@ export default function SendPaymentScreen(props) {
                   params: {
                     transaction: paymentResponse.response,
                     error: paymentResponse.error,
+                    lnurlAddress:
+                      paymentInfo?.type === InputTypes.LNURL_PAY
+                        ? normalizeLNURLAddress(paymentInfo?.data?.address)
+                        : undefined,
+                    blitzContactInfo: paymentInfo?.blitzContactInfo,
                   },
                 },
               ],
@@ -1054,8 +1065,10 @@ export default function SendPaymentScreen(props) {
           {uiState === 'CONFIRM_PAYMENT' && (
             <InvoiceInfo
               paymentInfo={paymentInfo}
-              contactInfo={contactInfo}
-              fromPage={fromPage}
+              contactInfo={contactInfo || paymentInfo?.blitzContactInfo}
+              fromPage={
+                fromPage || (paymentInfo?.blitzContactInfo ? 'contacts' : '')
+              }
               theme={theme}
               darkModeType={darkModeType}
             />

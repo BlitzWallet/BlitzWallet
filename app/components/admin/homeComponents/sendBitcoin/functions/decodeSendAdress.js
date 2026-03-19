@@ -15,6 +15,9 @@ import {
 import { parseInput, InputTypes } from 'bitcoin-address-parser';
 import { decodeSparkInvoice } from '../../../../../functions/spark/decodeInvoices';
 import { deriveSparkAddress } from '../../../../../functions/gift/deriveGiftWallet';
+import { getSingleContact } from '../../../../../../db';
+import { getCachedProfileImage } from '../../../../../functions/cachedImage';
+
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -53,10 +56,40 @@ export default async function decodeSendAddress(props) {
     primaryDisplay,
   } = props;
 
+  let resolvedBlitzContact = null;
+
   try {
     console.log(btcAdress, 'scanned address');
     if (typeof btcAdress !== 'string')
       throw new Error(t('wallet.sendPages.handlingAddressErrors.invlidFormat'));
+
+    if (btcAdress.startsWith('@')) {
+      const username = btcAdress.slice(1).trim();
+      if (!username) {
+        return goBackFunction(
+          t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
+        );
+      }
+      const results = await getSingleContact(username);
+      const profile = results?.[0]?.contacts?.myProfile;
+      const sparkAddress = profile?.sparkAddress;
+      if (!sparkAddress) {
+        return goBackFunction(
+          t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
+        );
+      }
+      btcAdress = sparkAddress;
+      const imageData = await getCachedProfileImage(profile.uuid).catch(
+        () => null,
+      );
+      resolvedBlitzContact = {
+        name: profile.name || profile.uniqueName || '',
+        uniqueName: profile.uniqueName || '',
+        bio: profile.bio || '',
+        uuid: profile.uuid,
+        imageData,
+      };
+    }
 
     if (isSupportedPNPQR(btcAdress)) {
       crashlyticsLogReport('Handling crypto qr code');
@@ -250,7 +283,13 @@ export default async function decodeSendAddress(props) {
           }
         }
       }
-      setPaymentInfo({ ...processedPaymentInfo, decodedInput: input });
+      setPaymentInfo({
+        ...processedPaymentInfo,
+        decodedInput: input,
+        ...(resolvedBlitzContact
+          ? { blitzContactInfo: resolvedBlitzContact }
+          : {}),
+      });
     } else {
       if (input.type === InputTypes.LNURL_AUTH) return;
 

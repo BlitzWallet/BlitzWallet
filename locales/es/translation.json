@@ -717,7 +717,7 @@
       "clipboard": "Desde portapapeles",
       "manual": "Entrada manual",
       "contacts": "Desde contactos",
-      "inputPlaceholder": "Ingresa una dirección para pagar",
+      "inputPlaceholder": "Dirección, @blitz o factura",
       "scanImage": "Escanear imagen",
       "tapToScan": "Toca para obtener una dirección desde una imagen",
       "chooseWhatToSend": "Elige qué enviar",
