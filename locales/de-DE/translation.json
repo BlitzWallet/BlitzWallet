@@ -2467,6 +2467,3 @@
     "total_balance": "Gesamtguthaben"
   }
 }
-
-
-<!-- GLOSSAR:[{"id":"1773911748485","falsch":"Fee","korrekt":"Gebühr"},{"id":"1773912031318","falsch":"Webhook","korrekt":"Automatische Benachrichtigung"},{"id":"1773912083586","falsch":"Webhook","korrekt":"Benachrichtigung"},{"id":"1773912289738","falsch":"Auszahlungen","korrekt":"Abhebungen"},{"id":"1773912317645","falsch":"Pull Payments","korrekt":"Abhebungen"},{"id":"1773912359819","falsch":"Channels","korrekt":"Kanäle"},{"id":"1773912406800","falsch":"Key","korrekt":"Schlüssel"}] -->
