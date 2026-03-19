@@ -186,17 +186,16 @@ export default function HomeLightning({ navigation }) {
   const currentPageIndexRef = useRef(0);
 
   const scrollY = useSharedValue(0);
+  const prevBorderRadius = useSharedValue(false);
+  const prevBg = useSharedValue(false);
   const [navbarHeight, setNavbarHeight] = useState(0);
   const [scrollPosition, setScrollPosition] = useState('total');
+  const scrollPositionRef = useRef('total');
 
   const updateScrollPosition = useCallback(page => {
-    if (page === 0) {
-      setScrollPosition('total');
-    } else if (page === 1) {
-      setScrollPosition('sats');
-    } else {
-      setScrollPosition('usd');
-    }
+    const pos = page === 0 ? 'total' : page === 1 ? 'sats' : 'usd';
+    scrollPositionRef.current = pos;
+    setScrollPosition(pos);
   }, []);
 
   const onBalancePageScroll = usePagerScrollHandler({
@@ -243,17 +242,9 @@ export default function HomeLightning({ navigation }) {
     }, [navigation]),
   );
 
-  const handleStateUpdate = useCallback(
-    newObj => {
-      if (
-        newObj.borderRadius === scrollContentChanges.borderRadius &&
-        newObj.backgroundColor === scrollContentChanges.backgroundColor
-      )
-        return;
-      setScrollContentChanges(newObj);
-    },
-    [scrollContentChanges],
-  );
+  const handleStateUpdate = useCallback(newObj => {
+    setScrollContentChanges(newObj);
+  }, []);
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
@@ -263,10 +254,17 @@ export default function HomeLightning({ navigation }) {
       const newBorderRadius = offsetY > 40;
       const newBg = offsetY > 100;
 
-      scheduleOnRN(handleStateUpdate, {
-        borderRadius: newBorderRadius,
-        backgroundColor: newBg,
-      });
+      if (
+        newBorderRadius !== prevBorderRadius.value ||
+        newBg !== prevBg.value
+      ) {
+        prevBorderRadius.value = newBorderRadius;
+        prevBg.value = newBg;
+        scheduleOnRN(handleStateUpdate, {
+          borderRadius: newBorderRadius,
+          backgroundColor: newBg,
+        });
+      }
     },
   });
 
@@ -410,18 +408,22 @@ export default function HomeLightning({ navigation }) {
     updateScrollPosition(prev);
   }, [updateScrollPosition]);
 
-  const buttonSwipeGesture = Gesture.Pan()
-    .activeOffsetX([-8, 8])
-    .failOffsetY([-5, 5])
-    .onEnd(event => {
-      'worklet';
-      const { translationX, velocityX } = event;
-      if (translationX < -40 || velocityX < -300) {
-        scheduleOnRN(goToNextPage);
-      } else if (translationX > 40 || velocityX > 300) {
-        scheduleOnRN(goToPrevPage);
-      }
-    });
+  const buttonSwipeGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .activeOffsetX([-8, 8])
+        .failOffsetY([-5, 5])
+        .onEnd(event => {
+          'worklet';
+          const { translationX, velocityX } = event;
+          if (translationX < -40 || velocityX < -300) {
+            scheduleOnRN(goToNextPage);
+          } else if (translationX > 40 || velocityX > 300) {
+            scheduleOnRN(goToPrevPage);
+          }
+        }),
+    [goToNextPage, goToPrevPage],
+  );
 
   const colors = useMemo(
     () =>
@@ -601,8 +603,7 @@ export default function HomeLightning({ navigation }) {
                 theme={theme}
                 darkModeType={darkModeType}
                 isConnectedToTheInternet={isConnectedToTheInternet}
-                scrollPosition={scrollPosition}
-                buttonSwipeGesture={buttonSwipeGesture}
+                scrollPositionRef={scrollPositionRef}
               />
             </View>
           </View>
