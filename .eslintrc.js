@@ -19,5 +19,6 @@ module.exports = {
     atob: 'readonly',
     TextDecoder: 'readonly',
     TextEncoder: 'readonly',
+    structuredClone: 'readonly',
   },
 };
