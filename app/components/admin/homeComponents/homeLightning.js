@@ -5,6 +5,7 @@ import {
   Platform,
   RefreshControl,
   useWindowDimensions,
+  Pressable,
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { UserSatAmount } from './homeLightning/userSatAmount';
@@ -35,7 +36,6 @@ import Animated, {
   interpolate,
   useHandler,
   useEvent,
-  runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
@@ -186,17 +186,16 @@ export default function HomeLightning({ navigation }) {
   const currentPageIndexRef = useRef(0);
 
   const scrollY = useSharedValue(0);
+  const prevBorderRadius = useSharedValue(false);
+  const prevBg = useSharedValue(false);
   const [navbarHeight, setNavbarHeight] = useState(0);
   const [scrollPosition, setScrollPosition] = useState('total');
+  const scrollPositionRef = useRef('total');
 
   const updateScrollPosition = useCallback(page => {
-    if (page === 0) {
-      setScrollPosition('total');
-    } else if (page === 1) {
-      setScrollPosition('sats');
-    } else {
-      setScrollPosition('usd');
-    }
+    const pos = page === 0 ? 'total' : page === 1 ? 'sats' : 'usd';
+    scrollPositionRef.current = pos;
+    setScrollPosition(pos);
   }, []);
 
   const onBalancePageScroll = usePagerScrollHandler({
@@ -243,17 +242,9 @@ export default function HomeLightning({ navigation }) {
     }, [navigation]),
   );
 
-  const handleStateUpdate = useCallback(
-    newObj => {
-      if (
-        newObj.borderRadius === scrollContentChanges.borderRadius &&
-        newObj.backgroundColor === scrollContentChanges.backgroundColor
-      )
-        return;
-      setScrollContentChanges(newObj);
-    },
-    [scrollContentChanges],
-  );
+  const handleStateUpdate = useCallback(newObj => {
+    setScrollContentChanges(newObj);
+  }, []);
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
@@ -263,10 +254,17 @@ export default function HomeLightning({ navigation }) {
       const newBorderRadius = offsetY > 40;
       const newBg = offsetY > 100;
 
-      scheduleOnRN(handleStateUpdate, {
-        borderRadius: newBorderRadius,
-        backgroundColor: newBg,
-      });
+      if (
+        newBorderRadius !== prevBorderRadius.value ||
+        newBg !== prevBg.value
+      ) {
+        prevBorderRadius.value = newBorderRadius;
+        prevBg.value = newBg;
+        scheduleOnRN(handleStateUpdate, {
+          borderRadius: newBorderRadius,
+          backgroundColor: newBg,
+        });
+      }
     },
   });
 
@@ -410,18 +408,22 @@ export default function HomeLightning({ navigation }) {
     updateScrollPosition(prev);
   }, [updateScrollPosition]);
 
-  const buttonSwipeGesture = Gesture.Pan()
-    .activeOffsetX([-8, 8])
-    .failOffsetY([-5, 5])
-    .onEnd(event => {
-      'worklet';
-      const { translationX, velocityX } = event;
-      if (translationX < -40 || velocityX < -300) {
-        runOnJS(goToNextPage)();
-      } else if (translationX > 40 || velocityX > 300) {
-        runOnJS(goToPrevPage)();
-      }
-    });
+  const buttonSwipeGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .activeOffsetX([-8, 8])
+        .failOffsetY([-5, 5])
+        .onEnd(event => {
+          'worklet';
+          const { translationX, velocityX } = event;
+          if (translationX < -40 || velocityX < -300) {
+            scheduleOnRN(goToNextPage);
+          } else if (translationX > 40 || velocityX > 300) {
+            scheduleOnRN(goToPrevPage);
+          }
+        }),
+    [goToNextPage, goToPrevPage],
+  );
 
   const colors = useMemo(
     () =>
@@ -601,8 +603,7 @@ export default function HomeLightning({ navigation }) {
                 theme={theme}
                 darkModeType={darkModeType}
                 isConnectedToTheInternet={isConnectedToTheInternet}
-                scrollPosition={scrollPosition}
-                buttonSwipeGesture={buttonSwipeGesture}
+                scrollPositionRef={scrollPositionRef}
               />
             </View>
           </View>
@@ -624,18 +625,25 @@ export default function HomeLightning({ navigation }) {
           ]}
         >
           {flatListDataForSpark.length > 1 && (
-            <View style={styles.sectionHeader}>
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => navigate.navigate('ViewAllTxPage')}
+              style={styles.sectionHeader}
+            >
               <ThemeText
                 content={t('wallet.homeLightning.home.activity')}
                 styles={styles.sectionTitle}
               />
-              <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                }}
+              <Pressable
                 onPress={() => navigate.navigate('ViewAllTxPage')}
+                style={({ pressed }) => [
+                  {
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                  },
+                  pressed && { opacity: 0.5 },
+                ]}
               >
                 <View style={[styles.leftContainer, { opacity: 0.5 }]}>
                   <ThemeText
@@ -648,8 +656,8 @@ export default function HomeLightning({ navigation }) {
                     iconName={'ChevronRight'}
                   />
                 </View>
-              </TouchableOpacity>
-            </View>
+              </Pressable>
+            </TouchableOpacity>
           )}
           {flatListDataForSpark.map((tx, idx) => (
             <View key={idx}>{tx.item}</View>

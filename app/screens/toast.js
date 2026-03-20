@@ -5,8 +5,8 @@ import Animated, {
   withTiming,
   useAnimatedStyle,
   withSpring,
-  runOnJS,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ThemeText } from '../functions/CustomElements';
 import ThemeImage from '../functions/CustomElements/themeImage';
@@ -48,7 +48,7 @@ export function Toast({
       slideY.value = withTiming(-100, { duration: 300 });
       opacity.value = withTiming(0, { duration: 200 }, finished => {
         if (finished && callback) {
-          runOnJS(callback)();
+          scheduleOnRN(callback);
         }
       });
     },
@@ -70,7 +70,7 @@ export function Toast({
     })
     .onEnd(event => {
       if (event.translationY < -20) {
-        runOnJS(animateOut)(onHide);
+        scheduleOnRN(animateOut, onHide);
       } else {
         translateY.value = withSpring(0);
       }

@@ -28,6 +28,30 @@ const SharedHeader = memo(
     isEditingMyProfile,
     navigate,
   }) => {
+    if (selectedContact?.isLNURL) {
+      return (
+        <View
+          style={[styles.profileImageContainer, { width: 150, height: 150 }]}
+        >
+          <View
+            style={[
+              styles.profileImage,
+              {
+                backgroundColor: backgroundOffset,
+              },
+            ]}
+          >
+            <ContactProfileImage
+              updated={imageData?.updated}
+              uri={imageData?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+        </View>
+      );
+    }
+
     return (
       <View style={styles.profileImageContainer}>
         <ContactRingAvatar

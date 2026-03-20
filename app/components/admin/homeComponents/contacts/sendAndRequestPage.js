@@ -855,13 +855,6 @@ export default function SendAndRequestPage(props) {
               }}
               textInputRef={descriptionRef}
               placeholderText={t('constants.paymentDescriptionPlaceholder')}
-              placeholderTextColor={
-                theme && !darkModeType
-                  ? undefined
-                  : theme
-                  ? COLORS.lightsOutModeOpacityInput
-                  : COLORS.opaicityGray
-              }
               editable={paymentType === 'send' ? true : !!convertedSendAmount}
               containerStyles={styles.descriptionInput}
               setInputText={setDescriptionValue}

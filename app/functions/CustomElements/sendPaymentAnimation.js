@@ -6,10 +6,10 @@ import Animated, {
   withTiming,
   interpolate,
   withSpring,
-  runOnJS,
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import ThemeText from './textTheme';
 import FullLoadingScreen from './loadingScreen';
 
@@ -60,7 +60,7 @@ export const SliderProgressAnimation = ({
       // Update percentage text
       const updatePercentage = () => {
         const percentage = Math.round(progress.value * 100);
-        runOnJS(setCurrentPercentage)(percentage);
+        scheduleOnRN(setCurrentPercentage, percentage);
       };
 
       // Set up interval to update percentage display
@@ -134,7 +134,7 @@ export const SliderProgressAnimation = ({
       },
       finished => {
         if (finished) {
-          runOnJS(setCurrentPercentage)(100);
+          scheduleOnRN(setCurrentPercentage, 100);
         }
       },
     );

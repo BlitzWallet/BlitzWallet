@@ -33,10 +33,10 @@ import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../context-store/webViewContext';
 import Animated, {
-  runOnJS,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useSparkWallet } from '../../../context-store/sparkContext';
@@ -500,7 +500,7 @@ function QrCode(props) {
         { duration: fadeOutDuration },
         finished => {
           if (finished) {
-            runOnJS(handleFadeOutComplete)(newAddress);
+            scheduleOnRN(handleFadeOutComplete, newAddress);
           }
         },
       );

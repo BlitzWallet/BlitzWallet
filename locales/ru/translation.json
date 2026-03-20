@@ -857,7 +857,7 @@
       "clipboard": "Из буфера обмена",
       "manual": "Вручную",
       "contacts": "Из контактов",
-      "inputPlaceholder": "Введите адрес для оплаты",
+      "inputPlaceholder": "Адрес, @blitz или счёт",
       "scanImage": "Сканировать изображение",
       "tapToScan": "Нажмите, чтобы получить адрес из изображения",
       "chooseWhatToSend": "Выберите, что отправить",

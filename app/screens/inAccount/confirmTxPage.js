@@ -1,7 +1,7 @@
 import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
@@ -23,6 +23,24 @@ import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNodeContext } from '../../../context-store/nodeContext';
+import customUUID from '../../functions/customUUID';
+import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { getSingleContact } from '../../../db';
+import { getCachedProfileImage } from '../../functions/cachedImage';
+import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import normalizeLNURLAddress from '../../functions/lnurl/normalizeLNURLAddress';
+
+const BLITZ_DOMAINS = [
+  'blitz-wallet.com',
+  'blitzwalletapp.com',
+  'blitzwallet.app',
+];
+
+function isBlitzLNURLAddress(emailAddress) {
+  if (!emailAddress) return false;
+  const parts = emailAddress.split('@');
+  return parts.length === 2 && BLITZ_DOMAINS.includes(parts[1].toLowerCase());
+}
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
@@ -33,16 +51,39 @@ export default function ConfirmTxPage(props) {
   const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
   const { showToast } = useToast();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
   const { t } = useTranslation();
+  const { decodedAddedContacts } = useGlobalContacts();
+  const [isAddingContact, setIsAddingContact] = useState(false);
   const isLNURLAuth = props.route.params?.useLNURLAuth;
   const transaction = props.route.params?.transaction;
   const hasError = props.route.params?.error;
   const paymentInformation = transaction?.details;
+  const lnurlAddress = normalizeLNURLAddress(props.route.params?.lnurlAddress);
+  const isBlitzAddress = isBlitzLNURLAddress(lnurlAddress);
+  const lnurlUsername = lnurlAddress?.split('@')[0]?.toLowerCase();
+  const blitzContactInfo = props.route.params?.blitzContactInfo;
 
   const didSucceed = !hasError || isLNURLAuth;
+
+  const isAlreadyContact = lnurlAddress
+    ? decodedAddedContacts.some(c =>
+        isBlitzAddress
+          ? c.uniqueName?.toLowerCase() === lnurlUsername
+          : c.isLNURL &&
+            c.receiveAddress?.toLowerCase() === lnurlAddress.toLowerCase(),
+      )
+    : false;
+  const showAddContact =
+    didSucceed && !isLNURLAuth && lnurlAddress && !isAlreadyContact;
+
+  const isAlreadyBlitzContact = blitzContactInfo
+    ? decodedAddedContacts.some(c => c.uuid === blitzContactInfo.uuid)
+    : false;
+  const showAddBlitzContact =
+    didSucceed && !isLNURLAuth && blitzContactInfo && !isAlreadyBlitzContact;
 
   const paymentNetwork = paymentInformation?.sendingUUID
     ? t('screens.inAccount.expandedTxPage.contactPaymentType')
@@ -267,7 +308,7 @@ export default function ConfirmTxPage(props) {
 
       <CustomButton
         buttonStyles={{
-          width: 'auto',
+          width: INSET_WINDOW_WIDTH,
           backgroundColor:
             didSucceed && !theme ? COLORS.primary : COLORS.darkModeText,
           marginTop: 'auto',
@@ -288,6 +329,92 @@ export default function ConfirmTxPage(props) {
         }}
         textContent={t('constants.continue')}
       />
+
+      {showAddContact && (
+        <CustomButton
+          textStyles={{ color: textColor }}
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            paddingHorizontal: 15,
+            backgroundColor: 'unset',
+          }}
+          loadingColor={textColor}
+          useLoading={isAddingContact}
+          disabled={isAddingContact}
+          actionFunction={async () => {
+            if (isAddingContact) return;
+            if (isBlitzAddress) {
+              setIsAddingContact(true);
+              try {
+                const username = lnurlAddress.split('@')[0];
+                const results = await getSingleContact(username);
+                if (!results.length) {
+                  setIsAddingContact(false);
+                  return;
+                }
+                const user = results[0];
+                await getCachedProfileImage(user.contacts.myProfile.uuid);
+                const newContact = {
+                  name: user.contacts.myProfile.name || '',
+                  bio: user.contacts.myProfile.bio || '',
+                  uniqueName: user.contacts.myProfile.uniqueName || '',
+                  uuid: user.contacts.myProfile.uuid,
+                  isFavorite: false,
+                  transactions: [],
+                  unlookedTransactions: 0,
+                  isAdded: true,
+                };
+                navigate.replace('ExpandedAddContactsPage', { newContact });
+              } catch (_) {
+                setIsAddingContact(false);
+              }
+            } else {
+              const uuid = customUUID();
+              if (!uuid) return;
+              const newContact = {
+                name: lnurlAddress.split('@')[0],
+                bio: '',
+                uniqueName: '',
+                isFavorite: false,
+                transactions: [],
+                unlookedTransactions: 0,
+                receiveAddress: lnurlAddress,
+                isAdded: true,
+                isLNURL: true,
+                profileImage: '',
+                uuid,
+              };
+              navigate.replace('ExpandedAddContactsPage', { newContact });
+            }
+          }}
+          textContent={t('contacts.contactsPage.addContactButton')}
+        />
+      )}
+
+      {showAddBlitzContact && (
+        <CustomButton
+          textStyles={{ color: textColor }}
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            paddingHorizontal: 15,
+            backgroundColor: 'unset',
+          }}
+          actionFunction={() => {
+            const newContact = {
+              name: blitzContactInfo.name || '',
+              bio: blitzContactInfo.bio || '',
+              uniqueName: blitzContactInfo.uniqueName || '',
+              uuid: blitzContactInfo.uuid,
+              isFavorite: false,
+              transactions: [],
+              unlookedTransactions: 0,
+              isAdded: true,
+            };
+            navigate.replace('ExpandedAddContactsPage', { newContact });
+          }}
+          textContent={t('contacts.contactsPage.addContactButton')}
+        />
+      )}
     </GlobalThemeView>
   );
 }

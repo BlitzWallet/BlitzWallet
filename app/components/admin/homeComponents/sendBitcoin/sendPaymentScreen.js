@@ -74,6 +74,7 @@ import {
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import normalizeLNURLAddress from '../../../../functions/lnurl/normalizeLNURLAddress';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -112,7 +113,7 @@ export default function SendPaymentScreen(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
-
+  const [rerenderInput, setRerenderInput] = useState(0);
   const useAltLayout = screenDimensions.height < 720;
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
@@ -813,6 +814,11 @@ export default function SendPaymentScreen(props) {
                   name: 'ConfirmTxPage',
                   params: {
                     transaction: paymentResponse.response,
+                    lnurlAddress:
+                      paymentInfo?.type === InputTypes.LNURL_PAY
+                        ? normalizeLNURLAddress(paymentInfo?.data?.address)
+                        : undefined,
+                    blitzContactInfo: paymentInfo?.blitzContactInfo,
                   },
                 },
               ],
@@ -836,6 +842,11 @@ export default function SendPaymentScreen(props) {
                   params: {
                     transaction: paymentResponse.response,
                     error: paymentResponse.error,
+                    lnurlAddress:
+                      paymentInfo?.type === InputTypes.LNURL_PAY
+                        ? normalizeLNURLAddress(paymentInfo?.data?.address)
+                        : undefined,
+                    blitzContactInfo: paymentInfo?.blitzContactInfo,
                   },
                 },
               ],
@@ -878,6 +889,7 @@ export default function SendPaymentScreen(props) {
 
   const handleSelectPaymentMethod = useCallback(
     showNextScreen => {
+      setRerenderInput(prev => (prev += 1));
       if (showNextScreen) {
         if (!paymentValidation.isValid) {
           const error = paymentValidation.getErrorMessage(
@@ -1053,8 +1065,10 @@ export default function SendPaymentScreen(props) {
           {uiState === 'CONFIRM_PAYMENT' && (
             <InvoiceInfo
               paymentInfo={paymentInfo}
-              contactInfo={contactInfo}
-              fromPage={fromPage}
+              contactInfo={contactInfo || paymentInfo?.blitzContactInfo}
+              fromPage={
+                fromPage || (paymentInfo?.blitzContactInfo ? 'contacts' : '')
+              }
               theme={theme}
               darkModeType={darkModeType}
             />
@@ -1196,6 +1210,7 @@ export default function SendPaymentScreen(props) {
 
             {isAmountFocused && (
               <NumberInputSendPage
+                key={`${rerenderInput}-${inputDenomination}`}
                 paymentInfo={paymentInfo}
                 setPaymentInfo={setPaymentInfo}
                 fiatStats={conversionFiatStats}

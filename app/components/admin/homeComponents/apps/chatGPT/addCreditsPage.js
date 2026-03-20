@@ -22,7 +22,7 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
-import { AI_MODEL_COST } from './contants/AIModelCost';
+import { getAIModels } from './contants/modelCache';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
@@ -71,6 +71,23 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
   const [selectedSubscription, setSelectedSubscription] =
     useState(CREDITOPTIONS);
   const [isPaying, setIsPaying] = useState(false);
+  const [aiModels, setAiModels] = useState([]);
+
+  useEffect(() => {
+    async function loadModels() {
+      const start = Date.now();
+      const models = await getAIModels();
+
+      const now = Date.now();
+      const difference = now - start;
+
+      if (difference < 1000) {
+        await new Promise(res => setTimeout(res, 1000 - difference));
+      }
+      setAiModels(models);
+    }
+    loadModels();
+  }, []);
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -135,7 +152,7 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
     );
   });
 
-  const availableModels = AI_MODEL_COST.map(item => {
+  const availableModels = aiModels.map(item => {
     return (
       <ThemeText
         key={item.name}
@@ -145,7 +162,7 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
     );
   });
 
-  if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+  if ((Platform.OS === 'ios' || Platform.OS === 'macos') && false) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
@@ -159,6 +176,15 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
             textContent={t('settings.posPath.totalTipsScreen.goBack')}
           />
         </View>
+      </GlobalThemeView>
+    );
+  }
+
+  if (!aiModels.length) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
+        <FullLoadingScreen />
       </GlobalThemeView>
     );
   }
