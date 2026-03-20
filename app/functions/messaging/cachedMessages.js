@@ -315,9 +315,10 @@ const setCashedMessages = async ({ newMessagesList, myPubKey }) => {
     return false;
   } finally {
     if (newMessagesList?.length) {
-      const newTimestamp = newMessagesList.sort(
-        (a, b) => b.timestamp - a.timestamp,
-      )[0].timestamp;
+      const newTimestamp = newMessagesList.reduce(
+        (max, item) => (item.timestamp > max ? item.timestamp : max),
+        0,
+      );
       await setLocalStorageItem(
         LOCALSTORAGE_LAST_RECEIVED_TIME_KEY,
         JSON.stringify(newTimestamp),
