@@ -1067,6 +1067,8 @@ export const WebViewProvider = ({ children }) => {
               } else {
                 console.log('Duplicate request ignored:', action);
                 if (timeoutId) clearTimeout(timeoutId);
+                delete pendingRequests.current[id];
+                delete activeTimeoutsRef.current[id];
                 return reject(new Error('Duplicate request ignored'));
               }
             }
@@ -1093,6 +1095,7 @@ export const WebViewProvider = ({ children }) => {
           } catch (err) {
             if (timeoutId) clearTimeout(timeoutId);
             delete pendingRequests.current[id];
+            delete activeTimeoutsRef.current[id];
             reject(err);
           }
         } catch (err) {
@@ -1101,6 +1104,8 @@ export const WebViewProvider = ({ children }) => {
             clearTimeout(timeoutId);
             timeoutId = null;
           }
+          delete pendingRequests.current[id];
+          delete activeTimeoutsRef.current[id];
           console.log(
             'Error sending webview request from internal function',
             err,
