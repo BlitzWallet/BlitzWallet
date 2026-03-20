@@ -2449,7 +2449,7 @@
         "accrualValue": "Täglich"
       },
       "context": {
-        "goalNameRequired": "Bitte geben Sie einen Sparziel-Namen ein.",
+        "goalNameRequired": "Bitte geben Sie einen Namen für das Sparziel ein.",
         "goalNotFound": "Sparziel nicht gefunden."
       },
       "transparencyTitle": "Vollständig durch Reserven gedeckt.",
