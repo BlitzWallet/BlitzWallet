@@ -2381,7 +2381,7 @@
       },
       "successTitle": "Geld eingezahlt",
       "paymentLabel_unallocated": "Sparzieleinzahlung",
-      "paymentLabel": "Einzahlung vom {{savingsGoal}}",
+      "paymentLabel": "Einzahlung für {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
       }
@@ -2420,7 +2420,7 @@
       },
       "successTitle": "Auszahlung abgeschlossen",
       "paymentLabel_unallocated": "Sparauszahlung",
-      "paymentLabel": "Auszahlung vom {{savingsGoal}}",
+      "paymentLabel": "Auszahlung von {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Auszahlung konnte nicht abgeschlossen werden."
       }
