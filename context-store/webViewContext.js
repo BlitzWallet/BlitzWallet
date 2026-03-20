@@ -986,6 +986,8 @@ export const WebViewProvider = ({ children }) => {
             if (!getHandshakeComplete()) {
               console.log('Handshake not complete, cannot initialize wallet');
               if (timeoutId) clearTimeout(timeoutId);
+              delete pendingRequests.current[id];
+              delete activeTimeoutsRef.current[id];
               forceNativeMode('handshake incomplete for wallet init');
               setChangeSparkConnectionState(prev => ({
                 state: true,
@@ -996,6 +998,8 @@ export const WebViewProvider = ({ children }) => {
             if (!nonceVerified.current) {
               console.log('Nonce not verified, cannot initialize wallet');
               if (timeoutId) clearTimeout(timeoutId);
+              delete pendingRequests.current[id];
+              delete activeTimeoutsRef.current[id];
               forceNativeMode('nonce not verified for wallet init');
               setChangeSparkConnectionState(prev => ({
                 state: true,
@@ -1063,6 +1067,8 @@ export const WebViewProvider = ({ children }) => {
               } else {
                 console.log('Duplicate request ignored:', action);
                 if (timeoutId) clearTimeout(timeoutId);
+                delete pendingRequests.current[id];
+                delete activeTimeoutsRef.current[id];
                 return reject(new Error('Duplicate request ignored'));
               }
             }
@@ -1089,6 +1095,7 @@ export const WebViewProvider = ({ children }) => {
           } catch (err) {
             if (timeoutId) clearTimeout(timeoutId);
             delete pendingRequests.current[id];
+            delete activeTimeoutsRef.current[id];
             reject(err);
           }
         } catch (err) {
@@ -1097,6 +1104,8 @@ export const WebViewProvider = ({ children }) => {
             clearTimeout(timeoutId);
             timeoutId = null;
           }
+          delete pendingRequests.current[id];
+          delete activeTimeoutsRef.current[id];
           console.log(
             'Error sending webview request from internal function',
             err,
