@@ -13,6 +13,8 @@ import convertTextInputValue from '../../../../../functions/textInputConvertValu
 import usePaymentInputDisplay from '../../../../../hooks/usePaymentInputDisplay';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import { ThemeText } from '../../../../../functions/CustomElements';
+import GetThemeColors from '../../../../../hooks/themeColors';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 
 /**
  * PayLink Amount Input Sub-Component
@@ -27,7 +29,8 @@ export default function PayLinkAmountInput({ onContinue, onSkip, onBack }) {
   const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
   const { t } = useTranslation();
-
+  const { backgroundColor } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination !== 'fiat' ? 'sats' : 'fiat',
   );
@@ -65,10 +68,19 @@ export default function PayLinkAmountInput({ onContinue, onSkip, onBack }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.skipPill} onPress={() => onSkip?.()}>
+      <TouchableOpacity
+        style={[
+          styles.skipPill,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : COLORS.primary,
+          },
+        ]}
+        onPress={() => onSkip?.()}
+      >
         <ThemeText
           allowFontScaling={false}
-          styles={styles.skipPillText}
+          styles={[styles.skipPillText, { color: COLORS.darkModeText }]}
           content={t('wallet.payLinks.showQR')}
         />
       </TouchableOpacity>
@@ -126,13 +138,14 @@ const styles = StyleSheet.create({
     // position: 'absolute',
     // top: 0,
     right: 16,
+    minHeight: 40,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.gray,
     zIndex: 1,
     marginLeft: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   skipPillText: {
     fontSize: SIZES.smedium,
