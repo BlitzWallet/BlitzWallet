@@ -788,6 +788,7 @@ export const WebViewProvider = ({ children }) => {
         const resolve = resolveFn;
         const reject = rejectFn;
         let timeoutId = null;
+        const id = customUUID();
         try {
           // If forceReactNativeUse is set, reject immediately
           if (forceReactNativeUse === true) {
@@ -799,7 +800,6 @@ export const WebViewProvider = ({ children }) => {
               error: 'Wallet initialization failed, using React Native(1)',
             });
           }
-          const id = customUUID();
 
           // Queue messages during reset/background
           if (
@@ -1104,8 +1104,10 @@ export const WebViewProvider = ({ children }) => {
             clearTimeout(timeoutId);
             timeoutId = null;
           }
-          delete pendingRequests.current[id];
-          delete activeTimeoutsRef.current[id];
+          if (id) {
+            delete pendingRequests.current[id];
+            delete activeTimeoutsRef.current[id];
+          }
           console.log(
             'Error sending webview request from internal function',
             err,
