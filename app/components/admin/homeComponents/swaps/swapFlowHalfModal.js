@@ -623,7 +623,7 @@ export default function SwapFlowHalfModal({
   }));
 
   const executeSwapAction = async () => {
-    if (!canSwap) {
+    if (!fromAmount) {
       navigateToStep('routeSelection', 'backwards');
       return;
     }
@@ -1754,7 +1754,7 @@ export default function SwapFlowHalfModal({
                 disabled={isSwapping || isLoadingPool || isSimulating}
                 useLoading={isSwapping || isLoadingPool || isSimulating}
                 textContent={
-                  canSwap ? t('constants.review') : t('constants.back')
+                  fromAmount ? t('constants.review') : t('constants.back')
                 }
                 actionFunction={executeSwapAction}
               />
