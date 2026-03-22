@@ -170,7 +170,13 @@ export default function ChatGPTHome(props) {
   );
 
   useEffect(() => {
-    getAIModels().then(setAiModels).catch(console.error);
+    getAIModels().then(freshModels => {
+      setAiModels(freshModels);
+      setSearchModel(current => {
+        const updated = freshModels.find(m => m.id === current);
+        return updated || freshModels[0].id;
+      });
+    });
   }, []);
 
   useEffect(() => {
