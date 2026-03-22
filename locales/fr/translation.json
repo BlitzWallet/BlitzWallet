@@ -1951,7 +1951,8 @@
         "balance": "Équilibre",
         "maxSupply": "Alimentation maximale",
         "tokenTicker": "Token Ticker",
-        "tokenPubKey": "Token Clé publique"
+        "tokenPubKey": "Token Clé publique",
+        "tokenInfo": "Voir les informations du token"
       },
       "giftPages": {
         "expired": "Expiré",

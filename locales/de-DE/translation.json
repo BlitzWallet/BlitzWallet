@@ -1953,7 +1953,8 @@
         "balance": "Guthaben",
         "maxSupply": "Max. Supply",
         "tokenTicker": "Token-Symbol",
-        "tokenPubKey": "Öffentliche Token-Adresse"
+        "tokenPubKey": "Öffentliche Token-Adresse",
+        "tokenInfo": "Token-Informationen anzeigen"
       },
       "giftPages": {
         "expired": "Abgelaufen",

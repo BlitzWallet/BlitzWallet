@@ -1951,7 +1951,8 @@
         "balance": "Balans",
         "maxSupply": "Max strömförsörjning",
         "tokenTicker": "Token-ticker",
-        "tokenPubKey": "Token Offentlig nyckel"
+        "tokenPubKey": "Token Offentlig nyckel",
+        "tokenInfo": "Visa tokeninformation"
       },
       "giftPages": {
         "expired": "Utgått",
