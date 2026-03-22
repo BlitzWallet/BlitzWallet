@@ -770,51 +770,51 @@ const SparkWalletProvider = ({ children }) => {
         }
         handledNavigatedTxs.current.add(parsedTx.sparkID);
 
-        const isOnReceivePage =
-          navigationRef
-            .getRootState()
-            .routes?.filter(item => item.name === 'ReceiveBTC').length === 1;
+        // const isOnReceivePage =
+        //   navigationRef
+        //     .getRootState()
+        //     .routes?.filter(item => item.name === 'ReceiveBTC').length === 1;
 
-        const hasPaymentTime = !!details.createdTime || !!details.time;
-        const isNewestPayment = hasPaymentTime
-          ? new Date(details.createdTime || details.time).getTime() >
-            newestPaymentTimeRef.current
-          : false;
+        // const hasPaymentTime = !!details.createdTime || !!details.time;
+        // const isNewestPayment = hasPaymentTime
+        //   ? new Date(details.createdTime || details.time).getTime() >
+        //     newestPaymentTimeRef.current
+        //   : false;
 
-        let shouldShowConfirm = false;
-        if (
-          (lastAddedTx.paymentType?.toLowerCase() === 'lightning' &&
-            !details.isLNURL &&
-            !details.shouldNavigate &&
-            isOnReceivePage &&
-            isNewestPayment) ||
-          (lastAddedTx.paymentType?.toLowerCase() === 'spark' &&
-            !details.isLRC20Payment &&
-            isOnReceivePage &&
-            isNewestPayment)
-        ) {
-          if (lastAddedTx.paymentType?.toLowerCase() === 'spark') {
-            const unpaidLNInvoices = await getAllUnpaidSparkLightningInvoices();
-            const lastMatch = unpaidLNInvoices.findLast(invoice => {
-              const savedInvoiceDetails = JSON.parse(invoice.details);
-              return (
-                !savedInvoiceDetails.sendingUUID &&
-                !savedInvoiceDetails.isLNURL &&
-                invoice.amount === details.amount
-              );
-            });
+        // let shouldShowConfirm = false;
+        // if (
+        //   (lastAddedTx.paymentType?.toLowerCase() === 'lightning' &&
+        //     !details.isLNURL &&
+        //     !details.shouldNavigate &&
+        //     isOnReceivePage &&
+        //     isNewestPayment) ||
+        //   (lastAddedTx.paymentType?.toLowerCase() === 'spark' &&
+        //     !details.isLRC20Payment &&
+        //     isOnReceivePage &&
+        //     isNewestPayment)
+        // ) {
+        //   if (lastAddedTx.paymentType?.toLowerCase() === 'spark') {
+        //     const unpaidLNInvoices = await getAllUnpaidSparkLightningInvoices();
+        //     const lastMatch = unpaidLNInvoices.findLast(invoice => {
+        //       const savedInvoiceDetails = JSON.parse(invoice.details);
+        //       return (
+        //         !savedInvoiceDetails.sendingUUID &&
+        //         !savedInvoiceDetails.isLNURL &&
+        //         invoice.amount === details.amount
+        //       );
+        //     });
 
-            if (lastMatch && !usedSavedTxIds.current.has(lastMatch.id)) {
-              usedSavedTxIds.current.add(lastMatch.id);
-              const lastInvoiceDetails = JSON.parse(lastMatch.details);
-              if (details.time - lastInvoiceDetails.createdTime < 60 * 1000) {
-                shouldShowConfirm = true;
-              }
-            }
-          } else {
-            shouldShowConfirm = true;
-          }
-        }
+        //     if (lastMatch && !usedSavedTxIds.current.has(lastMatch.id)) {
+        //       usedSavedTxIds.current.add(lastMatch.id);
+        //       const lastInvoiceDetails = JSON.parse(lastMatch.details);
+        //       if (details.time - lastInvoiceDetails.createdTime < 60 * 1000) {
+        //         shouldShowConfirm = true;
+        //       }
+        //     }
+        //   } else {
+        //     shouldShowConfirm = true;
+        //   }
+        // }
 
         // Handle confirm animation here
         setPendingNavigation({
@@ -822,7 +822,7 @@ const SparkWalletProvider = ({ children }) => {
           amount: details.amount,
           LRC20Token: details.LRC20Token,
           isLRC20Payment: !!details.LRC20Token,
-          showFullAnimation: shouldShowConfirm,
+          showFullAnimation: false,
         });
       } catch (err) {
         console.log('[UiLane] confirm navigation error', err);
