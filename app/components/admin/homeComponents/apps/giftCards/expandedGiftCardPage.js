@@ -234,7 +234,7 @@ export default function ExpandedGiftCardPage(props) {
                       color: theme ? COLORS.darkModeText : COLORS.lightModeText,
                     }}
                     containerStyles={styles.customAmountContainer}
-                    placeholderTextColor={COLORS.opaicityGray}
+                    placeholderTextColor={COLORS.lightModePlaceholder}
                     onBlurFunction={() => setIsKeyboardActive(false)}
                     onFocusFunction={() => setIsKeyboardActive(true)}
                   />
@@ -302,7 +302,7 @@ export default function ExpandedGiftCardPage(props) {
                     color: theme ? COLORS.darkModeText : COLORS.lightModeText,
                     borderWidth: 0,
                   }}
-                  placeholderTextColor={COLORS.opaicityGray}
+                  placeholderTextColor={COLORS.lightModePlaceholder}
                   onBlurFunction={() => setIsKeyboardActive(false)}
                   onFocusFunction={() => setIsKeyboardActive(true)}
                 />
@@ -340,7 +340,7 @@ export default function ExpandedGiftCardPage(props) {
                         : 'transparent',
                     color: theme ? COLORS.darkModeText : COLORS.lightModeText,
                   }}
-                  placeholderTextColor={COLORS.opaicityGray}
+                  placeholderTextColor={COLORS.lightModePlaceholder}
                   onBlurFunction={() => setIsKeyboardActive(false)}
                   onFocusFunction={() => setIsKeyboardActive(true)}
                 />

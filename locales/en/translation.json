@@ -857,7 +857,7 @@
       "clipboard": "From Clipboard",
       "manual": "Manual Input",
       "contacts": "From Contacts",
-      "inputPlaceholder": "Address, @blitz, or invoice",
+      "inputPlaceholder": "Enter @username, Bitcoin address, or Lightning payment",
       "scanImage": "Scan Image",
       "tapToScan": "Tap to get an address from an image",
       "chooseWhatToSend": "Choose what to send",
