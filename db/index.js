@@ -115,6 +115,21 @@ export async function getDataFromCollection(collectionName, uuid) {
   }
 }
 
+export async function getDocsByIds(collectionName, docIds) {
+  if (!docIds || docIds.length === 0) return [];
+
+  const db = getFirestore();
+
+  const docRefs = docIds.map(id => doc(db, collectionName, id));
+
+  const snapshots = await Promise.all(docRefs.map(ref => getDoc(ref)));
+
+  return snapshots.map(snap => {
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() };
+  });
+}
+
 export async function batchDeleteLnurlPayments(uuid, paymentIds) {
   try {
     if (!uuid) throw Error('User ID missing');
