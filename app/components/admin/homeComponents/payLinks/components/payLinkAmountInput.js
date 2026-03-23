@@ -15,6 +15,9 @@ import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { useNavigation } from '@react-navigation/native';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
 /**
  * PayLink Amount Input Sub-Component
@@ -23,17 +26,30 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
  * @param {Function} onContinue - Callback when user taps "Next" with amount
  * @param {Function} onSkip - Callback when user skips (no amount → ReceiveBTC with no amount)
  */
-export default function PayLinkAmountInput({ onContinue, onSkip, onBack }) {
-  const { swapUSDPriceDollars } = useFlashnet();
+export default function PayLinkAmountInput({
+  onContinue,
+  onSkip,
+  onBack,
+  paymentMode = 'BTC',
+  onSelectCurrency,
+}) {
+  const navigate = useNavigation();
+  const { swapUSDPriceDollars, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
   const { t } = useTranslation();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const [inputDenomination, setInputDenomination] = useState(
-    masterInfoObject.userBalanceDenomination !== 'fiat' ? 'sats' : 'fiat',
-  );
+  const [inputDenomination, setInputDenomination] = useState(null);
+
+  const normalizedInputDenomination = inputDenomination
+    ? inputDenomination
+    : paymentMode === 'USD'
+    ? 'fiat'
+    : masterInfoObject.userBalanceDenomination !== 'fiat'
+    ? 'sats'
+    : 'fiat';
 
   const {
     primaryDisplay,
@@ -43,8 +59,8 @@ export default function PayLinkAmountInput({ onContinue, onSkip, onBack }) {
     getNextDenomination,
     convertForToggle,
   } = usePaymentInputDisplay({
-    paymentMode: 'BTC',
-    inputDenomination,
+    paymentMode,
+    inputDenomination: normalizedInputDenomination,
     fiatStats,
     usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
     masterInfoObject,
@@ -63,28 +79,28 @@ export default function PayLinkAmountInput({ onContinue, onSkip, onBack }) {
       onBack?.();
       return;
     }
+    if (paymentMode === 'USD' && localSatAmount < swapLimits.bitcoin) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
+          amount: displayCorrectDenomination({
+            amount: swapLimits.bitcoin,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination:
+                primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
+            },
+            forceCurrency: primaryDisplay.forceCurrency,
+            fiatStats: conversionFiatStats,
+          }),
+        }),
+      });
+      return;
+    }
     onContinue?.(Number(localSatAmount));
   }, [localSatAmount, onContinue, onBack]);
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={[
-          styles.skipPill,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : COLORS.primary,
-          },
-        ]}
-        onPress={() => onSkip?.()}
-      >
-        <ThemeText
-          allowFontScaling={false}
-          styles={[styles.skipPillText, { color: COLORS.darkModeText }]}
-          content={t('wallet.payLinks.showQR')}
-        />
-      </TouchableOpacity>
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.amountScrollContainer}
@@ -112,6 +128,41 @@ export default function PayLinkAmountInput({ onContinue, onSkip, onBack }) {
         </TouchableOpacity>
       </ScrollView>
 
+      <TouchableOpacity
+        onPress={() =>
+          navigate.push('CustomHalfModal', {
+            wantedContent: 'payLinkCurrencySelect',
+            currentCurrency: paymentMode,
+            onSelectCurrency: cur => {
+              setAmountValue('');
+              setInputDenomination(null);
+              onSelectCurrency(cur);
+            },
+          })
+        }
+        style={[
+          styles.currencyToggle,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
+      >
+        <ThemeText
+          styles={styles.currencyToggleText}
+          content={
+            paymentMode === 'BTC'
+              ? t('constants.bitcoin_upper')
+              : t('constants.dollars_upper')
+          }
+        />
+        <ThemeIcon
+          colorOverride={textColor}
+          size={18}
+          iconName={'ChevronDown'}
+        />
+      </TouchableOpacity>
+
       <CustomNumberKeyboard
         showDot={primaryDisplay.denomination === 'fiat'}
         setInputValue={setAmountValue}
@@ -134,21 +185,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  skipPill: {
-    // position: 'absolute',
-    // top: 0,
-    right: 16,
-    minHeight: 40,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-    zIndex: 1,
-    marginLeft: 'auto',
+  currencyToggle: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 2,
+    ...CENTER,
+    minHeight: 40,
+    paddingHorizontal: 15,
+    borderRadius: 50,
   },
-  skipPillText: {
-    fontSize: SIZES.smedium,
+  currencyToggleText: {
     includeFontPadding: false,
   },
   amountScrollContainer: {

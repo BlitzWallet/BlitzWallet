@@ -17,7 +17,6 @@ import {
 import {
   COLORS,
   FONT,
-  HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -27,14 +26,10 @@ import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { addDataToCollection } from '../../../../../../db';
 import { shareMessage } from '../../../../../functions/handleShare';
 import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
-import useAdaptiveButtonLayout from '../../../../../hooks/useAdaptiveButtonLayout';
-import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
-import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
-import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
@@ -66,14 +61,13 @@ export default function PayLinkDescriptionInput({
   onSkip,
   didCreatePaylink,
   setDidCreatePaylink,
+  currencyType,
 }) {
   const navigate = useNavigation();
   const { globalContactsInformation } = useGlobalContacts();
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
-  const { screenDimensions } = useAppStatus();
-  const { fiatStats } = useNodeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const textInputRef = useRef(null);
   const isAlreadyCreating = useRef(null);
@@ -152,15 +146,6 @@ export default function PayLinkDescriptionInput({
       theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
     );
   }, [theme, darkModeType]);
-
-  const createPaylink = t('wallet.payLinks.createPayLink');
-  const showQR = t('wallet.payLinks.showQR');
-
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout(
-      [createPaylink, showQR],
-      screenDimensions.width * 0.9,
-    );
 
   if (didCreatePaylink) {
     const howItWorksSteps = [
@@ -316,41 +301,25 @@ export default function PayLinkDescriptionInput({
         setInputText={setDescription}
         maxLength={100}
         autoFocus={true}
-        containerStyles={{ width: '100%' }}
+        containerStyles={{ width: '100%', marginBottom: 'auto' }}
         placeholderText={t('wallet.payLinks.descriptionPlaceholder')}
       />
 
-      <View
-        {...containerProps}
-        style={[
-          styles.buttonContainer,
-          shouldStack ? styles.containerStacked : styles.containerRow,
-        ]}
-      >
+      <CustomButton
+        enableElipsis={false}
+        textContent={t('wallet.payLinks.genQRCode')}
+        actionFunction={() => onSkip?.(payLinkAmount, description)}
+      />
+      {currencyType === 'BTC' && (
         <CustomButton
-          buttonStyles={[
-            { opacity: !isValid ? HIDDEN_OPACITY : 1 },
-            shouldStack ? styles.buttonStacked : styles.buttonColumn,
-          ]}
+          buttonStyles={[{ backgroundColor: 'transparent' }]}
+          textStyles={{ color: textColor }}
           useLoading={isLoading}
           textContent={t('wallet.payLinks.createPayLink')}
-          enableElipsis={false}
-          {...getLabelProps(0)}
           actionFunction={handleCreatePayLink}
           disabled={isLoading || !isValid}
         />
-
-        <CustomButton
-          buttonStyles={[
-            shouldStack ? styles.buttonStacked : styles.buttonColumn,
-          ]}
-          {...getLabelProps(1)}
-          enableElipsis={false}
-          textContent={t('wallet.payLinks.showQR')}
-          actionFunction={() => onSkip?.(payLinkAmount, description)}
-          isPrimaryButton={false}
-        />
-      </View>
+      )}
     </View>
   );
 }

@@ -69,6 +69,7 @@ import HowSavingsWorks from '../../components/admin/homeComponents/savings/howIt
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
+import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -543,6 +544,15 @@ export default function CustomHalfModal(props) {
           <TxFilterHalfModal
             currentFilter={props?.route?.params?.currentFilter}
             onSelectFilter={props?.route?.params?.onSelectFilter}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'payLinkCurrencySelect':
+        return (
+          <PayLinkCurrencySelect
+            currentCurrency={props?.route?.params?.currentCurrency}
+            onSelectCurrency={props?.route?.params?.onSelectCurrency}
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
           />

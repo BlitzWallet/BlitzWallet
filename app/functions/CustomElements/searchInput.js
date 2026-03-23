@@ -103,16 +103,17 @@ export default function CustomSearchInput({
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
       () => {
-        // Only trigger blur if input was focused
-        if (isFocusedRef.current && onBlurFunction) {
-          isFocusedRef.current = false;
-          if (inputRef?.current) {
-            inputRef.current.blur();
-          }
+        if (!isFocusedRef.current) return;
+
+        isFocusedRef.current = false;
+
+        if (inputRef?.current) {
+          inputRef.current.blur();
+        }
+
+        if (onBlurFunction) {
           if (shouldDelayBlur) {
-            setTimeout(() => {
-              onBlurFunction();
-            }, 150);
+            setTimeout(() => onBlurFunction(), 150);
           } else {
             onBlurFunction();
           }

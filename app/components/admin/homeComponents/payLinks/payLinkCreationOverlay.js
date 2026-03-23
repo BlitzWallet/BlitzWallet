@@ -11,6 +11,7 @@ import PayLinkDescriptionInput from './components/payLinkDescriptionInput';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useNavigation } from '@react-navigation/native';
+import customUUID from '../../../../functions/customUUID';
 
 /**
  * PayLink Creation Overlay Component
@@ -33,6 +34,7 @@ export default function PayLinkCreationOverlay({
   const { bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const [didCreatePaylink, setDidCreatePaylink] = useState('');
+  const [currencyType, setCurrencyType] = useState('BTC');
 
   const {
     currentStep,
@@ -62,13 +64,14 @@ export default function PayLinkCreationOverlay({
       onClose();
       navigate.replace('ReceiveBTC', {
         from: 'homepage',
-        initialReceiveType: 'BTC',
-        selectedRecieveOption: 'lightning',
+        ...(currencyType === 'BTC'
+          ? { initialReceiveType: 'BTC', selectedRecieveOption: 'lightning' }
+          : { endReceiveType: 'USD', uuid: customUUID() }),
         ...(amount ? { receiveAmount: amount } : {}),
         ...(description ? { description: description } : {}),
       });
     },
-    [onClose, navigate],
+    [onClose, navigate, currencyType],
   );
 
   const handleBackPress = useCallback(() => {
@@ -111,6 +114,8 @@ export default function PayLinkCreationOverlay({
           ]}
         >
           <PayLinkAmountInput
+            paymentMode={currencyType}
+            onSelectCurrency={setCurrencyType}
             onContinue={amount => {
               setPayLinkAmount(amount);
               setCurrentStep('description');
@@ -125,6 +130,7 @@ export default function PayLinkCreationOverlay({
       {currentStep === 'description' && (
         <Animated.View style={[styles.stepContainer, descStyle]}>
           <PayLinkDescriptionInput
+            currencyType={currencyType}
             payLinkAmount={payLinkAmount}
             onComplete={handleBackPressFunction}
             onBack={() => setCurrentStep('amount')}
