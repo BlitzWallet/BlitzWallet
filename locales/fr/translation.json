@@ -857,7 +857,7 @@
       "clipboard": "Du presse-papiers",
       "manual": "Entrée manuelle",
       "contacts": "Depuis les contacts",
-      "inputPlaceholder": "Adresse, @blitz ou facture",
+      "inputPlaceholder": "Entrez @nomdutilisateur, une adresse Bitcoin ou une facture Lightning",
       "scanImage": "Scanner une image",
       "tapToScan": "Appuyez pour extraire une adresse depuis une image",
       "chooseWhatToSend": "Choisir quoi envoyer",

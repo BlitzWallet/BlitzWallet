@@ -750,8 +750,8 @@ export default function CreateGift(props) {
                   )}
                   placeholderTextColor={
                     theme && !darkModeType
-                      ? COLORS.blueDarkmodeTextInputPlaceholder
-                      : COLORS.opaicityGray
+                      ? COLORS.darkModePlaceholder
+                      : COLORS.lightModePlaceholder
                   }
                   multiline
                   numberOfLines={4}

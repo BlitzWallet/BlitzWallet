@@ -717,7 +717,7 @@
       "clipboard": "Desde portapapeles",
       "manual": "Entrada manual",
       "contacts": "Desde contactos",
-      "inputPlaceholder": "Dirección, @blitz o factura",
+      "inputPlaceholder": "Introduce @usuario, dirección de Bitcoin o factura Lightning",
       "scanImage": "Escanear imagen",
       "tapToScan": "Toca para obtener una dirección desde una imagen",
       "chooseWhatToSend": "Elige qué enviar",

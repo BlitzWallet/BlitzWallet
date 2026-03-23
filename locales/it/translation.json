@@ -857,7 +857,7 @@
       "clipboard": "Dalla Clipboard",
       "manual": "Inserimento Manuale",
       "contacts": "Dai Contatti",
-      "inputPlaceholder": "Indirizzo, @blitz o fattura",
+      "inputPlaceholder": "Inserisci @username, indirizzo Bitcoin o fattura Lightning",
       "scanImage": "Scansiona immagine",
       "tapToScan": "Tocca per ottenere un indirizzo da un'immagine",
       "chooseWhatToSend": "Scegli cosa inviare",

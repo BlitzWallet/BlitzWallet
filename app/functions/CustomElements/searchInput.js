@@ -61,11 +61,10 @@ export default function CustomSearchInput({
   }, [theme]);
 
   const placeholderTextColorStyles = useMemo(() => {
-    return placeholderTextColor != undefined
-      ? placeholderTextColor
-      : theme && !darkModeType
-      ? COLORS.blueDarkmodeTextInputPlaceholder
-      : COLORS.opaicityGray;
+    if (placeholderTextColor != undefined) return placeholderTextColor;
+    return theme && !darkModeType
+      ? COLORS.darkModePlaceholder
+      : COLORS.lightModePlaceholder;
   }, [theme, darkModeType, placeholderTextColor]);
 
   const blurOnSubmitValue = useMemo(() => {

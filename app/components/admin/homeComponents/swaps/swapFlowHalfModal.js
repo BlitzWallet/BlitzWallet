@@ -380,23 +380,29 @@ export default function SwapFlowHalfModal({
         if (lastSimulatedAmount.current === fromAmount && !!toAmount.length)
           return;
         lastSimulatedAmount.current = fromAmount;
+        setIsSimulating(true);
+        setError(null);
         simulateSwapAmount(fromAmount, 'from', uuid);
       } else {
         setToAmount('');
         setSimulationResult(null);
         setPriceImpact(null);
         setError('');
+        setIsSimulating(false);
       }
     } else if (lastEditedField === 'to') {
       if (toAmount.length && !isNaN(toAmount) && parseFloat(toAmount) > 0) {
         if (lastSimulatedAmount.current === toAmount && fromAmount) return;
         lastSimulatedAmount.current = toAmount;
+        setIsSimulating(true);
+        setError(null);
         simulateSwapAmount(toAmount, 'to', uuid);
       } else {
         setFromAmount('');
         setSimulationResult(null);
         setPriceImpact(null);
         setError('');
+        setIsSimulating(false);
       }
     }
   }, [fromAmount, toAmount, fromAsset, toAsset, poolInfo, lastEditedField]);
@@ -411,8 +417,6 @@ export default function SwapFlowHalfModal({
       setError('');
       return;
     }
-    setIsSimulating(true);
-    setError(null);
 
     try {
       const isBtcToUsdb = fromAsset === 'BTC';
