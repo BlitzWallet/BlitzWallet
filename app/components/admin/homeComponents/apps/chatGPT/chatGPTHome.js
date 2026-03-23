@@ -29,7 +29,7 @@ import ExampleGPTSearchCard from './exampleSearchCards';
 import saveChatGPTChat from './functions/saveChat';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { AI_MODEL_COST } from './contants/AIModelCost';
+import { getAIModels } from './contants/modelCache';
 import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import fetchBackend from '../../../../../../db/handleBackend';
@@ -158,6 +158,7 @@ export default function ChatGPTHome(props) {
   const [newChats, setNewChats] = useState([]);
   const [model, setSearchModel] = useState('Gpt-4o');
   const [userChatText, setUserChatText] = useState('');
+  const [aiModels, setAiModels] = useState([]);
   const [showScrollBottomIndicator, setShowScrollBottomIndicator] =
     useState(false);
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(true);
@@ -167,6 +168,16 @@ export default function ChatGPTHome(props) {
     () => [...chatHistory.conversation, ...newChats],
     [chatHistory.conversation, newChats],
   );
+
+  useEffect(() => {
+    getAIModels().then(freshModels => {
+      setAiModels(freshModels);
+      setSearchModel(current => {
+        const updated = freshModels.find(m => m.id === current);
+        return updated || freshModels[0].id;
+      });
+    });
+  }, []);
 
   useEffect(() => {
     if (!chatHistoryFromProps) return;
@@ -352,7 +363,7 @@ export default function ChatGPTHome(props) {
         return;
       }
 
-      const [filteredModel] = AI_MODEL_COST.filter(
+      const [filteredModel] = aiModels.filter(
         item => item.shortName.toLowerCase() === model.toLowerCase(),
       );
 
@@ -376,7 +387,7 @@ export default function ChatGPTHome(props) {
       setUserChatText('');
       getChatResponse(userChatObject, filteredModel);
     },
-    [totalAvailableCredits, model, navigate, t, getChatResponse],
+    [totalAvailableCredits, model, aiModels, navigate, t, getChatResponse],
   );
 
   const userChatHistory = useMemo(() => {

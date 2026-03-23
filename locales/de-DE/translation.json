@@ -857,7 +857,7 @@
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
       "contacts": "Aus Kontakten",
-      "inputPlaceholder": "Geben Sie die Adresse zum Bezahlen ein.",
+      "inputPlaceholder": "Adresse, @blitz oder Rechnung",
       "scanImage": "Bild scannen",
       "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild auszulesen.",
       "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten.",
@@ -1061,7 +1061,7 @@
       },
       "handlingAddressErrors": {
         "invalidFormat": "Adressen sollten nur Text enthalten. Bitte überprüfen Sie und versuchen Sie es erneut.",
-        "parseError": "Wir konnten den Zahlungstyp nicht erkennen. Bitte geben Sie eine gültige Spark-, On-Chain-, LNURL- oder BOLT11-Rechnung ein.",
+        "parseError": "Wir konnten den Zahlungstyp nicht erkennen. Bitte geben Sie eine gültige Spark-, On-Chain-, Blitz-Benutzernamen-, LNURL- oder BOLT11-Rechnung ein.",
         "paymentProcessingError": "Fehler bei der Verarbeitung der Zahlungsinformationen.",
         "tooLowSendingAmount": "Der Sendebetrag ist zu niedrig, um die Zahlung und Gebühren zu decken. Maximaler Sendebetrag ist {{amount}}",
         "processInputError": "Eingabe konnte nicht verarbeitet werden.",
@@ -1982,7 +1982,8 @@
         "balance": "Guthaben",
         "maxSupply": "Max. Supply",
         "tokenTicker": "Token-Symbol",
-        "tokenPubKey": "Öffentliche Token-Adresse"
+        "tokenPubKey": "Öffentliche Token-Adresse",
+        "tokenInfo": "Token-Informationen anzeigen"
       },
       "giftPages": {
         "expired": "Abgelaufen",

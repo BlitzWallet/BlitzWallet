@@ -15,6 +15,9 @@ import {
 import { parseInput, InputTypes } from 'bitcoin-address-parser';
 import { decodeSparkInvoice } from '../../../../../functions/spark/decodeInvoices';
 import { deriveSparkAddress } from '../../../../../functions/gift/deriveGiftWallet';
+import { getSingleContact } from '../../../../../../db';
+import { getCachedProfileImage } from '../../../../../functions/cachedImage';
+
 import { getPayLinkDoc, addDataToCollection } from '../../../../../../db';
 import { receiveSparkLightningPayment } from '../../../../../functions/spark';
 export default async function decodeSendAddress(props) {
@@ -34,7 +37,6 @@ export default async function decodeSendAddress(props) {
     parsedInvoice,
     fiatStats,
     fromPage,
-    publishMessageFunc,
     sparkInformation,
     seletctedToken,
     currentWalletMnemoinc,
@@ -56,6 +58,7 @@ export default async function decodeSendAddress(props) {
   } = props;
 
   let paylinkPublishFunc = null;
+  let resolvedBlitzContact = null;
 
   try {
     console.log(btcAdress, 'scanned address');
@@ -104,6 +107,39 @@ export default async function decodeSendAddress(props) {
           payLinkId,
         );
       };
+    }
+
+    if (btcAdress.startsWith('@') || btcAdress.length <= 30) {
+      const username = btcAdress.startsWith('@')
+        ? btcAdress.slice(1).trim()
+        : btcAdress.trim();
+
+      if (!username) {
+        return goBackFunction(
+          t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
+        );
+      }
+      const results = await getSingleContact(username);
+      const profile = results?.[0]?.contacts?.myProfile;
+      const sparkAddress = profile?.sparkAddress;
+      if (!sparkAddress && btcAdress.startsWith('@')) {
+        return goBackFunction(
+          t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
+        );
+      }
+      if (sparkAddress) {
+        btcAdress = sparkAddress;
+        const imageData = await getCachedProfileImage(profile.uuid).catch(
+          () => null,
+        );
+        resolvedBlitzContact = {
+          name: profile.name || profile.uniqueName || '',
+          uniqueName: profile.uniqueName || '',
+          bio: profile.bio || '',
+          uuid: profile.uuid,
+          imageData,
+        };
+      }
     }
 
     if (isSupportedPNPQR(btcAdress)) {
@@ -305,7 +341,13 @@ export default async function decodeSendAddress(props) {
           }
         }
       }
-      setPaymentInfo({ ...processedPaymentInfo, decodedInput: input });
+      setPaymentInfo({
+        ...processedPaymentInfo,
+        decodedInput: input,
+        ...(resolvedBlitzContact
+          ? { blitzContactInfo: resolvedBlitzContact }
+          : {}),
+      });
     } else {
       if (input.type === InputTypes.LNURL_AUTH) return;
 

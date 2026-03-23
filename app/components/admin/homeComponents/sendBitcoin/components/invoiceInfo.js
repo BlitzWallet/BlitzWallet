@@ -6,7 +6,7 @@ import formatSparkPaymentAddress from '../functions/formatSparkPaymentAddress';
 import { useNavigation } from '@react-navigation/native';
 import { InputTypes } from 'bitcoin-address-parser';
 import ContactProfileImage from '../../contacts/internalComponents/profileImage';
-
+import normalizeLNURLAddress from '../../../../../functions/lnurl/normalizeLNURLAddress';
 export default function InvoiceInfo({
   paymentInfo,
   fromPage,
@@ -60,7 +60,8 @@ export default function InvoiceInfo({
           CustomNumberOfLines={2}
           content={
             paymentInfo?.type === InputTypes.LNURL_PAY
-              ? paymentInfo.data.address
+              ? normalizeLNURLAddress(paymentInfo.data.address) ??
+                paymentInfo.data.address
               : formmateedSparkPaymentInfo.address
           }
         />

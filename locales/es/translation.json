@@ -717,7 +717,7 @@
       "clipboard": "Desde portapapeles",
       "manual": "Entrada manual",
       "contacts": "Desde contactos",
-      "inputPlaceholder": "Ingresa una dirección para pagar",
+      "inputPlaceholder": "Dirección, @blitz o factura",
       "scanImage": "Escanear imagen",
       "tapToScan": "Toca para obtener una dirección desde una imagen",
       "chooseWhatToSend": "Elige qué enviar",
@@ -920,7 +920,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Las direcciones deben ser solo texto. Por favor revisa e intenta de nuevo.",
-        "parseError": "No se pudo analizar la dirección",
+        "parseError": "No pudimos reconocer el tipo de pago. Por favor, introduce una dirección Spark válida, un nombre de usuario de Blitz, una dirección de Bitcoin o una dirección/factura de Lightning.",
         "paymentProcessingError": "No pudimos reconocer el tipo de pago. Ingrese una factura válida de Spark, en cadena, LNURL o BOLT11.",
         "tooLowSendingAmount": "El monto de envío es demasiado alto para cubrir el pago y las tarifas. La cantidad máxima de envío es {{cantidad}}",
         "processInputError": "No se pudo procesar la entrada",
@@ -1842,7 +1842,8 @@
         "balance": "Saldo",
         "maxSupply": "Suministro máximo",
         "tokenTicker": "Símbolo del token",
-        "tokenPubKey": "Clave pública del token"
+        "tokenPubKey": "Clave pública del token",
+        "tokenInfo": "Ver información del token"
       },
       "giftPages": {
         "expired": "Expirado",

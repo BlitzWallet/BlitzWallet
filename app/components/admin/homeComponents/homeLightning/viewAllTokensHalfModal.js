@@ -34,6 +34,9 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import openWebBrowser from '../../../../functions/openWebBrowser';
+import { useNavigation } from '@react-navigation/native';
+import { convertToBech32m } from '../../../../functions/lrc20/bech32';
 
 // ─── Token List Item ────────────────────────────────────────────────────────
 
@@ -129,6 +132,7 @@ function TokenDetailView({
   theme,
   darkModeType,
 }) {
+  const navigate = useNavigation();
   const { tokensImageCache } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
@@ -337,6 +341,33 @@ function TokenDetailView({
           </View>
         ))}
       </View>
+      <TouchableOpacity
+        onPress={() => {
+          try {
+            const tokenIdentifierHex = Buffer.from(
+              Object.values(tokenMetadata?.rawTokenIdentifier),
+            ).toString('hex');
+            const tokenbech32m = convertToBech32m(tokenIdentifierHex);
+            openWebBrowser({
+              navigate,
+              link: `https://sparkscan.io/token/${tokenbech32m}`,
+            });
+          } catch (err) {
+            console.log(err, 'error in webview');
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('errormessages.genericError'),
+            });
+          }
+        }}
+        style={styles.viewTokensInfoContainer}
+      >
+        <ThemeIcon iconName={'Globe'} />
+        <ThemeText
+          adjustsFontSizeToFit={true}
+          allowFontScaling={true}
+          content={t('screens.inAccount.lrc20TokenDataHalfModal.tokenInfo')}
+        />
+      </TouchableOpacity>
 
       {/* Back button */}
       <CustomButton
@@ -513,7 +544,13 @@ const styles = StyleSheet.create({
     opacity: HIDDEN_OPACITY,
     fontSize: SIZES.medium,
   },
-
+  viewTokensInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    minHeight: 40,
+    justifyContent: 'center',
+  },
   // Detail Header
   detailHeader: {
     alignItems: 'center',

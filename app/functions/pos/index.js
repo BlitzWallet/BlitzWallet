@@ -189,9 +189,10 @@ const setPOSTransactions = async ({ transactionsList, privateKey }) => {
     console.error(err, 'set transactions SQL error');
     return false;
   } finally {
-    const newTimesatmp = transactionsList.sort((a, b) => {
-      return b.dateAdded - a.dateAdded;
-    })[0].dateAdded;
+    const newTimesatmp = transactionsList.reduce(
+      (max, t) => (t.dateAdded > max ? t.dateAdded : max),
+      0,
+    );
     console.log(newTimesatmp, 'TIME BEING SET IN SET FUNCTION ');
     await setLocalStorageItem(
       POS_LAST_RECEIVED_TIME,

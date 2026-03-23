@@ -857,7 +857,7 @@
       "clipboard": "Från klippbordet",
       "manual": "Manuell inmatning",
       "contacts": "Från Kontakter",
-      "inputPlaceholder": "Ange en adress att betala till",
+      "inputPlaceholder": "Adress, @blitz eller faktura",
       "scanImage": "Skanna bild",
       "tapToScan": "Tryck för att hämta en adress från en bild",
       "chooseWhatToSend": "Välj vad som ska skickas",
@@ -1059,7 +1059,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adresser ska endast vara text. Vänligen kontrollera och försök igen.",
-        "parseError": "Vi kunde inte känna igen betalningstypen. Vänligen ange en giltig Spark-adress, Bitcoin-adress eller en Lightning-adress/faktura.",
+        "parseError": "Vi kunde inte känna igen betalningstypen. Ange en giltig Spark-adress, ett Blitz-användarnamn, en Bitcoin-adress eller en Lightning-adress/faktura.",
         "paymentProcessingError": "Fel vid bearbetning av betalningsinformation",
         "tooLowSendingAmount": "Det skickade beloppet är för högt för att täcka betalningen och avgifterna. Maximalt belopp för sändning är {{amount}}",
         "processInputError": "Kan inte bearbeta inmatning",
@@ -1980,7 +1980,8 @@
         "balance": "Balans",
         "maxSupply": "Max strömförsörjning",
         "tokenTicker": "Token-ticker",
-        "tokenPubKey": "Token Offentlig nyckel"
+        "tokenPubKey": "Token Offentlig nyckel",
+        "tokenInfo": "Visa tokeninformation"
       },
       "giftPages": {
         "expired": "Utgått",

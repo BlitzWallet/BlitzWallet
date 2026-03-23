@@ -36,6 +36,7 @@ import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
 import getClipboardText from '../../../../functions/getClipboardText';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
 import CustomButton from '../../../../functions/CustomElements/button';
+import getReceiveAddressAndContactForContactsPayment from '../contacts/internalComponents/getReceiveAddressAndKindForPayment';
 
 const ContactRow = ({
   contact,
@@ -273,7 +274,8 @@ export default function HalfModalSendOptions({
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
-  const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
+  const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
+    useGlobalContacts();
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
     GetThemeColors();
@@ -308,14 +310,80 @@ export default function HalfModalSendOptions({
     transform: [{ translateX: contentTranslateX.value }],
   }));
 
-  const handleManualInputSubmit = useCallback(() => {
+  const handleManualInputSubmit = useCallback(async () => {
     if (!inputText.trim()) return;
+    const input = inputText.trim();
+    const normalized = input.startsWith('@')
+      ? input.slice(1).toLowerCase()
+      : input.toLowerCase();
+    const matchedContact = decodedAddedContacts.find(
+      c => c.uniqueName?.toLowerCase() === normalized,
+    );
+
+    if (matchedContact) {
+      const senderName =
+        globalContactsInformation.myProfile?.name ||
+        globalContactsInformation.myProfile?.uniqueName;
+      const payingContactMessage = {
+        usingTranslation: true,
+        type: 'paid',
+        name: senderName,
+      };
+
+      const {
+        receiveAddress,
+        retrivedContact,
+        formattedPayingContactMessage,
+        didWork,
+        error,
+      } = await getReceiveAddressAndContactForContactsPayment({
+        sendingAmountSat: 0,
+        selectedContact: matchedContact,
+        myProfileMessage: '',
+        payingContactMessage,
+      });
+
+      if (!didWork) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: error,
+          useTranslationString: true,
+        });
+        return;
+      }
+
+      navigate.replace('ConfirmPaymentScreen', {
+        btcAdress: receiveAddress,
+        fromPage: 'contacts',
+        enteredPaymentInfo: {
+          description: t('contacts.sendAndRequestPage.profileMessage', {
+            name: matchedContact.name || matchedContact.uniqueName,
+          }),
+        },
+        contactInfo: {
+          imageData: cache[matchedContact.uuid],
+          name: matchedContact.name || matchedContact.uniqueName,
+          isLNURLPayment: matchedContact?.isLNURL,
+          payingContactMessage: formattedPayingContactMessage,
+          uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
+          uuid: matchedContact.uuid,
+        },
+        selectedContact: matchedContact,
+        retrivedContact,
+      });
+      return;
+    }
 
     navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: inputText.trim(),
+      btcAdress: input,
       fromPage: '',
     });
-  }, [navigate, inputText, handleBackPressFunction]);
+  }, [
+    navigate,
+    inputText,
+    decodedAddedContacts,
+    globalContactsInformation,
+    cache,
+  ]);
 
   const handleClipboardPaste = useCallback(async () => {
     const response = await getClipboardText();
