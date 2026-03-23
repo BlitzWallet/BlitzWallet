@@ -4862,7 +4862,7 @@ __metadata:
     react-native-worklets: ^0.7.4
     react-test-renderer: 19.1.0
     rn-qr-generator: ^2.0.0
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#ea5993e4f7667e2ff49d8275ac47b34bc1aceca6"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#683ddc146a88c302c9482bbed5c244c7811ca2e8"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     text-encoding-polyfill: ^0.6.7
@@ -13868,9 +13868,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#ea5993e4f7667e2ff49d8275ac47b34bc1aceca6":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#683ddc146a88c302c9482bbed5c244c7811ca2e8":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=ea5993e4f7667e2ff49d8275ac47b34bc1aceca6"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=683ddc146a88c302c9482bbed5c244c7811ca2e8"
   dependencies:
     "@buildonspark/spark-sdk": ^0.6.7
     "@ecies/ciphers": ^0.2.4
