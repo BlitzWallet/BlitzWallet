@@ -35,7 +35,6 @@ export default async function decodeSendAddress(props) {
     parsedInvoice,
     fiatStats,
     fromPage,
-    publishMessageFunc,
     sparkInformation,
     seletctedToken,
     currentWalletMnemoinc,
