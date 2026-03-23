@@ -1951,7 +1951,8 @@
         "balance": "Saldo",
         "maxSupply": "Limite de emissão",
         "tokenTicker": "Ticker do token",
-        "tokenPubKey": "Chave pública do token"
+        "tokenPubKey": "Chave pública do token",
+        "tokenInfo": "Ver informações do token"
       },
       "giftPages": {
         "expired": "Expirado",

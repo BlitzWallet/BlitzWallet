@@ -1813,7 +1813,8 @@
         "balance": "Saldo",
         "maxSupply": "Suministro máximo",
         "tokenTicker": "Símbolo del token",
-        "tokenPubKey": "Clave pública del token"
+        "tokenPubKey": "Clave pública del token",
+        "tokenInfo": "Ver información del token"
       },
       "giftPages": {
         "expired": "Expirado",

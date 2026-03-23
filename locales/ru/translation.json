@@ -1952,7 +1952,8 @@
         "balance": "Баланс",
         "maxSupply": "Макс. эмиссия",
         "tokenTicker": "Тикер",
-        "tokenPubKey": "Pubkey токена"
+        "tokenPubKey": "Pubkey токена",
+        "tokenInfo": "Просмотреть информацию о токене"
       },
       "giftPages": {
         "expired": "Истек",

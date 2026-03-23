@@ -1953,7 +1953,8 @@
         "balance": "Balance",
         "maxSupply": "Max Supply",
         "tokenTicker": "Token Ticker",
-        "tokenPubKey": "Token Public Key"
+        "tokenPubKey": "Token Public Key",
+        "tokenInfo": "View Token Info"
       },
       "giftPages": {
         "expired": "Expired",
