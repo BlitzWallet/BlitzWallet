@@ -1222,6 +1222,7 @@ export const WebViewProvider = ({ children }) => {
         setVerifiedPath(htmlPath);
       } catch (err) {
         didRunHandshakeRef.current = true;
+        forceNativeMode('bundle verification failed');
         console.log(
           'WebView bundle verification failed. Using react-native bundle',
           err,
