@@ -1030,7 +1030,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
-        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin ou um endereço/fatura Lightning válidos.",
+        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin ou endereços/faturas Lightning válidos.",
         "paymentProcessingError": "Erro ao processar informações de pagamento",
         "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
         "processInputError": "Não é possível processar a entrada",
