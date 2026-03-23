@@ -1031,7 +1031,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Неверный формат: адрес должен быть текстом.",
-        "parseError": "Тип платежа не распознан. Введите адрес Spark, Биткоин или Молнии.",
+        "parseError": "Не удалось распознать тип платежа. Пожалуйста, введите корректный адрес Spark, имя пользователя Blitz, адрес Bitcoin или адрес/инвойс Lightning.",
         "paymentProcessingError": "Ошибка обработки платежа",
         "tooLowSendingAmount": "Сумма слишком велика (с учетом комиссии). Макс: {{amount}}",
         "processInputError": "Не удалось обработать ввод",

@@ -63,8 +63,11 @@ export default async function decodeSendAddress(props) {
     if (typeof btcAdress !== 'string')
       throw new Error(t('wallet.sendPages.handlingAddressErrors.invlidFormat'));
 
-    if (btcAdress.startsWith('@')) {
-      const username = btcAdress.slice(1).trim();
+    if (btcAdress.startsWith('@') || btcAdress.length <= 30) {
+      const username = btcAdress.startsWith('@')
+        ? btcAdress.slice(1).trim()
+        : btcAdress.trim();
+
       if (!username) {
         return goBackFunction(
           t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
@@ -73,22 +76,24 @@ export default async function decodeSendAddress(props) {
       const results = await getSingleContact(username);
       const profile = results?.[0]?.contacts?.myProfile;
       const sparkAddress = profile?.sparkAddress;
-      if (!sparkAddress) {
+      if (!sparkAddress && btcAdress.startsWith('@')) {
         return goBackFunction(
           t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
         );
       }
-      btcAdress = sparkAddress;
-      const imageData = await getCachedProfileImage(profile.uuid).catch(
-        () => null,
-      );
-      resolvedBlitzContact = {
-        name: profile.name || profile.uniqueName || '',
-        uniqueName: profile.uniqueName || '',
-        bio: profile.bio || '',
-        uuid: profile.uuid,
-        imageData,
-      };
+      if (sparkAddress) {
+        btcAdress = sparkAddress;
+        const imageData = await getCachedProfileImage(profile.uuid).catch(
+          () => null,
+        );
+        resolvedBlitzContact = {
+          name: profile.name || profile.uniqueName || '',
+          uniqueName: profile.uniqueName || '',
+          bio: profile.bio || '',
+          uuid: profile.uuid,
+          imageData,
+        };
+      }
     }
 
     if (isSupportedPNPQR(btcAdress)) {

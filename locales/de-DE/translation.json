@@ -1032,7 +1032,7 @@
       },
       "handlingAddressErrors": {
         "invalidFormat": "Adressen sollten nur Text enthalten. Bitte überprüfen Sie und versuchen Sie es erneut.",
-        "parseError": "Wir konnten den Zahlungstyp nicht erkennen. Bitte geben Sie eine gültige Spark-, On-Chain-, LNURL- oder BOLT11-Rechnung ein.",
+        "parseError": "Wir konnten den Zahlungstyp nicht erkennen. Bitte geben Sie eine gültige Spark-, On-Chain-, Blitz-Benutzernamen-, LNURL- oder BOLT11-Rechnung ein.",
         "paymentProcessingError": "Fehler bei der Verarbeitung der Zahlungsinformationen.",
         "tooLowSendingAmount": "Der Sendebetrag ist zu niedrig, um die Zahlung und Gebühren zu decken. Maximaler Sendebetrag ist {{amount}}",
         "processInputError": "Eingabe konnte nicht verarbeitet werden.",

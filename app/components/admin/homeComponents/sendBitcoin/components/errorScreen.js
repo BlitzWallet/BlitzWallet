@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { applyErrorAnimationTheme } from '../../../../../functions/lottieViewColorTransformer';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 export default function ErrorWithPayment({ reason }) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     marginTop: 'auto',
-    width: 'auto',
+    width: INSET_WINDOW_WIDTH,
   },
   text: {
     textAlign: 'center',
