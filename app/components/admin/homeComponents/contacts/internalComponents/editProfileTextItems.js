@@ -90,7 +90,11 @@ export default function EditProfileTextInput({
       <TextInput
         keyboardAppearance={theme ? 'dark' : 'light'}
         placeholder={placeholder}
-        placeholderTextColor={COLORS.opaicityGray}
+        placeholderTextColor={
+          theme && !darkModeType
+            ? COLORS.darkModePlaceholder
+            : COLORS.lightModePlaceholder
+        }
         ref={inputRef}
         editable={true}
         multiline={multiline}

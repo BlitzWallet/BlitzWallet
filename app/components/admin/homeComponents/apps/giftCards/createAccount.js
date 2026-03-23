@@ -115,7 +115,6 @@ export default function CreateGiftCardAccount(props) {
                 inputText={email}
                 setInputText={setEmail}
                 placeholderText={'email@address.com'}
-                placeholderTextColor={COLORS.opaicityGray}
                 textInputStyles={styles.textInput}
                 onBlurFunction={() => {
                   setIsKeyboardActive(false);
