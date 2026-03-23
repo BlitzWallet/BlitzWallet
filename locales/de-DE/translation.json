@@ -857,7 +857,7 @@
       "clipboard": "Aus Zwischenablage",
       "manual": "Manuelle Eingabe",
       "contacts": "Aus Kontakten",
-      "inputPlaceholder": "Adresse, @blitz oder Rechnung",
+      "inputPlaceholder": "Geben Sie @Benutzername, Bitcoin-Adresse oder Lightning-Rechnung ein",
       "scanImage": "Bild scannen",
       "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild auszulesen.",
       "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten.",

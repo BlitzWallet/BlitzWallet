@@ -857,7 +857,7 @@
       "clipboard": "Из буфера обмена",
       "manual": "Вручную",
       "contacts": "Из контактов",
-      "inputPlaceholder": "Адрес, @blitz или счёт",
+      "inputPlaceholder": "Введите @имяпользователя, адрес Bitcoin или инвойс Lightning",
       "scanImage": "Сканировать изображение",
       "tapToScan": "Нажмите, чтобы получить адрес из изображения",
       "chooseWhatToSend": "Выберите, что отправить",

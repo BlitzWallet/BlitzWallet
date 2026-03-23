@@ -857,7 +857,7 @@
       "clipboard": "Från klippbordet",
       "manual": "Manuell inmatning",
       "contacts": "Från Kontakter",
-      "inputPlaceholder": "Adress, @blitz eller faktura",
+      "inputPlaceholder": "Ange @användarnamn, Bitcoin-adress eller Lightning-faktura",
       "scanImage": "Skanna bild",
       "tapToScan": "Tryck för att hämta en adress från en bild",
       "chooseWhatToSend": "Välj vad som ska skickas",
