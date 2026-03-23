@@ -880,7 +880,11 @@
       "tapToGenerate_lightning_btc": "Ta emot BTC direkt",
       "tapToGenerate_lightning_usd": "Ta emot USD direkt",
       "noAddedContactsTitle": "Inga tillagda kontakter",
-      "noAddedContactsDesc": "Dina kontakter visas här när du lägger till en."
+      "noAddedContactsDesc": "Dina kontakter visas här när du lägger till en.",
+      "payMe": "Snabb betalning",
+      "createInvoice": "Skapa faktura",
+      "invoiceDescription": "Begär betalning via en länk eller QR-kod.",
+      "poolsDescription": "Samla in bidrag från en grupp till ett gemensamt mål."
     },
     "payLinks": {
       "skip": "Hoppa över",
@@ -895,6 +899,8 @@
       "alreadyPaid": "Den här betalningslänken har redan betalats.",
       "notFound": "Betalningslänk hittades inte.",
       "invoiceError": "Misslyckades med att skapa faktura.",
+      "requestHeader": "Vad vill du ta emot?",
+      "genQRCode": "Generera QR-kod",
       "howItWorks": {
         "step1Label": "Dela länken",
         "step1Desc": "Skicka den via meddelande, e-post eller vilken app som helst. Alla med länken kan betala dig.",

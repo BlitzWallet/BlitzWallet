@@ -880,7 +880,11 @@
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
       "noAddedContactsTitle": "Nenhum contato adicionado",
-      "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui."
+      "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui.",
+      "payMe": "Pagamento rápido",
+      "createInvoice": "Criar fatura",
+      "invoiceDescription": "Solicite um pagamento usando um link ou código QR.",
+      "poolsDescription": "Reúna contribuições de um grupo para um objetivo compartilhado."
     },
     "payLinks": {
       "skip": "Pular",
@@ -895,6 +899,8 @@
       "alreadyPaid": "Este link de pagamento já foi pago.",
       "notFound": "Link de pagamento não encontrado.",
       "invoiceError": "Falha ao criar fatura.",
+      "requestHeader": "O que você quer receber?",
+      "genQRCode": "Gerar código QR",
       "howItWorks": {
         "step1Label": "Compartilhe o link",
         "step1Desc": "Envie por mensagem, e-mail ou qualquer aplicativo. Qualquer pessoa com o link pode te pagar.",

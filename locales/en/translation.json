@@ -880,7 +880,11 @@
       "tapToGenerate_lightning_btc": "Receive BTC instantly",
       "tapToGenerate_lightning_usd": "Receive USD instantly",
       "noAddedContactsTitle": "No Added Contacts",
-      "noAddedContactsDesc": "Your contacts will appear here once you add one"
+      "noAddedContactsDesc": "Your contacts will appear here once you add one",
+      "payMe": "Quick Pay",
+      "createInvoice": "Create Invoice",
+      "invoiceDescription": "Request payment using a link or QR code.",
+      "poolsDescription": "Collect contributions from a group toward a shared goal."
     },
     "payLinks": {
       "skip": "Skip",
@@ -895,6 +899,8 @@
       "alreadyPaid": "This paylink has already been paid.",
       "notFound": "Paylink not found.",
       "invoiceError": "Failed to create invoice.",
+      "requestHeader": "What do you want to receive?",
+      "genQRCode": "Generate QR code",
       "howItWorks": {
         "step1Label": "Share the link",
         "step1Desc": "Send it via message, email, or any app. Anyone with the link can pay you.",
