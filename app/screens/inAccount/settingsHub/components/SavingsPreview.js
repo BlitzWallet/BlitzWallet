@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSavings } from '../../../../../context-store/savingsContext';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { COLORS, ICONS, SIZES } from '../../../../constants';
+import { COLORS, FONT, ICONS, SIZES } from '../../../../constants';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -27,19 +27,33 @@ export default function SavingsPreview({ onPress }) {
             styles={styles.title}
             content={t('savings.preview.title')}
           />
-          <ThemeText
-            styles={styles.balance}
-            content={displayCorrectDenomination({
-              amount: savingsBalance,
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'fiat',
-              },
-              fiatStats,
-              forceCurrency: 'USD',
-              convertAmount: false,
-            })}
-          />
+          {masterInfoObject.userBalanceDenomination !== 'hidden' ? (
+            <ThemeText
+              styles={styles.balance}
+              content={displayCorrectDenomination({
+                amount: savingsBalance,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'fiat',
+                },
+                fiatStats,
+                forceCurrency: 'USD',
+                convertAmount: false,
+              })}
+            />
+          ) : (
+            <ThemeText
+              styles={[
+                styles.balance,
+                {
+                  fontFamily: FONT.Asterisk,
+                  fontSize: SIZES.medium,
+                  marginVertical: 5,
+                },
+              ]}
+              content={'A A A A A'}
+            />
+          )}
           <ThemeText
             styles={styles.rateText}
             content={t('savings.preview.earnInterest')}

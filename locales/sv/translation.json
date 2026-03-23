@@ -1030,7 +1030,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adresser ska endast vara text. Vänligen kontrollera och försök igen.",
-        "parseError": "Vi kunde inte känna igen betalningstypen. Vänligen ange en giltig Spark-adress, Bitcoin-adress eller en Lightning-adress/faktura.",
+        "parseError": "Vi kunde inte känna igen betalningstypen. Ange en giltig Spark-adress, ett Blitz-användarnamn, en Bitcoin-adress eller en Lightning-adress/faktura.",
         "paymentProcessingError": "Fel vid bearbetning av betalningsinformation",
         "tooLowSendingAmount": "Det skickade beloppet är för högt för att täcka betalningen och avgifterna. Maximalt belopp för sändning är {{amount}}",
         "processInputError": "Kan inte bearbeta inmatning",

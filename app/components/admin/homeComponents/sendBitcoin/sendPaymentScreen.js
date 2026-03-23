@@ -75,6 +75,8 @@ import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import normalizeLNURLAddress from '../../../../functions/lnurl/normalizeLNURLAddress';
+import { publishMessage } from '../../../../functions/messaging/publishMessage';
+import customUUID from '../../../../functions/customUUID';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -90,6 +92,8 @@ export default function SendPaymentScreen(props) {
     masterTokenInfo = {},
     selectedPaymentMethod = '',
     preSelectedPaymentMethod,
+    selectedContact,
+    retrivedContact,
   } = props.route.params;
 
   const paramsRef = useRef({
@@ -103,7 +107,7 @@ export default function SendPaymentScreen(props) {
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { screenDimensions } = useAppStatus();
-  const { accountMnemoinc } = useKeysContext();
+  const { accountMnemoinc, contactsPrivateKey } = useKeysContext();
   const { sparkInformation, showTokensInformation, sparkInfoRef } =
     useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -643,7 +647,6 @@ export default function SendPaymentScreen(props) {
         setLoadingMessage,
         paymentInfo,
         fromPage,
-        publishMessageFunc,
         sparkInformation,
         seletctedToken,
         currentWalletMnemoinc,
@@ -711,6 +714,65 @@ export default function SendPaymentScreen(props) {
     };
   }, [isUsingFastPay]);
 
+  const publishMessageFuncForContact = useCallback(
+    txid => {
+      const UUID = customUUID();
+      const sendObject = {
+        amountMsat: convertedSendAmountRef.current * 1000,
+        uuid: UUID,
+        wasSeen: null,
+        didSend: null,
+        isRedeemed: null,
+        description: combinedPaymentDescription || '',
+        isRequest: false,
+        paymentDenomination: inputDenominationRef.current || 'BTC',
+        amountDollars:
+          inputDenominationRef.current === 'USD'
+            ? satsToDollars(
+                convertedSendAmount,
+                poolInfoRef.currentPriceAInB,
+              ).toFixed(2)
+            : null,
+        ...(globalContactsInformation.myProfile?.uniqueName
+          ? {
+              senderProfileSnapshot: {
+                uniqueName: globalContactsInformation.myProfile.uniqueName,
+              },
+            }
+          : {}),
+      };
+      publishMessage({
+        toPubKey: selectedContact.uuid,
+        fromPubKey: globalContactsInformation.myProfile.uuid,
+        data: {
+          ...sendObject,
+          txid,
+          name:
+            globalContactsInformation.myProfile?.name ||
+            globalContactsInformation.myProfile?.uniqueName,
+        },
+        globalContactsInformation,
+        selectedContact,
+        isLNURLPayment: selectedContact?.isLNURL,
+        privateKey: contactsPrivateKey,
+        retrivedContact,
+        currentTime: Date.now(),
+        masterInfoObject,
+      });
+    },
+    [
+      selectedContact,
+      retrivedContact,
+      globalContactsInformation,
+      contactsPrivateKey,
+      masterInfoObject,
+      combinedPaymentDescription,
+    ],
+  );
+  const effectivePublishMessageFunc =
+    publishMessageFunc ||
+    (selectedContact ? publishMessageFuncForContact : null);
+
   const sendPayment = useCallback(async () => {
     if (!paymentValidation.isValid) {
       const error = paymentValidation.getErrorMessage(
@@ -734,7 +796,7 @@ export default function SendPaymentScreen(props) {
       const memo =
         paymentInfo.type === InputTypes.BOLT11
           ? enteredPaymentInfo?.description || combinedPaymentDescription
-          : combinedPaymentDescription;
+          : combinedPaymentDescription || enteredPaymentInfo?.description;
 
       const paymentObject = {
         getFee: false,
@@ -797,7 +859,7 @@ export default function SendPaymentScreen(props) {
 
       if (paymentResponse.didWork) {
         if (fromPage === 'contacts' && paymentResponse.response?.id) {
-          publishMessageFunc(paymentResponse.response.id);
+          effectivePublishMessageFunc(paymentResponse.response.id);
         }
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -879,7 +941,7 @@ export default function SendPaymentScreen(props) {
     sendWebViewRequest,
     contactInfo,
     fromPage,
-    publishMessageFunc,
+    effectivePublishMessageFunc,
     navigate,
     errorMessageNavigation,
     determinePaymentMethod,
@@ -1180,7 +1242,6 @@ export default function SendPaymentScreen(props) {
                   setPaymentInfo={setPaymentInfo}
                   setLoadingMessage={setLoadingMessage}
                   fromPage={fromPage}
-                  publishMessageFunc={publishMessageFunc}
                   // webViewRef={webViewRef}
                   minLNURLSatAmount={minLNURLSatAmount}
                   maxLNURLSatAmount={maxLNURLSatAmount}
@@ -1236,7 +1297,6 @@ export default function SendPaymentScreen(props) {
                   setPaymentInfo={setPaymentInfo}
                   setLoadingMessage={setLoadingMessage}
                   fromPage={fromPage}
-                  publishMessageFunc={publishMessageFunc}
                   // webViewRef={webViewRef}
                   minLNURLSatAmount={minLNURLSatAmount}
                   maxLNURLSatAmount={maxLNURLSatAmount}
