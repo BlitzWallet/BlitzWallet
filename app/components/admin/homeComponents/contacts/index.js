@@ -8,6 +8,8 @@ import SelectGiftCardForContacts from './selectGift';
 import SendAndRequestPage from './sendAndRequestPage';
 import SelectPaymentType from './internalComponents/selectPaymentType';
 import SelectContactRequestCurrency from './internalComponents/SelectContactRequestCurrency';
+import AddFriendsToSplit from './addFriendsToSplit';
+import CreateSplitBill from './createSplitBill';
 
 export {
   ExpandedContactsPage,
@@ -20,4 +22,6 @@ export {
   SelectGiftCardForContacts,
   SelectPaymentType,
   SelectContactRequestCurrency,
+  AddFriendsToSplit,
+  CreateSplitBill,
 };

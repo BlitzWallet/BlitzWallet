@@ -26,7 +26,9 @@ import SMSMessagingSendPage from '../app/components/admin/homeComponents/apps/sm
 import HistoricalSMSMessagingPage from '../app/components/admin/homeComponents/apps/sms4sats/sentPayments';
 import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
+  AddFriendsToSplit,
   ChooseContactHalfModal,
+  CreateSplitBill,
   EditMyProfilePage,
   ExpandedAddContactsPage,
   ExpandedContactsPage,
@@ -148,6 +150,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'EditMyProfilePage', component: EditMyProfilePage },
   { name: 'ExpandedAddContactsPage', component: ExpandedAddContactsPage },
   { name: 'SendAndRequestPage', component: SendAndRequestPage },
+  { name: 'AddFriendsToSplit', component: AddFriendsToSplit },
+  { name: 'CreateSplitBill', component: CreateSplitBill },
   { name: 'AppStorePageIndex', component: AppStorePageIndex },
   { name: 'HistoricalSMSMessagingPage', component: HistoricalSMSMessagingPage },
   { name: 'HistoricalVPNPurchases', component: HistoricalVPNPurchases },
