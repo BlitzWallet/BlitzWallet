@@ -641,19 +641,43 @@ export default function SendAndRequestPage(props) {
         )}
 
         <View style={styles.identityBadge}>
-          <View
-            style={[
-              styles.contactListLetterImage,
-              { backgroundColor: backgroundOffset },
-            ]}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.splitPayContainer}
+            onPress={() =>
+              navigate.navigate('AddFriendsToSplit', {
+                paymentType,
+                selectedContact,
+              })
+            }
           >
-            <ContactProfileImage
-              updated={imageData?.updated}
-              uri={imageData?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
+            <View
+              style={[
+                styles.contactListLetterImage,
+                { backgroundColor: backgroundOffset },
+              ]}
+            >
+              <ContactProfileImage
+                updated={imageData?.updated}
+                uri={imageData?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
+              />
+            </View>
+            <View
+              style={[
+                styles.splitPayIcon,
+                {
+                  borderColor:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
+                },
+              ]}
+            >
+              <ThemeIcon size={18} iconName={'Plus'} />
+            </View>
+          </TouchableOpacity>
           <View style={styles.identityTextContainer}>
             <ThemeText
               styles={styles.contactName}
@@ -919,7 +943,17 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
-
+  splitPayContainer: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  splitPayIcon: {
+    borderWidth: 1,
+    width: 25,
+    height: 25,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -30,
+  },
   contactListLetterImage: {
     height: 60,
     width: 60,
