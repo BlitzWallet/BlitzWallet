@@ -35,6 +35,7 @@ export default function ProfileImageRow({ contacts = [], avatarSize = 56 }) {
                 marginLeft: index === 0 ? 0 : -12,
                 width: avatarSize,
                 height: avatarSize,
+                borderRadius: Math.round(avatarSize / 2),
               },
             ]}
           >
@@ -63,7 +64,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   stackedAvatar: {
-    borderRadius: 24,
     borderWidth: 2,
     borderColor: 'white',
     overflow: 'hidden',
