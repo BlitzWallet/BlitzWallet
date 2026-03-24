@@ -7,16 +7,20 @@ import { useNavigation } from '@react-navigation/native';
 import { InputTypes } from 'bitcoin-address-parser';
 import ContactProfileImage from '../../contacts/internalComponents/profileImage';
 import normalizeLNURLAddress from '../../../../../functions/lnurl/normalizeLNURLAddress';
+import ProfileImageRow from '../../contacts/internalComponents/profileImageRow';
 export default function InvoiceInfo({
   paymentInfo,
   fromPage,
   contactInfo,
   theme,
   darkModeType,
+  isSplitPayment,
+  splitRecipients = [],
 }) {
   const formmateedSparkPaymentInfo = formatSparkPaymentAddress(paymentInfo);
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
+  const splitContacts = splitRecipients?.map(({ contact }) => contact);
   return (
     <TouchableOpacity
       onPress={() => {
@@ -30,8 +34,11 @@ export default function InvoiceInfo({
           backgroundColor: backgroundOffset,
         },
       ]}
+      disabled={isSplitPayment}
     >
-      {fromPage === 'contacts' ? (
+      {isSplitPayment ? (
+        <ProfileImageRow avatarSize={40} contacts={splitContacts} />
+      ) : fromPage === 'contacts' ? (
         <View style={styles.contactRow}>
           <View
             style={[
