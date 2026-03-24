@@ -16,8 +16,13 @@ import { useAppStatus } from '../../../context-store/appStatus';
 export default function WordsQrToggle({
   setSelectedDisplayOption,
   selectedDisplayOption,
-  canViewQrCode,
-  qrNavigateFunc,
+  option1Text,
+  option2Text,
+  option1Value = 'words',
+  option2Value = 'qrcode',
+  canViewOption2,
+  option2BlockedNavFunc,
+  containerStyle,
 }) {
   const { screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -58,19 +63,20 @@ export default function WordsQrToggle({
   }, [wordsTextWidth, qrTextWidth, MAX_CONTAINER_WIDTH]);
 
   useEffect(() => {
-    if (!canViewQrCode) return;
-    setSelectedDisplayOption('qrcode');
-    handleSlide('qrcode');
-  }, [canViewQrCode]);
+    if (canViewOption2 === undefined) return;
+    if (!canViewOption2) return;
+    setSelectedDisplayOption(option2Value);
+    handleSlide(option2Value);
+  }, [canViewOption2]);
 
   const handleSlide = useCallback(
     type => {
       sliderAnimation.value = withTiming(
-        type === 'words' ? 3 : buttonWidth + 7,
+        type === option1Value ? 0 : buttonWidth,
         { duration: 200 },
       );
     },
-    [buttonWidth],
+    [buttonWidth, option1Value],
   );
 
   const handleWordsTextLayout = useCallback(event => {
@@ -84,27 +90,33 @@ export default function WordsQrToggle({
   }, []);
 
   const wordsFunction = useCallback(() => {
-    setSelectedDisplayOption('words');
-    handleSlide('words');
-  }, [handleSlide]);
+    setSelectedDisplayOption(option1Value);
+    handleSlide(option1Value);
+  }, [handleSlide, option1Value]);
 
   const qrFunction = useCallback(() => {
-    if (!canViewQrCode) {
+    if (canViewOption2 !== undefined && !canViewOption2) {
       navigate.navigate('InformationPopup', {
         textContent: t('settings.seedPhrase.qrWarning'),
         buttonText: t('constants.understandText'),
-        customNavigation: qrNavigateFunc,
+        customNavigation: option2BlockedNavFunc,
       });
       return;
     }
-    setSelectedDisplayOption('qrcode');
-    handleSlide('qrcode');
-  }, [canViewQrCode, navigate, handleSlide]);
+    setSelectedDisplayOption(option2Value);
+    handleSlide(option2Value);
+  }, [
+    canViewOption2,
+    navigate,
+    handleSlide,
+    option2Value,
+    option2BlockedNavFunc,
+  ]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: sliderAnimation.value }, { translateY: 3 }],
     backgroundColor: theme && darkModeType ? backgroundColor : COLORS.primary,
-    width: buttonWidth - 6,
+    width: buttonWidth,
   }));
 
   return (
@@ -116,6 +128,7 @@ export default function WordsQrToggle({
           alignItems: 'center',
           width: containerWidth,
         },
+        containerStyle,
       ]}
     >
       <View style={styles.colorSchemeContainer}>
@@ -130,13 +143,13 @@ export default function WordsQrToggle({
             styles={{
               ...styles.colorSchemeText,
               color:
-                selectedDisplayOption === 'words'
+                selectedDisplayOption === option1Value
                   ? COLORS.darkModeText
                   : theme
                   ? COLORS.darkModeText
                   : COLORS.lightModeText,
             }}
-            content={t('settings.seedPhrase.wordsText')}
+            content={option1Text}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -150,13 +163,13 @@ export default function WordsQrToggle({
             styles={{
               ...styles.colorSchemeText,
               color:
-                selectedDisplayOption === 'qrcode'
+                selectedDisplayOption === option2Value
                   ? COLORS.darkModeText
                   : theme
                   ? COLORS.darkModeText
                   : COLORS.lightModeText,
             }}
-            content={t('settings.seedPhrase.qrText')}
+            content={option2Text}
           />
         </TouchableOpacity>
         <Animated.View style={[styles.activeSchemeStyle, animatedStyle]} />
@@ -165,12 +178,12 @@ export default function WordsQrToggle({
       <ThemeText
         onLayout={handleWordsTextLayout}
         styles={styles.colorSchemeTextPlace}
-        content={t('settings.seedPhrase.wordsText')}
+        content={option1Text}
       />
       <ThemeText
         onLayout={handleQrTextLayout}
         styles={styles.colorSchemeTextPlace}
-        content={t('settings.seedPhrase.qrText')}
+        content={option2Text}
       />
     </View>
   );
@@ -180,7 +193,6 @@ const styles = StyleSheet.create({
   sliderContainer: {
     paddingVertical: 5,
     borderRadius: 40,
-    marginTop: 'auto',
   },
   colorSchemeContainer: {
     flexDirection: 'row',
