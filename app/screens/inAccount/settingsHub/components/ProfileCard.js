@@ -8,6 +8,8 @@ import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import ContactRingAvatar from '../../../../components/admin/homeComponents/contacts/internalComponents/contactsRingAvatar';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
+import CustomButton from '../../../../functions/CustomElements/button';
 
 export default function ProfileCard({
   profileImage,
@@ -18,7 +20,7 @@ export default function ProfileCard({
   onCopyUsername,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const editProfileLabel = t('settings.index.editProfile');
@@ -43,45 +45,11 @@ export default function ProfileCard({
     },
     [fadeAnim],
   );
-  const [buttonContainerWidth, setButtonContainerWidth] = useState(0);
-  const [shouldStackButtons, setShouldStackButtons] = useState(false);
-  const [hasWrapped, setHasWrapped] = useState({
-    edit: null,
-    qr: null,
-  });
+
   const [infoMessageHeight, setInfoMessageHeight] = useState(0);
 
-  useEffect(() => {
-    setShouldStackButtons(false);
-    setHasWrapped({
-      edit: null,
-      qr: null,
-    });
-  }, [buttonContainerWidth, editProfileLabel, showQrLabel]);
-
-  useEffect(() => {
-    if (shouldStackButtons) return;
-    if (hasWrapped.edit == null || hasWrapped.qr == null) return;
-    if (hasWrapped.edit || hasWrapped.qr) setShouldStackButtons(true);
-  }, [hasWrapped, shouldStackButtons]);
-
-  const handleButtonContainerLayout = useCallback(e => {
-    const nextWidth = Math.round(e?.nativeEvent?.layout?.width || 0);
-    setButtonContainerWidth(prevWidth =>
-      prevWidth === nextWidth ? prevWidth : nextWidth,
-    );
-  }, []);
-
-  const handleLabelTextLayout = useCallback((key, e) => {
-    const lineCount = e?.nativeEvent?.lines?.length ?? 1;
-    const nextValue = lineCount > 1;
-
-    setHasWrapped(previousState =>
-      previousState[key] === nextValue
-        ? previousState
-        : { ...previousState, [key]: nextValue },
-    );
-  }, []);
+  const { shouldStack, containerProps, getLabelProps } =
+    useAdaptiveButtonLayout([editProfileLabel, showQrLabel]);
 
   console.log(infoMessageHeight, 'info message height');
 
@@ -162,48 +130,43 @@ export default function ProfileCard({
       </Animated.View>
 
       <View
-        onLayout={handleButtonContainerLayout}
+        {...containerProps}
         style={[
           styles.buttonContainer,
-          shouldStackButtons
+          shouldStack
             ? styles.buttonContainerStacked
             : styles.buttonContainerColumns,
         ]}
       >
-        <TouchableOpacity
-          onPress={onEditPress}
-          style={[
-            styles.button,
-            shouldStackButtons ? styles.buttonStacked : styles.buttonColumn,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            },
+        <CustomButton
+          buttonStyles={[
+            styles.actionButton,
+            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
+            shouldStack ? styles.buttonStacked : styles.buttonColumn,
           ]}
-        >
-          <ThemeText
-            CustomNumberOfLines={shouldStackButtons ? 1 : null}
-            styles={{ includeFontPadding: false }}
-            onTextLayout={e => handleLabelTextLayout('edit', e)}
-            content={editProfileLabel}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onShowQRPress}
-          style={[
-            styles.button,
-            shouldStackButtons ? styles.buttonStacked : styles.buttonColumn,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            },
+          textStyles={{
+            color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+          }}
+          enableElipsis={false}
+          {...getLabelProps(0)}
+          textContent={editProfileLabel}
+          actionFunction={onEditPress}
+        />
+
+        <CustomButton
+          buttonStyles={[
+            styles.actionButton,
+            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
+            shouldStack ? styles.buttonStacked : styles.buttonColumn,
           ]}
-        >
-          <ThemeText
-            CustomNumberOfLines={shouldStackButtons ? 1 : null}
-            styles={{ includeFontPadding: false }}
-            onTextLayout={e => handleLabelTextLayout('qr', e)}
-            content={showQrLabel}
-          />
-        </TouchableOpacity>
+          textStyles={{
+            color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+          }}
+          enableElipsis={false}
+          {...getLabelProps(1)}
+          textContent={showQrLabel}
+          actionFunction={onShowQRPress}
+        />
       </View>
     </View>
   );

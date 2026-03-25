@@ -880,7 +880,36 @@
       "tapToGenerate_lightning_btc": "Receive BTC instantly",
       "tapToGenerate_lightning_usd": "Receive USD instantly",
       "noAddedContactsTitle": "No Added Contacts",
-      "noAddedContactsDesc": "Your contacts will appear here once you add one"
+      "noAddedContactsDesc": "Your contacts will appear here once you add one",
+      "payMe": "Quick Pay",
+      "createInvoice": "Create Invoice",
+      "invoiceDescription": "Request payment using a link or QR code.",
+      "poolsDescription": "Collect contributions from a group toward a shared goal."
+    },
+    "payLinks": {
+      "skip": "Skip",
+      "next": "Next",
+      "share": "Share",
+      "createPayLink": "Create Paylink",
+      "showQR": "Show QR",
+      "creating": "Creating...",
+      "descriptionPlaceholder": "What's this for? (optional)",
+      "descriptionTitle": "Add a description",
+      "preparingPayment": "Preparing payment...",
+      "alreadyPaid": "This paylink has already been paid.",
+      "notFound": "Paylink not found.",
+      "invoiceError": "Failed to create invoice.",
+      "requestHeader": "What do you want to receive?",
+      "genQRCode": "Generate QR code",
+      "howItWorks": {
+        "step1Label": "Share the link",
+        "step1Desc": "Send it via message, email, or any app. Anyone with the link can pay you.",
+        "step2Label": "They open it in a browser",
+        "step2Desc": "No app needed. The link opens a payment page where they can pay with Lightning, USDC or USDT.",
+        "step3Label": "Funds arrive instantly",
+        "step3Desc": "Once they conmplete the payment the money arrives in your wallet."
+      },
+      "copyLink": "Copy link"
     },
     "pools": {
       "receiveViaPool": "Receive via pool",
@@ -939,7 +968,7 @@
       "info": {
         "title": "About Pools",
         "whatArePools": "What are pools?",
-        "whatArePoolsBody": "Pools let you collect Bitcoin payments, and know who's constributed toward a shared goal. Create a pool, set a target amount, and share it with anyone you like.",
+        "whatArePoolsBody": "Pools let you collect Bitcoin payments, and know who's contributed toward a shared goal. Create a pool, set a target amount, and share it with anyone you like.",
         "howItWorks": "How it works",
         "howStep1": "• Set up a new pool with a name and goal amount",
         "howStep2": "• Share the pool link so others can find it",

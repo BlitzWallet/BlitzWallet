@@ -741,7 +741,36 @@
       "tapToGenerate_lightning_btc": "Recibir BTC al instante",
       "tapToGenerate_lightning_usd": "Recibir USD al instante",
       "noAddedContactsTitle": "No hay contactos agregados",
-      "noAddedContactsDesc": "Tus contactos aparecerán aquí cuando agregues uno."
+      "noAddedContactsDesc": "Tus contactos aparecerán aquí cuando agregues uno.",
+      "payMe": "Pago rápido",
+      "createInvoice": "Crear factura",
+      "invoiceDescription": "Solicita un pago mediante un enlace o código QR.",
+      "poolsDescription": "Reúne contribuciones de un grupo para un objetivo compartido."
+    },
+    "payLinks": {
+      "skip": "Omitir",
+      "next": "Siguiente",
+      "share": "Compartir",
+      "createPayLink": "Crear enlace de pago",
+      "showQR": "Mostrar QR",
+      "creating": "Creando...",
+      "descriptionPlaceholder": "¿Para qué es esto? (opcional)",
+      "descriptionTitle": "Agregar descripción",
+      "preparingPayment": "Preparando pago...",
+      "alreadyPaid": "Este enlace de pago ya ha sido pagado.",
+      "notFound": "Enlace de pago no encontrado.",
+      "invoiceError": "No se pudo crear la factura.",
+      "requestHeader": "¿Qué quieres recibir?",
+      "genQRCode": "Generar código QR",
+      "howItWorks": {
+        "step1Label": "Comparte el enlace",
+        "step1Desc": "Envíalo por mensaje, correo electrónico o cualquier app. Cualquiera con el enlace puede pagarte.",
+        "step2Label": "Lo abren en el navegador",
+        "step2Desc": "No se necesita app. El enlace abre una página de pago donde pueden pagar con Lightning, USDC o USDT.",
+        "step3Label": "Los fondos llegan al instante",
+        "step3Desc": "Una vez que completen el pago, el dinero llega a tu billetera."
+      },
+      "copyLink": "Copiar enlace"
     },
     "pools": {
       "receiveViaPool": "Recibir mediante un fondo",

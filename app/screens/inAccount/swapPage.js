@@ -489,7 +489,6 @@ export default function SwapsPage() {
               userBalanceDenomination: 'sats',
             },
             fiatStats,
-            // convertAmount: false,
           }),
         }),
       });
@@ -991,7 +990,6 @@ export default function SwapsPage() {
             ...masterInfoObject,
             userBalanceDenomination: 'sats',
           },
-          convertAmount: false,
         })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
           amount: Number(satsToDollars(1, poolInfo.currentPriceAInB)).toFixed(
             6,
@@ -1038,7 +1036,7 @@ export default function SwapsPage() {
         userBalanceDenomination: isBtcToUsdb ? 'fiat' : 'sats',
       },
       forceCurrency: 'USD',
-      convertAmount: false,
+      convertAmount: isBtcToUsdb ? false : true,
     });
 
     return (
@@ -1876,7 +1874,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-
 
   reviewLabel: {
     fontSize: SIZES.smedium,

@@ -25,6 +25,7 @@ export default function ChoosePaymentMethod({
   fiatStats,
   uiState,
   t,
+  showBitcoinCardOnly = false,
   containerStyles = {},
 }) {
   const { backgroundColor } = GetThemeColors();
@@ -75,7 +76,8 @@ export default function ChoosePaymentMethod({
     >
       {/* <ThemeText styles={styles.header} content={'Pay with'} /> */}
       <TouchableOpacity
-        onPress={() => handleSelectPaymentMethod(false)}
+        onPress={() => !showBitcoinCardOnly && handleSelectPaymentMethod(false)}
+        activeOpacity={showBitcoinCardOnly ? 1 : 0.2}
         style={styles.selectorContainer}
       >
         <View
@@ -131,13 +133,15 @@ export default function ChoosePaymentMethod({
             />
           )}
         </View>
-        <ThemeIcon
-          colorOverride={
-            theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-          }
-          size={20}
-          iconName={'ChevronDown'}
-        />
+        {!showBitcoinCardOnly && (
+          <ThemeIcon
+            colorOverride={
+              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            }
+            size={20}
+            iconName={'ChevronDown'}
+          />
+        )}
       </TouchableOpacity>
     </View>
   );

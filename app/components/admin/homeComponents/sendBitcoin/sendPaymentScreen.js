@@ -138,6 +138,7 @@ export default function SendPaymentScreen(props) {
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
+
   const prevSelectedPaymentInfo = useRef({
     preSelectedPaymentMethod,
     enteredInfo: enteredPaymentInfo?.inputCurrency,
@@ -770,6 +771,7 @@ export default function SendPaymentScreen(props) {
     ],
   );
   const effectivePublishMessageFunc =
+    paymentInfo?.publishMessageFunc ||
     publishMessageFunc ||
     (selectedContact ? publishMessageFuncForContact : null);
 
@@ -858,7 +860,10 @@ export default function SendPaymentScreen(props) {
       }
 
       if (paymentResponse.didWork) {
-        if (fromPage === 'contacts' && paymentResponse.response?.id) {
+        if (
+          (fromPage === 'contacts' && paymentResponse.response?.id) ||
+          fromPage === 'paylink'
+        ) {
           effectivePublishMessageFunc(paymentResponse.response.id);
         }
         requestAnimationFrame(() => {
@@ -1182,21 +1187,21 @@ export default function SendPaymentScreen(props) {
               paymentInfo.type === 'spark' &&
               canEditAmount &&
               useFullTokensDisplay
-            ) &&
-              !isBitcoinPayment && (
-                <ChoosePaymentMethod
-                  theme={theme}
-                  darkModeType={darkModeType}
-                  determinePaymentMethod={determinePaymentMethod}
-                  handleSelectPaymentMethod={handleSelectPaymentMethod}
-                  bitcoinBalance={bitcoinBalance}
-                  dollarBalanceToken={dollarBalanceToken}
-                  masterInfoObject={masterInfoObject}
-                  fiatStats={fiatStats}
-                  uiState={uiState}
-                  t={t}
-                />
-              )}
+            ) && (
+              <ChoosePaymentMethod
+                theme={theme}
+                darkModeType={darkModeType}
+                determinePaymentMethod={determinePaymentMethod}
+                handleSelectPaymentMethod={handleSelectPaymentMethod}
+                bitcoinBalance={bitcoinBalance}
+                dollarBalanceToken={dollarBalanceToken}
+                masterInfoObject={masterInfoObject}
+                fiatStats={fiatStats}
+                uiState={uiState}
+                t={t}
+                showBitcoinCardOnly={isBitcoinPayment}
+              />
+            )}
             <CustomSearchInput
               onFocusFunction={() => setIsAmountFocused(false)}
               onBlurFunction={() => setIsAmountFocused(true)}
