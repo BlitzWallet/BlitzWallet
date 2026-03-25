@@ -12,9 +12,8 @@ import { Gift, Home, Store, Users2 } from 'lucide-react-native';
 import { CENTER, COLORS } from '../../app/constants';
 import GetThemeColors from '../../app/hooks/themeColors';
 import { useGlobalThemeContext } from '../../context-store/theme';
-import { useGlobalContacts } from '../../context-store/globalContacts';
+import { useGlobalContactsMessages } from '../../context-store/globalContacts';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
-import { useSparkWallet } from '../../context-store/sparkContext';
 import useShowShopPage from '../../app/hooks/showShopPage';
 
 const Tab = createBottomTabNavigator();
@@ -25,8 +24,7 @@ const ICON_SIZE = 26;
 
 function MyTabBar({ state, descriptors, navigation, showShop }) {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { hasUnlookedTransactions } = useGlobalContacts();
-  const { showTokensInformation } = useSparkWallet();
+  const { hasUnlookedTransactions } = useGlobalContactsMessages();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
 

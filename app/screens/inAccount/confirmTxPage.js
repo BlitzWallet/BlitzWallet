@@ -24,7 +24,7 @@ import displayCorrectDenomination from '../../functions/displayCorrectDenominati
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import customUUID from '../../functions/customUUID';
-import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { getSingleContact } from '../../../db';
 import { getCachedProfileImage } from '../../functions/cachedImage';
 import { INSET_WINDOW_WIDTH } from '../../constants/theme';
@@ -55,7 +55,7 @@ export default function ConfirmTxPage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
   const { t } = useTranslation();
-  const { decodedAddedContacts } = useGlobalContacts();
+  const { decodedAddedContacts } = useGlobalContactsInfo();
   const [isAddingContact, setIsAddingContact] = useState(false);
   const isLNURLAuth = props.route.params?.useLNURLAuth;
   const transaction = props.route.params?.transaction;

@@ -30,7 +30,7 @@ import saveChatGPTChat from './functions/saveChat';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { getAIModels } from './contants/modelCache';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import fetchBackend from '../../../../../../db/handleBackend';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
@@ -145,7 +145,7 @@ export default function ChatGPTHome(props) {
     toggleGlobalAppDataInformation,
     globalAppDataInformation,
   } = useGlobalAppData();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
 
   const flatListRef = useRef(null);
 

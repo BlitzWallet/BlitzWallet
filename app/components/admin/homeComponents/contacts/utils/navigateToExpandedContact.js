@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
@@ -17,7 +17,7 @@ export function useNavigateToContact() {
     decodedAddedContacts,
     globalContactsInformation,
     toggleGlobalContactsInformation,
-  } = useGlobalContacts();
+  } = useGlobalContactsInfo();
 
   const navigateToExpandedContact = useCallback(
     async (contact, fromPage) => {

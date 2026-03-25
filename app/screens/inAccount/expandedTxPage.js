@@ -34,7 +34,7 @@ import displayCorrectDenomination from '../../functions/displayCorrectDenominati
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
-import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -53,7 +53,7 @@ import { useNavigateToContact } from '../../components/admin/homeComponents/cont
 import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../constants/theme';
 
 export default function ExpandedTx(props) {
-  const { decodedAddedContacts } = useGlobalContacts();
+  const { decodedAddedContacts } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { screenDimensions } = useAppStatus();
   const { sparkInformation } = useSparkWallet();

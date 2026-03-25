@@ -16,7 +16,7 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import useUnmountKeyboard from '../../../../../hooks/useUnmountKeyboard';
@@ -35,7 +35,7 @@ export default function ChooseContactHalfModal() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { cache } = useImageCache();
   useUnmountKeyboard();
-  const { decodedAddedContacts } = useGlobalContacts();
+  const { decodedAddedContacts } = useGlobalContactsInfo();
   const navigate = useNavigation();
   const [isKeyboardActive, setIskeyboardActive] = useState(false);
   const [inputText, setInputText] = useState('');

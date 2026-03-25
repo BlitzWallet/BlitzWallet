@@ -25,7 +25,7 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { addDataToCollection } from '../../../../../../db';
 import { shareMessage } from '../../../../../functions/handleShare';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
@@ -64,7 +64,7 @@ export default function PayLinkDescriptionInput({
   currencyType,
 }) {
   const navigate = useNavigation();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();

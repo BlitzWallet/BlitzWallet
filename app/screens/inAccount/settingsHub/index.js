@@ -8,7 +8,7 @@ import { SIZES } from '../../../constants';
 import { CENTER } from '../../../constants/styles';
 import { COLORS, INSET_WINDOW_WIDTH } from '../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../context-store/context';
-import { useGlobalContacts } from '../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
 import { useAppStatus } from '../../../../context-store/appStatus';
 import { usePools } from '../../../../context-store/poolContext';
@@ -64,7 +64,7 @@ export default function SettingsHub(props) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
   const { activePoolsArray, poolsArray } = usePools();

@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import GiftCardTxItem from './giftCardTxItem';
 import { getTimeDisplay } from '../../../../../functions/contacts';
 import getReceiveAddressAndContactForContactsPayment from './getReceiveAddressAndKindForPayment';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { getTransactionContent } from '../contactsPageComponents/transactionText';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
@@ -200,7 +200,7 @@ export default function ContactsTransactionItem(props) {
   const { textColor, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
   const getServerTime = useServerTimeOnly();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
 
   const [isLoading, setIsLoading] = useState({
     sendBTN: false,

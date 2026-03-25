@@ -14,7 +14,7 @@ import CustomSettingsTopBar from './settingsTopBar';
 import GetThemeColors from '../../hooks/themeColors';
 import { CENTER, EMAIL_REGEX, SIZES, VALID_URL_REGEX } from '../../constants';
 import ThemeText from './textTheme';
-import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import { useImageCache } from '../../../context-store/imageCache';
@@ -29,7 +29,7 @@ import { shareMessage } from '../handleShare';
 
 export default function ShowProfileQr() {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { t } = useTranslation();
   const { showToast } = useToast();

@@ -34,7 +34,7 @@ import {
   fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
-import { useGlobalContacts } from './globalContacts';
+import { useGlobalContactsInfo } from './globalContacts';
 import {
   initializeSparkSession,
   initWallet,
@@ -133,7 +133,7 @@ const SparkWalletProvider = ({ children }) => {
   } = useAppStatus();
   // const { liquidNodeInformation } = useNodeContext();
   const { toggleGlobalContactsInformation, globalContactsInformation } =
-    useGlobalContacts();
+    useGlobalContactsInfo();
   const prevAccountMnemoincRef = useRef(null);
   const [sparkConnectionError, setSparkConnectionError] = useState(null);
   const isRunningAddListeners = useRef(false);

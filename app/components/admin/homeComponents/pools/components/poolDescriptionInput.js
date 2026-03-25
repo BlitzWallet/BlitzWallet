@@ -20,7 +20,7 @@ import { derivePoolWallet } from '../../../../../functions/pools/derivePoolWalle
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { v4 as uuidv4 } from 'uuid';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 
 /**
@@ -42,7 +42,7 @@ export default function PoolDescriptionInput({
   const { masterInfoObject } = useGlobalContextProvider();
   const textInputRef = useRef(null);
   const isAlreadyCreating = useRef(null);
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { accountMnemoinc } = useKeysContext();
   const { bottomPadding } = useGlobalInsets();
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);

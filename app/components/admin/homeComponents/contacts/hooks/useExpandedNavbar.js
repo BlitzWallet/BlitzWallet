@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import {
   decryptMessage,
@@ -18,7 +18,7 @@ export function useExpandedNavbar() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { isConnectedToTheInternet } = useAppStatus();
   const { globalContactsInformation, toggleGlobalContactsInformation } =
-    useGlobalContacts();
+    useGlobalContactsInfo();
 
   /**
    * toggle whether a contact is a favorite

@@ -12,7 +12,7 @@ import {
   getMetadata,
   ref,
 } from '@react-native-firebase/storage';
-import { useGlobalContacts } from './globalContacts';
+import { useGlobalContactsInfo } from './globalContacts';
 import { useAppStatus } from './appStatus';
 import {
   BLITZ_PROFILE_IMG_STORAGE_REF,
@@ -40,7 +40,7 @@ export function ImageCacheProvider({ children }) {
   const { sparkInformation } = useSparkWallet();
   const [cache, setCache] = useState({});
   const { didGetToHomepage } = useAppStatus();
-  const { decodedAddedContacts } = useGlobalContacts();
+  const { decodedAddedContacts } = useGlobalContactsInfo();
   const { masterInfoObject } = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(false);
   const cacheRef = useRef(cache);

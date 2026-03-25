@@ -17,7 +17,7 @@ import {
   VALID_URL_REGEX,
   VALID_USERNAME_REGEX,
 } from '../../../../constants';
-import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -63,7 +63,7 @@ export function AddContactContent({
 }) {
   const { contactsPrivateKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const [searchInput, setSearchInput] = useState(startingSearchValue || '');
   const [users, setUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);

@@ -19,7 +19,7 @@ import { encriptMessage } from '../../../../functions/messaging/encodingAndDecod
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import { isValidUniqueName } from '../../../../../db';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../context-store/keys';
@@ -47,7 +47,7 @@ export default function EditMyProfilePage(props) {
     toggleGlobalContactsInformation,
     globalContactsInformation,
     deleteContact,
-  } = useGlobalContacts();
+  } = useGlobalContactsInfo();
 
   const { t } = useTranslation();
 
@@ -264,7 +264,7 @@ function InnerContent({
     decodedAddedContacts,
     globalContactsInformation,
     toggleGlobalContactsInformation,
-  } = useGlobalContacts();
+  } = useGlobalContactsInfo();
   const { t } = useTranslation();
   const {
     isAddingImage,

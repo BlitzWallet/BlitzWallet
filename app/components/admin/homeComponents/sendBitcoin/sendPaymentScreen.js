@@ -60,7 +60,7 @@ import { useWebView } from '../../../../../context-store/webViewContext';
 import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
-import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
@@ -113,7 +113,7 @@ export default function SendPaymentScreen(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
 
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();

@@ -7,7 +7,7 @@ import {
 import { COLORS } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
@@ -30,7 +30,7 @@ export default function ContactsPageLongPressActions({
     globalContactsInformation,
     toggleGlobalContactsInformation,
     deleteContact,
-  } = useGlobalContacts();
+  } = useGlobalContactsInfo();
 
   const { t } = useTranslation();
 

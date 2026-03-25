@@ -19,7 +19,7 @@ import {
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
@@ -99,7 +99,7 @@ export default function SendAndRequestPage(props) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { isConnectedToTheInternet } = useAppStatus();
   const { fiatStats } = useNodeContext();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const getServerTime = useServerTimeOnly();
   const [amountValue, setAmountValue] = useState('');
   const [isDescriptionFocused, setIsDescriptionFocused] = useState(false);

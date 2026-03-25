@@ -21,7 +21,7 @@ import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
-import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useLiquidEvent } from '../../../context-store/liquidEventContext';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -32,10 +32,7 @@ import { useLRC20EventContext } from '../../../context-store/lrc20Listener';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../context-store/webViewContext';
-import Animated, {
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -55,7 +52,7 @@ export default function ReceivePaymentHome(props) {
   const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
   const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
   const { signer, startRootstockEventListener } = useRootstockProvider();
   // const { startLrc20EventListener } = useLRC20EventContext();

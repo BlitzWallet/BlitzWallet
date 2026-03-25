@@ -8,7 +8,7 @@ import { useGlobalContextProvider } from '../../../context-store/context';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
-import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useGlobalAppData } from '../../../context-store/appData';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
@@ -48,7 +48,7 @@ export default function ConnectingToNodeLoadingScreen({
   const { connectToSparkWallet, setSparkInformation } = useSparkWallet();
   const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
   const { theme } = useGlobalThemeContext();
-  const { toggleGlobalContactsInformation } = useGlobalContacts();
+  const { toggleGlobalContactsInformation } = useGlobalContactsInfo();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
   const { screenDimensions } = useAppStatus();
   const [hasError, setHasError] = useState(null);
