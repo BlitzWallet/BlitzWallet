@@ -1808,7 +1808,7 @@
         "confirmMessage_received": "Valor recebido",
         "paymentStatus": "Status do pagamento",
         "confReqired": "Confirmações necessárias",
-        "detailsBTN": "Detalhes técnicos",
+        "detailsBTN": "Mostrar detalhes",
         "contactPaymentType": "Contato",
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
         "gift": "Vale-Blitz",
