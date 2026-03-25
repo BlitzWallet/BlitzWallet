@@ -2396,7 +2396,7 @@
       "generalSavings": "Allgemeine Ersparnisse",
       "noSpecificGoal": "Kein bestimmtes Sparziel.",
       "sourceTitle": "Geld einzahlen von",
-      "minHint": "Min: {{amount}}",
+      "minHint": "Min.: {{amount}}",
       "confirmTitle": "Einzahlung bestätigen",
       "youAreAdding": "Sie zahlen ein",
       "fromBalance_dollar": "von Ihrem USD-Guthaben",
@@ -2411,7 +2411,7 @@
       },
       "successTitle": "Geld eingezahlt",
       "paymentLabel_unallocated": "Sparzieleinzahlung",
-      "paymentLabel": "Einzahlung vom {{savingsGoal}}",
+      "paymentLabel": "Einzahlung für {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
       }
@@ -2433,7 +2433,7 @@
       "generalSavings": "Allgemeine Ersparnisse",
       "destinationTitle": "Geld auszahlen auf",
       "availableHint": "Verfügbar: {{amount}}",
-      "minHint": "Min: {{amount}}",
+      "minHint": "Min.: {{amount}}",
       "confirmTitle": "Auszahlung bestätigen",
       "youAreWithdrawingAll": "Sie zahlen alle Ersparnisse aus",
       "youAreWithdrawing": "Sie zahlen aus",
@@ -2450,7 +2450,7 @@
       },
       "successTitle": "Auszahlung abgeschlossen",
       "paymentLabel_unallocated": "Sparauszahlung",
-      "paymentLabel": "Auszahlung vom {{savingsGoal}}",
+      "paymentLabel": "Auszahlung von {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Auszahlung konnte nicht abgeschlossen werden."
       }
@@ -2459,7 +2459,7 @@
       "headline1": "Ihr Geld,",
       "headline2": "jeden Tag im Einsatz.",
       "subtext": "Ein USD-gedeckter Stablecoin, der automatisch Erträge ansammelt, solange Sie ihn halten.",
-      "transparencyIssuer": "USDB ausgegeben von Brale, Inc. · Rendite über Flashnet.",
+      "transparencyIssuer": "USDB, ausgegeben von Brale, Inc. · Rendite über Flashnet.",
       "transparencyLegal": "Die Rendite ist variabel und nicht garantiert. Kein Bankeinlagenprodukt. Nicht durch FDIC oder SIPC versichert.",
       "disclaimerLegal": "Blitz Wallet ist keine Bank, kein Broker und kein Anlageberater. Die Zinssätze sind variabel und können sich jederzeit ändern. Siehe Nutzungsbedingungen für vollständige Risikohinweise.",
       "features": {
@@ -2479,7 +2479,7 @@
         "accrualValue": "Täglich"
       },
       "context": {
-        "goalNameRequired": "Bitte geben Sie einen Sparziel-Namen ein.",
+        "goalNameRequired": "Bitte geben Sie einen Namen für das Sparziel ein.",
         "goalNotFound": "Sparziel nicht gefunden."
       },
       "transparencyTitle": "Vollständig durch Reserven gedeckt.",
