@@ -27,7 +27,11 @@ import ProfileImageRow from './internalComponents/profileImageRow';
 const MAX_SPLIT_CONTACTS = 10;
 
 export default function AddFriendsToSplit(props) {
-  const { paymentType, selectedContact } = props.route.params || {};
+  const {
+    paymentType,
+    selectedContact,
+    paymentCurrency = 'BTC',
+  } = props.route.params || {};
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -77,7 +81,11 @@ export default function AddFriendsToSplit(props) {
 
   const handleNext = useCallback(() => {
     if (selectedContacts.length === 0) return;
-    navigation.navigate('CreateSplitBill', { selectedContacts, paymentType });
+    navigation.navigate('CreateSplitBill', {
+      selectedContacts,
+      paymentType,
+      paymentCurrency,
+    });
   }, [navigation, selectedContacts, paymentType]);
 
   const renderContact = useCallback(

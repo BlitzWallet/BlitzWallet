@@ -648,6 +648,7 @@ export default function SendAndRequestPage(props) {
               navigate.navigate('AddFriendsToSplit', {
                 paymentType,
                 selectedContact,
+                paymentCurrency: isUSDMode ? 'USD' : 'BTC',
               })
             }
           >
