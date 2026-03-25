@@ -881,10 +881,10 @@
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
       "noAddedContactsTitle": "Nenhum contato adicionado",
       "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui.",
-      "payMe": "Pagamento rápido",
-      "createInvoice": "Criar fatura",
-      "invoiceDescription": "Solicite um pagamento usando um link ou código QR.",
-      "poolsDescription": "Reúna contribuições de um grupo para um objetivo compartilhado."
+      "payMe": "Chave Blitz",
+      "createInvoice": "Criar Fatura",
+      "invoiceDescription": "Cobrança usando um link ou código QR.",
+      "poolsDescription": "Colete pagamentos para um objetivo"
     },
     "payLinks": {
       "skip": "Pular",
@@ -905,7 +905,7 @@
         "step1Label": "Compartilhe o link",
         "step1Desc": "Envie por mensagem, e-mail ou qualquer aplicativo. Qualquer pessoa com o link pode te pagar.",
         "step2Label": "Eles abrem no navegador",
-        "step2Desc": "Não é necessário app. O link abre uma página de pagamento onde podem pagar com Lightning, USDC ou USDT.",
+        "step2Desc": "Não é necessário app. O link abre uma página na internet onde podem ser pagos com Lightning, USDC ou USDT.",
         "step3Label": "Os fundos chegam instantaneamente",
         "step3Desc": "Assim que o pagamento for concluído, o dinheiro chega à sua carteira."
       },
