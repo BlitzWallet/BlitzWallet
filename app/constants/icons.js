@@ -22,6 +22,15 @@ import dollarIcon from '../assets/icons/dollarIcon.png';
 import bitcoinIcon from '../assets/icons/bitcoinIcon.png';
 import giftCardIcon from '../assets/icons/giftCardIcon.png';
 import nwcLogo from '../assets/icons/nwcLogo.png';
+import chain_arbitrum from '../assets/icons/chain-arbitrum.svg';
+import chain_base from '../assets/icons/chain-base.svg';
+import chain_ethereum from '../assets/icons/chain-ethereum.svg';
+import chain_optimism from '../assets/icons/chain-optimism.svg';
+import chain_plasma from '../assets/icons/chain-plasma.svg';
+import chain_tron from '../assets/icons/chain-tron.svg';
+import chain_polygon from '../assets/icons/chain-polygon.png';
+import usdcLogo from '../assets/icons/usdc.svg';
+import usdtLogo from '../assets/icons/usdt.svg';
 
 export default {
   logoIcon,
@@ -61,4 +70,15 @@ export default {
   dollarIcon,
   bitcoinIcon,
   nwcLogo,
+
+  // chain logos
+  chain_arbitrum,
+  chain_base,
+  chain_ethereum,
+  chain_optimism,
+  chain_plasma,
+  chain_tron,
+  chain_polygon,
+  usdcLogo,
+  usdtLogo,
 };
