@@ -34,6 +34,8 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { satsToDollars } from '../../../../../functions/spark/flashnet';
+import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation');
 
@@ -98,6 +100,7 @@ export default function PayLinkDescriptionInput({
       const doc = {
         payLinkId,
         amount: payLinkAmount,
+        currencyType,
         description: description.trim(),
         name:
           globalContactsInformation.myProfile.name ||
@@ -310,16 +313,15 @@ export default function PayLinkDescriptionInput({
         textContent={t('wallet.payLinks.genQRCode')}
         actionFunction={() => onSkip?.(payLinkAmount, description)}
       />
-      {currencyType === 'BTC' && (
-        <CustomButton
-          buttonStyles={[{ backgroundColor: 'transparent' }]}
-          textStyles={{ color: textColor }}
-          useLoading={isLoading}
-          textContent={t('wallet.payLinks.createPayLink')}
-          actionFunction={handleCreatePayLink}
-          disabled={isLoading || !isValid}
-        />
-      )}
+
+      <CustomButton
+        buttonStyles={[{ backgroundColor: 'transparent' }]}
+        textStyles={{ color: textColor }}
+        useLoading={isLoading}
+        textContent={t('wallet.payLinks.createPayLink')}
+        actionFunction={handleCreatePayLink}
+        disabled={isLoading || !isValid}
+      />
     </View>
   );
 }

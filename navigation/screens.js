@@ -101,6 +101,8 @@ import {
 import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
 import GiftsPageHome from '../app/screens/inAccount/giftsHome';
 import ReclaimGift from '../app/components/admin/homeComponents/gifts/reclaimGift';
+import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
+import StablecoinSendScreen from '../app/screens/inAccount/stablecoinSendScreen';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -202,6 +204,15 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SavingsGoalDetails', component: SavingsGoalDetails },
   { name: 'GiftsPageHome', component: GiftsPageHome },
   { name: 'ReclaimGift', component: ReclaimGift },
+  {
+    name: 'SelectStablecoinParamsScreen',
+    component: SelectStablecoinParamsScreen,
+  },
+  {
+    name: 'StablecoinSendScreen',
+    component: StablecoinSendScreen,
+    options: { gestureEnabled: false },
+  },
 ];
 
 const FADE_SCREENS = [

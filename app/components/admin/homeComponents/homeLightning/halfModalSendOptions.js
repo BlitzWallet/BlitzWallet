@@ -10,6 +10,7 @@ import {
   navigateToSendUsingClipboard,
   getQRImage,
 } from '../../../../functions';
+import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
@@ -373,8 +374,27 @@ export default function HalfModalSendOptions({
       return;
     }
 
+    const parsed = handlePreSendPageParsing(input);
+    if (parsed.error) {
+      navigate.navigate('ErrorScreen', { errorMessage: parsed.error });
+      return;
+    }
+    if (parsed.navigateToWebView) {
+      navigate.navigate('CustomWebView', {
+        headerText: '',
+        webViewURL: parsed.webViewURL,
+      });
+      return;
+    }
+    if (parsed.isExternalChain) {
+      navigate.replace('SelectStablecoinParamsScreen', {
+        address: parsed.address,
+        chainFamily: parsed.chainFamily,
+      });
+      return;
+    }
     navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: input,
+      btcAdress: parsed.btcAdress,
       fromPage: '',
     });
   }, [
@@ -406,6 +426,15 @@ export default function HalfModalSendOptions({
       });
       return;
     }
+
+    if (response.isExternalChain) {
+      navigate.replace('SelectStablecoinParamsScreen', {
+        address: response.address,
+        chainFamily: response.chainFamily,
+      });
+      return;
+    }
+
     if (!response.didWork || !response.btcAdress) {
       return;
     }

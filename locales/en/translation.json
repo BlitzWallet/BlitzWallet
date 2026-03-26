@@ -1160,6 +1160,22 @@
       "paymentsCounter": "{{number}} payments",
       "paymentsCounterTracker": "{{number}} of {{total}}",
       "loadingMessage": "Loading saved transactions"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Send Stablecoins",
+      "selectChain": "Select Network",
+      "network": "Network",
+      "selectAsset": "Select Asset",
+      "recipient": "Recipient",
+      "gettingQuote": "Getting quote…",
+      "quoteExpired": "Quote expired. Please try again.",
+      "quoteError": "Failed to get quote. Please try again.",
+      "recipientGets": "Recipient gets",
+      "youSend": "You send",
+      "quoteExpiresIn": "Quote expires in",
+      "payWithLightning": "Pay with Lightning",
+      "payWithUSDb": "Pay with USDb",
+      "chainNotSupportedForAsset": "Not available on this network"
     }
   },
   "contacts": {
