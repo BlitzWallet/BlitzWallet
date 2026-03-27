@@ -70,6 +70,7 @@ import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
+import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -553,6 +554,15 @@ export default function CustomHalfModal(props) {
           <PayLinkCurrencySelect
             currentCurrency={props?.route?.params?.currentCurrency}
             onSelectCurrency={props?.route?.params?.onSelectCurrency}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'stablecoinAssetPicker':
+        return (
+          <StablecoinAssetPickerHalfModal
+            selectedChain={props?.route?.params?.selectedChain}
+            address={props?.route?.params?.address}
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
           />
