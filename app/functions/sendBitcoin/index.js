@@ -122,4 +122,9 @@ async function getQRImage() {
   return { btcAdress: preParsingResponse.btcAdress, didWork: true, error: '' };
 }
 
-export { navigateToSendUsingClipboard, getQRImage };
+function formatStablecoinAmount(rawAmount, decimals = 2) {
+  const value = Number(rawAmount) / Math.pow(10, 6);
+  return value.toFixed(decimals);
+}
+
+export { navigateToSendUsingClipboard, getQRImage, formatStablecoinAmount };
