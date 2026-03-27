@@ -698,6 +698,8 @@ const SparkWalletProvider = ({ children }) => {
             sparkInfoRef.current.identityPubKey,
             sendWebViewRequest,
             true,
+            contactsPrivateKey,
+            publicKey,
           );
           const didUpdateStatus = updated.find(
             tx =>
@@ -1237,6 +1239,9 @@ const SparkWalletProvider = ({ children }) => {
           currentMnemonicRef.current,
           sparkInfoRef.current.identityPubKey,
           sendWebViewRequest,
+          false,
+          contactsPrivateKey,
+          publicKey,
         );
 
         if (updatePendingPaymentsIntervalRef.current) {
@@ -1276,6 +1281,9 @@ const SparkWalletProvider = ({ children }) => {
               currentMnemonicRef.current,
               sparkInfoRef.current.identityPubKey,
               sendWebViewRequest,
+              false,
+              contactsPrivateKey,
+              publicKey,
             );
 
             if (response.shouldCheck) {
