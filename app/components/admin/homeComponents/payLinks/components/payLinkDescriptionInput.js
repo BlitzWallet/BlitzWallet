@@ -333,8 +333,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: SIZES.large,
-    fontFamily: FONT.Descriptoin_Medium,
     fontWeight: 500,
+    includeFontPadding: false,
     marginBottom: 20,
   },
   animation: {
