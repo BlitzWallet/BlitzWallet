@@ -82,6 +82,8 @@
     "accounts": "Contas",
     "to": "Para",
     "from": "De",
+    "asset": "Ativo",
+    "chain": "Rede",
     "description": "Descrição",
     "regenerate": "Gerar",
     "restore": "Restaurar",
@@ -1159,6 +1161,33 @@
       "paymentsCounter": "{{number}} pagamentos",
       "paymentsCounterTracker": "{{number}} do {{total}}",
       "loadingMessage": "Carregando transações salvas"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Enviar Stablecoins",
+      "selectChain": "Selecionar Rede",
+      "network": "Rede",
+      "selectAsset": "Selecionar Ativo",
+      "recipient": "Destinatário",
+      "gettingQuote": "Obtendo cotação…",
+      "quoteExpired": "Cotação expirada. Por favor, tente novamente.",
+      "quoteError": "Falha ao obter cotação. Por favor, tente novamente.",
+      "recipientGets": "O destinatário recebe",
+      "youSend": "Você envia",
+      "quoteExpiresIn": "Cotação expira em",
+      "payWithLightning": "Pagar com Lightning",
+      "payWithUSDb": "Pagar com USDb",
+      "chainNotSupportedForAsset": "Não disponível nesta rede",
+      "swapInProgress": "Troca em Andamento",
+      "swapInProgressDescription": "Seus fundos foram enviados. A troca de stablecoin está sendo processada e pode levar alguns minutos.",
+      "noAmount": "Por favor, insira um valor para enviar.",
+      "quoteStillLoading": "Obtendo cotação, aguarde um momento.",
+      "noQuote": "Não foi possível obter uma cotação. Por favor, tente novamente.",
+      "swapStatus": "Status da Troca",
+      "chainSwap": "Troca em Cadeia",
+      "assetPicker": {
+        "header": "Selecione a moeda que deseja enviar.",
+        "notAvailable": "Não disponível em {{chain}}"
+      }
     }
   },
   "contacts": {
@@ -1841,7 +1870,8 @@
         "contactPaymentType": "Contato",
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
         "gift": "Vale-Blitz",
-        "claimPayment": "Reivindicar pagamento"
+        "claimPayment": "Reivindicar pagamento",
+        "chainSwap": "Troca em Cadeia"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -1942,7 +1972,11 @@
         "noInformationLabel": "{{item}} não é mostrado porque este pagamento foi restaurado do histórico ou usou uma fatura de valor zero.",
         "privacyMessage": "Para preservar a privacidade {{type}} ,todas as outras informações ficam ocultas.",
         "receivers": "do recebedor",
-        "senders": "do pagador"
+        "senders": "do pagador",
+        "quoteId": "ID da Cotação",
+        "destinationAddress": "Endereço de Destino",
+        "destinationAsset": "Ativo de Destino",
+        "destinationChain": "Rede de Destino"
       },
       "viewAllTxPage": {
         "title": "Transações",

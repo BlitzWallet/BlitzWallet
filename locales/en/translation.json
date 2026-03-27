@@ -81,6 +81,8 @@
     "accounts": "Accounts",
     "to": "To",
     "from": "From",
+    "asset": "Asset",
+    "chain": "Chain",
     "description": "Description",
     "regenerate": "Regenerate",
     "restore": "Restore",
@@ -1175,7 +1177,18 @@
       "quoteExpiresIn": "Quote expires in",
       "payWithLightning": "Pay with Lightning",
       "payWithUSDb": "Pay with USDb",
-      "chainNotSupportedForAsset": "Not available on this network"
+      "chainNotSupportedForAsset": "Not available on this network",
+      "swapInProgress": "Swap in Progress",
+      "swapInProgressDescription": "Your funds have been sent. The stablecoin swap is processing and may take a few minutes.",
+      "noAmount": "Please enter an amount to send.",
+      "quoteStillLoading": "Getting a quote, please wait a moment.",
+      "noQuote": "Could not get a quote. Please try again.",
+      "swapStatus": "Swap Status",
+      "chainSwap": "Chain Swap",
+      "assetPicker": {
+        "header": "Select the currency you want to send.",
+        "notAvailable": "Not available on {{chain}}"
+      }
     }
   },
   "contacts": {
@@ -1858,7 +1871,8 @@
         "contactPaymentType": "Contact",
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "gift": "Gift",
-        "claimPayment": "Claim payment"
+        "claimPayment": "Claim payment",
+        "chainSwap": "Chain Swap"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
@@ -1960,7 +1974,11 @@
         "noInformationLabel": "{{item}} is not shown since this payment was restored from history or used a zero amount invoice.",
         "privacyMessage": "To preserve the {{type}} privacy, all other information is hidden.",
         "receivers": "receiver's",
-        "senders": "sender's"
+        "senders": "sender's",
+        "quoteId": "Quote ID",
+        "destinationAddress": "Destination Address",
+        "destinationAsset": "Destination Asset",
+        "destinationChain": "Destination Chain"
       },
       "viewAllTxPage": {
         "title": "Transactions",

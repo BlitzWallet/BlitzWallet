@@ -82,6 +82,8 @@
     "accounts": "Accounts",
     "to": "A",
     "from": "Da",
+    "asset": "Asset",
+    "chain": "Catena",
     "description": "Descrizione",
     "regenerate": "Rigenera",
     "restore": "Ripristina",
@@ -1159,6 +1161,33 @@
       "paymentsCounter": "{{number}} pagamenti",
       "paymentsCounterTracker": "{{number}} di {{total}}",
       "loadingMessage": "Caricamento delle transazioni salvate"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Invia Stablecoin",
+      "selectChain": "Seleziona Rete",
+      "network": "Rete",
+      "selectAsset": "Seleziona Asset",
+      "recipient": "Destinatario",
+      "gettingQuote": "Ottenendo quotazione…",
+      "quoteExpired": "Quotazione scaduta. Riprova.",
+      "quoteError": "Impossibile ottenere la quotazione. Riprova.",
+      "recipientGets": "Il destinatario riceve",
+      "youSend": "Tu invii",
+      "quoteExpiresIn": "La quotazione scade tra",
+      "payWithLightning": "Paga con Lightning",
+      "payWithUSDb": "Paga con USDb",
+      "chainNotSupportedForAsset": "Non disponibile su questa rete",
+      "swapInProgress": "Scambio in Corso",
+      "swapInProgressDescription": "I tuoi fondi sono stati inviati. Lo scambio di stablecoin è in elaborazione e potrebbe richiedere alcuni minuti.",
+      "noAmount": "Inserisci un importo da inviare.",
+      "quoteStillLoading": "Ottenendo una quotazione, attendi un momento.",
+      "noQuote": "Impossibile ottenere una quotazione. Riprova.",
+      "swapStatus": "Stato Scambio",
+      "chainSwap": "Chain Swap",
+      "assetPicker": {
+        "header": "Seleziona la valuta che vuoi inviare.",
+        "notAvailable": "Non disponibile su {{chain}}"
+      }
     }
   },
   "contacts": {
@@ -1841,7 +1870,8 @@
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "confirmMessage_sent": "Importo inviato",
         "gift": "Regalo",
-        "claimPayment": "Richiedi pagamento"
+        "claimPayment": "Richiedi pagamento",
+        "chainSwap": "Chain Swap"
       },
       "explorePage": {
         "timeLeft": "({{time}} rimanenti)",
@@ -1942,7 +1972,11 @@
         "noInformationLabel": "{{item}} non è mostrato poiché questo pagamento è stato ripristinato dalla cronologia o ha utilizzato una fattura con importo zero.",
         "privacyMessage": "Per preservare la privacy {{type}}, tutte le altre informazioni sono nascoste.",
         "receivers": "del destinatario",
-        "senders": "del mittente"
+        "senders": "del mittente",
+        "quoteId": "ID Quotazione",
+        "destinationAddress": "Indirizzo di Destinazione",
+        "destinationAsset": "Asset di Destinazione",
+        "destinationChain": "Catena di Destinazione"
       },
       "viewAllTxPage": {
         "title": "Transazioni",
