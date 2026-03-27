@@ -975,7 +975,6 @@ const styles = StyleSheet.create({
     // fontSize: SIZES.large,
   },
   tokenText: {
-    fontSize: SIZES.large,
     textTransform: 'uppercase',
     flex: 1,
     textAlign: 'right',

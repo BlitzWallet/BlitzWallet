@@ -23,7 +23,6 @@ const USDT_SUPPORTED_CHAINS = new Set([
   'Ethereum',
   'Arbitrum',
   'Optimism',
-  'Polygon',
   'Tron',
 ]);
 
