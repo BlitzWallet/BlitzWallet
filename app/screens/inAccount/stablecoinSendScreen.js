@@ -1,30 +1,56 @@
 import {
   ActivityIndicator,
-  Keyboard,
+  ScrollView,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
-import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
+import FormattedBalanceInput from '../../functions/CustomElements/formattedBalanceInput';
+import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
+import CustomNumberKeyboard from '../../functions/CustomElements/customNumberKeyboard';
+import CustomSearchInput from '../../functions/CustomElements/searchInput';
+import ChoosePaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/choosePaymentMethodContainer';
+import SwipeButtonNew from '../../functions/CustomElements/sliderButton';
+
 import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, COLORS, FONT, SIZES } from '../../constants';
+import { CENTER, COLORS, SIZES, USDB_TOKEN_ID } from '../../constants';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../constants/theme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useKeysContext } from '../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
-import fetchBackend from '../../../db/handleBackend';
-import { sendSparkPayment } from '../../functions/spark';
-import { dollarsToSats, satsToDollars } from '../../functions/spark/flashnet';
+import { useSparkWallet } from '../../../context-store/sparkContext';
+import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
+import { useFlashnet } from '../../../context-store/flashnetContext';
+import { useGlobalContextProvider } from '../../../context-store/context';
 
-const QUOTE_TTL_MS = 115_000; // 115s — leave 5s buffer before 2-min expiry
+import fetchBackend from '../../../db/handleBackend';
+import { sendSparkPayment, sendSparkTokens } from '../../functions/spark';
+import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
+import { dollarsToSats, satsToDollars } from '../../functions/spark/flashnet';
+import EmojiQuickBar from '../../functions/CustomElements/emojiBar';
+import usePaymentInputDisplay from '../../hooks/usePaymentInputDisplay';
+import convertTextInputValue from '../../functions/textInputConvertValue';
+import SendTransactionFeeInfo from '../../components/admin/homeComponents/sendBitcoin/components/feeInfo';
+import { formatStablecoinAmount } from '../../functions/sendBitcoin';
+import { SliderProgressAnimation } from '../../functions/CustomElements/sendPaymentAnimation';
+
+const QUOTE_TTL_MS = 115_000;
 
 function truncateAddress(addr) {
   if (!addr || addr.length <= 16) return addr || '';
@@ -41,36 +67,65 @@ function formatCountdown(ms) {
 export default function StablecoinSendScreen() {
   const navigate = useNavigation();
   const route = useRoute();
-  const { address, chain, chainLabel, asset } = route.params;
+  const { address, chain, chainLabel, asset, selectedPaymentMethod } =
+    route.params;
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const { fiatStats } = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { sparkInformation } = useSparkWallet();
+  const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
+  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
 
-  const [amountInput, setAmountInput] = useState('');
-  const [denomination, setDenomination] = useState('USD');
-  const [sourceMethod, setSourceMethod] = useState('lightning');
+  const [screenMode, setScreenMode] = useState('EDIT_AMOUNT'); // 'EDIT_AMOUNT' | 'CONFIRM_PAYMENT'
+  const [rawInput, setRawInput] = useState('');
+  const [inputDenomination, setInputDenomination] = useState('fiat');
+
+  const [description, setDescription] = useState('');
+
   const [quote, setQuote] = useState(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState(null);
-  const [sending, setSending] = useState(false);
   const [countdown, setCountdown] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [isAmountFocused, setIsAmountFocused] = useState(true);
+  const [retriggerQuoteFetch, setRetriggerQuoteFetch] = useState(0);
 
   const debounceRef = useRef(null);
   const countdownRef = useRef(null);
   const quoteExpiresAt = useRef(null);
+  const isSendingPayment = useRef(null);
+  const progressAnimationRef = useRef(null);
 
-  const btcPrice = fiatStats?.value || 0;
+  const sourceMethod = selectedPaymentMethod || 'BTC';
 
-  const amountSats = (() => {
-    const n = parseFloat(amountInput);
-    if (!n || n <= 0) return 0;
-    if (denomination === 'USD') return Math.round(dollarsToSats(n, btcPrice));
-    return Math.round(n * 1e8);
-  })();
+  useEffect(() => {
+    isSendingPayment.current = sending;
+  }, [sending]);
+
+  const {
+    primaryDisplay,
+    secondaryDisplay,
+    conversionFiatStats,
+    convertSatsToDisplay,
+    convertDisplayToSats,
+    getNextDenomination,
+    convertForToggle,
+  } = usePaymentInputDisplay({
+    paymentMode: sourceMethod,
+    inputDenomination,
+    fiatStats,
+    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    masterInfoObject,
+    isSendingPayment: isSendingPayment.current,
+  });
+
+  const convertedSendAmount = convertDisplayToSats(rawInput);
 
   const clearCountdown = useCallback(() => {
     if (countdownRef.current) clearInterval(countdownRef.current);
@@ -89,7 +144,7 @@ export default function StablecoinSendScreen() {
           countdownRef.current = null;
           setCountdown(null);
           setQuote(null);
-          setQuoteError(t('wallet.stablecoinSend.quoteExpired'));
+          setRetriggerQuoteFetch(prev => prev + 1);
         } else {
           setCountdown(remaining);
         }
@@ -101,11 +156,11 @@ export default function StablecoinSendScreen() {
   const fetchQuote = useCallback(
     async sats => {
       if (sats <= 0 || !contactsPrivateKey || !publicKey) return;
-      setQuoteLoading(true);
       setQuoteError(null);
       setQuote(null);
       clearCountdown();
       try {
+        const apiSourceMethod = sourceMethod === 'BTC' ? 'spark' : 'usdb';
         const result = await fetchBackend(
           'createFlashnetStablecoinQuote',
           {
@@ -113,7 +168,8 @@ export default function StablecoinSendScreen() {
             destinationChain: chain,
             destinationAsset: asset,
             amountSats: sats,
-            sourceMethod,
+            sourceMethod: apiSourceMethod,
+            refundAddress: sparkInformation.sparkAddress,
           },
           contactsPrivateKey,
           publicKey,
@@ -123,8 +179,16 @@ export default function StablecoinSendScreen() {
             result?.error || t('wallet.stablecoinSend.quoteError'),
           );
         }
+
         const expiresAt = result.expiresAt || Date.now() + QUOTE_TTL_MS;
-        setQuote({ ...result, expiresAt });
+        const formattedFee =
+          sourceMethod === 'BTC'
+            ? result.fee
+            : dollarsToSats(
+                result?.fee / Math.pow(10, 6),
+                poolInfoRef.currentPriceAInB,
+              );
+        setQuote({ ...result, fee: formattedFee, expiresAt });
         startCountdown(expiresAt);
       } catch (err) {
         setQuoteError(err.message || t('wallet.stablecoinSend.quoteError'));
@@ -145,12 +209,17 @@ export default function StablecoinSendScreen() {
     ],
   );
 
-  // Debounced re-fetch when amount or source method changes
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (amountSats > 0) {
-      debounceRef.current = setTimeout(() => fetchQuote(amountSats), 800);
+    if (rawInput > 0) {
+      setQuoteLoading(true);
+      const fetchAmount =
+        sourceMethod === 'BTC'
+          ? convertDisplayToSats(rawInput)
+          : rawInput * Math.pow(10, 6);
+      debounceRef.current = setTimeout(() => fetchQuote(fetchAmount), 800);
     } else {
+      setQuoteLoading(false);
       setQuote(null);
       setQuoteError(null);
       clearCountdown();
@@ -158,9 +227,8 @@ export default function StablecoinSendScreen() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [amountSats, sourceMethod, fetchQuote, clearCountdown]);
+  }, [rawInput, sourceMethod, fetchQuote, clearCountdown, retriggerQuoteFetch]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       clearCountdown();
@@ -168,38 +236,140 @@ export default function StablecoinSendScreen() {
     };
   }, [clearCountdown]);
 
-  const handleConfirm = useCallback(async () => {
+  // Handle back press from CONFIRM_PAYMENT — return to EDIT_AMOUNT
+  useEffect(() => {
+    const unsubscribe = navigate.addListener('beforeRemove', e => {
+      if (screenMode !== 'CONFIRM_PAYMENT') return;
+      if (isSendingPayment.current) return;
+      e.preventDefault();
+      setScreenMode('EDIT_AMOUNT');
+    });
+    return unsubscribe;
+  }, [navigate, screenMode]);
+
+  const handleDenominationToggle = () => {
+    if (!isAmountFocused) return;
+    if (!convertedSendAmount) {
+      setInputDenomination(prev => (prev === 'fiat' ? 'sats' : 'fiat'));
+      return;
+    }
+    const nextDenom = getNextDenomination();
+    const convertedValue = convertForToggle(rawInput, convertTextInputValue);
+
+    setInputDenomination(nextDenom);
+    setRawInput(String(convertedValue));
+  };
+
+  const handleMethodToggle = () => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'SelectPaymentMethod',
+      selectedPaymentMethod: sourceMethod,
+      fromPage: 'StablecoinSendScreen',
+    });
+  };
+
+  const handleSend = useCallback(async () => {
     if (!quote || sending) return;
     if (Date.now() >= quote.expiresAt) {
       setQuoteError(t('wallet.stablecoinSend.quoteExpired'));
       setQuote(null);
       clearCountdown();
+      setScreenMode('EDIT_AMOUNT');
       return;
     }
+
     setSending(true);
     try {
-      if (sourceMethod === 'lightning') {
-        // Hand off to existing ConfirmPaymentScreen with the BOLT11 invoice
-        navigate.navigate('ConfirmPaymentScreen', {
-          btcAdress: quote.depositAddress,
-        });
-      } else {
-        // USDb path: send directly via Spark
-        const result = await sendSparkPayment({
+      let result;
+      if (sourceMethod === 'BTC') {
+        result = await sendSparkPayment({
           receiverSparkAddress: quote.depositAddress,
-          amountSats: quote.amountIn,
+          amountSats: Number(quote.amountIn),
           mnemonic: currentWalletMnemoinc,
         });
-        if (result?.error) throw new Error(result.error);
-        navigate.navigate('ConfirmTxPage', {
-          success: true,
-          txType: 'spark',
+      } else {
+        // USDb: quote.amountIn is in token micro-units (e.g. 1_000_000 = $1)
+        result = await sendSparkTokens({
+          tokenIdentifier: USDB_TOKEN_ID,
+          tokenAmount: Number(quote.amountIn),
+          receiverSparkAddress: quote.depositAddress,
+          mnemonic: currentWalletMnemoinc,
         });
       }
+
+      if (!result.didWork) throw new Error(result.error);
+
+      const sparkTransferId =
+        sourceMethod === 'USD' ? result.response : result.response?.id;
+
+      const pendingTx = {
+        id: sparkTransferId,
+        paymentStatus: 'pending',
+        paymentType: 'spark',
+        accountId: sparkInformation.identityPubKey,
+        details: {
+          amount: quote.amountIn,
+          fee: quote?.fee,
+          totalFee: 0,
+          supportFee: 0,
+          description: description || `Send ${asset}`,
+          address: quote.depositAddress,
+          time: Date.now(),
+          createdAt: Date.now(),
+          direction: 'OUTGOING',
+          isFlashnetStablecoin: true,
+          quoteId: quote.quoteId,
+          destinationAddress: address,
+          destinationChain: chain,
+          destinationAsset: asset,
+          sourceMethod,
+          isLRC20Payment: sourceMethod === 'USD',
+          ...(sourceMethod === 'USD' ? { LRC20Token: USDB_TOKEN_ID } : {}),
+        },
+      };
+
+      await bulkUpdateSparkTransactions([pendingTx], 'fullUpdate');
+
+      await fetchBackend(
+        'submitFlashnetStablecoinOrder',
+        {
+          quoteId: quote.quoteId,
+          sparkTxHash: sparkTransferId,
+          sourceSparkAddress: sparkInformation.sparkAddress,
+        },
+        contactsPrivateKey,
+        publicKey,
+      );
+
+      if (progressAnimationRef.current) {
+        progressAnimationRef.current.completeProgress();
+        await new Promise(res => setTimeout(res, 600));
+      }
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          navigate.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'HomeAdmin',
+                params: {
+                  screen: 'Home',
+                },
+              },
+              {
+                name: 'ConfirmTxPage',
+                params: {
+                  transaction: pendingTx,
+                },
+              },
+            ],
+          });
+        });
+      });
     } catch (err) {
+      console.log(err, 'error navigating to bla bla bla');
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
-    } finally {
-      setSending(false);
     }
   }, [
     quote,
@@ -207,127 +377,226 @@ export default function StablecoinSendScreen() {
     sourceMethod,
     navigate,
     currentWalletMnemoinc,
+    sparkInformation,
+    description,
+    address,
+    chain,
+    asset,
+    contactsPrivateKey,
+    publicKey,
     clearCountdown,
     t,
   ]);
-  Keyboard.dismiss();
 
-  const rowBg = theme && darkModeType ? backgroundColor : backgroundOffset;
-  const canConfirm = !!quote && !quoteLoading && !sending && !!amountSats;
+  const handleEmoji = newDescription => {
+    setDescription(newDescription);
+  };
 
-  const usdDisplay = amountSats
-    ? satsToDollars(amountSats, btcPrice).toFixed(2)
-    : '0.00';
-  const satsDisplay = amountSats ? amountSats.toLocaleString() : '0';
+  const isQuoteLoading = quoteLoading || (quote && countdown === null);
+
+  const canConfirm =
+    !!quote && !quoteLoading && !sending && convertedSendAmount > 0;
+
+  const handleReview = useCallback(() => {
+    if (!convertedSendAmount || convertedSendAmount <= 0) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.stablecoinSend.noAmount'),
+      });
+      return;
+    }
+    if (isQuoteLoading) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.stablecoinSend.quoteStillLoading'),
+      });
+      return;
+    }
+
+    if (!quote) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.stablecoinSend.noQuote'),
+      });
+      return;
+    }
+
+    const hasEnoughBalance =
+      sourceMethod === 'BTC'
+        ? convertedSendAmount <= Number(bitcoinBalance)
+        : Number(rawInput) <= Number(dollarBalanceToken);
+
+    if (!hasEnoughBalance) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.insufficientBalance'),
+      });
+      return;
+    }
+
+    if (Date.now() >= quote.expiresAt) {
+      setQuoteError(t('wallet.stablecoinSend.quoteExpired'));
+      setQuote(null);
+      clearCountdown();
+      return;
+    }
+    setIsAmountFocused(true);
+    setScreenMode('CONFIRM_PAYMENT');
+  }, [
+    canConfirm,
+    quote,
+    clearCountdown,
+    t,
+    convertedSendAmount,
+    isQuoteLoading,
+    sourceMethod,
+    rawInput,
+    bitcoinBalance,
+    dollarBalanceToken,
+    navigate,
+  ]);
+
+  const rowBg = backgroundOffset;
+
+  const memorizedKeyboardStyle = useMemo(() => {
+    return {
+      paddingBottom: !isAmountFocused ? 0 : bottomPadding,
+    };
+  }, [isAmountFocused]);
+
+  const isConfirmMode = screenMode === 'CONFIRM_PAYMENT';
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('wallet.stablecoinSend.sendStablecoins')}
-      />
+    <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
+      <View style={styles.replacementContainer}>
+        <CustomSettingsTopBar label={`${t('constants.send')} ${asset}`} />
 
-      <View style={styles.content}>
-        {/* Recipient summary */}
-        <View style={[styles.row, { backgroundColor: rowBg }]}>
-          <ThemeText styles={styles.labelText} content={chainLabel} />
-          <ThemeText
-            styles={styles.valueText}
-            content={truncateAddress(address)}
-          />
-          <View
-            style={[styles.assetBadge, { backgroundColor: COLORS.primary }]}
-          >
-            <ThemeText styles={styles.assetBadgeText} content={asset} />
-          </View>
-        </View>
-
-        {/* Amount input */}
-        <View style={[styles.amountContainer, { backgroundColor: rowBg }]}>
-          <TextInput
-            style={[styles.amountInput, { color: theme ? '#fff' : '#000' }]}
-            keyboardType="decimal-pad"
-            placeholder={denomination === 'USD' ? '0.00' : '0'}
-            placeholderTextColor="#888"
-            value={amountInput}
-            onChangeText={setAmountInput}
-          />
-          <ThemeText styles={styles.denomLabel} content={denomination} />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Amount display — tap to toggle denomination (edit mode only) */}
           <TouchableOpacity
-            style={styles.denomToggle}
-            onPress={() => setDenomination(d => (d === 'USD' ? 'BTC' : 'USD'))}
+            activeOpacity={1}
+            onPress={handleDenominationToggle}
+            style={CENTER}
+            disabled={!isAmountFocused || isConfirmMode}
           >
-            <ThemeText
-              styles={styles.denomToggleText}
-              content={
-                denomination === 'USD'
-                  ? `≈ ${satsDisplay} sats`
-                  : `≈ $${usdDisplay}`
-              }
+            <FormattedBalanceInput
+              maxWidth={0.9}
+              amountValue={rawInput}
+              inputDenomination={primaryDisplay.denomination}
+              forceCurrency={primaryDisplay.forceCurrency}
+              forceFiatStats={primaryDisplay.forceFiatStats}
+              activeOpacity={!convertedSendAmount ? 0.5 : 1}
+            />
+            <FormattedSatText
+              neverHideBalance={true}
+              containerStyles={{
+                opacity: !convertedSendAmount ? HIDDEN_OPACITY : 1,
+              }}
+              styles={{ includeFontPadding: false, ...styles.satValue }}
+              globalBalanceDenomination={secondaryDisplay.denomination}
+              forceCurrency={secondaryDisplay.forceCurrency}
+              balance={convertedSendAmount}
+              forceFiatStats={secondaryDisplay.forceFiatStats}
             />
           </TouchableOpacity>
-        </View>
 
-        {/* Source method toggle */}
-        <View style={styles.methodRow}>
-          {['lightning', 'spark'].map(method => (
+          {/* Confirm mode: fee info */}
+          {isConfirmMode && (
+            <SendTransactionFeeInfo
+              paymentFee={quote?.fee}
+              isLightningPayment={true}
+              isDecoding={isQuoteLoading}
+            />
+          )}
+
+          {/* Confirm mode: destination info */}
+          {isConfirmMode && (
             <TouchableOpacity
-              key={method}
-              style={[
-                styles.methodButton,
-                { backgroundColor: rowBg },
-                sourceMethod === method && {
-                  borderColor: COLORS.primary,
-                  borderWidth: 1.5,
-                },
-              ]}
-              onPress={() => setSourceMethod(method)}
-              activeOpacity={0.7}
+              onPress={() =>
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: address,
+                })
+              }
+              style={[styles.destinationBox, { backgroundColor: rowBg }]}
             >
               <ThemeText
-                styles={styles.methodLabel}
-                content={
-                  method === 'lightning'
-                    ? t('wallet.stablecoinSend.payWithLightning')
-                    : t('wallet.stablecoinSend.payWithUSDb')
-                }
+                styles={styles.quoteValue}
+                content={`${truncateAddress(address)}`}
               />
             </TouchableOpacity>
-          ))}
-        </View>
+          )}
+        </ScrollView>
 
-        {/* Quote section */}
-        {amountSats > 0 && (
+        {/* Source method picker: shown in edit mode only */}
+        {!isConfirmMode && (
+          <ChoosePaymentMethod
+            theme={theme}
+            darkModeType={darkModeType}
+            determinePaymentMethod={sourceMethod}
+            handleSelectPaymentMethod={handleMethodToggle}
+            bitcoinBalance={bitcoinBalance}
+            dollarBalanceToken={dollarBalanceToken}
+            masterInfoObject={masterInfoObject}
+            fiatStats={fiatStats}
+            uiState="EDIT_AMOUNT"
+            t={t}
+            containerStyles={{ marginTop: 5 }}
+          />
+        )}
+
+        {/* Description input: edit mode only */}
+        {!isConfirmMode && (
+          <CustomSearchInput
+            onFocusFunction={() => setIsAmountFocused(false)}
+            onBlurFunction={() => setIsAmountFocused(true)}
+            placeholderText={t('constants.paymentDescriptionPlaceholder')}
+            setInputText={setDescription}
+            inputText={description}
+            textInputMultiline={true}
+            textAlignVertical="baseline"
+            maxLength={150}
+            containerStyles={{
+              width: INSET_WINDOW_WIDTH,
+              marginTop: 10,
+              maxWidth: 350,
+              ...CENTER,
+            }}
+          />
+        )}
+
+        {/* Quote summary */}
+        {convertedSendAmount > 0 && isAmountFocused && (
           <View style={[styles.quoteBox, { backgroundColor: rowBg }]}>
-            {quoteLoading && (
-              <View style={styles.quoteLoading}>
-                <ActivityIndicator size="small" color={COLORS.primary} />
+            {isQuoteLoading && (
+              <View style={styles.quoteLoadingRow}>
+                <ActivityIndicator
+                  size="small"
+                  color={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
+                />
                 <ThemeText
                   styles={styles.quoteLoadingText}
                   content={t('wallet.stablecoinSend.gettingQuote')}
                 />
               </View>
             )}
-
-            {!quoteLoading && quoteError && (
-              <View style={styles.quoteError}>
-                <ThemeText
-                  styles={styles.quoteErrorText}
-                  content={quoteError}
-                />
-                <TouchableOpacity
-                  onPress={() => fetchQuote(amountSats)}
-                  style={styles.retryButton}
-                >
-                  <ThemeText
-                    styles={styles.retryText}
-                    content={t('constants.retry')}
-                  />
-                </TouchableOpacity>
-              </View>
+            {!isQuoteLoading && quoteError && (
+              <ThemeText
+                styles={[
+                  styles.quoteErrorText,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.cancelRed,
+                  },
+                ]}
+                content={quoteError}
+              />
             )}
-
-            {!quoteLoading && quote && !quoteError && (
-              <View style={styles.quoteDetails}>
+            {!isQuoteLoading && quote && countdown !== null && (
+              <>
                 <View style={styles.quoteRow}>
                   <ThemeText
                     styles={styles.quoteLabel}
@@ -335,153 +604,146 @@ export default function StablecoinSendScreen() {
                   />
                   <ThemeText
                     styles={styles.quoteValue}
-                    content={`${parseFloat(quote.estimatedOut || 0).toFixed(
-                      2,
+                    content={`${formatStablecoinAmount(
+                      quote.estimatedOut,
                     )} ${asset}`}
                   />
                 </View>
                 <View style={styles.quoteRow}>
                   <ThemeText
                     styles={styles.quoteLabel}
-                    content={t('wallet.stablecoinSend.youSend')}
+                    content={t('wallet.stablecoinSend.quoteExpiresIn')}
                   />
                   <ThemeText
-                    styles={styles.quoteValue}
-                    content={`${quote.amountIn?.toLocaleString?.()} sats`}
+                    styles={[
+                      styles.quoteValue,
+                      countdown < 30000 && {
+                        color:
+                          theme && darkModeType
+                            ? COLORS.darkModeText
+                            : COLORS.cancelRed,
+                      },
+                    ]}
+                    content={formatCountdown(countdown)}
                   />
                 </View>
-                {countdown !== null && (
-                  <View style={styles.quoteRow}>
-                    <ThemeText
-                      styles={styles.quoteLabel}
-                      content={t('wallet.stablecoinSend.quoteExpiresIn')}
-                    />
-                    <ThemeText
-                      styles={[
-                        styles.quoteValue,
-                        countdown < 30000 && { color: '#ff6b6b' },
-                      ]}
-                      content={formatCountdown(countdown)}
-                    />
-                  </View>
-                )}
-              </View>
+              </>
+            )}
+          </View>
+        )}
+
+        {/* EDIT_AMOUNT: keyboard + Review button */}
+        {!isConfirmMode && isAmountFocused && (
+          <CustomNumberKeyboard
+            setInputValue={setRawInput}
+            showDot={inputDenomination === 'fiat'}
+            fiatStats={conversionFiatStats}
+          />
+        )}
+
+        {!isConfirmMode && isAmountFocused && (
+          <CustomButton
+            textContent={t('constants.review')}
+            actionFunction={handleReview}
+            buttonStyles={{ ...CENTER }}
+            useLoading={isQuoteLoading}
+          />
+        )}
+
+        {/* CONFIRM_PAYMENT: swipe button */}
+        {isConfirmMode && (
+          <View style={styles.buttonContainer}>
+            {sending ? (
+              <SliderProgressAnimation
+                ref={progressAnimationRef}
+                isVisible={true}
+                textColor={COLORS.darkModeText}
+                backgroundColor={
+                  theme && darkModeType ? backgroundOffset : COLORS.primary
+                }
+                width={0.95}
+              />
+            ) : (
+              <SwipeButtonNew
+                onSwipeSuccess={handleSend}
+                width={0.85}
+                resetAfterSuccessAnimDuration={true}
+                shouldResetAfterSuccess={!sending}
+                containerStyles={{
+                  opacity: canConfirm ? 1 : HIDDEN_OPACITY,
+                }}
+                thumbIconStyles={{
+                  backgroundColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                  borderColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                }}
+                railStyles={{
+                  backgroundColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                  borderColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                }}
+              />
             )}
           </View>
         )}
       </View>
 
-      <CustomButton
-        textContent={t('constants.send')}
-        actionFunction={handleConfirm}
-        disabled={!canConfirm}
-        useLoading={sending}
-        buttonStyles={[{ marginBottom: bottomPadding || 20 }]}
-      />
-    </GlobalThemeView>
+      {/* Emoji bar for description input */}
+      {!isAmountFocused && !isConfirmMode && (
+        <EmojiQuickBar description={description} onEmojiSelect={handleEmoji} />
+      )}
+    </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  globalContainer: {
     flex: 1,
-    gap: 12,
-    paddingTop: 8,
   },
-  row: {
-    flexDirection: 'row',
+  replacementContainer: {
+    flexGrow: 1,
+    width: WINDOWWIDTH,
+    ...CENTER,
+  },
+  scrollContent: {
+    flexGrow: 1,
     alignItems: 'center',
-    padding: 14,
-    borderRadius: 12,
-    gap: 8,
+    justifyContent: 'center',
+    paddingVertical: 10,
   },
-  labelText: {
+  satValue: {
     fontSize: SIZES.medium,
-    fontFamily: FONT.Descriptoin_Medium,
-    opacity: 0.65,
-  },
-  valueText: {
-    flex: 1,
-    fontSize: SIZES.medium,
-  },
-  assetBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  assetBadgeText: {
-    fontSize: SIZES.small,
-    color: '#fff',
-    fontFamily: FONT.Descriptoin_Medium,
-  },
-  amountContainer: {
-    padding: 16,
-    borderRadius: 12,
-    gap: 4,
-  },
-  amountInput: {
-    fontSize: SIZES.xxLarge || 32,
-    fontFamily: FONT.Title_Regular,
-    padding: 0,
-  },
-  denomLabel: {
-    fontSize: SIZES.medium,
-    opacity: 0.65,
-  },
-  denomToggle: {
     marginTop: 4,
   },
-  denomToggleText: {
-    fontSize: SIZES.smedium || 13,
-    opacity: 0.55,
-    textDecorationLine: 'underline',
-  },
-  methodRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  methodButton: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 12,
+  destinationBox: {
+    width: '80%',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  methodLabel: {
-    fontSize: SIZES.smedium || 13,
-    fontFamily: FONT.Descriptoin_Medium,
+    justifyContent: 'center',
+    padding: 8,
+    borderRadius: 8,
+    ...CENTER,
+    marginTop: 30,
   },
   quoteBox: {
-    padding: 16,
-    borderRadius: 12,
+    marginTop: 12,
+    marginHorizontal: 16,
+    padding: 12,
+    borderRadius: 8,
+    gap: 10,
   },
-  quoteLoading: {
+  quoteLoadingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   quoteLoadingText: {
     fontSize: SIZES.medium,
     opacity: 0.65,
   },
-  quoteError: {
-    gap: 8,
-  },
   quoteErrorText: {
-    fontSize: SIZES.smedium || 13,
-    color: '#ff6b6b',
-  },
-  retryButton: {
-    alignSelf: 'flex-start',
-  },
-  retryText: {
-    fontSize: SIZES.smedium || 13,
-    color: COLORS.primary,
-    textDecorationLine: 'underline',
-  },
-  quoteDetails: {
-    gap: 10,
+    fontSize: SIZES.small,
   },
   quoteRow: {
     flexDirection: 'row',
@@ -494,6 +756,10 @@ const styles = StyleSheet.create({
   },
   quoteValue: {
     fontSize: SIZES.medium,
-    fontFamily: FONT.Descriptoin_Medium,
+  },
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: 10,
   },
 });
