@@ -47,12 +47,12 @@ export default function SelectStablecoinParamsScreen() {
     });
   }, [navigate, address, selectedChain]);
 
-  const handleTronAssetSelect = useCallback(
+  const handleNonEvmAssetSelect = useCallback(
     asset => {
       navigate.navigate('StablecoinSendScreen', {
         address,
-        chain: 'tron',
-        chainLabel: 'Tron',
+        chain: chainFamily.toLowerCase(),
+        chainLabel: chainFamily,
         asset,
       });
     },
@@ -93,7 +93,7 @@ export default function SelectStablecoinParamsScreen() {
                         styles.card,
                         { backgroundColor: cardBg, borderColor: cardBg },
                       ]}
-                      onPress={() => handleTronAssetSelect(asset.id)}
+                      onPress={() => handleNonEvmAssetSelect(asset.id)}
                       activeOpacity={0.7}
                     >
                       <Image
