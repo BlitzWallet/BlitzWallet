@@ -2027,7 +2027,9 @@
           "details": "Detalles"
         },
         "chooseCurrencyTitle": "Elige la moneda desde la que deseas intercambiar.",
-        "enterAmountTitle": "Ingresa la cantidad que deseas intercambiar."
+        "enterAmountTitle": "Ingresa la cantidad que deseas intercambiar.",
+        "noContentTitle": "No hay saldo disponible",
+        "noContentSubTittle": "Agrega fondos a tu billetera para comenzar a intercambiar entre dólares y Bitcoin."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "No se pudo cargar el historial de intercambios. Inténtalo de nuevo más tarde.",

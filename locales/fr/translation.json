@@ -2165,7 +2165,9 @@
           "details": "Détails"
         },
         "chooseCurrencyTitle": "Choisissez la devise à partir de laquelle échanger.",
-        "enterAmountTitle": "Entrez le montant à échanger."
+        "enterAmountTitle": "Entrez le montant à échanger.",
+        "noContentTitle": "Aucun solde disponible",
+        "noContentSubTittle": "Ajoutez des fonds à votre portefeuille pour commencer à échanger entre dollars et Bitcoin."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Impossible de charger l’historique des échanges. Veuillez réessayer plus tard.",

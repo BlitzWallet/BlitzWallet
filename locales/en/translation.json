@@ -2168,7 +2168,9 @@
           "details": "Details"
         },
         "chooseCurrencyTitle": "Choose the currency to swap from",
-        "enterAmountTitle": "Enter the amount to swap."
+        "enterAmountTitle": "Enter the amount to swap.",
+        "noContentTitle": "No balance available",
+        "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",

@@ -2165,7 +2165,9 @@
           "details": "Dettagli"
         },
         "chooseCurrencyTitle": "Scegli la valuta da cui effettuare lo scambio.",
-        "enterAmountTitle": "Inserisci l’importo da scambiare."
+        "enterAmountTitle": "Inserisci l’importo da scambiare.",
+        "noContentTitle": "Nessun saldo disponibile",
+        "noContentSubTittle": "Aggiungi fondi al tuo wallet per iniziare a scambiare tra dollari e Bitcoin."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Impossibile caricare la cronologia degli swap. Riprova più tardi.",

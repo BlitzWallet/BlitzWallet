@@ -2165,7 +2165,9 @@
           "details": "Detaljer"
         },
         "chooseCurrencyTitle": "Välj valutan du vill växla från.",
-        "enterAmountTitle": "Ange beloppet du vill växla."
+        "enterAmountTitle": "Ange beloppet du vill växla.",
+        "noContentTitle": "Inget saldo tillgängligt",
+        "noContentSubTittle": "Lägg till medel i din plånbok för att börja växla mellan dollar och Bitcoin."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Det gick inte att läsa in swap-historiken. Försök igen senare.",
