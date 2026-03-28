@@ -899,7 +899,7 @@
       "alreadyPaid": "Este link de pagamento já foi pago.",
       "notFound": "Link de pagamento não encontrado.",
       "invoiceError": "Falha ao criar fatura.",
-      "requestHeader": "O que você quer receber?",
+      "requestHeader": "O que você deseja receber?",
       "genQRCode": "Gerar código QR",
       "howItWorks": {
         "step1Label": "Compartilhe o link",
