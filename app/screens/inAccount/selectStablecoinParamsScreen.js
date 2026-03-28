@@ -181,7 +181,6 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     gap: 10,
-    borderWidth: 1,
     borderColor: 'transparent',
     borderWidth: 1.5,
   },
