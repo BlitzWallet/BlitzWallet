@@ -26,12 +26,14 @@ export default function TechnicalTransactionDetails(props) {
   if (transaction.paymentType === 'spark') {
     if (details.isFlashnetStablecoin) {
       paymentDetails = [
+        t('screens.inAccount.technicalTransactionDetails.paymentId'),
         t('screens.inAccount.technicalTransactionDetails.quoteId'),
         t('screens.inAccount.technicalTransactionDetails.destinationAddress'),
         t('screens.inAccount.technicalTransactionDetails.destinationAsset'),
         t('screens.inAccount.technicalTransactionDetails.destinationChain'),
       ];
       infoValues = [
+        sparkID,
         details.quoteId,
         details.destinationAddress,
         details.destinationAsset,
