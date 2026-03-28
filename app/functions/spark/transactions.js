@@ -76,6 +76,13 @@ export const initializeSparkDatabase = async () => {
         sendersPubkey TEXT NOT NULL,
         details TEXT
       );
+
+      CREATE TABLE IF NOT EXISTS account_balance_snapshots (
+        identityPubKey TEXT PRIMARY KEY NOT NULL,
+        balance        INTEGER NOT NULL DEFAULT 0,
+        tokens         TEXT    NOT NULL DEFAULT '{}',
+        updatedAt      INTEGER NOT NULL
+      );
     `);
 
     console.log('Opened spark transaction and contacts tables');
@@ -173,7 +180,9 @@ export function buildFilterQuery(filters, accountId, now = Date.now()) {
     const dirValues = directions.map(d => dirMap[d]).filter(Boolean);
     if (dirValues.length > 0) {
       conditions.push(
-        `json_extract(details, '$.direction') IN (${dirValues.map(() => '?').join(',')})`,
+        `json_extract(details, '$.direction') IN (${dirValues
+          .map(() => '?')
+          .join(',')})`,
       );
       params.push(...dirValues);
     }
@@ -230,7 +239,11 @@ export const getFilteredTransactions = async (filters, options = {}) => {
     const result = await sqlLiteDB.getAllAsync(query, params);
     return result || [];
   } catch (error) {
-    console.error('Error in getFilteredTransactions:', JSON.stringify(filters), error);
+    console.error(
+      'Error in getFilteredTransactions:',
+      JSON.stringify(filters),
+      error,
+    );
     return [];
   }
 };
