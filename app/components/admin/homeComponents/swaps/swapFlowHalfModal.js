@@ -1033,7 +1033,6 @@ export default function SwapFlowHalfModal({
             ...masterInfoObject,
             userBalanceDenomination: 'sats',
           },
-    
         })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
           amount: Number(satsToDollars(1, poolInfo.currentPriceAInB)).toFixed(
             6,
@@ -1087,6 +1086,18 @@ export default function SwapFlowHalfModal({
   });
 
   // ── Render ───────────────────────────────────────────────────────────────────
+
+  if (!dollarBalanceToken || !bitcoinBalance) {
+    return (
+      <View style={styles.container}>
+        <NoContentSceen
+          iconName="ArrowRightLeft"
+          titleText={t('screens.inAccount.swapsPage.noContentTitle')}
+          subTitleText={t('screens.inAccount.swapsPage.noContentSubTittle')}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

@@ -4,11 +4,11 @@ import {
   getSparkAddress,
   getSparkBalance,
   getSparkIdentityPubKey,
-  initializeFlashnet,
   initializeSparkWallet,
   setPrivacyEnabled,
 } from './spark';
 import { cleanStalePendingSparkLightningTransactions } from './spark/transactions';
+import { getAccountBalanceSnapshot } from './spark/balanceSnapshots';
 
 export async function initWallet({
   setSparkInformation,
@@ -28,6 +28,7 @@ export async function initWallet({
       setSparkInformation(prev => ({
         ...prev,
         didConnect: true,
+        ...(identityPubKey ? { identityPubKey } : {}),
       }));
       const didSetSpark = await initializeSparkSession({
         setSparkInformation,
@@ -67,23 +68,36 @@ export async function initializeSparkSession({
     // Fire immediately — never blocks the critical path
     cleanStalePendingSparkLightningTransactions();
 
-    // If we already have the identity key, we can fetch cached txs right now
-    // in parallel with the other spark calls — otherwise it has to wait
-    const txsPromise = cachedIdentityPubKey
-      ? getCachedSparkTransactions(null, cachedIdentityPubKey)
-      : null;
+    // Skip getSparkBalance if a snapshot already exists for this account
+    // (loading screen applied it; the balance poller will confirm/update it)
+    let skipBalanceFetch = false;
+    if (cachedIdentityPubKey) {
+      const snapshot = await getAccountBalanceSnapshot(cachedIdentityPubKey);
+      skipBalanceFetch = snapshot !== null;
+    }
+
+    // Only fetch fresh txs when restoring — returning users keep prev.transactions
+    const needsFreshTxs = !hasRestoreCompleted;
+    const txsPromise =
+      needsFreshTxs && cachedIdentityPubKey
+        ? getCachedSparkTransactions(null, cachedIdentityPubKey)
+        : null;
 
     const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
-      getSparkBalance(mnemonic),
+      skipBalanceFetch
+        ? Promise.resolve({ didWork: false })
+        : getSparkBalance(mnemonic),
       getSparkAddress(mnemonic),
       cachedIdentityPubKey
         ? Promise.resolve(cachedIdentityPubKey)
         : getSparkIdentityPubKey(mnemonic),
     ]);
 
-    // Resolve txs: if we pre-fetched use that, otherwise fetch now with fresh key
+    // Resolve txs: pre-fetched, or fetch now with fresh key, or null for returning users
     const transactions = await (txsPromise ??
-      getCachedSparkTransactions(null, freshIdentityPubKey));
+      (needsFreshTxs
+        ? getCachedSparkTransactions(null, freshIdentityPubKey)
+        : null));
 
     if (transactions === undefined)
       throw new Error('Unable to initialize spark from history');
@@ -95,12 +109,15 @@ export async function initializeSparkSession({
 
     if (!balance.didWork) {
       const storageObject = {
-        transactions,
         identityPubKey,
         sparkAddress: sparkAddress.response,
         didConnect: true,
       };
-      setSparkInformation(prev => ({ ...prev, ...storageObject }));
+      setSparkInformation(prev => ({
+        ...prev,
+        ...storageObject,
+        transactions: transactions ?? prev.transactions,
+      }));
       return storageObject;
     }
 
@@ -117,7 +134,7 @@ export async function initializeSparkSession({
       const txToUse =
         !hasRestoreCompleted ||
         (prev.identityPubKey && prev.identityPubKey !== identityPubKey)
-          ? transactions
+          ? transactions ?? prev.transactions
           : prev.transactions;
 
       return { ...prev, ...storageObject, transactions: txToUse };

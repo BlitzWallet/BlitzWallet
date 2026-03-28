@@ -2207,7 +2207,9 @@
           "details": "Детали"
         },
         "chooseCurrencyTitle": "Выберите валюту, из которой вы хотите обменять.",
-        "enterAmountTitle": "Введите сумму для обмена."
+        "enterAmountTitle": "Введите сумму для обмена.",
+        "noContentTitle": "Нет доступного баланса",
+        "noContentSubTittle": "Пополните свой кошелёк, чтобы начать обмен между долларами и Bitcoin."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Не удалось загрузить историю обменов. Пожалуйста, попробуйте позже.",

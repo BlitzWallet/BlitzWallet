@@ -61,7 +61,6 @@ export async function initializeFirebase(publicKey, privateKey) {
       );
       if (!token) throw new Error('Not able to get custom token from backend');
       console.log('custom sign in token from backend', token);
-      await signOut(firebaseAuth);
 
       const customSignIn = await signInWithCustomToken(firebaseAuth, token);
       console.log('custom sign in user id', customSignIn.user);

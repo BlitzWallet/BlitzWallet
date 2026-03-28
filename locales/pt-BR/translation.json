@@ -2199,7 +2199,9 @@
           "details": "Detalhes"
         },
         "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar",
-        "enterAmountTitle": "Insira a quantia que deseja trocar"
+        "enterAmountTitle": "Insira a quantia que deseja trocar",
+        "noContentTitle": "Saldo indisponível",
+        "noContentSubTittle": "Adicione fundos à sua carteira para começar a trocar entre dólares e Bitcoin."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
