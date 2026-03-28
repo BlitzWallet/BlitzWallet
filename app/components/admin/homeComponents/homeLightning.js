@@ -36,6 +36,7 @@ import Animated, {
   interpolate,
   useHandler,
   useEvent,
+  LinearTransition,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
@@ -174,6 +175,8 @@ export default function HomeLightning({ navigation }) {
   const { isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage } =
     useAppStatus();
   const scrollViewRef = useRef(null);
+  const hasInitiallyLoadedRef = useRef(false);
+  const prevTxKeysRef = useRef(new Set());
   const { topPadding, bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
@@ -228,6 +231,16 @@ export default function HomeLightning({ navigation }) {
       toggleDidGetToHomepage(true);
     }, 250);
   }, []);
+
+  useEffect(() => {
+    if (sparkInformation.didConnect && sparkInformation.identityPubKey) {
+      hasInitiallyLoadedRef.current = true;
+    }
+  }, [sparkInformation.didConnect, sparkInformation.identityPubKey]);
+
+  useEffect(() => {
+    prevTxKeysRef.current = new Set(flatListDataForSpark.map(tx => tx.key));
+  }, [flatListDataForSpark]);
 
   useFocusEffect(
     useCallback(() => {
@@ -659,9 +672,16 @@ export default function HomeLightning({ navigation }) {
               </Pressable>
             </TouchableOpacity>
           )}
-          {flatListDataForSpark.map((tx, idx) => (
-            <View key={idx}>{tx.item}</View>
-          ))}
+          {flatListDataForSpark.map(tx => {
+            return (
+              <Animated.View
+                key={tx.key}
+                layout={LinearTransition.duration(300)}
+              >
+                {tx.item}
+              </Animated.View>
+            );
+          })}
         </View>
       </Animated.ScrollView>
     </GlobalThemeView>
