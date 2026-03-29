@@ -1178,7 +1178,7 @@
       "payWithUSDb": "Pagar com USDb",
       "chainNotSupportedForAsset": "Não disponível nesta rede",
       "swapInProgress": "Troca em Andamento",
-      "swapInProgressDescription": "Seus fundos foram enviados. A troca de stablecoin está sendo processada e pode levar alguns minutos.",
+      "swapInProgressDescription": "Seus fundos foram enviados. A troca de dólar digital está sendo processada e pode levar alguns minutos.",
       "noAmount": "Por favor, insira um valor para enviar.",
       "quoteStillLoading": "Obtendo cotação, aguarde um momento.",
       "noQuote": "Não foi possível obter uma cotação. Por favor, tente novamente.",
