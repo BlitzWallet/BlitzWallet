@@ -1185,7 +1185,7 @@
       "swapStatus": "Status da troca",
       "chainSwap": "Troca entre redes",
       "assetPicker": {
-        "header": "Selecione a moeda que deseja enviar.",
+        "header": "Selecione a moeda que você deseja enviar",
         "notAvailable": "Não disponível em {{chain}}"
       }
     }
