@@ -1164,7 +1164,7 @@
     },
     "stablecoinSend": {
       "sendStablecoins": "Enviar dólar digital",
-      "selectChain": "Selecionar Rede",
+      "selectChain": "Selecionar rede",
       "network": "Rede",
       "selectAsset": "Selecionar Ativo",
       "recipient": "Destinatário",
