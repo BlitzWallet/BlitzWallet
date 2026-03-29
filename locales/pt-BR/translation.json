@@ -1174,7 +1174,7 @@
       "recipientGets": "O destinatário recebe",
       "youSend": "Você envia",
       "quoteExpiresIn": "Cotação expira em",
-      "payWithLightning": "Pagar com Lightning",
+      "payWithLightning": "Pagar com Bitcoin",
       "payWithUSDb": "Pagar com USDb",
       "chainNotSupportedForAsset": "Não disponível nesta rede",
       "swapInProgress": "Troca em Andamento",
