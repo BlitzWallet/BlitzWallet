@@ -23,7 +23,13 @@ import ChoosePaymentMethod from '../../components/admin/homeComponents/sendBitco
 import SwipeButtonNew from '../../functions/CustomElements/sliderButton';
 
 import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, COLORS, SIZES, USDB_TOKEN_ID } from '../../constants';
+import {
+  APPROXIMATE_SYMBOL,
+  CENTER,
+  COLORS,
+  SIZES,
+  USDB_TOKEN_ID,
+} from '../../constants';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
@@ -49,6 +55,7 @@ import convertTextInputValue from '../../functions/textInputConvertValue';
 import SendTransactionFeeInfo from '../../components/admin/homeComponents/sendBitcoin/components/feeInfo';
 import { formatStablecoinAmount } from '../../functions/sendBitcoin';
 import { SliderProgressAnimation } from '../../functions/CustomElements/sendPaymentAnimation';
+import { formatBalanceAmount } from '../../functions';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -85,7 +92,7 @@ export default function StablecoinSendScreen() {
   const [screenMode, setScreenMode] = useState('EDIT_AMOUNT'); // 'EDIT_AMOUNT' | 'CONFIRM_PAYMENT'
   const [rawInput, setRawInput] = useState('');
   const [inputDenomination, setInputDenomination] = useState('fiat');
-
+  console.log(rawInput);
   const [description, setDescription] = useState('');
 
   const [quote, setQuote] = useState(null);
@@ -607,8 +614,10 @@ export default function StablecoinSendScreen() {
                   />
                   <ThemeText
                     styles={styles.quoteValue}
-                    content={`${formatStablecoinAmount(
-                      quote.estimatedOut,
+                    content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
+                      formatStablecoinAmount(quote.estimatedOut),
+                      false,
+                      masterInfoObject,
                     )} ${asset}`}
                   />
                 </View>

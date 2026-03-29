@@ -138,7 +138,7 @@ export default function SelectStablecoinParamsScreen() {
           </View>
         </ScrollView>
 
-        {!isTron && (
+        {!isTron && !isSolana && (
           <CustomButton
             textContent={t('constants.continue')}
             actionFunction={handleContinue}
