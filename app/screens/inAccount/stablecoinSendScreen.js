@@ -279,6 +279,8 @@ export default function StablecoinSendScreen() {
     }
 
     setSending(true);
+    clearCountdown();
+
     try {
       let result;
       if (sourceMethod === 'BTC') {
@@ -392,7 +394,8 @@ export default function StablecoinSendScreen() {
     setDescription(newDescription);
   };
 
-  const isQuoteLoading = quoteLoading || (quote && countdown === null);
+  const isQuoteLoading =
+    (quoteLoading || (quote && countdown === null)) && !sending;
 
   const canConfirm =
     !!quote && !quoteLoading && !sending && convertedSendAmount > 0;
@@ -565,7 +568,7 @@ export default function StablecoinSendScreen() {
         )}
 
         {/* Quote summary */}
-        {convertedSendAmount > 0 && isAmountFocused && (
+        {convertedSendAmount > 0 && isAmountFocused && !sending && (
           <View style={[styles.quoteBox, { backgroundColor: rowBg }]}>
             {isQuoteLoading && (
               <View style={styles.quoteLoadingRow}>
