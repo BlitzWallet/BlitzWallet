@@ -37,6 +37,8 @@ import Animated, {
   useHandler,
   useEvent,
   LinearTransition,
+  FadeIn,
+  FadeOut,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
@@ -676,6 +678,8 @@ export default function HomeLightning({ navigation }) {
             return (
               <Animated.View
                 key={tx.key}
+                entering={FadeIn.duration(150)}
+                exiting={FadeOut.duration(150)}
                 layout={LinearTransition.duration(300)}
               >
                 {tx.item}
