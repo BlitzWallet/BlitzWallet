@@ -1871,7 +1871,7 @@
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
         "gift": "Vale-Blitz",
         "claimPayment": "Reivindicar pagamento",
-        "chainSwap": "Troca em Cadeia"
+        "chainSwap": "Troca entre redes"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -1973,10 +1973,10 @@
         "privacyMessage": "Para preservar a privacidade {{type}} ,todas as outras informações ficam ocultas.",
         "receivers": "do recebedor",
         "senders": "do pagador",
-        "quoteId": "ID da Cotação",
-        "destinationAddress": "Endereço de Destino",
-        "destinationAsset": "Ativo de Destino",
-        "destinationChain": "Rede de Destino"
+        "quoteId": "ID da cotação",
+        "destinationAddress": "Endereço de destino",
+        "destinationAsset": "Ativo de destino",
+        "destinationChain": "Rede de destino"
       },
       "viewAllTxPage": {
         "title": "Transações",
