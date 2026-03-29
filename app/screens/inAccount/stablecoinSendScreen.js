@@ -753,9 +753,11 @@ const styles = StyleSheet.create({
   quoteLoadingText: {
     fontSize: SIZES.medium,
     opacity: 0.65,
+    includeFontPadding: false,
   },
   quoteErrorText: {
     fontSize: SIZES.small,
+    includeFontPadding: false,
   },
   quoteRow: {
     flexDirection: 'row',
@@ -765,9 +767,11 @@ const styles = StyleSheet.create({
   quoteLabel: {
     fontSize: SIZES.medium,
     opacity: 0.65,
+    includeFontPadding: false,
   },
   quoteValue: {
     fontSize: SIZES.medium,
+    includeFontPadding: false,
   },
   buttonContainer: {
     width: '100%',

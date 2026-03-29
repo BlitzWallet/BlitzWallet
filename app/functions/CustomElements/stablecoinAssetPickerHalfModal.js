@@ -171,10 +171,12 @@ const styles = StyleSheet.create({
   assetName: {
     fontSize: SIZES.large,
     fontWeight: 500,
+    includeFontPadding: false,
   },
 
   unsupportedLabel: {
     fontSize: SIZES.small,
     opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
   },
 });

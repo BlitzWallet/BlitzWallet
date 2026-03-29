@@ -191,7 +191,8 @@ const styles = StyleSheet.create({
   },
   cardLabel: {
     fontSize: SIZES.medium,
-    fontFamily: FONT.Descriptoin_Medium,
+    fontWeight: 500,
     textAlign: 'center',
+    includeFontPadding: false,
   },
 });
