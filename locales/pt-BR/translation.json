@@ -1166,7 +1166,7 @@
       "sendStablecoins": "Enviar dólar digital",
       "selectChain": "Selecionar rede",
       "network": "Rede",
-      "selectAsset": "Selecionar ativo",
+      "selectAsset": "Selecionar moeda",
       "recipient": "Destinatário",
       "gettingQuote": "Obtendo cotação…",
       "quoteExpired": "Cotação expirada. Por favor, tente novamente.",
@@ -1975,7 +1975,7 @@
         "senders": "do pagador",
         "quoteId": "ID da cotação",
         "destinationAddress": "Endereço de destino",
-        "destinationAsset": "Ativo de destino",
+        "destinationAsset": "Moeda de destino",
         "destinationChain": "Rede de destino"
       },
       "viewAllTxPage": {
