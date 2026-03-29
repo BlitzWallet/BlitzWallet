@@ -29,18 +29,7 @@ import { getSingleContact } from '../../../db';
 import { getCachedProfileImage } from '../../functions/cachedImage';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import normalizeLNURLAddress from '../../functions/lnurl/normalizeLNURLAddress';
-
-const BLITZ_DOMAINS = [
-  'blitz-wallet.com',
-  'blitzwalletapp.com',
-  'blitzwallet.app',
-];
-
-function isBlitzLNURLAddress(emailAddress) {
-  if (!emailAddress) return false;
-  const parts = emailAddress.split('@');
-  return parts.length === 2 && BLITZ_DOMAINS.includes(parts[1].toLowerCase());
-}
+import { isBlitzLNURLAddress } from '../../functions/lnurl';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');

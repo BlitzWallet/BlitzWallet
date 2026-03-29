@@ -20,6 +20,7 @@ import { getCachedProfileImage } from '../../../../../functions/cachedImage';
 
 import { getPayLinkDoc, addDataToCollection } from '../../../../../../db';
 import { receiveSparkLightningPayment } from '../../../../../functions/spark';
+import { isBlitzLNURLAddress } from '../../../../../functions/lnurl';
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -109,10 +110,20 @@ export default async function decodeSendAddress(props) {
       };
     }
 
-    if (btcAdress.startsWith('@') || btcAdress.length <= 30) {
-      const username = btcAdress.startsWith('@')
-        ? btcAdress.slice(1).trim()
-        : btcAdress.trim();
+    if (
+      btcAdress.startsWith('@') ||
+      btcAdress.length <= 30 ||
+      isBlitzLNURLAddress(btcAdress)
+    ) {
+      let username = '';
+
+      if (isBlitzLNURLAddress(btcAdress)) {
+        username = btcAdress.split('@')[0].trim();
+      } else {
+        username = btcAdress.startsWith('@')
+          ? btcAdress.slice(1).trim()
+          : btcAdress.trim();
+      }
 
       if (!username) {
         return goBackFunction(
