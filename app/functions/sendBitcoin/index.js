@@ -29,6 +29,20 @@ async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
     return;
   }
 
+  if (preParsingResponse.isExternalChain) {
+    if (from === 'home')
+      navigate.navigate('SelectStablecoinParamsScreen', {
+        address: preParsingResponse.address,
+        chainFamily: preParsingResponse.chainFamily,
+      });
+    else
+      navigate.replace('SelectStablecoinParamsScreen', {
+        address: preParsingResponse.address,
+        chainFamily: preParsingResponse.chainFamily,
+      });
+    return;
+  }
+
   if (from === 'home')
     navigate.navigate('ConfirmPaymentScreen', {
       btcAdress: preParsingResponse.btcAdress,
@@ -95,7 +109,22 @@ async function getQRImage() {
     };
   }
 
+  if (preParsingResponse.isExternalChain) {
+    return {
+      isExternalChain: true,
+      address: preParsingResponse.address,
+      chainFamily: preParsingResponse.chainFamily,
+      didWork: true,
+      error: '',
+    };
+  }
+
   return { btcAdress: preParsingResponse.btcAdress, didWork: true, error: '' };
 }
 
-export { navigateToSendUsingClipboard, getQRImage };
+function formatStablecoinAmount(rawAmount, decimals = 2) {
+  const value = Number(rawAmount) / Math.pow(10, 6);
+  return value.toFixed(decimals);
+}
+
+export { navigateToSendUsingClipboard, getQRImage, formatStablecoinAmount };

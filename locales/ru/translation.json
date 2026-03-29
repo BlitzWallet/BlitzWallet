@@ -82,6 +82,8 @@
     "accounts": "Счета",
     "to": "Куда",
     "from": "Откуда",
+    "asset": "Актив",
+    "chain": "Сеть",
     "description": "Описание",
     "regenerate": "Сгенерировать снова",
     "restore": "Восстановить",
@@ -1160,6 +1162,33 @@
       "paymentsCounter": "{{number}} платежей",
       "paymentsCounterTracker": "{{number}} из {{total}}",
       "loadingMessage": "Загрузка транзакций"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Отправить стейблкоины",
+      "selectChain": "Выбрать сеть",
+      "network": "Сеть",
+      "selectAsset": "Выбрать актив",
+      "recipient": "Получатель",
+      "gettingQuote": "Получение котировки…",
+      "quoteExpired": "Срок котировки истёк. Попробуйте снова.",
+      "quoteError": "Не удалось получить котировку. Попробуйте снова.",
+      "recipientGets": "Получатель получает",
+      "youSend": "Вы отправляете",
+      "quoteExpiresIn": "Котировка истекает через",
+      "payWithLightning": "Оплатить через Lightning",
+      "payWithUSDb": "Оплатить через USDb",
+      "chainNotSupportedForAsset": "Недоступно в этой сети",
+      "swapInProgress": "Обмен выполняется",
+      "swapInProgressDescription": "Ваши средства отправлены. Обмен стейблкоина обрабатывается и может занять несколько минут.",
+      "noAmount": "Пожалуйста, введите сумму для отправки.",
+      "quoteStillLoading": "Получение котировки, подождите немного.",
+      "noQuote": "Не удалось получить котировку. Попробуйте снова.",
+      "swapStatus": "Статус обмена",
+      "chainSwap": "Обмен в сети",
+      "assetPicker": {
+        "header": "Выберите валюту для отправки.",
+        "notAvailable": "Недоступно в сети {{chain}}"
+      }
     }
   },
   "contacts": {
@@ -1842,7 +1871,8 @@
         "contactPaymentType": "Контакт",
         "converstionRate": "{{satAmount}} за {{dollarAmount}}",
         "gift": "Подарок",
-        "claimPayment": "Получить платёж"
+        "claimPayment": "Получить платёж",
+        "chainSwap": "Обмен в сети"
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
@@ -1943,7 +1973,11 @@
         "noInformationLabel": "{{item}} не показан (платеж восстановлен из истории или нулевой инвойс).",
         "privacyMessage": "Для сохранения приватности {{type}}, остальная информация скрыта.",
         "receivers": "получателя",
-        "senders": "отправителя"
+        "senders": "отправителя",
+        "quoteId": "ID котировки",
+        "destinationAddress": "Адрес назначения",
+        "destinationAsset": "Актив назначения",
+        "destinationChain": "Сеть назначения"
       },
       "viewAllTxPage": {
         "title": "Транзакции",

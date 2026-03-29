@@ -129,6 +129,21 @@ export default function SendPaymentHome({ pageViewPage, from }) {
           return;
         }
 
+        if (response.isExternalChain) {
+          if (from === 'home')
+            navigate.navigate('SelectStablecoinParamsScreen', {
+              address: response.address,
+              chainFamily: response.chainFamily,
+            });
+          else
+            navigate.replace('SelectStablecoinParamsScreen', {
+              address: response.address,
+              chainFamily: response.chainFamily,
+            });
+
+          return;
+        }
+
         if (from === 'home')
           navigate.navigate('ConfirmPaymentScreen', {
             btcAdress: response.btcAdress,
@@ -201,6 +216,22 @@ export default function SendPaymentHome({ pageViewPage, from }) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t(response.error),
         });
+        isPhotoeLibraryOpen.current = false;
+        return;
+      }
+
+      if (response.isExternalChain) {
+        if (from === 'home')
+          navigate.navigate('SelectStablecoinParamsScreen', {
+            address: response.address,
+            chainFamily: response.chainFamily,
+          });
+        else
+          navigate.replace('SelectStablecoinParamsScreen', {
+            address: response.address,
+            chainFamily: response.chainFamily,
+          });
+
         isPhotoeLibraryOpen.current = false;
         return;
       }

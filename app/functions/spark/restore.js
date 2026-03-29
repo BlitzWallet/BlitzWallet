@@ -31,6 +31,7 @@ import {
 } from './transactions';
 import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
+import fetchBackend from '../../../db/handleBackend';
 
 const RESTORE_STATE_KEY = 'spark_tx_restore_state';
 const MAX_BATCH_SIZE = 400;
@@ -490,12 +491,54 @@ export async function fullRestoreSparkState({
   }
 }
 
+export async function checkFlashnetStablecoinStatusLogic(
+  tx,
+  contactsPrivateKey,
+  publicKey,
+) {
+  try {
+    const details =
+      typeof tx.details === 'string' ? JSON.parse(tx.details) : tx.details;
+    if (!details?.isFlashnetStablecoin || !details?.quoteId) return null;
+
+    const statusResult = await fetchBackend(
+      'checkFlashnetStablecoinStatus',
+      { quoteId: details.quoteId },
+      contactsPrivateKey,
+      publicKey,
+    );
+
+    if (!statusResult || statusResult.error) return null;
+
+    const newStatus =
+      statusResult.status === 'completed'
+        ? 'completed'
+        : statusResult.status === 'failed'
+        ? 'failed'
+        : null;
+
+    if (!newStatus) return null;
+
+    return {
+      id: tx.sparkID,
+      paymentStatus: newStatus,
+      paymentType: tx.paymentType,
+      accountId: tx.accountId,
+      details,
+    };
+  } catch {
+    return null;
+  }
+}
+
 let isUpdatingSparkTxStatus = false;
 export const updateSparkTxStatus = async (
   mnemoninc,
   accountId,
   sendWebViewRequest,
   forceRefresh = false,
+  contactsPrivateKey = null,
+  publicKey = null,
 ) => {
   try {
     if (isUpdatingSparkTxStatus) {
@@ -547,7 +590,13 @@ export const updateSparkTxStatus = async (
         accountId,
         forceRefresh,
       ),
-      processSparkTransactions(txsByType.spark, mnemoninc, sendWebViewRequest),
+      processSparkTransactions(
+        txsByType.spark,
+        mnemoninc,
+        sendWebViewRequest,
+        contactsPrivateKey,
+        publicKey,
+      ),
     ]);
 
     const updatedTxs = [
@@ -942,11 +991,27 @@ async function processSparkTransactions(
   sparkTxs,
   mnemonic,
   sendWebViewRequest,
+  contactsPrivateKey = null,
+  publicKey = null,
 ) {
   let includesGift = false;
   let updatedTxs = [];
   for (const txStateUpdate of sparkTxs) {
     const details = JSON.parse(txStateUpdate.details);
+
+    // Stablecoin sends via Flashnet orchestration — delegate to status checker
+    if (details.isFlashnetStablecoin) {
+      if (contactsPrivateKey && publicKey) {
+        const update = await checkFlashnetStablecoinStatusLogic(
+          txStateUpdate,
+          contactsPrivateKey,
+          publicKey,
+        );
+        if (update) updatedTxs.push(update);
+      }
+      continue;
+    }
+
     if (IS_SPARK_ID.test(txStateUpdate.sparkID)) {
       const findTxResponse = await getSingleTxDetails(
         mnemonic,

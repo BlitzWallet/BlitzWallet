@@ -82,6 +82,8 @@
     "accounts": "Konton",
     "to": "Till",
     "from": "Från",
+    "asset": "Tillgång",
+    "chain": "Kedja",
     "description": "Beskrivning",
     "regenerate": "Regenerera",
     "restore": "Återställ",
@@ -1159,6 +1161,33 @@
       "paymentsCounter": "{{number}} Betalningar",
       "paymentsCounterTracker": "{{number}} av {{total}}",
       "loadingMessage": "Läser in sparade transaktioner"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Skicka Stablecoins",
+      "selectChain": "Välj Nätverk",
+      "network": "Nätverk",
+      "selectAsset": "Välj Tillgång",
+      "recipient": "Mottagare",
+      "gettingQuote": "Hämtar offert…",
+      "quoteExpired": "Offerten har gått ut. Försök igen.",
+      "quoteError": "Det gick inte att hämta en offert. Försök igen.",
+      "recipientGets": "Mottagaren får",
+      "youSend": "Du skickar",
+      "quoteExpiresIn": "Offerten löper ut om",
+      "payWithLightning": "Betala med Lightning",
+      "payWithUSDb": "Betala med USDb",
+      "chainNotSupportedForAsset": "Inte tillgängligt i detta nätverk",
+      "swapInProgress": "Byte pågår",
+      "swapInProgressDescription": "Dina pengar har skickats. Stablecoin-bytet bearbetas och kan ta några minuter.",
+      "noAmount": "Ange ett belopp att skicka.",
+      "quoteStillLoading": "Hämtar offert, vänta ett ögonblick.",
+      "noQuote": "Det gick inte att hämta en offert. Försök igen.",
+      "swapStatus": "Bytestatus",
+      "chainSwap": "Kedjeswap",
+      "assetPicker": {
+        "header": "Välj den valuta du vill skicka.",
+        "notAvailable": "Inte tillgängligt på {{chain}}"
+      }
     }
   },
   "contacts": {
@@ -1841,7 +1870,8 @@
         "contactPaymentType": "Kontakt",
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "gift": "Gåva",
-        "claimPayment": "Ta emot betalning"
+        "claimPayment": "Ta emot betalning",
+        "chainSwap": "Kedjeswap"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",
@@ -1942,7 +1972,11 @@
         "noInformationLabel": "{{item}} visas inte eftersom denna betalning återställdes från historiken eller använde en faktura med nollbelopp.",
         "privacyMessage": "För att bevara {{type}}:s integritet är all annan information dold.",
         "receivers": "mottagarens",
-        "senders": "avsändarens"
+        "senders": "avsändarens",
+        "quoteId": "Offert-ID",
+        "destinationAddress": "Destinationsadress",
+        "destinationAsset": "Destinations-tillgång",
+        "destinationChain": "Destinations-kedja"
       },
       "viewAllTxPage": {
         "title": "Transaktioner",

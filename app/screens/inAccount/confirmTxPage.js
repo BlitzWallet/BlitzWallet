@@ -27,7 +27,7 @@ import customUUID from '../../functions/customUUID';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { getSingleContact } from '../../../db';
 import { getCachedProfileImage } from '../../functions/cachedImage';
-import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import normalizeLNURLAddress from '../../functions/lnurl/normalizeLNURLAddress';
 
 const BLITZ_DOMAINS = [
@@ -92,6 +92,9 @@ export default function ConfirmTxPage(props) {
     : transaction?.paymentType;
 
   const showPendingMessage = transaction?.paymentStatus === 'pending';
+  const isFlashnetStablecoinPending =
+    paymentInformation?.isFlashnetStablecoin &&
+    transaction?.paymentStatus === 'pending';
 
   const paymentFee = paymentInformation?.fee;
 
@@ -126,6 +129,87 @@ export default function ConfirmTxPage(props) {
   useEffect(() => {
     animationRef.current?.play();
   }, []);
+
+  if (isFlashnetStablecoinPending) {
+    return (
+      <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
+        <LottieView
+          ref={animationRef}
+          source={didSucceed ? confirmAnimation : errorAnimation}
+          loop={false}
+          style={{
+            width: screenDimensions.width / 1.5,
+            height: screenDimensions.width / 1.5,
+            maxWidth: 400,
+            maxHeight: 400,
+          }}
+        />
+        <ThemeText
+          styles={{ fontSize: SIZES.large, marginBottom: 10 }}
+          content={t('wallet.stablecoinSend.swapInProgress')}
+        />
+        <ThemeText
+          styles={{
+            opacity: HIDDEN_OPACITY,
+            width: '95%',
+            maxWidth: 300,
+            textAlign: 'center',
+            marginBottom: 50,
+            fontSize: SIZES.smedium,
+          }}
+          content={t('wallet.stablecoinSend.swapInProgressDescription')}
+        />
+        <View style={styles.paymentTable}>
+          <View style={styles.paymentTableRow}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.labelText}
+              content={t('constants.fee')}
+            />
+            <ThemeText
+              content={displayCorrectDenomination({
+                amount: paymentFee,
+                masterInfoObject,
+                fiatStats,
+              })}
+            />
+          </View>
+          <View style={styles.paymentTableRow}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.labelText}
+              content={t('constants.type')}
+            />
+            <ThemeText
+              styles={{ textTransform: 'capitalize' }}
+              content={t('wallet.stablecoinSend.chainSwap')}
+            />
+          </View>
+        </View>
+
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
+            marginTop: 'auto',
+            paddingHorizontal: 15,
+          }}
+          textStyles={{
+            ...styles.buttonText,
+            color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
+          }}
+          actionFunction={() => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                navigate.popToTop();
+              });
+            });
+          }}
+          textContent={t('constants.continue')}
+        />
+      </GlobalThemeView>
+    );
+  }
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>

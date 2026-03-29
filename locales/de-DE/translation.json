@@ -82,6 +82,8 @@
     "accounts": "Konten",
     "to": "An",
     "from": "Von",
+    "asset": "Asset",
+    "chain": "Kette",
     "description": "Beschreibung",
     "regenerate": "Erneut generieren",
     "restore": "Wiederherstellen",
@@ -1161,6 +1163,33 @@
       "paymentsCounter": "{{number}} Zahlungen",
       "paymentsCounterTracker": "{{number}} von {{total}}",
       "loadingMessage": "Gespeicherte Transaktionen werden geladen..."
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Stablecoins senden",
+      "selectChain": "Netzwerk auswählen",
+      "network": "Netzwerk",
+      "selectAsset": "Asset auswählen",
+      "recipient": "Empfänger",
+      "gettingQuote": "Angebot wird abgerufen…",
+      "quoteExpired": "Angebot abgelaufen. Bitte versuche es erneut.",
+      "quoteError": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
+      "recipientGets": "Empfänger erhält",
+      "youSend": "Du sendest",
+      "quoteExpiresIn": "Angebot läuft ab in",
+      "payWithLightning": "Mit Lightning bezahlen",
+      "payWithUSDb": "Mit USDb bezahlen",
+      "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
+      "swapInProgress": "Tausch läuft",
+      "swapInProgressDescription": "Deine Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
+      "noAmount": "Bitte gib einen Betrag zum Senden ein.",
+      "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
+      "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
+      "swapStatus": "Tauschstatus",
+      "chainSwap": "Chain-Tausch",
+      "assetPicker": {
+        "header": "Wähle die Währung aus, die du senden möchtest.",
+        "notAvailable": "Nicht verfügbar auf {{chain}}"
+      }
     }
   },
   "contacts": {
@@ -1843,7 +1872,8 @@
         "contactPaymentType": "Kontakt",
         "converstionRate": "{{satAmount}} pro {{USDAmount}}",
         "gift": "Geschenk",
-        "claimPayment": "Zahlung einfordern"
+        "claimPayment": "Zahlung einfordern",
+        "chainSwap": "Chain-Tausch"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
@@ -1944,7 +1974,11 @@
         "noInformationLabel": "{{item}} wird nicht angezeigt, da diese Zahlung aus dem Verlauf wiederhergestellt wurde oder eine Rechnung mit Nullbetrag verwendet wurde.",
         "privacyMessage": "Um die Privatsphäre des {{type}} zu wahren, sind alle weiteren Informationen ausgeblendet.",
         "receivers": "Empfänger",
-        "senders": "Absender"
+        "senders": "Absender",
+        "quoteId": "Angebots-ID",
+        "destinationAddress": "Zieladresse",
+        "destinationAsset": "Ziel-Asset",
+        "destinationChain": "Ziel-Kette"
       },
       "viewAllTxPage": {
         "title": "Transaktionen",

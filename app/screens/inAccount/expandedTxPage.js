@@ -240,6 +240,8 @@ export default function ExpandedTx(props) {
     }
   };
 
+  const isFlashnetStablecoin = !!transaction.details?.isFlashnetStablecoin;
+
   const isLRC20Payment = transaction.details.isLRC20Payment;
   const selectedToken = isLRC20Payment
     ? sparkInformation.tokens?.[transaction.details.LRC20Token]
@@ -520,7 +522,9 @@ export default function ExpandedTx(props) {
 
               {renderInfoRow(
                 t('constants.type'),
-                transactionPaymentType,
+                isFlashnetStablecoin
+                  ? t('screens.inAccount.expandedTxPage.chainSwap')
+                  : transactionPaymentType,
                 true,
                 {
                   textTransform: 'capitalize',
@@ -528,6 +532,15 @@ export default function ExpandedTx(props) {
               )}
 
               {renderLRC20TokenRow()}
+
+              {isFlashnetStablecoin &&
+                transaction.paymentStatus !== 'completed' &&
+                renderInfoRow(
+                  t('wallet.stablecoinSend.swapStatus'),
+                  transaction.paymentStatus,
+                  true,
+                  { textTransform: 'capitalize' },
+                )}
 
               {showConversionLine &&
                 renderInfoRow(
@@ -962,7 +975,6 @@ const styles = StyleSheet.create({
     // fontSize: SIZES.large,
   },
   tokenText: {
-    fontSize: SIZES.large,
     textTransform: 'uppercase',
     flex: 1,
     textAlign: 'right',

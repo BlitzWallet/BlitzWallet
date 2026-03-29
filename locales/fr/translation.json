@@ -82,6 +82,8 @@
     "accounts": "Comptes",
     "to": "Pour",
     "from": "De",
+    "asset": "Actif",
+    "chain": "Chaîne",
     "description": "Description",
     "regenerate": "Régénérer",
     "restore": "Restaurer",
@@ -1159,6 +1161,33 @@
       "paymentsCounter": "{{number}} paiements",
       "paymentsCounterTracker": "{{number}} de {{total}}",
       "loadingMessage": "Chargement des transactions enregistrées"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Envoyer des Stablecoins",
+      "selectChain": "Sélectionner le Réseau",
+      "network": "Réseau",
+      "selectAsset": "Sélectionner l'Actif",
+      "recipient": "Destinataire",
+      "gettingQuote": "Obtention du devis…",
+      "quoteExpired": "Devis expiré. Veuillez réessayer.",
+      "quoteError": "Impossible d'obtenir un devis. Veuillez réessayer.",
+      "recipientGets": "Le destinataire reçoit",
+      "youSend": "Vous envoyez",
+      "quoteExpiresIn": "Le devis expire dans",
+      "payWithLightning": "Payer avec Lightning",
+      "payWithUSDb": "Payer avec USDb",
+      "chainNotSupportedForAsset": "Non disponible sur ce réseau",
+      "swapInProgress": "Échange en Cours",
+      "swapInProgressDescription": "Vos fonds ont été envoyés. L'échange de stablecoin est en cours de traitement et peut prendre quelques minutes.",
+      "noAmount": "Veuillez saisir un montant à envoyer.",
+      "quoteStillLoading": "Obtention d'un devis, veuillez patienter un instant.",
+      "noQuote": "Impossible d'obtenir un devis. Veuillez réessayer.",
+      "swapStatus": "Statut de l'Échange",
+      "chainSwap": "Échange de Chaîne",
+      "assetPicker": {
+        "header": "Sélectionnez la devise que vous souhaitez envoyer.",
+        "notAvailable": "Non disponible sur {{chain}}"
+      }
     }
   },
   "contacts": {
@@ -1841,7 +1870,8 @@
         "contactPaymentType": "Contact",
         "converstionRate": "{{satAmount}} par {{dollarAmount}}",
         "gift": "Cadeau",
-        "claimPayment": "Réclamer le paiement"
+        "claimPayment": "Réclamer le paiement",
+        "chainSwap": "Échange de Chaîne"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -1942,7 +1972,11 @@
         "noInformationLabel": "{{item}} n'apparaît pas car ce paiement a été restauré à partir de l'historique ou a utilisé une facture d'un montant nul.",
         "privacyMessage": "Pour préserver la vie privée de {{type}}, toutes les autres informations sont cachées.",
         "receivers": "du destinataire",
-        "senders": "de l'expéditeur"
+        "senders": "de l'expéditeur",
+        "quoteId": "ID du Devis",
+        "destinationAddress": "Adresse de Destination",
+        "destinationAsset": "Actif de Destination",
+        "destinationChain": "Chaîne de Destination"
       },
       "viewAllTxPage": {
         "title": "Transactions",

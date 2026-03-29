@@ -34,6 +34,8 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { satsToDollars } from '../../../../../functions/spark/flashnet';
+import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation');
 

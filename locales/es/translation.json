@@ -82,6 +82,8 @@
     "accounts": "Cuentas",
     "to": "A",
     "from": "De",
+    "asset": "Activo",
+    "chain": "Cadena",
     "description": "Descripción",
     "regenerate": "Regenerar",
     "restore": "Restaurar",
@@ -1020,6 +1022,33 @@
       "paymentsCounter": "{{number}} pagos",
       "paymentsCounterTracker": "{{number}} de {{total}}",
       "loadingMessage": "Cargando transacciones guardadas"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Enviar Stablecoins",
+      "selectChain": "Seleccionar Red",
+      "network": "Red",
+      "selectAsset": "Seleccionar Activo",
+      "recipient": "Destinatario",
+      "gettingQuote": "Obteniendo cotización…",
+      "quoteExpired": "Cotización vencida. Por favor, inténtalo de nuevo.",
+      "quoteError": "No se pudo obtener la cotización. Por favor, inténtalo de nuevo.",
+      "recipientGets": "El destinatario recibe",
+      "youSend": "Tú envías",
+      "quoteExpiresIn": "La cotización vence en",
+      "payWithLightning": "Pagar con Lightning",
+      "payWithUSDb": "Pagar con USDb",
+      "chainNotSupportedForAsset": "No disponible en esta red",
+      "swapInProgress": "Intercambio en Proceso",
+      "swapInProgressDescription": "Tus fondos han sido enviados. El intercambio de stablecoin está procesándose y puede tardar unos minutos.",
+      "noAmount": "Por favor, ingresa un monto para enviar.",
+      "quoteStillLoading": "Obteniendo cotización, por favor espera un momento.",
+      "noQuote": "No se pudo obtener una cotización. Por favor, inténtalo de nuevo.",
+      "swapStatus": "Estado del Intercambio",
+      "chainSwap": "Intercambio en Cadena",
+      "assetPicker": {
+        "header": "Selecciona la moneda que deseas enviar.",
+        "notAvailable": "No disponible en {{chain}}"
+      }
     }
   },
   "contacts": {
@@ -1703,7 +1732,8 @@
         "contactPaymentType": "Contacto",
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
         "gift": "Regalo",
-        "claimPayment": "Reclamar pago"
+        "claimPayment": "Reclamar pago",
+        "chainSwap": "Intercambio en Cadena"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -1804,7 +1834,11 @@
         "noInformationLabel": "{{item}} no se muestra ya que este pago fue restaurado desde el historial o usó una factura de monto cero.",
         "privacyMessage": "Para preservar la privacidad {{type}}, toda la demás información se oculta.",
         "receivers": "del receptor",
-        "senders": "del remitente"
+        "senders": "del remitente",
+        "quoteId": "ID de Cotización",
+        "destinationAddress": "Dirección de Destino",
+        "destinationAsset": "Activo de Destino",
+        "destinationChain": "Cadena de Destino"
       },
       "viewAllTxPage": {
         "title": "Transacciones",
