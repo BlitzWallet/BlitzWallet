@@ -857,7 +857,7 @@
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
-      "inputPlaceholder": "Digite @usuário, endereço Bitcoin ou fatura Lightning",
+      "inputPlaceholder": "@Usuário, Endereço Bitcoin ou Fatura Lightning",
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "O que você deseja enviar?",
