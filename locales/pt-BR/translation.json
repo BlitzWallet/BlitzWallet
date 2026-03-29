@@ -1177,7 +1177,7 @@
       "payWithLightning": "Pagar com Bitcoin",
       "payWithUSDb": "Pagar com USDB",
       "chainNotSupportedForAsset": "Não disponível nesta rede",
-      "swapInProgress": "Troca em andamento",
+      "swapInProgress": "Transação em andamento",
       "swapInProgressDescription": "Seus fundos foram enviados. A troca de dólar digital está sendo processada e pode levar alguns minutos.",
       "noAmount": "Por favor, insira um valor para enviar.",
       "quoteStillLoading": "Obtendo cotação, aguarde um momento.",
