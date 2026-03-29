@@ -1163,7 +1163,7 @@
       "loadingMessage": "Carregando transações salvas"
     },
     "stablecoinSend": {
-      "sendStablecoins": "Enviar Stablecoins",
+      "sendStablecoins": "Enviar dólar digital",
       "selectChain": "Selecionar Rede",
       "network": "Rede",
       "selectAsset": "Selecionar Ativo",
