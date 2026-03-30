@@ -343,7 +343,7 @@ export default function StablecoinSendScreen() {
           fee: quote?.fee,
           totalFee: 0,
           supportFee: 0,
-          description: description || `Send ${asset}`,
+          description: description || '',
           address: quote.depositAddress,
           time: Date.now(),
           createdAt: Date.now(),
@@ -400,7 +400,30 @@ export default function StablecoinSendScreen() {
       });
     } catch (err) {
       console.log(err, 'error navigating to bla bla bla');
-      navigate.navigate('ErrorScreen', { errorMessage: err.message });
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          navigate.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'HomeAdmin',
+                params: {
+                  screen: 'Home',
+                },
+              },
+              {
+                name: 'ConfirmTxPage',
+                params: {
+                  transaction: {},
+                  error: err.message,
+                  lnurlAddress: undefined,
+                  blitzContactInfo: undefined,
+                },
+              },
+            ],
+          });
+        });
+      });
     }
   }, [
     quote,
