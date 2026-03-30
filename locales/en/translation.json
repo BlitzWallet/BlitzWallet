@@ -2275,7 +2275,8 @@
     "paymentError": "Something went wrong while processing your payment. Please try again. If it still doesn’t work, close the app and reopen it before trying again.",
     "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again.",
     "priceImpact": "This payment is large, so the final amount you receive in Dollars may change.",
-    "removingImageError": "Unable to remove image. Please try again."
+    "removingImageError": "Unable to remove image. Please try again.",
+    "usdcUsdtTokensOnly": "Only USDT and USDC tokens are supported"
   },
   "loadingScreen": {
     "message1": "Please don't close the app",

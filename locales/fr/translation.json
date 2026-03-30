@@ -2272,7 +2272,8 @@
     "paymentError": "Un problème s'est produit lors du traitement de votre paiement. Veuillez réessayer. Si cela ne fonctionne toujours pas, fermez l'application et rouvrez-la avant de réessayer.",
     "paymentFeeError": "Nous n'avons pas pu récupérer les frais de paiement. Veuillez réessayer. Si le problème persiste, fermez l'application et rouvrez-la avant de réessayer.",
     "priceImpact": "Ce paiement est important, le montant final que vous recevrez en dollars peut donc changer.",
-    "removingImageError": "Impossible de supprimer l'image. Veuillez réessayer."
+    "removingImageError": "Impossible de supprimer l'image. Veuillez réessayer.",
+    "usdcUsdtTokensOnly": "Seuls les tokens USDT et USDC sont pris en charge"
   },
   "loadingScreen": {
     "message1": "Ne fermez pas l'application",

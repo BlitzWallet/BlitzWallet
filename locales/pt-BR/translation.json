@@ -2272,7 +2272,8 @@
     "paymentError": "Ocorreu um erro ao processar seu pagamento. Tente novamente. Se ainda não funcionar, feche o app e abra-o novamente antes de tentar de novo.",
     "paymentFeeError": "Não foi possível recuperar a taxa de pagamento. Tente novamente. Se o problema continuar, feche o app e abra-o novamente antes de tentar de novo.",
     "priceImpact": "Este pagamento é grande, portanto o valor final que você receber em dólares pode mudar.",
-    "removingImageError": "Não foi possível remover a imagem. Tente novamente."
+    "removingImageError": "Não foi possível remover a imagem. Tente novamente.",
+    "usdcUsdtTokensOnly": "Apenas os tokens USDT e USDC são suportados"
   },
   "loadingScreen": {
     "message1": "Por favor, não feche o aplicativo",
