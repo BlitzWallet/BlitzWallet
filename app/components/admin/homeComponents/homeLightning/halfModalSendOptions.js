@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import {
   navigateToSendUsingClipboard,
   getQRImage,
+  resolveExternalChainNavigation,
 } from '../../../../functions';
 import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -387,10 +388,11 @@ export default function HalfModalSendOptions({
       return;
     }
     if (parsed.isExternalChain) {
-      navigate.replace('SelectStablecoinParamsScreen', {
-        address: parsed.address,
-        chainFamily: parsed.chainFamily,
-      });
+      const { method, screen, params } = resolveExternalChainNavigation(
+        parsed,
+        'notHome',
+      );
+      navigate[method](screen, params);
       return;
     }
     navigate.replace('ConfirmPaymentScreen', {
@@ -428,10 +430,11 @@ export default function HalfModalSendOptions({
     }
 
     if (response.isExternalChain) {
-      navigate.replace('SelectStablecoinParamsScreen', {
-        address: response.address,
-        chainFamily: response.chainFamily,
-      });
+      const { method, screen, params } = resolveExternalChainNavigation(
+        response,
+        'notHome',
+      );
+      navigate[method](screen, params);
       return;
     }
 

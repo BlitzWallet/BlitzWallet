@@ -2272,7 +2272,8 @@
     "paymentError": "Något gick fel när vi behandlade din betalning. Vänligen försök igen. Om det fortfarande inte fungerar stänger du appen och öppnar den igen innan du försöker igen.",
     "paymentFeeError": "Vi kunde inte hämta betalningsavgiften. Vänligen försök igen. Om problemet kvarstår ska du stänga appen och öppna den igen innan du försöker igen.",
     "priceImpact": "Den här betalningen är stor, så det slutliga beloppet du får i dollar kan förändras.",
-    "removingImageError": "Kunde inte ta bort bilden. Försök igen."
+    "removingImageError": "Kunde inte ta bort bilden. Försök igen.",
+    "usdcUsdtTokensOnly": "Endast USDT- och USDC-token stöds"
   },
   "loadingScreen": {
     "message1": "Stäng inte appen, snälla",

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
+import { resolveExternalChainNavigation } from '../../../../functions';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
@@ -118,6 +119,14 @@ export default function ManualEnterSendAddress(props) {
             headerText: '',
             webViewURL: response.webViewURL,
           });
+          return;
+        }
+        if (response.isExternalChain) {
+          const { method, screen, params } = resolveExternalChainNavigation(
+            response,
+            'notHome',
+          );
+          navigate[method](screen, params);
           return;
         }
         navigate.replace('ConfirmPaymentScreen', {

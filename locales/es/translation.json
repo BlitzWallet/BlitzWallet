@@ -2134,7 +2134,8 @@
     "paymentFeeError": "No pudimos obtener la tarifa de pago. Inténtalo de nuevo. Si el problema continúa, cierra la aplicación y vuelve a abrirla antes de intentarlo nuevamente.",
     "priceImpact": "Este pago es grande, por lo que el monto final que recibas en dólares puede cambiar.",
     "removingImageError": "No se pudo eliminar la imagen. Inténtalo de nuevo.",
-    "bitcoinInvoiceError": "Hubo un problema al generar tu dirección de Bitcoin. Por favor, inténtalo de nuevo."
+    "bitcoinInvoiceError": "Hubo un problema al generar tu dirección de Bitcoin. Por favor, inténtalo de nuevo.",
+    "usdcUsdtTokensOnly": "Solo se admiten los tokens USDT y USDC"
   },
   "loadingScreen": {
     "message1": "Por favor no cierres la aplicación",
