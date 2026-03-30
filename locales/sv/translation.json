@@ -1358,7 +1358,14 @@
       "showTechnicals": "Visa tekniska detaljer",
       "hideTechnicals": "Dölj tekniska detaljer",
       "backendHash": "Backend-hash",
-      "expectedHash": "Förväntad hash"
+      "expectedHash": "Förväntad hash",
+      "exchangeRatesHeader": "Växelkurser",
+      "exchangeRatesDescription": "Bitcoin/fiat-växelkurser hämtas från tredjeparts-API:er. Kurserna kan vara oprecisa, kontrollera alltid Bitcoin-beloppet innan du skickar en betalning.",
+      "exchangeRatesSourcesLabel": "Datakällor",
+      "exchangeRateCoinbase": "Coinbase",
+      "exchangeRateFlashnet": "Flashnet",
+      "exchangeRateKraken": "Kraken",
+      "exchangeRateBitfinex": "Bitfinex"
     },
     "language": {
       "inputPlaceHolder": ""

@@ -1359,7 +1359,14 @@
       "showTechnicals": "Show Technical Details",
       "hideTechnicals": "Hide Technical Details",
       "backendHash": "Backend Hash",
-      "expectedHash": "Expected Hash"
+      "expectedHash": "Expected Hash",
+      "exchangeRatesHeader": "Exchange Rates",
+      "exchangeRatesDescription": "Bitcoin/fiat exchange rates are retrieved from third-party APIs. Rates may not be perfectly accurate, always verify the Bitcoin amount before sending a payment.",
+      "exchangeRatesSourcesLabel": "Data sources",
+      "exchangeRateCoinbase": "Coinbase",
+      "exchangeRateFlashnet": "Flashnet",
+      "exchangeRateKraken": "Kraken",
+      "exchangeRateBitfinex": "Bitfinex"
     },
     "language": {
       "inputPlaceHolder": ""

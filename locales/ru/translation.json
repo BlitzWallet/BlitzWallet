@@ -1359,7 +1359,14 @@
       "showTechnicals": "Показать тех. детали",
       "hideTechnicals": "Скрыть тех. детали",
       "backendHash": "Хэш бэкенда",
-      "expectedHash": "Ожидаемый хэш"
+      "expectedHash": "Ожидаемый хэш",
+      "exchangeRatesHeader": "Обменные курсы",
+      "exchangeRatesDescription": "Курсы обмена Bitcoin/фиат получаются из сторонних API. Курсы могут быть неточными, всегда проверяйте сумму в Bitcoin перед отправкой платежа.",
+      "exchangeRatesSourcesLabel": "Источники данных",
+      "exchangeRateCoinbase": "Coinbase",
+      "exchangeRateFlashnet": "Flashnet",
+      "exchangeRateKraken": "Kraken",
+      "exchangeRateBitfinex": "Bitfinex"
     },
     "language": {
       "inputPlaceHolder": ""

@@ -1358,7 +1358,14 @@
       "showTechnicals": "Afficher les détails techniques",
       "hideTechnicals": "Cacher les détails techniques",
       "backendHash": "Hash backend",
-      "expectedHash": "Hash attendu"
+      "expectedHash": "Hash attendu",
+      "exchangeRatesHeader": "Taux de change",
+      "exchangeRatesDescription": "Les taux de change Bitcoin/fiat sont récupérés via des API tierces. Les taux peuvent ne pas être parfaitement exacts, vérifiez toujours le montant en Bitcoin avant d’envoyer un paiement.",
+      "exchangeRatesSourcesLabel": "Sources de données",
+      "exchangeRateCoinbase": "Coinbase",
+      "exchangeRateFlashnet": "Flashnet",
+      "exchangeRateKraken": "Kraken",
+      "exchangeRateBitfinex": "Bitfinex"
     },
     "language": {
       "inputPlaceHolder": ""

@@ -1361,7 +1361,14 @@
       "showTechnicals": "Technische Details anzeigen",
       "hideTechnicals": "Technische Details ausblenden",
       "backendHash": "Backend-Hash",
-      "expectedHash": "Erwarteter Hash"
+      "expectedHash": "Erwarteter Hash",
+      "exchangeRatesHeader": "Wechselkurse",
+      "exchangeRatesDescription": "BTC-/Fiat-Wechselkurse werden von Drittanbieter-APIs abgerufen. Die Kurse sind möglicherweise nicht vollkommen genau – überprüfen Sie immer den Bitcoin-Betrag vor dem Senden einer Zahlung.",
+      "exchangeRatesSourcesLabel": "Datenquellen",
+      "exchangeRateCoinbase": "Coinbase",
+      "exchangeRateFlashnet": "Flashnet",
+      "exchangeRateKraken": "Kraken",
+      "exchangeRateBitfinex": "Bitfinex"
     },
     "language": {
       "inputPlaceHolder": ""
