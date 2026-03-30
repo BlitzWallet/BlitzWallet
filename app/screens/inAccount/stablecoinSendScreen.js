@@ -27,6 +27,7 @@ import {
   APPROXIMATE_SYMBOL,
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   SIZES,
   USDB_TOKEN_ID,
 } from '../../constants';
@@ -74,8 +75,14 @@ function formatCountdown(ms) {
 export default function StablecoinSendScreen() {
   const navigate = useNavigation();
   const route = useRoute();
-  const { address, chain, chainLabel, asset, selectedPaymentMethod, prefillAmount } =
-    route.params;
+  const {
+    address,
+    chain,
+    chainLabel,
+    asset,
+    selectedPaymentMethod,
+    prefillAmount,
+  } = route.params;
   const { t } = useTranslation();
 
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -477,7 +484,16 @@ export default function StablecoinSendScreen() {
   return (
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
-        <CustomSettingsTopBar label={`${t('constants.send')} ${asset}`} />
+        <CustomSettingsTopBar
+          label={`${t('constants.send')} ${asset}`}
+          containerStyles={{ marginBottom: 0 }}
+        />
+        <ThemeText
+          styles={styles.sectionTitle}
+          content={t('wallet.stablecoinSend.networkLabel', {
+            chain,
+          })}
+        />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -715,6 +731,13 @@ export default function StablecoinSendScreen() {
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
+  },
+  sectionTitle: {
+    fontSize: SIZES.medium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
+    textTransform: 'capitalize',
   },
   replacementContainer: {
     flexGrow: 1,

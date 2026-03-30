@@ -1188,7 +1188,8 @@
       "assetPicker": {
         "header": "Выберите валюту для отправки.",
         "notAvailable": "Недоступно в сети {{chain}}"
-      }
+      },
+      "networkLabel": "В {{chain}}"
     }
   },
   "contacts": {

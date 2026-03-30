@@ -1048,7 +1048,8 @@
       "assetPicker": {
         "header": "Selecciona la moneda que deseas enviar.",
         "notAvailable": "No disponible en {{chain}}"
-      }
+      },
+      "networkLabel": "En {{chain}}"
     }
   },
   "contacts": {

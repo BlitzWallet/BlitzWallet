@@ -1189,7 +1189,8 @@
       "assetPicker": {
         "header": "Wähle die Währung aus, die du senden möchtest.",
         "notAvailable": "Nicht verfügbar auf {{chain}}"
-      }
+      },
+      "networkLabel": "Auf {{chain}}"
     }
   },
   "contacts": {

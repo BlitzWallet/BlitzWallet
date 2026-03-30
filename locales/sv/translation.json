@@ -1187,7 +1187,8 @@
       "assetPicker": {
         "header": "Välj den valuta du vill skicka.",
         "notAvailable": "Inte tillgängligt på {{chain}}"
-      }
+      },
+      "networkLabel": "På {{chain}}"
     }
   },
   "contacts": {
