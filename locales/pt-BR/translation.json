@@ -2370,6 +2370,24 @@
     "FSAG-5004": "Ocorreu um erro de configuração do sistema.",
     "FSAG-5100": "Ocorreu um erro inesperado no servidor."
   },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Esta chave de idempotência já foi usada com uma solicitação diferente. Use uma nova chave.",
+    "unsupported_route": "Esta rota não é suportada.",
+    "unsupported_fee_plan": "Parâmetros relacionados a taxas não são suportados para esta rota ou modo de cotação.",
+    "invalid_request": "A solicitação é inválida. Verifique sua entrada e tente novamente.",
+    "invalid_query": "Um ou mais parâmetros de consulta são inválidos.",
+    "invalid_address": "O endereço do destinatário ou de reembolso é inválido.",
+    "invalid_state": "Esta solicitação foi feita na ordem errada. Siga a sequência correta de etapas.",
+    "conflict": "O recurso mudou enquanto sua solicitação estava sendo processada. Tente novamente.",
+    "quote_expired": "Esta cotação expirou. Solicite uma nova.",
+    "not_found": "O recurso solicitado não foi encontrado.",
+    "amount_too_small": "O valor está abaixo do mínimo permitido para esta rota.",
+    "amount_too_large": "O valor é muito alto para esta rota.",
+    "rate_limited": "Muitas solicitações. Diminua a velocidade e tente novamente mais tarde.",
+    "flashnet_error": "A operação falhou durante a simulação ou execução. Tente novamente.",
+    "price_impact_too_high": "O impacto no preço é muito alto. Ajuste o valor e tente novamente.",
+    "internal_error": "Ocorreu um erro inesperado. Tente novamente mais tarde."
+  },
   "savings": {
     "home": {
       "title": "Caixinhas",

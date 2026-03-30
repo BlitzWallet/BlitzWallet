@@ -178,7 +178,7 @@ export default function StablecoinSendScreen() {
       try {
         const apiSourceMethod = sourceMethod === 'BTC' ? 'spark' : 'usdb';
         const result = await fetchBackend(
-          'createFlashnetStablecoinQuote',
+          'createFlashnetStablecoinQuoteV2',
           {
             recipientAddress: address,
             destinationChain: chain,
@@ -192,7 +192,8 @@ export default function StablecoinSendScreen() {
         );
         if (!result || result.error) {
           throw new Error(
-            result?.error || t('wallet.stablecoinSend.quoteError'),
+            t(`flashnetUSDCUSDTMessages.${result?.error}`) ||
+              t('wallet.stablecoinSend.quoteError'),
           );
         }
 

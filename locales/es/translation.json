@@ -2232,6 +2232,24 @@
     "FSAG-5004": "Se produjo un error de configuración del sistema.",
     "FSAG-5100": "Se produjo un error inesperado en el servidor."
   },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Esta clave de idempotencia ya se utilizó con otra solicitud. Por favor, utiliza una nueva.",
+    "unsupported_route": "Esta ruta no es compatible.",
+    "unsupported_fee_plan": "Los parámetros relacionados con tarifas no son compatibles con esta ruta o modo de cotización.",
+    "invalid_request": "La solicitud no es válida. Por favor, revisa tu entrada e inténtalo de nuevo.",
+    "invalid_query": "Uno o más parámetros de consulta no son válidos.",
+    "invalid_address": "La dirección del destinatario o de reembolso no es válida.",
+    "invalid_state": "Esta solicitud se realizó en el orden incorrecto. Sigue la secuencia correcta de pasos.",
+    "conflict": "El recurso cambió mientras se procesaba tu solicitud. Inténtalo de nuevo.",
+    "quote_expired": "Esta cotización ha expirado. Solicita una nueva.",
+    "not_found": "No se encontró el recurso solicitado.",
+    "amount_too_small": "El monto está por debajo del mínimo permitido para esta ruta.",
+    "amount_too_large": "El monto es demasiado grande para esta ruta.",
+    "rate_limited": "Demasiadas solicitudes. Por favor, reduce la velocidad e inténtalo más tarde.",
+    "flashnet_error": "La operación falló durante la simulación o ejecución. Inténtalo de nuevo.",
+    "price_impact_too_high": "El impacto en el precio es demasiado alto. Ajusta el monto e inténtalo de nuevo.",
+    "internal_error": "Ocurrió un error inesperado. Inténtalo de nuevo más tarde."
+  },
   "savings": {
     "home": {
       "title": "Ahorros",

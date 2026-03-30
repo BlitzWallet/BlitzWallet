@@ -2372,6 +2372,24 @@
     "FSAG-5004": "Es ist ein Systemkonfigurationsfehler aufgetreten.",
     "FSAG-5100": "Es ist ein unerwarteter Serverfehler aufgetreten."
   },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Dieser Idempotenz-Schlüssel wurde bereits mit einer anderen Anfrage verwendet. Bitte verwenden Sie einen neuen Schlüssel.",
+    "unsupported_route": "Diese Route wird nicht unterstützt.",
+    "unsupported_fee_plan": "Gebührenbezogene Parameter werden für diese Route oder diesen Angebotsmodus nicht unterstützt.",
+    "invalid_request": "Die Anfrage ist ungültig. Bitte überprüfen Sie Ihre Eingaben und versuchen Sie es erneut.",
+    "invalid_query": "Ein oder mehrere Abfrageparameter sind ungültig.",
+    "invalid_address": "Die Empfänger- oder Rücksendeadresse ist ungültig.",
+    "invalid_state": "Diese Anfrage wurde in der falschen Reihenfolge gestellt. Bitte folgen Sie der richtigen Abfolge der Schritte.",
+    "conflict": "Die Ressource hat sich während der Verarbeitung Ihrer Anfrage geändert. Bitte versuchen Sie es erneut.",
+    "quote_expired": "Dieses Angebot ist abgelaufen. Bitte fordern Sie ein neues an.",
+    "not_found": "Die angeforderte Ressource wurde nicht gefunden.",
+    "amount_too_small": "Der Betrag liegt unter dem für diese Route zulässigen Minimum.",
+    "amount_too_large": "Der Betrag ist für diese Route zu groß.",
+    "rate_limited": "Zu viele Anfragen. Bitte verlangsamen Sie und versuchen Sie es später erneut.",
+    "flashnet_error": "Die Operation ist bei der Simulation oder Ausführung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "price_impact_too_high": "Der Preiseinfluss ist zu hoch. Bitte passen Sie den Betrag an und versuchen Sie es erneut.",
+    "internal_error": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+  },
   "savings": {
     "home": {
       "title": "Sparziele",

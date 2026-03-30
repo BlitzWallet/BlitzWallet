@@ -2373,6 +2373,24 @@
     "FSAG-5004": "A system configuration error occurred.",
     "FSAG-5100": "An unexpected error occurred on the server."
   },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "This idempotency key was already used with a different request. Please use a new key.",
+    "unsupported_route": "This route is not supported.",
+    "unsupported_fee_plan": "Fee-related parameters are not supported for this route or quote mode.",
+    "invalid_request": "The request is invalid. Please check your input and try again.",
+    "invalid_query": "One or more query parameters are invalid.",
+    "invalid_address": "The recipient or refund address is invalid.",
+    "invalid_state": "This request was made in the wrong order. Please follow the correct sequence of steps.",
+    "conflict": "The resource changed while your request was being processed. Please retry.",
+    "quote_expired": "This quote has expired. Please request a new quote.",
+    "not_found": "The requested resource was not found.",
+    "amount_too_small": "The amount is below the minimum allowed for this route.",
+    "amount_too_large": "The amount is too large for this route.",
+    "rate_limited": "Too many requests. Please slow down and try again later.",
+    "flashnet_error": "The operation failed during simulation or execution. Please try again.",
+    "price_impact_too_high": "The price impact is too high. Please adjust the amount and try again.",
+    "internal_error": "An unexpected error occurred. Please try again later."
+  },
   "savings": {
     "home": {
       "title": "Dollar Goals",
