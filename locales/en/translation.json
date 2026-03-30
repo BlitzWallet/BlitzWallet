@@ -859,7 +859,7 @@
       "clipboard": "From Clipboard",
       "manual": "Manual Input",
       "contacts": "From Contacts",
-      "inputPlaceholder": "Enter @username, Bitcoin address, or Lightning payment",
+      "inputPlaceholder": "Enter @username, Bitcoin, or USDC/USDT address.",
       "scanImage": "Scan Image",
       "tapToScan": "Tap to get an address from an image",
       "chooseWhatToSend": "Choose what to send",
