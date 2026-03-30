@@ -1178,13 +1178,13 @@
       "payWithLightning": "Pay with Lightning",
       "payWithUSDb": "Pay with USDb",
       "chainNotSupportedForAsset": "Not available on this network",
-      "swapInProgress": "Swap in Progress",
-      "swapInProgressDescription": "Your funds have been sent. The stablecoin swap is processing and may take a few minutes.",
+      "swapInProgress": "Payment in Progress",
+      "swapInProgressDescription": "Your funds have been sent. The stablecoin payment is processing and may take a few minutes.",
       "noAmount": "Please enter an amount to send.",
       "quoteStillLoading": "Getting a quote, please wait a moment.",
       "noQuote": "Could not get a quote. Please try again.",
-      "swapStatus": "Swap Status",
-      "chainSwap": "Chain Swap",
+      "swapStatus": "Payment Status",
+      "chainSwap": "Stablecoin",
       "assetPicker": {
         "header": "Select the currency you want to send.",
         "notAvailable": "Not available on {{chain}}"
@@ -1886,7 +1886,7 @@
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "gift": "Gift",
         "claimPayment": "Claim payment",
-        "chainSwap": "Chain Swap"
+        "chainSwap": "Stablecoin"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
