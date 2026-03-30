@@ -124,7 +124,7 @@ export default function StablecoinSendScreen() {
     getNextDenomination,
     convertForToggle,
   } = usePaymentInputDisplay({
-    paymentMode: sourceMethod,
+    paymentMode: 'USD',
     inputDenomination,
     fiatStats,
     usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
