@@ -176,7 +176,7 @@ function TokenItem({
             style={styles.tokenImage}
             contentFit="contain"
             priority="normal"
-            transition={100}
+            transition={0}
           />
         ) : (
           <ThemeIcon
@@ -251,9 +251,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tokenInitialContainer: {
-    width: '100%',
-    aspectRatio: 1,
-    maxHeight: 50,
+    width: TOKEN_WIDTH,
+    height: TOKEN_WIDTH,
 
     borderRadius: 999,
     alignItems: 'center',
@@ -261,8 +260,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   tokenImage: {
-    width: '100%',
-    height: '100%',
+    width: TOKEN_WIDTH,
+    height: TOKEN_WIDTH,
   },
 
   tokenNameText: {
