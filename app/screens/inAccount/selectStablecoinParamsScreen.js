@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   unsupportedTokenBanner: {
     width: INSET_WINDOW_WIDTH,
-    marginBottom: 16,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
     padding: 16,
     borderRadius: 12,
