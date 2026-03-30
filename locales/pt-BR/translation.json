@@ -859,7 +859,7 @@
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
-      "inputPlaceholder": "@Usuário, Bitcoin ou USDT/USDC ",
+      "inputPlaceholder": "@Usuário, Bitcoin, Tokens Spark ou USDT/USDC ",
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "O que você deseja enviar?",
