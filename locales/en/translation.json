@@ -1203,7 +1203,13 @@
       "editContactButton": "Edit Profile",
       "unknownSender": "Unknown sender",
       "noContactSearch": "This contact isn't in your list yet.",
-      "notFound": "not found."
+      "notFound": "not found.",
+      "noContent": {
+        "editProfileTitle": "Edit your profile",
+        "editProfileDescription": "Add your details so others can easily find and pay you.",
+        "addContactstitle": "No Added Contacts",
+        "addContactsDescription": "Your contacts will appear here once you add one"
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Not able to find contact.",

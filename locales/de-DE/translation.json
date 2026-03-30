@@ -1204,7 +1204,13 @@
       "editContactButton": "Profil bearbeiten",
       "unknownSender": "Unbekannter Absender",
       "noContactSearch": "Dieser Kontakt ist noch nicht in Ihrer Liste.",
-      "notFound": "Nicht gefunden."
+      "notFound": "Nicht gefunden.",
+      "noContent": {
+        "editProfileTitle": "Profil bearbeiten",
+        "editProfileDescription": "Fügen Sie Ihre Daten hinzu, damit andere Sie leicht finden und bezahlen können.",
+        "addContactstitle": "Keine Kontakte hinzugefügt",
+        "addContactsDescription": "Ihre Kontakte werden hier angezeigt, sobald Sie einen hinzufügen."
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Der Kontakt konnte nicht gefunden werden.",

@@ -1202,7 +1202,13 @@
       "editContactButton": "Modifier le profil",
       "unknownSender": "Expéditeur inconnu",
       "noContactSearch": "Ce contact ne figure pas encore dans votre liste.",
-      "notFound": "n'a pas été trouvée."
+      "notFound": "n'a pas été trouvée.",
+      "noContent": {
+        "editProfileTitle": "Modifier votre profil",
+        "editProfileDescription": "Ajoutez vos informations pour que les autres puissent facilement vous trouver et vous payer.",
+        "addContactstitle": "Aucun contact ajouté",
+        "addContactsDescription": "Vos contacts apparaîtront ici une fois que vous en aurez ajouté un."
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Impossible de trouver un contact.",

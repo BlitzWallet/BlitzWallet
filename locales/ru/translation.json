@@ -1203,7 +1203,13 @@
       "editContactButton": "Профиль",
       "unknownSender": "Неизвестный отправитель",
       "noContactSearch": "Этого контакта еще нет в вашем списке.",
-      "notFound": "не найден."
+      "notFound": "не найден.",
+      "noContent": {
+        "editProfileTitle": "Редактировать профиль",
+        "editProfileDescription": "Добавьте свои данные, чтобы другие могли легко вас найти и оплатить.",
+        "addContactstitle": "Контакты не добавлены",
+        "addContactsDescription": "Ваши контакты появятся здесь после добавления."
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Контакт не найден.",

@@ -8,12 +8,16 @@ import {
 } from '../../constants/theme';
 import ThemeText from './textTheme';
 import ThemeImage from './themeImage';
+import CustomButton from './button';
 
 export default function NoContentSceen({
   iconName = '',
   titleText = '',
   subTitleText = '',
   containerStyles = {},
+  showButton = false,
+  buttonText = '',
+  buttonFunction = () => {},
 }) {
   return (
     <View style={[styles.container, containerStyles]}>
@@ -27,7 +31,17 @@ export default function NoContentSceen({
         <ThemeIcon iconName={iconName} />
       )}
       <ThemeText styles={styles.emptyTitle} content={titleText} />
-      <ThemeText styles={styles.emptySubtext} content={subTitleText} />
+      <ThemeText
+        styles={[styles.emptySubtext, { marginBottom: showButton ? 25 : 0 }]}
+        content={subTitleText}
+      />
+      {showButton && (
+        <CustomButton
+          buttonStyles={styles.buttonStyles}
+          actionFunction={buttonFunction}
+          textContent={buttonText}
+        />
+      )}
     </View>
   );
 }
@@ -51,5 +65,8 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
+  },
+  buttonStyles: {
+    width: '100%',
   },
 });

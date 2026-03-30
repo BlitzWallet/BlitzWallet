@@ -1202,7 +1202,13 @@
       "editContactButton": "Editar perfil",
       "unknownSender": "Remetente desconhecido",
       "noContactSearch": "Este contato ainda não está na sua lista.",
-      "notFound": "não encontrado."
+      "notFound": "não encontrado.",
+      "noContent": {
+        "editProfileTitle": "Editar seu perfil",
+        "editProfileDescription": "Adicione seus dados para que outras pessoas possam encontrá-lo e pagar você facilmente.",
+        "addContactstitle": "Nenhum contato adicionado",
+        "addContactsDescription": "Seus contatos aparecerão aqui quando você adicionar um."
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Não foi possível encontrar o contato.",

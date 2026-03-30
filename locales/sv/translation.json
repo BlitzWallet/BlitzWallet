@@ -1202,7 +1202,13 @@
       "editContactButton": "Redigera profil",
       "unknownSender": "Okänd avsändare",
       "noContactSearch": "Den här kontakten finns inte i din lista ännu.",
-      "notFound": "hittades inte."
+      "notFound": "hittades inte.",
+      "noContent": {
+        "editProfileTitle": "Redigera din profil",
+        "editProfileDescription": "Lägg till dina uppgifter så att andra enkelt kan hitta och betala dig.",
+        "addContactstitle": "Inga kontakter tillagda",
+        "addContactsDescription": "Dina kontakter visas här när du lägger till en."
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Jag har inte lyckats hitta någon kontakt.",
