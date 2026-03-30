@@ -527,7 +527,12 @@ export default function ExpandedTx(props) {
                   : transactionPaymentType,
                 true,
                 {
-                  textTransform: 'capitalize',
+                  textTransform:
+                    !showConversionLine &&
+                    !sendingContactUUID &&
+                    !transaction.details.isGift
+                      ? 'capitalize'
+                      : 'none',
                 },
               )}
 
