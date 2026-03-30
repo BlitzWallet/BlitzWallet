@@ -28,7 +28,7 @@ import Reanimated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { getQRImage } from '../../functions';
+import { getQRImage, resolveExternalChainNavigation } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { backArrow } from '../../constants/styles';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
@@ -130,17 +130,11 @@ export default function SendPaymentHome({ pageViewPage, from }) {
         }
 
         if (response.isExternalChain) {
-          if (from === 'home')
-            navigate.navigate('SelectStablecoinParamsScreen', {
-              address: response.address,
-              chainFamily: response.chainFamily,
-            });
-          else
-            navigate.replace('SelectStablecoinParamsScreen', {
-              address: response.address,
-              chainFamily: response.chainFamily,
-            });
-
+          const { method, screen, params } = resolveExternalChainNavigation(
+            response,
+            from,
+          );
+          navigate[method](screen, params);
           return;
         }
 
@@ -221,17 +215,11 @@ export default function SendPaymentHome({ pageViewPage, from }) {
       }
 
       if (response.isExternalChain) {
-        if (from === 'home')
-          navigate.navigate('SelectStablecoinParamsScreen', {
-            address: response.address,
-            chainFamily: response.chainFamily,
-          });
-        else
-          navigate.replace('SelectStablecoinParamsScreen', {
-            address: response.address,
-            chainFamily: response.chainFamily,
-          });
-
+        const { method, screen, params } = resolveExternalChainNavigation(
+          response,
+          from,
+        );
+        navigate[method](screen, params);
         isPhotoeLibraryOpen.current = false;
         return;
       }

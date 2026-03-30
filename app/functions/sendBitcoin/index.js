@@ -30,16 +30,11 @@ async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
   }
 
   if (preParsingResponse.isExternalChain) {
-    if (from === 'home')
-      navigate.navigate('SelectStablecoinParamsScreen', {
-        address: preParsingResponse.address,
-        chainFamily: preParsingResponse.chainFamily,
-      });
-    else
-      navigate.replace('SelectStablecoinParamsScreen', {
-        address: preParsingResponse.address,
-        chainFamily: preParsingResponse.chainFamily,
-      });
+    const { method, screen, params } = resolveExternalChainNavigation(
+      preParsingResponse,
+      from,
+    );
+    navigate[method](screen, params);
     return;
   }
 
@@ -114,6 +109,9 @@ async function getQRImage() {
       isExternalChain: true,
       address: preParsingResponse.address,
       chainFamily: preParsingResponse.chainFamily,
+      resolvedToken: preParsingResponse.resolvedToken,
+      prefillAmount: preParsingResponse.prefillAmount,
+      unsupportedTokenAddress: preParsingResponse.unsupportedTokenAddress,
       didWork: true,
       error: '',
     };
@@ -127,4 +125,50 @@ function formatStablecoinAmount(rawAmount, decimals = 2) {
   return value.toFixed(decimals);
 }
 
-export { navigateToSendUsingClipboard, getQRImage, formatStablecoinAmount };
+function resolveExternalChainNavigation(parsedResult, from) {
+  const method = from === 'home' ? 'navigate' : 'replace';
+
+  if (parsedResult.resolvedToken) {
+    return {
+      method,
+      screen: 'StablecoinSendScreen',
+      params: {
+        address: parsedResult.address,
+        chain: parsedResult.resolvedToken.chain,
+        chainLabel: parsedResult.resolvedToken.chainLabel,
+        asset: parsedResult.resolvedToken.asset,
+        ...(parsedResult.prefillAmount != null
+          ? { prefillAmount: parsedResult.prefillAmount }
+          : {}),
+      },
+    };
+  }
+
+  if (parsedResult.unsupportedTokenAddress) {
+    return {
+      method,
+      screen: 'SelectStablecoinParamsScreen',
+      params: {
+        address: parsedResult.address,
+        chainFamily: parsedResult.chainFamily,
+        unsupportedTokenMessage: `Only USDT and USDC tokens are supported`,
+      },
+    };
+  }
+
+  return {
+    method,
+    screen: 'SelectStablecoinParamsScreen',
+    params: {
+      address: parsedResult.address,
+      chainFamily: parsedResult.chainFamily,
+    },
+  };
+}
+
+export {
+  navigateToSendUsingClipboard,
+  getQRImage,
+  formatStablecoinAmount,
+  resolveExternalChainNavigation,
+};
