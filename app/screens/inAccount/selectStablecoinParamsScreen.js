@@ -18,6 +18,7 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { Image } from 'expo-image';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 const EVM_CHAINS = ['Base', 'Ethereum', 'Arbitrum', 'Optimism', 'Polygon'];
 const TRON_ASSETS = [{ id: 'USDT', label: 'USDT', icon: ICONS.usdtLogo }];
@@ -26,7 +27,7 @@ const SOLANA_ASSETS = [{ id: 'USDC', label: 'USDC', icon: ICONS.usdcLogo }];
 export default function SelectStablecoinParamsScreen() {
   const navigate = useNavigation();
   const route = useRoute();
-  const { address, chainFamily } = route.params;
+  const { address, chainFamily, unsupportedTokenMessage } = route.params;
   const { t } = useTranslation();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -75,6 +76,21 @@ export default function SelectStablecoinParamsScreen() {
             : 'wallet.stablecoinSend.selectChain',
         )}
       />
+      {!!unsupportedTokenMessage && (
+        <View
+          style={[
+            { backgroundColor: backgroundOffset },
+            styles.unsupportedTokenBanner,
+          ]}
+        >
+          <ThemeIcon iconName={'TriangleAlert'} />
+
+          <ThemeText
+            styles={styles.unsupportedTokenBannerText}
+            content={unsupportedTokenMessage}
+          />
+        </View>
+      )}
       <View style={styles.innerContainer}>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -163,6 +179,20 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 8,
+  },
+  unsupportedTokenBanner: {
+    width: INSET_WINDOW_WIDTH,
+    marginBottom: 16,
+    ...CENTER,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    gap: 10,
+  },
+  unsupportedTokenBannerText: {
+    fontSize: SIZES.small,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
   sectionTitle: {
     fontSize: SIZES.medium,

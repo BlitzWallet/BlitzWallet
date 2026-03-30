@@ -2,6 +2,7 @@ import { getImageFromLibrary } from '../imagePickerWrapper';
 import getClipboardText from '../getClipboardText';
 import handlePreSendPageParsing from './handlePreSendPageParsing';
 import { detectQRCode } from '../detectQrCode';
+import i18next from 'i18next';
 
 async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
   const response = await getClipboardText();
@@ -151,7 +152,7 @@ function resolveExternalChainNavigation(parsedResult, from) {
       params: {
         address: parsedResult.address,
         chainFamily: parsedResult.chainFamily,
-        unsupportedTokenMessage: `Only USDT and USDC tokens are supported`,
+        unsupportedTokenMessage: i18next.t('errormessages.usdcUsdtTokensOnly'),
       },
     };
   }
