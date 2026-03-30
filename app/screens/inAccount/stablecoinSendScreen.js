@@ -191,10 +191,22 @@ export default function StablecoinSendScreen() {
           publicKey,
         );
         if (!result || result.error) {
-          throw new Error(
-            t(`flashnetUSDCUSDTMessages.${result?.error}`) ||
-              t('wallet.stablecoinSend.quoteError'),
-          );
+          const { code, message, minimumSats } = result.error;
+
+          if (code === 'amount_too_small') {
+            if (minimumSats) {
+              throw new Error(
+                t('flashnetUSDCUSDTMessages.amount_too_small_minimum', {
+                  minimumSats,
+                }),
+              );
+            }
+            throw new Error(
+              t('flashnetUSDCUSDTMessages.amount_too_small_chain_fees'),
+            );
+          }
+
+          throw new Error(t(`flashnetUSDCUSDTMessages.${code}`));
         }
 
         const expiresAt = result.expiresAt || Date.now() + QUOTE_TTL_MS;
