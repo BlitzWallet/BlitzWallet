@@ -1167,7 +1167,7 @@
       "sendStablecoins": "Send Stablecoins",
       "selectChain": "Select Network",
       "network": "Network",
-      "selectAsset": "Select Asset",
+      "selectAsset": "Select Currency",
       "recipient": "Recipient",
       "gettingQuote": "Getting quote…",
       "quoteExpired": "Quote expired. Please try again.",
