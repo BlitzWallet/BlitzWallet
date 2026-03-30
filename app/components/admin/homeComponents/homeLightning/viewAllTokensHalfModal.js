@@ -80,7 +80,7 @@ function TokenListItem({
             style={styles.tokenIconImage}
             contentFit="contain"
             priority="normal"
-            transition={100}
+            transition={0}
           />
         ) : (
           <ThemeIcon
@@ -236,7 +236,7 @@ function TokenDetailView({
               style={styles.detailIconImage}
               contentFit="contain"
               priority="normal"
-              transition={100}
+              transition={0}
             />
           ) : (
             <ThemeIcon

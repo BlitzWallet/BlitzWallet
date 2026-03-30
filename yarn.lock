@@ -7915,8 +7915,8 @@ __metadata:
   linkType: hard
 
 "expo-image@npm:~3.0.8":
-  version: 3.0.8
-  resolution: "expo-image@npm:3.0.8"
+  version: 3.0.11
+  resolution: "expo-image@npm:3.0.11"
   peerDependencies:
     expo: "*"
     react: "*"
@@ -7925,7 +7925,7 @@ __metadata:
   peerDependenciesMeta:
     react-native-web:
       optional: true
-  checksum: 78b17ab0d8acb6f46f4a464ec077e92b080142a4c3d0c3d296f4f659a191f594b1946ad430560f76646a2a062fb3ce7e5196a9f6bd8f49f838d47c94d05b3c81
+  checksum: 3012bad604609187aa381eced26785fae65122016701a95b9cee91c4721ab3c20fd34dabbc8afed37c0f838740c3bf16827f89c0f2d53771d535e18fbfe279ec
   languageName: node
   linkType: hard
 
