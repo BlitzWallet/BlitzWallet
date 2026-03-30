@@ -74,7 +74,7 @@ function formatCountdown(ms) {
 export default function StablecoinSendScreen() {
   const navigate = useNavigation();
   const route = useRoute();
-  const { address, chain, chainLabel, asset, selectedPaymentMethod } =
+  const { address, chain, chainLabel, asset, selectedPaymentMethod, prefillAmount } =
     route.params;
   const { t } = useTranslation();
 
@@ -90,7 +90,9 @@ export default function StablecoinSendScreen() {
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
 
   const [screenMode, setScreenMode] = useState('EDIT_AMOUNT'); // 'EDIT_AMOUNT' | 'CONFIRM_PAYMENT'
-  const [rawInput, setRawInput] = useState('');
+  const [rawInput, setRawInput] = useState(
+    prefillAmount != null ? String(prefillAmount) : '',
+  );
   const [inputDenomination, setInputDenomination] = useState('fiat');
   console.log(rawInput);
   const [description, setDescription] = useState('');
