@@ -2370,6 +2370,24 @@
     "FSAG-5004": "Une erreur de configuration du système est survenue.",
     "FSAG-5100": "Une erreur serveur inattendue est survenue."
   },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Cette clé d'idempotence a déjà été utilisée avec une autre requête. Veuillez utiliser une nouvelle clé.",
+    "unsupported_route": "Cet itinéraire n'est pas pris en charge.",
+    "unsupported_fee_plan": "Les paramètres liés aux frais ne sont pas pris en charge pour cet itinéraire ou ce mode de devis.",
+    "invalid_request": "La requête est invalide. Veuillez vérifier vos données et réessayer.",
+    "invalid_query": "Un ou plusieurs paramètres de requête sont invalides.",
+    "invalid_address": "L’adresse du destinataire ou de remboursement est invalide.",
+    "invalid_state": "Cette requête a été effectuée dans le mauvais ordre. Veuillez suivre la bonne séquence d’étapes.",
+    "conflict": "La ressource a changé pendant le traitement de votre requête. Veuillez réessayer.",
+    "quote_expired": "Ce devis a expiré. Veuillez en demander un nouveau.",
+    "not_found": "La ressource demandée est introuvable.",
+    "amount_too_small": "Le montant est inférieur au minimum autorisé pour cet itinéraire.",
+    "amount_too_large": "Le montant est trop élevé pour cet itinéraire.",
+    "rate_limited": "Trop de requêtes. Veuillez ralentir et réessayer plus tard.",
+    "flashnet_error": "L’opération a échoué lors de la simulation ou de l’exécution. Veuillez réessayer.",
+    "price_impact_too_high": "L’impact sur le prix est trop élevé. Veuillez ajuster le montant et réessayer.",
+    "internal_error": "Une erreur inattendue s’est produite. Veuillez réessayer plus tard."
+  },
   "savings": {
     "home": {
       "title": "Épargne",

@@ -2370,6 +2370,24 @@
     "FSAG-5004": "Ett systemkonfigurationsfel uppstod.",
     "FSAG-5100": "Ett oväntat serverfel uppstod."
   },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Denna idempotensnyckel har redan använts med en annan begäran. Använd en ny nyckel.",
+    "unsupported_route": "Denna rutt stöds inte.",
+    "unsupported_fee_plan": "Avgiftsrelaterade parametrar stöds inte för denna rutt eller offertläge.",
+    "invalid_request": "Begäran är ogiltig. Kontrollera din inmatning och försök igen.",
+    "invalid_query": "En eller flera frågeparametrar är ogiltiga.",
+    "invalid_address": "Mottagarens eller återbetalningsadress är ogiltig.",
+    "invalid_state": "Denna begäran gjordes i fel ordning. Följ rätt stegsekvens.",
+    "conflict": "Resursen ändrades medan din begäran behandlades. Försök igen.",
+    "quote_expired": "Denna offert har gått ut. Begär en ny.",
+    "not_found": "Den begärda resursen hittades inte.",
+    "amount_too_small": "Beloppet är under det lägsta tillåtna för denna rutt.",
+    "amount_too_large": "Beloppet är för stort för denna rutt.",
+    "rate_limited": "För många förfrågningar. Sakta ner och försök igen senare.",
+    "flashnet_error": "Operationen misslyckades under simulering eller körning. Försök igen.",
+    "price_impact_too_high": "Prisets påverkan är för hög. Justera beloppet och försök igen.",
+    "internal_error": "Ett oväntat fel uppstod. Försök igen senare."
+  },
   "savings": {
     "home": {
       "title": "Sparande",

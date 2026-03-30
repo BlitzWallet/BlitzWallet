@@ -2370,6 +2370,24 @@
     "FSAG-5004": "Si è verificato un errore di configurazione del sistema.",
     "FSAG-5100": "Si è verificato un errore imprevisto del server."
   },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Questa chiave di idempotenza è già stata utilizzata con una richiesta diversa. Utilizza una nuova chiave.",
+    "unsupported_route": "Questa rotta non è supportata.",
+    "unsupported_fee_plan": "I parametri relativi alle commissioni non sono supportati per questa rotta o modalità di quotazione.",
+    "invalid_request": "La richiesta non è valida. Controlla i tuoi dati e riprova.",
+    "invalid_query": "Uno o più parametri di query non sono validi.",
+    "invalid_address": "L’indirizzo del destinatario o di rimborso non è valido.",
+    "invalid_state": "Questa richiesta è stata effettuata nel modo sbagliato. Segui la corretta sequenza di passaggi.",
+    "conflict": "La risorsa è cambiata durante l’elaborazione della richiesta. Riprova.",
+    "quote_expired": "Questo preventivo è scaduto. Richiedine uno nuovo.",
+    "not_found": "La risorsa richiesta non è stata trovata.",
+    "amount_too_small": "L’importo è inferiore al minimo consentito per questa rotta.",
+    "amount_too_large": "L’importo è troppo alto per questa rotta.",
+    "rate_limited": "Troppe richieste. Rallenta e riprova più tardi.",
+    "flashnet_error": "L’operazione è fallita durante la simulazione o l’esecuzione. Riprova.",
+    "price_impact_too_high": "L’impatto sul prezzo è troppo alto. Modifica l’importo e riprova.",
+    "internal_error": "Si è verificato un errore imprevisto. Riprova più tardi."
+  },
   "savings": {
     "home": {
       "title": "Risparmi",
