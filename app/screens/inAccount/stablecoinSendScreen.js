@@ -139,6 +139,7 @@ export default function StablecoinSendScreen() {
     usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
+    forceUSDMode: sourceMethod === 'BTC',
   });
 
   const convertedSendAmount = convertDisplayToSats(rawInput);
