@@ -482,7 +482,9 @@ export default function StablecoinSendScreen() {
     convertedSendAmount > 0 &&
     hasEnoughBalance;
 
-  const canReview = convertedSendAmount > 0 && hasEnoughBalance && !sending;
+  const canReview =
+    (convertedSendAmount > 0 && hasEnoughBalance && !sending && quote) ||
+    quoteLoading;
 
   const handleReview = useCallback(() => {
     if (!convertedSendAmount || convertedSendAmount <= 0) {
