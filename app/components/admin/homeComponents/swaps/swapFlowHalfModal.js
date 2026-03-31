@@ -243,6 +243,18 @@ export default function SwapFlowHalfModal({
       error.includes(t('screens.inAccount.swapsPage.checkSwapMessage'))) &&
     hasEnoughBalance;
 
+  const canProceed =
+    !fromAmount ||
+    isSimulating ||
+    (!!poolInfo &&
+      parseFloat(fromAmount) > 0 &&
+      !(fromAsset === 'BTC' && Number(fromAmount) < swapLimits.bitcoin) &&
+      !(fromAsset === 'USD' && Number(fromAmount) < swapLimits.usd) &&
+      hasEnoughBalance &&
+      !!simulationResult &&
+      Object.keys(simulationResult).length > 0 &&
+      !isSwapping);
+
   // ── Pool loading ────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -1765,6 +1777,7 @@ export default function SwapFlowHalfModal({
               <CustomButton
                 buttonStyles={{
                   ...CENTER,
+                  opacity: canProceed ? 1 : HIDDEN_OPACITY,
                 }}
                 disabled={isSwapping || isLoadingPool || isSimulating}
                 useLoading={isSwapping || isLoadingPool || isSimulating}
