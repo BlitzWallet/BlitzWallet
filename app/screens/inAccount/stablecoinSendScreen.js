@@ -57,6 +57,7 @@ import SendTransactionFeeInfo from '../../components/admin/homeComponents/sendBi
 import { formatStablecoinAmount } from '../../functions/sendBitcoin';
 import { SliderProgressAnimation } from '../../functions/CustomElements/sendPaymentAnimation';
 import { formatBalanceAmount } from '../../functions';
+import Animated, { FadeOutDown } from 'react-native-reanimated';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -656,70 +657,77 @@ export default function StablecoinSendScreen() {
         )}
 
         {/* Quote summary */}
-
-        <View style={[styles.quoteBox, { backgroundColor: rowBg }]}>
-          {isQuoteLoading && (
-            <View style={styles.quoteLoadingRow}>
-              <ActivityIndicator
-                size="small"
-                color={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                }
-              />
-              <ThemeText
-                styles={styles.quoteLoadingText}
-                content={t('wallet.stablecoinSend.gettingQuote')}
-              />
-            </View>
-          )}
-          {!isQuoteLoading && quoteError && (
-            <ThemeText styles={[styles.quoteErrorText]} content={quoteError} />
-          )}
-          {!isQuoteLoading && !quoteError && (
-            <>
-              <View style={styles.quoteRow}>
-                <ThemeText
-                  styles={styles.quoteLabel}
-                  content={t('wallet.stablecoinSend.recipientGets')}
+        {!sending && (
+          <Animated.View
+            style={[styles.quoteBox, { backgroundColor: rowBg }]}
+            exiting={FadeOutDown.duration(300)}
+          >
+            {isQuoteLoading && (
+              <View style={styles.quoteLoadingRow}>
+                <ActivityIndicator
+                  size="small"
+                  color={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
                 />
                 <ThemeText
-                  styles={[
-                    styles.quoteValue,
-                    {
-                      opacity:
-                        quote?.estimatedOut || 0 > 0 ? 1 : HIDDEN_OPACITY,
-                    },
-                  ]}
-                  content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
-                    formatStablecoinAmount(quote?.estimatedOut || 0),
-                    false,
-                    masterInfoObject,
-                  )} ${asset}`}
+                  styles={styles.quoteLoadingText}
+                  content={t('wallet.stablecoinSend.gettingQuote')}
                 />
               </View>
-              {isConfirmMode && (
+            )}
+            {!isQuoteLoading && quoteError && (
+              <ThemeText
+                styles={[styles.quoteErrorText]}
+                content={quoteError}
+              />
+            )}
+            {!isQuoteLoading && !quoteError && (
+              <>
                 <View style={styles.quoteRow}>
                   <ThemeText
                     styles={styles.quoteLabel}
-                    content={t('wallet.stablecoinSend.quoteExpiresIn')}
+                    content={t('wallet.stablecoinSend.recipientGets')}
                   />
                   <ThemeText
                     styles={[
                       styles.quoteValue,
-                      countdown < 30000 && {
-                        color:
-                          theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.cancelRed,
+                      {
+                        opacity:
+                          quote?.estimatedOut || 0 > 0 ? 1 : HIDDEN_OPACITY,
                       },
                     ]}
-                    content={formatCountdown(countdown)}
+                    content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
+                      formatStablecoinAmount(quote?.estimatedOut || 0),
+                      false,
+                      masterInfoObject,
+                    )} ${asset}`}
                   />
                 </View>
-              )}
-            </>
-          )}
-        </View>
+                {isConfirmMode && (
+                  <View style={styles.quoteRow}>
+                    <ThemeText
+                      styles={styles.quoteLabel}
+                      content={t('wallet.stablecoinSend.quoteExpiresIn')}
+                    />
+                    <ThemeText
+                      styles={[
+                        styles.quoteValue,
+                        countdown < 30000 && {
+                          color:
+                            theme && darkModeType
+                              ? COLORS.darkModeText
+                              : COLORS.cancelRed,
+                        },
+                      ]}
+                      content={formatCountdown(countdown)}
+                    />
+                  </View>
+                )}
+              </>
+            )}
+          </Animated.View>
+        )}
 
         {/* EDIT_AMOUNT: keyboard + Review button */}
         {!isConfirmMode && isAmountFocused && (
