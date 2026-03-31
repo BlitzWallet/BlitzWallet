@@ -117,6 +117,7 @@ export default function StablecoinSendScreen() {
   const quoteExpiresAt = useRef(null);
   const isSendingPayment = useRef(null);
   const progressAnimationRef = useRef(null);
+  const fetchTokenRef = useRef(0);
 
   const sourceMethod = selectedPaymentMethod || 'BTC';
 
@@ -171,13 +172,15 @@ export default function StablecoinSendScreen() {
   );
 
   const fetchQuote = useCallback(
-    async sats => {
+    async (sats, myToken) => {
       if (sats <= 0 || !contactsPrivateKey || !publicKey) return;
       setQuoteError(null);
       setQuote(null);
       clearCountdown();
       try {
         const apiSourceMethod = sourceMethod === 'BTC' ? 'spark' : 'usdb';
+        // ── stale-response guard ──────────────────────────────────────────────
+        if (myToken !== fetchTokenRef.current) return;
         const result = await fetchBackend(
           'createFlashnetStablecoinQuoteV2',
           {
@@ -191,6 +194,10 @@ export default function StablecoinSendScreen() {
           contactsPrivateKey,
           publicKey,
         );
+
+        // ── stale-response guard ──────────────────────────────────────────────
+        if (myToken !== fetchTokenRef.current) return;
+
         if (!result || result.error) {
           const { code, message, minimumSats } = result.error;
 
@@ -221,9 +228,14 @@ export default function StablecoinSendScreen() {
         setQuote({ ...result, fee: formattedFee, expiresAt });
         startCountdown(expiresAt);
       } catch (err) {
+        // Only surface the error if this is still the active request
+        if (myToken !== fetchTokenRef.current) return;
         setQuoteError(err.message || t('wallet.stablecoinSend.quoteError'));
       } finally {
-        setQuoteLoading(false);
+        // Only clear loading if this is still the active request
+        if (myToken === fetchTokenRef.current) {
+          setQuoteLoading(false);
+        }
       }
     },
     [
@@ -243,12 +255,19 @@ export default function StablecoinSendScreen() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (rawInput > 0) {
       setQuoteLoading(true);
+      // Invalidate any in-flight response right now, before the debounce fires.
+      fetchTokenRef.current += 1;
+
       const fetchAmount =
         sourceMethod === 'BTC'
           ? convertDisplayToSats(rawInput)
           : rawInput * Math.pow(10, 6);
-      debounceRef.current = setTimeout(() => fetchQuote(fetchAmount), 800);
+      debounceRef.current = setTimeout(
+        () => fetchQuote(fetchAmount, fetchTokenRef.current),
+        800,
+      );
     } else {
+      fetchTokenRef.current += 1;
       setQuoteLoading(false);
       setQuote(null);
       setQuoteError(null);
