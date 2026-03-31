@@ -139,6 +139,7 @@ export default function StablecoinSendScreen() {
     usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
+    forceUSDMode: sourceMethod === 'BTC',
   });
 
   const convertedSendAmount = convertDisplayToSats(rawInput);
@@ -191,10 +192,22 @@ export default function StablecoinSendScreen() {
           publicKey,
         );
         if (!result || result.error) {
-          throw new Error(
-            t(`flashnetUSDCUSDTMessages.${result?.error}`) ||
-              t('wallet.stablecoinSend.quoteError'),
-          );
+          const { code, message, minimumSats } = result.error;
+
+          if (code === 'amount_too_small') {
+            if (minimumSats) {
+              throw new Error(
+                t('flashnetUSDCUSDTMessages.amount_too_small_minimum', {
+                  minimumSats,
+                }),
+              );
+            }
+            throw new Error(
+              t('flashnetUSDCUSDTMessages.amount_too_small_chain_fees'),
+            );
+          }
+
+          throw new Error(t(`flashnetUSDCUSDTMessages.${code}`));
         }
 
         const expiresAt = result.expiresAt || Date.now() + QUOTE_TTL_MS;
@@ -331,7 +344,7 @@ export default function StablecoinSendScreen() {
           fee: quote?.fee,
           totalFee: 0,
           supportFee: 0,
-          description: description || `Send ${asset}`,
+          description: description || '',
           address: quote.depositAddress,
           time: Date.now(),
           createdAt: Date.now(),
@@ -388,7 +401,30 @@ export default function StablecoinSendScreen() {
       });
     } catch (err) {
       console.log(err, 'error navigating to bla bla bla');
-      navigate.navigate('ErrorScreen', { errorMessage: err.message });
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          navigate.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'HomeAdmin',
+                params: {
+                  screen: 'Home',
+                },
+              },
+              {
+                name: 'ConfirmTxPage',
+                params: {
+                  transaction: {},
+                  error: err.message,
+                  lnurlAddress: undefined,
+                  blitzContactInfo: undefined,
+                },
+              },
+            ],
+          });
+        });
+      });
     }
   }, [
     quote,

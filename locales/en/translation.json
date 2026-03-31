@@ -1178,13 +1178,13 @@
       "payWithLightning": "Pay with Lightning",
       "payWithUSDb": "Pay with USDb",
       "chainNotSupportedForAsset": "Not available on this network",
-      "swapInProgress": "Swap in Progress",
-      "swapInProgressDescription": "Your funds have been sent. The stablecoin swap is processing and may take a few minutes.",
+      "swapInProgress": "Payment in Progress",
+      "swapInProgressDescription": "Your funds have been sent. The stablecoin payment is processing and may take a few minutes.",
       "noAmount": "Please enter an amount to send.",
       "quoteStillLoading": "Getting a quote, please wait a moment.",
       "noQuote": "Could not get a quote. Please try again.",
-      "swapStatus": "Swap Status",
-      "chainSwap": "Chain Swap",
+      "swapStatus": "Payment Status",
+      "chainSwap": "Stablecoin",
       "assetPicker": {
         "header": "Select the currency you want to send.",
         "notAvailable": "Not available on {{chain}}"
@@ -1886,7 +1886,7 @@
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "gift": "Gift",
         "claimPayment": "Claim payment",
-        "chainSwap": "Chain Swap"
+        "chainSwap": "Stablecoin"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
@@ -2384,6 +2384,8 @@
     "conflict": "The resource changed while your request was being processed. Please retry.",
     "quote_expired": "This quote has expired. Please request a new quote.",
     "not_found": "The requested resource was not found.",
+    "amount_too_small_chain_fees": "Amount is too small to cover destination chain fees",
+    "amount_too_small_minimum": "Amount too small. Minimum is {{minimumSats}} sats.",
     "amount_too_small": "The amount is below the minimum allowed for this route.",
     "amount_too_large": "The amount is too large for this route.",
     "rate_limited": "Too many requests. Please slow down and try again later.",
