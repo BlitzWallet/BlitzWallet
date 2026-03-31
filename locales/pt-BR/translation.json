@@ -1576,6 +1576,7 @@
       "noLimit": "Sem limite",
       "transactionType": "Tipo de transação",
       "swapsType": "Trocas BTC <> USD",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% de taxa da Pool de Liquidez + {{blitzFee}}% de taxa da Blitz Wallet",
       "othersType": "Outros",
       "othersFee": "Taxas de rede"
@@ -2381,6 +2382,8 @@
     "conflict": "O recurso mudou enquanto sua solicitação estava sendo processada. Tente novamente.",
     "quote_expired": "Esta cotação expirou. Solicite uma nova.",
     "not_found": "O recurso solicitado não foi encontrado.",
+    "amount_too_small_chain_fees": "O valor é muito baixo para cobrir as taxas da rede de destino",
+    "amount_too_small_minimum": "Valor muito baixo. O mínimo é {{minimumSats}} sats.",
     "amount_too_small": "O valor está abaixo do mínimo permitido para esta rota.",
     "amount_too_large": "O valor é muito alto para esta rota.",
     "rate_limited": "Muitas solicitações. Diminua a velocidade e tente novamente mais tarde.",

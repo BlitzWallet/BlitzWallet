@@ -1576,6 +1576,7 @@
       "noLimit": "Ingen gräns",
       "transactionType": "Transaktionstyp",
       "swapsType": "BTC <> USD-växlingar",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % poolavgift + {{blitzFee}} % Blitz-avgift",
       "othersType": "Övrigt",
       "othersFee": "Nätverksavgifter"
@@ -2381,6 +2382,8 @@
     "conflict": "Resursen ändrades medan din begäran behandlades. Försök igen.",
     "quote_expired": "Denna offert har gått ut. Begär en ny.",
     "not_found": "Den begärda resursen hittades inte.",
+    "amount_too_small_chain_fees": "Beloppet är för litet för att täcka avgifterna på destinationskedjan",
+    "amount_too_small_minimum": "Beloppet är för litet. Minsta belopp är {{minimumSats}} sats.",
     "amount_too_small": "Beloppet är under det lägsta tillåtna för denna rutt.",
     "amount_too_large": "Beloppet är för stort för denna rutt.",
     "rate_limited": "För många förfrågningar. Sakta ner och försök igen senare.",

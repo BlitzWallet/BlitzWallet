@@ -1577,6 +1577,7 @@
       "noLimit": "No limit",
       "transactionType": "Transaction Type",
       "swapsType": "BTC <> USD Swaps",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% pool fee + {{blitzFee}}% Blitz fee",
       "othersType": "All other",
       "othersFee": "Network Fees"

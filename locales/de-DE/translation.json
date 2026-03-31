@@ -1579,6 +1579,7 @@
       "noLimit": "Kein Limit",
       "transactionType": "Transaktionstyp",
       "swapsType": "BTC-USD-Umtausch",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % Sparpool-Gebühr + {{blitzFee}} % Blitz-Gebühr",
       "othersType": "Alle anderen",
       "othersFee": "Netzwerkgebühren"
@@ -2383,6 +2384,8 @@
     "conflict": "Die Ressource hat sich während der Verarbeitung Ihrer Anfrage geändert. Bitte versuchen Sie es erneut.",
     "quote_expired": "Dieses Angebot ist abgelaufen. Bitte fordern Sie ein neues an.",
     "not_found": "Die angeforderte Ressource wurde nicht gefunden.",
+    "amount_too_small_chain_fees": "Der Betrag ist zu klein, um die Netzwerkgebühren der Ziel-Chain zu decken",
+    "amount_too_small_minimum": "Betrag zu klein. Minimum sind {{minimumSats}} Sats.",
     "amount_too_small": "Der Betrag liegt unter dem für diese Route zulässigen Minimum.",
     "amount_too_large": "Der Betrag ist für diese Route zu groß.",
     "rate_limited": "Zu viele Anfragen. Bitte verlangsamen Sie und versuchen Sie es später erneut.",
