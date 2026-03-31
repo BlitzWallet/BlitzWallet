@@ -469,8 +469,19 @@ export default function StablecoinSendScreen() {
   const isQuoteLoading =
     (quoteLoading || (quote && countdown === null)) && !sending;
 
+  const hasEnoughBalance =
+    sourceMethod === 'BTC'
+      ? convertedSendAmount <= Number(bitcoinBalance)
+      : Number(rawInput) <= Number(dollarBalanceToken);
+
   const canConfirm =
-    !!quote && !quoteLoading && !sending && convertedSendAmount > 0;
+    !!quote &&
+    !isQuoteLoading &&
+    !sending &&
+    convertedSendAmount > 0 &&
+    hasEnoughBalance;
+
+  const canReview = convertedSendAmount > 0 && hasEnoughBalance && !sending;
 
   const handleReview = useCallback(() => {
     if (!convertedSendAmount || convertedSendAmount <= 0) {
@@ -492,11 +503,6 @@ export default function StablecoinSendScreen() {
       });
       return;
     }
-
-    const hasEnoughBalance =
-      sourceMethod === 'BTC'
-        ? convertedSendAmount <= Number(bitcoinBalance)
-        : Number(rawInput) <= Number(dollarBalanceToken);
 
     if (!hasEnoughBalance) {
       navigate.navigate('ErrorScreen', {
@@ -525,6 +531,7 @@ export default function StablecoinSendScreen() {
     bitcoinBalance,
     dollarBalanceToken,
     navigate,
+    hasEnoughBalance,
   ]);
 
   const rowBg = backgroundOffset;
@@ -649,52 +656,48 @@ export default function StablecoinSendScreen() {
         )}
 
         {/* Quote summary */}
-        {convertedSendAmount > 0 && isAmountFocused && !sending && (
-          <View style={[styles.quoteBox, { backgroundColor: rowBg }]}>
-            {isQuoteLoading && (
-              <View style={styles.quoteLoadingRow}>
-                <ActivityIndicator
-                  size="small"
-                  color={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
+
+        <View style={[styles.quoteBox, { backgroundColor: rowBg }]}>
+          {isQuoteLoading && (
+            <View style={styles.quoteLoadingRow}>
+              <ActivityIndicator
+                size="small"
+                color={
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                }
+              />
+              <ThemeText
+                styles={styles.quoteLoadingText}
+                content={t('wallet.stablecoinSend.gettingQuote')}
+              />
+            </View>
+          )}
+          {!isQuoteLoading && quoteError && (
+            <ThemeText styles={[styles.quoteErrorText]} content={quoteError} />
+          )}
+          {!isQuoteLoading && !quoteError && (
+            <>
+              <View style={styles.quoteRow}>
+                <ThemeText
+                  styles={styles.quoteLabel}
+                  content={t('wallet.stablecoinSend.recipientGets')}
                 />
                 <ThemeText
-                  styles={styles.quoteLoadingText}
-                  content={t('wallet.stablecoinSend.gettingQuote')}
+                  styles={[
+                    styles.quoteValue,
+                    {
+                      opacity:
+                        quote?.estimatedOut || 0 > 0 ? 1 : HIDDEN_OPACITY,
+                    },
+                  ]}
+                  content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
+                    formatStablecoinAmount(quote?.estimatedOut || 0),
+                    false,
+                    masterInfoObject,
+                  )} ${asset}`}
                 />
               </View>
-            )}
-            {!isQuoteLoading && quoteError && (
-              <ThemeText
-                styles={[
-                  styles.quoteErrorText,
-                  {
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.cancelRed,
-                  },
-                ]}
-                content={quoteError}
-              />
-            )}
-            {!isQuoteLoading && quote && countdown !== null && (
-              <>
-                <View style={styles.quoteRow}>
-                  <ThemeText
-                    styles={styles.quoteLabel}
-                    content={t('wallet.stablecoinSend.recipientGets')}
-                  />
-                  <ThemeText
-                    styles={styles.quoteValue}
-                    content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
-                      formatStablecoinAmount(quote.estimatedOut),
-                      false,
-                      masterInfoObject,
-                    )} ${asset}`}
-                  />
-                </View>
+              {isConfirmMode && (
                 <View style={styles.quoteRow}>
                   <ThemeText
                     styles={styles.quoteLabel}
@@ -713,10 +716,10 @@ export default function StablecoinSendScreen() {
                     content={formatCountdown(countdown)}
                   />
                 </View>
-              </>
-            )}
-          </View>
-        )}
+              )}
+            </>
+          )}
+        </View>
 
         {/* EDIT_AMOUNT: keyboard + Review button */}
         {!isConfirmMode && isAmountFocused && (
@@ -731,7 +734,10 @@ export default function StablecoinSendScreen() {
           <CustomButton
             textContent={t('constants.review')}
             actionFunction={handleReview}
-            buttonStyles={{ ...CENTER }}
+            buttonStyles={{
+              ...CENTER,
+              opacity: canReview ? 1 : HIDDEN_OPACITY,
+            }}
             useLoading={isQuoteLoading}
           />
         )}
@@ -837,7 +843,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   quoteErrorText: {
-    fontSize: SIZES.small,
+    fontSize: SIZES.smedium,
     includeFontPadding: false,
   },
   quoteRow: {
