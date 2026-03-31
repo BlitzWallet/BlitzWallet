@@ -1061,7 +1061,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
-        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin ou endereços/faturas Lightning válidos.",
+        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin, endereço/fatura Lightning ou um endereço USDT/USDC de uma rede suportada.",
         "paymentProcessingError": "Erro ao processar informações de pagamento",
         "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
         "processInputError": "Não é possível processar a entrada",
@@ -1346,7 +1346,7 @@
       "poweredBySpark": "Spark",
       "poweredByFlashnet": "Flashnet",
       "poweredByBoltz": "Boltz API",
-      "sparkHeader": "Bom Saber",
+      "sparkHeader": "Como funciona",
       "sparkDescription": "A Blitz Wallet funciona com o protocolo Spark. Spark é um protocolo off-chain onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da blockchain, permitindo transferências rápidas, de baixo custo e sem custódia de terceiros.",
       "learnMore": "Saiba mais",
       "creatorHeader": "Criador",
@@ -1576,7 +1576,7 @@
       "noLimit": "Sem limite",
       "transactionType": "Tipo de transação",
       "swapsType": "Trocas BTC <> USD",
-      "stablecoinType": "BTC <> Stablecoin",
+      "stablecoinType": "BTC <> Dólar digital",
       "swapsFee": "{{poolFee}}% de taxa da Pool de Liquidez + {{blitzFee}}% de taxa da Blitz Wallet",
       "othersType": "Outros",
       "othersFee": "Taxas de rede"
