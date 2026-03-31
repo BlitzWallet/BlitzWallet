@@ -1577,6 +1577,7 @@
       "noLimit": "Без лимита",
       "transactionType": "Тип транзакции",
       "swapsType": "Свопы BTC <> USD",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% пул + {{blitzFee}}% Blitz",
       "othersType": "Остальное",
       "othersFee": "Сетевые комиссии"

@@ -1434,6 +1434,7 @@
       "noLimit": "Sin límite",
       "transactionType": "Tipo de transacción",
       "swapsType": "Intercambios BTC <> USD",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % de comisión del pool + {{blitzFee}} % de comisión de Blitz",
       "othersType": "Otros",
       "othersFee": "Comisiones de red"

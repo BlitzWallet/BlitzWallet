@@ -1579,6 +1579,7 @@
       "noLimit": "Kein Limit",
       "transactionType": "Transaktionstyp",
       "swapsType": "BTC-USD-Umtausch",
+        "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % Sparpool-Gebühr + {{blitzFee}} % Blitz-Gebühr",
       "othersType": "Alle anderen",
       "othersFee": "Netzwerkgebühren"

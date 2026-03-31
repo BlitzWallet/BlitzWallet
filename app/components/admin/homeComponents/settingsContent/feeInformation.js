@@ -110,6 +110,13 @@ function FeeTable({ masterInfoObject }) {
       }),
     },
     {
+      transactionType: t('settings.feeInformation.stablecoinType'),
+      fee: t('settings.feeInformation.swapsFee', {
+        poolFee: formatBalanceAmount(0.05, false, masterInfoObject),
+        blitzFee: 0.5,
+      }),
+    },
+    {
       transactionType: t('settings.feeInformation.othersType'),
       fee: t('settings.feeInformation.othersFee'),
     },
@@ -189,6 +196,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 10,
     borderBottomWidth: 2,
+    gap: 10,
   },
   lastRow: {
     borderBottomWidth: 0,

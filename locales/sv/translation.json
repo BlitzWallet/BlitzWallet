@@ -1576,6 +1576,7 @@
       "noLimit": "Ingen gräns",
       "transactionType": "Transaktionstyp",
       "swapsType": "BTC <> USD-växlingar",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % poolavgift + {{blitzFee}} % Blitz-avgift",
       "othersType": "Övrigt",
       "othersFee": "Nätverksavgifter"
