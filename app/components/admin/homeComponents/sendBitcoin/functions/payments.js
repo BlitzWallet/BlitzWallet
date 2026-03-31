@@ -5,7 +5,7 @@ export async function getLNAddressForLiquidPayment(
   sendingValue,
   description,
 ) {
-  let invoiceAddress;
+  let invoiceAddress = { pr: '', successAction: null };
   try {
     if (paymentInfo.type === InputTypes.LNURL_PAY) {
       const callback = paymentInfo.data.callback;
@@ -36,13 +36,16 @@ export async function getLNAddressForLiquidPayment(
         throw new Error('No invoice (pr) in response');
       }
 
-      invoiceAddress = data.pr;
+      invoiceAddress = data;
     } else {
-      invoiceAddress = paymentInfo.data.invoice.bolt11;
+      invoiceAddress = {
+        pr: paymentInfo.data.invoice.bolt11,
+        successAction: null,
+      };
     }
   } catch (err) {
     console.log('get ln address for liquid payment error', err);
-    invoiceAddress = '';
+    invoiceAddress = { pr: '', successAction: null };
   }
   return invoiceAddress;
 }

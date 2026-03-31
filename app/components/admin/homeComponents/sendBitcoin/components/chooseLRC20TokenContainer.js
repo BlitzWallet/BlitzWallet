@@ -92,7 +92,7 @@ export default function ChooseLRC20TokenContainer({
               style={styles.tokenImage}
               contentFit="contain"
               priority="normal"
-              transition={100}
+              transition={0}
             />
           ) : (
             <ThemeIcon

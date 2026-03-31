@@ -225,6 +225,9 @@ export const sparkPaymenWrapper = async ({
             preimage: '',
             isLRC20Payment: true,
             LRC20Token: USDB_TOKEN_ID,
+            ...(paymentInfo?.data?.successAction
+              ? { successAction: paymentInfo.data.successAction }
+              : {}),
           },
         };
         response = tx;
@@ -275,6 +278,9 @@ export const sparkPaymenWrapper = async ({
               createdAt: new Date(data.createdAt).getTime(),
               direction: 'OUTGOING',
               preimage: '',
+              ...(paymentInfo?.data?.successAction
+                ? { successAction: paymentInfo.data.successAction }
+                : {}),
             },
           };
           response = tx;
@@ -297,6 +303,9 @@ export const sparkPaymenWrapper = async ({
               senderIdentityPublicKey: data.receiverIdentityPublicKey,
               isLRC20Payment: false,
               LRC20Token: seletctedToken,
+              ...(paymentInfo?.data?.successAction
+                ? { successAction: paymentInfo.data.successAction }
+                : {}),
             },
           };
           response = tx;

@@ -23,7 +23,6 @@ import { useSparkWallet } from '../../../../context-store/sparkContext';
 import getFormattedHomepageTxsForSpark from '../../../functions/combinedTransactionsSpark';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import LRC20Assets from './homeLightning/lrc20Assets';
 import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
 import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
@@ -60,7 +59,6 @@ import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
 const MemoizedSendRecieveBTNs = memo(SendRecieveBTNs);
-const MemoizedLRC20Assets = memo(LRC20Assets);
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 

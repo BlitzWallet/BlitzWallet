@@ -112,8 +112,11 @@ export default async function processLNUrlPay(input, context) {
           );
         }
 
-        if (invoiceResponse) {
-          invoice = invoiceResponse;
+        if (invoiceResponse.pr) {
+          invoice = invoiceResponse.pr;
+          if (invoiceResponse.successAction) {
+            input.data.successAction = invoiceResponse.successAction;
+          }
           break;
         }
       } catch (err) {

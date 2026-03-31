@@ -117,6 +117,7 @@ export default function StablecoinSendScreen() {
   const quoteExpiresAt = useRef(null);
   const isSendingPayment = useRef(null);
   const progressAnimationRef = useRef(null);
+  const fetchTokenRef = useRef(0);
 
   const sourceMethod = selectedPaymentMethod || 'BTC';
 
@@ -139,6 +140,7 @@ export default function StablecoinSendScreen() {
     usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
+    forceUSDMode: sourceMethod === 'BTC',
   });
 
   const convertedSendAmount = convertDisplayToSats(rawInput);
@@ -170,13 +172,15 @@ export default function StablecoinSendScreen() {
   );
 
   const fetchQuote = useCallback(
-    async sats => {
+    async (sats, myToken) => {
       if (sats <= 0 || !contactsPrivateKey || !publicKey) return;
       setQuoteError(null);
       setQuote(null);
       clearCountdown();
       try {
         const apiSourceMethod = sourceMethod === 'BTC' ? 'spark' : 'usdb';
+        // ── stale-response guard ──────────────────────────────────────────────
+        if (myToken !== fetchTokenRef.current) return;
         const result = await fetchBackend(
           'createFlashnetStablecoinQuoteV2',
           {
@@ -190,11 +194,27 @@ export default function StablecoinSendScreen() {
           contactsPrivateKey,
           publicKey,
         );
+
+        // ── stale-response guard ──────────────────────────────────────────────
+        if (myToken !== fetchTokenRef.current) return;
+
         if (!result || result.error) {
-          throw new Error(
-            t(`flashnetUSDCUSDTMessages.${result?.error}`) ||
-              t('wallet.stablecoinSend.quoteError'),
-          );
+          const { code, message, minimumSats } = result.error;
+
+          if (code === 'amount_too_small') {
+            if (minimumSats) {
+              throw new Error(
+                t('flashnetUSDCUSDTMessages.amount_too_small_minimum', {
+                  minimumSats,
+                }),
+              );
+            }
+            throw new Error(
+              t('flashnetUSDCUSDTMessages.amount_too_small_chain_fees'),
+            );
+          }
+
+          throw new Error(t(`flashnetUSDCUSDTMessages.${code}`));
         }
 
         const expiresAt = result.expiresAt || Date.now() + QUOTE_TTL_MS;
@@ -208,9 +228,14 @@ export default function StablecoinSendScreen() {
         setQuote({ ...result, fee: formattedFee, expiresAt });
         startCountdown(expiresAt);
       } catch (err) {
+        // Only surface the error if this is still the active request
+        if (myToken !== fetchTokenRef.current) return;
         setQuoteError(err.message || t('wallet.stablecoinSend.quoteError'));
       } finally {
-        setQuoteLoading(false);
+        // Only clear loading if this is still the active request
+        if (myToken === fetchTokenRef.current) {
+          setQuoteLoading(false);
+        }
       }
     },
     [
@@ -230,12 +255,19 @@ export default function StablecoinSendScreen() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (rawInput > 0) {
       setQuoteLoading(true);
+      // Invalidate any in-flight response right now, before the debounce fires.
+      fetchTokenRef.current += 1;
+
       const fetchAmount =
         sourceMethod === 'BTC'
           ? convertDisplayToSats(rawInput)
           : rawInput * Math.pow(10, 6);
-      debounceRef.current = setTimeout(() => fetchQuote(fetchAmount), 800);
+      debounceRef.current = setTimeout(
+        () => fetchQuote(fetchAmount, fetchTokenRef.current),
+        800,
+      );
     } else {
+      fetchTokenRef.current += 1;
       setQuoteLoading(false);
       setQuote(null);
       setQuoteError(null);
@@ -331,7 +363,7 @@ export default function StablecoinSendScreen() {
           fee: quote?.fee,
           totalFee: 0,
           supportFee: 0,
-          description: description || `Send ${asset}`,
+          description: description || '',
           address: quote.depositAddress,
           time: Date.now(),
           createdAt: Date.now(),
@@ -388,7 +420,30 @@ export default function StablecoinSendScreen() {
       });
     } catch (err) {
       console.log(err, 'error navigating to bla bla bla');
-      navigate.navigate('ErrorScreen', { errorMessage: err.message });
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          navigate.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'HomeAdmin',
+                params: {
+                  screen: 'Home',
+                },
+              },
+              {
+                name: 'ConfirmTxPage',
+                params: {
+                  transaction: {},
+                  error: err.message,
+                  lnurlAddress: undefined,
+                  blitzContactInfo: undefined,
+                },
+              },
+            ],
+          });
+        });
+      });
     }
   }, [
     quote,

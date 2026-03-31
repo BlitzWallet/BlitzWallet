@@ -97,7 +97,7 @@ export default function SendMaxComponent({
               paymentInfo,
               Number(sendingBalance),
             );
-            address = invoice;
+            address = invoice.pr;
           }
 
           const feeResponse = await sparkPaymenWrapper({

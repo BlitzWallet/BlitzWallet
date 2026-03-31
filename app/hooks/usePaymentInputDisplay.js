@@ -20,6 +20,7 @@ export default function usePaymentInputDisplay({
   usdFiatStats,
   masterInfoObject,
   isSendingPayment = false,
+  forceUSDMode = false, // Optional override to force USD mode regardless of paymentMode
 }) {
   const lockedDisplayRef = useRef({
     primary: null,
@@ -27,7 +28,9 @@ export default function usePaymentInputDisplay({
   });
   const wasSendingPaymentRef = useRef(false);
 
-  const deviceCurrency = masterInfoObject?.fiatCurrency || 'USD';
+  const deviceCurrency = forceUSDMode
+    ? 'USD'
+    : masterInfoObject?.fiatCurrency || 'USD';
   const isDeviceCurrencyUSD = deviceCurrency === 'USD';
   const isUSDMode = paymentMode === 'USD';
 
