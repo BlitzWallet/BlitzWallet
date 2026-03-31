@@ -2382,6 +2382,8 @@
     "conflict": "La risorsa è cambiata durante l’elaborazione della richiesta. Riprova.",
     "quote_expired": "Questo preventivo è scaduto. Richiedine uno nuovo.",
     "not_found": "La risorsa richiesta non è stata trovata.",
+    "amount_too_small_chain_fees": "L’importo è troppo basso per coprire le commissioni della rete di destinazione",
+    "amount_too_small_minimum": "Importo troppo basso. Il minimo è {{minimumSats}} sats.",
     "amount_too_small": "L’importo è inferiore al minimo consentito per questa rotta.",
     "amount_too_large": "L’importo è troppo alto per questa rotta.",
     "rate_limited": "Troppe richieste. Rallenta e riprova più tardi.",

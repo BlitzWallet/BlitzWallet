@@ -2382,6 +2382,8 @@
     "conflict": "La ressource a changé pendant le traitement de votre requête. Veuillez réessayer.",
     "quote_expired": "Ce devis a expiré. Veuillez en demander un nouveau.",
     "not_found": "La ressource demandée est introuvable.",
+    "amount_too_small_chain_fees": "Le montant est trop faible pour couvrir les frais de la chaîne de destination",
+    "amount_too_small_minimum": "Montant trop faible. Le minimum est de {{minimumSats}} sats.",
     "amount_too_small": "Le montant est inférieur au minimum autorisé pour cet itinéraire.",
     "amount_too_large": "Le montant est trop élevé pour cet itinéraire.",
     "rate_limited": "Trop de requêtes. Veuillez ralentir et réessayer plus tard.",

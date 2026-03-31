@@ -2244,6 +2244,8 @@
     "conflict": "El recurso cambió mientras se procesaba tu solicitud. Inténtalo de nuevo.",
     "quote_expired": "Esta cotización ha expirado. Solicita una nueva.",
     "not_found": "No se encontró el recurso solicitado.",
+    "amount_too_small_chain_fees": "El monto es demasiado pequeño para cubrir las comisiones de la red de destino",
+    "amount_too_small_minimum": "Monto demasiado pequeño. El mínimo es {{minimumSats}} sats.",
     "amount_too_small": "El monto está por debajo del mínimo permitido para esta ruta.",
     "amount_too_large": "El monto es demasiado grande para esta ruta.",
     "rate_limited": "Demasiadas solicitudes. Por favor, reduce la velocidad e inténtalo más tarde.",
