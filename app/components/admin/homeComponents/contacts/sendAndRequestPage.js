@@ -54,7 +54,6 @@ import { useActiveCustodyAccount } from '../../../../../context-store/activeAcco
 import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { receiveSparkLightningPayment } from '../../../../functions/spark';
-import { getBolt11InvoiceForContact } from '../../../../functions/contacts';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';

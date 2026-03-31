@@ -57,7 +57,7 @@ export default function ConfirmChatGPTPage(props) {
         );
         const fee = await sparkPaymenWrapper({
           getFee: true,
-          address: lnInvoice,
+          address: lnInvoice.pr,
           paymentType: 'lightning',
           amountSats: creditPrice,
           masterInfoObject,
@@ -78,7 +78,7 @@ export default function ConfirmChatGPTPage(props) {
         setInvoiceInformation({
           fee: fee.fee,
           supportFee: fee.supportFee,
-          invoice: lnInvoice,
+          invoice: lnInvoice.pr,
         });
       } catch (err) {
         console.log('Error generating invoice and fee for chatGPT:', err);

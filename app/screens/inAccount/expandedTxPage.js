@@ -79,6 +79,7 @@ export default function ExpandedTx(props) {
     props.route.params.transaction,
   );
   const sendingContactUUID = transaction.details?.sendingUUID;
+  const showSuccessActionLabel = transaction.details?.successAction;
 
   useEffect(() => {
     if (isInitialRender.current) {
@@ -406,6 +407,36 @@ export default function ExpandedTx(props) {
     );
   };
 
+  const renderSuccessAction = () => {
+    if (!showSuccessActionLabel) return null;
+    const { tag, message, description, url } = showSuccessActionLabel;
+
+    if (tag === 'url') {
+      return (
+        <View style={styles.successActionContainer}>
+          <TouchableOpacity
+            onPress={() =>
+              navigate.navigate('CustomWebView', {
+                webViewURL: url,
+                headerText: description,
+              })
+            }
+            style={[
+              styles.descriptionContent,
+              styles.successActionUrlRow,
+              { backgroundColor },
+            ]}
+          >
+            <ThemeText content={description} styles={{ flex: 1 }} />
+            <ThemeIcon iconName={'ExternalLink'} size={18} />
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return null;
+  };
+
   const formatTime = date => {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
@@ -578,6 +609,8 @@ export default function ExpandedTx(props) {
                   true,
                 )}
             </View>
+
+            {renderSuccessAction()}
 
             {/* Description */}
             {renderDescription()}
@@ -991,6 +1024,17 @@ const styles = StyleSheet.create({
     minHeight: 100,
     padding: 12,
     borderRadius: 8,
+  },
+  successActionContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  successActionUrlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    minHeight: 50,
   },
 
   receiptDotsContainer: {
