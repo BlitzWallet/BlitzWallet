@@ -76,7 +76,7 @@ export default function PayLinkAmountInput({
 
   const handleNext = useCallback(() => {
     if (!localSatAmount || Number(localSatAmount) === 0) {
-      onBack?.();
+      onSkip?.();
       return;
     }
     if (paymentMode === 'USD' && localSatAmount < swapLimits.bitcoin) {
@@ -174,7 +174,7 @@ export default function PayLinkAmountInput({
         buttonStyles={{ ...CENTER }}
         actionFunction={handleNext}
         textContent={
-          !localSatAmount ? t('constants.back') : t('wallet.payLinks.next')
+          !localSatAmount ? t('constants.skip') : t('wallet.payLinks.next')
         }
       />
     </View>
