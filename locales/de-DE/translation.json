@@ -1187,7 +1187,7 @@
       "swapStatus": "Tauschstatus",
       "chainSwap": "Chain-Tausch",
       "assetPicker": {
-        "header": "Wähle die Währung aus, die du senden möchtest.",
+        "header": "Wählen Sie die Währung aus, die Sie senden möchten.",
         "notAvailable": "Nicht verfügbar auf {{chain}}"
       },
       "networkLabel": "Auf {{chain}}"
