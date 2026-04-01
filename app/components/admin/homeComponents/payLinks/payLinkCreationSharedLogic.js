@@ -14,7 +14,10 @@ import { useEffect } from 'react';
  */
 export const usePayLinkCreationFlow = ({ onComplete, onCancel }) => {
   const [currentStep, setCurrentStep] = useState('amount'); // 'amount' | 'description'
-  const [payLinkAmount, setPayLinkAmount] = useState(null);
+  const [payLinkAmount, setPayLinkAmount] = useState({
+    amount: null,
+    rawAmount: null,
+  });
 
   // Amount overlay animation
   const amountOpacity = useSharedValue(1);

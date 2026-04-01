@@ -80,7 +80,7 @@ export default function PayLinkDescriptionInput({
   const [isLoading, setIsLoading] = useState(false);
 
   // Description is optional — only amount must be > 0
-  const isValid = payLinkAmount > 0;
+  const isValid = payLinkAmount.rawAmount > 0;
 
   const handleCreatePayLink = useCallback(async () => {
     if (!isValid || isAlreadyCreating.current) return;
@@ -99,7 +99,8 @@ export default function PayLinkDescriptionInput({
       const payLinkId = generatePayLinkId();
       const doc = {
         payLinkId,
-        amount: payLinkAmount,
+        amount: Number(payLinkAmount.amount),
+        rawAmount: Number(payLinkAmount.rawAmount),
         currencyType,
         description: description.trim(),
         name:
@@ -311,7 +312,7 @@ export default function PayLinkDescriptionInput({
       <CustomButton
         enableElipsis={false}
         textContent={t('wallet.payLinks.genQRCode')}
-        actionFunction={() => onSkip?.(payLinkAmount, description)}
+        actionFunction={() => onSkip?.(payLinkAmount.amount, description)}
       />
 
       <CustomButton

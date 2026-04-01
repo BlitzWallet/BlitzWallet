@@ -96,7 +96,7 @@ export default function PayLinkAmountInput({
       });
       return;
     }
-    onContinue?.(Number(localSatAmount));
+    onContinue?.(Number(localSatAmount), amountValue);
   }, [localSatAmount, onContinue, onBack]);
 
   return (
