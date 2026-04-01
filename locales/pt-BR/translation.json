@@ -885,7 +885,7 @@
       "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui.",
       "payMe": "Endereço Lightning",
       "createInvoice": "Criar Fatura",
-      "invoiceDescription": "Cobrança usando um link ou código QR",
+      "invoiceDescription": "Escolha a moeda e quantia desejada",
       "poolsDescription": "Colete pagamentos para um objetivo"
     },
     "payLinks": {
