@@ -586,10 +586,10 @@ export default function SwapFlowHalfModal({
   };
 
   const backLabel = t('constants.back');
-  const acceptLabel = t('constants.accept');
+  const confirmLabel = t('constants.confirm');
 
   const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([backLabel, acceptLabel]);
+    useAdaptiveButtonLayout([backLabel, confirmLabel]);
 
   const getAmountFontSize = amount => {
     if (!amount) return SIZES.large;
@@ -2060,7 +2060,7 @@ export default function SwapFlowHalfModal({
                 {...getLabelProps(1)}
                 enableElipsis={false}
                 actionFunction={handleAcceptReview}
-                textContent={acceptLabel}
+                textContent={confirmLabel}
               />
             </View>
             <ThemeText
