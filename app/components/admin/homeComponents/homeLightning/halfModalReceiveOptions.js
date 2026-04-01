@@ -158,7 +158,7 @@ const LNURLQROverlay = ({
     <Animated.View style={[styles.overlayContainer, overlayStyle]}>
       <View style={styles.qrOverlayContent}>
         {/* QR Card */}
-        <QrCodeWrapper QRData={`lightning:${lnurlAddress}`} />
+        <QrCodeWrapper QRData={`${lnurlAddress}`} />
 
         {/* Back button */}
         <CustomButton

@@ -595,9 +595,8 @@ function QrCode(props) {
     });
   };
 
-  const qrData = isUsingLnurl
-    ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
-    : addressState.generatedAddress || previousAddress.current || ' ';
+  const qrData =
+    addressState.generatedAddress || previousAddress.current || ' ';
 
   const invoiceContext =
     selectedRecieveOption.toLowerCase() === 'lightning'
