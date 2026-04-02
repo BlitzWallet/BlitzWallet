@@ -5,13 +5,18 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import { Image } from 'expo-image';
 import { ICONS, SIZES } from '../../../../constants';
+import { useTranslation } from 'react-i18next';
 
 export default function AccumulationAddressCard({ address }) {
   const navigate = useNavigation();
-
+  const { t } = useTranslation();
   const chainMeta = ACCUMULATION_CHAINS.find(c => c.id === address.sourceChain);
   const chainLabel = chainMeta?.label ?? address.sourceChain;
-  const label = `${address.sourceAsset} → ${address.destinationAsset}`;
+  const label = `${address.sourceAsset} → ${
+    address.destinationAsset === 'BTC'
+      ? t('constants.bitcoin_upper')
+      : t('constants.dollars_upper')
+  }`;
 
   return (
     <TouchableOpacity
