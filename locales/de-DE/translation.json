@@ -2226,6 +2226,53 @@
         "noHistoryDesc": "Ihre Swap-Transaktionen werden hier angezeigt.",
         "pageTitle": "Verlauf"
       }
+    },
+    "accumulationAddresses": {
+      "title": "Akkumulationsadressen",
+      "subtitle": "Stablecoins automatisch in BTC oder Dollar umwandeln",
+      "navTitle": "Adressen",
+      "sectionTitle": "Aktive Adressen",
+      "empty": {
+        "title": "Keine Akkumulationsadressen",
+        "subtitle": "Erstellen Sie eine Adresse, um Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
+      },
+      "createButton": "Adresse erstellen",
+      "info": {
+        "title": "Was ist das?",
+        "whatAre": "Was ist das?",
+        "whatAreBody": "Dauerhafte Adressen, die eingehende USDC oder USDT automatisch in Bitcoin oder Dollar umwandeln und die Mittel an Ihre Wallet senden.",
+        "howItWorks": "So funktioniert es",
+        "step1": "1. Teilen Sie Ihre Einzahlungsadresse mit einem Absender oder einer Börse.",
+        "step2": "2. Die Mittel kommen on-chain an und werden automatisch umgewandelt.",
+        "step3": "3. Der umgewandelte Betrag wird Ihrer Wallet gutgeschrieben."
+      },
+      "detail": {
+        "copyAddress": "Adresse kopieren",
+        "printQR": "QR-Code drucken",
+        "deleteButton": "Adresse löschen",
+        "deleteConfirmTitle": "Adresse löschen?",
+        "deleteConfirmBody": "Diese Adresse wird dauerhaft entfernt. Sie müssen eine neue erstellen, wenn Sie sie erneut benötigen.",
+        "chain": "Chain",
+        "source": "Quelle",
+        "Destination": "Ziel"
+      },
+      "create": {
+        "pickAsset": "Zahlungswährung auswählen",
+        "pickChain": "Chain auswählen",
+        "pickDestination": "Ziel auswählen",
+        "confirm": "Adresse bestätigen",
+        "alreadyExists": "Sie haben bereits eine Adresse für diese Kombination"
+      },
+      "summary": {
+        "chain": "Chain",
+        "paymentCurrency": "Zahlungswährung",
+        "destination": "Ziel",
+        "create": "Adresse erstellen"
+      },
+      "errors": {
+        "createFailed": "Adresse konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+        "deleteFailed": "Adresse konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+      }
     }
   },
   "toastmessages": {

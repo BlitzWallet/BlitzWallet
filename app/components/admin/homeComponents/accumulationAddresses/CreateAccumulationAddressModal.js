@@ -268,7 +268,15 @@ export default function CreateAccumulationAddressModal({
         content={t('screens.accumulationAddresses.create.confirm')}
       />
 
-      <View style={[styles.summaryCard, { backgroundColor: backgroundOffset }]}>
+      <View
+        style={[
+          styles.summaryCard,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
+      >
         <SummaryRow
           label={t('screens.accumulationAddresses.summary.chain')}
           value={selectedChain?.label}

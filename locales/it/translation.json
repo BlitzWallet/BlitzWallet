@@ -2224,6 +2224,53 @@
         "noHisotorydesc": "Le tue transazioni di swap appariranno qui.",
         "pageTitle": "Cronologia"
       }
+    },
+    "accumulationAddresses": {
+      "title": "Indirizzi di accumulo",
+      "subtitle": "Converti automaticamente stablecoin in BTC o dollari",
+      "navTitle": "Indirizzi",
+      "sectionTitle": "Indirizzi attivi",
+      "empty": {
+        "title": "Nessun indirizzo di accumulo",
+        "subtitle": "Crea un indirizzo per convertire automaticamente i depositi in Bitcoin o dollari"
+      },
+      "createButton": "Crea indirizzo",
+      "info": {
+        "title": "Cosa sono?",
+        "whatAre": "Cosa sono?",
+        "whatAreBody": "Indirizzi persistenti che convertono automaticamente USDC o USDT in entrata in Bitcoin o dollari e inviano i fondi al tuo wallet.",
+        "howItWorks": "Come funziona",
+        "step1": "1. Condividi il tuo indirizzo di deposito con un mittente o un exchange.",
+        "step2": "2. I fondi arrivano on-chain e vengono automaticamente scambiati.",
+        "step3": "3. L’importo convertito arriva nel tuo wallet."
+      },
+      "detail": {
+        "copyAddress": "Copia indirizzo",
+        "printQR": "Stampa QR",
+        "deleteButton": "Elimina indirizzo",
+        "deleteConfirmTitle": "Eliminare indirizzo?",
+        "deleteConfirmBody": "Questo indirizzo verrà rimosso definitivamente. Dovrai crearne uno nuovo se ne avrai bisogno in futuro.",
+        "chain": "Rete",
+        "source": "Origine",
+        "Destination": "Destinazione"
+      },
+      "create": {
+        "pickAsset": "Seleziona valuta di pagamento",
+        "pickChain": "Seleziona rete",
+        "pickDestination": "Seleziona destinazione",
+        "confirm": "Conferma indirizzo",
+        "alreadyExists": "Hai già un indirizzo per questa combinazione"
+      },
+      "summary": {
+        "chain": "Rete",
+        "paymentCurrency": "Valuta di pagamento",
+        "destination": "Destinazione",
+        "create": "Crea indirizzo"
+      },
+      "errors": {
+        "createFailed": "Creazione dell’indirizzo non riuscita. Riprova.",
+        "deleteFailed": "Eliminazione dell’indirizzo non riuscita. Riprova."
+      }
     }
   },
   "toastmessages": {
