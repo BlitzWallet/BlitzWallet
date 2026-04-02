@@ -2111,7 +2111,7 @@
         "printQR": "Imprimir QR",
         "deleteButton": "Eliminar dirección",
         "deleteConfirmTitle": "¿Eliminar dirección?",
-        "deleteConfirmBody": "Esta dirección se eliminará permanentemente. Tendrás que crear una nueva si la necesitas de nuevo.",
+        "deleteConfirmBody": "Eliminar esta dirección detiene la redirección de futuros pagos y puede resultar en pérdida de fondos. Asegúrate de que todos sepan que ya no está activa antes de eliminarla.",
         "chain": "Red",
         "source": "Origen",
         "Destination": "Destino"

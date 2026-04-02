@@ -2251,7 +2251,7 @@
         "printQR": "QR-Code drucken",
         "deleteButton": "Adresse löschen",
         "deleteConfirmTitle": "Adresse löschen?",
-        "deleteConfirmBody": "Diese Adresse wird dauerhaft entfernt. Sie müssen eine neue erstellen, wenn Sie sie erneut benötigen.",
+        "deleteConfirmBody": "Das Löschen dieser Adresse verhindert zukünftige Weiterleitungen von Zahlungen und kann zu verlorenen Geldern führen. Stellen Sie sicher, dass alle wissen, dass sie nicht mehr aktiv ist, bevor Sie sie entfernen.",
         "chain": "Chain",
         "source": "Quelle",
         "Destination": "Ziel"

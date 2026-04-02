@@ -2249,7 +2249,7 @@
         "printQR": "Skriv ut QR",
         "deleteButton": "Ta bort adress",
         "deleteConfirmTitle": "Ta bort adress?",
-        "deleteConfirmBody": "Denna adress kommer att tas bort permanent. Du måste skapa en ny om du behöver den igen.",
+        "deleteConfirmBody": "Att ta bort denna adress stoppar omdirigering av framtida betalningar och kan leda till förlorade medel. Se till att alla vet att den inte längre är aktiv innan du tar bort den.",
         "chain": "Kedja",
         "source": "Källa",
         "Destination": "Destination"

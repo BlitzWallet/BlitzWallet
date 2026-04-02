@@ -2249,7 +2249,7 @@
         "printQR": "Stampa QR",
         "deleteButton": "Elimina indirizzo",
         "deleteConfirmTitle": "Eliminare indirizzo?",
-        "deleteConfirmBody": "Questo indirizzo verrà rimosso definitivamente. Dovrai crearne uno nuovo se ne avrai bisogno in futuro.",
+        "deleteConfirmBody": "L'eliminazione di questo indirizzo interrompe il reindirizzamento dei pagamenti futuri e può comportare la perdita di fondi. Assicurati che tutti sappiano che non è più attivo prima di rimuoverlo.",
         "chain": "Rete",
         "source": "Origine",
         "Destination": "Destinazione"
