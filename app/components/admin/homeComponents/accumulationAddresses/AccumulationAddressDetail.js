@@ -78,31 +78,25 @@ export default function AccumulationAddressDetail() {
   }, [address.accumulationAddressId, t]);
 
   const handleDelete = useCallback(() => {
-    Alert.alert(
-      t('screens.accumulationAddresses.detail.deleteConfirmTitle'),
-      t('screens.accumulationAddresses.detail.deleteConfirmBody'),
-      [
-        { text: t('constants.cancel'), style: 'cancel' },
-        {
-          text: t('screens.accumulationAddresses.detail.deleteButton'),
-          style: 'destructive',
-          onPress: async () => {
-            setIsDeleting(true);
-            const ok = await deleteAddress(address.accumulationAddressId);
-            setIsDeleting(false);
-            if (ok) {
-              navigate.goBack();
-            } else {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t(
-                  'screens.accumulationAddresses.errors.deleteFailed',
-                ),
-              });
-            }
-          },
-        },
-      ],
-    );
+    navigate.navigate('ConfirmActionPage', {
+      confirmMessage: t(
+        'screens.accumulationAddresses.detail.deleteConfirmBody',
+      ),
+      confirmFunction: async () => {
+        setIsDeleting(true);
+        const ok = await deleteAddress(address.accumulationAddressId);
+        setIsDeleting(false);
+        if (ok) {
+          navigate.goBack();
+        } else {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t(
+              'screens.accumulationAddresses.errors.deleteFailed',
+            ),
+          });
+        }
+      },
+    });
   }, [address, deleteAddress, navigate, t]);
 
   if (isDeleting) {
@@ -219,7 +213,7 @@ const styles = StyleSheet.create({
   metaCell: { alignItems: 'center' },
   metaLabel: { fontSize: 12, opacity: 0.6, marginBottom: 2 },
   metaValue: { fontSize: 14, fontFamily: 'Satoshi-Bold' },
-  printBtn: { width: '100%', marginBottom: 12 },
+  printBtn: { width: '100%' },
   deleteBtn: {
     width: '100%',
     backgroundColor: COLORS.cancelRed,

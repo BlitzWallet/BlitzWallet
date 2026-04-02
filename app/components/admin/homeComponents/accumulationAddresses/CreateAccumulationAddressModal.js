@@ -27,6 +27,7 @@ import { CENTER, ICONS } from '../../../../constants';
 import { Image } from 'expo-image';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 // Steps: 'asset' | 'chain' | 'destination' | 'confirm'
 
@@ -47,8 +48,38 @@ export default function CreateAccumulationAddressModal({
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    setContentHeight(420);
+    setContentHeight(450);
   }, [step]);
+
+  // Handle Android back button with multi-step logic
+  const handleBackPress = useCallback(() => {
+    // Block all back navigation while the create request is in-flight
+    if (isCreating) return true;
+
+    // Walk back through the step sequence
+    if (step === 'chain') {
+      setSelectedChain(null);
+      setStep('asset');
+      return true;
+    }
+
+    if (step === 'destination') {
+      setSelectedDestination(null);
+      setStep('chain');
+      return true;
+    }
+
+    if (step === 'confirm') {
+      setSelectedDestination(null);
+      setStep('destination');
+      return true;
+    }
+
+    // 'asset' step — let the modal close naturally
+    return false;
+  }, [isCreating, step]);
+
+  useHandleBackPressNew(handleBackPress);
 
   // Chains available for the selected asset
   const availableChains = selectedAsset
