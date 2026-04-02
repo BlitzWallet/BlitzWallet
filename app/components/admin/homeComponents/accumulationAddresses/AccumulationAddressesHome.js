@@ -55,7 +55,9 @@ export default function AccumulationAddressesHome() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('screens.accumulationAddresses.title')} />
+      <CustomSettingsTopBar
+        label={t('screens.accumulationAddresses.navTitle')}
+      />
 
       <View style={styles.innerContainer}>
         <FlatList
