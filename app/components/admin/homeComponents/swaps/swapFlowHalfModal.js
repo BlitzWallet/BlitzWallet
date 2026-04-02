@@ -243,6 +243,18 @@ export default function SwapFlowHalfModal({
       error.includes(t('screens.inAccount.swapsPage.checkSwapMessage'))) &&
     hasEnoughBalance;
 
+  const canProceed =
+    !fromAmount ||
+    isSimulating ||
+    (!!poolInfo &&
+      parseFloat(fromAmount) > 0 &&
+      !(fromAsset === 'BTC' && Number(fromAmount) < swapLimits.bitcoin) &&
+      !(fromAsset === 'USD' && Number(fromAmount) < swapLimits.usd) &&
+      hasEnoughBalance &&
+      !!simulationResult &&
+      Object.keys(simulationResult).length > 0 &&
+      !isSwapping);
+
   // ── Pool loading ────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -574,10 +586,10 @@ export default function SwapFlowHalfModal({
   };
 
   const backLabel = t('constants.back');
-  const acceptLabel = t('constants.accept');
+  const confirmLabel = t('constants.confirm');
 
   const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([backLabel, acceptLabel]);
+    useAdaptiveButtonLayout([backLabel, confirmLabel]);
 
   const getAmountFontSize = amount => {
     if (!amount) return SIZES.large;
@@ -1765,6 +1777,7 @@ export default function SwapFlowHalfModal({
               <CustomButton
                 buttonStyles={{
                   ...CENTER,
+                  opacity: canProceed ? 1 : HIDDEN_OPACITY,
                 }}
                 disabled={isSwapping || isLoadingPool || isSimulating}
                 useLoading={isSwapping || isLoadingPool || isSimulating}
@@ -2047,7 +2060,7 @@ export default function SwapFlowHalfModal({
                 {...getLabelProps(1)}
                 enableElipsis={false}
                 actionFunction={handleAcceptReview}
-                textContent={acceptLabel}
+                textContent={confirmLabel}
               />
             </View>
             <ThemeText

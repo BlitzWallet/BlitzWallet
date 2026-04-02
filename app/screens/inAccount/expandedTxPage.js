@@ -427,7 +427,10 @@ export default function ExpandedTx(props) {
               { backgroundColor },
             ]}
           >
-            <ThemeText content={description} styles={{ flex: 1 }} />
+            <ThemeText
+              content={description}
+              styles={{ flex: 1, includeFontPadding: false }}
+            />
             <ThemeIcon iconName={'ExternalLink'} size={18} />
           </TouchableOpacity>
         </View>

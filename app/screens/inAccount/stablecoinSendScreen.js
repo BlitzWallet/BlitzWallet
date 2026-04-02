@@ -57,6 +57,7 @@ import SendTransactionFeeInfo from '../../components/admin/homeComponents/sendBi
 import { formatStablecoinAmount } from '../../functions/sendBitcoin';
 import { SliderProgressAnimation } from '../../functions/CustomElements/sendPaymentAnimation';
 import { formatBalanceAmount } from '../../functions';
+import Animated, { FadeOutDown } from 'react-native-reanimated';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -469,8 +470,21 @@ export default function StablecoinSendScreen() {
   const isQuoteLoading =
     (quoteLoading || (quote && countdown === null)) && !sending;
 
+  const hasEnoughBalance =
+    sourceMethod === 'BTC'
+      ? convertedSendAmount <= Number(bitcoinBalance)
+      : Number(rawInput) <= Number(dollarBalanceToken);
+
   const canConfirm =
-    !!quote && !quoteLoading && !sending && convertedSendAmount > 0;
+    !!quote &&
+    !isQuoteLoading &&
+    !sending &&
+    convertedSendAmount > 0 &&
+    hasEnoughBalance;
+
+  const canReview =
+    (convertedSendAmount > 0 && hasEnoughBalance && !sending && quote) ||
+    quoteLoading;
 
   const handleReview = useCallback(() => {
     if (!convertedSendAmount || convertedSendAmount <= 0) {
@@ -492,11 +506,6 @@ export default function StablecoinSendScreen() {
       });
       return;
     }
-
-    const hasEnoughBalance =
-      sourceMethod === 'BTC'
-        ? convertedSendAmount <= Number(bitcoinBalance)
-        : Number(rawInput) <= Number(dollarBalanceToken);
 
     if (!hasEnoughBalance) {
       navigate.navigate('ErrorScreen', {
@@ -525,6 +534,7 @@ export default function StablecoinSendScreen() {
     bitcoinBalance,
     dollarBalanceToken,
     navigate,
+    hasEnoughBalance,
   ]);
 
   const rowBg = backgroundOffset;
@@ -649,8 +659,11 @@ export default function StablecoinSendScreen() {
         )}
 
         {/* Quote summary */}
-        {convertedSendAmount > 0 && isAmountFocused && !sending && (
-          <View style={[styles.quoteBox, { backgroundColor: rowBg }]}>
+        {!sending && (
+          <Animated.View
+            style={[styles.quoteBox, { backgroundColor: rowBg }]}
+            exiting={FadeOutDown.duration(300)}
+          >
             {isQuoteLoading && (
               <View style={styles.quoteLoadingRow}>
                 <ActivityIndicator
@@ -667,19 +680,11 @@ export default function StablecoinSendScreen() {
             )}
             {!isQuoteLoading && quoteError && (
               <ThemeText
-                styles={[
-                  styles.quoteErrorText,
-                  {
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.cancelRed,
-                  },
-                ]}
+                styles={[styles.quoteErrorText]}
                 content={quoteError}
               />
             )}
-            {!isQuoteLoading && quote && countdown !== null && (
+            {!isQuoteLoading && !quoteError && (
               <>
                 <View style={styles.quoteRow}>
                   <ThemeText
@@ -687,35 +692,43 @@ export default function StablecoinSendScreen() {
                     content={t('wallet.stablecoinSend.recipientGets')}
                   />
                   <ThemeText
-                    styles={styles.quoteValue}
+                    styles={[
+                      styles.quoteValue,
+                      {
+                        opacity:
+                          quote?.estimatedOut || 0 > 0 ? 1 : HIDDEN_OPACITY,
+                      },
+                    ]}
                     content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
-                      formatStablecoinAmount(quote.estimatedOut),
+                      formatStablecoinAmount(quote?.estimatedOut || 0),
                       false,
                       masterInfoObject,
                     )} ${asset}`}
                   />
                 </View>
-                <View style={styles.quoteRow}>
-                  <ThemeText
-                    styles={styles.quoteLabel}
-                    content={t('wallet.stablecoinSend.quoteExpiresIn')}
-                  />
-                  <ThemeText
-                    styles={[
-                      styles.quoteValue,
-                      countdown < 30000 && {
-                        color:
-                          theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.cancelRed,
-                      },
-                    ]}
-                    content={formatCountdown(countdown)}
-                  />
-                </View>
+                {isConfirmMode && (
+                  <View style={styles.quoteRow}>
+                    <ThemeText
+                      styles={styles.quoteLabel}
+                      content={t('wallet.stablecoinSend.quoteExpiresIn')}
+                    />
+                    <ThemeText
+                      styles={[
+                        styles.quoteValue,
+                        countdown < 30000 && {
+                          color:
+                            theme && darkModeType
+                              ? COLORS.darkModeText
+                              : COLORS.cancelRed,
+                        },
+                      ]}
+                      content={formatCountdown(countdown)}
+                    />
+                  </View>
+                )}
               </>
             )}
-          </View>
+          </Animated.View>
         )}
 
         {/* EDIT_AMOUNT: keyboard + Review button */}
@@ -731,7 +744,10 @@ export default function StablecoinSendScreen() {
           <CustomButton
             textContent={t('constants.review')}
             actionFunction={handleReview}
-            buttonStyles={{ ...CENTER }}
+            buttonStyles={{
+              ...CENTER,
+              opacity: canReview ? 1 : HIDDEN_OPACITY,
+            }}
             useLoading={isQuoteLoading}
           />
         )}
@@ -837,7 +853,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   quoteErrorText: {
-    fontSize: SIZES.small,
+    fontSize: SIZES.smedium,
     includeFontPadding: false,
   },
   quoteRow: {

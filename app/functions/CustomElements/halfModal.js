@@ -132,6 +132,7 @@ export default function CustomHalfModal(props) {
   useHandleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
+    Keyboard.dismiss();
     slideIn();
   }, []);
 

@@ -1061,7 +1061,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Invalid format: Addresses should be text only. Please check and try again.",
-        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark address, Blitz contact username, Bitcoin address, or a Lightning address/invoice.",
+        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark address, Blitz contact username, Bitcoin address, Lightning address/invoice, or a supported USDT/USDC network.",
         "paymentProcessingError": "Error processing payment info",
         "tooLowSendingAmount": "The sending amount is too high to cover the payment and fees. Maximum send amount is {{amount}}",
         "processInputError": "Unable to process input",
@@ -1341,7 +1341,7 @@
       "licenseBody": "Blitz is free and open source software licensed under the",
       "licenseLinkLabel": "Apache License v2.0",
       "walletHeader": "Blitz Wallet",
-      "walletDescription": "This is a self-custodial Bitcoin Spark wallet compatible with the Lightning Network. Blitz does not have access to your funds, if you lose your recovery phrase it may result in a loss of funds.",
+      "walletDescription": "This is a self-custodial Bitcoin Spark wallet compatible with the Lightning Network and supporting the stablecoins USDB, USDC, and USDT on main networks. Blitz does not have access to your funds, if you lose your recovery phrase it may result in a loss of funds.",
       "poweredByLabel": "Powered by",
       "poweredByBreez": "Breez Liquid SDK",
       "poweredBySpark": "Spark",

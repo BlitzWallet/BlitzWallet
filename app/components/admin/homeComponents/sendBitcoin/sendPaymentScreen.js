@@ -266,6 +266,11 @@ export default function SendPaymentScreen(props) {
     sparkInformation,
   });
 
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+
   const {
     primaryDisplay,
     secondaryDisplay,
@@ -282,7 +287,7 @@ export default function SendPaymentScreen(props) {
         : determinePaymentMethod,
     inputDenomination,
     fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    usdFiatStats: usdFiatStats,
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
   });

@@ -116,8 +116,8 @@ export default function PayLinkCreationOverlay({
           <PayLinkAmountInput
             paymentMode={currencyType}
             onSelectCurrency={setCurrencyType}
-            onContinue={amount => {
-              setPayLinkAmount(amount);
+            onContinue={(amount, rawAmount) => {
+              setPayLinkAmount({ amount, rawAmount });
               setCurrentStep('description');
             }}
             onSkip={() => handleSkip(undefined, undefined)}
