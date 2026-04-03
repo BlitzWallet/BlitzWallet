@@ -10,26 +10,8 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
-import Svg, { Rect, Circle, Polyline } from 'react-native-svg';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-
-const PhotoIcon = () => (
-  <Svg
-    width={20}
-    height={20}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={COLORS.primary}
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <Rect x={3} y={3} width={18} height={18} rx={2} />
-    <Circle cx={8.5} cy={8.5} r={1.5} />
-    <Polyline points="21 15 16 10 5 21" />
-  </Svg>
-);
 
 export default function AddOrDeleteContactImage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -53,7 +35,15 @@ export default function AddOrDeleteContactImage(props) {
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
       <View style={styles.overlay}>
         <TouchableWithoutFeedback>
-          <View style={[styles.modal, { backgroundColor }]}>
+          <View
+            style={[
+              styles.modal,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+            ]}
+          >
             <View
               style={[
                 styles.iconWrap,
@@ -65,7 +55,13 @@ export default function AddOrDeleteContactImage(props) {
                 },
               ]}
             >
-              <ThemeIcon size={20} iconName={'Image'} />
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={20}
+                iconName={'Image'}
+              />
             </View>
 
             <ThemeText
@@ -80,7 +76,13 @@ export default function AddOrDeleteContactImage(props) {
             />
 
             <View
-              style={[styles.divider, { backgroundColor: backgroundOffset }]}
+              style={[
+                styles.divider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
             />
 
             <View style={styles.buttonRow}>
@@ -108,7 +110,12 @@ export default function AddOrDeleteContactImage(props) {
               <View
                 style={[
                   styles.btnDivider,
-                  { backgroundColor: backgroundOffset },
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                  },
                 ]}
               />
 

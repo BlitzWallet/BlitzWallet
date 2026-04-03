@@ -32,7 +32,15 @@ export default function ConfirmLeaveChatGPT(props) {
     <TouchableWithoutFeedback onPress={navigate.goBack}>
       <View style={styles.overlay}>
         <TouchableWithoutFeedback>
-          <View style={[styles.modal, { backgroundColor }]}>
+          <View
+            style={[
+              styles.modal,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+            ]}
+          >
             <View
               style={[
                 styles.iconWrap,
@@ -44,7 +52,13 @@ export default function ConfirmLeaveChatGPT(props) {
                 },
               ]}
             >
-              <ThemeIcon size={20} iconName={'MessageSquare'} />
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={20}
+                iconName={'MessageSquare'}
+              />
             </View>
 
             <ThemeText
@@ -53,7 +67,13 @@ export default function ConfirmLeaveChatGPT(props) {
             />
 
             <View
-              style={[styles.divider, { backgroundColor: backgroundOffset }]}
+              style={[
+                styles.divider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
             />
 
             <View style={styles.buttonRow}>
@@ -71,7 +91,12 @@ export default function ConfirmLeaveChatGPT(props) {
               <View
                 style={[
                   styles.btnDivider,
-                  { backgroundColor: backgroundOffset },
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                  },
                 ]}
               />
 

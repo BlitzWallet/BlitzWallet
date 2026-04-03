@@ -46,7 +46,15 @@ export default function ConfirmActionPage(props) {
     <TouchableWithoutFeedback onPress={handleCancel}>
       <View style={styles.overlay}>
         <TouchableWithoutFeedback>
-          <View style={[styles.modal, { backgroundColor }]}>
+          <View
+            style={[
+              styles.modal,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+            ]}
+          >
             {/* Icon */}
             <View
               style={[
@@ -59,7 +67,13 @@ export default function ConfirmActionPage(props) {
                 },
               ]}
             >
-              <ThemeIcon size={20} iconName={'Info'} />
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={20}
+                iconName={'Info'}
+              />
             </View>
 
             {/* Message */}
@@ -67,7 +81,13 @@ export default function ConfirmActionPage(props) {
 
             {/* Divider */}
             <View
-              style={[styles.divider, { backgroundColor: backgroundOffset }]}
+              style={[
+                styles.divider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
             />
 
             {/* Buttons */}
@@ -94,7 +114,12 @@ export default function ConfirmActionPage(props) {
               <View
                 style={[
                   styles.btnDivider,
-                  { backgroundColor: backgroundOffset },
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                  },
                 ]}
               />
 
