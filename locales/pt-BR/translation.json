@@ -2224,6 +2224,53 @@
         "noHisotorydesc": "As trocas aparecerão aqui.",
         "pageTitle": "Histórico"
       }
+    },
+    "accumulationAddresses": {
+      "title": "Endereços de auto-troca",
+      "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares",
+      "navTitle": "Endereços",
+      "sectionTitle": "Endereços ativos",
+      "empty": {
+        "title": "Nenhum endereço de auto-troca",
+        "subtitle": "Crie um endereço para converter automaticamente depósitos em Bitcoin ou dólares"
+      },
+      "createButton": "Criar endereço",
+      "info": {
+        "title": "O que são?",
+        "whatAre": "O que são?",
+        "whatAreBody": "Endereços únicos de USDC ou USDT em que os valores recebidos são automaticamente convertidos em Bitcoin ou dólares e enviados para sua carteira.",
+        "howItWorks": "Como funciona",
+        "step1": "1. Compartilhe seu endereço de depósito com um remetente ou corretora.",
+        "step2": "2. Os fundos são automaticamente convertidos.",
+        "step3": "3. O valor convertido chega na sua carteira."
+      },
+      "detail": {
+        "copyAddress": "Copiar endereço",
+        "printQR": "Imprimir QR",
+        "deleteButton": "Excluir endereço",
+        "deleteConfirmTitle": "Excluir endereço?",
+        "deleteConfirmBody": "Excluir este endereço impede o redirecionamento de pagamentos futuros e pode resultar na perda de fundos. Certifique-se de que todos saibam que ele não está mais ativo antes de removê-lo.",
+        "chain": "Rede",
+        "source": "Origem",
+        "Destination": "Destino"
+      },
+      "create": {
+        "pickAsset": "Selecionar moeda de pagamento",
+        "pickChain": "Selecionar rede",
+        "pickDestination": "Selecionar destino",
+        "confirm": "Confirmar endereço",
+        "alreadyExists": "Você já tem um endereço para esta combinação"
+      },
+      "summary": {
+        "chain": "Rede",
+        "paymentCurrency": "Moeda de pagamento",
+        "destination": "Destino",
+        "create": "Criar endereço"
+      },
+      "errors": {
+        "createFailed": "Falha ao criar endereço. Tente novamente.",
+        "deleteFailed": "Falha ao excluir endereço. Tente novamente."
+      }
     }
   },
   "toastmessages": {

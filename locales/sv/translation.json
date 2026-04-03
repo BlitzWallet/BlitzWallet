@@ -2224,6 +2224,53 @@
         "noHisotorydesc": "Dina swap-transaktioner visas här.",
         "pageTitle": "Historik"
       }
+    },
+    "accumulationAddresses": {
+      "title": "Ackumuleringsadresser",
+      "subtitle": "Konvertera automatiskt stablecoins till BTC eller dollar",
+      "navTitle": "Adresser",
+      "sectionTitle": "Aktiva adresser",
+      "empty": {
+        "title": "Inga ackumuleringsadresser",
+        "subtitle": "Skapa en adress för att automatiskt konvertera insättningar till Bitcoin eller dollar"
+      },
+      "createButton": "Skapa adress",
+      "info": {
+        "title": "Vad är de?",
+        "whatAre": "Vad är de?",
+        "whatAreBody": "Permanenta adresser som automatiskt konverterar inkommande USDC eller USDT till Bitcoin eller dollar och skickar medlen till din plånbok.",
+        "howItWorks": "Hur det fungerar",
+        "step1": "1. Dela din insättningsadress med en avsändare eller börs.",
+        "step2": "2. Medel anländer on-chain och växlas automatiskt.",
+        "step3": "3. Det konverterade beloppet landar i din plånbok."
+      },
+      "detail": {
+        "copyAddress": "Kopiera adress",
+        "printQR": "Skriv ut QR",
+        "deleteButton": "Ta bort adress",
+        "deleteConfirmTitle": "Ta bort adress?",
+        "deleteConfirmBody": "Att ta bort denna adress stoppar omdirigering av framtida betalningar och kan leda till förlorade medel. Se till att alla vet att den inte längre är aktiv innan du tar bort den.",
+        "chain": "Kedja",
+        "source": "Källa",
+        "Destination": "Destination"
+      },
+      "create": {
+        "pickAsset": "Välj betalningsvaluta",
+        "pickChain": "Välj kedja",
+        "pickDestination": "Välj destination",
+        "confirm": "Bekräfta adress",
+        "alreadyExists": "Du har redan en adress för denna kombination"
+      },
+      "summary": {
+        "chain": "Kedja",
+        "paymentCurrency": "Betalningsvaluta",
+        "destination": "Destination",
+        "create": "Skapa adress"
+      },
+      "errors": {
+        "createFailed": "Det gick inte att skapa adressen. Försök igen.",
+        "deleteFailed": "Det gick inte att ta bort adressen. Försök igen."
+      }
     }
   },
   "toastmessages": {

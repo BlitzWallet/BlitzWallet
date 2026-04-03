@@ -2224,6 +2224,53 @@
         "noHisotorydesc": "Vos transactions d’échange apparaîtront ici.",
         "pageTitle": "Historique"
       }
+    },
+    "accumulationAddresses": {
+      "title": "Adresses d’accumulation",
+      "subtitle": "Convertissez automatiquement les stablecoins en BTC ou en dollars",
+      "navTitle": "Adresses",
+      "sectionTitle": "Adresses actives",
+      "empty": {
+        "title": "Aucune adresse d’accumulation",
+        "subtitle": "Créez une adresse pour convertir automatiquement les dépôts en Bitcoin ou en dollars"
+      },
+      "createButton": "Créer une adresse",
+      "info": {
+        "title": "Que sont-elles ?",
+        "whatAre": "Que sont-elles ?",
+        "whatAreBody": "Des adresses persistantes qui convertissent automatiquement les USDC ou USDT entrants en Bitcoin ou en dollars et envoient les fonds vers votre portefeuille.",
+        "howItWorks": "Comment ça fonctionne",
+        "step1": "1. Partagez votre adresse de dépôt avec un expéditeur ou un échange.",
+        "step2": "2. Les fonds arrivent on-chain et sont automatiquement échangés.",
+        "step3": "3. Le montant converti arrive dans votre portefeuille."
+      },
+      "detail": {
+        "copyAddress": "Copier l’adresse",
+        "printQR": "Imprimer le QR",
+        "deleteButton": "Supprimer l’adresse",
+        "deleteConfirmTitle": "Supprimer l’adresse ?",
+        "deleteConfirmBody": "La suppression de cette adresse empêche la redirection des paiements futurs et peut entraîner une perte de fonds. Assurez-vous que tout le monde sait qu’elle n’est plus active avant de la supprimer.",
+        "chain": "Réseau",
+        "source": "Source",
+        "Destination": "Destination"
+      },
+      "create": {
+        "pickAsset": "Sélectionner la devise de paiement",
+        "pickChain": "Sélectionner le réseau",
+        "pickDestination": "Sélectionner la destination",
+        "confirm": "Confirmer l’adresse",
+        "alreadyExists": "Vous avez déjà une adresse pour cette combinaison"
+      },
+      "summary": {
+        "chain": "Réseau",
+        "paymentCurrency": "Devise de paiement",
+        "destination": "Destination",
+        "create": "Créer une adresse"
+      },
+      "errors": {
+        "createFailed": "Échec de la création de l’adresse. Veuillez réessayer.",
+        "deleteFailed": "Échec de la suppression de l’adresse. Veuillez réessayer."
+      }
     }
   },
   "toastmessages": {

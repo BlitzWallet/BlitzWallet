@@ -204,6 +204,7 @@ export default async function initializeUserSettingsFromHistory({
       lastUpdated: new Date().getTime(),
       addresses: [],
     };
+    const accumulationAddresses = blitzStoredData.accumulationAddresses || '';
     const nip5Settings = blitzStoredData.nip5Settings || {
       name: '',
       pubkey: '',
@@ -387,6 +388,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['enabledGiftCards'] = enabledGiftCards;
     tempObject['useTrampoline'] = useTrampoline;
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
+    tempObject['accumulationAddresses'] = accumulationAddresses;
     // tempObject['lnurlPubKey'] = lnurlPubKey;
     tempObject['isUsingEncriptedMessaging'] = isUsingEncriptedMessaging;
     tempObject['isUsingNewNotifications'] = isUsingNewNotifications;

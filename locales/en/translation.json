@@ -2227,6 +2227,53 @@
         "noHisotorydesc": "Your swap transactions will appear here",
         "pageTitle": "History"
       }
+    },
+    "accumulationAddresses": {
+      "title": "Accumulation Addresses",
+      "subtitle": "Auto-convert stablecoins to BTC or Dollars",
+      "navTitle": "Addresses",
+      "sectionTitle": "Active Addresses",
+      "empty": {
+        "title": "No Accumulation Addresses",
+        "subtitle": "Create an address to auto-convert deposits into Bitcoin or Dollars"
+      },
+      "createButton": "Create Address",
+      "info": {
+        "title": "What are they?",
+        "whatAre": "What are they?",
+        "whatAreBody": "Persistent addresses that automatically convert incoming USDC or USDT into Bitcoin or Dollars and deliver the funds to your wallet.",
+        "howItWorks": "How it works",
+        "step1": "1. Share your deposit address with a sender or exchange.",
+        "step2": "2. Funds arrive on-chain and are automatically swapped.",
+        "step3": "3. The converted amount lands in your wallet."
+      },
+      "detail": {
+        "copyAddress": "Copy Address",
+        "printQR": "Print QR",
+        "deleteButton": "Delete Address",
+        "deleteConfirmTitle": "Delete Address?",
+        "deleteConfirmBody": "Deleting this address stops future payments from being redirected and may result in lost funds. Make sure everyone knows it’s no longer active before removing it.",
+        "chain": "Chain",
+        "source": "Source",
+        "Destination": "Destination"
+      },
+      "create": {
+        "pickAsset": "Select Payment Currency",
+        "pickChain": "Select Chain",
+        "pickDestination": "Select Destination",
+        "confirm": "Confirm Address",
+        "alreadyExists": "You already have an address for this combination"
+      },
+      "summary": {
+        "chain": "Chain",
+        "paymentCurrency": "Payment Currency",
+        "destination": "Destination",
+        "create": "Create Address"
+      },
+      "errors": {
+        "createFailed": "Failed to create address. Please try again.",
+        "deleteFailed": "Failed to delete address. Please try again."
+      }
     }
   },
   "toastmessages": {

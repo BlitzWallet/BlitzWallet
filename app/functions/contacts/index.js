@@ -7,8 +7,10 @@ export function generateRandomContact() {
     separator: '',
   }); // big_red_donkey
 
+  const cleanName = randomName.replace(/[^\p{L}\p{N}_]/gu, ''); //staralize output
+
   return {
-    uniqueName: (randomName + Math.ceil(Math.random() * 99)).slice(0, 30),
+    uniqueName: cleanName + Math.ceil(Math.random() * 99),
   };
 }
 

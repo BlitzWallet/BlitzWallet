@@ -29,6 +29,8 @@ import chain_optimism from '../assets/icons/chain-optimism.svg';
 import chain_plasma from '../assets/icons/chain-plasma.svg';
 import chain_tron from '../assets/icons/chain-tron.svg';
 import chain_polygon from '../assets/icons/chain-polygon.png';
+import chain_solana from '../assets/icons/chain-solana.svg';
+import chain_tempo from '../assets/icons/chain-tempo.png';
 import usdcLogo from '../assets/icons/usdc.svg';
 import usdtLogo from '../assets/icons/usdt.svg';
 
@@ -79,6 +81,8 @@ export default {
   chain_plasma,
   chain_tron,
   chain_polygon,
+  chain_solana,
+  chain_tempo,
   usdcLogo,
   usdtLogo,
 };

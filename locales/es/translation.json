@@ -2086,6 +2086,53 @@
         "noHisotorydesc": "Tus transacciones de intercambio aparecerán aquí.",
         "pageTitle": "Historial"
       }
+    },
+    "accumulationAddresses": {
+      "title": "Direcciones de acumulación",
+      "subtitle": "Convierte automáticamente stablecoins a BTC o dólares",
+      "navTitle": "Direcciones",
+      "sectionTitle": "Direcciones activas",
+      "empty": {
+        "title": "No hay direcciones de acumulación",
+        "subtitle": "Crea una dirección para convertir automáticamente depósitos en Bitcoin o dólares"
+      },
+      "createButton": "Crear dirección",
+      "info": {
+        "title": "¿Qué son?",
+        "whatAre": "¿Qué son?",
+        "whatAreBody": "Direcciones persistentes que convierten automáticamente USDC o USDT entrantes en Bitcoin o dólares y envían los fondos a tu billetera.",
+        "howItWorks": "Cómo funciona",
+        "step1": "1. Comparte tu dirección de depósito con un remitente o exchange.",
+        "step2": "2. Los fondos llegan on-chain y se intercambian automáticamente.",
+        "step3": "3. El monto convertido llega a tu billetera."
+      },
+      "detail": {
+        "copyAddress": "Copiar dirección",
+        "printQR": "Imprimir QR",
+        "deleteButton": "Eliminar dirección",
+        "deleteConfirmTitle": "¿Eliminar dirección?",
+        "deleteConfirmBody": "Eliminar esta dirección detiene la redirección de futuros pagos y puede resultar en pérdida de fondos. Asegúrate de que todos sepan que ya no está activa antes de eliminarla.",
+        "chain": "Red",
+        "source": "Origen",
+        "Destination": "Destino"
+      },
+      "create": {
+        "pickAsset": "Seleccionar moneda de pago",
+        "pickChain": "Seleccionar red",
+        "pickDestination": "Seleccionar destino",
+        "confirm": "Confirmar dirección",
+        "alreadyExists": "Ya tienes una dirección para esta combinación"
+      },
+      "summary": {
+        "chain": "Red",
+        "paymentCurrency": "Moneda de pago",
+        "destination": "Destino",
+        "create": "Crear dirección"
+      },
+      "errors": {
+        "createFailed": "No se pudo crear la dirección. Inténtalo de nuevo.",
+        "deleteFailed": "No se pudo eliminar la dirección. Inténtalo de nuevo."
+      }
     }
   },
   "toastmessages": {

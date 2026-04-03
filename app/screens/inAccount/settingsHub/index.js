@@ -23,6 +23,7 @@ import PoolsPreview from './components/PoolsPreview';
 import SavingsPreview from './components/SavingsPreview';
 import PointOfSaleBanner from './components/PointOfSaleBanner';
 import GiftsPreview from './components/GiftsPreview';
+import AccumulationAddressesPreview from './components/AccumulationAddressesPreview';
 
 import Animated, {
   Extrapolation,
@@ -42,6 +43,7 @@ const INITIAL_WIDGET_ORDER = [
   { id: 'savings', type: 'savings' },
   { id: 'pools', type: 'pools' },
   { id: 'gifts', type: 'gifts' },
+  { id: 'accumulation', type: 'accumulation' },
   { id: 'point-of-sale', type: 'point-of-sale' },
 ];
 
@@ -172,6 +174,9 @@ export default function SettingsHub(props) {
   const handleSavingsPress = useCallback(() => {
     navigate.navigate('SavingsHome');
   }, [navigate]);
+  const handleAccumulationPress = useCallback(() => {
+    navigate.navigate('AccumulationAddressesHome');
+  }, [navigate]);
 
   const handleViewAllAccounts = useCallback(() => {
     navigate.navigate('SettingsContentHome', { for: 'Accounts' });
@@ -226,6 +231,10 @@ export default function SettingsHub(props) {
           return <PointOfSaleBanner onPress={handlePOS} />;
         case 'gifts':
           return <GiftsPreview onPress={handleOpenGifts} />;
+        case 'accumulation':
+          return (
+            <AccumulationAddressesPreview onPress={handleAccumulationPress} />
+          );
         default:
           return null;
       }
