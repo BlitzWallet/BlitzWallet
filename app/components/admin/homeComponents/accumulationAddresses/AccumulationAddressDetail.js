@@ -135,7 +135,7 @@ export default function AccumulationAddressDetail() {
             style={styles.addressRow}
             onPress={handleCopy}
           >
-            <ThemeText styles={styles.addressText} content={shortAddress} />
+            <ThemeText content={shortAddress} />
             <ThemeIcon iconName="Copy" size={18} />
           </TouchableOpacity>
 
@@ -204,7 +204,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 20,
   },
-  addressText: { fontFamily: 'monospace', fontSize: 14 },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
