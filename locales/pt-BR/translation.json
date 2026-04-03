@@ -2231,7 +2231,7 @@
       "navTitle": "Endereços",
       "sectionTitle": "Endereços ativos",
       "empty": {
-        "title": "Nenhum endereço de acumulação",
+        "title": "Nenhum endereço de auto-troca",
         "subtitle": "Crie um endereço para converter automaticamente depósitos em Bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
