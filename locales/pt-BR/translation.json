@@ -2255,7 +2255,7 @@
         "Destination": "Destino"
       },
       "create": {
-        "pickAsset": "Selecionar moeda de pagamento",
+        "pickAsset": "Selecionar moeda",
         "pickChain": "Selecionar rede",
         "pickDestination": "Selecionar destino",
         "confirm": "Confirmar endereço",
