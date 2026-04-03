@@ -271,7 +271,12 @@ export default function CustomHalfModal(props) {
           />
         );
       case 'customQrCode':
-        return <CustomQrCode data={props.route.params?.data} />;
+        return (
+          <CustomQrCode
+            data={props.route.params?.data}
+            setContentHeight={setContentHeight}
+          />
+        );
       case 'manualEnterSendAddress':
         return (
           <ManualEnterSendAddress

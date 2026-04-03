@@ -79,7 +79,10 @@ export default function SeedPhrasePage({ extraData, route }) {
           <View
             style={[styles.contentContainer, { height: seedContainerHeight }]}
           >
-            <QrCodeWrapper QRData={qrValue} />
+            <QrCodeWrapper
+              outerContainerStyle={{ backgroundColor: COLORS.darkModeText }}
+              QRData={qrValue}
+            />
           </View>
         ) : (
           <View
