@@ -870,7 +870,7 @@
       "tapToGenerate_spark": "Mostrar endereço Spark",
       "tapToGenerate_liquid": "Mostrar endereço Liquid",
       "tapToGenerate_rootstock": "Mostrar endereço Rootstock",
-      "chooseWhatToReceive": "O que você deseja receber?",
+      "chooseWhatToReceive": "Qual moeda você deseja receber?",
       "instantLowFees": "Instantâneo, taxas baixas",
       "onChainTransaction": "~ 10 minutos",
       "otherAddresses": "Outras opções",
@@ -901,7 +901,7 @@
       "alreadyPaid": "Este link de pagamento já foi pago.",
       "notFound": "Link de pagamento não encontrado.",
       "invoiceError": "Falha ao criar fatura.",
-      "requestHeader": "O que você deseja receber?",
+      "requestHeader": "Qual moeda você deseja receber?",
       "genQRCode": "Gerar código QR",
       "howItWorks": {
         "step1Label": "Compartilhe o link",
@@ -1250,7 +1250,7 @@
       "header": "O você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "O que você deseja receber?"
+      "header": "Qual moeda você deseja receber?"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
@@ -1932,7 +1932,7 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "O que você deseja receber?",
+        "selectReceiveAssetHead": "Qual moeda você deseja receber?",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
         "editDescriptionPlaceholder": "Adicionar uma descrição",
