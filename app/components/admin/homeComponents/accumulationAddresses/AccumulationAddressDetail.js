@@ -23,7 +23,7 @@ import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddre
 import { CENTER, COLORS } from '../../../../constants';
 import { createPdf } from 'react-native-pdf-from-image';
 import { shareFile } from '../../../../functions/handleShare';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
@@ -144,6 +144,7 @@ export default function AccumulationAddressDetail() {
             <MetaCell
               label={t('screens.accumulationAddresses.detail.chain')}
               value={address.sourceChain}
+              textStyles={{ textTransform: 'capitalize' }}
             />
             <MetaCell
               label={t('screens.accumulationAddresses.detail.source')}
@@ -171,11 +172,11 @@ export default function AccumulationAddressDetail() {
   );
 }
 
-function MetaCell({ label, value }) {
+function MetaCell({ label, value, textStyles = {} }) {
   return (
     <View style={styles.metaCell}>
       <ThemeText styles={styles.metaLabel} content={label} />
-      <ThemeText styles={styles.metaValue} content={value} />
+      <ThemeText styles={[styles.metaValue, textStyles]} content={value} />
     </View>
   );
 }
@@ -211,8 +212,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   metaCell: { alignItems: 'center' },
-  metaLabel: { fontSize: 12, opacity: 0.6, marginBottom: 2 },
-  metaValue: { fontSize: 14, fontFamily: 'Satoshi-Bold' },
+  metaLabel: { fontSize: SIZES.small, opacity: 0.6, marginBottom: 2 },
+  metaValue: {
+    fontSize: SIZES.smedium,
+    includeFontPadding: false,
+  },
   printBtn: { width: '100%' },
   deleteBtn: {
     width: '100%',
