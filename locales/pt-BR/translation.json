@@ -2226,7 +2226,7 @@
       }
     },
     "accumulationAddresses": {
-      "title": "Endereços de acumulação",
+      "title": "Endereços de auto-troca",
       "subtitle": "Converta automaticamente stablecoins em BTC ou dólares",
       "navTitle": "Endereços",
       "sectionTitle": "Endereços ativos",
