@@ -909,7 +909,7 @@
         "step2Label": "A pessoa abre o link no navegador",
         "step2Desc": "Não é necessário app. O link abre uma página na internet onde a fatura pode ser paga com Bitcoin, USDC ou USDT.",
         "step3Label": "Você recebe instantaneamente",
-        "step3Desc": "Assim que o pagamento for concluído, o dinheiro chega à sua carteira."
+        "step3Desc": "Assim que o pagamento for concluído, o dinheiro chega na sua carteira."
       },
       "copyLink": "Copiar link"
     },
@@ -2227,12 +2227,12 @@
     },
     "accumulationAddresses": {
       "title": "Endereços de auto-troca",
-      "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares",
+      "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares USDB",
       "navTitle": "Endereços",
       "sectionTitle": "Endereços ativos",
       "empty": {
         "title": "Nenhum endereço de auto-troca",
-        "subtitle": "Crie um endereço para converter automaticamente depósitos em Bitcoin ou dólares"
+        "subtitle": "Crie um endereço de auto-troca para receber os depósitos convertidos em Bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
       "info": {
@@ -2241,7 +2241,7 @@
         "whatAreBody": "Endereços únicos de USDC ou USDT em que os valores recebidos são automaticamente convertidos em Bitcoin ou dólares e enviados para sua carteira.",
         "howItWorks": "Como funciona",
         "step1": "1. Compartilhe seu endereço de depósito com um remetente ou corretora.",
-        "step2": "2. Os fundos são automaticamente convertidos.",
+        "step2": "2. Os fundos recebidos são automaticamente convertidos.",
         "step3": "3. O valor convertido chega na sua carteira."
       },
       "detail": {
@@ -2255,7 +2255,7 @@
         "Destination": "Destino"
       },
       "create": {
-        "pickAsset": "Selecionar moeda de pagamento",
+        "pickAsset": "Selecionar moeda",
         "pickChain": "Selecionar rede",
         "pickDestination": "Selecionar destino",
         "confirm": "Confirmar endereço",
@@ -2263,7 +2263,7 @@
       },
       "summary": {
         "chain": "Rede",
-        "paymentCurrency": "Moeda de pagamento",
+        "paymentCurrency": "Moeda",
         "destination": "Destino",
         "create": "Criar endereço"
       },
