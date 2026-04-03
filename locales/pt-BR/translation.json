@@ -2232,7 +2232,7 @@
       "sectionTitle": "Endereços ativos",
       "empty": {
         "title": "Nenhum endereço de auto-troca",
-        "subtitle": "Crie endereços de auto-troca para receber os depósitos convertidos em bitcoin ou dólares"
+        "subtitle": "Crie endereços de auto-troca para receber os depósitos em bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
       "info": {
