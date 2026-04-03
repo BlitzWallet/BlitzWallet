@@ -2263,7 +2263,7 @@
       },
       "summary": {
         "chain": "Rede",
-        "paymentCurrency": "Moeda de pagamento",
+        "paymentCurrency": "Moeda",
         "destination": "Destino",
         "create": "Criar endereço"
       },
