@@ -864,7 +864,6 @@
       "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild auszulesen.",
       "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten.",
       "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden.",
-      "addressBook": "Adressbuch",
       "selectAddressType": "Adresstyp auswählen",
       "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen.",
       "tapToGenerate_bitcoin": "Tippen Sie, um eine BTC-Adresse zu erstellen.",
@@ -1047,7 +1046,6 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Rechnungsdetails werden vorbereitet...",
         "alreadyPaidInvoiceError": "Diese Rechnung wurde bereits bezahlt.",
-        "descriptionPlaceholder": "Zahlungsbeschreibung...",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung.",
         "connectToSparkMessage": "Verbindung zu Ihrer Wallet wird hergestellt...",
         "switchTokenText": "Bitte verwenden Sie einen anderen Token.",
@@ -1082,7 +1080,8 @@
         "lnurlWithdrawlSuccess": "Auszahlung erfolgreich! Ihre Zahlung ist unterwegs.",
         "invoiceDetails": "Details werden geladen...",
         "timeoutError": "Der Vorgang hat zu lange gedauert. Bitte versuchen Sie es erneut.",
-        "payingToSameAddress": "Sie können keine {{addressType}}-Zahlung an sich selbst senden."
+        "payingToSameAddress": "Sie können keine {{addressType}}-Zahlung an sich selbst senden.",
+        "blitzUserNotFound": "Blitz-Benutzer nicht gefunden"
       },
       "errorScreen": {
         "ok": "OK",
@@ -1255,7 +1254,6 @@
       "header": "Bitte wählen Sie die anzufordernde Währung aus."
     },
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Zahlungsbeschreibung",
       "profileMessage": "Bezahlung an {{name}}",
       "contactMessage": "{{name}} hat Ihnen bezahlt",
       "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz Wallet.",
@@ -1748,7 +1746,8 @@
       "poolsTitle": "Sparpool",
       "noPoolsMessage": "Sie haben noch keinen Sparpool erstellt. Tippen Sie, um Ihren ersten Sparpool zu erstellen.",
       "yourAccountsTitle": "Ihre Konten",
-      "addAccountButton": "Konto hinzufügen"
+      "addAccountButton": "Konto hinzufügen",
+      "noActivePools": "Sie haben keine aktiven Pools"
     },
     "hub": {
       "viewAll": "Alle anzeigen",
@@ -1895,7 +1894,8 @@
         "title": "Blitz-Downloads",
         "goalUserCount": "von {{goalUserCount}} Nutzern",
         "percentOfGoal": "{{goalPercent}} % des Ziels erreicht",
-        "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute"
+        "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute",
+        "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
         "loadingMessage1": "Bitte schließen Sie die App nicht.",
@@ -2218,7 +2218,8 @@
         "chooseCurrencyTitle": "Wählen Sie die Währung, die Sie umtauschen möchten.",
         "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten",
         "noContentTitle": "Kein Guthaben verfügbar",
-        "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln."
+        "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",
+        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Der Swap-Verlauf konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",

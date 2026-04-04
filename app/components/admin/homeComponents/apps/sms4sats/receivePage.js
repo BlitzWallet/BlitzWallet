@@ -438,7 +438,7 @@ export default function SMSMessagingReceivedPage(props) {
         <FullLoadingScreen
           text={
             isLoadingLocationServices
-              ? t('apps.sms4sats.receivePage.loacationLoadingMessage')
+              ? t('apps.sms4sats.receivePage.locationLoadingMessage')
               : isPurchasing.message
           }
         />

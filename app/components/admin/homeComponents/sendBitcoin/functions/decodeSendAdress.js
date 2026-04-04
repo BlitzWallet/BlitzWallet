@@ -64,7 +64,7 @@ export default async function decodeSendAddress(props) {
   try {
     console.log(btcAdress, 'scanned address');
     if (typeof btcAdress !== 'string')
-      throw new Error(t('wallet.sendPages.handlingAddressErrors.invlidFormat'));
+      throw new Error(t('wallet.sendPages.handlingAddressErrors.invalidFormat'));
 
     if (btcAdress.toLowerCase().startsWith('paylink://')) {
       const payLinkId = btcAdress.slice('paylink://'.length);

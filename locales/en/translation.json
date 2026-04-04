@@ -105,7 +105,7 @@
     "selectOption": "Select an option",
     "slideToConfirm": "Slide to confirm",
     "token": "Token",
-    "veriable": "Variable",
+    "variable": "Variable",
     "instant": "Instant",
     "andLower": "and",
     "onLower": "on",
@@ -208,7 +208,7 @@
       "title": "Choose Language"
     },
     "homePage": {
-      "_COMMENT_": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
+      "COMMENT": "THE NEXT WORDS ARE A SENTENCE SPLIT UP FULL SENTENCE IS (Money Made Simple.)",
       "money": "Money",
       "made": "Made",
       "simple": "Simple.",
@@ -310,7 +310,7 @@
         "payingInvoiceLoadingMessage": "Paying invoice",
         "backupPaymentError": "Error paying invoice.",
         "createInvoiceError": "Error creating invoice.",
-        "payingInvoiveError": "Error paying invoice.",
+        "payingInvoiceError": "Error paying invoice.",
         "runningTries": "Attempt {{runCount}} of {{maxTries}} attempts",
         "configError": "Unable to get VPN config. Please reach out to LNVPN.",
         "paymentMemo": "Store - VPN"
@@ -811,7 +811,7 @@
         "autoSelectInfoMessage": "Choose the country of the phone number you want to use. For the best chance of receiving your code, we recommend keeping it on 'Auto Select' so the system picks the most reliable option.",
         "autoSelect": "Auto Select",
         "inputPlaceholder": "Search for a service",
-        "loacationLoadingMessage": "Getting location-based services",
+        "locationLoadingMessage": "Getting location-based services",
         "noAvailableServices": "This location has no services",
         "orderDetailsLoading": "Getting order details"
       },
@@ -988,7 +988,7 @@
       "settingsText": "Go to settings to let Blitz Wallet access your camera",
       "noCameraDevice": "You do not have a camera device.",
       "noFlash": " Device does not have a torch",
-      "sanningResponse": "Only QR codes are accepted.",
+      "scanningResponse": "Only QR codes are accepted.",
       "qrDecodeError": "Error decoding QR code"
     },
     "confirmClipboard": {
@@ -1060,7 +1060,7 @@
         "header": "How do you want to fund your payment?"
       },
       "handlingAddressErrors": {
-        "invlidFormat": "Invalid format: Addresses should be text only. Please check and try again.",
+        "invalidFormat": "Invalid format: Addresses should be text only. Please check and try again.",
         "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark address, Blitz contact username, Bitcoin address, Lightning address/invoice, or a supported USDT/USDC network.",
         "paymentProcessingError": "Error processing payment info",
         "tooLowSendingAmount": "The sending amount is too high to cover the payment and fees. Maximum send amount is {{amount}}",
@@ -1245,7 +1245,7 @@
       "usernameAlreadyExistsError": "This username already exists, please choose another.",
       "unableToSaveError": "Unable to save profile image, please try again.",
       "deleteProfileImageError": "Unable to delete profile image, please try again.",
-      "deleateWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored."
+      "deleteWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored."
     },
     "selectCurrencyToSend": {
       "header": "What do you want to send?"
@@ -1310,8 +1310,8 @@
         "cardNamePlaceH": "Gift Card",
         "noCardsText": "Your gift cards will appear here when a contact sends you one.",
         "header": "Your Gift Cards",
-        "cardsLenghSingular": "{{num}} card",
-        "cardsLenghPlurl": "{{num}} cards"
+        "cardsLengthSingular": "{{num}} card",
+        "cardsLengthPlural": "{{num}} cards"
       },
       "editGiftCard": {
         "header": "What would you like to do with your gift?"
@@ -1435,12 +1435,12 @@
       "text5": "Device does not have a Biometric profile. Create one in Settings to continue.",
       "text6": "Error logging in with Biometrics",
       "text7": "Device does not support Biometric login",
-      "unsuccesfullLoginSwitch": "Unable to switch login type",
+      "unsuccessfulLoginSwitch": "Unable to switch login type",
       "toggleSecurityModeError": "Something went wrong while switching your security settings. Please try again.",
       "noBiometricsError": "Device does not support Biometric login",
       "noBiometricProfileError": "Device does not have a Biometric profile. Create one in Settings to continue.",
       "biometricSignInError": "Error logging in with Biometrics",
-      "migratingStorageMessgae": "Migrating storage to new security.",
+      "migratingStorageMessage": "Migrating storage to new security.",
       "createPinPageHeader": "{{type}} your Blitz PIN",
       "invalidPinconfirmation": "PINs do not match. Try again!",
       "randomPinKeyboardToggle": "Shuffle Keypad",
@@ -1600,7 +1600,7 @@
         "invalidPubKey": "Invalid pubkey: must be a non-empty string",
         "invalidNpub": "Invalid npub format",
         "decodeNpubError": "Failed to decode npub",
-        "invlaidFormat": "Invalid pubkey format: must be either a 64-character hex string or npub"
+        "invalidFormat": "Invalid pubkey format: must be either a 64-character hex string or npub"
       }
     },
     "nwc": {
@@ -1628,14 +1628,14 @@
         "connectionName": ""
       },
       "hasNoAccounts": {
-        "wanringMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC in the account settings page."
+        "warningMessage": "To send money from your Nostr Connect account, you’ll first need to add funds—either by receiving money or transferring from your main account.\n\n You can transfer funds from your main account to NWC in the account settings page."
       },
       "noNotifications": {
-        "wanringMessage": "In order to use Nostr Wallet Connect you need to have push notifications for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again."
+        "warningMessage": "In order to use Nostr Wallet Connect you need to have push notifications for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again."
       },
       "showSeedPage": {
         "loadingMessage": "Generating recovery phrase",
-        "wanringMessage": "To keep your account safe, Nostr Wallet Connect creates a separate recovery phrase from your main account's recovery phrase.\n\nYou can access this recovery phrase in the accounts settings page.",
+        "warningMessage": "To keep your account safe, Nostr Wallet Connect creates a separate recovery phrase from your main account's recovery phrase.\n\nYou can access this recovery phrase in the accounts settings page.",
         "viewSeed": "View recovery phrase"
       },
       "combinedOnboarding": {
@@ -1892,7 +1892,7 @@
       "explorePage": {
         "timeLeft": "({{time}} left)",
         "title": "Blitz Downloads",
-        "__COMMENT__": "Full sentence below = Number of totalUser users",
+        "COMMENT": "Full sentence below = Number of totalUser users",
         "goalUserCount": "of {{goalUserCount}} users.",
         "percentOfGoal": "{{goalPercent}}% of goal",
         "numAddedUsers": "+{{numNewUsers}} users today"
@@ -2093,7 +2093,7 @@
           "inputPlaceholder": "Enter gift link",
           "claim": "Claim Gift",
           "noGiftLinkError": "We couldn’t find a gift link. Please scan or paste the link you received.",
-          "invliadGiftFormat": "Invalid gift link. Please copy the full link and try again."
+          "invalidGiftFormat": "Invalid gift link. Please copy the full link and try again."
         },
         "reclaimPage": {
           "header": "Reclaim your gift",
@@ -2173,7 +2173,7 @@
         "swapLiquidityError": "\n\nTry swapping a smaller amount or waiting for more liquidity.",
         "fullSwapError": "An unexpected error occurred during the swap. Please try again.",
         "checkSwapMessage": "High price impact",
-        "__COMMENT__": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
+        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly",
         "swapConfimred": "Swap Successful",
         "youSent": "You sent",
         "youReceived": "You received",
@@ -2223,8 +2223,8 @@
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",
-        "noHisotorytitle": "No Swap History",
-        "noHisotorydesc": "Your swap transactions will appear here",
+        "noHistoryTitle": "No Swap History",
+        "noHistoryDesc": "Your swap transactions will appear here",
         "pageTitle": "History"
       }
     },
@@ -2327,7 +2327,7 @@
     "rootstockInvoiceError": "There was a problem generating your Rootstock address. Please try again.",
     "liquidInvoiceError": "There was a problem generating your Liquid address. Please try again.",
     "bitcoinInvoiceError": "There was a problem generating your Bitcoin address. Please try again.",
-    "sparkInvioceError": "There was a problem generating your Spark address. Please try again.",
+    "sparkInvoiceError": "There was a problem generating your Spark address. Please try again.",
     "lightningInvoiceError": "There was a problem generating your Lightning invoice. Please try again.",
     "sparkConnectionError": "Spark connection failed. Please try again.",
     "giftCardExpiration": "Gift cards can only be recovered for 7 days after they are sent. If this app is deleted or local storage is cleared after that time, your gift cards will be lost. Be sure to save the claim links or gift card codes in a safe place.",
@@ -2599,7 +2599,7 @@
         "accrualValue": "Daily"
       },
       "context": {
-        "goalNameReqiured": "Goal name is required",
+        "goalNameRequired": "Goal name is required",
         "goalNotFound": "Goal not found"
       },
       "transparencyTitle": "Backed by real reserves",
@@ -2613,7 +2613,7 @@
     "swapSimulationError": "Swap simulation not available",
     "savingsWalletError": "Goal wallet not ready",
     "rewardsPayout": "Bitcoin rewards payout",
-    "rewardsWithdrawl": "Bitcoin rewards withdrawl",
+    "rewardsWithdrawal": "Bitcoin rewards withdrawl",
     "total_balance": "Total Balance"
   }
 }

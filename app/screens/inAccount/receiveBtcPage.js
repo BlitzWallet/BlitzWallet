@@ -429,7 +429,7 @@ export default function ReceivePaymentHome(props) {
               (selectedRecieveOption.toLowerCase() === 'lightning' &&
                 endReceiveType === 'USD')) &&
             selectedRecieveOption.toLowerCase() !== 'spark' ? (
-              <ThemeText content={t('constants.veriable')} />
+              <ThemeText content={t('constants.variable')} />
             ) : (
               <FormattedSatText neverHideBalance={true} balance={0} />
             )}

@@ -106,7 +106,7 @@
     "selectOption": "Seleziona un'opzione",
     "slideToConfirm": "Scorri per confermare",
     "token": "Token",
-    "veriable": "Variabile",
+    "variable": "Variabile",
     "instant": "Istantaneo",
     "andLower": "e",
     "onLower": "attivo",
@@ -310,7 +310,7 @@
         "payingInvoiceLoadingMessage": "Pagamento fattura",
         "backupPaymentError": "Errore nel pagamento della fattura.",
         "createInvoiceError": "Errore nella creazione della fattura.",
-        "payingInvoiveError": "Errore nel pagamento della fattura.",
+        "payingInvoiceError": "Errore nel pagamento della fattura.",
         "runningTries": "Esecuzione {{runCount}} di {{maxTries}} tentativi",
         "configError": "Impossibile ottenere la configurazione VPN, contatta LNVPN.",
         "paymentMemo": "Negozio - VPN"
@@ -811,7 +811,7 @@
         "autoSelectInfoMessage": "Scegli il paese del numero di telefono che desideri utilizzare. Per la migliore possibilità di ricevere il tuo codice, ti consigliamo di tenerlo su Selezione Automatica in modo che il sistema scelga l'opzione più affidabile.",
         "autoSelect": "Selezione automatica",
         "inputPlaceholder": "Cerca un servizio",
-        "loacationLoadingMessage": "Ottenere servizi basati sulla posizione",
+        "locationLoadingMessage": "Ottenere servizi basati sulla posizione",
         "noAvailableServices": "Questa posizione non ha servizi",
         "orderDetailsLoading": "Ottenere dettagli dell'ordine"
       },
@@ -988,7 +988,7 @@
       "settingsText": "Vai nelle impostazioni per permettere a Blitz Wallet di accedere alla tua fotocamera",
       "noCameraDevice": "Non hai un dispositivo con fotocamera.",
       "noFlash": "Il dispositivo non ha una torcia",
-      "sanningResponse": "Sono accettati solo codici QR.",
+      "scanningResponse": "Sono accettati solo codici QR.",
       "qrDecodeError": "Errore nel decodificare il QR Code"
     },
     "confirmClipboard": {
@@ -1060,7 +1060,7 @@
         "header": "Seleziona come desideri finanziare il pagamento."
       },
       "handlingAddressErrors": {
-        "invlidFormat": "Gli indirizzi devono essere solo testo. Controlla e riprova.",
+        "invalidFormat": "Gli indirizzi devono essere solo testo. Controlla e riprova.",
         "parseError": "Non siamo riusciti a riconoscere il tipo di pagamento. Inserisci un indirizzo Spark valido, un nome utente Blitz, un indirizzo Bitcoin o un indirizzo/fattura Lightning.",
         "paymentProcessingError": "Non siamo riusciti a riconoscere il tipo di pagamento. Inserisci una fattura Spark, on-chain, LNURL o BOLT11 valida.",
         "tooLowSendingAmount": "L'importo di invio è troppo alto per coprire il pagamento e le commissioni. L'importo di invio massimo è {{importo}}",
@@ -1080,7 +1080,8 @@
         "invoiceDetails": "Caricamento dei dettagli",
         "timeoutError": "Il processo ha richiesto troppo tempo. Riprova.",
         "payingToSameAddress": "Non puoi inviare un pagamento {{addressType}} a te stesso.",
-        "lnurlWithdrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo."
+        "lnurlWithdrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo.",
+        "blitzUserNotFound": "Utente Blitz non trovato"
       },
       "errorScreen": {
         "ok": "OK",
@@ -1244,7 +1245,7 @@
       "usernameAlreadyExistsError": "Questo nome utente esiste già, scegli un altro.",
       "unableToSaveError": "Impossibile salvare l'immagine del profilo, riprova.",
       "deleteProfileImageError": "Impossibile eliminare l'immagine del profilo, riprova.",
-      "deleateWarning": "Sei sicuro di voler eliminare questo contatto? I messaggi più vecchi di una settimana non possono essere ripristinati."
+      "deleteWarning": "Sei sicuro di voler eliminare questo contatto? I messaggi più vecchi di una settimana non possono essere ripristinati."
     },
     "selectCurrencyToSend": {
       "header": "Cosa vuoi inviare?"
@@ -1309,8 +1310,8 @@
         "cardNamePlaceH": "Buono regalo",
         "noCardsText": "Le tue gift card appariranno qui quando un contatto te ne invierà una.",
         "header": "Le tue carte regalo",
-        "cardsLenghSingular": "{{num}} carta",
-        "cardsLenghPlurl": "{{num}} carte"
+        "cardsLengthSingular": "{{num}} carta",
+        "cardsLengthPlural": "{{num}} carte"
       },
       "editGiftCard": {
         "header": "Cosa desideri fare con il tuo regalo?"
@@ -1434,12 +1435,12 @@
       "text5": "Il dispositivo non ha un profilo Biometrico. Creane uno nelle impostazioni per continuare.",
       "text6": "Errore nel login con Biometrici",
       "text7": "Il dispositivo non supporta il login Biometrico",
-      "unsuccesfullLoginSwitch": "Impossibile cambiare il tipo di login",
+      "unsuccessfulLoginSwitch": "Impossibile cambiare il tipo di login",
       "toggleSecurityModeError": "Qualcosa è andato storto nel cambiare le tue impostazioni di sicurezza. Riprova.",
       "noBiometricsError": "Il dispositivo non supporta il login Biometrico",
       "noBiometricProfileError": "Il dispositivo non ha un profilo Biometrico. Creane uno nelle impostazioni per continuare.",
       "biometricSignInError": "Errore nel login con Biometrici",
-      "migratingStorageMessgae": "Migrazione dello storage alla nuova sicurezza.",
+      "migratingStorageMessage": "Migrazione dello storage alla nuova sicurezza.",
       "createPinPageHeader": "{{type}} il tuo PIN Blitz",
       "invalidPinconfirmation": "I PIN non corrispondono. Riprova!",
       "randomPinKeyboardToggle": "Mescola tastierino numerico",
@@ -1599,7 +1600,7 @@
         "invalidPubKey": "Chiave pub non valida: deve essere una stringa non vuota",
         "invalidNpub": "Formato npub non valido",
         "decodeNpubError": "Decodifica npub fallita",
-        "invlaidFormat": "Formato chiave pub non valido: deve essere una stringa esadecimale di 64 caratteri o un npub"
+        "invalidFormat": "Formato chiave pub non valido: deve essere una stringa esadecimale di 64 caratteri o un npub"
       }
     },
     "nwc": {
@@ -1627,14 +1628,14 @@
         "connectionName": ""
       },
       "hasNoAccounts": {
-        "wanringMessage": "Per inviare soldi dal tuo wallet Nostr Connect, dovrai prima aggiungere fondi—ricevendo soldi o trasferendoli dal tuo wallet principale.\n\nPuoi trasferire fondi dal tuo wallet principale a NWC nella pagina impostazioni account."
+        "warningMessage": "Per inviare soldi dal tuo wallet Nostr Connect, dovrai prima aggiungere fondi—ricevendo soldi o trasferendoli dal tuo wallet principale.\n\nPuoi trasferire fondi dal tuo wallet principale a NWC nella pagina impostazioni account."
       },
       "noNotifications": {
-        "wanringMessage": "Per usare Nostr Wallet Connect devi avere le notifiche push per Nostr Wallet Connect abilitate.\n\nAbilita le notifiche push nelle impostazioni e riprova."
+        "warningMessage": "Per usare Nostr Wallet Connect devi avere le notifiche push per Nostr Wallet Connect abilitate.\n\nAbilita le notifiche push nelle impostazioni e riprova."
       },
       "showSeedPage": {
         "loadingMessage": "Generazione della frase di recupero",
-        "wanringMessage": "Per mantenere il tuo wallet sicuro, Nostr Wallet Connect crea una frase di recupero separata da quella del tuo wallet principale.\n\nPuoi accedere a questa frase di recupero nelle impostazioni di Blitz, nella sezione Account.",
+        "warningMessage": "Per mantenere il tuo wallet sicuro, Nostr Wallet Connect crea una frase di recupero separata da quella del tuo wallet principale.\n\nPuoi accedere a questa frase di recupero nelle impostazioni di Blitz, nella sezione Account.",
         "viewSeed": "Visualizza frase di recupero"
       },
       "combinedOnboarding": {
@@ -1893,7 +1894,8 @@
         "title": "Download di Blitz",
         "goalUserCount": "su {{goalUserCount}} utenti.",
         "percentOfGoal": "{{goalPercent}}% dell’obiettivo",
-        "numAddedUsers": "+{{numNewUsers}} utenti oggi"
+        "numAddedUsers": "+{{numNewUsers}} utenti oggi",
+        "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
         "loadingMessage1": "Non chiudere l'app",
@@ -2091,7 +2093,7 @@
           "inputPlaceholder": "Inserisci il link del regalo",
           "claim": "Riscatta",
           "noGiftLinkError": "Impossibile trovare un link regalo. Scansiona o incolla il link ricevuto.",
-          "invliadGiftFormat": "Link regalo non valido. Copia il link completo e riprova."
+          "invalidGiftFormat": "Link regalo non valido. Copia il link completo e riprova."
         },
         "reclaimPage": {
           "header": "Recupera il tuo regalo",
@@ -2216,12 +2218,13 @@
         "chooseCurrencyTitle": "Scegli la valuta da cui effettuare lo scambio.",
         "enterAmountTitle": "Inserisci l’importo da scambiare.",
         "noContentTitle": "Nessun saldo disponibile",
-        "noContentSubTittle": "Aggiungi fondi al tuo wallet per iniziare a scambiare tra dollari e Bitcoin."
+        "noContentSubTittle": "Aggiungi fondi al tuo wallet per iniziare a scambiare tra dollari e Bitcoin.",
+        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Impossibile caricare la cronologia degli swap. Riprova più tardi.",
-        "noHisotorytitle": "Nessuna cronologia degli swap",
-        "noHisotorydesc": "Le tue transazioni di swap appariranno qui.",
+        "noHistoryTitle": "Nessuna cronologia degli swap",
+        "noHistoryDesc": "Le tue transazioni di swap appariranno qui.",
         "pageTitle": "Cronologia"
       }
     },
@@ -2324,7 +2327,7 @@
     "rootstockInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Rootstock. Riprova.",
     "liquidInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Liquid. Riprova.",
     "bitcoinInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Bitcoin. Riprova.",
-    "sparkInvioceError": "C'è stato un problema nella generazione del tuo indirizzo Spark. Riprova.",
+    "sparkInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Spark. Riprova.",
     "lightningInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Lightning. Riprova.",
     "sparkConnectionError": "Connessione Spark fallita. Riprova.",
     "giftCardExpiration": "Le carte regalo possono essere recuperate solo entro 7 giorni dall'invio. Se questa app viene eliminata o l'archiviazione locale viene cancellata dopo tale periodo, le tue carte regalo andranno perse. Assicurati di salvare i link di richiesta o i codici delle carte regalo in un luogo sicuro.",
@@ -2596,7 +2599,7 @@
         "accrualValue": "Giornaliero"
       },
       "context": {
-        "goalNameReqiured": "Il nome dell'obiettivo è obbligatorio",
+        "goalNameRequired": "Il nome dell'obiettivo è obbligatorio",
         "goalNotFound": "Obiettivo non trovato"
       },
       "transparencyTitle": "Garantito da riserve reali",
@@ -2610,7 +2613,7 @@
     "swapSimulationError": "Simulazione di scambio non disponibile",
     "savingsWalletError": "Wallet risparmio non pronto",
     "rewardsPayout": "Pagamento ricompense in Bitcoin",
-    "rewardsWithdrawl": "Prelievo delle ricompense in Bitcoin",
+    "rewardsWithdrawal": "Prelievo delle ricompense in Bitcoin",
     "total_balance": "Saldo Totale"
   }
 }
