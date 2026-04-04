@@ -2227,7 +2227,7 @@
     },
     "accumulationAddresses": {
       "title": "Conversão automática",
-      "subtitle": "Converta automaticamente USDT e USDC em BTC ou dólares USDB",
+      "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares USDB",
       "navTitle": "Endereços",
       "sectionTitle": "Endereços ativos",
       "empty": {
