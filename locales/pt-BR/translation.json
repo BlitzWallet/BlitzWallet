@@ -2226,13 +2226,13 @@
       }
     },
     "accumulationAddresses": {
-      "title": "Endereços de auto-troca",
-      "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares USDB",
+      "title": "Conversão automática",
+      "subtitle": "Converta automaticamente USDT e USDC em BTC ou dólares USDB",
       "navTitle": "Endereços",
       "sectionTitle": "Endereços ativos",
       "empty": {
-        "title": "Nenhum endereço de auto-troca",
-        "subtitle": "Crie endereços de auto-troca para receber os depósitos em bitcoin ou dólares"
+        "title": "Nenhum endereço de conversão automática",
+        "subtitle": "Crie endereços de conversão automática para receber os depósitos em bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
       "info": {
