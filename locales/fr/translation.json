@@ -1189,7 +1189,7 @@
         "header": "Sélectionnez la devise que vous souhaitez envoyer.",
         "notAvailable": "Non disponible sur {{chain}}"
       },
-      "networkLabel": "Sur {{chain}}"
+      "networkLabel": "{{currency}} sur {{chain}}"
     }
   },
   "contacts": {

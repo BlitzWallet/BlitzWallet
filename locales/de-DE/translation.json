@@ -1189,7 +1189,7 @@
         "header": "Wählen Sie die Währung aus, die Sie senden möchten.",
         "notAvailable": "Nicht verfügbar auf {{chain}}"
       },
-      "networkLabel": "Auf {{chain}}"
+      "networkLabel": "{{currency}} uf {{chain}}"
     }
   },
   "contacts": {

@@ -73,6 +73,13 @@ function formatCountdown(ms) {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
+function capitalizeChain(chain) {
+  if (typeof chain !== 'string') return '';
+  const lowered = chain.toLowerCase();
+  const firstLetter = lowered[0].toUpperCase();
+  return firstLetter + lowered.slice(1);
+}
+
 export default function StablecoinSendScreen() {
   const navigate = useNavigation();
   const route = useRoute();
@@ -551,14 +558,15 @@ export default function StablecoinSendScreen() {
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
-          label={`${t('constants.send')} ${asset}`}
+          label={`${t('constants.send')}`}
           containerStyles={{ marginBottom: 0 }}
         />
         <ThemeText
           styles={styles.sectionTitle}
-          content={t('wallet.stablecoinSend.networkLabel', {
-            chain,
-          })}
+          content={`${t('wallet.stablecoinSend.networkLabel', {
+            currency: asset,
+            chain: capitalizeChain(chain),
+          })}`}
         />
 
         <ScrollView
@@ -809,7 +817,7 @@ const styles = StyleSheet.create({
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
     marginBottom: CONTENT_KEYBOARD_OFFSET,
-    textTransform: 'capitalize',
+    // textTransform: 'capitalize',
   },
   replacementContainer: {
     flexGrow: 1,

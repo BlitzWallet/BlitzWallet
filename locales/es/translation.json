@@ -1049,7 +1049,7 @@
         "header": "Selecciona la moneda que deseas enviar.",
         "notAvailable": "No disponible en {{chain}}"
       },
-      "networkLabel": "En {{chain}}"
+      "networkLabel": "{{currency}} en {{chain}}"
     }
   },
   "contacts": {

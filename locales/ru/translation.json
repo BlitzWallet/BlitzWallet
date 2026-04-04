@@ -1190,7 +1190,7 @@
         "header": "Выберите валюту для отправки.",
         "notAvailable": "Недоступно в сети {{chain}}"
       },
-      "networkLabel": "В {{chain}}"
+      "networkLabel": "{{currency}} b {{chain}}"
     }
   },
   "contacts": {
