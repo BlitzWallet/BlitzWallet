@@ -106,7 +106,7 @@
     "selectOption": "Выберите вариант",
     "slideToConfirm": "Сдвиньте для подтверждения",
     "token": "Токен",
-    "veriable": "Переменная",
+    "variable": "Переменная",
     "instant": "Мгновенно",
     "andLower": "и",
     "onLower": "вкл",
@@ -310,7 +310,7 @@
         "payingInvoiceLoadingMessage": "Оплата инвойса",
         "backupPaymentError": "Ошибка оплаты инвойса.",
         "createInvoiceError": "Ошибка создания инвойса.",
-        "payingInvoiveError": "Ошибка оплаты инвойса.",
+        "payingInvoiceError": "Ошибка оплаты инвойса.",
         "runningTries": "Попытка {{runCount}} из {{maxTries}}",
         "configError": "Не удалось получить конфиг VPN. Обратитесь в LNVPN.",
         "paymentMemo": "Магазин - VPN"
@@ -811,7 +811,7 @@
         "autoSelectInfoMessage": "Выберите страну номера. Для надежности рекомендуем 'Автовыбор'.",
         "autoSelect": "Автовыбор",
         "inputPlaceholder": "Поиск сервиса",
-        "loacationLoadingMessage": "Поиск сервисов по локации",
+        "locationLoadingMessage": "Поиск сервисов по локации",
         "noAvailableServices": "Нет сервисов в этой локации",
         "orderDetailsLoading": "Получение деталей заказа"
       },
@@ -989,7 +989,7 @@
       "settingsText": "Перейдите в настройки, чтобы разрешить доступ",
       "noCameraDevice": "Камера не обнаружена.",
       "noFlash": "Нет вспышки",
-      "sanningResponse": "Принимаются только QR-коды.",
+      "scanningResponse": "Принимаются только QR-коды.",
       "qrDecodeError": "Ошибка декодирования QR"
     },
     "confirmClipboard": {
@@ -1061,7 +1061,7 @@
         "header": "Выберите источник средств."
       },
       "handlingAddressErrors": {
-        "invlidFormat": "Неверный формат: адрес должен быть текстом.",
+        "invalidFormat": "Неверный формат: адрес должен быть текстом.",
         "parseError": "Не удалось распознать тип платежа. Пожалуйста, введите корректный адрес Spark, имя пользователя Blitz, адрес Bitcoin или адрес/инвойс Lightning.",
         "paymentProcessingError": "Ошибка обработки платежа",
         "tooLowSendingAmount": "Сумма слишком велика (с учетом комиссии). Макс: {{amount}}",
@@ -1081,7 +1081,8 @@
         "lnurlWithdrawlSuccess": "Вывод успешен! Платеж отправлен.",
         "invoiceDetails": "Загрузка деталей",
         "timeoutError": "Процесс занял слишком много времени. Попробуйте снова.",
-        "payingToSameAddress": "Нельзя отправить {{addressType}} самому себе"
+        "payingToSameAddress": "Нельзя отправить {{addressType}} самому себе",
+        "blitzUserNotFound": "Пользователь Blitz не найден"
       },
       "errorScreen": {
         "ok": "ОК",
@@ -1245,7 +1246,7 @@
       "usernameAlreadyExistsError": "Имя занято, выберите другое.",
       "unableToSaveError": "Не удалось сохранить фото.",
       "deleteProfileImageError": "Не удалось удалить фото.",
-      "deleateWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить."
+      "deleteWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить."
     },
     "selectCurrencyToSend": {
       "header": "Что вы хотите отправить?"
@@ -1310,8 +1311,8 @@
         "cardNamePlaceH": "Подарочная карта",
         "noCardsText": "Здесь появятся полученные карты.",
         "header": "Ваши карты",
-        "cardsLenghSingular": "{{num}} карта",
-        "cardsLenghPlurl": "{{num}} карт"
+        "cardsLengthSingular": "{{num}} карта",
+        "cardsLengthPlural": "{{num}} карт"
       },
       "editGiftCard": {
         "header": "Что сделать с подарком?"
@@ -1435,12 +1436,12 @@
       "text5": "Нет биометрического профиля. Создайте его в настройках устройства.",
       "text6": "Ошибка входа по биометрии",
       "text7": "Устройство не поддерживает биометрию",
-      "unsuccesfullLoginSwitch": "Не удалось сменить тип входа",
+      "unsuccessfulLoginSwitch": "Не удалось сменить тип входа",
       "toggleSecurityModeError": "Ошибка переключения безопасности. Попробуйте снова.",
       "noBiometricsError": "Устройство не поддерживает биометрию",
       "noBiometricProfileError": "Нет биометрического профиля.",
       "biometricSignInError": "Ошибка входа по биометрии",
-      "migratingStorageMessgae": "Миграция хранилища...",
+      "migratingStorageMessage": "Миграция хранилища...",
       "createPinPageHeader": "{{type}} ваш PIN Blitz",
       "invalidPinconfirmation": "PIN-коды не совпадают!",
       "randomPinKeyboardToggle": "Перемешать клавиатуру",
@@ -1600,7 +1601,7 @@
         "invalidPubKey": "Неверный pubkey",
         "invalidNpub": "Неверный формат npub",
         "decodeNpubError": "Ошибка декодирования npub",
-        "invlaidFormat": "Неверный формат pubkey (64 hex или npub)"
+        "invalidFormat": "Неверный формат pubkey (64 hex или npub)"
       }
     },
     "nwc": {
@@ -1628,14 +1629,14 @@
         "connectionName": ""
       },
       "hasNoAccounts": {
-        "wanringMessage": "Для отправки через NWC нужно пополнить этот счет (переводом с основного кошелька или получением средств)."
+        "warningMessage": "Для отправки через NWC нужно пополнить этот счет (переводом с основного кошелька или получением средств)."
       },
       "noNotifications": {
-        "wanringMessage": "Для работы NWC нужно включить пуш-уведомления в настройках."
+        "warningMessage": "Для работы NWC нужно включить пуш-уведомления в настройках."
       },
       "showSeedPage": {
         "loadingMessage": "Создание фразы восстановления",
-        "wanringMessage": "Для обеспечения безопасности вашего кошелька Nostr Wallet Connect создаёт отдельную фразу восстановления, отличную от фразы восстановления вашего основного кошелька.\n\nВы можете просмотреть эту фразу восстановления в настройках Blitz в разделе «Аккаунты».",
+        "warningMessage": "Для обеспечения безопасности вашего кошелька Nostr Wallet Connect создаёт отдельную фразу восстановления, отличную от фразы восстановления вашего основного кошелька.\n\nВы можете просмотреть эту фразу восстановления в настройках Blitz в разделе «Аккаунты».",
         "viewSeed": "Просмотреть фразу восстановления"
       },
       "combinedOnboarding": {
@@ -1894,7 +1895,8 @@
         "title": "Загрузки Blitz",
         "goalUserCount": "из {{goalUserCount}} пользователей.",
         "percentOfGoal": "{{goalPercent}}% от цели",
-        "numAddedUsers": "+{{numNewUsers}} пользователей сегодня"
+        "numAddedUsers": "+{{numNewUsers}} пользователей сегодня",
+        "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
         "loadingMessage1": "Пожалуйста, не закрывайте приложение",
@@ -2098,7 +2100,7 @@
           "inputPlaceholder": "Ссылка на подарок",
           "claim": "Забрать",
           "noGiftLinkError": "Ссылка не найдена.",
-          "invliadGiftFormat": "Неверная ссылка."
+          "invalidGiftFormat": "Неверная ссылка."
         },
         "reclaimPage": {
           "header": "Вернуть подарок",
@@ -2178,7 +2180,7 @@
         "swapLiquidityError": "\n\nПопробуйте меньшую сумму.",
         "fullSwapError": "Неожиданная ошибка. Попробуйте снова.",
         "checkSwapMessage": "High price impact",
-        "__COMMENT__": "DO NOT TRANSLATE 'High price impact' key above if used for matching logic",
+        "COMMENT": "DO NOT TRANSLATE 'High price impact' key above if used for matching logic",
         "swapConfimred": "Обмен успешен",
         "youSent": "Вы отправили",
         "youReceived": "Вы получили",
@@ -2228,8 +2230,8 @@
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Не удалось загрузить историю обменов. Пожалуйста, попробуйте позже.",
-        "noHisotorytitle": "Нет истории обменов",
-        "noHisotorydesc": "Ваши операции обмена появятся здесь.",
+        "noHistoryTitle": "Нет истории обменов",
+        "noHistoryDesc": "Ваши операции обмена появятся здесь.",
         "pageTitle": "История"
       }
     },
@@ -2259,7 +2261,8 @@
         "deleteConfirmTitle": "Удалить адрес?",
         "deleteConfirmBody": "Удаление этого адреса остановит перенаправление будущих платежей и может привести к потере средств. Убедитесь, что все знают, что он больше не активен, прежде чем удалять его.",
         "source": "Источник",
-        "Destination": "Назначение"
+        "Destination": "Назначение",
+        "chain": "Сеть"
       },
       "create": {
         "pickAsset": "Выберите валюту платежа",
@@ -2331,7 +2334,7 @@
     "rootstockInvoiceError": "Ошибка генерации адреса Rootstock.",
     "liquidInvoiceError": "Ошибка генерации адреса Liquid.",
     "bitcoinInvoiceError": "Ошибка генерации адреса Биткоин.",
-    "sparkInvioceError": "Ошибка генерации адреса Spark.",
+    "sparkInvoiceError": "Ошибка генерации адреса Spark.",
     "lightningInvoiceError": "Ошибка генерации инвойса Молнии.",
     "sparkConnectionError": "Ошибка подключения к Spark.",
     "giftCardExpiration": "Подарки можно восстановить только в течение 7 дней после отправки. Сохраните ссылки или коды.",
@@ -2603,7 +2606,7 @@
         "accrualValue": "Ежедневно"
       },
       "context": {
-        "goalNameReqiured": "Название цели обязательно",
+        "goalNameRequired": "Название цели обязательно",
         "goalNotFound": "Цель не найдена"
       },
       "transparencyTitle": "Обеспечено реальными резервами",
@@ -2617,7 +2620,7 @@
     "swapSimulationError": "Симуляция обмена недоступна",
     "savingsWalletError": "Сберегательный кошелёк не готов",
     "rewardsPayout": "Выплата вознаграждений в биткоинах",
-    "rewardsWithdrawl": "Вывод вознаграждений в биткоинах",
+    "rewardsWithdrawal": "Вывод вознаграждений в биткоинах",
     "total_balance": "Общий баланс"
   }
 }

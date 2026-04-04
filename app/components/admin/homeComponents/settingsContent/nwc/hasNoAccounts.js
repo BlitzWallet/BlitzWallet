@@ -13,7 +13,7 @@ export default function HasNoNostrAccounts() {
     <View style={styles.globalContainer}>
       <ThemeText
         styles={{textAlign: 'center', marginBottom: 50}}
-        content={t('settings.nwc.hasNoAccounts.wanringMessage')}
+        content={t('settings.nwc.hasNoAccounts.warningMessage')}
       />
       <CustomButton
         actionFunction={() => {

@@ -45,7 +45,7 @@ export default function ClaimGiftHomeHalfModal({
     if (!WEBSITE_REGEX.test(enteredLink)) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t(
-          'screens.inAccount.giftPages.claimHome.invliadGiftFormat',
+          'screens.inAccount.giftPages.claimHome.invalidGiftFormat',
         ),
       });
       return;

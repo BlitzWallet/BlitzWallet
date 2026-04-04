@@ -204,7 +204,7 @@ export function SavingsProvider({ children }) {
     try {
       const name = String(payload?.name || '').trim();
       if (!name) {
-        return { didWork: false, error: t('savings.context.goalNameReqiured') };
+        return { didWork: false, error: t('savings.howItWorks.context.goalNameRequired') };
       }
 
       const now = Date.now();

@@ -230,7 +230,7 @@ export default function VPNPlanPage({ vpnInformation }) {
       }
     } catch (err) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: t('apps.VPN.VPNPlanPage.payingInvoiveError'),
+        errorMessage: t('apps.VPN.VPNPlanPage.payingInvoiceError'),
       });
       setIsPaying(false);
     }
