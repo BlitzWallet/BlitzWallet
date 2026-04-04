@@ -2232,7 +2232,7 @@
       "sectionTitle": "Endereços ativos",
       "empty": {
         "title": "Nenhum endereço de conversão automática",
-        "subtitle": "Crie endereços de conversão automática para receber os depósitos em bitcoin ou dólares"
+        "subtitle": "Crie endereços USDT ou USDC em que os depósitos recebidos são convertidos automaticamente para bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
       "info": {
