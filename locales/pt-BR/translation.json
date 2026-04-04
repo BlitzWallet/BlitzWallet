@@ -870,7 +870,7 @@
       "tapToGenerate_spark": "Mostrar endereço Spark",
       "tapToGenerate_liquid": "Mostrar endereço Liquid",
       "tapToGenerate_rootstock": "Mostrar endereço Rootstock",
-      "chooseWhatToReceive": "O que você deseja receber?",
+      "chooseWhatToReceive": "Qual moeda você deseja receber?",
       "instantLowFees": "Instantâneo, taxas baixas",
       "onChainTransaction": "~ 10 minutos",
       "otherAddresses": "Outras opções",
@@ -901,7 +901,7 @@
       "alreadyPaid": "Este link de pagamento já foi pago.",
       "notFound": "Link de pagamento não encontrado.",
       "invoiceError": "Falha ao criar fatura.",
-      "requestHeader": "O que você deseja receber?",
+      "requestHeader": "Qual moeda você deseja receber?",
       "genQRCode": "Gerar código QR",
       "howItWorks": {
         "step1Label": "Compartilhe o link",
@@ -1251,7 +1251,7 @@
       "header": "O você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "O que você deseja receber?"
+      "header": "Qual moeda você deseja receber?"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
@@ -1341,7 +1341,7 @@
       "licenseBody": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a",
       "licenseLinkLabel": "Licença Apache v2.0",
       "walletHeader": "Blitz Wallet",
-      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial compatível com a rede Lightning e com suporte a dólares digitais USDB, USDT e USDC nas principais redes do mercado. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
+      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial compatível com a rede Lightning e com suporte a dólares digitais USDB, USDT e USDC nas principais redes do mercado. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder todo seu dinheiro.",
       "poweredByLabel": "Desenvolvido com",
       "poweredByBreez": "Breez Liquid SDK",
       "poweredBySpark": "Spark",
@@ -1934,7 +1934,7 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "O que você deseja receber?",
+        "selectReceiveAssetHead": "Qual moeda você deseja receber?",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
         "editDescriptionPlaceholder": "Adicionar uma descrição",
@@ -2229,19 +2229,19 @@
       }
     },
     "accumulationAddresses": {
-      "title": "Endereços de auto-troca",
+      "title": "Conversão automática",
       "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares USDB",
       "navTitle": "Endereços",
       "sectionTitle": "Endereços ativos",
       "empty": {
-        "title": "Nenhum endereço de auto-troca",
-        "subtitle": "Crie um endereço de auto-troca para receber os depósitos convertidos em Bitcoin ou dólares"
+        "title": "Nenhum endereço de conversão automática",
+        "subtitle": "Crie endereços USDT ou USDC em que os depósitos recebidos são convertidos automaticamente para bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
       "info": {
         "title": "O que são?",
         "whatAre": "O que são?",
-        "whatAreBody": "Endereços únicos de USDC ou USDT em que os valores recebidos são automaticamente convertidos em Bitcoin ou dólares e enviados para sua carteira.",
+        "whatAreBody": "Endereços únicos de USDC ou USDT em que os valores recebidos são automaticamente convertidos em bitcoin ou dólares e enviados para sua carteira.",
         "howItWorks": "Como funciona",
         "step1": "1. Compartilhe seu endereço de depósito com um remetente ou corretora.",
         "step2": "2. Os fundos recebidos são automaticamente convertidos.",
@@ -2450,7 +2450,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
+      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, um dólar digital emitido pela Brale e totalmente coberto 1:1 por títulos do tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. O Dólar digital USDB não é segurado pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
