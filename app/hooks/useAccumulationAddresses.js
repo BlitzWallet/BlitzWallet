@@ -66,7 +66,7 @@ export function useAccumulationAddresses() {
           publicKey,
         );
 
-        if (!result || result.errror) return { error: 'create_failed' };
+        if (!result || result.error) return { error: 'create_failed' };
         // result is the new address object from the server
         const updated = [...addresses, result];
         await persistAddresses(updated);

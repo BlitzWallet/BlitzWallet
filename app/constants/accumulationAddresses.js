@@ -5,8 +5,7 @@ export const ACCUMULATION_CHAINS = [
   { id: 'arbitrum', label: 'Arbitrum', assets: ['USDC', 'USDT'] },
   { id: 'optimism', label: 'Optimism', assets: ['USDC', 'USDT'] },
   { id: 'polygon', label: 'Polygon', assets: ['USDC'] },
-  { id: 'tempo', label: 'Tempo', assets: ['USDC'] },
-  { id: 'tron', label: 'Tron', assets: ['USDC', 'USDT'] },
+  { id: 'tron', label: 'Tron', assets: ['USDT'] },
   { id: 'plasma', label: 'Plasma', assets: ['USDT'] },
 ];
 export const ACCUMULATION_DESTINATIONS = ['BTC', 'USDB'];

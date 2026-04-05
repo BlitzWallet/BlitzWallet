@@ -11,12 +11,14 @@ export default function AccumulationAddressCard({ address }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const chainMeta = ACCUMULATION_CHAINS.find(c => c.id === address.sourceChain);
-  const chainLabel = chainMeta?.label ?? address.sourceChain;
+  const chainLabel = chainMeta?.label ?? address.sourceChain ?? '';
   const label = `${address.sourceAsset} → ${
     address.destinationAsset === 'BTC'
       ? t('constants.bitcoin_upper')
       : t('constants.dollars_upper')
   }`;
+
+  if (!chainLabel) return null;
 
   return (
     <TouchableOpacity

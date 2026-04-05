@@ -42,7 +42,7 @@ export default function AccumulationAddressDetail() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const depositAddress = address.depositAddress;
+  const depositAddress = address.depositAddress ?? '';
   const shortAddress = `${depositAddress.slice(0, 8)}...${depositAddress.slice(
     -8,
   )}`;
