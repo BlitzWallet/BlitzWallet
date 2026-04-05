@@ -1187,7 +1187,7 @@
       "chainSwap": "Dólar digital",
       "assetPicker": {
         "header": "Selecione a moeda que você deseja enviar",
-        "notAvailable": "Não disponível em {{chain}}"
+        "notAvailable": "Não disponível na {{chain}}"
       },
       "networkLabel": "{{currency}} na {{chain}}"
     }
@@ -1248,7 +1248,7 @@
       "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
     "selectCurrencyToSend": {
-      "header": "O você deseja enviar?"
+      "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
       "header": "Qual moeda você deseja receber?"
