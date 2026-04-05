@@ -191,7 +191,7 @@ export default function CreateAccumulationAddressModal({
             return (
               <TouchableOpacity
                 key={chain.id}
-                activeOpacity={disabled ? 1 : 0.7}
+                activeOpacity={disabled ? 0.4 : 0.7}
                 style={[styles.optionRow, disabled && styles.disabledRow]}
                 onPress={() => {
                   if (disabled) return;
