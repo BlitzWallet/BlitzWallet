@@ -1248,7 +1248,7 @@
       "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
     "selectCurrencyToSend": {
-      "header": "O você deseja enviar?"
+      "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
       "header": "Qual moeda você deseja receber?"
