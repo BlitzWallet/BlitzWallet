@@ -16,10 +16,11 @@ import { useImageCache } from '../../../../../context-store/imageCache';
 import {
   COLORS,
   FONT,
+  HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../constants/theme';
-import { CENTER } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import ProfileImageRow from './internalComponents/profileImageRow';
@@ -182,6 +183,15 @@ export default function AddFriendsToSplit(props) {
         ]}
       >
         <ProfileImageRow contacts={selectedContacts} />
+        <ThemeText
+          styles={{
+            marginBottom: CONTENT_KEYBOARD_OFFSET,
+            textAlign: 'center',
+            opacity: HIDDEN_OPACITY,
+            fontSize: SIZES.smedium,
+          }}
+          content={`${selectedCount} of 10 selected`}
+        />
       </View>
 
       {/* Search */}
@@ -217,7 +227,10 @@ export default function AddFriendsToSplit(props) {
       <CustomButton
         buttonStyles={[
           styles.nextButton,
-          { opacity: selectedCount <= 1 ? 0.5 : 1 },
+          {
+            opacity: selectedCount <= 1 ? 0.5 : 1,
+            marginTop: CONTENT_KEYBOARD_OFFSET,
+          },
         ]}
         textStyles={styles.nextButtonText}
         actionFunction={handleNext}
