@@ -81,13 +81,18 @@ export default function AddFriendsToSplit(props) {
   );
 
   const handleNext = useCallback(() => {
-    if (selectedContacts.length === 0) return;
+    if (selectedCount <= 1) {
+      navigation.navigate('ErrorScreen', {
+        errorMessage: t('contacts.splitBill.errors.noContactsSelected'),
+      });
+      return;
+    }
     navigation.navigate('CreateSplitBill', {
       selectedContacts,
       paymentType,
       paymentCurrency,
     });
-  }, [navigation, selectedContacts, paymentType]);
+  }, [navigation, selectedContacts, paymentType, selectedCount]);
 
   const renderContact = useCallback(
     ({ item: contact }) => {
@@ -234,7 +239,6 @@ export default function AddFriendsToSplit(props) {
         ]}
         textStyles={styles.nextButtonText}
         actionFunction={handleNext}
-        disabled={selectedCount <= 1}
         textContent={t('contacts.splitBill.nextButton')}
       />
     </CustomKeyboardAvoidingView>
