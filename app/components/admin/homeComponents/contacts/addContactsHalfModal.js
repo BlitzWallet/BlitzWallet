@@ -122,7 +122,7 @@ export function AddContactContent({
     }
 
     const searchTerm = term.replace(/@/g, '');
-    if (searchTerm && VALID_USERNAME_REGEX.test(searchTerm)) {
+    if (searchTerm) {
       const results = await searchUsers(searchTerm);
       const newUsers = (
         await Promise.all(
