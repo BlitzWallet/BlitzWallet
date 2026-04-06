@@ -5,7 +5,11 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import ContactProfileImage from './profileImage';
 
-export default function ProfileImageRow({ contacts = [], avatarSize = 56 }) {
+export default function ProfileImageRow({
+  contacts = [],
+  avatarSize = 56,
+  containerStyles = {},
+}) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset } = GetThemeColors();
   const { cache } = useImageCache();
@@ -17,6 +21,7 @@ export default function ProfileImageRow({ contacts = [], avatarSize = 56 }) {
         {
           borderColor: theme ? backgroundOffset : COLORS.offsetBackground,
         },
+        containerStyles,
       ]}
     >
       <ScrollView

@@ -37,7 +37,11 @@ export default function InvoiceInfo({
       disabled={isSplitPayment}
     >
       {isSplitPayment ? (
-        <ProfileImageRow avatarSize={40} contacts={splitContacts} />
+        <ProfileImageRow
+          avatarSize={40}
+          contacts={splitContacts}
+          containerStyles={{ paddingVertical: 0 }}
+        />
       ) : fromPage === 'contacts' ? (
         <View style={styles.contactRow}>
           <View
