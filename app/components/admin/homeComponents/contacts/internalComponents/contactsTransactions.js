@@ -441,6 +441,7 @@ export default function ContactsTransactionItem(props) {
           payingContactsRequest: true,
           amount: sendingAmount,
           description: myProfileMessage,
+          inputCurrency: transaction.message.paymentDenomination || 'BTC',
           endReceiveType: transaction.message.paymentDenomination || 'BTC',
         },
         contactInfo: {
