@@ -713,7 +713,7 @@
     "giftCards": {
       "giftCardsPage": {
         "searchPlaceholder": "Nach einer Geschenkkarte suchen",
-        "leftPageMessage": "Wohin sind Sie gegangen?",
+        "leftPageMessage": "Sie haben die Seite verlassen.",
         "loadingCardsMessage": "Geschenkkarten werden geladen...",
         "noCardsAvailable": "Keine Geschenkkarten verfügbar"
       },
@@ -800,7 +800,7 @@
         "fetchOrderError": "Fehler beim Abrufen des Bestellstatus",
         "failedUpdate": "Fehler beim Aktualisieren des Bestellstatus",
         "refundedOrder": "Die Bestellung wurde erstattet. Die Gelder werden nach 21 Minuten automatisch auf Ihre Wallet zurückgebucht.",
-        "reclaimComplete": "Wiederholung abgeschlossen. Falls kein Code generiert wird, erhalten Sie nach 21 Minuten automatisch eine Rückerstattung.",
+        "reclaimComplete": "Erneuter Versuch abgeschlossen. Falls kein Code generiert wird, erhalten Sie nach 21 Minuten automatisch eine Rückerstattung.",
         "noCode": "Kein Code",
         "rateLimitError": "Zu viele Anfragen. Sie können nur 5 Anfragen alle 30 Sekunden stellen. Bitte warten Sie einen Moment.",
         "noPurchasesTitle": "Sie haben noch keine SMS-Nachrichten gesendet oder empfangen. Neue Nachrichten werden hier angezeigt."
@@ -1173,13 +1173,13 @@
       "quoteExpired": "Angebot abgelaufen. Bitte versuche es erneut.",
       "quoteError": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
       "recipientGets": "Empfänger erhält",
-      "youSend": "Du sendest",
+      "youSend": "Sie senden",
       "quoteExpiresIn": "Angebot läuft ab in",
       "payWithLightning": "Mit Lightning bezahlen",
-      "payWithUSDb": "Mit USDb bezahlen",
+      "payWithUSDb": "Mit USDB bezahlen",
       "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
       "swapInProgress": "Tausch läuft",
-      "swapInProgressDescription": "Deine Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
+      "swapInProgressDescription": "Ihre Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
       "noAmount": "Bitte gib einen Betrag zum Senden ein.",
       "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
       "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
@@ -1189,7 +1189,7 @@
         "header": "Wählen Sie die Währung aus, die Sie senden möchten.",
         "notAvailable": "Nicht verfügbar auf {{chain}}"
       },
-      "networkLabel": "{{currency}} uf {{chain}}"
+      "networkLabel": "{{currency}} auf {{chain}}"
     }
   },
   "contacts": {
@@ -1301,7 +1301,7 @@
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} Ihre Anfrage",
-        "acceptProfileMessage": "{{name}}'s Anfrage bezahlt",
+        "acceptProfileMessage": "Anfrage von {{name}} bezahlt",
         "acceptPayingContactMessage": "{{name}} hat Ihre Anfrage bezahlt",
         "requestTitle": "Anfrage über {{amount}} erhalten",
         "send": "Senden"
@@ -1753,8 +1753,8 @@
       "viewAll": "Alle anzeigen",
       "accounts": "Konten",
       "pinAccount": "Anheften",
-      "unpinAccount": "Lösen",
-      "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines.",
+      "unpinAccount": "Loslösen",
+      "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines davon.",
       "morePoolsCount": "+{{count}} weitere",
       "pos": {
         "desc": "Akzeptieren Sie ganz einfach Bitcoin-Zahlungen für Ihr Unternehmen."
@@ -1940,7 +1940,7 @@
         "editDescriptionPlaceholder": "Beschreibung hinzufügen",
         "confirmToClaimTitle": "Vor dem Empfang bestätigen",
         "confirmToClaimOff": "Aus, Zahlungen werden sofort bestätigt",
-        "confirmToClaimOn": "An, Sie bestätigen jede Zahlung",
+        "confirmToClaimOn": "Ein, jede Zahlung wird von Ihnen bestätigt",
         "holdInvoiceExplainer": "Wenn aktiviert, werden an diese Rechnung gesendete Zahlungen zurückgehalten, bis Sie sie bestätigen. Wenn Sie sie nicht rechtzeitig einfordern, wird die Zahlung automatisch an den Absender zurückgesendet.",
         "expiryTitle": "Läuft ab nach",
         "expiry_3600": "1 Stunde",
@@ -2229,13 +2229,13 @@
       }
     },
     "accumulationAddresses": {
-      "title": "Akkumulationsadressen",
+      "title": "Stablecoin-Adressen",
       "subtitle": "Stablecoins automatisch in BTC oder Dollar umwandeln",
       "navTitle": "Adressen",
       "sectionTitle": "Aktive Adressen",
       "empty": {
-        "title": "Keine Akkumulationsadressen",
-        "subtitle": "Erstellen Sie eine Adresse, um Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
+        "title": "Keine Stablecoin-Adressen",
+        "subtitle": "Erstellen Sie eine Adresse, um Stablecoin-Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
       },
       "createButton": "Adresse erstellen",
       "info": {
@@ -2244,7 +2244,7 @@
         "whatAreBody": "Dauerhafte Adressen, die eingehende USDC oder USDT automatisch in Bitcoin oder Dollar umwandeln und die Mittel an Ihre Wallet senden.",
         "howItWorks": "So funktioniert es",
         "step1": "1. Teilen Sie Ihre Einzahlungsadresse mit einem Absender oder einer Börse.",
-        "step2": "2. Die Mittel kommen on-chain an und werden automatisch umgewandelt.",
+        "step2": "2. Die Mittel kommen on-chain an und werden automatisch in die von Ihnen gewählte Währung umgewandelt.",
         "step3": "3. Der umgewandelte Betrag wird Ihrer Wallet gutgeschrieben."
       },
       "detail": {
@@ -2480,15 +2480,15 @@
     },
     "goalDetails": {
       "screenTitleFallback": "Sparziel",
-      "updateGoalButton": "Sparziel aktualisieren",
+      "updateGoalButton": "Sparziel anpassen",
       "emptyState": "Kein Sparziel gesetzt"
     },
     "updateGoal": {
-      "screenTitle": "Sparziel aktualisieren",
-      "title": "Sparziel aktualisieren",
-      "body": "Sie können den gesetzten Betrag für Ihr Sparziel ändern oder es entfernen.",
+      "screenTitle": "Sparziel anpassen",
+      "title": "Sparziel anpassen",
+      "body": "Sie können den Betrag Ihres Sparziels anpassen oder es entfernen.",
       "removeButton": "Sparziel entfernen",
-      "updateButton": "Sparziel aktualisieren"
+      "updateButton": "Sparziel anpassen"
     },
     "removeGoalConfirm": {
       "screenTitle": "Sparziel entfernen",
