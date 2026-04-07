@@ -106,7 +106,7 @@
     "selectOption": "Selecione uma opção",
     "slideToConfirm": "Arraste para confirmar",
     "token": "Token",
-    "veriable": "Variável",
+    "variable": "Variável",
     "instant": "Instantâneo",
     "andLower": "e",
     "onLower": "on",
@@ -310,7 +310,7 @@
         "payingInvoiceLoadingMessage": "Pagando fatura",
         "backupPaymentError": "Erro ao pagar fatura.",
         "createInvoiceError": "Erro ao criar fatura.",
-        "payingInvoiveError": "Erro ao pagar fatura.",
+        "payingInvoiceError": "Erro ao pagar fatura.",
         "runningTries": "Executando {{runCount}} para {{maxTries}} tentativas",
         "configError": "Não foi possível obter a configuração da VPN. Entre em contato com a LNVPN.",
         "paymentMemo": "Loja - VPN"
@@ -811,7 +811,7 @@
         "autoSelectInfoMessage": "Selecione o país do número de telefone que você deseja usar. Para ter mais chances de receber seu código, recomendamos mantê-lo em seleção automática para que o sistema escolha a opção mais confiável.",
         "autoSelect": "Seleção automática",
         "inputPlaceholder": "Pesquisar um serviço",
-        "loacationLoadingMessage": "Buscando serviços baseados em localização",
+        "locationLoadingMessage": "Buscando serviços baseados em localização",
         "noAvailableServices": "Este local não possui serviços",
         "orderDetailsLoading": "Buscando detalhes do pedido"
       },
@@ -870,7 +870,7 @@
       "tapToGenerate_spark": "Mostrar endereço Spark",
       "tapToGenerate_liquid": "Mostrar endereço Liquid",
       "tapToGenerate_rootstock": "Mostrar endereço Rootstock",
-      "chooseWhatToReceive": "O que você deseja receber?",
+      "chooseWhatToReceive": "Qual moeda você deseja receber?",
       "instantLowFees": "Instantâneo, taxas baixas",
       "onChainTransaction": "~ 10 minutos",
       "otherAddresses": "Outras opções",
@@ -901,7 +901,7 @@
       "alreadyPaid": "Este link de pagamento já foi pago.",
       "notFound": "Link de pagamento não encontrado.",
       "invoiceError": "Falha ao criar fatura.",
-      "requestHeader": "O que você deseja receber?",
+      "requestHeader": "Qual moeda você deseja receber?",
       "genQRCode": "Gerar código QR",
       "howItWorks": {
         "step1Label": "Compartilhe o link",
@@ -909,7 +909,7 @@
         "step2Label": "A pessoa abre o link no navegador",
         "step2Desc": "Não é necessário app. O link abre uma página na internet onde a fatura pode ser paga com Bitcoin, USDC ou USDT.",
         "step3Label": "Você recebe instantaneamente",
-        "step3Desc": "Assim que o pagamento for concluído, o dinheiro chega à sua carteira."
+        "step3Desc": "Assim que o pagamento for concluído, o dinheiro chega na sua carteira."
       },
       "copyLink": "Copiar link"
     },
@@ -988,7 +988,7 @@
       "settingsText": "Acesse as configurações para permitir que a Blitz Wallet acesse sua câmera",
       "noCameraDevice": "Você não tem um dispositivo com câmera.",
       "noFlash": " Device does not have a torch",
-      "sanningResponse": "Somente códigos QR são aceitos.",
+      "scanningResponse": "Somente códigos QR são aceitos.",
       "qrDecodeError": "Erro ao decodificar o código QR"
     },
     "confirmClipboard": {
@@ -1060,7 +1060,7 @@
         "header": "Escolha o saldo para realizar esse pagamento"
       },
       "handlingAddressErrors": {
-        "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
+        "invalidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
         "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin, endereço/fatura Lightning ou um endereço USDT/USDC de uma rede suportada.",
         "paymentProcessingError": "Erro ao processar informações de pagamento",
         "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
@@ -1080,7 +1080,8 @@
         "lnurlWithdrawlSuccess": "Saque realizado com sucesso! Seu pagamento está a caminho.",
         "invoiceDetails": "Carregando detalhes",
         "timeoutError": "O processo demorou muito para ser concluído. Tente novamente.",
-        "payingToSameAddress": "Você não pode enviar um pagamento {{addressType}} para si mesmo."
+        "payingToSameAddress": "Você não pode enviar um pagamento {{addressType}} para si mesmo.",
+        "blitzUserNotFound": "Usuário Blitz não encontrado"
       },
       "errorScreen": {
         "ok": "OK",
@@ -1186,9 +1187,9 @@
       "chainSwap": "Dólar digital",
       "assetPicker": {
         "header": "Selecione a moeda que você deseja enviar",
-        "notAvailable": "Não disponível em {{chain}}"
+        "notAvailable": "Não disponível na {{chain}}"
       },
-      "networkLabel": "na {{chain}}"
+      "networkLabel": "{{currency}} na {{chain}}"
     }
   },
   "contacts": {
@@ -1244,13 +1245,13 @@
       "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
       "unableToSaveError": "Não foi possível salvar a imagem do perfil, tente novamente.",
       "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
-      "deleateWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
+      "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
     "selectCurrencyToSend": {
-      "header": "O você deseja enviar?"
+      "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "O que você deseja receber?"
+      "header": "Qual moeda você deseja receber?"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
@@ -1309,8 +1310,8 @@
         "cardNamePlaceH": "Cartão-presente",
         "noCardsText": "Seus cartões-presente aparecerão aqui assim que você os receber",
         "header": "Seus cartões-presente",
-        "cardsLenghSingular": "{{num}} cartão",
-        "cardsLenghPlurl": "{{num}} cartões"
+        "cardsLengthSingular": "{{num}} cartão",
+        "cardsLengthPlural": "{{num}} cartões"
       },
       "editGiftCard": {
         "header": "O que você gostaria de fazer com seu cartão-presente?"
@@ -1340,7 +1341,7 @@
       "licenseBody": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a",
       "licenseLinkLabel": "Licença Apache v2.0",
       "walletHeader": "Blitz Wallet",
-      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial compatível com a rede Lightning e com suporte a dólares digitais USDB, USDT e USDC nas principais redes do mercado. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder seus fundos.",
+      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial compatível com a rede Lightning e com suporte a dólares digitais USDB, USDT e USDC nas principais redes do mercado. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder todo seu dinheiro.",
       "poweredByLabel": "Desenvolvido com",
       "poweredByBreez": "Breez Liquid SDK",
       "poweredBySpark": "Spark",
@@ -1434,12 +1435,12 @@
       "text5": "O dispositivo não possui um perfil biométrico. Crie um nas configurações para continuar.",
       "text6": "Erro ao acessar usando biometria",
       "text7": "O dispositivo não suporta acesso usando biometria",
-      "unsuccesfullLoginSwitch": "Não é possível alternar o tipo de acesso",
+      "unsuccessfulLoginSwitch": "Não é possível alternar o tipo de acesso",
       "toggleSecurityModeError": "Ocorreu um erro ao alterar suas configurações de segurança. Tente novamente.",
       "noBiometricsError": "O dispositivo não suporta acesso com biometria",
       "noBiometricProfileError": "O dispositivo não possui um perfil biométrico. Crie um nas configurações para continuar.",
       "biometricSignInError": "Erro ao acessar com biometria",
-      "migratingStorageMessgae": "Migrando armazenamento para nova segurança.",
+      "migratingStorageMessage": "Migrando armazenamento para nova segurança.",
       "createPinPageHeader": "{{type}} seu PIN Blitz",
       "invalidPinconfirmation": "Os PINs não correspondem. Tente novamente!",
       "randomPinKeyboardToggle": "Embaralhar teclado",
@@ -1599,7 +1600,7 @@
         "invalidPubKey": "Chave pública inválida: precisa ser uma string não vazia",
         "invalidNpub": "Formato npub inválido",
         "decodeNpubError": "Falha ao decodificar npub",
-        "invlaidFormat": "Formato de chave pública inválido: deve ser uma string hexadecimal de 64 caracteres ou npub"
+        "invalidFormat": "Formato de chave pública inválido: deve ser uma string hexadecimal de 64 caracteres ou npub"
       }
     },
     "nwc": {
@@ -1627,14 +1628,14 @@
         "connectionName": ""
       },
       "hasNoAccounts": {
-        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
+        "warningMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
       },
       "noNotifications": {
-        "wanringMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
+        "warningMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase de recuperação",
-        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr (NWC) possui uma frase de recuperação diferente da sua conta principal.\n\nVocê pode acessar essa frase de recuperação nas configurações da Blitz, em Contas.",
+        "warningMessage": "Para manter sua conta principal segura, a conta com conexão Nostr (NWC) possui uma frase de recuperação diferente da sua conta principal.\n\nVocê pode acessar essa frase de recuperação nas configurações da Blitz, em Contas.",
         "viewSeed": "Ver frase de recuperação"
       },
       "combinedOnboarding": {
@@ -1893,7 +1894,8 @@
         "title": "Downloads",
         "goalUserCount": "de {{goalUserCount}} usuários.",
         "percentOfGoal": "{{goalPercent}}% da meta",
-        "numAddedUsers": "+{{numNewUsers}} usuários hoje"
+        "numAddedUsers": "+{{numNewUsers}} usuários hoje",
+        "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
         "loadingMessage1": "Por favor, não feche o aplicativo",
@@ -1932,7 +1934,7 @@
         "header_spark_usd": "Dólares via Spark",
         "header_liquid": "Bitcoin via Liquid",
         "header_rootstock": "Bitcoin via Rootstock",
-        "selectReceiveAssetHead": "O que você deseja receber?",
+        "selectReceiveAssetHead": "Qual moeda você deseja receber?",
         "usd_convert_warning": "O valor final que você receber pode variar devido a mudanças no preço de mercado durante a conversão.",
         "editDescriptionHead": "Adicione uma descrição para esse pagamento",
         "editDescriptionPlaceholder": "Adicionar uma descrição",
@@ -2091,7 +2093,7 @@
           "inputPlaceholder": "Insira o link do Vale-Blitz",
           "claim": "Resgatar",
           "noGiftLinkError": "Não foi possível encontrar um link de Vale-Blitz. Leia ou cole o link que você recebeu.",
-          "invliadGiftFormat": "Link de Vale-Blitz inválido. Copie o link completo e tente novamente."
+          "invalidGiftFormat": "Link de Vale-Blitz inválido. Copie o link completo e tente novamente."
         },
         "reclaimPage": {
           "header": "Vales-Blitz expirados",
@@ -2216,13 +2218,61 @@
         "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar",
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
-        "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas."
+        "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas.",
+        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
-        "noHisotorytitle": "Nenhum histórico de trocas",
-        "noHisotorydesc": "As trocas aparecerão aqui.",
+        "noHistoryTitle": "Nenhum histórico de trocas",
+        "noHistoryDesc": "As trocas aparecerão aqui.",
         "pageTitle": "Histórico"
+      }
+    },
+    "accumulationAddresses": {
+      "title": "Conversão automática",
+      "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares USDB",
+      "navTitle": "Endereços",
+      "sectionTitle": "Endereços ativos",
+      "empty": {
+        "title": "Nenhum endereço de conversão automática",
+        "subtitle": "Crie endereços USDT ou USDC em que os depósitos recebidos são convertidos automaticamente para bitcoin ou dólares"
+      },
+      "createButton": "Criar endereço",
+      "info": {
+        "title": "O que são?",
+        "whatAre": "O que são?",
+        "whatAreBody": "Endereços únicos de USDC ou USDT em que os valores recebidos são automaticamente convertidos em bitcoin ou dólares e enviados para sua carteira.",
+        "howItWorks": "Como funciona",
+        "step1": "1. Compartilhe seu endereço de depósito com um remetente ou corretora.",
+        "step2": "2. Os fundos recebidos são automaticamente convertidos.",
+        "step3": "3. O valor convertido chega na sua carteira."
+      },
+      "detail": {
+        "copyAddress": "Copiar endereço",
+        "printQR": "Imprimir QR",
+        "deleteButton": "Excluir endereço",
+        "deleteConfirmTitle": "Excluir endereço?",
+        "deleteConfirmBody": "Excluir este endereço impede o redirecionamento de pagamentos futuros e pode resultar na perda de fundos. Certifique-se de que todos saibam que ele não está mais ativo antes de removê-lo.",
+        "chain": "Rede",
+        "source": "Origem",
+        "Destination": "Destino"
+      },
+      "create": {
+        "pickAsset": "Selecionar moeda",
+        "pickChain": "Selecionar rede",
+        "pickDestination": "Selecionar destino",
+        "confirm": "Confirmar endereço",
+        "alreadyExists": "Você já tem um endereço para esta combinação"
+      },
+      "summary": {
+        "chain": "Rede",
+        "paymentCurrency": "Moeda",
+        "destination": "Destino",
+        "create": "Criar endereço"
+      },
+      "errors": {
+        "createFailed": "Falha ao criar endereço. Tente novamente.",
+        "deleteFailed": "Falha ao excluir endereço. Tente novamente."
       }
     }
   },
@@ -2277,7 +2327,7 @@
     "rootstockInvoiceError": "Ocorreu um problema ao gerar seu endereço Rootstock. Tente novamente.",
     "liquidInvoiceError": "Ocorreu um problema ao gerar seu endereço Liquid. Tente novamente.",
     "bitcoinInvoiceError": "Ocorreu um problema ao gerar seu endereço Bitcoin. Tente novamente..",
-    "sparkInvioceError": "Ocorreu um problema ao gerar seu endereço Spark. Tente novamente.",
+    "sparkInvoiceError": "Ocorreu um problema ao gerar seu endereço Spark. Tente novamente.",
     "lightningInvoiceError": "Ocorreu um problema ao gerar seu endereço Lightning. Tente novamente.",
     "sparkConnectionError": "Falha na conexão com a Spark. Tente novamente..",
     "giftCardExpiration": "Os vales-presente só podem ser recuperados em até 7 dias após o envio. Se este aplicativo for excluído ou o armazenamento local for limpo após esse período, seus vales-presente serão perdidos. Guarde os links de resgate ou os códigos dos vales-presente em um local seguro.",
@@ -2400,7 +2450,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, uma Stablecoin emitida pela Brale e totalmente coberta 1:1 por Títulos do Tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. A Stablecoin USDB não é segurada pelo FDIC. Não é um produto bancário."
+      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, um dólar digital emitido pela Brale e totalmente coberto 1:1 por títulos do tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. O Dólar digital USDB não é segurado pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
@@ -2549,7 +2599,7 @@
         "accrualValue": "Diário"
       },
       "context": {
-        "goalNameReqiured": "O nome da meta é obrigatório",
+        "goalNameRequired": "O nome da meta é obrigatório",
         "goalNotFound": "Meta não encontrada"
       },
       "transparencyTitle": "Lastreado por reservas reais",
@@ -2563,7 +2613,7 @@
     "swapSimulationError": "Simulação de troca não disponível",
     "savingsWalletError": "Conta da Caixinha não está pronta",
     "rewardsPayout": "Pagamento de recompensas",
-    "rewardsWithdrawl": "Resgate de recompensas",
+    "rewardsWithdrawal": "Resgate de recompensas",
     "total_balance": "Saldo total Caixinhas"
   }
 }

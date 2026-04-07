@@ -114,7 +114,7 @@ export default function EditMyProfilePage(props) {
         iconNew="Trash2"
         leftImageFunction={() =>
           navigate.navigate('ConfirmActionPage', {
-            confirmMessage: t('contacts.editMyProfilePage.deleateWarning'),
+            confirmMessage: t('contacts.editMyProfilePage.deleteWarning'),
             confirmFunction: () => deleteUser(true),
             cancelFunction: () => deleteUser(false),
           })

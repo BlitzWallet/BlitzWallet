@@ -1591,9 +1591,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.6.7":
-  version: 0.6.7
-  resolution: "@buildonspark/spark-sdk@npm:0.6.7"
+"@buildonspark/spark-sdk@npm:^0.7.4":
+  version: 0.7.4
+  resolution: "@buildonspark/spark-sdk@npm:0.7.4"
   dependencies:
     "@bufbuild/protobuf": ^2.2.5
     "@lightsparkdev/core": ^1.4.9
@@ -1639,7 +1639,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: ad3f4c7b580fbc80142d61e275eba1defe3deb9c0ba7218dd274e22894179e0ec890dac1a84e249e36b2dcdbab434f9327134ae5956b8326bb3548e901085b2b
+  checksum: 135a162c94cfe74c5e640fecf06f80cf64512c1e9e7994130ccc780d1b2b3717df3a5e5b70b8fb848249ec65de72c02f166c87e87ca3b087be25f7a90729dd1e
   languageName: node
   linkType: hard
 
@@ -3185,16 +3185,6 @@ __metadata:
     ws: ^8.12.1
     zen-observable-ts: ^1.1.0
   checksum: 1d2495d0cf7efa1237c113424ee36f10878939c38093a2a3a31cbd5e039dc15945a06525240571b5cfc6d4f8041a3be6b341322bfb31536d94a81ccb8f6229c7
-  languageName: node
-  linkType: hard
-
-"@miblanchard/react-native-slider@npm:^2.6.0":
-  version: 2.6.0
-  resolution: "@miblanchard/react-native-slider@npm:2.6.0"
-  peerDependencies:
-    react: ">=16.8"
-    react-native: ">=0.59"
-  checksum: cdaaca314e94133e87a623cfe59dac950aeb6ba09946fb89f03d4c2a0cd131db80b368c320c34e5c126a10041026a83e00df3182d2346857e7b51aed96632748
   languageName: node
   linkType: hard
 
@@ -4841,10 +4831,9 @@ __metadata:
     "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
-    "@buildonspark/spark-sdk": ^0.6.7
+    "@buildonspark/spark-sdk": ^0.7.4
     "@craftzdog/react-native-buffer": ^6.1.0
     "@flashnet/sdk": ^0.5.7
-    "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
     "@noble/secp256k1": ^3.0.0
     "@react-native-async-storage/async-storage": 2.2.0
@@ -4941,15 +4930,14 @@ __metadata:
     react-native-screens: ~4.16.0
     react-native-svg: 15.12.1
     react-native-view-shot: ^4.0.3
-    react-native-vision-camera: ^4.6.4
+    react-native-vision-camera: ^4.7.3
     react-native-webview: 13.15.0
     react-native-worklets: ^0.7.4
     react-test-renderer: 19.1.0
     rn-qr-generator: ^2.0.0
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#683ddc146a88c302c9482bbed5c244c7811ca2e8"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#141789eb223e8cf3be23467212c4668258e03ea2"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
-    text-encoding-polyfill: ^0.6.7
     typescript: ^5.8.3
     unique-names-generator: ^4.7.1
     uuid: ^13.0.0
@@ -13040,9 +13028,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-vision-camera@npm:^4.6.4":
-  version: 4.7.2
-  resolution: "react-native-vision-camera@npm:4.7.2"
+"react-native-vision-camera@npm:^4.7.3":
+  version: 4.7.3
+  resolution: "react-native-vision-camera@npm:4.7.3"
   peerDependencies:
     "@shopify/react-native-skia": "*"
     react: "*"
@@ -13056,7 +13044,7 @@ __metadata:
       optional: true
     react-native-worklets-core:
       optional: true
-  checksum: d0ed87b10f0be61c25b317cc599a7c4724ff6baccea211dd5b26bcf906c197e7445ef69a0ba4fa41a68221d8d90e941f2f55410c363b4a63209a41a3d0fa3f7d
+  checksum: e3abe484e4303d4fa9088e546e846642f4be503180ed24eaf74fc9e11c667cee779c5a9de4f27999dccb830ee60760badc641ee869fc6015e7ab7bec0f494f6d
   languageName: node
   linkType: hard
 
@@ -14005,16 +13993,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#683ddc146a88c302c9482bbed5c244c7811ca2e8":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#141789eb223e8cf3be23467212c4668258e03ea2":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=683ddc146a88c302c9482bbed5c244c7811ca2e8"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=141789eb223e8cf3be23467212c4668258e03ea2"
   dependencies:
-    "@buildonspark/spark-sdk": ^0.6.7
+    "@buildonspark/spark-sdk": ^0.7.4
     "@ecies/ciphers": ^0.2.4
     "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: e22a4b97258cc31ecf935f3f054b34cd9f43d56340a1395d42411900edd1b9054c730a8ff37afd093d8b6fa4e4a8a5b10e92154f3ef7d952d829a5aac14d32d0
+  checksum: 907238dc6f0ed30240257f8d47e6924d152f3a189bd84ea2c4e41cb678922a3a42f45c2cb08edabebb20727a616d8e6c8007c66eab05116bf06e574a54871ba4
   languageName: node
   linkType: hard
 
@@ -14480,13 +14468,6 @@ __metadata:
   dependencies:
     b4a: ^1.6.4
   checksum: d7642a61f9d72330eac52ff6b6e8d34dea03ebbb1e82749a8734e7892e246cf262ed70730d20c4351c5dc5334297b9cc6c0b6a8725a204a63a197d7728bb35e5
-  languageName: node
-  linkType: hard
-
-"text-encoding-polyfill@npm:^0.6.7":
-  version: 0.6.7
-  resolution: "text-encoding-polyfill@npm:0.6.7"
-  checksum: 8e5b45154f3394cd29af01760ec2f728caba7cfc57fbcab60c073dc9c6db479d923efda3e074ae467379c4a0710c45e6427c6917a70da3059876924c190e03ed
   languageName: node
   linkType: hard
 

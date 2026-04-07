@@ -1503,10 +1503,10 @@ export default function SwapFlowHalfModal({
                   <NoContentSceen
                     iconName="ArrowUpDown"
                     titleText={t(
-                      'screens.inAccount.swapHistory.noHisotorytitle',
+                      'screens.inAccount.swapHistory.noHistoryTitle',
                     )}
                     subTitleText={t(
-                      'screens.inAccount.swapHistory.noHisotorydesc',
+                      'screens.inAccount.swapHistory.noHistoryDesc',
                     )}
                   />
                 }

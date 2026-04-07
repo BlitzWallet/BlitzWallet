@@ -98,17 +98,17 @@ function FeeTable({ masterInfoObject }) {
   const { t } = useTranslation();
 
   const feeData = [
-    {
-      transactionType: t('settings.feeInformation.swapsType'),
-      fee: t('settings.feeInformation.swapsFee', {
-        poolFee: formatBalanceAmount(
-          poolInfoRef.lpFeeBps / 100,
-          false,
-          masterInfoObject,
-        ),
-        blitzFee: 1,
-      }),
-    },
+    // {
+    //   transactionType: t('settings.feeInformation.swapsType'),
+    //   fee: t('settings.feeInformation.swapsFee', {
+    //     poolFee: formatBalanceAmount(
+    //       poolInfoRef.lpFeeBps / 100,
+    //       false,
+    //       masterInfoObject,
+    //     ),
+    //     blitzFee: 1,
+    //   }),
+    // },
     {
       transactionType: t('settings.feeInformation.stablecoinType'),
       fee: t('settings.feeInformation.swapsFee', {

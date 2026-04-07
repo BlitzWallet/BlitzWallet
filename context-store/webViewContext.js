@@ -1331,6 +1331,32 @@ export const WebViewProvider = ({ children }) => {
     )} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1`;
   }, []);
 
+  const handleWebViewTermination = useCallback(
+    reason => {
+      transitionWvState(WV_STATES.ERROR, reason);
+
+      if (AppState.currentState !== 'active') {
+        // App is backgrounded — do NOT reload now (no events should fire in background).
+        // Invalidate session so the foreground app-state effect sees !nonceVerified
+        // and triggers blockAndResetWebview() cleanly when the user returns.
+        // Critically: do NOT set isResetting.current = true here, as that would
+        // block the foreground handler's !isResetting.current guard.
+        console.warn(
+          `[WebView] Crash in background (${reason}) — deferring reload to foreground`,
+        );
+        nonceVerified.current = false;
+        aesKeyRef.current = null;
+        sessionKeyRef.current = null;
+        walletInitialized.current = false;
+        return;
+      }
+
+      console.warn(`[WebView] Crash while active (${reason}) — reloading now`);
+      blockAndResetWebview();
+    },
+    [blockAndResetWebview],
+  );
+
   return (
     <WebViewContext.Provider
       value={{
@@ -1387,11 +1413,14 @@ export const WebViewProvider = ({ children }) => {
               webViewLoadState.current = 'loaded';
             }
           }}
-          onContentProcessDidTerminate={() => {
-            console.warn('WebView content process terminated — reloading...');
-            transitionWvState(WV_STATES.ERROR, 'process terminated');
-            blockAndResetWebview();
-          }}
+          onContentProcessDidTerminate={() =>
+            handleWebViewTermination('iOS process terminated')
+          }
+          onRenderProcessGone={({ nativeEvent }) =>
+            handleWebViewTermination(
+              `Android renderer gone (didCrash=${nativeEvent.didCrash})`,
+            )
+          }
         />
       )}
     </WebViewContext.Provider>

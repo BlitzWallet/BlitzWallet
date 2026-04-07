@@ -429,7 +429,7 @@ export default function WithdrawFromSavingsHalfModal({
             );
           },
           null, // no initial balance — let poller establish the baseline
-          1,
+          2,
         );
 
         await poller.start();

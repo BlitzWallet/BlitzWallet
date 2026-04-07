@@ -55,7 +55,7 @@ export const FLASHNET_POOL_IDENTITY_KEY =
 export const DEFAULT_SLIPPAGE_BPS = 100; // 1%
 export const SEND_AMOUNT_INCREASE_BUFFER = 1.01; // 1%
 export const DEFAULT_MAX_SLIPPAGE_BPS = 300; // 3% for lightning payments
-export const INTEGRATOR_FEE = 0.01; // 1%
+export const INTEGRATOR_FEE = 0.005; // .5%
 
 // ============================================
 // HELPER FUNCTIONS
@@ -364,7 +364,7 @@ export const simulateSwap = async (
     assetInAddress,
     assetOutAddress,
     amountIn,
-    integratorFeeRateBps = 100,
+    integratorFeeRateBps = 50,
   },
 ) => {
   try {
@@ -432,7 +432,7 @@ export const executeSwap = async (
     amountIn,
     minAmountOut, // Optional - will be calculated if not provided
     maxSlippageBps = DEFAULT_SLIPPAGE_BPS,
-    integratorFeeRateBps = 100,
+    integratorFeeRateBps = 50,
   },
 ) => {
   try {
@@ -705,7 +705,7 @@ export const getLightningPaymentQuote = async (
   mnemonic,
   invoice,
   tokenAddress,
-  integratorFeeRateBps = 100,
+  integratorFeeRateBps = 50,
   maxSlippageBps = DEFAULT_MAX_SLIPPAGE_BPS,
 ) => {
   try {
@@ -780,7 +780,7 @@ export const payLightningWithToken = async (
     maxLightningFeeSats = null,
     rollbackOnFailure = true,
     useExistingBtcBalance = false,
-    integratorFeeRateBps = 100,
+    integratorFeeRateBps = 50,
   },
 ) => {
   try {

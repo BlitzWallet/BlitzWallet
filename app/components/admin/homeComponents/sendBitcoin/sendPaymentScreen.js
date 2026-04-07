@@ -212,7 +212,7 @@ export default function SendPaymentScreen(props) {
     paymentInfo?.data?.expectedToken !== USDB_TOKEN_ID &&
     !contactInfo;
 
-  const showSendMax = !dollarBalanceSat && !bitcoinBalance;
+  // const showSendMax = !dollarBalanceSat && !bitcoinBalance;
 
   // finds the true min swap amount
   const min_usd_swap_amount = useMemo(() => {
@@ -1105,7 +1105,7 @@ export default function SendPaymentScreen(props) {
           )}
 
           {/* Send max button for edit mode */}
-          {!useAltLayout && uiState === 'EDIT_AMOUNT' && showSendMax && (
+          {/* {!useAltLayout && uiState === 'EDIT_AMOUNT' && showSendMax && (
             <SendMaxComponent
               fiatStats={fiatStats}
               sparkInformation={sparkInformation}
@@ -1119,7 +1119,7 @@ export default function SendPaymentScreen(props) {
               seletctedToken={seletctedToken}
               useAltLayout={useAltLayout}
             />
-          )}
+          )} */}
 
           {/* Fee info for fixed amount */}
           {uiState === 'CONFIRM_PAYMENT' && (

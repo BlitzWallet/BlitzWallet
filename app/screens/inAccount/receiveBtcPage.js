@@ -255,10 +255,18 @@ export default function ReceivePaymentHome(props) {
         iconNew="Share"
         leftImageFunction={handleShare}
         label={t('constants.receive')}
+        containerStyles={{ marginBottom: 0 }}
+      />
+      <ThemeText
+        styles={styles.title}
+        content={t('screens.inAccount.receiveBtcPage.header', {
+          context: headerContext,
+        })}
       />
       <ScrollView
         contentContainerStyle={{
-          flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
+          justifyContent: 'center',
+          flexGrow: 1,
           paddingBottom: bottomPadding,
         }}
         showsVerticalScrollIndicator={false}
@@ -274,12 +282,6 @@ export default function ReceivePaymentHome(props) {
             flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
           }}
         >
-          <ThemeText
-            styles={styles.title}
-            content={t('screens.inAccount.receiveBtcPage.header', {
-              context: headerContext,
-            })}
-          />
           <QrCode
             globalContactsInformation={globalContactsInformation}
             selectedRecieveOption={selectedRecieveOption}
@@ -427,7 +429,7 @@ export default function ReceivePaymentHome(props) {
               (selectedRecieveOption.toLowerCase() === 'lightning' &&
                 endReceiveType === 'USD')) &&
             selectedRecieveOption.toLowerCase() !== 'spark' ? (
-              <ThemeText content={t('constants.veriable')} />
+              <ThemeText content={t('constants.variable')} />
             ) : (
               <FormattedSatText neverHideBalance={true} balance={0} />
             )}
@@ -636,7 +638,10 @@ function QrCode(props) {
 
   return (
     <View
-      style={[styles.qrCodeContainer, { backgroundColor: backgroundOffset }]}
+      style={[
+        styles.qrCodeContainer,
+        { backgroundColor: backgroundOffset, marginTop: 'auto' },
+      ]}
     >
       <TouchableOpacity
         onPress={handlePress}
@@ -955,9 +960,9 @@ function QRInformationRow({
 const styles = StyleSheet.create({
   title: {
     marginBottom: 10,
-    marginTop: 'auto',
     opacity: 0.7,
     includeFontPadding: false,
+    textAlign: 'center',
   },
   animatedQRContainer: {
     position: 'relative',

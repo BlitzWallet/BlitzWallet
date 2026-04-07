@@ -14,7 +14,7 @@ export default function NostrWalletConnectNoNotifications() {
     <View style={styles.globalContainer}>
       <ThemeText
         styles={styles.textStyles}
-        content={t('settings.nwc.noNotifications.wanringMessage')}
+        content={t('settings.nwc.noNotifications.warningMessage')}
       />
       <CustomButton
         actionFunction={() => {

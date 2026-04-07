@@ -41,6 +41,7 @@ import EditGiftHalfModal from '../../components/admin/homeComponents/contacts/in
 import ViewGiftCardCodePage from '../../components/admin/homeComponents/contacts/viewGiftCardCode';
 import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/viewAllGiftCards';
 import ViewAllTokensHalfModal from '../../components/admin/homeComponents/homeLightning/viewAllTokensHalfModal';
+import CreateAccumulationAddressModal from '../../components/admin/homeComponents/accumulationAddresses/CreateAccumulationAddressModal';
 
 import Animated, {
   useSharedValue,
@@ -270,7 +271,12 @@ export default function CustomHalfModal(props) {
           />
         );
       case 'customQrCode':
-        return <CustomQrCode data={props.route.params?.data} />;
+        return (
+          <CustomQrCode
+            data={props.route.params?.data}
+            setContentHeight={setContentHeight}
+          />
+        );
       case 'manualEnterSendAddress':
         return (
           <ManualEnterSendAddress
@@ -568,6 +574,14 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
+      case 'createAccumulationAddress':
+        return (
+          <CreateAccumulationAddressModal
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+
       default:
         return <ThemeText content={'TST'} />;
     }

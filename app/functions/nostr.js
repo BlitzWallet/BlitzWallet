@@ -36,7 +36,7 @@ export function npubToHex(pubkey) {
       return {didWork: true, data: cleanPubkey.toLowerCase()};
     }
 
-    throw new Error('settings.nip5.errors.invlaidFormat');
+    throw new Error('settings.nip5.errors.invalidFormat');
   } catch (err) {
     return {didWork: false, error: err.message};
   }

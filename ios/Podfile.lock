@@ -4714,15 +4714,15 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
-  - spark-sdk (0.6.7):
+  - spark-sdk (0.7.4):
     - React
     - React-Core
   - UMAppLoader (6.0.7)
-  - VisionCamera (4.7.2):
-    - VisionCamera/Core (= 4.7.2)
-    - VisionCamera/React (= 4.7.2)
-  - VisionCamera/Core (4.7.2)
-  - VisionCamera/React (4.7.2):
+  - VisionCamera (4.7.3):
+    - VisionCamera/Core (= 4.7.3)
+    - VisionCamera/React (= 4.7.3)
+  - VisionCamera/Core (4.7.3)
+  - VisionCamera/React (4.7.3):
     - React-Core
   - Yoga (0.0.0)
   - ZXingObjC (3.6.9):
@@ -5343,9 +5343,9 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  spark-sdk: 7582c75985998f95f46d41307b5296a71a0608ba
+  spark-sdk: 042f679724db57d8d5c474671dc6ae2cbe9bb15a
   UMAppLoader: e1234c45d2b7da239e9e90fc4bbeacee12afd5b6
-  VisionCamera: 30b358b807324c692064f78385e9a732ce1bebfe
+  VisionCamera: 7187b3dac1ff3071234ead959ce311875748e14f
   Yoga: 9b30b783a17681321b52ac507a37219d7d795ace
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 

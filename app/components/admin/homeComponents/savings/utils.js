@@ -101,7 +101,7 @@ export function toLegacyDisplayTransaction(transaction, goalName, t) {
     amountMicros: signedAmountMicros,
     createdAt: transaction.timestamp,
     description: isBtcWithdrawl
-      ? t('savings.rewardsWithdrawl')
+      ? t('savings.rewardsWithdrawal')
       : t(key, { goalName }),
   };
 }

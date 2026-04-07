@@ -111,10 +111,11 @@ export const sparkPaymenWrapper = async ({
           throw new Error(
             feeResponse.error || 'Unable to get Bitcoin fee estimation',
           );
+        console.log(feeResponse, 'onchain fee quote');
         const data = feeResponse.response;
         calculatedFee =
-          data.userFeeFast.originalValue +
-          data.l1BroadcastFeeFast.originalValue;
+          (data.l1BroadcastFeeFast?.originalValue || 0) +
+          (data.userFeeFast?.originalValue || 0);
         tempFeeQuote = data;
       } else if (paymentType === 'lrc20') {
         calculatedFee = 0;

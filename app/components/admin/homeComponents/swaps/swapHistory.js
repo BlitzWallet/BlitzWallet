@@ -249,11 +249,11 @@ export default function ConversionHistory() {
       <ThemeIcon iconName={'ArrowUpDown'} />
       <ThemeText
         styles={styles.emptyTitle}
-        content={t('screens.inAccount.swapHistory.noHisotorytitle')}
+        content={t('screens.inAccount.swapHistory.noHistoryTitle')}
       />
       <ThemeText
         styles={styles.emptySubtext}
-        content={t('screens.inAccount.swapHistory.noHisotorydesc')}
+        content={t('screens.inAccount.swapHistory.noHistoryDesc')}
       />
     </View>
   );

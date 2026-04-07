@@ -226,8 +226,8 @@ export default function ViewAllGiftCards() {
         <ThemeText
           styles={styles.headerSubtitle}
           content={t(
-            `contacts.internalComponents.viewAllGiftCards.cardsLengh${
-              giftCardsList.length !== 1 ? 'Plurl' : 'Singular'
+            `contacts.internalComponents.viewAllGiftCards.cardsLength${
+              giftCardsList.length !== 1 ? 'Plural' : 'Singular'
             }`,
             {
               num: giftCardsList.length,
