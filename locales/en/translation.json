@@ -1260,6 +1260,41 @@
       "lnurlCopy": "Copy Address",
       "blitzCopy": "Copy Link",
       "scanProfile": "Scan Profile"
+    },
+    "splitBill": {
+      "addFriendsTitle": "Add Friends to Split",
+      "createBillTitle": "Create Split Bill",
+      "selectedCount": "{{count}} of 10 selected",
+      "searchPlaceholder": "Search contacts",
+      "nextButton": "Next",
+      "memoLabel": "Description",
+      "memoPlaceholder": "What's this for?",
+      "totalAmountLabel": "Total Amount",
+      "evenSplit": "Even",
+      "customSplit": "Custom",
+      "remainderNote": "{{amount}} sat remainder stays with you",
+      "perPerson": "{{amount}} / person",
+      "confirmButton": "Confirm",
+      "maxContactsWarning": "Maximum 10 contacts per split",
+      "insufficientFunds": "Insufficient funds. You are {{shortfall}} sats short.",
+      "swapPromptTitle": "Swap USDB to Cover Split?",
+      "swapPromptBody": "You need {{amount}} sats more. Swap USDB to cover the difference?",
+      "swapConfirm": "Swap and Pay",
+      "swapFailed": "Swap failed. Payment cancelled.",
+      "customAmountsMismatch": "Amounts must total {{total}} sats",
+      "noContactsEmpty": "No contacts yet. Add contacts to split a bill.",
+      "noContactsSearch": "No contacts match your search.",
+      "noSparkAddress": "No Spark address",
+      "unknownContact": "Unknown",
+      "noName": "No name set",
+      "partialSuccess": "Paid {{count}} of {{total}} contacts",
+      "requestSent": "Request sent to {{count}} contacts",
+      "errors": {
+        "noAmount_even": "Please enter the total amount to split.",
+        "noAmount_custom": "Please make sure everyone has an amount.",
+        "noDescription": "Please add a description for this split.",
+        "noContactsSelected": "Please select at least one other contact to continue"
+      }
     }
   },
   "settings": {
@@ -1802,7 +1837,9 @@
         "emailReport": "Send via Email",
         "copyReport": "Copy to Clipboard",
         "confirmMessage_sent": "Sent successfully",
-        "confirmMessage_received": "Received successfully"
+        "confirmMessage_received": "Received successfully",
+        "bulkSuccess": "Requests sent successfully",
+        "bulkPartialSuccess": "No requests sent"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Sent amount",
@@ -1813,7 +1850,8 @@
         "contactPaymentType": "Contact",
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "gift": "Gift",
-        "claimPayment": "Claim payment"
+        "claimPayment": "Claim payment",
+        "splitPayment": "Split"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",

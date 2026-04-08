@@ -1259,6 +1259,41 @@
       "lnurlCopy": "Copie de l'adresse",
       "blitzCopy": "Copier le lien",
       "scanProfile": "Profil de numérisation"
+    },
+    "splitBill": {
+      "addFriendsTitle": "Ajouter des amis pour partager",
+      "createBillTitle": "Créer une addition partagée",
+      "selectedCount": "{{count}} sur 10 sélectionnés",
+      "searchPlaceholder": "Rechercher des contacts",
+      "nextButton": "Suivant",
+      "memoLabel": "Description",
+      "memoPlaceholder": "À quoi cela correspond-il ?",
+      "totalAmountLabel": "Montant total",
+      "evenSplit": "Égal",
+      "customSplit": "Personnalisé",
+      "remainderNote": "{{amount}} sat restant reste avec vous",
+      "perPerson": "{{amount}} / personne",
+      "confirmButton": "Confirmer",
+      "maxContactsWarning": "Maximum 10 contacts par partage",
+      "insufficientFunds": "Fonds insuffisants. Il vous manque {{shortfall}} sats.",
+      "swapPromptTitle": "Échanger USDB pour couvrir le partage ?",
+      "swapPromptBody": "Il vous manque {{amount}} sats. Échanger USDB pour couvrir la différence ?",
+      "swapConfirm": "Échanger et payer",
+      "swapFailed": "Échec de l’échange. Paiement annulé.",
+      "customAmountsMismatch": "Les montants doivent totaliser {{total}} sats",
+      "noContactsEmpty": "Aucun contact pour le moment. Ajoutez des contacts pour partager une addition.",
+      "noContactsSearch": "Aucun contact ne correspond à votre recherche.",
+      "noSparkAddress": "Aucune adresse Spark",
+      "unknownContact": "Inconnu",
+      "noName": "Aucun nom défini",
+      "partialSuccess": "{{count}} sur {{total}} contacts payés",
+      "requestSent": "Demande envoyée à {{count}} contacts",
+      "errors": {
+        "noAmount_even": "Veuillez entrer le montant total à partager.",
+        "noAmount_custom": "Assurez-vous que chacun a un montant.",
+        "noDescription": "Veuillez ajouter une description.",
+        "noContactsSelected": "Veuillez sélectionner au moins un contact"
+      }
     }
   },
   "settings": {
@@ -1801,7 +1836,9 @@
         "emailReport": "Envoyer par courriel",
         "copyReport": "Copier dans le presse-papiers",
         "confirmMessage_sent": "Envoyé avec succès",
-        "confirmMessage_received": "Reçu avec succès"
+        "confirmMessage_received": "Reçu avec succès",
+        "bulkSuccess": "Demandes envoyées avec succès",
+        "bulkPartialSuccess": "Aucune demande envoyée"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Montant envoyé",
@@ -1812,7 +1849,8 @@
         "contactPaymentType": "Contact",
         "converstionRate": "{{satAmount}} par {{dollarAmount}}",
         "gift": "Cadeau",
-        "claimPayment": "Réclamer le paiement"
+        "claimPayment": "Réclamer le paiement",
+        "splitPayment": "Partager"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",

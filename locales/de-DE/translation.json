@@ -1262,6 +1262,41 @@
       "lnurlCopy": "Adresse kopieren",
       "blitzCopy": "Link kopieren",
       "scanProfile": "Profil scannen"
+    },
+    "splitBill": {
+      "addFriendsTitle": "Freunde zum Aufteilen hinzufügen",
+      "createBillTitle": "Geteilte Rechnung erstellen",
+      "selectedCount": "{{count}} von 10 ausgewählt",
+      "searchPlaceholder": "Kontakte suchen",
+      "nextButton": "Weiter",
+      "memoLabel": "Beschreibung",
+      "memoPlaceholder": "Wofür ist das?",
+      "totalAmountLabel": "Gesamtbetrag",
+      "evenSplit": "Gleichmäßig",
+      "customSplit": "Individuell",
+      "remainderNote": "{{amount}} Sat Rest bleibt bei dir",
+      "perPerson": "{{amount}} / Person",
+      "confirmButton": "Bestätigen",
+      "maxContactsWarning": "Maximal 10 Kontakte pro Aufteilung",
+      "insufficientFunds": "Unzureichendes Guthaben. Dir fehlen {{shortfall}} Sats.",
+      "swapPromptTitle": "USDB tauschen, um die Aufteilung zu decken?",
+      "swapPromptBody": "Du benötigst noch {{amount}} Sats. USDB tauschen, um die Differenz zu decken?",
+      "swapConfirm": "Tauschen und bezahlen",
+      "swapFailed": "Tausch fehlgeschlagen. Zahlung abgebrochen.",
+      "customAmountsMismatch": "Die Beträge müssen insgesamt {{total}} Sats ergeben",
+      "noContactsEmpty": "Noch keine Kontakte. Füge Kontakte hinzu, um eine Rechnung aufzuteilen.",
+      "noContactsSearch": "Keine Kontakte entsprechen deiner Suche.",
+      "noSparkAddress": "Keine Spark-Adresse",
+      "unknownContact": "Unbekannt",
+      "noName": "Kein Name festgelegt",
+      "partialSuccess": "{{count}} von {{total}} Kontakten bezahlt",
+      "requestSent": "Anfrage an {{count}} Kontakte gesendet",
+      "errors": {
+        "noAmount_even": "Bitte geben Sie den Gesamtbetrag ein.",
+        "noAmount_custom": "Bitte stellen Sie sicher, dass jeder einen Betrag hat.",
+        "noDescription": "Bitte fügen Sie eine Beschreibung hinzu.",
+        "noContactsSelected": "Bitte wählen Sie mindestens einen weiteren Kontakt aus"
+      }
     }
   },
   "settings": {
@@ -1803,7 +1838,9 @@
         "copyReport": "In die Zwischenablage kopieren",
         "confirmMessage_sent": "Erfolgreich gesendet",
         "confirmMessage_received": "Erfolgreich empfangen",
-        "confirmMessage": "{{direction}} erfolgreich"
+        "confirmMessage": "{{direction}} erfolgreich",
+        "bulkSuccess": "Anfragen erfolgreich gesendet",
+        "bulkPartialSuccess": "Keine Anfragen gesendet"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Gesendeter Betrag",
@@ -1814,7 +1851,8 @@
         "contactPaymentType": "Kontakt",
         "converstionRate": "{{satAmount}} pro {{USDAmount}}",
         "gift": "Geschenk",
-        "claimPayment": "Zahlung einfordern"
+        "claimPayment": "Zahlung einfordern",
+        "splitPayment": "Aufteilen"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
