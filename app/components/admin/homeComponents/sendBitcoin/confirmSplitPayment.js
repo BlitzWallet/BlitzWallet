@@ -1,13 +1,17 @@
 import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import {
   CENTER,
+  CONTENT_KEYBOARD_OFFSET,
   IS_SPARK_ID,
   QUICK_PAY_STORAGE_KEY,
   USDB_TOKEN_ID,
 } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { GlobalThemeView } from '../../../../functions/CustomElements';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import usePaymentValidation from './functions/paymentValidation';
 import { useNavigation } from '@react-navigation/native';
@@ -33,6 +37,7 @@ import {
   COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
+  SIZES,
   WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
@@ -1065,8 +1070,10 @@ export default function ConfirmSplitPayment(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
-          label={t('constants.send') + ' ' + sendingAsset}
+          label={t('constants.send')}
+          containerStyles={{ marginBottom: 0 }}
         />
+        <ThemeText styles={styles.sectionTitle} content={sendingAsset} />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
@@ -1223,6 +1230,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     width: WINDOWWIDTH,
     ...CENTER,
+  },
+  sectionTitle: {
+    fontSize: SIZES.medium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   balanceScrollContainer: {
     flexGrow: 1,

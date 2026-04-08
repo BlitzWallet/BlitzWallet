@@ -1,6 +1,7 @@
 import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import {
   CENTER,
+  CONTENT_KEYBOARD_OFFSET,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
   USDB_TOKEN_ID,
@@ -51,6 +52,7 @@ import {
   COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
+  SIZES,
   WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
@@ -1050,8 +1052,10 @@ export default function SendPaymentScreen(props) {
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
-          label={t('constants.send') + ' ' + sendingAsset}
+          label={t('constants.send')}
+          containerStyles={{ marginBottom: 0 }}
         />
+        <ThemeText styles={styles.sectionTitle} content={sendingAsset} />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
@@ -1422,6 +1426,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     width: WINDOWWIDTH,
     ...CENTER,
+  },
+  sectionTitle: {
+    fontSize: SIZES.medium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   balanceScrollContainer: {
     flexGrow: 1,
