@@ -1674,7 +1674,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Denna seed phrase finns redan för ett annat konto",
         "editTitle": "Redigera konto",
-        "createTitle": "Skapa konto",
+        "createTitle_derived": "Skapa konto",
+        "createTitle_imported": "Importera konto",
         "updateTitle": "Uppdatera konto",
         "cannotDeleteActiveAccountError": "Du kan inte radera det aktiva kontot. Välj ett annat konto innan du raderar det.",
         "deleteAccountConfirmation": "Är du säker på att du vill radera det här kontot?",

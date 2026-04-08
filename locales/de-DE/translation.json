@@ -1674,7 +1674,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Diese Wiederherstellungsphrase existiert bereits für ein anderes Konto.",
         "editTitle": "Konto bearbeiten",
-        "createTitle": "Konto erstellen",
+        "createTitle_derived": "Konto erstellen",
+        "createTitle_imported": "Konto importieren",
         "updateTitle": "Konto aktualisieren",
         "cannotDeleteActiveAccountError": "Sie können das aktive Konto nicht löschen. Bitte wählen Sie ein anderes Konto aus, bevor Sie es löschen.",
         "deleteAccountConfirmation": "Sind Sie sicher, dass Sie dieses Konto löschen möchten?",

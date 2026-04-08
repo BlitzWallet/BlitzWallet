@@ -1674,7 +1674,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Esta frase de recuperação já existe para outra conta",
         "editTitle": "Editar conta",
-        "createTitle": "Criar conta",
+        "createTitle_derived": "Criar conta",
+        "createTitle_imported": "Importar conta",
         "updateTitle": "Atualizar conta",
         "cannotDeleteActiveAccountError": "Não é possível arquivar a conta que está selecionada. Selecione outra conta antes de arquivar esta.",
         "deleteAccountConfirmation": "Tem certeza de que deseja arquivar esta conta?",

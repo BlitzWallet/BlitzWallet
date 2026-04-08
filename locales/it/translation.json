@@ -1674,7 +1674,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Questa frase seed esiste già per un altro account",
         "editTitle": "Modifica Account",
-        "createTitle": "Crea Account",
+        "createTitle_derived": "Crea account",
+        "createTitle_imported": "Importa account",
         "updateTitle": "Aggiorna Account",
         "cannotDeleteActiveAccountError": "Non puoi eliminare l'account attivo. Seleziona un altro account prima di eliminare.",
         "deleteAccountConfirmation": "Sei sicuro di voler eliminare questo account?",
