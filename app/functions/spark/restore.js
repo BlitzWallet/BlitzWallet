@@ -28,6 +28,7 @@ import {
   getAllSparkContactInvoices,
   getAllUnpaidSparkLightningInvoices,
   getAllUnpaidHoldInvoicesFromTxs,
+  getBulkPaymentGroupTransferIds,
 } from './transactions';
 import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
@@ -112,6 +113,13 @@ const restoreSparkTxState = async (
     ]);
 
     const savedIds = new Set(savedTxs);
+
+    const bulkTransferIds = await getBulkPaymentGroupTransferIds(
+      identityPubKey,
+    );
+    for (const id of bulkTransferIds) {
+      savedIds.add(id);
+    }
 
     const txsByType = {
       lightning: pendingTxs.filter(tx => tx.paymentType === 'lightning'),
