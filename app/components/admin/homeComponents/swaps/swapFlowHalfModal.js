@@ -1099,7 +1099,7 @@ export default function SwapFlowHalfModal({
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
-  if (!dollarBalanceToken || !bitcoinBalance) {
+  if (!dollarBalanceToken && !bitcoinBalance) {
     return (
       <View style={styles.container}>
         <NoContentSceen
