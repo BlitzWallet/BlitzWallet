@@ -51,6 +51,7 @@ import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import useAdaptiveButtonLayout from '../../hooks/useAdaptiveButtonLayout';
 import { useNavigateToContact } from '../../components/admin/homeComponents/contacts/utils/navigateToExpandedContact';
 import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../constants/theme';
+import ProfileImageRow from '../../components/admin/homeComponents/contacts/internalComponents/profileImageRow';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -79,6 +80,13 @@ export default function ExpandedTx(props) {
     props.route.params.transaction,
   );
   const sendingContactUUID = transaction.details?.sendingUUID;
+  const isBulkPayment = !!transaction.details?.isBulkPayment;
+  const bulkPaymentGroup = transaction.details?.bulkPaymentGroup ?? [];
+
+  // Contacts for ProfileImageRow — successful recipients only
+  const bulkContacts = bulkPaymentGroup
+    .filter(e => e.status !== 'failed')
+    .map(e => ({ uuid: e.contactUUID }));
 
   useEffect(() => {
     if (isInitialRender.current) {
@@ -120,7 +128,9 @@ export default function ExpandedTx(props) {
     transaction?.details?.showSwapLabel &&
     !!transaction?.details?.currentPriceAInB;
 
-  const transactionPaymentType = showConversionLine
+  const transactionPaymentType = isBulkPayment
+    ? t('screens.inAccount.expandedTxPage.splitPayment')
+    : showConversionLine
     ? t('constants.swap')
     : sendingContactUUID
     ? t('screens.inAccount.expandedTxPage.contactPaymentType')
@@ -365,6 +375,11 @@ export default function ExpandedTx(props) {
   };
 
   const renderContactRow = () => {
+    if (isBulkPayment) {
+      return <ProfileImageRow contacts={bulkContacts} />;
+    }
+
+    // Single-contact payment (unchanged)
     if (!sendingContactUUID) return null;
     return (
       <TouchableOpacity
