@@ -150,7 +150,7 @@ export default function CreateCustodyAccounts() {
         <>
           <CustomButton
             buttonStyles={{
-              width: WINDOWWIDTH,
+              width: INSET_WINDOW_WIDTH,
               backgroundColor:
                 theme && darkModeType ? backgroundOffset : COLORS.primary,
               marginTop: CONTENT_KEYBOARD_OFFSET,
@@ -165,7 +165,7 @@ export default function CreateCustodyAccounts() {
           <CustomButton
             buttonStyles={{
               backgroundColor: undefined,
-              width: WINDOWWIDTH,
+              width: INSET_WINDOW_WIDTH,
               ...CENTER,
             }}
             textStyles={{ color: textColor }}
