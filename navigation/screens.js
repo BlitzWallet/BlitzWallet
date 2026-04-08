@@ -7,6 +7,7 @@ import {
   ErrorScreen,
   SendPaymentScreen,
   SwitchReceiveOptionPage,
+  ConfirmSplitPayment,
 } from '../app/components/admin';
 import {
   ConfirmLeaveChatGPT,
@@ -38,6 +39,7 @@ import {
 } from '../app/components/admin/homeComponents/contacts';
 import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
 import BackupSeedWarning from '../app/components/admin/homeComponents/homeLightning/backupSeedWarning';
+
 import {
   ConfirmActionPage,
   NosterWalletConnect,
@@ -206,6 +208,11 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SavingsGoalDetails', component: SavingsGoalDetails },
   { name: 'GiftsPageHome', component: GiftsPageHome },
   { name: 'ReclaimGift', component: ReclaimGift },
+  {
+    name: 'ConfirmSplitPayment',
+    component: ConfirmSplitPayment,
+    options: { gestureEnabled: false },
+  },
 ];
 
 const FADE_SCREENS = [

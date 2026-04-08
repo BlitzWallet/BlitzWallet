@@ -260,7 +260,7 @@ export default function CreateSplitBill(props) {
         .filter(Boolean);
 
       keyboardNavigate(() =>
-        navigate.navigate('ConfirmPaymentScreen', {
+        navigate.navigate('ConfirmSplitPayment', {
           splitRecipients: recipientsWithAddress,
           enteredPaymentInfo: {
             amount: isUSD ? totalCentsInt : totalSatsInt,
