@@ -173,7 +173,9 @@ export function buildFilterQuery(filters, accountId, now = Date.now()) {
     const dirValues = directions.map(d => dirMap[d]).filter(Boolean);
     if (dirValues.length > 0) {
       conditions.push(
-        `json_extract(details, '$.direction') IN (${dirValues.map(() => '?').join(',')})`,
+        `json_extract(details, '$.direction') IN (${dirValues
+          .map(() => '?')
+          .join(',')})`,
       );
       params.push(...dirValues);
     }
@@ -230,8 +232,46 @@ export const getFilteredTransactions = async (filters, options = {}) => {
     const result = await sqlLiteDB.getAllAsync(query, params);
     return result || [];
   } catch (error) {
-    console.error('Error in getFilteredTransactions:', JSON.stringify(filters), error);
+    console.error(
+      'Error in getFilteredTransactions:',
+      JSON.stringify(filters),
+      error,
+    );
     return [];
+  }
+};
+
+export const getBulkPaymentGroupTransferIds = async accountId => {
+  try {
+    await ensureSparkDatabaseReady();
+
+    const query = `
+      SELECT json_extract(details, '$.sparkTransferIds') as sparkTransferIds
+      FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+      WHERE accountId = ?
+      AND json_extract(details, '$.isBulkPayment') = 1
+    `;
+
+    const rows = await sqlLiteDB.getAllAsync(query, [String(accountId)]);
+    const transferIds = new Set();
+
+    for (const row of rows) {
+      try {
+        const ids = JSON.parse(row.sparkTransferIds);
+        if (Array.isArray(ids)) {
+          for (const id of ids) {
+            if (id) transferIds.add(id);
+          }
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return transferIds;
+  } catch (error) {
+    console.error('Error fetching bulk payment group transfer IDs:', error);
+    return new Set();
   }
 };
 

@@ -112,13 +112,13 @@ const restoreSparkTxState = async (
       getAllPendingSparkPayments(accountId),
     ]);
 
-    const savedIds = new Set(savedTxs);
+    let savedIds = new Set(savedTxs);
 
     const bulkTransferIds = await getBulkPaymentGroupTransferIds(
       identityPubKey,
     );
-    for (const id of bulkTransferIds) {
-      savedIds.add(id);
+    if (bulkTransferIds.size > 0) {
+      savedIds = new Set([...savedIds, ...bulkTransferIds]);
     }
 
     const txsByType = {
