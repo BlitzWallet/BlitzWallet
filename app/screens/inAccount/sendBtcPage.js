@@ -28,7 +28,7 @@ import Reanimated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { getQRImage } from '../../functions';
+import { getQRImage, resolveExternalChainNavigation } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { backArrow } from '../../constants/styles';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
@@ -129,6 +129,15 @@ export default function SendPaymentHome({ pageViewPage, from }) {
           return;
         }
 
+        if (response.isExternalChain) {
+          const { method, screen, params } = resolveExternalChainNavigation(
+            response,
+            from,
+          );
+          navigate[method](screen, params);
+          return;
+        }
+
         if (from === 'home')
           navigate.navigate('ConfirmPaymentScreen', {
             btcAdress: response.btcAdress,
@@ -201,6 +210,16 @@ export default function SendPaymentHome({ pageViewPage, from }) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t(response.error),
         });
+        isPhotoeLibraryOpen.current = false;
+        return;
+      }
+
+      if (response.isExternalChain) {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          response,
+          from,
+        );
+        navigate[method](screen, params);
         isPhotoeLibraryOpen.current = false;
         return;
       }

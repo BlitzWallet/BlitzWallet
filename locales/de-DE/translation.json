@@ -82,6 +82,8 @@
     "accounts": "Konten",
     "to": "An",
     "from": "Von",
+    "asset": "Asset",
+    "chain": "Kette",
     "description": "Beschreibung",
     "regenerate": "Erneut generieren",
     "restore": "Wiederherstellen",
@@ -862,7 +864,6 @@
       "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild auszulesen.",
       "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten.",
       "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden.",
-      "addressBook": "Adressbuch",
       "selectAddressType": "Adresstyp auswählen",
       "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen.",
       "tapToGenerate_bitcoin": "Tippen Sie, um eine BTC-Adresse zu erstellen.",
@@ -881,7 +882,36 @@
       "tapToGenerate_lightning_btc": "BTC sofort empfangen",
       "tapToGenerate_lightning_usd": "USD sofort empfangen",
       "noAddedContactsTitle": "Keine hinzugefügten Kontakte",
-      "noAddedContactsDesc": "Ihre Kontakte erscheinen hier, sobald Sie einen hinzufügen."
+      "noAddedContactsDesc": "Ihre Kontakte erscheinen hier, sobald Sie einen hinzufügen.",
+      "payMe": "Schnell bezahlen",
+      "createInvoice": "Rechnung erstellen",
+      "invoiceDescription": "Fordern Sie eine Zahlung über einen Link oder QR-Code an.",
+      "poolsDescription": "Sammeln Sie Beiträge von einer Gruppe für ein gemeinsames Ziel."
+    },
+    "payLinks": {
+      "skip": "Überspringen",
+      "next": "Weiter",
+      "share": "Teilen",
+      "createPayLink": "Zahlungslink erstellen",
+      "showQR": "QR-Code anzeigen",
+      "creating": "Wird erstellt...",
+      "descriptionPlaceholder": "Wofür ist das? (optional)",
+      "descriptionTitle": "Beschreibung hinzufügen",
+      "preparingPayment": "Zahlung wird vorbereitet...",
+      "alreadyPaid": "Dieser Zahlungslink wurde bereits bezahlt.",
+      "notFound": "Zahlungslink nicht gefunden.",
+      "invoiceError": "Rechnung konnte nicht erstellt werden.",
+      "requestHeader": "Was möchten Sie erhalten?",
+      "genQRCode": "QR-Code generieren",
+      "howItWorks": {
+        "step1Label": "Link teilen",
+        "step1Desc": "Senden Sie ihn per Nachricht, E-Mail oder über eine beliebige App. Jeder mit dem Link kann Ihnen Geld senden.",
+        "step2Label": "Im Browser öffnen",
+        "step2Desc": "Keine App erforderlich. Der Link öffnet eine Zahlungsseite, auf der mit Lightning, USDC oder USDT bezahlt werden kann.",
+        "step3Label": "Geld kommt sofort an",
+        "step3Desc": "Sobald die Zahlung abgeschlossen ist, wird das Geld sofort in Ihrer Wallet gutgeschrieben."
+      },
+      "copyLink": "Link kopieren"
     },
     "pools": {
       "receiveViaPool": "Über einen Sparpool empfangen",
@@ -1016,7 +1046,6 @@
       "sendPaymentScreen": {
         "initialLoadingMessage": "Rechnungsdetails werden vorbereitet...",
         "alreadyPaidInvoiceError": "Diese Rechnung wurde bereits bezahlt.",
-        "descriptionPlaceholder": "Zahlungsbeschreibung...",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung.",
         "connectToSparkMessage": "Verbindung zu Ihrer Wallet wird hergestellt...",
         "switchTokenText": "Bitte verwenden Sie einen anderen Token.",
@@ -1051,7 +1080,8 @@
         "lnurlWithdrawlSuccess": "Auszahlung erfolgreich! Ihre Zahlung ist unterwegs.",
         "invoiceDetails": "Details werden geladen...",
         "timeoutError": "Der Vorgang hat zu lange gedauert. Bitte versuchen Sie es erneut.",
-        "payingToSameAddress": "Sie können keine {{addressType}}-Zahlung an sich selbst senden."
+        "payingToSameAddress": "Sie können keine {{addressType}}-Zahlung an sich selbst senden.",
+        "blitzUserNotFound": "Blitz-Benutzer nicht gefunden"
       },
       "errorScreen": {
         "ok": "OK",
@@ -1132,6 +1162,34 @@
       "paymentsCounter": "{{number}} Zahlungen",
       "paymentsCounterTracker": "{{number}} von {{total}}",
       "loadingMessage": "Gespeicherte Transaktionen werden geladen..."
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Stablecoins senden",
+      "selectChain": "Netzwerk auswählen",
+      "network": "Netzwerk",
+      "selectAsset": "Asset auswählen",
+      "recipient": "Empfänger",
+      "gettingQuote": "Angebot wird abgerufen…",
+      "quoteExpired": "Angebot abgelaufen. Bitte versuche es erneut.",
+      "quoteError": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
+      "recipientGets": "Empfänger erhält",
+      "youSend": "Du sendest",
+      "quoteExpiresIn": "Angebot läuft ab in",
+      "payWithLightning": "Mit Lightning bezahlen",
+      "payWithUSDb": "Mit USDb bezahlen",
+      "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
+      "swapInProgress": "Tausch läuft",
+      "swapInProgressDescription": "Deine Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
+      "noAmount": "Bitte gib einen Betrag zum Senden ein.",
+      "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
+      "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
+      "swapStatus": "Tauschstatus",
+      "chainSwap": "Chain-Tausch",
+      "assetPicker": {
+        "header": "Wählen Sie die Währung aus, die Sie senden möchten.",
+        "notAvailable": "Nicht verfügbar auf {{chain}}"
+      },
+      "networkLabel": "{{currency}} uf {{chain}}"
     }
   },
   "contacts": {
@@ -1145,7 +1203,13 @@
       "editContactButton": "Profil bearbeiten",
       "unknownSender": "Unbekannter Absender",
       "noContactSearch": "Dieser Kontakt ist noch nicht in Ihrer Liste.",
-      "notFound": "Nicht gefunden."
+      "notFound": "Nicht gefunden.",
+      "noContent": {
+        "editProfileTitle": "Profil bearbeiten",
+        "editProfileDescription": "Fügen Sie Ihre Daten hinzu, damit andere Sie leicht finden und bezahlen können.",
+        "addContactstitle": "Keine Kontakte hinzugefügt",
+        "addContactsDescription": "Ihre Kontakte werden hier angezeigt, sobald Sie einen hinzufügen."
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Der Kontakt konnte nicht gefunden werden.",
@@ -1190,7 +1254,6 @@
       "header": "Bitte wählen Sie die anzufordernde Währung aus."
     },
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Zahlungsbeschreibung",
       "profileMessage": "Bezahlung an {{name}}",
       "contactMessage": "{{name}} hat Ihnen bezahlt",
       "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz Wallet.",
@@ -1331,7 +1394,14 @@
       "showTechnicals": "Technische Details anzeigen",
       "hideTechnicals": "Technische Details ausblenden",
       "backendHash": "Backend-Hash",
-      "expectedHash": "Erwarteter Hash"
+      "expectedHash": "Erwarteter Hash",
+      "exchangeRatesHeader": "Wechselkurse",
+      "exchangeRatesDescription": "BTC-/Fiat-Wechselkurse werden von Drittanbieter-APIs abgerufen. Die Kurse sind möglicherweise nicht vollkommen genau – überprüfen Sie immer den Bitcoin-Betrag vor dem Senden einer Zahlung.",
+      "exchangeRatesSourcesLabel": "Datenquellen",
+      "exchangeRateCoinbase": "Coinbase",
+      "exchangeRateFlashnet": "Flashnet",
+      "exchangeRateKraken": "Kraken",
+      "exchangeRateBitfinex": "Bitfinex"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1542,6 +1612,7 @@
       "noLimit": "Kein Limit",
       "transactionType": "Transaktionstyp",
       "swapsType": "BTC-USD-Umtausch",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % Sparpool-Gebühr + {{blitzFee}} % Blitz-Gebühr",
       "othersType": "Alle anderen",
       "othersFee": "Netzwerkgebühren"
@@ -1710,7 +1781,8 @@
       "poolsTitle": "Sparpool",
       "noPoolsMessage": "Sie haben noch keinen Sparpool erstellt. Tippen Sie, um Ihren ersten Sparpool zu erstellen.",
       "yourAccountsTitle": "Ihre Konten",
-      "addAccountButton": "Konto hinzufügen"
+      "addAccountButton": "Konto hinzufügen",
+      "noActivePools": "Sie haben keine aktiven Pools"
     },
     "hub": {
       "viewAll": "Alle anzeigen",
@@ -1852,14 +1924,16 @@
         "converstionRate": "{{satAmount}} pro {{USDAmount}}",
         "gift": "Geschenk",
         "claimPayment": "Zahlung einfordern",
-        "splitPayment": "Aufteilen"
+        "splitPayment": "Aufteilen",
+        "chainSwap": "Chain-Tausch"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
         "title": "Blitz-Downloads",
         "goalUserCount": "von {{goalUserCount}} Nutzern",
         "percentOfGoal": "{{goalPercent}} % des Ziels erreicht",
-        "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute"
+        "numAddedUsers": "+{{numNewUsers}} neue Nutzer heute",
+        "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
         "loadingMessage1": "Bitte schließen Sie die App nicht.",
@@ -1953,7 +2027,11 @@
         "noInformationLabel": "{{item}} wird nicht angezeigt, da diese Zahlung aus dem Verlauf wiederhergestellt wurde oder eine Rechnung mit Nullbetrag verwendet wurde.",
         "privacyMessage": "Um die Privatsphäre des {{type}} zu wahren, sind alle weiteren Informationen ausgeblendet.",
         "receivers": "Empfänger",
-        "senders": "Absender"
+        "senders": "Absender",
+        "quoteId": "Angebots-ID",
+        "destinationAddress": "Zieladresse",
+        "destinationAsset": "Ziel-Asset",
+        "destinationChain": "Ziel-Kette"
       },
       "viewAllTxPage": {
         "title": "Transaktionen",
@@ -2176,13 +2254,63 @@
           "details": "Details"
         },
         "chooseCurrencyTitle": "Wählen Sie die Währung, die Sie umtauschen möchten.",
-        "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten"
+        "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten",
+        "noContentTitle": "Kein Guthaben verfügbar",
+        "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",
+        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Der Swap-Verlauf konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",
         "noHistoryTitle": "Kein Swap-Verlauf",
         "noHistoryDesc": "Ihre Swap-Transaktionen werden hier angezeigt.",
         "pageTitle": "Verlauf"
+      }
+    },
+    "accumulationAddresses": {
+      "title": "Akkumulationsadressen",
+      "subtitle": "Stablecoins automatisch in BTC oder Dollar umwandeln",
+      "navTitle": "Adressen",
+      "sectionTitle": "Aktive Adressen",
+      "empty": {
+        "title": "Keine Akkumulationsadressen",
+        "subtitle": "Erstellen Sie eine Adresse, um Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
+      },
+      "createButton": "Adresse erstellen",
+      "info": {
+        "title": "Was ist das?",
+        "whatAre": "Was ist das?",
+        "whatAreBody": "Dauerhafte Adressen, die eingehende USDC oder USDT automatisch in Bitcoin oder Dollar umwandeln und die Mittel an Ihre Wallet senden.",
+        "howItWorks": "So funktioniert es",
+        "step1": "1. Teilen Sie Ihre Einzahlungsadresse mit einem Absender oder einer Börse.",
+        "step2": "2. Die Mittel kommen on-chain an und werden automatisch umgewandelt.",
+        "step3": "3. Der umgewandelte Betrag wird Ihrer Wallet gutgeschrieben."
+      },
+      "detail": {
+        "copyAddress": "Adresse kopieren",
+        "printQR": "QR-Code drucken",
+        "deleteButton": "Adresse löschen",
+        "deleteConfirmTitle": "Adresse löschen?",
+        "deleteConfirmBody": "Das Löschen dieser Adresse verhindert zukünftige Weiterleitungen von Zahlungen und kann zu verlorenen Geldern führen. Stellen Sie sicher, dass alle wissen, dass sie nicht mehr aktiv ist, bevor Sie sie entfernen.",
+        "chain": "Chain",
+        "source": "Quelle",
+        "Destination": "Ziel"
+      },
+      "create": {
+        "pickAsset": "Zahlungswährung auswählen",
+        "pickChain": "Chain auswählen",
+        "pickDestination": "Ziel auswählen",
+        "confirm": "Adresse bestätigen",
+        "alreadyExists": "Sie haben bereits eine Adresse für diese Kombination"
+      },
+      "summary": {
+        "chain": "Chain",
+        "paymentCurrency": "Zahlungswährung",
+        "destination": "Ziel",
+        "create": "Adresse erstellen"
+      },
+      "errors": {
+        "createFailed": "Adresse konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+        "deleteFailed": "Adresse konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
       }
     }
   },
@@ -2247,7 +2375,8 @@
     "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App richtig und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch verändern.",
-    "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut."
+    "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut.",
+    "usdcUsdtTokensOnly": "Nur USDT- und USDC-Token werden unterstützt"
   },
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht.",
@@ -2330,6 +2459,26 @@
     "FSAG-5004": "Es ist ein Systemkonfigurationsfehler aufgetreten.",
     "FSAG-5100": "Es ist ein unerwarteter Serverfehler aufgetreten."
   },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Dieser Idempotenz-Schlüssel wurde bereits mit einer anderen Anfrage verwendet. Bitte verwenden Sie einen neuen Schlüssel.",
+    "unsupported_route": "Diese Route wird nicht unterstützt.",
+    "unsupported_fee_plan": "Gebührenbezogene Parameter werden für diese Route oder diesen Angebotsmodus nicht unterstützt.",
+    "invalid_request": "Die Anfrage ist ungültig. Bitte überprüfen Sie Ihre Eingaben und versuchen Sie es erneut.",
+    "invalid_query": "Ein oder mehrere Abfrageparameter sind ungültig.",
+    "invalid_address": "Die Empfänger- oder Rücksendeadresse ist ungültig.",
+    "invalid_state": "Diese Anfrage wurde in der falschen Reihenfolge gestellt. Bitte folgen Sie der richtigen Abfolge der Schritte.",
+    "conflict": "Die Ressource hat sich während der Verarbeitung Ihrer Anfrage geändert. Bitte versuchen Sie es erneut.",
+    "quote_expired": "Dieses Angebot ist abgelaufen. Bitte fordern Sie ein neues an.",
+    "not_found": "Die angeforderte Ressource wurde nicht gefunden.",
+    "amount_too_small_chain_fees": "Der Betrag ist zu klein, um die Netzwerkgebühren der Ziel-Chain zu decken",
+    "amount_too_small_minimum": "Betrag zu klein. Minimum sind {{minimumSats}} Sats.",
+    "amount_too_small": "Der Betrag liegt unter dem für diese Route zulässigen Minimum.",
+    "amount_too_large": "Der Betrag ist für diese Route zu groß.",
+    "rate_limited": "Zu viele Anfragen. Bitte verlangsamen Sie und versuchen Sie es später erneut.",
+    "flashnet_error": "Die Operation ist bei der Simulation oder Ausführung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "price_impact_too_high": "Der Preiseinfluss ist zu hoch. Bitte passen Sie den Betrag an und versuchen Sie es erneut.",
+    "internal_error": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+  },
   "savings": {
     "home": {
       "title": "Sparziele",
@@ -2405,7 +2554,7 @@
       "generalSavings": "Allgemeine Ersparnisse",
       "noSpecificGoal": "Kein bestimmtes Sparziel.",
       "sourceTitle": "Geld einzahlen von",
-      "minHint": "Min: {{amount}}",
+      "minHint": "Min.: {{amount}}",
       "confirmTitle": "Einzahlung bestätigen",
       "youAreAdding": "Sie zahlen ein",
       "fromBalance_dollar": "von Ihrem USD-Guthaben",
@@ -2420,7 +2569,7 @@
       },
       "successTitle": "Geld eingezahlt",
       "paymentLabel_unallocated": "Sparzieleinzahlung",
-      "paymentLabel": "Einzahlung vom {{savingsGoal}}",
+      "paymentLabel": "Einzahlung für {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
       }
@@ -2442,7 +2591,7 @@
       "generalSavings": "Allgemeine Ersparnisse",
       "destinationTitle": "Geld auszahlen auf",
       "availableHint": "Verfügbar: {{amount}}",
-      "minHint": "Min: {{amount}}",
+      "minHint": "Min.: {{amount}}",
       "confirmTitle": "Auszahlung bestätigen",
       "youAreWithdrawingAll": "Sie zahlen alle Ersparnisse aus",
       "youAreWithdrawing": "Sie zahlen aus",
@@ -2459,7 +2608,7 @@
       },
       "successTitle": "Auszahlung abgeschlossen",
       "paymentLabel_unallocated": "Sparauszahlung",
-      "paymentLabel": "Auszahlung vom {{savingsGoal}}",
+      "paymentLabel": "Auszahlung von {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Auszahlung konnte nicht abgeschlossen werden."
       }
@@ -2468,7 +2617,7 @@
       "headline1": "Ihr Geld,",
       "headline2": "jeden Tag im Einsatz.",
       "subtext": "Ein USD-gedeckter Stablecoin, der automatisch Erträge ansammelt, solange Sie ihn halten.",
-      "transparencyIssuer": "USDB ausgegeben von Brale, Inc. · Rendite über Flashnet.",
+      "transparencyIssuer": "USDB, ausgegeben von Brale, Inc. · Rendite über Flashnet.",
       "transparencyLegal": "Die Rendite ist variabel und nicht garantiert. Kein Bankeinlagenprodukt. Nicht durch FDIC oder SIPC versichert.",
       "disclaimerLegal": "Blitz Wallet ist keine Bank, kein Broker und kein Anlageberater. Die Zinssätze sind variabel und können sich jederzeit ändern. Siehe Nutzungsbedingungen für vollständige Risikohinweise.",
       "features": {
@@ -2488,7 +2637,7 @@
         "accrualValue": "Täglich"
       },
       "context": {
-        "goalNameRequired": "Bitte geben Sie einen Sparziel-Namen ein.",
+        "goalNameRequired": "Bitte geben Sie einen Namen für das Sparziel ein.",
         "goalNotFound": "Sparziel nicht gefunden."
       },
       "transparencyTitle": "Vollständig durch Reserven gedeckt.",

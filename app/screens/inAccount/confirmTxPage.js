@@ -24,32 +24,182 @@ import displayCorrectDenomination from '../../functions/displayCorrectDenominati
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import customUUID from '../../functions/customUUID';
-import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { getSingleContact } from '../../../db';
 import { getCachedProfileImage } from '../../functions/cachedImage';
-import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import normalizeLNURLAddress from '../../functions/lnurl/normalizeLNURLAddress';
-import ProfileImageRow from '../../components/admin/homeComponents/contacts/internalComponents/profileImageRow';
-
-const BLITZ_DOMAINS = [
-  'blitz-wallet.com',
-  'blitzwalletapp.com',
-  'blitzwallet.app',
-];
+import { isBlitzLNURLAddress } from '../../functions/lnurl';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
+export default function ConfirmTxPage(props) {
+  const { sparkInformation } = useSparkWallet();
+  const { screenDimensions } = useAppStatus();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
+  const navigate = useNavigation();
+  const { showToast } = useToast();
+  const { backgroundOffset, textColor } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const animationRef = useRef(null);
+  const { t } = useTranslation();
+  const { decodedAddedContacts } = useGlobalContactsInfo();
+  const [isAddingContact, setIsAddingContact] = useState(false);
+  const isLNURLAuth = props.route.params?.useLNURLAuth;
+  const transaction = props.route.params?.transaction;
+  const hasError = props.route.params?.error;
+  const paymentInformation = transaction?.details;
+  const lnurlAddress = normalizeLNURLAddress(props.route.params?.lnurlAddress);
+  const isBlitzAddress = isBlitzLNURLAddress(lnurlAddress);
+  const lnurlUsername = lnurlAddress?.split('@')[0]?.toLowerCase();
+  const blitzContactInfo = props.route.params?.blitzContactInfo;
 
-function isBlitzLNURLAddress(address) {
-  if (!address) return false;
-  const [, domain] = address.split('@');
-  return domain && BLITZ_DOMAINS.includes(domain.toLowerCase());
-}
+  const didSucceed = !hasError || isLNURLAuth;
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+  const isAlreadyContact = lnurlAddress
+    ? decodedAddedContacts.some(c =>
+        isBlitzAddress
+          ? c.uniqueName?.toLowerCase() === lnurlUsername
+          : c.isLNURL &&
+            c.receiveAddress?.toLowerCase() === lnurlAddress.toLowerCase(),
+      )
+    : false;
+  const showAddContact =
+    didSucceed && !isLNURLAuth && lnurlAddress && !isAlreadyContact;
 
-function AnimationSection({ animationRef, animation, width }) {
-  const size = Math.min(width / 1.5, 400);
+  const isAlreadyBlitzContact = blitzContactInfo
+    ? decodedAddedContacts.some(c => c.uuid === blitzContactInfo.uuid)
+    : false;
+  const showAddBlitzContact =
+    didSucceed && !isLNURLAuth && blitzContactInfo && !isAlreadyBlitzContact;
+
+  const paymentNetwork = paymentInformation?.sendingUUID
+    ? t('screens.inAccount.expandedTxPage.contactPaymentType')
+    : paymentInformation?.isGift
+    ? t('constants.gift')
+    : transaction?.paymentType;
+
+  const showPendingMessage = transaction?.paymentStatus === 'pending';
+  const isFlashnetStablecoinPending =
+    paymentInformation?.isFlashnetStablecoin &&
+    transaction?.paymentStatus === 'pending';
+
+  const paymentFee = paymentInformation?.fee;
+
+  const errorMessage = hasError;
+
+  const amount = paymentInformation?.amount || 0;
+
+  const isLRC20Payment = paymentInformation?.isLRC20Payment;
+  const token = isLRC20Payment
+    ? sparkInformation.tokens?.[paymentInformation?.LRC20Token]
+    : '';
+
+  const formattedTokensBalance = formatTokensNumber(
+    amount,
+    token?.tokenMetadata?.decimals,
+  );
+
+  const confirmAnimation = useMemo(() => {
+    return updateConfirmAnimation(
+      confirmTxAnimation,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+  }, [theme, darkModeType]);
+
+  const errorAnimation = useMemo(() => {
+    return applyErrorAnimationTheme(
+      errorTxAnimation,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+  }, [theme, darkModeType]);
+
+  useEffect(() => {
+    animationRef.current?.play();
+  }, []);
+
+  if (isFlashnetStablecoinPending) {
+    return (
+      <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
+        <LottieView
+          ref={animationRef}
+          source={didSucceed ? confirmAnimation : errorAnimation}
+          loop={false}
+          style={{
+            width: screenDimensions.width / 1.5,
+            height: screenDimensions.width / 1.5,
+            maxWidth: 400,
+            maxHeight: 400,
+          }}
+        />
+        <ThemeText
+          styles={{ fontSize: SIZES.large, marginBottom: 10 }}
+          content={t('wallet.stablecoinSend.swapInProgress')}
+        />
+        <ThemeText
+          styles={{
+            opacity: HIDDEN_OPACITY,
+            width: '95%',
+            maxWidth: 300,
+            textAlign: 'center',
+            marginBottom: 50,
+            fontSize: SIZES.smedium,
+          }}
+          content={t('wallet.stablecoinSend.swapInProgressDescription')}
+        />
+        <View style={styles.paymentTable}>
+          <View style={styles.paymentTableRow}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.labelText}
+              content={t('constants.fee')}
+            />
+            <ThemeText
+              content={displayCorrectDenomination({
+                amount: paymentFee,
+                masterInfoObject,
+                fiatStats,
+              })}
+            />
+          </View>
+          <View style={styles.paymentTableRow}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.labelText}
+              content={t('constants.type')}
+            />
+            <ThemeText
+              styles={{ textTransform: 'capitalize' }}
+              content={t('wallet.stablecoinSend.chainSwap')}
+            />
+          </View>
+        </View>
+
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
+            marginTop: 'auto',
+            paddingHorizontal: 15,
+          }}
+          textStyles={{
+            ...styles.buttonText,
+            color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
+          }}
+          actionFunction={() => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                navigate.popToTop();
+              });
+            });
+          }}
+          textContent={t('constants.continue')}
+        />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <LottieView
       ref={animationRef}

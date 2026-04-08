@@ -76,6 +76,13 @@ export const initializeSparkDatabase = async () => {
         sendersPubkey TEXT NOT NULL,
         details TEXT
       );
+
+      CREATE TABLE IF NOT EXISTS account_balance_snapshots (
+        identityPubKey TEXT PRIMARY KEY NOT NULL,
+        balance        INTEGER NOT NULL DEFAULT 0,
+        tokens         TEXT    NOT NULL DEFAULT '{}',
+        updatedAt      INTEGER NOT NULL
+      );
     `);
 
     console.log('Opened spark transaction and contacts tables');

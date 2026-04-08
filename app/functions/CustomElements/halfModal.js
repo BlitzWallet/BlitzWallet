@@ -41,6 +41,7 @@ import EditGiftHalfModal from '../../components/admin/homeComponents/contacts/in
 import ViewGiftCardCodePage from '../../components/admin/homeComponents/contacts/viewGiftCardCode';
 import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/viewAllGiftCards';
 import ViewAllTokensHalfModal from '../../components/admin/homeComponents/homeLightning/viewAllTokensHalfModal';
+import CreateAccumulationAddressModal from '../../components/admin/homeComponents/accumulationAddresses/CreateAccumulationAddressModal';
 
 import Animated, {
   useSharedValue,
@@ -69,6 +70,8 @@ import HowSavingsWorks from '../../components/admin/homeComponents/savings/howIt
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
+import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
+import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -130,6 +133,7 @@ export default function CustomHalfModal(props) {
   useHandleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
+    Keyboard.dismiss();
     slideIn();
   }, []);
 
@@ -267,7 +271,12 @@ export default function CustomHalfModal(props) {
           />
         );
       case 'customQrCode':
-        return <CustomQrCode data={props.route.params?.data} />;
+        return (
+          <CustomQrCode
+            data={props.route.params?.data}
+            setContentHeight={setContentHeight}
+          />
+        );
       case 'manualEnterSendAddress':
         return (
           <ManualEnterSendAddress
@@ -547,6 +556,32 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
+      case 'payLinkCurrencySelect':
+        return (
+          <PayLinkCurrencySelect
+            currentCurrency={props?.route?.params?.currentCurrency}
+            onSelectCurrency={props?.route?.params?.onSelectCurrency}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'stablecoinAssetPicker':
+        return (
+          <StablecoinAssetPickerHalfModal
+            selectedChain={props?.route?.params?.selectedChain}
+            address={props?.route?.params?.address}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'createAccumulationAddress':
+        return (
+          <CreateAccumulationAddressModal
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+
       default:
         return <ThemeText content={'TST'} />;
     }

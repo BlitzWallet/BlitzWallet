@@ -37,9 +37,9 @@ export async function initializeFirebase(publicKey, privateKey) {
     try {
       // Initialize App Check first
       // Sign in anonymously
-      // if (__DEV__) {
-      //   connectFunctionsEmulator(getFunctions(), process.env.DEVICE_IP, 5001);
-      // }
+      if (__DEV__) {
+        connectFunctionsEmulator(getFunctions(), process.env.DEVICE_IP, 5001);
+      }
 
       const currentUser = firebaseAuth.currentUser;
       console.log('current auth', {
@@ -61,7 +61,6 @@ export async function initializeFirebase(publicKey, privateKey) {
       );
       if (!token) throw new Error('Not able to get custom token from backend');
       console.log('custom sign in token from backend', token);
-      await signOut(firebaseAuth);
 
       const customSignIn = await signInWithCustomToken(firebaseAuth, token);
       console.log('custom sign in user id', customSignIn.user);

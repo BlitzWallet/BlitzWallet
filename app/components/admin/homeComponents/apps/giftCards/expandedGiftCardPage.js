@@ -16,7 +16,7 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import { useNavigation } from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
@@ -43,7 +43,7 @@ export default function ExpandedGiftCardPage(props) {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { masterInfoObject } = useGlobalContextProvider();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { fiatStats } = useNodeContext();

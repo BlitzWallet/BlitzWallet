@@ -18,6 +18,9 @@ import { deriveSparkAddress } from '../../../../../functions/gift/deriveGiftWall
 import { getSingleContact } from '../../../../../../db';
 import { getCachedProfileImage } from '../../../../../functions/cachedImage';
 
+import { getPayLinkDoc, addDataToCollection } from '../../../../../../db';
+import { receiveSparkLightningPayment } from '../../../../../functions/spark';
+import { isBlitzLNURLAddress } from '../../../../../functions/lnurl';
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -55,17 +58,72 @@ export default async function decodeSendAddress(props) {
     primaryDisplay,
   } = props;
 
+  let paylinkPublishFunc = null;
   let resolvedBlitzContact = null;
 
   try {
     console.log(btcAdress, 'scanned address');
     if (typeof btcAdress !== 'string')
-      throw new Error(t('wallet.sendPages.handlingAddressErrors.invlidFormat'));
+      throw new Error(t('wallet.sendPages.handlingAddressErrors.invalidFormat'));
 
-    if (btcAdress.startsWith('@') || btcAdress.length <= 30) {
-      const username = btcAdress.startsWith('@')
-        ? btcAdress.slice(1).trim()
-        : btcAdress.trim();
+    if (btcAdress.toLowerCase().startsWith('paylink://')) {
+      const payLinkId = btcAdress.slice('paylink://'.length);
+      setLoadingMessage(t('wallet.payLinks.preparingPayment'));
+
+      const result = await getPayLinkDoc(payLinkId);
+      if (!result.didWork) {
+        return goBackFunction(result.error || t('wallet.payLinks.notFound'));
+      }
+
+      const { amount, description, identityPubKey, isPaid } = result.data;
+      if (isPaid) {
+        return goBackFunction(t('wallet.payLinks.alreadyPaid'));
+      }
+
+      const lnInvoice = await receiveSparkLightningPayment({
+        amountSats: amount,
+        memo: description,
+        mnemonic: accountMnemoinc,
+        includeSparkAddress: false,
+        receiverIdentityPubkey: identityPubKey,
+      });
+
+      if (!lnInvoice.didWork) {
+        return goBackFunction(
+          lnInvoice.error || t('wallet.payLinks.invoiceError'),
+        );
+      }
+
+      btcAdress = lnInvoice.response.invoice.encodedInvoice;
+      enteredPaymentInfo = {
+        ...enteredPaymentInfo,
+        fromContacts: true,
+        amount,
+        description,
+      };
+      paylinkPublishFunc = async () => {
+        await addDataToCollection(
+          { datePaid: Date.now(), isPaid: true },
+          'blitzPaylinks',
+          payLinkId,
+        );
+      };
+    }
+
+    if (
+      btcAdress.startsWith('@') ||
+      btcAdress.length <= 30 ||
+      isBlitzLNURLAddress(btcAdress)
+    ) {
+      let username = '';
+
+      if (isBlitzLNURLAddress(btcAdress)) {
+        username = btcAdress.split('@')[0].trim();
+      } else {
+        username = btcAdress.startsWith('@')
+          ? btcAdress.slice(1).trim()
+          : btcAdress.trim();
+      }
 
       if (!username) {
         return goBackFunction(
@@ -233,6 +291,13 @@ export default async function decodeSendAddress(props) {
         err.message ||
           t('wallet.sendPages.handlingAddressErrors.paymentProcessingError'),
       );
+    }
+
+    if (paylinkPublishFunc && processedPaymentInfo) {
+      processedPaymentInfo = {
+        ...processedPaymentInfo,
+        publishMessageFunc: paylinkPublishFunc,
+      };
     }
 
     if (processedPaymentInfo) {

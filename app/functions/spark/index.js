@@ -928,6 +928,7 @@ export const receiveSparkLightningPayment = async ({
   mnemonic,
   includeSparkAddress = true,
   expirySeconds = DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry
+  receiverIdentityPubkey,
 }) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -940,6 +941,7 @@ export const receiveSparkLightningPayment = async ({
           memo,
           expirySeconds,
           includeSparkAddress,
+          receiverIdentityPubkey,
         },
       );
       return validateWebViewResponse(
@@ -953,6 +955,7 @@ export const receiveSparkLightningPayment = async ({
         memo,
         expirySeconds,
         includeSparkAddress,
+        receiverIdentityPubkey,
       });
       return { didWork: true, response };
     }
@@ -1230,11 +1233,15 @@ export const sendSparkBitcoinPayment = async ({
       );
     } else {
       const wallet = await getWallet(mnemonic);
+      const paymentFee =
+        (feeQuote.l1BroadcastFeeFast?.originalValue || 0) +
+        (feeQuote.userFeeFast?.originalValue || 0);
       const response = await wallet.withdraw({
         onchainAddress: onchainAddress,
-        exitSpeed,
         amountSats,
-        feeQuote,
+        exitSpeed,
+        feeQuoteId: feeQuote.id,
+        feeAmountSats: paymentFee,
         deductFeeFromWithdrawalAmount,
       });
       return { didWork: true, response };
@@ -1339,28 +1346,35 @@ export const getSparkTokenTransactions = async ({
   }
 };
 
-export const createSatsInvoice = async mnemonic => {
+export const createSatsInvoice = async ({
+  mnemonic,
+  amountSats,
+  memo,
+  receiverIdentityPubkey,
+}) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.createSatsInvoice,
-        {
-          mnemonic,
-        },
+        { mnemonic, amountSats, memo, receiverIdentityPubkey },
       );
       return validateWebViewResponse(
         response,
-        'Not able to send spark transactions',
+        'Not able to create paylink invoice',
       );
     } else {
       const wallet = await getWallet(mnemonic);
-      const invoice = await wallet.createSatsInvoice({});
-      console.log('Spark Invoice:', invoice); // Returns SparkAddressFormat directly
+      const invoice = await wallet.createSatsInvoice({
+        amount: amountSats,
+        memo,
+        receiverIdentityPubkey,
+      });
+      console.log(invoice);
       return { didWork: true, invoice };
     }
   } catch (err) {
-    console.log('get spark transactions error', err);
+    console.log('createSatsInvoice error', err);
     return { didWork: false, error: err.message };
   }
 };

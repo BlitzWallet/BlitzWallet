@@ -18,13 +18,10 @@ export default function PointOfSaleBanner({ onPress, onLongPress }) {
     <WidgetCard onPress={onPress} onLongPress={onLongPress}>
       <View style={styles.row}>
         <View style={styles.left}>
-          <View style={styles.header}>
-            <ThemeText
-              styles={styles.headerTitle}
-              content={t('settings.posPath.settings.title')}
-            />
-          </View>
-
+          <ThemeText
+            styles={styles.headerTitle}
+            content={t('settings.posPath.settings.title')}
+          />
           <ThemeText
             styles={styles.rateText}
             content={t('settings.hub.pos.desc')}
@@ -70,7 +67,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 10,
+    gap: 12,
   },
   left: {
     flexShrink: 1,
@@ -78,10 +75,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: SIZES.smedium,
     fontWeight: '500',
-    includeFontPadding: false,
-  },
-  balance: {
-    fontSize: SIZES.large,
     includeFontPadding: false,
   },
   rateText: {

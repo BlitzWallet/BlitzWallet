@@ -23,7 +23,6 @@ import { useSparkWallet } from '../../../../context-store/sparkContext';
 import getFormattedHomepageTxsForSpark from '../../../functions/combinedTransactionsSpark';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import LRC20Assets from './homeLightning/lrc20Assets';
 import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
 import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
@@ -36,6 +35,9 @@ import Animated, {
   interpolate,
   useHandler,
   useEvent,
+  LinearTransition,
+  FadeIn,
+  FadeOut,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
@@ -57,7 +59,6 @@ import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
 const MemoizedSendRecieveBTNs = memo(SendRecieveBTNs);
-const MemoizedLRC20Assets = memo(LRC20Assets);
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -174,6 +175,8 @@ export default function HomeLightning({ navigation }) {
   const { isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage } =
     useAppStatus();
   const scrollViewRef = useRef(null);
+  const hasInitiallyLoadedRef = useRef(false);
+  const prevTxKeysRef = useRef(new Set());
   const { topPadding, bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
@@ -228,6 +231,16 @@ export default function HomeLightning({ navigation }) {
       toggleDidGetToHomepage(true);
     }, 250);
   }, []);
+
+  useEffect(() => {
+    if (sparkInformation.didConnect && sparkInformation.identityPubKey) {
+      hasInitiallyLoadedRef.current = true;
+    }
+  }, [sparkInformation.didConnect, sparkInformation.identityPubKey]);
+
+  useEffect(() => {
+    prevTxKeysRef.current = new Set(flatListDataForSpark.map(tx => tx.key));
+  }, [flatListDataForSpark]);
 
   useFocusEffect(
     useCallback(() => {
@@ -659,9 +672,18 @@ export default function HomeLightning({ navigation }) {
               </Pressable>
             </TouchableOpacity>
           )}
-          {flatListDataForSpark.map((tx, idx) => (
-            <View key={idx}>{tx.item}</View>
-          ))}
+          {flatListDataForSpark.map(tx => {
+            return (
+              <Animated.View
+                key={tx.key}
+                entering={FadeIn.duration(150)}
+                exiting={FadeOut.duration(150)}
+                layout={LinearTransition.duration(300)}
+              >
+                {tx.item}
+              </Animated.View>
+            );
+          })}
         </View>
       </Animated.ScrollView>
     </GlobalThemeView>

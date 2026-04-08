@@ -50,6 +50,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import ProfileImageSettingsNavigator from '../../../../functions/CustomElements/profileSettingsNavigator';
 import { useNavigateToContact } from './utils/navigateToExpandedContact';
 import { WINDOWWIDTH } from '../../../../constants/theme';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 export default function ContactsPage({ navigation }) {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -366,31 +367,26 @@ export default function ContactsPage({ navigation }) {
           ) : null}
         </ScrollView>
       ) : (
-        <View style={memoizedStyles.noContactsContainer}>
-          <Icon
-            width={250}
-            height={200}
-            color={theme ? COLORS.darkModeText : COLORS.primary}
-            name={'qusetionContacts'}
-          />
-          <ThemeText
-            styles={memoizedStyles.noContactsText}
-            content={
-              didEditProfile
-                ? t('contacts.contactsPage.noContactsMessage')
-                : t('contacts.contactsPage.editContactProfileMessage')
-            }
-          />
-          <CustomButton
-            buttonStyles={CENTER}
-            actionFunction={handleButtonPress}
-            textContent={
-              didEditProfile
-                ? t('contacts.contactsPage.addContactButton')
-                : t('contacts.contactsPage.editContactButton')
-            }
-          />
-        </View>
+        <NoContentSceen
+          iconName={didEditProfile ? 'UsersRound' : 'UserRoundPen'}
+          titleText={
+            didEditProfile
+              ? t('contacts.contactsPage.noContent.addContactstitle')
+              : t('contacts.contactsPage.noContent.editProfileTitle')
+          }
+          subTitleText={
+            didEditProfile
+              ? t('contacts.contactsPage.noContent.addContactsDescription')
+              : t('contacts.contactsPage.noContent.editProfileDescription')
+          }
+          showButton={true}
+          buttonFunction={handleButtonPress}
+          buttonText={
+            didEditProfile
+              ? t('contacts.contactsPage.addContactButton')
+              : t('contacts.contactsPage.editContactButton')
+          }
+        />
       )}
     </CustomKeyboardAvoidingView>
   );

@@ -39,11 +39,11 @@ export async function payPOSLNURL({
       description,
     );
 
-    if (!invoice) throw new Error('Not able to get invoice');
+    if (!invoice.pr) throw new Error('Not able to get invoice');
 
     const feeResponse = await sparkPaymenWrapper({
       getFee: true,
-      address: invoice,
+      address: invoice.pr,
       paymentType: 'lightning',
       amountSats: sendingAmountSats,
       masterInfoObject,
@@ -61,7 +61,7 @@ export async function payPOSLNURL({
       throw new Error('Insufficent balance');
 
     const paymentResponse = await sparkPaymenWrapper({
-      address: invoice,
+      address: invoice.pr,
       paymentType: 'lightning',
       amountSats: sendingAmountSats,
       masterInfoObject,

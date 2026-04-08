@@ -38,8 +38,11 @@ import {
 import { getCachedProfileImage } from '../app/functions/cachedImage';
 import { useAuthContext } from './authContext';
 
-// Create a context for the WebView ref
-const GlobalContacts = createContext(null);
+// ─── Split contexts ────────────────────────────────────────────────────────────
+// Consumers that only need profile/contacts info won't re-render when messages
+// change, and vice-versa.
+const GlobalContactsInfoContext = createContext(null);
+const GlobalContactsMessagesContext = createContext(null);
 
 export const GlobalContactsList = ({ children }) => {
   const { authResetkey } = useAuthContext();
@@ -48,9 +51,14 @@ export const GlobalContactsList = ({ children }) => {
     {},
   );
   const [contactsMessags, setContactsMessagses] = useState({});
-  const lookForNewMessages = useRef(true);
   const unsubscribeMessagesRef = useRef(null);
   const isInitialLoad = useRef(true);
+
+  const globalContactsInformationRef = useRef(globalContactsInformation);
+  useEffect(() => {
+    globalContactsInformationRef.current = globalContactsInformation;
+  });
+
   const addedContacts = globalContactsInformation.addedContacts;
 
   const toggleGlobalContactsInformation = useCallback(
@@ -89,19 +97,28 @@ export const GlobalContactsList = ({ children }) => {
     }
   }, [addedContacts, publicKey, contactsPrivateKey]);
 
+  const decodedAddedContactsRef = useRef(decodedAddedContacts);
+  useEffect(() => {
+    decodedAddedContactsRef.current = decodedAddedContacts;
+  });
+
   const updatedCachedMessagesStateFunction = useCallback(async () => {
-    if (!Object.keys(globalContactsInformation).length || !contactsPrivateKey)
-      return;
+    const currentInfo = globalContactsInformationRef.current;
+    if (!Object.keys(currentInfo).length || !contactsPrivateKey) return;
+
     const savedMessages = await getCachedMessages();
     setContactsMessagses(savedMessages);
+
+    const currentDecoded = decodedAddedContactsRef.current;
+
     const unknownContacts = await Promise.all(
       Object.keys(savedMessages)
         .filter(key => key !== 'lastMessageTimestamp')
         .filter(
           contact =>
-            !decodedAddedContacts.find(
+            !currentDecoded.find(
               contactElement => contactElement.uuid === contact,
-            ) && contact !== globalContactsInformation.myProfile.uuid,
+            ) && contact !== currentInfo.myProfile.uuid,
         )
         .map(contact => getDataFromCollection('blitzWalletUsers', contact)),
     );
@@ -110,7 +127,7 @@ export const GlobalContactsList = ({ children }) => {
       .filter(
         retrivedContact =>
           retrivedContact &&
-          retrivedContact.uuid !== globalContactsInformation.myProfile.uuid,
+          retrivedContact.uuid !== currentInfo.myProfile.uuid,
       )
       .map(retrivedContact => ({
         bio: retrivedContact.contacts.myProfile.bio || '',
@@ -128,19 +145,23 @@ export const GlobalContactsList = ({ children }) => {
         newContats.map(contact => getCachedProfileImage(contact.uuid)),
       );
 
+      // Read the latest decoded contacts at the moment we write
+      const latestDecoded = decodedAddedContactsRef.current;
+      const latestInfo = globalContactsInformationRef.current;
+
       toggleGlobalContactsInformation(
         {
-          myProfile: { ...globalContactsInformation.myProfile },
+          myProfile: { ...latestInfo.myProfile },
           addedContacts: encriptMessage(
             contactsPrivateKey,
-            globalContactsInformation.myProfile.uuid,
-            JSON.stringify(decodedAddedContacts.concat(newContats)),
+            latestInfo.myProfile.uuid,
+            JSON.stringify(latestDecoded.concat(newContats)),
           ),
         },
         true,
       );
     }
-  }, [globalContactsInformation, decodedAddedContacts, contactsPrivateKey]);
+  }, [contactsPrivateKey, toggleGlobalContactsInformation]);
 
   useEffect(() => {
     async function handleUpdate(updateType) {
@@ -180,128 +201,113 @@ export const GlobalContactsList = ({ children }) => {
 
   const updateContactUniqueName = useCallback(
     async newUniqueNames => {
-      try {
-        if (newUniqueNames.size === 0) {
-          return;
-        }
+      if (newUniqueNames.size === 0) {
+        return;
+      }
 
-        setGlobalContactsInformation(prev => {
-          try {
-            // Validate prerequisites
-            if (!contactsPrivateKey || !publicKey) {
-              console.warn('Missing required data for contact update');
-              return prev;
-            }
-
-            let currentContacts;
-            try {
-              const decryptedData = decryptMessage(
-                contactsPrivateKey,
-                publicKey,
-                prev.addedContacts,
-              );
-
-              if (!decryptedData) {
-                console.warn('Decryption returned empty data');
-                return prev;
-              }
-
-              currentContacts = JSON.parse(decryptedData);
-
-              // Validate parsed data
-              if (!Array.isArray(currentContacts)) {
-                console.warn('Decrypted contacts is not an array');
-                return prev;
-              }
-            } catch (decryptError) {
-              console.error(
-                'Failed to decode contacts for update:',
-                decryptError,
-              );
-              return prev;
-            }
-
-            let hasChanges = false;
-            const updatedContacts = currentContacts.map(contact => {
-              try {
-                const newUniqueName = newUniqueNames.get(contact.uuid);
-
-                if (
-                  newUniqueName &&
-                  typeof newUniqueName === 'string' &&
-                  newUniqueName.trim() !== '' &&
-                  newUniqueName !== contact.uniqueName
-                ) {
-                  hasChanges = true;
-                  return {
-                    ...contact,
-                    uniqueName: newUniqueName,
-                  };
-                }
-
-                return contact;
-              } catch (mapError) {
-                console.error('Error processing contact:', mapError);
-                return contact;
-              }
-            });
-
-            if (!hasChanges) {
-              return prev;
-            }
-
-            try {
-              const newEncryptedContacts = encriptMessage(
-                contactsPrivateKey,
-                publicKey,
-                JSON.stringify(updatedContacts),
-              );
-
-              if (!newEncryptedContacts) {
-                console.error('Encryption failed, aborting update');
-                return prev;
-              }
-
-              addDataToCollection(
-                {
-                  contacts: {
-                    ...prev,
-                    addedContacts: newEncryptedContacts,
-                  },
-                },
-                'blitzWalletUsers',
-                publicKey,
-              ).catch(dbError => {
-                console.error('Failed to save contacts to database:', dbError);
-              });
-
-              return {
-                ...prev,
-                addedContacts: newEncryptedContacts,
-              };
-            } catch (encryptError) {
-              console.error(
-                'Failed to encrypt updated contacts:',
-                encryptError,
-              );
-              return prev;
-            }
-          } catch (stateError) {
-            console.error('Error in state update function:', stateError);
+      setGlobalContactsInformation(prev => {
+        try {
+          // Validate prerequisites
+          if (!contactsPrivateKey || !publicKey) {
+            console.warn('Missing required data for contact update');
             return prev;
           }
-        });
-      } catch (outerError) {
-        console.error('Critical error in updateContactUniqueName:', outerError);
-      }
+
+          let currentContacts;
+          try {
+            const decryptedData = decryptMessage(
+              contactsPrivateKey,
+              publicKey,
+              prev.addedContacts,
+            );
+
+            if (!decryptedData) {
+              console.warn('Decryption returned empty data');
+              return prev;
+            }
+
+            currentContacts = JSON.parse(decryptedData);
+
+            // Validate parsed data
+            if (!Array.isArray(currentContacts)) {
+              console.warn('Decrypted contacts is not an array');
+              return prev;
+            }
+          } catch (decryptError) {
+            console.error(
+              'Failed to decode contacts for update:',
+              decryptError,
+            );
+            return prev;
+          }
+
+          let hasChanges = false;
+          const updatedContacts = currentContacts.map(contact => {
+            const newUniqueName = newUniqueNames.get(contact.uuid);
+
+            if (
+              newUniqueName &&
+              typeof newUniqueName === 'string' &&
+              newUniqueName.trim() !== '' &&
+              newUniqueName !== contact.uniqueName
+            ) {
+              hasChanges = true;
+              return {
+                ...contact,
+                uniqueName: newUniqueName,
+              };
+            }
+
+            return contact;
+          });
+
+          if (!hasChanges) {
+            return prev;
+          }
+
+          const newEncryptedContacts = encriptMessage(
+            contactsPrivateKey,
+            publicKey,
+            JSON.stringify(updatedContacts),
+          );
+
+          if (!newEncryptedContacts) {
+            console.error('Encryption failed, aborting update');
+            return prev;
+          }
+
+          addDataToCollection(
+            {
+              contacts: {
+                ...prev,
+                addedContacts: newEncryptedContacts,
+              },
+            },
+            'blitzWalletUsers',
+            publicKey,
+          ).catch(dbError => {
+            console.error('Failed to save contacts to database:', dbError);
+          });
+
+          return {
+            ...prev,
+            addedContacts: newEncryptedContacts,
+          };
+        } catch (stateError) {
+          console.error('Error in state update function:', stateError);
+          return prev;
+        }
+      });
     },
     [contactsPrivateKey, publicKey],
   );
 
+  const myProfileUUID = globalContactsInformation?.myProfile?.uuid;
+
   useEffect(() => {
-    if (!Object.keys(globalContactsInformation).length) return;
-    if (!contactsPrivateKey) return;
     // Set timestamp to last conversation to retrive historical messages
+    if (!myProfileUUID || !contactsPrivateKey) return;
+
     async function handleListener() {
       const cachedConversations = await getCachedMessages();
       const savedMillis = cachedConversations.lastMessageTimestamp;
@@ -315,8 +321,8 @@ export const GlobalContactsList = ({ children }) => {
         collection(db, 'contactMessages'),
         where('timestamp', '>', savedMillis),
         or(
-          where('toPubKey', '==', globalContactsInformation.myProfile.uuid),
-          where('fromPubKey', '==', globalContactsInformation.myProfile.uuid),
+          where('toPubKey', '==', myProfileUUID),
+          where('fromPubKey', '==', myProfileUUID),
         ),
         orderBy('timestamp'),
       );
@@ -325,61 +331,64 @@ export const GlobalContactsList = ({ children }) => {
         combinedMessageQuery,
         snapshot => {
           if (!snapshot?.docChanges()?.length) return;
-          let newMessages = [];
-          let newUniqueIds = new Map();
+
+          const newMessages = [];
+          const newUniqueIds = new Map();
+
           snapshot.docChanges().forEach(change => {
-            if (change.type === 'added') {
-              const newMessage = change.doc.data();
-              // Log whether it's sent or received
-              const isReceived =
-                newMessage.toPubKey ===
-                globalContactsInformation.myProfile.uuid;
-              console.log(
-                `${isReceived ? 'received' : 'sent'} a new message`,
-                newMessage,
+            if (change.type !== 'added') return;
+
+            const newMessage = change.doc.data();
+            const isReceived = newMessage.toPubKey === myProfileUUID;
+            console.log(
+              `${isReceived ? 'received' : 'sent'} a new message`,
+              newMessage,
+            );
+
+            if (typeof newMessage.message === 'string') {
+              const sendersPubkey = isReceived
+                ? newMessage.fromPubKey
+                : newMessage.toPubKey;
+
+              const decoded = decryptMessage(
+                contactsPrivateKey,
+                sendersPubkey,
+                newMessage.message,
               );
-              if (typeof newMessage.message === 'string') {
-                const sendersPubkey =
-                  newMessage.toPubKey ===
-                  globalContactsInformation.myProfile.uuid
-                    ? newMessage.fromPubKey
-                    : newMessage.toPubKey;
-                const decoded = decryptMessage(
-                  contactsPrivateKey,
+
+              if (!decoded) return;
+
+              let parsedMessage;
+              try {
+                parsedMessage = JSON.parse(decoded);
+              } catch (err) {
+                console.log('error parsing decoded message', err);
+                return;
+              }
+
+              if (parsedMessage?.senderProfileSnapshot && isReceived) {
+                newUniqueIds.set(
                   sendersPubkey,
-                  newMessage.message,
+                  parsedMessage.senderProfileSnapshot?.uniqueName,
                 );
+              }
 
-                if (!decoded) return;
-                let parsedMessage;
-                try {
-                  parsedMessage = JSON.parse(decoded);
-                } catch (err) {
-                  console.log('error parsing decoded message', err);
-                  return;
-                }
-
-                if (parsedMessage?.senderProfileSnapshot && isReceived) {
-                  newUniqueIds.set(
-                    sendersPubkey,
-                    parsedMessage.senderProfileSnapshot?.uniqueName,
-                  );
-                }
-
-                newMessages.push({
-                  ...newMessage,
-                  message: parsedMessage,
-                  sendersPubkey,
-                  isReceived,
-                });
-              } else newMessages.push(newMessage);
+              newMessages.push({
+                ...newMessage,
+                message: parsedMessage,
+                sendersPubkey,
+                isReceived,
+              });
+            } else {
+              newMessages.push(newMessage);
             }
           });
+
           updateContactUniqueName(newUniqueIds);
           if (newMessages.length > 0) {
             queueSetCashedMessages({
               newMessagesList: newMessages,
-              myPubKey: globalContactsInformation.myProfile.uuid,
+              myPubKey: myProfileUUID,
             });
           }
         },
@@ -393,7 +402,29 @@ export const GlobalContactsList = ({ children }) => {
         unsubscribeMessagesRef.current();
       }
     };
-  }, [globalContactsInformation?.myProfile?.uuid, contactsPrivateKey]);
+  }, [myProfileUUID, contactsPrivateKey, updateContactUniqueName]);
+
+  useEffect(() => {
+    if (!Object.keys(globalContactsInformation).length) return;
+    if (!contactsPrivateKey) return;
+    updatedCachedMessagesStateFunction();
+  }, [
+    Boolean(Object.keys(globalContactsInformation).length),
+    contactsPrivateKey,
+    updatedCachedMessagesStateFunction,
+  ]);
+
+  useEffect(() => {
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      return;
+    }
+
+    if (unsubscribeMessagesRef.current) {
+      unsubscribeMessagesRef.current();
+      unsubscribeMessagesRef.current = null;
+    }
+  }, [authResetkey]);
 
   const addContact = useCallback(
     async contact => {
@@ -413,159 +444,127 @@ export const GlobalContactsList = ({ children }) => {
           transactions: [],
         };
 
-        let newAddedContacts = JSON.parse(JSON.stringify(decodedAddedContacts));
-
-        const isContactInAddedContacts = newAddedContacts.filter(
-          addedContact => addedContact.uuid === newContact.uuid,
-        ).length;
-
-        if (isContactInAddedContacts) {
-          newAddedContacts = newAddedContacts.map(addedContact => {
-            if (addedContact.uuid === newContact.uuid) {
-              return {
-                ...addedContact,
-                name: newContact.name,
-                nameLower: newContact.nameLower,
-                bio: newContact.bio,
-                unlookedTransactions: 0,
-                isAdded: true,
-              };
-            } else return addedContact;
-          });
-        } else newAddedContacts.push(newContact);
-
-        toggleGlobalContactsInformation(
-          {
-            myProfile: {
-              ...globalContactsInformation.myProfile,
-              didEditProfile: true,
-            },
-            addedContacts: encriptMessage(
+        setGlobalContactsInformation(prev => {
+          let currentDecoded;
+          try {
+            const decryptedData = decryptMessage(
               contactsPrivateKey,
               publicKey,
-              JSON.stringify(newAddedContacts),
-            ),
-          },
-          true,
-        );
+              prev.addedContacts,
+            );
+            currentDecoded = JSON.parse(decryptedData);
+          } catch {
+            currentDecoded = decodedAddedContactsRef.current;
+          }
+
+          let newAddedContacts = structuredClone(currentDecoded);
+          const exists = newAddedContacts.some(c => c.uuid === newContact.uuid);
+
+          if (exists) {
+            newAddedContacts = newAddedContacts.map(c =>
+              c.uuid === newContact.uuid
+                ? {
+                    ...c,
+                    name: newContact.name,
+                    nameLower: newContact.nameLower,
+                    bio: newContact.bio,
+                    unlookedTransactions: 0,
+                    isAdded: true,
+                  }
+                : c,
+            );
+          } else {
+            newAddedContacts.push(newContact);
+          }
+
+          const newEncrypted = encriptMessage(
+            contactsPrivateKey,
+            publicKey,
+            JSON.stringify(newAddedContacts),
+          );
+
+          const nextState = {
+            ...prev,
+            myProfile: { ...prev.myProfile, didEditProfile: true },
+            addedContacts: newEncrypted,
+          };
+
+          addDataToCollection(
+            { contacts: nextState },
+            'blitzWalletUsers',
+            publicKey,
+          );
+
+          return nextState;
+        });
       } catch (err) {
-        console.log('Error adding  contact', err);
+        console.log('Error adding contact', err);
       }
     },
-    [
-      decodedAddedContacts,
-      contactsPrivateKey,
-      publicKey,
-      globalContactsInformation,
-    ],
+    [contactsPrivateKey, publicKey],
   );
 
   const deleteContact = useCallback(
     async contact => {
       try {
-        const newAddedContacts = decodedAddedContacts
-          .map(savedContacts => {
-            if (savedContacts.uuid === contact.uuid) {
-              return null;
-            } else return savedContacts;
-          })
-          .filter(contact => contact);
-
         await deleteCachedMessages(contact.uuid);
 
-        toggleGlobalContactsInformation(
-          {
-            addedContacts: encriptMessage(
+        setGlobalContactsInformation(prev => {
+          let currentDecoded;
+          try {
+            const decryptedData = decryptMessage(
               contactsPrivateKey,
               publicKey,
-              JSON.stringify(newAddedContacts),
-            ),
-            myProfile: { ...globalContactsInformation.myProfile },
-          },
-          true,
-        );
+              prev.addedContacts,
+            );
+            currentDecoded = JSON.parse(decryptedData);
+          } catch {
+            currentDecoded = decodedAddedContactsRef.current;
+          }
+
+          const newAddedContacts = currentDecoded.filter(
+            c => c.uuid !== contact.uuid,
+          );
+
+          const newEncrypted = encriptMessage(
+            contactsPrivateKey,
+            publicKey,
+            JSON.stringify(newAddedContacts),
+          );
+
+          const nextState = {
+            ...prev,
+            myProfile: { ...prev.myProfile },
+            addedContacts: newEncrypted,
+          };
+
+          addDataToCollection(
+            { contacts: nextState },
+            'blitzWalletUsers',
+            publicKey,
+          );
+
+          return nextState;
+        });
       } catch (err) {
-        console.log('Error deleating contact', err);
+        console.log('Error deleting contact', err);
       }
     },
-    [
-      decodedAddedContacts,
-      contactsPrivateKey,
-      publicKey,
-      globalContactsInformation,
-    ],
+    [contactsPrivateKey, publicKey],
   );
 
-  useEffect(() => {
-    if (!Object.keys(globalContactsInformation).length) return;
-    if (!contactsPrivateKey) return;
-    // No longer need to sync here since we are handling this through snapshot
-    updatedCachedMessagesStateFunction();
-    return;
-
-    if (lookForNewMessages.current) {
-      lookForNewMessages.current = false;
-      async function handleOfflineMessageSync() {
-        const restoredPayments = await syncDatabasePayment(
-          globalContactsInformation.myProfile.uuid,
-          contactsPrivateKey,
-        );
-
-        if (restoredPayments.length === 0) {
-          updatedCachedMessagesStateFunction();
-        }
-
-        const contactDataMap = new Map(
-          restoredPayments
-            .filter(
-              item =>
-                item.isReceived &&
-                item?.message?.senderProfileSnapshot?.uniqueName,
-            )
-            .map(item => [
-              item.sendersPubkey,
-              item.message.senderProfileSnapshot.uniqueName,
-            ]),
-        );
-        updateContactUniqueName(contactDataMap);
-
-        queueSetCashedMessages({
-          newMessagesList: restoredPayments,
-          myPubKey: globalContactsInformation.myProfile.uuid,
-        });
-      }
-      handleOfflineMessageSync();
-    }
-  }, [
-    globalContactsInformation,
-    updatedCachedMessagesStateFunction,
-    contactsPrivateKey,
-  ]);
-
+  // ─── Derived values (messages context) ─────────────────────────────────────
   const giftCardsList = useMemo(() => {
     if (!contactsMessags) return [];
-
-    const actualContacts = Object.keys(contactsMessags);
-    const lastMessageTimestampIndex = actualContacts.indexOf(
-      'lastMessageTimestamp',
+    const actualContacts = Object.keys(contactsMessags).filter(
+      k => k !== 'lastMessageTimestamp',
     );
-
-    // Remove lastMessageTimestamp efficiently
-    if (lastMessageTimestampIndex > -1) {
-      actualContacts.splice(lastMessageTimestampIndex, 1);
-    }
-
     if (actualContacts.length === 0) return [];
 
     const giftCards = [];
-
-    // Process contacts efficiently
     for (const contact of actualContacts) {
-      const contactData = contactsMessags[contact];
-      if (!contactData?.messages?.length) continue;
-
-      // Use for loop for better performance than filter + push
-      const messages = contactData.messages;
+      const messages = contactsMessags[contact]?.messages;
+      if (!messages?.length) continue;
       for (let i = 0; i < messages.length; i++) {
         const message = messages[i];
         if (message.message?.giftCardInfo && !message.message.didSend) {
@@ -588,37 +587,22 @@ export const GlobalContactsList = ({ children }) => {
     return Object.keys(contactsMessags).some(contactUUID => {
       if (
         contactUUID === 'lastMessageTimestamp' ||
-        contactUUID === globalContactsInformation?.myProfile?.uuid
+        contactUUID === myProfileUUID
       ) {
         return false;
       }
       const messages = contactsMessags[contactUUID]?.messages;
-      return messages?.some(message => !message.message.wasSeen) || false;
+      return messages?.some(message => !message.message.wasSeen) ?? false;
     });
-  }, [contactsMessags, globalContactsInformation?.myProfile?.uuid]);
+  }, [contactsMessags, myProfileUUID]);
 
-  useEffect(() => {
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      return;
-    }
-
-    if (unsubscribeMessagesRef.current) {
-      unsubscribeMessagesRef.current();
-      unsubscribeMessagesRef.current = null;
-    }
-    lookForNewMessages.current = true;
-  }, [authResetkey]);
-
-  const contextValue = useMemo(
+  // ─── Split context values ───────────────────────────────────────────────────
+  // Info context: changes when contacts/profile change
+  const infoContextValue = useMemo(
     () => ({
       decodedAddedContacts,
       globalContactsInformation,
       toggleGlobalContactsInformation,
-      contactsMessags,
-      updatedCachedMessagesStateFunction,
-      giftCardsList,
-      hasUnlookedTransactions,
       deleteContact,
       addContact,
     }),
@@ -626,22 +610,52 @@ export const GlobalContactsList = ({ children }) => {
       decodedAddedContacts,
       globalContactsInformation,
       toggleGlobalContactsInformation,
-      contactsMessags,
-      updatedCachedMessagesStateFunction,
-      giftCardsList,
-      hasUnlookedTransactions,
       deleteContact,
       addContact,
     ],
   );
 
+  // Messages context: changes when messages change
+  const messagesContextValue = useMemo(
+    () => ({
+      contactsMessags,
+      updatedCachedMessagesStateFunction,
+      giftCardsList,
+      hasUnlookedTransactions,
+    }),
+    [
+      contactsMessags,
+      updatedCachedMessagesStateFunction,
+      giftCardsList,
+      hasUnlookedTransactions,
+    ],
+  );
+
   return (
-    <GlobalContacts.Provider value={contextValue}>
-      {children}
-    </GlobalContacts.Provider>
+    <GlobalContactsInfoContext.Provider value={infoContextValue}>
+      <GlobalContactsMessagesContext.Provider value={messagesContextValue}>
+        {children}
+      </GlobalContactsMessagesContext.Provider>
+    </GlobalContactsInfoContext.Provider>
   );
 };
 
+// ─── Consumer hooks ─────────────────────────────────────────────────────────
+export const useGlobalContactsInfo = () => {
+  return React.useContext(GlobalContactsInfoContext);
+};
+
+export const useGlobalContactsMessages = () => {
+  return React.useContext(GlobalContactsMessagesContext);
+};
+
+/**
+ * @deprecated Use useGlobalContactsInfo() + useGlobalContactsMessages() separately.
+ * This combined hook preserves backwards compatibility but causes the same
+ * re-render behaviour as before the split — prefer the granular hooks.
+ */
 export const useGlobalContacts = () => {
-  return React.useContext(GlobalContacts);
+  const info = React.useContext(GlobalContactsInfoContext);
+  const messages = React.useContext(GlobalContactsMessagesContext);
+  return { ...info, ...messages };
 };

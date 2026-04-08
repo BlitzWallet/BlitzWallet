@@ -60,7 +60,7 @@ import { useWebView } from '../../../../../context-store/webViewContext';
 import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
-import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
@@ -113,7 +113,7 @@ export default function SendPaymentScreen(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
 
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
@@ -138,6 +138,7 @@ export default function SendPaymentScreen(props) {
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
+
   const prevSelectedPaymentInfo = useRef({
     preSelectedPaymentMethod,
     enteredInfo: enteredPaymentInfo?.inputCurrency,
@@ -211,7 +212,7 @@ export default function SendPaymentScreen(props) {
     paymentInfo?.data?.expectedToken !== USDB_TOKEN_ID &&
     !contactInfo;
 
-  const showSendMax = !dollarBalanceSat && !bitcoinBalance;
+  // const showSendMax = !dollarBalanceSat && !bitcoinBalance;
 
   // finds the true min swap amount
   const min_usd_swap_amount = useMemo(() => {
@@ -265,6 +266,11 @@ export default function SendPaymentScreen(props) {
     sparkInformation,
   });
 
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+
   const {
     primaryDisplay,
     secondaryDisplay,
@@ -281,7 +287,7 @@ export default function SendPaymentScreen(props) {
         : determinePaymentMethod,
     inputDenomination,
     fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    usdFiatStats: usdFiatStats,
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
   });
@@ -770,6 +776,7 @@ export default function SendPaymentScreen(props) {
     ],
   );
   const effectivePublishMessageFunc =
+    paymentInfo?.publishMessageFunc ||
     publishMessageFunc ||
     (selectedContact ? publishMessageFuncForContact : null);
 
@@ -858,7 +865,10 @@ export default function SendPaymentScreen(props) {
       }
 
       if (paymentResponse.didWork) {
-        if (fromPage === 'contacts' && paymentResponse.response?.id) {
+        if (
+          (fromPage === 'contacts' && paymentResponse.response?.id) ||
+          fromPage === 'paylink'
+        ) {
           effectivePublishMessageFunc(paymentResponse.response.id);
         }
         requestAnimationFrame(() => {
@@ -1095,7 +1105,7 @@ export default function SendPaymentScreen(props) {
           )}
 
           {/* Send max button for edit mode */}
-          {!useAltLayout && uiState === 'EDIT_AMOUNT' && showSendMax && (
+          {/* {!useAltLayout && uiState === 'EDIT_AMOUNT' && showSendMax && (
             <SendMaxComponent
               fiatStats={fiatStats}
               sparkInformation={sparkInformation}
@@ -1109,7 +1119,7 @@ export default function SendPaymentScreen(props) {
               seletctedToken={seletctedToken}
               useAltLayout={useAltLayout}
             />
-          )}
+          )} */}
 
           {/* Fee info for fixed amount */}
           {uiState === 'CONFIRM_PAYMENT' && (
@@ -1182,21 +1192,21 @@ export default function SendPaymentScreen(props) {
               paymentInfo.type === 'spark' &&
               canEditAmount &&
               useFullTokensDisplay
-            ) &&
-              !isBitcoinPayment && (
-                <ChoosePaymentMethod
-                  theme={theme}
-                  darkModeType={darkModeType}
-                  determinePaymentMethod={determinePaymentMethod}
-                  handleSelectPaymentMethod={handleSelectPaymentMethod}
-                  bitcoinBalance={bitcoinBalance}
-                  dollarBalanceToken={dollarBalanceToken}
-                  masterInfoObject={masterInfoObject}
-                  fiatStats={fiatStats}
-                  uiState={uiState}
-                  t={t}
-                />
-              )}
+            ) && (
+              <ChoosePaymentMethod
+                theme={theme}
+                darkModeType={darkModeType}
+                determinePaymentMethod={determinePaymentMethod}
+                handleSelectPaymentMethod={handleSelectPaymentMethod}
+                bitcoinBalance={bitcoinBalance}
+                dollarBalanceToken={dollarBalanceToken}
+                masterInfoObject={masterInfoObject}
+                fiatStats={fiatStats}
+                uiState={uiState}
+                t={t}
+                showBitcoinCardOnly={isBitcoinPayment}
+              />
+            )}
             <CustomSearchInput
               onFocusFunction={() => setIsAmountFocused(false)}
               onBlurFunction={() => setIsAmountFocused(true)}

@@ -12,7 +12,7 @@ import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
-import { useGlobalContacts } from './globalContacts';
+import { useGlobalContactsInfo } from './globalContacts';
 import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 import { useAuthContext } from './authContext';
 import { ensureLiquidConnection } from '../app/functions/breezLiquid/liquidNodeManager';
@@ -22,7 +22,7 @@ import { SATSPERBITCOIN } from '../app/constants';
 const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({ children }) => {
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { sparkInformation } = useSparkWallet();
   const { contactsPrivateKey, publicKey, accountMnemoinc } = useKeysContext();
   const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();

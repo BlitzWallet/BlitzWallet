@@ -14,7 +14,7 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/skeletonTextView';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
@@ -29,7 +29,7 @@ import {
 
 export default function LiquidSwapsPage() {
   const { minMaxLiquidSwapAmounts } = useAppStatus();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();

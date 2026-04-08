@@ -34,13 +34,12 @@ import {
   fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
-import { useGlobalContacts } from './globalContacts';
+import { useGlobalContactsInfo } from './globalContacts';
 import {
   initializeSparkSession,
   initWallet,
 } from '../app/functions/initiateWalletConnection';
 // import { useNodeContext } from './nodeContext';
-import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { AppState } from 'react-native';
 import getDepositAddressTxIds from '../app/functions/spark/getDepositAdressTxIds';
 import { useKeysContext } from './keys';
@@ -64,7 +63,8 @@ import {
   createBalancePoller,
   createRestorePoller,
 } from '../app/functions/pollingManager';
-import { BALANCE_SNAPSHOT_KEY, USDB_TOKEN_ID } from '../app/constants';
+import { USDB_TOKEN_ID } from '../app/constants';
+import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
 import {
   cleanupOptimization,
   checkIfOptimizationNeeded,
@@ -72,7 +72,6 @@ import {
   runTokenOptimization,
 } from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
-import { encriptMessage } from '../app/functions/messaging/encodingAndDecodingMessages';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -133,7 +132,7 @@ const SparkWalletProvider = ({ children }) => {
   } = useAppStatus();
   // const { liquidNodeInformation } = useNodeContext();
   const { toggleGlobalContactsInformation, globalContactsInformation } =
-    useGlobalContacts();
+    useGlobalContactsInfo();
   const prevAccountMnemoincRef = useRef(null);
   const [sparkConnectionError, setSparkConnectionError] = useState(null);
   const isRunningAddListeners = useRef(false);
@@ -698,6 +697,8 @@ const SparkWalletProvider = ({ children }) => {
             sparkInfoRef.current.identityPubKey,
             sendWebViewRequest,
             true,
+            contactsPrivateKey,
+            publicKey,
           );
           const didUpdateStatus = updated.find(
             tx =>
@@ -880,24 +881,13 @@ const SparkWalletProvider = ({ children }) => {
       );
 
       const numericBalance = Number(result?.balance);
-      try {
-        const sparkBalanceStorage = encriptMessage(
-          contactsPrivateKey,
-          publicKey,
-          JSON.stringify({
-            balance: Number.isFinite(numericBalance)
-              ? numericBalance
-              : sparkInfoRef.current.balance,
-            tokens: result?.didWork
-              ? result.tokensObj
-              : sparkInfoRef.current.tokens,
-          }),
-        );
-
-        setLocalStorageItem(BALANCE_SNAPSHOT_KEY, sparkBalanceStorage);
-      } catch (err) {
-        console.log('Error saving spark balance to local storage', err);
-      }
+      saveAccountBalanceSnapshot(
+        identityPubKey,
+        Number.isFinite(numericBalance)
+          ? numericBalance
+          : sparkInfoRef.current.balance,
+        result?.didWork ? result.tokensObj : sparkInfoRef.current.tokens,
+      );
 
       const freshTxs = identityPubKey
         ? await getAllSparkTransactions({
@@ -1060,24 +1050,15 @@ const SparkWalletProvider = ({ children }) => {
       ]);
 
       const numericPassedBalance = Number(passedBalance);
-      try {
-        const sparkBalanceStorage = encriptMessage(
-          contactsPrivateKey,
-          publicKey,
-          JSON.stringify({
-            balance: Number.isFinite(numericPassedBalance)
-              ? numericPassedBalance
-              : sparkInfoRef.current.balance,
-            tokens: balanceResponse.didWork
-              ? balanceResponse.tokensObj
-              : sparkInfoRef.current.tokens,
-          }),
-        );
-
-        setLocalStorageItem(BALANCE_SNAPSHOT_KEY, sparkBalanceStorage);
-      } catch (err) {
-        console.log('Error saving spark balance to local storage', err);
-      }
+      saveAccountBalanceSnapshot(
+        identityPubKey,
+        Number.isFinite(numericPassedBalance)
+          ? numericPassedBalance
+          : sparkInfoRef.current.balance,
+        balanceResponse.didWork
+          ? balanceResponse.tokensObj
+          : sparkInfoRef.current.tokens,
+      );
 
       ensureConfirmedBoundary(freshTxs);
       lastConfirmedTxBoundaryRef.current = Math.max(
@@ -1237,6 +1218,9 @@ const SparkWalletProvider = ({ children }) => {
           currentMnemonicRef.current,
           sparkInfoRef.current.identityPubKey,
           sendWebViewRequest,
+          false,
+          contactsPrivateKey,
+          publicKey,
         );
 
         if (updatePendingPaymentsIntervalRef.current) {
@@ -1276,6 +1260,9 @@ const SparkWalletProvider = ({ children }) => {
               currentMnemonicRef.current,
               sparkInfoRef.current.identityPubKey,
               sendWebViewRequest,
+              false,
+              contactsPrivateKey,
+              publicKey,
             );
 
             if (response.shouldCheck) {
@@ -1633,7 +1620,7 @@ const SparkWalletProvider = ({ children }) => {
             await addPendingTransaction(
               {
                 transactionId: tx.txid,
-                creditAmountSats: tx.amount - tx.fee,
+                creditAmountSats: tx.amount,
               },
               address,
               sparkInfoRef.current,
@@ -1647,6 +1634,7 @@ const SparkWalletProvider = ({ children }) => {
 
           for (const utxo of unclaimedUtxos.utxos) {
             const { txid, vout } = utxo;
+            const exploraTx = exploraData?.find(t => t.txid === txid);
             const hasAlreadySaved = savedTxMap.has(txid);
 
             // Get quote for this specific UTXO
@@ -1687,6 +1675,12 @@ const SparkWalletProvider = ({ children }) => {
               continue;
             }
 
+            // Mark the transfer as handled so transferHandler skips it.
+            // The SDK fires a transfer event for this claim, and without this guard,
+            // debouncedHandleIncomingPayment would write a placeholder record that
+            // races with our own bulkUpdateSparkTransactions call below.
+            handledTransfers.current.add(claimTx.transferId);
+
             console.log('Claimed deposit address transaction:', claimTx);
 
             // Wait for the transfer to settle
@@ -1696,6 +1690,23 @@ const SparkWalletProvider = ({ children }) => {
               currentMnemonicRef.current,
               claimTx.transferId,
             );
+
+            let fee = 0;
+
+            if (exploraTx) {
+              fee = Math.abs(exploraTx?.amount - bitcoinTransfer.totalValue);
+            } else {
+              const savedTxDetails = (() => {
+                try {
+                  return JSON.parse(savedTxMap.get(txid)?.details ?? 'null');
+                } catch {
+                  return null;
+                }
+              })();
+              fee = Math.abs(
+                savedTxDetails?.amount - bitcoinTransfer.totalValue,
+              );
+            }
 
             let updatedTx = {};
             if (!bitcoinTransfer) {
@@ -1717,19 +1728,19 @@ const SparkWalletProvider = ({ children }) => {
                 accountId: sparkInfoRef.current.identityPubKey,
                 details: {
                   amount: bitcoinTransfer.totalValue,
-                  fee: Math.abs(
-                    quote.creditAmountSats - bitcoinTransfer.totalValue,
-                  ),
-                  totalFee: Math.abs(
-                    quote.creditAmountSats - bitcoinTransfer.totalValue,
-                  ),
+                  fee: fee,
+                  totalFee: fee,
                   supportFee: 0,
+                  dateAddedToDb: Date.now(),
                 },
               };
             }
 
             console.log('Updated bitcoin transaction:', updatedTx);
-            await bulkUpdateSparkTransactions([updatedTx]);
+            await bulkUpdateSparkTransactions(
+              [updatedTx],
+              'fullUpdate-waitBalance',
+            );
 
             // Navigate to confirm screen if we have details
             if (updatedTx.details) {

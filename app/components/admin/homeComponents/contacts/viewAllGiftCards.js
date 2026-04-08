@@ -10,7 +10,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { COLORS, SIZES } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useGlobalContactsMessages } from '../../../../../context-store/globalContacts';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
@@ -19,7 +19,7 @@ import { getGiftCardData } from '../../../../functions/contacts/giftCardStorage'
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function ViewAllGiftCards() {
-  const { giftCardsList } = useGlobalContacts();
+  const { giftCardsList } = useGlobalContactsMessages();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const navigate = useNavigation();
@@ -226,8 +226,8 @@ export default function ViewAllGiftCards() {
         <ThemeText
           styles={styles.headerSubtitle}
           content={t(
-            `contacts.internalComponents.viewAllGiftCards.cardsLengh${
-              giftCardsList.length !== 1 ? 'Plurl' : 'Singular'
+            `contacts.internalComponents.viewAllGiftCards.cardsLength${
+              giftCardsList.length !== 1 ? 'Plural' : 'Singular'
             }`,
             {
               num: giftCardsList.length,

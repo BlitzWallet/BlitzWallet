@@ -257,11 +257,19 @@ export default function TxFilterHalfModal({
       {/* --- Sticky bottom bar --- */}
       <View style={[styles.bottomBar, { borderTopColor: inactiveBorderColor }]}>
         <TouchableOpacity
-          style={{ opacity: hasItemsSeleceted ? 1 : HIDDEN_OPACITY }}
+          style={{
+            opacity: hasItemsSeleceted ? 1 : HIDDEN_OPACITY,
+            flexShrink: 1,
+          }}
           onPress={handleClear}
           activeOpacity={hasItemsSeleceted ? 0.2 : HIDDEN_OPACITY}
         >
-          <ThemeText content={t(`${ns}.filterClearAll`)} />
+          <ThemeText
+            CustomNumberOfLines={2}
+            adjustsFontSizeToFit={true}
+            allowFontScaling={true}
+            content={t(`${ns}.filterClearAll`)}
+          />
         </TouchableOpacity>
         <CustomButton
           buttonStyles={styles.applyButton}
@@ -352,6 +360,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     borderTopWidth: 1,
+    gap: 10,
   },
   clearText: {
     fontSize: SIZES.medium,

@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { getImageFromLibrary } from '../../../../../functions/imagePickerWrapper';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import {
   deleteDatabaseImage,
@@ -14,7 +14,7 @@ export function useProfileImage() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { globalContactsInformation, toggleGlobalContactsInformation } =
-    useGlobalContacts();
+    useGlobalContactsInfo();
   const { refreshCache, removeProfileImageFromCache } = useImageCache();
 
   const [isAddingImage, setIsAddingImage] = useState(false);

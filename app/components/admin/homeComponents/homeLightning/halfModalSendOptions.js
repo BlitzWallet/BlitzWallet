@@ -9,7 +9,9 @@ import { useNavigation } from '@react-navigation/native';
 import {
   navigateToSendUsingClipboard,
   getQRImage,
+  resolveExternalChainNavigation,
 } from '../../../../functions';
+import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
@@ -373,8 +375,28 @@ export default function HalfModalSendOptions({
       return;
     }
 
+    const parsed = handlePreSendPageParsing(input);
+    if (parsed.error) {
+      navigate.navigate('ErrorScreen', { errorMessage: parsed.error });
+      return;
+    }
+    if (parsed.navigateToWebView) {
+      navigate.navigate('CustomWebView', {
+        headerText: '',
+        webViewURL: parsed.webViewURL,
+      });
+      return;
+    }
+    if (parsed.isExternalChain) {
+      const { method, screen, params } = resolveExternalChainNavigation(
+        parsed,
+        'notHome',
+      );
+      navigate[method](screen, params);
+      return;
+    }
     navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: input,
+      btcAdress: parsed.btcAdress,
       fromPage: '',
     });
   }, [
@@ -406,6 +428,16 @@ export default function HalfModalSendOptions({
       });
       return;
     }
+
+    if (response.isExternalChain) {
+      const { method, screen, params } = resolveExternalChainNavigation(
+        response,
+        'notHome',
+      );
+      navigate[method](screen, params);
+      return;
+    }
+
     if (!response.didWork || !response.btcAdress) {
       return;
     }

@@ -139,6 +139,59 @@ export default function AboutPage() {
         />
       </SectionCard>
 
+      {/* EXCHANGE RATES */}
+      <SectionCard title={t('settings.about.exchangeRatesHeader')}>
+        <View style={styles.cardBody}>
+          <ThemeText
+            styles={styles.bodyText}
+            content={t('settings.about.exchangeRatesDescription')}
+          />
+        </View>
+        <View style={styles.poweredByHeader}>
+          <ThemeText
+            styles={styles.poweredByLabel}
+            content={t('settings.about.exchangeRatesSourcesLabel')}
+          />
+        </View>
+        <SettingsRow
+          label={t('settings.about.exchangeRateCoinbase')}
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://www.coinbase.com',
+            })
+          }
+        />
+        <SettingsRow
+          label={t('settings.about.exchangeRateFlashnet')}
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://www.flashnet.xyz/',
+            })
+          }
+        />
+        <SettingsRow
+          label={t('settings.about.exchangeRateKraken')}
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://www.kraken.com',
+            })
+          }
+        />
+        <SettingsRow
+          label={t('settings.about.exchangeRateBitfinex')}
+          isLast
+          onPress={() =>
+            openWebBrowser({
+              navigate,
+              link: 'https://www.bitfinex.com',
+            })
+          }
+        />
+      </SectionCard>
+
       {/* CREATOR */}
       <SectionCard title={t('settings.about.creatorHeader')}>
         <SettingsRow

@@ -2,6 +2,7 @@ import { getImageFromLibrary } from '../imagePickerWrapper';
 import getClipboardText from '../getClipboardText';
 import handlePreSendPageParsing from './handlePreSendPageParsing';
 import { detectQRCode } from '../detectQrCode';
+import i18next from 'i18next';
 
 async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
   const response = await getClipboardText();
@@ -26,6 +27,15 @@ async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
       headerText: '',
       webViewURL: preParsingResponse.webViewURL,
     });
+    return;
+  }
+
+  if (preParsingResponse.isExternalChain) {
+    const { method, screen, params } = resolveExternalChainNavigation(
+      preParsingResponse,
+      from,
+    );
+    navigate[method](screen, params);
     return;
   }
 
@@ -95,7 +105,71 @@ async function getQRImage() {
     };
   }
 
+  if (preParsingResponse.isExternalChain) {
+    return {
+      isExternalChain: true,
+      address: preParsingResponse.address,
+      chainFamily: preParsingResponse.chainFamily,
+      resolvedToken: preParsingResponse.resolvedToken,
+      prefillAmount: preParsingResponse.prefillAmount,
+      unsupportedTokenAddress: preParsingResponse.unsupportedTokenAddress,
+      didWork: true,
+      error: '',
+    };
+  }
+
   return { btcAdress: preParsingResponse.btcAdress, didWork: true, error: '' };
 }
 
-export { navigateToSendUsingClipboard, getQRImage };
+function formatStablecoinAmount(rawAmount, decimals = 2) {
+  const value = Number(rawAmount) / Math.pow(10, 6);
+  return value.toFixed(decimals);
+}
+
+function resolveExternalChainNavigation(parsedResult, from) {
+  const method = from === 'home' ? 'navigate' : 'replace';
+
+  if (parsedResult.resolvedToken) {
+    return {
+      method,
+      screen: 'StablecoinSendScreen',
+      params: {
+        address: parsedResult.address,
+        chain: parsedResult.resolvedToken.chain,
+        chainLabel: parsedResult.resolvedToken.chainLabel,
+        asset: parsedResult.resolvedToken.asset,
+        ...(parsedResult.prefillAmount != null
+          ? { prefillAmount: parsedResult.prefillAmount }
+          : {}),
+      },
+    };
+  }
+
+  if (parsedResult.unsupportedTokenAddress) {
+    return {
+      method,
+      screen: 'SelectStablecoinParamsScreen',
+      params: {
+        address: parsedResult.address,
+        chainFamily: parsedResult.chainFamily,
+        unsupportedTokenMessage: i18next.t('errormessages.usdcUsdtTokensOnly'),
+      },
+    };
+  }
+
+  return {
+    method,
+    screen: 'SelectStablecoinParamsScreen',
+    params: {
+      address: parsedResult.address,
+      chainFamily: parsedResult.chainFamily,
+    },
+  };
+}
+
+export {
+  navigateToSendUsingClipboard,
+  getQRImage,
+  formatStablecoinAmount,
+  resolveExternalChainNavigation,
+};

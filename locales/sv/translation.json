@@ -82,6 +82,8 @@
     "accounts": "Konton",
     "to": "Till",
     "from": "Från",
+    "asset": "Tillgång",
+    "chain": "Kedja",
     "description": "Beskrivning",
     "regenerate": "Regenerera",
     "restore": "Återställ",
@@ -103,7 +105,7 @@
     "selectOption": "Välj ett alternativ",
     "slideToConfirm": "Skjut för att bekräfta",
     "token": "Token",
-    "veriable": "Verifierbar",
+    "variable": "Verifierbar",
     "instant": "Omedelbar",
     "andLower": "och",
     "onLower": "på",
@@ -308,7 +310,7 @@
         "payingInvoiceLoadingMessage": "Betalning av faktura",
         "backupPaymentError": "Fel vid betalning av faktura.",
         "createInvoiceError": "Fel vid skapande av faktura.",
-        "payingInvoiveError": "Fel vid betalning av faktura.",
+        "payingInvoiceError": "Fel vid betalning av faktura.",
         "runningTries": "Kör {{runCount}} för {{maxTries}} försök",
         "configError": "Det går inte att få VPN-konfiguration, kontakta LNVPN.",
         "paymentMemo": "Butik - VPN"
@@ -809,7 +811,7 @@
         "autoSelectInfoMessage": "Välj land för det telefonnummer som du vill använda. För att du ska ha störst chans att få din kod rekommenderar vi att du låter den vara inställd på Autoval så att systemet väljer det mest tillförlitliga alternativet.",
         "autoSelect": "Välj automatiskt",
         "inputPlaceholder": "Sök efter en tjänst",
-        "loacationLoadingMessage": "Hämta platsbaserade tjänster",
+        "locationLoadingMessage": "Hämta platsbaserade tjänster",
         "noAvailableServices": "Denna plats har inga tjänster",
         "orderDetailsLoading": "Hämta orderinformation"
       },
@@ -880,7 +882,36 @@
       "tapToGenerate_lightning_btc": "Ta emot BTC direkt",
       "tapToGenerate_lightning_usd": "Ta emot USD direkt",
       "noAddedContactsTitle": "Inga tillagda kontakter",
-      "noAddedContactsDesc": "Dina kontakter visas här när du lägger till en."
+      "noAddedContactsDesc": "Dina kontakter visas här när du lägger till en.",
+      "payMe": "Snabb betalning",
+      "createInvoice": "Skapa faktura",
+      "invoiceDescription": "Begär betalning via en länk eller QR-kod.",
+      "poolsDescription": "Samla in bidrag från en grupp till ett gemensamt mål."
+    },
+    "payLinks": {
+      "skip": "Hoppa över",
+      "next": "Nästa",
+      "share": "Dela",
+      "createPayLink": "Skapa betalningslänk",
+      "showQR": "Visa QR-kod",
+      "creating": "Skapar...",
+      "descriptionPlaceholder": "Vad är detta för? (valfritt)",
+      "descriptionTitle": "Lägg till en beskrivning",
+      "preparingPayment": "Förbereder betalning...",
+      "alreadyPaid": "Den här betalningslänken har redan betalats.",
+      "notFound": "Betalningslänk hittades inte.",
+      "invoiceError": "Misslyckades med att skapa faktura.",
+      "requestHeader": "Vad vill du ta emot?",
+      "genQRCode": "Generera QR-kod",
+      "howItWorks": {
+        "step1Label": "Dela länken",
+        "step1Desc": "Skicka den via meddelande, e-post eller vilken app som helst. Alla med länken kan betala dig.",
+        "step2Label": "De öppnar den i en webbläsare",
+        "step2Desc": "Ingen app behövs. Länken öppnar en betalningssida där de kan betala med Lightning, USDC eller USDT.",
+        "step3Label": "Pengarna kommer direkt",
+        "step3Desc": "När betalningen är klar kommer pengarna direkt till din plånbok."
+      },
+      "copyLink": "Kopiera länk"
     },
     "pools": {
       "receiveViaPool": "Ta emot via pool",
@@ -957,7 +988,7 @@
       "settingsText": "Gå till inställningar för att låta Blitz Wallet få tillgång till din kamera",
       "noCameraDevice": "Du har ingen kameraenhet.",
       "noFlash": " Enheten har inte en fackla",
-      "sanningResponse": "Endast QR-koder accepteras.",
+      "scanningResponse": "Endast QR-koder accepteras.",
       "qrDecodeError": "Fel vid avkodning av QR-kod"
     },
     "confirmClipboard": {
@@ -1029,7 +1060,7 @@
         "header": "Välj hur du vill finansiera din betalning."
       },
       "handlingAddressErrors": {
-        "invlidFormat": "Adresser ska endast vara text. Vänligen kontrollera och försök igen.",
+        "invalidFormat": "Adresser ska endast vara text. Vänligen kontrollera och försök igen.",
         "parseError": "Vi kunde inte känna igen betalningstypen. Ange en giltig Spark-adress, ett Blitz-användarnamn, en Bitcoin-adress eller en Lightning-adress/faktura.",
         "paymentProcessingError": "Fel vid bearbetning av betalningsinformation",
         "tooLowSendingAmount": "Det skickade beloppet är för högt för att täcka betalningen och avgifterna. Maximalt belopp för sändning är {{amount}}",
@@ -1049,7 +1080,8 @@
         "lnurlWithdrawlSuccess": "Uttag framgångsrikt! Din betalning är på väg.",
         "invoiceDetails": "Detaljer om lastning",
         "timeoutError": "Processen tog för lång tid att slutföra. Vänligen försök igen.",
-        "payingToSameAddress": "Du kan inte skicka en {{addressType}}-betalning till dig själv."
+        "payingToSameAddress": "Du kan inte skicka en {{addressType}}-betalning till dig själv.",
+        "blitzUserNotFound": "Blitz-användare hittades inte"
       },
       "errorScreen": {
         "ok": "OK",
@@ -1130,6 +1162,34 @@
       "paymentsCounter": "{{number}} Betalningar",
       "paymentsCounterTracker": "{{number}} av {{total}}",
       "loadingMessage": "Läser in sparade transaktioner"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Skicka Stablecoins",
+      "selectChain": "Välj Nätverk",
+      "network": "Nätverk",
+      "selectAsset": "Välj Tillgång",
+      "recipient": "Mottagare",
+      "gettingQuote": "Hämtar offert…",
+      "quoteExpired": "Offerten har gått ut. Försök igen.",
+      "quoteError": "Det gick inte att hämta en offert. Försök igen.",
+      "recipientGets": "Mottagaren får",
+      "youSend": "Du skickar",
+      "quoteExpiresIn": "Offerten löper ut om",
+      "payWithLightning": "Betala med Lightning",
+      "payWithUSDb": "Betala med USDb",
+      "chainNotSupportedForAsset": "Inte tillgängligt i detta nätverk",
+      "swapInProgress": "Byte pågår",
+      "swapInProgressDescription": "Dina pengar har skickats. Stablecoin-bytet bearbetas och kan ta några minuter.",
+      "noAmount": "Ange ett belopp att skicka.",
+      "quoteStillLoading": "Hämtar offert, vänta ett ögonblick.",
+      "noQuote": "Det gick inte att hämta en offert. Försök igen.",
+      "swapStatus": "Bytestatus",
+      "chainSwap": "Kedjeswap",
+      "assetPicker": {
+        "header": "Välj den valuta du vill skicka.",
+        "notAvailable": "Inte tillgängligt på {{chain}}"
+      },
+      "networkLabel": "{{currency}} på {{chain}}"
     }
   },
   "contacts": {
@@ -1143,7 +1203,13 @@
       "editContactButton": "Redigera profil",
       "unknownSender": "Okänd avsändare",
       "noContactSearch": "Den här kontakten finns inte i din lista ännu.",
-      "notFound": "hittades inte."
+      "notFound": "hittades inte.",
+      "noContent": {
+        "editProfileTitle": "Redigera din profil",
+        "editProfileDescription": "Lägg till dina uppgifter så att andra enkelt kan hitta och betala dig.",
+        "addContactstitle": "Inga kontakter tillagda",
+        "addContactsDescription": "Dina kontakter visas här när du lägger till en."
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Jag har inte lyckats hitta någon kontakt.",
@@ -1179,7 +1245,7 @@
       "usernameAlreadyExistsError": "Detta användarnamn finns redan, vänligen välj ett annat.",
       "unableToSaveError": "Det gick inte att spara profilbilden, försök igen.",
       "deleteProfileImageError": "Det går inte att ta bort profilbilden, försök igen.",
-      "deleateWarning": "Är du säker på att du vill ta bort den här kontakten? Meddelanden som är äldre än en vecka kan inte återställas."
+      "deleteWarning": "Är du säker på att du vill ta bort den här kontakten? Meddelanden som är äldre än en vecka kan inte återställas."
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"
@@ -1244,8 +1310,8 @@
         "cardNamePlaceH": "Presentkort",
         "noCardsText": "Dina presentkort kommer att visas här när en kontakt skickar ett till dig.",
         "header": "Dina presentkort",
-        "cardsLenghSingular": "{{num}} kort",
-        "cardsLenghPlurl": "{{num}} kort"
+        "cardsLengthSingular": "{{num}} kort",
+        "cardsLengthPlural": "{{num}} kort"
       },
       "editGiftCard": {
         "header": "Vad skulle du vilja göra med din gåva?"
@@ -1328,7 +1394,14 @@
       "showTechnicals": "Visa tekniska detaljer",
       "hideTechnicals": "Dölj tekniska detaljer",
       "backendHash": "Backend-hash",
-      "expectedHash": "Förväntad hash"
+      "expectedHash": "Förväntad hash",
+      "exchangeRatesHeader": "Växelkurser",
+      "exchangeRatesDescription": "Bitcoin/fiat-växelkurser hämtas från tredjeparts-API:er. Kurserna kan vara oprecisa, kontrollera alltid Bitcoin-beloppet innan du skickar en betalning.",
+      "exchangeRatesSourcesLabel": "Datakällor",
+      "exchangeRateCoinbase": "Coinbase",
+      "exchangeRateFlashnet": "Flashnet",
+      "exchangeRateKraken": "Kraken",
+      "exchangeRateBitfinex": "Bitfinex"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1397,12 +1470,12 @@
       "text5": "Enheten har inte någon biometrisk profil. Skapa en i inställningarna för att fortsätta.",
       "text6": "Fel vid inloggning med biometri",
       "text7": "Enheten stöder inte biometrisk inloggning",
-      "unsuccesfullLoginSwitch": "Det går inte att byta inloggningstyp",
+      "unsuccessfulLoginSwitch": "Det går inte att byta inloggningstyp",
       "toggleSecurityModeError": "Något gick fel när du ändrade dina säkerhetsinställningar. Vänligen försök igen.",
       "noBiometricsError": "Enheten stöder inte biometrisk inloggning",
       "noBiometricProfileError": "Enheten har inte någon biometrisk profil. Skapa en i inställningarna för att fortsätta.",
       "biometricSignInError": "Fel vid inloggning med biometri",
-      "migratingStorageMessgae": "Migrering av lagring till ny säkerhet.",
+      "migratingStorageMessage": "Migrering av lagring till ny säkerhet.",
       "createPinPageHeader": "{{type}} din Blitz PIN-kod",
       "invalidPinconfirmation": "PIN-koderna stämmer inte överens. Försök igen!",
       "randomPinKeyboardToggle": "Knappsats för shuffle",
@@ -1539,6 +1612,7 @@
       "noLimit": "Ingen gräns",
       "transactionType": "Transaktionstyp",
       "swapsType": "BTC <> USD-växlingar",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % poolavgift + {{blitzFee}} % Blitz-avgift",
       "othersType": "Övrigt",
       "othersFee": "Nätverksavgifter"
@@ -1561,7 +1635,7 @@
         "invalidPubKey": "Ogiltig pubnyckel: måste vara en icke-tom sträng",
         "invalidNpub": "Ogiltigt npub-format",
         "decodeNpubError": "Misslyckades med att avkoda npub",
-        "invlaidFormat": "Ogiltigt pubkey-format: måste vara antingen en hexadecimal sträng med 64 tecken eller npub"
+        "invalidFormat": "Ogiltigt pubkey-format: måste vara antingen en hexadecimal sträng med 64 tecken eller npub"
       }
     },
     "nwc": {
@@ -1589,14 +1663,14 @@
         "connectionName": ""
       },
       "hasNoAccounts": {
-        "wanringMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på sidan för kontoinställningar."
+        "warningMessage": "För att skicka pengar från din Nostr Connect-plånbok måste du först lägga till pengar - antingen genom att ta emot pengar eller överföra från din huvudplånbok.\n\n Du kan överföra pengar från din huvudplånbok till NWC på sidan för kontoinställningar."
       },
       "noNotifications": {
-        "wanringMessage": "För att kunna använda Nostr Wallet Connect måste du ha aktiverat push-notiser för Nostr Wallet Connect.\n\nVänligen aktivera push-meddelanden i inställningarna och försök igen."
+        "warningMessage": "För att kunna använda Nostr Wallet Connect måste du ha aktiverat push-notiser för Nostr Wallet Connect.\n\nVänligen aktivera push-meddelanden i inställningarna och försök igen."
       },
       "showSeedPage": {
         "loadingMessage": "Genererar återställningsfras",
-        "wanringMessage": "För att hålla din wallet säker skapar Nostr Wallet Connect en separat återställningsfras från din huvudwallets återställningsfras.\n\nDu kan komma åt denna återställningsfras i Blitz-inställningarna under Konton.",
+        "warningMessage": "För att hålla din wallet säker skapar Nostr Wallet Connect en separat återställningsfras från din huvudwallets återställningsfras.\n\nDu kan komma åt denna återställningsfras i Blitz-inställningarna under Konton.",
         "viewSeed": "Visa återställningsfras"
       },
       "combinedOnboarding": {
@@ -1850,14 +1924,16 @@
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "gift": "Gåva",
         "claimPayment": "Ta emot betalning",
-        "splitPayment": "Dela"
+        "splitPayment": "Dela",
+        "chainSwap": "Kedjeswap"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",
         "title": "Blitz-nedladdningar",
         "goalUserCount": "av {{goalUserCount}} användare.",
         "percentOfGoal": "{{goalPercent}} av målet",
-        "numAddedUsers": "+{{numNewUsers}} användare idag"
+        "numAddedUsers": "+{{numNewUsers}} användare idag",
+        "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
         "loadingMessage1": "Stäng inte appen, snälla",
@@ -1951,7 +2027,11 @@
         "noInformationLabel": "{{item}} visas inte eftersom denna betalning återställdes från historiken eller använde en faktura med nollbelopp.",
         "privacyMessage": "För att bevara {{type}}:s integritet är all annan information dold.",
         "receivers": "mottagarens",
-        "senders": "avsändarens"
+        "senders": "avsändarens",
+        "quoteId": "Offert-ID",
+        "destinationAddress": "Destinationsadress",
+        "destinationAsset": "Destinations-tillgång",
+        "destinationChain": "Destinations-kedja"
       },
       "viewAllTxPage": {
         "title": "Transaktioner",
@@ -2051,7 +2131,7 @@
           "inputPlaceholder": "Ange länk till gåvan",
           "claim": "Anspråk",
           "noGiftLinkError": "Vi kunde inte hitta någon presentlänk. Skanna eller klistra in länken du fick.",
-          "invliadGiftFormat": "Ogiltig presentlänk. Kopiera hela länken och försök igen."
+          "invalidGiftFormat": "Ogiltig presentlänk. Kopiera hela länken och försök igen."
         },
         "reclaimPage": {
           "header": "Återta din gåva",
@@ -2174,13 +2254,63 @@
           "details": "Detaljer"
         },
         "chooseCurrencyTitle": "Välj valutan du vill växla från.",
-        "enterAmountTitle": "Ange beloppet du vill växla."
+        "enterAmountTitle": "Ange beloppet du vill växla.",
+        "noContentTitle": "Inget saldo tillgängligt",
+        "noContentSubTittle": "Lägg till medel i din plånbok för att börja växla mellan dollar och Bitcoin.",
+        "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Det gick inte att läsa in swap-historiken. Försök igen senare.",
-        "noHisotorytitle": "Ingen swap-historik",
-        "noHisotorydesc": "Dina swap-transaktioner visas här.",
+        "noHistoryTitle": "Ingen swap-historik",
+        "noHistoryDesc": "Dina swap-transaktioner visas här.",
         "pageTitle": "Historik"
+      }
+    },
+    "accumulationAddresses": {
+      "title": "Ackumuleringsadresser",
+      "subtitle": "Konvertera automatiskt stablecoins till BTC eller dollar",
+      "navTitle": "Adresser",
+      "sectionTitle": "Aktiva adresser",
+      "empty": {
+        "title": "Inga ackumuleringsadresser",
+        "subtitle": "Skapa en adress för att automatiskt konvertera insättningar till Bitcoin eller dollar"
+      },
+      "createButton": "Skapa adress",
+      "info": {
+        "title": "Vad är de?",
+        "whatAre": "Vad är de?",
+        "whatAreBody": "Permanenta adresser som automatiskt konverterar inkommande USDC eller USDT till Bitcoin eller dollar och skickar medlen till din plånbok.",
+        "howItWorks": "Hur det fungerar",
+        "step1": "1. Dela din insättningsadress med en avsändare eller börs.",
+        "step2": "2. Medel anländer on-chain och växlas automatiskt.",
+        "step3": "3. Det konverterade beloppet landar i din plånbok."
+      },
+      "detail": {
+        "copyAddress": "Kopiera adress",
+        "printQR": "Skriv ut QR",
+        "deleteButton": "Ta bort adress",
+        "deleteConfirmTitle": "Ta bort adress?",
+        "deleteConfirmBody": "Att ta bort denna adress stoppar omdirigering av framtida betalningar och kan leda till förlorade medel. Se till att alla vet att den inte längre är aktiv innan du tar bort den.",
+        "chain": "Kedja",
+        "source": "Källa",
+        "Destination": "Destination"
+      },
+      "create": {
+        "pickAsset": "Välj betalningsvaluta",
+        "pickChain": "Välj kedja",
+        "pickDestination": "Välj destination",
+        "confirm": "Bekräfta adress",
+        "alreadyExists": "Du har redan en adress för denna kombination"
+      },
+      "summary": {
+        "chain": "Kedja",
+        "paymentCurrency": "Betalningsvaluta",
+        "destination": "Destination",
+        "create": "Skapa adress"
+      },
+      "errors": {
+        "createFailed": "Det gick inte att skapa adressen. Försök igen.",
+        "deleteFailed": "Det gick inte att ta bort adressen. Försök igen."
       }
     }
   },
@@ -2235,7 +2365,7 @@
     "rootstockInvoiceError": "Det uppstod ett problem med att generera din Rootstock-adress. Vänligen försök igen.",
     "liquidInvoiceError": "Det uppstod ett problem med att generera din likvidadress. Vänligen försök igen.",
     "bitcoinInvoiceError": "Det uppstod ett problem med att generera din Bitcoin-adress. Vänligen försök igen.",
-    "sparkInvioceError": "Det uppstod ett problem med att generera din Spark-adress. Vänligen försök igen.",
+    "sparkInvoiceError": "Det uppstod ett problem med att generera din Spark-adress. Vänligen försök igen.",
     "lightningInvoiceError": "Det uppstod ett problem med att generera din Lightning-faktura. Vänligen försök igen.",
     "sparkConnectionError": "Spark-anslutningen misslyckades. Vänligen försök igen.",
     "giftCardExpiration": "Presentkort kan endast återställas i 7 dagar efter att de skickats. Om den här appen raderas eller lokal lagring rensas efter den tiden kommer dina presentkort att gå förlorade. Se till att spara anspråkslänkarna eller presentkortskoderna på ett säkert ställe.",
@@ -2245,7 +2375,8 @@
     "paymentError": "Något gick fel när vi behandlade din betalning. Vänligen försök igen. Om det fortfarande inte fungerar stänger du appen och öppnar den igen innan du försöker igen.",
     "paymentFeeError": "Vi kunde inte hämta betalningsavgiften. Vänligen försök igen. Om problemet kvarstår ska du stänga appen och öppna den igen innan du försöker igen.",
     "priceImpact": "Den här betalningen är stor, så det slutliga beloppet du får i dollar kan förändras.",
-    "removingImageError": "Kunde inte ta bort bilden. Försök igen."
+    "removingImageError": "Kunde inte ta bort bilden. Försök igen.",
+    "usdcUsdtTokensOnly": "Endast USDT- och USDC-token stöds"
   },
   "loadingScreen": {
     "message1": "Stäng inte appen, snälla",
@@ -2327,6 +2458,26 @@
     "FSAG-5003": "Ett internt fel uppstod. Kontakta support om problemet kvarstår.",
     "FSAG-5004": "Ett systemkonfigurationsfel uppstod.",
     "FSAG-5100": "Ett oväntat serverfel uppstod."
+  },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Denna idempotensnyckel har redan använts med en annan begäran. Använd en ny nyckel.",
+    "unsupported_route": "Denna rutt stöds inte.",
+    "unsupported_fee_plan": "Avgiftsrelaterade parametrar stöds inte för denna rutt eller offertläge.",
+    "invalid_request": "Begäran är ogiltig. Kontrollera din inmatning och försök igen.",
+    "invalid_query": "En eller flera frågeparametrar är ogiltiga.",
+    "invalid_address": "Mottagarens eller återbetalningsadress är ogiltig.",
+    "invalid_state": "Denna begäran gjordes i fel ordning. Följ rätt stegsekvens.",
+    "conflict": "Resursen ändrades medan din begäran behandlades. Försök igen.",
+    "quote_expired": "Denna offert har gått ut. Begär en ny.",
+    "not_found": "Den begärda resursen hittades inte.",
+    "amount_too_small_chain_fees": "Beloppet är för litet för att täcka avgifterna på destinationskedjan",
+    "amount_too_small_minimum": "Beloppet är för litet. Minsta belopp är {{minimumSats}} sats.",
+    "amount_too_small": "Beloppet är under det lägsta tillåtna för denna rutt.",
+    "amount_too_large": "Beloppet är för stort för denna rutt.",
+    "rate_limited": "För många förfrågningar. Sakta ner och försök igen senare.",
+    "flashnet_error": "Operationen misslyckades under simulering eller körning. Försök igen.",
+    "price_impact_too_high": "Prisets påverkan är för hög. Justera beloppet och försök igen.",
+    "internal_error": "Ett oväntat fel uppstod. Försök igen senare."
   },
   "savings": {
     "home": {
@@ -2486,7 +2637,7 @@
         "accrualValue": "Dagligen"
       },
       "context": {
-        "goalNameReqiured": "Målnamn krävs",
+        "goalNameRequired": "Målnamn krävs",
         "goalNotFound": "Målet hittades inte"
       },
       "transparencyTitle": "Täckt av verkliga reserver",
@@ -2500,7 +2651,7 @@
     "swapSimulationError": "Bytessimulering inte tillgänglig",
     "savingsWalletError": "Sparplånboken är inte redo",
     "rewardsPayout": "Utbetalning av Bitcoin-belöningar",
-    "rewardsWithdrawl": "Uttag av Bitcoin-belöningar",
+    "rewardsWithdrawal": "Uttag av Bitcoin-belöningar",
     "total_balance": "Totalt saldo"
   }
 }

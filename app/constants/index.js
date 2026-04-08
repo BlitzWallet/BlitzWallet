@@ -69,7 +69,6 @@ const GENERATED_BITCOIN_ADDRESSES = 'GENERATED_BITCOIN_ADDRESSES';
 const SHOPS_DIRECTORY_KEY = 'SHOPS_CURRENCY_LOCATION';
 const RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY = 'RANDOM_KEYBOARD_LAYOUT_KEY';
 const PERSISTED_LOGIN_COUNT_KEY = 'PERSISTED_LOGIN_COUNT_KEY';
-const BALANCE_SNAPSHOT_KEY = 'BALANCE_SNAPSHOT_KEY';
 const HIDE_IN_APP_PURCHASE_ITEMS = Platform.OS === 'ios';
 const GIFT_DERIVE_PATH_CUTOFF = 1763650239108;
 
@@ -102,6 +101,9 @@ const STARTING_INDEX_FOR_SAVINGS_DERIVE = 200000; // Indices 200000+ for savings
 
 const POOL_DEEPLINK_REGEX =
   /^(?:blitz-wallet:\/\/pools\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/pools\/)[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\/?$/;
+
+const PAYLINK_DEEPLINK_REGEX =
+  /^(?:blitz-wallet:\/\/paylink\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/paylink\/)[A-Za-z0-9]{9}\/?$/;
 
 const MIN_CHANNEL_OPEN_FEE = 500_000;
 const MAX_CHANNEL_OPEN_FEE = 1_000_000;
@@ -218,7 +220,7 @@ export {
   STARTING_INDEX_FOR_POOLS_DERIVE,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   POOL_DEEPLINK_REGEX,
+  PAYLINK_DEEPLINK_REGEX,
   BASIC_ACCOUNT_NAME_REGEX,
   DEFAULT_GOAL_EMOJI,
-  BALANCE_SNAPSHOT_KEY,
 };

@@ -21,23 +21,163 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { Image } from 'expo-image';
 import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
-import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { useFlashnet } from '../../../../../context-store/flashnetContext';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import customUUID from '../../../../functions/customUUID';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
 import PoolCreationOverlay from '../pools/poolCreationOverlay';
+import PayLinkCreationOverlay from '../payLinks/payLinkCreationOverlay';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import { useToast } from '../../../../../context-store/toastManager';
+import { copyToClipboard } from '../../../../functions';
+import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
+import { useAppStatus } from '../../../../../context-store/appStatus';
+
+// ─── LNURL Banner ────────────────────────────────────────────────────────────
+
+export const LNURLBanner = ({
+  lnurlAddress,
+  theme,
+  darkModeType,
+  backgroundColor,
+  backgroundOffset,
+  textColor,
+  onQRPress,
+}) => {
+  const { t } = useTranslation();
+  const { showToast } = useToast();
+
+  const handleCopy = useCallback(() => {
+    copyToClipboard(`${lnurlAddress}@blitzwalletapp.com`, showToast);
+  }, [lnurlAddress]);
+
+  return (
+    <View
+      style={[
+        styles.bannerContainer,
+        {
+          backgroundColor:
+            theme && darkModeType ? backgroundColor : COLORS.primary,
+        },
+      ]}
+    >
+      {/* Center text block */}
+      <View style={styles.bannerCenter}>
+        <ThemeText
+          styles={[
+            styles.sectionHeader,
+            { marginTop: 0, marginBottom: 0, color: COLORS.darkModeText },
+          ]}
+          content={t('wallet.halfModal.payMe')}
+        />
+        <ThemeText
+          CustomNumberOfLines={1}
+          adjustsFontSizeToFit={true}
+          allowFontScaling={true}
+          styles={[styles.bannerAddress, { color: COLORS.darkModeText }]}
+          content={lnurlAddress}
+        />
+        <ThemeText
+          styles={[styles.bannerSubtitle, { color: COLORS.darkModeText }]}
+          content={'@blitzwalletapp.com'}
+        />
+      </View>
+      <View style={styles.bannerActions}>
+        <TouchableOpacity
+          onPress={handleCopy}
+          style={[
+            styles.bannerIconButton,
+            { backgroundColor: COLORS.darkModeText },
+          ]}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <ThemeIcon
+            size={20}
+            iconName={'Copy'}
+            colorOverride={
+              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            }
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={onQRPress}
+          style={[
+            styles.bannerIconButton,
+            { backgroundColor: COLORS.darkModeText },
+          ]}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <ThemeIcon
+            size={20}
+            iconName={'QrCode'}
+            colorOverride={
+              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            }
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+// ─── LNURL QR Overlay ────────────────────────────────────────────────────────
+
+const LNURLQROverlay = ({
+  visible,
+  onClose,
+  lnurlAddress,
+
+  t,
+}) => {
+  const { bottomPadding } = useGlobalInsets();
+  const overlayOpacity = useSharedValue(0);
+  const overlayTranslateX = useSharedValue(30);
+
+  useEffect(() => {
+    overlayOpacity.value = withTiming(visible ? 1 : 0, { duration: 250 });
+    overlayTranslateX.value = withTiming(visible ? 0 : 30, { duration: 250 });
+  }, [visible]);
+
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value,
+    transform: [{ translateX: overlayTranslateX.value }],
+  }));
+
+  const handleBackPress = useCallback(() => {
+    if (!visible) return false;
+    onClose();
+    return true;
+  }, [visible, onClose]);
+
+  useHandleBackPressNew(handleBackPress);
+
+  if (!visible) return null;
+
+  return (
+    <Animated.View style={[styles.overlayContainer, overlayStyle]}>
+      <View style={styles.qrOverlayContent}>
+        {/* QR Card */}
+        <QrCodeWrapper
+          outerContainerStyle={{ backgroundColor: COLORS.darkModeText }}
+          QRData={`${lnurlAddress}`}
+        />
+
+        {/* Back button */}
+        <CustomButton
+          buttonStyles={{
+            ...CENTER,
+            marginBottom: bottomPadding,
+          }}
+          actionFunction={onClose}
+          textContent={t('constants.back')}
+        />
+      </View>
+    </Animated.View>
+  );
+};
+
+// ─── Contact Row ─────────────────────────────────────────────────────────────
 
 const ContactRow = ({
   expandedContact,
@@ -208,149 +348,6 @@ const ContactRow = ({
   );
 };
 
-const AmountInputOverlay = ({
-  visible,
-  onClose,
-  onSubmit,
-  theme,
-  darkModeType,
-  backgroundColor,
-  t,
-}) => {
-  const navigate = useNavigation();
-  const { bottomPadding } = useGlobalInsets();
-  const { masterInfoObject } = useGlobalContextProvider();
-  const { fiatStats } = useNodeContext();
-  const { swapLimits, swapUSDPriceDollars } = useFlashnet();
-  const [amountValue, setAmountValue] = useState('');
-  const [inputDenomination, setInputDenomination] = useState('fiat');
-
-  const overlayOpacity = useSharedValue(0);
-
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: 'USD',
-    inputDenomination,
-    fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
-    masterInfoObject,
-  });
-
-  const localSatAmount = convertDisplayToSats(amountValue);
-
-  const cannotRequest =
-    localSatAmount < swapLimits.bitcoin && localSatAmount > 0;
-
-  useEffect(() => {
-    overlayOpacity.value = withTiming(visible ? 1 : 0, { duration: 250 });
-  }, [visible]);
-
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
-  }));
-
-  // Handle Android back button
-  const handleBackPress = useCallback(() => {
-    if (!visible) return false;
-    onClose();
-    return true;
-  }, [visible, onClose]);
-
-  useHandleBackPressNew(handleBackPress);
-
-  const handleDenominationToggle = () => {
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
-
-  const handleContinue = () => {
-    if (!localSatAmount) {
-      onClose();
-      return;
-    }
-
-    if (cannotRequest) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
-          amount: displayCorrectDenomination({
-            amount: swapLimits.bitcoin,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination:
-                primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
-            },
-            forceCurrency: primaryDisplay.forceCurrency,
-            fiatStats: conversionFiatStats,
-          }),
-        }),
-      });
-      return;
-    }
-
-    onSubmit(localSatAmount);
-  };
-
-  if (!visible) return null;
-
-  return (
-    <Animated.View style={[styles.overlayContainer, overlayStyle]}>
-      <View style={styles.overlayContent}>
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={handleDenominationToggle}
-          style={styles.balanceContainer}
-        >
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue}
-            inputDenomination={primaryDisplay.denomination}
-            forceCurrency={primaryDisplay.forceCurrency}
-            forceFiatStats={primaryDisplay.forceFiatStats}
-          />
-
-          <FormattedSatText
-            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-            neverHideBalance={true}
-            styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={secondaryDisplay.denomination}
-            forceCurrency={secondaryDisplay.forceCurrency}
-            forceFiatStats={secondaryDisplay.forceFiatStats}
-            balance={localSatAmount}
-          />
-        </TouchableOpacity>
-
-        <View style={styles.keyboardContainer}>
-          <CustomNumberKeyboard
-            showDot={primaryDisplay.denomination === 'fiat'}
-            setInputValue={setAmountValue}
-            usingForBalance={true}
-            fiatStats={conversionFiatStats}
-          />
-
-          <CustomButton
-            buttonStyles={{
-              ...CENTER,
-              opacity: cannotRequest ? HIDDEN_OPACITY : 1,
-              marginBottom: bottomPadding,
-            }}
-            actionFunction={handleContinue}
-            textContent={
-              !localSatAmount ? t('constants.back') : t('constants.continue')
-            }
-          />
-        </View>
-      </View>
-    </Animated.View>
-  );
-};
-
 export default function HalfModalReceiveOptions({
   setIsKeyboardActive,
   theme,
@@ -358,12 +355,13 @@ export default function HalfModalReceiveOptions({
   scrollPosition,
   handleBackPressFunction,
   isScreenActive,
+  setContentHeight,
 }) {
-  const [expandedOtherOptions, setExpandedOtherOptions] = useState(false);
   const [expandedContact, setExpandedContact] = useState(null);
-  const [showAmountInput, setShowAmountInput] = useState(false);
   const [showAddContact, setShowAddContact] = useState(false);
   const [showPoolCreation, setShowPoolCreation] = useState(false);
+  const [showLNURLQR, setShowLNURLQR] = useState(false);
+  const [showPayLinkCreation, setShowPayLinkCreation] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({});
@@ -373,12 +371,16 @@ export default function HalfModalReceiveOptions({
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
-  const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
+  const { screenDimensions } = useAppStatus();
+  const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
+    useGlobalContacts();
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
     GetThemeColors();
 
   const iconColor = theme && darkModeType ? textColor : COLORS.primary;
+
+  const lnurlAddress = `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`;
 
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
@@ -388,17 +390,19 @@ export default function HalfModalReceiveOptions({
     contactsMessags,
   );
 
+  // Any overlay being shown slides/fades the main list out
+  const anyOverlayVisible =
+    showAddContact || showPoolCreation || showLNURLQR || showPayLinkCreation;
+
   useEffect(() => {
-    if (showAmountInput || showAddContact || showPoolCreation) {
-      // Content slides left and fades out
+    if (anyOverlayVisible) {
       contentOpacity.value = withTiming(0, { duration: 250 });
       contentTranslateX.value = withTiming(-30, { duration: 250 });
     } else {
-      // Content slides back right and fades in
       contentOpacity.value = withTiming(1, { duration: 250 });
       contentTranslateX.value = withTiming(0, { duration: 250 });
     }
-  }, [showAmountInput, showAddContact, showPoolCreation]);
+  }, [anyOverlayVisible]);
 
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
@@ -412,34 +416,6 @@ export default function HalfModalReceiveOptions({
     return () => clearTimeout(timer);
   }, []);
 
-  const handleReceiveOption = useCallback(
-    async type => {
-      if (type === 'lightning') {
-        navigate.replace('ReceiveBTC', {
-          from: 'homepage',
-          initialReceiveType: 'BTC',
-          selectedRecieveOption: 'lightning',
-        });
-      } else {
-        // Show amount input overlay instead of navigating
-        setShowAmountInput(true);
-      }
-    },
-    [navigate],
-  );
-
-  const handleAmountSubmit = useCallback(
-    satAmount => {
-      setShowAmountInput(false);
-      navigate.replace('ReceiveBTC', {
-        receiveAmount: satAmount,
-        endReceiveType: 'USD',
-        uuid: customUUID(),
-      });
-    },
-    [navigate],
-  );
-
   const handleContactAdded = useCallback(
     newContact => {
       handleBackPressFunction(() => {
@@ -450,10 +426,6 @@ export default function HalfModalReceiveOptions({
     },
     [navigate],
   );
-
-  const handleToggleOtherOptions = useCallback(() => {
-    setExpandedOtherOptions(prev => !prev);
-  }, []);
 
   const handleToggleExpand = useCallback(contactUuid => {
     setExpandedContact(prev => {
@@ -520,32 +492,22 @@ export default function HalfModalReceiveOptions({
     }
 
     const adjustedRowY = rowY - collapseShift;
-    const rowTopEdge = adjustedRowY;
     const expandedBottomEdge =
       adjustedRowY + collapsedRowHeight + expandedPanelHeight;
-
     const visibleTop = scrollOffsetRef.current;
     const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
 
-    const bottomBuffer = 16;
-    const topBuffer = 35;
-
     if (expandedBottomEdge > visibleBottom) {
-      const targetOffset =
-        expandedBottomEdge - scrollViewHeightRef.current + bottomBuffer;
-
       setTimeout(() => {
         scrollViewRef.current?.scrollTo({
-          y: targetOffset,
+          y: expandedBottomEdge - scrollViewHeightRef.current + 16,
           animated: true,
         });
       }, 220);
-    } else if (rowTopEdge < visibleTop + 50) {
-      const targetOffset = Math.max(0, rowTopEdge - topBuffer);
-
+    } else if (adjustedRowY < visibleTop + 50) {
       setTimeout(() => {
         scrollViewRef.current?.scrollTo({
-          y: targetOffset,
+          y: Math.max(0, adjustedRowY - 35),
           animated: true,
         });
       }, 220);
@@ -599,7 +561,7 @@ export default function HalfModalReceiveOptions({
             ...styles.innerContainer,
             paddingBottom: bottomPadding,
           }}
-          stickyHeaderIndices={[0, 6]}
+          stickyHeaderIndices={[4]}
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}
@@ -608,115 +570,59 @@ export default function HalfModalReceiveOptions({
             scrollViewHeightRef.current = e.nativeEvent.layout.height;
           }}
         >
+          {/* ── LNURL Banner ── */}
           <View
-            style={[
-              styles.stickyHeaderContainer,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-              },
-            ]}
+            style={{
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : backgroundColor,
+            }}
           >
-            <ThemeText
-              styles={[styles.sectionHeader, { marginTop: 0 }]}
-              content={t('wallet.halfModal.qrReceiveOptions')}
+            <LNURLBanner
+              lnurlAddress={globalContactsInformation?.myProfile?.uniqueName}
+              theme={theme}
+              darkModeType={darkModeType}
+              backgroundColor={backgroundColor}
+              backgroundOffset={backgroundOffset}
+              textColor={textColor}
+              onQRPress={() => {
+                setContentHeight(500);
+                setShowLNURLQR(true);
+              }}
             />
           </View>
 
-          {/* Lightning */}
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => handleReceiveOption('lightning')}
+            onPress={() => setShowPayLinkCreation(true)}
           >
             <View
               style={[
                 styles.scanIconContainer,
                 {
                   backgroundColor:
-                    theme && darkModeType
-                      ? backgroundColor
-                      : COLORS.bitcoinOrange,
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
                 },
               ]}
             >
-              <Image
-                style={{
-                  width: 25,
-                  height: 25,
-                  tintColor:
-                    theme && darkModeType ? iconColor : COLORS.darkModeText,
-                }}
-                contentFit="contain"
-                source={ICONS.bitcoinIcon}
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                }
+                size={24}
+                iconName={'QrCode'}
               />
             </View>
             <View style={styles.scanTextContainer}>
               <ThemeText
                 styles={styles.scanButtonText}
-                content={t('constants.bitcoin_upper')}
+                content={t('wallet.halfModal.createInvoice')}
               />
               <ThemeText
                 styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.tapToGenerate_lightning_btc')}
+                content={t('wallet.halfModal.invoiceDescription')}
               />
             </View>
           </TouchableOpacity>
-
-          {/* Dollars */}
-          <TouchableOpacity
-            style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => handleReceiveOption('dollars')}
-          >
-            <View
-              style={[
-                styles.scanIconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? backgroundColor
-                      : COLORS.dollarGreen,
-                },
-              ]}
-            >
-              <Image
-                style={{
-                  width: 25,
-                  height: 25,
-                  tintColor:
-                    theme && darkModeType ? iconColor : COLORS.darkModeText,
-                }}
-                contentFit="contain"
-                source={ICONS.dollarIcon}
-              />
-            </View>
-            <View style={styles.scanTextContainer}>
-              <ThemeText
-                styles={styles.scanButtonText}
-                content={t('constants.dollars_upper')}
-              />
-              <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.tapToGenerate_lightning_usd')}
-              />
-            </View>
-          </TouchableOpacity>
-
-          {/* Pool */}
-          <View
-            style={[
-              styles.stickyHeaderContainer,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-                marginTop: 20,
-              },
-            ]}
-          >
-            <ThemeText
-              styles={[styles.sectionHeader, { marginTop: 0 }]}
-              content={t('wallet.pools.receiveViaPool')}
-            />
-          </View>
 
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
@@ -740,7 +646,7 @@ export default function HalfModalReceiveOptions({
               />
               <ThemeText
                 styles={styles.scanButtonSubtext}
-                content={t('wallet.pools.collectPaymentsDescription')}
+                content={t('wallet.halfModal.poolsDescription')}
               />
             </View>
           </TouchableOpacity>
@@ -800,14 +706,22 @@ export default function HalfModalReceiveOptions({
         </ScrollView>
       </Animated.View>
 
-      <AmountInputOverlay
-        visible={showAmountInput}
-        onClose={() => setShowAmountInput(false)}
-        onSubmit={handleAmountSubmit}
+      {/* ── Overlays ── */}
+
+      <LNURLQROverlay
+        visible={showLNURLQR}
+        onClose={() => {
+          setContentHeight(Math.round(screenDimensions.height * 0.8));
+          setShowLNURLQR(false);
+        }}
+        lnurlAddress={lnurlAddress}
         theme={theme}
         darkModeType={darkModeType}
         backgroundColor={backgroundColor}
+        backgroundOffset={backgroundOffset}
+        textColor={textColor}
         t={t}
+        setContentHeight={setContentHeight}
       />
 
       <AddContactOverlay
@@ -823,6 +737,15 @@ export default function HalfModalReceiveOptions({
         theme={theme}
         darkModeType={darkModeType}
         handleBackPressFunction={handleBackPressFunction}
+      />
+
+      <PayLinkCreationOverlay
+        visible={showPayLinkCreation}
+        onClose={() => setShowPayLinkCreation(false)}
+        theme={theme}
+        darkModeType={darkModeType}
+        handleBackPressFunction={handleBackPressFunction}
+        setContentHeight={setContentHeight}
       />
     </View>
   );
@@ -843,6 +766,47 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
 
+  bannerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 16,
+    padding: 16,
+    ...CENTER,
+    marginBottom: 20,
+  },
+  bannerCenter: {
+    flex: 1,
+  },
+  bannerAddress: {
+    fontSize: SIZES.large,
+    includeFontPadding: false,
+    width: '90%',
+  },
+  bannerSubtitle: {
+    fontSize: SIZES.small,
+    includeFontPadding: false,
+    opacity: 0.6,
+  },
+  bannerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  bannerIconButton: {
+    width: 45,
+    height: 45,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ── QR Overlay ──
+  qrOverlayContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+
   stickyHeaderContainer: {
     width: '100%',
     paddingBottom: 4,
@@ -856,6 +820,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: '100%',
     letterSpacing: 0.5,
+    includeFontPadding: false,
   },
 
   scanButton: {
@@ -965,10 +930,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     includeFontPadding: false,
   },
-
-  emptyStateText: {
-    textAlign: 'center',
-  },
   emptyContactsContainer: {
     flex: 1,
     width: INSET_WINDOW_WIDTH,
@@ -1001,16 +962,4 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-
-  balanceContainer: {
-    flex: 1,
-    marginTop: 20,
-  },
-
-  satValue: {
-    textAlign: 'center',
-    includeFontPadding: false,
-  },
-
-  keyboardContainer: {},
 });

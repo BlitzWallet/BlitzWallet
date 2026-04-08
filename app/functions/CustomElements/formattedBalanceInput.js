@@ -104,8 +104,8 @@ export default function FormattedBalanceInput({
         </View>
         <View
           onLayout={e => {
-            console.log(e.nativeEvent.layout, 'layout change');
-            setLabelWidth(Math.round(e.nativeEvent.layout.width));
+            const w = Math.round(e.nativeEvent.layout.width);
+            setLabelWidth(prev => (w === prev ? prev : w));
           }}
         >
           <ThemeText
@@ -121,11 +121,10 @@ export default function FormattedBalanceInput({
         <Text
           style={styles.hiddenText}
           onLayout={e => {
-            console.log(e.nativeEvent.layout.width, 'INPUT WIDTH');
-            const measuredWidth =
+            const w =
               Math.round(e.nativeEvent.layout.width) +
               (Platform.OS === 'android' ? 10 : 5);
-            setInputWidth(measuredWidth);
+            setInputWidth(prev => (w === prev ? prev : w));
           }}
         >
           {formatBalanceAmount(amountValue, false, masterInfoObject)}
@@ -190,13 +189,12 @@ export default function FormattedBalanceInput({
       <Text
         style={styles.hiddenText}
         onLayout={e => {
-          console.log(e.nativeEvent.layout.width, 'INPUT WIDTH');
           const newWidth = Math.min(
             Math.round(e.nativeEvent.layout.width) +
               (Platform.OS === 'android' ? 10 : 5),
             screenDimensions.width * maxWidth,
           );
-          setInputWidth(newWidth);
+          setInputWidth(prev => (newWidth === prev ? prev : newWidth));
         }}
       >
         {formatBalanceAmount(amountValue, false, masterInfoObject)}

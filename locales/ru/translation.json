@@ -82,6 +82,8 @@
     "accounts": "Счета",
     "to": "Куда",
     "from": "Откуда",
+    "asset": "Актив",
+    "chain": "Сеть",
     "description": "Описание",
     "regenerate": "Сгенерировать снова",
     "restore": "Восстановить",
@@ -104,7 +106,7 @@
     "selectOption": "Выберите вариант",
     "slideToConfirm": "Сдвиньте для подтверждения",
     "token": "Токен",
-    "veriable": "Переменная",
+    "variable": "Переменная",
     "instant": "Мгновенно",
     "andLower": "и",
     "onLower": "вкл",
@@ -308,7 +310,7 @@
         "payingInvoiceLoadingMessage": "Оплата инвойса",
         "backupPaymentError": "Ошибка оплаты инвойса.",
         "createInvoiceError": "Ошибка создания инвойса.",
-        "payingInvoiveError": "Ошибка оплаты инвойса.",
+        "payingInvoiceError": "Ошибка оплаты инвойса.",
         "runningTries": "Попытка {{runCount}} из {{maxTries}}",
         "configError": "Не удалось получить конфиг VPN. Обратитесь в LNVPN.",
         "paymentMemo": "Магазин - VPN"
@@ -809,7 +811,7 @@
         "autoSelectInfoMessage": "Выберите страну номера. Для надежности рекомендуем 'Автовыбор'.",
         "autoSelect": "Автовыбор",
         "inputPlaceholder": "Поиск сервиса",
-        "loacationLoadingMessage": "Поиск сервисов по локации",
+        "locationLoadingMessage": "Поиск сервисов по локации",
         "noAvailableServices": "Нет сервисов в этой локации",
         "orderDetailsLoading": "Получение деталей заказа"
       },
@@ -880,7 +882,36 @@
       "tapToGenerate_lightning_btc": "Мгновенно получить BTC",
       "tapToGenerate_lightning_usd": "Мгновенно получить USD",
       "noAddedContactsTitle": "Нет добавленных контактов",
-      "noAddedContactsDesc": "Ваши контакты появятся здесь, как только вы добавите один."
+      "noAddedContactsDesc": "Ваши контакты появятся здесь, как только вы добавите один.",
+      "payMe": "Быстрая оплата",
+      "createInvoice": "Создать счёт",
+      "invoiceDescription": "Запросите оплату с помощью ссылки или QR-кода.",
+      "poolsDescription": "Собирайте взносы от группы для общей цели."
+    },
+    "payLinks": {
+      "skip": "Пропустить",
+      "next": "Далее",
+      "share": "Поделиться",
+      "createPayLink": "Создать платёжную ссылку",
+      "showQR": "Показать QR-код",
+      "creating": "Создание...",
+      "descriptionPlaceholder": "Для чего это? (необязательно)",
+      "descriptionTitle": "Добавить описание",
+      "preparingPayment": "Подготовка платежа...",
+      "alreadyPaid": "Эта платёжная ссылка уже оплачена.",
+      "notFound": "Платёжная ссылка не найдена.",
+      "invoiceError": "Не удалось создать счёт.",
+      "requestHeader": "Что вы хотите получить?",
+      "genQRCode": "Сгенерировать QR-код",
+      "howItWorks": {
+        "step1Label": "Поделитесь ссылкой",
+        "step1Desc": "Отправьте её через сообщение, электронную почту или любое приложение. Любой, у кого есть ссылка, может заплатить вам.",
+        "step2Label": "Открывают в браузере",
+        "step2Desc": "Приложение не требуется. Ссылка открывает страницу оплаты, где можно оплатить через Lightning, USDC или USDT.",
+        "step3Label": "Средства поступают мгновенно",
+        "step3Desc": "После завершения оплаты деньги сразу поступают в ваш кошелёк."
+      },
+      "copyLink": "Скопировать ссылку"
     },
     "pools": {
       "receiveViaPool": "Получить через пул",
@@ -958,7 +989,7 @@
       "settingsText": "Перейдите в настройки, чтобы разрешить доступ",
       "noCameraDevice": "Камера не обнаружена.",
       "noFlash": "Нет вспышки",
-      "sanningResponse": "Принимаются только QR-коды.",
+      "scanningResponse": "Принимаются только QR-коды.",
       "qrDecodeError": "Ошибка декодирования QR"
     },
     "confirmClipboard": {
@@ -1030,7 +1061,7 @@
         "header": "Выберите источник средств."
       },
       "handlingAddressErrors": {
-        "invlidFormat": "Неверный формат: адрес должен быть текстом.",
+        "invalidFormat": "Неверный формат: адрес должен быть текстом.",
         "parseError": "Не удалось распознать тип платежа. Пожалуйста, введите корректный адрес Spark, имя пользователя Blitz, адрес Bitcoin или адрес/инвойс Lightning.",
         "paymentProcessingError": "Ошибка обработки платежа",
         "tooLowSendingAmount": "Сумма слишком велика (с учетом комиссии). Макс: {{amount}}",
@@ -1050,7 +1081,8 @@
         "lnurlWithdrawlSuccess": "Вывод успешен! Платеж отправлен.",
         "invoiceDetails": "Загрузка деталей",
         "timeoutError": "Процесс занял слишком много времени. Попробуйте снова.",
-        "payingToSameAddress": "Нельзя отправить {{addressType}} самому себе"
+        "payingToSameAddress": "Нельзя отправить {{addressType}} самому себе",
+        "blitzUserNotFound": "Пользователь Blitz не найден"
       },
       "errorScreen": {
         "ok": "ОК",
@@ -1131,6 +1163,34 @@
       "paymentsCounter": "{{number}} платежей",
       "paymentsCounterTracker": "{{number}} из {{total}}",
       "loadingMessage": "Загрузка транзакций"
+    },
+    "stablecoinSend": {
+      "sendStablecoins": "Отправить стейблкоины",
+      "selectChain": "Выбрать сеть",
+      "network": "Сеть",
+      "selectAsset": "Выбрать актив",
+      "recipient": "Получатель",
+      "gettingQuote": "Получение котировки…",
+      "quoteExpired": "Срок котировки истёк. Попробуйте снова.",
+      "quoteError": "Не удалось получить котировку. Попробуйте снова.",
+      "recipientGets": "Получатель получает",
+      "youSend": "Вы отправляете",
+      "quoteExpiresIn": "Котировка истекает через",
+      "payWithLightning": "Оплатить через Lightning",
+      "payWithUSDb": "Оплатить через USDb",
+      "chainNotSupportedForAsset": "Недоступно в этой сети",
+      "swapInProgress": "Обмен выполняется",
+      "swapInProgressDescription": "Ваши средства отправлены. Обмен стейблкоина обрабатывается и может занять несколько минут.",
+      "noAmount": "Пожалуйста, введите сумму для отправки.",
+      "quoteStillLoading": "Получение котировки, подождите немного.",
+      "noQuote": "Не удалось получить котировку. Попробуйте снова.",
+      "swapStatus": "Статус обмена",
+      "chainSwap": "Обмен в сети",
+      "assetPicker": {
+        "header": "Выберите валюту для отправки.",
+        "notAvailable": "Недоступно в сети {{chain}}"
+      },
+      "networkLabel": "{{currency}} b {{chain}}"
     }
   },
   "contacts": {
@@ -1144,7 +1204,13 @@
       "editContactButton": "Профиль",
       "unknownSender": "Неизвестный отправитель",
       "noContactSearch": "Этого контакта еще нет в вашем списке.",
-      "notFound": "не найден."
+      "notFound": "не найден.",
+      "noContent": {
+        "editProfileTitle": "Редактировать профиль",
+        "editProfileDescription": "Добавьте свои данные, чтобы другие могли легко вас найти и оплатить.",
+        "addContactstitle": "Контакты не добавлены",
+        "addContactsDescription": "Ваши контакты появятся здесь после добавления."
+      }
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Контакт не найден.",
@@ -1180,7 +1246,7 @@
       "usernameAlreadyExistsError": "Имя занято, выберите другое.",
       "unableToSaveError": "Не удалось сохранить фото.",
       "deleteProfileImageError": "Не удалось удалить фото.",
-      "deleateWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить."
+      "deleteWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить."
     },
     "selectCurrencyToSend": {
       "header": "Что вы хотите отправить?"
@@ -1245,8 +1311,8 @@
         "cardNamePlaceH": "Подарочная карта",
         "noCardsText": "Здесь появятся полученные карты.",
         "header": "Ваши карты",
-        "cardsLenghSingular": "{{num}} карта",
-        "cardsLenghPlurl": "{{num}} карт"
+        "cardsLengthSingular": "{{num}} карта",
+        "cardsLengthPlural": "{{num}} карт"
       },
       "editGiftCard": {
         "header": "Что сделать с подарком?"
@@ -1329,7 +1395,14 @@
       "showTechnicals": "Показать тех. детали",
       "hideTechnicals": "Скрыть тех. детали",
       "backendHash": "Хэш бэкенда",
-      "expectedHash": "Ожидаемый хэш"
+      "expectedHash": "Ожидаемый хэш",
+      "exchangeRatesHeader": "Обменные курсы",
+      "exchangeRatesDescription": "Курсы обмена Bitcoin/фиат получаются из сторонних API. Курсы могут быть неточными, всегда проверяйте сумму в Bitcoin перед отправкой платежа.",
+      "exchangeRatesSourcesLabel": "Источники данных",
+      "exchangeRateCoinbase": "Coinbase",
+      "exchangeRateFlashnet": "Flashnet",
+      "exchangeRateKraken": "Kraken",
+      "exchangeRateBitfinex": "Bitfinex"
     },
     "language": {
       "inputPlaceHolder": ""
@@ -1398,12 +1471,12 @@
       "text5": "Нет биометрического профиля. Создайте его в настройках устройства.",
       "text6": "Ошибка входа по биометрии",
       "text7": "Устройство не поддерживает биометрию",
-      "unsuccesfullLoginSwitch": "Не удалось сменить тип входа",
+      "unsuccessfulLoginSwitch": "Не удалось сменить тип входа",
       "toggleSecurityModeError": "Ошибка переключения безопасности. Попробуйте снова.",
       "noBiometricsError": "Устройство не поддерживает биометрию",
       "noBiometricProfileError": "Нет биометрического профиля.",
       "biometricSignInError": "Ошибка входа по биометрии",
-      "migratingStorageMessgae": "Миграция хранилища...",
+      "migratingStorageMessage": "Миграция хранилища...",
       "createPinPageHeader": "{{type}} ваш PIN Blitz",
       "invalidPinconfirmation": "PIN-коды не совпадают!",
       "randomPinKeyboardToggle": "Перемешать клавиатуру",
@@ -1540,6 +1613,7 @@
       "noLimit": "Без лимита",
       "transactionType": "Тип транзакции",
       "swapsType": "Свопы BTC <> USD",
+      "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% пул + {{blitzFee}}% Blitz",
       "othersType": "Остальное",
       "othersFee": "Сетевые комиссии"
@@ -1562,7 +1636,7 @@
         "invalidPubKey": "Неверный pubkey",
         "invalidNpub": "Неверный формат npub",
         "decodeNpubError": "Ошибка декодирования npub",
-        "invlaidFormat": "Неверный формат pubkey (64 hex или npub)"
+        "invalidFormat": "Неверный формат pubkey (64 hex или npub)"
       }
     },
     "nwc": {
@@ -1590,14 +1664,14 @@
         "connectionName": ""
       },
       "hasNoAccounts": {
-        "wanringMessage": "Для отправки через NWC нужно пополнить этот счет (переводом с основного кошелька или получением средств)."
+        "warningMessage": "Для отправки через NWC нужно пополнить этот счет (переводом с основного кошелька или получением средств)."
       },
       "noNotifications": {
-        "wanringMessage": "Для работы NWC нужно включить пуш-уведомления в настройках."
+        "warningMessage": "Для работы NWC нужно включить пуш-уведомления в настройках."
       },
       "showSeedPage": {
         "loadingMessage": "Создание фразы восстановления",
-        "wanringMessage": "Для обеспечения безопасности вашего кошелька Nostr Wallet Connect создаёт отдельную фразу восстановления, отличную от фразы восстановления вашего основного кошелька.\n\nВы можете просмотреть эту фразу восстановления в настройках Blitz в разделе «Аккаунты».",
+        "warningMessage": "Для обеспечения безопасности вашего кошелька Nostr Wallet Connect создаёт отдельную фразу восстановления, отличную от фразы восстановления вашего основного кошелька.\n\nВы можете просмотреть эту фразу восстановления в настройках Blitz в разделе «Аккаунты».",
         "viewSeed": "Просмотреть фразу восстановления"
       },
       "combinedOnboarding": {
@@ -1851,14 +1925,16 @@
         "converstionRate": "{{satAmount}} за {{dollarAmount}}",
         "gift": "Подарок",
         "claimPayment": "Получить платёж",
-        "splitPayment": "Разделить"
+        "splitPayment": "Разделить",
+        "chainSwap": "Обмен в сети"
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
         "title": "Загрузки Blitz",
         "goalUserCount": "из {{goalUserCount}} пользователей.",
         "percentOfGoal": "{{goalPercent}}% от цели",
-        "numAddedUsers": "+{{numNewUsers}} пользователей сегодня"
+        "numAddedUsers": "+{{numNewUsers}} пользователей сегодня",
+        "COMMENT": "Full sentence below = Number of totalUser users"
       },
       "loadingScreen": {
         "loadingMessage1": "Пожалуйста, не закрывайте приложение",
@@ -1952,7 +2028,11 @@
         "noInformationLabel": "{{item}} не показан (платеж восстановлен из истории или нулевой инвойс).",
         "privacyMessage": "Для сохранения приватности {{type}}, остальная информация скрыта.",
         "receivers": "получателя",
-        "senders": "отправителя"
+        "senders": "отправителя",
+        "quoteId": "ID котировки",
+        "destinationAddress": "Адрес назначения",
+        "destinationAsset": "Актив назначения",
+        "destinationChain": "Сеть назначения"
       },
       "viewAllTxPage": {
         "title": "Транзакции",
@@ -2058,7 +2138,7 @@
           "inputPlaceholder": "Ссылка на подарок",
           "claim": "Забрать",
           "noGiftLinkError": "Ссылка не найдена.",
-          "invliadGiftFormat": "Неверная ссылка."
+          "invalidGiftFormat": "Неверная ссылка."
         },
         "reclaimPage": {
           "header": "Вернуть подарок",
@@ -2138,7 +2218,7 @@
         "swapLiquidityError": "\n\nПопробуйте меньшую сумму.",
         "fullSwapError": "Неожиданная ошибка. Попробуйте снова.",
         "checkSwapMessage": "High price impact",
-        "__COMMENT__": "DO NOT TRANSLATE 'High price impact' key above if used for matching logic",
+        "COMMENT": "DO NOT TRANSLATE 'High price impact' key above if used for matching logic",
         "swapConfimred": "Обмен успешен",
         "youSent": "Вы отправили",
         "youReceived": "Вы получили",
@@ -2182,13 +2262,62 @@
           "details": "Детали"
         },
         "chooseCurrencyTitle": "Выберите валюту, из которой вы хотите обменять.",
-        "enterAmountTitle": "Введите сумму для обмена."
+        "enterAmountTitle": "Введите сумму для обмена.",
+        "noContentTitle": "Нет доступного баланса",
+        "noContentSubTittle": "Пополните свой кошелёк, чтобы начать обмен между долларами и Bitcoin."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Не удалось загрузить историю обменов. Пожалуйста, попробуйте позже.",
-        "noHisotorytitle": "Нет истории обменов",
-        "noHisotorydesc": "Ваши операции обмена появятся здесь.",
+        "noHistoryTitle": "Нет истории обменов",
+        "noHistoryDesc": "Ваши операции обмена появятся здесь.",
         "pageTitle": "История"
+      }
+    },
+    "accumulationAddresses": {
+      "title": "Адреса накопления",
+      "subtitle": "Автоматическая конвертация стейблкоинов в BTC или доллары",
+      "navTitle": "Адреса",
+      "sectionTitle": "Активные адреса",
+      "empty": {
+        "title": "Нет адресов накопления",
+        "subtitle": "Создайте адрес, чтобы автоматически конвертировать депозиты в Bitcoin или доллары"
+      },
+      "createButton": "Создать адрес",
+      "info": {
+        "title": "Что это?",
+        "whatAre": "Что это?",
+        "whatAreBody": "Постоянные адреса, которые автоматически конвертируют входящие USDC или USDT в Bitcoin или доллары и отправляют средства в ваш кошелёк.",
+        "howItWorks": "Как это работает",
+        "step1": "1. Поделитесь своим адресом депозита с отправителем или биржей.",
+        "step2": "2. Средства поступают в сеть и автоматически обмениваются.",
+        "step3": "3. Конвертированная сумма поступает в ваш кошелёк."
+      },
+      "detail": {
+        "copyAddress": "Скопировать адрес",
+        "printQR": "Печать QR",
+        "deleteButton": "Удалить адрес",
+        "deleteConfirmTitle": "Удалить адрес?",
+        "deleteConfirmBody": "Удаление этого адреса остановит перенаправление будущих платежей и может привести к потере средств. Убедитесь, что все знают, что он больше не активен, прежде чем удалять его.",
+        "source": "Источник",
+        "Destination": "Назначение",
+        "chain": "Сеть"
+      },
+      "create": {
+        "pickAsset": "Выберите валюту платежа",
+        "pickChain": "Выберите сеть",
+        "pickDestination": "Выберите назначение",
+        "confirm": "Подтвердить адрес",
+        "alreadyExists": "У вас уже есть адрес для этой комбинации"
+      },
+      "summary": {
+        "chain": "Сеть",
+        "paymentCurrency": "Валюта платежа",
+        "destination": "Назначение",
+        "create": "Создать адрес"
+      },
+      "errors": {
+        "createFailed": "Не удалось создать адрес. Попробуйте снова.",
+        "deleteFailed": "Не удалось удалить адрес. Попробуйте снова."
       }
     }
   },
@@ -2243,7 +2372,7 @@
     "rootstockInvoiceError": "Ошибка генерации адреса Rootstock.",
     "liquidInvoiceError": "Ошибка генерации адреса Liquid.",
     "bitcoinInvoiceError": "Ошибка генерации адреса Биткоин.",
-    "sparkInvioceError": "Ошибка генерации адреса Spark.",
+    "sparkInvoiceError": "Ошибка генерации адреса Spark.",
     "lightningInvoiceError": "Ошибка генерации инвойса Молнии.",
     "sparkConnectionError": "Ошибка подключения к Spark.",
     "giftCardExpiration": "Подарки можно восстановить только в течение 7 дней после отправки. Сохраните ссылки или коды.",
@@ -2253,7 +2382,8 @@
     "paymentError": "Ошибка обработки платежа. Перезапустите приложение и попробуйте снова.",
     "paymentFeeError": "Не удалось получить комиссию. Перезапустите приложение.",
     "priceImpact": "Этот платёж является крупным, поэтому окончательная сумма, которую вы получите в долларах, может измениться.",
-    "removingImageError": "Не удалось удалить изображение. Пожалуйста, попробуйте снова."
+    "removingImageError": "Не удалось удалить изображение. Пожалуйста, попробуйте снова.",
+    "usdcUsdtTokensOnly": "Поддерживаются только токены USDT и USDC"
   },
   "loadingScreen": {
     "message1": "Пожалуйста, не закрывайте приложение",
@@ -2335,6 +2465,26 @@
     "FSAG-5003": "Внутренняя ошибка. Свяжитесь с поддержкой.",
     "FSAG-5004": "Ошибка конфигурации системы.",
     "FSAG-5100": "Неожиданная ошибка сервера."
+  },
+  "flashnetUSDCUSDTMessages": {
+    "idempotency_conflict": "Этот ключ идемпотентности уже был использован с другим запросом. Используйте новый ключ.",
+    "unsupported_route": "Этот маршрут не поддерживается.",
+    "unsupported_fee_plan": "Параметры, связанные с комиссиями, не поддерживаются для этого маршрута или режима котировки.",
+    "invalid_request": "Неверный запрос. Проверьте данные и попробуйте снова.",
+    "invalid_query": "Один или несколько параметров запроса некорректны.",
+    "invalid_address": "Адрес получателя или возврата недействителен.",
+    "invalid_state": "Этот запрос был выполнен в неправильном порядке. Следуйте правильной последовательности шагов.",
+    "conflict": "Ресурс изменился во время обработки запроса. Попробуйте снова.",
+    "quote_expired": "Это предложение истекло. Запросите новое.",
+    "not_found": "Запрашиваемый ресурс не найден.",
+    "amount_too_small_chain_fees": "Сумма слишком мала, чтобы покрыть комиссии сети назначения",
+    "amount_too_small_minimum": "Сумма слишком мала. Минимум — {{minimumSats}} сат.",
+    "amount_too_small": "Сумма ниже минимально допустимой для этого маршрута.",
+    "amount_too_large": "Сумма слишком велика для этого маршрута.",
+    "rate_limited": "Слишком много запросов. Пожалуйста, подождите и попробуйте позже.",
+    "flashnet_error": "Операция не удалась во время симуляции или выполнения. Попробуйте снова.",
+    "price_impact_too_high": "Влияние на цену слишком велико. Измените сумму и попробуйте снова.",
+    "internal_error": "Произошла непредвиденная ошибка. Попробуйте позже."
   },
   "savings": {
     "home": {
@@ -2494,7 +2644,7 @@
         "accrualValue": "Ежедневно"
       },
       "context": {
-        "goalNameReqiured": "Название цели обязательно",
+        "goalNameRequired": "Название цели обязательно",
         "goalNotFound": "Цель не найдена"
       },
       "transparencyTitle": "Обеспечено реальными резервами",
@@ -2508,7 +2658,7 @@
     "swapSimulationError": "Симуляция обмена недоступна",
     "savingsWalletError": "Сберегательный кошелёк не готов",
     "rewardsPayout": "Выплата вознаграждений в биткоинах",
-    "rewardsWithdrawl": "Вывод вознаграждений в биткоинах",
+    "rewardsWithdrawal": "Вывод вознаграждений в биткоинах",
     "total_balance": "Общий баланс"
   }
 }

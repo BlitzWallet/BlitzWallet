@@ -804,3 +804,17 @@ export async function getPoolContributionsSince(poolId, afterTimestampObj) {
     return [];
   }
 }
+
+
+export async function getPayLinkDoc(payLinkId) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzPaylinks', payLinkId);
+    const snapshot = await getDoc(docRef);
+    if (!snapshot.exists()) return { didWork: false, error: 'Paylink not found' };
+    return { didWork: true, data: snapshot.data() };
+  } catch (e) {
+    console.error('Error fetching paylink:', e);
+    return { didWork: false, error: e.message };
+  }
+}

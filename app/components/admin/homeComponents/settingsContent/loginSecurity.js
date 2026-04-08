@@ -92,7 +92,7 @@ export default function LoginSecurity({ extraData }) {
           'pin',
         );
         if (!success)
-          throw new Error(t('settings.loginSecurity.unsuccesfullLoginSwitch'));
+          throw new Error(t('settings.loginSecurity.unsuccessfulLoginSwitch'));
 
         await updateSecuritySettings({
           isSecurityEnabled: true,
@@ -252,7 +252,7 @@ export default function LoginSecurity({ extraData }) {
   if (isSwitching) {
     return (
       <FullLoadingScreen
-        text={t('settings.loginSecurity.migratingStorageMessgae')}
+        text={t('settings.loginSecurity.migratingStorageMessage')}
       />
     );
   }

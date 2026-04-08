@@ -7,8 +7,10 @@ export function generateRandomContact() {
     separator: '',
   }); // big_red_donkey
 
+  const cleanName = randomName.replace(/[^\p{L}\p{N}_]/gu, ''); //staralize output
+
   return {
-    uniqueName: (randomName + Math.ceil(Math.random() * 99)).slice(0, 30),
+    uniqueName: cleanName + Math.ceil(Math.random() * 99),
   };
 }
 
@@ -48,10 +50,10 @@ export async function getBolt11InvoiceForContact(
       runCount += 1;
     }
 
-    return invoice;
+    return { pr: invoice, successAction: null };
   } catch (err) {
     console.log('get ln address for liquid payment error', err);
-    return false;
+    return { pr: '', successAction: null };
   }
 }
 

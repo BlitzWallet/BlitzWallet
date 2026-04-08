@@ -127,6 +127,8 @@ const styles = StyleSheet.create({
   },
   text: {
     includeFontPadding: false,
+    width: '100%',
+    textAlign: 'center',
     paddingVertical: 8,
     paddingHorizontal: 12,
   },

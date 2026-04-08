@@ -15,7 +15,11 @@ import {
 import formatBalanceAmount from './formatNumber';
 
 import copyToClipboard from './copyToClipboard';
-import { navigateToSendUsingClipboard, getQRImage } from './sendBitcoin';
+import {
+  navigateToSendUsingClipboard,
+  getQRImage,
+  resolveExternalChainNavigation,
+} from './sendBitcoin';
 import numberConverter from './numberConverter';
 import { createAccountMnemonic } from './seed';
 import { normalizeNumber } from './normalizeNumber';
@@ -37,6 +41,7 @@ export {
   copyToClipboard,
   navigateToSendUsingClipboard,
   getQRImage,
+  resolveExternalChainNavigation,
   numberConverter,
   normalizeNumber,
 };

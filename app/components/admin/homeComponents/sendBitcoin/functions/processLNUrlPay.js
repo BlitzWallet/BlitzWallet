@@ -10,6 +10,8 @@ import {
   getLightningPaymentQuote,
   USD_ASSET_ADDRESS,
 } from '../../../../../functions/spark/flashnet';
+import { isBlitzLNURLAddress } from '../../../../../functions/lnurl';
+import normalizeLNURLAddress from '../../../../../functions/lnurl/normalizeLNURLAddress';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -36,12 +38,11 @@ export default async function processLNUrlPay(input, context) {
   const [username, domain] = input.data.address?.split('@');
   console.log(username, domain);
 
+  const nomralizedAddress = normalizeLNURLAddress(input.data.address);
   if (
     username?.toLowerCase() ===
       globalContactsInformation.myProfile.uniqueName.toLowerCase() &&
-    (domain === 'blitz-wallet.com' ||
-      domain === 'blitzwalletapp.com' ||
-      domain === 'blitzwallet.app')
+    isBlitzLNURLAddress(nomralizedAddress)
   ) {
     throw new Error(
       t('wallet.sendPages.handlingAddressErrors.payingToSameAddress', {
@@ -112,8 +113,11 @@ export default async function processLNUrlPay(input, context) {
           );
         }
 
-        if (invoiceResponse) {
-          invoice = invoiceResponse;
+        if (invoiceResponse.pr) {
+          invoice = invoiceResponse.pr;
+          if (invoiceResponse.successAction) {
+            input.data.successAction = invoiceResponse.successAction;
+          }
           break;
         }
       } catch (err) {

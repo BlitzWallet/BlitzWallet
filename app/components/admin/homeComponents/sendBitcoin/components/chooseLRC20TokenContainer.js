@@ -43,7 +43,6 @@ export default function ChooseLRC20TokenContainer({
             userBalanceDenomination: 'sats',
           },
           fiatStats,
-          convertAmount: false,
         })
       : displayCorrectDenomination({
           amount: formatTokensNumber(
@@ -93,7 +92,7 @@ export default function ChooseLRC20TokenContainer({
               style={styles.tokenImage}
               contentFit="contain"
               priority="normal"
-              transition={100}
+              transition={0}
             />
           ) : (
             <ThemeIcon

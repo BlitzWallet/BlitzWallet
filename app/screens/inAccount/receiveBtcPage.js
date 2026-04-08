@@ -21,7 +21,7 @@ import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
-import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useLiquidEvent } from '../../../context-store/liquidEventContext';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -32,10 +32,7 @@ import { useLRC20EventContext } from '../../../context-store/lrc20Listener';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../context-store/webViewContext';
-import Animated, {
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -55,7 +52,7 @@ export default function ReceivePaymentHome(props) {
   const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
   const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
   const { signer, startRootstockEventListener } = useRootstockProvider();
   // const { startLrc20EventListener } = useLRC20EventContext();
@@ -258,10 +255,18 @@ export default function ReceivePaymentHome(props) {
         iconNew="Share"
         leftImageFunction={handleShare}
         label={t('constants.receive')}
+        containerStyles={{ marginBottom: 0 }}
+      />
+      <ThemeText
+        styles={styles.title}
+        content={t('screens.inAccount.receiveBtcPage.header', {
+          context: headerContext,
+        })}
       />
       <ScrollView
         contentContainerStyle={{
-          flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
+          justifyContent: 'center',
+          flexGrow: 1,
           paddingBottom: bottomPadding,
         }}
         showsVerticalScrollIndicator={false}
@@ -277,12 +282,6 @@ export default function ReceivePaymentHome(props) {
             flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
           }}
         >
-          <ThemeText
-            styles={styles.title}
-            content={t('screens.inAccount.receiveBtcPage.header', {
-              context: headerContext,
-            })}
-          />
           <QrCode
             globalContactsInformation={globalContactsInformation}
             selectedRecieveOption={selectedRecieveOption}
@@ -430,7 +429,7 @@ export default function ReceivePaymentHome(props) {
               (selectedRecieveOption.toLowerCase() === 'lightning' &&
                 endReceiveType === 'USD')) &&
             selectedRecieveOption.toLowerCase() !== 'spark' ? (
-              <ThemeText content={t('constants.veriable')} />
+              <ThemeText content={t('constants.variable')} />
             ) : (
               <FormattedSatText neverHideBalance={true} balance={0} />
             )}
@@ -598,9 +597,8 @@ function QrCode(props) {
     });
   };
 
-  const qrData = isUsingLnurl
-    ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
-    : addressState.generatedAddress || previousAddress.current || ' ';
+  const qrData =
+    addressState.generatedAddress || previousAddress.current || ' ';
 
   const invoiceContext =
     selectedRecieveOption.toLowerCase() === 'lightning'
@@ -640,7 +638,10 @@ function QrCode(props) {
 
   return (
     <View
-      style={[styles.qrCodeContainer, { backgroundColor: backgroundOffset }]}
+      style={[
+        styles.qrCodeContainer,
+        { backgroundColor: backgroundOffset, marginTop: 'auto' },
+      ]}
     >
       <TouchableOpacity
         onPress={handlePress}
@@ -959,9 +960,9 @@ function QRInformationRow({
 const styles = StyleSheet.create({
   title: {
     marginBottom: 10,
-    marginTop: 'auto',
     opacity: 0.7,
     includeFontPadding: false,
+    textAlign: 'center',
   },
   animatedQRContainer: {
     position: 'relative',

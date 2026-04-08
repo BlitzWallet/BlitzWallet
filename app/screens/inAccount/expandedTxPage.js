@@ -34,7 +34,7 @@ import displayCorrectDenomination from '../../functions/displayCorrectDenominati
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
-import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -54,7 +54,7 @@ import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../constants/theme';
 import ProfileImageRow from '../../components/admin/homeComponents/contacts/internalComponents/profileImageRow';
 
 export default function ExpandedTx(props) {
-  const { decodedAddedContacts } = useGlobalContacts();
+  const { decodedAddedContacts } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { screenDimensions } = useAppStatus();
   const { sparkInformation } = useSparkWallet();
@@ -87,6 +87,7 @@ export default function ExpandedTx(props) {
   const bulkContacts = bulkPaymentGroup
     .filter(e => e.status !== 'failed')
     .map(e => ({ uuid: e.contactUUID }));
+  const showSuccessActionLabel = transaction.details?.successAction;
 
   useEffect(() => {
     if (isInitialRender.current) {
@@ -249,6 +250,8 @@ export default function ExpandedTx(props) {
       setIsClaimingHtlc(false);
     }
   };
+
+  const isFlashnetStablecoin = !!transaction.details?.isFlashnetStablecoin;
 
   const isLRC20Payment = transaction.details.isLRC20Payment;
   const selectedToken = isLRC20Payment
@@ -419,6 +422,39 @@ export default function ExpandedTx(props) {
     );
   };
 
+  const renderSuccessAction = () => {
+    if (!showSuccessActionLabel) return null;
+    const { tag, message, description, url } = showSuccessActionLabel;
+
+    if (tag === 'url') {
+      return (
+        <View style={styles.successActionContainer}>
+          <TouchableOpacity
+            onPress={() =>
+              navigate.navigate('CustomWebView', {
+                webViewURL: url,
+                headerText: description,
+              })
+            }
+            style={[
+              styles.descriptionContent,
+              styles.successActionUrlRow,
+              { backgroundColor },
+            ]}
+          >
+            <ThemeText
+              content={description}
+              styles={{ flex: 1, includeFontPadding: false }}
+            />
+            <ThemeIcon iconName={'ExternalLink'} size={18} />
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return null;
+  };
+
   const formatTime = date => {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
@@ -535,14 +571,30 @@ export default function ExpandedTx(props) {
 
               {renderInfoRow(
                 t('constants.type'),
-                transactionPaymentType,
+                isFlashnetStablecoin
+                  ? t('screens.inAccount.expandedTxPage.chainSwap')
+                  : transactionPaymentType,
                 true,
                 {
-                  textTransform: 'capitalize',
+                  textTransform:
+                    !showConversionLine &&
+                    !sendingContactUUID &&
+                    !transaction.details.isGift
+                      ? 'capitalize'
+                      : 'none',
                 },
               )}
 
               {renderLRC20TokenRow()}
+
+              {isFlashnetStablecoin &&
+                transaction.paymentStatus !== 'completed' &&
+                renderInfoRow(
+                  t('wallet.stablecoinSend.swapStatus'),
+                  transaction.paymentStatus,
+                  true,
+                  { textTransform: 'capitalize' },
+                )}
 
               {showConversionLine &&
                 renderInfoRow(
@@ -575,6 +627,8 @@ export default function ExpandedTx(props) {
                   true,
                 )}
             </View>
+
+            {renderSuccessAction()}
 
             {/* Description */}
             {renderDescription()}
@@ -977,7 +1031,6 @@ const styles = StyleSheet.create({
     // fontSize: SIZES.large,
   },
   tokenText: {
-    fontSize: SIZES.large,
     textTransform: 'uppercase',
     flex: 1,
     textAlign: 'right',
@@ -989,6 +1042,17 @@ const styles = StyleSheet.create({
     minHeight: 100,
     padding: 12,
     borderRadius: 8,
+  },
+  successActionContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  successActionUrlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    minHeight: 50,
   },
 
   receiptDotsContainer: {

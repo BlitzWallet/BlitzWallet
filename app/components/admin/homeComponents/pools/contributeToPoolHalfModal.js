@@ -25,7 +25,7 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
-import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import { usePools } from '../../../../../context-store/poolContext';
 import { Timestamp } from '@react-native-firebase/firestore';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
@@ -39,7 +39,7 @@ export default function ContributeToPoolHalfModal({
   handleBackPressFunction,
 }) {
   const navigate = useNavigation();
-  const { globalContactsInformation } = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContactsInfo();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { sparkInformation } = useSparkWallet();

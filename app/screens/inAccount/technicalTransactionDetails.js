@@ -22,7 +22,7 @@ import ContactProfileImage from '../../components/admin/homeComponents/contacts/
 import { useGlobalThemeContext } from '../../../context-store/theme';
 
 export default function TechnicalTransactionDetails(props) {
-  console.log('Transaction Detials Page');
+  console.log('Transaction Details Page');
   const { showToast } = useToast();
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -33,7 +33,6 @@ export default function TechnicalTransactionDetails(props) {
   const { backgroundColor, backgroundOffset } = GetThemeColors();
 
   const { transaction } = props.route.params;
-
   const { details, sparkID } = transaction;
 
   const isBulkPayment = !!details?.isBulkPayment;
@@ -48,41 +47,68 @@ export default function TechnicalTransactionDetails(props) {
     : '';
   const isPending = transaction.paymentStatus === 'pending';
 
-  const paymentDetails =
-    transaction.paymentType === 'spark'
-      ? details.isLRC20Payment
-        ? [t('screens.inAccount.technicalTransactionDetails.txHash')]
-        : [t('screens.inAccount.technicalTransactionDetails.paymentId')]
-      : transaction.paymentType === 'lightning'
-      ? [
-          t('screens.inAccount.technicalTransactionDetails.paymentId'),
-          t('screens.inAccount.technicalTransactionDetails.preimage'),
-          t('screens.inAccount.technicalTransactionDetails.address'),
-        ]
-      : [
-          t('screens.inAccount.technicalTransactionDetails.paymentId'),
-          t('screens.inAccount.technicalTransactionDetails.bitcoinTxId'),
-          t('screens.inAccount.technicalTransactionDetails.address'),
-          t('screens.inAccount.technicalTransactionDetails.paymentExp'),
-        ].slice(0, details.direction === 'OUTGOING' && isPending ? 4 : 3);
+  let paymentDetails = [];
+  let infoValues = [];
+
+  if (transaction.paymentType === 'spark') {
+    if (details.isFlashnetStablecoin) {
+      paymentDetails = [
+        t('screens.inAccount.technicalTransactionDetails.paymentId'),
+        t('screens.inAccount.technicalTransactionDetails.quoteId'),
+        t('screens.inAccount.technicalTransactionDetails.destinationAddress'),
+        t('screens.inAccount.technicalTransactionDetails.destinationAsset'),
+        t('screens.inAccount.technicalTransactionDetails.destinationChain'),
+      ];
+      infoValues = [
+        sparkID,
+        details.quoteId,
+        details.destinationAddress,
+        details.destinationAsset,
+        details.destinationChain,
+      ];
+    } else if (details.isLRC20Payment) {
+      paymentDetails = [
+        t('screens.inAccount.technicalTransactionDetails.txHash'),
+      ];
+      infoValues = [sparkID];
+    } else {
+      paymentDetails = [
+        t('screens.inAccount.technicalTransactionDetails.paymentId'),
+      ];
+      infoValues = [sparkID];
+    }
+  } else if (transaction.paymentType === 'lightning') {
+    paymentDetails = [
+      t('screens.inAccount.technicalTransactionDetails.paymentId'),
+      t('screens.inAccount.technicalTransactionDetails.preimage'),
+      t('screens.inAccount.technicalTransactionDetails.address'),
+    ];
+    infoValues = [sparkID, details.preimage, details.address];
+  } else {
+    // bitcoin
+    const bitcoinLabels = [
+      t('screens.inAccount.technicalTransactionDetails.paymentId'),
+      t('screens.inAccount.technicalTransactionDetails.bitcoinTxId'),
+      t('screens.inAccount.technicalTransactionDetails.address'),
+      t('screens.inAccount.technicalTransactionDetails.paymentExp'),
+    ];
+    const bitcoinValues = [
+      sparkID,
+      details.onChainTxid,
+      details.address,
+      details.expiresAt || 'N/A',
+    ];
+    const count = details.direction === 'OUTGOING' && isPending ? 4 : 3;
+    paymentDetails = bitcoinLabels.slice(0, count);
+    infoValues = bitcoinValues.slice(0, count);
+  }
 
   const infoElements = paymentDetails.map((item, id) => {
-    const txItem =
-      transaction.paymentType === 'spark'
-        ? sparkID
-        : transaction.paymentType === 'lightning'
-        ? id === 0
-          ? sparkID
-          : id === 1
-          ? details.preimage
-          : details.address
-        : id === 0
-        ? sparkID
-        : id === 1
-        ? details.onChainTxid
-        : id === 2
-        ? details.address
-        : details.expiresAt || 'N/A';
+    const txItem = infoValues[id];
+
+    const isBitcoinTxId =
+      transaction.paymentType === 'bitcoin' &&
+      item === t('screens.inAccount.technicalTransactionDetails.bitcoinTxId');
 
     return (
       <View key={id}>
@@ -106,11 +132,7 @@ export default function TechnicalTransactionDetails(props) {
         </View>
         <TouchableOpacity
           onPress={() => {
-            if (
-              transaction.paymentType === 'bitcoin' &&
-              item ===
-                t('screens.inAccount.technicalTransactionDetails.bitcoinTxId')
-            ) {
+            if (isBitcoinTxId) {
               navigate.navigate('CustomWebView', {
                 webViewURL: `https://mempool.space/tx/${txItem}`,
               });
@@ -229,20 +251,6 @@ export default function TechnicalTransactionDetails(props) {
             })}
           </View>
         )}
-        {/* {transaction.paymentType === 'spark' && (
-          <ThemeText
-            content={t(
-              'screens.inAccount.technicalTransactionDetails.privacyMessage',
-              {
-                type: t(
-                  `screens.inAccount.technicalTransactionDetails.${
-                    details?.direction === 'OUTGOING' ? 'receivers' : 'senders'
-                  }`,
-                ),
-              },
-            )}
-          />
-        )} */}
       </ScrollView>
     </GlobalThemeView>
   );

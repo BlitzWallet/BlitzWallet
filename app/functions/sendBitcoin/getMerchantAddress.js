@@ -223,11 +223,11 @@ export const handleCryptoQRAddress = async (
       data.minSendable / 1000,
     );
 
-    if (!bolt11) {
+    if (!bolt11.pr) {
       throw new Error('Unable to parse invoice from merchant link');
     }
 
-    return bolt11;
+    return bolt11.pr;
   } catch (err) {
     console.error('Error getting cryptoQR:', err);
     const errorMessage =

@@ -1,40 +1,49 @@
-import {ScrollView, StyleSheet, TouchableOpacity} from 'react-native';
-import {copyToClipboard} from '../../../../../functions';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { copyToClipboard } from '../../../../../functions';
 import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
-import {useToast} from '../../../../../../context-store/toastManager';
+import { useToast } from '../../../../../../context-store/toastManager';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { COLORS } from '../../../../../constants';
+import { useEffect } from 'react';
 
-export default function CustomQrCode({data}) {
-  const {showToast} = useToast();
-  const {t} = useTranslation();
+export default function CustomQrCode({ data, setContentHeight }) {
+  const { showToast } = useToast();
+  const { t } = useTranslation();
+  useEffect(() => {
+    setContentHeight(475);
+  }, []);
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <TouchableOpacity
         onPress={() => {
           copyToClipboard(data, showToast);
-        }}>
+        }}
+      >
         <QrCodeWrapper
-          outerContainerStyle={{width: 275, height: 275}}
-          innerContainerStyle={{width: 250, height: 250}}
+          outerContainerStyle={{
+            width: 275,
+            height: 275,
+            backgroundColor: COLORS.darkModeText,
+          }}
+          innerContainerStyle={{ width: 250, height: 250 }}
           qrSize={250}
           QRData={data}
         />
       </TouchableOpacity>
       <CustomButton
         actionFunction={() => copyToClipboard(data, showToast)}
-        buttonStyles={{marginTop: 20}}
+        buttonStyles={{ marginTop: 'auto' }}
         textContent={t('constants.copy')}
       />
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: 'center',
   },
 });

@@ -24,7 +24,7 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import {
   payPOSContact,
   payPOSLNURL,
@@ -46,7 +46,7 @@ import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 export default function TotalTipsScreen(props) {
   const { sendWebViewRequest } = useWebView();
   const { decodedAddedContacts, globalContactsInformation } =
-    useGlobalContacts();
+    useGlobalContactsInfo();
   const { screenDimensions } = useAppStatus();
   const { groupedTxs } = usePOSTransactions();
   const { t } = useTranslation();
