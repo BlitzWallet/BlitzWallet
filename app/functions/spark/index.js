@@ -1,4 +1,10 @@
-import { SparkWallet, getLatestDepositTxId } from '@buildonspark/spark-sdk';
+import {
+  SparkWallet,
+  getLatestDepositTxId,
+  isValidSparkAddress,
+  getNetworkFromSparkAddress,
+  decodeSparkAddress,
+} from '@buildonspark/spark-sdk';
 import {
   LightningSendRequestStatus,
   SparkCoopExitRequestStatus,
@@ -672,6 +678,160 @@ export const getSparkLightningPaymentFeeEstimate = async (
     }
   } catch (err) {
     console.log('Get lightning payment fee error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+/**
+ * Extracts the hex-encoded identity public key from a Spark address string.
+ * Uses SDK static utilities — no wallet instance required.
+ * @param {string} address - A bech32m Spark address
+ * @returns {string} Hex-encoded secp256k1 compressed public key
+ */
+export const extractPubkeyFromSparkAddress = address => {
+  if (!address || typeof address !== 'string') {
+    throw new Error(
+      'extractPubkeyFromSparkAddress: address must be a non-empty string',
+    );
+  }
+  if (!isValidSparkAddress(address)) {
+    throw new Error(
+      `extractPubkeyFromSparkAddress: invalid Spark address: ${address}`,
+    );
+  }
+  const network = getNetworkFromSparkAddress(address);
+  const decoded = decodeSparkAddress(address, network);
+  if (!decoded?.identityPublicKey) {
+    throw new Error(
+      `extractPubkeyFromSparkAddress: could not decode pubkey from: ${address}`,
+    );
+  }
+  return decoded.identityPublicKey;
+};
+
+/**
+ * Creates a Spark sats invoice routed to the holder of the given Spark address.
+ * Uses createSatsInvoice with receiverIdentityPubkey — no recipient private key needed.
+ * Native path only (WebView createSatsInvoice handler ignores receiverIdentityPubkey).
+ * @param {{ address: string, amountSats: number, mnemonic: string }} params
+ * @returns {Promise<{ didWork: boolean, invoice?: string, error?: string }>}
+ */
+export const generateSparkInvoiceFromAddress = async ({
+  address,
+  amountSats,
+  mnemonic,
+}) => {
+  try {
+    if (
+      typeof amountSats !== 'number' ||
+      !Number.isInteger(amountSats) ||
+      amountSats <= 0 ||
+      !Number.isSafeInteger(amountSats)
+    ) {
+      throw new Error(
+        `generateSparkInvoiceFromAddress: amountSats must be a positive safe integer, got: ${amountSats}`,
+      );
+    }
+
+    const receiverIdentityPubkey = extractPubkeyFromSparkAddress(address);
+
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.createSatsInvoice,
+        { mnemonic, amountSats, receiverIdentityPubkey },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to create paylink invoice',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const invoice = await wallet.createSatsInvoice({
+        amount: amountSats,
+        receiverIdentityPubkey,
+      });
+      console.log(invoice);
+      return { didWork: true, invoice };
+    }
+  } catch (err) {
+    console.log('generateSparkInvoiceFromAddress error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const fufillSparkInvoices = async ({ mnemonic, invoices = [] }) => {
+  try {
+    if (!Array.isArray(invoices) || invoices.length === 0) {
+      return {
+        successful: [],
+        failed: [],
+        totalPaid: 0,
+        error: 'No recipients provided',
+      };
+    }
+
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const serializedInvoices = invoices.map(({ invoice, amount }) => ({
+        invoice,
+        amount: amount.toString(), // BigInt → string for JSON
+      }));
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.fufillSparkInvoices,
+        { mnemonic, invoices: serializedInvoices },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to create paylink invoice',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const fulfillResult = await wallet.fulfillSparkInvoice(invoices);
+      return { didWork: true, fulfillResult };
+    }
+  } catch (err) {
+    console.log('generateSparkInvoiceFromAddress error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const batchSendTokens = async ({ mnemonic, invoices = [] }) => {
+  try {
+    if (!Array.isArray(invoices) || invoices.length === 0) {
+      return {
+        successful: [],
+        failed: [],
+        totalPaid: 0,
+        error: 'No recipients provided',
+      };
+    }
+
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const serializedInvoices = invoices.map(
+        ({ tokenIdentifier, receiverSparkAddress, tokenAmount }) => ({
+          tokenIdentifier,
+          receiverSparkAddress,
+          tokenAmount: tokenAmount.toString(), // BigInt → string for JSON
+        }),
+      );
+      console.log(serializedInvoices, 'staralized invioces');
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.batchTransferTokens,
+        { mnemonic, invoices: serializedInvoices },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to create paylink invoice',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const fulfillResult = await wallet.batchTransferTokens(invoices);
+      return { didWork: true, invoice: fulfillResult };
+    }
+  } catch (err) {
+    console.log('generateSparkInvoiceFromAddress error', err);
     return { didWork: false, error: err.message };
   }
 };
