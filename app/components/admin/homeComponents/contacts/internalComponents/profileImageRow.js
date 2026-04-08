@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   stackedAvatar: {
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: 'white',
     overflow: 'hidden',
     alignItems: 'center',

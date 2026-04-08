@@ -534,7 +534,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     includeFontPadding: false,
     flexShrink: 1,
-    fontWeight: 500,
   },
   customContactName: {
     fontSize: SIZES.small,

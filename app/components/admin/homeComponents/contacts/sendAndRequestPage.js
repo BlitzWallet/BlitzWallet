@@ -664,18 +664,9 @@ export default function SendAndRequestPage(props) {
                 theme={theme}
               />
             </View>
-            <View
-              style={[
-                styles.splitPayIcon,
-                {
-                  borderColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                },
-              ]}
-            >
-              <ThemeIcon size={18} iconName={'Plus'} />
+
+            <View style={[styles.splitPayIcon]}>
+              <ThemeIcon size={25} iconName={'CirclePlus'} />
             </View>
           </TouchableOpacity>
           <View style={styles.identityTextContainer}>
@@ -945,10 +936,8 @@ const styles = StyleSheet.create({
   },
   splitPayContainer: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   splitPayIcon: {
-    borderWidth: 1,
     width: 25,
     height: 25,
-    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
