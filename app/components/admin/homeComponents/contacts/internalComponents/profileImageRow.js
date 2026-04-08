@@ -36,7 +36,7 @@ export default function ProfileImageRow({
               styles.stackedAvatar,
               {
                 backgroundColor: backgroundOffset,
-                zIndex: contact.length - index,
+                zIndex: contacts.length - index,
                 marginLeft: index === 0 ? 0 : -12,
                 width: avatarSize,
                 height: avatarSize,
