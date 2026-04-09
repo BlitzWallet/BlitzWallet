@@ -452,9 +452,9 @@ export const GlobalContactsList = ({ children }) => {
               publicKey,
               prev.addedContacts,
             );
-            currentDecoded = JSON.parse(decryptedData);
+            currentDecoded = JSON.parse(decryptedData) ?? [];
           } catch {
-            currentDecoded = decodedAddedContactsRef.current;
+            currentDecoded = decodedAddedContactsRef.current ?? [];
           }
 
           let newAddedContacts = structuredClone(currentDecoded);

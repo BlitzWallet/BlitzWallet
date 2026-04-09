@@ -1709,7 +1709,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Denna seed phrase finns redan för ett annat konto",
         "editTitle": "Redigera konto",
-        "createTitle": "Skapa konto",
+        "createTitle_derived": "Skapa konto",
+        "createTitle_imported": "Importera konto",
         "updateTitle": "Uppdatera konto",
         "cannotDeleteActiveAccountError": "Du kan inte radera det aktiva kontot. Välj ett annat konto innan du raderar det.",
         "deleteAccountConfirmation": "Är du säker på att du vill radera det här kontot?",
@@ -1733,7 +1734,12 @@
         "activeAccountError": "Du kan inte ta bort det för närvarande aktiva kontot. Vänligen byt till ett annat konto innan du tar bort detta.",
         "account_pin": "Fäst konto",
         "account_unpin": "Lossa konto",
-        "pin_account_info": "När du fäster ett konto visas det på huvudsidan för Inställningar, vilket gör det enkelt att snabbt växla mellan ditt huvudkonto och det fästa kontot."
+        "pin_account_info": "När du fäster ett konto visas det på huvudsidan för Inställningar, vilket gör det enkelt att snabbt växla mellan ditt huvudkonto och det fästa kontot.",
+        "accountTypeLabel": "Kontotyp",
+        "accountType_derived": "Härledd",
+        "accountType_imported": "Importerad",
+        "accountTypeDerivedInfo": "Detta konto är kopplat till din Blitz seed phrase och återställs när du återställer din Blitz-plånbok.",
+        "accountTypeImportedInfo": "Detta konto har en egen seed phrase och återställs inte när du återställer din Blitz-plånbok. Se till att säkerhetskopiera återställningsfrasen."
       },
       "selectCreateAccountType": {
         "title": "Lägg till konto",

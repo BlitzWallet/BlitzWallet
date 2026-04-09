@@ -1709,7 +1709,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Esta frase de recuperação já existe para outra conta",
         "editTitle": "Editar conta",
-        "createTitle": "Criar conta",
+        "createTitle_derived": "Criar conta",
+        "createTitle_imported": "Importar conta",
         "updateTitle": "Atualizar conta",
         "cannotDeleteActiveAccountError": "Não é possível arquivar a conta que está selecionada. Selecione outra conta antes de arquivar esta.",
         "deleteAccountConfirmation": "Tem certeza de que deseja arquivar esta conta?",
@@ -1733,7 +1734,12 @@
         "activeAccountError": "Você não pode arquivar a conta que está selecionada. Por favor, mude para uma conta diferente antes de arquivar esta.",
         "account_pin": "Fixar conta",
         "account_unpin": "Desafixar conta",
-        "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada."
+        "pin_account_info": "Quando você fixa uma conta, ela aparece na página principal de Configurações, facilitando alternar rapidamente entre sua conta principal e a conta fixada.",
+        "accountTypeLabel": "Tipo de conta",
+        "accountType_derived": "Derivada",
+        "accountType_imported": "Importada",
+        "accountTypeDerivedInfo": "Esta conta está vinculada à sua frase-semente do Blitz e será restaurada quando você restaurar sua carteira Blitz.",
+        "accountTypeImportedInfo": "Esta conta tem sua própria frase-semente e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança."
       },
       "selectCreateAccountType": {
         "title": "Criar ou restaurar conta",

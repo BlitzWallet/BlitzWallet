@@ -5,7 +5,11 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SIZES, WINDOWWIDTH } from '../../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import {
   NWC_ACCOUNT_UUID,
   useActiveCustodyAccount,
@@ -18,6 +22,9 @@ import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useToast } from '../../../../../../context-store/toastManager';
+import CustomButton from '../../../../../functions/CustomElements/button';
+import { CENTER } from '../../../../../constants';
+import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
 
 export default function EditAccountPage(props) {
   const { showToast } = useToast();
@@ -85,6 +92,18 @@ export default function EditAccountPage(props) {
     });
   }, [navigate, t]);
 
+  const handleAccountTypeInfo = useCallback(() => {
+    const isDerived = accountInformation.accountType === 'derived';
+    navigate.navigate('InformationPopup', {
+      textContent: t(
+        isDerived
+          ? 'settings.accountComponents.editAccountPage.accountTypeDerivedInfo'
+          : 'settings.accountComponents.editAccountPage.accountTypeImportedInfo',
+      ),
+      buttonText: t('constants.back'),
+    });
+  }, [navigate, t, accountInformation.accountType]);
+
   const handlePinToggle = useCallback(() => {
     const accountId = accountInformation.uuid || accountInformation.name;
     const currentPins = masterInfoObject.pinnedAccounts || [];
@@ -150,11 +169,11 @@ export default function EditAccountPage(props) {
           </TouchableOpacity>
         </View>
 
-        {/* Pin Contact */}
+        {/* Account info */}
         {accountInformation.uuid === NWC_ACCOUNT_UUID && (
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             {/* Account Name */}
-            <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
+            <View style={styles.row}>
               <View style={styles.infoContainer}>
                 <ThemeText
                   styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
@@ -166,41 +185,15 @@ export default function EditAccountPage(props) {
                   )}
                 />
                 <TouchableOpacity onPress={handlePinInfo}>
-                  <ThemeIcon size={23} iconName={'Info'} />
+                  <ThemeIcon size={20} iconName={'Info'} />
                 </TouchableOpacity>
               </View>
-              <View style={styles.rowRight}>
-                <View
-                  style={[
-                    styles.pinButton,
-                    {
-                      backgroundColor: theme
-                        ? backgroundColor
-                        : COLORS.darkModeText,
-                    },
-                  ]}
-                >
-                  <ThemeIcon
-                    iconName={'Star'}
-                    size={16}
-                    fill={
-                      isPinned
-                        ? theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary
-                        : undefined
-                    }
-                    colorOverride={
-                      isPinned
-                        ? theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary
-                        : textColor
-                    }
-                  />
-                </View>
-              </View>
-            </TouchableOpacity>
+              <CustomToggleSwitch
+                stateValue={isPinned}
+                toggleSwitchFunction={handlePinToggle}
+                page={'pinAccount'}
+              />
+            </View>
           </View>
         )}
 
@@ -230,6 +223,44 @@ export default function EditAccountPage(props) {
             <View style={[styles.divider, { backgroundColor }]} />
           )}
 
+          {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
+            <View style={styles.row}>
+              <View style={styles.infoContainer}>
+                <ThemeText
+                  styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
+                  content={t(
+                    'settings.accountComponents.editAccountPage.accountTypeLabel',
+                  )}
+                />
+                <TouchableOpacity onPress={handleAccountTypeInfo}>
+                  <ThemeIcon size={20} iconName={'Info'} />
+                </TouchableOpacity>
+              </View>
+              <View style={[styles.rowRight, { gap: 5 }]}>
+                <View
+                  style={[
+                    styles.accountTypePill,
+                    {
+                      backgroundColor,
+                    },
+                  ]}
+                >
+                  <ThemeText
+                    styles={[styles.accountTypePillText]}
+                    content={t(
+                      `settings.accountComponents.editAccountPage.accountType`,
+                      { context: accountInformation.accountType },
+                    )}
+                  />
+                </View>
+              </View>
+            </View>
+          )}
+
+          {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
+            <View style={[styles.divider, { backgroundColor }]} />
+          )}
+
           {/* Show Recovery Phrase */}
           <TouchableOpacity style={styles.row} onPress={handleNavigateView}>
             <ThemeText
@@ -246,7 +277,7 @@ export default function EditAccountPage(props) {
         {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             {/* Account Name */}
-            <TouchableOpacity style={styles.row} onPress={handlePinToggle}>
+            <View style={styles.row}>
               <View style={styles.infoContainer}>
                 <ThemeText
                   styles={[styles.rowLabel, { marginRight: 5, width: 'unset' }]}
@@ -258,88 +289,41 @@ export default function EditAccountPage(props) {
                   )}
                 />
                 <TouchableOpacity onPress={handlePinInfo}>
-                  <ThemeIcon size={23} iconName={'Info'} />
+                  <ThemeIcon size={20} iconName={'Info'} />
                 </TouchableOpacity>
               </View>
-              <View style={styles.rowRight}>
-                <View
-                  style={[
-                    styles.pinButton,
-                    {
-                      backgroundColor: theme
-                        ? backgroundColor
-                        : COLORS.darkModeText,
-                    },
-                  ]}
-                >
-                  <ThemeIcon
-                    iconName={'Star'}
-                    size={16}
-                    fill={
-                      isPinned
-                        ? theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary
-                        : undefined
-                    }
-                    colorOverride={
-                      isPinned
-                        ? theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary
-                        : textColor
-                    }
-                  />
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Danger Zone */}
-        {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
-          <View
-            style={[
-              styles.card,
-              {
-                backgroundColor: backgroundOffset,
-                opacity: isActive ? 0.7 : 1,
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={[styles.row, styles.dangerRow]}
-              onPress={() => {
-                if (isActive) {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: t(
-                      'settings.accountComponents.editAccountPage.activeAccountError',
-                    ),
-                  });
-                  return;
-                }
-                navigate.navigate('RemoveAccountPage', {
-                  account: accountInformation,
-                  from: fromPage,
-                });
-              }}
-            >
-              <ThemeText
-                styles={[
-                  styles.rowLabel,
-                  {
-                    ...styles.dangerText,
-                    color: theme && darkModeType ? textColor : COLORS.primary,
-                  },
-                ]}
-                content={t(
-                  'settings.accountComponents.editAccountPage.removeAccountLabel',
-                )}
+              <CustomToggleSwitch
+                stateValue={isPinned}
+                toggleSwitchFunction={handlePinToggle}
+                page={'pinAccount'}
               />
-            </TouchableOpacity>
+            </View>
           </View>
         )}
       </ScrollView>
+      {/* Danger Zone */}
+      {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
+        <CustomButton
+          textContent={t(
+            'settings.accountComponents.editAccountPage.removeAccountLabel',
+          )}
+          actionFunction={() => {
+            if (isActive) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t(
+                  'settings.accountComponents.editAccountPage.activeAccountError',
+                ),
+              });
+              return;
+            }
+            navigate.navigate('RemoveAccountPage', {
+              account: accountInformation,
+              from: fromPage,
+            });
+          }}
+          buttonStyles={styles.buttonContainer}
+        />
+      )}
     </GlobalThemeView>
   );
 }
@@ -370,7 +354,7 @@ const styles = StyleSheet.create({
 
   card: {
     alignSelf: 'center',
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     borderRadius: 16,
     marginBottom: 16,
     overflow: 'hidden',
@@ -418,7 +402,10 @@ const styles = StyleSheet.create({
   dangerRow: {
     justifyContent: 'center',
   },
-
+  buttonContainer: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
   dangerText: {
     color: COLORS.cancelRed,
     includeFontPadding: false,
@@ -430,5 +417,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  accountTypePill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  accountTypePillText: {
+    fontSize: SIZES.small,
+    includeFontPadding: false,
   },
 });

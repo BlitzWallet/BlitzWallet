@@ -1709,7 +1709,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "This recovery phrase already exists for another account",
         "editTitle": "Edit Account",
-        "createTitle": "Create Account",
+        "createTitle_derived": "Create Account",
+        "createTitle_imported": "Import Account",
         "updateTitle": "Update Account",
         "cannotDeleteActiveAccountError": "You can’t delete the active account. Please select another account before deleting.",
         "deleteAccountConfirmation": "Are you sure you want to delete this account?",
@@ -1733,7 +1734,12 @@
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
         "account_unpin": "Unpin Account",
-        "pin_account_info": "When you pin an account, it appears on the main Settings page, making it easy to quickly switch between your main account and the pinned account."
+        "pin_account_info": "When you pin an account, it appears on the main Settings page, making it easy to quickly switch between your main account and the pinned account.",
+        "accountTypeLabel": "Account type",
+        "accountType_derived": "Derived",
+        "accountType_imported": "Imported",
+        "accountTypeDerivedInfo": "This account is tied to your Blitz seed phrase and will be restored when you restore your Blitz wallet.",
+        "accountTypeImportedInfo": "This account has its own seed phrase and won't be restored when you restore your Blitz wallet. Keep its recovery phrase backed up."
       },
       "removeAccountPage": {
         "title": "Remove",

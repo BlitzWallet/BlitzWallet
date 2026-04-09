@@ -1709,7 +1709,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Questa frase seed esiste già per un altro account",
         "editTitle": "Modifica Account",
-        "createTitle": "Crea Account",
+        "createTitle_derived": "Crea account",
+        "createTitle_imported": "Importa account",
         "updateTitle": "Aggiorna Account",
         "cannotDeleteActiveAccountError": "Non puoi eliminare l'account attivo. Seleziona un altro account prima di eliminare.",
         "deleteAccountConfirmation": "Sei sicuro di voler eliminare questo account?",
@@ -1733,7 +1734,12 @@
         "activeAccountError": "Non puoi eliminare l'account attualmente attivo. Passa a un altro account prima di eliminare questo.",
         "account_pin": "Fissa account",
         "account_unpin": "Rimuovi fissaggio",
-        "pin_account_info": "Quando fissi un account, viene visualizzato nella pagina principale delle Impostazioni, così puoi passare rapidamente tra il tuo account principale e quello fissato."
+        "pin_account_info": "Quando fissi un account, viene visualizzato nella pagina principale delle Impostazioni, così puoi passare rapidamente tra il tuo account principale e quello fissato.",
+        "accountTypeLabel": "Tipo di account",
+        "accountType_derived": "Derivato",
+        "accountType_imported": "Importato",
+        "accountTypeDerivedInfo": "Questo account è collegato alla tua seed phrase Blitz e verrà ripristinato quando ripristini il tuo wallet Blitz.",
+        "accountTypeImportedInfo": "Questo account ha una propria seed phrase e non verrà ripristinato quando ripristini il tuo wallet Blitz. Assicurati di salvare la frase di recupero."
       },
       "selectCreateAccountType": {
         "title": "Aggiungi account",

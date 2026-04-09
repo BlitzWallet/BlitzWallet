@@ -1709,7 +1709,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Cette phrase d'introduction existe déjà pour un autre compte",
         "editTitle": "Modifier le compte",
-        "createTitle": "Créer un compte",
+        "createTitle_derived": "Créer un compte",
+        "createTitle_imported": "Importer un compte",
         "updateTitle": "Mise à jour du compte",
         "cannotDeleteActiveAccountError": "Vous ne pouvez pas supprimer le compte actif. Veuillez sélectionner un autre compte avant de le supprimer.",
         "deleteAccountConfirmation": "Êtes-vous sûr de vouloir supprimer ce compte ?",
@@ -1733,7 +1734,12 @@
         "activeAccountError": "Vous ne pouvez pas supprimer le compte actuellement actif. Veuillez passer à un autre compte avant de supprimer celui-ci.",
         "account_pin": "Épingler le compte",
         "account_unpin": "Désépingler le compte",
-        "pin_account_info": "Lorsque vous épinglez un compte, il apparaît sur la page principale des paramètres, ce qui vous permet de basculer rapidement entre votre compte principal et le compte épinglé."
+        "pin_account_info": "Lorsque vous épinglez un compte, il apparaît sur la page principale des paramètres, ce qui vous permet de basculer rapidement entre votre compte principal et le compte épinglé.",
+        "accountTypeLabel": "Type de compte",
+        "accountType_derived": "Dérivé",
+        "accountType_imported": "Importé",
+        "accountTypeDerivedInfo": "Ce compte est lié à votre phrase de récupération Blitz et sera restauré lorsque vous restaurerez votre portefeuille Blitz.",
+        "accountTypeImportedInfo": "Ce compte possède sa propre phrase de récupération et ne sera pas restauré lorsque vous restaurerez votre portefeuille Blitz. Assurez-vous de sauvegarder cette phrase."
       },
       "selectCreateAccountType": {
         "title": "Ajouter un compte",

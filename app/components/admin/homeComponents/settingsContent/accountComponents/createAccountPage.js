@@ -318,7 +318,9 @@ export default function CreateCustodyAccountPage(props) {
     >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
-        label={t('settings.accountComponents.createAccountPage.createTitle')}
+        label={t('settings.accountComponents.createAccountPage.createTitle', {
+          context: accountType,
+        })}
         iconNew="Trash2"
       />
 
@@ -332,14 +334,10 @@ export default function CreateCustodyAccountPage(props) {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            marginBottom: 10,
+            marginBottom: 8,
           }}
         >
           <ThemeText
-            styles={{
-              fontSize: SIZES.large,
-              marginRight: 5,
-            }}
             content={t(
               'settings.accountComponents.createAccountPage.inputDesc',
             )}
@@ -380,10 +378,8 @@ export default function CreateCustodyAccountPage(props) {
           <>
             <ThemeText
               styles={{
-                fontSize: SIZES.large,
-
-                marginBottom: 10,
-                marginTop: 30,
+                marginBottom: 8,
+                marginTop: 20,
               }}
               content={t(
                 'settings.accountComponents.createAccountPage.seedHeader',
@@ -457,6 +453,7 @@ export default function CreateCustodyAccountPage(props) {
           }}
           textContent={t(
             'settings.accountComponents.createAccountPage.createTitle',
+            { context: accountType },
           )}
           actionFunction={handleCreateAccount}
         />
@@ -503,14 +500,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   numberText: {
-    fontSize: SIZES.large,
+    fontSize: SIZES.medium,
     includeFontPadding: false,
     marginRight: 10,
   },
   textInputStyle: {
     flex: 1,
     minHeight: Platform.OS === 'ios' ? 0 : 55,
-    fontSize: SIZES.large,
+    fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
   },

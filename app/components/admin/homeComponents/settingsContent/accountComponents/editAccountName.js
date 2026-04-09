@@ -5,7 +5,11 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, WINDOWWIDTH } from '../../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
@@ -88,7 +92,7 @@ export default function EditAccountName(props) {
         />
       </ScrollView>
       <CustomButton
-        buttonStyles={{ ...CENTER, width: WINDOWWIDTH }}
+        buttonStyles={{ ...CENTER, width: INSET_WINDOW_WIDTH }}
         textContent={canSave ? t('constants.save') : t('constants.back')}
         actionFunction={handleNameUpage}
       />
@@ -98,7 +102,7 @@ export default function EditAccountName(props) {
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingTop: 10,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
 });
