@@ -1703,8 +1703,8 @@
         "accountTypeLabel": "Tipo de conta",
         "accountType_derived": "Derivada",
         "accountType_imported": "Importada",
-        "accountTypeDerivedInfo": "Esta conta está vinculada à sua frase-semente do Blitz e será restaurada quando você restaurar sua carteira Blitz.",
-        "accountTypeImportedInfo": "Esta conta tem sua própria frase-semente e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança."
+        "accountTypeDerivedInfo": "Esta conta está vinculada à sua frase de recuperação da conta principal da Blitz e será restaurada quando você restaurar sua carteira Blitz.",
+        "accountTypeImportedInfo": "Esta conta tem uma frase de recuperação própria e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança."
       },
       "selectCreateAccountType": {
         "title": "Criar ou restaurar conta",
