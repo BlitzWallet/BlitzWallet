@@ -167,28 +167,17 @@ export default function ExploreUsers() {
 
     async function loadExploreData() {
       try {
-        const pastExploreData = await getLocalStorageItem(
-          'savedExploreData',
-        ).then(data => JSON.parse(data));
-        const shouldLoadExporeDataResp = shouldLoadExploreData(
-          pastExploreData,
-          currentTime,
-        );
-
-        if (masterInfoObject.exploreData && !shouldLoadExporeDataResp) return;
-
-        if (!shouldLoadExporeDataResp) {
-          if (!mounted) return;
-          toggleMasterInfoObject({ exploreData: pastExploreData.data });
-          throw new Error('Blocking call since data is up to date');
-        }
-
-        const freshExploreData = await fetchBackend(
-          'getTotalUserCount',
-          { data: publicKey },
-          contactsPrivateKey,
-          publicKey,
-        );
+        const [freshExploreData, pastExploreData] = await Promise.all([
+          fetchBackend(
+            'getTotalUserCount',
+            { data: publicKey },
+            contactsPrivateKey,
+            publicKey,
+          ),
+          getLocalStorageItem('savedExploreData').then(data =>
+            JSON.parse(data),
+          ),
+        ]);
 
         if (freshExploreData) {
           if (!mounted) return;
@@ -200,6 +189,9 @@ export default function ExploreUsers() {
               data: freshExploreData,
             }),
           );
+        } else if (pastExploreData?.data) {
+          if (!mounted) return;
+          toggleMasterInfoObject({ exploreData: pastExploreData.data });
         }
       } catch (err) {
         console.log(err);
