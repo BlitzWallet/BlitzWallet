@@ -1699,7 +1699,12 @@
         "activeAccountError": "You can’t delete the currently active account. Please switch to a different account before deleting this one.",
         "account_pin": "Pin Account",
         "account_unpin": "Unpin Account",
-        "pin_account_info": "When you pin an account, it appears on the main Settings page, making it easy to quickly switch between your main account and the pinned account."
+        "pin_account_info": "When you pin an account, it appears on the main Settings page, making it easy to quickly switch between your main account and the pinned account.",
+        "accountTypeLabel": "Account type",
+        "accountType_derived": "Derived",
+        "accountType_imported": "Imported",
+        "accountTypeDerivedInfo": "This account is tied to your Blitz seed phrase and will be restored when you restore your Blitz wallet.",
+        "accountTypeImportedInfo": "This account has its own seed phrase and won't be restored when you restore your Blitz wallet. Keep its recovery phrase backed up."
       },
       "removeAccountPage": {
         "title": "Remove",

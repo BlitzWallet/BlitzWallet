@@ -1699,7 +1699,12 @@
         "activeAccountError": "Sie können das derzeit aktive Konto nicht löschen. Bitte wechseln Sie zu einem anderen Konto, bevor Sie es löschen.",
         "account_pin": "Konto anheften",
         "account_unpin": "Konto loslösen",
-        "pin_account_info": "Wenn Sie ein Konto anheften, wird es auf der Hauptseite der Einstellungen angezeigt, sodass Sie schnell zwischen Ihrem Hauptkonto und dem angehefteten Konto wechseln können."
+        "pin_account_info": "Wenn Sie ein Konto anheften, wird es auf der Hauptseite der Einstellungen angezeigt, sodass Sie schnell zwischen Ihrem Hauptkonto und dem angehefteten Konto wechseln können.",
+        "accountTypeLabel": "Kontotyp",
+        "accountType_derived": "Abgeleitet",
+        "accountType_imported": "Importiert",
+        "accountTypeDerivedInfo": "Dieses Konto ist mit Ihrer Blitz-Seed-Phrase verknüpft und wird wiederhergestellt, wenn Sie Ihre Blitz-Wallet wiederherstellen.",
+        "accountTypeImportedInfo": "Dieses Konto hat eine eigene Seed-Phrase und wird nicht wiederhergestellt, wenn Sie Ihre Blitz-Wallet wiederherstellen. Bewahren Sie die Wiederherstellungsphrase sicher auf."
       },
       "selectCreateAccountType": {
         "title": "Konto hinzufügen",
