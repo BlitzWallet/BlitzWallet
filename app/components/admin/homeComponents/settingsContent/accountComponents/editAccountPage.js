@@ -5,7 +5,12 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SIZES, WINDOWWIDTH } from '../../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
 import {
   NWC_ACCOUNT_UUID,
   useActiveCustodyAccount,
@@ -18,6 +23,8 @@ import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useToast } from '../../../../../../context-store/toastManager';
+import CustomButton from '../../../../../functions/CustomElements/button';
+import { CENTER } from '../../../../../constants';
 
 export default function EditAccountPage(props) {
   const { showToast } = useToast();
@@ -150,7 +157,7 @@ export default function EditAccountPage(props) {
           </TouchableOpacity>
         </View>
 
-        {/* Pin Contact */}
+        {/* Account info */}
         {accountInformation.uuid === NWC_ACCOUNT_UUID && (
           <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
             {/* Account Name */}
@@ -295,51 +302,30 @@ export default function EditAccountPage(props) {
             </TouchableOpacity>
           </View>
         )}
-
-        {/* Danger Zone */}
-        {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
-          <View
-            style={[
-              styles.card,
-              {
-                backgroundColor: backgroundOffset,
-                opacity: isActive ? 0.7 : 1,
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={[styles.row, styles.dangerRow]}
-              onPress={() => {
-                if (isActive) {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: t(
-                      'settings.accountComponents.editAccountPage.activeAccountError',
-                    ),
-                  });
-                  return;
-                }
-                navigate.navigate('RemoveAccountPage', {
-                  account: accountInformation,
-                  from: fromPage,
-                });
-              }}
-            >
-              <ThemeText
-                styles={[
-                  styles.rowLabel,
-                  {
-                    ...styles.dangerText,
-                    color: theme && darkModeType ? textColor : COLORS.primary,
-                  },
-                ]}
-                content={t(
-                  'settings.accountComponents.editAccountPage.removeAccountLabel',
-                )}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
       </ScrollView>
+      {/* Danger Zone */}
+      {accountInformation.uuid !== NWC_ACCOUNT_UUID && (
+        <CustomButton
+          textContent={t(
+            'settings.accountComponents.editAccountPage.removeAccountLabel',
+          )}
+          actionFunction={() => {
+            if (isActive) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t(
+                  'settings.accountComponents.editAccountPage.activeAccountError',
+                ),
+              });
+              return;
+            }
+            navigate.navigate('RemoveAccountPage', {
+              account: accountInformation,
+              from: fromPage,
+            });
+          }}
+          buttonStyles={styles.buttonContainer}
+        />
+      )}
     </GlobalThemeView>
   );
 }
@@ -370,7 +356,7 @@ const styles = StyleSheet.create({
 
   card: {
     alignSelf: 'center',
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     borderRadius: 16,
     marginBottom: 16,
     overflow: 'hidden',
@@ -418,7 +404,10 @@ const styles = StyleSheet.create({
   dangerRow: {
     justifyContent: 'center',
   },
-
+  buttonContainer: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
   dangerText: {
     color: COLORS.cancelRed,
     includeFontPadding: false,

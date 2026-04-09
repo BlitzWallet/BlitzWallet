@@ -6,9 +6,8 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, SIZES } from '../../../../../constants';
 import {
-  COLORS,
   HIDDEN_OPACITY,
-  WINDOWWIDTH,
+  INSET_WINDOW_WIDTH,
 } from '../../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -169,7 +168,7 @@ export default function SelectCreateAccountType() {
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-    width: WINDOWWIDTH,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
     marginTop: 20,
   },

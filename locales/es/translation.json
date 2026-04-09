@@ -1531,7 +1531,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Esta frase semilla ya existe para otra cuenta",
         "editTitle": "Editar cuenta",
-        "createTitle": "Crear cuenta",
+        "createTitle_derived": "Crear cuenta",
+        "createTitle_imported": "Importar cuenta",
         "updateTitle": "Actualizar cuenta",
         "cannotDeleteActiveAccountError": "No puedes eliminar la cuenta activa. Por favor selecciona otra antes de borrarla.",
         "deleteAccountConfirmation": "¿Estás seguro de que quieres eliminar esta cuenta?",

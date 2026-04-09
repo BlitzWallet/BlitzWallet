@@ -1674,7 +1674,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "This recovery phrase already exists for another account",
         "editTitle": "Edit Account",
-        "createTitle": "Create Account",
+        "createTitle_derived": "Create Account",
+        "createTitle_imported": "Import Account",
         "updateTitle": "Update Account",
         "cannotDeleteActiveAccountError": "You can’t delete the active account. Please select another account before deleting.",
         "deleteAccountConfirmation": "Are you sure you want to delete this account?",

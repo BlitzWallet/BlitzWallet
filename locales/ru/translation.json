@@ -1675,7 +1675,8 @@
       "createAccountPage": {
         "alreadyUsingSeedError": "Эта сид-фраза уже используется",
         "editTitle": "Изменить счет",
-        "createTitle": "Создать счет",
+        "createTitle_derived": "Создать аккаунт",
+        "createTitle_imported": "Импортировать аккаунт",
         "updateTitle": "Обновить счет",
         "cannotDeleteActiveAccountError": "Нельзя удалить активный счет.",
         "deleteAccountConfirmation": "Удалить этот счет?",
