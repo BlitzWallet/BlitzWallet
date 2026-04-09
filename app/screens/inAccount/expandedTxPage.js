@@ -78,7 +78,7 @@ export default function ExpandedTx(props) {
   const [transaction, setTransaction] = useState(
     props.route.params.transaction,
   );
-  const sendingContactUUID = transaction.details?.sendingUUID;
+
   const showSuccessActionLabel = transaction.details?.successAction;
 
   useEffect(() => {
@@ -110,12 +110,17 @@ export default function ExpandedTx(props) {
     }
   }, [sparkInformation.transactions]);
 
-  const selectedContact = useMemo(() => {
+  const localContact = useMemo(() => {
     if (!decodedAddedContacts) return undefined;
     return decodedAddedContacts?.find(
-      contact => contact.uuid === sendingContactUUID,
+      contact => contact.uuid === transaction.details?.sendingUUID,
     );
-  }, [decodedAddedContacts, sendingContactUUID]);
+  }, [decodedAddedContacts, transaction.details?.sendingUUID]);
+
+  const remoteContact = transaction?.details?.remoteContactPayment;
+
+  const selectedContact = localContact || remoteContact;
+  const sendingContactUUID = selectedContact?.uuid;
 
   const showConversionLine =
     transaction?.details?.showSwapLabel &&
@@ -372,9 +377,9 @@ export default function ExpandedTx(props) {
     return (
       <TouchableOpacity
         onPress={() =>
-          selectedContact &&
-          navigateToExpandedContact(selectedContact, 'expandedTx')
+          localContact && navigateToExpandedContact(localContact, 'expandedTx')
         }
+        disabled={!localContact}
         style={styles.contactRow}
       >
         <View
