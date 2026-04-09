@@ -14,7 +14,7 @@ const AuthStatusProvider = ({ children }) => {
       setAuthResetKey(prev => prev + 1);
       navigationRef.current.reset({
         index: 0,
-        routes: [{ name: 'Splash' }],
+        routes: [{ name: 'SplashReload' }],
       });
     }
   }, [appState]);
