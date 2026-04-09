@@ -496,6 +496,7 @@ export const WebViewProvider = ({ children }) => {
 
       const blockReset =
         currentRoutes?.includes('Splash') ||
+        currentRoutes?.includes('SplashReload') ||
         currentRoutes?.includes('Home') ||
         currentRoutes?.includes('ConnectingToNodeLoadingScreen');
 
@@ -1150,6 +1151,7 @@ export const WebViewProvider = ({ children }) => {
 
       const blockReset =
         currentRoutes?.includes('Splash') ||
+        currentRoutes?.includes('SplashReload') ||
         currentRoutes?.includes('Home') ||
         currentRoutes?.includes('ConnectingToNodeLoadingScreen');
 
@@ -1395,6 +1397,7 @@ export const WebViewProvider = ({ children }) => {
             transitionWvState(WV_STATES.LOADING, 'onLoadStart');
             webViewLoadState.current = 'loading';
             onLoadEndCalledRef.current = false;
+            didRunHandshakeRef.current = false;
           }}
           onLoadProgress={({ nativeEvent }) => {
             if (

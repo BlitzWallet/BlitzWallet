@@ -5,7 +5,10 @@ import LottieView from 'lottie-react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  withTiming,
+  withDelay,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { CENTER, COLORS } from '../constants';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import {
@@ -46,6 +49,7 @@ import {
   initSavingsDb,
   isSavingsDatabaseOpen,
 } from '../functions/savings/savingsStorage';
+
 const BlitzAnimation = require('../assets/BlitzAnimation.json');
 const errorTxAnimation = require('../assets/errorTxAnimation.json');
 
@@ -91,23 +95,35 @@ const SplashScreen = () => {
         fade: true,
       });
       ExpoSplashScreen.hideAsync();
+
+      const tablesOpen =
+        isMessagesDatabaseOpen() &&
+        isGiftCardDatabaseOpen() &&
+        isSavedPOSTxsDatabaseOpen() &&
+        isSparkTxDatabaseOpen() &&
+        isRoostockDatabaseOpen() &&
+        isGiftDatabaseOpen() &&
+        isSavingsDatabaseOpen();
+
+      if (tablesOpen) {
+        animationRef.current?.pause();
+        // Warm restart fast path: fade out in 0.5s, no animation
+        const goHome = () => navigate.replace('Home');
+        opacity.value = withDelay(
+          750,
+          withTiming(0, { duration: 500 }, finished => {
+            if (finished) scheduleOnRN(goHome);
+          }),
+        );
+        return;
+      }
+
       try {
         setTimeout(() => {
           animationRef.current?.play();
         }, 500);
 
-        if (
-          isMessagesDatabaseOpen() &&
-          isGiftCardDatabaseOpen() &&
-          isSavedPOSTxsDatabaseOpen() &&
-          isSparkTxDatabaseOpen() &&
-          isRoostockDatabaseOpen() &&
-          isGiftDatabaseOpen() &&
-          isSavingsDatabaseOpen()
-        ) {
-          console.log('Tables are already opened, blocking...');
-        } else {
-          // Initialize databases one at a time
+        if (!tablesOpen) {
           const didOpen = await initializeDatabase();
           const giftCardTable = await initializeGiftCardDatabase();
           const posTransactions = await initializePOSTransactionsDatabase();
@@ -202,6 +218,7 @@ const SplashScreen = () => {
           <LottieView
             ref={animationRef}
             source={darkModeAnimation}
+            autoPlay={false}
             speed={0.8}
             loop={false}
             style={styles.lottie}

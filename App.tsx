@@ -657,6 +657,11 @@ function ResetStack(): JSX.Element | null {
           // initialParams={{ onAnimationFinish: handleAnimationFinish }}
         />
         <Stack.Screen
+          name="SplashReload"
+          component={SplashScreen}
+          options={{ animation: 'none', gestureEnabled: false }}
+        />
+        <Stack.Screen
           name="Home"
           component={HomeComponent}
           initialParams={securitySettings}
