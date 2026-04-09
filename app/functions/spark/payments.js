@@ -75,6 +75,9 @@ export const sparkPaymenWrapper = async ({
   try {
     console.log('Begining spark payment');
 
+    const sendingUUID =
+      contactInfo?.uuid || paymentInfo?.blitzContactInfo?.uuid || '';
+
     if (!getFee && (await isOptimizationRunning(mnemonic))) {
       console.log(
         'Optimization in progress, aborting immediately for payment...',
@@ -203,7 +206,7 @@ export const sparkPaymenWrapper = async ({
           paymentType: didUseLightning ? 'lightning' : 'spark',
           accountId: sparkInformation.identityPubKey,
           details: {
-            sendingUUID: contactInfo?.uuid,
+            sendingUUID,
             fee: Math.round(usdToSatFee + lnFee),
             totalFee: Math.round(usdToSatFee + lnFee),
             supportFee: 0,
@@ -228,6 +231,9 @@ export const sparkPaymenWrapper = async ({
             LRC20Token: USDB_TOKEN_ID,
             ...(paymentInfo?.data?.successAction
               ? { successAction: paymentInfo.data.successAction }
+              : {}),
+            ...(paymentInfo.blitzContactInfo
+              ? { remoteContactPayment: paymentInfo.blitzContactInfo }
               : {}),
           },
         };
@@ -268,7 +274,7 @@ export const sparkPaymenWrapper = async ({
             paymentType: 'lightning',
             accountId: sparkInformation.identityPubKey,
             details: {
-              sendingUUID: contactInfo?.uuid,
+              sendingUUID,
               fee: realPaymentFee,
               totalFee: supportFee + realPaymentFee,
               supportFee: supportFee,
@@ -282,6 +288,9 @@ export const sparkPaymenWrapper = async ({
               ...(paymentInfo?.data?.successAction
                 ? { successAction: paymentInfo.data.successAction }
                 : {}),
+              ...(paymentInfo.blitzContactInfo
+                ? { remoteContactPayment: paymentInfo.blitzContactInfo }
+                : {}),
             },
           };
           response = tx;
@@ -292,7 +301,7 @@ export const sparkPaymenWrapper = async ({
             paymentType: 'spark',
             accountId: sparkInformation.identityPubKey,
             details: {
-              sendingUUID: contactInfo?.uuid,
+              sendingUUID,
               fee: 0,
               totalFee: 0 + supportFee,
               supportFee: supportFee,
@@ -306,6 +315,9 @@ export const sparkPaymenWrapper = async ({
               LRC20Token: seletctedToken,
               ...(paymentInfo?.data?.successAction
                 ? { successAction: paymentInfo.data.successAction }
+                : {}),
+              ...(paymentInfo.blitzContactInfo
+                ? { remoteContactPayment: paymentInfo.blitzContactInfo }
                 : {}),
             },
           };
@@ -517,7 +529,7 @@ export const sparkPaymenWrapper = async ({
         paymentType: 'spark',
         accountId: sparkInformation.identityPubKey,
         details: {
-          sendingUUID: contactInfo?.uuid,
+          sendingUUID,
           fee: 0,
           totalFee: 0 + supportFee,
           supportFee: supportFee,
@@ -533,6 +545,9 @@ export const sparkPaymenWrapper = async ({
             : data.receiverIdentityPublicKey,
           isLRC20Payment: useLRC20Format,
           LRC20Token: formattedToken,
+          ...(paymentInfo.blitzContactInfo
+            ? { remoteContactPayment: paymentInfo.blitzContactInfo }
+            : {}),
         },
       };
 

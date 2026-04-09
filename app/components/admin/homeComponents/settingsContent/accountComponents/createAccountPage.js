@@ -500,14 +500,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   numberText: {
-    fontSize: SIZES.large,
+    fontSize: SIZES.medium,
     includeFontPadding: false,
     marginRight: 10,
   },
   textInputStyle: {
     flex: 1,
     minHeight: Platform.OS === 'ios' ? 0 : 55,
-    fontSize: SIZES.large,
+    fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
   },
