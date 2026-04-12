@@ -492,7 +492,11 @@ export default function CreateSplitBill(props) {
         actionFunction={handleConfirm}
         disabled={isLoading}
         useLoading={isLoading}
-        textContent={t('contacts.splitBill.confirmButton')}
+        textContent={
+          paymentType === 'request'
+            ? t('constants.request')
+            : t('constants.review')
+        }
       />
     </CustomKeyboardAvoidingView>
   );
