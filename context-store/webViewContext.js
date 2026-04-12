@@ -58,6 +58,8 @@ export const OPERATION_TYPES = {
   setPrivacyEnabled: 'setPrivacyEnabled',
   getSingleTxDetails: 'getSingleTxDetails',
   createSatsInvoice: 'createSatsInvoice',
+  fufillSparkInvoices: 'fufillSparkInvoices',
+  batchTransferTokens: 'batchTransferTokens',
   createTokensInvoice: 'createTokensInvoice',
   claimSparkHodlLightningPayment: 'claimSparkHodlLightningPayment',
   receiveSparkHodlLightningPayment: 'receiveSparkHodlLightningPayment',

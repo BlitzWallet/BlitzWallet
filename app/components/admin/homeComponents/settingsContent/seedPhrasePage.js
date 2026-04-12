@@ -31,7 +31,7 @@ export default function SeedPhrasePage({ extraData, route }) {
   const { t } = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
-  const canViewQrCode = extraData?.canViewQrCode;
+  const canViewQrCode = extraData?.canViewQrCode || false;
   const qrValue = calculateSeedQR(mnemonicString);
 
   const warningBorderColor =
@@ -97,15 +97,20 @@ export default function SeedPhrasePage({ extraData, route }) {
 
         {/* Words/QR Toggle */}
         <WordsQrToggle
+          option1Text={t('settings.seedPhrase.wordsText')}
+          option2Text={t('settings.seedPhrase.qrText')}
+          option1Value="words"
+          option2Value="qrcode"
           setSelectedDisplayOption={setSelectedDisplayOption}
           selectedDisplayOption={selectedDisplayOption}
-          canViewQrCode={canViewQrCode}
-          qrNavigateFunc={() =>
+          canViewOption2={canViewQrCode}
+          option2BlockedNavFunc={() =>
             navigate.popTo('SettingsContentHome', {
               for: 'show seed phrase',
               extraData: { ...extraData, canViewQrCode: true },
             })
           }
+          containerStyle={{ marginTop: 'auto' }}
         />
 
         {/* Copy (text-only, secondary) */}

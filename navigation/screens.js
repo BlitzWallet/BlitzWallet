@@ -7,6 +7,7 @@ import {
   ErrorScreen,
   SendPaymentScreen,
   SwitchReceiveOptionPage,
+  ConfirmSplitPayment,
 } from '../app/components/admin';
 import {
   ConfirmLeaveChatGPT,
@@ -26,7 +27,9 @@ import SMSMessagingSendPage from '../app/components/admin/homeComponents/apps/sm
 import HistoricalSMSMessagingPage from '../app/components/admin/homeComponents/apps/sms4sats/sentPayments';
 import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
+  AddFriendsToSplit,
   ChooseContactHalfModal,
+  CreateSplitBill,
   EditMyProfilePage,
   ExpandedAddContactsPage,
   ExpandedContactsPage,
@@ -36,6 +39,7 @@ import {
 } from '../app/components/admin/homeComponents/contacts';
 import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
 import BackupSeedWarning from '../app/components/admin/homeComponents/homeLightning/backupSeedWarning';
+
 import {
   ConfirmActionPage,
   NosterWalletConnect,
@@ -152,6 +156,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'EditMyProfilePage', component: EditMyProfilePage },
   { name: 'ExpandedAddContactsPage', component: ExpandedAddContactsPage },
   { name: 'SendAndRequestPage', component: SendAndRequestPage },
+  { name: 'AddFriendsToSplit', component: AddFriendsToSplit },
+  { name: 'CreateSplitBill', component: CreateSplitBill },
   { name: 'AppStorePageIndex', component: AppStorePageIndex },
   { name: 'HistoricalSMSMessagingPage', component: HistoricalSMSMessagingPage },
   { name: 'HistoricalVPNPurchases', component: HistoricalVPNPurchases },
@@ -206,6 +212,11 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SavingsGoalDetails', component: SavingsGoalDetails },
   { name: 'GiftsPageHome', component: GiftsPageHome },
   { name: 'ReclaimGift', component: ReclaimGift },
+  {
+    name: 'ConfirmSplitPayment',
+    component: ConfirmSplitPayment,
+    options: { gestureEnabled: false },
+  },
   {
     name: 'SelectStablecoinParamsScreen',
     component: SelectStablecoinParamsScreen,

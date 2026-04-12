@@ -1,5 +1,5 @@
 import formatBalanceAmount from '../formatNumber';
-import { updateMessage } from '../../../db';
+import { bulkUpdateMessages, updateMessage } from '../../../db';
 import { BITCOIN_SAT_TEXT, SATSPERBITCOIN } from '../../constants';
 import fetchBackend from '../../../db/handleBackend';
 import { crashlyticsLogReport } from '../crashlyticsLogs';
@@ -41,6 +41,41 @@ export async function publishMessage({
     });
   } catch (err) {
     console.log(err), 'pubishing message to server error';
+  }
+}
+
+export async function publishBulkMessages(messagePayloads) {
+  try {
+    crashlyticsLogReport('Beginning to publish bulk contact messages');
+
+    const dbMessages = messagePayloads.map(p => ({
+      fromPubKey: p.fromPubKey,
+      toPubKey: p.toPubKey,
+      newMessage: p.data,
+      retrivedContact: p.retrivedContact,
+      privateKey: p.privateKey,
+      currentTime: p.currentTime,
+    }));
+
+    const success = await bulkUpdateMessages(dbMessages);
+    if (!success) return false;
+
+    // Push notifications are best-effort after the atomic write
+    for (const p of messagePayloads) {
+      sendPushNotification({
+        selectedContactUsername: p.selectedContact.uniqueName,
+        myProfile: p.globalContactsInformation.myProfile,
+        data: p.data,
+        privateKey: p.privateKey,
+        retrivedContact: p.retrivedContact,
+        masterInfoObject: p.masterInfoObject,
+      });
+    }
+
+    return true;
+  } catch (err) {
+    console.log(err, 'publishing bulk messages to server error');
+    return false;
   }
 }
 

@@ -248,6 +248,40 @@ export const getFilteredTransactions = async (filters, options = {}) => {
   }
 };
 
+export const getBulkPaymentGroupTransferIds = async accountId => {
+  try {
+    await ensureSparkDatabaseReady();
+
+    const query = `
+      SELECT json_extract(details, '$.sparkTransferIds') as sparkTransferIds
+      FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+      WHERE accountId = ?
+      AND json_extract(details, '$.isBulkPayment') = 1
+    `;
+
+    const rows = await sqlLiteDB.getAllAsync(query, [String(accountId)]);
+    const transferIds = new Set();
+
+    for (const row of rows) {
+      try {
+        const ids = JSON.parse(row.sparkTransferIds);
+        if (Array.isArray(ids)) {
+          for (const id of ids) {
+            if (id) transferIds.add(id);
+          }
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return transferIds;
+  } catch (error) {
+    console.error('Error fetching bulk payment group transfer IDs:', error);
+    return new Set();
+  }
+};
+
 export const getBulkSparkTransactions = async sparkIDs => {
   if (!sparkIDs || sparkIDs.length === 0) return [];
 

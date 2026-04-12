@@ -1325,6 +1325,41 @@
       "lnurlCopy": "Copiar endereço",
       "blitzCopy": "Copiar link",
       "scanProfile": "Ler perfil"
+    },
+    "splitBill": {
+      "addFriendsTitle": "Adicionar amigos para dividir",
+      "createBillTitle": "Criar conta dividida",
+      "selectedCount": "{{count}} de 10 selecionados",
+      "searchPlaceholder": "Buscar contatos",
+      "nextButton": "Próximo",
+      "memoLabel": "Descrição",
+      "memoPlaceholder": "Para que é isso?",
+      "totalAmountLabel": "Valor total",
+      "evenSplit": "Igual",
+      "customSplit": "Personalizado",
+      "remainderNote": "{{amount}} sat restantes ficam com você",
+      "perPerson": "{{amount}} / pessoa",
+      "confirmButton": "Confirmar",
+      "maxContactsWarning": "Máximo de 10 contatos por divisão",
+      "insufficientFunds": "Fundos insuficientes. Faltam {{shortfall}} sats.",
+      "swapPromptTitle": "Converter USDB para cobrir a divisão?",
+      "swapPromptBody": "Você precisa de mais {{amount}} sats. Converter USDB para cobrir a diferença?",
+      "swapConfirm": "Converter e pagar",
+      "swapFailed": "Conversão falhou. Pagamento cancelado.",
+      "customAmountsMismatch": "Os valores devem somar {{total}} sats",
+      "noContactsEmpty": "Nenhum contato ainda. Adicione contatos para dividir uma conta.",
+      "noContactsSearch": "Nenhum contato corresponde à sua busca.",
+      "noSparkAddress": "Sem endereço Spark",
+      "unknownContact": "Desconhecido",
+      "noName": "Sem nome definido",
+      "partialSuccess": "Pagos {{count}} de {{total}} contatos",
+      "requestSent": "Solicitação enviada para {{count}} contatos",
+      "errors": {
+        "noAmount_even": "Digite o valor total.",
+        "noAmount_custom": "Certifique-se de que todos tenham um valor.",
+        "noDescription": "Adicione uma descrição.",
+        "noContactsSelected": "Selecione pelo menos um contato"
+      }
     }
   },
   "settings": {
@@ -1881,7 +1916,9 @@
         "copyReport": "Copiar para a área de transferência",
         "confirmMessage_sent": "Enviado com sucesso",
         "confirmMessage_received": "Recebido com sucesso",
-        "confirmMessage": "{{direction}} com sucesso"
+        "confirmMessage": "{{direction}} com sucesso",
+        "bulkSuccess": "Solicitações enviadas com sucesso",
+        "bulkPartialSuccess": "Nenhuma solicitação enviada"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Valor enviado",
@@ -1893,6 +1930,7 @@
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
         "gift": "Vale-Blitz",
         "claimPayment": "Reivindicar pagamento",
+        "splitPayment": "Dividir",
         "chainSwap": "Dólar digital"
       },
       "explorePage": {
