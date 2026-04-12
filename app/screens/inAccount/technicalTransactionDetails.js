@@ -217,17 +217,6 @@ export default function TechnicalTransactionDetails(props) {
                         styles={styles.infoName}
                         CustomNumberOfLines={1}
                       />
-                      {!isLRC20Payment && (
-                        <ThemeText
-                          content={
-                            transferId.slice(0, 6) +
-                            '...' +
-                            transferId.slice(transferId.length - 6)
-                          }
-                          styles={styles.infoNameSmall}
-                          CustomNumberOfLines={1}
-                        />
-                      )}
                     </View>
                     <FormattedSatText
                       neverHideBalance={true}
