@@ -15,6 +15,7 @@ import {
   BACKGROUND_THRESHOLD_MS,
   // FORCE_RESET_SPAARK_STATE_MS,
 } from '../app/constants';
+import { crashlyticsLogReport } from '../app/functions/crashlyticsLogs';
 
 // Initiate context
 const AppStatusManager = createContext(null);
@@ -132,7 +133,6 @@ const AppStatusProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!__DEV__) return;
     if (appState !== 'active' || hasInitializedNavListener.current) {
       if (appState !== 'active' && !hasInitializedNavListener.current) {
         console.log('Skipping navigation listener setup - app not active');
@@ -144,6 +144,11 @@ const AppStatusProvider = ({ children }) => {
     hasInitializedNavListener.current = true;
 
     const unsubscribe = navigationRef.addListener('state', () => {
+      const routes = navigationRef.getRootState().routes;
+      const routeNames = routes.map(item => item.name).join('|');
+
+      crashlyticsLogReport(routeNames);
+
       console.log(
         'Current navigation stack',
         navigationRef.getRootState().routes,
