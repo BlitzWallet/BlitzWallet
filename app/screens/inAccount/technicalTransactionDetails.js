@@ -168,12 +168,7 @@ export default function TechnicalTransactionDetails(props) {
         />
 
         {isBulkPayment && (
-          <View
-            style={[
-              styles.amountsBreakdown,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
+          <View style={[styles.amountsBreakdown]}>
             {successfulGroup.map((entry, index) => {
               const contact = decodedAddedContacts?.find(
                 c => c.uuid === entry.contactUUID,
@@ -272,24 +267,23 @@ const styles = StyleSheet.create({
   },
   amountsBreakdown: {
     width: '100%',
-    borderRadius: 12,
-    paddingHorizontal: 16,
     marginTop: 8,
   },
 
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    marginBottom: 15,
   },
   infoName: {
-    // flex: 1,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   infoNameSmall: {
-    includeFontPadding: false,
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
+    flexShrink: 1,
   },
   infoValue: {
     marginLeft: 8,

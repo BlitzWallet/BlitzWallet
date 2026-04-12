@@ -100,13 +100,8 @@ export default function AddFriendsToSplit(props) {
       // Skip contacts without a Spark address or LNURL contacts
       const isSelectable = !contact.isLNURL;
       const isSelected = selectedUuids.has(contact.uuid);
-      const displayName =
-        contact.name ||
-        contact.uniqueName ||
-        t('contacts.splitBill.unknownContact');
-      const addressSnippet = contact.receiveAddress
-        ? `${contact.receiveAddress.slice(0, 12)}…`
-        : t('contacts.splitBill.noSparkAddress');
+      const uniqueName = contact.uniqueName || '';
+      const contactName = contact.name || t('contacts.splitBill.noName') || '';
 
       return (
         <TouchableOpacity
@@ -136,12 +131,16 @@ export default function AddFriendsToSplit(props) {
               theme={theme}
             />
           </View>
-          <View style={styles.contactInfo}>
+          <View style={{ flex: 1 }}>
+            <ThemeText
+              styles={styles.contactUniqueName}
+              content={uniqueName}
+              CustomNumberOfLines={1}
+            />
             <ThemeText
               styles={styles.contactName}
-              content={displayName}
+              content={contactName}
               CustomNumberOfLines={1}
-              CustomEllipsizeMode="tail"
             />
           </View>
           {isSelectable ? (
@@ -279,10 +278,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
-  contactName: {
+  contactUniqueName: {
     includeFontPadding: false,
+    flexShrink: 1,
   },
-
+  contactName: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
+    flexShrink: 1,
+  },
   nextButton: {
     width: INSET_WINDOW_WIDTH,
     ...CENTER,

@@ -1,5 +1,11 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolateColor,
+} from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -22,7 +28,6 @@ import {
 import { bulkPaymentRequest } from '../../../../functions/spark/bulkPaymentFunctions';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { getDocsByIds } from '../../../../../db';
-import ProfileImageRow from './internalComponents/profileImageRow';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
@@ -32,7 +37,6 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import ContactProfileImage from './internalComponents/profileImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 
 export default function CreateSplitBill(props) {
@@ -107,6 +111,22 @@ export default function CreateSplitBill(props) {
       setTotalCents(0);
     }
   }, [splitMode]);
+
+  const chipProgress = useSharedValue(splitMode === 'even' ? 0 : 1);
+
+  useEffect(() => {
+    chipProgress.value = withTiming(splitMode === 'even' ? 0 : 1, {
+      duration: 200,
+    });
+  }, [splitMode]);
+
+  const animatedChipStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      chipProgress.value,
+      [0, 1],
+      ['transparent', textInputBackground],
+    ),
+  }));
 
   const totalSatsInt = useMemo(() => parseInt(totalSats, 10) || 0, [totalSats]);
   const totalCentsInt = useMemo(
@@ -289,22 +309,35 @@ export default function CreateSplitBill(props) {
     splitMode,
   ]);
 
-  const cuustomElements = useMemo(() => {
+  const contactElements = useMemo(() => {
     return selectedContacts.map(contact => {
       const uniqueName = contact.uniqueName || '';
       const contactName = contact.name || t('contacts.splitBill.noName') || '';
+      const contactAmount =
+        splitMode === 'even'
+          ? perPersonNative
+          : typeof customAmounts[contact.uuid] === 'number'
+          ? customAmounts[contact.uuid]
+          : parseInt(customAmounts[contact.uuid] || '0', 10);
+
+      const amountChip = isUSD ? (
+        <ThemeText
+          styles={styles.amountChip}
+          content={
+            contactAmount > 0 ? `$${(contactAmount / 100).toFixed(2)}` : '$0.00'
+          }
+        />
+      ) : (
+        <FormattedSatText
+          autoAdjustFontSize
+          styles={styles.amountChip}
+          balance={contactAmount}
+        />
+      );
+
       return (
-        <View key={contact.uuid} style={styles.customInputRow}>
-          <View
-            style={{
-              width: 40,
-              height: 40,
-              backgroundColor: backgroundOffset,
-              borderRadius: 25,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+        <View key={contact.uuid} style={styles.contactRow}>
+          <View style={styles.contactAvatar}>
             <ContactProfileImage
               uri={cache[contact.uuid]?.localUri}
               updated={cache[contact.uuid]?.updated}
@@ -312,66 +345,50 @@ export default function CreateSplitBill(props) {
           </View>
           <View style={{ flex: 1 }}>
             <ThemeText
-              styles={styles.customUniqueName}
+              styles={styles.contactUniqueName}
               content={uniqueName}
               CustomNumberOfLines={1}
             />
             <ThemeText
-              styles={styles.customContactName}
+              styles={styles.contactName}
               content={contactName}
               CustomNumberOfLines={1}
             />
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              keyboardNavigate(() =>
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'customInputText',
-                  returnLocation: 'CreateSplitBill',
-                  sliderHight: 0.5,
-                  type: contact.uuid,
-                  forceUSD: isUSD,
-                }),
-              );
-            }}
-          >
-            {isUSD ? (
-              <ThemeText
-                styles={{
-                  ...styles.customAmountInput,
-                  backgroundColor: textInputBackground,
+          <Animated.View style={[styles.chipWrapper, animatedChipStyle]}>
+            {splitMode === 'custom' ? (
+              <TouchableOpacity
+                onPress={() => {
+                  keyboardNavigate(() =>
+                    navigate.navigate('CustomHalfModal', {
+                      wantedContent: 'customInputText',
+                      returnLocation: 'CreateSplitBill',
+                      sliderHight: 0.5,
+                      type: contact.uuid,
+                      forceUSD: isUSD,
+                    }),
+                  );
                 }}
-                content={
-                  customAmounts[contact.uuid] > 0
-                    ? `$${(customAmounts[contact.uuid] / 100).toFixed(2)}`
-                    : '$0.00'
-                }
-              />
+              >
+                {amountChip}
+              </TouchableOpacity>
             ) : (
-              <FormattedSatText
-                autoAdjustFontSize
-                styles={{
-                  ...styles.customAmountInput,
-                  backgroundColor: textInputBackground,
-                }}
-                balance={
-                  typeof customAmounts[contact.uuid] === 'number'
-                    ? customAmounts[contact.uuid]
-                    : parseInt(customAmounts[contact.uuid] || '0', 10)
-                }
-              />
+              amountChip
             )}
-          </TouchableOpacity>
+          </Animated.View>
         </View>
       );
     });
   }, [
     selectedContacts,
+    splitMode,
+    perPersonNative,
+    customAmounts,
     backgroundOffset,
     cache,
     isUSD,
     textInputBackground,
-    customAmounts,
+    t,
   ]);
 
   return (
@@ -380,89 +397,73 @@ export default function CreateSplitBill(props) {
       isKeyboardActive={isKeyboardActive}
       useStandardWidth={true}
     >
-      {/* Header */}
       <CustomSettingsTopBar label={t('contacts.splitBill.createBillTitle')} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
       >
-        <ProfileImageRow contacts={selectedContacts} />
-
-        {/* Even split: show per-person amount below cluster */}
-        {splitMode === 'even' && (
-          <ThemeText
-            styles={[styles.perPersonHint, { opacity: HIDDEN_OPACITY }]}
-            content={
-              isUSD
-                ? t('contacts.splitBill.perPerson', {
-                    amount: displayCorrectDenomination({
-                      amount: (perPersonNative / 100).toFixed(2),
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination: 'fiat',
-                      },
-                      fiatStats,
-                      forceCurrency: 'USD',
-                      convertAmount: false,
-                    }),
-                  })
-                : t('contacts.splitBill.perPerson', {
-                    amount: displayCorrectDenomination({
-                      amount: perPersonNative,
-                      masterInfoObject,
-                      fiatStats,
-                    }),
-                  })
-            }
-          />
-        )}
-
-        {/* Custom mode: per-contact inputs below avatars */}
-        {splitMode === 'custom' && (
-          <View style={styles.customInputsContainer}>{cuustomElements}</View>
-        )}
-
-        {/* Total sats input */}
-        {splitMode === 'even' && (
-          <View style={styles.fieldGroup}>
+        <ThemeText
+          styles={[
+            styles.totalAmountLabel,
+            { textAlign: 'center', marginBottom: 0 },
+          ]}
+          content={t('contacts.splitBill.totalAmountLabel')}
+        />
+        {/* Big total amount display — tappable in even, grayed in custom */}
+        <TouchableOpacity
+          onPress={() => {
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'customInputText',
+              returnLocation: 'CreateSplitBill',
+              sliderHight: 0.5,
+              forceUSD: isUSD,
+            });
+          }}
+          disabled={splitMode === 'custom' || isKeyboardActive}
+          activeOpacity={splitMode === 'custom' ? 1 : 0.7}
+        >
+          {isUSD ? (
             <ThemeText
               styles={[
-                styles.fieldLabel,
-                { textAlign: 'center', marginBottom: 0 },
+                styles.balanceText,
+                { opacity: splitMode === 'custom' ? HIDDEN_OPACITY : 1 },
               ]}
-              content={t('contacts.splitBill.totalAmountLabel')}
+              content={
+                totalNative > 0 ? `$${(totalNative / 100).toFixed(2)}` : '$0.00'
+              }
             />
-            <TouchableOpacity
-              onPress={() => {
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'customInputText',
-                  returnLocation: 'CreateSplitBill',
-                  sliderHight: 0.5,
-                  forceUSD: isUSD,
-                });
+          ) : (
+            <FormattedSatText
+              autoAdjustFontSize
+              styles={{
+                ...styles.balanceText,
+                opacity: splitMode === 'custom' ? HIDDEN_OPACITY : 1,
               }}
-              disabled={isKeyboardActive}
-            >
-              {isUSD ? (
-                <ThemeText
-                  styles={styles.balanceText}
-                  content={
-                    totalCentsInt > 0
-                      ? `$${(totalCentsInt / 100).toFixed(2)}`
-                      : '$0.00'
-                  }
-                />
-              ) : (
-                <FormattedSatText
-                  autoAdjustFontSize
-                  styles={styles.balanceText}
-                  balance={totalSats}
-                />
-              )}
-            </TouchableOpacity>
-          </View>
-        )}
+              balance={totalNative}
+            />
+          )}
+        </TouchableOpacity>
+
+        {/* Even/Custom pill toggle */}
+        <WordsQrToggle
+          option1Text={t('contacts.splitBill.evenSplit')}
+          option2Text={t('contacts.splitBill.customSplit')}
+          option1Value="even"
+          option2Value="custom"
+          setSelectedDisplayOption={setSplitMode}
+          selectedDisplayOption={splitMode}
+          containerStyle={{ marginTop: 16, alignSelf: 'center' }}
+        />
+
+        {/* Divider */}
+        {/* <View style={[styles.divider, { backgroundColor: backgroundOffset }]} /> */}
+
+        {/* Contact rows — always shown, mode-aware */}
+        <View style={styles.contactsContainer}>{contactElements}</View>
+
+        {/* Divider */}
+        {/* <View style={[styles.divider, { backgroundColor: backgroundOffset }]} /> */}
 
         {/* Memo input */}
         <View style={styles.fieldGroup}>
@@ -480,20 +481,9 @@ export default function CreateSplitBill(props) {
           />
           <ThemeText
             styles={styles.charCounter}
-            content={`${memo.length}/200`}
+            content={`${memo.length}/100`}
           />
         </View>
-
-        {/* Even/Custom pill toggle */}
-        <WordsQrToggle
-          option1Text={t('contacts.splitBill.evenSplit')}
-          option2Text={t('contacts.splitBill.customSplit')}
-          option1Value="even"
-          option2Value="custom"
-          setSelectedDisplayOption={setSplitMode}
-          selectedDisplayOption={splitMode}
-          containerStyle={{ marginTop: 24, alignSelf: 'center' }}
-        />
       </ScrollView>
 
       {/* Confirm button */}
@@ -514,59 +504,66 @@ const styles = StyleSheet.create({
     ...CENTER,
     paddingBottom: 24,
   },
-
-  perPersonHint: {
-    textAlign: 'center',
-    fontSize: SIZES.smedium,
-    fontFamily: FONT.Descriptoin_Regular,
-    includeFontPadding: false,
-  },
-  customInputsContainer: {
-    marginVertical: 12,
-  },
-  customInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    gap: 12,
-  },
-  customUniqueName: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
-    flexShrink: 1,
-  },
-  customContactName: {
-    fontSize: SIZES.small,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-    flexShrink: 1,
-  },
-  customAmountInput: {
-    minWidth: 100,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-    textAlign: 'right',
-  },
-  fieldGroup: {
-    marginTop: 20,
-  },
-  fieldLabel: {
-    includeFontPadding: false,
-    marginBottom: 8,
-  },
-  charCounter: {
-    textAlign: 'right',
-    includeFontPadding: false,
-    marginTop: 10,
-  },
   balanceText: {
     width: '100%',
     fontSize: SIZES.huge,
     textAlign: 'center',
     includeFontPadding: false,
+  },
+  divider: {
+    height: 1,
+    marginVertical: 20,
+  },
+  contactsContainer: {
+    width: '100%',
+    marginVertical: 25,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    gap: 12,
+  },
+  contactAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contactUniqueName: {
+    includeFontPadding: false,
+    flexShrink: 1,
+  },
+  contactName: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
+    flexShrink: 1,
+  },
+  chipWrapper: {
+    borderRadius: 8,
+  },
+  amountChip: {
+    minWidth: 100,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+    textAlign: 'right',
+  },
+  fieldGroup: {
+    width: '100%',
+  },
+  fieldLabel: {
+    includeFontPadding: false,
+    marginBottom: 8,
+  },
+  totalAmountLabel: { includeFontPadding: false, marginTop: 16 },
+  charCounter: {
+    textAlign: 'right',
+    includeFontPadding: false,
+    marginTop: 10,
   },
   confirmButton: {
     width: INSET_WINDOW_WIDTH,
