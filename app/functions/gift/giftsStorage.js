@@ -313,6 +313,32 @@ export const updateGiftLocal = async (uuid, updatedFields) => {
   }
 };
 
+export const bulkSaveGiftsLocal = async gifts => {
+  try {
+    if (!gifts || gifts.length === 0) return false;
+    const db = await getDatabase();
+    const now = Date.now();
+    const placeholders = gifts.map(() => `(?, ?, ?, ?)`).join(', ');
+    const values = gifts.flatMap(gift => [
+      gift.uuid,
+      gift.createdBy,
+      JSON.stringify(gift),
+      gift.lastUpdated || now,
+    ]);
+    await db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `INSERT OR REPLACE INTO giftsTable (uuid, createdBy, storageObject, lastUpdated)
+         VALUES ${placeholders}`,
+        values,
+      );
+    });
+    return true;
+  } catch (err) {
+    console.error('bulkSaveGiftsLocal error:', err);
+    return false;
+  }
+};
+
 export const deleteGiftsTable = async () => {
   try {
     const db = await getDatabase();

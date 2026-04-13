@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { useAppStatus } from './appStatus';
 import {
+  bulkSaveGiftsLocal,
   deleteGiftLocal,
   getAllLocalGifts,
   saveGiftLocal,
@@ -15,6 +16,7 @@ import {
 } from '../app/functions/gift/giftsStorage';
 import {
   addGiftToDatabase,
+  bulkAddGiftsToDatabase,
   deleteGift,
   handleGiftCheck,
   reloadGiftsOnDomesday,
@@ -97,6 +99,23 @@ export function GiftProvider({ children }) {
       return true;
     } catch (err) {
       console.log('error saving gift to cloud');
+      return false;
+    }
+  };
+
+  const bulkSaveGiftsToCloud = async gifts => {
+    try {
+      const localObjects = gifts.map(g => JSON.parse(JSON.stringify(g)));
+      const [localResponse, serverResponse] = await Promise.all([
+        bulkSaveGiftsLocal(localObjects),
+        bulkAddGiftsToDatabase(gifts),
+      ]);
+      if (!localResponse || !serverResponse)
+        throw new Error('Unable to bulk save gifts');
+      dispatch({ type: 'BULK_ADD_GIFTS', payload: localObjects });
+      return true;
+    } catch (err) {
+      console.log('error bulk saving gifts to cloud', err);
       return false;
     }
   };
@@ -298,6 +317,7 @@ export function GiftProvider({ children }) {
       value={{
         ...state,
         saveGiftToCloud,
+        bulkSaveGiftsToCloud,
         checkForRefunds,
         deleteGiftFromCloudAndLocal,
         updateGiftList,

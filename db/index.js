@@ -554,6 +554,25 @@ export async function addGiftToDatabase(dataObject) {
   }
 }
 
+export async function bulkAddGiftsToDatabase(gifts) {
+  try {
+    const db = getFirestore();
+    const batch = writeBatch(db);
+    gifts.forEach(gift => {
+      const giftRef = doc(db, 'blitzGifts', gift.uuid);
+      const { claimURL, ...giftWithoutClaimUrl } = gift;
+      batch.set(giftRef, giftWithoutClaimUrl, { merge: false });
+    });
+    await batch.commit();
+    console.log(`Bulk saved ${gifts.length} gifts to database`);
+    return true;
+  } catch (e) {
+    console.error('Error bulk adding gifts to database:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
 export async function updateGiftInDatabase(dataObject) {
   try {
     const db = getFirestore();
