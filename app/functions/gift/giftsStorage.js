@@ -313,6 +313,22 @@ export const updateGiftLocal = async (uuid, updatedFields) => {
   }
 };
 
+export const bulkDeleteGiftsLocal = async uuids => {
+  try {
+    if (!uuids || uuids.length === 0) return false;
+    const db = await getDatabase();
+    const placeholders = uuids.map(() => '?').join(', ');
+    await db.runAsync(
+      `DELETE FROM giftsTable WHERE uuid IN (${placeholders})`,
+      uuids,
+    );
+    return true;
+  } catch (err) {
+    console.error('bulkDeleteGiftsLocal error:', err);
+    return false;
+  }
+};
+
 export const bulkSaveGiftsLocal = async gifts => {
   try {
     if (!gifts || gifts.length === 0) return false;
