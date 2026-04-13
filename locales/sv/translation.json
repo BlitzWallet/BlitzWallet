@@ -1325,6 +1325,41 @@
       "lnurlCopy": "Kopia av adress",
       "blitzCopy": "Kopiera länk",
       "scanProfile": "Skanna profil"
+    },
+    "splitBill": {
+      "addFriendsTitle": "Lägg till vänner att dela med",
+      "createBillTitle": "Skapa delad nota",
+      "selectedCount": "{{count}} av 10 valda",
+      "searchPlaceholder": "Sök kontakter",
+      "nextButton": "Nästa",
+      "memoLabel": "Beskrivning",
+      "memoPlaceholder": "Vad gäller det?",
+      "totalAmountLabel": "Totalt belopp",
+      "evenSplit": "Jämnt",
+      "customSplit": "Anpassat",
+      "remainderNote": "{{amount}} sat i rest stannar hos dig",
+      "perPerson": "{{amount}} / person",
+      "confirmButton": "Bekräfta",
+      "maxContactsWarning": "Max 10 kontakter per uppdelning",
+      "insufficientFunds": "Otillräckliga medel. Du saknar {{shortfall}} sats.",
+      "swapPromptTitle": "Växla USDB för att täcka?",
+      "swapPromptBody": "Du behöver {{amount}} sats till. Växla USDB för att täcka skillnaden?",
+      "swapConfirm": "Växla och betala",
+      "swapFailed": "Växling misslyckades. Betalning avbröts.",
+      "customAmountsMismatch": "Beloppen måste bli {{total}} sats totalt",
+      "noContactsEmpty": "Inga kontakter ännu. Lägg till kontakter för att dela en nota.",
+      "noContactsSearch": "Inga kontakter matchar din sökning.",
+      "noSparkAddress": "Ingen Spark-adress",
+      "unknownContact": "Okänd",
+      "noName": "Inget namn angivet",
+      "partialSuccess": "Betalade {{count}} av {{total}} kontakter",
+      "requestSent": "Begäran skickad till {{count}} kontakter",
+      "errors": {
+        "noAmount_even": "Ange totalbeloppet.",
+        "noAmount_custom": "Se till att alla har ett belopp.",
+        "noDescription": "Lägg till en beskrivning.",
+        "noContactsSelected": "Välj minst en kontakt"
+      }
     }
   },
   "settings": {
@@ -1881,7 +1916,9 @@
         "emailReport": "Skicka via e-post",
         "copyReport": "Kopiera till Urklipp",
         "confirmMessage_sent": "Skickat framgångsrikt",
-        "confirmMessage_received": "Mottaget framgångsrikt"
+        "confirmMessage_received": "Mottaget framgångsrikt",
+        "bulkSuccess": "Förfrågningar skickades",
+        "bulkPartialSuccess": "Inga förfrågningar skickades"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Utskickat belopp",
@@ -1893,6 +1930,7 @@
         "converstionRate": "{{satAmount}} per {{dollarAmount}}",
         "gift": "Gåva",
         "claimPayment": "Ta emot betalning",
+        "splitPayment": "Dela",
         "chainSwap": "Kedjeswap"
       },
       "explorePage": {

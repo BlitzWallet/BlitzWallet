@@ -27,6 +27,7 @@ import {
 import SwitchReceiveOptionPage from './homeComponents/receiveBitcoin/switchReceiveOptionPage';
 
 import SendPaymentScreen from './homeComponents/sendBitcoin/sendPaymentScreen';
+import ConfirmSplitPayment from './homeComponents/sendBitcoin/confirmSplitPayment';
 
 import {
   AboutPage,
@@ -72,4 +73,5 @@ export {
   ContactsPage,
   ContactsPageLongPressActions,
   AddOrDeleteContactImage,
+  ConfirmSplitPayment,
 };

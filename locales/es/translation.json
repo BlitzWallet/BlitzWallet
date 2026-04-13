@@ -1185,6 +1185,41 @@
       "lnurlCopy": "Copiar dirección",
       "blitzCopy": "Copiar enlace",
       "scanProfile": "Escanear perfil"
+    },
+    "splitBill": {
+      "addFriendsTitle": "Agregar amigos para dividir",
+      "createBillTitle": "Crear cuenta dividida",
+      "selectedCount": "{{count}} de 10 seleccionados",
+      "searchPlaceholder": "Buscar contactos",
+      "nextButton": "Siguiente",
+      "memoLabel": "Descripción",
+      "memoPlaceholder": "¿Para qué es?",
+      "totalAmountLabel": "Monto total",
+      "evenSplit": "Equitativo",
+      "customSplit": "Personalizado",
+      "remainderNote": "{{amount}} sat restantes se quedan contigo",
+      "perPerson": "{{amount}} / persona",
+      "confirmButton": "Confirmar",
+      "maxContactsWarning": "Máximo 10 contactos por división",
+      "insufficientFunds": "Fondos insuficientes. Te faltan {{shortfall}} sats.",
+      "swapPromptTitle": "¿Convertir USDB para cubrir la división?",
+      "swapPromptBody": "Necesitas {{amount}} sats más. ¿Convertir USDB para cubrir la diferencia?",
+      "swapConfirm": "Convertir y pagar",
+      "swapFailed": "La conversión falló. Pago cancelado.",
+      "customAmountsMismatch": "Los montos deben sumar {{total}} sats",
+      "noContactsEmpty": "Aún no hay contactos. Agrega contactos para dividir una cuenta.",
+      "noContactsSearch": "No hay contactos que coincidan con tu búsqueda.",
+      "noSparkAddress": "Sin dirección Spark",
+      "unknownContact": "Desconocido",
+      "noName": "Sin nombre",
+      "partialSuccess": "Pagado {{count}} de {{total}} contactos",
+      "requestSent": "Solicitud enviada a {{count}} contactos",
+      "errors": {
+        "noAmount_even": "Introduce el monto total a dividir.",
+        "noAmount_custom": "Asegúrate de que todos tengan un monto.",
+        "noDescription": "Agrega una descripción para esta división.",
+        "noContactsSelected": "Selecciona al menos un contacto para continuar"
+      }
     }
   },
   "settings": {
@@ -1741,7 +1776,9 @@
         "confirmMessage_sent": "Enviado correctamente",
         "confirmMessage_received": "Recibido correctamente",
         "confirmMessage": "{{direction}} exitosamente",
-        "lnurlAuthSuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión."
+        "lnurlAuthSuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión.",
+        "bulkSuccess": "Solicitudes enviadas correctamente",
+        "bulkPartialSuccess": "No se enviaron solicitudes"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Cantidad enviada",
@@ -1753,6 +1790,7 @@
         "converstionRate": "{{satAmount}} por {{dollarAmount}}",
         "gift": "Regalo",
         "claimPayment": "Reclamar pago",
+        "splitPayment": "Dividir",
         "chainSwap": "Intercambio en Cadena"
       },
       "explorePage": {

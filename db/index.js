@@ -115,6 +115,21 @@ export async function getDataFromCollection(collectionName, uuid) {
   }
 }
 
+export async function getDocsByIds(collectionName, docIds) {
+  if (!docIds || docIds.length === 0) return [];
+
+  const db = getFirestore();
+
+  const docRefs = docIds.map(id => doc(db, collectionName, id));
+
+  const snapshots = await Promise.all(docRefs.map(ref => getDoc(ref)));
+
+  return snapshots.map(snap => {
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() };
+  });
+}
+
 export async function batchDeleteLnurlPayments(uuid, paymentIds) {
   try {
     if (!uuid) throw Error('User ID missing');
@@ -322,6 +337,53 @@ export async function updateMessage({
     return false;
   }
 }
+
+export async function bulkUpdateMessages(messages) {
+  try {
+    crashlyticsLogReport('Starting bulk update contact messages');
+    const batch = writeBatch(db);
+    const messagesRef = collection(db, 'contactMessages');
+    const timestamp = new Date().getTime();
+
+    for (const {
+      fromPubKey,
+      toPubKey,
+      newMessage,
+      retrivedContact,
+      privateKey,
+      currentTime,
+    } of messages) {
+      const useEncription = retrivedContact.isUsingEncriptedMessaging;
+      let message = {
+        fromPubKey,
+        toPubKey,
+        message: newMessage,
+        timestamp,
+        serverTimestamp: currentTime,
+        isGiftCard: !!newMessage?.giftCardInfo,
+      };
+
+      if (useEncription) {
+        const msgStr =
+          typeof message.message === 'string'
+            ? message.message
+            : JSON.stringify(message.message);
+        message.message = encriptMessage(privateKey, toPubKey, msgStr);
+      }
+
+      batch.set(doc(messagesRef), message);
+    }
+
+    await batch.commit();
+    console.log('Bulk messages committed:', messages.length);
+    return true;
+  } catch (err) {
+    console.error('Error bulk updating messages:', err);
+    crashlyticsRecordErrorReport(err.message);
+    return false;
+  }
+}
+
 export async function syncDatabasePayment(myPubKey, privateKey) {
   try {
     crashlyticsLogReport('Starting sync database payments');

@@ -14,7 +14,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import customUUID from '../../../../functions/customUUID';
 
 export default function AddReceiveMessageHalfModal({
-  memo,
+  memo = '',
   setContentHeight,
   handleBackPressFunction,
 }) {

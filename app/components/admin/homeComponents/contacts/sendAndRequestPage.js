@@ -640,19 +640,35 @@ export default function SendAndRequestPage(props) {
         )}
 
         <View style={styles.identityBadge}>
-          <View
-            style={[
-              styles.contactListLetterImage,
-              { backgroundColor: backgroundOffset },
-            ]}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.splitPayContainer}
+            onPress={() =>
+              navigate.navigate('AddFriendsToSplit', {
+                paymentType,
+                selectedContact,
+                paymentCurrency: isUSDMode ? 'USD' : 'BTC',
+              })
+            }
           >
-            <ContactProfileImage
-              updated={imageData?.updated}
-              uri={imageData?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
+            <View
+              style={[
+                styles.contactListLetterImage,
+                { backgroundColor: backgroundOffset },
+              ]}
+            >
+              <ContactProfileImage
+                updated={imageData?.updated}
+                uri={imageData?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
+              />
+            </View>
+
+            <View style={[styles.splitPayIcon]}>
+              <ThemeIcon size={25} iconName={'CirclePlus'} />
+            </View>
+          </TouchableOpacity>
           <View style={styles.identityTextContainer}>
             <ThemeText
               styles={styles.contactName}
@@ -918,7 +934,15 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
-
+  splitPayContainer: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  splitPayIcon: {
+    width: 25,
+    height: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -30,
+  },
   contactListLetterImage: {
     height: 60,
     width: 60,

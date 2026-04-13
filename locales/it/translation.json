@@ -1325,6 +1325,41 @@
       "lnurlCopy": "Copia indirizzo",
       "blitzCopy": "Copia link",
       "scanProfile": "Scansiona profilo"
+    },
+    "splitBill": {
+      "addFriendsTitle": "Aggiungi amici per dividere",
+      "createBillTitle": "Crea conto diviso",
+      "selectedCount": "{{count}} su 10 selezionati",
+      "searchPlaceholder": "Cerca contatti",
+      "nextButton": "Avanti",
+      "memoLabel": "Descrizione",
+      "memoPlaceholder": "A cosa serve?",
+      "totalAmountLabel": "Importo totale",
+      "evenSplit": "Equo",
+      "customSplit": "Personalizzato",
+      "remainderNote": "{{amount}} sat rimanenti restano a te",
+      "perPerson": "{{amount}} / persona",
+      "confirmButton": "Conferma",
+      "maxContactsWarning": "Massimo 10 contatti per divisione",
+      "insufficientFunds": "Fondi insufficienti. Ti mancano {{shortfall}} sats.",
+      "swapPromptTitle": "Convertire USDB per coprire la divisione?",
+      "swapPromptBody": "Ti servono altri {{amount}} sats. Convertire USDB per coprire la differenza?",
+      "swapConfirm": "Converti e paga",
+      "swapFailed": "Conversione fallita. Pagamento annullato.",
+      "customAmountsMismatch": "Gli importi devono totalizzare {{total}} sats",
+      "noContactsEmpty": "Nessun contatto ancora. Aggiungi contatti per dividere un conto.",
+      "noContactsSearch": "Nessun contatto corrisponde alla ricerca.",
+      "noSparkAddress": "Nessun indirizzo Spark",
+      "unknownContact": "Sconosciuto",
+      "noName": "Nessun nome impostato",
+      "partialSuccess": "Pagati {{count}} di {{total}} contatti",
+      "requestSent": "Richiesta inviata a {{count}} contatti",
+      "errors": {
+        "noAmount_even": "Inserisci l’importo totale.",
+        "noAmount_custom": "Assicurati che tutti abbiano un importo.",
+        "noDescription": "Aggiungi una descrizione.",
+        "noContactsSelected": "Seleziona almeno un contatto"
+      }
     }
   },
   "settings": {
@@ -1881,7 +1916,9 @@
         "confirmMessage_sent": "Inviato con successo",
         "confirmMessage_received": "Ricevuto con successo",
         "confirmMessage": "{{direction}} con successo",
-        "lnurlAuthSuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso."
+        "lnurlAuthSuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso.",
+        "bulkSuccess": "Richieste inviate con successo",
+        "bulkPartialSuccess": "Nessuna richiesta inviata"
       },
       "expandedTxPage": {
         "confirmMessage_received": "Importo ricevuto",
@@ -1893,6 +1930,7 @@
         "confirmMessage_sent": "Importo inviato",
         "gift": "Regalo",
         "claimPayment": "Richiedi pagamento",
+        "splitPayment": "Dividi",
         "chainSwap": "Chain Swap"
       },
       "explorePage": {

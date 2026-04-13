@@ -1326,6 +1326,41 @@
       "lnurlCopy": "Копировать адрес",
       "blitzCopy": "Копировать ссылку",
       "scanProfile": "Сканировать"
+    },
+    "splitBill": {
+      "addFriendsTitle": "Добавить друзей для разделения",
+      "createBillTitle": "Создать разделённый счёт",
+      "selectedCount": "{{count}} из 10 выбрано",
+      "searchPlaceholder": "Поиск контактов",
+      "nextButton": "Далее",
+      "memoLabel": "Описание",
+      "memoPlaceholder": "Для чего это?",
+      "totalAmountLabel": "Общая сумма",
+      "evenSplit": "Поровну",
+      "customSplit": "Вручную",
+      "remainderNote": "Остаток {{amount}} сат остаётся у вас",
+      "perPerson": "{{amount}} / человек",
+      "confirmButton": "Подтвердить",
+      "maxContactsWarning": "Максимум 10 контактов на разделение",
+      "insufficientFunds": "Недостаточно средств. Не хватает {{shortfall}} сат.",
+      "swapPromptTitle": "Обменять USDB для покрытия?",
+      "swapPromptBody": "Вам нужно ещё {{amount}} сат. Обменять USDB, чтобы покрыть разницу?",
+      "swapConfirm": "Обменять и оплатить",
+      "swapFailed": "Ошибка обмена. Платёж отменён.",
+      "customAmountsMismatch": "Суммы должны составлять {{total}} сат",
+      "noContactsEmpty": "Контактов пока нет. Добавьте контакты для разделения счёта.",
+      "noContactsSearch": "Нет контактов по вашему запросу.",
+      "noSparkAddress": "Нет адреса Spark",
+      "unknownContact": "Неизвестно",
+      "noName": "Имя не задано",
+      "partialSuccess": "Оплачено {{count}} из {{total}} контактов",
+      "requestSent": "Запрос отправлен {{count}} контактам",
+      "errors": {
+        "noAmount_even": "Введите общую сумму.",
+        "noAmount_custom": "Убедитесь, что у всех есть сумма.",
+        "noDescription": "Добавьте описание.",
+        "noContactsSelected": "Выберите хотя бы один контакт"
+      }
     }
   },
   "settings": {
@@ -1882,7 +1917,9 @@
         "emailReport": "Отправить через Email",
         "copyReport": "Скопировать",
         "confirmMessage_sent": "Успешно отправлено",
-        "confirmMessage_received": "Успешно получено"
+        "confirmMessage_received": "Успешно получено",
+        "bulkSuccess": "Запросы успешно отправлены",
+        "bulkPartialSuccess": "Запросы не отправлены"
       },
       "expandedTxPage": {
         "confirmMessage_sent": "Отправлено",
@@ -1894,6 +1931,7 @@
         "converstionRate": "{{satAmount}} за {{dollarAmount}}",
         "gift": "Подарок",
         "claimPayment": "Получить платёж",
+        "splitPayment": "Разделить",
         "chainSwap": "Обмен в сети"
       },
       "explorePage": {

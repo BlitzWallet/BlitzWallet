@@ -458,6 +458,9 @@ export const GlobalContactsList = ({ children }) => {
           }
 
           let newAddedContacts = structuredClone(currentDecoded);
+          if (!Array.isArray(newAddedContacts)) {
+            newAddedContacts = [];
+          }
           const exists = newAddedContacts.some(c => c.uuid === newContact.uuid);
 
           if (exists) {
@@ -517,9 +520,9 @@ export const GlobalContactsList = ({ children }) => {
               publicKey,
               prev.addedContacts,
             );
-            currentDecoded = JSON.parse(decryptedData);
+            currentDecoded = JSON.parse(decryptedData) ?? [];
           } catch {
-            currentDecoded = decodedAddedContactsRef.current;
+            currentDecoded = decodedAddedContactsRef.current ?? [];
           }
 
           const newAddedContacts = currentDecoded.filter(
