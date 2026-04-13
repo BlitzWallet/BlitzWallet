@@ -936,7 +936,7 @@
       "failedToTransfer": "Übertragung der Sparpool-Gelder fehlgeschlagen.",
       "notFound": "Sparpool nicht gefunden",
       "closePoolTitle": "Diesen Sparpool schließen?",
-      "closePoolWarning": "Alle Gelder werden an Ihr Hauptkonto übertragen. Dieses Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
+      "closePoolWarning": "Alle Gelder werden an Ihr Hauptkonto übertragen. Dieser Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
       "closePool": "Sparpool schließen",
       "goal": "Ziel: ",
       "payment_one": "{{count}} Zahlung",
@@ -949,8 +949,8 @@
       "contribute": "Beitragen",
       "share": "Teilen",
       "noActivity": "Noch keine Aktivität. Seien Sie der Erste, der beiträgt!",
-      "noPoolsCreated": "Sie haben noch keine Sparpool erstellt.",
-      "noActivePools": "Keine aktiver Sparpool",
+      "noPoolsCreated": "Sie haben noch keinen Sparpool erstellt.",
+      "noActivePools": "Kein aktiver Sparpool",
       "closedSection": "Geschlossene Sparpools",
       "noClosedPools": "Kein geschlossener Sparpool",
       "sendingContribution": "Beitrag wird gesendet...",
@@ -970,7 +970,7 @@
       "info": {
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",
-        "whatArePoolsBody": "Mit Sparpools können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie einen Sparpool, legen Sie einen Zielbetrag fest und teilen Sie es mit beliebigen Personen.",
+        "whatArePoolsBody": "Mit Sparpools können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie einen Sparpool, legen Sie einen Zielbetrag fest und teilen Sie ihn mit beliebigen Personen.",
         "howItWorks": "So funktioniert es:",
         "howStep1": "• Erstellen Sie einen neuen Sparpool mit einem Namen und einem Zielbetrag.",
         "howStep2": "• Teilen Sie den Sparpool-Link, damit andere ihn finden können.",
@@ -1255,7 +1255,7 @@
     },
     "sendAndRequestPage": {
       "profileMessage": "Bezahlung an {{name}}",
-      "contactMessage": "{{name}} hat Ihnen bezahlt",
+      "contactMessage": "{{name}} hat Ihnen Geld gesendet",
       "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz Wallet.",
       "giftCardDescription": "Sie haben {{name}} eine {{giftCardName}} Geschenkkarte gesendet.",
       "cardDetailsError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",
@@ -1337,18 +1337,18 @@
       "totalAmountLabel": "Gesamtbetrag",
       "evenSplit": "Gleichmäßig",
       "customSplit": "Individuell",
-      "remainderNote": "{{amount}} Sat Rest bleibt bei dir",
+      "remainderNote": "{{amount}} Sat Rest bleibt bei Ihnen",
       "perPerson": "{{amount}} / Person",
       "confirmButton": "Bestätigen",
       "maxContactsWarning": "Maximal 10 Kontakte pro Aufteilung",
-      "insufficientFunds": "Unzureichendes Guthaben. Dir fehlen {{shortfall}} Sats.",
+      "insufficientFunds": "Unzureichendes Guthaben. Ihnen fehlen {{shortfall}} Sats.",
       "swapPromptTitle": "USDB tauschen, um die Aufteilung zu decken?",
-      "swapPromptBody": "Du benötigst noch {{amount}} Sats. USDB tauschen, um die Differenz zu decken?",
+      "swapPromptBody": "Sie benötigen noch {{amount}} Sats. USDB tauschen, um die Differenz zu decken?",
       "swapConfirm": "Tauschen und bezahlen",
       "swapFailed": "Tausch fehlgeschlagen. Zahlung abgebrochen.",
       "customAmountsMismatch": "Die Beträge müssen insgesamt {{total}} Sats ergeben",
-      "noContactsEmpty": "Noch keine Kontakte. Füge Kontakte hinzu, um eine Rechnung aufzuteilen.",
-      "noContactsSearch": "Keine Kontakte entsprechen deiner Suche.",
+      "noContactsEmpty": "Sie haben noch keine Kontakte. Fügen Sie Kontakte hinzu, um eine Rechnung aufzuteilen.",
+      "noContactsSearch": "Keine Kontakte entsprechen Ihrer Suche.",
       "noSparkAddress": "Keine Spark-Adresse",
       "unknownContact": "Unbekannt",
       "noName": "Kein Name festgelegt",
@@ -1663,7 +1663,7 @@
         "connectionName": "Verbindungsname"
       },
       "hasNoAccounts": {
-        "warningMessage": "Um Geld von Ihrer Nostr Wallet Connect zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrer Hauptkonto zu NWC-Konto auf der Kontoeinstellungsseite übertragen."
+        "warningMessage": "Um Geld von Ihrem Nostr Wallet Connect zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrem Hauptkonto auf Ihr NWC-Konto auf der Kontoeinstellungsseite übertragen."
       },
       "noNotifications": {
         "warningMessage": "Um Nostr Wallet Connect zu nutzen, müssen Sie Push-Benachrichtigungen für Nostr Wallet Connect aktiviert haben.\n\nBitte aktivieren Sie Push-Benachrichtigungen in den Einstellungen und versuchen Sie es erneut."
@@ -1675,7 +1675,7 @@
       },
       "combinedOnboarding": {
         "accountFundingHeader": "Ihr Nostr Connect-Konto aufladen",
-        "accountFundingMessage": "Um Geld von Ihrem Nostr Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder durch Empfangen von Geld oder durch eine Übertragung von Ihrem Hauptkonto.\n\nSie können Guthaben von Ihrem Hauptkonto in den Kontoeinstellungen auf Nostr Connect-Konto übertragen.",
+        "accountFundingMessage": "Um Geld von Ihrem Nostr Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder durch Empfangen von Geld oder durch eine Übertragung von Ihrem Hauptkonto.\n\nSie können Guthaben von Ihrem Hauptkonto in den Kontoeinstellungen auf Ihr Nostr Connect-Konto übertragen.",
         "securityHeader": "Sicher & isoliert",
         "securityMessage": "Nostr Connect erstellt aus Sicherheitsgründen ein separates Konto von Ihrem Hauptkonto. Diese Wiederherstellungsphrase wird sicher gespeichert und kann bei Bedarf später auf der Seite Konten in den Einstellungen eingesehen werden.",
         "continueButton": "Loslegen",
