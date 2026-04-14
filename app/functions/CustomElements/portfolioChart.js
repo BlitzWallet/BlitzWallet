@@ -3,6 +3,8 @@ import * as d3 from 'd3-shape';
 import * as scale from 'd3-scale';
 
 export default function PortfolioChart({ data, width, height, strokeColor }) {
+  const gradientId = `portfolioGradient-${data ? data.length : 0}`;
+
   if (!data || data.length < 2) {
     // Flat line for 0 or 1 data points
     const y = height / 2;
@@ -59,14 +61,14 @@ export default function PortfolioChart({ data, width, height, strokeColor }) {
   return (
     <Svg width={width} height={height}>
       <Defs>
-        <LinearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
+        <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0%" stopColor={strokeColor} stopOpacity="0.25" />
           <Stop offset="100%" stopColor={strokeColor} stopOpacity="0.0" />
         </LinearGradient>
       </Defs>
 
       {/* Gradient fill */}
-      <Path d={areaPath} fill="url(#portfolioGradient)" />
+      <Path d={areaPath} fill={`url(#${gradientId})`} />
 
       {/* Line */}
       <Path
