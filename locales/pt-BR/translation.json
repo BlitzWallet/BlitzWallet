@@ -934,7 +934,7 @@
       "unableToGetAddress": "Não foi possível obter o endereço da conta principal",
       "transferringFunds": "Transferindo fundos...",
       "failedToTransfer": "Falha ao transferir os fundos da vaquinha",
-      "notFound": "vaquinha não encontrada",
+      "notFound": "Vaquinha não encontrada",
       "closePoolTitle": "Encerrar esta vaquinha?",
       "closePoolWarning": "Todos os fundos serão transferidos para sua conta principal. Esta vaquinha deixará de aceitar pagamentos e não poderá ser reaberta.",
       "closePool": "Encerrar vaquinha",
@@ -1749,7 +1749,7 @@
     "accountsPoolsScreen": {
       "profileButton": "Perfil",
       "settingsButton": "Configurações",
-      "poolsTitle": "vaquinhas",
+      "poolsTitle": "Vaquinhas",
       "noPoolsMessage": "Toque para criar sua primeira vaquinha.",
       "noActivePools": "Você não tem vaquinhas abertas",
       "yourAccountsTitle": "Suas contas",
@@ -1982,7 +1982,7 @@
         "settings": "Configurações",
         "blitzRestore": "Blitz Restore",
         "point-of-sale": "Ponto de venda",
-        "pools": "vaquinhas",
+        "pools": "Vaquinhas",
         "show seed phrase": "Fazer backup da carteira"
       },
       "technicalTransactionDetails": {
@@ -2011,7 +2011,7 @@
         "filterGifts": "Vales-Blitz",
         "filterSwaps": "Trocas",
         "filterSavings": "Caixinhas",
-        "filterPools": "vaquinhas",
+        "filterPools": "Vaquinhas",
         "noTxHistoryTitle": "Sem histórico de transações",
         "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta.",
         "filterModalTitle": "Filtrar transações",
