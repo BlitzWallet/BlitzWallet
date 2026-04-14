@@ -283,7 +283,7 @@ export default function AnalyticsPage() {
             <ThemeText
               styles={styles.budgetLeftAmount}
               content={`${displayCorrectDenomination({
-                amount: spentTotal,
+                amount: leftToSpend,
                 masterInfoObject,
                 fiatStats,
               })} left to spend`}
