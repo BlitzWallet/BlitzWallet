@@ -114,6 +114,7 @@ export default function GiftConfirmation(props) {
         iconNew="Share"
         showLeftImage={!isBulk}
         leftImageFunction={handleShare}
+        customBackFunction={() => navigate.popTo('GiftsPageHome')}
       />
       <ScrollView
         style={styles.scrollView}

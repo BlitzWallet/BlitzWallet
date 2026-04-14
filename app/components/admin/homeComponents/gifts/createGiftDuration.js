@@ -14,6 +14,7 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
+  IS_SPARK_ID,
   SIZES,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
@@ -40,6 +41,8 @@ import {
   generateSparkInvoiceFromAddress,
   fufillSparkInvoices,
   batchSendTokens,
+  getSingleTxDetails,
+  getSparkPaymentStatus,
 } from '../../../../functions/spark/index';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -55,6 +58,8 @@ import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import {
   BTC_ASSET_ADDRESS,
   dollarsToSats,
+  executeSwap,
+  getUserSwapHistory,
   INTEGRATOR_FEE,
   satsToDollars,
   simulateSwap,
@@ -64,6 +69,9 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import GetThemeColors from '../../../../hooks/themeColors';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
+import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
+import customUUID from '../../../../functions/customUUID';
+import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 
 export default function CreateGiftDuration(props) {
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
@@ -77,7 +85,7 @@ export default function CreateGiftDuration(props) {
   } = useGifts();
   const [duration, setDuration] = useState({ label: '7 Days', value: '7' });
   const { theme } = useGlobalThemeContext();
-  const { sparkInformation } = useSparkWallet();
+  const { sparkInformation, sparkInfoRef } = useSparkWallet();
   const navigate = useNavigation();
   const { accountMnemoinc } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -100,6 +108,8 @@ export default function CreateGiftDuration(props) {
   } = props.route.params || {};
 
   const trueFiatAmount = rawAmountValue * Math.pow(10, 6);
+  const totalSatAmount = convertedSatAmount * giftQuantity;
+  const totalFiatAmount = trueFiatAmount * giftQuantity;
 
   const currentDerivedGiftIndex = masterInfoObject.currentDerivedGiftIndex || 1;
 
@@ -156,13 +166,13 @@ export default function CreateGiftDuration(props) {
         return;
       }
 
-      const hasBTCBalance = bitcoinBalance >= convertedSatAmount;
-      const hasUSDBalance = dollarBalanceSat >= convertedSatAmount;
+      const hasBTCBalance = bitcoinBalance >= totalSatAmount;
+      const hasUSDBalance = dollarBalanceSat >= totalSatAmount;
 
       const meetsUSDMinimum =
-        convertedSatAmount >=
+        totalSatAmount >=
         dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
-      const meetsBTCMinimum = convertedSatAmount >= swapLimits.bitcoin;
+      const meetsBTCMinimum = totalSatAmount >= swapLimits.bitcoin;
 
       let needsSwap = false;
       let paymentMethod = null;
@@ -203,7 +213,7 @@ export default function CreateGiftDuration(props) {
           paymentMethod === 'BTC' ? BTC_ASSET_ADDRESS : USD_ASSET_ADDRESS,
         assetOutAddress:
           paymentMethod === 'BTC' ? USD_ASSET_ADDRESS : BTC_ASSET_ADDRESS,
-        amountIn: paymentMethod === 'BTC' ? convertedSatAmount : trueFiatAmount,
+        amountIn: paymentMethod === 'BTC' ? totalSatAmount : totalFiatAmount,
       });
 
       simulationPromiseRef.current = swapPromise;
@@ -236,13 +246,13 @@ export default function CreateGiftDuration(props) {
   ]);
 
   const determinePaymentMethod = useMemo(() => {
-    const hasBTCBalance = bitcoinBalance >= convertedSatAmount;
-    const hasUSDBalance = dollarBalanceSat >= convertedSatAmount;
+    const hasBTCBalance = bitcoinBalance >= totalSatAmount;
+    const hasUSDBalance = dollarBalanceSat >= totalSatAmount;
 
     const meetsUSDMinimum =
-      convertedSatAmount >=
+      totalSatAmount >=
       dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
-    const meetsBTCMinimum = convertedSatAmount >= swapLimits.bitcoin;
+    const meetsBTCMinimum = totalSatAmount >= swapLimits.bitcoin;
 
     if (giftDenomination === 'BTC') {
       const canPayBTCtoBTC = hasBTCBalance;
@@ -253,7 +263,7 @@ export default function CreateGiftDuration(props) {
       if (simulationResult && canPayUSDtoBTC) {
         const { simulation } = simulationResult;
         const totalUSDNeeded = Math.round(
-          satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB) *
+          satsToDollars(totalSatAmount, poolInfoRef.currentPriceAInB) *
             Math.pow(10, 6) +
             Number(simulation.feePaidAssetIn),
         );
@@ -273,9 +283,9 @@ export default function CreateGiftDuration(props) {
       if (simulationResult && canPayBTCtoUSD) {
         const { simulation } = simulationResult;
         const totalBTCNeeded = Math.round(
-          convertedSatAmount +
+          totalSatAmount +
             dollarsToSats(Number(simulation.feePaidAssetIn) / Math.pow(10, 6)) +
-            convertedSatAmount * INTEGRATOR_FEE,
+            totalSatAmount * INTEGRATOR_FEE,
         );
 
         if (totalBTCNeeded > bitcoinBalance) {
@@ -290,16 +300,16 @@ export default function CreateGiftDuration(props) {
     bitcoinBalance,
     dollarBalanceSat,
     dollarBalanceToken,
-    convertedSatAmount,
+    totalSatAmount,
     swapLimits,
     poolInfoRef.currentPriceAInB,
     simulationResult,
   ]);
 
   const isGiftValid = useMemo(() => {
-    if (!convertedSatAmount) return false;
+    if (!totalSatAmount) return false;
 
-    const totalNeeded = convertedSatAmount * giftQuantity;
+    const totalNeeded = totalSatAmount;
 
     const totalBalance = bitcoinBalance + dollarBalanceSat;
     if (totalBalance < totalNeeded) return false;
@@ -316,9 +326,9 @@ export default function CreateGiftDuration(props) {
     const hasUSDBalance = dollarBalanceSat >= totalNeeded;
 
     const meetsUSDMinimum =
-      convertedSatAmount >=
+      totalNeeded >=
       dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
-    const meetsBTCMinimum = convertedSatAmount >= swapLimits.bitcoin;
+    const meetsBTCMinimum = totalNeeded >= swapLimits.bitcoin;
 
     if (giftDenomination === 'BTC') {
       const canPayBTCtoBTC = hasBTCBalance;
@@ -328,7 +338,7 @@ export default function CreateGiftDuration(props) {
         const { simulation } = simulationResult;
         const totalUSDNeeded =
           Math.round(
-            satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB) *
+            satsToDollars(totalNeeded, poolInfoRef.currentPriceAInB) *
               Math.pow(10, 6) +
               Number(simulation.feePaidAssetIn),
           ) * giftQuantity;
@@ -347,11 +357,11 @@ export default function CreateGiftDuration(props) {
         const { simulation } = simulationResult;
         const totalBTCNeeded =
           Math.round(
-            convertedSatAmount +
+            totalNeeded +
               dollarsToSats(
                 Number(simulation.feePaidAssetIn) / Math.pow(10, 6),
               ) +
-              convertedSatAmount * INTEGRATOR_FEE,
+              totalNeeded * INTEGRATOR_FEE,
           ) * giftQuantity;
 
         if (totalBTCNeeded > bitcoinBalance) {
@@ -364,7 +374,7 @@ export default function CreateGiftDuration(props) {
 
     return true;
   }, [
-    convertedSatAmount,
+    totalSatAmount,
     giftQuantity,
     bitcoinBalance,
     dollarBalanceSat,
@@ -599,6 +609,9 @@ export default function CreateGiftDuration(props) {
         dollarBalanceToken * Math.pow(10, 6),
       ),
       poolInfoRef,
+      extraDetails: {
+        isGift: true,
+      },
     });
 
     if (!paymentResponse.didWork) {
@@ -651,38 +664,123 @@ export default function CreateGiftDuration(props) {
         (determinePaymentMethod === 'USD' && giftDenomination === 'BTC') ||
         (determinePaymentMethod === 'BTC' && giftDenomination === 'USD');
 
+      let swapFee = 0;
+      let tx = {};
+      // ── Block 1: Execute ONE swap for the total gift amount ───────────────────────
       if (needsSwap) {
-        const swapPaymentQuote = buildSwapQuote();
-        if (!swapPaymentQuote)
+        if (!simulationResult?.simulation)
           throw new Error('Swap simulation not available or failed');
 
-        for (const giftData of allGiftData) {
-          const paymentResponse = await sparkPaymenWrapper({
-            address: giftData.sparkAddress,
-            paymentType: 'spark',
-            amountSats: convertedSatAmount,
-            masterInfoObject,
-            memo: t('screens.inAccount.giftPages.fundGiftMessage'),
-            userBalance: sparkInformation.userBalance,
-            sparkInformation,
-            mnemonic: currentWalletMnemoinc,
-            usablePaymentMethod: determinePaymentMethod,
-            swapPaymentQuote,
-            paymentInfo: {
-              data: {
-                expectedReceive: giftDenomination === 'BTC' ? 'sats' : 'tokens',
-              },
-            },
-            fiatValueConvertedSendAmount: Math.min(
-              trueFiatAmount,
-              dollarBalanceToken * Math.pow(10, 6),
-            ),
-            poolInfoRef,
-          });
-          if (!paymentResponse.didWork)
-            throw new Error(t('errormessages.paymentError'));
+        const simulation = simulationResult.simulation;
+
+        // Cap to available balance so we never submit more than we have.
+        // If fees push amountIn over the balance, the swap output will fall short
+        // and the amountOut guard below will catch it with a clean error.
+        const totalAmountIn =
+          determinePaymentMethod === 'BTC'
+            ? Math.min(
+                Math.round(
+                  totalSatAmount +
+                    dollarsToSats(
+                      Number(simulation.feePaidAssetIn) / Math.pow(10, 6),
+                    ) +
+                    totalSatAmount * (INTEGRATOR_FEE + 0.005),
+                ),
+                bitcoinBalance,
+              )
+            : Math.min(
+                Math.round(
+                  totalFiatAmount +
+                    Number(simulation.feePaidAssetIn) +
+                    totalFiatAmount * 0.005,
+                ),
+                dollarBalanceToken * Math.pow(10, 6),
+              );
+
+        const executionResponse = await executeSwap(currentWalletMnemoinc, {
+          poolId: poolInfoRef.lpPublicKey,
+          assetInAddress:
+            determinePaymentMethod === 'BTC'
+              ? BTC_ASSET_ADDRESS
+              : USD_ASSET_ADDRESS,
+          assetOutAddress:
+            determinePaymentMethod === 'BTC'
+              ? USD_ASSET_ADDRESS
+              : BTC_ASSET_ADDRESS,
+          amountIn: totalAmountIn,
+          maxSlippageBps: 50,
+        });
+
+        if (!executionResponse?.didWork)
+          throw new Error(executionResponse?.error || 'Swap failed');
+
+        // Poll the outbound transfer ID until the swap settles (max 60 s).
+        // Mirrors confirmSplitPayment.js:886-912 — the outbound ID is what
+        // transitions to 'completed' when the swap is settled.
+        const { outboundTransferId } = executionResponse.swap;
+        setFlashnetTransfer(outboundTransferId);
+        const MAX_WAIT_TIME = 60000;
+        const startTime = Date.now();
+
+        const userSwaps = await getUserSwapHistory(currentWalletMnemoinc, 5);
+
+        if (userSwaps.didWork) {
+          const swap = userSwaps.swaps.find(
+            savedSwap => savedSwap.outboundTransferId === outboundTransferId,
+          );
+
+          if (swap) {
+            setFlashnetTransfer(swap.inboundTransferId);
+          }
         }
-      } else if (giftDenomination === 'BTC') {
+
+        while (true) {
+          if (Date.now() - startTime > MAX_WAIT_TIME)
+            throw new Error('Swap completion timeout');
+
+          if (!IS_SPARK_ID.test(outboundTransferId)) {
+            await new Promise(res => setTimeout(res, 2500));
+            break;
+          }
+
+          const txResponse = await getSingleTxDetails(
+            currentWalletMnemoinc,
+            outboundTransferId,
+          );
+
+          if (getSparkPaymentStatus(txResponse?.status) === 'completed') break;
+
+          await new Promise(res => setTimeout(res, 1500));
+        }
+
+        // Small buffer to let balance propagate
+        await new Promise(res => setTimeout(res, 1500));
+
+        // Verify the swap output covers all gifts.
+        // executionResponse.swap.amountOut is the actual output field — confirmed
+        // from executeSwap return shape in app/functions/spark/flashnet.js:499.
+        const amountOut = Number(executionResponse.swap.amountOut);
+        const totalNeeded =
+          giftDenomination === 'BTC' ? totalSatAmount : totalFiatAmount;
+
+        if (amountOut < totalNeeded)
+          throw new Error('Swap output insufficient for all gifts');
+
+        if (determinePaymentMethod === 'USD') {
+          swapFee = dollarsToSats(
+            executionResponse.swap.feeAmount / Math.pow(10, 6),
+            poolInfoRef.currentPriceAInB,
+          );
+        } else {
+          swapFee = dollarsToSats(
+            executionResponse.swap.feeAmount / Math.pow(10, 6),
+            poolInfoRef.currentPriceAInB,
+          );
+        }
+      }
+
+      // ── Block 2: Bulk payment ─────────────────
+      if (giftDenomination === 'BTC') {
         const invoiceBatch = [];
         for (const giftData of allGiftData) {
           const invoiceResult = await generateSparkInvoiceFromAddress({
@@ -705,7 +803,10 @@ export default function CreateGiftDuration(props) {
         if (!fulfillResult.didWork)
           throw new Error(fulfillResult.error || 'Batch payment failed');
 
-        const sdkResult = fulfillResult.fulfillResult;
+        const sdkResult = fulfillResult;
+        const successful =
+          sdkResult.satsTransactionSuccess.map(s => s?.transferResponse?.id) ||
+          [];
         const failedInvoiceStrings = new Set([
           ...(sdkResult?.satsTransactionErrors ?? []).map(e => e.invoice),
           ...(sdkResult?.invalidInvoices ?? []).map(e => e.invoice),
@@ -735,6 +836,25 @@ export default function CreateGiftDuration(props) {
 
         allGiftData.length = 0;
         fundedGiftData.forEach(g => allGiftData.push(g));
+        tx = {
+          id: customUUID(),
+          paymentStatus: 'completed',
+          paymentType: 'spark',
+          accountId: sparkInfoRef.current.identityPubKey,
+          details: {
+            isBulkPayment: true,
+            direction: 'OUTGOING',
+            amount: Math.round(convertedSatAmount * fundedGiftData.length),
+            fee: swapFee,
+            totalFee: swapFee,
+            time: Date.now(),
+            description: t('screens.inAccount.giftPages.fundGiftMessage'),
+            isLRC20Payment: false,
+            LRC20Token: '',
+            sparkTransferIds: successful,
+            isGift: true,
+          },
+        };
       } else {
         const tokenInvoices = allGiftData.map(giftData => ({
           tokenIdentifier: USDB_TOKEN_ID,
@@ -746,13 +866,49 @@ export default function CreateGiftDuration(props) {
           mnemonic: currentWalletMnemoinc,
           invoices: tokenInvoices,
         });
-        if (!fulfillResult.didWork)
+        if (!fulfillResult?.didWork)
           throw new Error(fulfillResult.error || 'Batch token send failed');
+
+        const txHash = fulfillResult.invoice;
+        if (!txHash) {
+          console.log(
+            'bulkSparkPayment: no txHash in batchSendTokens response',
+            fulfillResult,
+          );
+          throw new Error(t('errormessages.paymentError'));
+        }
+
+        tx = {
+          id: txHash,
+          paymentStatus: 'completed',
+          paymentType: 'spark',
+          accountId: sparkInfoRef.current.identityPubKey,
+          details: {
+            isBulkPayment: true,
+            direction: 'OUTGOING',
+            amount: Math.round(trueFiatAmount * allGiftData.length),
+            fee: swapFee,
+            totalFee: swapFee,
+            time: Date.now(),
+            description: t('screens.inAccount.giftPages.fundGiftMessage'),
+            isLRC20Payment: true,
+            LRC20Token: USDB_TOKEN_ID,
+            isGift: true,
+          },
+        };
       }
 
       toggleMasterInfoObject({
         currentDerivedGiftIndex: currentDerivedGiftIndex + N,
       });
+
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0).catch(
+        err =>
+          console.log(
+            'bulkSparkPayment: failed to store USD group record',
+            err,
+          ),
+      );
 
       setLoadingMessage('');
       navigate.navigate('GiftConfirmation', {
