@@ -596,9 +596,8 @@ export async function updateGiftInDatabase(dataObject) {
     const db = getFirestore();
     const docRef = doc(db, 'blitzGifts', dataObject.uuid);
 
-    delete dataObject.claimURL;
-
-    await setDoc(docRef, dataObject, { merge: true });
+    const { claimURL: _claimURL, ...dataToSave } = dataObject;
+    await setDoc(docRef, dataToSave, { merge: true });
 
     console.log('Document merged with ID: ', dataObject.uuid);
     return true;
@@ -842,13 +841,13 @@ export async function getPoolContributionsSince(poolId, afterTimestampObj) {
   }
 }
 
-
 export async function getPayLinkDoc(payLinkId) {
   try {
     const db = getFirestore();
     const docRef = doc(db, 'blitzPaylinks', payLinkId);
     const snapshot = await getDoc(docRef);
-    if (!snapshot.exists()) return { didWork: false, error: 'Paylink not found' };
+    if (!snapshot.exists())
+      return { didWork: false, error: 'Paylink not found' };
     return { didWork: true, data: snapshot.data() };
   } catch (e) {
     console.error('Error fetching paylink:', e);
