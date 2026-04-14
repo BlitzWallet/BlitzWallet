@@ -216,4 +216,12 @@ describe('buildDailyBalances', () => {
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({ day: 1, balanceSats: 999 });
   });
+
+  it('ignores transactions from a different month', () => {
+    // February transaction passed in by mistake — should be ignored
+    const txs = [makeTx(28, 500, 'INCOMING', 2, 2026)]; // Feb 28, not March
+    const result = buildDailyBalances(txs, 1000, REF); // REF is March 15
+    // All balances should still be 1000 (the feb tx is ignored)
+    result.forEach(({ balanceSats }) => expect(balanceSats).toBe(1000));
+  });
 });

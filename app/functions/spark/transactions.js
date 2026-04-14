@@ -1197,7 +1197,14 @@ export function buildDailyBalances(allTxs, currentBalanceSats, referenceDate = n
   for (const tx of allTxs) {
     try {
       const details = JSON.parse(tx.details);
-      const day = new Date(details.time).getDate();
+      const txDate = new Date(details.time);
+      if (
+        txDate.getMonth() !== referenceDate.getMonth() ||
+        txDate.getFullYear() !== referenceDate.getFullYear()
+      ) {
+        continue;
+      }
+      const day = txDate.getDate();
       const amount = details.amount || 0;
       const delta = details.direction === 'INCOMING' ? amount : -amount;
       dayDeltas[day] = (dayDeltas[day] || 0) + delta;
