@@ -105,7 +105,6 @@ export default function GiftConfirmation(props) {
   const headerTitle = isBulk
     ? t('screens.inAccount.giftPages.giftConfirmation.bulkHeader', {
         count: gifts.length,
-        defaultValue: `${gifts.length} Gifts Created!`,
       })
     : t('screens.inAccount.giftPages.giftConfirmation.header');
 
@@ -164,7 +163,6 @@ export default function GiftConfirmation(props) {
                 ]}
                 content={t(
                   'screens.inAccount.giftPages.giftConfirmation.copyAllLinks',
-                  { defaultValue: 'Copy All Links' },
                 )}
               />
             </TouchableOpacity>
