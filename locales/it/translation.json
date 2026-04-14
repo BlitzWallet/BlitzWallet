@@ -2096,6 +2096,7 @@
           "title": "Regali in Blitz",
           "desc": "Condividi Bitcoin o Dollari con amici e famiglia"
         },
+        "balanceDenominationHeader": "Seleziona la valuta per il tuo regalo",
         "giftsOverview": {
           "noGiftsHead": "Nessun regalo ancora",
           "noGiftsDesc": "Crea il tuo primo regalo per condividere Bitcoin o dollari con amici e familiari.",
@@ -2103,7 +2104,8 @@
           "claimed": "Riscattato",
           "expired": "Scaduto",
           "unclaimed": "Non riscattato",
-          "reclaimed": "Recuperato"
+          "reclaimed": "Recuperato",
+          "noClaimURL": "Nessun URL di riscatto disponibile per questo regalo. Attendi che il regalo scada per recuperare il tuo denaro."
         },
         "createGift": {
           "noAmountError": "Inserisci un importo per creare il tuo regalo.",
@@ -2119,7 +2121,19 @@
           "button": "Crea regalo",
           "disclaimer": "Quando crei un regalo, il denaro rimane bloccato per {{numDays}} giorni. Se nessuno lo riscatta entro quel periodo, puoi andare alla pagina di recupero per riaverlo.",
           "durationText": "{{numDays}} giorni",
-          "type": "Tipo"
+          "type": "Tipo",
+          "quantityHeader": "Quanti regali vorresti creare?",
+          "maxGiftsError": "Hai raggiunto il numero massimo di regali",
+          "insufficientBalanceQuantity": "Saldo insufficiente per {{count}} regali",
+          "descriptionTitle": "Aggiungi una nota",
+          "descriptionSubtitle": "Dai al destinatario un suggerimento su cosa rappresenta questo regalo.",
+          "swapError": "Simulazione di scambio non disponibile o fallita",
+          "durationTitle": "Per quanto tempo dovrebbe durare questo regalo?",
+          "durationSubtitle": "Scegli per quanto tempo può essere riscattato.",
+          "warningTitle": "Fondi in attesa",
+          "warningSubtitle": "I fondi non riscattati possono essere recuperati dopo {{numDays}} giorni.",
+          "bulkButton": "Crea {{count}} regali",
+          "maxQuantityHint": "Massimo 20 regali consentiti."
         },
         "giftConfirmation": {
           "header": "Regalo creato!",
@@ -2129,7 +2143,8 @@
           "giftLink": "Link del regalo",
           "shareGift": "Condividi regalo",
           "createAnother": "Crea un altro",
-          "done": "Fatto"
+          "done": "Fatto",
+          "showQr": "Mostra il codice QR"
         },
         "claimHome": {
           "header": "Inserisci il link del regalo",

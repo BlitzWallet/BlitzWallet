@@ -2096,6 +2096,7 @@
           "title": "Cadeaux en Blitz",
           "desc": "Partagez des Bitcoin ou des Dollars avec vos amis et votre famille"
         },
+        "balanceDenominationHeader": "Sélectionnez la devise pour votre cadeau",
         "giftsOverview": {
           "noGiftsHead": "Aucun cadeau pour l'instant",
           "noGiftsDesc": "Créez votre premier cadeau pour partager des bitcoins ou des dollars avec vos proches.",
@@ -2103,7 +2104,8 @@
           "claimed": "Réclamé",
           "expired": "Expiré",
           "unclaimed": "Non réclamé",
-          "reclaimed": "Récupéré"
+          "reclaimed": "Récupéré",
+          "noClaimURL": "Aucune URL de réclamation disponible pour ce cadeau. Veuillez attendre que le cadeau expire pour récupérer votre argent."
         },
         "createGift": {
           "noAmountError": "Veuillez saisir un montant pour créer votre don.",
@@ -2119,7 +2121,19 @@
           "button": "Créer un cadeau",
           "disclaimer": "Lorsque vous créez un cadeau, l'argent reste bloqué pendant {{numDays}} jours. Si personne ne le réclame d'ici là, vous pouvez vous rendre sur la page de réclamation pour le récupérer.",
           "durationText": "{{numDays}} jours",
-          "type": "Type"
+          "type": "Type",
+          "quantityHeader": "Combien de cadeaux souhaitez-vous créer ?",
+          "maxGiftsError": "Vous avez atteint le nombre maximum de cadeaux",
+          "insufficientBalanceQuantity": "Solde insuffisant pour {{count}} cadeaux",
+          "descriptionTitle": "Ajouter une note",
+          "descriptionSubtitle": "Donnez au destinataire un indice sur l'objet de ce cadeau.",
+          "swapError": "Simulation d'échange non disponible ou échouée",
+          "durationTitle": "Combien de temps ce cadeau doit-il durer ?",
+          "durationSubtitle": "Choisissez combien de temps il peut être réclamé.",
+          "warningTitle": "Fonds retenus",
+          "warningSubtitle": "Les fonds non réclamés peuvent être récupérés après {{numDays}} jours.",
+          "bulkButton": "Créer {{count}} cadeaux",
+          "maxQuantityHint": "Maximum de 20 cadeaux autorisés."
         },
         "giftConfirmation": {
           "header": "Cadeau créé !",
@@ -2129,7 +2143,8 @@
           "giftLink": "Lien vers le cadeau",
           "shareGift": "Partager le cadeau",
           "createAnother": "Créer un autre",
-          "done": "Terminé"
+          "done": "Terminé",
+          "showQr": "Afficher le QR Code"
         },
         "claimHome": {
           "header": "Saisir le lien du cadeau",

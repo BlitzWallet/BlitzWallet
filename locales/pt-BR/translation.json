@@ -2096,6 +2096,7 @@
           "title": "Vales-Blitz",
           "desc": "Presenteie amigos e familiares com bitcoins ou dólares"
         },
+        "balanceDenominationHeader": "Selecione a moeda para o seu presente",
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",
           "noGiftsDesc": "Crie seu primeiro Vale-Blitz para presentear amigos e familiares com bitcoin ou dólares.",
@@ -2103,7 +2104,8 @@
           "claimed": "Resgatado",
           "expired": "Expirado",
           "unclaimed": "Não resgatado",
-          "reclaimed": "Reembolsado"
+          "reclaimed": "Reembolsado",
+          "noClaimURL": "Nenhum URL de resgate disponível para este presente. Por favor, aguarde até que o presente expire para recuperar seu dinheiro."
         },
         "createGift": {
           "noAmountError": "Digite um valor para criar seu Vale-Blitz.",
@@ -2119,7 +2121,19 @@
           "button": "Criar Vale-Blitz",
           "disclaimer": "Quando você cria um Vale-Blitz, o valor usado para emiti-lo fica bloqueado por {{numDays}} dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor.",
           "durationText": "{{numDays}} dias",
-          "type": "Tipo"
+          "type": "Tipo",
+          "quantityHeader": "Quantos presentes você gostaria de criar?",
+          "maxGiftsError": "Você atingiu o número máximo de presentes",
+          "insufficientBalanceQuantity": "Saldo insuficiente para {{count}} presentes",
+          "descriptionTitle": "Adicionar uma nota",
+          "descriptionSubtitle": "Dê ao destinatário uma dica sobre o que é este presente.",
+          "swapError": "Simulação de troca não disponível ou falhou",
+          "durationTitle": "Por quanto tempo este presente deve durar?",
+          "durationSubtitle": "Escolha por quanto tempo pode ser resgatado.",
+          "warningTitle": "Fundos retidos",
+          "warningSubtitle": "Fundos não resgatados podem ser recuperados após {{numDays}} dias.",
+          "bulkButton": "Criar {{count}} presentes",
+          "maxQuantityHint": "Máximo de 20 presentes permitidos."
         },
         "giftConfirmation": {
           "header": "Vale-Blitz criado!",
@@ -2129,7 +2143,8 @@
           "giftLink": "Link do Vale-Blitz",
           "shareGift": "Compartilhar Vale-Blitz",
           "createAnother": "Criar outro",
-          "done": "Concluído"
+          "done": "Concluído",
+          "showQr": "Mostrar código QR"
         },
         "claimHome": {
           "header": "Insira o link do Vale-Blitz",

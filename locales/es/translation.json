@@ -563,6 +563,146 @@
           {
             "topLine": "Explica el concepto de relatividad",
             "bottomLine": "como si tuviera 14 años"
+          },
+          {
+            "topLine": "¿Qué es un motor de búsqueda?",
+            "bottomLine": "como si tuviera 10 años"
+          },
+          {
+            "topLine": "¿Qué es el Internet de las Cosas (IoT)?",
+            "bottomLine": "como si fuera nuevo en tecnología"
+          },
+          {
+            "topLine": "¿Cómo funcionan los teléfonos inteligentes?",
+            "bottomLine": "como si estuviera en la escuela intermedia"
+          },
+          {
+            "topLine": "Explica el concepto de energía renovable",
+            "bottomLine": "como si estuviera en 6to grado"
+          },
+          {
+            "topLine": "¿Qué es la moneda virtual?",
+            "bottomLine": "como si fuera un adolescente"
+          },
+          {
+            "topLine": "¿Cómo funcionan los hogares inteligentes?",
+            "bottomLine": "como si tuviera 12 años"
+          },
+          {
+            "topLine": "¿Qué es el aprendizaje profundo?",
+            "bottomLine": "como si fuera nuevo en IA"
+          },
+          {
+            "topLine": "¿Cómo funciona el comercio en línea?",
+            "bottomLine": "como si fuera principiante"
+          },
+          {
+            "topLine": "Explica el concepto de privacidad de datos",
+            "bottomLine": "como si fuera un adolescente"
+          },
+          {
+            "topLine": "¿Qué es la realidad virtual en videojuegos?",
+            "bottomLine": "como si tuviera 14 años"
+          },
+          {
+            "topLine": "¿Cómo funcionan los autos autónomos?",
+            "bottomLine": "como si estuviera en la secundaria"
+          },
+          {
+            "topLine": "¿Qué es la ingeniería genética?",
+            "bottomLine": "como si tuviera 13 años"
+          },
+          {
+            "topLine": "Explica el concepto de ciudades inteligentes",
+            "bottomLine": "como si fuera nuevo en tecnología"
+          },
+          {
+            "topLine": "¿Cómo funcionan los drones?",
+            "bottomLine": "como si tuviera 11 años"
+          },
+          {
+            "topLine": "¿Qué es una billetera digital?",
+            "bottomLine": "como si fuera un adolescente"
+          },
+          {
+            "topLine": "¿Cómo funciona el arte digital?",
+            "bottomLine": "como si estuviera en la escuela intermedia"
+          },
+          {
+            "topLine": "Explica el concepto de tecnología 5G",
+            "bottomLine": "como si fuera nuevo en tecnología"
+          },
+          {
+            "topLine": "¿Qué es un vehículo autónomo?",
+            "bottomLine": "como si tuviera 15 años"
+          },
+          {
+            "topLine": "¿Cómo funcionan los videojuegos?",
+            "bottomLine": "como si tuviera 10 años"
+          },
+          {
+            "topLine": "Explica el concepto de contratos inteligentes",
+            "bottomLine": "como si estuviera en la secundaria"
+          },
+          {
+            "topLine": "¿Qué es un reloj inteligente?",
+            "bottomLine": "como si estuviera en la escuela intermedia"
+          },
+          {
+            "topLine": "¿Cómo funciona una pantalla táctil?",
+            "bottomLine": "como si tuviera 12 años"
+          },
+          {
+            "topLine": "Explica el concepto de traducción automática",
+            "bottomLine": "como si fuera principiante"
+          },
+          {
+            "topLine": "¿Qué es un centro de datos?",
+            "bottomLine": "como si fuera nuevo en tecnología"
+          },
+          {
+            "topLine": "¿Cómo funciona la minería de blockchain?",
+            "bottomLine": "como si fuera un adolescente"
+          },
+          {
+            "topLine": "¿Qué es un microchip?",
+            "bottomLine": "como si estuviera en la secundaria"
+          },
+          {
+            "topLine": "Explica el concepto de almacenamiento en la nube",
+            "bottomLine": "como si estuviera en la escuela intermedia"
+          },
+          {
+            "topLine": "¿Cómo funcionan los patinetes eléctricos?",
+            "bottomLine": "como si tuviera 13 años"
+          },
+          {
+            "topLine": "¿Qué es un algoritmo?",
+            "bottomLine": "como si fuera principiante"
+          },
+          {
+            "topLine": "Explica el concepto de reuniones virtuales",
+            "bottomLine": "como si fuera nuevo en tecnología"
+          },
+          {
+            "topLine": "¿Cómo funcionan las bicicletas eléctricas?",
+            "bottomLine": "como si tuviera 14 años"
+          },
+          {
+            "topLine": "¿Qué es una computadora cuántica?",
+            "bottomLine": "como si estuviera en la secundaria"
+          },
+          {
+            "topLine": "Explica el concepto de ciberseguridad",
+            "bottomLine": "como si fuera un adolescente"
+          },
+          {
+            "topLine": "¿Qué es la realidad aumentada?",
+            "bottomLine": "como si tuviera 12 años"
+          },
+          {
+            "topLine": "¿Cómo funcionan los servicios de streaming?",
+            "bottomLine": "como si estuviera en la escuela intermedia"
           }
         ]
       },
@@ -1956,6 +2096,7 @@
           "title": "Regalos en Blitz",
           "desc": "Comparte Bitcoin o dólares con amigos y familia"
         },
+        "balanceDenominationHeader": "Selecciona la moneda para tu regalo",
         "giftsOverview": {
           "noGiftsHead": "Aún no hay regalos",
           "noGiftsDesc": "Crea tu primer regalo para compartir Bitcoin o dólares con amigos y familiares.",
@@ -1963,7 +2104,8 @@
           "claimed": "Canjeado",
           "expired": "Vencido",
           "unclaimed": "No canjeado",
-          "reclaimed": "Recuperado"
+          "reclaimed": "Recuperado",
+          "noClaimURL": "No hay URL de reclamo disponible para este regalo. Por favor espera hasta que el regalo haya expirado para recuperar tu dinero."
         },
         "createGift": {
           "noAmountError": "Ingresa un monto para crear tu regalo.",
@@ -1979,7 +2121,19 @@
           "button": "Crear regalo",
           "disclaimer": "Cuando creas un regalo, el dinero queda bloqueado durante {{numDays}} días. Si nadie lo reclama en ese período, puedes ir a la página de recuperación para recuperarlo.",
           "durationText": "{{numDays}} días",
-          "type": "Tipo"
+          "type": "Tipo",
+          "quantityHeader": "¿Cuántos regalos deseas crear?",
+          "maxGiftsError": "Has alcanzado el número máximo de regalos",
+          "insufficientBalanceQuantity": "Saldo insuficiente para {{count}} regalos",
+          "descriptionTitle": "Añadir una nota",
+          "descriptionSubtitle": "Dale al destinatario una pista sobre para qué es este regalo.",
+          "swapError": "Simulación de intercambio no disponible o fallida",
+          "durationTitle": "¿Cuánto tiempo debe durar este regalo?",
+          "durationSubtitle": "Elige cuánto tiempo puede ser reclamado.",
+          "warningTitle": "Fondos retenidos",
+          "warningSubtitle": "Los fondos no reclamados pueden recuperarse después de {{numDays}} días.",
+          "bulkButton": "Crear {{count}} regalos",
+          "maxQuantityHint": "Máximo de 20 regalos permitidos."
         },
         "giftConfirmation": {
           "header": "¡Regalo creado!",
@@ -1989,7 +2143,8 @@
           "giftLink": "Enlace del regalo",
           "shareGift": "Compartir regalo",
           "createAnother": "Crear otro",
-          "done": "Listo"
+          "done": "Listo",
+          "showQr": "Mostrar código QR"
         },
         "claimHome": {
           "header": "Ingresa el enlace del regalo",
