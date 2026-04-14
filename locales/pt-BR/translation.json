@@ -2456,7 +2456,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "O saldo nas caixinhas é mantido em USDB, um dólar digital emitido pela Brale e totalmente coberto 1:1 por títulos do tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. O Dólar digital USDB não é segurado pelo FDIC. Não é um produto bancário."
+      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, um dólar digital emitido pela Brale e totalmente coberto 1:1 por títulos do tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. O Dólar digital USDB não é segurado pelo FDIC. Não é um produto bancário."
     },
     "preview": {
       "title": "Caixinhas",
@@ -2500,7 +2500,7 @@
       "screenTitle": "Remover meta",
       "title": "Remover meta",
       "warningProgressLost": "Você não verá mais o progresso para a sua meta «{{goalName}}».",
-      "warningMoneyReturned": "O dinheiro destinado a esta meta será transferido automaticamente para a caixinha.",
+      "warningMoneyReturned": "O dinheiro destinado a esta meta será transferido automaticamente para a Caixinha.",
       "removeButton": "Remover meta",
       "errors": {
         "unableToRemoveGoal": "Não foi possível remover a meta"
@@ -2532,12 +2532,12 @@
       "steps": {
         "processing": "Processando...",
         "swapping": "Convertendo fundos para dólar...",
-        "adding": "Guardando na caixinha...",
+        "adding": "Guardando na Caixinha...",
         "complete": "Concluído."
       },
       "successTitle": "Dinheiro transferido",
-      "paymentLabel_unallocated": "Depósito na caixinha geral",
-      "paymentLabel": "Depósito na caixinha {{savingsGoal}}",
+      "paymentLabel_unallocated": "Depósito na Caixinha geral",
+      "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
       }
@@ -2545,23 +2545,23 @@
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",
       "interestOption": "Recompensas",
-      "savingsOption": "Saldo de caixinhas",
+      "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Não há recompensas para resgatar",
       "savingsZeroHint": "Nada salvo ainda",
       "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
-      "fromSavings": "Da sua caixinha",
+      "fromSavings": "Da sua Caixinha",
       "interestPaymentLabel": "Resgate de recompensas",
       "chooseGoalTitle": "Resgatar dinheiro de",
-      "withdrawAll": "Todas as caixinhas",
+      "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
       "destinationTitle": "Transferir dinheiro para",
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar resgate",
-      "youAreWithdrawingAll": "Você está resgatando de todas as caixinhas",
+      "youAreWithdrawingAll": "Você está resgatando de todas as Caixinhas",
       "youAreWithdrawing": "Você está resgatando",
       "toYourBalance": "para o seu {{destination}}",
       "estimatedSats": "≈ {{sats}} sats após troca",
@@ -2569,14 +2569,14 @@
       "processing": "Processando resgate…",
       "steps": {
         "processing": "Processando...",
-        "withdrawing_savings": "Resgatando da caixinha...",
+        "withdrawing_savings": "Resgatando da Caixinha...",
         "withdrawing_rewards": "Resgatando recompensas",
         "swapping": "Convertendo para Bitcoin...",
         "complete": "Concluído."
       },
       "successTitle": "Resgate concluído",
-      "paymentLabel_unallocated": "Resgate da caixinha",
-      "paymentLabel": "Resgate da caixinha {{savingsGoal}}",
+      "paymentLabel_unallocated": "Resgate da Caixinha",
+      "paymentLabel": "Resgate da Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Não foi possível concluir o resgate"
       }
@@ -2617,9 +2617,9 @@
     "deposit": "Depósito",
     "depositWithGoal": "Depósito para {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
-    "savingsWalletError": "Conta da caixinha não está pronta",
+    "savingsWalletError": "Conta da Caixinha não está pronta",
     "rewardsPayout": "Pagamento de recompensas",
     "rewardsWithdrawal": "Resgate de recompensas",
-    "total_balance": "Saldo total caixinhas"
+    "total_balance": "Saldo total Caixinhas"
   }
 }
