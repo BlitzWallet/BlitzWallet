@@ -46,11 +46,16 @@ export default function SelectPaymentMethod({
     );
   };
 
+  const headerText =
+    fromPage === 'CreateGift'
+      ? t('screens.inAccount.giftPages.balanceDenominationHeader')
+      : t('wallet.sendPages.selectPaymentMethod.header');
+
   return (
     <View style={styles.innerContainer}>
       <ThemeText
         styles={{ fontWeight: 500, fontSize: SIZES.large }}
-        content={t('wallet.sendPages.selectPaymentMethod.header')}
+        content={headerText}
       />
 
       <TouchableOpacity

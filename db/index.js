@@ -554,6 +554,24 @@ export async function addGiftToDatabase(dataObject) {
   }
 }
 
+export async function bulkDeleteGiftsFromDatabase(uuids) {
+  try {
+    const db = getFirestore();
+    const batch = writeBatch(db);
+    uuids.forEach(uuid => {
+      const giftRef = doc(db, 'blitzGifts', uuid);
+      batch.delete(giftRef);
+    });
+    await batch.commit();
+    console.log(`Bulk deleted ${uuids.length} gifts from database`);
+    return true;
+  } catch (e) {
+    console.error('Error bulk deleting gifts from database:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
 export async function bulkAddGiftsToDatabase(gifts) {
   try {
     const db = getFirestore();
