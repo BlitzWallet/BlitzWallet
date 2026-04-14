@@ -2151,7 +2151,9 @@
           "shareGift": "Поделиться",
           "createAnother": "Создать еще",
           "done": "Готово",
-          "showQr": "Показать QR-код"
+          "showQr": "Показать QR-код",
+          "bulkHeader": "Создано подарков: {{count}}!",
+          "copyAllLinks": "Скопировать все ссылки"
         },
         "claimHome": {
           "header": "Введите ссылку",

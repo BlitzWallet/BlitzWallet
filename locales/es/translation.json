@@ -2144,7 +2144,9 @@
           "shareGift": "Compartir regalo",
           "createAnother": "Crear otro",
           "done": "Listo",
-          "showQr": "Mostrar código QR"
+          "showQr": "Mostrar código QR",
+          "bulkHeader": "¡{{count}} regalos creados!",
+          "copyAllLinks": "Copiar todos los enlaces"
         },
         "claimHome": {
           "header": "Ingresa el enlace del regalo",

@@ -2144,7 +2144,9 @@
           "shareGift": "Compartilhar Vale-Blitz",
           "createAnother": "Criar outro",
           "done": "Concluído",
-          "showQr": "Mostrar código QR"
+          "showQr": "Mostrar código QR",
+          "bulkHeader": "{{count}} presentes criados!",
+          "copyAllLinks": "Copiar todos os links"
         },
         "claimHome": {
           "header": "Insira o link do Vale-Blitz",

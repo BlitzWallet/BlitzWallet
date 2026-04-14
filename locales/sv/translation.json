@@ -2144,7 +2144,9 @@
           "shareGift": "Dela gåva",
           "createAnother": "Skapa en annan",
           "done": "Klar",
-          "showQr": "Visa QR-kod"
+          "showQr": "Visa QR-kod",
+          "bulkHeader": "{{count}} gåvor skapade!",
+          "copyAllLinks": "Kopiera alla länkar"
         },
         "claimHome": {
           "header": "Ange länk till gåvan",

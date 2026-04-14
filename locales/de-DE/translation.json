@@ -2144,7 +2144,9 @@
           "shareGift": "Geschenk teilen",
           "createAnother": "Weiteres erstellen",
           "done": "Fertig",
-          "showQr": "QR-Code anzeigen"
+          "showQr": "QR-Code anzeigen",
+          "bulkHeader": "{{count}} Geschenke erstellt!",
+          "copyAllLinks": "Alle Links kopieren"
         },
         "claimHome": {
           "header": "Geschenklink eingeben",
