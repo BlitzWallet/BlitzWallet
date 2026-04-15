@@ -1591,9 +1591,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.7.12":
-  version: 0.7.12
-  resolution: "@buildonspark/spark-sdk@npm:0.7.12"
+"@buildonspark/spark-sdk@npm:^0.7.13":
+  version: 0.7.13
+  resolution: "@buildonspark/spark-sdk@npm:0.7.13"
   dependencies:
     "@bufbuild/protobuf": ^2.2.5
     "@lightsparkdev/core": ^1.4.9
@@ -1639,7 +1639,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 7ebc12827f4d3d008e355bab7178a3b75821bf8d40d5406e35deab6b994ec6d6414a4f1eb05cc6d66acf187bd2b6e0b7aed54d0491b8590cbf2847cc1cd6a260
+  checksum: 55c0d9a177fbbb2c81030ad79a79f9be2fe0d79b4c84fe7fcfbfe8071dce7cee7627d470014ac19678c3ef4938be4bd4d2398e0a4377ee466f16522f8b7c55f7
   languageName: node
   linkType: hard
 
@@ -4991,7 +4991,7 @@ __metadata:
     "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
-    "@buildonspark/spark-sdk": ^0.7.12
+    "@buildonspark/spark-sdk": ^0.7.13
     "@craftzdog/react-native-buffer": ^6.1.0
     "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^1.8.0
