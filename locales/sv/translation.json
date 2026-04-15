@@ -2096,6 +2096,7 @@
           "title": "Blitz gåvor",
           "desc": "Dela Bitcoin eller Dollar med vänner och familj"
         },
+        "balanceDenominationHeader": "Välj valuta för ditt present",
         "giftsOverview": {
           "noGiftsHead": "Inga gåvor ännu",
           "noGiftsDesc": "Skapa din första present för att dela Bitcoin eller dollar med vänner och familj.",
@@ -2103,7 +2104,8 @@
           "claimed": "Hävdade",
           "expired": "Utgått",
           "unclaimed": "Ej utkrävd",
-          "reclaimed": "Återvunnen"
+          "reclaimed": "Återvunnen",
+          "noClaimURL": "Ingen inlösnings-URL tillgänglig för detta present. Vänta tills presenten har gått ut för att återfå dina pengar."
         },
         "createGift": {
           "noAmountError": "Ange ett belopp för att skapa din gåva.",
@@ -2119,7 +2121,19 @@
           "button": "Skapa gåva",
           "disclaimer": "När du skapar en gåva förblir pengarna låsta i {{numDays}} dagar. Om ingen gör anspråk på dem innan dess kan du gå till återkravssidan för att få tillbaka dem.",
           "durationText": "{{numDays}} dagar",
-          "type": "Typ"
+          "type": "Typ",
+          "quantityHeader": "Hur många presenter vill du skapa?",
+          "maxGiftsError": "Du har nått det maximala antalet presenter",
+          "insufficientBalanceQuantity": "Otillräckligt saldo för {{count}} presenter",
+          "descriptionTitle": "Lägg till en anteckning",
+          "descriptionSubtitle": "Ge mottagaren en ledtråd om vad detta present är till för.",
+          "swapError": "Byte-simulering ej tillgänglig eller misslyckades",
+          "durationTitle": "Hur länge ska detta present vara giltigt?",
+          "durationSubtitle": "Välj hur länge det kan hämtas.",
+          "warningTitle": "Tillgångar spärrade",
+          "warningSubtitle": "Ej inlösta tillgångar kan återkrävas efter {{numDays}} dagar.",
+          "bulkButton": "Skapa {{count}} presenter",
+          "maxQuantityHint": "Maximalt 20 presenter tillåtna."
         },
         "giftConfirmation": {
           "header": "Gåva skapad!",
@@ -2129,7 +2143,10 @@
           "giftLink": "Länk till gåvor",
           "shareGift": "Dela gåva",
           "createAnother": "Skapa en annan",
-          "done": "Klar"
+          "done": "Klar",
+          "showQr": "Visa QR-kod",
+          "bulkHeader": "{{count}} gåvor skapade!",
+          "copyAllLinks": "Kopiera alla länkar"
         },
         "claimHome": {
           "header": "Ange länk till gåvan",

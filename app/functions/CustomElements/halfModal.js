@@ -68,6 +68,7 @@ import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/sa
 import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
 import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
+import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gifts/addGiftQuantityHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
@@ -495,6 +496,16 @@ export default function CustomHalfModal(props) {
           <ContributeToPoolHalfModal
             pool={props?.route?.params?.pool}
             poolId={props?.route?.params?.poolId}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'addGiftQuantity':
+        return (
+          <AddGiftQuantityHalfModal
+            amount={props?.route?.params?.amount}
+            amountValue={props?.route?.params?.amountValue}
+            giftDenomination={props?.route?.params?.giftDenomination}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
           />
