@@ -134,6 +134,9 @@ const USDB_TOKEN_ID =
   'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87';
 const DEFAULT_GOAL_EMOJI = '🎯';
 
+const MAX_GIFT_QUANTITY = 20;
+const GIFTS_QUANTITY_PRESETS = [1, 5, 10, 15, 20];
+
 export {
   COLORS,
   FONT,
@@ -223,4 +226,6 @@ export {
   PAYLINK_DEEPLINK_REGEX,
   BASIC_ACCOUNT_NAME_REGEX,
   DEFAULT_GOAL_EMOJI,
+  MAX_GIFT_QUANTITY,
+  GIFTS_QUANTITY_PRESETS,
 };

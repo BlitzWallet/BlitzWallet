@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER, MAX_GIFTS, SIZES } from '../../../../constants';
+import {
+  CENTER,
+  GIFTS_QUANTITY_PRESETS,
+  MAX_GIFT_QUANTITY,
+  MAX_GIFTS,
+  SIZES,
+} from '../../../../constants';
 import {
   COLORS,
   HIDDEN_OPACITY,
@@ -20,9 +26,6 @@ import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-
-const MAX_GIFT_QUANTITY = 20;
-const QUANTITY_PRESETS = [1, 5, 10, 15, 20];
 
 export default function AddGiftQuantityHalfModal({
   amount,
@@ -185,7 +188,7 @@ export default function AddGiftQuantityHalfModal({
   };
 
   const allItems = [
-    ...QUANTITY_PRESETS.map(n => ({ value: n })),
+    ...GIFTS_QUANTITY_PRESETS.map(n => ({ value: n })),
     { isCustomButton: true },
   ];
   const rows = [
