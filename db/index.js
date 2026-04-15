@@ -554,14 +554,50 @@ export async function addGiftToDatabase(dataObject) {
   }
 }
 
+export async function bulkDeleteGiftsFromDatabase(uuids) {
+  try {
+    const db = getFirestore();
+    const batch = writeBatch(db);
+    uuids.forEach(uuid => {
+      const giftRef = doc(db, 'blitzGifts', uuid);
+      batch.delete(giftRef);
+    });
+    await batch.commit();
+    console.log(`Bulk deleted ${uuids.length} gifts from database`);
+    return true;
+  } catch (e) {
+    console.error('Error bulk deleting gifts from database:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function bulkAddGiftsToDatabase(gifts) {
+  try {
+    const db = getFirestore();
+    const batch = writeBatch(db);
+    gifts.forEach(gift => {
+      const giftRef = doc(db, 'blitzGifts', gift.uuid);
+      const { claimURL, ...giftWithoutClaimUrl } = gift;
+      batch.set(giftRef, giftWithoutClaimUrl, { merge: false });
+    });
+    await batch.commit();
+    console.log(`Bulk saved ${gifts.length} gifts to database`);
+    return true;
+  } catch (e) {
+    console.error('Error bulk adding gifts to database:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
 export async function updateGiftInDatabase(dataObject) {
   try {
     const db = getFirestore();
     const docRef = doc(db, 'blitzGifts', dataObject.uuid);
 
-    delete dataObject.claimURL;
-
-    await setDoc(docRef, dataObject, { merge: true });
+    const { claimURL: _claimURL, ...dataToSave } = dataObject;
+    await setDoc(docRef, dataToSave, { merge: true });
 
     console.log('Document merged with ID: ', dataObject.uuid);
     return true;
@@ -805,13 +841,13 @@ export async function getPoolContributionsSince(poolId, afterTimestampObj) {
   }
 }
 
-
 export async function getPayLinkDoc(payLinkId) {
   try {
     const db = getFirestore();
     const docRef = doc(db, 'blitzPaylinks', payLinkId);
     const snapshot = await getDoc(docRef);
-    if (!snapshot.exists()) return { didWork: false, error: 'Paylink not found' };
+    if (!snapshot.exists())
+      return { didWork: false, error: 'Paylink not found' };
     return { didWork: true, data: snapshot.data() };
   } catch (e) {
     console.error('Error fetching paylink:', e);

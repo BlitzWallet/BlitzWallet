@@ -67,6 +67,9 @@ import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
 import CreateGift from '../app/components/admin/homeComponents/gifts/createGift';
+import CreateGiftDescription from '../app/components/admin/homeComponents/gifts/createGiftDescription';
+import CreateGiftDuration from '../app/components/admin/homeComponents/gifts/createGiftDuration';
+import GiftConfirmation from '../app/components/admin/homeComponents/gifts/giftConfirmationScreen';
 import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
 import PoolManagementScreen from '../app/components/admin/homeComponents/pools/poolManagementScreen';
 import PoolDetailScreen from '../app/components/admin/homeComponents/pools/poolDetailScreen';
@@ -198,6 +201,9 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage },
   { name: 'SMSMessagingSendPage', component: SMSMessagingSendPage },
   { name: 'CreateGift', component: CreateGift },
+  { name: 'CreateGiftDescription', component: CreateGiftDescription },
+  { name: 'CreateGiftDuration', component: CreateGiftDuration },
+  { name: 'GiftConfirmation', component: GiftConfirmation },
   { name: 'AdvancedGiftClaim', component: AdvancedGiftClaim },
   { name: 'PoolManagementScreen', component: PoolManagementScreen },
   { name: 'PoolDetailScreen', component: PoolDetailScreen },
