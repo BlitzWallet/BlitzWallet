@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { TriangleAlert } from 'lucide-react-native';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useAnalytics } from '../../../../../../context-store/analyticsContext';
-import { COLORS, SIZES } from '../../../../../constants';
+import { CENTER, COLORS, SIZES } from '../../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
@@ -33,7 +33,7 @@ export default function BudgetWarningModal({ handleBackPressFunction }) {
       ? COLORS.cancelRed
       : COLORS.primary;
   const subheader = isOverBudget
-    ? t('analytics.budget.ovoverBudgetWarninger')
+    ? t('analytics.budget.overBudgetWarning')
     : t('analytics.budget.nearBudgetWarning');
 
   return (
@@ -64,7 +64,7 @@ export default function BudgetWarningModal({ handleBackPressFunction }) {
       >
         <ThemeText
           styles={styles.amountLabel}
-          content={t('analytics.budget.reamaining')}
+          content={t('analytics.reamaining')}
         />
         <FormattedSatText
           containerStyles={styles.amountValue}
@@ -76,7 +76,7 @@ export default function BudgetWarningModal({ handleBackPressFunction }) {
       {/* Continue button */}
       <CustomButton
         buttonStyles={styles.continueButton}
-        textContent={t('constnats.continue')}
+        textContent={t('constants.continue')}
         actionFunction={handleBackPressFunction}
       />
     </View>
@@ -85,6 +85,8 @@ export default function BudgetWarningModal({ handleBackPressFunction }) {
 
 const styles = StyleSheet.create({
   sheet: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
     flex: 1,
   },
 
