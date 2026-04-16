@@ -6,7 +6,7 @@ export default async function getDeepLinkUser({
   userProfile,
 }) {
   try {
-    const deepLinkUser = deepLinkContent.split('u/')[1];
+    const deepLinkUser = deepLinkContent.split('/u/')[1];
 
     const rawUser = await getSingleContact(deepLinkUser);
     console.log(rawUser);
