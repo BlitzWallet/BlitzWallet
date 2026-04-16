@@ -94,6 +94,7 @@ export default async function initializeUserSettingsFromHistory({
       thousandsSeperator,
       enabledLiquidAutoSwap,
       pinnedAccounts,
+      monthlyBudget,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -402,6 +403,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['pinnedAccounts'] = pinnedAccounts;
     tempObject['nextAccountDerivationIndex'] = nextAccountDerivationIndex;
     tempObject['currentDerivedPoolIndex'] = currentDerivedPoolIndex;
+    tempObject['monthlyBudget'] = monthlyBudget;
 
     // store in contacts context
     tempObject['contacts'] = contacts;
