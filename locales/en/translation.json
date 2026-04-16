@@ -2096,6 +2096,7 @@
           "title": "Blitz Gifts",
           "desc": "Share Bitcoin or Dollars with friends and family."
         },
+        "balanceDenominationHeader": "Select the currency for your gift",
         "giftsOverview": {
           "noGiftsHead": "No gifts yet",
           "noGiftsDesc": "Create your first gift to share Bitcoin or Dollars with friends and family.",
@@ -2103,7 +2104,8 @@
           "claimed": "Claimed",
           "expired": "Expired",
           "unclaimed": "Unclaimed",
-          "reclaimed": "Reclaimed"
+          "reclaimed": "Reclaimed",
+          "noClaimURL": "No claim URL available for this gift. Please wait till the gift is expired to reclaim your money."
         },
         "createGift": {
           "noAmountError": "Please enter an amount to create your gift.",
@@ -2117,9 +2119,21 @@
           "header": "Create Gift",
           "inputPlaceholder": "Add a message or note...",
           "button": "Create Gift",
-          "disclaimer": "When you create a gift, the money stays locked for {{numDays}} days. If no one claims it by then, you can go to the reclaim page to get it back.",
+          "disclaimer": "Held for {{numDays}} days while the gift can be claimed. If not, you can get your money back.",
           "durationText": "{{numDays}} days",
-          "type": "Type"
+          "type": "Type",
+          "quantityHeader": "How many gifts would you like to create?",
+          "maxGiftsError": "You've reached the maximum number of gifts",
+          "insufficientBalanceQuantity": "Not enough balance for {{count}} gifts",
+          "descriptionTitle": "Add a note",
+          "descriptionSubtitle": "Give the recipient a hint about what this gift is for.",
+          "swapError": "Swap simulation not available or failed",
+          "durationTitle": "How long should this gift last?",
+          "durationSubtitle": "Choose how long it can be claimed.",
+          "warningTitle": "Funds on hold",
+          "warningSubtitle": "Unclaimed funds can be reclaimed after {{numDays}} days.",
+          "bulkButton": "Create {{count}} Gifts",
+          "maxQuantityHint": "Maximum of 20 gifts allowed."
         },
         "giftConfirmation": {
           "header": "Gift Created!",
@@ -2129,7 +2143,10 @@
           "giftLink": "Gift Link",
           "shareGift": "Share Gift",
           "createAnother": "Create Another",
-          "done": "Done"
+          "done": "Done",
+          "showQr": "Show QR Code",
+          "bulkHeader": "{{count}} Gifts Created!",
+          "copyAllLinks": "Copy All Links"
         },
         "claimHome": {
           "header": "Enter gift link",

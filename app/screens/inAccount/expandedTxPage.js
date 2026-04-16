@@ -134,15 +134,16 @@ export default function ExpandedTx(props) {
     transaction?.details?.showSwapLabel &&
     !!transaction?.details?.currentPriceAInB;
 
-  const transactionPaymentType = isBulkPayment
-    ? t('screens.inAccount.expandedTxPage.splitPayment')
-    : showConversionLine
-    ? t('constants.swap')
-    : sendingContactUUID
-    ? t('screens.inAccount.expandedTxPage.contactPaymentType')
-    : transaction.details.isGift
-    ? t('screens.inAccount.expandedTxPage.gift')
-    : transaction.paymentType;
+  const transactionPaymentType =
+    isBulkPayment && !transaction.details.isGift
+      ? t('screens.inAccount.expandedTxPage.splitPayment')
+      : showConversionLine
+      ? t('constants.swap')
+      : sendingContactUUID
+      ? t('screens.inAccount.expandedTxPage.contactPaymentType')
+      : transaction.details.isGift
+      ? t('screens.inAccount.expandedTxPage.gift')
+      : transaction.paymentType;
 
   const isFailedPayment = transaction.paymentStatus === 'failed';
   const isPending =

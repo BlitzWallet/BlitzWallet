@@ -109,14 +109,6 @@ export default function CustomSearchInput({
         if (inputRef?.current) {
           inputRef.current.blur();
         }
-
-        if (onBlurFunction) {
-          if (shouldDelayBlur) {
-            setTimeout(() => onBlurFunction(), 150);
-          } else {
-            onBlurFunction();
-          }
-        }
       },
     );
 

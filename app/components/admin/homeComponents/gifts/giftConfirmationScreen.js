@@ -14,29 +14,27 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useNavigation } from '@react-navigation/native';
-import { formatDateToDayMonthYear } from '../../../../functions/rotateAddressDateChecker';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
-import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
-import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../functions/CustomElements/button';
+import { useGifts } from '../../../../../context-store/giftContext';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
-export default function GiftConfirmation({
-  amount,
-  description,
-  expiration,
-  giftId = ' ',
-  giftSecret = ' ',
-  giftLink = ' ',
-  resetPageState,
-  storageObject,
-}) {
+export default function GiftConfirmation(props) {
+  const {
+    isBulk = false,
+    // Single gift params
+    giftId = '',
+    // Bulk gift params
+    giftsUUIDs = [],
+  } = props.route?.params || {};
+
+  const { giftsArray } = useGifts();
   const { showToast } = useToast();
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -44,31 +42,49 @@ export default function GiftConfirmation({
   const animationRef = useRef(null);
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
-  const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
+
+  const gifts = isBulk
+    ? giftsArray.filter(gift => {
+        return giftsUUIDs.includes(gift?.uuid);
+      })
+    : giftsArray.find(gift => gift?.uuid === giftId);
+
+  console.log('Gifts to display:', gifts);
 
   const handleCopy = data => {
     copyToClipboard(data, showToast);
   };
 
+  const handleCopyAllLinks = () => {
+    const allLinks = gifts.map(g => g.claimURL).join('\n');
+    console.log(allLinks);
+    copyToClipboard(allLinks, showToast);
+  };
+
   const handleShare = async () => {
     try {
+      const targetStorageObject = isBulk ? gifts : gifts;
+      const targetLink = isBulk ? gifts?.claimURL : gifts.claimURL;
+      const targetAmount = isBulk ? gifts?.amount : gifts?.amount;
+
       await handleGiftCardShare({
         amount: displayCorrectDenomination({
           amount:
-            storageObject?.denomination === 'BTC'
-              ? amount
-              : storageObject.dollarAmount,
+            targetStorageObject?.denomination === 'BTC'
+              ? targetAmount
+              : targetStorageObject?.dollarAmount,
           masterInfoObject: {
             ...masterInfoObject,
             userBalanceDenomination:
-              storageObject.denomination === 'USD' ? 'fiat' : 'sats',
+              targetStorageObject?.denomination === 'USD' ? 'fiat' : 'sats',
           },
           fiatStats,
-          convertAmount: storageObject.denomination !== 'USD',
-          forceCurrency: storageObject.denomination === 'USD' ? 'USD' : false,
+          convertAmount: targetStorageObject?.denomination !== 'USD',
+          forceCurrency:
+            targetStorageObject?.denomination === 'USD' ? 'USD' : false,
         }),
-        giftLink,
+        giftLink: targetLink,
       });
     } catch (error) {
       console.log('Share cancelled or error:', error);
@@ -86,12 +102,19 @@ export default function GiftConfirmation({
     );
   }, [theme, darkModeType]);
 
+  const headerTitle = isBulk
+    ? t('screens.inAccount.giftPages.giftConfirmation.bulkHeader', {
+        count: gifts.length,
+      })
+    : t('screens.inAccount.giftPages.giftConfirmation.header');
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         iconNew="Share"
-        showLeftImage={true}
+        showLeftImage={!isBulk}
         leftImageFunction={handleShare}
+        customBackFunction={() => navigate.popTo('GiftsPageHome')}
       />
       <ScrollView
         style={styles.scrollView}
@@ -106,147 +129,174 @@ export default function GiftConfirmation({
             loop={false}
             style={styles.lottieAnimation}
           />
-          <ThemeText
-            styles={styles.title}
-            content={t('screens.inAccount.giftPages.giftConfirmation.header')}
-          />
+          <ThemeText styles={styles.title} content={headerTitle} />
           <ThemeText
             styles={styles.subtitle}
             content={t('screens.inAccount.giftPages.giftConfirmation.whatToDo')}
           />
         </View>
 
-        {/* QR Code */}
-        <View style={[styles.qrCard, { backgroundColor: backgroundOffset }]}>
-          <TouchableOpacity onPress={() => handleCopy(giftLink)}>
-            <QrCodeWrapper
-              outerContainerStyle={styles.qrContainer}
-              QRData={giftLink}
-              qrSize={250}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Gift Details */}
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          <View
-            style={[styles.cardHeader, { borderBottomColor: backgroundColor }]}
-          >
-            <ThemeIcon size={25} iconName={'Gift'} />
-            <ThemeText
-              styles={styles.cardHeaderText}
-              content={t(
-                'screens.inAccount.giftPages.giftConfirmation.details',
-              )}
-            />
-          </View>
-          <View style={styles.detailsContent}>
-            <View style={styles.detailRow}>
-              <ThemeText
-                styles={styles.detailLabel}
-                content={t('constants.amount')}
-              />
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.detailValue}
-                content={displayCorrectDenomination({
-                  amount:
-                    storageObject?.denomination === 'BTC'
-                      ? amount
-                      : storageObject.dollarAmount,
-                  masterInfoObject: {
-                    ...masterInfoObject,
-                    userBalanceDenomination:
-                      storageObject.denomination === 'USD' ? 'fiat' : 'sats',
-                  },
-                  fiatStats,
-                  convertAmount: storageObject.denomination !== 'USD',
-                  forceCurrency:
-                    storageObject.denomination === 'USD' ? 'USD' : false,
-                })}
-              />
-            </View>
-            {description && (
-              <View style={styles.detailRow}>
-                <ThemeText
-                  styles={styles.detailLabel}
-                  content={t('constants.description')}
-                />
-                <ThemeText
-                  styles={[styles.detailValue, styles.detailDescription]}
-                  content={description}
-                />
-              </View>
-            )}
-            {expiration && (
-              <View style={styles.detailRow}>
-                <ThemeText
-                  styles={styles.detailLabel}
-                  content={t(
-                    'screens.inAccount.giftPages.giftConfirmation.expire',
-                  )}
-                />
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.detailValueSecondary}
-                  content={formatDateToDayMonthYear(expiration)}
-                />
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Gift Link */}
-        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
-          <ThemeText
-            styles={styles.inputLabel}
-            content={t('screens.inAccount.giftPages.giftConfirmation.giftLink')}
-          />
-          <View style={styles.inputRow}>
-            <View
-              style={[
-                styles.linkContainer,
-                {
-                  borderColor: backgroundColor,
-                  backgroundColor: theme
-                    ? backgroundColor
-                    : COLORS.darkModeText,
-                },
-              ]}
-            >
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.linkText}
-                content={giftLink}
-              />
-            </View>
+        {isBulk ? (
+          // ── Bulk Layout ────────────────────────────────────────────────────
+          <>
+            {/* Copy All button */}
             <TouchableOpacity
-              onPress={() => handleCopy(giftLink)}
-              style={[styles.copyButton]}
+              onPress={handleCopyAllLinks}
+              style={[styles.copyAllRow, { backgroundColor: backgroundOffset }]}
               activeOpacity={0.7}
             >
               <ThemeIcon
-                size={20}
+                size={18}
                 colorOverride={
                   theme && darkModeType ? COLORS.darkModeText : COLORS.primary
                 }
                 iconName={'Copy'}
               />
+              <ThemeText
+                styles={[
+                  styles.copyAllText,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                ]}
+                content={t(
+                  'screens.inAccount.giftPages.giftConfirmation.copyAllLinks',
+                )}
+              />
             </TouchableOpacity>
-          </View>
-        </View>
+
+            {/* Gift list */}
+            <View style={styles.bulkListContainer}>
+              {gifts.map((gift, index) => {
+                return (
+                  <View
+                    key={gift?.uuid || index}
+                    style={[
+                      styles.bulkGiftRow,
+                      { backgroundColor: backgroundOffset },
+                      index < gifts.length - 1 && styles.bulkGiftRowBorder,
+                      index < gifts.length - 1 && {
+                        borderBottomColor: backgroundColor,
+                      },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.bulkLinkBox,
+                        {
+                          backgroundColor: theme
+                            ? backgroundColor
+                            : COLORS.darkModeText,
+                          borderColor: backgroundColor,
+                        },
+                      ]}
+                    >
+                      <ThemeText
+                        CustomNumberOfLines={1}
+                        styles={styles.bulkLinkText}
+                        content={gift.claimURL}
+                      />
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleCopy(gift.claimURL)}
+                      style={styles.bulkCopyBtn}
+                      activeOpacity={0.7}
+                    >
+                      <ThemeIcon
+                        size={18}
+                        colorOverride={
+                          theme && darkModeType
+                            ? COLORS.darkModeText
+                            : COLORS.primary
+                        }
+                        iconName={'Copy'}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </View>
+          </>
+        ) : (
+          // ── Single Gift Layout ─────────────────────────────────────────────
+          <>
+            {/* Show QR Code button */}
+            <TouchableOpacity
+              onPress={() =>
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'customQrCode',
+                  data: gifts?.claimURL,
+                })
+              }
+              style={[
+                styles.showQrButton,
+                { backgroundColor: backgroundOffset },
+              ]}
+              activeOpacity={0.7}
+            >
+              <ThemeIcon size={20} iconName={'QrCode'} />
+              <ThemeText
+                styles={styles.showQrButtonText}
+                content={t(
+                  'screens.inAccount.giftPages.giftConfirmation.showQr',
+                )}
+              />
+            </TouchableOpacity>
+
+            {/* Gift Link */}
+            <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+              <View style={styles.inputRow}>
+                <View
+                  style={[
+                    styles.linkContainer,
+                    {
+                      borderColor: backgroundColor,
+                      backgroundColor: theme
+                        ? backgroundColor
+                        : COLORS.darkModeText,
+                    },
+                  ]}
+                >
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.linkText}
+                    content={gifts?.claimURL}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleCopy(gifts?.claimURL)}
+                  style={styles.copyButton}
+                  activeOpacity={0.7}
+                >
+                  <ThemeIcon
+                    size={20}
+                    colorOverride={
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary
+                    }
+                    iconName={'Copy'}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </>
+        )}
       </ScrollView>
 
       {/* Fixed Bottom Buttons */}
-      <View style={[styles.bottomButtons]}>
+      <View style={styles.bottomButtons}>
         <CustomButton
-          actionFunction={navigate.goBack}
+          actionFunction={() => navigate.popTo('GiftsPageHome')}
           textContent={t('screens.inAccount.giftPages.giftConfirmation.done')}
         />
         <CustomButton
           buttonStyles={{ backgroundColor: 'unset' }}
           textStyles={{ color: textColor }}
-          actionFunction={resetPageState}
+          actionFunction={() => navigate.popTo('CreateGift')}
           textContent={t(
             'screens.inAccount.giftPages.giftConfirmation.createAnother',
           )}
@@ -267,37 +317,39 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   lottieAnimation: {
-    width: 100,
-    height: 100,
+    width: 160,
+    height: 160,
   },
   title: {
-    fontSize: SIZES.large,
+    fontSize: SIZES.xLarge,
     fontWeight: '500',
-    marginBottom: 8,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   subtitle: {
-    opacity: 0.8,
+    opacity: 0.7,
     textAlign: 'center',
     maxWidth: 320,
-    lineHeight: 22,
   },
-  qrCard: {
-    borderRadius: 8,
-    padding: 8,
-    marginBottom: 16,
+  // Single gift: Show QR button
+  showQrButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    borderRadius: 16,
+    paddingVertical: 16,
+    marginBottom: 16,
+    width: '100%',
   },
-  qrContainer: {
-    backgroundColor: 'unset',
-    width: 250,
-    height: 250,
-    overflow: 'hidden',
+  showQrButtonText: {
+    includeFontPadding: false,
   },
   card: {
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 16,
     marginBottom: 16,
   },
@@ -352,6 +404,53 @@ const styles = StyleSheet.create({
   copyButton: {
     width: 44,
     height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Bulk layout
+  copyAllRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: 16,
+    paddingVertical: 16,
+    marginBottom: 12,
+    width: '100%',
+  },
+  copyAllText: {
+    includeFontPadding: false,
+  },
+  bulkListContainer: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 16,
+    width: '100%',
+  },
+  bulkGiftRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  bulkGiftRowBorder: {
+    borderBottomWidth: 1,
+  },
+  bulkLinkBox: {
+    flex: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+  },
+  bulkLinkText: {
+    fontSize: SIZES.small,
+    includeFontPadding: false,
+  },
+  bulkCopyBtn: {
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },

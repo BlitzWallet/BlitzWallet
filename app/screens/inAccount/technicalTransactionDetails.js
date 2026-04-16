@@ -159,81 +159,84 @@ export default function TechnicalTransactionDetails(props) {
         style={styles.innerContainer}
       >
         {infoElements}
-        <ThemeText
-          content={t(
-            'screens.inAccount.technicalTransactionDetails.amountBreakdown',
-            { defaultValue: 'Amount Breakdown' },
-          )}
-          styles={styles.headerText}
-        />
 
-        {isBulkPayment && (
-          <View style={[styles.amountsBreakdown]}>
-            {successfulGroup.map((entry, index) => {
-              const contact = decodedAddedContacts?.find(
-                c => c.uuid === entry.contactUUID,
-              );
-              const displayName =
-                contact?.name || contact?.uniqueName || entry.contactUUID;
-              const transferId = entry?.transferId || '';
+        {isBulkPayment && !!bulkPaymentGroup.length && (
+          <>
+            <ThemeText
+              content={t(
+                'screens.inAccount.technicalTransactionDetails.amountBreakdown',
+                { defaultValue: 'Amount Breakdown' },
+              )}
+              styles={styles.headerText}
+            />
 
-              // BTC: raw sats passed directly.
-              // USD: amountCents * 10_000 = micros (matches DB amount unit and
-              //      what FormattedSatText + formatTokensNumber expect for LRC20).
-              const rawAmount = isLRC20Payment
-                ? (entry.amountCents ?? 0) * 10_000
-                : entry.amountSats ?? 0;
-              const displayBalance = isLRC20Payment
-                ? formatTokensNumber(
-                    rawAmount,
-                    selectedToken?.tokenMetadata?.decimals,
-                  )
-                : rawAmount;
+            <View style={[styles.amountsBreakdown]}>
+              {successfulGroup.map((entry, index) => {
+                const contact = decodedAddedContacts?.find(
+                  c => c.uuid === entry.contactUUID,
+                );
+                const displayName =
+                  contact?.name || contact?.uniqueName || entry.contactUUID;
+                const transferId = entry?.transferId || '';
 
-              const isLast = index === successfulGroup.length - 1;
+                // BTC: raw sats passed directly.
+                // USD: amountCents * 10_000 = micros (matches DB amount unit and
+                //      what FormattedSatText + formatTokensNumber expect for LRC20).
+                const rawAmount = isLRC20Payment
+                  ? (entry.amountCents ?? 0) * 10_000
+                  : entry.amountSats ?? 0;
+                const displayBalance = isLRC20Payment
+                  ? formatTokensNumber(
+                      rawAmount,
+                      selectedToken?.tokenMetadata?.decimals,
+                    )
+                  : rawAmount;
 
-              return (
-                <TouchableOpacity
-                  onPress={() => copyToClipboard(transferId, showToast)}
-                  key={entry.contactUUID}
-                >
-                  <View style={styles.infoRow}>
-                    <View
-                      style={[
-                        styles.profileImage,
-                        { backgroundColor: backgroundColor },
-                      ]}
-                    >
-                      <ContactProfileImage
-                        updated={cache[entry.contactUUID]?.updated}
-                        uri={cache[entry.contactUUID]?.localUri}
-                        darkModeType={darkModeType}
-                        theme={theme}
+                const isLast = index === successfulGroup.length - 1;
+
+                return (
+                  <TouchableOpacity
+                    onPress={() => copyToClipboard(transferId, showToast)}
+                    key={entry.contactUUID}
+                  >
+                    <View style={styles.infoRow}>
+                      <View
+                        style={[
+                          styles.profileImage,
+                          { backgroundColor: backgroundColor },
+                        ]}
+                      >
+                        <ContactProfileImage
+                          updated={cache[entry.contactUUID]?.updated}
+                          uri={cache[entry.contactUUID]?.localUri}
+                          darkModeType={darkModeType}
+                          theme={theme}
+                        />
+                      </View>
+                      <View style={styles.transactionRow}>
+                        <ThemeText
+                          content={displayName}
+                          styles={styles.infoName}
+                          CustomNumberOfLines={1}
+                        />
+                      </View>
+                      <FormattedSatText
+                        neverHideBalance={true}
+                        styles={styles.infoValue}
+                        balance={displayBalance}
+                        useCustomLabel={isLRC20Payment}
+                        customLabel={selectedToken?.tokenMetadata?.tokenTicker}
+                        useMillionDenomination={true}
                       />
                     </View>
-                    <View style={styles.transactionRow}>
-                      <ThemeText
-                        content={displayName}
-                        styles={styles.infoName}
-                        CustomNumberOfLines={1}
-                      />
-                    </View>
-                    <FormattedSatText
-                      neverHideBalance={true}
-                      styles={styles.infoValue}
-                      balance={displayBalance}
-                      useCustomLabel={isLRC20Payment}
-                      customLabel={selectedToken?.tokenMetadata?.tokenTicker}
-                      useMillionDenomination={true}
-                    />
-                  </View>
-                  {!isLast && (
-                    <View style={[styles.rowDivider, { backgroundColor }]} />
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                    {!isLast && (
+                      <View style={[styles.rowDivider, { backgroundColor }]} />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
         )}
       </ScrollView>
     </GlobalThemeView>

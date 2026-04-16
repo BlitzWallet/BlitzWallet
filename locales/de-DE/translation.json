@@ -2096,6 +2096,7 @@
           "title": "Blitz-Geschenke",
           "desc": "Teilen Sie BTC oder USD mit Freunden und Familie"
         },
+        "balanceDenominationHeader": "Währung für Ihr Geschenk auswählen",
         "giftsOverview": {
           "noGiftsHead": "Noch keine Geschenke",
           "noGiftsDesc": "Erstellen Sie Ihr erstes Geschenk, um BTC oder USD mit Freunden und Familie zu teilen.",
@@ -2103,7 +2104,8 @@
           "claimed": "Eingelöst",
           "expired": "Abgelaufen",
           "unclaimed": "Nicht eingelöst",
-          "reclaimed": "Zurückgeholt"
+          "reclaimed": "Zurückgeholt",
+          "noClaimURL": "Kein Einlöse-Link für dieses Geschenk verfügbar. Bitte warten Sie, bis das Geschenk abgelaufen ist, um Ihr Geld zurückzuerhalten."
         },
         "createGift": {
           "noAmountError": "Bitte geben Sie einen Betrag ein, um Ihr Geschenk zu erstellen.",
@@ -2119,7 +2121,19 @@
           "button": "Geschenk erstellen",
           "disclaimer": "Wenn Sie ein Geschenk erstellen, bleibt das Geld {{numDays}} Tage lang gesperrt. Wenn es in dieser Zeit niemand einlöst, können Sie zur Rückforderungsseite gehen, um es zurückzubekommen.",
           "durationText": "{{numDays}} Tage",
-          "type": "Währung"
+          "type": "Währung",
+          "quantityHeader": "Wie viele Geschenke möchten Sie erstellen?",
+          "maxGiftsError": "Sie haben die maximale Anzahl an Geschenken erreicht",
+          "insufficientBalanceQuantity": "Nicht genug Guthaben für {{count}} Geschenke",
+          "descriptionTitle": "Notiz hinzufügen",
+          "descriptionSubtitle": "Geben Sie dem Empfänger einen Hinweis, wofür dieses Geschenk ist.",
+          "swapError": "Tauschsimulation nicht verfügbar oder fehlgeschlagen",
+          "durationTitle": "Wie lange soll dieses Geschenk gültig sein?",
+          "durationSubtitle": "Wählen Sie, wie lange es eingelöst werden kann.",
+          "warningTitle": "Guthaben gesperrt",
+          "warningSubtitle": "Nicht eingelöste Beträge können nach {{numDays}} Tagen zurückgefordert werden.",
+          "bulkButton": "{{count}} Geschenke erstellen",
+          "maxQuantityHint": "Maximal 20 Geschenke erlaubt."
         },
         "giftConfirmation": {
           "header": "Geschenk erstellt!",
@@ -2129,7 +2143,10 @@
           "giftLink": "Geschenklink",
           "shareGift": "Geschenk teilen",
           "createAnother": "Weiteres erstellen",
-          "done": "Fertig"
+          "done": "Fertig",
+          "showQr": "QR-Code anzeigen",
+          "bulkHeader": "{{count}} Geschenke erstellt!",
+          "copyAllLinks": "Alle Links kopieren"
         },
         "claimHome": {
           "header": "Geschenklink eingeben",

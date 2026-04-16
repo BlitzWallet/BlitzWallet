@@ -112,6 +112,8 @@ const longOperations = [
   OPERATION_TYPES.runTokenOptimization,
   OPERATION_TYPES.claimSparkHodlLightningPayment,
   OPERATION_TYPES.receiveSparkHodlLightningPayment,
+  OPERATION_TYPES.fufillSparkInvoices,
+  OPERATION_TYPES.batchTransferTokens,
 ];
 
 const mediumOperations = [
@@ -132,6 +134,8 @@ const mediumOperations = [
   OPERATION_TYPES.requestBatchClawback,
   OPERATION_TYPES.checkIfOptimizationNeeded,
   OPERATION_TYPES.listClawbackableTransfers,
+  OPERATION_TYPES.createSatsInvoice,
+  OPERATION_TYPES.createTokensInvoice,
 ];
 
 const rejectIfNotConnectedToInternet = [

@@ -79,21 +79,13 @@ export default function GiftCardItem({
       });
       return;
     }
-
-    await handleGiftCardShare({
-      amount: displayCorrectDenomination({
-        amount: denomination === 'USD' ? dollarAmount : amount,
-        masterInfoObject: {
-          ...masterInfoObject,
-          userBalanceDenomination: denomination === 'USD' ? 'fiat' : 'sats',
-          thousandsSeperator: 'space',
-        },
-        fiatStats,
-        convertAmount: denomination !== 'USD',
-        forceCurrency: denomination === 'USD' ? 'USD' : false,
-      }),
-      giftLink: claimURL,
-    });
+    if (claimURL) {
+      copyToClipboard(claimURL, showToast);
+    } else {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.giftPages.giftsOverview.noClaimURL'),
+      });
+    }
   };
 
   const cardContent = (
@@ -202,7 +194,7 @@ export default function GiftCardItem({
             >
               <ThemeIcon
                 size={16}
-                iconName={isExpired ? 'RotateCcw' : 'Share'}
+                iconName={isExpired ? 'RotateCcw' : 'Copy'}
               />
             </Pressable>
           </View>
