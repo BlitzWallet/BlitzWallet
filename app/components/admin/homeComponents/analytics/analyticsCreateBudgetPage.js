@@ -18,12 +18,13 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import { useTranslation } from 'react-i18next';
+import { numberConverter } from '../../../../functions';
 
 export default function AnalyticsCreateBudgetPage() {
   const navigate = useNavigation();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { swapUSDPriceDollars } = useFlashnet();
+  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { fiatStats } = useNodeContext();
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
@@ -31,8 +32,13 @@ export default function AnalyticsCreateBudgetPage() {
   const existingBudget = masterInfoObject?.monthlyBudget;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
 
+  const formattedPresetAmount =
+    userBalanceDenomination === 'fiat'
+      ? numberConverter(existingBudget?.amount, 'fiat', 2, fiatStats)
+      : existingBudget?.amount;
+
   const [amountValue, setAmountValue] = useState(
-    existingBudget?.amount ? String(existingBudget.amount) : '',
+    existingBudget?.amount ? String(formattedPresetAmount) : '',
   );
   const [inputDenomination, setInputDenomination] = useState(
     userBalanceDenomination === 'fiat' ? 'fiat' : 'sats',
