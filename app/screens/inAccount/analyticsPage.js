@@ -1,45 +1,37 @@
 import { useNavigation } from '@react-navigation/native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ActivityIndicator,
-} from 'react-native';
-import { CENTER, COLORS, FONT, SIZES } from '../../constants';
+  CENTER,
+  COLORS,
+  NEAR_BUDGET_LIMIT,
+  OVER_BUDGET_LIMIT,
+  SIZES,
+} from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import { useEffect, useState } from 'react';
-import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import { getMonthlyTransactions, buildDailyBalances } from '../../functions/spark/transactions';
-import PortfolioChart from '../../functions/CustomElements/portfolioChart';
-import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
-import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../constants/theme';
+import BalancePieChart from '../../components/admin/homeComponents/analytics/balancePieChart';
+import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
-import NoContentSceen from '../../functions/CustomElements/noContentScreen';
+import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
+import { useAnalytics } from '../../../context-store/analyticsContext';
+import ThemeIcon from '../../functions/CustomElements/themeIcon';
+import { useTranslation } from 'react-i18next';
 
 export default function AnalyticsPage() {
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { sparkInformation } = useSparkWallet();
   const { fiatStats } = useNodeContext();
-  const [incomeTotal, setIncomeTotal] = useState(0);
-  const [spentTotal, setSpentTotal] = useState(0);
-  const [incomeTxCount, setIncomeTxCount] = useState(0);
-  const [spentTxCount, setSpentTxCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [dailyBalances, setDailyBalances] = useState([]);
+  const { bottomPadding } = useGlobalInsets();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const chartWidth = Dimensions.get('screen').width * 0.95;
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { incomeTotal, spentTotal, incomeTxCount, spentTxCount, isLoading } =
+    useAnalytics();
+  const { t } = useTranslation();
 
   const budget = masterInfoObject?.monthlyBudget;
   const budgetAmount = budget?.amount || 0;
@@ -47,116 +39,45 @@ export default function AnalyticsPage() {
   const spentPercent = budgetAmount > 0 ? spentTotal / budgetAmount : 0;
 
   const budgetStatus =
-    spentPercent >= 1
-      ? { label: 'Over budget', color: COLORS.cancelRed }
-      : spentPercent >= 0.75
-      ? { label: 'Near limit', color: COLORS.bitcoinOrange }
-      : { label: 'On track', color: COLORS.primary };
-
-  const startBalanceSats = dailyBalances.length > 0 ? dailyBalances[0].balanceSats : sparkInformation.balance;
-  const currentBalanceSats = sparkInformation.balance;
-  const deltaBalanceSats = currentBalanceSats - startBalanceSats;
-  const deltaPercent = startBalanceSats > 0 ? (deltaBalanceSats / startBalanceSats) * 100 : 0;
-  const deltaIsPositive = deltaBalanceSats >= 0;
-
-  const deltaDisplay = displayCorrectDenomination({
-    amount: Math.abs(deltaBalanceSats),
-    masterInfoObject,
-    fiatStats,
-  });
-  const deltaSign = deltaIsPositive ? '+' : '-';
-  const deltaColor = deltaIsPositive ? COLORS.primary : COLORS.cancelRed;
-
-  const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-
-  useEffect(() => {
-    async function load() {
-      if (!sparkInformation.identityPubKey) return;
-      setIsLoading(true);
-      try {
-        const [inTxs, outTxs] = await Promise.all([
-          getMonthlyTransactions(sparkInformation.identityPubKey, 'INCOMING'),
-          getMonthlyTransactions(sparkInformation.identityPubKey, 'OUTGOING'),
-        ]);
-        const totalIn = inTxs.reduce((sum, tx) => {
-          try {
-            return sum + (JSON.parse(tx.details).amount || 0);
-          } catch {
-            return sum;
-          }
-        }, 0);
-        const totalOut = outTxs.reduce((sum, tx) => {
-          try {
-            return sum + (JSON.parse(tx.details).amount || 0);
-          } catch {
-            return sum;
-          }
-        }, 0);
-        setIncomeTotal(totalIn);
-        setSpentTotal(totalOut);
-        setIncomeTxCount(inTxs.length);
-        setSpentTxCount(outTxs.length);
-        const allTxs = [...inTxs, ...outTxs];
-        const balances = buildDailyBalances(allTxs, sparkInformation.balance);
-        setDailyBalances(balances);
-      } catch (e) {
-        console.error('AnalyticsPage load error', e);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    load();
-  }, [sparkInformation.identityPubKey]);
+    spentPercent >= OVER_BUDGET_LIMIT
+      ? {
+          label: t('analytics.overBudget'),
+          color: theme && darkModeType ? textColor : COLORS.cancelRed,
+        }
+      : spentPercent >= NEAR_BUDGET_LIMIT
+      ? {
+          label: t('analytics.nearLimit'),
+          color: theme && darkModeType ? textColor : COLORS.bitcoinOrange,
+        }
+      : {
+          label: t('analytics.onTrack'),
+          color: theme && darkModeType ? textColor : COLORS.primary,
+        };
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
-      {/* Header */}
+    <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <CustomSettingsTopBar
-        label={'Analytics'}
+        label={t('analytics.home.title')}
         containerStyles={{ marginBottom: 0 }}
       />
-      <ThemeText content={'This month'} styles={styles.durationCard} />
 
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={[
           styles.scrollContent,
-          { width: WINDOWWIDTH, alignSelf: 'center' },
+          {
+            alignSelf: 'center',
+            paddingBottom: bottomPadding,
+          },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Portfolio value header */}
-        <View style={styles.portfolioHeader}>
-          {isLoading ? (
-            <View style={styles.portfolioLoadingContainer}>
-              <ActivityIndicator color={COLORS.darkModeText} size="small" />
-            </View>
-          ) : (
-            <>
-              <ThemeText
-                styles={styles.portfolioBalance}
-                content={displayCorrectDenomination({
-                  amount: sparkInformation.balance,
-                  masterInfoObject,
-                  fiatStats,
-                })}
-              />
-              <View style={styles.portfolioDeltaRow}>
-                <ThemeText
-                  styles={[styles.portfolioDelta, { color: deltaColor }]}
-                  content={`${deltaSign}${deltaDisplay}  ${deltaSign}${Math.abs(deltaPercent).toFixed(2)}%`}
-                />
-              </View>
-              <PortfolioChart
-                data={dailyBalances.map(d => d.balanceSats)}
-                width={chartWidth}
-                height={120}
-                strokeColor={COLORS.primary}
-              />
-            </>
-          )}
-        </View>
+        <BalancePieChart />
 
+        <ThemeText
+          styles={styles.sectionTitle}
+          content={t('analytics.home.activityHead')}
+        />
         {/* Income + Spent row */}
         <View style={styles.metricsRow}>
           <TouchableOpacity
@@ -164,26 +85,12 @@ export default function AnalyticsPage() {
             onPress={() => navigate.navigate('AnalyticsIncomePage')}
             activeOpacity={0.8}
           >
-            <ThemeText styles={styles.metricLabel} content={'Income'} />
+            <ThemeText
+              styles={styles.metricLabel}
+              content={t('constants.received')}
+            />
             {isLoading ? (
-              <ActivityIndicator color={COLORS.darkModeText} size="small" />
-            ) : incomeTotal === 0 ? (
-              <>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  adjustsFontSizeToFit={true}
-                  styles={styles.metricAmount}
-                  content={displayCorrectDenomination({
-                    amount: 0,
-                    masterInfoObject,
-                    fiatStats,
-                  })}
-                />
-                <ThemeText
-                  styles={styles.metricSubText}
-                  content={'No income yet'}
-                />
-              </>
+              <FullLoadingScreen size="small" showText={false} />
             ) : (
               <>
                 <ThemeText
@@ -198,9 +105,11 @@ export default function AnalyticsPage() {
                 />
                 <ThemeText
                   styles={styles.metricSubText}
-                  content={`${incomeTxCount} transaction${
-                    incomeTxCount !== 1 ? 's' : ''
-                  }`}
+                  content={
+                    incomeTxCount === 0
+                      ? t('analytics.home.noPaymentsReceived')
+                      : t('numberOfTxs', { count: incomeTxCount })
+                  }
                 />
               </>
             )}
@@ -211,27 +120,12 @@ export default function AnalyticsPage() {
             onPress={() => navigate.navigate('AnalyticsSpentPage')}
             activeOpacity={0.8}
           >
-            <ThemeText styles={styles.metricLabel} content={'Spent'} />
-
+            <ThemeText
+              styles={styles.metricLabel}
+              content={t('constants.sent')}
+            />
             {isLoading ? (
-              <ActivityIndicator color={COLORS.darkModeText} size="small" />
-            ) : spentTotal === 0 ? (
-              <>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  adjustsFontSizeToFit={true}
-                  styles={styles.metricAmount}
-                  content={displayCorrectDenomination({
-                    amount: 0,
-                    masterInfoObject,
-                    fiatStats,
-                  })}
-                />
-                <ThemeText
-                  styles={styles.metricSubText}
-                  content={'Make your first payment'}
-                />
-              </>
+              <FullLoadingScreen size="small" showText={false} />
             ) : (
               <>
                 <ThemeText
@@ -246,9 +140,11 @@ export default function AnalyticsPage() {
                 />
                 <ThemeText
                   styles={styles.metricSubText}
-                  content={`${spentTxCount} transaction${
-                    spentTxCount !== 1 ? 's' : ''
-                  }`}
+                  content={
+                    spentTxCount === 0
+                      ? t('analytics.home.noPaymentsSent')
+                      : t('numberOfTxs', { count: spentTxCount })
+                  }
                 />
               </>
             )}
@@ -256,7 +152,10 @@ export default function AnalyticsPage() {
         </View>
 
         {/* Budget section */}
-        <ThemeText styles={styles.sectionTitle} content={'Budget'} />
+        <ThemeText
+          styles={styles.sectionTitle}
+          content={t('analytics.home.budget')}
+        />
 
         {!budget ? (
           <TouchableOpacity
@@ -267,11 +166,17 @@ export default function AnalyticsPage() {
             onPress={() => navigate.navigate('AnalyticsCreateBudgetPage')}
             activeOpacity={0.8}
           >
-            <NoContentSceen
-              iconName="Wallet"
-              titleText="No budget set"
-              subTitleText="Tap to create a monthly budget"
-            />
+            <View style={styles.emptyContactsContainer}>
+              <ThemeIcon iconName={'ClipboardClock'} />
+              <ThemeText
+                styles={styles.emptyTitle}
+                content={t('analytics.home.noBudgetTitle')}
+              />
+              <ThemeText
+                styles={styles.emptySubtext}
+                content={t('analytics.home.noBudgetSub')}
+              />
+            </View>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
@@ -279,14 +184,15 @@ export default function AnalyticsPage() {
             onPress={() => navigate.navigate('AnalyticsBudgetPage')}
             activeOpacity={0.8}
           >
-            <ThemeText styles={styles.budgetCardLabel} content="Personal" />
             <ThemeText
               styles={styles.budgetLeftAmount}
-              content={`${displayCorrectDenomination({
-                amount: leftToSpend,
-                masterInfoObject,
-                fiatStats,
-              })} left to spend`}
+              content={t('analytics.home.leftToSpend', {
+                amount: displayCorrectDenomination({
+                  amount: leftToSpend,
+                  masterInfoObject,
+                  fiatStats,
+                }),
+              })}
             />
             <View style={styles.budgetStatusRow}>
               <View
@@ -322,17 +228,17 @@ export default function AnalyticsPage() {
             <View style={styles.progressBarLabels}>
               <ThemeText
                 styles={styles.progressBarLabelText}
-                content={`${Math.round(
-                  Math.min((1 - spentPercent) * 100, 100),
-                )}% remaining`}
+                content={t('analytics.home.percentRemaining', {
+                  percent: Math.round(Math.min((1 - spentPercent) * 100, 100)),
+                })}
               />
               <ThemeText
                 styles={styles.budgetLeftAmount}
-                content={`${displayCorrectDenomination({
+                content={displayCorrectDenomination({
                   amount: budgetAmount,
                   masterInfoObject,
                   fiatStats,
-                })}`}
+                })}
               />
             </View>
           </TouchableOpacity>
@@ -343,17 +249,10 @@ export default function AnalyticsPage() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  durationCard: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    textAlign: 'center',
-  },
-
   scrollContent: {
-    paddingTop: 40,
+    width: INSET_WINDOW_WIDTH,
+    paddingTop: 20,
+    ...CENTER,
   },
   metricsRow: {
     flexDirection: 'row',
@@ -373,16 +272,18 @@ const styles = StyleSheet.create({
   },
   metricAmount: {
     fontSize: SIZES.xLarge,
-    fontWeight: '500',
     marginBottom: 4,
   },
   metricSubText: {
-    fontSize: SIZES.smedium,
+    fontSize: SIZES.small,
     opacity: 0.4,
   },
+  miniChart: {
+    marginTop: 8,
+    marginLeft: -16,
+    marginBottom: -20,
+  },
   sectionTitle: {
-    fontSize: SIZES.large,
-    fontWeight: '500',
     marginBottom: 12,
   },
   budgetEmptyCard: {
@@ -392,19 +293,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 120,
   },
-
   budgetCard: {
     borderRadius: 16,
     padding: 16,
   },
-  budgetCardLabel: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginBottom: 4,
-  },
   budgetLeftAmount: {
     fontSize: SIZES.xLarge,
-    // fontWeight: '500',
     marginBottom: 6,
   },
   budgetStatusRow: {
@@ -440,27 +334,20 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     opacity: 0.4,
   },
-  portfolioHeader: {
-    marginBottom: 32,
-  },
-  portfolioLoadingContainer: {
-    height: 170,
+  emptyContactsContainer: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  portfolioBalance: {
-    fontSize: SIZES.xxLarge,
-    fontWeight: '600',
-    textAlign: 'left',
-    marginBottom: 4,
+  emptyTitle: {
+    // fontSize: SIZES.large,
+    // fontWeight: '500',
+    marginTop: 16,
+    marginBottom: 5,
+    textAlign: 'center',
   },
-  portfolioDeltaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  portfolioDelta: {
-    fontSize: SIZES.medium,
-    fontWeight: '500',
+  emptySubtext: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    textAlign: 'center',
   },
 });
