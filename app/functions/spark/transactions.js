@@ -259,11 +259,7 @@ export const getMonthlyTransactions = async (accountId, direction = null) => {
   try {
     await ensureSparkDatabaseReady();
     const now = new Date();
-    const monthStart = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      1,
-    ).getTime();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
     const monthEnd = new Date(
       now.getFullYear(),
       now.getMonth() + 1,
@@ -1179,46 +1175,3 @@ const processBulkUpdateQueue = async () => {
 
   isProcessingBulkUpdate = false;
 };
-
-/**
- * Reconstruct daily closing balances for the current calendar month.
- *
- * @param {Object[]} allTxs - All month's transactions (both INCOMING and OUTGOING).
- *   Each row must have a `details` JSON string with `{ time, amount, direction }`.
- * @param {number} currentBalanceSats - Current wallet balance in sats.
- * @param {Date} [referenceDate=new Date()] - Used to determine today's day-of-month.
- * @returns {Array<{ day: number, balanceSats: number }>} One entry per day, day 1 → today.
- */
-export function buildDailyBalances(allTxs, currentBalanceSats, referenceDate = new Date()) {
-  const today = referenceDate.getDate();
-
-  // Build map of day → net sats delta for that day
-  const dayDeltas = {};
-  for (const tx of allTxs) {
-    try {
-      const details = JSON.parse(tx.details);
-      const txDate = new Date(details.time);
-      if (
-        txDate.getMonth() !== referenceDate.getMonth() ||
-        txDate.getFullYear() !== referenceDate.getFullYear()
-      ) {
-        continue;
-      }
-      const day = txDate.getDate();
-      const amount = details.amount || 0;
-      const delta = details.direction === 'INCOMING' ? amount : -amount;
-      dayDeltas[day] = (dayDeltas[day] || 0) + delta;
-    } catch {
-      // skip unparseable rows
-    }
-  }
-
-  // Walk backwards from today, prepending each day's closing balance
-  const result = [];
-  let balance = currentBalanceSats;
-  for (let day = today; day >= 1; day--) {
-    result.unshift({ day, balanceSats: balance });
-    balance -= dayDeltas[day] || 0;
-  }
-  return result;
-}
