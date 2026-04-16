@@ -263,7 +263,6 @@ const styles = StyleSheet.create({
   legendAmount: {
     flex: 1,
     fontSize: SIZES.medium,
-    fontWeight: '500',
     textAlign: 'right',
   },
   legendPercent: {

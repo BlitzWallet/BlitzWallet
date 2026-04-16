@@ -101,7 +101,6 @@ export default function StablecoinSendScreen() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
-  const { shouldWarn } = useBudgetWarning();
   const didWarnAboutBudget = useRef(null);
   const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -159,6 +158,8 @@ export default function StablecoinSendScreen() {
   });
 
   const convertedSendAmount = convertDisplayToSats(rawInput);
+
+  const { shouldWarn } = useBudgetWarning(convertedSendAmount);
 
   const clearCountdown = useCallback(() => {
     if (countdownRef.current) clearInterval(countdownRef.current);
@@ -567,9 +568,11 @@ export default function StablecoinSendScreen() {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'nearBudgetLimitWarning',
         sliderHight: 0.6,
+
+        sendingAmount: convertedSendAmount,
       });
     }
-  }, [isConfirmMode, shouldWarn]);
+  }, [isConfirmMode, shouldWarn, convertedSendAmount]);
 
   return (
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>

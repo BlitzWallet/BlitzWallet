@@ -23,9 +23,9 @@ export function computeBudgetWarning(budget, spentTotal) {
   return { shouldWarn, isOverBudget, spentPercent, leftToSpend };
 }
 
-export function useBudgetWarning() {
+export function useBudgetWarning(sendingAmount = 0) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { spentTotal } = useAnalytics();
   const budget = masterInfoObject?.monthlyBudget ?? null;
-  return computeBudgetWarning(budget, spentTotal);
+  return computeBudgetWarning(budget, spentTotal + sendingAmount);
 }

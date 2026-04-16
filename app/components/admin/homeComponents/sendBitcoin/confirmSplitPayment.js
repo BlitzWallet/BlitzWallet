@@ -105,7 +105,7 @@ export default function ConfirmSplitPayment(props) {
   const { globalContactsInformation } = useGlobalContacts();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
-  const { shouldWarn } = useBudgetWarning();
+
   const didWarnAboutBudget = useRef(null);
   const [rerenderInput, setRerenderInput] = useState(0);
   const [isAmountFocused, setIsAmountFocused] = useState(true);
@@ -329,6 +329,8 @@ export default function ConfirmSplitPayment(props) {
     ).toFixed(2) * Math.pow(10, 6),
   );
 
+  const { shouldWarn } = useBudgetWarning(convertedSendAmount);
+
   useEffect(() => {
     primaryDisplayRef.current = primaryDisplay;
   }, [primaryDisplay]);
@@ -421,9 +423,10 @@ export default function ConfirmSplitPayment(props) {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'nearBudgetLimitWarning',
         sliderHight: 0.6,
+        sendingAmount: convertedSendAmount,
       });
     }
-  }, [uiState, shouldWarn]);
+  }, [uiState, shouldWarn, convertedSendAmount]);
 
   useEffect(() => {
     if (

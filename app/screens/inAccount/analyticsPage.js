@@ -187,7 +187,7 @@ export default function AnalyticsPage() {
             activeOpacity={0.8}
           >
             <ThemeText
-              styles={[styles.budgetLeftAmount, { fontSize: SIZES.xLarge }]}
+              styles={[styles.budgetLeftAmount, { fontSize: SIZES.large }]}
               content={t('analytics.home.leftToSpend', {
                 amount: displayCorrectDenomination({
                   amount: leftToSpend,

@@ -13,7 +13,10 @@ import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { computeBudgetWarning } from '../../../../../hooks/useBudgetWarning';
 import { useTranslation } from 'react-i18next';
 
-export default function BudgetWarningModal({ handleBackPressFunction }) {
+export default function BudgetWarningModal({
+  handleBackPressFunction,
+  sendingAmount = 0,
+}) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { spentTotal } = useAnalytics();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -26,15 +29,33 @@ export default function BudgetWarningModal({ handleBackPressFunction }) {
     spentTotal,
   );
 
+  const willExceedBudget =
+    !isOverBudget && spentTotal + sendingAmount > budget?.amount;
+  const isRed = isOverBudget || willExceedBudget;
+
   const accentColor =
     theme && darkModeType
       ? COLORS.darkModeText
-      : isOverBudget
+      : isRed
       ? COLORS.cancelRed
       : COLORS.primary;
+
   const subheader = isOverBudget
     ? t('analytics.budget.overBudgetWarning')
+    : willExceedBudget
+    ? t('analytics.budget.willExceedBudgetWarning')
     : t('analytics.budget.nearBudgetWarning');
+
+  const amountAfterSend = budget?.amount - (spentTotal + sendingAmount);
+
+  const displayAmount = isOverBudget
+    ? Math.abs(budget - spentTotal) // already over, ignore sendingAmount
+    : Math.abs(amountAfterSend);
+
+  const amountLabel =
+    isOverBudget || willExceedBudget
+      ? t('analytics.overBy')
+      : t('analytics.remaining');
 
   return (
     <View style={[styles.sheet]}>
@@ -62,14 +83,11 @@ export default function BudgetWarningModal({ handleBackPressFunction }) {
           },
         ]}
       >
-        <ThemeText
-          styles={styles.amountLabel}
-          content={t('analytics.remaining')}
-        />
+        <ThemeText styles={styles.amountLabel} content={amountLabel} />
         <FormattedSatText
           containerStyles={styles.amountValue}
-          styles={{ fontSize: SIZES.large }}
-          balance={leftToSpend}
+          styles={{ fontSize: SIZES.xLarge }}
+          balance={displayAmount}
         />
       </View>
 

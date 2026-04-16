@@ -605,6 +605,7 @@ export default function CustomHalfModal(props) {
         return (
           <BudgetWarningModal
             handleBackPressFunction={handleBackPressFunction}
+            sendingAmount={props?.route?.params?.sendingAmount}
           />
         );
 

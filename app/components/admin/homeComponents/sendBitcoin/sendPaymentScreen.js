@@ -120,7 +120,7 @@ export default function SendPaymentScreen(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
-  const { shouldWarn } = useBudgetWarning();
+
   const didWarnAboutBudget = useRef(null);
   const [rerenderInput, setRerenderInput] = useState(0);
   const useAltLayout = screenDimensions.height < 720;
@@ -316,6 +316,9 @@ export default function SendPaymentScreen(props) {
     ).toFixed(2) * Math.pow(10, 6),
   );
 
+  const { shouldWarn } = useBudgetWarning(convertedSendAmount);
+
+  console.log(shouldWarn, 'shoudl warn');
   useEffect(() => {
     primaryDisplayRef.current = primaryDisplay;
   }, [primaryDisplay]);
@@ -455,9 +458,10 @@ export default function SendPaymentScreen(props) {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'nearBudgetLimitWarning',
         sliderHight: 0.6,
+        sendingAmount: convertedSendAmount,
       });
     }
-  }, [uiState, shouldWarn]);
+  }, [uiState, shouldWarn, convertedSendAmount]);
 
   useEffect(() => {
     if (
