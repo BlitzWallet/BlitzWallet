@@ -2676,5 +2676,52 @@
     "rewardsPayout": "Bitcoin rewards payout",
     "rewardsWithdrawal": "Bitcoin rewards withdrawl",
     "total_balance": "Total Balance"
+  },
+  "analytics": {
+    "overBudget": "Over budget",
+    "nearLimit": "Near limit",
+    "onTrack": "On track",
+    "thisMonth": "This month",
+    "transactions": "Transactions",
+    "numberOfTxs_one": "{{count}} transaction",
+    "numberOfTxs_other": "{{count}} transactions",
+    "remaining": "Remaining",
+    "overBy": "Over by",
+
+    "home": {
+      "title": "Analytics",
+      "activityHead": "Monthly activity",
+      "noPaymentsReceived": "No payments received yet",
+      "noPaymentsSent": "No payments sent yet",
+      "budget": "Budget",
+      "noBudgetTitle": "No budget set",
+      "noBudgetSub": "Tap to create a monthly budget",
+      "leftToSpend": "{{amount}} left to spend",
+      "percentRemaining": "{{percent}}% remaining",
+      "totalBalance": "Total balance"
+    },
+    "breakdown": {
+      "noReceivedTitle": "No received payments",
+      "noReceivedSub": "Receive a payment to your wallet to start seeing activity",
+      "noSentTitle": "No sent payments",
+      "noSentSub": "Send a payment from your wallet to start seeing activity"
+    },
+    "budget": {
+      "budget": "Budget",
+      "noAmount": "Please enter a budget amount.",
+      "editBudget": "Edit budget",
+      "createBudget": "Set monthly budget",
+      "noBudgetSet": "No budget set",
+      "noBudgetSetSub": "Create a monthly budget to track your spending",
+      "noBudgetSetButton": "Create budget",
+      "leftToSpend": "Left to spend",
+      "spentThisMonth": "Spent this month",
+      "removeBudgetTitle": "Remove your budget?",
+      "removeBudgetSub": "Removing this budget will stop alerts and tracking. You can create it again anytime.",
+      "nearBudgetWarning": "You're close to your monthly spending limit",
+      "overBudgetWarning": "You've already reached your monthly spending limit",
+      "willExceedBudgetWarning": "Sending this payment will put you over your monthly spending limit",
+      "budgetWarningHeadsUp": "Heads up"
+    }
   }
 }

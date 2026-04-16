@@ -2676,5 +2676,52 @@
     "rewardsPayout": "BTC-Belohnungsauszahlung",
     "rewardsWithdrawal": "BTC-Belohnungsauszahlung",
     "total_balance": "Gesamtguthaben"
+  },
+  "analytics": {
+    "overBudget": "Über Budget",
+    "nearLimit": "Nahe am Limit",
+    "onTrack": "Im Rahmen",
+    "thisMonth": "Diesen Monat",
+    "transactions": "Transaktionen",
+    "numberOfTxs_one": "{{count}} Transaktion",
+    "numberOfTxs_other": "{{count}} Transaktionen",
+    "remaining": "Verbleibend",
+    "overBy": "Überschritten um",
+
+    "home": {
+      "title": "Analysen",
+      "activityHead": "Monatliche Aktivität",
+      "noPaymentsReceived": "Noch keine Zahlungen erhalten",
+      "noPaymentsSent": "Noch keine Zahlungen gesendet",
+      "budget": "Budget",
+      "noBudgetTitle": "Kein Budget festgelegt",
+      "noBudgetSub": "Tippen, um ein monatliches Budget zu erstellen",
+      "leftToSpend": "{{amount}} übrig zum Ausgeben",
+      "percentRemaining": "{{percent}}% verbleibend",
+      "totalBalance": "Gesamtsaldo"
+    },
+    "breakdown": {
+      "noReceivedTitle": "Keine eingegangenen Zahlungen",
+      "noReceivedSub": "Empfangen Sie eine Zahlung, um Aktivität zu sehen",
+      "noSentTitle": "Keine gesendeten Zahlungen",
+      "noSentSub": "Senden Sie eine Zahlung, um Aktivität zu sehen"
+    },
+    "budget": {
+      "budget": "Budget",
+      "noAmount": "Bitte geben Sie einen Budgetbetrag ein.",
+      "editBudget": "Budget bearbeiten",
+      "createBudget": "Monatsbudget festlegen",
+      "noBudgetSet": "Kein Budget festgelegt",
+      "noBudgetSetSub": "Erstellen Sie ein monatliches Budget, um Ihre Ausgaben zu verfolgen",
+      "noBudgetSetButton": "Budget erstellen",
+      "leftToSpend": "Verbleibend zum Ausgeben",
+      "spentThisMonth": "Diesen Monat ausgegeben",
+      "removeBudgetTitle": "Budget entfernen?",
+      "removeBudgetSub": "Das Entfernen dieses Budgets stoppt Warnungen und Tracking. Sie können es jederzeit erneut erstellen.",
+      "nearBudgetWarning": "Sie sind nahe an Ihrem monatlichen Ausgabenlimit",
+      "overBudgetWarning": "Sie haben Ihr monatliches Ausgabenlimit bereits erreicht",
+      "willExceedBudgetWarning": "Diese Zahlung würde Ihr monatliches Ausgabenlimit überschreiten",
+      "budgetWarningHeadsUp": "Hinweis"
+    }
   }
 }

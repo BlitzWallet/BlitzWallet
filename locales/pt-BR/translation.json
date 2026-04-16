@@ -2676,5 +2676,52 @@
     "rewardsPayout": "Pagamento de recompensas",
     "rewardsWithdrawal": "Resgate de recompensas",
     "total_balance": "Saldo total Caixinhas"
+  },
+  "analytics": {
+    "overBudget": "Acima do orçamento",
+    "nearLimit": "Quase no limite",
+    "onTrack": "Dentro do planejado",
+    "thisMonth": "Este mês",
+    "transactions": "Transações",
+    "numberOfTxs_one": "{{count}} transação",
+    "numberOfTxs_other": "{{count}} transações",
+    "remaining": "Restante",
+    "overBy": "Excedido em",
+
+    "home": {
+      "title": "Análises",
+      "activityHead": "Atividade mensal",
+      "noPaymentsReceived": "Nenhum pagamento recebido",
+      "noPaymentsSent": "Nenhum pagamento enviado",
+      "budget": "Orçamento",
+      "noBudgetTitle": "Sem orçamento definido",
+      "noBudgetSub": "Toque para criar um orçamento mensal",
+      "leftToSpend": "{{amount}} restantes para gastar",
+      "percentRemaining": "{{percent}}% restante",
+      "totalBalance": "Saldo total"
+    },
+    "breakdown": {
+      "noReceivedTitle": "Nenhum pagamento recebido",
+      "noReceivedSub": "Receba um pagamento para ver a atividade",
+      "noSentTitle": "Nenhum pagamento enviado",
+      "noSentSub": "Envie um pagamento para ver a atividade"
+    },
+    "budget": {
+      "budget": "Orçamento",
+      "noAmount": "Insira um valor de orçamento.",
+      "editBudget": "Editar orçamento",
+      "createBudget": "Definir orçamento mensal",
+      "noBudgetSet": "Sem orçamento definido",
+      "noBudgetSetSub": "Crie um orçamento mensal para acompanhar seus gastos",
+      "noBudgetSetButton": "Criar orçamento",
+      "leftToSpend": "Restante para gastar",
+      "spentThisMonth": "Gasto neste mês",
+      "removeBudgetTitle": "Remover orçamento?",
+      "removeBudgetSub": "Remover este orçamento desativará alertas e acompanhamento. Você pode recriá-lo a qualquer momento.",
+      "nearBudgetWarning": "Você está perto do seu limite mensal de gastos",
+      "overBudgetWarning": "Você já atingiu seu limite mensal de gastos",
+      "willExceedBudgetWarning": "Este pagamento fará você ultrapassar seu limite mensal",
+      "budgetWarningHeadsUp": "Atenção"
+    }
   }
 }

@@ -91,10 +91,10 @@ export default function AnalyticsBudgetPage() {
         <CustomSettingsTopBar label={t('analytics.budget.budget')} />
         <NoContentSceen
           iconName="Wallet"
-          titleText={t('analyitcs.budget.noBudgetSet')}
-          subTitleText={t('analyitcs.budget.noBudgetSetSub')}
+          titleText={t('analytics.budget.noBudgetSet')}
+          subTitleText={t('analytics.budget.noBudgetSetSub')}
           showButton={true}
-          buttonText={t('analyitcs.budget.noBudgetSetButton')}
+          buttonText={t('analytics.budget.noBudgetSetButton')}
           buttonFunction={() => navigate.navigate('AnalyticsCreateBudgetPage')}
         />
       </GlobalThemeView>
