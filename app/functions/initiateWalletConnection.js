@@ -103,7 +103,7 @@ export async function initializeSparkSession({
       throw new Error('Unable to initialize spark from history');
 
     // Fire and forget — non-blocking
-    setPrivacyEnabled(mnemonic);
+    setPrivacyEnabled(mnemonic, freshIdentityPubKey);
 
     const identityPubKey = freshIdentityPubKey;
 

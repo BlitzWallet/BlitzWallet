@@ -2676,5 +2676,52 @@
     "rewardsPayout": "Pago de recompensas en Bitcoin",
     "rewardsWithdrawal": "Retiro de recompensas en Bitcoin",
     "total_balance": "Saldo total"
+  },
+  "analytics": {
+    "overBudget": "Sobre el presupuesto",
+    "nearLimit": "Cerca del límite",
+    "onTrack": "En camino",
+    "thisMonth": "Este mes",
+    "transactions": "Transacciones",
+    "numberOfTxs_one": "{{count}} transacción",
+    "numberOfTxs_other": "{{count}} transacciones",
+    "remaining": "Restante",
+    "overBy": "Excedido en",
+
+    "home": {
+      "title": "Analíticas",
+      "activityHead": "Actividad mensual",
+      "noPaymentsReceived": "Aún no hay pagos recibidos",
+      "noPaymentsSent": "Aún no hay pagos enviados",
+      "budget": "Presupuesto",
+      "noBudgetTitle": "Sin presupuesto",
+      "noBudgetSub": "Toca para crear un presupuesto mensual",
+      "leftToSpend": "{{amount}} restantes para gastar",
+      "percentRemaining": "{{percent}}% restante",
+      "totalBalance": "Saldo total"
+    },
+    "breakdown": {
+      "noReceivedTitle": "Sin pagos recibidos",
+      "noReceivedSub": "Recibe un pago en tu billetera para ver actividad",
+      "noSentTitle": "Sin pagos enviados",
+      "noSentSub": "Envía un pago desde tu billetera para ver actividad"
+    },
+    "budget": {
+      "budget": "Presupuesto",
+      "noAmount": "Ingresa un monto de presupuesto.",
+      "editBudget": "Editar presupuesto",
+      "createBudget": "Establecer presupuesto mensual",
+      "noBudgetSet": "Sin presupuesto",
+      "noBudgetSetSub": "Crea un presupuesto mensual para seguir tus gastos",
+      "noBudgetSetButton": "Crear presupuesto",
+      "leftToSpend": "Restante para gastar",
+      "spentThisMonth": "Gastado este mes",
+      "removeBudgetTitle": "¿Eliminar presupuesto?",
+      "removeBudgetSub": "Eliminar este presupuesto detendrá alertas y seguimiento. Puedes crearlo de nuevo en cualquier momento.",
+      "nearBudgetWarning": "Estás cerca de tu límite mensual de gastos",
+      "overBudgetWarning": "Ya alcanzaste tu límite mensual de gastos",
+      "willExceedBudgetWarning": "Este pago te pondrá por encima de tu límite mensual",
+      "budgetWarningHeadsUp": "Aviso"
+    }
   }
 }

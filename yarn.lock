@@ -1643,58 +1643,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.7.4":
-  version: 0.7.4
-  resolution: "@buildonspark/spark-sdk@npm:0.7.4"
-  dependencies:
-    "@bufbuild/protobuf": ^2.2.5
-    "@lightsparkdev/core": ^1.4.9
-    "@noble/curves": ^1.9.7
-    "@noble/hashes": ^1.7.0
-    "@opentelemetry/api": ^1.9.0
-    "@opentelemetry/context-async-hooks": ^2.0.0
-    "@opentelemetry/core": ^2.0.0
-    "@opentelemetry/instrumentation": ^0.203.0
-    "@opentelemetry/instrumentation-undici": ^0.14.0
-    "@opentelemetry/sdk-trace-base": ^2.0.0
-    "@opentelemetry/sdk-trace-node": ^2.0.1
-    "@opentelemetry/sdk-trace-web": ^2.0.1
-    "@scure/base": ^1.2.4
-    "@scure/bip32": ^1.6.2
-    "@scure/bip39": ^1.5.4
-    "@scure/btc-signer": ^1.5.0
-    abort-controller-x: ^0.4.3
-    abortcontroller-polyfill: ^1.7.8
-    async-mutex: ^0.5.0
-    bare-crypto: ^1.9.2
-    bare-fetch: ^2.4.1
-    buffer: ^6.0.3
-    eventemitter3: ^5.0.1
-    js-base64: ^3.7.7
-    light-bolt11-decoder: ^3.2.0
-    nice-grpc: ^2.1.10
-    nice-grpc-client-middleware-retry: ^3.1.10
-    nice-grpc-common: ^2.0.2
-    nice-grpc-opentelemetry: ^0.1.18
-    nice-grpc-web: ^3.3.7
-    ts-proto: 2.8.3
-    ua-parser-js: ^2.0.6
-    uuidv7: ^1.0.2
-  peerDependencies:
-    react: ">=18.2.0"
-    react-native: ">=0.71.0"
-    react-native-get-random-values: ">=1.11.0"
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-native:
-      optional: true
-    react-native-get-random-values:
-      optional: true
-  checksum: 135a162c94cfe74c5e640fecf06f80cf64512c1e9e7994130ccc780d1b2b3717df3a5e5b70b8fb848249ec65de72c02f166c87e87ca3b087be25f7a90729dd1e
-  languageName: node
-  linkType: hard
-
 "@callstack/react-theme-provider@npm:3.0.3":
   version: 3.0.3
   resolution: "@callstack/react-theme-provider@npm:3.0.3"
@@ -5091,11 +5039,12 @@ __metadata:
     react-native-svg: 15.12.1
     react-native-view-shot: ^4.0.3
     react-native-vision-camera: ^4.7.3
+    react-native-wagmi-charts: ^2.9.1
     react-native-webview: 13.15.0
     react-native-worklets: ^0.7.4
     react-test-renderer: 19.1.0
     rn-qr-generator: ^2.0.0
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#d104cf212b6ac526218740ca9b86d9a15b8febce"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#c3cb577fe289a48e9429b0c8329047e871b96278"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     typescript: ^5.8.3
@@ -5131,6 +5080,13 @@ __metadata:
   version: 1.7.8
   resolution: "abortcontroller-polyfill@npm:1.7.8"
   checksum: 0d270890d8d145a5373dcdf26ac7b512f41536a1804482c332e52a31cefcb1fd6ea082cc3b946a34ad23dea7d740b071e8efa935c667fe52b48d42b6f8388f10
+  languageName: node
+  linkType: hard
+
+"abs-svg-path@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "abs-svg-path@npm:0.1.1"
+  checksum: af1a167c09e8bdb76c80adca7333f3d828e5b50e37b9702aa03675e271919e7b1eeaa35cce939970ecba14769953b7465ea34c2129ab683ddff9d973a07f164f
   languageName: node
   linkType: hard
 
@@ -5439,7 +5395,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asap@npm:~2.0.6":
+"asap@npm:~2.0.3, asap@npm:~2.0.6":
   version: 2.0.6
   resolution: "asap@npm:2.0.6"
   checksum: b296c92c4b969e973260e47523207cd5769abd27c245a68c26dc7a0fe8053c55bb04360237cb51cab1df52be939da77150ace99ad331fb7fb13b3423ed73ff3d
@@ -6859,7 +6815,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^3.0.4":
+"cross-fetch@npm:^3.0.4, cross-fetch@npm:^3.1.5":
   version: 3.2.0
   resolution: "cross-fetch@npm:3.2.0"
   dependencies:
@@ -6939,12 +6895,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-array@npm:2 - 3, d3-array@npm:2.10.0 - 3":
+"d3-array@npm:2 - 3, d3-array@npm:2.10.0 - 3, d3-array@npm:^3.1.6":
   version: 3.2.4
   resolution: "d3-array@npm:3.2.4"
   dependencies:
     internmap: 1 - 2
   checksum: a5976a6d6205f69208478bb44920dd7ce3e788c9dceb86b304dbe401a4bfb42ecc8b04c20facde486e9adcb488b5d1800d49393a3f81a23902b68158e12cddd0
+  languageName: node
+  linkType: hard
+
+"d3-array@npm:^1.2.0":
+  version: 1.2.4
+  resolution: "d3-array@npm:1.2.4"
+  checksum: d0be1fa7d72dbfac8a3bcffbb669d42bcb9128d8818d84d2b1df0c60bbe4c8e54a798be0457c55a219b399e2c2fabcbd581cbb130eb638b5436b0618d7e56000
+  languageName: node
+  linkType: hard
+
+"d3-collection@npm:1":
+  version: 1.0.7
+  resolution: "d3-collection@npm:1.0.7"
+  checksum: 9c6b910a9da0efb021e294509f98263ca4f62d10b997bb30ccfb6edd582b703da36e176b968b5bac815fbb0f328e49643c38cf93b5edf8572a179ba55cf4a09d
+  languageName: node
+  linkType: hard
+
+"d3-color@npm:1":
+  version: 1.4.1
+  resolution: "d3-color@npm:1.4.1"
+  checksum: a214b61458b5fcb7ad1a84faed0e02918037bab6be37f2d437bf0e2915cbd854d89fbf93754f17b0781c89e39d46704633d05a2bfae77e6209f0f4b140f9894b
   languageName: node
   linkType: hard
 
@@ -6955,10 +6932,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"d3-format@npm:1":
+  version: 1.4.5
+  resolution: "d3-format@npm:1.4.5"
+  checksum: 1b8b2c0bca182173bccd290a43e8b635a83fc8cfe52ec878c7bdabb997d47daac11f2b175cebbe73f807f782ad655f542bdfe18180ca5eb3498a3a82da1e06ab
+  languageName: node
+  linkType: hard
+
 "d3-format@npm:1 - 3":
   version: 3.1.0
   resolution: "d3-format@npm:3.1.0"
   checksum: f345ec3b8ad3cab19bff5dead395bd9f5590628eb97a389b1dd89f0b204c7c4fc1d9520f13231c2c7cf14b7c9a8cf10f8ef15bde2befbab41454a569bd706ca2
+  languageName: node
+  linkType: hard
+
+"d3-interpolate@npm:1":
+  version: 1.4.0
+  resolution: "d3-interpolate@npm:1.4.0"
+  dependencies:
+    d3-color: 1
+  checksum: d98988bd1e2f59d01f100d0a19315ad8f82ef022aa09a65aff76f747a44f9b52f2d64c6578b8f47e01f2b14a8f0ef88f5460d11173c0dd2d58238c217ac0ec03
   languageName: node
   linkType: hard
 
@@ -6978,6 +6971,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"d3-scale@npm:^2":
+  version: 2.2.2
+  resolution: "d3-scale@npm:2.2.2"
+  dependencies:
+    d3-array: ^1.2.0
+    d3-collection: 1
+    d3-format: 1
+    d3-interpolate: 1
+    d3-time: 1
+    d3-time-format: 2
+  checksum: 42086d4b9db9f8492a99dbbdacf546983faef1bb6260fe875c0c1884f1ca9cf5fd233de3702c2f9e24145b1c5383945e929c8682d80fa57ab515ef2c4f2c61f6
+  languageName: node
+  linkType: hard
+
 "d3-scale@npm:^4.0.2":
   version: 4.0.2
   resolution: "d3-scale@npm:4.0.2"
@@ -6991,12 +6998,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-shape@npm:^3.2.0":
+"d3-shape@npm:^3.0.1, d3-shape@npm:^3.2.0":
   version: 3.2.0
   resolution: "d3-shape@npm:3.2.0"
   dependencies:
     d3-path: ^3.1.0
   checksum: de2af5fc9a93036a7b68581ca0bfc4aca2d5a328aa7ba7064c11aedd44d24f310c20c40157cb654359d4c15c3ef369f95ee53d71221017276e34172c7b719cfa
+  languageName: node
+  linkType: hard
+
+"d3-time-format@npm:2":
+  version: 2.3.0
+  resolution: "d3-time-format@npm:2.3.0"
+  dependencies:
+    d3-time: 1
+  checksum: 5445eaaf2b3b2095cdc1fa75dfd2f361a61c39b677dcc1c2ba4cb6bc0442953de0fbaaa397d7d7a9325ad99c63d869f162a713e150e826ff8af482615664cb3f
   languageName: node
   linkType: hard
 
@@ -7006,6 +7022,13 @@ __metadata:
   dependencies:
     d3-time: 1 - 3
   checksum: 7342bce28355378152bbd4db4e275405439cabba082d9cd01946d40581140481c8328456d91740b0fe513c51ec4a467f4471ffa390c7e0e30ea30e9ec98fcdf4
+  languageName: node
+  linkType: hard
+
+"d3-time@npm:1":
+  version: 1.1.0
+  resolution: "d3-time@npm:1.1.0"
+  checksum: 33fcfff94ff093dde2048c190ecca8b39fe0ec8b3c61e9fc39c5f6072ce5b86dd2b91823f086366995422bbbac7f74fd9abdb7efe4f292a73b1c6197c699cc78
   languageName: node
   linkType: hard
 
@@ -8552,6 +8575,28 @@ __metadata:
   dependencies:
     bser: 2.1.1
   checksum: b15a124cef28916fe07b400eb87cbc73ca082c142abf7ca8e8de6af43eca79ca7bd13eb4d4d48240b3bd3136eaac40d16e42d6edf87a8e5d1dd8070626860c78
+  languageName: node
+  linkType: hard
+
+"fbjs-css-vars@npm:^1.0.0":
+  version: 1.0.2
+  resolution: "fbjs-css-vars@npm:1.0.2"
+  checksum: 72baf6d22c45b75109118b4daecb6c8016d4c83c8c0f23f683f22e9d7c21f32fff6201d288df46eb561e3c7d4bb4489b8ad140b7f56444c453ba407e8bd28511
+  languageName: node
+  linkType: hard
+
+"fbjs@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "fbjs@npm:3.0.5"
+  dependencies:
+    cross-fetch: ^3.1.5
+    fbjs-css-vars: ^1.0.0
+    loose-envify: ^1.0.0
+    object-assign: ^4.1.0
+    promise: ^7.1.1
+    setimmediate: ^1.0.5
+    ua-parser-js: ^1.0.35
+  checksum: e609b5b64686bc96495a5c67728ed9b2710b9b3d695c5759c5f5e47c9483d1c323543ac777a86459e3694efc5712c6ce7212e944feb19752867d699568bb0e54
   languageName: node
   linkType: hard
 
@@ -11977,6 +12022,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"normalize-svg-path@npm:^1.0.1":
+  version: 1.1.0
+  resolution: "normalize-svg-path@npm:1.1.0"
+  dependencies:
+    svg-arc-to-cubic-bezier: ^3.0.0
+  checksum: 106e108b2f99e9e222a1c6edfc859523c6c3c2b0a6ba64743ed08af120b23b9bc2c16682bc2ae043a24c011c34c8252376c68525cf11735c6f110b571740eb2e
+  languageName: node
+  linkType: hard
+
 "nostr-tools@npm:^2.15.0":
   version: 2.17.0
   resolution: "nostr-tools@npm:2.17.0"
@@ -12059,7 +12113,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-assign@npm:^4.0.1, object-assign@npm:^4.1.1":
+"object-assign@npm:^4.0.1, object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
@@ -12384,6 +12438,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"parse-svg-path@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "parse-svg-path@npm:0.1.2"
+  checksum: bba7d4b4207fcc9eaf553b0d34db96ea8a1173635bc94528b5b66e1581902d4792d8d6229103764f01af4d839274234e97a4fa1c6f0fe7dcce195383848cec56
+  languageName: node
+  linkType: hard
+
 "parseurl@npm:~1.3.3":
   version: 1.3.3
   resolution: "parseurl@npm:1.3.3"
@@ -12615,6 +12676,15 @@ __metadata:
     err-code: ^2.0.2
     retry: ^0.12.0
   checksum: f96a3f6d90b92b568a26f71e966cbbc0f63ab85ea6ff6c81284dc869b41510e6cdef99b6b65f9030f0db422bf7c96652a3fff9f2e8fb4a0f069d8f4430359429
+  languageName: node
+  linkType: hard
+
+"promise@npm:^7.1.1":
+  version: 7.3.1
+  resolution: "promise@npm:7.3.1"
+  dependencies:
+    asap: ~2.0.3
+  checksum: 475bb069130179fbd27ed2ab45f26d8862376a137a57314cf53310bdd85cc986a826fd585829be97ebc0aaf10e9d8e68be1bfe5a4a0364144b1f9eedfa940cf1
   languageName: node
   linkType: hard
 
@@ -12857,7 +12927,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.1, react-is@npm:^16.7.0, react-is@npm:^16.8.1":
+"react-is@npm:^16.13.1, react-is@npm:^16.7.0, react-is@npm:^16.8.1, react-is@npm:^16.8.6":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
@@ -12875,6 +12945,17 @@ __metadata:
   version: 19.2.0
   resolution: "react-is@npm:19.2.0"
   checksum: 9a23e1c2d0bbc13b383bc59a05f54e6eb95dd87e01aec8aa92a88618364b7b0ee8a5b057ad813cf61e2f7ae7d24503b624706acb609d07c54754e5ad2c522568
+  languageName: node
+  linkType: hard
+
+"react-keyed-flatten-children@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "react-keyed-flatten-children@npm:1.3.0"
+  dependencies:
+    react-is: ^16.8.6
+  peerDependencies:
+    react: ">=15.0.0"
+  checksum: 3bb042bb7cd48909491a5f92b8e7b2fb0417d69ad24bf04dbe1ed7a308cc7dfe6e3c9b5550e7b9016ee6bef61829b92e7f3a355ed1b867affd251bd518bcdd90
   languageName: node
   linkType: hard
 
@@ -13118,6 +13199,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-redash@npm:^18.1.3":
+  version: 18.1.5
+  resolution: "react-native-redash@npm:18.1.5"
+  dependencies:
+    abs-svg-path: ^0.1.1
+    normalize-svg-path: ^1.0.1
+    parse-svg-path: ^0.1.2
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-gesture-handler: "*"
+    react-native-reanimated: ">=2.0.0"
+  checksum: a243cc6bfdbcc1ed64f9353415873af13ab8f1d57f9c524b7f25669c9dd7f2772db6cb1fa8db1f22e02b8c6e1be125aa14c54e63e80eb68b485641ef0e726d97
+  languageName: node
+  linkType: hard
+
 "react-native-restart-newarch@npm:^1.0.85":
   version: 1.0.85
   resolution: "react-native-restart-newarch@npm:1.0.85"
@@ -13205,6 +13302,27 @@ __metadata:
     react-native-worklets-core:
       optional: true
   checksum: e3abe484e4303d4fa9088e546e846642f4be503180ed24eaf74fc9e11c667cee779c5a9de4f27999dccb830ee60760badc641ee869fc6015e7ab7bec0f494f6d
+  languageName: node
+  linkType: hard
+
+"react-native-wagmi-charts@npm:^2.9.1":
+  version: 2.9.1
+  resolution: "react-native-wagmi-charts@npm:2.9.1"
+  dependencies:
+    d3-array: ^3.1.6
+    d3-scale: ^2
+    d3-shape: ^3.0.1
+    fbjs: ^3.0.5
+    react-keyed-flatten-children: ^1.3.0
+    react-native-redash: ^18.1.3
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-gesture-handler: "*"
+    react-native-reanimated: "*"
+    react-native-redash: "*"
+    react-native-svg: "*"
+  checksum: 29d56d0bf3dbf719c1b0971bc1de9911997fead2eced8fd2a327fe7e251f8500db56f5004c9a19ddd7d6fd86bdc3579d74a74d10aedd18f1e312dbf4af8a012c
   languageName: node
   linkType: hard
 
@@ -13913,6 +14031,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"setimmediate@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "setimmediate@npm:1.0.5"
+  checksum: c9a6f2c5b51a2dabdc0247db9c46460152ffc62ee139f3157440bd48e7c59425093f42719ac1d7931f054f153e2d26cf37dfeb8da17a794a58198a2705e527fd
+  languageName: node
+  linkType: hard
+
 "setprototypeof@npm:1.2.0":
   version: 1.2.0
   resolution: "setprototypeof@npm:1.2.0"
@@ -14153,16 +14278,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#d104cf212b6ac526218740ca9b86d9a15b8febce":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#c3cb577fe289a48e9429b0c8329047e871b96278":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=d104cf212b6ac526218740ca9b86d9a15b8febce"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=c3cb577fe289a48e9429b0c8329047e871b96278"
   dependencies:
-    "@buildonspark/spark-sdk": ^0.7.4
+    "@buildonspark/spark-sdk": ^0.7.13
     "@ecies/ciphers": ^0.2.4
     "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: 0c6adc6ae0b9b181f926d91f1c3bfe30664a3888f94dd85fa0c8b2b7c0d59890e24dca959f37641cb875829e39f4658fd6d53edf6e6b05e951dfe59d6a90391b
+  checksum: fa172902621df8272128b796ec892d69437dd1b623f92a95c59385414e624ac4935d9242b4b703ad3b484f56da84d59bb18b3531df25416206a9c7067fad2833
   languageName: node
   linkType: hard
 
@@ -14567,6 +14692,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svg-arc-to-cubic-bezier@npm:^3.0.0":
+  version: 3.2.0
+  resolution: "svg-arc-to-cubic-bezier@npm:3.2.0"
+  checksum: 55bf17756d558b9c0daddf636a6c9f2fe01fd5ac412229dfa2d4b29740226a82c980bcd3b5eb09ce311cbea282106c7549d97f8c8dba3a5a7b75f786bcb5e155
+  languageName: node
+  linkType: hard
+
 "tar@npm:7.5.11":
   version: 7.5.11
   resolution: "tar@npm:7.5.11"
@@ -14957,6 +15089,15 @@ __metadata:
   version: 0.1.2
   resolution: "ua-is-frozen@npm:0.1.2"
   checksum: 139c89b175bd4e3aeed2ebd1c972ce078e9507ade5f9d704d4ac0a916b2a5e8ada0bc6f616a8c39415e6b602e967ab172d0c44f0dfe353ce8104139897472f48
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^1.0.35":
+  version: 1.0.41
+  resolution: "ua-parser-js@npm:1.0.41"
+  bin:
+    ua-parser-js: script/cli.js
+  checksum: a57c258ea3a242ade7601460ddf9a7e990d8d8bffc15df2ca87057a81993ca19f5045432c744d07bf2d9f280665d84aebb08630c5af5bea3922fdbe8f6fe6cb0
   languageName: node
   linkType: hard
 

@@ -12,17 +12,17 @@ import { useTranslation } from 'react-i18next';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
-} from '../../functions/CustomElements';
-import CustomButton from '../../functions/CustomElements/button';
-import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
-import FormattedBalanceInput from '../../functions/CustomElements/formattedBalanceInput';
-import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
-import CustomNumberKeyboard from '../../functions/CustomElements/customNumberKeyboard';
-import CustomSearchInput from '../../functions/CustomElements/searchInput';
-import ChoosePaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/choosePaymentMethodContainer';
-import SwipeButtonNew from '../../functions/CustomElements/sliderButton';
+} from '../../../../functions/CustomElements';
+import CustomButton from '../../../../functions/CustomElements/button';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
+import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
+import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
+import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 
-import GetThemeColors from '../../hooks/themeColors';
+import GetThemeColors from '../../../../hooks/themeColors';
 import {
   APPROXIMATE_SYMBOL,
   CENTER,
@@ -30,34 +30,39 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
   USDB_TOKEN_ID,
-} from '../../constants';
+} from '../../../../constants';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   WINDOWWIDTH,
-} from '../../constants/theme';
-import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import { useNodeContext } from '../../../context-store/nodeContext';
-import { useKeysContext } from '../../../context-store/keys';
-import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
-import { useSparkWallet } from '../../../context-store/sparkContext';
-import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
-import { useFlashnet } from '../../../context-store/flashnetContext';
-import { useGlobalContextProvider } from '../../../context-store/context';
+} from '../../../../constants/theme';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useKeysContext } from '../../../../../context-store/keys';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
-import fetchBackend from '../../../db/handleBackend';
-import { sendSparkPayment, sendSparkTokens } from '../../functions/spark';
-import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
-import { dollarsToSats, satsToDollars } from '../../functions/spark/flashnet';
-import EmojiQuickBar from '../../functions/CustomElements/emojiBar';
-import usePaymentInputDisplay from '../../hooks/usePaymentInputDisplay';
-import convertTextInputValue from '../../functions/textInputConvertValue';
-import SendTransactionFeeInfo from '../../components/admin/homeComponents/sendBitcoin/components/feeInfo';
-import { formatStablecoinAmount } from '../../functions/sendBitcoin';
-import { SliderProgressAnimation } from '../../functions/CustomElements/sendPaymentAnimation';
-import { formatBalanceAmount } from '../../functions';
+import fetchBackend from '../../../../../db/handleBackend';
+import { sendSparkPayment, sendSparkTokens } from '../../../../functions/spark';
+import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
+import {
+  dollarsToSats,
+  satsToDollars,
+} from '../../../../functions/spark/flashnet';
+import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
+import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import convertTextInputValue from '../../../../functions/textInputConvertValue';
+import SendTransactionFeeInfo from './components/feeInfo';
+import { formatStablecoinAmount } from '../../../../functions/sendBitcoin';
+import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
+import { formatBalanceAmount } from '../../../../functions';
 import Animated, { FadeOutDown } from 'react-native-reanimated';
+import BudgetWarningModal from './components/nearBudgetLimitWarning';
+import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -96,6 +101,7 @@ export default function StablecoinSendScreen() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
+  const didWarnAboutBudget = useRef(null);
   const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -152,6 +158,8 @@ export default function StablecoinSendScreen() {
   });
 
   const convertedSendAmount = convertDisplayToSats(rawInput);
+
+  const { shouldWarn } = useBudgetWarning(convertedSendAmount);
 
   const clearCountdown = useCallback(() => {
     if (countdownRef.current) clearInterval(countdownRef.current);
@@ -554,6 +562,18 @@ export default function StablecoinSendScreen() {
 
   const isConfirmMode = screenMode === 'CONFIRM_PAYMENT';
 
+  useEffect(() => {
+    if (isConfirmMode && shouldWarn && !didWarnAboutBudget.current) {
+      didWarnAboutBudget.current = true;
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'nearBudgetLimitWarning',
+        sliderHight: 0.6,
+
+        sendingAmount: convertedSendAmount,
+      });
+    }
+  }, [isConfirmMode, shouldWarn, convertedSendAmount]);
+
   return (
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
@@ -745,6 +765,7 @@ export default function StablecoinSendScreen() {
             setInputValue={setRawInput}
             showDot={inputDenomination === 'fiat'}
             fiatStats={conversionFiatStats}
+            usingForBalance={true}
           />
         )}
 

@@ -73,6 +73,8 @@ import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapF
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
+import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
+import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -590,6 +592,20 @@ export default function CustomHalfModal(props) {
           <CreateAccumulationAddressModal
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+          />
+        );
+      case 'RemoveBudgetHalfModal':
+        return (
+          <RemoveBudgetHalfModal
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'nearBudgetLimitWarning':
+        return (
+          <BudgetWarningModal
+            handleBackPressFunction={handleBackPressFunction}
+            sendingAmount={props?.route?.params?.sendingAmount}
           />
         );
 

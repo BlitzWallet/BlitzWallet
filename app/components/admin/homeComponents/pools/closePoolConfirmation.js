@@ -301,7 +301,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: SIZES.smedium,
     opacity: 0.6,
-    textAlign: 'center',
     marginBottom: 24,
     lineHeight: 22,
   },
