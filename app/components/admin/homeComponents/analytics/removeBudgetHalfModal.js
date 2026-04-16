@@ -40,7 +40,7 @@ export default function RemoveBudgetHalfModal({
 
       <ThemeText
         styles={styles.description}
-        content={'analytics.budget.removeBudgetSub'}
+        content={t('analytics.budget.removeBudgetSub')}
       />
 
       <View style={styles.buttonContainer}>

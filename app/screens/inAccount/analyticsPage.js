@@ -108,7 +108,9 @@ export default function AnalyticsPage() {
                   content={
                     incomeTxCount === 0
                       ? t('analytics.home.noPaymentsReceived')
-                      : t('numberOfTxs', { count: incomeTxCount })
+                      : t('analytics.numberOfTxs', {
+                          count: incomeTxCount,
+                        })
                   }
                 />
               </>
@@ -143,7 +145,7 @@ export default function AnalyticsPage() {
                   content={
                     spentTxCount === 0
                       ? t('analytics.home.noPaymentsSent')
-                      : t('numberOfTxs', { count: spentTxCount })
+                      : t('analytics.numberOfTxs', { count: spentTxCount })
                   }
                 />
               </>
@@ -185,7 +187,7 @@ export default function AnalyticsPage() {
             activeOpacity={0.8}
           >
             <ThemeText
-              styles={styles.budgetLeftAmount}
+              styles={[styles.budgetLeftAmount, { fontSize: SIZES.xLarge }]}
               content={t('analytics.home.leftToSpend', {
                 amount: displayCorrectDenomination({
                   amount: leftToSpend,
@@ -298,7 +300,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   budgetLeftAmount: {
-    fontSize: SIZES.xLarge,
     marginBottom: 6,
   },
   budgetStatusRow: {

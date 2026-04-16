@@ -104,14 +104,19 @@ import {
   ViewAllTxPage,
   SwapsPage,
   SettingsHub,
+  AnalyticsPage,
 } from '../app/screens/inAccount';
 import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
 import GiftsPageHome from '../app/screens/inAccount/giftsHome';
 import ReclaimGift from '../app/components/admin/homeComponents/gifts/reclaimGift';
 import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
-import StablecoinSendScreen from '../app/screens/inAccount/stablecoinSendScreen';
+import StablecoinSendScreen from '../app/components/admin/homeComponents/sendBitcoin/stablecoinSendScreen';
 import AccumulationAddressDetail from '../app/components/admin/homeComponents/accumulationAddresses/AccumulationAddressDetail';
 import AccumulationAddressesHome from '../app/components/admin/homeComponents/accumulationAddresses/AccumulationAddressesHome';
+import AnalyticsIncomePage from '../app/components/admin/homeComponents/analytics/analyticsIncomePage';
+import AnalyticsSpentPage from '../app/components/admin/homeComponents/analytics/analyticsSpentPage';
+import AnalyticsBudgetPage from '../app/components/admin/homeComponents/analytics/analyticsBudgetPage';
+import AnalyticsCreateBudgetPage from '../app/components/admin/homeComponents/analytics/analyticsCreateBudgetPage';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -234,6 +239,11 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   },
   { name: 'AccumulationAddressesHome', component: AccumulationAddressesHome },
   { name: 'AccumulationAddressDetail', component: AccumulationAddressDetail },
+  { name: 'AnalyticsPage', component: AnalyticsPage },
+  { name: 'AnalyticsIncomePage', component: AnalyticsIncomePage },
+  { name: 'AnalyticsSpentPage', component: AnalyticsSpentPage },
+  { name: 'AnalyticsBudgetPage', component: AnalyticsBudgetPage },
+  { name: 'AnalyticsCreateBudgetPage', component: AnalyticsCreateBudgetPage },
 ];
 
 const FADE_SCREENS = [
