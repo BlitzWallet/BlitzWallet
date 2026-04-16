@@ -93,9 +93,6 @@ const MemoizedStickyNavbarContainer = memo(
         ]}
       >
         <MemoizedNavBar
-          darkModeType={darkModeType}
-          theme={theme}
-          toggleTheme={toggleTheme}
           sparkBalance={sparkBalance}
           sparkTokens={sparkTokens}
           didViewSeedPhrase={didViewSeedPhrase}
