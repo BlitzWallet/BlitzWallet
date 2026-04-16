@@ -64,7 +64,7 @@ export default function BudgetWarningModal({ handleBackPressFunction }) {
       >
         <ThemeText
           styles={styles.amountLabel}
-          content={t('analytics.reamaining')}
+          content={t('analytics.remaining')}
         />
         <FormattedSatText
           containerStyles={styles.amountValue}
