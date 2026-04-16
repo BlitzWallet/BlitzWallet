@@ -762,6 +762,7 @@ export default function StablecoinSendScreen() {
             setInputValue={setRawInput}
             showDot={inputDenomination === 'fiat'}
             fiatStats={conversionFiatStats}
+            usingForBalance={true}
           />
         )}
 

@@ -73,7 +73,7 @@ export default function AnalyticsBudgetPage() {
       };
     return {
       label: t('analytics.onTrack'),
-      color: theme && darkModeType ? textColor : COLORS.nostrGreen,
+      color: theme && darkModeType ? textColor : COLORS.primary,
     };
   }, [spentPercent]);
 
@@ -318,6 +318,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   centerText: {
+    maxWidth: '85%',
     fontSize: SIZES.large,
     textAlign: 'center',
     includeFontPadding: false,

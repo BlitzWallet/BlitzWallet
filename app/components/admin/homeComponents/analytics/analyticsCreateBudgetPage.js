@@ -110,7 +110,11 @@ export default function AnalyticsCreateBudgetPage() {
           </TouchableOpacity>
         </View>
         {/* Keyboard */}
-        <CustomNumberKeyboard setInputValue={setAmountValue} showDot={true} />
+        <CustomNumberKeyboard
+          usingForBalance={true}
+          setInputValue={setAmountValue}
+          showDot={primaryDisplay.denomination === 'fiat'}
+        />
         {/* Save button */}
         <CustomButton
           buttonStyles={[
