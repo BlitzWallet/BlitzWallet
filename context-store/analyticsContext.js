@@ -18,19 +18,25 @@ export function AnalyticsProvider({ children }) {
   const { poolInfoRef } = useFlashnet();
   const [inTxs, setInTxs] = useState([]);
   const [outTxs, setOutTxs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
       if (!sparkInformation.identityPubKey) return;
       setIsLoading(true);
       try {
+        const startTime = Date.now();
         const [incoming, outgoing] = await Promise.all([
           getMonthlyTransactions(sparkInformation.identityPubKey, 'INCOMING'),
           getMonthlyTransactions(sparkInformation.identityPubKey, 'OUTGOING'),
         ]);
         setInTxs(incoming);
         setOutTxs(outgoing);
+        const elapsed = Date.now() - startTime;
+        const minDuration = 500;
+        await new Promise(resolve =>
+          setTimeout(resolve, Math.max(60, minDuration - elapsed)),
+        );
       } catch (e) {
         console.error('AnalyticsContext load error', e);
       } finally {
@@ -111,6 +117,7 @@ export function AnalyticsProvider({ children }) {
 
 export function useAnalytics() {
   const ctx = useContext(AnalyticsContext);
-  if (!ctx) throw new Error('useAnalytics must be used within AnalyticsProvider');
+  if (!ctx)
+    throw new Error('useAnalytics must be used within AnalyticsProvider');
   return ctx;
 }

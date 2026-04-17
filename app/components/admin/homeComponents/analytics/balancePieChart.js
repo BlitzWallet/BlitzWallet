@@ -258,20 +258,22 @@ const styles = StyleSheet.create({
   legendLabel: {
     fontSize: SIZES.smedium,
     opacity: 0.6,
-    width: 60,
+    includeFontPadding: false,
   },
   legendAmount: {
     flex: 1,
     fontSize: SIZES.medium,
     textAlign: 'right',
+    includeFontPadding: false,
   },
   legendPercent: {
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
     textAlign: 'right',
+    includeFontPadding: false,
   },
   divider: {
-    height: 1,
+    height: 2,
     borderRadius: 0.5,
   },
 });
