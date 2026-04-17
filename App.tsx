@@ -128,6 +128,7 @@ import { SavingsProvider } from './context-store/savingsContext';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
 import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
+import { AnalyticsProvider } from './context-store/analyticsContext';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
@@ -172,9 +173,11 @@ function App(): JSX.Element {
                                                         <FlashnetProvider>
                                                           <UserBalanceProvider>
                                                             <SavingsProvider>
-                                                              {/* <Suspense
+                                                              <AnalyticsProvider>
+                                                                {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                              <ResetStack />
+                                                                <ResetStack />
+                                                              </AnalyticsProvider>
                                                             </SavingsProvider>
                                                           </UserBalanceProvider>
                                                         </FlashnetProvider>

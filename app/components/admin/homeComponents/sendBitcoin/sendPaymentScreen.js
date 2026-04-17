@@ -79,6 +79,7 @@ import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import normalizeLNURLAddress from '../../../../functions/lnurl/normalizeLNURLAddress';
 import { publishMessage } from '../../../../functions/messaging/publishMessage';
 import customUUID from '../../../../functions/customUUID';
+import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -119,6 +120,8 @@ export default function SendPaymentScreen(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
+
+  const didWarnAboutBudget = useRef(null);
   const [rerenderInput, setRerenderInput] = useState(0);
   const useAltLayout = screenDimensions.height < 720;
   const [isAmountFocused, setIsAmountFocused] = useState(true);
@@ -313,6 +316,9 @@ export default function SendPaymentScreen(props) {
     ).toFixed(2) * Math.pow(10, 6),
   );
 
+  const { shouldWarn } = useBudgetWarning(convertedSendAmount);
+
+  console.log(shouldWarn, 'shoudl warn');
   useEffect(() => {
     primaryDisplayRef.current = primaryDisplay;
   }, [primaryDisplay]);
@@ -441,6 +447,21 @@ export default function SendPaymentScreen(props) {
   useEffect(() => {
     uiStateRef.current = uiState;
   }, [uiState]);
+
+  useEffect(() => {
+    if (
+      uiState === 'CONFIRM_PAYMENT' &&
+      shouldWarn &&
+      !didWarnAboutBudget.current
+    ) {
+      didWarnAboutBudget.current = true;
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'nearBudgetLimitWarning',
+        sliderHight: 0.6,
+        sendingAmount: convertedSendAmount,
+      });
+    }
+  }, [uiState, shouldWarn, convertedSendAmount]);
 
   useEffect(() => {
     if (

@@ -39,6 +39,7 @@ const PRESET_LOCAL_DATA = {
   thousandsSeperator: 'space',
   enabledLiquidAutoSwap: true,
   pinnedAccounts: [],
+  monthlyBudget: null,
 };
 
 async function sendDataToDB(newObject, uuid) {

@@ -37,12 +37,7 @@ export default function AccumulationAddressesHome() {
   }, [isConnectedToTheInternet, navigate, t]);
 
   const renderAddressItem = useCallback(({ item }) => {
-    return (
-      <AccumulationAddressCard
-        key={item.accumulationAddressId}
-        address={item}
-      />
-    );
+    return <AccumulationAddressCard address={item} />;
   }, []);
 
   const renderEmptyState = () => (
@@ -63,12 +58,14 @@ export default function AccumulationAddressesHome() {
         <FlatList
           data={addresses}
           renderItem={renderAddressItem}
-          keyExtractor={item => item.accumulationAddressId}
+          keyExtractor={(item, index) =>
+            item.accumulationAddressId ?? `fallback-${index}`
+          }
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={renderEmptyState}
           ListHeaderComponent={
-            <>
+            <View>
               <AccumulationInfoCard isExpanded={false} />
               {addresses.length > 0 && (
                 <ThemeText
@@ -76,7 +73,7 @@ export default function AccumulationAddressesHome() {
                   content={t('screens.accumulationAddresses.sectionTitle')}
                 />
               )}
-            </>
+            </View>
           }
         />
 

@@ -8,6 +8,7 @@ jest.mock('../../../app/functions/handleEventEmitters', () => ({
 
 import {
   buildFilterQuery,
+  buildDailyBalances,
   SPARK_TRANSACTIONS_TABLE_NAME,
 } from '../../../app/functions/spark/transactions';
 
@@ -148,5 +149,79 @@ describe('buildFilterQuery', () => {
     // Robust check: two ? inside the IN clause
     const inClause = query.match(/IN \(([^)]+)\)/)?.[1] ?? '';
     expect(inClause.split('?').length - 1).toBe(2);
+  });
+});
+
+describe('buildDailyBalances', () => {
+  // Helper: build a fake tx row
+  const makeTx = (day, amount, direction, month = 3, year = 2026) => ({
+    details: JSON.stringify({
+      time: new Date(year, month - 1, day, 12).getTime(),
+      amount,
+      direction,
+    }),
+  });
+
+  const REF = new Date(2026, 2, 15, 18); // March 15, 2026
+
+  it('returns one entry per day from 1 to today', () => {
+    const result = buildDailyBalances([], 1000, REF);
+    expect(result).toHaveLength(15);
+    expect(result[0].day).toBe(1);
+    expect(result[14].day).toBe(15);
+  });
+
+  it('all balances equal currentBalance when no transactions', () => {
+    const result = buildDailyBalances([], 5000, REF);
+    result.forEach(({ balanceSats }) => expect(balanceSats).toBe(5000));
+  });
+
+  it('subtracts incoming tx from earlier days to reconstruct past balance', () => {
+    // Received 200 sats on day 10; balance before day 10 should be 800
+    const txs = [makeTx(10, 200, 'INCOMING')];
+    const result = buildDailyBalances(txs, 1000, REF);
+    const day10 = result.find(r => r.day === 10);
+    const day9 = result.find(r => r.day === 9);
+    expect(day10.balanceSats).toBe(1000); // today's balance unchanged
+    expect(day9.balanceSats).toBe(800);   // before the incoming tx
+  });
+
+  it('adds back outgoing tx from earlier days to reconstruct past balance', () => {
+    // Spent 300 sats on day 5; balance before day 5 should be 1300
+    const txs = [makeTx(5, 300, 'OUTGOING')];
+    const result = buildDailyBalances(txs, 1000, REF);
+    const day4 = result.find(r => r.day === 4);
+    expect(day4.balanceSats).toBe(1300);
+  });
+
+  it('handles multiple txs on the same day', () => {
+    const txs = [
+      makeTx(8, 500, 'INCOMING'),
+      makeTx(8, 100, 'OUTGOING'),
+    ];
+    // Net on day 8: +400. Before day 8 balance = 1000 - 400 = 600
+    const result = buildDailyBalances(txs, 1000, REF);
+    const day7 = result.find(r => r.day === 7);
+    expect(day7.balanceSats).toBe(600);
+  });
+
+  it('skips rows with unparseable details without throwing', () => {
+    const txs = [{ details: 'not-json' }, makeTx(3, 50, 'INCOMING')];
+    expect(() => buildDailyBalances(txs, 500, REF)).not.toThrow();
+  });
+
+  it('returns a single entry on the first of the month', () => {
+    const firstOfMonth = new Date(2026, 2, 1, 10);
+    const result = buildDailyBalances([], 999, firstOfMonth);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual({ day: 1, balanceSats: 999 });
+  });
+
+  it('ignores transactions from a different month', () => {
+    // February transaction passed in by mistake — should be ignored
+    const txs = [makeTx(28, 500, 'INCOMING', 2, 2026)]; // Feb 28, not March
+    const result = buildDailyBalances(txs, 1000, REF); // REF is March 15
+    // All balances should still be 1000 (the feb tx is ignored)
+    result.forEach(({ balanceSats }) => expect(balanceSats).toBe(1000));
   });
 });

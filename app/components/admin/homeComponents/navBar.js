@@ -7,9 +7,6 @@ import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 import ProfileImageSettingsNavigator from '../../../functions/CustomElements/profileSettingsNavigator';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 export const NavBar = memo(function NavBar({
-  theme,
-  darkModeType,
-  toggleTheme,
   sparkBalance,
   sparkTokens,
   didViewSeedPhrase,
@@ -23,13 +20,11 @@ export const NavBar = memo(function NavBar({
   return (
     <View style={[styles.topBar]}>
       <TouchableOpacity
-        onPress={() => {
-          toggleTheme(!theme);
-        }}
+        onPress={() => navigate.navigate('AnalyticsPage')}
         activeOpacity={0.5}
         style={styles.iconButton}
       >
-        <ThemeIcon iconName={theme ? 'Sun' : 'Moon'} />
+        <ThemeIcon iconName="ChartPie" />
       </TouchableOpacity>
 
       {/* Center space for animated balance - invisible but takes up space */}

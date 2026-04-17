@@ -172,7 +172,7 @@ const setPOSTransactions = async ({ transactionsList, privateKey }) => {
         [
           parsedMessage.tipAmountSats,
           parsedMessage.orderAmountSats,
-          parsedMessage.serverName,
+          parsedMessage.serverName || '',
           parsedMessage.time,
           newMessage.dateAdded,
         ],

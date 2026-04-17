@@ -33,6 +33,7 @@ import { getCachedProfileImage } from '../../../../functions/cachedImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useTranslation } from 'react-i18next';
 import getDeepLinkUser from './internalComponents/getDeepLinkUser';
+import { isBlitzLNURLAddress } from '../../../../functions/lnurl';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
@@ -185,18 +186,37 @@ export function AddContactContent({
 
   const parseContact = async data => {
     try {
+      const sanitizedData = data.trim();
       setIsSearching(true);
       setRemoteLoadingMessage(
         t('contacts.addContactsHalfModal.loadingMessage'),
       );
       let newContact;
-      if (VALID_URL_REGEX.test(data)) {
+      if (isBlitzLNURLAddress(sanitizedData)) {
+        const username = sanitizedData.split('@')[0];
         const {
           didWork,
           reason,
           data: userProfile,
         } = await getDeepLinkUser({
-          deepLinkContent: data,
+          deepLinkContent: `blitz-wallet/u/${username}`,
+          userProfile: globalContactsInformation.myProfile,
+        });
+
+        if (!didWork) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t(reason),
+          });
+          return;
+        }
+        newContact = userProfile;
+      } else if (VALID_URL_REGEX.test(sanitizedData)) {
+        const {
+          didWork,
+          reason,
+          data: userProfile,
+        } = await getDeepLinkUser({
+          deepLinkContent: sanitizedData,
           userProfile: globalContactsInformation.myProfile,
         });
 
@@ -208,7 +228,7 @@ export function AddContactContent({
         }
         newContact = userProfile;
       } else {
-        const decoded = atob(data);
+        const decoded = atob(sanitizedData);
         const parsedData = JSON.parse(decoded);
         const {
           didWork,

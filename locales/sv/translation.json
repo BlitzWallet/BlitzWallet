@@ -2676,5 +2676,52 @@
     "rewardsPayout": "Utbetalning av Bitcoin-belöningar",
     "rewardsWithdrawal": "Uttag av Bitcoin-belöningar",
     "total_balance": "Totalt saldo"
+  },
+  "analytics": {
+    "overBudget": "Över budget",
+    "nearLimit": "Nära gränsen",
+    "onTrack": "I fas",
+    "thisMonth": "Denna månad",
+    "transactions": "Transaktioner",
+    "numberOfTxs_one": "{{count}} transaktion",
+    "numberOfTxs_other": "{{count}} transaktioner",
+    "remaining": "Kvar",
+    "overBy": "Överskrid med",
+
+    "home": {
+      "title": "Analys",
+      "activityHead": "Månadsaktivitet",
+      "noPaymentsReceived": "Inga mottagna betalningar",
+      "noPaymentsSent": "Inga skickade betalningar",
+      "budget": "Budget",
+      "noBudgetTitle": "Ingen budget satt",
+      "noBudgetSub": "Tryck för att skapa en månadsbudget",
+      "leftToSpend": "{{amount}} kvar att spendera",
+      "percentRemaining": "{{percent}}% kvar",
+      "totalBalance": "Totalt saldo"
+    },
+    "breakdown": {
+      "noReceivedTitle": "Inga mottagna betalningar",
+      "noReceivedSub": "Ta emot en betalning för att se aktivitet",
+      "noSentTitle": "Inga skickade betalningar",
+      "noSentSub": "Skicka en betalning för att se aktivitet"
+    },
+    "budget": {
+      "budget": "Budget",
+      "noAmount": "Ange ett budgetbelopp.",
+      "editBudget": "Redigera budget",
+      "createBudget": "Sätt månadsbudget",
+      "noBudgetSet": "Ingen budget satt",
+      "noBudgetSetSub": "Skapa en månadsbudget för att följa dina utgifter",
+      "noBudgetSetButton": "Skapa budget",
+      "leftToSpend": "Kvar att spendera",
+      "spentThisMonth": "Spenderat denna månad",
+      "removeBudgetTitle": "Ta bort budget?",
+      "removeBudgetSub": "Att ta bort denna budget stoppar varningar och uppföljning. Du kan skapa den igen när som helst.",
+      "nearBudgetWarning": "Du är nära din månatliga budgetgräns",
+      "overBudgetWarning": "Du har redan nått din månatliga budgetgräns",
+      "willExceedBudgetWarning": "Denna betalning kommer att överskrida din månatliga gräns",
+      "budgetWarningHeadsUp": "Obs"
+    }
   }
 }

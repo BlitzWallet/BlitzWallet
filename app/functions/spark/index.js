@@ -259,13 +259,15 @@ export const initializeFlashnet = async mnemonic => {
   }
 };
 
-export const setPrivacyEnabled = async mnemonic => {
+export const setPrivacyEnabled = async (mnemonic, freshIdentityPubKey) => {
   try {
-    const didSetPrivacySetting = await getLocalStorageItem(
-      'didSetPrivacySetting',
-    ).then(JSON.parse);
+    const didSetPrivacySetting =
+      (await getLocalStorageItem('didSetPrivacySettingNew').then(JSON.parse)) ||
+      {};
 
-    if (didSetPrivacySetting) return;
+    const currentWallet = didSetPrivacySetting[freshIdentityPubKey];
+
+    if (currentWallet) return;
 
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
@@ -281,7 +283,11 @@ export const setPrivacyEnabled = async mnemonic => {
       );
 
       if (validatedResponse.didWork) {
-        setLocalStorageItem('didSetPrivacySetting', JSON.stringify(true));
+        didSetPrivacySetting[freshIdentityPubKey] = true;
+        setLocalStorageItem(
+          'didSetPrivacySettingNew',
+          JSON.stringify(didSetPrivacySetting),
+        );
       }
 
       return;
@@ -289,10 +295,14 @@ export const setPrivacyEnabled = async mnemonic => {
       const wallet = await getWallet(mnemonic);
       const walletSetings = await wallet.getWalletSettings();
       if (!walletSetings?.privateEnabled) {
-        wallet.setPrivacyEnabled(true);
-      } else {
-        setLocalStorageItem('didSetPrivacySetting', JSON.stringify(true));
+        await wallet.setPrivacyEnabled(true);
       }
+      didSetPrivacySetting[freshIdentityPubKey] = true;
+      setLocalStorageItem(
+        'didSetPrivacySettingNew',
+        JSON.stringify(didSetPrivacySetting),
+      );
+
       return true;
     }
   } catch (err) {

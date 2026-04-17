@@ -248,6 +248,43 @@ export const getFilteredTransactions = async (filters, options = {}) => {
   }
 };
 
+/**
+ * Fetch all completed transactions for the current calendar month.
+ *
+ * @param {string} accountId
+ * @param {'INCOMING'|'OUTGOING'|null} direction - filter by direction, or null for all
+ * @returns {Promise<Object[]>}
+ */
+export const getMonthlyTransactions = async (accountId, direction = null) => {
+  try {
+    await ensureSparkDatabaseReady();
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const monthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      1,
+    ).getTime();
+    const params = [String(accountId), monthStart, monthEnd];
+    let dirClause = '';
+    if (direction) {
+      dirClause = `AND json_extract(details, '$.direction') = ?`;
+      params.push(direction);
+    }
+    const query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+      WHERE accountId = ?
+      AND paymentStatus = 'completed'
+      AND json_extract(details, '$.time') >= ?
+      AND json_extract(details, '$.time') < ?
+      ${dirClause}
+      ORDER BY json_extract(details, '$.time') DESC`;
+    return await sqlLiteDB.getAllAsync(query, params);
+  } catch (error) {
+    console.error('Error in getMonthlyTransactions:', error);
+    return [];
+  }
+};
+
 export const getBulkPaymentGroupTransferIds = async accountId => {
   try {
     await ensureSparkDatabaseReady();

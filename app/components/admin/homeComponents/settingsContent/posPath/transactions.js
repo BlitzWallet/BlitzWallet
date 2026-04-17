@@ -43,6 +43,7 @@ export default function ViewPOSTransactions() {
   const transactionItem = useCallback(
     ({ item }) => {
       const [name, { totalTipAmount }] = item;
+      if (!name || totalTipAmount === undefined) return null;
       return (
         <TouchableOpacity
           style={[

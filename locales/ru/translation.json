@@ -2683,5 +2683,52 @@
     "rewardsPayout": "Выплата вознаграждений в биткоинах",
     "rewardsWithdrawal": "Вывод вознаграждений в биткоинах",
     "total_balance": "Общий баланс"
+  },
+  "analytics": {
+    "overBudget": "Превышение бюджета",
+    "nearLimit": "Почти лимит",
+    "onTrack": "В норме",
+    "thisMonth": "Этот месяц",
+    "transactions": "Транзакции",
+    "numberOfTxs_one": "{{count}} транзакция",
+    "numberOfTxs_other": "{{count}} транзакций",
+    "remaining": "Осталось",
+    "overBy": "Превышено на",
+
+    "home": {
+      "title": "Аналитика",
+      "activityHead": "Месячная активность",
+      "noPaymentsReceived": "Нет полученных платежей",
+      "noPaymentsSent": "Нет отправленных платежей",
+      "budget": "Бюджет",
+      "noBudgetTitle": "Бюджет не задан",
+      "noBudgetSub": "Нажмите, чтобы создать месячный бюджет",
+      "leftToSpend": "Осталось {{amount}}",
+      "percentRemaining": "{{percent}}% осталось",
+      "totalBalance": "Общий баланс"
+    },
+    "breakdown": {
+      "noReceivedTitle": "Нет полученных платежей",
+      "noReceivedSub": "Получите платеж, чтобы увидеть активность",
+      "noSentTitle": "Нет отправленных платежей",
+      "noSentSub": "Отправьте платеж, чтобы увидеть активность"
+    },
+    "budget": {
+      "budget": "Бюджет",
+      "noAmount": "Введите сумму бюджета.",
+      "editBudget": "Редактировать бюджет",
+      "createBudget": "Установить месячный бюджет",
+      "noBudgetSet": "Бюджет не задан",
+      "noBudgetSetSub": "Создайте месячный бюджет для отслеживания расходов",
+      "noBudgetSetButton": "Создать бюджет",
+      "leftToSpend": "Осталось",
+      "spentThisMonth": "Потрачено за месяц",
+      "removeBudgetTitle": "Удалить бюджет?",
+      "removeBudgetSub": "Удаление бюджета отключит уведомления и отслеживание. Его можно создать снова в любое время.",
+      "nearBudgetWarning": "Вы близки к месячному лимиту расходов",
+      "overBudgetWarning": "Вы уже достигли месячного лимита расходов",
+      "willExceedBudgetWarning": "Этот платёж превысит месячный лимит",
+      "budgetWarningHeadsUp": "Внимание"
+    }
   }
 }

@@ -64,6 +64,7 @@ import {
 } from '../../../../functions/spark/flashnet';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
+import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
 import {
@@ -104,6 +105,8 @@ export default function ConfirmSplitPayment(props) {
   const { globalContactsInformation } = useGlobalContacts();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+
+  const didWarnAboutBudget = useRef(null);
   const [rerenderInput, setRerenderInput] = useState(0);
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
@@ -326,6 +329,8 @@ export default function ConfirmSplitPayment(props) {
     ).toFixed(2) * Math.pow(10, 6),
   );
 
+  const { shouldWarn } = useBudgetWarning(convertedSendAmount);
+
   useEffect(() => {
     primaryDisplayRef.current = primaryDisplay;
   }, [primaryDisplay]);
@@ -407,6 +412,21 @@ export default function ConfirmSplitPayment(props) {
   useEffect(() => {
     uiStateRef.current = uiState;
   }, [uiState]);
+
+  useEffect(() => {
+    if (
+      uiState === 'CONFIRM_PAYMENT' &&
+      shouldWarn &&
+      !didWarnAboutBudget.current
+    ) {
+      didWarnAboutBudget.current = true;
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'nearBudgetLimitWarning',
+        sliderHight: 0.6,
+        sendingAmount: convertedSendAmount,
+      });
+    }
+  }, [uiState, shouldWarn, convertedSendAmount]);
 
   useEffect(() => {
     if (
