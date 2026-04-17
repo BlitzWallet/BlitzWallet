@@ -48,8 +48,8 @@ export default function ConfirmTxPage(props) {
   const [isAddingContact, setIsAddingContact] = useState(false);
   const isLNURLAuth = props.route.params?.useLNURLAuth;
   const transaction = props.route.params?.transaction;
-  const hasError = props.route.params?.error;
   const paymentInformation = transaction?.details;
+  const hasError = props.route.params?.error || !paymentInformation;
   const lnurlAddress = normalizeLNURLAddress(props.route.params?.lnurlAddress);
   const isBlitzAddress = isBlitzLNURLAddress(lnurlAddress);
   const lnurlUsername = lnurlAddress?.split('@')[0]?.toLowerCase();
@@ -87,7 +87,7 @@ export default function ConfirmTxPage(props) {
 
   const paymentFee = paymentInformation?.fee;
 
-  const errorMessage = hasError;
+  const errorMessage = hasError || t('errormessages.genericError');
 
   const amount = paymentInformation?.amount || 0;
 
