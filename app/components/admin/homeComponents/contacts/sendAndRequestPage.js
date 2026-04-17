@@ -934,14 +934,19 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
-  splitPayContainer: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  splitPayContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 5,
+  },
   splitPayIcon: {
     width: 25,
     height: 25,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    right: -30,
+    right: -25,
   },
   contactListLetterImage: {
     height: 60,
