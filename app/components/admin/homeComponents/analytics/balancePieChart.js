@@ -185,7 +185,7 @@ export default function BalancePieChart() {
               <View
                 style={[
                   styles.legendRow,
-                  {
+                  visibleSegments.length === 2 && {
                     [seg.key === 'btc' ? 'marginBottom' : 'marginTop']: 10,
                   },
                 ]}
