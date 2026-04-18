@@ -24,7 +24,7 @@ export function AnalyticsProvider({ children }) {
 
   useEffect(() => {
     async function load() {
-      if (!sparkInformation.identityPubKey && didGetToHomepage) return;
+      if (!sparkInformation.identityPubKey || !didGetToHomepage) return;
       setIsLoading(true);
       try {
         const startTime = Date.now();
