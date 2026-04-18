@@ -173,7 +173,13 @@ export async function bulkSparkPayment(
 
     // Nothing to fulfill if every invoice failed to generate
     if (invoiceBatch.length === 0) {
-      return { successful: [], failed, totalPaid: 0, groupId: null };
+      return {
+        successful: [],
+        failed,
+        totalPaid: 0,
+        groupId: null,
+        error: failed[0].error,
+      };
     }
 
     // ── Phase 2: Single batch fulfill ─────────────────────────────────────────
@@ -198,7 +204,13 @@ export async function bulkSparkPayment(
     }
 
     if (!fulfillResult || !fulfillResult?.didWork)
-      return { successful: [], failed, totalPaid: 0, groupId: null };
+      return {
+        successful: [],
+        failed,
+        totalPaid: 0,
+        groupId: null,
+        error: fulfillResult.error,
+      };
 
     // ── Phase 3: Match results back to recipients ──────────────────────────────
     // The SDK returns { invoice, transferResponse } / { invoice, error } in each
