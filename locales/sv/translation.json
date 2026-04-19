@@ -2037,7 +2037,8 @@
         "quoteId": "Offert-ID",
         "destinationAddress": "Destinationsadress",
         "destinationAsset": "Destinations-tillgång",
-        "destinationChain": "Destinations-kedja"
+        "destinationChain": "Destinations-kedja",
+        "transferIds": "Inkluderade personer"
       },
       "viewAllTxPage": {
         "title": "Transaktioner",

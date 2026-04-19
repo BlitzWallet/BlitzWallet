@@ -2037,7 +2037,8 @@
         "quoteId": "Quote ID",
         "destinationAddress": "Destination Address",
         "destinationAsset": "Destination Asset",
-        "destinationChain": "Destination Chain"
+        "destinationChain": "Destination Chain",
+        "transferIds": "People Included"
       },
       "viewAllTxPage": {
         "title": "Transactions",
