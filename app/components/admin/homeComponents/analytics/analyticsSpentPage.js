@@ -177,7 +177,6 @@ const styles = StyleSheet.create({
   },
   totalAmount: {
     fontSize: SIZES.huge,
-    fontWeight: 500,
     includeFontPadding: false,
     marginTop: 8,
     marginBottom: 30,
