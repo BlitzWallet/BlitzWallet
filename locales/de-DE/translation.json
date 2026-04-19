@@ -1615,7 +1615,8 @@
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % Sparpool-Gebühr + {{blitzFee}} % Blitz-Gebühr",
       "othersType": "Alle anderen",
-      "othersFee": "Netzwerkgebühren"
+      "othersFee": "Netzwerkgebühren",
+      "networkFeeLinkDesc": "Tippen, um eine Aufschlüsselung der Spark-Netzwerkgebühren zu sehen"
     },
     "nip5": {
       "noNameError": "Name darf nicht leer sein.",

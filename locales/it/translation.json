@@ -1615,7 +1615,8 @@
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % di commissione pool + {{blitzFee}} % di commissione Blitz",
       "othersType": "Altro",
-      "othersFee": "Commissioni di rete"
+      "othersFee": "Commissioni di rete",
+      "networkFeeLinkDesc": "Tocca per vedere il dettaglio delle commissioni della rete Spark"
     },
     "nip5": {
       "noNameError": "Il nome non può essere vuoto.",

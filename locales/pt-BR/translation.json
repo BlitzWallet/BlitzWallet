@@ -1615,7 +1615,8 @@
       "stablecoinType": "BTC <> Dólar digital",
       "swapsFee": "{{poolFee}}% de taxa da Pool de Liquidez + {{blitzFee}}% de taxa da Blitz Wallet",
       "othersType": "Outros",
-      "othersFee": "Taxas de rede"
+      "othersFee": "Taxas de rede",
+      "networkFeeLinkDesc": "Toque para ver a divisão das taxas da rede Spark"
     },
     "nip5": {
       "noNameError": "O nome não pode estar vazio.",

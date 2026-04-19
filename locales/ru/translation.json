@@ -1616,7 +1616,8 @@
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}}% пул + {{blitzFee}}% Blitz",
       "othersType": "Остальное",
-      "othersFee": "Сетевые комиссии"
+      "othersFee": "Сетевые комиссии",
+      "networkFeeLinkDesc": "Нажмите, чтобы увидеть детализацию комиссий сети Spark"
     },
     "nip5": {
       "noNameError": "Имя не может быть пустым.",

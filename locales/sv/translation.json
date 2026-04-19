@@ -1615,7 +1615,8 @@
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % poolavgift + {{blitzFee}} % Blitz-avgift",
       "othersType": "Övrigt",
-      "othersFee": "Nätverksavgifter"
+      "othersFee": "Nätverksavgifter",
+      "networkFeeLinkDesc": "Tryck för att se en uppdelning av Spark-nätverksavgifter"
     },
     "nip5": {
       "noNameError": "Namnet får inte vara tomt.",

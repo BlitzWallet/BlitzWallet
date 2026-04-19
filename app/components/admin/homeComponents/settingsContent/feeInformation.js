@@ -1,32 +1,25 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useMemo, useState } from 'react';
-import { CENTER, COLORS, SIZES } from '../../../../constants';
-import {
-  lightningBrackets,
-  sparkBrackets,
-  bitcoinBrackets,
-  LRC20Brackets,
-} from '../../../../functions/spark/calculateSupportFee';
+import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useTranslation } from 'react-i18next';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { formatBalanceAmount } from '../../../../functions';
+import openWebBrowser from '../../../../functions/openWebBrowser';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function BlitzFeeInformation() {
-  const { fiatStats } = useNodeContext();
   const { showTokensInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
+  const { textColor, backgroundOffset } = GetThemeColors();
   const [paymentType, setPaymentType] = useState('lightning');
-  const [minHeight, setMinHeight] = useState(0);
   const { t } = useTranslation();
 
   const feeOptions = showTokensInformation
@@ -68,7 +61,6 @@ export default function BlitzFeeInformation() {
     });
   }, [paymentType, textColor, theme, darkModeType, feeOptions]);
 
-  console.log(timeFrameElements);
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -84,13 +76,62 @@ export default function BlitzFeeInformation() {
         content={t('settings.feeInformation.description')}
       />
       <FeeTable masterInfoObject={masterInfoObject} />
+
+      <TouchableOpacity
+        onPress={() =>
+          openWebBrowser({
+            link: 'https://docs.spark.money/wallets/estimate-fees',
+          })
+        }
+        activeOpacity={0.75}
+        style={[
+          styles.sparkPill,
+          {
+            backgroundColor: backgroundOffset,
+          },
+        ]}
+      >
+        <View style={styles.pillContentContainer}>
+          {/* Spark icon pill */}
+          <View
+            style={[
+              styles.pillIconContianer,
+              {
+                backgroundColor:
+                  theme && darkModeType ? COLORS.background : COLORS.primary,
+              },
+            ]}
+          >
+            <ThemeImage
+              styles={{ height: 20, width: 20 }}
+              lightModeIcon={ICONS.receiptWhite}
+              darkModeIcon={ICONS.receiptWhite}
+              lightsOutIcon={ICONS.receiptWhite}
+            />
+          </View>
+          <View style={{ flexShrink: 1 }}>
+            <ThemeText
+              styles={{
+                fontSize: SIZES.small,
+                includeFontPadding: false,
+              }}
+              content={t('settings.feeInformation.othersFee')}
+            />
+            <ThemeText
+              styles={{
+                fontSize: SIZES.xSmall,
+                opacity: 0.55,
+                includeFontPadding: false,
+              }}
+              content={t('settings.feeInformation.networkFeeLinkDesc')}
+            />
+          </View>
+        </View>
+        <ThemeIcon iconName={'ChevronRight'} />
+      </TouchableOpacity>
     </ScrollView>
   );
 }
-
-const formatPercentage = value => {
-  return `${(value * 100).toFixed(1)}%`;
-};
 
 function FeeTable({ masterInfoObject }) {
   const { poolInfoRef } = useFlashnet();
@@ -218,5 +259,29 @@ const styles = StyleSheet.create({
     fontSize: SIZES.xSmall,
     opacity: 0.7,
     marginTop: 4,
+  },
+  sparkPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 24,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 15,
+  },
+  pillContentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 1,
+    gap: 15,
+  },
+  pillIconContianer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
