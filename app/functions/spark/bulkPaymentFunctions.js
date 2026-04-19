@@ -10,10 +10,7 @@ import {
   swapTokenToBitcoin,
   USD_ASSET_ADDRESS,
 } from './flashnet';
-import {
-  publishMessage,
-  publishBulkMessages,
-} from '../messaging/publishMessage';
+import { publishBulkMessages } from '../messaging/publishMessage';
 import { bulkUpdateSparkTransactions } from './transactions';
 import getReceiveAddressAndContactForContactsPayment from '../../components/admin/homeComponents/contacts/internalComponents/getReceiveAddressAndKindForPayment';
 import customUUID from '../customUUID';
@@ -274,17 +271,17 @@ export async function bulkSparkPayment(
         currentTime,
       } = notifyParams;
 
-      for (const {
-        contact,
-        amountSats,
-        transferId,
-        transfer,
-        contactFull,
-        currency,
-        amountCents,
-      } of successful) {
-        try {
-          await publishMessage({
+      const pushNotifications = successful.map(
+        ({
+          contact,
+          amountSats,
+          transferId,
+          transfer,
+          contactFull,
+          currency,
+          amountCents,
+        }) => {
+          return {
             toPubKey: contact.uuid,
             fromPubKey: globalContactsInformation.myProfile.uuid,
             data: {
@@ -308,16 +305,15 @@ export async function bulkSparkPayment(
             retrivedContact: contactFull,
             currentTime,
             masterInfoObject,
-          });
-        } catch (notifyErr) {
-          // Notification failure is non-fatal
-          console.log(
-            'bulkSparkPayment: notification failed for',
-            contact.uniqueName,
-            notifyErr,
-          );
-        }
-      }
+          };
+        },
+      );
+
+      await publishBulkMessages(
+        pushNotifications,
+        privateKey,
+        globalContactsInformation,
+      );
     }
 
     // ── Phase 5: Persist to SQLite ─────────────────────────────────────────────
@@ -456,16 +452,16 @@ export async function bulkSparkPayment(
         currentTime,
       } = notifyParams;
 
-      for (const {
-        contact,
-        amountSats,
-        amountCents,
-        currency,
-        txHash: entryTxHash,
-        contactFull,
-      } of successful) {
-        try {
-          await publishMessage({
+      const pushNotifications = successful.map(
+        ({
+          contact,
+          amountSats,
+          amountCents,
+          currency,
+          txHash: entryTxHash,
+          contactFull,
+        }) => {
+          return {
             toPubKey: contact.uuid,
             fromPubKey: globalContactsInformation.myProfile.uuid,
             data: {
@@ -475,7 +471,7 @@ export async function bulkSparkPayment(
               isRequest: false,
               didSend: true,
               wasSeen: null,
-              paymentDenomination: 'USD',
+              paymentDenomination: currency === 'USD' ? 'USD' : 'BTC',
               amountDollars:
                 amountCents != null ? (amountCents / 100).toFixed(2) : null,
               txid: entryTxHash,
@@ -487,15 +483,15 @@ export async function bulkSparkPayment(
             retrivedContact: contactFull,
             currentTime,
             masterInfoObject,
-          });
-        } catch (notifyErr) {
-          console.log(
-            'bulkSparkPayment: USD notification failed for',
-            contact.uniqueName,
-            notifyErr,
-          );
-        }
-      }
+          };
+        },
+      );
+
+      await publishBulkMessages(
+        pushNotifications,
+        privateKey,
+        globalContactsInformation,
+      );
     }
 
     // ── Phase 5: Persist to SQLite ─────────────────────────────────────────────
@@ -639,7 +635,11 @@ export async function bulkPaymentRequest(recipients, memo, senderInfo) {
     return { successful: [], failed };
   }
 
-  const success = await publishBulkMessages(payloads);
+  const success = await publishBulkMessages(
+    payloads,
+    privateKey,
+    globalContactsInformation,
+  );
 
   if (!success) {
     return {
