@@ -48,7 +48,7 @@ export default function ConfirmTxPage(props) {
   const [isAddingContact, setIsAddingContact] = useState(false);
   const isLNURLAuth = props.route.params?.useLNURLAuth;
   const transaction = props.route.params?.transaction;
-  const paymentInformation = transaction?.details;
+  const paymentInformation = transaction?.details || {};
   const hasError = props.route.params?.error || !paymentInformation;
   const lnurlAddress = normalizeLNURLAddress(props.route.params?.lnurlAddress);
   const isBlitzAddress = isBlitzLNURLAddress(lnurlAddress);
@@ -176,6 +176,48 @@ export default function ConfirmTxPage(props) {
           </View>
         </View>
 
+        <CustomButton
+          buttonStyles={{
+            width: INSET_WINDOW_WIDTH,
+            backgroundColor: !theme ? COLORS.primary : COLORS.darkModeText,
+            marginTop: 'auto',
+            paddingHorizontal: 15,
+          }}
+          textStyles={{
+            ...styles.buttonText,
+            color: !theme ? COLORS.darkModeText : COLORS.lightModeText,
+          }}
+          actionFunction={() => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                navigate.popToTop();
+              });
+            });
+          }}
+          textContent={t('constants.continue')}
+        />
+      </GlobalThemeView>
+    );
+  }
+
+  if (props.route.params?.isSplitPayment && props.route.params?.isRequset) {
+    return (
+      <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
+        <LottieView
+          ref={animationRef}
+          source={didSucceed ? confirmAnimation : errorAnimation}
+          loop={false}
+          style={{
+            width: screenDimensions.width / 1.5,
+            height: screenDimensions.width / 1.5,
+            maxWidth: 400,
+            maxHeight: 400,
+          }}
+        />
+        <ThemeText
+          styles={{ fontSize: SIZES.large, marginBottom: 10 }}
+          content={t('screens.inAccount.confirmTxPage.bulkSuccess')}
+        />
         <CustomButton
           buttonStyles={{
             width: INSET_WINDOW_WIDTH,
