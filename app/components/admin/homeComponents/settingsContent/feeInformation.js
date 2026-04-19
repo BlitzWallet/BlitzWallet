@@ -18,7 +18,7 @@ export default function BlitzFeeInformation() {
   const { showTokensInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const [paymentType, setPaymentType] = useState('lightning');
   const { t } = useTranslation();
 
@@ -98,7 +98,7 @@ export default function BlitzFeeInformation() {
               styles.pillIconContianer,
               {
                 backgroundColor:
-                  theme && darkModeType ? COLORS.background : COLORS.primary,
+                  theme && darkModeType ? backgroundColor : COLORS.primary,
               },
             ]}
           >
