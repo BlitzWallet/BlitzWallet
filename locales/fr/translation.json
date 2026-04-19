@@ -2037,7 +2037,8 @@
         "quoteId": "ID du Devis",
         "destinationAddress": "Adresse de Destination",
         "destinationAsset": "Actif de Destination",
-        "destinationChain": "Chaîne de Destination"
+        "destinationChain": "Chaîne de Destination",
+        "transferIds": "Personnes incluses"
       },
       "viewAllTxPage": {
         "title": "Transactions",

@@ -2037,7 +2037,8 @@
         "quoteId": "ID de Cotización",
         "destinationAddress": "Dirección de Destino",
         "destinationAsset": "Activo de Destino",
-        "destinationChain": "Cadena de Destino"
+        "destinationChain": "Cadena de Destino",
+        "transferIds": "Personas incluidas"
       },
       "viewAllTxPage": {
         "title": "Transacciones",

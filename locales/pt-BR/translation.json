@@ -2037,7 +2037,8 @@
         "quoteId": "ID da cotação",
         "destinationAddress": "Endereço de destino",
         "destinationAsset": "Moeda de destino",
-        "destinationChain": "Rede de destino"
+        "destinationChain": "Rede de destino",
+        "transferIds": "Pessoas incluídas"
       },
       "viewAllTxPage": {
         "title": "Transações",

@@ -48,7 +48,7 @@ export default function AnalyticsBudgetPage() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { bottomPadding } = useGlobalInsets();
-  const { textColor, backgroundOffset } = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { spentTotal, spentTxCount } = useAnalytics();
   const { t } = useTranslation();
@@ -205,18 +205,13 @@ export default function AnalyticsBudgetPage() {
               <FormattedSatText
                 balance={budgetAmount}
                 globalBalanceDenomination={userBalanceDenomination}
-                styles={[styles.statsValue, { color: COLORS.primary }]}
+                styles={styles.statsValue}
                 neverHideBalance={true}
               />
             </View>
           </View>
 
-          <View
-            style={[
-              styles.divider,
-              { backgroundColor: textColor, opacity: 0.1 },
-            ]}
-          />
+          <View style={[styles.divider, { backgroundColor }]} />
 
           {/* Spent this month */}
           <View style={styles.statsRow}>
@@ -238,17 +233,12 @@ export default function AnalyticsBudgetPage() {
             <FormattedSatText
               balance={spentTotal}
               globalBalanceDenomination={userBalanceDenomination}
-              styles={[styles.statsValue, { color: textColor }]}
+              styles={styles.statsValue}
               neverHideBalance={true}
             />
           </View>
 
-          <View
-            style={[
-              styles.divider,
-              { backgroundColor: textColor, opacity: 0.1 },
-            ]}
-          />
+          <View style={[styles.divider, { backgroundColor }]} />
 
           {/* Left to spend */}
           <View style={styles.statsRow}>
@@ -265,7 +255,7 @@ export default function AnalyticsBudgetPage() {
               <FormattedSatText
                 balance={leftToSpend}
                 globalBalanceDenomination={userBalanceDenomination}
-                styles={[styles.statsValue, { color: textColor }]}
+                styles={styles.statsValue}
                 neverHideBalance={true}
               />
             </View>
@@ -297,13 +287,17 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: SIZES.smedium,
     fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
   },
   statusDivider: {
     fontSize: SIZES.smedium,
+    fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
   },
   statusPeriod: {
     fontSize: SIZES.smedium,
     fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
   },
   circleContainer: {
     width: CIRCLE_SIZE,
@@ -328,10 +322,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     includeFontPadding: false,
     opacity: HIDDEN_OPACITY,
-  },
-  circleCenterAmount: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
   },
   statsCard: {
     width: '100%',
@@ -370,11 +360,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   statsValue: {
-    fontSize: SIZES.smedium,
     textAlign: 'right',
+    includeFontPadding: false,
   },
   divider: {
-    height: StyleSheet.hairlineWidth,
+    height: 2,
     marginHorizontal: 16,
   },
 });

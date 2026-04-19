@@ -34,8 +34,8 @@ export default function AnalyticsCreateBudgetPage() {
 
   const formattedPresetAmount =
     userBalanceDenomination === 'fiat'
-      ? numberConverter(existingBudget?.amount, 'fiat', 2, fiatStats)
-      : existingBudget?.amount;
+      ? numberConverter(existingBudget?.amount || 0, 'fiat', 2, fiatStats)
+      : existingBudget?.amount || 0;
 
   const [amountValue, setAmountValue] = useState(
     existingBudget?.amount ? String(formattedPresetAmount) : '',
