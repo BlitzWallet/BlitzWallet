@@ -1743,7 +1743,7 @@
         "accountTypeImportedInfo": "Esta conta tem sua própria frase-semente e não será restaurada quando você restaurar sua carteira Blitz. Guarde a frase de recuperação em segurança."
       },
       "selectCreateAccountType": {
-        "title": "Criar ou restaurar conta",
+        "title": "Adicionar conta",
         "createNewAccountTitle": "Criar nova conta",
         "createNewAccountDescription": "Recuperável pela frase de recuperação da conta principal",
         "importRecoveryPhraseTitle": "Importar frase de recuperação",
