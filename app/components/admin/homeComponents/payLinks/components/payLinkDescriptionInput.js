@@ -73,6 +73,7 @@ export default function PayLinkDescriptionInput({
   const { bottomPadding } = useGlobalInsets();
   const textInputRef = useRef(null);
   const isAlreadyCreating = useRef(null);
+  const isButtonAction = useRef(false);
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { showToast } = useToast();
@@ -307,12 +308,21 @@ export default function PayLinkDescriptionInput({
         autoFocus={true}
         containerStyles={{ width: '100%', marginBottom: 'auto' }}
         placeholderText={t('wallet.payLinks.descriptionPlaceholder')}
+        onBlurFunction={() => {
+          if (!description.trim() && !isButtonAction.current && !didCreatePaylink) {
+            onBack?.();
+          }
+          isButtonAction.current = false;
+        }}
       />
 
       <CustomButton
         enableElipsis={false}
         textContent={t('wallet.payLinks.genQRCode')}
-        actionFunction={() => onSkip?.(payLinkAmount.amount, description)}
+        actionFunction={() => {
+          isButtonAction.current = true;
+          onSkip?.(payLinkAmount.amount, description);
+        }}
       />
 
       <CustomButton
@@ -320,7 +330,10 @@ export default function PayLinkDescriptionInput({
         textStyles={{ color: textColor }}
         useLoading={isLoading}
         textContent={t('wallet.payLinks.createPayLink')}
-        actionFunction={handleCreatePayLink}
+        actionFunction={() => {
+          isButtonAction.current = true;
+          handleCreatePayLink();
+        }}
         disabled={isLoading || !isValid}
       />
     </View>
