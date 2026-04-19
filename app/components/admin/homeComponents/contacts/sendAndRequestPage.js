@@ -641,15 +641,16 @@ export default function SendAndRequestPage(props) {
 
         <View style={styles.identityBadge}>
           <TouchableOpacity
-            activeOpacity={0.7}
+            activeOpacity={selectedContact?.isLNURL ? 1 : 0.7}
             style={styles.splitPayContainer}
-            onPress={() =>
+            onPress={() => {
+              if (selectedContact?.isLNURL) return;
               navigate.navigate('AddFriendsToSplit', {
                 paymentType,
                 selectedContact,
                 paymentCurrency: isUSDMode ? 'USD' : 'BTC',
-              })
-            }
+              });
+            }}
           >
             <View
               style={[
@@ -665,9 +666,11 @@ export default function SendAndRequestPage(props) {
               />
             </View>
 
-            <View style={[styles.splitPayIcon]}>
-              <ThemeIcon size={25} iconName={'CirclePlus'} />
-            </View>
+            {!selectedContact?.isLNURL && (
+              <View style={[styles.splitPayIcon]}>
+                <ThemeIcon size={25} iconName={'CirclePlus'} />
+              </View>
+            )}
           </TouchableOpacity>
           <View style={styles.identityTextContainer}>
             <ThemeText
