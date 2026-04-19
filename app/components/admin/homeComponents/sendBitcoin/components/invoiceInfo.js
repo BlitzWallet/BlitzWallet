@@ -17,7 +17,11 @@ export default function InvoiceInfo({
   isSplitPayment,
   splitRecipients = [],
 }) {
-  const formmateedSparkPaymentInfo = formatSparkPaymentAddress(paymentInfo);
+  const formmateedSparkPaymentInfo = formatSparkPaymentAddress(
+    paymentInfo,
+    undefined,
+    true,
+  );
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
   const splitContacts = splitRecipients?.map(({ contact }) => contact);
