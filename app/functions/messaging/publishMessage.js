@@ -44,7 +44,11 @@ export async function publishMessage({
   }
 }
 
-export async function publishBulkMessages(messagePayloads) {
+export async function publishBulkMessages(
+  messagePayloads,
+  privateKey,
+  globalContactsInformation,
+) {
   try {
     crashlyticsLogReport('Beginning to publish bulk contact messages');
 
@@ -61,16 +65,30 @@ export async function publishBulkMessages(messagePayloads) {
     if (!success) return false;
 
     // Push notifications are best-effort after the atomic write
-    for (const p of messagePayloads) {
-      sendPushNotification({
-        selectedContactUsername: p.selectedContact.uniqueName,
-        myProfile: p.globalContactsInformation.myProfile,
-        data: p.data,
-        privateKey: p.privateKey,
-        retrivedContact: p.retrivedContact,
-        masterInfoObject: p.masterInfoObject,
-      });
-    }
+    const messages = (
+      await Promise.all(
+        messagePayloads.map(async p => {
+          const message = await sendPushNotification({
+            selectedContactUsername: p.selectedContact.uniqueName,
+            myProfile: p.globalContactsInformation.myProfile,
+            data: p.data,
+            privateKey: p.privateKey,
+            retrivedContact: p.retrivedContact,
+            masterInfoObject: p.masterInfoObject,
+            returnOnly: true,
+          });
+          return message || [];
+        }),
+      )
+    ).flat();
+
+    // fire and forget
+    await fetchBackend(
+      `bulkPushNoticications`,
+      { pushNotifications: messages },
+      privateKey,
+      globalContactsInformation.myProfile.uuid,
+    );
 
     return true;
   } catch (err) {
@@ -86,6 +104,7 @@ export async function sendPushNotification({
   privateKey,
   retrivedContact,
   masterInfoObject,
+  returnOnly = false,
 }) {
   try {
     crashlyticsLogReport('Sending push notification');
@@ -212,6 +231,11 @@ export async function sendPushNotification({
         message,
         decryptPubKey: retrivedContact.uuid,
       };
+    }
+    requestData.useNewNotifications = useNewNotifications;
+
+    if (returnOnly) {
+      return requestData;
     }
 
     const response = await fetchBackend(

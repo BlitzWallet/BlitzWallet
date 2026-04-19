@@ -2037,7 +2037,8 @@
         "quoteId": "Angebots-ID",
         "destinationAddress": "Zieladresse",
         "destinationAsset": "Ziel-Asset",
-        "destinationChain": "Ziel-Kette"
+        "destinationChain": "Ziel-Kette",
+        "transferIds": "Enthaltene Personen"
       },
       "viewAllTxPage": {
         "title": "Transaktionen",

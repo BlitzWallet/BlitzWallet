@@ -316,6 +316,7 @@ const styles = StyleSheet.create({
   budgetStatusLabel: {
     fontSize: SIZES.smedium,
     fontWeight: '500',
+    includeFontPadding: false,
   },
   progressBarTrack: {
     height: 6,

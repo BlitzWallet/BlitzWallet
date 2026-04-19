@@ -2038,7 +2038,8 @@
         "quoteId": "ID котировки",
         "destinationAddress": "Адрес назначения",
         "destinationAsset": "Актив назначения",
-        "destinationChain": "Сеть назначения"
+        "destinationChain": "Сеть назначения",
+        "transferIds": "Включённые участники"
       },
       "viewAllTxPage": {
         "title": "Транзакции",

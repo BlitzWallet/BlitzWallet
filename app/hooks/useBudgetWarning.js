@@ -7,7 +7,23 @@ import { NEAR_BUDGET_LIMIT, OVER_BUDGET_LIMIT } from '../constants';
 
 // accepting them as parameters (test file defines its own copy inline).
 export function computeBudgetWarning(budget, spentTotal) {
-  if (!budget || !budget.amount || budget.amount <= 0) {
+  try {
+    if (!budget || !budget.amount || budget.amount <= 0) {
+      return {
+        shouldWarn: false,
+        isOverBudget: false,
+        spentPercent: 0,
+        leftToSpend: 0,
+      };
+    }
+    const budgetAmount = budget.amount;
+    const spentPercent = spentTotal / budgetAmount;
+    const leftToSpend = Math.max(budgetAmount - spentTotal, 0);
+    const shouldWarn = spentPercent >= NEAR_BUDGET_LIMIT;
+    const isOverBudget = spentPercent >= OVER_BUDGET_LIMIT;
+    return { shouldWarn, isOverBudget, spentPercent, leftToSpend };
+  } catch (err) {
+    console.log('compute budget warning error', err);
     return {
       shouldWarn: false,
       isOverBudget: false,
@@ -15,12 +31,6 @@ export function computeBudgetWarning(budget, spentTotal) {
       leftToSpend: 0,
     };
   }
-  const budgetAmount = budget.amount;
-  const spentPercent = spentTotal / budgetAmount;
-  const leftToSpend = Math.max(budgetAmount - spentTotal, 0);
-  const shouldWarn = spentPercent >= NEAR_BUDGET_LIMIT;
-  const isOverBudget = spentPercent >= OVER_BUDGET_LIMIT;
-  return { shouldWarn, isOverBudget, spentPercent, leftToSpend };
 }
 
 export function useBudgetWarning(sendingAmount = 0) {
