@@ -2135,7 +2135,9 @@
           "warningTitle": "Funds on hold",
           "warningSubtitle": "Unclaimed funds can be reclaimed after {{numDays}} days.",
           "bulkButton": "Create {{count}} Gifts",
-          "maxQuantityHint": "Maximum of 20 gifts allowed."
+          "maxQuantityHint": "Maximum of 20 gifts allowed.",
+          "amountPageHeader": "Add an amount",
+          "amountPageDesc": "Enter the amount for each gift, and select its denomination."
         },
         "giftConfirmation": {
           "header": "Gift Created!",

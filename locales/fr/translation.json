@@ -2135,7 +2135,9 @@
           "warningTitle": "Fonds retenus",
           "warningSubtitle": "Les fonds non réclamés peuvent être récupérés après {{numDays}} jours.",
           "bulkButton": "Créer {{count}} cadeaux",
-          "maxQuantityHint": "Maximum de 20 cadeaux autorisés."
+          "maxQuantityHint": "Maximum de 20 cadeaux autorisés.",
+          "amountPageHeader": "Ajouter un montant",
+          "amountPageDesc": "Saisissez le montant de chaque cadeau et sélectionnez sa dénomination."
         },
         "giftConfirmation": {
           "header": "Cadeau créé !",

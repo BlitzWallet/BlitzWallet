@@ -119,7 +119,7 @@ export default function AnalyticsSpentPage() {
                   }}
                 >
                   <ThemeText
-                    content={'This month'}
+                    content={t('analytics.thisMonth')}
                     styles={styles.durationCard}
                   />
                 </View>

@@ -80,16 +80,17 @@ export default function CreateGift(props) {
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={t('screens.inAccount.giftPages.createGift.header')}
-        containerStyles={{ marginBottom: 0 }}
       />
-      <ThemeText
-        styles={styles.sectionTitle}
-        content={
-          determinePaymentMethod === 'BTC'
-            ? t('constants.bitcoin_upper')
-            : t('constants.dollars_upper')
-        }
-      />
+      <View style={{ width: INSET_WINDOW_WIDTH, ...CENTER }}>
+        <ThemeText
+          styles={styles.title}
+          content={t('screens.inAccount.giftPages.createGift.amountPageHeader')}
+        />
+        <ThemeText
+          styles={styles.subtitle}
+          content={t('screens.inAccount.giftPages.createGift.amountPageDesc')}
+        />
+      </View>
 
       <View style={styles.container}>
         <TouchableOpacity activeOpacity={1} onPress={handleDenominationToggle}>
@@ -166,6 +167,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
+  title: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    includeFontPadding: false,
+    marginTop: 28,
+    marginBottom: 8,
+  },
+  subtitle: {
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+
   buttonContainer: {
     width: 'auto',
     marginTop: CONTENT_KEYBOARD_OFFSET,

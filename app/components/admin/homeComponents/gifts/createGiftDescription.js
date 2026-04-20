@@ -48,7 +48,7 @@ export default function CreateGiftDescription(props) {
     >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
-        label={t('constants.description')}
+        label={t('screens.inAccount.giftPages.createGift.header')}
       />
       <ScrollView
         contentContainerStyle={styles.scroll}

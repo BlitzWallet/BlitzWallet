@@ -197,7 +197,9 @@ export default function AddFriendsToSplit(props) {
             opacity: HIDDEN_OPACITY,
             fontSize: SIZES.smedium,
           }}
-          content={`${selectedCount} of 10 selected`}
+          content={t(`contacts.splitBill.selectedCount`, {
+            count: selectedCount,
+          })}
         />
       </View>
 

@@ -2142,7 +2142,9 @@
           "warningTitle": "Средства заморожены",
           "warningSubtitle": "Невостребованные средства можно вернуть через {{numDays}} дней.",
           "bulkButton": "Создать {{count}} подарков",
-          "maxQuantityHint": "Максимум 20 подарков разрешено."
+          "maxQuantityHint": "Максимум 20 подарков разрешено.",
+          "amountPageHeader": "Добавить сумму",
+          "amountPageDesc": "Введите сумму для каждого подарка и выберите номинал."
         },
         "giftConfirmation": {
           "header": "Подарок создан!",
