@@ -931,7 +931,9 @@ export default function CreateGiftDuration(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('apps.VPN.durationSlider.duration')} />
+      <CustomSettingsTopBar
+        label={t('screens.inAccount.giftPages.createGift.header')}
+      />
       <View style={styles.container}>
         <ThemeText
           styles={styles.title}

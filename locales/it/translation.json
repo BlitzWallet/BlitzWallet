@@ -2135,7 +2135,9 @@
           "warningTitle": "Fondi in attesa",
           "warningSubtitle": "I fondi non riscattati possono essere recuperati dopo {{numDays}} giorni.",
           "bulkButton": "Crea {{count}} regali",
-          "maxQuantityHint": "Massimo 20 regali consentiti."
+          "maxQuantityHint": "Massimo 20 regali consentiti.",
+          "amountPageHeader": "Aggiungi un importo",
+          "amountPageDesc": "Inserisci l’importo per ogni regalo e seleziona la denominazione."
         },
         "giftConfirmation": {
           "header": "Regalo creato!",

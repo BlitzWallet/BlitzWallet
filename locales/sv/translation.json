@@ -2135,7 +2135,9 @@
           "warningTitle": "Tillgångar spärrade",
           "warningSubtitle": "Ej inlösta tillgångar kan återkrävas efter {{numDays}} dagar.",
           "bulkButton": "Skapa {{count}} presenter",
-          "maxQuantityHint": "Maximalt 20 presenter tillåtna."
+          "maxQuantityHint": "Maximalt 20 presenter tillåtna.",
+          "amountPageHeader": "Lägg till ett belopp",
+          "amountPageDesc": "Ange beloppet för varje gåva och välj dess valör."
         },
         "giftConfirmation": {
           "header": "Gåva skapad!",

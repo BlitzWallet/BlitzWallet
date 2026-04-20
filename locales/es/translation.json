@@ -2135,7 +2135,9 @@
           "warningTitle": "Fondos retenidos",
           "warningSubtitle": "Los fondos no reclamados pueden recuperarse después de {{numDays}} días.",
           "bulkButton": "Crear {{count}} regalos",
-          "maxQuantityHint": "Máximo de 20 regalos permitidos."
+          "maxQuantityHint": "Máximo de 20 regalos permitidos.",
+          "amountPageHeader": "Añadir un monto",
+          "amountPageDesc": "Introduce el monto de cada regalo y selecciona su denominación."
         },
         "giftConfirmation": {
           "header": "¡Regalo creado!",

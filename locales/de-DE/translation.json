@@ -2135,7 +2135,9 @@
           "warningTitle": "Guthaben gesperrt",
           "warningSubtitle": "Nicht eingelöste Beträge können nach {{numDays}} Tagen zurückgefordert werden.",
           "bulkButton": "{{count}} Geschenke erstellen",
-          "maxQuantityHint": "Maximal 20 Geschenke erlaubt."
+          "maxQuantityHint": "Maximal 20 Geschenke erlaubt.",
+          "amountPageHeader": "Betrag hinzufügen",
+          "amountPageDesc": "Geben Sie den Betrag für jedes Geschenk ein und wählen Sie die Denomination."
         },
         "giftConfirmation": {
           "header": "Geschenk erstellt!",
