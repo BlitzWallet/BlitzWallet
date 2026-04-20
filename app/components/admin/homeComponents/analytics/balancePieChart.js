@@ -11,14 +11,11 @@ import { COLORS, SIZES } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
-import { useSavings } from '../../../../../context-store/savingsContext';
-import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { ThemeText } from '../../../../functions/CustomElements/index';
 import GetThemeColors from '../../../../hooks/themeColors';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
-import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import { useTranslation } from 'react-i18next';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -28,37 +25,29 @@ const STROKE_WIDTH = 16;
 export default function BalancePieChart() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { bitcoinBalance, dollarBalanceSat } = useUserBalanceContext();
+  const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
+    useUserBalanceContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { savingsBalance } = useSavings();
-  const { poolInfo } = useFlashnet();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
-  const denomination = masterInfoObject?.userBalanceDenomination || 'sats';
-  const btcPrice = poolInfo?.currentPriceAInB;
-
-  const savingsToBtc = useMemo(() => {
-    if (!savingsBalance || !btcPrice) return 0;
-    return dollarsToSats(savingsBalance, btcPrice);
-  }, [savingsBalance, btcPrice, denomination]);
-
   const btcValue = bitcoinBalance;
-  const dollarValue = (dollarBalanceSat || 0) + (savingsToBtc || 0);
+  const dollarValue = dollarBalanceSat || 0;
+
+  const dollarValueuUSD = parseFloat(dollarBalanceToken) || 0;
 
   const total = btcValue + dollarValue;
   const isEmpty = total === 0;
 
   const btcPct = isEmpty ? 0 : Math.min((btcValue / total) * 100, 100);
 
-  const isSats = denomination === 'sats' || denomination === 'hidden';
   const centerText = useMemo(() => {
     return displayCorrectDenomination({
       amount: total,
       masterInfoObject,
       fiatStats,
     });
-  }, [isEmpty, isSats, total, masterInfoObject, fiatStats]);
+  }, [total, masterInfoObject, fiatStats]);
 
   // Ring geometry
   const radius = (SIZE - STROKE_WIDTH) / 2;
@@ -85,11 +74,16 @@ export default function BalancePieChart() {
   }));
 
   // Legend helpers
-  const formatLegendValue = value => {
+  const formatLegendValue = (value, key) => {
     return displayCorrectDenomination({
       amount: value,
-      masterInfoObject,
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: key === 'dollar' ? 'fiat' : 'sats',
+      },
       fiatStats,
+      convertAmount: key === 'btc',
+      forceCurrency: 'USD',
     });
   };
 
@@ -111,7 +105,7 @@ export default function BalancePieChart() {
           key: 'dollar',
           label: t('constants.dollars_upper'),
           color: theme && darkModeType ? COLORS.gray : COLORS.dollarGreen,
-          value: dollarValue,
+          value: dollarValueuUSD.toFixed(2),
           percent: dolPercent,
         },
       ].filter(Boolean);
@@ -194,7 +188,7 @@ export default function BalancePieChart() {
                 <ThemeText styles={styles.legendLabel} content={seg.label} />
                 <ThemeText
                   styles={styles.legendAmount}
-                  content={formatLegendValue(seg.value)}
+                  content={formatLegendValue(seg.value, seg.key)}
                   CustomNumberOfLines={1}
                   adjustsFontSizeToFit={true}
                 />

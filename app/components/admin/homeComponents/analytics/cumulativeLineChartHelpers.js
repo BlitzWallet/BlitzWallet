@@ -1,6 +1,8 @@
 // Inlines amount-extraction to stay free of native-SDK imports (Jest-safe).
-
-import { getSatsFromTx } from '../../../../functions/getSatsFromTx';
+import {
+  getDollarsFromTx,
+  getSatsFromTx,
+} from '../../../../functions/analytics';
 
 /**
  * Builds a cumulative daily total for the current month.
@@ -14,8 +16,10 @@ export function buildCumulativeData(
   today = new Date(),
   currentPrice = 0,
   direction,
+  isUSD,
 ) {
   const todayDay = today.getDate();
+  const satsFunction = isUSD ? getDollarsFromTx : getSatsFromTx;
 
   const byDay = {};
   for (const tx of txs) {
@@ -24,7 +28,7 @@ export function buildCumulativeData(
       const date = new Date(details.time);
       const day = date.getDate();
       byDay[day] =
-        (byDay[day] || 0) + getSatsFromTx(tx, currentPrice, direction);
+        (byDay[day] || 0) + satsFunction(tx, currentPrice, direction);
     } catch {
       // skip malformed tx
     }
@@ -39,7 +43,10 @@ export function buildCumulativeData(
       today.getMonth(),
       d,
     ).getTime();
-    result.push({ timestamp, value: running });
+    result.push({
+      timestamp,
+      value: isUSD ? parseFloat(running.toFixed(2)) : Math.round(running),
+    });
   }
   return result;
 }

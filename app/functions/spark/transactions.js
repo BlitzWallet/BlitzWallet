@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import { handleEventEmitterPost } from '../handleEventEmitters';
 import { openDatabaseAsync } from 'expo-sqlite';
+import { USDB_TOKEN_ID } from '../../constants';
 
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
@@ -255,7 +256,11 @@ export const getFilteredTransactions = async (filters, options = {}) => {
  * @param {'INCOMING'|'OUTGOING'|null} direction - filter by direction, or null for all
  * @returns {Promise<Object[]>}
  */
-export const getMonthlyTransactions = async (accountId, direction = null) => {
+export const getMonthlyTransactions = async (
+  accountId,
+  direction = null,
+  retriveUSDB,
+) => {
   try {
     await ensureSparkDatabaseReady();
     const now = new Date();
@@ -267,9 +272,20 @@ export const getMonthlyTransactions = async (accountId, direction = null) => {
     ).getTime();
     const params = [String(accountId), monthStart, monthEnd];
     let dirClause = '';
+    let typeClause = '';
+
     if (direction) {
       dirClause = `AND json_extract(details, '$.direction') = ?`;
       params.push(direction);
+    }
+    if (retriveUSDB) {
+      typeClause = `AND json_extract(details, '$.isLRC20Payment') = 1 AND json_extract(details, '$.LRC20Token') = '${USDB_TOKEN_ID}'`;
+    } else {
+      typeClause = `
+        AND (
+          json_extract(details, '$.isLRC20Payment') IS NULL
+          OR json_extract(details, '$.isLRC20Payment') = 0
+        )`;
     }
     const query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
       WHERE accountId = ?
@@ -277,6 +293,7 @@ export const getMonthlyTransactions = async (accountId, direction = null) => {
       AND json_extract(details, '$.time') >= ?
       AND json_extract(details, '$.time') < ?
       ${dirClause}
+      ${typeClause}
       ORDER BY json_extract(details, '$.time') DESC`;
     return await sqlLiteDB.getAllAsync(query, params);
   } catch (error) {

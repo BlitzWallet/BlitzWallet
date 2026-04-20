@@ -50,7 +50,7 @@ export default function AnalyticsBudgetPage() {
   const { bottomPadding } = useGlobalInsets();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { spentTotal, spentTxCount } = useAnalytics();
+  const { spentTotal, spentTxCountBTC, spentTxCountUSD } = useAnalytics();
   const { t } = useTranslation();
 
   const budget = masterInfoObject?.monthlyBudget;
@@ -225,7 +225,7 @@ export default function AnalyticsBudgetPage() {
                 <ThemeText
                   styles={styles.statsSubLabel}
                   content={t('analytics.numberOfTxs', {
-                    count: spentTxCount,
+                    count: spentTxCountUSD + spentTxCountBTC,
                   })}
                 />
               </View>
