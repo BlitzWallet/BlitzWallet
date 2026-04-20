@@ -381,40 +381,49 @@ export default function PoolDetailScreen(props) {
             </View>
           </View>
         ) : (
-          <View
-            {...containerProps}
-            style={[
-              styles.actionsRow,
-              shouldStack ? styles.containerStacked : styles.containerRow,
-            ]}
-          >
-            <CustomButton
-              buttonStyles={[
-                styles.actionButton,
-                shouldStack ? styles.buttonStacked : styles.buttonColumn,
-              ]}
-              enableElipsis={false}
-              {...getLabelProps(0)}
-              textContent={t('wallet.pools.contribute')}
-              actionFunction={handleContribute}
-            />
-            <CustomButton
-              buttonStyles={[
-                styles.actionButton,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.lightModeText
-                      : COLORS.primary,
-                },
-                shouldStack ? styles.buttonStacked : styles.buttonColumn,
-              ]}
-              {...getLabelProps(1)}
-              enableElipsis={false}
-              textStyles={{ color: COLORS.darkModeText }}
-              textContent={t('wallet.pools.share')}
-              actionFunction={handleShare}
-            />
+          <View style={styles.buttonsContainer}>
+            {isCreator && pool.currentAmount >= pool.goalAmount ? (
+              <CustomButton
+                textContent={t('wallet.pools.closePool')}
+                actionFunction={handleClosePool}
+              />
+            ) : (
+              <View
+                {...containerProps}
+                style={[
+                  styles.actionsRow,
+                  shouldStack ? styles.containerStacked : styles.containerRow,
+                ]}
+              >
+                <CustomButton
+                  buttonStyles={[
+                    styles.actionButton,
+                    shouldStack ? styles.buttonStacked : styles.buttonColumn,
+                  ]}
+                  enableElipsis={false}
+                  {...getLabelProps(0)}
+                  textContent={t('wallet.pools.contribute')}
+                  actionFunction={handleContribute}
+                />
+                <CustomButton
+                  buttonStyles={[
+                    styles.actionButton,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? COLORS.lightModeText
+                          : COLORS.primary,
+                    },
+                    shouldStack ? styles.buttonStacked : styles.buttonColumn,
+                  ]}
+                  {...getLabelProps(1)}
+                  enableElipsis={false}
+                  textStyles={{ color: COLORS.darkModeText }}
+                  textContent={t('wallet.pools.share')}
+                  actionFunction={handleShare}
+                />
+              </View>
+            )}
           </View>
         )}
 
@@ -537,9 +546,11 @@ const styles = StyleSheet.create({
   },
 
   // ── Actions ──
+  buttonsContainer: {
+    marginTop: 20,
+  },
   actionsRow: {
     gap: 10,
-    marginTop: 20,
     width: '100%',
   },
   containerRow: {
