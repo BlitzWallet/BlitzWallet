@@ -28,12 +28,12 @@ import {
 import sha256Hash from '../hash';
 import calculateProgressiveBracketFee from './calculateSupportFee';
 import {
+  calculateFlashnetAmountIn,
   dollarsToSats,
   executeSwap,
   getUserSwapHistory,
   payLightningWithToken,
   satsToDollars,
-  SEND_AMOUNT_INCREASE_BUFFER,
   USD_ASSET_ADDRESS,
 } from './flashnet';
 import {
@@ -377,17 +377,12 @@ export const sparkPaymenWrapper = async ({
       let usedUSDB = false;
       if (needsSwap) {
         if (usablePaymentMethod === 'USD') {
-          const amountInWithBuffer = Math.min(
-            (swapPaymentQuote.amountIn * SEND_AMOUNT_INCREASE_BUFFER) /
-              Math.pow(10, 6),
-            satsToDollars(
-              swapPaymentQuote.dollarBalanceSat,
-              poolInfoRef.currentPriceAInB,
-            ),
-          );
-          const formatted = Math.round(
-            amountInWithBuffer.toFixed(2) * Math.pow(10, 6),
-          );
+          const formatted = calculateFlashnetAmountIn({
+            baseAmountIn: swapPaymentQuote.amountIn,
+            isUsdAssetIn: true,
+            dollarBalanceSat: swapPaymentQuote.dollarBalanceSat,
+            currentPriceAInB: poolInfoRef.currentPriceAInB,
+          });
           executionResponse = await executeSwap(mnemonic, {
             poolId: swapPaymentQuote.poolId,
             assetInAddress: swapPaymentQuote.assetInAddress,
@@ -396,11 +391,11 @@ export const sparkPaymenWrapper = async ({
           });
           usedUSDB = true;
         } else {
-          const amountInWithBuffer = Math.min(
-            swapPaymentQuote.amountIn * SEND_AMOUNT_INCREASE_BUFFER,
-            swapPaymentQuote.bitcoinBalance,
-          );
-          const formatted = Math.round(amountInWithBuffer);
+          const formatted = calculateFlashnetAmountIn({
+            baseAmountIn: swapPaymentQuote.amountIn,
+            isUsdAssetIn: false,
+            maxBalance: swapPaymentQuote.bitcoinBalance,
+          });
           executionResponse = await executeSwap(mnemonic, {
             poolId: swapPaymentQuote.poolId,
             assetInAddress: swapPaymentQuote.assetInAddress,

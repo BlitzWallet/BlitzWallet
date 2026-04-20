@@ -19,6 +19,7 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
+  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
@@ -102,6 +103,7 @@ export default function AddFriendsToSplit(props) {
       const isSelected = selectedUuids.has(contact.uuid);
       const uniqueName = contact.uniqueName || '';
       const contactName = contact.name || t('contacts.splitBill.noName') || '';
+      if (!isSelectable) return null;
 
       return (
         <TouchableOpacity
@@ -173,10 +175,11 @@ export default function AddFriendsToSplit(props) {
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
-      useStandardWidth={true}
+      useStandardWidth={false}
     >
-      <CustomSettingsTopBar label={t('contacts.splitBill.addFriendsTitle')} />
-
+      <View style={styles.standardContainerWidth}>
+        <CustomSettingsTopBar label={t('contacts.splitBill.addFriendsTitle')} />
+      </View>
       {/* Selected avatars stack */}
       <View
         style={[
@@ -245,18 +248,21 @@ export default function AddFriendsToSplit(props) {
 }
 
 const styles = StyleSheet.create({
-  selectedSection: {
-    width: INSET_WINDOW_WIDTH,
+  standardContainerWidth: {
+    width: WINDOWWIDTH,
     ...CENTER,
+  },
+  selectedSection: {
+    width: '100%',
   },
 
   searchContainer: {
     marginTop: 8,
     marginBottom: 8,
-    width: INSET_WINDOW_WIDTH,
+    width: '85%',
   },
   listContent: {
-    width: INSET_WINDOW_WIDTH,
+    width: '85%',
     paddingBottom: 16,
     ...CENTER,
   },
@@ -289,7 +295,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   nextButton: {
-    width: INSET_WINDOW_WIDTH,
+    width: '85%',
     ...CENTER,
   },
   nextButtonText: {

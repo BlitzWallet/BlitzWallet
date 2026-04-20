@@ -39,23 +39,35 @@ import {
 import { decode } from 'bolt11';
 
 // ============================================
-// CONSTANTS
+// CONSTANTS & PURE UTILITIES
 // ============================================
+import {
+  BTC_ASSET_ADDRESS,
+  USD_ASSET_ADDRESS,
+  FLASHNET_POOL_IDENTITY_KEY,
+  DEFAULT_SLIPPAGE_BPS,
+  SEND_AMOUNT_INCREASE_BUFFER,
+  DEFAULT_MAX_SLIPPAGE_BPS,
+  INTEGRATOR_FEE,
+  INTEGRATOR_FEE_BPS,
+  satsToDollars,
+  dollarsToSats,
+  calculateFlashnetAmountIn,
+} from './swapAmountUtils';
 
-// Standard Bitcoin pubkey for pools (constant across Flashnet)
-export const BTC_ASSET_ADDRESS =
-  '020202020202020202020202020202020202020202020202020202020202020202';
-export const USD_ASSET_ADDRESS =
-  '3206c93b24a4d18ea19d0a9a213204af2c7e74a6d16c7535cc5d33eca4ad1eca';
-
-export const FLASHNET_POOL_IDENTITY_KEY =
-  '02894808873b896e21d29856a6d7bb346fb13c019739adb9bf0b6a8b7e28da53da';
-
-// Default slippage tolerance
-export const DEFAULT_SLIPPAGE_BPS = 100; // 1%
-export const SEND_AMOUNT_INCREASE_BUFFER = 1.01; // 1%
-export const DEFAULT_MAX_SLIPPAGE_BPS = 300; // 3% for lightning payments
-export const INTEGRATOR_FEE = 0.005; // .5%
+export {
+  BTC_ASSET_ADDRESS,
+  USD_ASSET_ADDRESS,
+  FLASHNET_POOL_IDENTITY_KEY,
+  DEFAULT_SLIPPAGE_BPS,
+  SEND_AMOUNT_INCREASE_BUFFER,
+  DEFAULT_MAX_SLIPPAGE_BPS,
+  INTEGRATOR_FEE,
+  INTEGRATOR_FEE_BPS,
+  satsToDollars,
+  dollarsToSats,
+  calculateFlashnetAmountIn,
+};
 
 // ============================================
 // HELPER FUNCTIONS
@@ -364,7 +376,7 @@ export const simulateSwap = async (
     assetInAddress,
     assetOutAddress,
     amountIn,
-    integratorFeeRateBps = 50,
+    integratorFeeRateBps = INTEGRATOR_FEE_BPS,
   },
 ) => {
   try {
@@ -432,7 +444,7 @@ export const executeSwap = async (
     amountIn,
     minAmountOut, // Optional - will be calculated if not provided
     maxSlippageBps = DEFAULT_SLIPPAGE_BPS,
-    integratorFeeRateBps = 50,
+    integratorFeeRateBps = INTEGRATOR_FEE_BPS,
   },
 ) => {
   try {
@@ -705,7 +717,7 @@ export const getLightningPaymentQuote = async (
   mnemonic,
   invoice,
   tokenAddress,
-  integratorFeeRateBps = 50,
+  integratorFeeRateBps = INTEGRATOR_FEE_BPS,
   maxSlippageBps = DEFAULT_MAX_SLIPPAGE_BPS,
 ) => {
   try {
@@ -780,7 +792,7 @@ export const payLightningWithToken = async (
     maxLightningFeeSats = null,
     rollbackOnFailure = true,
     useExistingBtcBalance = false,
-    integratorFeeRateBps = 50,
+    integratorFeeRateBps = INTEGRATOR_FEE_BPS,
   },
 ) => {
   try {
@@ -1385,64 +1397,6 @@ export const getCurrentPrice = async (mnemonic, poolId) => {
     };
   }
 };
-
-/**
- * Convert sats to dollars
- * @param {string|number|bigint} sats - Amount of satoshis (100,000,000)
- * @param {string|number|bigint} currentPriceAinB - Price of Bitcoin in dollars
- * @returns {number} Amount in dollars
- */
-export function satsToDollars(sats, currentPriceAinB) {
-  try {
-    const DOLLAR_DECIMALS = 1_000_000;
-
-    const numSats = typeof sats === 'bigint' ? Number(sats) : Number(sats || 0);
-    const numPrice =
-      typeof currentPriceAinB === 'bigint'
-        ? Number(currentPriceAinB)
-        : Number(currentPriceAinB || 0);
-
-    if (isNaN(numSats) || isNaN(numPrice) || numPrice === 0) {
-      return 0;
-    }
-
-    return (numSats * numPrice) / DOLLAR_DECIMALS;
-  } catch (error) {
-    console.error('Error in satsToDollars:', error, { sats, currentPriceAinB });
-    return 0;
-  }
-}
-
-/**
- * Convert dollars to sats
- * @param {string|number|bigint} dollars - Amount of dollars (1,000,000)
- * @param {string|number|bigint} currentPriceAinB - Price of Bitcoin in dollars
- * @returns {number} Amount in sats
- */
-export function dollarsToSats(dollars, currentPriceAinB) {
-  try {
-    const DOLLAR_DECIMALS = 1_000_000;
-
-    const numDollars =
-      typeof dollars === 'bigint' ? Number(dollars) : Number(dollars || 0);
-    const numPrice =
-      typeof currentPriceAinB === 'bigint'
-        ? Number(currentPriceAinB)
-        : Number(currentPriceAinB || 0);
-
-    if (isNaN(numDollars) || isNaN(numPrice) || numPrice === 0) {
-      return 0;
-    }
-
-    return (numDollars * DOLLAR_DECIMALS) / numPrice;
-  } catch (error) {
-    console.error('Error in dollarsToSats:', error, {
-      dollars,
-      currentPriceAinB,
-    });
-    return 0;
-  }
-}
 
 /**
  * Convert exchangeRate to fiat price

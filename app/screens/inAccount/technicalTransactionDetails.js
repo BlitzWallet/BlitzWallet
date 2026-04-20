@@ -164,8 +164,7 @@ export default function TechnicalTransactionDetails(props) {
           <>
             <ThemeText
               content={t(
-                'screens.inAccount.technicalTransactionDetails.amountBreakdown',
-                { defaultValue: 'Amount Breakdown' },
+                'screens.inAccount.technicalTransactionDetails.transferIds',
               )}
               styles={styles.headerText}
             />
@@ -182,15 +181,6 @@ export default function TechnicalTransactionDetails(props) {
                 // BTC: raw sats passed directly.
                 // USD: amountCents * 10_000 = micros (matches DB amount unit and
                 //      what FormattedSatText + formatTokensNumber expect for LRC20).
-                const rawAmount = isLRC20Payment
-                  ? (entry.amountCents ?? 0) * 10_000
-                  : entry.amountSats ?? 0;
-                const displayBalance = isLRC20Payment
-                  ? formatTokensNumber(
-                      rawAmount,
-                      selectedToken?.tokenMetadata?.decimals,
-                    )
-                  : rawAmount;
 
                 const isLast = index === successfulGroup.length - 1;
 
@@ -219,15 +209,14 @@ export default function TechnicalTransactionDetails(props) {
                           styles={styles.infoName}
                           CustomNumberOfLines={1}
                         />
+                        {!details.isLRC20Payment && (
+                          <ThemeText
+                            content={entry?.transferId}
+                            styles={styles.transferId}
+                            CustomNumberOfLines={1}
+                          />
+                        )}
                       </View>
-                      <FormattedSatText
-                        neverHideBalance={true}
-                        styles={styles.infoValue}
-                        balance={displayBalance}
-                        useCustomLabel={isLRC20Payment}
-                        customLabel={selectedToken?.tokenMetadata?.tokenTicker}
-                        useMillionDenomination={true}
-                      />
                     </View>
                     {!isLast && (
                       <View style={[styles.rowDivider, { backgroundColor }]} />
@@ -268,6 +257,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   infoName: {
+    includeFontPadding: false,
+    flexShrink: 1,
+  },
+  transferId: {
+    fontSize: SIZES.small,
+    opacity: HIDDEN_OPACITY,
     includeFontPadding: false,
     flexShrink: 1,
   },

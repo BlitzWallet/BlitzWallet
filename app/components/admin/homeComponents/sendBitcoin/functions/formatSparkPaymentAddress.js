@@ -1,6 +1,10 @@
-import {InputTypes} from 'bitcoin-address-parser';
+import { InputTypes } from 'bitcoin-address-parser';
 
-export default function formatSparkPaymentAddress(paymentInfo, isLRC20Payment) {
+export default function formatSparkPaymentAddress(
+  paymentInfo,
+  isLRC20Payment,
+  ispreview = false,
+) {
   let formmateedSparkPaymentInfo = {
     address: '',
     paymentType: '',
@@ -14,7 +18,9 @@ export default function formatSparkPaymentAddress(paymentInfo, isLRC20Payment) {
     formmateedSparkPaymentInfo.address = paymentInfo?.data?.address;
     formmateedSparkPaymentInfo.paymentType = isLRC20Payment ? 'lrc20' : 'spark';
   } else if (paymentInfo.type === InputTypes.LNURL_PAY) {
-    formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;
+    formmateedSparkPaymentInfo.address = ispreview
+      ? paymentInfo?.data?.address
+      : paymentInfo?.data?.invoice;
     formmateedSparkPaymentInfo.paymentType = 'lightning';
   } else if (paymentInfo.type === 'liquid') {
     formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;

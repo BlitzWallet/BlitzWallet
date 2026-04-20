@@ -20,7 +20,7 @@ export async function transformTxToPaymentObject(
   sparkAddress,
   forcePaymentType,
   isRestore,
-  unpaidLNInvoices,
+  unpaidLNInvoices = [],
   identityPubKey,
   numTxsBeingRestored = 1,
   forceOutgoing = false,

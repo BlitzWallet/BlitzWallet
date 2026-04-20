@@ -33,7 +33,9 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
+import { validateSplitPayment } from '../../../../functions/payments/validateSplitPayment';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import ContactProfileImage from './internalComponents/profileImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
@@ -49,7 +51,7 @@ export default function CreateSplitBill(props) {
   } = props.route.params || {};
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textInputBackground, textInputColor } =
+  const { backgroundOffset, textInputBackground, textInputColor, textColor } =
     GetThemeColors();
   const { globalContactsInformation } = useGlobalContacts();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -57,7 +59,9 @@ export default function CreateSplitBill(props) {
   const { cache } = useImageCache();
   const { fiatStats } = useNodeContext();
   const getServerTime = useServerTimeOnly();
-  const { poolInfoRef } = useFlashnet();
+  const { poolInfoRef, poolInfo, swapLimits, swapUSDPriceDollars } =
+    useFlashnet();
+  const { bitcoinBalance, dollarBalanceSat } = useUserBalanceContext();
 
   const [memo, setMemo] = useState('');
   const [totalSats, setTotalSats] = useState(0); //BTC
@@ -150,9 +154,50 @@ export default function CreateSplitBill(props) {
     [totalNative, n],
   );
 
+  const price = poolInfo?.currentPriceAInB ?? 0;
+
+  const totalAmountSats = useMemo(() => {
+    if (!isUSD) return totalNative;
+    if (price <= 0) return 0;
+    return Math.round(dollarsToSats(totalNative / 100, price));
+  }, [isUSD, totalNative, price]);
+
+  const {
+    canPayBTC,
+    canPayUSD,
+    errorMessage: balanceErrorMessage,
+  } = useMemo(() => {
+    if (paymentType !== 'send' || totalAmountSats <= 0) {
+      return { canPayBTC: true, canPayUSD: true, errorMessage: null };
+    }
+    return validateSplitPayment({
+      totalSats: totalAmountSats,
+      paymentCurrency,
+      bitcoinBalance,
+      dollarBalanceSat,
+      swapLimits,
+      price,
+      masterInfoObject,
+      swapUSDPriceDollars,
+      t,
+    });
+  }, [
+    paymentType,
+    totalAmountSats,
+    paymentCurrency,
+    bitcoinBalance,
+    dollarBalanceSat,
+    swapLimits,
+    price,
+    masterInfoObject,
+    swapUSDPriceDollars,
+    t,
+  ]);
+
   const canConfirm = useMemo(() => {
     if (totalNative <= 0) return false;
     if (!memo.trim()) return false;
+    if (paymentType === 'send' && !canPayBTC && !canPayUSD) return false;
     if (splitMode === 'even') return perPersonNative > 0;
     // custom: every contact must have a valid positive integer and sum must equal total
     const allSet = selectedContacts.every(c => {
@@ -168,30 +213,49 @@ export default function CreateSplitBill(props) {
     selectedContacts,
     customAmounts,
     customTotal,
+    paymentType,
+    canPayBTC,
+    canPayUSD,
   ]);
 
   const buildRecipients = useCallback(() => {
     return selectedContacts.map((contact, index) => {
+      const isLast = index === selectedContacts.length - 1;
+
       if (isUSD) {
-        const amountCents =
-          splitMode === 'even'
-            ? perPersonNative
-            : typeof customAmounts[contact.uuid] === 'number'
-            ? customAmounts[contact.uuid]
-            : parseInt(customAmounts[contact.uuid] || '0', 10);
+        let amountCents;
+        if (splitMode === 'even') {
+          amountCents = isLast
+            ? totalNative - perPersonNative * (selectedContacts.length - 1)
+            : perPersonNative;
+        } else {
+          amountCents = parseInt(customAmounts[contact.uuid] || '0', 10);
+        }
         const amountSat = dollarsToSats(
           amountCents / 100,
           poolInfoRef.currentPriceAInB,
         );
         return { contact, amountSats: amountSat, amountCents, currency: 'USD' };
       }
-      const amountSats =
-        splitMode === 'even'
-          ? perPersonNative
-          : parseInt(customAmounts[contact.uuid] || '0', 10);
+
+      let amountSats;
+      if (splitMode === 'even') {
+        amountSats = isLast
+          ? totalNative - perPersonNative * (selectedContacts.length - 1)
+          : perPersonNative;
+      } else {
+        amountSats = parseInt(customAmounts[contact.uuid] || '0', 10);
+      }
       return { contact, amountSats, amountCents: null, currency: 'BTC' };
     });
-  }, [selectedContacts, splitMode, perPersonNative, customAmounts, isUSD]);
+  }, [
+    selectedContacts,
+    isUSD,
+    splitMode,
+    perPersonNative,
+    totalNative,
+    customAmounts,
+  ]);
 
   const handleConfirm = useCallback(async () => {
     if (totalNative <= 0) {
@@ -208,7 +272,7 @@ export default function CreateSplitBill(props) {
       });
       return;
     }
-    if (splitMode === 'custom' && !canConfirm) {
+    if ((splitMode === 'custom' && !canConfirm) || perPersonNative <= 0) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('contacts.splitBill.errors.noAmount', {
           context: 'custom',
@@ -216,7 +280,7 @@ export default function CreateSplitBill(props) {
       });
       return;
     }
-    if (!canConfirm || isLoading) return;
+    if (isLoading) return;
 
     const recipients = buildRecipients();
 
@@ -257,6 +321,11 @@ export default function CreateSplitBill(props) {
         setIsLoading(false);
       }
     } else {
+      if (balanceErrorMessage) {
+        navigate.navigate('ErrorScreen', { errorMessage: balanceErrorMessage });
+        return;
+      }
+
       const docIds = recipients.map(r => r.contact.uuid);
       const users = await getDocsByIds('blitzWalletUsers', docIds);
 
@@ -294,7 +363,6 @@ export default function CreateSplitBill(props) {
       );
     }
   }, [
-    canConfirm,
     isLoading,
     buildRecipients,
     paymentType,
@@ -306,7 +374,11 @@ export default function CreateSplitBill(props) {
     navigate,
     t,
     totalSatsInt,
+    totalCentsInt,
     splitMode,
+    canConfirm,
+    balanceErrorMessage,
+    perPersonNative,
   ]);
 
   const contactElements = useMemo(() => {
@@ -322,7 +394,12 @@ export default function CreateSplitBill(props) {
 
       const amountChip = isUSD ? (
         <ThemeText
-          styles={styles.amountChip}
+          styles={[
+            styles.amountChip,
+            {
+              color: splitMode === 'custom' ? textInputColor : textColor,
+            },
+          ]}
           content={
             contactAmount > 0 ? `$${(contactAmount / 100).toFixed(2)}` : '$0.00'
           }
@@ -330,7 +407,10 @@ export default function CreateSplitBill(props) {
       ) : (
         <FormattedSatText
           autoAdjustFontSize
-          styles={styles.amountChip}
+          styles={{
+            ...styles.amountChip,
+            color: splitMode === 'custom' ? textInputColor : textColor,
+          }}
           balance={contactAmount}
         />
       );
@@ -341,6 +421,8 @@ export default function CreateSplitBill(props) {
             <ContactProfileImage
               uri={cache[contact.uuid]?.localUri}
               updated={cache[contact.uuid]?.updated}
+              theme={theme}
+              darkModeType={darkModeType}
             />
           </View>
           <View style={{ flex: 1 }}>
@@ -389,6 +471,8 @@ export default function CreateSplitBill(props) {
     isUSD,
     textInputBackground,
     t,
+    textColor,
+    textInputColor,
   ]);
 
   return (

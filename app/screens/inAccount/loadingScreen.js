@@ -123,6 +123,9 @@ export default function ConnectingToNodeLoadingScreen({
           crashlyticsLogReport('Loaded users settings from firebase');
         }
 
+        // causes error in firebase let acync wait
+        //https://github.com/firebase/firebase-ios-sdk/issues/15974#issuecomment-4155423268
+        //https://github.com/firebase/firebase-ios-sdk/pull/15991
         toggleContactsPrivateKey(privateKey);
         console.log(balanceSnapshot, placeholderTxs, 'balance and tx snapshot');
 

@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
+  CONTENT_KEYBOARD_OFFSET,
   HIDE_IN_APP_PURCHASE_ITEMS,
   ICONS,
   SIZES,
@@ -265,11 +266,14 @@ export default function HalfModalSendOptions({
   isScreenActive,
 }) {
   const [inputText, setInputText] = useState('');
+  const [isInputMode, setIsInputMode] = useState(false);
+  const [inputError, setInputError] = useState('');
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAddContact, setShowAddContact] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({}); // { [uuid]: y }
+  const textInputRef = useRef(null);
   const scrollOffsetRef = useRef(0);
   const scrollViewHeightRef = useRef(0);
   const previousExpandedRef = useRef(null);
@@ -289,6 +293,7 @@ export default function HalfModalSendOptions({
 
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
+  const inputModeProgress = useSharedValue(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -307,10 +312,34 @@ export default function HalfModalSendOptions({
     }
   }, [showAddContact]);
 
+  useEffect(() => {
+    inputModeProgress.value = withTiming(isInputMode ? 1 : 0, {
+      duration: 220,
+    });
+  }, [isInputMode]);
+
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
     transform: [{ translateX: contentTranslateX.value }],
   }));
+
+  const belowInputStyle = useAnimatedStyle(() => ({
+    opacity: 1 - inputModeProgress.value,
+  }));
+
+  const continueButtonStyle = useAnimatedStyle(() => ({
+    opacity: inputModeProgress.value,
+  }));
+
+  const blurKeyboard = () => {
+    try {
+      if (textInputRef.current && textInputRef?.current.isFocused()) {
+        textInputRef.current.blur();
+      }
+    } catch (Err) {
+      console.log(Err);
+    }
+  };
 
   const handleManualInputSubmit = useCallback(async () => {
     if (!inputText.trim()) return;
@@ -346,10 +375,7 @@ export default function HalfModalSendOptions({
       });
 
       if (!didWork) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: error,
-          useTranslationString: true,
-        });
+        setInputError(t(error));
         return;
       }
 
@@ -377,7 +403,7 @@ export default function HalfModalSendOptions({
 
     const parsed = handlePreSendPageParsing(input);
     if (parsed.error) {
-      navigate.navigate('ErrorScreen', { errorMessage: parsed.error });
+      setInputError(parsed.error);
       return;
     }
     if (parsed.navigateToWebView) {
@@ -410,8 +436,11 @@ export default function HalfModalSendOptions({
   const handleClipboardPaste = useCallback(async () => {
     const response = await getClipboardText();
     if (!response.didWork) {
-      navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
+      setInputError(t(response.reason));
       return;
+    }
+    if (textInputRef.current && !textInputRef.current?.isFocused?.()) {
+      textInputRef.current?.focus();
     }
     setInputText(response.data);
   }, [navigate, t]);
@@ -618,6 +647,7 @@ export default function HalfModalSendOptions({
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          scrollEnabled={!isInputMode}
           contentContainerStyle={{
             ...styles.innerContainer,
             paddingBottom: bottomPadding,
@@ -639,12 +669,21 @@ export default function HalfModalSendOptions({
             ]}
           >
             <CustomSearchInput
+              textInputRef={textInputRef}
               placeholderText={t('wallet.halfModal.inputPlaceholder')}
               textInputMultiline={true}
               inputText={inputText}
               setInputText={setInputText}
-              onBlurFunction={() => setIsKeyboardActive(false)}
-              onFocusFunction={() => setIsKeyboardActive(true)}
+              onBlurFunction={() => {
+                setIsKeyboardActive(false);
+                setInputError('');
+                setInputText('');
+                setIsInputMode(false);
+              }}
+              onFocusFunction={() => {
+                setIsKeyboardActive(true);
+                setIsInputMode(true);
+              }}
               textInputStyles={{ paddingRight: 40 }}
               containerStyles={{ maxHeight: 100 }}
               returnKeyType="go"
@@ -652,7 +691,7 @@ export default function HalfModalSendOptions({
             />
             {inputText.trim() ? (
               <TouchableOpacity
-                onPress={handleManualInputSubmit}
+                onPress={() => setInputText('')}
                 style={styles.clipboardButton}
               >
                 <ThemeIcon
@@ -662,7 +701,7 @@ export default function HalfModalSendOptions({
                       : COLORS.primary
                   }
                   size={20}
-                  iconName={'ArrowRight'}
+                  iconName={'X'}
                 />
               </TouchableOpacity>
             ) : (
@@ -683,122 +722,159 @@ export default function HalfModalSendOptions({
             )}
           </View>
 
-          {/* Scan QR Code Button */}
-          <TouchableOpacity
-            style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={handleCameraScan}
+          <Animated.View
+            style={belowInputStyle}
+            pointerEvents={isInputMode ? 'none' : 'auto'}
           >
+            {/* Scan QR Code Button */}
+            <TouchableOpacity
+              style={[styles.scanButton, { marginBottom: 0 }]}
+              onPress={handleCameraScan}
+            >
+              <View
+                style={[
+                  styles.scanIconContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                  },
+                ]}
+              >
+                <ThemeIcon
+                  colorOverride={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
+                  size={24}
+                  iconName={'ScanQrCode'}
+                />
+              </View>
+              <View style={styles.scanTextContainer}>
+                <ThemeText
+                  styles={styles.scanButtonText}
+                  content={t('wallet.halfModal.scanQrCode')}
+                />
+                <ThemeText
+                  styles={styles.scanButtonSubtext}
+                  content={t('wallet.halfModal.tapToScanQr')}
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Scan Image Button */}
+            <TouchableOpacity
+              style={styles.scanButton}
+              onPress={handleImageScan}
+            >
+              <View
+                style={[
+                  styles.scanIconContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                  },
+                ]}
+              >
+                <ThemeIcon
+                  colorOverride={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
+                  size={24}
+                  iconName={'Image'}
+                />
+              </View>
+              <View style={styles.scanTextContainer}>
+                <ThemeText
+                  styles={styles.scanButtonText}
+                  content={t('wallet.halfModal.images')}
+                />
+                <ThemeText
+                  styles={styles.scanButtonSubtext}
+                  content={t('wallet.halfModal.tapToScan')}
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Divider */}
             <View
               style={[
-                styles.scanIconContainer,
+                styles.divider,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                  borderColor:
+                    theme && darkModeType
+                      ? 'rgba(255, 255, 255, 0.1)'
+                      : 'rgba(0, 0, 0, 0.05)',
                 },
               ]}
-            >
-              <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                }
-                size={24}
-                iconName={'ScanQrCode'}
-              />
-            </View>
-            <View style={styles.scanTextContainer}>
-              <ThemeText
-                styles={styles.scanButtonText}
-                content={t('wallet.halfModal.scanQrCode')}
-              />
-              <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.tapToScanQr')}
-              />
-            </View>
-          </TouchableOpacity>
-
-          {/* Scan Image Button */}
-          <TouchableOpacity style={styles.scanButton} onPress={handleImageScan}>
-            <View
-              style={[
-                styles.scanIconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                },
-              ]}
-            >
-              <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                }
-                size={24}
-                iconName={'Image'}
-              />
-            </View>
-            <View style={styles.scanTextContainer}>
-              <ThemeText
-                styles={styles.scanButtonText}
-                content={t('wallet.halfModal.images')}
-              />
-              <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.tapToScan')}
-              />
-            </View>
-          </TouchableOpacity>
-
-          {/* Divider */}
-          <View
-            style={[
-              styles.divider,
-              {
-                borderColor:
-                  theme && darkModeType
-                    ? 'rgba(255, 255, 255, 0.1)'
-                    : 'rgba(0, 0, 0, 0.05)',
-              },
-            ]}
-          />
-
-          <View
-            style={[
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-              },
-            ]}
-          >
-            <ThemeText
-              styles={styles.sectionHeader}
-              content={t('wallet.halfModal.addressBook', {
-                context: 'send',
-              })}
             />
-          </View>
 
-          {/* Address Book Section */}
-          {decodedAddedContacts.length > 0 ? (
-            contactElements
-          ) : (
-            <View style={styles.emptyContactsContainer}>
-              <ThemeIcon iconName={'UsersRound'} />
+            <View
+              style={[
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                },
+              ]}
+            >
               <ThemeText
-                styles={styles.emptyTitle}
-                content={t('wallet.halfModal.noAddedContactsTitle')}
-              />
-              <ThemeText
-                styles={styles.emptySubtext}
-                content={t('wallet.halfModal.noAddedContactsDesc')}
-              />
-              <CustomButton
-                buttonStyles={{ width: '100%' }}
-                textContent={t('contacts.editMyProfilePage.addContactBTN')}
-                actionFunction={() => setShowAddContact(true)}
+                styles={styles.sectionHeader}
+                content={t('wallet.halfModal.addressBook', {
+                  context: 'send',
+                })}
               />
             </View>
-          )}
+
+            {/* Address Book Section */}
+            {decodedAddedContacts.length > 0 ? (
+              contactElements
+            ) : (
+              <View style={styles.emptyContactsContainer}>
+                <ThemeIcon iconName={'UsersRound'} />
+                <ThemeText
+                  styles={styles.emptyTitle}
+                  content={t('wallet.halfModal.noAddedContactsTitle')}
+                />
+                <ThemeText
+                  styles={styles.emptySubtext}
+                  content={t('wallet.halfModal.noAddedContactsDesc')}
+                />
+                <CustomButton
+                  buttonStyles={{ width: '100%' }}
+                  textContent={t('contacts.editMyProfilePage.addContactBTN')}
+                  actionFunction={() => setShowAddContact(true)}
+                />
+              </View>
+            )}
+          </Animated.View>
         </ScrollView>
+
+        {isInputMode && (
+          <Animated.View
+            style={[styles.continueButtonWrapper, continueButtonStyle]}
+            pointerEvents={isInputMode ? 'auto' : 'none'}
+          >
+            {!!inputError && (
+              <View style={styles.inputErrorContainer}>
+                <ThemeIcon size={20} iconName={'TriangleAlert'} />
+                <ThemeText styles={styles.inputError} content={inputError} />
+              </View>
+            )}
+
+            <CustomButton
+              textContent={
+                inputText?.trim()
+                  ? t('constants.continue')
+                  : t('constants.back')
+              }
+              actionFunction={
+                inputText?.trim() ? handleManualInputSubmit : blurKeyboard
+              }
+            />
+          </Animated.View>
+        )}
       </Animated.View>
 
       <AddContactOverlay
@@ -887,7 +963,24 @@ const styles = StyleSheet.create({
     fontSize: SIZES.small,
     opacity: 0.6,
   },
-
+  inputErrorContainer: {
+    width: INSET_WINDOW_WIDTH,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    ...CENTER,
+  },
+  inputError: {
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
+  },
+  continueButtonWrapper: {
+    width: INSET_WINDOW_WIDTH,
+    alignSelf: 'center',
+    paddingTop: 12,
+  },
   divider: {
     width: '100%',
     height: 1,

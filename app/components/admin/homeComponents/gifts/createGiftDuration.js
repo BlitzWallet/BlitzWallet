@@ -57,6 +57,7 @@ import { useTranslation } from 'react-i18next';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import {
   BTC_ASSET_ADDRESS,
+  calculateFlashnetAmountIn,
   dollarsToSats,
   executeSwap,
   getUserSwapHistory,
@@ -678,24 +679,25 @@ export default function CreateGiftDuration(props) {
         // and the amountOut guard below will catch it with a clean error.
         const totalAmountIn =
           determinePaymentMethod === 'BTC'
-            ? Math.min(
-                Math.round(
+            ? calculateFlashnetAmountIn({
+                // base = target output + explicit pool fee; buffer adds the integrator margin
+                baseAmountIn:
                   totalSatAmount +
+                  Math.round(
                     dollarsToSats(
                       Number(simulation.feePaidAssetIn) / Math.pow(10, 6),
-                    ) +
-                    totalSatAmount * (INTEGRATOR_FEE + 0.005),
-                ),
-                bitcoinBalance,
-              )
-            : Math.min(
-                Math.round(
-                  totalFiatAmount +
-                    Number(simulation.feePaidAssetIn) +
-                    totalFiatAmount * 0.005,
-                ),
-                dollarBalanceToken * Math.pow(10, 6),
-              );
+                    ),
+                  ),
+                isUsdAssetIn: false,
+                maxBalance: bitcoinBalance,
+              })
+            : calculateFlashnetAmountIn({
+                // base = target output + explicit pool fee in microdollars
+                baseAmountIn:
+                  totalFiatAmount + Number(simulation.feePaidAssetIn),
+                isUsdAssetIn: true,
+                maxBalance: dollarBalanceToken * Math.pow(10, 6),
+              });
 
         const executionResponse = await executeSwap(currentWalletMnemoinc, {
           poolId: poolInfoRef.lpPublicKey,
