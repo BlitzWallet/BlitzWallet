@@ -331,7 +331,7 @@ export default function HomeLightning({ navigation }) {
         userBalanceDenomination,
         // numberOfCachedTxs,
         didGetToHomepage,
-        enabledLRC20,
+        enabledLRC20: showTokensInformation,
         scrollPosition,
         poolInfoRef,
         t,
@@ -348,7 +348,7 @@ export default function HomeLightning({ navigation }) {
     theme,
     darkModeType,
     t,
-    enabledLRC20,
+    showTokensInformation,
     scrollPosition,
   ]);
 
