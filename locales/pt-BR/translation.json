@@ -1327,13 +1327,13 @@
       "scanProfile": "Ler perfil"
     },
     "splitBill": {
-      "addFriendsTitle": "Adicionar amigos para dividir",
+      "addFriendsTitle": "Adicionar amigos",
       "createBillTitle": "Criar conta dividida",
       "selectedCount": "{{count}} de 10 selecionados",
       "searchPlaceholder": "Buscar contatos",
       "nextButton": "Próximo",
       "memoLabel": "Descrição",
-      "memoPlaceholder": "Para que é isso?",
+      "memoPlaceholder": "Adicione uma descrição",
       "totalAmountLabel": "Valor total",
       "evenSplit": "Igual",
       "customSplit": "Personalizado",
