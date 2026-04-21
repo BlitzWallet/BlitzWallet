@@ -2671,14 +2671,14 @@
       "transparencyBody": "As reservas são mantidas em contas segregadas e auditadas — principalmente títulos do Tesouro dos EUA de curto prazo e fundos do mercado monetário. A Flashnet publica relatórios de atestação mensais.",
       "disclaimer": "As taxas são variáveis e sujeitas a alterações. Não é um depósito bancário. Acesse flashnet.xyz para ver as divulgações completas."
     },
-    "withdrawal": "Resgate",
-    "withdrawalWithGoal": "Resgate de {{goalName}}",
-    "deposit": "Depósito",
-    "depositWithGoal": "Depósito para {{goalName}}",
+    "withdrawal": "Resgate Caixinhas",
+    "withdrawalWithGoal": "Resgate {{goalName}}",
+    "deposit": "Depósito Caixinhas",
+    "depositWithGoal": "Depósito {{goalName}}",
     "swapSimulationError": "Simulação de troca não disponível",
     "savingsWalletError": "Conta da Caixinha não está pronta",
-    "rewardsPayout": "Pagamento de recompensas",
-    "rewardsWithdrawal": "Resgate de recompensas",
+    "rewardsPayout": "Pagamento recompensas",
+    "rewardsWithdrawal": "Resgate recompensas",
     "total_balance": "Saldo total Caixinhas"
   },
   "analytics": {
