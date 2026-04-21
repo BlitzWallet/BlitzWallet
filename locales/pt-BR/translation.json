@@ -2306,7 +2306,7 @@
       "info": {
         "title": "Para que serve?",
         "whatAre": "Para que serve?",
-        "whatAreBody": "Você recebe endereços únicos de USDC ou USDT em que os valores recebidos são automaticamente convertidos em bitcoin ou dólares e enviados para sua carteira.",
+        "whatAreBody": "Você recebe endereços únicos de USDC ou USDT em que os valores recebidos neles são automaticamente convertidos em bitcoin ou dólares e enviados para sua carteira.",
         "howItWorks": "Como funciona",
         "step1": "1. Compartilhe seu endereço de depósito com um remetente ou corretora.",
         "step2": "2. Os fundos recebidos são automaticamente convertidos.",
