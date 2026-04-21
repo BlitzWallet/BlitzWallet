@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { InputTypes } from 'bitcoin-address-parser';
 
 import {
+  MIN_USD_BTC_LIGHTNING_SWAP,
   SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
   USDB_TOKEN_ID,
 } from '../../../../../constants';
@@ -122,6 +123,14 @@ export default function usePaymentValidation({
         result.errors.push('ZERO_AMOUNT_INVOICE_SWAP_ERROR');
         return result;
       }
+
+      if (
+        finalPaymentMethod === 'USD' &&
+        convertedSendAmount < MIN_USD_BTC_LIGHTNING_SWAP
+      ) {
+        result.errors.push('BELOW_USD_BTC_LN_MINIMUM');
+        return result;
+      }
     }
 
     if (isBitcoinPayment) {
@@ -131,25 +140,21 @@ export default function usePaymentValidation({
         return result;
       }
 
-      if (
-        dollarBalanceSat + bitcoinBalance > totalCost &&
-        dollarBalanceSat >= totalCost &&
-        bitcoinBalance < totalCost
-      ) {
+      if (finalPaymentMethod === 'USD') {
         result.errors.push('NO_SWAP_FOR_BITCOIN_PAYMENTS');
         return result;
       }
 
-      if (
-        dollarBalanceSat + bitcoinBalance > totalCost &&
-        bitcoinBalance < totalCost
-      ) {
-        result.errors.push('BALANCE_FRAGMENTATION');
-        return result;
-      }
+      // if (
+      //   dollarBalanceSat + bitcoinBalance > totalCost &&
+      //   bitcoinBalance < totalCost
+      // ) {
+      //   result.errors.push('BALANCE_FRAGMENTATION');
+      //   return result;
+      // }
 
       // Check if user has sufficient BTC balance
-      if (bitcoinBalance < totalCost) {
+      if (bitcoinBalance < convertedSendAmount) {
         result.errors.push('INSUFFICIENT_BALANCE');
         return result;
       }
@@ -305,6 +310,22 @@ export default function usePaymentValidation({
             forceCurrency: primaryDisplay.forceCurrency,
           }),
           balance: bitcoinBalance,
+        },
+      ),
+      BELOW_USD_BTC_LN_MINIMUM: t(
+        'wallet.sendPages.acceptButton.swapMinimumError',
+        {
+          amount: displayCorrectDenomination({
+            amount: MIN_USD_BTC_LIGHTNING_SWAP,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: inputDenomination,
+            },
+            fiatStats: conversionFiatStats,
+            forceCurrency: primaryDisplay.forceCurrency,
+          }),
+          currency1: t('constants.dollars_upper'),
+          currency2: t('constants.bitcoin_upper'),
         },
       ),
       BELOW_BITCOIN_MINIMUM: t('wallet.sendPages.acceptButton.onchainError', {
