@@ -464,11 +464,12 @@ export default function HalfModalSendOptions({
 
   const handleClipboardPaste = useCallback(async () => {
     const response = await getClipboardText();
+    const isFocused = textInputRef?.current?.isFocused?.();
     if (!response.didWork) {
-      setInputError(t(response.reason));
+      if (isFocused) setInputError(t(response.reason));
       return;
     }
-    if (textInputRef.current && !textInputRef.current?.isFocused?.()) {
+    if (textInputRef.current && !isFocused) {
       textInputRef.current?.focus();
     }
     setInputText(response.data);
