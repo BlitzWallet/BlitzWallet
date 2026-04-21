@@ -146,7 +146,7 @@ export default function SendPaymentScreen(props) {
   const rateAtConfirmEntryRef = useRef(null);
 
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
-  const [isDecoding, setIsDecoding] = useState(false);
+  const [isDecoding, setIsDecoding] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState({});
   const [lnFeeEstimate, setLnFeeEstimate] = useState(
     enteredPaymentInfo?.lnFeeEstimate ?? null,
@@ -582,7 +582,9 @@ export default function SendPaymentScreen(props) {
     if (
       uiState === 'CONFIRM_PAYMENT' &&
       shouldWarn &&
-      !didWarnAboutBudget.current
+      !didWarnAboutBudget.current &&
+      !isSendingPayment.current &&
+      !isDecoding
     ) {
       didWarnAboutBudget.current = true;
       navigate.navigate('CustomHalfModal', {
@@ -591,7 +593,7 @@ export default function SendPaymentScreen(props) {
         sendingAmount: convertedSendAmount,
       });
     }
-  }, [uiState, shouldWarn, convertedSendAmount]);
+  }, [uiState, shouldWarn, convertedSendAmount, isDecoding]);
 
   useEffect(() => {
     if (

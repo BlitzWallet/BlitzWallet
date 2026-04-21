@@ -62,6 +62,7 @@ import {
 import { validateSplitPayment } from '../../../../functions/payments/validateSplitPayment';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 
 export default function ConfirmSplitPayment(props) {
   const navigate = useNavigation();
@@ -97,6 +98,7 @@ export default function ConfirmSplitPayment(props) {
   const [sendingMethod, setSendingMethod] = useState(null); // 'BTC' | 'USD'
   const [methodConfirmed, setMethodConfirmed] = useState(false);
   const [paymentFee, setPaymentFee] = useState(0);
+  const didWarnAboutBudget = useRef(false);
   const [swapPaymentQuote, setSwapPaymentQuote] = useState({});
   const [rateChangeDetected, setRateChangeDetected] = useState(false);
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
@@ -146,6 +148,8 @@ export default function ConfirmSplitPayment(props) {
   });
 
   const displayAmount = convertSatsToDisplay(totalSplitSats);
+
+  const { shouldWarn } = useBudgetWarning(totalSplitSats);
 
   const handleDenominationToggle = () => {
     // For fixed amounts, just change the display denomination
@@ -405,6 +409,22 @@ export default function ConfirmSplitPayment(props) {
       setRateChangeDetected(false);
     }
   }, [uiState, swapUSDPriceDollars, canSendPayment, needsSwap]);
+
+  useEffect(() => {
+    if (
+      uiState === 'CONFIRM_PAYMENT' &&
+      shouldWarn &&
+      !didWarnAboutBudget.current &&
+      !isSendingPayment.current
+    ) {
+      didWarnAboutBudget.current = true;
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'nearBudgetLimitWarning',
+        sliderHight: 0.6,
+        sendingAmount: totalSplitSats,
+      });
+    }
+  }, [uiState, shouldWarn, totalSplitSats]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
