@@ -93,7 +93,7 @@ export function calculateFlashnetAmountIn({
         ? satsToDollars(dollarBalanceSat, currentPriceAInB)
         : maxBalance / Math.pow(10, 6);
     const cappedDollars = Math.min(bufferedDollars, balanceDollars);
-    return Math.round(parseFloat(cappedDollars.toFixed(2)) * Math.pow(10, 6));
+    return Math.round(parseFloat(cappedDollars) * Math.pow(10, 6));
   }
   // BTC path: stay in sats
   return Math.round(Math.min(baseAmountIn * bufferMultiplier, maxBalance));
