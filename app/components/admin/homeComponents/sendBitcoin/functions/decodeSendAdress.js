@@ -64,7 +64,9 @@ export default async function decodeSendAddress(props) {
   try {
     console.log(btcAdress, 'scanned address');
     if (typeof btcAdress !== 'string')
-      throw new Error(t('wallet.sendPages.handlingAddressErrors.invalidFormat'));
+      throw new Error(
+        t('wallet.sendPages.handlingAddressErrors.invalidFormat'),
+      );
 
     if (btcAdress.toLowerCase().startsWith('paylink://')) {
       const payLinkId = btcAdress.slice('paylink://'.length);
@@ -301,9 +303,16 @@ export default async function decodeSendAddress(props) {
     }
 
     if (processedPaymentInfo) {
+      const isLRC20 =
+        seletctedToken?.tokenMetadata?.tokenTicker !== undefined &&
+        seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin';
       // We are moving to confirm screen and need to check if we can send the payment.
       // sendAmount for non-editable invoices is always in sats.
-      if (comingFromAccept && !processedPaymentInfo.canEditPayment) {
+      if (
+        comingFromAccept &&
+        !processedPaymentInfo.canEditPayment &&
+        !isLRC20
+      ) {
         const fixedAmountSats = Number(processedPaymentInfo.sendAmount);
         if (fixedAmountSats > 0) {
           const totalCost =

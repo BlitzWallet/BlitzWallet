@@ -350,24 +350,24 @@ export default function getFormattedHomepageTxsForSpark(props) {
       const isFailedPayment = paymentStatus === TRANSACTION_CONSTANTS.FAILED;
 
       // Calculate time difference once
-      const timeDifferenceInDays =
-        (currentTime - paymentDate) / (1000 * 60 * 60 * 24);
+      // const timeDifferenceInDays =
+      //   (currentTime - paymentDate) / (1000 * 60 * 60 * 24);
 
       // Add date banner if needed
-      if (
-        (transactionIndex === 0 ||
-          currentGroupedDate !==
-            generateBannerText(timeDifferenceInDays, bannerTexts)) &&
-        timeDifferenceInDays > 0.5 &&
-        frompage !== TRANSACTION_CONSTANTS.HOME
-      ) {
-        const bannerText = generateBannerText(
-          timeDifferenceInDays,
-          bannerTexts,
-        );
-        currentGroupedDate = bannerText;
-        formattedTxs.push(createDateBanner(bannerText));
-      }
+      // if (
+      //   (transactionIndex === 0 ||
+      //     currentGroupedDate !==
+      //       generateBannerText(timeDifferenceInDays, bannerTexts)) &&
+      //   timeDifferenceInDays > 0.5 &&
+      //   frompage !== TRANSACTION_CONSTANTS.HOME
+      // ) {
+      //   const bannerText = generateBannerText(
+      //     timeDifferenceInDays,
+      //     bannerTexts,
+      //   );
+      //   currentGroupedDate = bannerText;
+      //   formattedTxs.push(createDateBanner(bannerText));
+      // }
 
       const styledTx = (
         <UserTransaction
@@ -398,7 +398,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     } catch (err) {
       // Only log in development
       if (__DEV__) {
-        console.log(err);
+        console.log(err, 'errpr parsign items');
       }
     }
   }
@@ -704,6 +704,7 @@ export const UserTransaction = memo(function UserTransaction({
               neverHideBalance={
                 frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
               }
+              globalBalanceDenomination={userBalanceDenomination}
               containerStyles={styles.amountContainer}
               styles={{ color: amountColor }}
               frontText={APPROXIMATE_SYMBOL}
@@ -723,6 +724,7 @@ export const UserTransaction = memo(function UserTransaction({
               neverHideBalance={
                 frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
               }
+              globalBalanceDenomination={userBalanceDenomination}
               containerStyles={styles.amountContainer}
               styles={{ color: amountColor }}
               frontText={

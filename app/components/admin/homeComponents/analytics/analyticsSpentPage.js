@@ -24,8 +24,9 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useAnalytics } from '../../../../../context-store/analyticsContext';
 
-export default function AnalyticsSpentPage() {
+export default function AnalyticsSpentPage(props) {
   const navigate = useNavigation();
+  const { localDenomination } = props.route.params || {};
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const { poolInfoRef } = useFlashnet();
@@ -38,15 +39,23 @@ export default function AnalyticsSpentPage() {
   const [selectedDay, setSelectedDay] = useState(null);
   const { screenDimensions } = useAppStatus();
   const {
-    outTxs: txs,
-    spentTotal: totalIncome,
-    cumulativeSpentData: cumulativeData,
+    outTxsBTC,
+    outTxsUSD,
+    spentTotalBTC,
+    spentTotalUSD,
+    cumulativeSpentDataBTC,
+    cumulativeSpentDataUSD,
     isLoading,
   } = useAnalytics();
 
-  const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
+  const isFiat = localDenomination === 'fiat';
+  const txs = isFiat ? outTxsUSD : outTxsBTC;
+  const totalSpent = isFiat ? spentTotalUSD : spentTotalBTC;
+  const cumulativeData = isFiat
+    ? cumulativeSpentDataUSD
+    : cumulativeSpentDataBTC;
 
-  const displayAmount = selectedDay ? selectedDay.value : totalIncome;
+  const displayAmount = selectedDay ? selectedDay.value : totalSpent;
 
   const chartColor =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
@@ -68,13 +77,13 @@ export default function AnalyticsSpentPage() {
       agoText: t('transactionLabelText.ago'),
       theme,
       darkModeType,
-      userBalanceDenomination,
+      userBalanceDenomination: localDenomination,
       didGetToHomepage: true,
       enabledLRC20: false,
       poolInfoRef,
       t,
     });
-  }, [txs, currentTime, theme, darkModeType, userBalanceDenomination]);
+  }, [txs, currentTime, theme, darkModeType, localDenomination]);
 
   return (
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
@@ -127,8 +136,13 @@ export default function AnalyticsSpentPage() {
                   styles={styles.totalAmount}
                   content={displayCorrectDenomination({
                     amount: displayAmount,
-                    masterInfoObject,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: localDenomination,
+                    },
                     fiatStats,
+                    convertAmount: !isFiat,
+                    forceCurrency: isFiat ? 'USD' : undefined,
                   })}
                 />
 

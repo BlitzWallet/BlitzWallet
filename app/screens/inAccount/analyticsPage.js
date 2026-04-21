@@ -21,6 +21,9 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import { useAnalytics } from '../../../context-store/analyticsContext';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import AnalyticsToggle from '../../components/admin/homeComponents/analytics/analyticsToggle';
+import { useAppStatus } from '../../../context-store/appStatus';
 
 export default function AnalyticsPage() {
   const navigate = useNavigation();
@@ -29,8 +32,19 @@ export default function AnalyticsPage() {
   const { bottomPadding } = useGlobalInsets();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
-  const { incomeTotal, spentTotal, incomeTxCount, spentTxCount, isLoading } =
-    useAnalytics();
+  const {
+    spentTotal,
+    incomeTotalBTC,
+    incomeTotalUSD,
+    spentTotalBTC,
+    spentTotalUSD,
+    incomeTxCountBTC,
+    incomeTxCountUSD,
+    spentTxCountBTC,
+    spentTxCountUSD,
+    isLoading,
+  } = useAnalytics();
+  const { screenDimensions } = useAppStatus();
   const { t } = useTranslation();
 
   const budget = masterInfoObject?.monthlyBudget;
@@ -54,12 +68,36 @@ export default function AnalyticsPage() {
           color: theme && darkModeType ? textColor : COLORS.primary,
         };
 
+  const [localDenomination, setLocalDenomination] = useState('sats');
+
+  const handleToggleDenomination = () =>
+    setLocalDenomination(prev => (prev === 'sats' ? 'fiat' : 'sats'));
+
+  const incomeTxCount =
+    localDenomination === 'sats' ? incomeTxCountBTC : incomeTxCountUSD;
+  const spentTxCount =
+    localDenomination === 'sats' ? spentTxCountBTC : spentTxCountUSD;
+
   return (
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
-      <CustomSettingsTopBar
-        label={t('analytics.home.title')}
-        containerStyles={{ marginBottom: 0 }}
-      />
+      <View style={styles.topbar}>
+        <TouchableOpacity style={styles.backArrow} onPress={navigate.goBack}>
+          <ThemeIcon iconName={'ArrowLeft'} />
+        </TouchableOpacity>
+        <ThemeText
+          CustomNumberOfLines={1}
+          CustomEllipsizeMode={'tail'}
+          content={t('analytics.home.title')}
+          styles={{
+            ...styles.topBarText,
+            width: screenDimensions.width * 0.95 - 75,
+          }}
+        />
+        <AnalyticsToggle
+          denomination={localDenomination}
+          onToggle={handleToggleDenomination}
+        />
+      </View>
 
       <ScrollView
         style={{ flex: 1 }}
@@ -76,13 +114,19 @@ export default function AnalyticsPage() {
 
         <ThemeText
           styles={styles.sectionTitle}
-          content={t('analytics.home.activityHead')}
+          content={`${t('analytics.home.activityHead')} (${
+            localDenomination === 'sats'
+              ? t('constants.bitcoin_upper')
+              : t('constants.dollars_upper')
+          })`}
         />
         {/* Income + Spent row */}
         <View style={styles.metricsRow}>
           <TouchableOpacity
             style={[styles.metricCard, { backgroundColor: backgroundOffset }]}
-            onPress={() => navigate.navigate('AnalyticsIncomePage')}
+            onPress={() =>
+              navigate.navigate('AnalyticsIncomePage', { localDenomination })
+            }
             activeOpacity={0.8}
           >
             <ThemeText
@@ -98,9 +142,17 @@ export default function AnalyticsPage() {
                   adjustsFontSizeToFit={true}
                   styles={styles.metricAmount}
                   content={displayCorrectDenomination({
-                    amount: incomeTotal,
-                    masterInfoObject,
+                    amount:
+                      localDenomination === 'sats'
+                        ? incomeTotalBTC
+                        : incomeTotalUSD,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: localDenomination,
+                    },
                     fiatStats,
+                    convertAmount: localDenomination === 'sats',
+                    forceCurrency: 'USD',
                   })}
                 />
                 <ThemeText
@@ -119,7 +171,9 @@ export default function AnalyticsPage() {
 
           <TouchableOpacity
             style={[styles.metricCard, { backgroundColor: backgroundOffset }]}
-            onPress={() => navigate.navigate('AnalyticsSpentPage')}
+            onPress={() =>
+              navigate.navigate('AnalyticsSpentPage', { localDenomination })
+            }
             activeOpacity={0.8}
           >
             <ThemeText
@@ -135,9 +189,17 @@ export default function AnalyticsPage() {
                   adjustsFontSizeToFit={true}
                   styles={styles.metricAmount}
                   content={displayCorrectDenomination({
-                    amount: spentTotal,
-                    masterInfoObject,
+                    amount:
+                      localDenomination === 'sats'
+                        ? spentTotalBTC
+                        : spentTotalUSD,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: localDenomination,
+                    },
                     fiatStats,
+                    convertAmount: localDenomination === 'sats',
+                    forceCurrency: 'USD',
                   })}
                 />
                 <ThemeText
@@ -251,6 +313,20 @@ export default function AnalyticsPage() {
 }
 
 const styles = StyleSheet.create({
+  topbar: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+    minHeight: 30,
+  },
+  backArrow: { position: 'absolute', left: 0, zIndex: 1 },
+  topBarText: {
+    fontSize: SIZES.large,
+    textAlign: 'center',
+    ...CENTER,
+    includeFontPadding: false,
+  },
   scrollContent: {
     width: INSET_WINDOW_WIDTH,
     paddingTop: 20,
@@ -351,5 +427,10 @@ const styles = StyleSheet.create({
     fontSize: SIZES.small,
     opacity: 0.6,
     textAlign: 'center',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 0,
   },
 });
