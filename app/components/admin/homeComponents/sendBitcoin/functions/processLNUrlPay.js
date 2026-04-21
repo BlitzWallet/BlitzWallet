@@ -1,5 +1,8 @@
 // import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
-import { SATSPERBITCOIN } from '../../../../../constants';
+import {
+  MIN_USD_BTC_LIGHTNING_SWAP,
+  SATSPERBITCOIN,
+} from '../../../../../constants';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { getLNAddressForLiquidPayment } from './payments';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
@@ -142,7 +145,7 @@ export default async function processLNUrlPay(input, context) {
       (usablePaymentMethod === 'USD' ||
         ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
           dollarBalanceSat >= amountMsat / 1000)) &&
-      amountMsat / 1000 >= min_usd_swap_amount;
+      amountMsat / 1000 >= MIN_USD_BTC_LIGHTNING_SWAP;
     const needBtcFee =
       usablePaymentMethod === 'BTC' ||
       ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
