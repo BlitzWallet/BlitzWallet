@@ -64,6 +64,9 @@ export default function ExpandedContactsPage(props) {
   );
   const imageData = cache[selectedContact.uuid];
   const contactTransactions = contactsMessags[selectedUUID]?.messages || [];
+  const isLNURLContact =
+    selectedContact.isLNURL && selectedContact.receiveAddress?.includes('@');
+  const hasSecondaryLine = selectedContact.uniqueName || isLNURLContact;
 
   useEffect(() => {
     //listening for messages when you're on the contact
@@ -153,7 +156,7 @@ export default function ExpandedContactsPage(props) {
         <ThemeText
           styles={[
             styles.nameText,
-            { marginBottom: selectedContact?.uniqueName ? 5 : 25 },
+            { marginBottom: hasSecondaryLine ? 5 : 25 },
           ]}
           content={selectedContact.name || t('constants.annonName')}
         />
@@ -162,6 +165,13 @@ export default function ExpandedContactsPage(props) {
           <ThemeText
             styles={styles.usernameText}
             content={`@${selectedContact.uniqueName}`}
+          />
+        )}
+
+        {isLNURLContact && (
+          <ThemeText
+            styles={styles.usernameText}
+            content={`@${selectedContact.receiveAddress.split('@')[1]}`}
           />
         )}
 
@@ -290,6 +300,7 @@ export default function ExpandedContactsPage(props) {
       isConnectedToTheInternet,
       hideProfileImage,
       contactTransactions.length,
+      hasSecondaryLine,
     ],
   );
 
