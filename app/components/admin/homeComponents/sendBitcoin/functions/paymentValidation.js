@@ -198,25 +198,33 @@ export default function usePaymentValidation({
         // quote's authoritative token debit directly against dollarBalanceToken.
         const USDB_DECIMALS = 6;
         const tokenAmountRequired =
-          paymentInfo?.swapPaymentQuote?.tokenAmountRequired;
-        const amountIn = paymentInfo?.swapPaymentQuote?.amountIn;
+          paymentInfo?.swapPaymentQuote?.tokenAmountRequired; //lightning paymetns only
+        const amountIn = paymentInfo?.swapPaymentQuote?.amountIn; //all manual swap calls
+        const userDollarBalance =
+          dollarBalanceToken * Math.pow(10, USDB_DECIMALS);
 
         const requiredDollarTokens = tokenAmountRequired
           ? Number(tokenAmountRequired) / Math.pow(10, USDB_DECIMALS)
           : amountIn
-          ? (Number(amountIn) * SEND_AMOUNT_INCREASE_BUFFER) /
-            Math.pow(10, USDB_DECIMALS)
+          ? Number(amountIn)
           : null;
 
         if (
           requiredDollarTokens !== null &&
-          dollarBalanceToken < requiredDollarTokens
+          userDollarBalance < requiredDollarTokens
         ) {
           result.errors.push('INSUFFICIENT_BALANCE');
           return result;
         }
       } else if (finalPaymentMethod === 'BTC') {
         // BTC → USD swap
+        const amountIn = paymentInfo?.swapPaymentQuote?.amountIn;
+
+        if (amountIn !== null && bitcoinBalance < amountIn) {
+          result.errors.push('INSUFFICIENT_BALANCE');
+          return result;
+        }
+
         if (convertedSendAmount < swapLimits.bitcoin) {
           result.errors.push('BELOW_BTC_SWAP_MINIMUM');
           return result;
@@ -233,7 +241,8 @@ export default function usePaymentValidation({
         ? dollarBalanceSat + 1 >= totalCost
         : bitcoinBalance >= totalCost;
 
-    if (!hasSufficientBalance) {
+    // already check balance for swap above we do not inclue fee there
+    if (!hasSufficientBalance && !needsSwap) {
       // Check for balance fragmentation
       const hasSufficientTotalBalance =
         bitcoinBalance + dollarBalanceSat >= totalCost;
