@@ -194,6 +194,12 @@ export default function SendAndRequestPage(props) {
           giftOption || selectedContact?.isLNURL ? InputTypes.BOLT11 : 'spark',
         data: { amountMsat: convertedSendAmount * 1000 },
       },
+      swapPaymentQuote: {
+        amountIn:
+          selectedPaymentMethod === 'BTC'
+            ? amountValue
+            : amountValue * Math.pow(10, 6),
+      },
     },
     convertedSendAmount,
     paymentFee: 0, //need to calculate swap fee,
@@ -202,6 +208,7 @@ export default function SendAndRequestPage(props) {
 
     bitcoinBalance: bitcoinBalance,
     dollarBalanceSat: dollarBalanceSat,
+    dollarBalanceToken: dollarBalanceToken,
 
     min_usd_swap_amount: min_usd_swap_amount,
     swapLimits: swapLimits,
