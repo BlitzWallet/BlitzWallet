@@ -2296,7 +2296,7 @@
     "accumulationAddresses": {
       "title": "Conversão automática",
       "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares USDB",
-      "navTitle": "Endereços",
+      "navTitle": "Conversão automática",
       "sectionTitle": "Endereços ativos",
       "empty": {
         "title": "Nenhum endereço de conversão automática",
@@ -2304,9 +2304,9 @@
       },
       "createButton": "Criar endereço",
       "info": {
-        "title": "O que são?",
-        "whatAre": "O que são?",
-        "whatAreBody": "Endereços únicos de USDC ou USDT em que os valores recebidos são automaticamente convertidos em bitcoin ou dólares e enviados para sua carteira.",
+        "title": "Para que serve?",
+        "whatAre": "Para que serve?",
+        "whatAreBody": "Você recebe endereços únicos de USDC ou USDT em que os valores recebidos são automaticamente convertidos em bitcoin ou dólares e enviados para sua carteira.",
         "howItWorks": "Como funciona",
         "step1": "1. Compartilhe seu endereço de depósito com um remetente ou corretora.",
         "step2": "2. Os fundos recebidos são automaticamente convertidos.",
