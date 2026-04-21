@@ -309,8 +309,13 @@ export default function SendAndRequestPage(props) {
       swapPaymentQuote: {
         amountIn:
           selectedPaymentMethod === 'BTC'
-            ? amountValue
-            : amountValue * Math.pow(10, 6),
+            ? convertedSendAmount
+            : inputDenomination === 'fiat'
+            ? amountValue * Math.pow(10, 6)
+            : satsToDollars(
+                convertedSendAmount,
+                poolInfoRef.currentPriceAInB,
+              )?.toFixed(2) * Math.pow(10, 6),
       },
     },
     convertedSendAmount,
