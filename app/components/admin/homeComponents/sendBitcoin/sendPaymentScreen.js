@@ -834,8 +834,6 @@ export default function SendPaymentScreen(props) {
         isUsingLRC20,
         amountSats: isUsingLRC20
           ? paymentInfo?.sendAmount * 10 ** tokenDecimals
-          : paymentInfo?.type === 'Bitcoin'
-          ? convertedSendAmount + (paymentInfo?.paymentFee || 0)
           : convertedSendAmount,
         masterInfoObject,
         fee: paymentFee,
