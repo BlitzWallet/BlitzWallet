@@ -209,7 +209,7 @@ export default function usePaymentValidation({
           dollarBalanceToken * Math.pow(10, USDB_DECIMALS);
 
         const requiredDollarTokens = tokenAmountRequired
-          ? Number(tokenAmountRequired) / Math.pow(10, USDB_DECIMALS)
+          ? Number(tokenAmountRequired)
           : amountIn
           ? Number(amountIn)
           : null;
@@ -247,18 +247,21 @@ export default function usePaymentValidation({
         : bitcoinBalance >= totalCost;
 
     // already check balance for swap above we do not inclue fee there
-    if (!hasSufficientBalance && !needsSwap) {
-      // Check for balance fragmentation
-      const hasSufficientTotalBalance =
-        bitcoinBalance + dollarBalanceSat >= totalCost;
+    // only checking LN here, BTC is already handled above
+    if (!isSparkPayment) {
+      if (!hasSufficientBalance) {
+        // Check for balance fragmentation
+        // const hasSufficientTotalBalance =
+        //   bitcoinBalance + dollarBalanceSat >= totalCost;
 
-      if (hasSufficientTotalBalance) {
-        result.errors.push('BALANCE_FRAGMENTATION');
+        // if (hasSufficientTotalBalance) {
+        //   result.errors.push('BALANCE_FRAGMENTATION');
+        //   return result;
+        // }
+
+        result.errors.push('INSUFFICIENT_BALANCE');
         return result;
       }
-
-      result.errors.push('INSUFFICIENT_BALANCE');
-      return result;
     }
 
     result.isValid = true;

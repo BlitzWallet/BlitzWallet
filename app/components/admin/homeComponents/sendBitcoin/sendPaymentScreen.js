@@ -6,6 +6,7 @@ import {
   SATSPERBITCOIN,
   USDB_TOKEN_ID,
 } from '../../../../constants';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -72,12 +73,16 @@ import SwapRatesChangedState from './components/swapRatesChangedState';
 import {
   dollarsToSats,
   satsToDollars,
+  getLightningPaymentQuote,
+  USD_ASSET_ADDRESS,
 } from '../../../../functions/spark/flashnet';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import normalizeLNURLAddress from '../../../../functions/lnurl/normalizeLNURLAddress';
 import { publishMessage } from '../../../../functions/messaging/publishMessage';
+import { useToast } from '../../../../../context-store/toastManager';
+import useDebounce from '../../../../hooks/useDebounce';
 import customUUID from '../../../../functions/customUUID';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 
@@ -143,6 +148,11 @@ export default function SendPaymentScreen(props) {
   const [didSelectPaymentMethod, setDidSelectPaymentMethod] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState({});
+  const [lnFeeEstimate, setLnFeeEstimate] = useState(
+    enteredPaymentInfo?.lnFeeEstimate ?? null,
+  );
+  const [isEstimatingFee, setIsEstimatingFee] = useState(false);
+  const { showToast } = useToast();
 
   const prevSelectedPaymentInfo = useRef({
     preSelectedPaymentMethod,
@@ -248,6 +258,12 @@ export default function SendPaymentScreen(props) {
 
   const paymentFee =
     (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
+
+  const effectivePaymentFee =
+    isLightningPayment && lnFeeEstimate !== null
+      ? lnFeeEstimate + (paymentInfo?.supportFee || 0)
+      : paymentFee;
+
   console.log(paymentInfo, 'payment info');
 
   const {
@@ -330,6 +346,120 @@ export default function SendPaymentScreen(props) {
     determinePaymentMethodRef.current = determinePaymentMethod;
   }, [determinePaymentMethod]);
 
+  const estimateLightningFee = useCallback(
+    async amount => {
+      if (!amount || !isLightningPayment || !canEditAmount) {
+        setIsEstimatingFee(false);
+        return;
+      }
+
+      const balance =
+        determinePaymentMethod === 'USD' ? dollarBalanceSat : sparkBalance;
+      const bufferAmount = amount * 1.1;
+
+      // Skip if balance easily covers the send + estimated fee buffer, or if
+      // already over balance (validation will catch it without needing a fee)
+      if (bufferAmount < balance || amount > balance) {
+        setIsEstimatingFee(false);
+        return;
+      }
+
+      const formattedSparkPaymentInfo = formatSparkPaymentAddress(
+        paymentInfo,
+        false,
+      );
+      const invoice = formattedSparkPaymentInfo.address;
+      if (!invoice) {
+        setIsEstimatingFee(false);
+        return;
+      }
+
+      try {
+        if (determinePaymentMethod === 'USD') {
+          const quote = await getLightningPaymentQuote(
+            currentWalletMnemoinc,
+            invoice,
+            USD_ASSET_ADDRESS,
+          );
+          if (!quote.didWork)
+            throw new Error(quote.error || 'Fee quote failed');
+          const fee = quote.quote.fee;
+          if (fee + amount > dollarBalanceSat) {
+            showToast({
+              type: 'error',
+              title: t('errormessages.lightningAmountFeeWarning', {
+                amount: displayCorrectDenomination({
+                  amount: fee,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'sats',
+                  },
+                  fiatStats,
+                }),
+              }),
+              duration: 6000,
+            });
+          }
+          setLnFeeEstimate(fee);
+        } else {
+          const feeResult = await sparkPaymenWrapper({
+            getFee: true,
+            paymentType: 'lightning',
+            address: invoice,
+            amountSats: amount,
+            masterInfoObject,
+            sparkInformation: sparkInfoRef.current,
+            mnemonic: currentWalletMnemoinc,
+            sendWebViewRequest,
+          });
+          if (!feeResult.didWork) throw new Error('Fee estimation failed');
+          const fee = feeResult.fee;
+          if (fee + amount > sparkBalance) {
+            showToast({
+              type: 'error',
+              title: t('errormessages.lightningAmountFeeWarning', {
+                amount: displayCorrectDenomination({
+                  amount: fee,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'sats',
+                  },
+                  fiatStats,
+                }),
+              }),
+              duration: 6000,
+            });
+          }
+          setLnFeeEstimate(fee);
+        }
+      } catch {
+        showToast({
+          type: 'error',
+          title: t('wallet.sendPages.sendPaymentScreen.feeEstimateError'),
+        });
+      } finally {
+        setIsEstimatingFee(false);
+      }
+    },
+    [
+      isLightningPayment,
+      canEditAmount,
+      determinePaymentMethod,
+      dollarBalanceSat,
+      sparkBalance,
+      paymentInfo,
+      currentWalletMnemoinc,
+      masterInfoObject,
+      fiatStats,
+      sparkInfoRef,
+      sendWebViewRequest,
+      showToast,
+      t,
+    ],
+  );
+
+  const debouncedEstimateFee = useDebounce(estimateLightningFee, 600);
+
   useEffect(() => {
     inputDenominationRef.current = inputDenomination;
   }, [inputDenomination]);
@@ -350,7 +480,7 @@ export default function SendPaymentScreen(props) {
     !isUsingLRC20 &&
     (!didRequireChoiceRef.current || didSelectPaymentMethod) &&
     determinePaymentMethod !== 'user-choice' &&
-    convertedSendAmount >= paymentFee;
+    convertedSendAmount >= effectivePaymentFee;
 
   const receiverExpectsCurrency = paymentInfo?.data?.expectedReceive || 'sats';
 
@@ -360,7 +490,7 @@ export default function SendPaymentScreen(props) {
     if (isUsingLRC20) return true;
     if (!determinePaymentMethod) return false;
 
-    const totalCost = convertedSendAmount + paymentFee;
+    const totalCost = convertedSendAmount + effectivePaymentFee;
 
     // Check if we need a swap and if it meets minimums
     const needsSwap =
@@ -497,7 +627,7 @@ export default function SendPaymentScreen(props) {
   const paymentValidation = usePaymentValidation({
     paymentInfo,
     convertedSendAmount,
-    paymentFee,
+    paymentFee: effectivePaymentFee,
     determinePaymentMethod,
     selectedPaymentMethod: userPaymentMethod,
     bitcoinBalance,
@@ -575,6 +705,8 @@ export default function SendPaymentScreen(props) {
       // Full reset — mirrors hasParamsChanged effect sequence exactly
       setIsAmountFocused(true);
       setPaymentInfo({});
+      setLnFeeEstimate(null);
+      setIsEstimatingFee(false);
       isSendingPayment.current = null;
       setPaymentDescription('');
       hasTriggeredFastPay.current = false;
@@ -627,6 +759,8 @@ export default function SendPaymentScreen(props) {
     if (hasParamsChanged) {
       setIsAmountFocused(true);
       setPaymentInfo({});
+      setLnFeeEstimate(null);
+      setIsEstimatingFee(false);
       isSendingPayment.current = null;
       setPaymentDescription('');
       hasTriggeredFastPay.current = false;
@@ -651,6 +785,15 @@ export default function SendPaymentScreen(props) {
   useEffect(() => {
     convertedSendAmountRef.current = convertedSendAmount;
   }, [convertedSendAmount]);
+
+  useEffect(() => {
+    if (!canEditAmount || !isLightningPayment) return;
+    setLnFeeEstimate(null);
+    if (convertedSendAmount > 0) {
+      setIsEstimatingFee(true);
+      debouncedEstimateFee(convertedSendAmount);
+    }
+  }, [convertedSendAmount, canEditAmount, isLightningPayment]);
 
   useEffect(() => {
     async function decodePayment() {
@@ -1289,7 +1432,7 @@ export default function SendPaymentScreen(props) {
                   bitcoinBalance={bitcoinBalance}
                   dollarBalanceSat={dollarBalanceSat}
                   needsToChoosePaymentMethod={needsToChoosePaymentMethod}
-                  isDecoding={isDecoding}
+                  isDecoding={isDecoding || isEstimatingFee}
                   poolInfoRef={poolInfoRef}
                   swapLimits={swapLimits}
                   // usd_multiplier_coefiicent={usd_multiplier_coefiicent}
@@ -1344,7 +1487,7 @@ export default function SendPaymentScreen(props) {
                   bitcoinBalance={bitcoinBalance}
                   dollarBalanceSat={dollarBalanceSat}
                   needsToChoosePaymentMethod={needsToChoosePaymentMethod}
-                  isDecoding={isDecoding}
+                  isDecoding={isDecoding || isEstimatingFee}
                   poolInfoRef={poolInfoRef}
                   swapLimits={swapLimits}
                   // usd_multiplier_coefiicent={usd_multiplier_coefiicent}

@@ -1054,7 +1054,8 @@
         "selectPaymentMethod": "Please select a payment method to continue",
         "swapRatesChangedTitle": "Swap Rate Updated",
         "swapRatesChangedBody": "The exchange rate for this swap changed while you were reviewing. Please re-enter your amount to continue.",
-        "swapRatesChangedButton": "Re-enter Amount"
+        "swapRatesChangedButton": "Re-enter Amount",
+        "feeEstimateError": "Unable to estimate fee, please try again"
       },
       "selectPaymentMethod": {
         "header": "How do you want to fund your payment?"
@@ -2403,7 +2404,8 @@
     "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again.",
     "priceImpact": "This payment is large, so the final amount you receive in Dollars may change.",
     "removingImageError": "Unable to remove image. Please try again.",
-    "usdcUsdtTokensOnly": "Only USDT and USDC tokens are supported"
+    "usdcUsdtTokensOnly": "Only USDT and USDC tokens are supported",
+    "lightningAmountFeeWarning": "Your balance does not cover the amount and ≈{{amount}} fee."
   },
   "loadingScreen": {
     "message1": "Please don't close the app",

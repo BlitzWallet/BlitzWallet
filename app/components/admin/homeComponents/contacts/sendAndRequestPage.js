@@ -2,9 +2,6 @@ import { StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
-  HIDE_IN_APP_PURCHASE_ITEMS,
-  ICONS,
-  QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
   USDB_TOKEN_ID,
 } from '../../../../constants';
@@ -40,43 +37,36 @@ import {
   WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import fetchBackend from '../../../../../db/handleBackend';
 import { getDataFromCollection } from '../../../../../db';
 import { Image } from 'expo-image';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import giftCardPurchaseAmountTracker from '../../../../functions/apps/giftCardPurchaseTracker';
-import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import getReceiveAddressAndContactForContactsPayment from './internalComponents/getReceiveAddressAndKindForPayment';
-import calculateProgressiveBracketFee from '../../../../functions/spark/calculateSupportFee';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
-import { receiveSparkLightningPayment } from '../../../../functions/spark';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
-import usePaymentMethodSelection from '../../../../hooks/usePaymentMethodSelection';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import {
   dollarsToSats,
   satsToDollars,
+  getLightningPaymentQuote,
+  USD_ASSET_ADDRESS,
 } from '../../../../functions/spark/flashnet';
 import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import usePaymentValidation from '../sendBitcoin/functions/paymentValidation';
-import { InputTypes } from 'bitcoin-address-parser';
+import { InputTypes, parseInput } from 'bitcoin-address-parser';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import ContactProfileImage from './internalComponents/profileImage';
-
-const MAX_SEND_OPTIONS = [
-  { label: '25%', value: '25' },
-  { label: '50%', value: '50' },
-  { label: '75%', value: '75' },
-  { label: '100%', value: '100' },
-];
+import { getLNAddressForLiquidPayment } from '../sendBitcoin/functions/payments';
+import { useToast } from '../../../../../context-store/toastManager';
+import useDebounce from '../../../../hooks/useDebounce';
+import { useWebView } from '../../../../../context-store/webViewContext';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -110,6 +100,11 @@ export default function SendAndRequestPage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
+  const { sendWebViewRequest } = useWebView();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { showToast } = useToast();
+  const [lnFeeEstimate, setLnFeeEstimate] = useState(null);
+  const lnurlParsedRef = useRef(null);
   const poolInfoRefSnapshotRef = useRef(poolInfoRef);
   const prefSelectedPaymentInfo = useRef({
     selectedPaymentMethod,
@@ -179,6 +174,123 @@ export default function SendAndRequestPage(props) {
     );
   }, [poolInfoRefSnapshotRef.current.currentPriceAInB, swapLimits]);
 
+  const estimateLNURLFee = useCallback(
+    async amount => {
+      if (!selectedContact?.isLNURL || paymentType !== 'send' || !amount) {
+        setIsLoading(false);
+        return;
+      }
+
+      const balance =
+        selectedPaymentMethod === 'USD' ? dollarBalanceSat : bitcoinBalance;
+      const bufferAmount = amount * 1.1;
+
+      // Skip if balance easily covers the send + estimated fee buffer, or if
+      // already over balance (validation will catch it without needing a fee)
+      if (bufferAmount < balance || amount > balance) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        if (!lnurlParsedRef.current) {
+          lnurlParsedRef.current = await parseInput(
+            selectedContact.receiveAddress,
+          );
+        }
+        const lnurlInput = lnurlParsedRef.current;
+
+        const invoiceResponse = await getLNAddressForLiquidPayment(
+          lnurlInput,
+          amount,
+          '',
+        );
+        if (!invoiceResponse.pr) throw new Error('No invoice received');
+
+        if (selectedPaymentMethod === 'USD') {
+          const quote = await getLightningPaymentQuote(
+            currentWalletMnemoinc,
+            invoiceResponse.pr,
+            USD_ASSET_ADDRESS,
+          );
+          if (!quote.didWork)
+            throw new Error(quote.error || 'Fee quote failed');
+          const fee = quote.quote.fee;
+          if (fee + amount > dollarBalanceSat) {
+            showToast({
+              type: 'error',
+              title: t('errormessages.lightningAmountFeeWarning', {
+                amount: displayCorrectDenomination({
+                  amount: fee,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'sats',
+                  },
+                  fiatStats,
+                }),
+              }),
+              duration: 6000,
+            });
+          }
+          setLnFeeEstimate(fee);
+        } else {
+          const feeResult = await sparkPaymenWrapper({
+            getFee: true,
+            paymentType: 'lightning',
+            address: invoiceResponse.pr,
+            amountSats: amount,
+            masterInfoObject,
+            sparkInformation,
+            mnemonic: currentWalletMnemoinc,
+            sendWebViewRequest,
+          });
+          if (!feeResult.didWork) throw new Error('Fee estimation failed');
+          const fee = feeResult.fee;
+          if (fee + amount > bitcoinBalance) {
+            showToast({
+              type: 'error',
+              title: t('errormessages.lightningAmountFeeWarning', {
+                amount: displayCorrectDenomination({
+                  amount: fee,
+                  masterInfoObject: {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'sats',
+                  },
+                  fiatStats,
+                }),
+              }),
+              duration: 6000,
+            });
+          }
+          setLnFeeEstimate(fee);
+        }
+      } catch {
+        showToast({
+          type: 'error',
+          title: t('wallet.sendPages.sendPaymentScreen.feeEstimateError'),
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      selectedContact?.isLNURL,
+      selectedContact?.receiveAddress,
+      paymentType,
+      selectedPaymentMethod,
+      currentWalletMnemoinc,
+      masterInfoObject,
+      sparkInformation,
+      sendWebViewRequest,
+      showToast,
+      t,
+      dollarBalanceSat,
+      bitcoinBalance,
+    ],
+  );
+
+  const debouncedEstimateLNURLFee = useDebounce(estimateLNURLFee, 600);
+
   const paymentValidation = usePaymentValidation({
     paymentInfo: {
       sendAmount: convertedSendAmount,
@@ -202,7 +314,7 @@ export default function SendAndRequestPage(props) {
       },
     },
     convertedSendAmount,
-    paymentFee: 0, //need to calculate swap fee,
+    paymentFee: lnFeeEstimate ?? 0,
     determinePaymentMethod: selectedPaymentMethod,
     selectedPaymentMethod,
 
@@ -279,6 +391,20 @@ export default function SendAndRequestPage(props) {
     );
   }, [giftOption]);
 
+  useEffect(() => {
+    lnurlParsedRef.current = null;
+    setLnFeeEstimate(null);
+  }, [selectedContact?.uuid]);
+
+  useEffect(() => {
+    if (!selectedContact?.isLNURL || paymentType !== 'send') return;
+    setLnFeeEstimate(null);
+    if (convertedSendAmount > 0) {
+      setIsLoading(true);
+      debouncedEstimateLNURLFee(convertedSendAmount);
+    }
+  }, [convertedSendAmount, selectedContact?.isLNURL, paymentType]);
+
   const canProceed =
     paymentType === 'request' ? !!amountValue : paymentValidation.canProceed;
 
@@ -316,10 +442,15 @@ export default function SendAndRequestPage(props) {
 
       const sendingAmountMsat = convertedSendAmount * 1000;
       const contactMessage = descriptionValue;
+      const isLNURL = selectedContact.isLNURL;
+      const contactName = isLNURL
+        ? selectedContact.name || selectedContact.receiveAddress.split('@')[0]
+        : selectedContact.name || selectedContact.uniqueName;
+
       const myProfileMessage = !!descriptionValue
         ? descriptionValue
         : t('contacts.sendAndRequestPage.profileMessage', {
-            name: selectedContact.name || selectedContact.uniqueName,
+            name: contactName,
           });
       const payingContactMessage = !!descriptionValue
         ? descriptionValue
@@ -428,13 +559,13 @@ export default function SendAndRequestPage(props) {
               description:
                 descriptionValue ||
                 t('contacts.sendAndRequestPage.giftCardDescription', {
-                  name: selectedContact.name || selectedContact.uniqueName,
+                  name: contactName,
                   giftCardName: giftOption.name,
                 }),
             },
             contactInfo: {
               imageData,
-              name: selectedContact.name || selectedContact.uniqueName,
+              name: contactName,
               uniqueName: selectedContact.uniqueName,
               uuid: selectedContact.uuid,
             },
@@ -516,10 +647,11 @@ export default function SendAndRequestPage(props) {
             amount: convertedSendAmount,
             description: myProfileMessage,
             endReceiveType: endReceiveType,
+            lnFeeEstimate: selectedContact?.isLNURL ? lnFeeEstimate : null,
           },
           contactInfo: {
             imageData,
-            name: selectedContact.name || selectedContact.uniqueName,
+            name: contactName,
             isLNURLPayment: selectedContact?.isLNURL,
             payingContactMessage: formattedPayingContactMessage, //handles remote tx description
             uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
