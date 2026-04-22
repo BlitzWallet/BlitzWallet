@@ -2634,8 +2634,8 @@
         "complete": "Concluído."
       },
       "successTitle": "Resgate concluído",
-      "paymentLabel_unallocated": "Resgate da Caixinha",
-      "paymentLabel": "Resgate da Caixinha {{savingsGoal}}",
+      "paymentLabel_unallocated": "Resgate Caixinhas",
+      "paymentLabel": "Resgate Caixinhas {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Não foi possível concluir o resgate"
       }
