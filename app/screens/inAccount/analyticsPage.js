@@ -377,6 +377,7 @@ const styles = StyleSheet.create({
   },
   budgetLeftAmount: {
     marginBottom: 6,
+    includeFontPadding: false,
   },
   budgetStatusRow: {
     flexDirection: 'row',
@@ -411,6 +412,7 @@ const styles = StyleSheet.create({
   progressBarLabelText: {
     fontSize: SIZES.smedium,
     opacity: 0.4,
+    includeFontPadding: false,
   },
   emptyContactsContainer: {
     flex: 1,

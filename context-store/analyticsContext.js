@@ -31,15 +31,6 @@ export function AnalyticsProvider({ children }) {
   const [outTxsUSD, setOutTxsUSD] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const txUpdateKey = useMemo(() => {
-    if (sparkInformation.transactions.length) {
-      const latestTx = sparkInformation.transactions[0];
-      return `${latestTx?.sparkId}-${latestTx.paymentStatus}`;
-    } else {
-      return 'no-txs';
-    }
-  }, [sparkInformation.transactions]);
-
   useEffect(() => {
     async function load() {
       if (!sparkInformation.identityPubKey || !didGetToHomepage) return;
@@ -77,7 +68,11 @@ export function AnalyticsProvider({ children }) {
       }
     }
     load();
-  }, [sparkInformation.identityPubKey, txUpdateKey, didGetToHomepage]);
+  }, [
+    sparkInformation.identityPubKey,
+    sparkInformation.transactions.length,
+    didGetToHomepage,
+  ]);
 
   const incomeTotalBTC = useMemo(() => {
     try {
