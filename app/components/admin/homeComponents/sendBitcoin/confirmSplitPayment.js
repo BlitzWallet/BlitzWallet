@@ -572,6 +572,38 @@ export default function ConfirmSplitPayment(props) {
         await new Promise(res => setTimeout(res, 1500));
       }
 
+      let effectiveSplitRecipients = splitRecipients;
+      if (needsSwap && executionResponse?.swap?.amountOut != null) {
+        const amountOut = Number(executionResponse.swap.amountOut);
+
+        if (sendingMethod === 'USD') {
+          // USD→BTC: amountOut is in satoshis
+          if (amountOut < totalSplitSats) {
+            effectiveSplitRecipients = splitRecipients.map(r => ({
+              ...r,
+              amountSats: Math.floor(
+                (r.proportion ?? r.amountSats / totalSplitSats) * amountOut,
+              ),
+            }));
+          }
+        } else {
+          // BTC→USD: amountOut is in USD base units (10_000 per cent)
+          const totalSplitCents = splitRecipients.reduce(
+            (sum, r) => sum + (r.amountCents || 0),
+            0,
+          );
+          if (amountOut < totalSplitCents * 10_000) {
+            effectiveSplitRecipients = splitRecipients.map(r => ({
+              ...r,
+              amountCents: Math.floor(
+                (r.proportion ?? (r.amountCents || 0) / totalSplitCents) *
+                  (amountOut / 10_000),
+              ),
+            }));
+          }
+        }
+      }
+
       const swapFee = needsSwap
         ? dollarsToSats(
             executionResponse.swap.feeAmount / Math.pow(10, 6),
@@ -581,7 +613,7 @@ export default function ConfirmSplitPayment(props) {
 
       const result = await bulkSparkPayment(
         currentWalletMnemoinc,
-        splitRecipients,
+        effectiveSplitRecipients,
         splitMemo,
         sparkInformation?.identityPubKey,
         {
