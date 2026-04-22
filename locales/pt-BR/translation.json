@@ -1329,7 +1329,7 @@
     },
     "splitBill": {
       "addFriendsTitle": "Mais pessoas",
-      "createBillTitle": "Criar conta dividida",
+      "createBillTitle": "Tipo de divisão",
       "selectedCount": "{{count}} de 10 selecionados",
       "searchPlaceholder": "Buscar contatos",
       "nextButton": "Próximo",
