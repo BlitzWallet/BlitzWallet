@@ -1294,13 +1294,15 @@ const SparkWalletProvider = ({ children }) => {
               return;
             }
 
-            await getLRC20Transactions({
-              ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
-              sparkAddress: sparkInfoRef.current.sparkAddress,
-              isInitialRun: isInitialLRC20Run.current,
-              mnemonic: currentMnemonicRef.current,
-              sendWebViewRequest,
-            });
+            if (!isSendingPaymentRef.current) {
+              await getLRC20Transactions({
+                ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
+                sparkAddress: sparkInfoRef.current.sparkAddress,
+                isInitialRun: isInitialLRC20Run.current,
+                mnemonic: currentMnemonicRef.current,
+                sendWebViewRequest,
+              });
+            }
             if (isInitialLRC20Run.current) {
               isInitialLRC20Run.current = false;
             }

@@ -34,15 +34,8 @@ export async function getLRC20Transactions({
           continue;
         }
 
-        try {
-          const parsed = JSON.parse(tx.details || '{}');
-          if (parsed?.isLRC20Payment) {
-            lastSavedTransactionId = tx.sparkID;
-            break;
-          }
-        } catch {
-          continue;
-        }
+        lastSavedTransactionId = tx.sparkID;
+        break;
       }
     }
 
@@ -64,16 +57,7 @@ export async function getLRC20Transactions({
           continue;
         }
 
-        let parsed;
-        try {
-          parsed = JSON.parse(tx.details || '{}');
-        } catch {
-          continue;
-        }
-
-        if (parsed?.isLRC20Payment) {
-          savedIds.add(tx.sparkID);
-        }
+        savedIds.add(tx.sparkID);
       }
     }
 
@@ -162,6 +146,7 @@ export async function getLRC20Transactions({
     const processedTxs = markFlashnetTransfersAsFailed(newTxs);
 
     // using restore flag on initial run since we know the balance updated, otherwise we need to recheck the balance. On any new txs the fullUpdate reloads the wallet balance
+
     await bulkUpdateSparkTransactions(
       processedTxs,
       isInitialRun ? 'lrc20Payments' : 'fullUpdate-tokens',
