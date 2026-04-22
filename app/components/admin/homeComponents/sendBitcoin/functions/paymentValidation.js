@@ -273,6 +273,10 @@ export default function usePaymentValidation({
         result.errors.push('FLASHNET_NOT_INITIALIZED');
         return result;
       }
+
+      result.isValid = true;
+      result.canProceed = true;
+      return result;
     }
 
     // ─── Phase 5: Final direct balance check ───────────────────────────────────
