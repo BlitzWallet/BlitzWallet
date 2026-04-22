@@ -4939,6 +4939,7 @@ __metadata:
     spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#c3cb577fe289a48e9429b0c8329047e871b96278"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
+    tldts: ^7.0.28
     typescript: ^5.8.3
     unique-names-generator: ^4.7.1
     uuid: ^13.0.0
@@ -14710,6 +14711,24 @@ __metadata:
     fdir: ^6.5.0
     picomatch: ^4.0.3
   checksum: 0e33b8babff966c6ab86e9b825a350a6a98a63700fa0bb7ae6cf36a7770a508892383adc272f7f9d17aaf46a9d622b455e775b9949a3f951eaaf5dfb26331d44
+  languageName: node
+  linkType: hard
+
+"tldts-core@npm:^7.0.28":
+  version: 7.0.28
+  resolution: "tldts-core@npm:7.0.28"
+  checksum: b1401ac376c4829e2e285056e544919dded2a4a1bbdc4953cea980ceab309e13157e539139d513027e67994805d3d9b31ed76b4f5e2c3075ed7a0ac9be558d3f
+  languageName: node
+  linkType: hard
+
+"tldts@npm:^7.0.28":
+  version: 7.0.28
+  resolution: "tldts@npm:7.0.28"
+  dependencies:
+    tldts-core: ^7.0.28
+  bin:
+    tldts: bin/cli.js
+  checksum: e958a8692ec3f750ae2c6e355648359670acfade11251c0162e63f40b5473cd72338f690458f37421e64cd57242cd50f3c9df2d8672441577e6fed4f8bcb57eb
   languageName: node
   linkType: hard
 

@@ -40,6 +40,7 @@ import getClipboardText from '../../../../functions/getClipboardText';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
 import CustomButton from '../../../../functions/CustomElements/button';
 import getReceiveAddressAndContactForContactsPayment from '../contacts/internalComponents/getReceiveAddressAndKindForPayment';
+import { parse } from 'tldts';
 
 const ContactRow = ({
   contact,
@@ -82,6 +83,17 @@ const ContactRow = ({
     transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
   }));
 
+  const lnurlDomain = useMemo(() => {
+    try {
+      if (!contact.isLNURL) return '';
+      const parsed = parse(contact.receiveAddress);
+      return parsed.domainWithoutSuffix;
+    } catch (err) {
+      console.log('error parsing lnurl', err);
+      return '';
+    }
+  }, [contact.isLNURL]);
+
   return (
     <View
       style={styles.contactWrapper}
@@ -109,12 +121,29 @@ const ContactRow = ({
         </View>
 
         <View style={styles.nameContainer}>
-          <ThemeText
-            CustomEllipsizeMode={'tail'}
-            CustomNumberOfLines={1}
-            styles={styles.contactName}
-            content={formatDisplayName(contact) || contact.uniqueName || ''}
-          />
+          <View style={styles.nameAndDomainContainer}>
+            <ThemeText
+              CustomEllipsizeMode={'tail'}
+              CustomNumberOfLines={1}
+              styles={styles.contactName}
+              content={formatDisplayName(contact) || contact.uniqueName || ''}
+            />
+            {contact.isLNURL && lnurlDomain && (
+              <View
+                style={[
+                  styles.lnurlDomainContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                  },
+                ]}
+              >
+                <ThemeText styles={styles.lnurlDomain} content={lnurlDomain} />
+              </View>
+            )}
+          </View>
           <Animated.View style={labelFadeStyle}>
             <ThemeText
               styles={styles.chooseWhatToSendText}
@@ -1020,6 +1049,21 @@ const styles = StyleSheet.create({
 
   nameContainer: {
     flex: 1,
+  },
+  nameAndDomainContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  lnurlDomainContainer: {
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+  },
+  lnurlDomain: {
+    fontSize: SIZES.xSmall,
+    opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
   },
   contactName: {
     includeFontPadding: false,

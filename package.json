@@ -108,6 +108,7 @@
     "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#c3cb577fe289a48e9429b0c8329047e871b96278",
     "stream-browserify": "^3.0.0",
     "text-encoding": "^0.7.0",
+    "tldts": "^7.0.28",
     "unique-names-generator": "^4.7.1",
     "uuid": "^13.0.0"
   },
