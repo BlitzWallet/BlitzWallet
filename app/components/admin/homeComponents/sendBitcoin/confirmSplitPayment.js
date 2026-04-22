@@ -800,7 +800,7 @@ export default function ConfirmSplitPayment(props) {
         {/* SWAP_RATES_CHANGED — reset CTA */}
         {uiState === 'SWAP_RATES_CHANGED' && (
           <CustomButton
-            buttonStyles={{ ...CENTER }}
+            buttonStyles={{ width: INSET_WINDOW_WIDTH, ...CENTER }}
             actionFunction={handleRateChangedReset}
             textContent={t(
               'wallet.sendPages.sendPaymentScreen.swapRatesChangedButton',

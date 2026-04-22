@@ -1562,6 +1562,7 @@ export default function SendPaymentScreen(props) {
         {uiState === 'SWAP_RATES_CHANGED' && (
           <CustomButton
             buttonStyles={{
+              width: INSET_WINDOW_WIDTH,
               ...CENTER,
             }}
             actionFunction={handleRateChangedReset}

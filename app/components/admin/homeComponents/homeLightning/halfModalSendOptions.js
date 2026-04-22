@@ -894,6 +894,7 @@ export default function HalfModalSendOptions({
             )}
 
             <CustomButton
+              buttonStyles={{ ...CENTER }}
               textContent={
                 inputText?.trim()
                   ? t('constants.continue')
