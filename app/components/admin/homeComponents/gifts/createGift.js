@@ -24,9 +24,13 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import {
+  convertToDecimals,
+  satsToDollars,
+} from '../../../../functions/spark/swapAmountUtils';
 
 export default function CreateGift(props) {
-  const { swapUSDPriceDollars } = useFlashnet();
+  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -61,6 +65,10 @@ export default function CreateGift(props) {
   });
 
   const localSatAmount = convertDisplayToSats(amountValue);
+  const dollarAmount = satsToDollars(
+    localSatAmount,
+    poolInfoRef.currentPriceAInB,
+  );
 
   const handleDenominationToggle = () => {
     const nextDenom = getNextDenomination();
@@ -144,6 +152,7 @@ export default function CreateGift(props) {
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'addGiftQuantity',
             amount: localSatAmount,
+            dollarAmount: convertToDecimals(dollarAmount),
             amountValue,
             giftDenomination: determinePaymentMethod,
           });

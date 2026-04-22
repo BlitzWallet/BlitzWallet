@@ -27,7 +27,7 @@ export default function CreateGiftDescription(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor } = GetThemeColors();
 
-  const { amount, amountValue, giftDenomination, giftQuantity } =
+  const { amount, amountValue, dollarAmount, giftDenomination, giftQuantity } =
     props.route.params || {};
 
   const [description, setDescription] = useState('');
@@ -98,6 +98,7 @@ export default function CreateGiftDescription(props) {
               navigate.navigate('CreateGiftDuration', {
                 amount,
                 amountValue,
+                dollarAmount,
                 giftDenomination,
                 giftQuantity,
                 description: '',
@@ -108,6 +109,7 @@ export default function CreateGiftDescription(props) {
               navigate.navigate('CreateGiftDuration', {
                 amount,
                 amountValue,
+                dollarAmount,
                 giftDenomination,
                 giftQuantity,
                 description: description.trim(),
