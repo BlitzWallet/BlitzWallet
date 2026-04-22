@@ -138,6 +138,7 @@ export const sparkPaymenWrapper = async ({
       };
     }
     let response;
+    let amountOutSats = amountSats;
     // if (
     //   seletctedToken === 'Bitcoin' &&
     //   userBalance < amountSats + (paymentType === 'bitcoin' ? supportFee : fee)
@@ -502,6 +503,7 @@ export const sparkPaymenWrapper = async ({
               ? amountSats
               : executionResponse.swap.amountOut
             : amountSats;
+          amountOutSats = finalSatAmount;
           sparkPayResponse = await sendSparkPayment({
             receiverSparkAddress: address,
             amountSats: Number(finalSatAmount),
@@ -618,6 +620,7 @@ export const sparkPaymenWrapper = async ({
       didWork: true,
       response,
       shouldSave: !sparkInformation.identityPubKey,
+      amountOutSats,
     };
   } catch (err) {
     console.log('Send lightning payment error', err);

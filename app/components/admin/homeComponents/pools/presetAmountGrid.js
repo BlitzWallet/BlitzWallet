@@ -14,13 +14,13 @@ const PRESET_AMOUNTS_USD = [5, 10, 25, 50, 100];
  * Shows $5, $10, $25, $50, $100 and a "..." for custom amounts.
  * Dynamically adjusts to 2 rows of 3 or 3 rows of 2 based on content width.
  *
- * @param {function} onSelectPreset - Called with preset object when selected
- * @param {Object} selectedPreset - Currently selected preset object (for highlight)
+ * @param {function} onSelectPreset - Called with sats (number) when a preset is selected
+ * @param {number} selectedAmountSats - Currently selected amount in sats (for highlight)
  * @param {Object} fiatStats - Fiat conversion stats { value: pricePerBTC }
  */
 export default function PresetAmountGrid({
   onSelectPreset,
-  selectedPreset = null,
+  selectedAmountSats = 0,
   fiatStats,
   onCustomPress,
 }) {
@@ -51,34 +51,20 @@ export default function PresetAmountGrid({
   };
 
   const handleSelect = preset => {
-    // Pass the entire preset object
-    onSelectPreset(preset);
+    onSelectPreset(isFiatMode ? preset.satValueOfUsd : preset.sats);
   };
 
-  // Check if a preset is selected
   const isPresetSelected = preset => {
-    if (!selectedPreset) return false;
-
-    // Compare the appropriate values based on mode
-    const selectedValue = isFiatMode
-      ? selectedPreset.satValueOfUsd
-      : selectedPreset.sats;
+    if (!selectedAmountSats) return false;
     const presetValue = isFiatMode ? preset.satValueOfUsd : preset.sats;
-
-    return selectedValue === presetValue;
+    return selectedAmountSats === presetValue;
   };
 
-  // Check if custom amount is selected (not matching any preset)
   const isCustomSelected = () => {
-    if (!selectedPreset) return false;
-    if (selectedPreset.isCustom) return true;
-
+    if (!selectedAmountSats) return false;
     return !presets.some(preset => {
-      const selectedValue = isFiatMode
-        ? selectedPreset.satValueOfUsd
-        : selectedPreset.sats;
       const presetValue = isFiatMode ? preset.satValueOfUsd : preset.sats;
-      return selectedValue === presetValue;
+      return selectedAmountSats === presetValue;
     });
   };
 
