@@ -62,6 +62,7 @@ import {
 import { validateSplitPayment } from '../../../../functions/payments/validateSplitPayment';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 
 export default function ConfirmSplitPayment(props) {
   const navigate = useNavigation();
@@ -97,6 +98,7 @@ export default function ConfirmSplitPayment(props) {
   const [sendingMethod, setSendingMethod] = useState(null); // 'BTC' | 'USD'
   const [methodConfirmed, setMethodConfirmed] = useState(false);
   const [paymentFee, setPaymentFee] = useState(0);
+  const didWarnAboutBudget = useRef(false);
   const [swapPaymentQuote, setSwapPaymentQuote] = useState({});
   const [rateChangeDetected, setRateChangeDetected] = useState(false);
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
@@ -146,6 +148,8 @@ export default function ConfirmSplitPayment(props) {
   });
 
   const displayAmount = convertSatsToDisplay(totalSplitSats);
+
+  const { shouldWarn } = useBudgetWarning(totalSplitSats);
 
   const handleDenominationToggle = () => {
     // For fixed amounts, just change the display denomination
@@ -406,6 +410,22 @@ export default function ConfirmSplitPayment(props) {
     }
   }, [uiState, swapUSDPriceDollars, canSendPayment, needsSwap]);
 
+  useEffect(() => {
+    if (
+      uiState === 'CONFIRM_PAYMENT' &&
+      shouldWarn &&
+      !didWarnAboutBudget.current &&
+      !isSendingPayment.current
+    ) {
+      didWarnAboutBudget.current = true;
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'nearBudgetLimitWarning',
+        sliderHight: 0.6,
+        sendingAmount: totalSplitSats,
+      });
+    }
+  }, [uiState, shouldWarn, totalSplitSats]);
+
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   const handleRateChangedReset = useCallback(() => {
@@ -552,6 +572,38 @@ export default function ConfirmSplitPayment(props) {
         await new Promise(res => setTimeout(res, 1500));
       }
 
+      let effectiveSplitRecipients = splitRecipients;
+      if (needsSwap && executionResponse?.swap?.amountOut != null) {
+        const amountOut = Number(executionResponse.swap.amountOut);
+
+        if (sendingMethod === 'USD') {
+          // USD→BTC: amountOut is in satoshis
+          if (amountOut < totalSplitSats) {
+            effectiveSplitRecipients = splitRecipients.map(r => ({
+              ...r,
+              amountSats: Math.floor(
+                (r.proportion ?? r.amountSats / totalSplitSats) * amountOut,
+              ),
+            }));
+          }
+        } else {
+          // BTC→USD: amountOut is in USD base units (10_000 per cent)
+          const totalSplitCents = splitRecipients.reduce(
+            (sum, r) => sum + (r.amountCents || 0),
+            0,
+          );
+          if (amountOut < totalSplitCents * 10_000) {
+            effectiveSplitRecipients = splitRecipients.map(r => ({
+              ...r,
+              amountCents: Math.floor(
+                (r.proportion ?? (r.amountCents || 0) / totalSplitCents) *
+                  (amountOut / 10_000),
+              ),
+            }));
+          }
+        }
+      }
+
       const swapFee = needsSwap
         ? dollarsToSats(
             executionResponse.swap.feeAmount / Math.pow(10, 6),
@@ -561,7 +613,7 @@ export default function ConfirmSplitPayment(props) {
 
       const result = await bulkSparkPayment(
         currentWalletMnemoinc,
-        splitRecipients,
+        effectiveSplitRecipients,
         splitMemo,
         sparkInformation?.identityPubKey,
         {

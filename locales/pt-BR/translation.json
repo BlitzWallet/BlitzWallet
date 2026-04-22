@@ -1054,7 +1054,8 @@
         "selectPaymentMethod": "Selecione um método de pagamento para continuar.",
         "swapRatesChangedTitle": "Cotação atualizada",
         "swapRatesChangedBody": "A cotação para esta troca mudou enquanto você estava revisando. Insira o valor novamente para continuar.",
-        "swapRatesChangedButton": "Inserir valor novamente"
+        "swapRatesChangedButton": "Inserir valor novamente",
+        "feeEstimateError": "Não foi possível estimar a taxa, tente novamente"
       },
       "selectPaymentMethod": {
         "header": "Escolha o saldo para realizar esse pagamento"
@@ -2403,7 +2404,8 @@
     "paymentFeeError": "Não foi possível recuperar a taxa de pagamento. Tente novamente. Se o problema continuar, feche o app e abra-o novamente antes de tentar de novo.",
     "priceImpact": "Este pagamento é grande, portanto o valor final que você receber em dólares pode mudar.",
     "removingImageError": "Não foi possível remover a imagem. Tente novamente.",
-    "usdcUsdtTokensOnly": "Apenas os tokens USDT e USDC são suportados"
+    "usdcUsdtTokensOnly": "Apenas os tokens USDT e USDC são suportados",
+    "lightningAmountFeeWarning": "Seu saldo não cobre o valor e a taxa de ≈{{amount}}."
   },
   "loadingScreen": {
     "message1": "Por favor, não feche o aplicativo",

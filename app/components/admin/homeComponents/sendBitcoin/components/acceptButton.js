@@ -328,6 +328,12 @@ export default function AcceptButtonSendPage({
         enteredPaymentInfo: {
           amount: convertedSendAmount,
           description: paymentDescription,
+          lnInvoiceData: paymentInfo?.data?.invoice
+            ? {
+                pr: paymentInfo.data.invoice,
+                successAction: paymentInfo.data.successAction,
+              }
+            : null,
         },
         paymentInfo,
         setLoadingMessage,

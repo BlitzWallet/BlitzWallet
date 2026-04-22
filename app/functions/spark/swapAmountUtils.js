@@ -93,8 +93,24 @@ export function calculateFlashnetAmountIn({
         ? satsToDollars(dollarBalanceSat, currentPriceAInB)
         : maxBalance / Math.pow(10, 6);
     const cappedDollars = Math.min(bufferedDollars, balanceDollars);
-    return Math.round(parseFloat(cappedDollars.toFixed(2)) * Math.pow(10, 6));
+    return Math.round(parseFloat(cappedDollars) * Math.pow(10, 6));
   }
   // BTC path: stay in sats
   return Math.round(Math.min(baseAmountIn * bufferMultiplier, maxBalance));
+}
+
+/**
+ * convert number to two decimals
+ * @param {string|number|bigint} amount
+ * @returns {number} Amount with two decimals
+ */
+export function convertToDecimals(amount, decimalCount = 2) {
+  try {
+    return (
+      Math.round((amount ?? 0) * Math.pow(10, decimalCount)) /
+      Math.pow(10, decimalCount)
+    );
+  } catch (error) {
+    return 0;
+  }
 }

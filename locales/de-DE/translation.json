@@ -1054,7 +1054,8 @@
         "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren.",
         "swapRatesChangedTitle": "Wechselkurs aktualisiert",
         "swapRatesChangedBody": "Der Wechselkurs für diesen Tausch hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
-        "swapRatesChangedButton": "Betrag erneut eingeben"
+        "swapRatesChangedButton": "Betrag erneut eingeben",
+        "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut"
       },
       "selectPaymentMethod": {
         "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung senden möchten (BTC oder USD)."
@@ -2403,7 +2404,8 @@
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch verändern.",
     "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut.",
-    "usdcUsdtTokensOnly": "Nur USDT- und USDC-Token werden unterstützt"
+    "usdcUsdtTokensOnly": "Nur USDT- und USDC-Token werden unterstützt",
+    "lightningAmountFeeWarning": "Ihr Guthaben deckt den Betrag und die Gebühr von ≈{{amount}} nicht ab."
   },
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht.",

@@ -328,12 +328,18 @@ export const sparkPaymenWrapper = async ({
       // make sure to import exist speed
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
+      const feeFromQuote =
+        (feeQuote.l1BroadcastFeeFast?.originalValue || 0) +
+        (feeQuote.userFeeFast?.originalValue || 0);
+      const deductFeeFromAmount =
+        (amountSats + feeFromQuote) * 1.1 >= userBalance;
+
       const onChainPayResponse = await sendSparkBitcoinPayment({
         onchainAddress: address,
         exitSpeed,
         amountSats,
         feeQuote,
-        deductFeeFromWithdrawalAmount: true,
+        deductFeeFromWithdrawalAmount: deductFeeFromAmount,
         mnemonic,
       });
 
@@ -377,8 +383,13 @@ export const sparkPaymenWrapper = async ({
       let usedUSDB = false;
       if (needsSwap) {
         if (usablePaymentMethod === 'USD') {
+          //add fee here
+          const dollarFee = satsToDollars(
+            swapPaymentQuote.satFee,
+            poolInfoRef.currentPriceAInB,
+          );
           const formatted = calculateFlashnetAmountIn({
-            baseAmountIn: swapPaymentQuote.amountIn,
+            baseAmountIn: swapPaymentQuote.amountIn + dollarFee,
             isUsdAssetIn: true,
             dollarBalanceSat: swapPaymentQuote.dollarBalanceSat,
             currentPriceAInB: poolInfoRef.currentPriceAInB,
@@ -392,7 +403,7 @@ export const sparkPaymenWrapper = async ({
           usedUSDB = true;
         } else {
           const formatted = calculateFlashnetAmountIn({
-            baseAmountIn: swapPaymentQuote.amountIn,
+            baseAmountIn: swapPaymentQuote.amountIn + swapPaymentQuote.satFee,
             isUsdAssetIn: false,
             maxBalance: swapPaymentQuote.bitcoinBalance,
           });

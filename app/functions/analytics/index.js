@@ -1,5 +1,5 @@
 import { USDB_TOKEN_ID } from '../../constants';
-import { satsToDollars } from '../spark/flashnet';
+import { convertToDecimals, satsToDollars } from '../spark/flashnet';
 
 export function getDollarsFromTx(tx, currentPrice = 0, direction) {
   try {
@@ -7,17 +7,19 @@ export function getDollarsFromTx(tx, currentPrice = 0, direction) {
     let amount = 0;
 
     if (details.LRC20Token === USDB_TOKEN_ID) {
-      amount = parseFloat((details.amount / Math.pow(10, 6)).toFixed(2));
+      amount = convertToDecimals(details.amount / Math.pow(10, 6));
     }
 
     if (direction === 'OUTGOING') {
-      amount += satsToDollars(
-        Number(details.totalFee || details.fee || 0),
-        currentPrice,
+      amount += convertToDecimals(
+        satsToDollars(
+          Number(details.totalFee || details.fee || 0),
+          currentPrice,
+        ),
       );
     }
 
-    return parseFloat(amount.toFixed(2));
+    return convertToDecimals(amount);
   } catch (err) {
     return 0;
   }

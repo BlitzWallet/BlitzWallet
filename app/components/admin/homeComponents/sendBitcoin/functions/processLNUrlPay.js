@@ -1,5 +1,8 @@
 // import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
-import { SATSPERBITCOIN } from '../../../../../constants';
+import {
+  MIN_USD_BTC_LIGHTNING_SWAP,
+  SATSPERBITCOIN,
+} from '../../../../../constants';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { getLNAddressForLiquidPayment } from './payments';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
@@ -87,72 +90,86 @@ export default async function processLNUrlPay(input, context) {
     // malformed JSON, default stays []
   }
 
+  const preEstimatedInvoiceData = enteredPaymentInfo?.lnInvoiceData ?? null;
+  const preEstimatedSwapQuote = enteredPaymentInfo?.swapQuote ?? null;
+  const preEstimatedBtcFee = enteredPaymentInfo?.lnFeeEstimate ?? null;
+
   if (comingFromAccept || paymentInfo.sendAmount) {
-    // Generate invoice first (must be sequential with retries)
-    let numberOfTries = 0;
-    let maxRetries = 3;
-    while (!invoice && numberOfTries < maxRetries) {
-      try {
-        numberOfTries += 1;
-        let invoiceResponse;
+    // Use invoice pre-fetched during fee estimation to avoid a duplicate network call.
+    // The invoice is only valid for the exact amount sent from the contacts page.
+    if (preEstimatedInvoiceData?.pr && comingFromAccept) {
+      invoice = preEstimatedInvoiceData.pr;
+      if (preEstimatedInvoiceData.successAction) {
+        input.data.successAction = preEstimatedInvoiceData.successAction;
+      }
+    } else {
+      // Generate invoice first (must be sequential with retries)
+      let numberOfTries = 0;
+      let maxRetries = 3;
+      while (!invoice && numberOfTries < maxRetries) {
+        try {
+          numberOfTries += 1;
+          let invoiceResponse;
 
-        if (fromPage === 'contacts' && !contactInfo?.isLNURLPayment) {
-          invoiceResponse = await getBolt11InvoiceForContact(
-            contactInfo.uniqueName,
-            Number(enteredAmount / 1000),
-            description,
-            true,
-            undefined,
-            masterInfoObject.uuid,
-          );
-        } else {
-          invoiceResponse = await getLNAddressForLiquidPayment(
-            input,
-            Number(enteredAmount / 1000),
-            description,
-          );
-        }
-
-        if (invoiceResponse.pr) {
-          invoice = invoiceResponse.pr;
-          if (invoiceResponse.successAction) {
-            input.data.successAction = invoiceResponse.successAction;
+          if (fromPage === 'contacts' && !contactInfo?.isLNURLPayment) {
+            invoiceResponse = await getBolt11InvoiceForContact(
+              contactInfo.uniqueName,
+              Number(enteredAmount / 1000),
+              description,
+              true,
+              undefined,
+              masterInfoObject.uuid,
+            );
+          } else {
+            invoiceResponse = await getLNAddressForLiquidPayment(
+              input,
+              Number(enteredAmount / 1000),
+              description,
+            );
           }
-          break;
+
+          if (invoiceResponse.pr) {
+            invoice = invoiceResponse.pr;
+            if (invoiceResponse.successAction) {
+              input.data.successAction = invoiceResponse.successAction;
+            }
+            break;
+          }
+        } catch (err) {
+          console.log(`Invoice generation attempt ${numberOfTries} failed:`, err);
         }
-      } catch (err) {
-        console.log(`Invoice generation attempt ${numberOfTries} failed:`, err);
+
+        if (!invoice && numberOfTries < maxRetries) {
+          console.log(
+            `Waiting to retry invoice generation (attempt ${numberOfTries + 1})`,
+          );
+          await new Promise(res => setTimeout(res, 2000));
+        }
       }
 
-      if (!invoice && numberOfTries < maxRetries) {
-        console.log(
-          `Waiting to retry invoice generation (attempt ${numberOfTries + 1})`,
+      if (!invoice)
+        throw new Error(
+          t('wallet.sendPages.handlingAddressErrors.lnurlPayNoInvoiceError'),
         );
-        await new Promise(res => setTimeout(res, 2000));
-      }
     }
-
-    if (!invoice)
-      throw new Error(
-        t('wallet.sendPages.handlingAddressErrors.lnurlPayNoInvoiceError'),
-      );
 
     // Now that we have the invoice, determine which fee estimates are needed
     const needUsdFee =
       (usablePaymentMethod === 'USD' ||
         ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
           dollarBalanceSat >= amountMsat / 1000)) &&
-      amountMsat / 1000 >= min_usd_swap_amount;
+      amountMsat / 1000 >= MIN_USD_BTC_LIGHTNING_SWAP;
     const needBtcFee =
       usablePaymentMethod === 'BTC' ||
       ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
         bitcoinBalance >= amountMsat / 1000);
 
-    // Check if we have cached values
+    // Check if we have cached values (from re-decode) or pre-estimated values (from contacts fee estimation)
     const hasUsdQuote =
-      typeof paymentInfo.swapPaymentQuote === 'object' &&
-      Object.keys(paymentInfo.swapPaymentQuote).length;
-    const hasBtcFee = !!paymentInfo.paymentFee;
+      preEstimatedSwapQuote !== null ||
+      (typeof paymentInfo.swapPaymentQuote === 'object' &&
+        Object.keys(paymentInfo.swapPaymentQuote).length);
+    const hasBtcFee = !!preEstimatedBtcFee || !!paymentInfo.paymentFee;
 
     // Build parallel operations
     const promises = [];
@@ -221,13 +238,18 @@ export default async function processLNUrlPay(input, context) {
       }
     } else {
       if (needUsdFee && hasUsdQuote) {
-        paymentFee = paymentInfo.swapPaymentQuote.fee;
+        const sourceQuote = preEstimatedSwapQuote || paymentInfo.swapPaymentQuote;
+        swapPaymentQuote = {
+          ...sourceQuote,
+          bitcoinBalance,
+          dollarBalanceSat,
+        };
+        paymentFee = sourceQuote.fee;
         supportFee = 0;
-        swapPaymentQuote = paymentInfo.swapPaymentQuote;
       }
       if (needBtcFee && hasBtcFee) {
-        paymentFee = paymentInfo.paymentFee;
-        supportFee = paymentInfo.supportFee;
+        paymentFee = preEstimatedBtcFee || paymentInfo.paymentFee;
+        supportFee = paymentInfo.supportFee || 0;
       }
     }
   }
