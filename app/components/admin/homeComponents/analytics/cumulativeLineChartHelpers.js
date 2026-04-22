@@ -3,6 +3,7 @@ import {
   getDollarsFromTx,
   getSatsFromTx,
 } from '../../../../functions/analytics';
+import { convertToDecimals } from '../../../../functions/spark/swapAmountUtils';
 
 /**
  * Builds a cumulative daily total for the current month.
@@ -45,7 +46,7 @@ export function buildCumulativeData(
     ).getTime();
     result.push({
       timestamp,
-      value: isUSD ? parseFloat(running.toFixed(2)) : Math.round(running),
+      value: isUSD ? convertToDecimals(running) : Math.round(running),
     });
   }
   return result;

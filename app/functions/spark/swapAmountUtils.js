@@ -98,3 +98,19 @@ export function calculateFlashnetAmountIn({
   // BTC path: stay in sats
   return Math.round(Math.min(baseAmountIn * bufferMultiplier, maxBalance));
 }
+
+/**
+ * convert number to two decimals
+ * @param {string|number|bigint} amount
+ * @returns {number} Amount with two decimals
+ */
+export function convertToDecimals(amount, decimalCount = 2) {
+  try {
+    return (
+      Math.round((amount ?? 0) * Math.pow(10, decimalCount)) /
+      Math.pow(10, decimalCount)
+    );
+  } catch (error) {
+    return 0;
+  }
+}
