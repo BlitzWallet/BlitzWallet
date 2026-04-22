@@ -104,7 +104,10 @@ export default function SendAndRequestPage(props) {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToast();
   const [lnFeeEstimate, setLnFeeEstimate] = useState(null);
+  const [swapQuote, setSwapQuote] = useState({});
+  const [lnInvoiceData, setLnInvoiceData] = useState(null);
   const lnurlParsedRef = useRef(null);
+  const quoteId = useRef(null);
   const poolInfoRefSnapshotRef = useRef(poolInfoRef);
   const prefSelectedPaymentInfo = useRef({
     selectedPaymentMethod,
@@ -175,7 +178,8 @@ export default function SendAndRequestPage(props) {
   }, [poolInfoRefSnapshotRef.current.currentPriceAInB, swapLimits]);
 
   const estimateLNURLFee = useCallback(
-    async amount => {
+    async (amount, id) => {
+      if (quoteId.current !== id) return;
       if (!selectedContact?.isLNURL || paymentType !== 'send' || !amount) {
         setIsLoading(false);
         return;
@@ -205,7 +209,9 @@ export default function SendAndRequestPage(props) {
           amount,
           '',
         );
+        if (quoteId.current !== id) return;
         if (!invoiceResponse.pr) throw new Error('No invoice received');
+        setLnInvoiceData(invoiceResponse);
 
         if (selectedPaymentMethod === 'USD') {
           const quote = await getLightningPaymentQuote(
@@ -216,6 +222,7 @@ export default function SendAndRequestPage(props) {
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');
           const fee = quote.quote.fee;
+          if (quoteId.current !== id) return;
           if (fee + amount > dollarBalanceSat) {
             showToast({
               type: 'error',
@@ -232,6 +239,8 @@ export default function SendAndRequestPage(props) {
               duration: 6000,
             });
           }
+
+          setSwapQuote(quote.quote);
           setLnFeeEstimate(fee);
         } else {
           const feeResult = await sparkPaymenWrapper({
@@ -246,6 +255,7 @@ export default function SendAndRequestPage(props) {
           });
           if (!feeResult.didWork) throw new Error('Fee estimation failed');
           const fee = feeResult.fee;
+          if (quoteId.current !== id) return;
           if (fee + amount > bitcoinBalance) {
             showToast({
               type: 'error',
@@ -270,7 +280,9 @@ export default function SendAndRequestPage(props) {
           title: t('wallet.sendPages.sendPaymentScreen.feeEstimateError'),
         });
       } finally {
-        setIsLoading(false);
+        if (quoteId.current === id) {
+          setIsLoading(false);
+        }
       }
     },
     [
@@ -306,17 +318,19 @@ export default function SendAndRequestPage(props) {
           giftOption || selectedContact?.isLNURL ? InputTypes.BOLT11 : 'spark',
         data: { amountMsat: convertedSendAmount * 1000 },
       },
-      swapPaymentQuote: {
-        amountIn:
-          selectedPaymentMethod === 'BTC'
-            ? convertedSendAmount
-            : inputDenomination === 'fiat'
-            ? amountValue * Math.pow(10, 6)
-            : satsToDollars(
-                convertedSendAmount,
-                poolInfoRef.currentPriceAInB,
-              )?.toFixed(2) * Math.pow(10, 6),
-      },
+      swapPaymentQuote: Object.keys(swapQuote).length
+        ? swapQuote
+        : {
+            amountIn:
+              selectedPaymentMethod === 'BTC'
+                ? convertedSendAmount
+                : inputDenomination === 'fiat'
+                ? amountValue * Math.pow(10, 6)
+                : satsToDollars(
+                    convertedSendAmount,
+                    poolInfoRef.currentPriceAInB,
+                  )?.toFixed(2) * Math.pow(10, 6),
+          },
     },
     convertedSendAmount,
     paymentFee: lnFeeEstimate ?? 0,
@@ -404,9 +418,12 @@ export default function SendAndRequestPage(props) {
   useEffect(() => {
     if (!selectedContact?.isLNURL || paymentType !== 'send') return;
     setLnFeeEstimate(null);
+    setSwapQuote({});
     if (convertedSendAmount > 0) {
+      const id = customUUID();
+      quoteId.current = id;
       setIsLoading(true);
-      debouncedEstimateLNURLFee(convertedSendAmount);
+      debouncedEstimateLNURLFee(convertedSendAmount, id);
     }
   }, [convertedSendAmount, selectedContact?.isLNURL, paymentType]);
 
@@ -653,6 +670,8 @@ export default function SendAndRequestPage(props) {
             description: myProfileMessage,
             endReceiveType: endReceiveType,
             lnFeeEstimate: selectedContact?.isLNURL ? lnFeeEstimate : null,
+            swapQuote: Object.keys(swapQuote).length ? swapQuote : null,
+            lnInvoiceData: selectedContact?.isLNURL ? lnInvoiceData : null,
           },
           contactInfo: {
             imageData,

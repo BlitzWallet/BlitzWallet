@@ -7,7 +7,6 @@ import {
   USDB_TOKEN_ID,
 } from '../../../../../constants';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
-import { SEND_AMOUNT_INCREASE_BUFFER } from '../../../../../functions/spark/flashnet';
 
 export default function usePaymentValidation({
   // Payment info
@@ -52,7 +51,6 @@ export default function usePaymentValidation({
   sparkInformation,
 }) {
   const validation = useMemo(() => {
-    // Initialize validation result
     const result = {
       isValid: false,
       canProceed: false,
@@ -60,27 +58,29 @@ export default function usePaymentValidation({
       needsUserChoice: false,
     };
 
-    // Early return if still decoding or no payment info
+    // ─── Phase 1: UI state guards (passthrough — not real validation) ──────────
+    // These check whether the UI is ready to validate, not whether payment is valid.
+
     if (isDecoding || !Object.keys(paymentInfo || {}).length) {
       result.errors.push('DECODING');
       return result;
     }
 
-    // Check if amount is provided when editing
     if (canEditAmount && !Number(paymentInfo?.sendAmount)) {
       result.errors.push('NO_AMOUNT');
       return result;
     }
 
-    // Payment type checks
+    // ─── Shared derived values ─────────────────────────────────────────────────
+
     const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
     const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
     const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
     const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
 
-    // Get receiver's expected currency
     const receiverExpectsCurrency =
       paymentInfo?.data?.expectedReceive || 'sats';
+    const expectedToken = paymentInfo?.data?.expectedToken;
     const totalCost = convertedSendAmount + paymentFee;
 
     const finalPaymentMethod =
@@ -96,25 +96,29 @@ export default function usePaymentValidation({
       'payment methods',
     );
 
+    // ─── Phase 2: LRC20 token payments (self-contained, early return) ──────────
     if (isUsingLRC20) {
       const tokenBalance = seletctedToken?.balance ?? 0;
       const tokenDecimals = seletctedToken?.tokenMetadata?.decimals ?? 0;
       const requiredTokenAmount = paymentInfo?.sendAmount * 10 ** tokenDecimals;
 
-      // Check if user has enough token balance
       if (tokenBalance < requiredTokenAmount) {
         result.errors.push('INSUFFICIENT_TOKEN_BALANCE');
         return result;
       }
 
-      // LRC20 validation passed
       result.isValid = true;
       result.canProceed = true;
       return result;
     }
 
+    // ─── Phase 3: Payment-type routing ────────────────────────────────────────
+    // Each branch owns all checks specific to that payment type.
+    // Direct payments (no swap) return early here.
+    // Payments that need a swap fall through to Phase 4.
+
+    // 3A. Lightning (BOLT11) — falls through to Phase 4 or 5
     if (isLightningPayment) {
-      // zero amount invoices do not support swaps
       if (
         finalPaymentMethod === 'USD' &&
         paymentInfo?.decodedInput?.type === InputTypes.BOLT11 &&
@@ -133,8 +137,8 @@ export default function usePaymentValidation({
       }
     }
 
+    // 3B. On-chain Bitcoin — validates and returns early (no swap supported)
     if (isBitcoinPayment) {
-      // Check minimum on-chain amount
       if (convertedSendAmount < SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT) {
         result.errors.push('BELOW_BITCOIN_MINIMUM');
         return result;
@@ -145,26 +149,17 @@ export default function usePaymentValidation({
         return result;
       }
 
-      // if (
-      //   dollarBalanceSat + bitcoinBalance > totalCost &&
-      //   bitcoinBalance < totalCost
-      // ) {
-      //   result.errors.push('BALANCE_FRAGMENTATION');
-      //   return result;
-      // }
-
-      // Check if user has sufficient BTC balance
       if (bitcoinBalance < convertedSendAmount) {
         result.errors.push('INSUFFICIENT_BALANCE');
         return result;
       }
 
-      // Bitcoin validation passed
       result.isValid = true;
       result.canProceed = true;
       return result;
     }
 
+    // 3C. LNURL — validates bounds, then falls through to Phase 4 or 5
     if (isLNURLPayment) {
       if (convertedSendAmount < minLNURLSatAmount) {
         result.errors.push('BELOW_LNURL_MINIMUM');
@@ -177,12 +172,50 @@ export default function usePaymentValidation({
       }
     }
 
+    // 3D. Spark — direct cases return early, swap cases fall through to Phase 4
+    if (isSparkPayment) {
+      // Case 1: BTC → sats (no swap needed)
+      const isDirectBtcToSats =
+        finalPaymentMethod === 'BTC' &&
+        receiverExpectsCurrency === 'sats' &&
+        expectedToken !== USDB_TOKEN_ID;
+
+      // Case 4: USD → USDB tokens (no swap needed)
+      const isDirectUsdToUsd =
+        finalPaymentMethod === 'USD' && receiverExpectsCurrency === 'tokens';
+
+      if (isDirectBtcToSats) {
+        if (bitcoinBalance < totalCost) {
+          result.errors.push('INSUFFICIENT_BALANCE');
+          return result;
+        }
+        result.isValid = true;
+        result.canProceed = true;
+        return result;
+      }
+
+      if (isDirectUsdToUsd) {
+        if (dollarBalanceSat < totalCost) {
+          result.errors.push('INSUFFICIENT_BALANCE');
+          return result;
+        }
+        result.isValid = true;
+        result.canProceed = true;
+        return result;
+      }
+
+      // Cases 2 & 3 need a Flashnet swap — fall through to Phase 4
+    }
+
+    // ─── Phase 4: Swap validation ──────────────────────────────────────────────
+    // Runs for: Lightning USD→BTC, LNURL USD→BTC, Spark BTC→USDB, Spark USD→BTC
+
     const needsSwap =
       (finalPaymentMethod === 'USD' && receiverExpectsCurrency === 'sats') ||
       (finalPaymentMethod === 'BTC' && receiverExpectsCurrency === 'tokens') ||
       (isSparkPayment &&
         finalPaymentMethod === 'BTC' &&
-        paymentInfo?.data?.expectedToken === USDB_TOKEN_ID);
+        expectedToken === USDB_TOKEN_ID);
 
     console.log(
       needsSwap,
@@ -203,8 +236,8 @@ export default function usePaymentValidation({
         // quote's authoritative token debit directly against dollarBalanceToken.
         const USDB_DECIMALS = 6;
         const tokenAmountRequired =
-          paymentInfo?.swapPaymentQuote?.tokenAmountRequired; //lightning paymetns only
-        const amountIn = paymentInfo?.swapPaymentQuote?.amountIn; //all manual swap calls
+          paymentInfo?.swapPaymentQuote?.tokenAmountRequired; // lightning payments only
+        const amountIn = paymentInfo?.swapPaymentQuote?.amountIn; // all manual swap calls
         const userDollarBalance =
           dollarBalanceToken * Math.pow(10, USDB_DECIMALS);
 
@@ -235,33 +268,25 @@ export default function usePaymentValidation({
           return result;
         }
       }
+
       if (!sparkInformation?.didConnectToFlashnet) {
         result.errors.push('FLASHNET_NOT_INITIALIZED');
         return result;
       }
     }
 
+    // ─── Phase 5: Final direct balance check ───────────────────────────────────
+    // Reaches here only for Lightning BTC and LNURL BTC (direct, no swap).
+    // Spark exits early in Phase 3; swap paths exit in Phase 4.
+
     const hasSufficientBalance =
       finalPaymentMethod === 'USD'
-        ? dollarBalanceSat + 1 >= totalCost
+        ? dollarBalanceSat >= totalCost
         : bitcoinBalance >= totalCost;
 
-    // already check balance for swap above we do not inclue fee there
-    // only checking LN here, BTC is already handled above
-    if (!isSparkPayment) {
-      if (!hasSufficientBalance) {
-        // Check for balance fragmentation
-        // const hasSufficientTotalBalance =
-        //   bitcoinBalance + dollarBalanceSat >= totalCost;
-
-        // if (hasSufficientTotalBalance) {
-        //   result.errors.push('BALANCE_FRAGMENTATION');
-        //   return result;
-        // }
-
-        result.errors.push('INSUFFICIENT_BALANCE');
-        return result;
-      }
+    if (!hasSufficientBalance) {
+      result.errors.push('INSUFFICIENT_BALANCE');
+      return result;
     }
 
     result.isValid = true;
