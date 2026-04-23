@@ -184,6 +184,14 @@ export function AddContactContent({
     }
   };
 
+  const resolveBlitzLNURLContact = async address => {
+    const username = address.split('@')[0];
+    return await getDeepLinkUser({
+      deepLinkContent: `blitz-wallet/u/${username}`,
+      userProfile: globalContactsInformation.myProfile,
+    });
+  };
+
   const parseContact = async data => {
     try {
       const sanitizedData = data.trim();
@@ -193,15 +201,8 @@ export function AddContactContent({
       );
       let newContact;
       if (isBlitzLNURLAddress(sanitizedData)) {
-        const username = sanitizedData.split('@')[0];
-        const {
-          didWork,
-          reason,
-          data: userProfile,
-        } = await getDeepLinkUser({
-          deepLinkContent: `blitz-wallet/u/${username}`,
-          userProfile: globalContactsInformation.myProfile,
-        });
+        const {didWork, reason, data: userProfile} =
+          await resolveBlitzLNURLContact(sanitizedData);
 
         if (!didWork) {
           navigate.navigate('ErrorScreen', {
@@ -272,8 +273,50 @@ export function AddContactContent({
     }
   };
 
-  const clearHalfModalForLNURL = () => {
+  const clearHalfModalForLNURL = async () => {
     if (!EMAIL_REGEX.test(searchInput)) return;
+
+    if (isBlitzLNURLAddress(searchInput)) {
+      setIsSearching(true);
+      setRemoteLoadingMessage(
+        t('contacts.addContactsHalfModal.loadingMessage'),
+      );
+      try {
+        const {didWork, reason, data: userProfile} =
+          await resolveBlitzLNURLContact(searchInput);
+
+        if (!didWork) {
+          navigate.navigate('ErrorScreen', {errorMessage: t(reason)});
+          return;
+        }
+
+        setRemoteLoadingMessage(
+          t('contacts.addContactsHalfModal.profileImage'),
+        );
+        await getCachedProfileImage(userProfile.uuid);
+
+        if (!isFocused.current) return;
+
+        if (onContactAdded) {
+          onContactAdded(userProfile);
+        } else {
+          keyboardNavigate(() => {
+            navigate.replace('ExpandedAddContactsPage', {
+              newContact: userProfile,
+            });
+          });
+        }
+      } catch (err) {
+        console.log('clearHalfModalForLNURL blitz error', err);
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('contacts.addContactsHalfModal.noContactsMessage'),
+        });
+      } finally {
+        setIsSearching(false);
+        setRemoteLoadingMessage('');
+      }
+      return;
+    }
 
     const newContact = {
       name: searchInput.split('@')[0],
@@ -374,18 +417,19 @@ export function AddContactContent({
           contentContainerStyle={{
             alignItems: 'center',
             marginTop: 10,
+            flexGrow: 1,
           }}
         >
           <ThemeText
             content={t('contacts.addContactsHalfModal.lnurlAddMessage')}
           />
-          <ThemeText content={searchInput} />
+          <ThemeText styles={{ marginBottom: 25 }} content={searchInput} />
 
           <CustomButton
             buttonStyles={{
               width: 'auto',
               ...CENTER,
-              marginTop: 25,
+              marginTop: 'auto',
             }}
             actionFunction={() => {
               clearHalfModalForLNURL();
