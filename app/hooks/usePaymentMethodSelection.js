@@ -3,18 +3,13 @@ import { useMemo } from 'react';
 export default function usePaymentMethodSelection({
   // Payment info
   paymentInfo = {},
-  convertedSendAmount = 0,
-  paymentFee = 0,
 
   // Balances
-  sparkBalance = 0,
   bitcoinBalance = 0,
-  dollarBalanceSat = 0,
   dollarBalanceToken = 0,
 
   // Swap limits
-  min_usd_swap_amount = 0,
-  swapLimits = { bitcoin: 0 },
+  swapLimits = { bitcoin: 1000, usd: 1 },
 
   // Token info
   isUsingLRC20 = false,
@@ -29,106 +24,103 @@ export default function usePaymentMethodSelection({
 }) {
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
   const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
+  const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
 
   const hasBothUSDAndBitcoinBalance =
-    Number(dollarBalanceToken) > 0.01 && !!bitcoinBalance;
+    Number(dollarBalanceToken) >= 0.01 && !!bitcoinBalance;
 
   const determinePaymentMethod = useMemo(() => {
+    if (!paymentInfo || !Object.keys(paymentInfo).length) return undefined;
+
     // If using LRC20, payment method is not relevant
     if (isUsingLRC20) return 'BTC';
 
     // Bitcoin payments can only use BTC
     if (isBitcoinPayment) return 'BTC';
 
-    // If user already selected a method, use it
     if (selectedPaymentMethod) return selectedPaymentMethod;
 
-    // Check user balances
-    const hasBTCBalance = sparkBalance >= convertedSendAmount + paymentFee;
-    const hasUSDBalance = dollarBalanceSat >= convertedSendAmount + paymentFee;
+    if (isSparkPayment && useFullTokensDisplay) return 'BTC';
 
-    // Check swap limits
-    const meetsUSDMinimum = convertedSendAmount >= min_usd_swap_amount;
-    const meetsBTCMinimum = convertedSendAmount >= swapLimits.bitcoin;
+    const hasBitcoinBalance = !!bitcoinBalance;
+    const hasDollarBalance = Number(dollarBalanceToken) > 0.01;
 
-    if (!Object.keys(paymentInfo).length) return undefined;
+    const bitcoinBalanceAboveSwapMinimum = bitcoinBalance > swapLimits.bitcoin;
+    const dollarBalanceAboveSwapMinimum = dollarBalanceToken > swapLimits.usd;
 
-    // If payment is Spark
+    if (isLightningPayment) {
+      if (
+        hasBitcoinBalance &&
+        hasDollarBalance &&
+        dollarBalanceAboveSwapMinimum &&
+        sparkInformation?.didConnectToFlashnet
+      )
+        return 'user-choice';
+
+      if (hasBitcoinBalance) return 'BTC';
+
+      if (
+        hasDollarBalance &&
+        dollarBalanceAboveSwapMinimum &&
+        sparkInformation?.didConnectToFlashnet
+      )
+        return 'USD';
+
+      return 'BTC';
+    }
+
     if (isSparkPayment) {
-      // If using full token display (multiple tokens), always use BTC
-      if (useFullTokensDisplay) return 'BTC';
+      const userExpectsBTC = paymentInfo.data?.expectedReceive === 'sats';
+      if (userExpectsBTC) {
+        // BTC
+        if (
+          hasBitcoinBalance &&
+          hasDollarBalance &&
+          dollarBalanceAboveSwapMinimum &&
+          sparkInformation?.didConnectToFlashnet
+        )
+          return 'user-choice';
 
-      // Receiver expects BTC
-      if (paymentInfo.data?.expectedReceive === 'sats') {
-        // BTC → BTC Spark (no swap needed)
-        const canPayBTCtoBTC = hasBTCBalance;
+        if (hasBitcoinBalance) return 'BTC';
+        if (
+          hasDollarBalance &&
+          dollarBalanceAboveSwapMinimum &&
+          sparkInformation?.didConnectToFlashnet
+        )
+          return 'USD';
+        return 'BTC';
+      } else {
+        // USD
+        if (
+          hasDollarBalance &&
+          hasBitcoinBalance &&
+          bitcoinBalanceAboveSwapMinimum &&
+          sparkInformation?.didConnectToFlashnet
+        )
+          return 'user-choice';
 
-        // USD → BTC Spark (requires swap, check minimums)
-        const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
+        if (hasDollarBalance) return 'USD';
 
         if (
-          canPayBTCtoBTC &&
-          canPayUSDtoBTC &&
+          hasBitcoinBalance &&
+          bitcoinBalanceAboveSwapMinimum &&
           sparkInformation?.didConnectToFlashnet
-        ) {
-          return 'user-choice';
-        }
-        return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : 'BTC';
-      }
-      // Receiver expects USD
-      else {
-        // USD → USD Spark (no swap needed)
-        const canPayUSDtoUSD = hasUSDBalance;
-
-        // BTC → USD Spark (requires swap, check minimums)
-        const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
-
-        if (
-          canPayUSDtoUSD &&
-          canPayBTCtoUSD &&
-          sparkInformation?.didConnectToFlashnet
-        ) {
-          return 'user-choice';
-        }
-        return canPayUSDtoUSD ? 'USD' : canPayBTCtoUSD ? 'BTC' : 'USD';
+        )
+          return 'BTC';
+        return 'USD';
       }
     }
-
-    // Lightning payments (always receive as BTC)
-    // BTC → BTC (no swap)
-    const canPayBTCtoBTC = hasBTCBalance;
-
-    // USD → BTC (requires swap, check minimums)
-    const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
-
-    if (
-      canPayBTCtoBTC &&
-      canPayUSDtoBTC &&
-      sparkInformation?.didConnectToFlashnet
-    ) {
-      return 'user-choice';
-    }
-
-    if (!hasBothUSDAndBitcoinBalance) {
-      return Number(dollarBalanceToken) > 0.01 ? 'USD' : 'BTC';
-    }
-
-    return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : 'BTC';
+    return 'BTC'; // fallback for unhandled networks (liquid, etc.)
   }, [
     isUsingLRC20,
     isBitcoinPayment,
+    isLightningPayment,
+    isSparkPayment,
     selectedPaymentMethod,
     paymentInfo,
-    sparkBalance,
-    dollarBalanceSat,
     dollarBalanceToken,
-    convertedSendAmount,
-    paymentFee,
-    min_usd_swap_amount,
     swapLimits,
     useFullTokensDisplay,
-    hasBothUSDAndBitcoinBalance,
-    isSparkPayment,
     sparkInformation?.didConnectToFlashnet,
   ]);
 
