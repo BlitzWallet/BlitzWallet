@@ -77,6 +77,7 @@ export default function PoolDetailScreen(props) {
 
   const isCreator = pool?.creatorUUID === masterInfoObject?.uuid;
   const isActive = pool?.status === 'active';
+  const goalReached = pool?.currentAmount >= pool?.goalAmount;
   const hideContributorsForClosedPools =
     isCreator &&
     !isActive &&
@@ -307,8 +308,20 @@ export default function PoolDetailScreen(props) {
         label={pool?.poolTitle || t('wallet.pools.pool')}
         showLeftImage={isCreator}
         leftImageStyles={{ height: 25 }}
-        iconNew={isActive ? 'ArchiveX' : 'RefreshCcw'}
-        leftImageFunction={isActive ? handleClosePool : handleReCheck}
+        iconNew={
+          isActive
+            ? isCreator && goalReached
+              ? 'Share'
+              : 'ArchiveX'
+            : 'RefreshCcw'
+        }
+        leftImageFunction={
+          isActive
+            ? isCreator && goalReached
+              ? handleShare
+              : handleClosePool
+            : handleReCheck
+        }
       />
 
       <ScrollView
