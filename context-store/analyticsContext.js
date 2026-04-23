@@ -14,7 +14,10 @@ import {
 } from '../app/functions/analytics/index';
 import { buildCumulativeData } from '../app/components/admin/homeComponents/analytics/cumulativeLineChartHelpers';
 import { useAppStatus } from './appStatus';
-import { dollarsToSats } from '../app/functions/spark/swapAmountUtils';
+import {
+  convertToDecimals,
+  dollarsToSats,
+} from '../app/functions/spark/swapAmountUtils';
 
 const AnalyticsContext = createContext(null);
 
@@ -27,15 +30,6 @@ export function AnalyticsProvider({ children }) {
   const [inTxsUSD, setInTxsUSD] = useState([]);
   const [outTxsUSD, setOutTxsUSD] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const txUpdateKey = useMemo(() => {
-    if (sparkInformation.transactions.length) {
-      const latestTx = sparkInformation.transactions[0];
-      return `${latestTx?.sparkId}-${latestTx.paymentStatus}`;
-    } else {
-      return 'no-txs';
-    }
-  }, [sparkInformation.transactions]);
 
   useEffect(() => {
     async function load() {
@@ -74,7 +68,11 @@ export function AnalyticsProvider({ children }) {
       }
     }
     load();
-  }, [sparkInformation.identityPubKey, txUpdateKey, didGetToHomepage]);
+  }, [
+    sparkInformation.identityPubKey,
+    sparkInformation.transactions.length,
+    didGetToHomepage,
+  ]);
 
   const incomeTotalBTC = useMemo(() => {
     try {
@@ -112,15 +110,18 @@ export function AnalyticsProvider({ children }) {
 
   const incomeTotalUSD = useMemo(() => {
     try {
-      return inTxsUSD.reduce((sum, tx) => {
-        try {
-          return (
-            sum + getDollarsFromTx(tx, poolInfoRef.currentPriceAInB, 'INCOMING')
-          );
-        } catch {
-          return sum;
-        }
-      }, 0);
+      return convertToDecimals(
+        inTxsUSD.reduce((sum, tx) => {
+          try {
+            return (
+              sum +
+              getDollarsFromTx(tx, poolInfoRef.currentPriceAInB, 'INCOMING')
+            );
+          } catch {
+            return sum;
+          }
+        }, 0),
+      );
     } catch (err) {
       console.log('eror calcuating total', err);
       return 0;
@@ -129,15 +130,18 @@ export function AnalyticsProvider({ children }) {
 
   const spentTotalUSD = useMemo(() => {
     try {
-      return outTxsUSD.reduce((sum, tx) => {
-        try {
-          return (
-            sum + getDollarsFromTx(tx, poolInfoRef.currentPriceAInB, 'OUTGOING')
-          );
-        } catch {
-          return sum;
-        }
-      }, 0);
+      return convertToDecimals(
+        outTxsUSD.reduce((sum, tx) => {
+          try {
+            return (
+              sum +
+              getDollarsFromTx(tx, poolInfoRef.currentPriceAInB, 'OUTGOING')
+            );
+          } catch {
+            return sum;
+          }
+        }, 0),
+      );
     } catch (err) {
       console.log('error calcuating spent', err);
       return 0;

@@ -30,6 +30,7 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 export default function AddGiftQuantityHalfModal({
   amount,
   amountValue,
+  dollarAmount,
   giftDenomination,
   setContentHeight,
   handleBackPressFunction,
@@ -39,7 +40,7 @@ export default function AddGiftQuantityHalfModal({
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { bitcoinBalance, dollarBalanceSat } = useUserBalanceContext();
+  const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { swapLimits, poolInfoRef } = useFlashnet();
 
@@ -77,12 +78,10 @@ export default function AddGiftQuantityHalfModal({
     }
 
     const totalNeeded = amount * clampedQty;
-    const totalBalance = bitcoinBalance + dollarBalanceSat;
+    const totalNeededUSD = dollarAmount * clampedQty;
 
-    console.log(totalBalance, totalNeeded);
-
-    // Total balance insufficient
-    if (totalBalance < totalNeeded) {
+    // Fragmentation: neither single balance is sufficent
+    if (bitcoinBalance < totalNeeded && dollarBalanceToken < totalNeededUSD) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t(
           'screens.inAccount.giftPages.createGift.insufficientBalanceQuantity',
@@ -94,26 +93,10 @@ export default function AddGiftQuantityHalfModal({
       return;
     }
 
-    // Fragmentation: neither single balance covers it but combined does
-    if (
-      bitcoinBalance < totalNeeded &&
-      dollarBalanceSat < totalNeeded &&
-      totalBalance >= totalNeeded
-    ) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t(
-          'wallet.sendPages.acceptButton.balanceFragmentationError',
-        ),
-      });
-      return;
-    }
-
     const hasBTCBalance = bitcoinBalance >= totalNeeded;
-    const hasUSDBalance = dollarBalanceSat >= totalNeeded;
+    const hasUSDBalance = dollarBalanceToken >= totalNeededUSD;
 
-    const meetsUSDMinimum =
-      totalNeeded >=
-      dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
+    const meetsUSDMinimum = totalNeededUSD >= swapLimits.usd;
     const meetsBTCMinimum = totalNeeded >= swapLimits.bitcoin;
 
     console.log(hasBTCBalance, hasUSDBalance, meetsBTCMinimum, meetsUSDMinimum);
@@ -170,6 +153,7 @@ export default function AddGiftQuantityHalfModal({
       navigate.navigate('CreateGiftDescription', {
         amount,
         amountValue,
+        dollarAmount,
         giftDenomination,
         giftQuantity: clampedQty,
       });

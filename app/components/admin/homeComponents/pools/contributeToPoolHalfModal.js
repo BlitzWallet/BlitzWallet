@@ -29,6 +29,18 @@ import { useGlobalContactsInfo } from '../../../../../context-store/globalContac
 import { usePools } from '../../../../../context-store/poolContext';
 import { Timestamp } from '@react-native-firebase/firestore';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import { useWebView } from '../../../../../context-store/webViewContext';
+import { validatePoolPayment } from './poolPaymentValidation';
+import {
+  BTC_ASSET_ADDRESS,
+  dollarsToSats,
+  satsToDollars,
+  USD_ASSET_ADDRESS,
+} from '../../../../functions/spark/swapAmountUtils';
+import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import convertTextInputValue from '../../../../functions/textInputConvertValue';
+import { simulateSwap } from '../../../../functions/spark/flashnet';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -39,12 +51,15 @@ export default function ContributeToPoolHalfModal({
   handleBackPressFunction,
 }) {
   const navigate = useNavigation();
+  const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
+    useUserBalanceContext();
+  const { sendWebViewRequest } = useWebView();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { poolInfoRef } = useFlashnet();
+  const { poolInfoRef, swapUSDPriceDollars } = useFlashnet();
   const { addContributionToCache } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
@@ -52,8 +67,7 @@ export default function ContributeToPoolHalfModal({
 
   // Step can be 'select', 'custom', 'confirm', 'loading', 'success'
   const [step, setStep] = useState(['select']);
-  // Store the full preset object or custom amount details
-  const [selectedPreset, setSelectedPreset] = useState(null);
+  const [selectedAmountSats, setSelectedAmountSats] = useState(0);
   const [amountValue, setAmountValue] = useState('');
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination !== 'fiat' ? 'sats' : 'fiat',
@@ -61,9 +75,31 @@ export default function ContributeToPoolHalfModal({
   // extract current page for easier handling
   const currentPage = step[step.length - 1];
 
+  const normalizedInputDenomination = inputDenomination
+    ? inputDenomination
+    : masterInfoObject.userBalanceDenomination !== 'fiat'
+    ? 'sats'
+    : 'fiat';
+
+  const {
+    primaryDisplay,
+    secondaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    convertSatsToDisplay,
+    getNextDenomination,
+    convertForToggle,
+  } = usePaymentInputDisplay({
+    paymentMode: 'BTC',
+    inputDenomination: normalizedInputDenomination,
+    fiatStats,
+    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    masterInfoObject,
+  });
+
   // clear page specific states when going back
   const clearPageStates = useCallback(() => {
-    setSelectedPreset(null);
+    setSelectedAmountSats(0);
     setAmountValue('');
   }, []);
 
@@ -90,34 +126,21 @@ export default function ContributeToPoolHalfModal({
 
   const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
 
-  // Convert current input to sats
-  const localSatAmount =
-    inputDenomination === 'sats'
-      ? Number(amountValue)
-      : Math.round(
-          (Number(amountValue) / (fiatStats?.value || 65000)) * SATSPERBITCOIN,
-        );
+  // Convert current keyboard input to sats (used only in custom step)
+  const localSatAmount = convertDisplayToSats(amountValue);
+  const localFiatAmount = convertSatsToDisplay(localSatAmount);
+  const effectiveSats =
+    currentPage === 'custom' ? localSatAmount : selectedAmountSats;
 
-  // Convert between denominations for display
-  const convertedValue = () => {
-    if (!amountValue) return '';
+  const effectiveUSD = satsToDollars(
+    effectiveSats,
+    poolInfoRef.currentPriceAInB,
+  );
 
-    if (inputDenomination === 'fiat') {
-      // Convert fiat to sats
-      return String(
-        Math.round(
-          (Number(amountValue) / (fiatStats?.value || 65000)) * SATSPERBITCOIN,
-        ),
-      );
-    } else {
-      // Convert sats to fiat
-      return String(
-        (
-          ((fiatStats?.value || 65000) / SATSPERBITCOIN) *
-          Number(amountValue)
-        ).toFixed(2),
-      );
-    }
+  const handleDenominationToggle = () => {
+    const nextDenom = getNextDenomination();
+    setInputDenomination(nextDenom);
+    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
   };
 
   useEffect(() => {
@@ -143,37 +166,98 @@ export default function ContributeToPoolHalfModal({
 
   const handleCustomPress = useCallback(() => {
     setStep([...step, 'custom']);
+    setSelectedAmountSats(0);
   }, [step]);
+
+  const paymentMethod = useMemo(() => {
+    if (bitcoinBalance >= effectiveSats) {
+      return 'BTC';
+    }
+    if (dollarBalanceToken >= effectiveUSD) {
+      return 'USD';
+    }
+    return null;
+  }, [bitcoinBalance, dollarBalanceToken, effectiveSats, effectiveUSD]);
 
   const handleContinue = useCallback(() => {
     if (currentPage === 'custom') {
-      if (Number(localSatAmount) <= 0) {
+      if (effectiveSats <= 0) {
         setStep(['select']);
         clearPageStates();
         return;
       }
-      // Create a custom preset object
-      setSelectedPreset({
-        usd: (
-          ((fiatStats?.value || 65000) / SATSPERBITCOIN) *
-          localSatAmount
-        ).toFixed(2),
-        sats: localSatAmount,
-        satValueOfUsd: localSatAmount,
-        isCustom: true,
-      });
+      setSelectedAmountSats(effectiveSats);
     }
-    if (currentPage === 'select' && !selectedPreset) return;
+    if (currentPage === 'select' && !selectedAmountSats) return;
+
+    const validation = validatePoolPayment({
+      bitcoinBalance,
+      dollarBalanceToken,
+      paymentAmountSats: effectiveSats,
+      paymentAmountUSD: effectiveUSD,
+    });
+
+    if (!validation.isValid) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.sendPages.acceptButton.balanceError'),
+      });
+      return;
+    }
+
     setStep([...step, 'confirm']);
-  }, [currentPage, selectedPreset, localSatAmount, fiatStats]);
+  }, [
+    currentPage,
+    effectiveSats,
+    effectiveUSD,
+    selectedAmountSats,
+    bitcoinBalance,
+    dollarBalanceToken,
+    step,
+    clearPageStates,
+    t,
+  ]);
 
   const handleConfirmPayment = useCallback(async () => {
     try {
       setStep([...step, 'loading']);
-      // Use the appropriate sats value based on user's denomination preference
-      const paymentAmountSats = isFiatMode
-        ? selectedPreset.satValueOfUsd
-        : selectedPreset.sats;
+      const paymentAmountSats = effectiveSats;
+      const paymentAmountUSD = effectiveUSD;
+
+      let swapPaymentQuote = {};
+
+      if (paymentMethod === 'USD') {
+        const amountToSendDollars = paymentAmountUSD * Math.pow(10, 6);
+        const usdBalanceDollars = dollarBalanceToken * Math.pow(10, 6);
+
+        const maxAmount = Math.min(amountToSendDollars, usdBalanceDollars);
+        const usdAmount = Math.ceil(parseFloat(maxAmount.toFixed(2)));
+
+        const simResult = await simulateSwap(currentWalletMnemoinc, {
+          poolId: poolInfoRef.lpPublicKey,
+          assetInAddress: USD_ASSET_ADDRESS,
+          assetOutAddress: BTC_ASSET_ADDRESS,
+          amountIn: usdAmount,
+        });
+
+        if (!simResult.didWork) {
+          throw new Error(simResult.error || 'Swap simulation failed');
+        }
+
+        const satFee = dollarsToSats(
+          simResult.simulation.feePaidAssetIn / 1000000,
+          poolInfoRef.currentPriceAInB,
+        );
+
+        swapPaymentQuote = {
+          poolId: poolInfoRef.lpPublicKey,
+          assetInAddress: USD_ASSET_ADDRESS,
+          assetOutAddress: BTC_ASSET_ADDRESS,
+          amountIn: usdAmount,
+          satFee,
+          bitcoinBalance,
+          dollarBalanceSat,
+        };
+      }
 
       const paymentResponse = await sparkPaymenWrapper({
         address: pool.sparkAddress,
@@ -186,13 +270,18 @@ export default function ContributeToPoolHalfModal({
         userBalance: sparkInformation.userBalance,
         sparkInformation,
         mnemonic: currentWalletMnemoinc,
+        sendWebViewRequest,
         poolInfoRef,
+        usablePaymentMethod: paymentMethod,
+        swapPaymentQuote,
         extraDetails: { isPoolPayment: true },
       });
 
       if (!paymentResponse.didWork) {
         throw new Error(paymentResponse.error || 'Payment failed');
       }
+
+      const actualAmountSats = paymentResponse.response.details.amount;
 
       const creatorProfile = globalContactsInformation?.myProfile || {};
       const contribution = {
@@ -201,7 +290,7 @@ export default function ContributeToPoolHalfModal({
         contributorName:
           creatorProfile.name || creatorProfile.uniqueName || 'Blitz User',
         contributorMessage: '',
-        amount: paymentAmountSats,
+        amount: paymentResponse.amountOutSats ?? actualAmountSats,
         isBlitzUser: true,
         blitzUserUUID: masterInfoObject.uuid,
         createdAt: Timestamp.now(),
@@ -223,8 +312,8 @@ export default function ContributeToPoolHalfModal({
       });
     }
   }, [
-    selectedPreset,
-    isFiatMode,
+    effectiveSats,
+    effectiveUSD,
     pool,
     poolId,
     masterInfoObject,
@@ -233,6 +322,7 @@ export default function ContributeToPoolHalfModal({
     navigate,
     poolInfoRef,
     handleBackPressFunction,
+    dollarBalanceToken,
   ]);
 
   if (currentPage === 'loading') {
@@ -265,8 +355,7 @@ export default function ContributeToPoolHalfModal({
   }
 
   if (currentPage === 'confirm') {
-    // Use the original values from the preset object
-    const displayAmount = isFiatMode ? selectedPreset.usd : selectedPreset.sats;
+    const displayAmount = isFiatMode ? localFiatAmount : effectiveSats;
 
     return (
       <View style={styles.stepContainer}>
@@ -312,25 +401,22 @@ export default function ContributeToPoolHalfModal({
         <TouchableOpacity
           style={{ marginTop: 10 }}
           activeOpacity={1}
-          onPress={() => {
-            setInputDenomination(prev => {
-              return prev === 'sats' ? 'fiat' : 'sats';
-            });
-            setAmountValue(convertedValue() || '');
-          }}
+          onPress={handleDenominationToggle}
         >
           <FormattedBalanceInput
             maxWidth={0.9}
             amountValue={amountValue}
-            inputDenomination={inputDenomination}
+            inputDenomination={primaryDisplay.denomination}
+            forceCurrency={primaryDisplay.forceCurrency}
+            forceFiatStats={primaryDisplay.forceFiatStats}
           />
           <FormattedSatText
             containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
             neverHideBalance={true}
             styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={
-              inputDenomination === 'sats' ? 'fiat' : 'sats'
-            }
+            globalBalanceDenomination={secondaryDisplay.denomination}
+            forceCurrency={secondaryDisplay.forceCurrency}
+            forceFiatStats={secondaryDisplay.forceFiatStats}
             balance={localSatAmount}
           />
         </TouchableOpacity>
@@ -360,8 +446,8 @@ export default function ContributeToPoolHalfModal({
       />
 
       <PresetAmountGrid
-        onSelectPreset={setSelectedPreset}
-        selectedPreset={selectedPreset}
+        onSelectPreset={setSelectedAmountSats}
+        selectedAmountSats={selectedAmountSats}
         fiatStats={fiatStats}
         onCustomPress={handleCustomPress}
       />
@@ -369,7 +455,7 @@ export default function ContributeToPoolHalfModal({
       <CustomButton
         buttonStyles={[
           styles.continueButton,
-          { opacity: !selectedPreset ? HIDDEN_OPACITY : 1 },
+          { opacity: !selectedAmountSats ? HIDDEN_OPACITY : 1 },
         ]}
         textContent={t('constants.continue')}
         actionFunction={handleContinue}

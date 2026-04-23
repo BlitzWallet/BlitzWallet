@@ -563,7 +563,12 @@ export default function StablecoinSendScreen() {
   const isConfirmMode = screenMode === 'CONFIRM_PAYMENT';
 
   useEffect(() => {
-    if (isConfirmMode && shouldWarn && !didWarnAboutBudget.current) {
+    if (
+      isConfirmMode &&
+      shouldWarn &&
+      !didWarnAboutBudget.current &&
+      !isSendingPayment.current
+    ) {
       didWarnAboutBudget.current = true;
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'nearBudgetLimitWarning',

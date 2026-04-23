@@ -17,6 +17,7 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
+import { convertToDecimals } from '../../../../functions/spark/swapAmountUtils';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -105,7 +106,7 @@ export default function BalancePieChart() {
           key: 'dollar',
           label: t('constants.dollars_upper'),
           color: theme && darkModeType ? COLORS.gray : COLORS.dollarGreen,
-          value: dollarValueuUSD.toFixed(2),
+          value: convertToDecimals(dollarValueuUSD),
           percent: dolPercent,
         },
       ].filter(Boolean);

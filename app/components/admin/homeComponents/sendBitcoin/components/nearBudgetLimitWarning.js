@@ -48,9 +48,7 @@ export default function BudgetWarningModal({
 
   const amountAfterSend = budget?.amount - (spentTotal + sendingAmount);
 
-  const displayAmount = isOverBudget
-    ? Math.abs(budget - spentTotal) // already over, ignore sendingAmount
-    : Math.abs(amountAfterSend);
+  const displayAmount = Math.abs(amountAfterSend);
 
   const amountLabel =
     isOverBudget || willExceedBudget

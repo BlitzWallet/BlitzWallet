@@ -5,7 +5,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   WEBSITE_REGEX,
 } from '../../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
@@ -16,6 +16,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import getClipboardText from '../../../../functions/getClipboardText';
 import ClaimGiftScreen from './claimGiftScreen';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function ClaimGiftHomeHalfModal({
   setContentHeight,
@@ -23,6 +24,7 @@ export default function ClaimGiftHomeHalfModal({
 }) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { textInputColor } = GetThemeColors();
 
   const [enteredLink, setEnteredLink] = useState('');
   const [didSave, setDidSave] = useState(false);
@@ -121,7 +123,12 @@ export default function ClaimGiftHomeHalfModal({
             }}
             style={styles.qrButton}
           >
-            <ThemeIcon iconName={enteredLink ? 'X' : 'ScanQrCode'} />
+            <ThemeIcon
+              colorOverride={
+                theme && darkModeType ? textInputColor : COLORS.primary
+              }
+              iconName={enteredLink ? 'X' : 'ScanQrCode'}
+            />
           </TouchableOpacity>
         }
         onFocusFunction={() => setIsKeyboardActive(true)}

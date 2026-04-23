@@ -231,11 +231,18 @@ export default function CreateSplitBill(props) {
         } else {
           amountCents = parseInt(customAmounts[contact.uuid] || '0', 10);
         }
+        const proportion = totalNative > 0 ? amountCents / totalNative : 0;
         const amountSat = dollarsToSats(
           amountCents / 100,
           poolInfoRef.currentPriceAInB,
         );
-        return { contact, amountSats: amountSat, amountCents, currency: 'USD' };
+        return {
+          contact,
+          amountSats: amountSat,
+          amountCents,
+          currency: 'USD',
+          proportion,
+        };
       }
 
       let amountSats;
@@ -246,7 +253,8 @@ export default function CreateSplitBill(props) {
       } else {
         amountSats = parseInt(customAmounts[contact.uuid] || '0', 10);
       }
-      return { contact, amountSats, amountCents: null, currency: 'BTC' };
+      const proportion = totalNative > 0 ? amountSats / totalNative : 0;
+      return { contact, amountSats, amountCents: null, currency: 'BTC', proportion };
     });
   }, [
     selectedContacts,

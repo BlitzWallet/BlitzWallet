@@ -303,64 +303,64 @@ export default async function decodeSendAddress(props) {
     }
 
     if (processedPaymentInfo) {
-      const isLRC20 =
-        seletctedToken?.tokenMetadata?.tokenTicker !== undefined &&
-        seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin';
-      // We are moving to confirm screen and need to check if we can send the payment.
-      // sendAmount for non-editable invoices is always in sats.
-      if (
-        comingFromAccept &&
-        !processedPaymentInfo.canEditPayment &&
-        !isLRC20
-      ) {
-        const fixedAmountSats = Number(processedPaymentInfo.sendAmount);
-        if (fixedAmountSats > 0) {
-          const totalCost =
-            fixedAmountSats +
-            (processedPaymentInfo.paymentFee || 0) +
-            (processedPaymentInfo.supportFee || 0);
+      // const isLRC20 =
+      //   seletctedToken?.tokenMetadata?.tokenTicker !== undefined &&
+      //   seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin';
+      // // We are moving to confirm screen and need to check if we can send the payment.
+      // // sendAmount for non-editable invoices is always in sats.
+      // if (
+      //   comingFromAccept &&
+      //   !processedPaymentInfo.canEditPayment &&
+      //   !isLRC20
+      // ) {
+      //   const fixedAmountSats = Number(processedPaymentInfo.sendAmount);
+      //   if (fixedAmountSats > 0) {
+      //     const totalCost =
+      //       fixedAmountSats +
+      //       (processedPaymentInfo.paymentFee || 0) +
+      //       (processedPaymentInfo.supportFee || 0);
 
-          const canAffordWithBTC = bitcoinBalance >= totalCost;
-          const canAffordWithUSD = dollarBalanceSat >= totalCost;
+      //     const canAffordWithBTC = bitcoinBalance >= totalCost;
+      //     const canAffordWithUSD = dollarBalanceSat >= totalCost;
 
-          const canAfford =
-            usablePaymentMethod === 'USD' ? canAffordWithUSD : canAffordWithBTC;
+      //     const canAfford =
+      //       usablePaymentMethod === 'USD' ? canAffordWithUSD : canAffordWithBTC;
 
-          if (!canAfford) {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: t(
-                'wallet.sendPages.handlingAddressErrors.tooLowSendingAmount',
-                {
-                  amount: displayCorrectDenomination({
-                    amount: Math.max(
-                      ((usablePaymentMethod === 'USD'
-                        ? dollarBalanceSat
-                        : bitcoinBalance) -
-                        (processedPaymentInfo.paymentFee || 0) -
-                        (processedPaymentInfo.supportFee || 0)) *
-                        0.999,
-                      0,
-                    ),
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination:
-                        primaryDisplay?.denomination ||
-                        masterInfoObject.userBalanceDenomination,
-                    },
-                    fiatStats: conversionFiatStats || fiatStats,
-                    forceCurrency: conversionFiatStats
-                      ? usablePaymentMethod === 'USD'
-                        ? conversionFiatStats.coin
-                        : null
-                      : null,
-                  }),
-                },
-              ),
-            });
-            if (fromPage !== 'contacts') return;
-          }
-        }
-      }
+      //     if (!canAfford) {
+      //       navigate.navigate('ErrorScreen', {
+      //         errorMessage: t(
+      //           'wallet.sendPages.handlingAddressErrors.tooLowSendingAmount',
+      //           {
+      //             amount: displayCorrectDenomination({
+      //               amount: Math.max(
+      //                 ((usablePaymentMethod === 'USD'
+      //                   ? dollarBalanceSat
+      //                   : bitcoinBalance) -
+      //                   (processedPaymentInfo.paymentFee || 0) -
+      //                   (processedPaymentInfo.supportFee || 0)) *
+      //                   0.999,
+      //                 0,
+      //               ),
+      //               masterInfoObject: {
+      //                 ...masterInfoObject,
+      //                 userBalanceDenomination:
+      //                   primaryDisplay?.denomination ||
+      //                   masterInfoObject.userBalanceDenomination,
+      //               },
+      //               fiatStats: conversionFiatStats || fiatStats,
+      //               forceCurrency: conversionFiatStats
+      //                 ? usablePaymentMethod === 'USD'
+      //                   ? conversionFiatStats.coin
+      //                   : null
+      //                 : null,
+      //             }),
+      //           },
+      //         ),
+      //       });
+      //       if (fromPage !== 'contacts') return;
+      //     }
+      //   }
+      // }
       setPaymentInfo({
         ...processedPaymentInfo,
         decodedInput: input,

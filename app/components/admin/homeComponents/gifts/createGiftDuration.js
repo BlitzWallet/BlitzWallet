@@ -58,6 +58,7 @@ import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import {
   BTC_ASSET_ADDRESS,
   calculateFlashnetAmountIn,
+  convertToDecimals,
   dollarsToSats,
   executeSwap,
   getUserSwapHistory,
@@ -93,7 +94,7 @@ export default function CreateGiftDuration(props) {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
   const simulationPromiseRef = useRef(null);
@@ -103,14 +104,16 @@ export default function CreateGiftDuration(props) {
   const {
     amount: convertedSatAmount = 0,
     amountValue: rawAmountValue = 0,
+    dollarAmount = 0,
     giftDenomination = 'BTC',
     giftQuantity = 1,
     description = '',
   } = props.route.params || {};
 
-  const trueFiatAmount = rawAmountValue * Math.pow(10, 6);
+  const trueFiatAmount = dollarAmount * Math.pow(10, 6);
   const totalSatAmount = convertedSatAmount * giftQuantity;
   const totalFiatAmount = trueFiatAmount * giftQuantity;
+  const normalizedDollarTokenBalance = dollarBalanceToken * Math.pow(10, 6);
 
   const currentDerivedGiftIndex = masterInfoObject.currentDerivedGiftIndex || 1;
 
@@ -168,11 +171,10 @@ export default function CreateGiftDuration(props) {
       }
 
       const hasBTCBalance = bitcoinBalance >= totalSatAmount;
-      const hasUSDBalance = dollarBalanceSat >= totalSatAmount;
+      const hasUSDBalance = normalizedDollarTokenBalance >= totalFiatAmount;
 
       const meetsUSDMinimum =
-        totalSatAmount >=
-        dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
+        totalFiatAmount / Math.pow(10, 6) >= swapLimits.usd;
       const meetsBTCMinimum = totalSatAmount >= swapLimits.bitcoin;
 
       let needsSwap = false;
@@ -240,7 +242,8 @@ export default function CreateGiftDuration(props) {
     convertedSatAmount,
     giftDenomination,
     bitcoinBalance,
-    dollarBalanceSat,
+    normalizedDollarTokenBalance,
+    totalFiatAmount,
     swapLimits,
     poolInfoRef.currentPriceAInB,
     currentWalletMnemoinc,
@@ -248,11 +251,9 @@ export default function CreateGiftDuration(props) {
 
   const determinePaymentMethod = useMemo(() => {
     const hasBTCBalance = bitcoinBalance >= totalSatAmount;
-    const hasUSDBalance = dollarBalanceSat >= totalSatAmount;
+    const hasUSDBalance = normalizedDollarTokenBalance >= totalFiatAmount;
 
-    const meetsUSDMinimum =
-      totalSatAmount >=
-      dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
+    const meetsUSDMinimum = totalFiatAmount / Math.pow(10, 6) >= swapLimits.usd;
     const meetsBTCMinimum = totalSatAmount >= swapLimits.bitcoin;
 
     if (giftDenomination === 'BTC') {
@@ -262,19 +263,10 @@ export default function CreateGiftDuration(props) {
       if (canPayBTCtoBTC) return 'BTC';
 
       if (simulationResult && canPayUSDtoBTC) {
-        const { simulation } = simulationResult;
-        const totalUSDNeeded = Math.round(
-          satsToDollars(totalSatAmount, poolInfoRef.currentPriceAInB) *
-            Math.pow(10, 6) +
-            Number(simulation.feePaidAssetIn),
-        );
-
-        if (totalUSDNeeded > dollarBalanceToken * Math.pow(10, 6)) {
-          return null;
-        }
+        return 'USD';
       }
 
-      return canPayBTCtoBTC ? 'BTC' : canPayUSDtoBTC ? 'USD' : null;
+      return null;
     } else {
       const canPayUSDtoUSD = hasUSDBalance;
       const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
@@ -282,26 +274,17 @@ export default function CreateGiftDuration(props) {
       if (canPayUSDtoUSD) return 'USD';
 
       if (simulationResult && canPayBTCtoUSD) {
-        const { simulation } = simulationResult;
-        const totalBTCNeeded = Math.round(
-          totalSatAmount +
-            dollarsToSats(Number(simulation.feePaidAssetIn) / Math.pow(10, 6)) +
-            totalSatAmount * INTEGRATOR_FEE,
-        );
-
-        if (totalBTCNeeded > bitcoinBalance) {
-          return null;
-        }
+        return 'BTC';
       }
 
-      return canPayUSDtoUSD ? 'USD' : canPayBTCtoUSD ? 'BTC' : null;
+      return null;
     }
   }, [
     giftDenomination,
     bitcoinBalance,
-    dollarBalanceSat,
     dollarBalanceToken,
     totalSatAmount,
+    totalFiatAmount,
     swapLimits,
     poolInfoRef.currentPriceAInB,
     simulationResult,
@@ -312,63 +295,27 @@ export default function CreateGiftDuration(props) {
 
     const totalNeeded = totalSatAmount;
 
-    const totalBalance = bitcoinBalance + dollarBalanceSat;
-    if (totalBalance < totalNeeded) return false;
-
     if (
       bitcoinBalance < totalNeeded &&
-      dollarBalanceSat < totalNeeded &&
-      totalBalance >= totalNeeded
+      normalizedDollarTokenBalance < totalFiatAmount
     ) {
       return false;
     }
 
     const hasBTCBalance = bitcoinBalance >= totalNeeded;
-    const hasUSDBalance = dollarBalanceSat >= totalNeeded;
+    const hasUSDBalance = normalizedDollarTokenBalance >= totalFiatAmount;
 
-    const meetsUSDMinimum =
-      totalNeeded >=
-      dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB);
+    const meetsUSDMinimum = totalFiatAmount / Math.pow(10, 6) >= swapLimits.usd;
     const meetsBTCMinimum = totalNeeded >= swapLimits.bitcoin;
 
     if (giftDenomination === 'BTC') {
       const canPayBTCtoBTC = hasBTCBalance;
       const canPayUSDtoBTC = hasUSDBalance && meetsUSDMinimum;
 
-      if (!canPayBTCtoBTC && canPayUSDtoBTC && simulationResult) {
-        const { simulation } = simulationResult;
-        const totalUSDNeeded =
-          Math.round(
-            satsToDollars(totalNeeded, poolInfoRef.currentPriceAInB) *
-              Math.pow(10, 6) +
-              Number(simulation.feePaidAssetIn),
-          ) * giftQuantity;
-
-        if (totalUSDNeeded > dollarBalanceToken * Math.pow(10, 6)) {
-          return false;
-        }
-      }
-
       if (!canPayBTCtoBTC && !canPayUSDtoBTC) return false;
     } else {
       const canPayUSDtoUSD = hasUSDBalance;
       const canPayBTCtoUSD = hasBTCBalance && meetsBTCMinimum;
-
-      if (!canPayUSDtoUSD && canPayBTCtoUSD && simulationResult) {
-        const { simulation } = simulationResult;
-        const totalBTCNeeded =
-          Math.round(
-            totalNeeded +
-              dollarsToSats(
-                Number(simulation.feePaidAssetIn) / Math.pow(10, 6),
-              ) +
-              totalNeeded * INTEGRATOR_FEE,
-          ) * giftQuantity;
-
-        if (totalBTCNeeded > bitcoinBalance) {
-          return false;
-        }
-      }
 
       if (!canPayUSDtoUSD && !canPayBTCtoUSD) return false;
     }
@@ -376,10 +323,10 @@ export default function CreateGiftDuration(props) {
     return true;
   }, [
     totalSatAmount,
+    totalFiatAmount,
     giftQuantity,
     bitcoinBalance,
-    dollarBalanceSat,
-    dollarBalanceToken,
+    normalizedDollarTokenBalance,
     giftDenomination,
     swapLimits,
     poolInfoRef.currentPriceAInB,
@@ -423,10 +370,9 @@ export default function CreateGiftDuration(props) {
       expireTime: Date.now() + addedMS,
       encryptedText: encryptedMnemonic,
       amount: convertedSatAmount,
-      dollarAmount: satsToDollars(
-        convertedSatAmount,
-        poolInfoRef.currentPriceAInB,
-      ).toFixed(2),
+      dollarAmount: convertToDecimals(
+        satsToDollars(convertedSatAmount, poolInfoRef.currentPriceAInB),
+      ),
       description: description || '',
       createdBy: masterInfoObject?.uuid,
       state: 'Unclaimed',
@@ -472,21 +418,7 @@ export default function CreateGiftDuration(props) {
           ? USD_ASSET_ADDRESS
           : BTC_ASSET_ADDRESS,
       amountIn:
-        determinePaymentMethod === 'BTC'
-          ? Math.min(
-              Math.round(
-                convertedSatAmount +
-                  dollarsToSats(
-                    Number(simulation.feePaidAssetIn) / Math.pow(10, 6),
-                  ) +
-                  convertedSatAmount * INTEGRATOR_FEE,
-              ),
-              bitcoinBalance,
-            )
-          : Math.min(
-              Math.round(trueFiatAmount + Number(simulation.feePaidAssetIn)),
-              dollarBalanceToken * Math.pow(10, 6),
-            ),
+        determinePaymentMethod === 'BTC' ? convertedSatAmount : trueFiatAmount,
       dollarBalanceSat,
       bitcoinBalance,
       satFee,
@@ -504,15 +436,11 @@ export default function CreateGiftDuration(props) {
         );
 
       const totalNeeded = convertedSatAmount * giftQuantity;
+      const hasBTCBalance = bitcoinBalance >= totalNeeded;
+      const hasUSDBalance = normalizedDollarTokenBalance >= totalFiatAmount;
 
-      if (bitcoinBalance < totalNeeded && dollarBalanceSat < totalNeeded) {
-        if (bitcoinBalance + dollarBalanceSat > totalNeeded) {
-          throw new Error(
-            t('wallet.sendPages.acceptButton.balanceFragmentationError'),
-          );
-        } else {
-          throw new Error(t('wallet.sendPages.acceptButton.balanceError'));
-        }
+      if (!hasBTCBalance && !hasUSDBalance) {
+        throw new Error(t('wallet.sendPages.acceptButton.balanceError'));
       }
 
       if (simulationPromiseRef.current) {
@@ -945,7 +873,7 @@ export default function CreateGiftDuration(props) {
         />
         <DropdownMenu
           customButtonStyles={{
-            backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           }}
           selectedValue={t(
             'screens.inAccount.giftPages.createGift.durationText',
@@ -969,6 +897,7 @@ export default function CreateGiftDuration(props) {
         />
       </View>
       <CustomButton
+        disabled={!isGiftValid}
         buttonStyles={{
           opacity: !isGiftValid ? HIDDEN_OPACITY : 1,
           width: INSET_WINDOW_WIDTH,

@@ -507,6 +507,7 @@ export default function CustomHalfModal(props) {
           <AddGiftQuantityHalfModal
             amount={props?.route?.params?.amount}
             amountValue={props?.route?.params?.amountValue}
+            dollarAmount={props?.route?.params?.dollarAmount}
             giftDenomination={props?.route?.params?.giftDenomination}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}

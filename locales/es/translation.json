@@ -1054,7 +1054,8 @@
         "selectPaymentMethod": "Selecciona un método de pago para continuar.",
         "swapRatesChangedTitle": "Tipo de cambio actualizado",
         "swapRatesChangedBody": "El tipo de cambio para este intercambio cambió mientras lo estabas revisando. Vuelve a ingresar el monto para continuar.",
-        "swapRatesChangedButton": "Volver a ingresar el monto"
+        "swapRatesChangedButton": "Volver a ingresar el monto",
+        "feeEstimateError": "No se pudo estimar la comisión, inténtalo de nuevo"
       },
       "selectPaymentMethod": {
         "header": "Selecciona cómo deseas financiar tu pago."
@@ -2403,7 +2404,8 @@
     "priceImpact": "Este pago es grande, por lo que el monto final que recibas en dólares puede cambiar.",
     "removingImageError": "No se pudo eliminar la imagen. Inténtalo de nuevo.",
     "bitcoinInvoiceError": "Hubo un problema al generar tu dirección de Bitcoin. Por favor, inténtalo de nuevo.",
-    "usdcUsdtTokensOnly": "Solo se admiten los tokens USDT y USDC"
+    "usdcUsdtTokensOnly": "Solo se admiten los tokens USDT y USDC",
+    "lightningAmountFeeWarning": "Tu saldo no cubre el monto y la comisión de ≈{{amount}}."
   },
   "loadingScreen": {
     "message1": "Por favor no cierres la aplicación",

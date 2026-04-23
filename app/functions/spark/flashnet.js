@@ -53,6 +53,7 @@ import {
   satsToDollars,
   dollarsToSats,
   calculateFlashnetAmountIn,
+  convertToDecimals,
 } from './swapAmountUtils';
 
 export {
@@ -67,6 +68,7 @@ export {
   satsToDollars,
   dollarsToSats,
   calculateFlashnetAmountIn,
+  convertToDecimals,
 };
 
 // ============================================

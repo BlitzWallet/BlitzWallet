@@ -1054,7 +1054,8 @@
         "selectPaymentMethod": "Välj en betalningsmetod för att fortsätta.",
         "swapRatesChangedTitle": "Växelkurs uppdaterad",
         "swapRatesChangedBody": "Växelkursen för denna växling ändrades medan du granskade den. Ange beloppet igen för att fortsätta.",
-        "swapRatesChangedButton": "Ange belopp igen"
+        "swapRatesChangedButton": "Ange belopp igen",
+        "feeEstimateError": "Kunde inte uppskatta avgiften, försök igen"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."
@@ -2403,7 +2404,8 @@
     "paymentFeeError": "Vi kunde inte hämta betalningsavgiften. Vänligen försök igen. Om problemet kvarstår ska du stänga appen och öppna den igen innan du försöker igen.",
     "priceImpact": "Den här betalningen är stor, så det slutliga beloppet du får i dollar kan förändras.",
     "removingImageError": "Kunde inte ta bort bilden. Försök igen.",
-    "usdcUsdtTokensOnly": "Endast USDT- och USDC-token stöds"
+    "usdcUsdtTokensOnly": "Endast USDT- och USDC-token stöds",
+    "lightningAmountFeeWarning": "Ditt saldo täcker inte beloppet och avgiften på ≈{{amount}}."
   },
   "loadingScreen": {
     "message1": "Stäng inte appen, snälla",
