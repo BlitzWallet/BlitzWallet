@@ -132,6 +132,7 @@ export default function CreateGift(props) {
         masterInfoObject={masterInfoObject}
         fiatStats={fiatStats}
         t={t}
+        hideBalance={true}
       />
 
       <CustomNumberKeyboard

@@ -27,6 +27,7 @@ export default function ChoosePaymentMethod({
   t,
   showBitcoinCardOnly = false,
   containerStyles = {},
+  hideBalance = false,
 }) {
   const { backgroundColor } = GetThemeColors();
   const icon =
@@ -102,7 +103,7 @@ export default function ChoosePaymentMethod({
           <ThemeText
             styles={styles.balanceTitle}
             content={t(
-              uiState === 'CONTACT_REQUEST'
+              uiState === 'CONTACT_REQUEST' || hideBalance
                 ? `constants.${
                     determinePaymentMethod === 'BTC' ||
                     determinePaymentMethod === 'user-choice'
@@ -117,7 +118,7 @@ export default function ChoosePaymentMethod({
                   }_balance`,
             )}
           />
-          {uiState !== 'CONTACT_REQUEST' && (
+          {uiState !== 'CONTACT_REQUEST' && !hideBalance && (
             <ThemeText
               styles={[
                 styles.amountText,

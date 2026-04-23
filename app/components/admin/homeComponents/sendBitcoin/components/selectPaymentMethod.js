@@ -45,6 +45,7 @@ export default function SelectPaymentMethod({
       ),
     );
   };
+  const hideBalance = fromPage === 'CreateGift';
 
   const headerText =
     fromPage === 'CreateGift'
@@ -85,19 +86,23 @@ export default function SelectPaymentMethod({
         <View style={styles.textContainer}>
           <ThemeText
             styles={styles.balanceTitle}
-            content={t('constants.sat_balance')}
+            content={t(
+              hideBalance ? 'constants.bitcoin_upper' : 'constants.sat_balance',
+            )}
           />
-          <ThemeText
-            styles={styles.amountText}
-            content={`${displayCorrectDenomination({
-              amount: bitcoinBalance,
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'sats',
-              },
-              fiatStats,
-            })}`}
-          />
+          {!hideBalance && (
+            <ThemeText
+              styles={styles.amountText}
+              content={`${displayCorrectDenomination({
+                amount: bitcoinBalance,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'sats',
+                },
+                fiatStats,
+              })}`}
+            />
+          )}
         </View>
         <CheckMarkCircle
           isActive={
@@ -135,25 +140,29 @@ export default function SelectPaymentMethod({
         <View style={styles.textContainer}>
           <ThemeText
             styles={styles.balanceTitle}
-            content={t('constants.usd_balance')}
+            content={t(
+              hideBalance ? 'constants.dollars_upper' : 'constants.usd_balance',
+            )}
           />
-          <ThemeText
-            styles={styles.amountText}
-            content={`${displayCorrectDenomination({
-              amount: formatBalanceAmount(
-                dollarBalanceToken,
-                false,
-                masterInfoObject,
-              ),
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'fiat',
-              },
-              forceCurrency: 'USD',
-              convertAmount: false,
-              fiatStats,
-            })}`}
-          />
+          {!hideBalance && (
+            <ThemeText
+              styles={styles.amountText}
+              content={`${displayCorrectDenomination({
+                amount: formatBalanceAmount(
+                  dollarBalanceToken,
+                  false,
+                  masterInfoObject,
+                ),
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'fiat',
+                },
+                forceCurrency: 'USD',
+                convertAmount: false,
+                fiatStats,
+              })}`}
+            />
+          )}
         </View>
         <CheckMarkCircle
           isActive={selectedPaymentMethod === 'USD'}
