@@ -244,10 +244,7 @@ export default function AddMoneyToSavingsHalfModal({
           poolId: poolInfoRef.lpPublicKey,
           assetInAddress: BTC_ASSET_ADDRESS,
           assetOutAddress: USD_ASSET_ADDRESS,
-          amountIn: Math.min(
-            Math.round(localSatAmount + btcFee),
-            bitcoinBalance,
-          ),
+          amountIn: localSatAmount,
           dollarBalanceSat,
           bitcoinBalance,
           satFee: btcFee,
@@ -297,7 +294,8 @@ export default function AddMoneyToSavingsHalfModal({
       const elapsed2 = Date.now() - step2Start;
       if (elapsed2 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed2);
 
-      const dollarValue = fiatMicros / 1_000_000;
+      const dollarValue =
+        (paymentResponse.amountOutMicrodollars ?? fiatMicros) / 1_000_000;
       await addMoney({ amount: dollarValue, goalId: selectedGoalId });
 
       setStep(prev => [...prev, 'success']);

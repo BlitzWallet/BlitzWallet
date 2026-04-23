@@ -587,16 +587,20 @@ export const GlobalContactsList = ({ children }) => {
   }, [contactsMessags]);
 
   const hasUnlookedTransactions = useMemo(() => {
-    return Object.keys(contactsMessags).some(contactUUID => {
-      if (
-        contactUUID === 'lastMessageTimestamp' ||
-        contactUUID === myProfileUUID
-      ) {
-        return false;
-      }
-      const messages = contactsMessags[contactUUID]?.messages;
-      return messages?.some(message => !message.message.wasSeen) ?? false;
-    });
+    try {
+      return Object.keys(contactsMessags).some(contactUUID => {
+        if (
+          contactUUID === 'lastMessageTimestamp' ||
+          contactUUID === myProfileUUID
+        ) {
+          return false;
+        }
+        const messages = contactsMessags[contactUUID]?.messages;
+        return messages?.some(message => !message.message.wasSeen) ?? false;
+      });
+    } catch (err) {
+      return false;
+    }
   }, [contactsMessags, myProfileUUID]);
 
   // ─── Split context values ───────────────────────────────────────────────────

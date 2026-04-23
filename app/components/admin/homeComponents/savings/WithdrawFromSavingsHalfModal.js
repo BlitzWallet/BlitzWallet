@@ -15,6 +15,7 @@ import {
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
+  IS_SPARK_ID,
   SIZES,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   USDB_TOKEN_ID,
@@ -58,6 +59,8 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
 import {
   getSparkBalance,
+  getSparkPaymentStatus,
+  getSingleTxDetails,
   initializeSparkWallet,
 } from '../../../../functions/spark';
 import {
@@ -156,6 +159,9 @@ export default function WithdrawFromSavingsHalfModal({
   // When true the user chose "Withdraw All" — skips amount step and drains
   // every goal + unallocated balance in a single payment.
   const [isWithdrawAll, setIsWithdrawAll] = useState(false);
+  // When true the user chose "Send Max" on the amount page — uses the exact
+  // availableBalanceMicros so sub-cent balances can still be swept.
+  const [isSendMax, setIsSendMax] = useState(false);
   // Which asset type the user wants to withdraw ('savings' | 'interest' | null)
   const [selectedBalanceType, setSelectedBalanceType] = useState(
     selectedGoalUUID || !savingsGoals.length ? 'savings' : null,
@@ -329,6 +335,8 @@ export default function WithdrawFromSavingsHalfModal({
   const [simulationResult, setSimulationResult] = useState(null);
   const simulationAmountMicros = isWithdrawAll
     ? totalWithdrawMicros
+    : isSendMax
+    ? availableBalanceMicros
     : fiatMicros;
 
   useEffect(() => {
@@ -508,7 +516,7 @@ export default function WithdrawFromSavingsHalfModal({
         );
         if (!initResponse) throw new Error(t('savings.savingsWalletError'));
 
-        const amountSats = localSatAmount;
+        const amountSats = isSendMax ? interestSats : localSatAmount;
 
         const elapsed1 = Date.now() - step1Start;
         if (elapsed1 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed1);
@@ -576,12 +584,6 @@ export default function WithdrawFromSavingsHalfModal({
           ],
           'fullUpdate',
         );
-        if (selectedDestination === 'dollar') {
-          // Hide the intermediate BTC transfer from the activity feed
-          // Run before sleep to prevent race conditions
-          setFlashnetTransfer(sendResponse.response.id);
-        }
-
         await withdrawlFromRewards(amountSats);
 
         const elapsed2 = Date.now() - step2Start;
@@ -590,6 +592,30 @@ export default function WithdrawFromSavingsHalfModal({
         if (selectedDestination === 'dollar') {
           setLoadingStep('swapping');
 
+          // Poll until the inbound BTC transfer is claimed by the main wallet
+          // before swapping. Without this, swapBitcoinToToken can fail because
+          // the balance hasn't settled yet, and the funds would appear to vanish
+          // since they were already hidden as a flashnet transfer.
+          const inboundTxId = sendResponse.response.id;
+          if (IS_SPARK_ID.test(inboundTxId)) {
+            const MAX_WAIT_TIME = 60000;
+            const startTime = Date.now();
+            while (true) {
+              if (Date.now() - startTime > MAX_WAIT_TIME) {
+                throw new Error(
+                  t('savings.withdraw.errors.unableToCompleteWithdrawal'),
+                );
+              }
+              const txDetails = await getSingleTxDetails(
+                currentWalletMnemoinc,
+                inboundTxId,
+              );
+              const status = getSparkPaymentStatus(txDetails?.status);
+              if (status === 'completed') break;
+              await new Promise(res => setTimeout(res, 1500));
+            }
+          }
+
           const swapResult = await swapBitcoinToToken(currentWalletMnemoinc, {
             tokenAddress: USD_ASSET_ADDRESS,
             amountSats,
@@ -597,6 +623,9 @@ export default function WithdrawFromSavingsHalfModal({
           });
 
           if (swapResult?.didWork && swapResult?.swap) {
+            // Only hide the inbound BTC transfer once the swap succeeds so
+            // that a swap failure leaves the transfer visible in the feed.
+            setFlashnetTransfer(inboundTxId);
             const userSwaps = await getUserSwapHistory(
               currentWalletMnemoinc,
               5,
@@ -649,10 +678,12 @@ export default function WithdrawFromSavingsHalfModal({
         return;
       }
 
-      // For Withdraw All we send the full wallet balance; otherwise the user-
-      // entered amount. confirmMicros drives both the payment and the DB record.
+      // For Withdraw All we send the full wallet balance; for Send Max the full
+      // available goal balance; otherwise the user-entered amount.
       const confirmMicros = isWithdrawAll
         ? totalWithdrawMicros
+        : isSendMax
+        ? availableBalanceMicros
         : Math.min(fiatMicros, availableBalanceMicros);
       const confirmSats = Math.round(
         dollarsToSats(confirmMicros / 1_000_000, poolInfoRef.currentPriceAInB),
@@ -932,6 +963,7 @@ export default function WithdrawFromSavingsHalfModal({
 
                       {isInterestDisabled ? (
                         <ThemeText
+                          styles={styles.optionSubtitle}
                           content={t('savings.withdraw.interestZeroHint')}
                         />
                       ) : (
@@ -1272,7 +1304,7 @@ export default function WithdrawFromSavingsHalfModal({
 
             const disableForBalance =
               selectedBalanceType === 'savings' &&
-              ((option.key === 'dollar' && balanceUsd < 0.01) ||
+              ((option.key === 'dollar' && balanceUsd <= 0) ||
                 (option.key === 'bitcoin' && balanceUsd < swapLimits.usd));
 
             return (
@@ -1298,11 +1330,17 @@ export default function WithdrawFromSavingsHalfModal({
                     return;
                   }
                   setSelectedDestination(option.key);
-                  // Withdraw All skips the amount step — amount is the full balance.
-                  setStep(prev => [
-                    ...prev,
-                    isWithdrawAll ? 'confirm' : 'amount',
-                  ]);
+                  // Withdraw All skips amount step. Dollar destination with a
+                  // sub-cent balance also goes straight to confirm via Send Max
+                  // so the full micro balance is swept without decimal truncation.
+                  const skipAmount =
+                    isWithdrawAll ||
+                    (option.key === 'dollar' &&
+                      selectedBalanceType === 'savings' &&
+                      balanceUsd > 0 &&
+                      balanceUsd < 0.01);
+                  if (skipAmount && !isWithdrawAll) setIsSendMax(true);
+                  setStep(prev => [...prev, skipAmount ? 'confirm' : 'amount']);
                 }}
               >
                 <View style={styles.optionLeft}>
@@ -1488,7 +1526,18 @@ export default function WithdrawFromSavingsHalfModal({
             />
           )}
         </ScrollView>
-
+        <TouchableOpacity
+          style={styles.sendMaxButton}
+          onPress={() => {
+            setIsSendMax(true);
+            setStep(prev => [...prev, 'confirm']);
+          }}
+        >
+          <ThemeText
+            styles={styles.sendMaxText}
+            content={t('wallet.sendPages.sendMaxComponent.sendMax')}
+          />
+        </TouchableOpacity>
         <CustomNumberKeyboard
           showDot={primaryDisplay.denomination === 'fiat'}
           setInputValue={setAmountValue}
@@ -1582,14 +1631,19 @@ export default function WithdrawFromSavingsHalfModal({
   }
 
   if (currentPage === 'confirm') {
-    // Withdraw All uses the full wallet balance; normal path uses user-entered amount.
-    const confirmMicros = isWithdrawAll ? totalWithdrawMicros : fiatMicros;
+    // Withdraw All uses the full wallet balance; Send Max uses the exact goal
+    // balance; normal path uses the user-entered amount.
+    const confirmMicros = isWithdrawAll
+      ? totalWithdrawMicros
+      : isSendMax
+      ? availableBalanceMicros
+      : fiatMicros;
 
     // MODIFIED: for interest, display the sats amount directly (no USD micros)
     const withdrawAmountDisplay =
       selectedBalanceType === 'interest'
         ? displayCorrectDenomination({
-            amount: localSatAmount,
+            amount: isSendMax ? interestSats : localSatAmount,
             masterInfoObject: {
               ...masterInfoObject,
               userBalanceDenomination: 'sats',
@@ -1649,7 +1703,7 @@ export default function WithdrawFromSavingsHalfModal({
           <ThemeText
             styles={styles.summaryLabel}
             content={
-              isWithdrawAll
+              isWithdrawAll || isSendMax
                 ? t('savings.withdraw.youAreWithdrawingAll')
                 : t('savings.withdraw.youAreWithdrawing')
             }
@@ -1817,6 +1871,18 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     fontSize: SIZES.small,
     marginTop: 2,
+    includeFontPadding: false,
+  },
+  sendMaxButton: {
+    alignSelf: 'center',
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  sendMaxText: {
+    fontSize: SIZES.small,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
     includeFontPadding: false,
   },
   summaryCard: {
