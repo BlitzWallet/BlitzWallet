@@ -1384,7 +1384,7 @@
       "poweredByFlashnet": "Flashnet",
       "poweredByBoltz": "Boltz API",
       "sparkHeader": "Como funciona",
-      "sparkDescription": "A Blitz Wallet funciona com o protocolo Spark. Spark é um protocolo off-chain onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da blockchain, permitindo transferências rápidas, de baixo custo e sem custódia de terceiros.",
+      "sparkDescription": "A Blitz Wallet funciona com o protocolo Spark. Spark é um protocolo onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da blockchain, permitindo transferências rápidas, de baixo custo e sem custódia de terceiros.",
       "learnMore": "Saiba mais",
       "creatorHeader": "Criador",
       "uiUxHeader": "UX / UI",
