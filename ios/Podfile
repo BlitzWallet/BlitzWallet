@@ -62,6 +62,18 @@ target 'BlitzWallet' do
   )
 
   post_install do |installer|
+    # temporary workaround for firebase
+    installer.pods_project.targets.each do |target|
+      if target.name == 'FirebaseFunctions' || target.name == 'FirebaseAuth'
+        target.build_configurations.each do |config|
+          if config.name == 'Release'
+            config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
+            puts "Applied -Onone fix to #{target.name} for Swift 6.3 / Xcode 26.4 bug."
+          end
+        end
+      end
+    end
+
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
