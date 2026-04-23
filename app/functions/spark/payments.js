@@ -139,6 +139,7 @@ export const sparkPaymenWrapper = async ({
     }
     let response;
     let amountOutSats = amountSats;
+    let amountOutMicrodollars;
     // if (
     //   seletctedToken === 'Bitcoin' &&
     //   userBalance < amountSats + (paymentType === 'bitcoin' ? supportFee : fee)
@@ -482,6 +483,7 @@ export const sparkPaymenWrapper = async ({
               ? originalSendAmount
               : executionResponse.swap.amountOut
             : fiatValueConvertedSendAmount;
+          amountOutMicrodollars = usdbAmount;
           useLRC20Format = true;
           sparkPayResponse = await sendSparkTokens({
             tokenIdentifier: USDB_TOKEN_ID,
@@ -621,6 +623,7 @@ export const sparkPaymenWrapper = async ({
       response,
       shouldSave: !sparkInformation.identityPubKey,
       amountOutSats,
+      amountOutMicrodollars,
     };
   } catch (err) {
     console.log('Send lightning payment error', err);
