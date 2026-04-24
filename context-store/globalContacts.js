@@ -146,20 +146,28 @@ export const GlobalContactsList = ({ children }) => {
       );
 
       // Read the latest decoded contacts at the moment we write
-      const latestDecoded = decodedAddedContactsRef.current;
+      const latestDecoded = decodedAddedContactsRef.current ?? [];
       const latestInfo = globalContactsInformationRef.current;
 
-      toggleGlobalContactsInformation(
-        {
-          myProfile: { ...latestInfo.myProfile },
-          addedContacts: encriptMessage(
-            contactsPrivateKey,
-            latestInfo.myProfile.uuid,
-            JSON.stringify(latestDecoded.concat(newContats)),
-          ),
-        },
-        true,
+      if (!latestInfo?.myProfile) return;
+
+      const trulyNewContacts = newContats.filter(
+        c => !latestDecoded.find(existing => existing.uuid === c.uuid),
       );
+
+      if (trulyNewContacts.length > 0) {
+        toggleGlobalContactsInformation(
+          {
+            myProfile: { ...latestInfo.myProfile },
+            addedContacts: encriptMessage(
+              contactsPrivateKey,
+              latestInfo.myProfile.uuid,
+              JSON.stringify(latestDecoded.concat(trulyNewContacts)),
+            ),
+          },
+          true,
+        );
+      }
     }
   }, [contactsPrivateKey, toggleGlobalContactsInformation]);
 
