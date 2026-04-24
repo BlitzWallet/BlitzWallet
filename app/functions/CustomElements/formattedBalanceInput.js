@@ -31,6 +31,7 @@ export default function FormattedBalanceInput({
   maxWidth = 0.95,
   customCurrencyCode = '',
   forceCurrency = false,
+  maxDecimals = 2,
 }) {
   const { screenDimensions } = useAppStatus();
   const [inputWidth, setInputWidth] = useState(0);
@@ -95,7 +96,7 @@ export default function FormattedBalanceInput({
                 { color: textColor },
                 customTextInputStyles,
               ]}
-              value={formatBalanceAmount(amountValue, false, masterInfoObject)}
+              value={formatBalanceAmount(amountValue, false, masterInfoObject, maxDecimals)}
               editable={false}
               scrollEnabled
               multiline={false}
@@ -127,7 +128,7 @@ export default function FormattedBalanceInput({
             setInputWidth(prev => (w === prev ? prev : w));
           }}
         >
-          {formatBalanceAmount(amountValue, false, masterInfoObject)}
+          {formatBalanceAmount(amountValue, false, masterInfoObject, maxDecimals)}
         </Text>
       </View>
     );
@@ -169,7 +170,7 @@ export default function FormattedBalanceInput({
               { color: textColor },
               customTextInputStyles,
             ]}
-            value={formatBalanceAmount(amountValue, false, masterInfoObject)}
+            value={formatBalanceAmount(amountValue, false, masterInfoObject, maxDecimals)}
             editable={false}
             scrollEnabled
             multiline={false}
@@ -197,7 +198,7 @@ export default function FormattedBalanceInput({
           setInputWidth(prev => (newWidth === prev ? prev : newWidth));
         }}
       >
-        {formatBalanceAmount(amountValue, false, masterInfoObject)}
+        {formatBalanceAmount(amountValue, false, masterInfoObject, maxDecimals)}
       </Text>
     </View>
   );

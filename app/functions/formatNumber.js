@@ -4,6 +4,7 @@ export default function formatBalanceAmount(
   formattingAmount,
   useMillionDenomination,
   masterInfoObject,
+  maxDecimals = 2,
 ) {
   try {
     if (!formattingAmount) {
@@ -57,7 +58,7 @@ export default function formatBalanceAmount(
       const grouped = intRaw.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
       if (decRaw) {
-        return `${grouped}.${decRaw.slice(0, 2)}`;
+        return `${grouped}.${decRaw.slice(0, maxDecimals)}`;
       } else if (hasTrailingDecimal) {
         return `${grouped}.`;
       } else {
@@ -75,11 +76,11 @@ export default function formatBalanceAmount(
 
     // Set minimumFractionDigits based on actual decimal digits typed
     // This preserves trailing zeros (e.g., .00 shows both zeros)
-    const minFractionDigits = Math.min(decimalDigits, 2);
+    const minFractionDigits = Math.min(decimalDigits, maxDecimals);
 
     const formatted = new Intl.NumberFormat(i18next.language || 'en', {
       minimumFractionDigits: minFractionDigits,
-      maximumFractionDigits: 2,
+      maximumFractionDigits: maxDecimals,
     }).format(numericValue);
 
     // If user is typing a decimal point, append the locale-appropriate separator
