@@ -81,6 +81,7 @@ export default async function processSparkAddress(input, context) {
     Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
 
   let swapPaymentQuote = {};
+  let usdFeeResult = { fee: undefined, supportFee: undefined };
 
   if (amountMsat) {
     if (isLRC20) {
@@ -223,14 +224,15 @@ export default async function processSparkAddress(input, context) {
           (!addressInfo.expectedToken ||
             addressInfo.expectedToken === USDB_TOKEN_ID)
         ) {
-          addressInfo.paymentFee = 0;
-          addressInfo.supportFee = 0;
+          usdFeeResult = { fee: 0, supportFee: 0 };
         } else {
           // If we need to swap from USD -> BTC
           if (hasCachedQuote) {
             swapPaymentQuote = paymentInfo.swapPaymentQuote;
-            addressInfo.paymentFee = paymentInfo.paymentFee;
-            addressInfo.supportFee = paymentInfo.supportFee;
+            usdFeeResult = {
+              fee: paymentInfo.usdPaymentFee ?? paymentInfo.paymentFee,
+              supportFee: paymentInfo.usdSupportFee ?? paymentInfo.supportFee,
+            };
           } else if (results.usdSwap) {
             const { result, usdAmount } = results.usdSwap;
             // Only throw if USD swap failed AND we don't have a BTC fallback
@@ -244,8 +246,7 @@ export default async function processSparkAddress(input, context) {
                 poolInfoRef.currentPriceAInB,
               );
 
-              addressInfo.paymentFee = satFee;
-              addressInfo.supportFee = 0;
+              usdFeeResult = { fee: satFee, supportFee: 0 };
               swapPaymentQuote = {
                 warn: parseFloat(result.simulation.priceImpact) > 3,
                 poolId: poolInfoRef.lpPublicKey,
@@ -315,6 +316,12 @@ export default async function processSparkAddress(input, context) {
           }
         }
       }
+
+      // If BTC path didn't run, use USD fee as the primary fee
+      if (!needBtcPath && usdFeeResult.fee !== undefined) {
+        addressInfo.paymentFee = usdFeeResult.fee;
+        addressInfo.supportFee = usdFeeResult.supportFee;
+      }
     }
   }
 
@@ -335,6 +342,8 @@ export default async function processSparkAddress(input, context) {
     paymentNetwork: 'spark',
     paymentFee: addressInfo.paymentFee,
     supportFee: addressInfo.supportFee,
+    usdPaymentFee: usdFeeResult.fee,
+    usdSupportFee: usdFeeResult.supportFee,
     swapPaymentQuote,
     sendAmount: !amountMsat ? '' : isLRC20 ? amountMsat : `${displayAmount}`,
     canEditPayment,

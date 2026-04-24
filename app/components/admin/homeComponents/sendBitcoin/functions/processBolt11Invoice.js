@@ -71,6 +71,7 @@ export default async function processBolt11Invoice(input, context) {
     !!amountMsat &&
     Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
   let fee = {};
+  let usdFee = {};
   let swapPaymentQuote = {};
 
   if (amountMsat) {
@@ -139,7 +140,7 @@ export default async function processBolt11Invoice(input, context) {
               poolInfoRef.currentPriceAInB,
             ),
           );
-          fee = {
+          usdFee = {
             fee: paymentQuote.quote.fee + estimatedAmmFeeSat,
             supportFee: 0,
           };
@@ -157,8 +158,8 @@ export default async function processBolt11Invoice(input, context) {
     } else {
       if (needUsdFee && hasUsdQuote) {
         swapPaymentQuote = paymentInfo.swapPaymentQuote;
-        fee = {
-          fee: paymentInfo.swapPaymentQuote.fee,
+        usdFee = {
+          fee: paymentInfo.usdPaymentFee ?? paymentInfo.swapPaymentQuote.fee,
           supportFee: 0,
         };
       }
@@ -186,8 +187,10 @@ export default async function processBolt11Invoice(input, context) {
     data: { ...input, message: input.data.description },
     type: InputTypes.BOLT11,
     paymentNetwork: 'lightning',
-    paymentFee: fee.fee,
-    supportFee: fee.supportFee,
+    paymentFee: fee.fee ?? usdFee.fee,
+    supportFee: fee.supportFee ?? usdFee.supportFee,
+    usdPaymentFee: usdFee.fee,
+    usdSupportFee: usdFee.supportFee,
     address: input.data.address,
     usingZeroAmountInvoice: !input.data.amountMsat,
     swapPaymentQuote: swapPaymentQuote,

@@ -259,14 +259,6 @@ export default function SendPaymentScreen(props) {
   const canEditAmount = paymentInfo?.canEditPayment === true;
   const receiverExpectsCurrency = paymentInfo?.data?.expectedReceive || 'sats';
 
-  const paymentFee =
-    (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
-
-  const effectivePaymentFee =
-    isLightningPayment && lnFeeEstimate !== null
-      ? lnFeeEstimate + (paymentInfo?.supportFee || 0)
-      : paymentFee;
-
   // True when the payment amount itself meets the swap minimum for this direction.
   // For editable amounts or zero-amount invoices the user can change the value,
   // so we treat them as viable and let downstream validation enforce the limit.
@@ -383,6 +375,16 @@ export default function SendPaymentScreen(props) {
     receiverExpectsCurrency,
   ]);
 
+  const paymentFee =
+    resolvedPaymentMethod === 'USD' && paymentInfo?.usdPaymentFee != null
+      ? (paymentInfo.usdPaymentFee || 0) + (paymentInfo.usdSupportFee || 0)
+      : (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
+
+  const effectivePaymentFee =
+    isLightningPayment && lnFeeEstimate !== null
+      ? lnFeeEstimate + (paymentInfo?.supportFee || 0)
+      : paymentFee;
+
   const usdFiatStats = useMemo(
     () => ({ coin: 'USD', value: swapUSDPriceDollars }),
     [swapUSDPriceDollars],
@@ -442,10 +444,10 @@ export default function SendPaymentScreen(props) {
 
     if (isBitcoinPayment) return false;
 
-    const hasEnoughBTC =
-      bitcoinBalance >= convertedSendAmount + effectivePaymentFee;
-    const hasEnoughUSD =
-      dollarBalanceSat >= convertedSendAmount + effectivePaymentFee;
+    const formattedFee = isLightningPayment ? effectivePaymentFee : 0;
+
+    const hasEnoughBTC = bitcoinBalance >= convertedSendAmount + formattedFee;
+    const hasEnoughUSD = dollarBalanceSat >= convertedSendAmount + formattedFee;
 
     const canSendWithBTC =
       resolvedPaymentMethod === 'BTC' && receiverExpectsCurrency === 'sats'
@@ -477,6 +479,7 @@ export default function SendPaymentScreen(props) {
     resolvedPaymentMethod,
     receiverExpectsCurrency,
     preSelectedPaymentMethod,
+    isLightningPayment,
   ]);
 
   const { shouldWarn } = useBudgetWarning(convertedSendAmount);
