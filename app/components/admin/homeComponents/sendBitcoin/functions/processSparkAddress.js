@@ -338,5 +338,6 @@ export default async function processSparkAddress(input, context) {
     swapPaymentQuote,
     sendAmount: !amountMsat ? '' : isLRC20 ? amountMsat : `${displayAmount}`,
     canEditPayment,
+    amountSat: Math.round(amountMsat / 1000),
   };
 }

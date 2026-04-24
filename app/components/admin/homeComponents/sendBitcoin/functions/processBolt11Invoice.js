@@ -193,5 +193,6 @@ export default async function processBolt11Invoice(input, context) {
     swapPaymentQuote: swapPaymentQuote,
     sendAmount: !amountMsat ? '' : `${displayAmount}`,
     canEditPayment,
+    amountSat: Math.round(amountMsat / 1000),
   };
 }

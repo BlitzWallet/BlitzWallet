@@ -136,12 +136,17 @@ export default async function processLNUrlPay(input, context) {
             break;
           }
         } catch (err) {
-          console.log(`Invoice generation attempt ${numberOfTries} failed:`, err);
+          console.log(
+            `Invoice generation attempt ${numberOfTries} failed:`,
+            err,
+          );
         }
 
         if (!invoice && numberOfTries < maxRetries) {
           console.log(
-            `Waiting to retry invoice generation (attempt ${numberOfTries + 1})`,
+            `Waiting to retry invoice generation (attempt ${
+              numberOfTries + 1
+            })`,
           );
           await new Promise(res => setTimeout(res, 2000));
         }
@@ -238,7 +243,8 @@ export default async function processLNUrlPay(input, context) {
       }
     } else {
       if (needUsdFee && hasUsdQuote) {
-        const sourceQuote = preEstimatedSwapQuote || paymentInfo.swapPaymentQuote;
+        const sourceQuote =
+          preEstimatedSwapQuote || paymentInfo.swapPaymentQuote;
         swapPaymentQuote = {
           ...sourceQuote,
           bitcoinBalance,
@@ -286,5 +292,6 @@ export default async function processLNUrlPay(input, context) {
     paymentNetwork: 'lightning',
     sendAmount: enteredAmount ? `${displayAmount}` : '',
     canEditPayment,
+    amountSat: Math.round(amountMsat / 1000),
   };
 }
