@@ -7,6 +7,7 @@ import {
   USDB_TOKEN_ID,
 } from '../../../../../constants';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import { satsToDollars } from '../../../../../functions/spark/swapAmountUtils';
 
 export default function usePaymentValidation({
   // Payment info
@@ -49,6 +50,7 @@ export default function usePaymentValidation({
 
   //can perform swap
   sparkInformation,
+  poolInfoRef,
 }) {
   const validation = useMemo(() => {
     const result = {
@@ -78,15 +80,15 @@ export default function usePaymentValidation({
     const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
     const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
 
+    // Spark only sets the expectedReceive otherwise everything else is sats
     const receiverExpectsCurrency =
       paymentInfo?.data?.expectedReceive || 'sats';
     const expectedToken = paymentInfo?.data?.expectedToken;
     const totalCost = convertedSendAmount + paymentFee;
 
-    const finalPaymentMethod =
-      !selectedPaymentMethod && determinePaymentMethod === 'BTC'
-        ? 'BTC'
-        : determinePaymentMethod;
+    // determinePaymentMethod (= resolvedPaymentMethod) already incorporates
+    // selectedPaymentMethod via Priority 3, so this is a straight pass-through.
+    const finalPaymentMethod = determinePaymentMethod ?? 'BTC';
 
     console.log(
       finalPaymentMethod,
@@ -241,10 +243,13 @@ export default function usePaymentValidation({
         const userDollarBalance =
           dollarBalanceToken * Math.pow(10, USDB_DECIMALS);
 
+        const priceAInB = poolInfoRef?.currentPriceAInB;
         const requiredDollarTokens = tokenAmountRequired
           ? Number(tokenAmountRequired)
           : amountIn
           ? Number(amountIn)
+          : priceAInB
+          ? satsToDollars(convertedSendAmount, priceAInB) * Math.pow(10, 6)
           : null;
 
         if (
@@ -257,8 +262,10 @@ export default function usePaymentValidation({
       } else if (finalPaymentMethod === 'BTC') {
         // BTC → USD swap
         const amountIn = paymentInfo?.swapPaymentQuote?.amountIn;
+        const requiredSats =
+          amountIn != null ? Number(amountIn) : convertedSendAmount;
 
-        if (amountIn !== null && bitcoinBalance < amountIn) {
+        if (bitcoinBalance < requiredSats) {
           result.errors.push('INSUFFICIENT_BALANCE');
           return result;
         }
@@ -323,9 +330,6 @@ export default function usePaymentValidation({
     const errorMessages = {
       DECODING: t('wallet.sendPages.sendPaymentScreen.decodingPayment'),
       NO_AMOUNT: t('wallet.sendPages.acceptButton.noSendAmountError'),
-      NEEDS_PAYMENT_METHOD_SELECTION: t(
-        'wallet.sendPages.sendPaymentScreen.selectPaymentMethod',
-      ),
       INSUFFICIENT_TOKEN_BALANCE: t(
         'wallet.sendPages.acceptButton.balanceError',
       ),
