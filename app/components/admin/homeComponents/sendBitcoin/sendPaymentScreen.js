@@ -274,13 +274,8 @@ export default function SendPaymentScreen(props) {
     hasBothUSDAndBitcoinBalance,
   } = usePaymentMethodSelection({
     paymentInfo,
-    paymentFee,
-    sparkBalance,
     bitcoinBalance,
-    dollarBalanceSat,
     dollarBalanceToken,
-    convertedSendAmount,
-    min_usd_swap_amount,
     swapLimits,
     isUsingLRC20,
     useFullTokensDisplay,
