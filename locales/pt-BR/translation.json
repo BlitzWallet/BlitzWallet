@@ -1836,7 +1836,7 @@
         "payingMessage": "Pagando...",
         "notifyngMessage": "Notificando...",
         "errorPaying": "Não foi possível pagar o contato Blitz. Tente novamente mais tarde.",
-        "invalidName": "Nome não é um endereço Lightning nem um usuário do Blitz.",
+        "invalidName": "Nome não é um endereço Lightning nem um usuário Blitz.",
         "removeEmployeeWarning": "Tem certeza de que deseja remover este funcionário?",
         "startingPaymentProcessMessage": "'Ao iniciar o processo de pagamento, por favor, não saia desta página ou do aplicativo.",
         "goBack": "Voltar",
