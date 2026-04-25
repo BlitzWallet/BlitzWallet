@@ -47,9 +47,17 @@ export const UserBalanceProvider = ({ children }) => {
       const balance = sparkInformation?.balance;
       if (balance == null) return 0;
 
-      return typeof balance === 'bigint'
-        ? Number(balance)
-        : Number(balance) || 0;
+      let num;
+      if (typeof balance === 'bigint') {
+        num = Number(balance);
+      } else if (typeof balance === 'string') {
+        num = parseFloat(balance);
+      } else {
+        num = Number(balance);
+      }
+
+      if (!isFinite(num) || isNaN(num)) return 0;
+      return Math.max(0, Math.trunc(num));
     } catch (error) {
       console.error('Error processing bitcoin balance:', error);
       return 0;

@@ -203,28 +203,13 @@ export default function SendPaymentScreen(props) {
   const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
   const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
 
-  const isBTCdenominated =
-    inputDenomination === 'hidden' || inputDenomination === 'sats';
-
   const enabledLRC20 = showTokensInformation;
   const defaultToken = enabledLRC20
     ? masterInfoObject?.defaultSpendToken || 'Bitcoin'
     : 'Bitcoin';
 
-  const tokensObject = sparkInformation?.tokens ?? {};
-  const tokensList = useMemo(() => {
-    return Object.entries(tokensObject)
-      .filter(token => {
-        const [key, value] = token;
-        return !!value?.balance;
-      })
-      .map(item => item[0]);
-  }, [tokensObject]);
-
   const useFullTokensDisplay =
-    (tokensList.length >= 2 ||
-      (tokensList.length === 1 && !tokensList.includes(USDB_TOKEN_ID)) ||
-      (masterInfoObject.enabledBTKNTokens && tokensList.length)) &&
+    enabledLRC20 &&
     isSparkPayment &&
     paymentInfo?.data?.expectedToken !== USDB_TOKEN_ID &&
     !contactInfo;
@@ -252,7 +237,6 @@ export default function SendPaymentScreen(props) {
     {};
   const tokenDecimals = seletctedToken?.tokenMetadata?.decimals ?? 0;
   const tokenBalance = seletctedToken?.balance ?? 0;
-  const sparkBalance = sparkInformation?.balance ?? 0;
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
@@ -491,7 +475,7 @@ export default function SendPaymentScreen(props) {
       if (quoteId.current !== id) return;
 
       const balance =
-        resolvedPaymentMethod === 'USD' ? dollarBalanceSat : sparkBalance;
+        resolvedPaymentMethod === 'USD' ? dollarBalanceSat : bitcoinBalance;
       const bufferAmount = amount * 1.1;
 
       // Skip if balance easily covers the send + estimated fee buffer, or if
@@ -571,7 +555,7 @@ export default function SendPaymentScreen(props) {
           if (!feeResult.didWork) throw new Error('Fee estimation failed');
           if (quoteId.current !== id) return;
           const fee = feeResult.fee;
-          if (fee + amount > sparkBalance) {
+          if (fee + amount > bitcoinBalance) {
             showToast({
               type: 'error',
               title: t('errormessages.lightningAmountFeeWarning', {
@@ -610,7 +594,7 @@ export default function SendPaymentScreen(props) {
       canEditAmount,
       resolvedPaymentMethod,
       dollarBalanceSat,
-      sparkBalance,
+      bitcoinBalance,
       paymentInfo,
       currentWalletMnemoinc,
       masterInfoObject,
@@ -1118,7 +1102,7 @@ export default function SendPaymentScreen(props) {
         masterInfoObject,
         fee: paymentFee,
         memo,
-        userBalance: sparkBalance,
+        userBalance: bitcoinBalance,
         sparkInformation: sparkInfoRef.current,
         feeQuote: paymentInfo.feeQuote,
         swapPaymentQuote: paymentInfo.swapPaymentQuote,
@@ -1246,7 +1230,7 @@ export default function SendPaymentScreen(props) {
     convertedSendAmount,
     masterInfoObject,
     paymentFee,
-    sparkBalance,
+    bitcoinBalance,
     sparkInformation,
     currentWalletMnemoinc,
     sendWebViewRequest,
