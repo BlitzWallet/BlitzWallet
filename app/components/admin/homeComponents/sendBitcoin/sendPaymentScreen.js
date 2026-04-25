@@ -265,6 +265,10 @@ export default function SendPaymentScreen(props) {
     receiverExpectsCurrency,
   ]);
 
+  const isBTCOnlyPayment =
+    isBitcoinPayment ||
+    (isLightningPayment && paymentInfo?.usingZeroAmountInvoice);
+
   const resolvedPaymentMethod = useMemo(() => {
     if (!paymentInfo || !Object.keys(paymentInfo || {}).length)
       return undefined;
@@ -397,16 +401,11 @@ export default function SendPaymentScreen(props) {
     ).toFixed(2) * Math.pow(10, 6),
   );
 
-  // fixing static ln amount selector showing logic
-  const hasBothUSDAndBitcoinBalance =
-    Number(dollarBalanceToken) >= 0.01 && !!bitcoinBalance;
-
   const requiresUserMethodSelection = useMemo(() => {
     if (
       !!preSelectedPaymentMethod ||
       useFullTokensDisplay ||
       isUsingLRC20 ||
-      !hasBothUSDAndBitcoinBalance ||
       didSelectPaymentMethod
     )
       return false;
@@ -440,7 +439,6 @@ export default function SendPaymentScreen(props) {
     isBitcoinPayment,
     useFullTokensDisplay,
     isUsingLRC20,
-    hasBothUSDAndBitcoinBalance,
     didSelectPaymentMethod,
     sparkInformation?.didConnectToFlashnet,
     paymentInfo?.data?.expectedReceive,
@@ -518,7 +516,13 @@ export default function SendPaymentScreen(props) {
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');
           if (quoteId.current !== id) return;
-          const fee = quote.quote.fee;
+          const estimatedAmmFeeSat = Math.round(
+            dollarsToSats(
+              quote.quote.estimatedAmmFee / Math.pow(10, 6),
+              poolInfoRef.currentPriceAInB,
+            ),
+          );
+          const fee = quote.quote.fee + estimatedAmmFeeSat;
           if (fee + amount > dollarBalanceSat) {
             showToast({
               type: 'error',
@@ -540,6 +544,11 @@ export default function SendPaymentScreen(props) {
             ...prev,
             paymentFee: fee,
             supportFee: prev.supportFee ?? 0,
+            swapPaymentQuote: {
+              ...quote.quote,
+              bitcoinBalance,
+              dollarBalanceSat,
+            },
           }));
         } else {
           const feeResult = await sparkPaymenWrapper({
@@ -661,8 +670,7 @@ export default function SendPaymentScreen(props) {
       !isBitcoinPayment &&
       !isUsingLRC20 &&
       !canUseFastPay &&
-      !preSelectedPaymentMethod &&
-      hasBothUSDAndBitcoinBalance
+      !preSelectedPaymentMethod
     ) {
       return 'CHOOSE_METHOD'; // Show info screen with button to select method
     }
@@ -676,7 +684,6 @@ export default function SendPaymentScreen(props) {
     isBitcoinPayment,
     isUsingLRC20,
     canUseFastPay,
-    hasBothUSDAndBitcoinBalance,
     preSelectedPaymentMethod,
   ]);
 
@@ -1479,7 +1486,7 @@ export default function SendPaymentScreen(props) {
                 fiatStats={fiatStats}
                 uiState={uiState}
                 t={t}
-                showBitcoinCardOnly={isBitcoinPayment}
+                showBitcoinCardOnly={isBTCOnlyPayment}
               />
             )}
             <CustomSearchInput

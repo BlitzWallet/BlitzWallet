@@ -221,8 +221,15 @@ export default function SendAndRequestPage(props) {
           );
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');
-          const fee = quote.quote.fee;
+
           if (quoteId.current !== id) return;
+          const estimatedAmmFeeSat = Math.round(
+            dollarsToSats(
+              quote.quote.estimatedAmmFee / Math.pow(10, 6),
+              poolInfoRef.currentPriceAInB,
+            ),
+          );
+          const fee = quote.quote.fee + estimatedAmmFeeSat;
           if (fee + amount > dollarBalanceSat) {
             showToast({
               type: 'error',
