@@ -357,6 +357,7 @@ export default function SendAndRequestPage(props) {
     conversionFiatStats,
 
     sparkInformation,
+    poolInfoRef,
   });
 
   const handleSelectPaymentMethod = useCallback(() => {

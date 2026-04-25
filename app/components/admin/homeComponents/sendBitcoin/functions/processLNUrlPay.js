@@ -69,6 +69,8 @@ export default async function processLNUrlPay(input, context) {
   let swapPaymentQuote = {};
   let paymentFee = 0;
   let supportFee = 0;
+  let usdPaymentFee = 0;
+  let usdSupportFee = 0;
   let invoice = '';
   const description =
     (fromPage === 'contacts'
@@ -136,12 +138,17 @@ export default async function processLNUrlPay(input, context) {
             break;
           }
         } catch (err) {
-          console.log(`Invoice generation attempt ${numberOfTries} failed:`, err);
+          console.log(
+            `Invoice generation attempt ${numberOfTries} failed:`,
+            err,
+          );
         }
 
         if (!invoice && numberOfTries < maxRetries) {
           console.log(
-            `Waiting to retry invoice generation (attempt ${numberOfTries + 1})`,
+            `Waiting to retry invoice generation (attempt ${
+              numberOfTries + 1
+            })`,
           );
           await new Promise(res => setTimeout(res, 2000));
         }
@@ -224,8 +231,8 @@ export default async function processLNUrlPay(input, context) {
               poolInfoRef.currentPriceAInB,
             ),
           );
-          paymentFee = paymentQuote.quote.fee + estimatedAmmFeeSat;
-          supportFee = 0;
+          usdPaymentFee = paymentQuote.quote.fee + estimatedAmmFeeSat;
+          usdSupportFee = 0;
         }
       }
 
@@ -238,19 +245,26 @@ export default async function processLNUrlPay(input, context) {
       }
     } else {
       if (needUsdFee && hasUsdQuote) {
-        const sourceQuote = preEstimatedSwapQuote || paymentInfo.swapPaymentQuote;
+        const sourceQuote =
+          preEstimatedSwapQuote || paymentInfo.swapPaymentQuote;
         swapPaymentQuote = {
           ...sourceQuote,
           bitcoinBalance,
           dollarBalanceSat,
         };
-        paymentFee = sourceQuote.fee;
-        supportFee = 0;
+        usdPaymentFee = paymentInfo.usdPaymentFee ?? sourceQuote.fee;
+        usdSupportFee = 0;
       }
       if (needBtcFee && hasBtcFee) {
         paymentFee = preEstimatedBtcFee || paymentInfo.paymentFee;
         supportFee = paymentInfo.supportFee || 0;
       }
+    }
+
+    // If only USD path ran, fall back paymentFee to usdPaymentFee
+    if (!paymentFee && usdPaymentFee) {
+      paymentFee = usdPaymentFee;
+      supportFee = usdSupportFee;
     }
   }
 
@@ -281,10 +295,13 @@ export default async function processLNUrlPay(input, context) {
       : input.data,
     paymentFee,
     supportFee,
+    usdPaymentFee,
+    usdSupportFee,
     swapPaymentQuote: swapPaymentQuote,
     type: InputTypes.LNURL_PAY,
     paymentNetwork: 'lightning',
     sendAmount: enteredAmount ? `${displayAmount}` : '',
     canEditPayment,
+    amountSat: Math.round(amountMsat / 1000),
   };
 }
