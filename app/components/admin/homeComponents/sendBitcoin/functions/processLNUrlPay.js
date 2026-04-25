@@ -62,9 +62,10 @@ export default async function processLNUrlPay(input, context) {
     comingFromAccept || paymentInfo.sendAmount
       ? enteredAmount
       : input.data.minSendable;
+  const amountSat = Math.round(amountMsat / 1000);
 
   const fiatValue =
-    Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
+    !!amountMsat && amountSat / (SATSPERBITCOIN / (fiatStats?.value || 65000));
 
   let swapPaymentQuote = {};
   let paymentFee = 0;
@@ -164,12 +165,12 @@ export default async function processLNUrlPay(input, context) {
     const needUsdFee =
       (usablePaymentMethod === 'USD' ||
         ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
-          dollarBalanceSat >= amountMsat / 1000)) &&
-      amountMsat / 1000 >= MIN_USD_BTC_LIGHTNING_SWAP;
+          dollarBalanceSat >= amountSat)) &&
+      amountSat >= MIN_USD_BTC_LIGHTNING_SWAP;
     const needBtcFee =
       usablePaymentMethod === 'BTC' ||
       ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
-        bitcoinBalance >= amountMsat / 1000);
+        bitcoinBalance >= amountSat);
 
     // Check if we have cached values (from re-decode) or pre-estimated values (from contacts fee estimation)
     const hasUsdQuote =
@@ -280,10 +281,10 @@ export default async function processLNUrlPay(input, context) {
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredPaymentInfo.amount
       : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? Math.round(amountMsat / 1000)
+      ? amountSat
       : canEditPayment
       ? fiatValue
-      : Math.round(amountMsat / 1000);
+      : amountSat;
 
   return {
     data: enteredAmount
@@ -302,6 +303,6 @@ export default async function processLNUrlPay(input, context) {
     paymentNetwork: 'lightning',
     sendAmount: enteredAmount ? `${displayAmount}` : '',
     canEditPayment,
-    amountSat: Math.round(amountMsat / 1000),
+    amountSat: amountSat,
   };
 }

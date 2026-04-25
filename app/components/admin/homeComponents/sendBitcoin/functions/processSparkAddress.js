@@ -77,9 +77,10 @@ export default async function processSparkAddress(input, context) {
     ? enteredAmount
     : addressInfo.amount * 1000;
 
+  const amountSat = Math.round(amountMsat / 1000);
+
   const fiatValue =
-    !!amountMsat &&
-    Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
+    !!amountMsat && amountSat / (SATSPERBITCOIN / (fiatStats?.value || 65000));
 
   let swapPaymentQuote = {};
   let usdFeeResult = { fee: undefined, supportFee: undefined };
@@ -94,11 +95,11 @@ export default async function processSparkAddress(input, context) {
       const needUsdPath =
         usablePaymentMethod === 'USD' ||
         ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
-          dollarBalanceSat >= amountMsat / 1000);
+          dollarBalanceSat >= amountSat);
       const needBtcPath =
         usablePaymentMethod === 'BTC' ||
         ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
-          bitcoinBalance >= amountMsat / 1000);
+          bitcoinBalance >= amountSat);
 
       // Determine if non-swap fallbacks are available
       const canDoDirectBtcPayment =
@@ -127,14 +128,14 @@ export default async function processSparkAddress(input, context) {
           (!addressInfo.expectedToken ||
             addressInfo.expectedToken === USDB_TOKEN_ID)
         ) &&
-        amountMsat / 1000 >= min_usd_swap_amount;
+        amountSat >= min_usd_swap_amount;
 
       const btcNeedsSwap =
         needBtcPath &&
         !hasCachedQuote &&
         addressInfo.expectedReceive === 'tokens' &&
         addressInfo.expectedToken === USDB_TOKEN_ID &&
-        amountMsat / 1000 >= swapLimits.bitcoin;
+        amountSat >= swapLimits.bitcoin;
 
       const btcNeedsFee =
         needBtcPath &&
@@ -150,10 +151,8 @@ export default async function processSparkAddress(input, context) {
       const operations = { usdSwap: -1, btcSwap: -1, btcFee: -1 };
 
       if (usdNeedsSwap) {
-        const satAmount = amountMsat / 1000;
-
         const amountToSendConversion = satsToDollars(
-          satAmount,
+          amountSat,
           poolInfoRef.currentPriceAInB,
         );
         const usdBalanceConversion = satsToDollars(
@@ -182,16 +181,18 @@ export default async function processSparkAddress(input, context) {
       }
 
       if (btcNeedsSwap) {
-        const satAmount = amountMsat / 1000;
-
         operations.btcSwap = promises.length;
         promises.push(
           simulateSwap(currentWalletMnemoinc, {
             poolId: poolInfoRef.lpPublicKey,
             assetInAddress: BTC_ASSET_ADDRESS,
             assetOutAddress: USD_ASSET_ADDRESS,
-            amountIn: satAmount,
-          }).then(result => ({ type: 'btcSwap', result, satAmount })),
+            amountIn: amountSat,
+          }).then(result => ({
+            type: 'btcSwap',
+            result,
+            satAmount: amountSat,
+          })),
         );
       }
 
@@ -334,10 +335,10 @@ export default async function processSparkAddress(input, context) {
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredPaymentInfo.amount
       : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? Math.round(amountMsat / 1000)
+      ? amountSat
       : canEditPayment
       ? fiatValue
-      : Math.round(amountMsat / 1000);
+      : amountSat;
 
   return {
     data: addressInfo,
@@ -350,6 +351,6 @@ export default async function processSparkAddress(input, context) {
     swapPaymentQuote,
     sendAmount: !amountMsat ? '' : isLRC20 ? amountMsat : `${displayAmount}`,
     canEditPayment,
-    amountSat: Math.round(amountMsat / 1000),
+    amountSat: amountSat,
   };
 }

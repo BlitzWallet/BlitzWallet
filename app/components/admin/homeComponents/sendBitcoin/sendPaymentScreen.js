@@ -285,75 +285,61 @@ export default function SendPaymentScreen(props) {
     if (!paymentInfo || !Object.keys(paymentInfo || {}).length)
       return undefined;
 
-    //bitcion is always 'BTC'
     if (isBitcoinPayment) return 'BTC';
-
-    //lrc20 is only btc
     if (isUsingLRC20) return 'BTC';
-
-    // Priority 1: external pre-selection (invoice / contacts navigation)
-    if (preSelectedPaymentMethod) {
-      const hasUSDBalance = Number(dollarBalanceToken) >= 0.01;
-      const hasBTCBalance = !!bitcoinBalance;
-      if (preSelectedPaymentMethod === 'USD' && !hasUSDBalance && hasBTCBalance)
-        return 'BTC';
-      if (preSelectedPaymentMethod === 'BTC' && !hasBTCBalance && hasUSDBalance)
-        return 'USD';
-      return preSelectedPaymentMethod;
-    }
-
-    // Priority 3: user explicitly selected a payment method via param or UI tap
-    if (userPaymentMethod) return userPaymentMethod;
-
-    // using tokens doesnt mattter
     if (isSparkPayment && useFullTokensDisplay) return 'BTC';
-
-    if (enteredPaymentInfo?.inputCurrency) {
-      const currency = enteredPaymentInfo.inputCurrency;
-      const hasUSDBalance = Number(dollarBalanceToken) >= 0.01;
-      const hasBTCBalance = !!bitcoinBalance;
-      if (currency === 'USD' && !hasUSDBalance && hasBTCBalance) return 'BTC';
-      if (currency === 'BTC' && !hasBTCBalance && hasUSDBalance) return 'USD';
-      return currency;
-    }
-
-    // Priority 4b: auto-pick based on viability (Flashnet + swap minimums) and balance
-    const flashnetReady = sparkInformation?.didConnectToFlashnet;
-    const receiverExpectsTokens = receiverExpectsCurrency === 'tokens';
-    const hasBTCBalance = !!bitcoinBalance;
-    const hasUSDBalance = Number(dollarBalanceToken) >= 0.01;
-
-    if (receiverExpectsTokens) {
-      // Paying USD tokens: USD direct always ok; BTC→USD swap needs Flashnet + min
-      const canSwapBTC =
-        hasBTCBalance &&
-        flashnetReady &&
-        bitcoinBalance >= swapLimits.bitcoin &&
-        amountViableForSwap;
-      if (hasUSDBalance && canSwapBTC)
-        return dollarBalanceSat >= bitcoinBalance ? 'USD' : 'BTC';
-      if (hasUSDBalance) return 'USD';
-      if (hasBTCBalance) return 'BTC';
-      return 'USD';
-    }
-
-    // Lightning can only be paid from BTC so always defult to BTC
     if (isLightningPayment && paymentInfo?.usingZeroAmountInvoice) return 'BTC';
 
-    // LN / spark-sats: receiver expects BTC
-    // BTC direct always ok; USD→BTC swap needs Flashnet + min
-    const canSwapUSD =
-      hasUSDBalance &&
-      flashnetReady &&
-      Number(dollarBalanceToken) >= swapLimits.usd &&
-      amountViableForSwap;
+    const flashnetReady = sparkInformation?.didConnectToFlashnet;
+    const receiverExpectsTokens = receiverExpectsCurrency === 'tokens';
+    const amountSat = paymentInfo?.amountSat || 0;
 
-    if (hasBTCBalance && canSwapUSD)
-      return bitcoinBalance >= dollarBalanceSat ? 'BTC' : 'USD';
-    if (hasBTCBalance) return 'BTC';
-    if (hasUSDBalance) return 'USD';
+    const canUse = method => {
+      if (method === 'USD') {
+        if (Number(dollarBalanceToken) < 0.01) return false;
+        if (receiverExpectsTokens) return dollarBalanceSat >= amountSat;
+        return (
+          flashnetReady &&
+          Number(dollarBalanceToken) >= swapLimits.usd &&
+          amountViableForSwap
+        );
+      } else {
+        if (!bitcoinBalance) return false;
+        if (receiverExpectsTokens)
+          return (
+            flashnetReady &&
+            bitcoinBalance >= swapLimits.bitcoin &&
+            amountViableForSwap
+          );
+        return bitcoinBalance >= amountSat;
+      }
+    };
 
-    // Priority 5: default
+    const resolvePreferred = preferred => {
+      if (canUse(preferred)) return preferred;
+      const opposite = preferred === 'USD' ? 'BTC' : 'USD';
+      if (canUse(opposite)) return opposite;
+      return preferred;
+    };
+
+    if (preSelectedPaymentMethod)
+      return resolvePreferred(preSelectedPaymentMethod);
+    if (userPaymentMethod) return userPaymentMethod;
+    if (enteredPaymentInfo?.inputCurrency)
+      return resolvePreferred(enteredPaymentInfo.inputCurrency);
+
+    const btcViable = canUse('BTC');
+    const usdViable = canUse('USD');
+    if (btcViable && usdViable)
+      return receiverExpectsTokens
+        ? dollarBalanceSat >= bitcoinBalance
+          ? 'USD'
+          : 'BTC'
+        : bitcoinBalance >= dollarBalanceSat
+        ? 'BTC'
+        : 'USD';
+    if (btcViable) return 'BTC';
+    if (usdViable) return 'USD';
     return 'BTC';
   }, [
     preSelectedPaymentMethod,
@@ -367,6 +353,7 @@ export default function SendPaymentScreen(props) {
     isUsingLRC20,
     isSparkPayment,
     useFullTokensDisplay,
+    isLightningPayment,
     sparkInformation?.didConnectToFlashnet,
     swapLimits,
     canEditAmount,
