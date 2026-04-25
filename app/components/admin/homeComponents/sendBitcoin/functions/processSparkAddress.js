@@ -2,6 +2,7 @@ import { SATSPERBITCOIN, USDB_TOKEN_ID } from '../../../../../constants';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import {
   BTC_ASSET_ADDRESS,
+  convertToDecimals,
   dollarsToSats,
   INTEGRATOR_FEE,
   satsToDollars,
@@ -165,7 +166,9 @@ export default async function processSparkAddress(input, context) {
           usdBalanceConversion,
         );
 
-        const usdAmount = Math.ceil(maxAmount.toFixed(2) * Math.pow(10, 6));
+        const usdAmount = Math.round(
+          convertToDecimals(maxAmount) * Math.pow(10, 6),
+        );
 
         operations.usdSwap = promises.length;
         promises.push(

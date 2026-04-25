@@ -1,10 +1,14 @@
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useEffect, useMemo } from 'react';
 
 import { useSparkWallet } from './sparkContext';
 import { useFlashnet } from './flashnetContext';
 import { USDB_TOKEN_ID } from '../app/constants';
 import formatTokensNumber from '../app/functions/lrc20/formatTokensBalance';
 import { dollarsToSats } from '../app/functions/spark/flashnet';
+import {
+  setBitcoinBalance,
+  setDollarBalanceToken,
+} from '../app/functions/spark/balanceStore';
 
 const UserBalanceContext = createContext(null);
 
@@ -79,6 +83,26 @@ export const UserBalanceProvider = ({ children }) => {
       return 0;
     }
   }, [bitcoinBalance, dollarBalanceSat]);
+
+  useEffect(() => {
+    if (!usdbTokenInfo?.balance) return;
+    try {
+      const numberTokenBalance = Number(usdbTokenInfo?.balance);
+      console.log('USDB token balance number', numberTokenBalance);
+      if (isNaN(numberTokenBalance)) return;
+      setDollarBalanceToken(numberTokenBalance);
+    } catch {}
+  }, [usdbTokenInfo]);
+
+  useEffect(() => {
+    if (!bitcoinBalance) return;
+    try {
+      const numberBitcoinBalance = Number(bitcoinBalance);
+      console.log('USDB token balance number', numberBitcoinBalance);
+      if (isNaN(numberBitcoinBalance)) return;
+      setBitcoinBalance(numberBitcoinBalance);
+    } catch {}
+  }, [bitcoinBalance]);
 
   const contextValue = useMemo(() => {
     return {
