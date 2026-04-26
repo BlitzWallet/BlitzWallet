@@ -21,7 +21,7 @@ export default function PoolsPreview({
   const hasMorePools = activePoolsArray.length > 2;
   const remainingPoolsCount = activePoolsArray.length - 2;
 
-  if (!poolsArray.length) {
+  if (!poolsArray.length || !activePoolsArray.length) {
     return (
       <WidgetCard onPress={onViewAll}>
         <View style={styles.row}>
@@ -35,7 +35,11 @@ export default function PoolsPreview({
 
             <ThemeText
               styles={styles.rateText}
-              content={t('wallet.pools.collectPaymentsDescription')}
+              content={
+                !poolsArray.length
+                  ? t('wallet.pools.collectPaymentsDescription')
+                  : t('settings.accountsPoolsScreen.noActivePools')
+              }
             />
           </View>
           <View
@@ -69,50 +73,35 @@ export default function PoolsPreview({
           styles={styles.headerTitle}
           content={t('settings.accountsPoolsScreen.poolsTitle')}
         />
-        {!!poolsArray.length && (
-          <ThemeText
-            styles={styles.viewAll}
-            content={t('settings.hub.viewAll')}
-          />
-        )}
-      </View>
-      {activePoolsArray.length > 0 ? (
-        <>
-          {displayedPools.map(pool => (
-            <View key={pool.poolId} style={styles.poolRow}>
-              <CircularProgress
-                current={pool.currentAmount}
-                goal={pool.goalAmount}
-                size={35}
-                strokeWidth={3}
-                showPercentage={false}
-                useAltBackground={true}
-                showConfirmed={pool.currentAmount >= pool.goalAmount}
-              />
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.poolTitle}
-                content={pool.poolTitle}
-              />
-            </View>
-          ))}
-          {hasMorePools && (
-            <ThemeText
-              styles={styles.moreText}
-              content={t('settings.hub.morePoolsCount', {
-                count: remainingPoolsCount,
-              })}
-            />
-          )}
-        </>
-      ) : (
         <ThemeText
-          styles={styles.rateText}
-          content={
-            !poolsArray.length
-              ? t('settings.accountsPoolsScreen.noPoolsMessage')
-              : t('settings.accountsPoolsScreen.noActivePools')
-          }
+          styles={styles.viewAll}
+          content={t('settings.hub.viewAll')}
+        />
+      </View>
+      {displayedPools.map(pool => (
+        <View key={pool.poolId} style={styles.poolRow}>
+          <CircularProgress
+            current={pool.currentAmount}
+            goal={pool.goalAmount}
+            size={35}
+            strokeWidth={3}
+            showPercentage={false}
+            useAltBackground={true}
+            showConfirmed={pool.currentAmount >= pool.goalAmount}
+          />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.poolTitle}
+            content={pool.poolTitle}
+          />
+        </View>
+      ))}
+      {hasMorePools && (
+        <ThemeText
+          styles={styles.moreText}
+          content={t('settings.hub.morePoolsCount', {
+            count: remainingPoolsCount,
+          })}
         />
       )}
     </WidgetCard>

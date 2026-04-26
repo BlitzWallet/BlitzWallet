@@ -67,9 +67,10 @@ export default async function processBolt11Invoice(input, context) {
       ? enteredAmount
       : input.data.amountMsat || 0;
 
+  const amountSat = Math.round(amountMsat / 1000);
+
   const fiatValue =
-    !!amountMsat &&
-    Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
+    !!amountMsat && amountSat / (SATSPERBITCOIN / (fiatStats?.value || 65000));
   let fee = {};
   let usdFee = {};
   let swapPaymentQuote = {};
@@ -78,13 +79,13 @@ export default async function processBolt11Invoice(input, context) {
     const needUsdFee =
       (usablePaymentMethod === 'USD' ||
         ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
-          dollarBalanceSat >= amountMsat / 1000)) &&
-      amountMsat / 1000 >= MIN_USD_BTC_LIGHTNING_SWAP &&
+          dollarBalanceSat >= amountSat)) &&
+      amountSat >= MIN_USD_BTC_LIGHTNING_SWAP &&
       !isZeroAmountInvoice;
     const needBtcFee =
       usablePaymentMethod === 'BTC' ||
       ((!usablePaymentMethod || usablePaymentMethod === 'user-choice') &&
-        bitcoinBalance >= amountMsat / 1000);
+        bitcoinBalance >= amountSat);
 
     const hasUsdQuote =
       typeof paymentInfo.swapPaymentQuote === 'object' &&
@@ -112,7 +113,7 @@ export default async function processBolt11Invoice(input, context) {
         sparkPaymenWrapper({
           getFee: true,
           address: input.data.address,
-          amountSats: Math.round(amountMsat / 1000),
+          amountSats: amountSat,
           paymentType: !!input.data.usingSparkAddress ? 'spark' : 'lightning',
           masterInfoObject,
           mnemonic: currentWalletMnemoinc,
@@ -178,10 +179,10 @@ export default async function processBolt11Invoice(input, context) {
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredPaymentInfo.amount
       : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? Math.round(amountMsat / 1000)
+      ? amountSat
       : canEditPayment
       ? fiatValue
-      : Math.round(amountMsat / 1000);
+      : amountSat;
 
   return {
     data: { ...input, message: input.data.description },
@@ -196,6 +197,6 @@ export default async function processBolt11Invoice(input, context) {
     swapPaymentQuote: swapPaymentQuote,
     sendAmount: !amountMsat ? '' : `${displayAmount}`,
     canEditPayment,
-    amountSat: Math.round(amountMsat / 1000),
+    amountSat: amountSat,
   };
 }

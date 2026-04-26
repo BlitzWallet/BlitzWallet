@@ -1,6 +1,6 @@
 // Pure math utilities for Flashnet swap amount calculations.
 // No SDK imports — safe to test in Jest without mocking native modules.
-
+import { getBitcoinBalance, getDollarBalanceToken } from './balanceStore';
 export const BTC_ASSET_ADDRESS =
   '020202020202020202020202020202020202020202020202020202020202020202';
 export const USD_ASSET_ADDRESS =
@@ -86,17 +86,23 @@ export function calculateFlashnetAmountIn({
   bufferMultiplier = SEND_AMOUNT_INCREASE_BUFFER,
 }) {
   if (isUsdAssetIn) {
-    // Work in dollars for cent-level precision, then convert back to microdollars.
-    const bufferedDollars = (baseAmountIn * bufferMultiplier) / Math.pow(10, 6);
+    //USD path
+    const bufferedDollars = Math.round(baseAmountIn * bufferMultiplier);
+    const exactDollarBalance = getDollarBalanceToken();
     const balanceDollars =
-      dollarBalanceSat != null && currentPriceAInB != null
-        ? satsToDollars(dollarBalanceSat, currentPriceAInB)
-        : maxBalance / Math.pow(10, 6);
+      exactDollarBalance > 0
+        ? exactDollarBalance
+        : dollarBalanceSat != null && currentPriceAInB != null
+        ? satsToDollars(dollarBalanceSat, currentPriceAInB) * Math.pow(10, 6)
+        : maxBalance;
+
     const cappedDollars = Math.min(bufferedDollars, balanceDollars);
-    return Math.round(parseFloat(cappedDollars) * Math.pow(10, 6));
+    return Math.round(cappedDollars);
   }
   // BTC path: stay in sats
-  return Math.round(Math.min(baseAmountIn * bufferMultiplier, maxBalance));
+  const exactBitcoinBalance = getBitcoinBalance();
+  const balance = exactBitcoinBalance > 0 ? exactBitcoinBalance : maxBalance;
+  return Math.round(Math.min(baseAmountIn * bufferMultiplier, balance));
 }
 
 /**
