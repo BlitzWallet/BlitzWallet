@@ -1790,7 +1790,7 @@
       "noPoolsMessage": "Sie haben noch keinen Sparpool erstellt. Tippen Sie, um Ihren ersten Sparpool zu erstellen.",
       "yourAccountsTitle": "Ihre Konten",
       "addAccountButton": "Konto hinzufügen",
-      "noActivePools": "Sie haben keine aktiven Pools"
+      "noActivePools": "Sie haben derzeit keine aktiven Pools. Tippen Sie, um Ihre Pools anzuzeigen."
     },
     "hub": {
       "viewAll": "Alle anzeigen",

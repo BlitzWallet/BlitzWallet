@@ -1788,7 +1788,7 @@
       "settingsButton": "Paramètres",
       "poolsTitle": "Pools",
       "noPoolsMessage": "Vous n’avez pas encore créé de pool. Appuyez pour créer votre premier pool.",
-      "noActivePools": "Vous n’avez aucun pool actif",
+      "noActivePools": "Vous n’avez aucun pool actif pour le moment. Appuyez pour voir vos pools.",
       "yourAccountsTitle": "Vos comptes",
       "addAccountButton": "Ajouter un compte"
     },

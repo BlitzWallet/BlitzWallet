@@ -1788,7 +1788,7 @@
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
       "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
-      "noActivePools": "Você não tem Vaquinhas abertas",
+      "noActivePools": "Você não tem pools ativos no momento. Toque para ver seus pools.",
       "yourAccountsTitle": "Suas contas",
       "addAccountButton": "Adicionar conta"
     },
