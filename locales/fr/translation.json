@@ -2601,7 +2601,8 @@
       "paymentLabel": "Dépôt d'épargne vers {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Impossible de finaliser le transfert"
-      }
+      },
+      "pageDescription": "Ajoutez de l’argent de votre solde {{fromBalance}} vers votre solde {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "Que souhaitez-vous retirer ?",
@@ -2622,10 +2623,16 @@
       "availableHint": "Disponible : {{amount}}",
       "minHint": "Min : {{amount}}",
       "confirmTitle": "Confirmer le retrait",
+      "confirmSubtitle_interestAll": "Retirer tous les gains Bitcoin vers votre {{destination}}",
+      "confirmSubtitle_interest": "Retirer les gains Bitcoin vers votre {{destination}}",
+      "confirmSubtitle_goalAll": "Tout retirer de {{goalName}} vers votre {{destination}}",
+      "confirmSubtitle_goal": "Retirer de {{goalName}} vers votre {{destination}}",
+      "confirmSubtitle_generalAll": "Tout retirer du solde objectif vers votre {{destination}}",
+      "confirmSubtitle_general": "Retirer du solde objectif vers votre {{destination}}",
       "youAreWithdrawingAll": "Tu retires toute ton épargne",
       "youAreWithdrawing": "Tu retires",
       "toYourBalance": "vers ton {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats après échange",
+      "estimatedSats": "≈ {{sats}} après échange",
       "confirmButton": "Confirmer",
       "processing": "Retrait en cours…",
       "steps": {

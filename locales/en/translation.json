@@ -2601,7 +2601,8 @@
       "paymentLabel": "Deposit to {{savingsGoal}} goal",
       "errors": {
         "unableToCompleteTransfer": "Unable to complete transfer"
-      }
+      },
+      "pageDescription": "Add money from your {{fromBalance}} balance to your {{destination}} balance"
     },
     "withdraw": {
       "balanceTypeTitle": "What would you like to withdraw?",
@@ -2612,8 +2613,6 @@
       "interestBelowMinHint": "Your Bitcoin balance is below the minimum swap amount. Please withdraw to your Bitcoin balance.",
       "loadingBalances": "Loading balances...",
       "balanceLoadError": "Unable to load wallet. Go back and try again.",
-      "fromInterest": "From your Bitcoin",
-      "fromSavings": "From your goals",
       "interestPaymentLabel": "Bitcoin rewards withdrawal",
       "chooseGoalTitle": "Withdraw money from",
       "withdrawAll": "Withdraw All",
@@ -2622,10 +2621,13 @@
       "availableHint": "Available: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Confirm withdrawal",
-      "youAreWithdrawingAll": "You are withdrawing all goal balances",
-      "youAreWithdrawing": "You are withdrawing",
-      "toYourBalance": "to your {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats after swap",
+      "confirmSubtitle_interestAll": "Withdraw all bitcoin rewards to your {{destination}}",
+      "confirmSubtitle_interest": "Withdraw bitcoin rewards to your {{destination}}",
+      "confirmSubtitle_goalAll": "Withdraw all from {{goalName}} to your {{destination}}",
+      "confirmSubtitle_goal": "Withdraw from {{goalName}} to your {{destination}}",
+      "confirmSubtitle_generalAll": "Withdraw all from goal balance to your {{destination}}",
+      "confirmSubtitle_general": "Withdraw from goal balance to your {{destination}}",
+      "estimatedSats": "≈ {{sats}} after swap",
       "confirmButton": "Confirm",
       "processing": "Processing withdrawal...",
       "steps": {

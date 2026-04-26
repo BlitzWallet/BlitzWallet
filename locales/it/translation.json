@@ -2601,7 +2601,8 @@
       "paymentLabel": "Deposito risparmio su {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Impossibile completare il trasferimento"
-      }
+      },
+      "pageDescription": "Trasferisci denaro dal tuo saldo {{fromBalance}} al tuo saldo {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "Cosa desideri prelevare?",
@@ -2622,10 +2623,16 @@
       "availableHint": "Disponibile: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Conferma prelievo",
+      "confirmSubtitle_interestAll": "Preleva tutti i reward Bitcoin verso il tuo {{destination}}",
+      "confirmSubtitle_interest": "Preleva i reward Bitcoin verso il tuo {{destination}}",
+      "confirmSubtitle_goalAll": "Preleva tutto da {{goalName}} verso il tuo {{destination}}",
+      "confirmSubtitle_goal": "Preleva da {{goalName}} verso il tuo {{destination}}",
+      "confirmSubtitle_generalAll": "Preleva tutto dal saldo obiettivo verso il tuo {{destination}}",
+      "confirmSubtitle_general": "Preleva dal saldo obiettivo verso il tuo {{destination}}",
       "youAreWithdrawingAll": "Stai prelevando tutti i risparmi",
       "youAreWithdrawing": "Stai prelevando",
       "toYourBalance": "sul tuo {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats dopo lo scambio",
+      "estimatedSats": "≈ {{sats}} dopo lo scambio",
       "confirmButton": "Conferma",
       "processing": "Prelievo in corso…",
       "steps": {

@@ -2601,7 +2601,8 @@
       "paymentLabel": "Depósito de ahorro a {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "No se pudo completar la transferencia"
-      }
+      },
+      "pageDescription": "Transfiere dinero desde tu saldo de {{fromBalance}} a tu saldo de {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "¿Qué te gustaría retirar?",
@@ -2622,10 +2623,16 @@
       "availableHint": "Disponible: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar retiro",
+      "confirmSubtitle_interestAll": "Retira todas las recompensas de bitcoin a tu {{destination}}",
+      "confirmSubtitle_interest": "Retira las recompensas de bitcoin a tu {{destination}}",
+      "confirmSubtitle_goalAll": "Retira todo de {{goalName}} a tu {{destination}}",
+      "confirmSubtitle_goal": "Retira de {{goalName}} a tu {{destination}}",
+      "confirmSubtitle_generalAll": "Retira todo del saldo del objetivo a tu {{destination}}",
+      "confirmSubtitle_general": "Retira del saldo del objetivo a tu {{destination}}",
       "youAreWithdrawingAll": "Estás retirando todos tus ahorros",
       "youAreWithdrawing": "Estás retirando",
       "toYourBalance": "a tu {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats tras el cambio",
+      "estimatedSats": "≈ {{sats}} tras el cambio",
       "confirmButton": "Confirmar",
       "processing": "Procesando retiro…",
       "steps": {

@@ -2601,7 +2601,8 @@
       "paymentLabel": "Einzahlung für {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
-      }
+      },
+      "pageDescription": "Geld von deinem {{fromBalance}}-Guthaben auf dein {{destination}}-Guthaben übertragen"
     },
     "withdraw": {
       "balanceTypeTitle": "Was möchten Sie auszahlen?",
@@ -2622,10 +2623,16 @@
       "availableHint": "Verfügbar: {{amount}}",
       "minHint": "Min.: {{amount}}",
       "confirmTitle": "Auszahlung bestätigen",
+      "confirmSubtitle_interestAll": "Alle Bitcoin-Rewards auf dein {{destination}} auszahlen",
+      "confirmSubtitle_interest": "Bitcoin-Rewards auf dein {{destination}} auszahlen",
+      "confirmSubtitle_goalAll": "Alles aus {{goalName}} auf dein {{destination}} auszahlen",
+      "confirmSubtitle_goal": "Aus {{goalName}} auf dein {{destination}} auszahlen",
+      "confirmSubtitle_generalAll": "Alles vom Zielsaldo auf dein {{destination}} auszahlen",
+      "confirmSubtitle_general": "Vom Zielsaldo auf dein {{destination}} auszahlen",
       "youAreWithdrawingAll": "Sie zahlen alle Ersparnisse aus",
       "youAreWithdrawing": "Sie zahlen aus",
       "toYourBalance": "auf Ihr {{destination}}",
-      "estimatedSats": "≈ {{sats}} Sats nach Umtausch",
+      "estimatedSats": "≈ {{sats}} nach Umtausch",
       "confirmButton": "Bestätigen",
       "processing": "Auszahlung wird verarbeitet...",
       "steps": {

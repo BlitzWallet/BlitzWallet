@@ -2601,7 +2601,8 @@
       "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
-      }
+      },
+      "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",
@@ -2622,10 +2623,16 @@
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar resgate",
+      "confirmSubtitle_interestAll": "Retirar todos os recompensas de bitcoin para seu {{destination}}",
+      "confirmSubtitle_interest": "Retirar recompensas de bitcoin para seu {{destination}}",
+      "confirmSubtitle_goalAll": "Retirar tudo de {{goalName}} para seu {{destination}}",
+      "confirmSubtitle_goal": "Retirar de {{goalName}} para seu {{destination}}",
+      "confirmSubtitle_generalAll": "Retirar tudo do saldo de meta para seu {{destination}}",
+      "confirmSubtitle_general": "Retirar do saldo de meta para seu {{destination}}",
       "youAreWithdrawingAll": "Você está resgatando de todas as Caixinhas",
       "youAreWithdrawing": "Você está resgatando",
       "toYourBalance": "para o seu {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats após troca",
+      "estimatedSats": "≈ {{sats}} após troca",
       "confirmButton": "Confirmar",
       "processing": "Processando resgate…",
       "steps": {

@@ -2608,7 +2608,8 @@
       "paymentLabel": "Пополнение сбережений: {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Не удалось выполнить перевод"
-      }
+      },
+      "pageDescription": "Переведите средства с баланса {{fromBalance}} на баланс {{destination}}"
     },
     "withdraw": {
       "balanceTypeTitle": "Что вы хотите вывести?",
@@ -2629,10 +2630,16 @@
       "availableHint": "Доступно: {{amount}}",
       "minHint": "Мин: {{amount}}",
       "confirmTitle": "Подтвердить вывод",
+      "confirmSubtitle_interestAll": "Вывести все биткоин-награды на ваш {{destination}}",
+      "confirmSubtitle_interest": "Вывести биткоин-награды на ваш {{destination}}",
+      "confirmSubtitle_goalAll": "Вывести всё из {{goalName}} на ваш {{destination}}",
+      "confirmSubtitle_goal": "Вывести из {{goalName}} на ваш {{destination}}",
+      "confirmSubtitle_generalAll": "Вывести всё с целевого баланса на ваш {{destination}}",
+      "confirmSubtitle_general": "Вывести с целевого баланса на ваш {{destination}}",
       "youAreWithdrawingAll": "Ты выводишь все сбережения",
       "youAreWithdrawing": "Ты выводишь",
       "toYourBalance": "на {{destination}}",
-      "estimatedSats": "≈ {{sats}} сат после обмена",
+      "estimatedSats": "≈ {{sats}} после обмена",
       "confirmButton": "Подтвердить",
       "processing": "Обработка вывода…",
       "steps": {

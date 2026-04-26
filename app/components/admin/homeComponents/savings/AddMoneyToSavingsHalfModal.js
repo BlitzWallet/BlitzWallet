@@ -15,6 +15,7 @@ import {
   APPROXIMATE_SYMBOL,
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SIZES,
 } from '../../../../constants';
@@ -578,7 +579,7 @@ export default function AddMoneyToSavingsHalfModal({
       ((paymentMode === 'BTC' && localSatAmount >= bitcoinBalance) ||
         (paymentMode === 'USD' &&
           fiatMicros >= dollarBalanceToken * Math.pow(10, 6)) ||
-        (paymentMode === 'BTC' && localSatAmount <= swapLimits.bitcoin)) &&
+        (paymentMode === 'BTC' && localSatAmount < swapLimits.bitcoin)) &&
       localSatAmount !== 0;
     return (
       <View style={styles.amountContainer}>
@@ -674,7 +675,7 @@ export default function AddMoneyToSavingsHalfModal({
               return;
             }
 
-            if (paymentMode === 'BTC' && localSatAmount <= swapLimits.bitcoin) {
+            if (paymentMode === 'BTC' && localSatAmount < swapLimits.bitcoin) {
               navigate.navigate('ErrorScreen', {
                 errorMessage: t('screens.inAccount.swapsPage.minBTCError', {
                   min: displayCorrectDenomination({
@@ -700,60 +701,63 @@ export default function AddMoneyToSavingsHalfModal({
   }
 
   if (currentPage === 'confirm') {
+    const fromBalance =
+      selectedSource === 'bitcoin'
+        ? t('constants.bitcoin_upper')
+        : t('constants.dollars_upper');
+    const destinationLabel =
+      !selectedGoalId || selectedGoalId === UNALLOCATED_GOAL_ID
+        ? t('savings.addMoney.generalSavings')
+        : savingsGoals.find(g => g.id === selectedGoalId)?.name ??
+          t('savings.addMoney.generalSavings');
+
     return (
-      <View style={styles.container}>
+      <View style={styles.confirmContainer}>
         <ThemeText
-          styles={styles.title}
+          styles={[styles.title, { marginBottom: 8 }]}
           content={t('savings.addMoney.confirmTitle')}
         />
-        <View
-          style={[
-            styles.summaryCard,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
+        <ThemeText
+          styles={styles.confirmDescription}
+          content={t('savings.addMoney.pageDescription', {
+            fromBalance,
+            destination: destinationLabel,
+          })}
+        />
+        <ThemeText
+          styles={[
+            styles.summaryAmount,
+            { textAlign: 'center', marginBottom: 'auto' },
           ]}
-        >
+          content={displayCorrectDenomination({
+            amount: fiatMicros / Math.pow(10, 6),
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: 'fiat',
+            },
+            fiatStats,
+            forceCurrency: 'USD',
+            convertAmount: false,
+          })}
+        />
+        {selectedSource !== 'dollar' && (
           <ThemeText
-            styles={styles.summaryLabel}
-            content={t('savings.addMoney.youAreAdding')}
-          />
-          <ThemeText
-            styles={styles.summaryAmount}
-            content={displayCorrectDenomination({
-              amount: fiatMicros / Math.pow(10, 6),
+            styles={[
+              styles.summaryLabel,
+              { marginTop: 8, marginBottom: CONTENT_KEYBOARD_OFFSET },
+            ]}
+            content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+              amount: swapUSDPriceDollars?.toFixed(2),
               masterInfoObject: {
                 ...masterInfoObject,
                 userBalanceDenomination: 'fiat',
               },
               fiatStats,
-              forceCurrency: 'USD',
               convertAmount: false,
-            })}
+              forceCurrency: 'USD',
+            })}`}
           />
-          <ThemeText
-            styles={styles.summaryLabel}
-            content={t('savings.addMoney.fromBalance', {
-              context: selectedSource,
-            })}
-          />
-          {selectedSource !== 'dollar' && (
-            <ThemeText
-              styles={styles.summaryLabel}
-              content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
-                amount: swapUSDPriceDollars?.toFixed(2),
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: 'fiat',
-                },
-                fiatStats,
-                convertAmount: false,
-                forceCurrency: 'USD',
-              })}`}
-            />
-          )}
-        </View>
+        )}
         <CustomButton
           buttonStyles={styles.primaryButton}
           actionFunction={handleConfirm}
@@ -797,11 +801,22 @@ const styles = StyleSheet.create({
     ...CENTER,
     justifyContent: 'space-between',
   },
+  confirmContainer: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
   title: {
     fontSize: SIZES.large,
     fontWeight: 500,
     includeFontPadding: false,
     marginBottom: 16,
+  },
+  confirmDescription: {
+    opacity: 0.7,
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
+    marginBottom: 45,
   },
   optionsList: {
     gap: 10,
@@ -897,6 +912,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     includeFontPadding: false,
     fontSize: SIZES.smedium,
+    textAlign: 'center',
   },
   summaryAmount: {
     fontSize: 40,

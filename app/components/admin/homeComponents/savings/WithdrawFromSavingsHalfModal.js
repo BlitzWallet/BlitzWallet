@@ -223,9 +223,6 @@ export default function WithdrawFromSavingsHalfModal({
 
   const isInterestDisabled = interestSats <= 0;
   const isSavingsDisabled = savingsBalanceUsd <= 0;
-  // Interest exists but below flashnet swap minimum → can only send to bitcoin
-  const interestBelowSwapMin =
-    interestSats > 0 && interestSats <= swapLimits.bitcoin;
 
   const {
     primaryDisplay,
@@ -273,21 +270,7 @@ export default function WithdrawFromSavingsHalfModal({
     },
   ];
 
-  // NEW: for interest below swap minimum, restrict to bitcoin-only destination
-  const visibleDestinationOptions = useMemo(() => {
-    return destinationOptions;
-    if (selectedBalanceType !== 'interest') return destinationOptions;
-    if (interestSats > 0 && interestSats < swapLimits.bitcoin) {
-      return destinationOptions.filter(opt => opt.key === 'bitcoin');
-    }
-
-    return destinationOptions;
-  }, [
-    selectedBalanceType,
-    interestSats,
-    swapLimits.bitcoin,
-    destinationOptions,
-  ]);
+  const visibleDestinationOptions = destinationOptions;
 
   const handleSkeletonLayout = useCallback(event => {
     const { height, width } = event.nativeEvent.layout;
@@ -1671,62 +1654,77 @@ export default function WithdrawFromSavingsHalfModal({
       selectedBalanceType !== 'interest' &&
       selectedDestination === 'bitcoin' &&
       simulationResult
-        ? Math.round(
-            Number(simulationResult.expectedOutput || 0),
-          ).toLocaleString()
+        ? displayCorrectDenomination({
+            amount: Math.round(Number(simulationResult?.expectedOutput || 0)),
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: 'sats',
+            },
+            fiatStats,
+          })
         : null;
 
+    const selectedGoal = savingsGoals.find(item => item.id === selectedGoalId);
+    const isMaxOrAll = isWithdrawAll || isSendMax;
+    const confirmDescription = (() => {
+      const dest = destinationLabel;
+      if (selectedBalanceType === 'interest') {
+        return isMaxOrAll
+          ? t('savings.withdraw.confirmSubtitle_interestAll', {
+              destination: dest,
+            })
+          : t('savings.withdraw.confirmSubtitle_interest', {
+              destination: dest,
+            });
+      }
+      if (selectedGoal) {
+        return isMaxOrAll
+          ? t('savings.withdraw.confirmSubtitle_goalAll', {
+              goalName: selectedGoal.name,
+              destination: dest,
+            })
+          : t('savings.withdraw.confirmSubtitle_goal', {
+              goalName: selectedGoal.name,
+              destination: dest,
+            });
+      }
+      return isMaxOrAll
+        ? t('savings.withdraw.confirmSubtitle_generalAll', {
+            destination: dest,
+          })
+        : t('savings.withdraw.confirmSubtitle_general', {
+            destination: dest,
+          });
+    })();
+
     return (
-      <View style={styles.container}>
+      <View style={styles.confirmContainer}>
         <ThemeText
-          styles={styles.title}
+          styles={[styles.title, { marginBottom: 8 }]}
           content={t('savings.withdraw.confirmTitle')}
         />
-        <View
-          style={[
-            styles.summaryCard,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
+        <ThemeText
+          styles={styles.confirmDescription}
+          content={confirmDescription}
+        />
+        <ThemeText
+          styles={[
+            styles.summaryAmount,
+            { textAlign: 'center', marginBottom: 'auto' },
           ]}
-        >
-          {/* NEW: balance type label so user knows which asset they're withdrawing */}
+          content={withdrawAmountDisplay}
+        />
+        {estimatedBtcOut && (
           <ThemeText
-            styles={styles.summaryLabel}
-            content={
-              selectedBalanceType === 'interest'
-                ? t('savings.withdraw.fromInterest')
-                : t('savings.withdraw.fromSavings')
-            }
-          />
-          <ThemeText
-            styles={styles.summaryLabel}
-            content={
-              isWithdrawAll || isSendMax
-                ? t('savings.withdraw.youAreWithdrawingAll')
-                : t('savings.withdraw.youAreWithdrawing')
-            }
-          />
-          <ThemeText
-            styles={styles.summaryAmount}
-            content={withdrawAmountDisplay}
-          />
-          <ThemeText
-            styles={styles.summaryLabel}
-            content={t('savings.withdraw.toYourBalance', {
-              destination: destinationLabel,
+            styles={[
+              styles.summaryLabel,
+              { marginTop: 8, marginBottom: CONTENT_KEYBOARD_OFFSET },
+            ]}
+            content={t('savings.withdraw.estimatedSats', {
+              sats: estimatedBtcOut,
             })}
           />
-          {estimatedBtcOut && (
-            <ThemeText
-              styles={[styles.summaryLabel, { marginTop: 8 }]}
-              content={t('savings.withdraw.estimatedSats', {
-                sats: estimatedBtcOut,
-              })}
-            />
-          )}
-        </View>
+        )}
         <CustomButton
           buttonStyles={styles.primaryButton}
           actionFunction={handleConfirm}
@@ -1773,6 +1771,11 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
     justifyContent: 'space-between',
+  },
+  confirmContainer: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
   title: {
     fontSize: SIZES.large,
@@ -1885,16 +1888,17 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     includeFontPadding: false,
   },
-  summaryCard: {
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 16,
+  confirmDescription: {
+    opacity: 0.7,
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
+    marginBottom: 45,
   },
   summaryLabel: {
     opacity: 0.7,
     includeFontPadding: false,
     fontSize: SIZES.smedium,
+    textAlign: 'center',
   },
   summaryAmount: {
     fontSize: 40,

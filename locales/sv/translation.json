@@ -2601,7 +2601,8 @@
       "paymentLabel": "Sparinsättning till {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Det gick inte att slutföra överföringen"
-      }
+      },
+      "pageDescription": "Flytta pengar från ditt {{fromBalance}}-saldo till ditt {{destination}}-saldo"
     },
     "withdraw": {
       "balanceTypeTitle": "Vad vill du ta ut?",
@@ -2622,10 +2623,16 @@
       "availableHint": "Tillgängligt: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Bekräfta uttag",
+      "confirmSubtitle_interestAll": "Ta ut alla bitcoin-belöningar till ditt {{destination}}",
+      "confirmSubtitle_interest": "Ta ut bitcoin-belöningar till ditt {{destination}}",
+      "confirmSubtitle_goalAll": "Ta ut allt från {{goalName}} till ditt {{destination}}",
+      "confirmSubtitle_goal": "Ta ut från {{goalName}} till ditt {{destination}}",
+      "confirmSubtitle_generalAll": "Ta ut allt från målsaldot till ditt {{destination}}",
+      "confirmSubtitle_general": "Ta ut från målsaldot till ditt {{destination}}",
       "youAreWithdrawingAll": "Du tar ut alla dina besparingar",
       "youAreWithdrawing": "Du tar ut",
       "toYourBalance": "till din {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats efter byte",
+      "estimatedSats": "≈ {{sats}} efter byte",
       "confirmButton": "Bekräfta",
       "processing": "Bearbetar uttag…",
       "steps": {
