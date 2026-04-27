@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useSparkWallet } from './sparkContext';
@@ -30,11 +31,28 @@ export function AnalyticsProvider({ children }) {
   const [inTxsUSD, setInTxsUSD] = useState([]);
   const [outTxsUSD, setOutTxsUSD] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isReloading, setIsReloading] = useState(false);
+  const hasLoadedRef = useRef(false);
+
+  const txStatusKey = useMemo(() => {
+    try {
+      return sparkInformation.transactions
+        .slice(0, 20)
+        .map(tx => `${tx.sparkID}:${tx.paymentStatus}`)
+        .join('|');
+    } catch (err) {
+      return sparkInformation.transactions.length || 21;
+    }
+  }, [sparkInformation.transactions]);
 
   useEffect(() => {
     async function load() {
       if (!sparkInformation.identityPubKey || !didGetToHomepage) return;
-      setIsLoading(true);
+      if (hasLoadedRef.current) {
+        setIsReloading(true);
+      } else {
+        setIsLoading(true);
+      }
       try {
         const startTime = Date.now();
         const [incomingBTC, outgoingBTC, incomingUSD, outgoingUSD] =
@@ -56,6 +74,7 @@ export function AnalyticsProvider({ children }) {
         setOutTxsBTC(outgoingBTC);
         setInTxsUSD(incomingUSD);
         setOutTxsUSD(outgoingUSD);
+        hasLoadedRef.current = true;
         const elapsed = Date.now() - startTime;
         const minDuration = 500;
         await new Promise(resolve =>
@@ -65,14 +84,11 @@ export function AnalyticsProvider({ children }) {
         console.error('AnalyticsContext load error', e);
       } finally {
         setIsLoading(false);
+        setIsReloading(false);
       }
     }
     load();
-  }, [
-    sparkInformation.identityPubKey,
-    sparkInformation.transactions.length,
-    didGetToHomepage,
-  ]);
+  }, [sparkInformation.identityPubKey, txStatusKey, didGetToHomepage]);
 
   const incomeTotalBTC = useMemo(() => {
     try {
@@ -239,6 +255,7 @@ export function AnalyticsProvider({ children }) {
         cumulativeIncomeDataUSD,
         cumulativeSpentDataUSD,
         isLoading,
+        isReloading,
       }}
     >
       {children}
