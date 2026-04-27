@@ -402,6 +402,7 @@ export default function SendPaymentScreen(props) {
   );
 
   const requiresUserMethodSelection = useMemo(() => {
+    if (resolvedPaymentMethod === undefined) return false;
     if (
       !!preSelectedPaymentMethod ||
       useFullTokensDisplay ||
@@ -651,7 +652,8 @@ export default function SendPaymentScreen(props) {
     !isUsingLRC20 &&
     (!didRequireChoiceRef.current || didSelectPaymentMethod) &&
     !requiresUserMethodSelection &&
-    convertedSendAmount >= effectivePaymentFee;
+    convertedSendAmount >= effectivePaymentFee &&
+    !shouldWarn;
 
   const uiState = useMemo(() => {
     if (canEditAmount && !isSendingPayment.current) {
@@ -669,7 +671,6 @@ export default function SendPaymentScreen(props) {
       !isSendingPayment.current &&
       !isBitcoinPayment &&
       !isUsingLRC20 &&
-      !canUseFastPay &&
       !preSelectedPaymentMethod
     ) {
       return 'CHOOSE_METHOD'; // Show info screen with button to select method
