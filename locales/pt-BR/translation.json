@@ -2137,7 +2137,7 @@
           "warningSubtitle": "Fundos não resgatados podem ser recuperados após {{numDays}} dias.",
           "bulkButton": "Criar {{count}} Vales-Blitz",
           "maxQuantityHint": "Máximo de 20 Vales-Blitz permitidos.",
-          "amountPageHeader": "Adicionar uma quantia",
+          "amountPageHeader": "Escolha uma quantia",
           "amountPageDesc": "Insira o valor de cada Vale-Blitz e a moeda."
         },
         "giftConfirmation": {
