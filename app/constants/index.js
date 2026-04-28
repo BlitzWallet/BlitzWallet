@@ -26,7 +26,7 @@ const IS_SPARK_REQUEST_ID =
 const IS_BITCOIN_REQUEST_ID = /^SparkCoopExitRequest:[0-9a-fA-F\-]+$/;
 
 const GIFT_DEEPLINK_REGEX =
-  /^(?:blitz-wallet:\/\/gift\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/gift\/)[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}(#[A-Za-z0-9_-]+)?$/;
+  /^(?:blitz-wallet:\/\/gift\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/gift\/)[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}(?:[#\/][A-Za-z0-9_-]+)?$/;
 
 const CONTACT_UNIVERSAL_LINK_REGEX =
   /^https?:\/\/(blitzwalletapp\.com|blitzwallet\.app|blitz-wallet\.com)\/u\/[A-Za-z0-9_-]+\/?$/;

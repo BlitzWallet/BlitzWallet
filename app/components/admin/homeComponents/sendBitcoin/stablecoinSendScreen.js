@@ -50,8 +50,8 @@ import fetchBackend from '../../../../../db/handleBackend';
 import { sendSparkPayment, sendSparkTokens } from '../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import {
+  calculateFlashnetAmountIn,
   dollarsToSats,
-  satsToDollars,
 } from '../../../../functions/spark/flashnet';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
@@ -61,7 +61,6 @@ import { formatStablecoinAmount } from '../../../../functions/sendBitcoin';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { formatBalanceAmount } from '../../../../functions';
 import Animated, { FadeOutDown } from 'react-native-reanimated';
-import BudgetWarningModal from './components/nearBudgetLimitWarning';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 
 const QUOTE_TTL_MS = 115_000;
@@ -107,7 +106,8 @@ export default function StablecoinSendScreen() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
-  const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
+  const { bitcoinBalance, dollarBalanceToken, dollarBalanceSat } =
+    useUserBalanceContext();
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
 
   const [screenMode, setScreenMode] = useState('EDIT_AMOUNT'); // 'EDIT_AMOUNT' | 'CONFIRM_PAYMENT'
@@ -132,6 +132,12 @@ export default function StablecoinSendScreen() {
   const isSendingPayment = useRef(null);
   const progressAnimationRef = useRef(null);
   const fetchTokenRef = useRef(0);
+  const balanceRef = useRef({
+    bitcoin: bitcoinBalance,
+    dollarToken: dollarBalanceToken,
+  });
+  balanceRef.current.bitcoin = bitcoinBalance;
+  balanceRef.current.dollarToken = dollarBalanceToken;
 
   const sourceMethod = selectedPaymentMethod || 'BTC';
 
@@ -195,6 +201,13 @@ export default function StablecoinSendScreen() {
       clearCountdown();
       try {
         const apiSourceMethod = sourceMethod === 'BTC' ? 'spark' : 'usdb';
+        // Adding flag for backend to not manipulate the amount so we don't cause balance issues + failures
+        const maxBalance =
+          sourceMethod === 'BTC'
+            ? balanceRef.current.bitcoin
+            : balanceRef.current.dollarToken * Math.pow(10, 6);
+        const isUsingMax = maxBalance > 0 && sats >= maxBalance * 0.98;
+
         // ── stale-response guard ──────────────────────────────────────────────
         if (myToken !== fetchTokenRef.current) return;
         const result = await fetchBackend(
@@ -206,6 +219,7 @@ export default function StablecoinSendScreen() {
             amountSats: sats,
             sourceMethod: apiSourceMethod,
             refundAddress: sparkInformation.sparkAddress,
+            isUsingMax,
           },
           contactsPrivateKey,
           publicKey,
@@ -270,16 +284,40 @@ export default function StablecoinSendScreen() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (rawInput > 0) {
+      const exceedsBalance =
+        sourceMethod === 'BTC'
+          ? convertedSendAmount > balanceRef.current.bitcoin
+          : Number(rawInput) > Number(balanceRef.current.dollarToken);
+
+      // Stop quote fetch if we do not have an available balance
+      if (exceedsBalance) {
+        fetchTokenRef.current += 1;
+        setQuoteLoading(false);
+        setQuote(null);
+        setQuoteError(null);
+        clearCountdown();
+        return;
+      }
+
       setQuoteLoading(true);
       // Invalidate any in-flight response right now, before the debounce fires.
       fetchTokenRef.current += 1;
 
-      const fetchAmount =
-        sourceMethod === 'BTC'
-          ? convertDisplayToSats(rawInput)
-          : rawInput * Math.pow(10, 6);
+      //  Find max balance without going over actual user balance
+      const amountIn = calculateFlashnetAmountIn({
+        baseAmountIn:
+          sourceMethod === 'BTC'
+            ? convertDisplayToSats(rawInput)
+            : rawInput * Math.pow(10, 6),
+        isUsdAssetIn: sourceMethod === 'USD',
+        dollarBalanceSat,
+        maxBalance: bitcoinBalance,
+        currentPriceAInB: poolInfoRef.currentPriceAInB,
+        bufferMultiplier: 1,
+      });
+
       debounceRef.current = setTimeout(
-        () => fetchQuote(fetchAmount, fetchTokenRef.current),
+        () => fetchQuote(amountIn, fetchTokenRef.current),
         800,
       );
     } else {
@@ -508,6 +546,14 @@ export default function StablecoinSendScreen() {
       });
       return;
     }
+
+    if (!hasEnoughBalance) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.insufficientBalance'),
+      });
+      return;
+    }
+
     if (isQuoteLoading) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('wallet.stablecoinSend.quoteStillLoading'),
@@ -518,13 +564,6 @@ export default function StablecoinSendScreen() {
     if (!quote) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('wallet.stablecoinSend.noQuote'),
-      });
-      return;
-    }
-
-    if (!hasEnoughBalance) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('screens.inAccount.swapsPage.insufficientBalance'),
       });
       return;
     }

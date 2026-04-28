@@ -30,7 +30,11 @@ export async function getLRC20Transactions({
     let lastSavedTransactionId = null;
     if (savedTxs) {
       for (const tx of savedTxs) {
-        if (tx.paymentType !== 'spark' || IS_SPARK_ID.test(tx.sparkID)) {
+        if (
+          tx.paymentType !== 'spark' ||
+          IS_SPARK_ID.test(tx.sparkID) ||
+          tx.sparkID.length < 40
+        ) {
           continue;
         }
 

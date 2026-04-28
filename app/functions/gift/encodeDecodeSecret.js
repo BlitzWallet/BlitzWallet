@@ -25,7 +25,7 @@ function parseGiftUrl(url) {
     return { giftId, secret };
   }
 
-  match = url.match(/blitzwallet:\/\/gift\/([^\/]+)\/(.+)/);
+  match = url.match(/(?:blitz-wallet|blitzwallet):\/\/gift\/([^\/]+)\/(.+)/);
   if (match) {
     const [, giftId, secretBase64] = match;
     const paddedSecret = secretBase64
