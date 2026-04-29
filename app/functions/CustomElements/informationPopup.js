@@ -1,125 +1,158 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useRef, useState } from 'react';
-import { COLORS } from '../../constants';
+import { useCallback } from 'react';
+import { COLORS, SIZES } from '../../constants';
 import ThemeText from './textTheme';
-import CustomButton from './button';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import Animated, {
-  useSharedValue,
-  withTiming,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
 import ThemeIcon from './themeIcon';
+import { INSET_WINDOW_WIDTH } from '../../constants/theme';
 
 export default function InformationPopup(props) {
-  const BlurViewAnimation = useSharedValue(0);
-  const isInitialLoad = useRef(true);
   const navigate = useNavigation();
-  const [goBack, setGoGack] = useState(false);
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor, transparentOveraly } =
     GetThemeColors();
   const {
     route: {
-      params: {
-        textContent,
-        buttonText,
-        CustomTextComponent,
-        customNavigation,
-      },
+      params: { textContent, buttonText, CustomTextComponent, customNavigation },
     },
   } = props;
 
-  useEffect(() => {
-    if (isInitialLoad.current) {
-      BlurViewAnimation.value = withTiming(1, { duration: 500 });
-
-      isInitialLoad.current = false;
+  const handleGoBack = useCallback(() => {
+    try {
+      if (customNavigation) {
+        customNavigation();
+      } else {
+        navigate.goBack();
+      }
+    } catch (err) {
+      navigate.goBack();
     }
-    if (goBack) {
-      BlurViewAnimation.value = withTiming(0, { duration: 500 }, isFinished => {
-        if (isFinished) {
-          if (customNavigation) {
-            scheduleOnRN(customNavigation);
-          } else {
-            scheduleOnRN(navigate.goBack);
-          }
-        }
-      });
-    }
-  }, [goBack]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: BlurViewAnimation.value,
-  }));
+  }, [customNavigation, navigate]);
 
   return (
-    <Animated.View style={[styles.absolute, animatedStyle]}>
-      <View style={[styles.container, { backgroundColor: transparentOveraly }]}>
-        <View
-          style={{
-            ...styles.contentContainer,
-            backgroundColor: backgroundOffset,
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => setGoGack(true)}
-            style={{ marginLeft: 'auto', marginBottom: 10 }}
+    <TouchableWithoutFeedback onPress={handleGoBack}>
+      <View style={[styles.overlay, { backgroundColor: transparentOveraly }]}>
+        <TouchableWithoutFeedback>
+          <View
+            style={[
+              styles.modal,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+            ]}
           >
-            <ThemeIcon iconName={'X'} />
-          </TouchableOpacity>
+            {/* Icon */}
+            <View
+              style={[
+                styles.iconWrap,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.expandedTXLightModeConfirmd,
+                },
+              ]}
+            >
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={20}
+                iconName={'Info'}
+              />
+            </View>
 
-          {textContent && (
-            <ThemeText
-              styles={{
-                marginBottom: 30,
-                textAlign: 'center',
-              }}
-              content={textContent}
+            {/* Content */}
+            {textContent && (
+              <ThemeText styles={styles.message} content={textContent} />
+            )}
+            {CustomTextComponent && <CustomTextComponent />}
+
+            {/* Divider */}
+            <View
+              style={[
+                styles.divider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
             />
-          )}
-          {CustomTextComponent && <CustomTextComponent />}
-          <CustomButton
-            buttonStyles={{
-              width: 'auto',
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : COLORS.primary,
-            }}
-            textStyles={{
-              color: COLORS.darkModeText,
-            }}
-            textContent={buttonText}
-            actionFunction={() => {
-              setGoGack(true);
-            }}
-          />
-        </View>
+
+            {/* Button row */}
+            <TouchableOpacity
+              onPress={handleGoBack}
+              activeOpacity={0.6}
+              style={styles.btn}
+            >
+              <ThemeText
+                styles={[
+                  styles.btnText,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                ]}
+                content={buttonText}
+              />
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
-    </Animated.View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  overlay: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  absolute: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
+  modal: {
+    width: INSET_WINDOW_WIDTH,
+    maxWidth: 300,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  contentContainer: {
-    width: '70%',
-    backgroundColor: COLORS.darkModeText,
-    padding: 10,
-    borderRadius: 8,
+  iconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: 28,
+    marginBottom: 12,
+  },
+  message: {
+    fontSize: SIZES.medium,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+  },
+  divider: {
+    height: 2,
+    width: '100%',
+  },
+  btn: {
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
   },
 });
