@@ -1956,7 +1956,7 @@
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Para receber pagamentos em endereços Bitcoin, você pagará uma taxa de rede. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",
-        "liquidFeeMessage": "Para receber pagamentos em endereços Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de reivindicação de ~{{claimFee}} e uma taxa de serviço de 0,1% do serviço da Boltz.",
+        "liquidFeeMessage": "Para receber pagamentos em endereços Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de reivindicação de ~{{claimFee}} e uma taxa de serviço de 0,1% da Boltz.",
         "rootstockFeeMessage": "Para receber pagamentos em endereços Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço de 0,1% da Boltz.",
         "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
         "generatingInvoice": "Gerando fatura",
