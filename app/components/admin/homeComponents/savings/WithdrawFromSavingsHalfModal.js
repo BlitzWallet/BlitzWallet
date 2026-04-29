@@ -461,6 +461,9 @@ export default function WithdrawFromSavingsHalfModal({
     if (currentPage === 'destination') {
       setSelectedBalanceType(null);
     }
+    if (currentPage === 'confirm') {
+      setIsSendMax(false);
+    }
     setStep(prev => prev.slice(0, -1));
     return true;
   }, [currentPage, step]);
