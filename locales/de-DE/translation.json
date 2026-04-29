@@ -713,7 +713,7 @@
     "giftCards": {
       "giftCardsPage": {
         "searchPlaceholder": "Nach einer Geschenkkarte suchen",
-        "leftPageMessage": "Wohin sind Sie gegangen?",
+        "leftPageMessage": "Sie haben die Seite verlassen!",
         "loadingCardsMessage": "Geschenkkarten werden geladen...",
         "noCardsAvailable": "Keine Geschenkkarten verfügbar"
       },
@@ -800,7 +800,7 @@
         "fetchOrderError": "Fehler beim Abrufen des Bestellstatus",
         "failedUpdate": "Fehler beim Aktualisieren des Bestellstatus",
         "refundedOrder": "Die Bestellung wurde erstattet. Die Gelder werden nach 21 Minuten automatisch auf Ihre Wallet zurückgebucht.",
-        "reclaimComplete": "Wiederholung abgeschlossen. Falls kein Code generiert wird, erhalten Sie nach 21 Minuten automatisch eine Rückerstattung.",
+        "reclaimComplete": "Erneuter Versuch abgeschlossen. Falls kein Code generiert wird, erhalten Sie nach 21 Minuten automatisch eine Rückerstattung.",
         "noCode": "Kein Code",
         "rateLimitError": "Zu viele Anfragen. Sie können nur 5 Anfragen alle 30 Sekunden stellen. Bitte warten Sie einen Moment.",
         "noPurchasesTitle": "Sie haben noch keine SMS-Nachrichten gesendet oder empfangen. Neue Nachrichten werden hier angezeigt."
@@ -936,7 +936,7 @@
       "failedToTransfer": "Übertragung der Sparpool-Gelder fehlgeschlagen.",
       "notFound": "Sparpool nicht gefunden",
       "closePoolTitle": "Diesen Sparpool schließen?",
-      "closePoolWarning": "Alle Gelder werden an Ihr Hauptkonto übertragen. Dieses Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
+      "closePoolWarning": "Alle Gelder werden an Ihr Hauptkonto übertragen. Dieser Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
       "closePool": "Sparpool schließen",
       "goal": "Ziel: ",
       "payment_one": "{{count}} Zahlung",
@@ -949,8 +949,8 @@
       "contribute": "Beitragen",
       "share": "Teilen",
       "noActivity": "Noch keine Aktivität. Seien Sie der Erste, der beiträgt!",
-      "noPoolsCreated": "Sie haben noch keine Sparpool erstellt.",
-      "noActivePools": "Keine aktiver Sparpool",
+      "noPoolsCreated": "Sie haben noch keinen Sparpool erstellt.",
+      "noActivePools": "Kein aktiver Sparpool",
       "closedSection": "Geschlossene Sparpools",
       "noClosedPools": "Kein geschlossener Sparpool",
       "sendingContribution": "Beitrag wird gesendet...",
@@ -970,7 +970,7 @@
       "info": {
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",
-        "whatArePoolsBody": "Mit Sparpools können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie einen Sparpool, legen Sie einen Zielbetrag fest und teilen Sie es mit beliebigen Personen.",
+        "whatArePoolsBody": "Mit Sparpools können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie einen Sparpool, legen Sie einen Zielbetrag fest und teilen Sie ihn mit beliebigen Personen.",
         "howItWorks": "So funktioniert es:",
         "howStep1": "• Erstellen Sie einen neuen Sparpool mit einem Namen und einem Zielbetrag.",
         "howStep2": "• Teilen Sie den Sparpool-Link, damit andere ihn finden können.",
@@ -1174,13 +1174,13 @@
       "quoteExpired": "Angebot abgelaufen. Bitte versuche es erneut.",
       "quoteError": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
       "recipientGets": "Empfänger erhält",
-      "youSend": "Du sendest",
+      "youSend": "Sie senden",
       "quoteExpiresIn": "Angebot läuft ab in",
       "payWithLightning": "Mit Lightning bezahlen",
-      "payWithUSDb": "Mit USDb bezahlen",
+      "payWithUSDb": "Mit USDB bezahlen",
       "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
       "swapInProgress": "Tausch läuft",
-      "swapInProgressDescription": "Deine Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
+      "swapInProgressDescription": "Ihre Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
       "noAmount": "Bitte gib einen Betrag zum Senden ein.",
       "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
       "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
@@ -1190,7 +1190,7 @@
         "header": "Wählen Sie die Währung aus, die Sie senden möchten.",
         "notAvailable": "Nicht verfügbar auf {{chain}}"
       },
-      "networkLabel": "{{currency}} uf {{chain}}"
+      "networkLabel": "{{currency}} auf {{chain}}"
     }
   },
   "contacts": {
@@ -1256,7 +1256,7 @@
     },
     "sendAndRequestPage": {
       "profileMessage": "Bezahlung an {{name}}",
-      "contactMessage": "{{name}} hat Ihnen bezahlt",
+      "contactMessage": "{{name}} hat Ihnen Geld gesendet",
       "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz Wallet.",
       "giftCardDescription": "Sie haben {{name}} eine {{giftCardName}} Geschenkkarte gesendet.",
       "cardDetailsError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",
@@ -1302,7 +1302,7 @@
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} Ihre Anfrage",
-        "acceptProfileMessage": "{{name}}'s Anfrage bezahlt",
+        "acceptProfileMessage": "Anfrage von {{name}} bezahlt",
         "acceptPayingContactMessage": "{{name}} hat Ihre Anfrage bezahlt",
         "requestTitle": "Anfrage über {{amount}} erhalten",
         "send": "Senden"
@@ -1338,18 +1338,18 @@
       "totalAmountLabel": "Gesamtbetrag",
       "evenSplit": "Gleichmäßig",
       "customSplit": "Individuell",
-      "remainderNote": "{{amount}} Sat Rest bleibt bei dir",
+      "remainderNote": "{{amount}} Sat Rest bleibt bei Ihnen",
       "perPerson": "{{amount}} / Person",
       "confirmButton": "Bestätigen",
       "maxContactsWarning": "Maximal 10 Kontakte pro Aufteilung",
-      "insufficientFunds": "Unzureichendes Guthaben. Dir fehlen {{shortfall}} Sats.",
+      "insufficientFunds": "Unzureichendes Guthaben. Ihnen fehlen {{shortfall}} Sats.",
       "swapPromptTitle": "USDB tauschen, um die Aufteilung zu decken?",
-      "swapPromptBody": "Du benötigst noch {{amount}} Sats. USDB tauschen, um die Differenz zu decken?",
+      "swapPromptBody": "Sie benötigen noch {{amount}} Sats. USDB tauschen, um die Differenz zu decken?",
       "swapConfirm": "Tauschen und bezahlen",
       "swapFailed": "Tausch fehlgeschlagen. Zahlung abgebrochen.",
       "customAmountsMismatch": "Die Beträge müssen insgesamt {{total}} Sats ergeben",
-      "noContactsEmpty": "Noch keine Kontakte. Füge Kontakte hinzu, um eine Rechnung aufzuteilen.",
-      "noContactsSearch": "Keine Kontakte entsprechen deiner Suche.",
+      "noContactsEmpty": "Sie haben noch keine Kontakte. Fügen Sie Kontakte hinzu, um eine Rechnung aufzuteilen.",
+      "noContactsSearch": "Keine Kontakte entsprechen Ihrer Suche.",
       "noSparkAddress": "Keine Spark-Adresse",
       "unknownContact": "Unbekannt",
       "noName": "Kein Name festgelegt",
@@ -1665,7 +1665,7 @@
         "connectionName": "Verbindungsname"
       },
       "hasNoAccounts": {
-        "warningMessage": "Um Geld von Ihrer Nostr Wallet Connect zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrer Hauptkonto zu NWC-Konto auf der Kontoeinstellungsseite übertragen."
+        "warningMessage": "Um Geld von Ihrem Nostr Wallet Connect zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrem Hauptkonto auf Ihr NWC-Konto auf der Kontoeinstellungsseite übertragen."
       },
       "noNotifications": {
         "warningMessage": "Um Nostr Wallet Connect zu nutzen, müssen Sie Push-Benachrichtigungen für Nostr Wallet Connect aktiviert haben.\n\nBitte aktivieren Sie Push-Benachrichtigungen in den Einstellungen und versuchen Sie es erneut."
@@ -1677,7 +1677,7 @@
       },
       "combinedOnboarding": {
         "accountFundingHeader": "Ihr Nostr Connect-Konto aufladen",
-        "accountFundingMessage": "Um Geld von Ihrem Nostr Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder durch Empfangen von Geld oder durch eine Übertragung von Ihrem Hauptkonto.\n\nSie können Guthaben von Ihrem Hauptkonto in den Kontoeinstellungen auf Nostr Connect-Konto übertragen.",
+        "accountFundingMessage": "Um Geld von Ihrem Nostr Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder durch Empfangen von Geld oder durch eine Übertragung von Ihrem Hauptkonto.\n\nSie können Guthaben von Ihrem Hauptkonto in den Kontoeinstellungen auf Ihr Nostr Connect-Konto übertragen.",
         "securityHeader": "Sicher & isoliert",
         "securityMessage": "Nostr Connect erstellt aus Sicherheitsgründen ein separates Konto von Ihrem Hauptkonto. Diese Wiederherstellungsphrase wird sicher gespeichert und kann bei Bedarf später auf der Seite Konten in den Einstellungen eingesehen werden.",
         "continueButton": "Loslegen",
@@ -1796,8 +1796,8 @@
       "viewAll": "Alle anzeigen",
       "accounts": "Konten",
       "pinAccount": "Anheften",
-      "unpinAccount": "Lösen",
-      "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines.",
+      "unpinAccount": "Loslösen",
+      "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines davon.",
       "morePoolsCount": "+{{count}} weitere",
       "pos": {
         "desc": "Akzeptieren Sie ganz einfach Bitcoin-Zahlungen für Ihr Unternehmen."
@@ -1986,7 +1986,7 @@
         "editDescriptionPlaceholder": "Beschreibung hinzufügen",
         "confirmToClaimTitle": "Vor dem Empfang bestätigen",
         "confirmToClaimOff": "Aus, Zahlungen werden sofort bestätigt",
-        "confirmToClaimOn": "An, Sie bestätigen jede Zahlung",
+        "confirmToClaimOn": "Ein, jede Zahlung wird von Ihnen bestätigt",
         "holdInvoiceExplainer": "Wenn aktiviert, werden an diese Rechnung gesendete Zahlungen zurückgehalten, bis Sie sie bestätigen. Wenn Sie sie nicht rechtzeitig einfordern, wird die Zahlung automatisch an den Absender zurückgesendet.",
         "expiryTitle": "Läuft ab nach",
         "expiry_3600": "1 Stunde",
@@ -2295,13 +2295,13 @@
       }
     },
     "accumulationAddresses": {
-      "title": "Akkumulationsadressen",
+      "title": "Stablecoin-Adressen",
       "subtitle": "Stablecoins automatisch in BTC oder Dollar umwandeln",
       "navTitle": "Adressen",
       "sectionTitle": "Aktive Adressen",
       "empty": {
-        "title": "Keine Akkumulationsadressen",
-        "subtitle": "Erstellen Sie eine Adresse, um Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
+        "title": "Keine Stablecoin-Adressen",
+        "subtitle": "Erstellen Sie eine Adresse, um Stablecoin-Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
       },
       "createButton": "Adresse erstellen",
       "info": {
@@ -2310,7 +2310,7 @@
         "whatAreBody": "Dauerhafte Adressen, die eingehende USDC oder USDT automatisch in Bitcoin oder Dollar umwandeln und die Mittel an Ihre Wallet senden.",
         "howItWorks": "So funktioniert es",
         "step1": "1. Teilen Sie Ihre Einzahlungsadresse mit einem Absender oder einer Börse.",
-        "step2": "2. Die Mittel kommen on-chain an und werden automatisch umgewandelt.",
+        "step2": "2. Die Mittel kommen on-chain an und werden automatisch in die von Ihnen gewählte Währung umgewandelt.",
         "step3": "3. Der umgewandelte Betrag wird Ihrer Wallet gutgeschrieben."
       },
       "detail": {
@@ -2547,15 +2547,15 @@
     },
     "goalDetails": {
       "screenTitleFallback": "Sparziel",
-      "updateGoalButton": "Sparziel aktualisieren",
+      "updateGoalButton": "Sparziel anpassen",
       "emptyState": "Kein Sparziel gesetzt"
     },
     "updateGoal": {
-      "screenTitle": "Sparziel aktualisieren",
-      "title": "Sparziel aktualisieren",
-      "body": "Sie können den gesetzten Betrag für Ihr Sparziel ändern oder es entfernen.",
+      "screenTitle": "Sparziel anpassen",
+      "title": "Sparziel anpassen",
+      "body": "Sie können den Betrag Ihres Sparziels anpassen oder es entfernen.",
       "removeButton": "Sparziel entfernen",
-      "updateButton": "Sparziel aktualisieren"
+      "updateButton": "Sparziel anpassen"
     },
     "removeGoalConfirm": {
       "screenTitle": "Sparziel entfernen",
