@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Unable to complete transfer"
       },
-      "pageDescription": "Add money from your {{fromBalance}} balance to your {{destination}} balance"
+      "pageDescription": "Add money from your {{fromBalance}} balance to your {{destination}} balance",
+      "noSourceTitle": "No funding source available",
+      "noSourceSubtitle": "Add Bitcoin or Dollars to your wallet. Funding from Bitcoin requires at least {{amount}}.",
+      "noUSDInfoMessage": "A Dollar balance greater than {{amount}} is required to fund your savings.",
+      "noBTCInfoMessage": "A Bitcoin balance greater than the minimum swap amount of {{amount}} is required to fund your savings."
     },
     "withdraw": {
       "balanceTypeTitle": "What would you like to withdraw?",

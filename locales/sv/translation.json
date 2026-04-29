@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Det gick inte att slutföra överföringen"
       },
-      "pageDescription": "Flytta pengar från ditt {{fromBalance}}-saldo till ditt {{destination}}-saldo"
+      "pageDescription": "Flytta pengar från ditt {{fromBalance}}-saldo till ditt {{destination}}-saldo",
+      "noSourceTitle": "Ingen finansieringskälla tillgänglig",
+      "noSourceSubtitle": "Lägg till Bitcoin eller USD i din plånbok. Finansiering med Bitcoin kräver minst {{amount}}.",
+      "noUSDInfoMessage": "Ett USD-saldo större än {{amount}} krävs för att finansiera ditt sparande.",
+      "noBTCInfoMessage": "Ett Bitcoin-saldo större än det minsta växlingsbeloppet på {{amount}} krävs för att finansiera ditt sparande."
     },
     "withdraw": {
       "balanceTypeTitle": "Vad vill du ta ut?",

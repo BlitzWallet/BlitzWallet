@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Impossibile completare il trasferimento"
       },
-      "pageDescription": "Trasferisci denaro dal tuo saldo {{fromBalance}} al tuo saldo {{destination}}"
+      "pageDescription": "Trasferisci denaro dal tuo saldo {{fromBalance}} al tuo saldo {{destination}}",
+      "noSourceTitle": "Nessuna fonte di finanziamento disponibile",
+      "noSourceSubtitle": "Aggiungi Bitcoin o USD al tuo wallet. Il finanziamento in Bitcoin richiede almeno {{amount}}.",
+      "noUSDInfoMessage": "È richiesto un saldo USD superiore a {{amount}} per finanziare i tuoi risparmi.",
+      "noBTCInfoMessage": "È richiesto un saldo Bitcoin superiore all'importo minimo di swap di {{amount}} per finanziare i tuoi risparmi."
     },
     "withdraw": {
       "balanceTypeTitle": "Cosa desideri prelevare?",

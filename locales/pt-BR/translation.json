@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
       },
-      "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}"
+      "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}",
+      "noSourceTitle": "Nenhuma fonte de fundos disponível",
+      "noSourceSubtitle": "Adicione Bitcoin ou USD à sua carteira. O financiamento com Bitcoin requer pelo menos {{amount}}.",
+      "noUSDInfoMessage": "Um saldo em USD maior que {{amount}} é necessário para financiar suas economias.",
+      "noBTCInfoMessage": "Um saldo de Bitcoin maior que o valor mínimo de swap de {{amount}} é necessário para financiar suas economias."
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",

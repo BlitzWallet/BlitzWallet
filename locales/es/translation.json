@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "No se pudo completar la transferencia"
       },
-      "pageDescription": "Transfiere dinero desde tu saldo de {{fromBalance}} a tu saldo de {{destination}}"
+      "pageDescription": "Transfiere dinero desde tu saldo de {{fromBalance}} a tu saldo de {{destination}}",
+      "noSourceTitle": "No hay fuente de fondos disponible",
+      "noSourceSubtitle": "Agrega Bitcoin o USD a tu billetera. Financiar con Bitcoin requiere al menos {{amount}}.",
+      "noUSDInfoMessage": "Se requiere un saldo en USD mayor a {{amount}} para financiar tus ahorros.",
+      "noBTCInfoMessage": "Se requiere un saldo de Bitcoin mayor al monto mínimo de intercambio de {{amount}} para financiar tus ahorros."
     },
     "withdraw": {
       "balanceTypeTitle": "¿Qué te gustaría retirar?",

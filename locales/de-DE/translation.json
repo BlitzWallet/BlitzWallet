@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
       },
-      "pageDescription": "Geld von deinem {{fromBalance}}-Guthaben auf dein {{destination}}-Guthaben übertragen"
+      "pageDescription": "Geld von deinem {{fromBalance}}-Guthaben auf dein {{destination}}-Guthaben übertragen",
+      "noSourceTitle": "Keine Finanzierungsquelle verfügbar",
+      "noSourceSubtitle": "Fügen Sie Bitcoin oder USD zu Ihrer Wallet hinzu. Finanzierung mit Bitcoin erfordert mindestens {{amount}}.",
+      "noUSDInfoMessage": "Ein USD-Guthaben von mehr als {{amount}} ist erforderlich, um Ihre Ersparnisse zu finanzieren.",
+      "noBTCInfoMessage": "Ein Bitcoin-Guthaben über dem Mindest-Swap-Betrag von {{amount}} ist erforderlich, um Ihre Ersparnisse zu finanzieren."
     },
     "withdraw": {
       "balanceTypeTitle": "Was möchten Sie auszahlen?",

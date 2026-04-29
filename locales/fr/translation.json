@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Impossible de finaliser le transfert"
       },
-      "pageDescription": "Ajoutez de l’argent de votre solde {{fromBalance}} vers votre solde {{destination}}"
+      "pageDescription": "Ajoutez de l’argent de votre solde {{fromBalance}} vers votre solde {{destination}}",
+      "noSourceTitle": "Aucune source de financement disponible",
+      "noSourceSubtitle": "Ajoutez du Bitcoin ou des USD à votre portefeuille. Le financement en Bitcoin nécessite au moins {{amount}}.",
+      "noUSDInfoMessage": "Un solde USD supérieur à {{amount}} est requis pour financer votre épargne.",
+      "noBTCInfoMessage": "Un solde Bitcoin supérieur au montant minimum de swap de {{amount}} est requis pour financer votre épargne."
     },
     "withdraw": {
       "balanceTypeTitle": "Que souhaitez-vous retirer ?",
