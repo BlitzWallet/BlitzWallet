@@ -2651,7 +2651,8 @@
       "paymentLabel": "Prelievo risparmio da {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Impossibile completare il prelievo"
-      }
+      },
+      "withdrawlAll": "Preleva tutto"
     },
     "howItWorks": {
       "headline1": "Il tuo denaro,",

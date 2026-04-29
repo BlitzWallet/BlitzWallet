@@ -2651,7 +2651,8 @@
       "paymentLabel": "Retiro de ahorro de {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "No se pudo completar el retiro"
-      }
+      },
+      "withdrawlAll": "Retirar todo"
     },
     "howItWorks": {
       "headline1": "Tu dinero,",

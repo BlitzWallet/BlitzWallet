@@ -1521,7 +1521,7 @@ export default function WithdrawFromSavingsHalfModal({
         >
           <ThemeText
             styles={styles.sendMaxText}
-            content={t('wallet.sendPages.sendMaxComponent.sendMax')}
+            content={t('savings.withdraw.withdrawlAll')}
           />
         </TouchableOpacity>
         <CustomNumberKeyboard

@@ -2646,7 +2646,8 @@
       "paymentLabel": "Withdrawal from {{savingsGoal}} goal",
       "errors": {
         "unableToCompleteWithdrawal": "Unable to complete withdrawal"
-      }
+      },
+      "withdrawlAll": "Withdrawal All"
     },
     "howItWorks": {
       "headline1": "Your dollars,",

@@ -2658,7 +2658,8 @@
       "paymentLabel": "Вывод из сбережений: {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Не удалось выполнить вывод"
-      }
+      },
+      "withdrawlAll": "Вывести всё"
     },
     "howItWorks": {
       "headline1": "Твои деньги,",

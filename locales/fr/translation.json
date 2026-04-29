@@ -2651,7 +2651,8 @@
       "paymentLabel": "Retrait d'épargne depuis {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Impossible de finaliser le retrait"
-      }
+      },
+      "withdrawlAll": "Tout retirer"
     },
     "howItWorks": {
       "headline1": "Ton argent,",

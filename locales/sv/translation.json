@@ -2651,7 +2651,8 @@
       "paymentLabel": "Sparuttag från {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Det gick inte att slutföra uttaget"
-      }
+      },
+      "withdrawlAll": "Ta ut allt"
     },
     "howItWorks": {
       "headline1": "Dina pengar,",

@@ -2651,7 +2651,8 @@
       "paymentLabel": "Auszahlung von {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Auszahlung konnte nicht abgeschlossen werden."
-      }
+      },
+      "withdrawlAll": "Alles abheben"
     },
     "howItWorks": {
       "headline1": "Ihr Geld,",

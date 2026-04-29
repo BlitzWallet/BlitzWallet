@@ -2651,7 +2651,8 @@
       "paymentLabel": "Resgate Caixinhas {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Não foi possível concluir o resgate"
-      }
+      },
+      "withdrawlAll": "Retirar tudo"
     },
     "howItWorks": {
       "headline1": "O seu dinheiro,",
