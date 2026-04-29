@@ -229,8 +229,10 @@ export default function SendAndRequestPage(props) {
               poolInfoRef.currentPriceAInB,
             ),
           );
+          const dollarAmountRequired = quote.quote.tokenAmountRequired;
+          const userDollarBalance = dollarBalanceToken * Math.pow(10, 6);
           const fee = quote.quote.estimatedLightningFee + estimatedAmmFeeSat;
-          if (fee + amount > dollarBalanceSat) {
+          if (dollarAmountRequired > userDollarBalance) {
             showToast({
               type: 'error',
               title: t('errormessages.lightningAmountFeeWarning', {
@@ -303,6 +305,7 @@ export default function SendAndRequestPage(props) {
       sendWebViewRequest,
       showToast,
       t,
+      dollarBalanceToken,
       dollarBalanceSat,
       bitcoinBalance,
     ],
