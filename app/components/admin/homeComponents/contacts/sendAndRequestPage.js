@@ -229,7 +229,7 @@ export default function SendAndRequestPage(props) {
               poolInfoRef.currentPriceAInB,
             ),
           );
-          const fee = quote.quote.fee + estimatedAmmFeeSat;
+          const fee = quote.quote.estimatedLightningFee + estimatedAmmFeeSat;
           if (fee + amount > dollarBalanceSat) {
             showToast({
               type: 'error',
