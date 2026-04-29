@@ -2603,10 +2603,10 @@
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
       },
       "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}",
-      "noSourceTitle": "Nenhuma fonte de fundos disponível",
-      "noSourceSubtitle": "Adicione Bitcoin ou USD à sua carteira. O financiamento com Bitcoin requer pelo menos {{amount}}.",
-      "noUSDInfoMessage": "Um saldo em USD maior que {{amount}} é necessário para financiar suas economias.",
-      "noBTCInfoMessage": "Um saldo de Bitcoin maior que o valor mínimo de swap de {{amount}} é necessário para financiar suas economias."
+      "noSourceTitle": "Sem fundos disponíveis",
+      "noSourceSubtitle": "Adicione Bitcoin ou USD à sua carteira. Usar o saldo Bitcoin para realizar esse pagamento requer pelo menos {{amount}}.",
+      "noUSDInfoMessage": "É necessário um saldo em USD maior que {{amount}} para depositar nas Caixinhas.",
+      "noBTCInfoMessage": "É necessário um saldo em Bitcoin maior que o valor mínimo de trocas, que é de {{amount}}, para depositar nas Caixinhas."
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",
@@ -2652,7 +2652,7 @@
       "errors": {
         "unableToCompleteWithdrawal": "Não foi possível concluir o resgate"
       },
-      "withdrawlAll": "Retirar tudo"
+      "withdrawlAll": "Resgatar tudo"
     },
     "howItWorks": {
       "headline1": "O seu dinheiro,",
