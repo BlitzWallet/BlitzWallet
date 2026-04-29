@@ -1955,9 +1955,9 @@
         "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your recovery phrase."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and a 0.1% Spark fee.\n\nIf you send money to yourself, you'll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you'll only pay the network fee once to claim it.",
-        "liquidFeeMessage": "Payments received to Liquid addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
-        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
+        "onchainFeeMessage": "To receive a Bitcoin payment, you'll pay an on-chain network fee. This fee varies based on current Bitcoin network fees.",
+        "liquidFeeMessage": "To receive a Liquid payment, you'll pay a lockup fee of ~{{fee}}, a claim fee of ~{{claimFee}}, and a 0.1% Boltz service fee.",
+        "rootstockFeeMessage": "To receive a Rootstock payment, you'll pay a lockup fee of ~{{fee}} and a 0.1% Boltz service fee.",
         "lightningConvertMessage": "Receiving dollars from Lightning requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",

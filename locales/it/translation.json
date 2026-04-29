@@ -1955,9 +1955,9 @@
         "dbInitError2": "Per favore riprova. Se il problema persiste, puoi recuperare i tuoi fondi in tutta sicurezza utilizzando la frase seed."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "I pagamenti on-chain hanno una commissione di rete e una commissione Spark dello 0,1%.\n\nSe invii soldi a te stesso, pagherai la commissione di rete due volte — una per inviarli e una per reclamarli.\n\nSe qualcun altro ti invia fondi, pagherai la commissione di rete una sola volta per reclamarli.",
-        "liquidFeeMessage": "I pagamenti ricevuti su indirizzi Liquid devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}}, una commissione di riscossione di circa {{claimFee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
-        "rootstockFeeMessage": "I pagamenti ricevuti su indirizzi Rootstock devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
+        "onchainFeeMessage": "Per ricevere un pagamento in Bitcoin, pagherai una commissione di rete on-chain. Questa commissione varia in base alle tariffe attuali della rete Bitcoin.",
+        "liquidFeeMessage": "Per ricevere un pagamento Liquid, pagherai una commissione di lockup di ~{{fee}}, una commissione di claim di ~{{claimFee}} e una commissione di servizio Boltz dello 0,1%.",
+        "rootstockFeeMessage": "Per ricevere un pagamento Rootstock, pagherai una commissione di lockup di ~{{fee}} e una commissione di servizio Boltz dello 0,1%.",
         "lightningConvertMessage": "Ricevere dollari tramite Lightning richiede la conversione di Bitcoin in USD. Si applica una commissione del {{convertFee}} % e il tasso di cambio attuale è:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generazione Fattura",
         "amountPlaceholder": "Qualsiasi importo",
