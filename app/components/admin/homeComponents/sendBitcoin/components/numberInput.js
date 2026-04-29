@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 
 export default function NumberInputSendPage({
@@ -10,33 +10,34 @@ export default function NumberInputSendPage({
   inputDenomination,
   primaryDisplay,
 }) {
-  const [amount, setAmount] = useState(paymentInfo?.sendAmount);
   const decimals = seletctedToken?.tokenMetadata?.decimals;
+  const amount = paymentInfo?.sendAmount;
 
-  useEffect(() => {
-    setPaymentInfo(prev => {
-      return {
-        ...prev,
-        sendAmount: amount,
-        feeQuote: undefined,
-        paymentFee: 0,
-        supportFee: 0,
-      };
-    });
-  }, [amount]);
-
-  // Effect to update amount when paymentInfo.sendAmount changes externally (e.g. parent reset)
-  useEffect(() => {
-    if (paymentInfo?.sendAmount !== amount) {
-      setAmount(paymentInfo.sendAmount);
-    }
-  }, [paymentInfo?.sendAmount]);
+  const handleSetAmount = useCallback(
+    newAmountOrUpdater => {
+      setPaymentInfo(prev => {
+        const newAmount =
+          typeof newAmountOrUpdater === 'function'
+            ? newAmountOrUpdater(prev.sendAmount)
+            : newAmountOrUpdater;
+        return {
+          ...prev,
+          sendAmount: newAmount,
+          feeQuote: undefined,
+          swapPaymentQuote: undefined,
+          paymentFee: 0,
+          supportFee: 0,
+        };
+      });
+    },
+    [setPaymentInfo],
+  );
 
   const lrc20InputFunction = useCallback(
     input => {
       if (input === null) {
         const newAmount = String(amount).slice(0, -1);
-        setAmount(newAmount);
+        handleSetAmount(newAmount);
       } else {
         let newNumber = '';
         if (amount?.includes('.') && input === '.') {
@@ -58,10 +59,10 @@ export default function NumberInputSendPage({
         // Remove leading zeros before digits
         newNumber = newNumber.replace(/^(-?)0+(?=\d)/, '$1');
 
-        setAmount(newNumber);
+        handleSetAmount(newNumber);
       }
     },
-    [amount, decimals],
+    [amount, decimals, handleSetAmount],
   );
 
   return (
@@ -71,7 +72,7 @@ export default function NumberInputSendPage({
         selectedLRC20Asset !== 'Bitcoin' ||
         primaryDisplay.denomination === 'fiat'
       }
-      setInputValue={setAmount}
+      setInputValue={handleSetAmount}
       usingForBalance={true}
       fiatStats={fiatStats}
       useMaxBalance={selectedLRC20Asset === 'Bitcoin'}

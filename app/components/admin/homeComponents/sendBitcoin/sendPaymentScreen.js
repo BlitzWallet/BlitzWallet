@@ -25,13 +25,9 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import AcceptButtonSendPage from './components/acceptButton';
 import NumberInputSendPage from './components/numberInput';
-import SendMaxComponent from './components/sendMaxComponent';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { useAppStatus } from '../../../../../context-store/appStatus';
-import hasAlredyPaidInvoice from './functions/hasPaid';
-import { keyboardGoBack } from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
@@ -43,11 +39,9 @@ import {
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
-import SelectLRC20Token from './components/selectLRC20Token';
 import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
 import ChooseLRC20TokenContainer from './components/chooseLRC20TokenContainer';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import {
   COLORS,
@@ -60,7 +54,6 @@ import { SliderProgressAnimation } from '../../../../functions/CustomElements/se
 import { InputTypes } from 'bitcoin-address-parser';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useWebView } from '../../../../../context-store/webViewContext';
-import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
@@ -114,7 +107,6 @@ export default function SendPaymentScreen(props) {
     useUserBalanceContext();
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { screenDimensions } = useAppStatus();
   const { accountMnemoinc, contactsPrivateKey } = useKeysContext();
   const { sparkInformation, showTokensInformation, sparkInfoRef } =
     useSparkWallet();
@@ -127,8 +119,6 @@ export default function SendPaymentScreen(props) {
   const { bottomPadding } = useGlobalInsets();
 
   const didWarnAboutBudget = useRef(null);
-  const [rerenderInput, setRerenderInput] = useState(0);
-  const useAltLayout = screenDimensions.height < 720;
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
   const progressAnimationRef = useRef(null);
@@ -523,8 +513,10 @@ export default function SendPaymentScreen(props) {
               poolInfoRef.currentPriceAInB,
             ),
           );
-          const fee = quote.quote.fee + estimatedAmmFeeSat;
-          if (fee + amount > dollarBalanceSat) {
+          const dollarAmountRequired = quote.quote.tokenAmountRequired;
+          const userDollarBalance = dollarBalanceToken * Math.pow(10, 6);
+          const fee = quote.quote.estimatedLightningFee + estimatedAmmFeeSat;
+          if (dollarAmountRequired > userDollarBalance) {
             showToast({
               type: 'error',
               title: t('errormessages.lightningAmountFeeWarning', {
@@ -603,6 +595,7 @@ export default function SendPaymentScreen(props) {
       isLightningPayment,
       canEditAmount,
       resolvedPaymentMethod,
+      dollarBalanceToken,
       dollarBalanceSat,
       bitcoinBalance,
       paymentInfo,
@@ -1108,7 +1101,7 @@ export default function SendPaymentScreen(props) {
           ? paymentInfo?.sendAmount * 10 ** tokenDecimals
           : convertedSendAmount,
         masterInfoObject,
-        fee: paymentFee,
+        fee: effectivePaymentFee,
         memo,
         userBalance: bitcoinBalance,
         sparkInformation: sparkInfoRef.current,
@@ -1237,7 +1230,7 @@ export default function SendPaymentScreen(props) {
     tokenDecimals,
     convertedSendAmount,
     masterInfoObject,
-    paymentFee,
+    effectivePaymentFee,
     bitcoinBalance,
     sparkInformation,
     currentWalletMnemoinc,
@@ -1254,7 +1247,6 @@ export default function SendPaymentScreen(props) {
 
   const handleSelectPaymentMethod = useCallback(
     showNextScreen => {
-      setRerenderInput(prev => (prev += 1));
       if (showNextScreen) {
         if (!paymentValidation.isValid) {
           const error = paymentValidation.getErrorMessage(
@@ -1286,6 +1278,7 @@ export default function SendPaymentScreen(props) {
 
   const handleDenominationToggle = () => {
     if (!isAmountFocused) return;
+    if (isUsingLRC20) return;
     if (!canEditAmount) {
       // For fixed amounts, just change the display denomination
       const nextDenom = getNextDenomination();
@@ -1407,7 +1400,7 @@ export default function SendPaymentScreen(props) {
           {/* Fee info for fixed amount */}
           {uiState === 'CONFIRM_PAYMENT' && (
             <SendTransactionFeeInfo
-              paymentFee={paymentFee}
+              paymentFee={effectivePaymentFee}
               isLightningPayment={isLightningPayment}
               isLiquidPayment={isLiquidPayment}
               isBitcoinPayment={isBitcoinPayment}
@@ -1508,7 +1501,6 @@ export default function SendPaymentScreen(props) {
 
             {isAmountFocused && (
               <NumberInputSendPage
-                key={`${rerenderInput}-${inputDenomination}`}
                 paymentInfo={paymentInfo}
                 setPaymentInfo={setPaymentInfo}
                 fiatStats={conversionFiatStats}
