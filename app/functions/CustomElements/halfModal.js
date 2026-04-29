@@ -676,7 +676,8 @@ export default function CustomHalfModal(props) {
                   : contentType === 'switchGenerativeAiModel' ||
                     contentType === 'addContacts' ||
                     contentType === 'sendOptions' ||
-                    contentType === 'createPoolFlow'
+                    contentType === 'createPoolFlow' ||
+                    contentType === 'SelectLRC20Token'
                   ? 0
                   : contentType === 'receiveOptions'
                   ? 0
