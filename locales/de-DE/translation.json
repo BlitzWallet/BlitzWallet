@@ -713,7 +713,7 @@
     "giftCards": {
       "giftCardsPage": {
         "searchPlaceholder": "Nach einer Geschenkkarte suchen",
-        "leftPageMessage": "Sie haben die Seite verlassen.",
+        "leftPageMessage": "Sie haben die Seite verlassen!",
         "loadingCardsMessage": "Geschenkkarten werden geladen...",
         "noCardsAvailable": "Keine Geschenkkarten verfügbar"
       },
