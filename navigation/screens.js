@@ -27,7 +27,6 @@ import HistoricalSMSMessagingPage from '../app/components/admin/homeComponents/a
 import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
   AddFriendsToSplit,
-  ChooseContactHalfModal,
   CreateSplitBill,
   EditMyProfilePage,
   ExpandedAddContactsPage,
@@ -59,7 +58,6 @@ import Nip5VerificationPage from '../app/components/admin/homeComponents/setting
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
-import SparkSettingsPage from '../app/components/admin/homeComponents/settingsContent/sparkLrc20';
 import RoostockSwapInfo from '../app/components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
@@ -144,9 +142,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   },
   { name: 'SettingsIndex', component: SettingsIndex },
   { name: 'SettingsHome', component: SettingsHub },
-  { name: 'ShowProfileQrSlideRight', component: ShowProfileQr },
   // {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
-  { name: 'ChooseContactHalfModal', component: ChooseContactHalfModal },
   { name: 'SettingsContentHome', component: SettingsContentIndex },
   {
     name: 'ConfirmPaymentScreen',
@@ -195,7 +191,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'NosterWalletConnect', component: NosterWalletConnect },
   { name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount },
   // {name: 'NWCWallet', component: NWCWallet},
-  { name: 'SparkSettingsPage', component: SparkSettingsPage },
   { name: 'Nip5VerificationPage', component: Nip5VerificationPage },
   { name: 'SelectGiftCardForContacts', component: SelectGiftCardForContacts },
   { name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage },
