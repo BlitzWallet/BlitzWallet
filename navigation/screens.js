@@ -101,11 +101,9 @@ import {
   SettingsIndex,
   TechnicalTransactionDetails,
   ViewAllTxPage,
-  SwapsPage,
   SettingsHub,
   AnalyticsPage,
 } from '../app/screens/inAccount';
-import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
 import GiftsPageHome from '../app/screens/inAccount/giftsHome';
 import ReclaimGift from '../app/components/admin/homeComponents/gifts/reclaimGift';
 import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
@@ -136,8 +134,6 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CameraModal', component: CameraModal },
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },
   { name: 'ShowProfileQr', component: ShowProfileQr },
-  { name: 'SwapsPage', component: SwapsPage },
-  { name: 'ConversionHistory', component: ConversionHistory },
   { name: 'ViewContributor', component: ViewContibutors },
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
