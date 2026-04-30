@@ -559,9 +559,10 @@ export default function HalfModalReceiveOptions({
     () => setShowAddContact(false);
   }, [setShowAddContact]);
 
-  const handlePoolClose = useCallback(() => {
-    () => setShowPoolCreation(false);
-  }, [setShowPoolCreation]);
+  const handlePoolClose = useCallback(
+    () => setShowPoolCreation(false),
+    [setShowPoolCreation],
+  );
 
   const handlePaylinkClose = useCallback(() => {
     () => setShowPayLinkCreation(false);
