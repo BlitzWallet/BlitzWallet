@@ -2435,8 +2435,8 @@
       "body": "Você recebeu {{totalAmount}}"
     },
     "LNURL": {
-      "zapped": "Alguém enviou um Zap de {{totalAmount}} para sua conta",
-      "regular": "Alguém enviou {{totalAmount}} para sua conta"
+      "zapped": "Alguém te enviou um Zap de {{totalAmount}}",
+      "regular": "Alguém te enviou {{totalAmount}}"
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
