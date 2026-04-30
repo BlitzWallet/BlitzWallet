@@ -1955,9 +1955,9 @@
         "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase de recuperação."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Para receber um pagamento em Bitcoin, você pagará uma taxa de rede on-chain. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",
-        "liquidFeeMessage": "Para receber um pagamento em Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de resgate de ~{{claimFee}} e uma taxa de serviço Boltz de 0,1%.",
-        "rootstockFeeMessage": "Para receber um pagamento em Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço Boltz de 0,1%.",
+        "onchainFeeMessage": "Para receber pagamentos em endereços Bitcoin, você pagará uma taxa de rede. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",
+        "liquidFeeMessage": "Para receber pagamentos em endereços Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de reivindicação de ~{{claimFee}} e uma taxa de serviço de 0,1% da Boltz.",
+        "rootstockFeeMessage": "Para receber pagamentos em endereços Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço de 0,1% da Boltz.",
         "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
