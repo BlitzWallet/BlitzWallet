@@ -405,6 +405,8 @@ export default function SendPaymentScreen(props) {
 
     if (isBitcoinPayment) return false;
 
+    if (isLightningPayment && paymentInfo?.usingZeroAmountInvoice) return false;
+
     const formattedFee = isLightningPayment ? effectivePaymentFee : 0;
 
     const hasEnoughBTC = bitcoinBalance >= convertedSendAmount + formattedFee;

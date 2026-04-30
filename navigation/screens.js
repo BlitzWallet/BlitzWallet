@@ -1,7 +1,6 @@
 import {
   AddOrDeleteContactImage,
   CameraModal,
-  ClipboardCopyPopup,
   ContactsPageLongPressActions,
   EditReceivePaymentInformation,
   ErrorScreen,
@@ -250,7 +249,6 @@ const FADE_SCREENS = [
   { name: 'CustomHalfModal', component: CustomHalfModal },
   { name: 'ConfirmActionPage', component: ConfirmActionPage },
   { name: 'ConfirmLeaveChatGPT', component: ConfirmLeaveChatGPT },
-  { name: 'ClipboardCopyPopup', component: ClipboardCopyPopup },
   { name: 'ErrorScreen', component: ErrorScreen },
   { name: 'SparkErrorScreen', component: SparkErrorScreen },
   // {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
