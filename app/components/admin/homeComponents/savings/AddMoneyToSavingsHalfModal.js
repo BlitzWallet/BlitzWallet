@@ -31,6 +31,7 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import {
@@ -50,6 +51,7 @@ import {
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import truncateToTwoDecimals from '../../../../functions/truncateNumber';
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 const MIN_STEP_MS = 800;
@@ -336,7 +338,7 @@ export default function AddMoneyToSavingsHalfModal({
       key: 'dollar',
       title: t('constants.usd_balance'),
       subtitle: displayCorrectDenomination({
-        amount: dollarBalanceToken.toFixed(2),
+        amount: truncateToTwoDecimals(dollarBalanceToken),
         masterInfoObject: {
           ...masterInfoObject,
           userBalanceDenomination: 'fiat',
@@ -469,6 +471,30 @@ export default function AddMoneyToSavingsHalfModal({
   }
 
   if (currentPage === 'source') {
+    const isBitcoinDisabled = bitcoinBalance < swapLimits.bitcoin;
+    const isDollarDisabled = dollarBalanceToken < 0.01;
+
+    if (isBitcoinDisabled && isDollarDisabled) {
+      return (
+        <View style={styles.container}>
+          <NoContentSceen
+            iconName="Wallet"
+            titleText={t('savings.addMoney.noSourceTitle')}
+            subTitleText={t('savings.addMoney.noSourceSubtitle', {
+              amount: displayCorrectDenomination({
+                amount: swapLimits.bitcoin,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'sats',
+                },
+                fiatStats,
+              }),
+            })}
+          />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.container}>
         <ThemeText
@@ -477,89 +503,119 @@ export default function AddMoneyToSavingsHalfModal({
         />
 
         <View style={styles.optionsList}>
-          {sourceOptions.map(option => (
-            <TouchableOpacity
-              key={option.key}
-              activeOpacity={0.7}
-              style={[
-                styles.optionRow,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                  opacity:
-                    (option.key === 'dollar' && dollarBalanceToken < 0.01) ||
-                    (option.key === 'bitcoin' &&
-                      bitcoinBalance < swapLimits.bitcoin)
-                      ? HIDDEN_OPACITY
-                      : 1,
-                },
-              ]}
-              disabled={
-                (option.key === 'dollar' && dollarBalanceToken < 0.01) ||
-                (option.key === 'bitcoin' &&
-                  bitcoinBalance < swapLimits.bitcoin)
-              }
-              onPress={() => {
-                setSelectedSource(option.key);
-                setInputDenomination(
-                  option.key === 'dollar'
-                    ? 'fiat'
-                    : masterInfoObject.userBalanceDenomination != 'fiat'
-                    ? 'sats'
-                    : 'fiat',
-                );
-                setStep(prev => [...prev, 'amount']);
-              }}
-            >
-              <View style={styles.optionLeft}>
-                <View
-                  style={[
-                    styles.iconContainer,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? darkModeType
-                            ? backgroundOffset
-                            : backgroundColor
-                          : option.key === 'dollar'
-                          ? COLORS.dollarGreen
-                          : COLORS.bitcoinOrange,
-                    },
-                  ]}
-                >
-                  <ThemeImage
-                    styles={{ width: 25, height: 25 }}
-                    lightModeIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                    darkModeIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                    lightsOutIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                  />
+          {sourceOptions.map(option => {
+            const isDisabled =
+              option.key === 'dollar' ? isDollarDisabled : isBitcoinDisabled;
+            return (
+              <TouchableOpacity
+                key={option.key}
+                activeOpacity={0.7}
+                style={[
+                  styles.optionRow,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                    opacity: isDisabled ? HIDDEN_OPACITY : 1,
+                  },
+                ]}
+                onPress={() => {
+                  if (option.key === 'dollar' && isDollarDisabled) {
+                    navigate.navigate('InformationPopup', {
+                      textContent: t('savings.addMoney.noUSDInfoMessage', {
+                        amount: displayCorrectDenomination({
+                          amount: 0.01,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination: 'fiat',
+                          },
+                          fiatStats,
+                          forceCurrency: 'USD',
+                          convertAmount: false,
+                        }),
+                      }),
+                      buttonText: t('constants.iunderstand'),
+                    });
+                    return;
+                  }
+                  if (option.key === 'bitcoin' && isBitcoinDisabled) {
+                    navigate.navigate('InformationPopup', {
+                      textContent: t('savings.addMoney.noBTCInfoMessage', {
+                        amount: displayCorrectDenomination({
+                          amount: swapLimits.bitcoin,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination: 'sats',
+                          },
+                          fiatStats,
+                        }),
+                      }),
+                      buttonText: t('constants.iunderstand'),
+                    });
+                    return;
+                  }
+                  setSelectedSource(option.key);
+                  setInputDenomination(
+                    option.key === 'dollar'
+                      ? 'fiat'
+                      : masterInfoObject.userBalanceDenomination != 'fiat'
+                      ? 'sats'
+                      : 'fiat',
+                  );
+                  setStep(prev => [...prev, 'amount']);
+                }}
+              >
+                <View style={styles.optionLeft}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? darkModeType
+                              ? backgroundOffset
+                              : backgroundColor
+                            : option.key === 'dollar'
+                            ? COLORS.dollarGreen
+                            : COLORS.bitcoinOrange,
+                      },
+                    ]}
+                  >
+                    <ThemeImage
+                      styles={{ width: 25, height: 25 }}
+                      lightModeIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                      darkModeIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                      lightsOutIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                    />
+                  </View>
+                  <View>
+                    <ThemeText
+                      styles={styles.optionTitle}
+                      content={option.title}
+                    />
+                    <ThemeText
+                      styles={styles.optionSubtitle}
+                      content={option.subtitle}
+                    />
+                  </View>
                 </View>
-                <View>
-                  <ThemeText
-                    styles={styles.optionTitle}
-                    content={option.title}
-                  />
-                  <ThemeText
-                    styles={styles.optionSubtitle}
-                    content={option.subtitle}
-                  />
-                </View>
-              </View>
-              <ThemeIcon iconName="ChevronRight" size={16} />
-            </TouchableOpacity>
-          ))}
+                <ThemeIcon iconName="ChevronRight" size={16} />
+              </TouchableOpacity>
+            );
+          })}
         </View>
         {step.length > 1 && (
           <CustomButton
@@ -576,7 +632,7 @@ export default function AddMoneyToSavingsHalfModal({
 
   if (currentPage === 'amount') {
     const deactivateButton =
-      ((paymentMode === 'BTC' && localSatAmount >= bitcoinBalance) ||
+      ((paymentMode === 'BTC' && localSatAmount > bitcoinBalance) ||
         (paymentMode === 'USD' &&
           fiatMicros >= dollarBalanceToken * Math.pow(10, 6)) ||
         (paymentMode === 'BTC' && localSatAmount < swapLimits.bitcoin)) &&
@@ -663,9 +719,9 @@ export default function AddMoneyToSavingsHalfModal({
             }
 
             if (
-              (paymentMode === 'BTC' && localSatAmount >= bitcoinBalance) ||
+              (paymentMode === 'BTC' && localSatAmount > bitcoinBalance) ||
               (paymentMode === 'USD' &&
-                fiatMicros >= dollarBalanceToken * Math.pow(10, 6))
+                fiatMicros > dollarBalanceToken * Math.pow(10, 6))
             ) {
               navigate.navigate('ErrorScreen', {
                 errorMessage: t(

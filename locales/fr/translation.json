@@ -1955,9 +1955,9 @@
         "dbInitError2": "Veuillez réessayer. Si le problème persiste, vous pouvez récupérer vos fonds en toute sécurité en utilisant votre phrase d'initialisation."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Les paiements reçus à des adresses Bitcoin sont soumis à une commission de réseau et à une commission d'étincelle de 0,1 %.\n\nSi vous vous envoyez de l'argent à vous-même, vous paierez deux fois les frais de réseau - une fois pour l'envoyer et une fois pour le réclamer.\n\nSi quelqu'un d'autre vous envoie de l'argent, vous ne paierez les frais de réseau qu'une seule fois pour le réclamer.",
-        "liquidFeeMessage": "Les paiements reçus aux adresses Liquid doivent être transférés dans Spark.\n\nCe processus comprend des frais de blocage d'environ {{fee}}, des frais de réclamation d'environ {{claimFee}}, et des frais de service de 0,1 % de Boltz basés sur le montant que vous envoyez.",
-        "rootstockFeeMessage": "Les paiements reçus aux adresses Rootstock doivent être transférés dans Spark.\n\nCe processus comprend des frais de blocage d'environ {{fee}}, et des frais de service de 0,1 % de Boltz basés sur le montant que vous envoyez.",
+        "onchainFeeMessage": "Pour recevoir un paiement Bitcoin, vous devrez payer des frais réseau on-chain. Ces frais varient selon les frais actuels du réseau Bitcoin.",
+        "liquidFeeMessage": "Pour recevoir un paiement Liquid, vous paierez des frais de verrouillage d’environ ~{{fee}}, des frais de réclamation d’environ ~{{claimFee}} et des frais de service Boltz de 0,1 %.",
+        "rootstockFeeMessage": "Pour recevoir un paiement Rootstock, vous paierez des frais de verrouillage d’environ ~{{fee}} et des frais de service Boltz de 0,1 %.",
         "lightningConvertMessage": "Recevoir des dollars via Lightning nécessite de convertir des bitcoins en USD. Des frais de {{convertFee}} % s’appliquent, et le taux de change actuel est de:\n{{satExchangeRate}}.",
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Impossible de finaliser le transfert"
       },
-      "pageDescription": "Ajoutez de l’argent de votre solde {{fromBalance}} vers votre solde {{destination}}"
+      "pageDescription": "Ajoutez de l’argent de votre solde {{fromBalance}} vers votre solde {{destination}}",
+      "noSourceTitle": "Aucune source de financement disponible",
+      "noSourceSubtitle": "Ajoutez du Bitcoin ou des USD à votre portefeuille. Le financement en Bitcoin nécessite au moins {{amount}}.",
+      "noUSDInfoMessage": "Un solde USD supérieur à {{amount}} est requis pour financer votre épargne.",
+      "noBTCInfoMessage": "Un solde Bitcoin supérieur au montant minimum de swap de {{amount}} est requis pour financer votre épargne."
     },
     "withdraw": {
       "balanceTypeTitle": "Que souhaitez-vous retirer ?",
@@ -2647,7 +2651,8 @@
       "paymentLabel": "Retrait d'épargne depuis {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Impossible de finaliser le retrait"
-      }
+      },
+      "withdrawlAll": "Tout retirer"
     },
     "howItWorks": {
       "headline1": "Ton argent,",

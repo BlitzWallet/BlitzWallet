@@ -1956,9 +1956,9 @@
         "dbInitError2": "Попробуйте снова. Если проблема сохраняется, восстановите кошелек через сид-фразу."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Платежи на Биткоин-адреса имеют сетевую комиссию + 0.1% комиссия Spark.\n\nПри отправке самому себе комиссия платится дважды (отправка + клейм).\n\nЕсли отправляет другой — вы платите комиссию только за клейм.",
-        "liquidFeeMessage": "Платежи на Liquid-адреса требуют перевода в Spark.\n\nПроцесс включает комиссию за блокировку (~{{fee}}), комиссию за клейм (~{{claimFee}}) и 0.1% сервисную комиссию Boltz.",
-        "rootstockFeeMessage": "Платежи на Rootstock-адреса требуют перевода в Spark.\n\nВключает комиссию за блокировку (~{{fee}}) и 0.1% Boltz.",
+        "onchainFeeMessage": "Чтобы получить платеж в биткоине, вы заплатите комиссию сети on-chain. Она зависит от текущих комиссий сети Bitcoin.",
+        "liquidFeeMessage": "Чтобы получить платеж в Liquid, вы заплатите комиссию блокировки ~{{fee}}, комиссию получения ~{{claimFee}} и сервисную комиссию Boltz 0,1%.",
+        "rootstockFeeMessage": "Чтобы получить платеж в Rootstock, вы заплатите комиссию блокировки ~{{fee}} и сервисную комиссию Boltz 0,1%.",
         "lightningConvertMessage": "Получение долларов через Молнию требует конвертации BTC в USD. Комиссия {{convertFee}}%, курс {{satExchangeRate}} за {{dollarAmount}}.",
         "generatingInvoice": "Создание инвойса",
         "amountPlaceholder": "Любая сумма",
@@ -2609,7 +2609,11 @@
       "errors": {
         "unableToCompleteTransfer": "Не удалось выполнить перевод"
       },
-      "pageDescription": "Переведите средства с баланса {{fromBalance}} на баланс {{destination}}"
+      "pageDescription": "Переведите средства с баланса {{fromBalance}} на баланс {{destination}}",
+      "noSourceTitle": "Нет доступного источника средств",
+      "noSourceSubtitle": "Добавьте Bitcoin или USD в ваш кошелёк. Для финансирования в Bitcoin требуется минимум {{amount}}.",
+      "noUSDInfoMessage": "Для финансирования сбережений требуется баланс USD больше {{amount}}.",
+      "noBTCInfoMessage": "Для финансирования сбережений требуется баланс Bitcoin выше минимальной суммы обмена {{amount}}."
     },
     "withdraw": {
       "balanceTypeTitle": "Что вы хотите вывести?",
@@ -2654,7 +2658,8 @@
       "paymentLabel": "Вывод из сбережений: {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Не удалось выполнить вывод"
-      }
+      },
+      "withdrawlAll": "Вывести всё"
     },
     "howItWorks": {
       "headline1": "Твои деньги,",

@@ -1955,9 +1955,9 @@
         "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase de recuperação."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Os pagamentos recebidos em endereços Bitcoin têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
-        "liquidFeeMessage": "Pagamentos recebidos em endereços Liquid precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
-        "rootstockFeeMessage": "Pagamentos recebidos em endereços Rootstock precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
+        "onchainFeeMessage": "Para receber um pagamento em Bitcoin, você pagará uma taxa de rede on-chain. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",
+        "liquidFeeMessage": "Para receber um pagamento em Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de resgate de ~{{claimFee}} e uma taxa de serviço Boltz de 0,1%.",
+        "rootstockFeeMessage": "Para receber um pagamento em Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço Boltz de 0,1%.",
         "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
       },
-      "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}"
+      "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}",
+      "noSourceTitle": "Nenhuma fonte de fundos disponível",
+      "noSourceSubtitle": "Adicione Bitcoin ou USD à sua carteira. O financiamento com Bitcoin requer pelo menos {{amount}}.",
+      "noUSDInfoMessage": "Um saldo em USD maior que {{amount}} é necessário para financiar suas economias.",
+      "noBTCInfoMessage": "Um saldo de Bitcoin maior que o valor mínimo de swap de {{amount}} é necessário para financiar suas economias."
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",
@@ -2647,7 +2651,8 @@
       "paymentLabel": "Resgate Caixinhas {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Não foi possível concluir o resgate"
-      }
+      },
+      "withdrawlAll": "Retirar tudo"
     },
     "howItWorks": {
       "headline1": "O seu dinheiro,",

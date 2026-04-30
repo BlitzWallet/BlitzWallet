@@ -5,7 +5,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { COLORS } from '../../../constants';
+import { COLORS, SIZES } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 
 import GetThemeColors from '../../../hooks/themeColors';
@@ -15,14 +15,13 @@ import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../constants/theme';
 
 export default function ErrorScreen(props) {
-  const { textColor, backgroundColor, backgroundOffset, transparentOveraly } =
+  const { backgroundColor, backgroundOffset, transparentOveraly } =
     GetThemeColors();
   const { t } = useTranslation();
   const errorMessage = props.route.params.errorMessage;
   const navigationFunction = props.route.params?.navigationFunction;
   const customNavigator = props.route.params?.customNavigator;
   const useTranslationString = props.route.params?.useTranslationString;
-  const height = props.route.params?.height;
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
 
@@ -36,45 +35,65 @@ export default function ErrorScreen(props) {
   };
 
   return (
-    <View
-      style={[styles.globalContainer, { backgroundColor: transparentOveraly }]}
-    >
-      <TouchableWithoutFeedback onPress={handleNaviagation}>
-        <View style={StyleSheet.absoluteFill} />
-      </TouchableWithoutFeedback>
-
+    <TouchableWithoutFeedback onPress={handleNaviagation}>
       <View
         style={[
-          styles.content,
-          {
-            backgroundColor: theme ? backgroundOffset : backgroundColor,
-            // maxHeight: height || 200,
-          },
+          styles.globalContainer,
+          { backgroundColor: transparentOveraly },
         ]}
       >
-        <ScrollView>
-          <ThemeText
-            styles={styles.headerText}
-            content={useTranslationString ? t(errorMessage) : errorMessage}
-          />
-        </ScrollView>
+        <TouchableWithoutFeedback>
+          <View
+            style={[
+              styles.content,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+            ]}
+          >
+            {/* Message */}
+            <ScrollView>
+              <ThemeText
+                styles={styles.headerText}
+                content={useTranslationString ? t(errorMessage) : errorMessage}
+              />
+            </ScrollView>
 
-        <View
-          style={{
-            ...styles.border,
-            backgroundColor:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-        />
+            {/* Divider */}
+            <View
+              style={[
+                styles.divider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            />
 
-        <TouchableOpacity onPress={handleNaviagation}>
-          <ThemeText
-            styles={styles.cancelButton}
-            content={t('wallet.sendPages.errorScreen.ok')}
-          />
-        </TouchableOpacity>
+            {/* OK button */}
+            <TouchableOpacity
+              onPress={handleNaviagation}
+              activeOpacity={0.6}
+              style={styles.btn}
+            >
+              <ThemeText
+                styles={[
+                  styles.btnText,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                ]}
+                content={t('wallet.sendPages.errorScreen.ok')}
+              />
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -87,24 +106,39 @@ const styles = StyleSheet.create({
   content: {
     width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
-    borderRadius: 8,
+    borderRadius: 16,
+    overflow: 'hidden',
     maxHeight: '70%',
   },
+  iconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: 28,
+    marginBottom: 12,
+  },
   headerText: {
-    width: '100%',
-    paddingVertical: 15,
+    fontSize: SIZES.medium,
     textAlign: 'center',
-    paddingHorizontal: 20,
+    lineHeight: 22,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
     includeFontPadding: false,
   },
-  border: {
-    height: 1,
+  divider: {
+    height: 2,
     width: '100%',
-    backgroundColor: COLORS.primary,
   },
-  cancelButton: {
-    textAlign: 'center',
-    paddingVertical: 10,
+  btn: {
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnText: {
+    fontSize: SIZES.medium,
     includeFontPadding: false,
   },
 });

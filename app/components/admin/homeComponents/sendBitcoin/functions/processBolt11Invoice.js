@@ -142,7 +142,7 @@ export default async function processBolt11Invoice(input, context) {
             ),
           );
           usdFee = {
-            fee: paymentQuote.quote.fee + estimatedAmmFeeSat,
+            fee: paymentQuote.quote.estimatedLightningFee + estimatedAmmFeeSat,
             supportFee: 0,
           };
         }

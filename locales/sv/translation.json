@@ -1955,9 +1955,9 @@
         "dbInitError2": "Vänligen försök igen. Om detta problem fortsätter kan du säkert återfå dina pengar med hjälp av din seed-fras."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Betalningar som tas emot till Bitcoin-adresser har en nätverksavgift och 0,1% Spark-avgift.\n\nOm du skickar pengar till dig själv betalar du nätverksavgiften två gånger - en gång för att skicka dem och en gång för att hämta ut dem.\n\nOm någon annan skickar pengar till dig betalar du bara nätverksavgiften en gång för att göra anspråk på dem.",
-        "liquidFeeMessage": "Betalningar som mottagits till Liquid-adresser måste överföras till Spark.\n\nDenna process inkluderar en låsningsavgift på cirka {{fee}}, en kravavgift på cirka {{claimFee}} och en serviceavgift på 0,1% från Boltz baserat på det belopp du skickar.",
-        "rootstockFeeMessage": "Betalningar som mottagits till Rootstock-adresser måste överföras till Spark.\n\nDenna process inkluderar en låsningsavgift på cirka {{fee}} och en serviceavgift på 0,1% från Boltz baserat på det belopp du skickar.",
+        "onchainFeeMessage": "För att ta emot en Bitcoin-betalning betalar du en on-chain-nätverksavgift. Denna avgift varierar beroende på aktuella Bitcoin-nätverksavgifter.",
+        "liquidFeeMessage": "För att ta emot en Liquid-betalning betalar du en låsningsavgift på ~{{fee}}, en uttagsavgift på ~{{claimFee}} och en Boltz-serviceavgift på 0,1%.",
+        "rootstockFeeMessage": "För att ta emot en Rootstock-betalning betalar du en låsningsavgift på ~{{fee}} och en Boltz-serviceavgift på 0,1%.",
         "lightningConvertMessage": "Att ta emot dollar via Lightning kräver att Bitcoin konverteras till USD. En avgift på {{convertFee}} % tillämpas, och den aktuella växelkursen är:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "Det gick inte att slutföra överföringen"
       },
-      "pageDescription": "Flytta pengar från ditt {{fromBalance}}-saldo till ditt {{destination}}-saldo"
+      "pageDescription": "Flytta pengar från ditt {{fromBalance}}-saldo till ditt {{destination}}-saldo",
+      "noSourceTitle": "Ingen finansieringskälla tillgänglig",
+      "noSourceSubtitle": "Lägg till Bitcoin eller USD i din plånbok. Finansiering med Bitcoin kräver minst {{amount}}.",
+      "noUSDInfoMessage": "Ett USD-saldo större än {{amount}} krävs för att finansiera ditt sparande.",
+      "noBTCInfoMessage": "Ett Bitcoin-saldo större än det minsta växlingsbeloppet på {{amount}} krävs för att finansiera ditt sparande."
     },
     "withdraw": {
       "balanceTypeTitle": "Vad vill du ta ut?",
@@ -2647,7 +2651,8 @@
       "paymentLabel": "Sparuttag från {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Det gick inte att slutföra uttaget"
-      }
+      },
+      "withdrawlAll": "Ta ut allt"
     },
     "howItWorks": {
       "headline1": "Dina pengar,",

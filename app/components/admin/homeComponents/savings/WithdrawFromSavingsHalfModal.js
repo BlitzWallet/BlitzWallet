@@ -461,6 +461,9 @@ export default function WithdrawFromSavingsHalfModal({
     if (currentPage === 'destination') {
       setSelectedBalanceType(null);
     }
+    if (currentPage === 'confirm') {
+      setIsSendMax(false);
+    }
     setStep(prev => prev.slice(0, -1));
     return true;
   }, [currentPage, step]);
@@ -1518,7 +1521,7 @@ export default function WithdrawFromSavingsHalfModal({
         >
           <ThemeText
             styles={styles.sendMaxText}
-            content={t('wallet.sendPages.sendMaxComponent.sendMax')}
+            content={t('savings.withdraw.withdrawlAll')}
           />
         </TouchableOpacity>
         <CustomNumberKeyboard

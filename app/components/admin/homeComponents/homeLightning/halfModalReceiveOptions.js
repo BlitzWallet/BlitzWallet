@@ -550,6 +550,23 @@ export default function HalfModalReceiveOptions({
     visibleCount,
   ]);
 
+  const handleLNURLClose = useCallback(() => {
+    setContentHeight(Math.round(screenDimensions.height * 0.8));
+    setShowLNURLQR(false);
+  }, [setContentHeight, setShowLNURLQR, screenDimensions]);
+
+  const handleAddContactsClose = useCallback(() => {
+    () => setShowAddContact(false);
+  }, [setShowAddContact]);
+
+  const handlePoolClose = useCallback(() => {
+    () => setShowPoolCreation(false);
+  }, [setShowPoolCreation]);
+
+  const handlePaylinkClose = useCallback(() => {
+    () => setShowPayLinkCreation(false);
+  }, [setShowPayLinkCreation]);
+
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.mainContent, contentStyle]}>
@@ -710,10 +727,7 @@ export default function HalfModalReceiveOptions({
 
       <LNURLQROverlay
         visible={showLNURLQR}
-        onClose={() => {
-          setContentHeight(Math.round(screenDimensions.height * 0.8));
-          setShowLNURLQR(false);
-        }}
+        onClose={handleLNURLClose}
         lnurlAddress={lnurlAddress}
         theme={theme}
         darkModeType={darkModeType}
@@ -726,14 +740,14 @@ export default function HalfModalReceiveOptions({
 
       <AddContactOverlay
         visible={showAddContact}
-        onClose={() => setShowAddContact(false)}
+        onClose={handleAddContactsClose}
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
       />
 
       <PoolCreationOverlay
         visible={showPoolCreation}
-        onClose={() => setShowPoolCreation(false)}
+        onClose={handlePoolClose}
         theme={theme}
         darkModeType={darkModeType}
         handleBackPressFunction={handleBackPressFunction}
@@ -741,7 +755,7 @@ export default function HalfModalReceiveOptions({
 
       <PayLinkCreationOverlay
         visible={showPayLinkCreation}
-        onClose={() => setShowPayLinkCreation(false)}
+        onClose={handlePaylinkClose}
         theme={theme}
         darkModeType={darkModeType}
         handleBackPressFunction={handleBackPressFunction}

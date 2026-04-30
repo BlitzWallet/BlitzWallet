@@ -232,7 +232,8 @@ export default async function processLNUrlPay(input, context) {
               poolInfoRef.currentPriceAInB,
             ),
           );
-          usdPaymentFee = paymentQuote.quote.fee + estimatedAmmFeeSat;
+          usdPaymentFee =
+            paymentQuote.quote.estimatedLightningFee + estimatedAmmFeeSat;
           usdSupportFee = 0;
         }
       }

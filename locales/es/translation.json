@@ -1955,9 +1955,9 @@
         "dbInitError2": "Por favor inténtalo de nuevo. Si este problema continúa, puede recuperar sus fondos de forma segura utilizando su frase inicial."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Los pagos en cadena tienen una tarifa de red y una tarifa de Spark del 0,1%.\n\nSi te envías dinero a ti mismo, pagarás la tarifa de red dos veces — una para enviar y otra para reclamar.\n\nSi otra persona te envía dinero, solo pagarás la tarifa de red una vez al reclamar.",
-        "liquidFeeMessage": "Los pagos recibidos en direcciones Liquid deben transferirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}}, una tarifa de reclamación de alrededor de {{claimFee}} y una tarifa de servicio del 0.1% de Boltz según el monto que envíes.",
-        "rootstockFeeMessage": "Los pagos recibidos en direcciones Rootstock deben transferirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}} y una tarifa de servicio del 0.1% de Boltz según el monto que envíes.",
+        "onchainFeeMessage": "Para recibir un pago de Bitcoin, pagarás una comisión de red on-chain. Esta comisión varía según las tarifas actuales de la red Bitcoin.",
+        "liquidFeeMessage": "Para recibir un pago en Liquid, pagarás una comisión de bloqueo de ~{{fee}}, una comisión de reclamación de ~{{claimFee}} y una comisión de servicio de Boltz del 0,1%.",
+        "rootstockFeeMessage": "Para recibir un pago en Rootstock, pagarás una comisión de bloqueo de ~{{fee}} y una comisión de servicio de Boltz del 0,1%.",
         "lightningConvertMessage": "Recibir dólares a través de Lightning requiere convertir Bitcoin a USD. Se aplica una comisión del {{convertFee}} %, y el tipo de cambio actual es:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generando factura",
         "amountPlaceholder": "Cualquier monto",
@@ -2602,7 +2602,11 @@
       "errors": {
         "unableToCompleteTransfer": "No se pudo completar la transferencia"
       },
-      "pageDescription": "Transfiere dinero desde tu saldo de {{fromBalance}} a tu saldo de {{destination}}"
+      "pageDescription": "Transfiere dinero desde tu saldo de {{fromBalance}} a tu saldo de {{destination}}",
+      "noSourceTitle": "No hay fuente de fondos disponible",
+      "noSourceSubtitle": "Agrega Bitcoin o USD a tu billetera. Financiar con Bitcoin requiere al menos {{amount}}.",
+      "noUSDInfoMessage": "Se requiere un saldo en USD mayor a {{amount}} para financiar tus ahorros.",
+      "noBTCInfoMessage": "Se requiere un saldo de Bitcoin mayor al monto mínimo de intercambio de {{amount}} para financiar tus ahorros."
     },
     "withdraw": {
       "balanceTypeTitle": "¿Qué te gustaría retirar?",
@@ -2647,7 +2651,8 @@
       "paymentLabel": "Retiro de ahorro de {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "No se pudo completar el retiro"
-      }
+      },
+      "withdrawlAll": "Retirar todo"
     },
     "howItWorks": {
       "headline1": "Tu dinero,",
