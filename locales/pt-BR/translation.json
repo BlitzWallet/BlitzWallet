@@ -1788,7 +1788,7 @@
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
       "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
-      "noActivePools": "Você não tem Vaquinhas abertas no momento.",
+      "noActivePools": "Toque para criar uma Vaquinha.",
       "yourAccountsTitle": "Suas contas",
       "addAccountButton": "Adicionar conta"
     },
@@ -2296,7 +2296,7 @@
     },
     "accumulationAddresses": {
       "title": "Conversão automática",
-      "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares USDB",
+      "subtitle": "Converta automaticamente USDT ou USDC em BTC ou dólares USDB",
       "navTitle": "Conversão automática",
       "sectionTitle": "Endereços ativos",
       "empty": {
@@ -2435,8 +2435,8 @@
       "body": "Você recebeu {{totalAmount}}"
     },
     "LNURL": {
-      "zapped": "Você recebeu um Zap {{totalAmount}}",
-      "regular": "Você acabou de receber {{totalAmount}}"
+      "zapped": "Alguém te enviou um Zap de {{totalAmount}}",
+      "regular": "Alguém te enviou {{totalAmount}}"
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
