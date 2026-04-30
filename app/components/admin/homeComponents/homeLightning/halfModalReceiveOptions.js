@@ -555,18 +555,20 @@ export default function HalfModalReceiveOptions({
     setShowLNURLQR(false);
   }, [setContentHeight, setShowLNURLQR, screenDimensions]);
 
-  const handleAddContactsClose = useCallback(() => {
-    () => setShowAddContact(false);
-  }, [setShowAddContact]);
+  const handleAddContactsClose = useCallback(
+    () => setShowAddContact(false),
+    [setShowAddContact],
+  );
 
   const handlePoolClose = useCallback(
     () => setShowPoolCreation(false),
     [setShowPoolCreation],
   );
 
-  const handlePaylinkClose = useCallback(() => {
-    () => setShowPayLinkCreation(false);
-  }, [setShowPayLinkCreation]);
+  const handlePaylinkClose = useCallback(
+    () => setShowPayLinkCreation(false),
+    [setShowPayLinkCreation],
+  );
 
   return (
     <View style={styles.container}>
