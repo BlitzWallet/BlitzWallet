@@ -47,7 +47,7 @@ import BrandLogoUploader from './internalComponents/brandLogoUploader';
 
 const StoreNameInput = ({ value, onChange, onFocus, onBlur, theme }) => {
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
 
   return (
     <View style={styles.inputSection}>
@@ -55,30 +55,33 @@ const StoreNameInput = ({ value, onChange, onFocus, onBlur, theme }) => {
         styles={styles.sectionCardLabel}
         content={t('settings.posPath.settings.storeNameInputDesc')}
       />
-      <View style={[styles.sectionCard, { backgroundColor: backgroundOffset }]}>
-        <CustomSearchInput
-          setInputText={onChange}
-          inputText={value}
-          placeholderText={t(
-            'settings.posPath.settings.storeNameInputPlaceholder',
-          )}
-          textInputStyles={{
-            backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
-            color: theme ? textColor : COLORS.lightModeText,
-          }}
-          containerStyles={styles.inputContainer}
-          onBlurFunction={onBlur}
-          onFocusFunction={onFocus}
-          shouldDelayBlur={false}
-        />
-      </View>
+      <CustomSearchInput
+        setInputText={onChange}
+        inputText={value}
+        placeholderText={t(
+          'settings.posPath.settings.storeNameInputPlaceholder',
+        )}
+        textInputStyles={{
+          backgroundColor: backgroundOffset,
+          color: textColor,
+        }}
+        containerStyles={styles.inputContainer}
+        onBlurFunction={onBlur}
+        onFocusFunction={onFocus}
+        shouldDelayBlur={false}
+      />
     </View>
   );
 };
 
-const CurrencySelector = ({ currentCurrency, onCurrencyChange, theme }) => {
+const CurrencySelector = ({
+  currentCurrency,
+  onCurrencyChange,
+  theme,
+  darkModeType,
+}) => {
   const { t } = useTranslation();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
 
   const currencyOptions = fiatCurrencies
     .sort((a, b) => a.id.localeCompare(b.id))
@@ -97,29 +100,27 @@ const CurrencySelector = ({ currentCurrency, onCurrencyChange, theme }) => {
         styles={styles.sectionCardLabel}
         content={t('settings.posPath.settings.displayCurrencyDesc')}
       />
-      <View style={[styles.sectionCard, { backgroundColor: backgroundOffset }]}>
-        <DropdownMenu
-          options={currencyOptions}
-          selectedValue={selectedCurrencyLabel}
-          onSelect={value => {
-            const selectedOption = currencyOptions.find(
-              opt => opt.label === value.label,
-            );
-            if (selectedOption) {
-              onCurrencyChange(selectedOption.value);
-            }
-          }}
-          dropdownItemCustomStyles={styles.dropdownItemStyles}
-          placeholder={currentCurrency}
-          showClearIcon={false}
-          showVerticalArrowsAbsolute={true}
-          // globalContainerStyles={styles.dropdownContainer}
-          customButtonStyles={{
-            backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
-          }}
-          translateLabelText={false}
-        />
-      </View>
+      <DropdownMenu
+        options={currencyOptions}
+        selectedValue={selectedCurrencyLabel}
+        onSelect={value => {
+          const selectedOption = currencyOptions.find(
+            opt => opt.label === value.label,
+          );
+          if (selectedOption) {
+            onCurrencyChange(selectedOption.value);
+          }
+        }}
+        dropdownItemCustomStyles={styles.dropdownItemStyles}
+        placeholder={currentCurrency}
+        showClearIcon={false}
+        showVerticalArrowsAbsolute={true}
+        // globalContainerStyles={styles.dropdownContainer}
+        customButtonStyles={{
+          backgroundColor: backgroundOffset,
+        }}
+        translateLabelText={false}
+      />
     </View>
   );
 };
@@ -380,6 +381,7 @@ export default function PosSettingsPage() {
           currentCurrency={currentCurrency}
           onCurrencyChange={handleCurrencyChange}
           theme={theme}
+          darkModeType={darkModeType}
         />
         <ItemsSection
           itemCount={posItemsList.length}
@@ -453,7 +455,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   inputContainer: {
-    marginTop: 8,
     borderRadius: 8,
   },
   dropdownContainer: {

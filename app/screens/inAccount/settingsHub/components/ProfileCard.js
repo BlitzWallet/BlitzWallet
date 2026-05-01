@@ -140,7 +140,6 @@ export default function ProfileCard({
       >
         <CustomButton
           buttonStyles={[
-            styles.actionButton,
             { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
             shouldStack ? styles.buttonStacked : styles.buttonColumn,
           ]}
@@ -155,7 +154,6 @@ export default function ProfileCard({
 
         <CustomButton
           buttonStyles={[
-            styles.actionButton,
             { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
             shouldStack ? styles.buttonStacked : styles.buttonColumn,
           ]}
@@ -173,61 +171,6 @@ export default function ProfileCard({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    width: '100%',
-    borderRadius: 16,
-    padding: 16,
-  },
-  rowContainer: {
-    flexDirection: 'row',
-  },
-  topRow: {
-    width: '100%',
-    flexShrink: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  avatarContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  infoContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  name: {
-    fontSize: SIZES.medium,
-    fontWeight: '500',
-    includeFontPadding: false,
-  },
-  username: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    includeFontPadding: false,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    marginTop: 12,
-    gap: 8,
-  },
-  actionButton: {
-    width: 40,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  shareButton: {
-    width: 35,
-    height: 35,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   buttonContainer: {
     width: '100%',
     gap: 10,
@@ -242,20 +185,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },
-  button: {
-    minHeight: 50,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   buttonColumn: {
     flex: 1,
   },
   buttonStacked: {
     width: '100%',
   },
-  buttonImage: { width: 20, height: 20, marginRight: 15 },
   profileImage: {
     width: '100%',
     height: '100%',
@@ -267,18 +202,6 @@ const styles = StyleSheet.create({
     // marginBottom: 15,
     // marginTop: 20,
     overflow: 'hidden',
-  },
-  selectFromPhotos: {
-    width: 30,
-    height: 30,
-    borderRadius: 20,
-    backgroundColor: COLORS.darkModeText,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    right: 8,
-    bottom: 8,
-    zIndex: 2,
   },
   profileContainer: {
     width: '100%',

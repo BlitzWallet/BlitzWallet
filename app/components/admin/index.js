@@ -1,7 +1,6 @@
 import { ConfirmLeaveChatGPT } from './homeComponents/apps';
 import AddChatGPTCredits from './homeComponents/apps/chatGPT/addCreditsPage';
 import CameraModal from './homeComponents/cameraModal';
-import ClipboardCopyPopup from './homeComponents/confirmClipboard';
 import {
   ContactsPage,
   EditMyProfilePage,
@@ -60,7 +59,6 @@ export {
   SendRecieveBTNs,
   UserSatAmount,
   PinPage,
-  ClipboardCopyPopup,
   HalfModalSendOptions,
   HalfModalReceiveOptions,
   ExpandedContactsPage,

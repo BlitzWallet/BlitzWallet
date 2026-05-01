@@ -225,7 +225,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   logoContainer: {
-    marginTop: 10,
     borderRadius: 8,
     padding: 16,
   },

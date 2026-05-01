@@ -1,7 +1,6 @@
 import {
   AddOrDeleteContactImage,
   CameraModal,
-  ClipboardCopyPopup,
   ContactsPageLongPressActions,
   EditReceivePaymentInformation,
   ErrorScreen,
@@ -28,7 +27,6 @@ import HistoricalSMSMessagingPage from '../app/components/admin/homeComponents/a
 import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
   AddFriendsToSplit,
-  ChooseContactHalfModal,
   CreateSplitBill,
   EditMyProfilePage,
   ExpandedAddContactsPage,
@@ -60,7 +58,6 @@ import Nip5VerificationPage from '../app/components/admin/homeComponents/setting
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
-import SparkSettingsPage from '../app/components/admin/homeComponents/settingsContent/sparkLrc20';
 import RoostockSwapInfo from '../app/components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
@@ -102,11 +99,9 @@ import {
   SettingsIndex,
   TechnicalTransactionDetails,
   ViewAllTxPage,
-  SwapsPage,
   SettingsHub,
   AnalyticsPage,
 } from '../app/screens/inAccount';
-import ConversionHistory from '../app/components/admin/homeComponents/swaps/swapHistory';
 import GiftsPageHome from '../app/screens/inAccount/giftsHome';
 import ReclaimGift from '../app/components/admin/homeComponents/gifts/reclaimGift';
 import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
@@ -137,8 +132,6 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CameraModal', component: CameraModal },
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },
   { name: 'ShowProfileQr', component: ShowProfileQr },
-  { name: 'SwapsPage', component: SwapsPage },
-  { name: 'ConversionHistory', component: ConversionHistory },
   { name: 'ViewContributor', component: ViewContibutors },
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
@@ -149,9 +142,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   },
   { name: 'SettingsIndex', component: SettingsIndex },
   { name: 'SettingsHome', component: SettingsHub },
-  { name: 'ShowProfileQrSlideRight', component: ShowProfileQr },
   // {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
-  { name: 'ChooseContactHalfModal', component: ChooseContactHalfModal },
   { name: 'SettingsContentHome', component: SettingsContentIndex },
   {
     name: 'ConfirmPaymentScreen',
@@ -200,7 +191,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'NosterWalletConnect', component: NosterWalletConnect },
   { name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount },
   // {name: 'NWCWallet', component: NWCWallet},
-  { name: 'SparkSettingsPage', component: SparkSettingsPage },
   { name: 'Nip5VerificationPage', component: Nip5VerificationPage },
   { name: 'SelectGiftCardForContacts', component: SelectGiftCardForContacts },
   { name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage },
@@ -250,7 +240,6 @@ const FADE_SCREENS = [
   { name: 'CustomHalfModal', component: CustomHalfModal },
   { name: 'ConfirmActionPage', component: ConfirmActionPage },
   { name: 'ConfirmLeaveChatGPT', component: ConfirmLeaveChatGPT },
-  { name: 'ClipboardCopyPopup', component: ClipboardCopyPopup },
   { name: 'ErrorScreen', component: ErrorScreen },
   { name: 'SparkErrorScreen', component: SparkErrorScreen },
   // {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},

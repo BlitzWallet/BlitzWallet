@@ -2338,7 +2338,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   transactionRow: {
-    width: WINDOWWIDTH,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
