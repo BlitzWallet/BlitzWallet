@@ -2285,7 +2285,9 @@
         "chooseCurrencyTitle": "Choose the currency to swap from",
         "enterAmountTitle": "Enter the amount to swap.",
         "noContentTitle": "No balance available",
-        "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin."
+        "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin.",
+        "insufficientBTCToSwap": "A Bitcoin balance of at least {{amount}} is required to swap from Bitcoin.",
+        "insufficientUSDToSwap": "A Dollar balance of at least {{amount}} is required to swap from Dollars."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",

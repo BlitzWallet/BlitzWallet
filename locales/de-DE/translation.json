@@ -2285,6 +2285,8 @@
         "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten",
         "noContentTitle": "Kein Guthaben verfügbar",
         "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",
+        "insufficientBTCToSwap": "Ein BTC-Guthaben von mindestens {{amount}} ist erforderlich, um von BTC zu tauschen.",
+        "insufficientUSDToSwap": "Ein USD-Guthaben von mindestens {{amount}} ist erforderlich, um von USD zu tauschen.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
