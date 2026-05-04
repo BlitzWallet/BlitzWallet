@@ -2285,6 +2285,8 @@
         "enterAmountTitle": "Inserisci l’importo da scambiare.",
         "noContentTitle": "Nessun saldo disponibile",
         "noContentSubTittle": "Aggiungi fondi al tuo wallet per iniziare a scambiare tra dollari e Bitcoin.",
+        "insufficientBTCToSwap": "È necessario un saldo Bitcoin di almeno {{amount}} per scambiare da Bitcoin.",
+        "insufficientUSDToSwap": "È necessario un saldo in dollari di almeno {{amount}} per scambiare da dollari.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {

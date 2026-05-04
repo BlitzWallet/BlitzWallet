@@ -73,7 +73,6 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { getTimeDisplay } from '../../../../functions/contacts';
 import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
@@ -1151,173 +1150,215 @@ export default function SwapFlowHalfModal({
 
               {!isLoadingPool && poolInfo && (
                 <>
-                  <ThemeText
-                    styles={styles.stepTitle}
-                    content={t(
-                      'screens.inAccount.swapsPage.chooseCurrencyTitle',
-                    )}
-                  />
+                  {!bitcoinBalanceIsAboveSwapLimit &&
+                  !dollarBalanceIsAboveSwapLimit ? (
+                    <NoContentSceen
+                      iconName="Wallet"
+                      titleText={t(
+                        'screens.inAccount.swapsPage.noContentTitle',
+                      )}
+                      subTitleText={t(
+                        'screens.inAccount.swapsPage.noContentSubTittle',
+                      )}
+                    />
+                  ) : (
+                    <>
+                      <ThemeText
+                        styles={styles.stepTitle}
+                        content={t(
+                          'screens.inAccount.swapsPage.chooseCurrencyTitle',
+                        )}
+                      />
 
-                  {/* BTC selection card */}
-                  <TouchableOpacity
-                    onPress={() => handleSelectFromAsset('BTC')}
-                    activeOpacity={0.7}
-                    disabled={!bitcoinBalanceIsAboveSwapLimit}
-                    style={[
-                      styles.selectionCard,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : backgroundOffset,
-                        opacity: bitcoinBalanceIsAboveSwapLimit
-                          ? 1
-                          : HIDDEN_OPACITY,
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.selectionIconContainer,
-                        {
-                          backgroundColor:
-                            theme && darkModeType
-                              ? backgroundOffset
-                              : COLORS.bitcoinOrange,
-                        },
-                      ]}
-                    >
-                      <ThemeImage
-                        styles={{ width: 25, height: 25 }}
-                        lightModeIcon={ICONS.bitcoinIcon}
-                        darkModeIcon={ICONS.bitcoinIcon}
-                        lightsOutIcon={ICONS.bitcoinIcon}
-                      />
-                    </View>
-                    <View style={styles.selectionTextContainer}>
-                      <ThemeText
-                        styles={styles.selectionAssetName}
-                        content={t('constants.bitcoin_upper')}
-                      />
-                      <ThemeText
-                        styles={styles.selectionBalance}
-                        content={displayCorrectDenomination({
-                          amount: btcBalance,
-                          masterInfoObject: {
-                            ...masterInfoObject,
-                            userBalanceDenomination: 'sats',
+                      {/* BTC selection card */}
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (!bitcoinBalanceIsAboveSwapLimit) {
+                            navigate.navigate('InformationPopup', {
+                              textContent: t(
+                                'screens.inAccount.swapsPage.insufficientBTCToSwap',
+                                {
+                                  amount: displayCorrectDenomination({
+                                    amount: swapLimits.bitcoin,
+                                    masterInfoObject: {
+                                      ...masterInfoObject,
+                                      userBalanceDenomination: 'sats',
+                                    },
+                                    fiatStats,
+                                  }),
+                                },
+                              ),
+                              buttonText: t('constants.iunderstand'),
+                            });
+                            return;
+                          }
+                          handleSelectFromAsset('BTC');
+                          navigateToStep('amountInput', 'forward');
+                        }}
+                        activeOpacity={0.7}
+                        style={[
+                          styles.selectionCard,
+                          {
+                            backgroundColor:
+                              theme && darkModeType
+                                ? backgroundColor
+                                : backgroundOffset,
+                            opacity: bitcoinBalanceIsAboveSwapLimit
+                              ? 1
+                              : HIDDEN_OPACITY,
                           },
-                          fiatStats,
-                          convertAmount: true,
-                          forceCurrency: 'USD',
-                        })}
-                      />
-                    </View>
-                    <CheckMarkCircle
-                      isActive={fromAsset === 'BTC'}
-                      containerSize={25}
-                      switchDarkMode={theme && !darkModeType}
-                    />
-                  </TouchableOpacity>
+                        ]}
+                      >
+                        <View style={styles.selectionLeft}>
+                          <View
+                            style={[
+                              styles.selectionIconContainer,
+                              {
+                                backgroundColor:
+                                  theme && darkModeType
+                                    ? backgroundOffset
+                                    : COLORS.bitcoinOrange,
+                              },
+                            ]}
+                          >
+                            <ThemeImage
+                              styles={{ width: 25, height: 25 }}
+                              lightModeIcon={ICONS.bitcoinIcon}
+                              darkModeIcon={ICONS.bitcoinIcon}
+                              lightsOutIcon={ICONS.bitcoinIcon}
+                            />
+                          </View>
+                          <View style={styles.selectionTextContainer}>
+                            <ThemeText
+                              styles={styles.selectionAssetName}
+                              content={t('constants.bitcoin_upper')}
+                            />
+                            <ThemeText
+                              styles={styles.selectionBalance}
+                              content={displayCorrectDenomination({
+                                amount: btcBalance,
+                                masterInfoObject: {
+                                  ...masterInfoObject,
+                                  userBalanceDenomination: 'sats',
+                                },
+                                fiatStats,
+                                convertAmount: true,
+                                forceCurrency: 'USD',
+                              })}
+                            />
+                          </View>
+                        </View>
+                        <ThemeIcon iconName="ChevronRight" size={16} />
+                      </TouchableOpacity>
 
-                  {/* USD selection card */}
-                  <TouchableOpacity
-                    onPress={() => handleSelectFromAsset('USD')}
-                    activeOpacity={0.7}
-                    disabled={!dollarBalanceIsAboveSwapLimit}
-                    style={[
-                      styles.selectionCard,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : backgroundOffset,
-                        opacity: dollarBalanceIsAboveSwapLimit
-                          ? 1
-                          : HIDDEN_OPACITY,
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.selectionIconContainer,
-                        {
-                          backgroundColor:
-                            theme && darkModeType
-                              ? backgroundOffset
-                              : COLORS.dollarGreen,
-                        },
-                      ]}
-                    >
-                      <ThemeImage
-                        styles={{ width: 25, height: 25 }}
-                        lightModeIcon={ICONS.dollarIcon}
-                        darkModeIcon={ICONS.dollarIcon}
-                        lightsOutIcon={ICONS.dollarIcon}
-                      />
-                    </View>
-                    <View style={styles.selectionTextContainer}>
-                      <ThemeText
-                        styles={styles.selectionAssetName}
-                        content={t('constants.dollars_upper')}
-                      />
-                      <ThemeText
-                        styles={styles.selectionBalance}
-                        content={displayCorrectDenomination({
-                          amount: formatBalanceAmount(
-                            dollarBalanceToken,
-                            false,
-                            masterInfoObject,
-                          ),
-                          masterInfoObject: {
-                            ...masterInfoObject,
-                            userBalanceDenomination: 'fiat',
+                      {/* USD selection card */}
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (!dollarBalanceIsAboveSwapLimit) {
+                            navigate.navigate('InformationPopup', {
+                              textContent: t(
+                                'screens.inAccount.swapsPage.insufficientUSDToSwap',
+                                {
+                                  amount: displayCorrectDenomination({
+                                    amount: formatBalanceAmount(
+                                      swapLimits.usd,
+                                      false,
+                                      masterInfoObject,
+                                    ),
+                                    masterInfoObject: {
+                                      ...masterInfoObject,
+                                      userBalanceDenomination: 'fiat',
+                                    },
+                                    forceCurrency: 'USD',
+                                    convertAmount: false,
+                                  }),
+                                },
+                              ),
+                              buttonText: t('constants.iunderstand'),
+                            });
+                            return;
+                          }
+                          handleSelectFromAsset('USD');
+                          navigateToStep('amountInput', 'forward');
+                        }}
+                        activeOpacity={0.7}
+                        style={[
+                          styles.selectionCard,
+                          {
+                            backgroundColor:
+                              theme && darkModeType
+                                ? backgroundColor
+                                : backgroundOffset,
+                            opacity: dollarBalanceIsAboveSwapLimit
+                              ? 1
+                              : HIDDEN_OPACITY,
                           },
-                          forceCurrency: 'USD',
-                          convertAmount: false,
-                        })}
-                      />
-                    </View>
-                    <CheckMarkCircle
-                      isActive={fromAsset === 'USD'}
-                      containerSize={25}
-                    />
-                  </TouchableOpacity>
+                        ]}
+                      >
+                        <View style={styles.selectionLeft}>
+                          <View
+                            style={[
+                              styles.selectionIconContainer,
+                              {
+                                backgroundColor:
+                                  theme && darkModeType
+                                    ? backgroundOffset
+                                    : COLORS.dollarGreen,
+                              },
+                            ]}
+                          >
+                            <ThemeImage
+                              styles={{ width: 25, height: 25 }}
+                              lightModeIcon={ICONS.dollarIcon}
+                              darkModeIcon={ICONS.dollarIcon}
+                              lightsOutIcon={ICONS.dollarIcon}
+                            />
+                          </View>
+                          <View style={styles.selectionTextContainer}>
+                            <ThemeText
+                              styles={styles.selectionAssetName}
+                              content={t('constants.dollars_upper')}
+                            />
+                            <ThemeText
+                              styles={styles.selectionBalance}
+                              content={displayCorrectDenomination({
+                                amount: formatBalanceAmount(
+                                  dollarBalanceToken,
+                                  false,
+                                  masterInfoObject,
+                                ),
+                                masterInfoObject: {
+                                  ...masterInfoObject,
+                                  userBalanceDenomination: 'fiat',
+                                },
+                                forceCurrency: 'USD',
+                                convertAmount: false,
+                              })}
+                            />
+                          </View>
+                        </View>
+                        <ThemeIcon iconName="ChevronRight" size={16} />
+                      </TouchableOpacity>
 
-                  <View style={{ marginTop: 'auto' }} />
+                      <View style={{ marginTop: 'auto' }} />
 
-                  <TouchableOpacity
-                    style={styles.historyButton}
-                    onPress={() => navigateToStep('historyExpanded', 'forward')}
-                    activeOpacity={0.7}
-                  >
-                    <ThemeIcon size={18} iconName={'History'} />
-                    <ThemeText
-                      styles={styles.historyButtonText}
-                      content={t('screens.inAccount.swapHistory.pageTitle')}
-                    />
-                  </TouchableOpacity>
-
-                  <CustomButton
-                    buttonStyles={{
-                      ...CENTER,
-                      marginTop: 12,
-                      opacity:
-                        !bitcoinBalanceIsAboveSwapLimit &&
-                        !dollarBalanceIsAboveSwapLimit
-                          ? HIDDEN_OPACITY
-                          : 1,
-                    }}
-                    textContent={t('constants.continue')}
-                    actionFunction={() => {
-                      if (
-                        !bitcoinBalanceIsAboveSwapLimit &&
-                        !dollarBalanceIsAboveSwapLimit
-                      )
-                        return;
-                      navigateToStep('amountInput', 'forward');
-                    }}
-                  />
+                      <TouchableOpacity
+                        style={styles.historyButton}
+                        onPress={() =>
+                          navigateToStep('historyExpanded', 'forward')
+                        }
+                        activeOpacity={0.7}
+                      >
+                        <ThemeIcon size={18} iconName={'History'} />
+                        <ThemeText
+                          styles={styles.historyButtonText}
+                          content={t(
+                            'screens.inAccount.swapHistory.pageTitle',
+                          )}
+                        />
+                      </TouchableOpacity>
+                    </>
+                  )}
                 </>
               )}
             </View>
@@ -2431,8 +2472,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  selectionTextContainer: {
+  selectionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
+  },
+  selectionTextContainer: {
     marginLeft: 14,
   },
   selectionAssetName: {

@@ -2285,6 +2285,8 @@
         "enterAmountTitle": "Entrez le montant à échanger.",
         "noContentTitle": "Aucun solde disponible",
         "noContentSubTittle": "Ajoutez des fonds à votre portefeuille pour commencer à échanger entre dollars et Bitcoin.",
+        "insufficientBTCToSwap": "Un solde Bitcoin d'au moins {{amount}} est requis pour échanger depuis Bitcoin.",
+        "insufficientUSDToSwap": "Un solde en dollars d'au moins {{amount}} est requis pour échanger depuis les dollars.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
