@@ -48,6 +48,7 @@ export default function EditProfileTextInput({
   showInfoIcon = false,
   onInfoPress,
   containerStyle,
+  showDivider = false,
 }) {
   const isOverLimit = value.length >= maxLength;
   const characterCountColor = isOverLimit
@@ -60,32 +61,33 @@ export default function EditProfileTextInput({
     ? theme && darkModeType
       ? textInputColor
       : COLORS.cancelRed
-    : textInputColor;
+    : textColor;
 
   return (
     <TouchableOpacity
-      style={[styles.textInputContainer, containerStyle]}
+      style={[styles.container, containerStyle]}
       activeOpacity={1}
-      onPress={() => {
-        inputRef?.current?.focus();
-      }}
+      onPress={() => inputRef?.current?.focus()}
     >
-      {showInfoIcon ? (
-        <TouchableOpacity onPress={onInfoPress} style={styles.usernameRow}>
-          <ThemeText
-            styles={styles.textInputContainerDescriptionText}
-            content={label}
-          />
-          <View onPress={onInfoPress}>
-            <ThemeIcon size={20} styles={styles.infoIcon} iconName={'Info'} />
-          </View>
-        </TouchableOpacity>
-      ) : (
+      <View style={styles.labelRow}>
+        <View style={styles.labelLeft}>
+          <ThemeText styles={styles.label} content={label} />
+          {showInfoIcon && (
+            <TouchableOpacity onPress={onInfoPress} style={styles.infoIconWrap}>
+              <ThemeIcon size={14} iconName="Info" />
+            </TouchableOpacity>
+          )}
+        </View>
         <ThemeText
-          styles={styles.textInputContainerDescriptionText}
-          content={label}
+          styles={{
+            fontSize: SIZES.xSmall,
+            includeFontPadding: false,
+            color: characterCountColor,
+            opacity: isOverLimit ? 1 : 0.45,
+          }}
+          content={`${value.length} / ${maxLength}`}
         />
-      )}
+      </View>
 
       <TextInput
         keyboardAppearance={theme ? 'dark' : 'light'}
@@ -101,11 +103,7 @@ export default function EditProfileTextInput({
         textAlignVertical={multiline ? 'top' : 'center'}
         style={[
           styles.textInput,
-          {
-            backgroundColor: textInputBackground,
-            color: inputTextColor,
-            marginTop: showInfoIcon ? 0 : 8,
-          },
+          { color: inputTextColor },
           multiline && {
             minHeight: minHeight || 60,
             maxHeight: maxHeight || 100,
@@ -117,45 +115,53 @@ export default function EditProfileTextInput({
         onFocus={onFocus}
       />
 
-      <ThemeText
-        styles={{
-          textAlign: 'right',
-          color: characterCountColor,
-        }}
-        content={`${value.length} / ${maxLength}`}
-      />
+      {showDivider && (
+        <View style={[styles.divider, { backgroundColor: textColor }]} />
+      )}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  textInputContainer: {
+  container: {
     width: '100%',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
-  textInputContainerDescriptionText: {
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  labelLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  label: {
+    fontSize: SIZES.small,
     includeFontPadding: false,
+    opacity: 0.55,
+  },
+  infoIconWrap: {
+    marginLeft: 2,
+    opacity: 0.55,
   },
   textInput: {
     fontSize: SIZES.medium,
-    paddingTop: 15,
-    paddingBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    borderRadius: 8,
-    marginBottom: 10,
+    backgroundColor: 'transparent',
+    padding: 0,
   },
-  usernameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    paddingRight: 10,
-    paddingVertical: 8,
-  },
-  infoIcon: {
-    width: 20,
-    height: 20,
-    marginLeft: 5,
+  divider: {
+    position: 'absolute',
+    bottom: 0,
+    left: 16,
+    right: 16,
+    height: StyleSheet.hairlineWidth,
+    opacity: 0.15,
   },
 });

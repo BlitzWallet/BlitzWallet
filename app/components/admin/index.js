@@ -4,6 +4,7 @@ import CameraModal from './homeComponents/cameraModal';
 import {
   ContactsPage,
   EditMyProfilePage,
+  EditProfileFieldPage,
   ExpandedContactsPage,
   // MyContactProfilePage,
   SendAndRequestPage,
@@ -63,6 +64,7 @@ export {
   HalfModalReceiveOptions,
   ExpandedContactsPage,
   EditMyProfilePage,
+  EditProfileFieldPage,
   // MyContactProfilePage,
   SendAndRequestPage,
   ErrorScreen,
