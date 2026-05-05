@@ -262,7 +262,6 @@ export default async function decodeSendAddress(props) {
         liquidNodeInformation,
         masterInfoObject,
         navigate,
-        goBackFunction,
         // maxZeroConf,
         comingFromAccept,
         enteredPaymentInfo,
