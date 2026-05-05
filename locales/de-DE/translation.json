@@ -1246,7 +1246,17 @@
       "usernameAlreadyExistsError": "Dieser Benutzername existiert bereits, bitte wählen Sie einen anderen.",
       "unableToSaveError": "Profilbild konnte nicht gespeichert werden, bitte versuchen Sie es erneut.",
       "deleteProfileImageError": "Profilbild konnte nicht gelöscht werden, bitte versuchen Sie es erneut.",
-      "deleteWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden."
+      "deleteWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden.",
+      "receiveCurrencyPillTitle": "Empfangswährung",
+      "receiveCurrencyPillDesc": "Legen Sie fest, wie Sie über Ihre Lightning-Adresse Zahlungen empfangen",
+      "invalidCharactersError": "Name und Bio dürfen die Zeichen < > { } ` \\ nicht enthalten",
+      "invalidReceiveAddressError": "Bitte geben Sie eine gültige Lightning-Adresse ein (z. B. benutzer@domain.com)",
+      "aboutYou": "Über dich"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Empfangswährung",
+      "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen",
+      "warningMessage": "Alle zukünftigen Zahlungsanforderungen werden in der ausgewählten Währung empfangen."
     },
     "selectCurrencyToSend": {
       "header": "Wie möchten Sie senden?"
@@ -1361,6 +1371,11 @@
         "noDescription": "Bitte fügen Sie eine Beschreibung hinzu.",
         "noContactsSelected": "Bitte wählen Sie mindestens einen weiteren Kontakt aus"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Ihr Anzeigename ist der Name, unter dem andere Sie sehen. Er kann jederzeit geändert werden.",
+      "uniquenameDescription": "Wenn Sie Ihren Benutzernamen ändern, ändert sich auch Ihre Lightning-Adresse. Zahlungen an Ihren alten Benutzernamen gehen verloren.",
+      "bioDescription": "Ihre Bio ist eine kurze Beschreibung, damit andere Sie besser kennenlernen können."
     }
   },
   "settings": {
@@ -2000,6 +2015,7 @@
         "about": "Über uns",
         "language": "Spracheinstellung",
         "display currency": "Standardwährung",
+        "receive currency": "Lightning-Adresse",
         "display options": "Anzeige & Layout",
         "edit contact profile": "Kontaktprofil bearbeiten",
         "view all swaps": "Netzwerk-Einstellungen",
@@ -2024,6 +2040,10 @@
         "point-of-sale": "Zahlungsterminal (POS)",
         "pools": "Sparpool",
         "show seed phrase": "Seed-Phrase sichern"
+      },
+      "remotePayments": {
+        "lnAddress": "Lightning-Adresse",
+        "lnurlPageDesc": "Ihre Lightning-Adresse ermöglicht es jedem, Sie zu bezahlen, ohne dass eine Rechnung nötig ist."
       },
       "technicalTransactionDetails": {
         "txHash": "Transaktions-Hash",
