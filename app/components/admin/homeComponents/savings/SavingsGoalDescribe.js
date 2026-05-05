@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import {
@@ -8,7 +8,7 @@ import {
 } from '../../../../functions/CustomElements';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
   keyboardGoBack,
@@ -28,11 +28,6 @@ export default function SavingsGoalDescribe(props) {
   const [goalName, setGoalName] = useState('');
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor } = GetThemeColors();
-
-  useEffect(() => {
-    const timer = setTimeout(() => inputRef.current?.focus(), 300);
-    return () => clearTimeout(timer);
-  }, []);
 
   useFocusEffect(
     useCallback(() => {

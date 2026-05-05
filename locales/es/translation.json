@@ -1251,12 +1251,13 @@
       "receiveCurrencyPillDesc": "Configura cómo recibes pagos mediante tu dirección Lightning",
       "invalidCharactersError": "El nombre y la biografía no pueden contener los caracteres < > { } ` \\",
       "invalidReceiveAddressError": "Introduce una dirección Lightning válida (p. ej., usuario@dominio.com)",
-      "aboutYou": "Sobre ti"
+      "aboutYou": "Sobre ti",
+      "lightningAddress": "Dirección Lightning"
     },
     "remotePaymentCurrencySelect": {
       "title": "Moneda de recepción",
       "futurePaymentsMessage": "Todos los pagos futuros se recibirán en {{option}}",
-      "warningMessage": "Todas las futuras solicitudes de pago se recibirán en la moneda seleccionada."
+      "warningMessage": "Al seleccionar {{option}}, hay un mínimo de {{amount}}. Los pagos más pequeños se recibirán en Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "¿Qué deseas enviar?"

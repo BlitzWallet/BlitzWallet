@@ -10,6 +10,8 @@ import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useTranslation } from 'react-i18next';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
 
 export default function LnurlReceiveCurrencySelect({
   handleBackPressFunction,
@@ -17,6 +19,7 @@ export default function LnurlReceiveCurrencySelect({
 }) {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
@@ -62,9 +65,7 @@ export default function LnurlReceiveCurrencySelect({
               {
                 backgroundColor:
                   theme && darkModeType
-                    ? darkModeType
-                      ? backgroundOffset
-                      : backgroundOffset
+                    ? backgroundOffset
                     : COLORS.bitcoinOrange,
               },
             ]}
@@ -109,11 +110,7 @@ export default function LnurlReceiveCurrencySelect({
               styles.iconContainer,
               {
                 backgroundColor:
-                  theme && darkModeType
-                    ? darkModeType
-                      ? backgroundOffset
-                      : backgroundOffset
-                    : COLORS.dollarGreen,
+                  theme && darkModeType ? backgroundOffset : COLORS.dollarGreen,
               },
             ]}
           >
@@ -149,7 +146,17 @@ export default function LnurlReceiveCurrencySelect({
 
       <ThemeText
         styles={styles.footnote}
-        content={t('contacts.remotePaymentCurrencySelect.warningMessage')}
+        content={t('contacts.remotePaymentCurrencySelect.warningMessage', {
+          option: t('constants.dollars_upper'),
+          amount: displayCorrectDenomination({
+            amount: 2000,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: 'sats',
+            },
+            fiatStats,
+          }),
+        })}
       />
     </View>
   );

@@ -1252,12 +1252,13 @@
       "receiveCurrencyPillDesc": "Настройте, как вы будете получать платежи через адрес Молнии",
       "invalidCharactersError": "Имя и био не могут содержать символы < > { } ` \\",
       "invalidReceiveAddressError": "Введите корректный адрес Молнии (например, user@domain.com)",
-      "aboutYou": "О вас"
+      "aboutYou": "О вас",
+      "lightningAddress": "Lightning-адрес"
     },
     "remotePaymentCurrencySelect": {
       "title": "Валюта получения",
       "futurePaymentsMessage": "Все будущие платежи будут получены в {{option}}",
-      "warningMessage": "Все будущие запросы на оплату будут приниматься в выбранной валюте."
+      "warningMessage": "При выборе {{option}} действует минимальная сумма {{amount}}. Более мелкие платежи будут получены в Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "Что вы хотите отправить?"

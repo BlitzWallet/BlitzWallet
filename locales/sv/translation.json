@@ -1251,12 +1251,13 @@
       "receiveCurrencyPillDesc": "Ställ in hur du tar emot via din Lightning-adress",
       "invalidCharactersError": "Namn och bio får inte innehålla tecknen < > { } ` \\",
       "invalidReceiveAddressError": "Ange en giltig Lightning-adress (t.ex. användare@domän.com)",
-      "aboutYou": "Om dig"
+      "aboutYou": "Om dig",
+      "lightningAddress": "Lightning-adress"
     },
     "remotePaymentCurrencySelect": {
       "title": "Mottagningsvaluta",
       "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
-      "warningMessage": "Alla framtida betalningsförfrågningar kommer att tas emot i den valda valutan."
+      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"

@@ -249,7 +249,9 @@ function MyProfileRows({
   t,
 }) {
   const receiveCurrencyValue =
-    masterInfoObject.lnurlReceiveCurrency === 'usd' ? 'USD' : 'BTC';
+    masterInfoObject.lnurlReceiveCurrency === 'usd'
+      ? t('constants.dollars_upper')
+      : t('constants.bitcoin_upper');
 
   return (
     <View
@@ -266,7 +268,11 @@ function MyProfileRows({
         }
         style={styles.navRow}
       >
-        <ThemeText styles={styles.navRowValue} content="Name" />
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.navRowValue}
+          content={t('contacts.editMyProfilePage.nameInputDesc')}
+        />
         <ThemeText
           styles={styles.navRowLabel}
           content={myContact?.name || t('contacts.splitBill.noName')}
@@ -286,7 +292,11 @@ function MyProfileRows({
         }
         style={styles.navRow}
       >
-        <ThemeText styles={styles.navRowValue} content="Username" />
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.navRowValue}
+          content={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
+        />
         <ThemeText
           styles={styles.navRowLabel}
           content={myContact?.uniqueName || ''}
@@ -306,7 +316,11 @@ function MyProfileRows({
         }
         style={styles.navRow}
       >
-        <ThemeText styles={styles.navRowValue} content="Bio" />
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.navRowValue}
+          content={t('contacts.editMyProfilePage.bioInputDesc')}
+        />
         <ThemeText
           styles={styles.navRowLabel}
           content={myContact?.bio || t('constants.noBioSet')}
@@ -328,7 +342,11 @@ function MyProfileRows({
         }
         style={styles.navRow}
       >
-        <ThemeText styles={styles.navRowValue} content="Lightning Address" />
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.navRowValue}
+          content={t('contacts.editMyProfilePage.lightningAddress')}
+        />
         <ThemeText styles={styles.navRowLabel} content={receiveCurrencyValue} />
         <ThemeIcon iconName="ChevronRight" size={16} />
       </TouchableOpacity>
@@ -961,6 +979,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     includeFontPadding: false,
     marginRight: 'auto',
+    flexShrink: 1,
   },
   copyLinkRow: {
     paddingVertical: 8,
