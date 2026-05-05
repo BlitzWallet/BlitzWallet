@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import {
@@ -8,7 +8,7 @@ import {
 } from '../../../../functions/CustomElements';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
   keyboardGoBack,
@@ -22,11 +22,19 @@ export default function SavingsGoalDescribe(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const inputRef = useRef(null);
   const emoji = props?.route?.params?.emoji || '🎯';
 
   const [goalName, setGoalName] = useState('');
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor } = GetThemeColors();
+
+  useFocusEffect(
+    useCallback(() => {
+      const timer = setTimeout(() => inputRef.current?.focus(), 300);
+      return () => clearTimeout(timer);
+    }, []),
+  );
 
   const isOverLimit = goalName.length >= 50;
   const characterCountColor = isOverLimit
@@ -54,6 +62,7 @@ export default function SavingsGoalDescribe(props) {
           />
 
           <CustomSearchInput
+            textInputRef={inputRef}
             containerStyles={styles.inputWrap}
             placeholderText={t('savings.goalDescribe.placeholder')}
             setInputText={setGoalName}

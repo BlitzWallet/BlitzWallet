@@ -26,6 +26,7 @@ export default function CustomSearchInput({
   autoCapitalize = 'none',
   editable = true,
   autoFocus = false,
+  returnKeyType = 'default',
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
@@ -139,6 +140,7 @@ export default function CustomSearchInput({
         autoCapitalize={autoCapitalize}
         autoCorrect={false}
         editable={editable}
+        returnKeyType={returnKeyType}
       />
       {buttonComponent && buttonComponent}
     </View>

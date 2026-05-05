@@ -1246,7 +1246,18 @@
       "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
       "unableToSaveError": "Não foi possível salvar a imagem do perfil, tente novamente.",
       "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
-      "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
+      "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas.",
+      "receiveCurrencyPillTitle": "Moeda de recebimento",
+      "receiveCurrencyPillDesc": "Defina como você recebe pelo seu endereço Lightning",
+      "invalidCharactersError": "O nome e a bio não podem conter os caracteres < > { } ` \\",
+      "invalidReceiveAddressError": "Digite um endereço Lightning válido (ex.: usuario@dominio.com)",
+      "aboutYou": "Sobre você",
+      "lightningAddress": "Endereço Lightning"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Moeda de recebimento",
+      "futurePaymentsMessage": "Todos os pagamentos futuros serão recebidos em {{option}}",
+      "warningMessage": "Ao selecionar {{option}}, há um mínimo de {{amount}}. Pagamentos menores serão recebidos em Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "O que você deseja enviar?"
@@ -1361,6 +1372,11 @@
         "noDescription": "Adicione uma descrição.",
         "noContactsSelected": "Selecione pelo menos um contato"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Seu nome de exibição é como as outras pessoas veem você. Ele pode ser alterado a qualquer momento.",
+      "uniquenameDescription": "Alterar seu nome de usuário também altera seu endereço Lightning. Pagamentos para seu nome de usuário antigo serão perdidos.",
+      "bioDescription": "Sua bio é uma breve descrição para ajudar outras pessoas a conhecer você."
     }
   },
   "settings": {
@@ -2000,6 +2016,7 @@
         "about": "Sobre",
         "language": "Idioma",
         "display currency": "Moeda de exibição",
+        "receive currency": "Endereço Lightning",
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
@@ -2024,6 +2041,10 @@
         "point-of-sale": "Ponto de venda",
         "pools": "Vaquinhas",
         "show seed phrase": "Fazer backup da carteira"
+      },
+      "remotePayments": {
+        "lnAddress": "Endereço Lightning",
+        "lnurlPageDesc": "Seu endereço Lightning permite que qualquer pessoa pague você sem precisar de fatura."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",

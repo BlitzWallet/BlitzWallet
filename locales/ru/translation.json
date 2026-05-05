@@ -1247,7 +1247,18 @@
       "usernameAlreadyExistsError": "Имя занято, выберите другое.",
       "unableToSaveError": "Не удалось сохранить фото.",
       "deleteProfileImageError": "Не удалось удалить фото.",
-      "deleteWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить."
+      "deleteWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить.",
+      "receiveCurrencyPillTitle": "Валюта получения",
+      "receiveCurrencyPillDesc": "Настройте, как вы будете получать платежи через адрес Молнии",
+      "invalidCharactersError": "Имя и био не могут содержать символы < > { } ` \\",
+      "invalidReceiveAddressError": "Введите корректный адрес Молнии (например, user@domain.com)",
+      "aboutYou": "О вас",
+      "lightningAddress": "Lightning-адрес"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Валюта получения",
+      "futurePaymentsMessage": "Все будущие платежи будут получены в {{option}}",
+      "warningMessage": "При выборе {{option}} действует минимальная сумма {{amount}}. Более мелкие платежи будут получены в Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "Что вы хотите отправить?"
@@ -1362,6 +1373,11 @@
         "noDescription": "Добавьте описание.",
         "noContactsSelected": "Выберите хотя бы один контакт"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Ваше отображаемое имя видят другие пользователи. Его можно изменить в любой момент.",
+      "uniquenameDescription": "Изменение юзернейма также изменит ваш адрес Молнии. Платежи на ваш старый юзернейм будут потеряны.",
+      "bioDescription": "Ваше био — это короткое описание, которое помогает другим узнать вас лучше."
     }
   },
   "settings": {
@@ -2001,6 +2017,7 @@
         "about": "О приложении",
         "language": "Язык",
         "display currency": "Валюта",
+        "receive currency": "Адрес Молнии",
         "display options": "Отображение",
         "edit contact profile": "Редактировать профиль",
         "view all swaps": "Сетевые переводы",
@@ -2025,6 +2042,10 @@
         "point-of-sale": "Терминал (POS)",
         "pools": "Пулы",
         "show seed phrase": "Резервное копирование кошелька"
+      },
+      "remotePayments": {
+        "lnAddress": "Адрес Молнии",
+        "lnurlPageDesc": "Ваш адрес Молнии позволяет любому отправить вам платеж без инвойса."
       },
       "technicalTransactionDetails": {
         "txHash": "Хэш транзакции",

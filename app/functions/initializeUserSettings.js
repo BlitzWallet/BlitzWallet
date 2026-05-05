@@ -210,6 +210,7 @@ export default async function initializeUserSettingsFromHistory({
       name: '',
       pubkey: '',
     };
+    const lnurlReceiveCurrency = blitzStoredData.lnurlReceiveCurrency || 'btc';
 
     // let lnurlPubKey = blitzStoredData.lnurlPubKey;
 
@@ -404,6 +405,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['nextAccountDerivationIndex'] = nextAccountDerivationIndex;
     tempObject['currentDerivedPoolIndex'] = currentDerivedPoolIndex;
     tempObject['monthlyBudget'] = monthlyBudget;
+    tempObject['lnurlReceiveCurrency'] = lnurlReceiveCurrency;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

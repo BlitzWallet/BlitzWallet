@@ -17,6 +17,7 @@ const IS_BLITZ_URL_REGEX =
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const VALID_USERNAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
+const VALID_NAME_BIO_REGEX = /^[^<>{}`\\]*$/u;
 
 const IS_SPARK_ID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -161,6 +162,7 @@ export {
   MAX_CHANNEL_OPEN_FEE,
   EMAIL_REGEX,
   VALID_USERNAME_REGEX,
+  VALID_NAME_BIO_REGEX,
   BLITZ_RECEIVE_FEE,
   BLITZ_SEND_FEE,
   AUTO_CHANNEL_REBALANCE_STORAGE_KEY,

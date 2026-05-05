@@ -1246,7 +1246,18 @@
       "usernameAlreadyExistsError": "Detta användarnamn finns redan, vänligen välj ett annat.",
       "unableToSaveError": "Det gick inte att spara profilbilden, försök igen.",
       "deleteProfileImageError": "Det går inte att ta bort profilbilden, försök igen.",
-      "deleteWarning": "Är du säker på att du vill ta bort den här kontakten? Meddelanden som är äldre än en vecka kan inte återställas."
+      "deleteWarning": "Är du säker på att du vill ta bort den här kontakten? Meddelanden som är äldre än en vecka kan inte återställas.",
+      "receiveCurrencyPillTitle": "Mottagningsvaluta",
+      "receiveCurrencyPillDesc": "Ställ in hur du tar emot via din Lightning-adress",
+      "invalidCharactersError": "Namn och bio får inte innehålla tecknen < > { } ` \\",
+      "invalidReceiveAddressError": "Ange en giltig Lightning-adress (t.ex. användare@domän.com)",
+      "aboutYou": "Om dig",
+      "lightningAddress": "Lightning-adress"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Mottagningsvaluta",
+      "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
+      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"
@@ -1361,6 +1372,11 @@
         "noDescription": "Lägg till en beskrivning.",
         "noContactsSelected": "Välj minst en kontakt"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Ditt visningsnamn är hur andra ser dig. Det kan ändras när som helst.",
+      "uniquenameDescription": "Om du ändrar ditt användarnamn ändras också din Lightning-adress. Betalningar till ditt gamla användarnamn går förlorade.",
+      "bioDescription": "Din bio är en kort beskrivning som hjälper andra att lära känna dig."
     }
   },
   "settings": {
@@ -2000,6 +2016,7 @@
         "about": "Om",
         "language": "Språk",
         "display currency": "Valuta",
+        "receive currency": "Lightning-adress",
         "display options": "Alternativ för visning",
         "edit contact profile": "Redigera kontaktprofil",
         "view all swaps": "Nätverksöverföringar",
@@ -2024,6 +2041,10 @@
         "point-of-sale": "Försäljningsställen",
         "pools": "Pooler",
         "show seed phrase": "Säkerhetskopiera plånbok"
+      },
+      "remotePayments": {
+        "lnAddress": "Lightning-adress",
+        "lnurlPageDesc": "Din Lightning-adress gör att vem som helst kan betala dig utan att någon faktura behövs."
       },
       "technicalTransactionDetails": {
         "txHash": "Transaktionens hash",
