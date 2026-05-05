@@ -43,7 +43,15 @@ export default function LnurlReceiveCurrencySelect({
         content={t('contacts.remotePaymentCurrencySelect.title')}
       />
 
-      <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => onSelect('btc')}
           style={styles.optionRow}
@@ -55,7 +63,7 @@ export default function LnurlReceiveCurrencySelect({
                 backgroundColor:
                   theme && darkModeType
                     ? darkModeType
-                      ? backgroundColor
+                      ? backgroundOffset
                       : backgroundOffset
                     : COLORS.bitcoinOrange,
               },
@@ -86,7 +94,7 @@ export default function LnurlReceiveCurrencySelect({
           <CheckMarkCircle
             isActive={currentCurrency === 'btc'}
             containerSize={25}
-            switchDarkMode={theme && darkModeType ? true : false}
+            switchDarkMode={theme && !darkModeType ? true : false}
           />
         </TouchableOpacity>
 
@@ -103,7 +111,7 @@ export default function LnurlReceiveCurrencySelect({
                 backgroundColor:
                   theme && darkModeType
                     ? darkModeType
-                      ? backgroundColor
+                      ? backgroundOffset
                       : backgroundOffset
                     : COLORS.dollarGreen,
               },
@@ -134,7 +142,7 @@ export default function LnurlReceiveCurrencySelect({
           <CheckMarkCircle
             isActive={currentCurrency === 'usd'}
             containerSize={25}
-            switchDarkMode={theme && darkModeType ? true : false}
+            switchDarkMode={theme && !darkModeType ? true : false}
           />
         </TouchableOpacity>
       </View>
