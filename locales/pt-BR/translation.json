@@ -925,7 +925,7 @@
       "gettingBalance": "Obtendo saldo da Vaquinha...",
       "checkingBalance": "Verificando saldo… ({{attempt}} de {{total}})",
       "preparingTransfer": "Preparando transferência...",
-      "connectingToPool": "Conectando à Vaquinha...",
+      "connectingToPool": "Carregando informações...",
       "unableToConnect": "Não foi possível conectar à Vaquinha. Tente novamente.",
       "unableToGetBalance": "Não foi possível obter o saldo da Vaquinha",
       "noFundsFound": "Nenhum fundo encontrado nesta Vaquinha",
@@ -1804,7 +1804,7 @@
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
       "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
-      "noActivePools": "Toque para criar uma Vaquinha.",
+      "noActivePools": "Colete pagamentos para um objetivo",
       "yourAccountsTitle": "Suas contas",
       "addAccountButton": "Adicionar conta"
     },
@@ -2306,8 +2306,8 @@
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas.",
-        "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para trocar de Bitcoin.",
-        "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para trocar de dólares.",
+        "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para trocar bitcoins.",
+        "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para trocar dólares.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
