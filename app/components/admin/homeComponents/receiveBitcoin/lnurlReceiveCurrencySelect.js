@@ -9,6 +9,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import { useTranslation } from 'react-i18next';
 
 export default function LnurlReceiveCurrencySelect({
   handleBackPressFunction,
@@ -19,6 +20,7 @@ export default function LnurlReceiveCurrencySelect({
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setContentHeight(500);
@@ -38,7 +40,7 @@ export default function LnurlReceiveCurrencySelect({
     <View style={styles.innerContainer}>
       <ThemeText
         styles={{ fontWeight: 500, fontSize: SIZES.large, marginBottom: 15 }}
-        content={'Receive currency'}
+        content={t('contacts.remotePaymentCurrencySelect.title')}
       />
 
       <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
@@ -67,10 +69,18 @@ export default function LnurlReceiveCurrencySelect({
             />
           </View>
           <View style={styles.textContainer}>
-            <ThemeText styles={styles.optionTitle} content={'Bitcoin'} />
+            <ThemeText
+              styles={styles.optionTitle}
+              content={t('constants.bitcoin_upper')}
+            />
             <ThemeText
               styles={styles.optionSubtitle}
-              content={'All future payments will be received as bitcoin'}
+              content={t(
+                'contacts.remotePaymentCurrencySelect.futurePaymentsMessage',
+                {
+                  option: t('constants.bitcoin_upper'),
+                },
+              )}
             />
           </View>
           <CheckMarkCircle
@@ -107,10 +117,18 @@ export default function LnurlReceiveCurrencySelect({
             />
           </View>
           <View style={styles.textContainer}>
-            <ThemeText styles={styles.optionTitle} content={'Dollars'} />
+            <ThemeText
+              styles={styles.optionTitle}
+              content={t('constants.dollars_upper')}
+            />
             <ThemeText
               styles={styles.optionSubtitle}
-              content={'All future payments will be received as dollars'}
+              content={t(
+                'contacts.remotePaymentCurrencySelect.futurePaymentsMessage',
+                {
+                  option: t('constants.dollars_upper'),
+                },
+              )}
             />
           </View>
           <CheckMarkCircle
@@ -123,9 +141,7 @@ export default function LnurlReceiveCurrencySelect({
 
       <ThemeText
         styles={styles.footnote}
-        content={
-          'Any requests you initiate will still be received in the requested currency.'
-        }
+        content={t('contacts.remotePaymentCurrencySelect.warningMessage')}
       />
     </View>
   );
