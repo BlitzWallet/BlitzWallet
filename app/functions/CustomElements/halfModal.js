@@ -71,6 +71,7 @@ import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/
 import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gifts/addGiftQuantityHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
+import OnlineListingsFilterHalfModal from '../../components/admin/homeComponents/apps/onlineListings/onlineListingsFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
@@ -570,6 +571,17 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
+      case 'onlineListingsFilter':
+        return (
+          <OnlineListingsFilterHalfModal
+            currentFilter={props?.route?.params?.currentFilter}
+            onSelectFilter={props?.route?.params?.onSelectFilter}
+            categoryOptions={props?.route?.params?.categoryOptions}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            setIsKeyboardActive={setIsKeyboardActive}
+          />
+        );
       case 'payLinkCurrencySelect':
         return (
           <PayLinkCurrencySelect
@@ -670,7 +682,8 @@ export default function CustomHalfModal(props) {
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
               contentType === 'createPoolFlow' ||
-              contentType === 'ClaimGiftHomeHalfModal'
+              contentType === 'ClaimGiftHomeHalfModal' ||
+              contentType === 'onlineListingsFilter'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
