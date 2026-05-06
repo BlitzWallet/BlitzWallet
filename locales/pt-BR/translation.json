@@ -2637,7 +2637,7 @@
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Não há recompensas para resgatar",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo Bitcoin",
+      "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para trocar por USD. Por favor, transfira para o seu saldo Bitcoin",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
