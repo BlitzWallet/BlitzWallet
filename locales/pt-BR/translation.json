@@ -2044,7 +2044,7 @@
       },
       "remotePayments": {
         "lnAddress": "Endereço Lightning",
-        "lnurlPageDesc": "O endereço Lightning permite qualquer pessoa pagar você diretamente."
+        "lnurlPageDesc": "O endereço Lightning permite recebimentos diretos sem precisar gerar faturas."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
