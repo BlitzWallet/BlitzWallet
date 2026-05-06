@@ -882,7 +882,7 @@
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
       "noAddedContactsTitle": "Nenhum contato adicionado",
-      "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui.",
+      "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui",
       "payMe": "Endereço Lightning",
       "createInvoice": "Criar Fatura",
       "invoiceDescription": "Escolha a moeda e quantia desejada",
