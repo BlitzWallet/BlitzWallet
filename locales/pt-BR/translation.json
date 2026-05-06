@@ -970,7 +970,7 @@
       "info": {
         "title": "Entendendo as Vaquinhas",
         "whatArePools": "O que são Vaquinhas?",
-        "whatArePoolsBody": "As Vaquinhas permitem que você colete pagamentos em Bitcoin para um objetivo qualquer. Crie uma Vaquinha, defina um valor alvo e compartilhe com quem quiser.",
+        "whatArePoolsBody": "As Vaquinhas permitem que você colete pagamentos em Bitcoin para um objetivo qualquer. Crie uma Vaquinha, defina um valor alvo e compartilhe com quem quiser",
         "howItWorks": "Como funciona",
         "howStep1": "• Crie uma nova Vaquinha com um nome e um valor alvo",
         "howStep2": "• Compartilhe o link da Vaquinha com outras pessoas",
@@ -1207,7 +1207,7 @@
       "notFound": "não encontrado.",
       "noContent": {
         "editProfileTitle": "Editar seu perfil",
-        "editProfileDescription": "Adicione seus dados para que outras pessoas possam encontrá-lo e pagar você facilmente.",
+        "editProfileDescription": "Adicione seus dados para que outras pessoas possam encontrá-lo e pagar você facilmente",
         "addContactstitle": "Nenhum contato adicionado",
         "addContactsDescription": "Seus contatos aparecerão aqui quando você adicionar um."
       }
@@ -1218,13 +1218,13 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz.",
+      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@domínio.com) ou nome de usuário Blitz.",
       "loadingMessage": "Procurando contato...",
       "profileImage": "Carregando foto de perfil..."
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
-      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços Lightning.",
+      "requestLNURLError": "Somente é possível solicitar dinheiro dos contatos Blitz",
       "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações."
     },
     "expandedMessageHalfModal": {
@@ -1250,7 +1250,7 @@
       "receiveCurrencyPillTitle": "Moeda de recebimento",
       "receiveCurrencyPillDesc": "Defina a moeda padrão nos recebimentos por endereço Lightning",
       "invalidCharactersError": "O nome e a bio não podem conter os caracteres < > { } ` \\",
-      "invalidReceiveAddressError": "Digite um endereço Lightning válido (ex.: usuario@dominio.com)",
+      "invalidReceiveAddressError": "Digite um endereço Lightning válido (ex.: usuario@domínio.com)",
       "aboutYou": "Sobre você",
       "lightningAddress": "Endereço Lightning"
     },
@@ -2123,7 +2123,7 @@
         "balanceDenominationHeader": "Selecione a moeda para o seu Vale-Blitz",
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",
-          "noGiftsDesc": "Crie seu primeiro Vale-Blitz para presentear amigos e familiares com bitcoin ou dólares.",
+          "noGiftsDesc": "Crie seu primeiro Vale-Blitz para presentear amigos e familiares com bitcoin ou dólares",
           "createGift": "Criar Vale-Blitz",
           "claimed": "Resgatado",
           "expired": "Expirado",
@@ -2540,7 +2540,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, um dólar digital emitido pela Brale e totalmente coberto 1:1 por títulos do tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. O Dólar digital USDB não é segurado pelo FDIC. Não é um produto bancário."
+      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, um dólar digital emitido pela Brale e totalmente coberto 1:1 por títulos do tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. O Dólar digital USDB não é segurado pelo FDIC. Não é um produto bancário"
     },
     "preview": {
       "title": "Caixinhas",
@@ -2599,7 +2599,7 @@
     },
     "activity": {
       "title": "Atividade",
-      "emptyState": "As transações futuras aparecerão aqui."
+      "emptyState": "As transações futuras aparecerão aqui"
     },
     "addMoney": {
       "chooseGoalTitle": "Guardar dinheiro em",
@@ -2627,7 +2627,7 @@
       },
       "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}",
       "noSourceTitle": "Sem fundos disponíveis",
-      "noSourceSubtitle": "Adicione Bitcoin ou USD à sua carteira. Usar o saldo Bitcoin para realizar esse pagamento requer pelo menos {{amount}}.",
+      "noSourceSubtitle": "Deposite Bitcoin ou USD na sua carteira. Usar o saldo Bitcoin para adicionar fundos nas Caixinhas requer pelo menos {{amount}}",
       "noUSDInfoMessage": "É necessário um saldo em USD maior que {{amount}} para depositar nas Caixinhas.",
       "noBTCInfoMessage": "É necessário um saldo em Bitcoin maior que o valor mínimo de trocas, que é de {{amount}}, para depositar nas Caixinhas."
     },
@@ -2637,7 +2637,7 @@
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Não há recompensas para resgatar",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
+      "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo Bitcoin",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
