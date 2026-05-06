@@ -1248,7 +1248,7 @@
       "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
       "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas.",
       "receiveCurrencyPillTitle": "Moeda de recebimento",
-      "receiveCurrencyPillDesc": "Defina como você recebe pelo seu endereço Lightning",
+      "receiveCurrencyPillDesc": "Defina a moeda padrão nos recebimentos por endereço Lightning",
       "invalidCharactersError": "O nome e a bio não podem conter os caracteres < > { } ` \\",
       "invalidReceiveAddressError": "Digite um endereço Lightning válido (ex.: usuario@dominio.com)",
       "aboutYou": "Sobre você",
@@ -1257,7 +1257,7 @@
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",
       "futurePaymentsMessage": "Todos os pagamentos futuros serão recebidos em {{option}}",
-      "warningMessage": "Ao selecionar {{option}}, há um mínimo de {{amount}}. Pagamentos menores serão recebidos em Bitcoin."
+      "warningMessage": "Pagamentos em {{option}} menores do que {{amount}} serão recebidos em Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "O que você deseja enviar?"
@@ -2044,7 +2044,7 @@
       },
       "remotePayments": {
         "lnAddress": "Endereço Lightning",
-        "lnurlPageDesc": "Seu endereço Lightning permite que qualquer pessoa pague você sem precisar de fatura."
+        "lnurlPageDesc": "O endereço Lightning permite qualquer pessoa pagar você diretamente."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
