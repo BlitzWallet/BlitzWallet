@@ -130,6 +130,7 @@ export default function SendPaymentScreen(props) {
   const primaryDisplayRef = useRef(null);
   const conversionFiatStatsRef = useRef(null);
   const quoteId = useRef(null);
+  const isMountedRef = useRef(true);
 
   // Drives the SWAP_RATES_CHANGED uiState when Flashnet rate drift breaks swap viability.
   const [rateChangeDetected, setRateChangeDetected] = useState(false);
@@ -452,6 +453,12 @@ export default function SendPaymentScreen(props) {
   useEffect(() => {
     conversionFiatStatsRef.current = conversionFiatStats;
   }, [conversionFiatStats]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     determinePaymentMethodRef.current = resolvedPaymentMethod;
@@ -851,6 +858,7 @@ export default function SendPaymentScreen(props) {
 
   const errorMessageNavigation = useCallback(
     reason => {
+      if (!isMountedRef.current) return;
       navigate.navigate('ConfirmPaymentScreen', {
         btcAdress: '',
         fromPage: '',

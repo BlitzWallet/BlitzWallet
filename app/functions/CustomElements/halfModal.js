@@ -72,6 +72,7 @@ import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gift
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
+import LnurlReceiveCurrencySelect from '../../components/admin/homeComponents/receiveBitcoin/lnurlReceiveCurrencySelect';
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
@@ -575,6 +576,13 @@ export default function CustomHalfModal(props) {
           <PayLinkCurrencySelect
             currentCurrency={props?.route?.params?.currentCurrency}
             onSelectCurrency={props?.route?.params?.onSelectCurrency}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'lnurlReceiveCurrencySelect':
+        return (
+          <LnurlReceiveCurrencySelect
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
           />
