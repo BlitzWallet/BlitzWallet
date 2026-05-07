@@ -243,15 +243,7 @@ export default function CustomHalfModal(props) {
           />
         );
       case 'chatGPT':
-        return (
-          <ConfirmChatGPTPage
-            theme={theme}
-            darkModeType={darkModeType}
-            price={props.route.params?.price}
-            plan={props.route.params?.plan}
-            slideHeight={slideHeight}
-          />
-        );
+        return <ConfirmChatGPTPage setContentHeight={setContentHeight} />;
       case 'addContacts':
         return (
           <AddContactsHalfModal

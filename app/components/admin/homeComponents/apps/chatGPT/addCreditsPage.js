@@ -1,17 +1,10 @@
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import {
   CENTER,
-  COLORS,
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
 } from '../../../../../constants';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
   GlobalThemeView,
@@ -19,75 +12,40 @@ import {
 } from '../../../../../functions/CustomElements';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
-import { getAIModels } from './contants/modelCache';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { useWebView } from '../../../../../../context-store/webViewContext';
+import { Check } from 'lucide-react-native';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import QuestionDiscoveryGrid from './questionDiscoveryGrid';
 
-const CREDITOPTIONS = [
-  {
-    title: 'apps.chatGPT.addCreditsPage.casualPlanTitle',
-    price: 2200,
-    numSerches: '40',
-    isSelected: false,
-  },
-  {
-    title: 'apps.chatGPT.addCreditsPage.proPlanTitle',
-    price: 3300,
-    numSerches: '100',
-    isSelected: true,
-  },
-  {
-    title: 'apps.chatGPT.addCreditsPage.powerPlanTitle',
-    price: 4400,
-    numSerches: '150',
-    isSelected: false,
-  },
+const FEATURES = [
+  'apps.chatGPT.addCreditsPage.feature1',
+  'apps.chatGPT.addCreditsPage.feature2',
+  'apps.chatGPT.addCreditsPage.feature3',
+  'apps.chatGPT.addCreditsPage.feature4',
+  'apps.chatGPT.addCreditsPage.feature5',
 ];
-//price is in sats
 
 export default function AddChatGPTCredits({ confirmationSliderData }) {
   const { sendWebViewRequest } = useWebView();
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const {
     decodedChatGPT,
     toggleGlobalAppDataInformation,
     globalAppDataInformation,
   } = useGlobalAppData();
-  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
-
-  const [selectedSubscription, setSelectedSubscription] =
-    useState(CREDITOPTIONS);
   const [isPaying, setIsPaying] = useState(false);
-  const [aiModels, setAiModels] = useState([]);
 
-  useEffect(() => {
-    async function loadModels() {
-      const start = Date.now();
-      const models = await getAIModels();
-
-      const now = Date.now();
-      const difference = now - start;
-
-      if (difference < 1000) {
-        await new Promise(res => setTimeout(res, 1000 - difference));
-      }
-      setAiModels(models);
-    }
-    loadModels();
-  }, []);
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -98,131 +56,32 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
     payForChatGPTCredits(confirmationSliderData?.invoiceInformation);
   }, [confirmationSliderData?.purchaseCredits]);
 
-  const subscriptionElements = selectedSubscription.map((subscription, id) => {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          setSelectedSubscription(prev => {
-            return prev.map(item => {
-              if (item.title === subscription.title) {
-                return { ...item, isSelected: true };
-              } else return { ...item, isSelected: false };
-            });
-          });
-        }}
-        style={{
-          width: '100%',
-          marginBottom: id === selectedSubscription.length ? 0 : 20,
-        }}
-        key={id}
-      >
-        <View
-          style={[
-            styles.optionContainer,
-            {
-              borderColor: textColor,
-              backgroundColor: subscription.isSelected
-                ? backgroundOffset
-                : 'transparent',
-            },
-          ]}
-        >
-          <View>
-            <ThemeText
-              styles={{ fontWeight: 'bold', marginBottom: 10 }}
-              content={t(subscription.title)}
-            />
-            <FormattedSatText
-              neverHideBalance={true}
-              styles={{ ...styles.infoDescriptions }}
-              frontText={t('apps.chatGPT.addCreditsPage.price')}
-              balance={subscription.price}
-            />
-          </View>
-
-          <ThemeText
-            styles={{ flexShrink: 1 }}
-            CustomNumberOfLines={1}
-            content={t('apps.chatGPT.addCreditsPage.estSearches', {
-              num: subscription.numSerches,
-            })}
-          />
-        </View>
-      </TouchableOpacity>
-    );
-  });
-
-  const availableModels = aiModels.map(item => {
-    return (
-      <ThemeText
-        key={item.name}
-        styles={{ fontSize: SIZES.small, marginVertical: 2.5 }}
-        content={item.name}
-      />
-    );
-  });
-
-  if ((Platform.OS === 'ios' || Platform.OS === 'macos') && false) {
-    return (
-      <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
-        <View style={styles.errorContainer}>
-          <ThemeText
-            styles={styles.errorText}
-            content={t('apps.chatGPT.addCreditsPage.notAvailableMessage')}
-          />
-          <CustomButton
-            actionFunction={navigate.goBack}
-            textContent={t('settings.posPath.totalTipsScreen.goBack')}
-          />
-        </View>
-      </GlobalThemeView>
-    );
-  }
-
-  if (!aiModels.length) {
-    return (
-      <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
-        <FullLoadingScreen />
-      </GlobalThemeView>
-    );
-  }
+  const featureElements = FEATURES.map((key, index) => (
+    <View key={index} style={styles.featureRow}>
+      <View style={[styles.checkCircle, { backgroundColor: textColor }]}>
+        <Check size={14} color={backgroundColor} strokeWidth={3} />
+      </View>
+      <ThemeText styles={styles.featureText} content={t(key)} />
+    </View>
+  ));
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
       {!isPaying ? (
         <>
+          <CustomSettingsTopBar />
           <View style={styles.globalContainer}>
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingVertical: 20 }}
+              contentContainerStyle={styles.scrollContent}
             >
               <ThemeText
-                styles={{ textAlign: 'center', marginBottom: 20 }}
-                content={t('apps.chatGPT.addCreditsPage.description')}
+                styles={styles.unlockTitle}
+                content={t('apps.chatGPT.addCreditsPage.unlockTitle')}
               />
-              {subscriptionElements}
-              <View style={{ marginTop: 0, alignItems: 'center' }}>
-                <ThemeText
-                  styles={{ fontWeight: 500, fontSize: SIZES.large }}
-                  content={t('apps.chatGPT.addCreditsPage.supportedModels')}
-                />
-                {availableModels}
-              </View>
-              <ThemeText
-                styles={{
-                  textAlign: 'center',
-                  color:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                  fontSize: SIZES.small,
-                  marginTop: 10,
-                }}
-                content={t('apps.chatGPT.addCreditsPage.feeInfo')}
-              />
+
+              <View style={styles.featuresContainer}>{featureElements}</View>
+              <QuestionDiscoveryGrid />
             </ScrollView>
           </View>
 
@@ -233,17 +92,12 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
               ...CENTER,
             }}
             actionFunction={() => {
-              const [selectedPlan] = selectedSubscription.filter(
-                subscription => subscription.isSelected,
-              );
               navigate.navigate('CustomHalfModal', {
                 wantedContent: 'chatGPT',
-                price: selectedPlan.price,
-                plan: selectedPlan.title,
                 sliderHight: 0.5,
               });
             }}
-            textContent={t('constants.pay')}
+            textContent={t('constants.continue')}
           />
         </>
       ) : (
@@ -261,31 +115,18 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
   async function payForChatGPTCredits(invoiceInformation) {
     try {
       setIsPaying(true);
-      const selectedPlan = selectedSubscription.filter(
-        subscription => subscription.isSelected,
-      )[0];
-      let invoice = '';
-      let fee;
-      let creditPrice;
-      creditPrice = selectedPlan.price;
-      creditPrice += 150; //blitz flat fee
-      creditPrice += Math.ceil(creditPrice * 0.005);
-
-      invoice = invoiceInformation.invoice;
-
-      creditPrice = selectedPlan.price;
-
-      fee = invoiceInformation.fee + invoiceInformation.supportFee;
-
-      if (sparkInformation.balance < creditPrice + fee)
-        throw new Error('Insufficent balance');
-
+      const creditAmount = invoiceInformation?.creditPrice;
+      if (!creditAmount || creditAmount < 2000)
+        throw new Error('Invalid credit amount');
+      const fee = invoiceInformation.fee + invoiceInformation.supportFee;
+      if (sparkInformation.balance < creditAmount + fee)
+        throw new Error('Insufficient balance');
       const paymentResponse = await sparkPaymenWrapper({
         getFee: false,
-        address: invoice,
+        address: invoiceInformation.invoice,
         paymentType: 'lightning',
-        amountSats: creditPrice,
-        fee: fee,
+        amountSats: creditAmount,
+        fee,
         memo: t('apps.chatGPT.addCreditsPage.paymentMemo'),
         masterInfoObject,
         sparkInformation,
@@ -294,12 +135,13 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
         sendWebViewRequest,
       });
       if (!paymentResponse.didWork) throw new Error(paymentResponse.error);
-
       toggleGlobalAppDataInformation(
         {
           chatGPT: {
             conversation: globalAppDataInformation.chatGPT.conversation || [],
-            credits: decodedChatGPT.credits + selectedPlan.price,
+            credits:
+              decodedChatGPT.credits +
+              (invoiceInformation.selectedAmountSats || 0),
           },
         },
         true,
@@ -321,25 +163,37 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-
-  errorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorText: {
-    width: '95%',
-    textAlign: 'center',
-    marginBottom: 20,
+  scrollContent: {
+    paddingVertical: 10,
   },
 
-  optionContainer: {
-    width: '100%',
-    padding: 10,
+  unlockTitle: {
+    fontSize: SIZES.xxLarge,
+    fontWeight: 'bold',
+    marginBottom: 24,
+    marginTop: 8,
+  },
+
+  featuresContainer: {
+    marginBottom: 28,
+  },
+  featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 8,
-    borderWidth: 1,
+    marginBottom: 14,
+  },
+  checkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    flexShrink: 0,
+  },
+  featureText: {
+    fontSize: SIZES.medium,
+    flexShrink: 1,
+    includeFontPadding: false,
   },
 });

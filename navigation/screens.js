@@ -24,7 +24,9 @@ import {
 import ConfirmSMSReceivePage from '../app/components/admin/homeComponents/apps/sms4sats/confirmReceivePaymentScreen';
 import SMSMessagingReceivedPage from '../app/components/admin/homeComponents/apps/sms4sats/receivePage';
 import SMSMessagingSendPage from '../app/components/admin/homeComponents/apps/sms4sats/sendPage';
-import HistoricalSMSMessagingPage from '../app/components/admin/homeComponents/apps/sms4sats/sentPayments';
+import SMSMessagingSendPhonePage from '../app/components/admin/homeComponents/apps/sms4sats/sendPhonePage';
+import SMSMessagingReceiveCountryPage from '../app/components/admin/homeComponents/apps/sms4sats/receiveCountryPage';
+import SMSMessagingSendDescriptionPage from '../app/components/admin/homeComponents/apps/sms4sats/sendDescriptionPage';
 import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
   AddFriendsToSplit,
@@ -117,6 +119,8 @@ import AnalyticsIncomePage from '../app/components/admin/homeComponents/analytic
 import AnalyticsSpentPage from '../app/components/admin/homeComponents/analytics/analyticsSpentPage';
 import AnalyticsBudgetPage from '../app/components/admin/homeComponents/analytics/analyticsBudgetPage';
 import AnalyticsCreateBudgetPage from '../app/components/admin/homeComponents/analytics/analyticsCreateBudgetPage';
+import BTCMapScreen from '../app/screens/inAccount/btcMap';
+import BitrefillShopModal from '../app/components/admin/homeComponents/store/bitrefillModal';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -140,6 +144,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'SwapsPage', component: SwapsPage },
   { name: 'ConversionHistory', component: ConversionHistory },
   { name: 'ViewContributor', component: ViewContibutors },
+  { name: 'BTCMapScreen', component: BTCMapScreen },
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
   {
@@ -167,7 +172,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'AddFriendsToSplit', component: AddFriendsToSplit },
   { name: 'CreateSplitBill', component: CreateSplitBill },
   { name: 'AppStorePageIndex', component: AppStorePageIndex },
-  { name: 'HistoricalSMSMessagingPage', component: HistoricalSMSMessagingPage },
   { name: 'HistoricalVPNPurchases', component: HistoricalVPNPurchases },
   { name: 'GeneratedVPNFile', component: GeneratedVPNFile },
   { name: 'POSInstructionsPath', component: POSInstructionsPath },
@@ -205,6 +209,15 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SelectGiftCardForContacts', component: SelectGiftCardForContacts },
   { name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage },
   { name: 'SMSMessagingSendPage', component: SMSMessagingSendPage },
+  { name: 'SMSMessagingSendPhonePage', component: SMSMessagingSendPhonePage },
+  {
+    name: 'SMSMessagingSendDescriptionPage',
+    component: SMSMessagingSendDescriptionPage,
+  },
+  {
+    name: 'SMSMessagingReceiveCountryPage',
+    component: SMSMessagingReceiveCountryPage,
+  },
   { name: 'CreateGift', component: CreateGift },
   { name: 'CreateGiftDescription', component: CreateGiftDescription },
   { name: 'CreateGiftDuration', component: CreateGiftDuration },
@@ -294,10 +307,17 @@ const FADE_TRANSPARENT_MODAL_SCREENS = [
   //   component: RefundLiquidSwapPopup,
   // },
 ];
+const MODAL_CARD_SCREENS = [
+  {
+    name: 'BitrefillShopModal',
+    component: BitrefillShopModal,
+  },
+];
 
 export {
   SLIDE_FROM_BOTTOM_SCREENS,
   SLIDE_FROM_RIGHT_SCREENS,
   FADE_SCREENS,
   FADE_TRANSPARENT_MODAL_SCREENS,
+  MODAL_CARD_SCREENS,
 };
