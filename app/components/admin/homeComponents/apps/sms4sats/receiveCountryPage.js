@@ -15,50 +15,47 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   SIZES,
 } from '../../../../../constants';
-import {
-  COLORS,
-  HIDDEN_OPACITY,
-  INSET_WINDOW_WIDTH,
-} from '../../../../../constants/theme';
-import { sendCountryCodes } from './sendCountryCodes';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { countrymap } from './receiveCountryCodes';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
+import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
-export default function SMSMessagingSendPage() {
+const AUTO_SELECT = { value: 999, label: 'Auto Select', iso: 'WW' };
+
+// Deduplicate countrymap by iso code, keeping first occurrence
+const uniqueCountries = (() => {
+  const seen = new Set();
+  return countrymap.filter(item => {
+    if (seen.has(item.iso)) return false;
+    seen.add(item.iso);
+    return true;
+  });
+})();
+
+export default function SMSMessagingReceiveCountryPage() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(AUTO_SELECT);
   const { backgroundOffset } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
-
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
-  const filteredCountries = useMemo(() => {
-    const normalizedQuery = searchInput.trim().toLowerCase();
-
-    return sendCountryCodes.filter(item => {
-      if (!normalizedQuery.length) return true;
-
-      return (
-        item.country.toLowerCase().includes(normalizedQuery) ||
-        item.cc.toLowerCase().includes(normalizedQuery)
-      );
-    });
+  const listData = useMemo(() => {
+    const query = searchInput.trim().toLowerCase();
+    const filtered = query
+      ? uniqueCountries.filter(item => item.label.toLowerCase().includes(query))
+      : uniqueCountries;
+    return [AUTO_SELECT, ...filtered];
   }, [searchInput]);
 
-  const handleCountrySelection = useCallback(() => {
-    if (!selectedCountry) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('apps.sms4sats.sendPage.noCountry'),
-      });
-      return;
-    }
-    navigate.navigate('SMSMessagingSendPhonePage', {
+  const handleNext = useCallback(() => {
+    navigate.navigate('SMSMessagingReceivedPage', {
       selectedCountry,
     });
-  }, [selectedCountry, t]);
+  }, [navigate, selectedCountry]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -68,39 +65,40 @@ export default function SMSMessagingSendPage() {
       useStandardWidth={true}
     >
       <CustomSettingsTopBar
-        label={t('constants.send')}
+        label={t('constants.receive')}
         shouldDismissKeyboard={true}
       />
       <View style={styles.content}>
         <ThemeText
           styles={styles.title}
-          content={t('apps.sms4sats.sendPage.countryStepTitle')}
+          content={t('apps.sms4sats.receivePage.countryStepTitle')}
         />
         <ThemeText
           styles={styles.subtitle}
-          content={t('apps.sms4sats.sendPage.countryStepSubtitle')}
+          content={t('apps.sms4sats.receivePage.autoSelectInfoMessage')}
         />
 
         <CustomSearchInput
           inputText={searchInput}
           setInputText={setSearchInput}
-          placeholderText={t('apps.sms4sats.sendPage.countrySearchPlaceholder')}
+          placeholderText={t(
+            'apps.sms4sats.receivePage.countrySearchPlaceholder',
+          )}
           containerStyles={styles.searchContainer}
           onFocusFunction={() => setIsKeyboardActive(true)}
           onBlurFunction={() => setIsKeyboardActive(false)}
         />
 
         <FlatList
-          data={filteredCountries}
-          keyExtractor={item => `${item.country}-${item.cc}`}
+          data={listData}
+          keyExtractor={item => `${item.iso}-${item.value}`}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="always"
           renderItem={({ item }) => {
             const isActive =
-              selectedCountry?.country === item.country &&
-              selectedCountry?.cc === item.cc;
-
+              selectedCountry.iso === item.iso &&
+              selectedCountry.value === item.value;
             return (
               <TouchableOpacity
                 onPress={() => setSelectedCountry(item)}
@@ -116,13 +114,13 @@ export default function SMSMessagingSendPage() {
                   },
                 ]}
               >
-                <CountryFlag isoCode={item.isoCode} size={24} />
+                {item.iso === 'WW' ? (
+                  <ThemeIcon iconName={'Globe'} size={24} />
+                ) : (
+                  <CountryFlag isoCode={item.iso} size={24} />
+                )}
                 <View style={styles.countryTextContainer}>
-                  <ThemeText
-                    styles={styles.countryName}
-                    content={item.country}
-                  />
-                  <ThemeText styles={styles.countryCode} content={item.cc} />
+                  <ThemeText styles={styles.countryName} content={item.label} />
                 </View>
                 <CheckMarkCircle
                   switchDarkMode={true}
@@ -136,12 +134,9 @@ export default function SMSMessagingSendPage() {
       </View>
 
       <CustomButton
-        buttonStyles={[
-          styles.button,
-          { opacity: selectedCountry ? 1 : HIDDEN_OPACITY },
-        ]}
+        buttonStyles={[styles.button]}
         textContent={t('constants.next')}
-        actionFunction={handleCountrySelection}
+        actionFunction={handleNext}
       />
     </CustomKeyboardAvoidingView>
   );
@@ -194,12 +189,6 @@ const styles = StyleSheet.create({
   },
   countryName: {
     fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  countryCode: {
-    fontSize: SIZES.smedium,
-    opacity: 0.6,
-    marginTop: 4,
     includeFontPadding: false,
   },
   button: {

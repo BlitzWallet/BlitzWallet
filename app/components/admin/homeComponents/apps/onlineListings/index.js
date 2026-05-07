@@ -26,7 +26,11 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   SHOPS_DIRECTORY_KEY,
 } from '../../../../../constants';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
+import {
+  INSET_WINDOW_WIDTH,
+  SIZES,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
@@ -396,7 +400,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingBottom: CONTENT_KEYBOARD_OFFSET,
   },
-  flatList: { flex: 1, width: INSET_WINDOW_WIDTH, alignSelf: 'center' },
+  flatList: { flex: 1, width: WINDOWWIDTH, alignSelf: 'center' },
   listContent: {
     paddingTop: 10,
     paddingBottom: 24,

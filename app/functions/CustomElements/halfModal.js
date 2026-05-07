@@ -183,6 +183,7 @@ export default function CustomHalfModal(props) {
             message={props.route.params?.message}
             phoneNumber={props.route.params?.phoneNumber}
             areaCodeNum={props.route.params?.areaCodeNum}
+            normalizedPhoneNumber={props.route.params?.normalizedPhoneNumber}
             sendTextMessage={props.route.params?.sendTextMessage}
             page={'sendSMS'}
           />

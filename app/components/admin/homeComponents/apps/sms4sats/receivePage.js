@@ -4,23 +4,28 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  ScrollView,
 } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
   SIZES,
+  VALID_URL_REGEX,
 } from '../../../../../constants';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
-import { countrymap } from './receiveCountryCodes';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -32,22 +37,35 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { CENTER, KEYBOARDTIMEOUT } from '../../../../../constants/styles';
-import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import CountryFlag from 'react-native-country-flag';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import CustomButton from '../../../../../functions/CustomElements/button';
+import LottieView from 'lottie-react-native';
+import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
+import { copyToClipboard } from '../../../../../functions';
+import { useToast } from '../../../../../../context-store/toastManager';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
-const imgEndpoint = endpoint => `https://sms4sats.com/${endpoint}`;
+const imgEndpoint = endpoint => {
+  if (VALID_URL_REGEX.test(endpoint)) {
+    return endpoint;
+  } else return `https://sms4sats.com/${endpoint}`;
+};
 
 export default function SMSMessagingReceivedPage(props) {
   const { sendWebViewRequest } = useWebView();
-  const removeUserLocal = props.route.params?.removeUserLocal;
-  const [userLocal, setUserLocal] = useState({ iso: 'WW', value: 999 });
-  const smsServices = props.route.params?.smsServices || [];
-  const [localSMSServicesList, setLocalSMSServicesList] = useState(smsServices);
+  const selectedCountry = props.route.params?.selectedCountry ?? {
+    value: 999,
+    label: 'Auto Select',
+    iso: 'WW',
+  };
+  const [localSMSServicesList, setLocalSMSServicesList] = useState([]);
   const { publicKey, contactsPrivateKey } = useKeysContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -57,7 +75,15 @@ export default function SMSMessagingReceivedPage(props) {
   const { decodedMessages, toggleGlobalAppDataInformation } =
     useGlobalAppData();
   const { screenDimensions } = useAppStatus();
-  const { theme } = useGlobalThemeContext();
+  const animationRef = useRef(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [confirmResult, setConfirmResult] = useState({
+    didSucceed: false,
+    isRefund: false,
+    number: null,
+  });
+  const { showToast } = useToast();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
@@ -69,13 +95,6 @@ export default function SMSMessagingReceivedPage(props) {
   const [isLoadingLocationServices, setIsLoadingLocationServices] =
     useState(false);
 
-  useEffect(() => {
-    if (!removeUserLocal) return;
-    const value = countrymap.find(item => item.iso === removeUserLocal);
-    if (value) setUserLocal({ value: value.value, iso: value.iso });
-    else setUserLocal({ value: 999, iso: 'WW' });
-  }, [removeUserLocal]);
-
   const filteredList = useMemo(() => {
     return localSMSServicesList.filter(item => {
       return item?.text?.toLowerCase().startsWith(searchInput.toLowerCase());
@@ -83,32 +102,31 @@ export default function SMSMessagingReceivedPage(props) {
   }, [searchInput, localSMSServicesList]);
 
   useEffect(() => {
-    if (userLocal.value === 999) {
-      setLocalSMSServicesList(smsServices);
-      return;
-    }
     async function fetchLocationSpecificServices() {
       try {
         setIsLoadingLocationServices(true);
         const response = await fetch(
-          `https://api2.sms4sats.com/getnumbersstatus?country=${userLocal.value}`,
+          `https://api2.sms4sats.com/getnumbersstatus?country=${selectedCountry.value}`,
           {
             method: 'GET',
           },
         );
         const data = await response.json();
-
-        console.log(data);
         console.log(data);
         setLocalSMSServicesList(data);
       } catch (err) {
         console.log(err);
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('apps.sms4sats.receivePage.fetchServicesError', {
+            defaultValue: 'Unable to load available SMS services',
+          }),
+        });
       } finally {
         setIsLoadingLocationServices(false);
       }
     }
     fetchLocationSpecificServices();
-  }, [userLocal]);
+  }, [navigate, t, selectedCountry.value]);
 
   const handleItemSelector = useCallback(
     (serviceCode, title, imgSrc) => {
@@ -117,7 +135,7 @@ export default function SMSMessagingReceivedPage(props) {
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'confirmSMSReceive',
             serviceCode: serviceCode,
-            location: userLocal.value,
+            location: selectedCountry.value,
             title,
             imgSrc,
             getReceiveCode: handlePurchase,
@@ -128,7 +146,7 @@ export default function SMSMessagingReceivedPage(props) {
       );
       Keyboard.dismiss();
     },
-    [navigate, handlePurchase, userLocal],
+    [navigate, handlePurchase, selectedCountry],
   );
 
   const keyboardFocusFunction = useCallback(() => {
@@ -137,6 +155,28 @@ export default function SMSMessagingReceivedPage(props) {
 
   const keyboardBlurFunction = useCallback(() => {
     setIsKeyboardActive(false);
+  }, []);
+
+  const confirmAnimation = useMemo(
+    () =>
+      updateConfirmAnimation(
+        confirmTxAnimation,
+        theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+      ),
+    [theme, darkModeType],
+  );
+
+  useEffect(() => {
+    if (isConfirmed) animationRef.current?.play();
+  }, [isConfirmed]);
+
+  const formatPhoneNumber = useCallback(num => {
+    if (!num) return '';
+    try {
+      return parsePhoneNumberWithError('+' + num).formatInternational();
+    } catch {
+      return num;
+    }
   }, []);
 
   const saveMessagesToDB = useCallback(
@@ -165,6 +205,7 @@ export default function SMSMessagingReceivedPage(props) {
           imgSrc: invoiceInfo.imgSrc,
           isPending: true,
           isRefunded: false,
+          createdAt: Date.now(),
         };
 
         savedMessages.received = [...savedMessages.received, pendingOrder];
@@ -234,22 +275,28 @@ export default function SMSMessagingReceivedPage(props) {
             const responseData = await response.json();
             console.log('cancel order response info', responseData);
             if (responseData.status === 'OK') {
-              navigate.navigate('ConfirmSMSReceivePage', {
+              setConfirmResult({
                 didSucceed: true,
                 isRefund: true,
+                number: null,
               });
+              setIsConfirmed(true);
             } else {
-              navigate.navigate('ConfirmSMSReceivePage', {
+              setConfirmResult({
                 didSucceed: false,
                 isRefund: true,
+                number: null,
               });
+              setIsConfirmed(true);
             }
           } catch (err) {
             console.log('error canceling order', err);
-            navigate.navigate('ConfirmSMSReceivePage', {
+            setConfirmResult({
               didSucceed: false,
               isRefund: true,
+              number: null,
             });
+            setIsConfirmed(true);
           }
           return;
         }
@@ -270,11 +317,12 @@ export default function SMSMessagingReceivedPage(props) {
         };
         saveMessagesToDB(finalMessages);
 
-        navigate.navigate('ConfirmSMSReceivePage', {
+        setConfirmResult({
           didSucceed: true,
           isRefund: false,
           number: responseInfo.number,
         });
+        setIsConfirmed(true);
       } catch (err) {
         console.log('error purchasing code', err);
         navigate.navigate('ErrorScreen', { errorMessage: err.message });
@@ -294,21 +342,6 @@ export default function SMSMessagingReceivedPage(props) {
       decodedMessages,
     ],
   );
-
-  const handleSelctProcesss = useCallback(item => {
-    if (typeof item !== 'number' && !item) {
-      setUserLocal(prev => ({ ...prev, value: 999 }));
-      return;
-    }
-    setUserLocal(prev => ({ ...prev, value: item.value }));
-  }, []);
-
-  const handleInfoPress = useCallback(() => {
-    navigate.navigate('InformationPopup', {
-      textContent: t('apps.sms4sats.receivePage.autoSelectInfoMessage'),
-      buttonText: t('constants.understandText'),
-    });
-  }, [navigate]);
 
   const renderGridItem = useCallback(
     serviceItem => {
@@ -348,10 +381,6 @@ export default function SMSMessagingReceivedPage(props) {
     [renderGridItem],
   );
 
-  const getItemCount = useCallback(() => {
-    return filteredList.length;
-  }, [filteredList.length]);
-
   const keyExtractor = useCallback((item, index) => {
     return `service-${item?.key}-${index}`;
   }, []);
@@ -362,78 +391,126 @@ export default function SMSMessagingReceivedPage(props) {
     };
   }, [isKeyboardActive]);
 
+  const handleBackPress = useCallback(() => {
+    if (isConfirmed) {
+      navigate.popTo('AppStorePageIndex', { page: 'sms4sats' });
+      return true;
+    } else return false;
+  }, [isConfirmed]);
+
+  useHandleBackPressNew(handleBackPress);
+
+  if (isConfirmed) {
+    return (
+      <GlobalThemeView
+        useStandardWidth={true}
+        styles={styles.confirmedContainer}
+      >
+        <ScrollView
+          contentContainerStyle={styles.confirmedScroll}
+          showsVerticalScrollIndicator={false}
+        >
+          <LottieView
+            ref={animationRef}
+            source={confirmAnimation}
+            loop={false}
+            style={{
+              width: screenDimensions.width / 1.5,
+              height: screenDimensions.width / 1.5,
+              maxWidth: 400,
+              maxHeight: 400,
+            }}
+          />
+
+          <ThemeText
+            content={
+              confirmResult.isRefund
+                ? confirmResult.didSucceed
+                  ? t('apps.sms4sats.confirmCodePage.automaticRefund')
+                  : t('apps.sms4sats.confirmCodePage.waitedRefund')
+                : t('apps.sms4sats.confirmCodePage.header')
+            }
+            styles={styles.confirmedTitle}
+          />
+
+          {!confirmResult.isRefund && (
+            <>
+              <TouchableOpacity
+                onPress={() => copyToClipboard(confirmResult.number, showToast)}
+                style={[
+                  styles.phoneCard,
+                  { backgroundColor: backgroundOffset },
+                ]}
+                activeOpacity={0.7}
+              >
+                <ThemeText
+                  content={t('apps.sms4sats.confirmCodePage.phoneNumberLabel')}
+                  styles={styles.phoneCardLabel}
+                />
+                <View style={styles.phoneCardRow}>
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    adjustsFontSizeToFit={true}
+                    content={formatPhoneNumber(confirmResult.number)}
+                    styles={styles.phoneCardNumber}
+                  />
+                  <ThemeIcon iconName={'Copy'} size={18} />
+                </View>
+              </TouchableOpacity>
+
+              <View
+                style={[
+                  styles.instructionBlock,
+                  { backgroundColor: backgroundOffset },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.instructionIconWrap,
+                    {
+                      backgroundColor: theme ? backgroundColor : COLORS.primary,
+                    },
+                  ]}
+                >
+                  <ThemeIcon
+                    iconName={'Info'}
+                    size={15}
+                    colorOverride={COLORS.darkModeText}
+                  />
+                </View>
+                <View style={styles.instructionTexts}>
+                  <ThemeText
+                    styles={styles.instructionMain}
+                    content={t('apps.sms4sats.confirmCodePage.step2')}
+                  />
+                  <ThemeText
+                    styles={styles.instructionNote}
+                    content={t('apps.sms4sats.confirmCodePage.step3')}
+                  />
+                </View>
+              </View>
+            </>
+          )}
+        </ScrollView>
+        <CustomButton
+          buttonStyles={{
+            width: '100%',
+          }}
+          actionFunction={() =>
+            navigate.popTo('AppStorePageIndex', { page: 'sms4sats' })
+          }
+          textContent={t('constants.continue')}
+        />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
       globalThemeViewStyles={memorizedKeyboardStyle}
     >
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={() => {
-            keyboardNavigate(() => navigate.goBack());
-          }}
-        >
-          <ThemeIcon iconName={'ArrowLeft'} />
-        </TouchableOpacity>
-
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={{
-            ...styles.topbarText,
-            width: screenDimensions?.width * 0.95 - 140,
-          }}
-          content={t('constants.receive')}
-        />
-
-        <TouchableOpacity
-          onPress={() =>
-            keyboardNavigate(() =>
-              navigate.navigate('CountryList', {
-                onlyReturn: true,
-                pageName: 'SMSMessagingReceivedPage',
-              }),
-            )
-          }
-          style={{
-            width: 30,
-            height: 30,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor:
-              userLocal.iso === 'WW'
-                ? theme
-                  ? backgroundOffset
-                  : COLORS.darkModeText
-                : 'unset',
-            borderRadius: 8,
-            marginRight: 5,
-            marginLeft: 'auto',
-          }}
-        >
-          {userLocal.iso === 'WW' ? (
-            <ThemeIcon
-              size={15}
-              colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              iconName={'Globe'}
-            />
-          ) : (
-            <CountryFlag isoCode={userLocal.iso} size={20} />
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() =>
-            navigate.navigate('HistoricalSMSMessagingPage', {
-              selectedPage: 'receive',
-            })
-          }
-        >
-          <ThemeImage
-            lightModeIcon={ICONS.receiptIcon}
-            darkModeIcon={ICONS.receiptIcon}
-            lightsOutIcon={ICONS.receiptWhite}
-          />
-        </TouchableOpacity>
-      </View>
+      <CustomSettingsTopBar label={t('constants.receive')} />
       {isPurchasing.isLoading || isLoadingLocationServices ? (
         <FullLoadingScreen
           text={
@@ -500,7 +577,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   searchContainer: {
-    width: INSET_WINDOW_WIDTH,
+    width: WINDOWWIDTH,
     marginBottom: 10,
     ...CENTER,
   },
@@ -556,5 +633,67 @@ const styles = StyleSheet.create({
   },
   noItemsText: {
     textAlign: 'center',
+  },
+  confirmedContainer: {
+    flex: 1,
+    alignItems: 'center',
+    width: INSET_WINDOW_WIDTH,
+  },
+  confirmedScroll: {
+    flexGrow: 1,
+    alignItems: 'center',
+  },
+  confirmedTitle: {
+    textAlign: 'center',
+    fontSize: SIZES.large,
+    includeFontPadding: false,
+    marginBottom: 16,
+  },
+  phoneCard: {
+    width: '100%',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  phoneCardLabel: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
+    marginBottom: 4,
+  },
+  phoneCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 15,
+  },
+  phoneCardNumber: {
+    fontSize: SIZES.xxLarge,
+    includeFontPadding: false,
+    flex: 1,
+  },
+  instructionBlock: {
+    width: '100%',
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  instructionIconWrap: {
+    padding: 9,
+    borderRadius: 12,
+  },
+  instructionTexts: {
+    flex: 1,
+    gap: 8,
+  },
+  instructionMain: {
+    includeFontPadding: false,
+  },
+  instructionNote: {
+    fontSize: SIZES.small,
+    opacity: HIDDEN_OPACITY,
+    includeFontPadding: false,
   },
 });
