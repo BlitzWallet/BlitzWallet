@@ -85,3 +85,4 @@ android/gradle.properties
 app/functions/spark/appStorePreviews.js
 .worktrees/
 .worktrees
+android/secrets.properties
