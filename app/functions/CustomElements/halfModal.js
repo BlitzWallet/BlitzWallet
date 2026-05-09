@@ -71,11 +71,13 @@ import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/
 import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gifts/addGiftQuantityHalfModal';
 import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapFlowHalfModal';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
+import OnlineListingsFilterHalfModal from '../../components/admin/homeComponents/apps/onlineListings/onlineListingsFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
 import LnurlReceiveCurrencySelect from '../../components/admin/homeComponents/receiveBitcoin/lnurlReceiveCurrencySelect';
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
+import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -183,6 +185,7 @@ export default function CustomHalfModal(props) {
             message={props.route.params?.message}
             phoneNumber={props.route.params?.phoneNumber}
             areaCodeNum={props.route.params?.areaCodeNum}
+            normalizedPhoneNumber={props.route.params?.normalizedPhoneNumber}
             sendTextMessage={props.route.params?.sendTextMessage}
             page={'sendSMS'}
           />
@@ -242,15 +245,7 @@ export default function CustomHalfModal(props) {
           />
         );
       case 'chatGPT':
-        return (
-          <ConfirmChatGPTPage
-            theme={theme}
-            darkModeType={darkModeType}
-            price={props.route.params?.price}
-            plan={props.route.params?.plan}
-            slideHeight={slideHeight}
-          />
-        );
+        return <ConfirmChatGPTPage setContentHeight={setContentHeight} />;
       case 'addContacts':
         return (
           <AddContactsHalfModal
@@ -571,6 +566,17 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
+      case 'onlineListingsFilter':
+        return (
+          <OnlineListingsFilterHalfModal
+            currentFilter={props?.route?.params?.currentFilter}
+            onSelectFilter={props?.route?.params?.onSelectFilter}
+            categoryOptions={props?.route?.params?.categoryOptions}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            setIsKeyboardActive={setIsKeyboardActive}
+          />
+        );
       case 'payLinkCurrencySelect':
         return (
           <PayLinkCurrencySelect
@@ -618,6 +624,14 @@ export default function CustomHalfModal(props) {
           />
         );
 
+      case 'btcMapMerchant':
+        return (
+          <BTCMapMerchantContent
+            handleBackPressFunction={handleBackPressFunction}
+            placeId={props?.route?.params?.placeId}
+            setContentHeight={setContentHeight}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -678,7 +692,8 @@ export default function CustomHalfModal(props) {
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
               contentType === 'createPoolFlow' ||
-              contentType === 'ClaimGiftHomeHalfModal'
+              contentType === 'ClaimGiftHomeHalfModal' ||
+              contentType === 'onlineListingsFilter'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||

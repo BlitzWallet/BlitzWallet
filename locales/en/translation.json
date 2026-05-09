@@ -290,14 +290,16 @@
   "apps": {
     "noPurchaseTitle": "No Purchases",
     "appList": {
-      "AI": "AI",
+      "AI": "Generative AI",
       "AIDescription": "Chat with the latest generative AI models",
-      "SMS": "SMS",
+      "SMS": "SMS Messages",
       "SMSDescription": "Send and receive SMS messages worldwide using Bitcoin",
       "VPN": "VPN",
       "VPNDescription": "Securely browse and protect privacy",
-      "onlineListings": "Shops",
-      "onlineListingsDescription": "Directory of online businesses accepting Bitcoin payments",
+      "onlineListings": "Online Websites",
+      "onlineListingsDescription": "Browse online Bitcoin-accepting businesses",
+      "shop": "Shop with Bitcoin",
+      "shopDescription": "Gift cards, eSIMs, and more",
       "Soon": "Soon",
       "SoonDescription": "More integrations coming soon"
     },
@@ -366,6 +368,13 @@
       "loadingMessage": "Loading previous chats",
       "addCreditsPage": {
         "title": "Add Credits",
+        "unlockTitle": "Unlock AI.",
+        "bestValue": "Best Value",
+        "feature1": "Access the latest AI models",
+        "feature2": "No subscriptions — pay as you go",
+        "feature3": "Private, Lightning-powered payments",
+        "feature4": "Choose your plan size",
+        "feature5": "Simple, one-time purchases",
         "description": "In order to use the latest generative AI models, you must purchase credits. Choose an option below to begin.",
         "supportedModels": "Supported Models",
         "feeInfo": "Depending on the length of your question and response, the number of searches you get might differ. Blitz adds a 150 sat fee + 0.5% of purchase price onto all purchases.",
@@ -393,7 +402,12 @@
         "title": "Confirm Purchase",
         "plan": "Plan: {{planType}}",
         "price": "Price: ",
-        "fee": "Fee: "
+        "fee": "Fee: ",
+        "chooseAmount": "Choose an amount",
+        "minimumAmountError": "Minimum amount is {{amount}}",
+        "maximumAmountError": "Maximum amount is {{amount}}",
+        "confirmMessage": "You are about to purchase AI credits.",
+        "contributionWarning": "This payment is final. Payments cannot be refunded, even if the credits are not used."
       },
       "switchModel": {
         "inputLabel": "Input: {{amount}}/M",
@@ -406,305 +420,381 @@
         "examples": [
           {
             "topLine": "How do I start learning React Native?",
-            "bottomLine": "like I have never coded before"
+            "bottomLine": "like I have never coded before",
+            "category": "Tech"
           },
           {
             "topLine": "What is the difference between Web2 and Web3?",
-            "bottomLine": "like I'm a teenager"
+            "bottomLine": "like I'm a teenager",
+            "category": "Tech"
           },
           {
             "topLine": "How does the stock market work?",
-            "bottomLine": "like I am 12"
+            "bottomLine": "like I am 12",
+            "category": "Finance"
           },
           {
             "topLine": "What is quantum computing?",
-            "bottomLine": "like I'm 10 years old"
+            "bottomLine": "like I'm 10 years old",
+            "category": "Science"
           },
           {
             "topLine": "Explain climate change",
-            "bottomLine": "like I’m 8"
+            "bottomLine": "like I’m 8",
+            "category": "Science"
           },
           {
             "topLine": "What is artificial intelligence?",
-            "bottomLine": "like I'm a high schooler"
+            "bottomLine": "like I'm a high schooler",
+            "category": "AI"
           },
           {
             "topLine": "How do credit cards work?",
-            "bottomLine": "like I am 15"
+            "bottomLine": "like I am 15",
+            "category": "Finance"
           },
           {
             "topLine": "What is blockchain technology?",
-            "bottomLine": "like I am in middle school"
+            "bottomLine": "like I am in middle school",
+            "category": "Tech"
           },
           {
             "topLine": "How does GPS work?",
-            "bottomLine": "like I’m 7 years old"
+            "bottomLine": "like I’m 7 years old",
+            "category": "Science"
           },
           {
             "topLine": "Explain how airplanes fly",
-            "bottomLine": "like I'm 9"
+            "bottomLine": "like I'm 9",
+            "category": "Science"
           },
           {
             "topLine": "What is a meme?",
-            "bottomLine": "like I’m a grandparent"
+            "bottomLine": "like I’m a grandparent",
+            "category": "Culture"
           },
           {
             "topLine": "How do wireless networks work?",
-            "bottomLine": "like I'm a beginner"
+            "bottomLine": "like I'm a beginner",
+            "category": "Tech"
           },
           {
             "topLine": "What is cryptocurrency?",
-            "bottomLine": "like I am a teenager"
+            "bottomLine": "like I am a teenager",
+            "category": "Finance"
           },
           {
             "topLine": "How does the internet work?",
-            "bottomLine": "like I am 6"
+            "bottomLine": "like I am 6",
+            "category": "Tech"
           },
           {
             "topLine": "What is an API?",
-            "bottomLine": "like I am new to programming"
+            "bottomLine": "like I am new to programming",
+            "category": "Tech"
           },
           {
             "topLine": "Explain photosynthesis",
-            "bottomLine": "like I'm in 5th grade"
+            "bottomLine": "like I'm in 5th grade",
+            "category": "Science"
           },
           {
             "topLine": "How do electric cars work?",
-            "bottomLine": "like I’m 14"
+            "bottomLine": "like I’m 14",
+            "category": "Science"
           },
           {
             "topLine": "What is a smart contract?",
-            "bottomLine": "like I am in high school"
+            "bottomLine": "like I am in high school",
+            "category": "Tech"
           },
           {
             "topLine": "How does space travel work?",
-            "bottomLine": "like I’m 13"
+            "bottomLine": "like I’m 13",
+            "category": "Science"
           },
           {
             "topLine": "Explain NFTs",
-            "bottomLine": "like I am 15"
+            "bottomLine": "like I am 15",
+            "category": "Tech"
           },
           {
             "topLine": "What is augmented reality?",
-            "bottomLine": "like I'm 10 years old"
+            "bottomLine": "like I'm 10 years old",
+            "category": "Tech"
           },
           {
             "topLine": "How does a 3D printer work?",
-            "bottomLine": "like I’m in middle school"
+            "bottomLine": "like I’m in middle school",
+            "category": "Science"
           },
           {
             "topLine": "Explain machine learning",
-            "bottomLine": "like I'm in high school"
+            "bottomLine": "like I'm in high school",
+            "category": "AI"
           },
           {
             "topLine": "How do solar panels work?",
-            "bottomLine": "like I am 12"
+            "bottomLine": "like I am 12",
+            "category": "Science"
           },
           {
             "topLine": "What is virtual reality?",
-            "bottomLine": "like I’m a beginner"
+            "bottomLine": "like I’m a beginner",
+            "category": "Tech"
           },
           {
             "topLine": "How do vaccines work?",
-            "bottomLine": "like I am 10"
+            "bottomLine": "like I am 10",
+            "category": "Science"
           },
           {
             "topLine": "Explain gravity",
-            "bottomLine": "like I’m 5 years old"
+            "bottomLine": "like I’m 5 years old",
+            "category": "Science"
           },
           {
             "topLine": "What is a decentralized application (dApp)?",
-            "bottomLine": "like I am new to blockchain"
+            "bottomLine": "like I am new to blockchain",
+            "category": "Tech"
           },
           {
             "topLine": "How do microwaves cook food?",
-            "bottomLine": "like I am 8"
+            "bottomLine": "like I am 8",
+            "category": "Science"
           },
           {
             "topLine": "Explain the concept of time zones",
-            "bottomLine": "like I'm in elementary school"
+            "bottomLine": "like I'm in elementary school",
+            "category": "Science"
           },
           {
             "topLine": "How does a computer process data?",
-            "bottomLine": "like I'm a beginner"
+            "bottomLine": "like I'm a beginner",
+            "category": "Tech"
           },
           {
             "topLine": "What is cloud computing?",
-            "bottomLine": "like I am in middle school"
+            "bottomLine": "like I am in middle school",
+            "category": "Tech"
           },
           {
             "topLine": "Explain the concept of AI ethics",
-            "bottomLine": "like I'm a high schooler"
+            "bottomLine": "like I'm a high schooler",
+            "category": "AI"
           },
           {
             "topLine": "How do satellites stay in orbit?",
-            "bottomLine": "like I am 11"
+            "bottomLine": "like I am 11",
+            "category": "Science"
           },
           {
             "topLine": "What is cybersecurity?",
-            "bottomLine": "like I’m a teenager"
+            "bottomLine": "like I’m a teenager",
+            "category": "Tech"
           },
           {
             "topLine": "Explain the theory of evolution",
-            "bottomLine": "like I’m in 8th grade"
+            "bottomLine": "like I’m in 8th grade",
+            "category": "Science"
           },
           {
             "topLine": "What is the purpose of the blockchain?",
-            "bottomLine": "like I am in high school"
+            "bottomLine": "like I am in high school",
+            "category": "Tech"
           },
           {
             "topLine": "How does Wi-Fi work?",
-            "bottomLine": "like I am 9"
+            "bottomLine": "like I am 9",
+            "category": "Tech"
           },
           {
             "topLine": "What is a search engine?",
-            "bottomLine": "like I'm 10 years old"
+            "bottomLine": "like I'm 10 years old",
+            "category": "Tech"
           },
           {
             "topLine": "How do electric motors work?",
-            "bottomLine": "like I'm in 7th grade"
+            "bottomLine": "like I'm in 7th grade",
+            "category": "Science"
           },
           {
             "topLine": "Explain the concept of relativity",
-            "bottomLine": "like I am 14"
+            "bottomLine": "like I am 14",
+            "category": "Science"
           },
           {
             "topLine": "What is the Internet of Things (IoT)?",
-            "bottomLine": "like I am new to technology"
+            "bottomLine": "like I am new to technology",
+            "category": "Tech"
           },
           {
             "topLine": "How do smartphones work?",
-            "bottomLine": "like I'm in middle school"
+            "bottomLine": "like I'm in middle school",
+            "category": "Tech"
           },
           {
             "topLine": "Explain the concept of renewable energy",
-            "bottomLine": "like I am in 6th grade"
+            "bottomLine": "like I am in 6th grade",
+            "category": "Science"
           },
           {
             "topLine": "What is virtual currency?",
-            "bottomLine": "like I’m a teenager"
+            "bottomLine": "like I’m a teenager",
+            "category": "Finance"
           },
           {
             "topLine": "How do smart homes work?",
-            "bottomLine": "like I am 12"
+            "bottomLine": "like I am 12",
+            "category": "Tech"
           },
           {
             "topLine": "What is deep learning?",
-            "bottomLine": "like I am new to AI"
+            "bottomLine": "like I am new to AI",
+            "category": "AI"
           },
           {
             "topLine": "How does online shopping work?",
-            "bottomLine": "like I’m a beginner"
+            "bottomLine": "like I’m a beginner",
+            "category": "Culture"
           },
           {
             "topLine": "Explain the concept of data privacy",
-            "bottomLine": "like I’m a teenager"
+            "bottomLine": "like I’m a teenager",
+            "category": "Tech"
           },
           {
             "topLine": "What is virtual reality gaming?",
-            "bottomLine": "like I am 14"
+            "bottomLine": "like I am 14",
+            "category": "Tech"
           },
           {
             "topLine": "How do self-driving cars work?",
-            "bottomLine": "like I’m in high school"
+            "bottomLine": "like I’m in high school",
+            "category": "Tech"
           },
           {
             "topLine": "What is genetic engineering?",
-            "bottomLine": "like I am 13"
+            "bottomLine": "like I am 13",
+            "category": "Science"
           },
           {
             "topLine": "Explain the concept of smart cities",
-            "bottomLine": "like I am new to technology"
+            "bottomLine": "like I am new to technology",
+            "category": "Tech"
           },
           {
             "topLine": "How do drones work?",
-            "bottomLine": "like I am 11"
+            "bottomLine": "like I am 11",
+            "category": "Tech"
           },
           {
             "topLine": "What is a digital wallet?",
-            "bottomLine": "like I'm a teenager"
+            "bottomLine": "like I'm a teenager",
+            "category": "Finance"
           },
           {
             "topLine": "How does digital art work?",
-            "bottomLine": "like I’m in middle school"
+            "bottomLine": "like I’m in middle school",
+            "category": "Culture"
           },
           {
             "topLine": "Explain the concept of 5G technology",
-            "bottomLine": "like I am new to tech"
+            "bottomLine": "like I am new to tech",
+            "category": "Tech"
           },
           {
             "topLine": "What is an autonomous vehicle?",
-            "bottomLine": "like I am 15"
+            "bottomLine": "like I am 15",
+            "category": "Tech"
           },
           {
             "topLine": "How do video games work?",
-            "bottomLine": "like I am 10"
+            "bottomLine": "like I am 10",
+            "category": "Tech"
           },
           {
             "topLine": "Explain the concept of smart contracts",
-            "bottomLine": "like I’m in high school"
+            "bottomLine": "like I’m in high school",
+            "category": "Tech"
           },
           {
             "topLine": "What is a smart watch?",
-            "bottomLine": "like I am in middle school"
+            "bottomLine": "like I am in middle school",
+            "category": "Tech"
           },
           {
             "topLine": "How does a touchscreen work?",
-            "bottomLine": "like I'm 12 years old"
+            "bottomLine": "like I'm 12 years old",
+            "category": "Tech"
           },
           {
             "topLine": "Explain the concept of machine translation",
-            "bottomLine": "like I’m a beginner"
+            "bottomLine": "like I’m a beginner",
+            "category": "AI"
           },
           {
             "topLine": "What is a data center?",
-            "bottomLine": "like I am new to technology"
+            "bottomLine": "like I am new to technology",
+            "category": "Tech"
           },
           {
             "topLine": "How does blockchain mining work?",
-            "bottomLine": "like I’m a teenager"
+            "bottomLine": "like I’m a teenager",
+            "category": "Tech"
           },
           {
             "topLine": "What is a microchip?",
-            "bottomLine": "like I'm in high school"
+            "bottomLine": "like I'm in high school",
+            "category": "Tech"
           },
           {
             "topLine": "Explain the concept of cloud storage",
-            "bottomLine": "like I am in middle school"
+            "bottomLine": "like I am in middle school",
+            "category": "Tech"
           },
           {
             "topLine": "How do electric scooters work?",
-            "bottomLine": "like I’m 13"
+            "bottomLine": "like I’m 13",
+            "category": "Tech"
           },
           {
             "topLine": "What is an algorithm?",
-            "bottomLine": "like I'm a beginner"
+            "bottomLine": "like I'm a beginner",
+            "category": "Tech"
           },
           {
             "topLine": "Explain the concept of virtual meetings",
-            "bottomLine": "like I am new to technology"
+            "bottomLine": "like I am new to technology",
+            "category": "Tech"
           },
           {
             "topLine": "How do electric bikes work?",
-            "bottomLine": "like I am 14"
+            "bottomLine": "like I am 14",
+            "category": "Tech"
           },
           {
             "topLine": "What is a quantum computer?",
-            "bottomLine": "like I’m in high school"
+            "bottomLine": "like I’m in high school",
+            "category": "Science"
           },
           {
             "topLine": "Explain the concept of cybersecurity",
-            "bottomLine": "like I am a teenager"
+            "bottomLine": "like I am a teenager",
+            "category": "Tech"
           },
           {
             "topLine": "What is augmented reality?",
-            "bottomLine": "like I am 12"
+            "bottomLine": "like I am 12",
+            "category": "Tech"
           },
           {
             "topLine": "How do streaming services work?",
-            "bottomLine": "like I’m in middle school"
+            "bottomLine": "like I’m in middle school",
+            "category": "Tech"
           }
-        ]
+        ],
+        "sectionTitle": "Your questions answered"
       },
       "saveChat": {
         "errorMessage": "Sorry, we could not save your conversation."
@@ -765,7 +855,8 @@
     "sms4sats": {
       "home": {
         "pageDescription": "Send and receive SMS messages without giving away your personal phone number.",
-        "pricingError": "Unable to get SMS pricing"
+        "pricingError": "Unable to get SMS pricing",
+        "codeLabel": "Code"
       },
       "confirmationSlideUp": {
         "title": "Confirm number",
@@ -782,10 +873,23 @@
         "sendBTN": "Send message",
         "invalidInputError": "Must have a {{errorTyoe}}",
         "invalidCountryError": "Not a valid country",
+        "invalidPhoneError": "Enter a valid phone number",
+        "unsupportedCountryError": "Phone number country is not supported",
         "payingMessage": "Paying...",
         "runningTries": "Attempt {{runCount}} of {{maxTries}} attempts",
         "notAbleToSettleInvoice": "Unable to settle invoice.",
-        "paymentMemo": "Store - SMS Send"
+        "paymentMemo": "Store - SMS Send",
+        "confirmedMessage": "Your text message is on its way",
+        "noCountry": "You must choose a country first.",
+        "countryStepTitle": "Choose a country",
+        "countryStepSubtitle": "Select the country code for the number you want to send an SMS to.",
+        "countrySearchPlaceholder": "Search countries",
+        "phoneStepTitle": "Enter the phone number",
+        "phoneStepSubtitle": "Enter the full number excluding the country code (e.g. 2025551234 for (202) 555-1234).",
+        "invalidMessageError": "Enter a message before continuing",
+        "descriptionStepTitle": "Add your message",
+        "descriptionStepSubtitle": "SMS4Sats requires a message. Keep it short and under 140 characters.",
+        "descriptionInputPlaceholder": "Enter message"
       },
       "sentPayments": {
         "titlesend": "Sent Messages",
@@ -808,19 +912,20 @@
       "receivePage": {
         "paymentMemo": "Store - SMS Receive",
         "selectCountry": "Select Country",
-        "autoSelectInfoMessage": "Choose the country of the phone number you want to use. For the best chance of receiving your code, we recommend keeping it on 'Auto Select' so the system picks the most reliable option.",
+        "autoSelectInfoMessage": "We recommend keeping it on 'Auto Select' so the system picks the most reliable option.",
         "autoSelect": "Auto Select",
         "inputPlaceholder": "Search for a service",
         "locationLoadingMessage": "Getting location-based services",
         "noAvailableServices": "This location has no services",
-        "orderDetailsLoading": "Getting order details"
+        "orderDetailsLoading": "Getting order details",
+        "countryStepTitle": "Choose a country",
+        "countrySearchPlaceholder": "Search countries"
       },
       "confirmCodePage": {
-        "header": "Your order has been successfully initiated. Here's what happens next:",
+        "header": "Your order has been successfully initiated",
         "phoneNumberLabel": "Your Number:",
-        "step1": "• Click the receipt icon in the top right to view your order history",
-        "step2": "• Use the 'Get Code' button to retrieve your verification code, after adding the number to the service",
-        "step3": "• If no code is received, your payment will be automatically refunded in 21 minutes",
+        "step2": "Use the 'Get Code' button on the homepage to retrieve your verification code, after adding the number to the service",
+        "step3": "If no code is received, your payment will be automatically refunded in 21 minutes",
         "automaticRefund": "No number was available for this service. Your funds have already been refunded.",
         "waitedRefund": "No number was available for this service. Your funds will be refunded automatically after 21 minutes."
       },
@@ -844,6 +949,14 @@
       "tech": "Tech",
       "charity": "Charity",
       "sustainability": "Sustainability",
+      "filterTitle": "Filter Shops",
+      "filterCategoriesTitle": "Categories",
+      "filterCountryTitle": "Country",
+      "filterAllCategories": "All Categories",
+      "filterWorldwide": "Worldwide",
+      "filterCountrySearchPlaceholder": "Search countries...",
+      "filterClear": "Clear",
+      "filterApply": "Apply",
       "selectCategoryPlaceholder": "Select Category",
       "topBarLabel": "Shops",
       "loadingShopMessage": "Loading online shops",
@@ -2363,6 +2476,26 @@
         "createFailed": "Failed to create address. Please try again.",
         "deleteFailed": "Failed to delete address. Please try again."
       }
+    },
+    "btcMap": {
+      "mapPreview": {
+        "header": "Bitcoin map",
+        "subHeader": "Use bitcoin locally"
+      },
+      "map": {
+        "title": "Pay with Bitcoin",
+        "loadingMap": "Loading map...",
+        "loadingMerchants": "Loading merchants...",
+        "zoomIn": "Zoom in to see all merchants"
+      },
+      "merchant": {
+        "noName": "Unknown Merchant",
+        "directions": "Directions",
+        "pay": "Pay",
+        "lightning": "Lightning",
+        "lightningMessage": "Accepts bitcoin payments instantly over the Lightning Network",
+        "dataMessage": "Data from btcmap.org"
+      }
     }
   },
   "toastmessages": {
@@ -2723,7 +2856,6 @@
     "numberOfTxs_other": "{{count}} transactions",
     "remaining": "Remaining",
     "overBy": "Over by",
-
     "home": {
       "title": "Analytics",
       "activityHead": "Monthly activity",

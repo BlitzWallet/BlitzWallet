@@ -29,6 +29,7 @@ export default function ConfirmSMSPayment(props) {
     message,
     areaCodeNum,
     phoneNumber,
+    normalizedPhoneNumber,
     page,
     sendTextMessage,
     theme,
@@ -43,11 +44,11 @@ export default function ConfirmSMSPayment(props) {
   const formattedPhoneNumber = () => {
     try {
       return parsePhoneNumberWithError(
-        `${areaCodeNum}${phoneNumber}`,
+        normalizedPhoneNumber || `${areaCodeNum}${phoneNumber}`,
       ).formatInternational();
     } catch (err) {
       console.log(err);
-      return t('apps.sms4sats.confirmationSlideUp.invalidNumer');
+      return t('apps.sms4sats.confirmationSlideUp.invalidNumber');
     }
   };
 
@@ -66,7 +67,7 @@ export default function ConfirmSMSPayment(props) {
       try {
         const payload = {
           message: message,
-          phone: `${areaCodeNum}${phoneNumber}`,
+          phone: normalizedPhoneNumber || `${areaCodeNum}${phoneNumber}`,
           ref: process.env.GPT_PAYOUT_LNURL,
         };
 

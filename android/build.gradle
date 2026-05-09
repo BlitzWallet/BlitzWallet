@@ -20,6 +20,9 @@ buildscript {
         // Firebase depenedencies
         classpath('com.google.gms:google-services:4.4.3')
         classpath('com.google.firebase:firebase-crashlytics-gradle:3.0.3')
+
+        // google-secrets-gradle-plugin
+        classpath("com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1")
     }
 }
 // allprojects {

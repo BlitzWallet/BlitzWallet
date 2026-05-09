@@ -1,15 +1,18 @@
-import {useEffect, useMemo, useRef} from 'react';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useEffect, useMemo, useRef } from 'react';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
-import {applyErrorAnimationTheme} from '../../../../../functions/lottieViewColorTransformer';
-import {StyleSheet, View} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../../../../constants/theme';
-import {CENTER} from '../../../../../constants';
+import { applyErrorAnimationTheme } from '../../../../../functions/lottieViewColorTransformer';
+import { StyleSheet, View } from 'react-native';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import {
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
+import { CENTER } from '../../../../../constants';
 
 const errorTxAnimation = require('../../../../../assets/errorTxAnimation.json');
-export default function StoreErrorPage({error}) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+export default function StoreErrorPage({ error }) {
+  const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +39,7 @@ export default function StoreErrorPage({error}) {
       />
       <ThemeText
         styles={{
+          maxWidth: 275,
           textAlign: 'center',
           marginBottom: 5,
         }}

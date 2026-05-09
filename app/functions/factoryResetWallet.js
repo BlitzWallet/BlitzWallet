@@ -19,6 +19,7 @@ import {
   deleteSavingsPayoutsTable,
   deleteSavingsTransactionsTable,
 } from './savings/savingsStorage';
+import { deleteBtcMapTable } from './btcMap/btcMapStorage';
 
 export default async function factoryResetWallet() {
   try {
@@ -37,6 +38,7 @@ export default async function factoryResetWallet() {
     await deleteSavingsGoalsTable();
     await deleteSavingsTransactionsTable();
     await deleteSavingsPayoutsTable();
+    await deleteBtcMapTable();
 
     try {
       await signOut(firebaseAuth);

@@ -1,63 +1,112 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { SIZES } from '../../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
-import { parsePhoneNumberWithError } from 'libphonenumber-js';
-import { countrymap } from './receiveCountryCodes';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 
 export default function ViewSmsReceiveCode(props) {
   const { showToast } = useToast();
-  const { backgroundOffset, transparentOveraly } = GetThemeColors();
+  const { backgroundOffset, transparentOveraly, backgroundColor } =
+    GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
 
-  const country = props.route?.params?.country || 'N/A';
   const code = props.route?.params?.code || 'N/A';
-  const phone = props.route?.params?.phone | 'N/A';
-
-  const countryCode = countrymap.find(item => {
-    return item?.label?.toLowerCase() === country.toLowerCase();
-  });
-
-  const phoneNumber = useMemo(() => {
-    try {
-      return parsePhoneNumberWithError('+' + phone).formatInternational();
-    } catch (err) {
-      console.log('parse number errro', err);
-      return '';
-    }
-  }, [countryCode]);
 
   const handleCopy = useCallback(() => {
     copyToClipboard(code, showToast);
   }, [code]);
   return (
-    <View style={[styles.container, { backgroundColor: transparentOveraly }]}>
-      <View
-        style={[styles.contentContainer, { backgroundColor: backgroundOffset }]}
-      >
-        <View style={styles.topBar}>
-          <ThemeText
-            styles={styles.codeHeaderText}
-            content={t('apps.sms4sats.viewSMSReceiveCode.header')}
-          />
-          <TouchableOpacity onPress={navigate.goBack} style={styles.closeIcon}>
-            <ThemeIcon iconName={'X'} />
-          </TouchableOpacity>
-        </View>
+    <TouchableWithoutFeedback onPress={navigate.goBack}>
+      <View style={[styles.container, { backgroundColor: transparentOveraly }]}>
+        <TouchableWithoutFeedback>
+          <View
+            style={[
+              styles.contentContainer,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            <View
+              style={[
+                styles.iconWrap,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.expandedTXLightModeConfirmd,
+                },
+              ]}
+            >
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={20}
+                iconName={'Info'}
+              />
+            </View>
 
-        <TouchableOpacity onPress={handleCopy}>
-          <ThemeText styles={styles.codeText} content={code} />
-        </TouchableOpacity>
-        <ThemeText styles={styles.numberText} content={phoneNumber} />
+            <ThemeText
+              styles={styles.codeHeaderText}
+              content={t('apps.sms4sats.viewSMSReceiveCode.header')}
+            />
+            <TouchableOpacity onPress={handleCopy}>
+              <ThemeText
+                adjustsFontSizeToFit={true}
+                CustomNumberOfLines={1}
+                styles={styles.codeText}
+                content={code}
+              />
+            </TouchableOpacity>
+
+            <View
+              style={[
+                styles.divider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            />
+            <TouchableOpacity
+              onPress={navigate.goBack}
+              activeOpacity={0.6}
+              style={styles.btn}
+            >
+              <ThemeText
+                styles={[
+                  styles.btnText,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                ]}
+                content={t('constants.iunderstand')}
+              />
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 const styles = StyleSheet.create({
@@ -67,20 +116,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   contentContainer: {
-    padding: 10,
-    borderRadius: 8,
-    width: '80%',
+    width: INSET_WINDOW_WIDTH,
+    maxWidth: 300,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  topBar: {
-    flexDirection: 'row',
+  iconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: 28,
+    marginBottom: 12,
   },
   codeHeaderText: {
-    flexGrow: 1,
-    marginHorizontal: 30,
     textAlign: 'center',
-    fontSize: SIZES.large,
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    marginTop: 10,
   },
   closeIcon: {
     position: 'absolute',
@@ -89,10 +144,22 @@ const styles = StyleSheet.create({
   codeText: {
     fontSize: SIZES.xxLarge,
     textAlign: 'center',
-    marginTop: 20,
-  },
-  numberText: {
-    textAlign: 'center',
+    includeFontPadding: false,
     marginBottom: 30,
+    paddingHorizontal: 12,
+  },
+
+  divider: {
+    height: 2,
+    width: '100%',
+  },
+  btn: {
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
   },
 });

@@ -5,6 +5,9 @@ apply plugin: "com.facebook.react"
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
+// android secrets plugin
+apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -133,6 +136,11 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+
+    secrets {
+        propertiesFileName = 'secrets.properties'
+    }
+
     applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
             def abi = output.getFilter(com.android.build.OutputFile.ABI)
