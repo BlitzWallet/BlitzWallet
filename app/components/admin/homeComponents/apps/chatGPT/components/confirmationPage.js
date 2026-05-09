@@ -71,6 +71,9 @@ export default function ConfirmChatGPTPage(props) {
 
   const handleBackPress = useCallback(() => {
     if (currentPage === 'loading') return true;
+    if (currentPage === 'error') {
+      setError('');
+    }
     if (step.length > 1) {
       setStep(prev => prev.slice(0, -1));
       clearAmountStates();
@@ -100,6 +103,7 @@ export default function ConfirmChatGPTPage(props) {
         } catch (err) {
           if (!mounted) return;
           setError(t('errormessages.invoiceRetrivalError'));
+          setStep(['select', 'error']);
           return;
         }
         const lnInvoice = await getLNAddressForLiquidPayment(
@@ -136,6 +140,7 @@ export default function ConfirmChatGPTPage(props) {
       } catch (err) {
         console.log('Error generating invoice for chatGPT:', err);
         if (!mounted) return;
+        setStep(['select', 'error']);
         setError(err.message);
       }
     }
@@ -163,6 +168,8 @@ export default function ConfirmChatGPTPage(props) {
       invoiceInformation: { ...invoiceInformation, selectedAmountSats },
     });
   }, [invoiceInformation, selectedAmountSats]);
+
+  console.log(step, error, 'testing');
 
   const renderButton = item => {
     if (item.isCustomButton) {
