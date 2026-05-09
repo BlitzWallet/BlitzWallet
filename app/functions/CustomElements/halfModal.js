@@ -76,6 +76,7 @@ import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLink
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
+import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -615,6 +616,14 @@ export default function CustomHalfModal(props) {
           />
         );
 
+      case 'btcMapMerchant':
+        return (
+          <BTCMapMerchantContent
+            handleBackPressFunction={handleBackPressFunction}
+            placeId={props?.route?.params?.placeId}
+            setContentHeight={setContentHeight}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
