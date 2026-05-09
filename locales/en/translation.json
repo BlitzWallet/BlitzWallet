@@ -1359,7 +1359,18 @@
       "usernameAlreadyExistsError": "This username already exists, please choose another.",
       "unableToSaveError": "Unable to save profile image, please try again.",
       "deleteProfileImageError": "Unable to delete profile image, please try again.",
-      "deleteWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored."
+      "deleteWarning": "Are you sure you want to delete this contact? Messages older than a week cannot be restored.",
+      "receiveCurrencyPillTitle": "Receive Currency",
+      "receiveCurrencyPillDesc": "Set how you receive via your Lightning address",
+      "invalidCharactersError": "Name and bio cannot contain the characters < > { } ` \\",
+      "invalidReceiveAddressError": "Please enter a valid Lightning address (e.g. user@domain.com)",
+      "aboutYou": "About you",
+      "lightningAddress": "Lightning Address"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Receive currency",
+      "futurePaymentsMessage": "All future payments will be received as {{option}}",
+      "warningMessage": "When selecting {{option}}, there’s a {{amount}} minimum. Smaller payments will be received in Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "What do you want to send?"
@@ -1474,6 +1485,11 @@
         "noDescription": "Please add a description for this split.",
         "noContactsSelected": "Please select at least one other contact to continue"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Your display name is how others see you. It can be changed anytime.",
+      "uniquenameDescription": "Changing your username also changes your Lightning Address. Payments to your old username will be lost.",
+      "bioDescription": "Your bio is a short description to help others get to know you."
     }
   },
   "settings": {
@@ -1901,7 +1917,7 @@
       "settingsButton": "Settings",
       "poolsTitle": "Pools",
       "noPoolsMessage": "You haven't created any pools yet. Tap to create your first pool.",
-      "noActivePools": "You have no active pools",
+      "noActivePools": "You don’t have any active pools right now. Tap to view your pools.",
       "yourAccountsTitle": "Your Accounts",
       "addAccountButton": "Add Account"
     },
@@ -2068,9 +2084,9 @@
         "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your recovery phrase."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and a 0.1% Spark fee.\n\nIf you send money to yourself, you'll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you'll only pay the network fee once to claim it.",
-        "liquidFeeMessage": "Payments received to Liquid addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
-        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be transferred into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
+        "onchainFeeMessage": "To receive a Bitcoin payment, you'll pay an on-chain network fee. This fee varies based on current Bitcoin network fees.",
+        "liquidFeeMessage": "To receive a Liquid payment, you'll pay a lockup fee of ~{{fee}}, a claim fee of ~{{claimFee}}, and a 0.1% Boltz service fee.",
+        "rootstockFeeMessage": "To receive a Rootstock payment, you'll pay a lockup fee of ~{{fee}} and a 0.1% Boltz service fee.",
         "lightningConvertMessage": "Receiving dollars from Lightning requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
@@ -2114,6 +2130,7 @@
         "language": "Language",
         "pools": "Pools",
         "display currency": "Currency",
+        "receive currency": "Lightning Address",
         "display options": "Display Options",
         "edit contact profile": "Edit Contact Profile",
         "view all swaps": "Network Transfers",
@@ -2137,6 +2154,10 @@
         "settings": "Settings",
         "blitzRestore": "Blitz Restore",
         "point-of-sale": "Point-of-sale"
+      },
+      "remotePayments": {
+        "lnAddress": "Lightning address",
+        "lnurlPageDesc": "Your Lightning address lets anyone pay you with no invoice needed."
       },
       "technicalTransactionDetails": {
         "txHash": "Transaction Hash",
@@ -2398,7 +2419,9 @@
         "chooseCurrencyTitle": "Choose the currency to swap from",
         "enterAmountTitle": "Enter the amount to swap.",
         "noContentTitle": "No balance available",
-        "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin."
+        "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin.",
+        "insufficientBTCToSwap": "A Bitcoin balance of at least {{amount}} is required to swap from Bitcoin.",
+        "insufficientUSDToSwap": "A Dollar balance of at least {{amount}} is required to swap from Dollars."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",
@@ -2734,7 +2757,12 @@
       "paymentLabel": "Deposit to {{savingsGoal}} goal",
       "errors": {
         "unableToCompleteTransfer": "Unable to complete transfer"
-      }
+      },
+      "pageDescription": "Add money from your {{fromBalance}} balance to your {{destination}} balance",
+      "noSourceTitle": "No funding source available",
+      "noSourceSubtitle": "Add Bitcoin or Dollars to your wallet. Funding from Bitcoin requires at least {{amount}}.",
+      "noUSDInfoMessage": "A Dollar balance greater than {{amount}} is required to fund your savings.",
+      "noBTCInfoMessage": "A Bitcoin balance greater than the minimum swap amount of {{amount}} is required to fund your savings."
     },
     "withdraw": {
       "balanceTypeTitle": "What would you like to withdraw?",
@@ -2745,8 +2773,6 @@
       "interestBelowMinHint": "Your Bitcoin balance is below the minimum swap amount. Please withdraw to your Bitcoin balance.",
       "loadingBalances": "Loading balances...",
       "balanceLoadError": "Unable to load wallet. Go back and try again.",
-      "fromInterest": "From your Bitcoin",
-      "fromSavings": "From your goals",
       "interestPaymentLabel": "Bitcoin rewards withdrawal",
       "chooseGoalTitle": "Withdraw money from",
       "withdrawAll": "Withdraw All",
@@ -2755,10 +2781,13 @@
       "availableHint": "Available: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Confirm withdrawal",
-      "youAreWithdrawingAll": "You are withdrawing all goal balances",
-      "youAreWithdrawing": "You are withdrawing",
-      "toYourBalance": "to your {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats after swap",
+      "confirmSubtitle_interestAll": "Withdraw all bitcoin rewards to your {{destination}}",
+      "confirmSubtitle_interest": "Withdraw bitcoin rewards to your {{destination}}",
+      "confirmSubtitle_goalAll": "Withdraw all from {{goalName}} to your {{destination}}",
+      "confirmSubtitle_goal": "Withdraw from {{goalName}} to your {{destination}}",
+      "confirmSubtitle_generalAll": "Withdraw all from goal balance to your {{destination}}",
+      "confirmSubtitle_general": "Withdraw from goal balance to your {{destination}}",
+      "estimatedSats": "≈ {{sats}} after swap",
       "confirmButton": "Confirm",
       "processing": "Processing withdrawal...",
       "steps": {
@@ -2773,7 +2802,8 @@
       "paymentLabel": "Withdrawal from {{savingsGoal}} goal",
       "errors": {
         "unableToCompleteWithdrawal": "Unable to complete withdrawal"
-      }
+      },
+      "withdrawlAll": "Withdrawal All"
     },
     "howItWorks": {
       "headline1": "Your dollars,",

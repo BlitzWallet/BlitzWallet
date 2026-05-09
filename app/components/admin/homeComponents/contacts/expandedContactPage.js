@@ -295,6 +295,7 @@ export default function ExpandedContactsPage(props) {
       selectedContact?.uniqueName,
       selectedContact?.bio,
       selectedContact?.isLNURL,
+      selectedContact?.receiveAddress,
       imageData?.updated,
       imageData?.localUri,
       isConnectedToTheInternet,

@@ -94,8 +94,7 @@ const generateBannerText = (timeDifference, texts) => {
 };
 
 const getContainerWidth = frompage => {
-  return frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
-    Dimensions.get('screen').width < 370
+  return frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
     ? INSET_WINDOW_WIDTH
     : '100%';
 };

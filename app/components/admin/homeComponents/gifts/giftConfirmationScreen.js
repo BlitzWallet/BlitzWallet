@@ -1,5 +1,5 @@
 import LottieView from 'lottie-react-native';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -22,6 +22,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGifts } from '../../../../../context-store/giftContext';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -108,13 +109,20 @@ export default function GiftConfirmation(props) {
       })
     : t('screens.inAccount.giftPages.giftConfirmation.header');
 
+  const handleGoHome = useCallback(() => {
+    navigate.popTo('GiftsPageHome');
+    return true;
+  }, [navigate]);
+
+  useHandleBackPressNew(handleGoHome);
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         iconNew="Share"
         showLeftImage={!isBulk}
         leftImageFunction={handleShare}
-        customBackFunction={() => navigate.popTo('GiftsPageHome')}
+        customBackFunction={handleGoHome}
       />
       <ScrollView
         style={styles.scrollView}
@@ -290,7 +298,7 @@ export default function GiftConfirmation(props) {
       {/* Fixed Bottom Buttons */}
       <View style={styles.bottomButtons}>
         <CustomButton
-          actionFunction={() => navigate.popTo('GiftsPageHome')}
+          actionFunction={handleGoHome}
           textContent={t('screens.inAccount.giftPages.giftConfirmation.done')}
         />
         <CustomButton

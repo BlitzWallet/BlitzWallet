@@ -6,10 +6,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { CENTER, COLORS, FONT, SIZES } from '../../../../../constants';
+import { COLORS, SIZES } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { copyToClipboard } from '../../../../../functions';
-import CustomButton from '../../../../../functions/CustomElements/button';
 import { openInbox } from 'react-native-email-link';
 
 import { useToast } from '../../../../../../context-store/toastManager';
@@ -18,9 +17,12 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../constants/theme';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 
 export default function GiftCardOrderDetails(props) {
-  const { backgroundColor, transparentOveraly } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { showToast } = useToast();
   const { t } = useTranslation();
 
@@ -40,66 +42,82 @@ export default function GiftCardOrderDetails(props) {
             style={[
               styles.content,
               {
-                backgroundColor: backgroundColor,
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
               },
             ]}
           >
-            <ThemeText
-              styles={styles.headerText}
-              content={t('apps.giftCards.giftCardOrderDetails.title')}
+            {/* Details */}
+            <View style={styles.detailsContainer}>
+              <ThemeText
+                styles={styles.headerText}
+                content={t('apps.giftCards.giftCardOrderDetails.title')}
+              />
+
+              <ThemeText
+                styles={[styles.itemDescription, { marginTop: 20 }]}
+                content={t('apps.giftCards.giftCardOrderDetails.invoice')}
+              />
+              <TouchableOpacity
+                style={styles.itemContainer}
+                onPress={() => {
+                  copyToClipboard(item.invoice, showToast);
+                }}
+              >
+                <ThemeText
+                  CustomNumberOfLines={2}
+                  styles={styles.itemValue}
+                  content={item.invoice}
+                />
+              </TouchableOpacity>
+
+              <ThemeText
+                styles={styles.itemDescription}
+                content={t('apps.giftCards.giftCardOrderDetails.orderId')}
+              />
+              <TouchableOpacity
+                style={styles.itemContainer}
+                onPress={() => {
+                  copyToClipboard(JSON.stringify(item.id), showToast);
+                }}
+              >
+                <ThemeText styles={styles.itemValue} content={item.id} />
+              </TouchableOpacity>
+
+              <ThemeText
+                styles={styles.itemDescription}
+                content={t('apps.giftCards.giftCardOrderDetails.uuid')}
+              />
+              <TouchableOpacity
+                style={styles.itemContainer}
+                onPress={() => {
+                  copyToClipboard(item.uuid, showToast);
+                }}
+              >
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.itemValue}
+                  content={item.uuid}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Divider */}
+            <View
+              style={[
+                styles.divider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
             />
 
-            <ThemeText
-              styles={[styles.itemDescription, { marginTop: 20 }]}
-              content={t('apps.giftCards.giftCardOrderDetails.invoice')}
-            />
+            {/* Open Inbox button */}
             <TouchableOpacity
-              style={styles.itemContainer}
-              onPress={() => {
-                copyToClipboard(item.invoice, showToast);
-              }}
-            >
-              <ThemeText
-                CustomNumberOfLines={2}
-                styles={styles.itemValue}
-                content={item.invoice}
-              />
-            </TouchableOpacity>
-            <ThemeText
-              styles={styles.itemDescription}
-              content={t('apps.giftCards.giftCardOrderDetails.orderId')}
-            />
-            <TouchableOpacity
-              style={styles.itemContainer}
-              onPress={() => {
-                copyToClipboard(JSON.stringify(item.id), showToast);
-              }}
-            >
-              <ThemeText styles={styles.itemValue} content={item.id} />
-            </TouchableOpacity>
-            <ThemeText
-              styles={styles.itemDescription}
-              content={t('apps.giftCards.giftCardOrderDetails.uuid')}
-            />
-            <TouchableOpacity
-              style={styles.itemContainer}
-              onPress={() => {
-                copyToClipboard(item.uuid, showToast);
-              }}
-            >
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.itemValue}
-                content={item.uuid}
-              />
-            </TouchableOpacity>
-            <CustomButton
-              buttonStyles={{
-                marginTop: 20,
-                width: '100%',
-                ...CENTER,
-              }}
-              actionFunction={async () => {
+              activeOpacity={0.6}
+              style={styles.btn}
+              onPress={async () => {
                 try {
                   await openInbox();
                 } catch (err) {
@@ -108,8 +126,20 @@ export default function GiftCardOrderDetails(props) {
                   });
                 }
               }}
-              textContent={t('apps.giftCards.giftCardOrderDetails.openInbox')}
-            />
+            >
+              <ThemeText
+                styles={[
+                  styles.btnText,
+                  {
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                ]}
+                content={t('apps.giftCards.giftCardOrderDetails.openInbox')}
+              />
+            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </View>
@@ -120,18 +150,19 @@ export default function GiftCardOrderDetails(props) {
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
   content: {
     width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
-    backgroundColor: COLORS.lightModeBackground,
-
-    // paddingVertical: 10,
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  detailsContainer: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
   },
   headerText: {
     fontSize: SIZES.large,
@@ -140,11 +171,22 @@ const styles = StyleSheet.create({
   itemContainer: {
     marginBottom: 10,
   },
-  itemDescription: {
-    // fontWeight: 500,
-  },
+  itemDescription: {},
   itemValue: {
     opacity: HIDDEN_OPACITY,
     fontSize: SIZES.small,
+  },
+  divider: {
+    height: 2,
+    width: '100%',
+  },
+  btn: {
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
   },
 });

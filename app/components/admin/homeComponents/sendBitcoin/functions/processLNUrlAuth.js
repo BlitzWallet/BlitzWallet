@@ -9,17 +9,13 @@ import {
 } from '../../../../../functions/breezLiquid/liquidNodeManager';
 
 export default async function processLNUrlAuth(input, context) {
-  const { goBackFunction, navigate, setLoadingMessage, t, accountMnemoinc } =
-    context;
+  const { navigate, setLoadingMessage, t, accountMnemoinc } = context;
 
   if (!isLiquidNodeConnected()) {
     console.log('Liquid node not connected, waiting for connection...');
     const resposne = await ensureLiquidConnection(accountMnemoinc);
 
-    if (!resposne) {
-      goBackFunction(t('errormessages.tryAgain'));
-      return;
-    }
+    if (!resposne) throw new Error(t('errormessages.tryAgain'));
   }
 
   crashlyticsLogReport('Hanlding LURL auth');
@@ -50,7 +46,7 @@ export default async function processLNUrlAuth(input, context) {
       });
     });
   } else {
-    goBackFunction(
+    throw new Error(
       t('wallet.sendPages.handlingAddressErrors.lnurlFailedAuthMessage'),
     );
   }

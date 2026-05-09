@@ -1038,7 +1038,7 @@
       "gettingBalance": "Obtendo saldo da Vaquinha...",
       "checkingBalance": "Verificando saldo… ({{attempt}} de {{total}})",
       "preparingTransfer": "Preparando transferência...",
-      "connectingToPool": "Conectando à Vaquinha...",
+      "connectingToPool": "Carregando informações...",
       "unableToConnect": "Não foi possível conectar à Vaquinha. Tente novamente.",
       "unableToGetBalance": "Não foi possível obter o saldo da Vaquinha",
       "noFundsFound": "Nenhum fundo encontrado nesta Vaquinha",
@@ -1189,7 +1189,7 @@
         "lnurlPayNoInvoiceError": "O serviço que você está tentando pagar está atualmente offline. Se o problema persistir, entre em contato com a empresa que você está tentando pagar.",
         "lnurlPayInvalidFormat": "O serviço que você está tentando pagar não retornou os dados corretos. Se o problema persistir, entre em contato com a empresa que você está tentando pagar.",
         "lnurlWithdrawlStart": "Gerando fatura para saque",
-        "lnurlWithdrawlInvoiceError": "Não foi possível gerar a fatura para retirada a partir do lnurl",
+        "lnurlWithdrawlInvoiceError": "Não foi possível gerar a fatura para retirada a partir do LNURL",
         "waitingForLnurlWithdrawl": "Aguardando pagamento...",
         "lnurlWithdrawlSuccess": "Saque realizado com sucesso! Seu pagamento está a caminho.",
         "invoiceDetails": "Carregando detalhes",
@@ -1348,8 +1348,8 @@
       "navTitle": "Editar perfil",
       "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Digite seu nome",
-      "lnurlInputDesc": "Endereço LNURL",
-      "lnurlInputPlaceholder": "Digite seu endereço LNURL",
+      "lnurlInputDesc": "Endereço Lightning",
+      "lnurlInputPlaceholder": "Digite seu endereço Lightning",
       "uniqueNameInputDesc": "Nome de usuário",
       "uniqueNameInputPlaceholder": "Digite seu nome de usuário",
       "bioInputDesc": "Bio",
@@ -1359,7 +1359,18 @@
       "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
       "unableToSaveError": "Não foi possível salvar a imagem do perfil, tente novamente.",
       "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
-      "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
+      "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas.",
+      "receiveCurrencyPillTitle": "Moeda de recebimento",
+      "receiveCurrencyPillDesc": "Defina como você recebe pelo seu endereço Lightning",
+      "invalidCharactersError": "O nome e a bio não podem conter os caracteres < > { } ` \\",
+      "invalidReceiveAddressError": "Digite um endereço Lightning válido (ex.: usuario@dominio.com)",
+      "aboutYou": "Sobre você",
+      "lightningAddress": "Endereço Lightning"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Moeda de recebimento",
+      "futurePaymentsMessage": "Todos os pagamentos futuros serão recebidos em {{option}}",
+      "warningMessage": "Ao selecionar {{option}}, há um mínimo de {{amount}}. Pagamentos menores serão recebidos em Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "O que você deseja enviar?"
@@ -1442,7 +1453,7 @@
     },
     "splitBill": {
       "addFriendsTitle": "Mais pessoas",
-      "createBillTitle": "Criar conta dividida",
+      "createBillTitle": "Tipo de divisão",
       "selectedCount": "{{count}} de 10 selecionados",
       "searchPlaceholder": "Buscar contatos",
       "nextButton": "Próximo",
@@ -1474,6 +1485,11 @@
         "noDescription": "Adicione uma descrição.",
         "noContactsSelected": "Selecione pelo menos um contato"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Seu nome de exibição é como as outras pessoas veem você. Ele pode ser alterado a qualquer momento.",
+      "uniquenameDescription": "Alterar seu nome de usuário também altera seu endereço Lightning. Pagamentos para seu nome de usuário antigo serão perdidos.",
+      "bioDescription": "Sua bio é uma breve descrição para ajudar outras pessoas a conhecer você."
     }
   },
   "settings": {
@@ -1497,7 +1513,7 @@
       "poweredByFlashnet": "Flashnet",
       "poweredByBoltz": "Boltz API",
       "sparkHeader": "Como funciona",
-      "sparkDescription": "A Blitz Wallet funciona com o protocolo Spark. Spark é um protocolo off-chain onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da blockchain, permitindo transferências rápidas, de baixo custo e sem custódia de terceiros.",
+      "sparkDescription": "A Blitz Wallet funciona com o protocolo Spark. Spark é um protocolo Statechain onde os operadores Spark atualizam o estado da propriedade do Bitcoin fora da blockchain, permitindo transferências rápidas, de baixo custo e sem custódia de terceiros.",
       "learnMore": "Saiba mais",
       "creatorHeader": "Criador",
       "uiUxHeader": "UX / UI",
@@ -1901,7 +1917,7 @@
       "settingsButton": "Configurações",
       "poolsTitle": "Vaquinhas",
       "noPoolsMessage": "Toque para criar sua primeira Vaquinha.",
-      "noActivePools": "Você não tem Vaquinhas abertas",
+      "noActivePools": "Colete pagamentos para um objetivo",
       "yourAccountsTitle": "Suas contas",
       "addAccountButton": "Adicionar conta"
     },
@@ -1949,7 +1965,7 @@
         "payingMessage": "Pagando...",
         "notifyngMessage": "Notificando...",
         "errorPaying": "Não foi possível pagar o contato Blitz. Tente novamente mais tarde.",
-        "invalidName": "Nome não é um LNURL nem um usuário do Blitz.",
+        "invalidName": "Nome não é um endereço Lightning nem um usuário Blitz.",
         "removeEmployeeWarning": "Tem certeza de que deseja remover este funcionário?",
         "startingPaymentProcessMessage": "'Ao iniciar o processo de pagamento, por favor, não saia desta página ou do aplicativo.",
         "goBack": "Voltar",
@@ -2068,9 +2084,9 @@
         "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase de recuperação."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Os pagamentos recebidos em endereços Bitcoin têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
-        "liquidFeeMessage": "Pagamentos recebidos em endereços Liquid precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
-        "rootstockFeeMessage": "Pagamentos recebidos em endereços Rootstock precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
+        "onchainFeeMessage": "Para receber pagamentos em endereços Bitcoin, você pagará uma taxa de rede. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",
+        "liquidFeeMessage": "Para receber pagamentos em endereços Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de reivindicação de ~{{claimFee}} e uma taxa de serviço de 0,1% da Boltz.",
+        "rootstockFeeMessage": "Para receber pagamentos em endereços Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço de 0,1% da Boltz.",
         "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
@@ -2113,6 +2129,7 @@
         "about": "Sobre",
         "language": "Idioma",
         "display currency": "Moeda de exibição",
+        "receive currency": "Endereço Lightning",
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
@@ -2137,6 +2154,10 @@
         "point-of-sale": "Ponto de venda",
         "pools": "Vaquinhas",
         "show seed phrase": "Fazer backup da carteira"
+      },
+      "remotePayments": {
+        "lnAddress": "Endereço Lightning",
+        "lnurlPageDesc": "Seu endereço Lightning permite que qualquer pessoa pague você sem precisar de fatura."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
@@ -2250,7 +2271,7 @@
           "warningSubtitle": "Fundos não resgatados podem ser recuperados após {{numDays}} dias.",
           "bulkButton": "Criar {{count}} Vales-Blitz",
           "maxQuantityHint": "Máximo de 20 Vales-Blitz permitidos.",
-          "amountPageHeader": "Adicionar uma quantia",
+          "amountPageHeader": "Escolha uma quantia",
           "amountPageDesc": "Insira o valor de cada Vale-Blitz e a moeda."
         },
         "giftConfirmation": {
@@ -2398,6 +2419,8 @@
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas.",
+        "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para trocar bitcoins.",
+        "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para trocar dólares.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
@@ -2409,7 +2432,7 @@
     },
     "accumulationAddresses": {
       "title": "Conversão automática",
-      "subtitle": "Converta automaticamente USDT/USDC em BTC ou dólares USDB",
+      "subtitle": "Converta automaticamente USDT ou USDC em BTC ou dólares USDB",
       "navTitle": "Conversão automática",
       "sectionTitle": "Endereços ativos",
       "empty": {
@@ -2568,8 +2591,8 @@
       "body": "Você recebeu {{totalAmount}}"
     },
     "LNURL": {
-      "zapped": "Você recebeu um Zap {{totalAmount}}",
-      "regular": "Você acabou de receber {{totalAmount}}"
+      "zapped": "Alguém te enviou um Zap de {{totalAmount}}",
+      "regular": "Alguém te enviou {{totalAmount}}"
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
@@ -2654,7 +2677,7 @@
     },
     "preview": {
       "title": "Caixinhas",
-      "earnInterest": "Guarde dinheiro e realize seus sonhos"
+      "earnInterest": "Poupe dólares e ganhe bitcoins"
     },
     "goalEmoji": {
       "screenTitle": "Escolher emoji",
@@ -2734,7 +2757,12 @@
       "paymentLabel": "Depósito na Caixinha {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Não foi possível concluir a transferência"
-      }
+      },
+      "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}",
+      "noSourceTitle": "Sem fundos disponíveis",
+      "noSourceSubtitle": "Adicione Bitcoin ou USD à sua carteira. Usar o saldo Bitcoin para realizar esse pagamento requer pelo menos {{amount}}.",
+      "noUSDInfoMessage": "É necessário um saldo em USD maior que {{amount}} para depositar nas Caixinhas.",
+      "noBTCInfoMessage": "É necessário um saldo em Bitcoin maior que o valor mínimo de trocas, que é de {{amount}}, para depositar nas Caixinhas."
     },
     "withdraw": {
       "balanceTypeTitle": "O que você gostaria de resgatar?",
@@ -2747,7 +2775,7 @@
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
       "fromSavings": "Da sua Caixinha",
-      "interestPaymentLabel": "Resgate de recompensas",
+      "interestPaymentLabel": "Resgate recompensas",
       "chooseGoalTitle": "Resgatar dinheiro de",
       "withdrawAll": "Todas as Caixinhas",
       "generalSavings": "Caixinha geral",
@@ -2755,10 +2783,16 @@
       "availableHint": "Disponível: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar resgate",
+      "confirmSubtitle_interestAll": "Resgatar todas as recompensas bitcoin para seu {{destination}}",
+      "confirmSubtitle_interest": "Resgatar recompensas bitcoin para seu {{destination}}",
+      "confirmSubtitle_goalAll": "Resgatar tudo de {{goalName}} para seu {{destination}}",
+      "confirmSubtitle_goal": "Resgatar de {{goalName}} para seu {{destination}}",
+      "confirmSubtitle_generalAll": "Resgatar tudo do saldo metas para seu {{destination}}",
+      "confirmSubtitle_general": "Resgatar do saldo metas para seu {{destination}}",
       "youAreWithdrawingAll": "Você está resgatando de todas as Caixinhas",
       "youAreWithdrawing": "Você está resgatando",
       "toYourBalance": "para o seu {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats após troca",
+      "estimatedSats": "≈ {{sats}} após troca",
       "confirmButton": "Confirmar",
       "processing": "Processando resgate…",
       "steps": {
@@ -2773,7 +2807,8 @@
       "paymentLabel": "Resgate Caixinhas {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Não foi possível concluir o resgate"
-      }
+      },
+      "withdrawlAll": "Resgatar tudo"
     },
     "howItWorks": {
       "headline1": "O seu dinheiro,",

@@ -623,6 +623,10 @@ export default function HalfModalSendOptions({
     [navigate, cache],
   );
 
+  const hideAddContacts = useCallback(() => {
+    setShowAddContact(false);
+  }, [setShowAddContact]);
+
   const handleContactAdded = useCallback(
     newContact => {
       handleBackPressFunction(() => {
@@ -894,7 +898,7 @@ export default function HalfModalSendOptions({
             )}
 
             <CustomButton
-              buttonStyles={{ ...CENTER }}
+              buttonStyles={styles.inputModeButton}
               textContent={
                 inputText?.trim()
                   ? t('constants.continue')
@@ -910,7 +914,7 @@ export default function HalfModalSendOptions({
 
       <AddContactOverlay
         visible={showAddContact}
-        onClose={() => setShowAddContact(false)}
+        onClose={hideAddContacts}
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
       />
@@ -1109,5 +1113,8 @@ const styles = StyleSheet.create({
   paymentOptionText: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
+  },
+  inputModeButton: {
+    ...CENTER,
   },
 });

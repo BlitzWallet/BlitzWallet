@@ -32,6 +32,7 @@ import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import { useAppStatus } from '../../../../../context-store/appStatus';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 // ─── LNURL Banner ────────────────────────────────────────────────────────────
 
@@ -127,12 +128,16 @@ const LNURLQROverlay = ({
   visible,
   onClose,
   lnurlAddress,
-
+  navigate,
+  masterInfoObject,
+  theme,
+  darkModeType,
   t,
 }) => {
   const { bottomPadding } = useGlobalInsets();
   const overlayOpacity = useSharedValue(0);
   const overlayTranslateX = useSharedValue(30);
+  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
 
   useEffect(() => {
     overlayOpacity.value = withTiming(visible ? 1 : 0, { duration: 250 });
@@ -162,6 +167,37 @@ const LNURLQROverlay = ({
           outerContainerStyle={{ backgroundColor: COLORS.darkModeText }}
           QRData={`${lnurlAddress}`}
         />
+
+        <View style={styles.selectionContainer}>
+          <TouchableOpacity
+            onPress={() =>
+              navigate.push('CustomHalfModal', {
+                wantedContent: 'lnurlReceiveCurrencySelect',
+              })
+            }
+            style={[
+              styles.currencyToggle,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+          >
+            <ThemeText
+              styles={styles.currencyToggleText}
+              content={
+                masterInfoObject.lnurlReceiveCurrency === 'btc'
+                  ? t('constants.bitcoin_upper')
+                  : t('constants.dollars_upper')
+              }
+            />
+            <ThemeIcon
+              colorOverride={textColor}
+              size={18}
+              iconName={'ChevronDown'}
+            />
+          </TouchableOpacity>
+        </View>
 
         {/* Back button */}
         <CustomButton
@@ -372,6 +408,7 @@ export default function HalfModalReceiveOptions({
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
   const { screenDimensions } = useAppStatus();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
@@ -550,6 +587,26 @@ export default function HalfModalReceiveOptions({
     visibleCount,
   ]);
 
+  const handleLNURLClose = useCallback(() => {
+    setContentHeight(Math.round(screenDimensions.height * 0.8));
+    setShowLNURLQR(false);
+  }, [setContentHeight, setShowLNURLQR, screenDimensions]);
+
+  const handleAddContactsClose = useCallback(
+    () => setShowAddContact(false),
+    [setShowAddContact],
+  );
+
+  const handlePoolClose = useCallback(
+    () => setShowPoolCreation(false),
+    [setShowPoolCreation],
+  );
+
+  const handlePaylinkClose = useCallback(
+    () => setShowPayLinkCreation(false),
+    [setShowPayLinkCreation],
+  );
+
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.mainContent, contentStyle]}>
@@ -585,7 +642,7 @@ export default function HalfModalReceiveOptions({
               backgroundOffset={backgroundOffset}
               textColor={textColor}
               onQRPress={() => {
-                setContentHeight(500);
+                setContentHeight(600);
                 setShowLNURLQR(true);
               }}
             />
@@ -710,10 +767,7 @@ export default function HalfModalReceiveOptions({
 
       <LNURLQROverlay
         visible={showLNURLQR}
-        onClose={() => {
-          setContentHeight(Math.round(screenDimensions.height * 0.8));
-          setShowLNURLQR(false);
-        }}
+        onClose={handleLNURLClose}
         lnurlAddress={lnurlAddress}
         theme={theme}
         darkModeType={darkModeType}
@@ -721,19 +775,21 @@ export default function HalfModalReceiveOptions({
         backgroundOffset={backgroundOffset}
         textColor={textColor}
         t={t}
+        navigate={navigate}
+        masterInfoObject={masterInfoObject}
         setContentHeight={setContentHeight}
       />
 
       <AddContactOverlay
         visible={showAddContact}
-        onClose={() => setShowAddContact(false)}
+        onClose={handleAddContactsClose}
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
       />
 
       <PoolCreationOverlay
         visible={showPoolCreation}
-        onClose={() => setShowPoolCreation(false)}
+        onClose={handlePoolClose}
         theme={theme}
         darkModeType={darkModeType}
         handleBackPressFunction={handleBackPressFunction}
@@ -741,7 +797,7 @@ export default function HalfModalReceiveOptions({
 
       <PayLinkCreationOverlay
         visible={showPayLinkCreation}
-        onClose={() => setShowPayLinkCreation(false)}
+        onClose={handlePaylinkClose}
         theme={theme}
         darkModeType={darkModeType}
         handleBackPressFunction={handleBackPressFunction}
@@ -804,7 +860,6 @@ const styles = StyleSheet.create({
   // ── QR Overlay ──
   qrOverlayContent: {
     flex: 1,
-    justifyContent: 'space-between',
   },
 
   stickyHeaderContainer: {
@@ -961,5 +1016,26 @@ const styles = StyleSheet.create({
   overlayContent: {
     flex: 1,
     justifyContent: 'space-between',
+  },
+  selectionContainer: {
+    width: INSET_WINDOW_WIDTH,
+    flex: 1,
+    marginVertical: 20,
+    ...CENTER,
+    alignItems: 'center',
+    gap: 5,
+  },
+  currencyToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    ...CENTER,
+    minHeight: 40,
+    paddingHorizontal: 15,
+    borderRadius: 50,
+  },
+
+  currencyToggleText: {
+    includeFontPadding: false,
   },
 });

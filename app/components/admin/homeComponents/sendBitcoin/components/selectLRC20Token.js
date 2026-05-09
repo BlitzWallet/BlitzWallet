@@ -23,6 +23,7 @@ import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useNavigation } from '@react-navigation/native';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 
 export default function SelectLRC20Token({
   setIsKeyboardActive,
@@ -37,6 +38,7 @@ export default function SelectLRC20Token({
     : [];
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
 
   const handleSearch = term => {
@@ -233,6 +235,7 @@ export default function SelectLRC20Token({
           )}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="none"
+          contentContainerStyle={{ paddingBottom: bottomPadding }}
         />
       ) : (
         <ThemeText

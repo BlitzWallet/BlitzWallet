@@ -43,6 +43,7 @@ export default function AnalyticsPage() {
     spentTxCountBTC,
     spentTxCountUSD,
     isLoading,
+    isReloading,
   } = useAnalytics();
   const { screenDimensions } = useAppStatus();
   const { t } = useTranslation();
@@ -133,7 +134,7 @@ export default function AnalyticsPage() {
               styles={styles.metricLabel}
               content={t('constants.received')}
             />
-            {isLoading ? (
+            {isLoading || isReloading ? (
               <FullLoadingScreen size="small" showText={false} />
             ) : (
               <>
@@ -180,7 +181,7 @@ export default function AnalyticsPage() {
               styles={styles.metricLabel}
               content={t('constants.sent')}
             />
-            {isLoading ? (
+            {isLoading || isReloading ? (
               <FullLoadingScreen size="small" showText={false} />
             ) : (
               <>

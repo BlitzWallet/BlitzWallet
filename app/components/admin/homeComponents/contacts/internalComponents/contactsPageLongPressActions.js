@@ -24,7 +24,8 @@ export default function ContactsPageLongPressActions({
   const navigate = useNavigation();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor, backgroundColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset, transparentOveraly } =
+    GetThemeColors();
   const {
     decodedAddedContacts,
     globalContactsInformation,
@@ -36,42 +37,56 @@ export default function ContactsPageLongPressActions({
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
-      <View style={styles.globalContainer}>
+      <View
+        style={[
+          styles.globalContainer,
+          { backgroundColor: transparentOveraly },
+        ]}
+      >
         <TouchableWithoutFeedback>
           <View
             style={[
               styles.content,
               {
-                backgroundColor: backgroundColor,
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
               },
             ]}
           >
             <TouchableOpacity
+              activeOpacity={0.6}
+              style={styles.btn}
               onPress={() => {
                 toggleContactPin(contact);
                 navigate.goBack();
               }}
             >
               <ThemeText
-                styles={styles.cancelButton}
+                styles={styles.btnText}
                 content={t(`constants.${contact.isFavorite ? 'unpin' : 'pin'}`)}
               />
             </TouchableOpacity>
+
             <View
-              style={{
-                ...styles.border,
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              }}
+              style={[
+                styles.divider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
             />
+
             <TouchableOpacity
+              activeOpacity={0.6}
+              style={styles.btn}
               onPress={() => {
                 deleteContact(contact);
                 navigate.goBack();
               }}
             >
               <ThemeText
-                styles={styles.cancelButton}
+                styles={styles.btnText}
                 content={t('constants.delete')}
               />
             </TouchableOpacity>
@@ -105,27 +120,26 @@ export default function ContactsPageLongPressActions({
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-    backgroundColor: COLORS.opaicityGray,
     alignItems: 'center',
     justifyContent: 'center',
   },
   content: {
     width: INSET_WINDOW_WIDTH,
     maxWidth: 300,
-    backgroundColor: COLORS.lightModeBackground,
-
-    // paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-
-  border: {
-    height: 1,
+  divider: {
+    height: 2,
     width: '100%',
-    backgroundColor: COLORS.primary,
   },
-  cancelButton: {
+  btn: {
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnText: {
     textAlign: 'center',
-    paddingVertical: 15,
     includeFontPadding: false,
   },
 });

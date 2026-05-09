@@ -73,6 +73,7 @@ import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapF
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import OnlineListingsFilterHalfModal from '../../components/admin/homeComponents/apps/onlineListings/onlineListingsFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
+import LnurlReceiveCurrencySelect from '../../components/admin/homeComponents/receiveBitcoin/lnurlReceiveCurrencySelect';
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
@@ -585,6 +586,13 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
+      case 'lnurlReceiveCurrencySelect':
+        return (
+          <LnurlReceiveCurrencySelect
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
       case 'stablecoinAssetPicker':
         return (
           <StablecoinAssetPickerHalfModal
@@ -691,7 +699,8 @@ export default function CustomHalfModal(props) {
                   : contentType === 'switchGenerativeAiModel' ||
                     contentType === 'addContacts' ||
                     contentType === 'sendOptions' ||
-                    contentType === 'createPoolFlow'
+                    contentType === 'createPoolFlow' ||
+                    contentType === 'SelectLRC20Token'
                   ? 0
                   : contentType === 'receiveOptions'
                   ? 0

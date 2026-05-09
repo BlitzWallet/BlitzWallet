@@ -12,12 +12,20 @@ export function validatePoolPayment({
   dollarBalanceToken,
   paymentAmountSats,
   paymentAmountUSD,
+  swapLimits,
 }) {
   if (bitcoinBalance >= paymentAmountSats) {
     return { isValid: true, paymentMethod: 'BTC' };
   }
-  if (dollarBalanceToken >= paymentAmountUSD) {
+  if (
+    dollarBalanceToken >= paymentAmountUSD &&
+    paymentAmountUSD >= swapLimits.usd
+  ) {
     return { isValid: true, paymentMethod: 'USD' };
   }
-  return { isValid: false, paymentMethod: null };
+  const errorReason =
+    dollarBalanceToken >= paymentAmountUSD && paymentAmountUSD < swapLimits.usd
+      ? 'BELOW_USD_SWAP_MINIMUM'
+      : 'INSUFFICIENT_FUNDS';
+  return { isValid: false, paymentMethod: null, errorReason };
 }

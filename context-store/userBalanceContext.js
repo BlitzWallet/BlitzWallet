@@ -1,10 +1,14 @@
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useEffect, useMemo } from 'react';
 
 import { useSparkWallet } from './sparkContext';
 import { useFlashnet } from './flashnetContext';
 import { USDB_TOKEN_ID } from '../app/constants';
 import formatTokensNumber from '../app/functions/lrc20/formatTokensBalance';
 import { dollarsToSats } from '../app/functions/spark/flashnet';
+import {
+  setBitcoinBalance,
+  setDollarBalanceToken,
+} from '../app/functions/spark/balanceStore';
 
 const UserBalanceContext = createContext(null);
 
@@ -43,9 +47,17 @@ export const UserBalanceProvider = ({ children }) => {
       const balance = sparkInformation?.balance;
       if (balance == null) return 0;
 
-      return typeof balance === 'bigint'
-        ? Number(balance)
-        : Number(balance) || 0;
+      let num;
+      if (typeof balance === 'bigint') {
+        num = Number(balance);
+      } else if (typeof balance === 'string') {
+        num = parseFloat(balance);
+      } else {
+        num = Number(balance);
+      }
+
+      if (!isFinite(num) || isNaN(num)) return 0;
+      return Math.max(0, Math.trunc(num));
     } catch (error) {
       console.error('Error processing bitcoin balance:', error);
       return 0;
@@ -79,6 +91,26 @@ export const UserBalanceProvider = ({ children }) => {
       return 0;
     }
   }, [bitcoinBalance, dollarBalanceSat]);
+
+  useEffect(() => {
+    if (!usdbTokenInfo?.balance) return;
+    try {
+      const numberTokenBalance = Number(usdbTokenInfo?.balance);
+      console.log('USDB token balance number', numberTokenBalance);
+      if (isNaN(numberTokenBalance)) return;
+      setDollarBalanceToken(numberTokenBalance);
+    } catch {}
+  }, [usdbTokenInfo]);
+
+  useEffect(() => {
+    if (!bitcoinBalance) return;
+    try {
+      const numberBitcoinBalance = Number(bitcoinBalance);
+      console.log('USDB token balance number', numberBitcoinBalance);
+      if (isNaN(numberBitcoinBalance)) return;
+      setBitcoinBalance(numberBitcoinBalance);
+    } catch {}
+  }, [bitcoinBalance]);
 
   const contextValue = useMemo(() => {
     return {

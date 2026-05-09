@@ -1359,7 +1359,18 @@
       "usernameAlreadyExistsError": "Questo nome utente esiste già, scegli un altro.",
       "unableToSaveError": "Impossibile salvare l'immagine del profilo, riprova.",
       "deleteProfileImageError": "Impossibile eliminare l'immagine del profilo, riprova.",
-      "deleteWarning": "Sei sicuro di voler eliminare questo contatto? I messaggi più vecchi di una settimana non possono essere ripristinati."
+      "deleteWarning": "Sei sicuro di voler eliminare questo contatto? I messaggi più vecchi di una settimana non possono essere ripristinati.",
+      "receiveCurrencyPillTitle": "Valuta di ricezione",
+      "receiveCurrencyPillDesc": "Imposta come ricevere tramite il tuo indirizzo Lightning",
+      "invalidCharactersError": "Nome e bio non possono contenere i caratteri < > { } ` \\",
+      "invalidReceiveAddressError": "Inserisci un indirizzo Lightning valido (es. utente@dominio.com)",
+      "aboutYou": "Su di te",
+      "lightningAddress": "Indirizzo Lightning"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Valuta di ricezione",
+      "futurePaymentsMessage": "Tutti i pagamenti futuri saranno ricevuti in {{option}}",
+      "warningMessage": "Se selezioni {{option}}, è previsto un minimo di {{amount}}. I pagamenti più piccoli saranno ricevuti in Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "Cosa vuoi inviare?"
@@ -1474,6 +1485,11 @@
         "noDescription": "Aggiungi una descrizione.",
         "noContactsSelected": "Seleziona almeno un contatto"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Il tuo nome visualizzato è il modo in cui gli altri ti vedono. Può essere modificato in qualsiasi momento.",
+      "uniquenameDescription": "Modificare il tuo username cambia anche il tuo indirizzo Lightning. I pagamenti al tuo vecchio username andranno persi.",
+      "bioDescription": "La tua bio è una breve descrizione per aiutare gli altri a conoscerti."
     }
   },
   "settings": {
@@ -1901,7 +1917,7 @@
       "settingsButton": "Impostazioni",
       "poolsTitle": "Pool",
       "noPoolsMessage": "Non hai ancora creato alcun pool. Tocca per creare il tuo primo pool.",
-      "noActivePools": "Non hai pool attivi",
+      "noActivePools": "Non hai pool attivi al momento. Tocca per vedere i tuoi pool.",
       "yourAccountsTitle": "I tuoi account",
       "addAccountButton": "Aggiungi account"
     },
@@ -2068,9 +2084,9 @@
         "dbInitError2": "Per favore riprova. Se il problema persiste, puoi recuperare i tuoi fondi in tutta sicurezza utilizzando la frase seed."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "I pagamenti on-chain hanno una commissione di rete e una commissione Spark dello 0,1%.\n\nSe invii soldi a te stesso, pagherai la commissione di rete due volte — una per inviarli e una per reclamarli.\n\nSe qualcun altro ti invia fondi, pagherai la commissione di rete una sola volta per reclamarli.",
-        "liquidFeeMessage": "I pagamenti ricevuti su indirizzi Liquid devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}}, una commissione di riscossione di circa {{claimFee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
-        "rootstockFeeMessage": "I pagamenti ricevuti su indirizzi Rootstock devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
+        "onchainFeeMessage": "Per ricevere un pagamento in Bitcoin, pagherai una commissione di rete on-chain. Questa commissione varia in base alle tariffe attuali della rete Bitcoin.",
+        "liquidFeeMessage": "Per ricevere un pagamento Liquid, pagherai una commissione di lockup di ~{{fee}}, una commissione di claim di ~{{claimFee}} e una commissione di servizio Boltz dello 0,1%.",
+        "rootstockFeeMessage": "Per ricevere un pagamento Rootstock, pagherai una commissione di lockup di ~{{fee}} e una commissione di servizio Boltz dello 0,1%.",
         "lightningConvertMessage": "Ricevere dollari tramite Lightning richiede la conversione di Bitcoin in USD. Si applica una commissione del {{convertFee}} % e il tasso di cambio attuale è:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generazione Fattura",
         "amountPlaceholder": "Qualsiasi importo",
@@ -2113,6 +2129,7 @@
         "about": "Informazioni",
         "language": "Lingua",
         "display currency": "Valuta",
+        "receive currency": "Indirizzo Lightning",
         "display options": "Opzioni di Visualizzazione",
         "edit contact profile": "Modifica Profilo Contatto",
         "view all swaps": "Trasferimenti di rete",
@@ -2137,6 +2154,10 @@
         "point-of-sale": "Terminale POS",
         "pools": "Pools",
         "show seed phrase": "Backup portafoglio"
+      },
+      "remotePayments": {
+        "lnAddress": "Indirizzo Lightning",
+        "lnurlPageDesc": "Il tuo indirizzo Lightning consente a chiunque di pagarti senza bisogno di una fattura."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash Transazione",
@@ -2398,6 +2419,8 @@
         "enterAmountTitle": "Inserisci l’importo da scambiare.",
         "noContentTitle": "Nessun saldo disponibile",
         "noContentSubTittle": "Aggiungi fondi al tuo wallet per iniziare a scambiare tra dollari e Bitcoin.",
+        "insufficientBTCToSwap": "È necessario un saldo Bitcoin di almeno {{amount}} per scambiare da Bitcoin.",
+        "insufficientUSDToSwap": "È necessario un saldo in dollari di almeno {{amount}} per scambiare da dollari.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
@@ -2734,7 +2757,12 @@
       "paymentLabel": "Deposito risparmio su {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Impossibile completare il trasferimento"
-      }
+      },
+      "pageDescription": "Trasferisci denaro dal tuo saldo {{fromBalance}} al tuo saldo {{destination}}",
+      "noSourceTitle": "Nessuna fonte di finanziamento disponibile",
+      "noSourceSubtitle": "Aggiungi Bitcoin o USD al tuo wallet. Il finanziamento in Bitcoin richiede almeno {{amount}}.",
+      "noUSDInfoMessage": "È richiesto un saldo USD superiore a {{amount}} per finanziare i tuoi risparmi.",
+      "noBTCInfoMessage": "È richiesto un saldo Bitcoin superiore all'importo minimo di swap di {{amount}} per finanziare i tuoi risparmi."
     },
     "withdraw": {
       "balanceTypeTitle": "Cosa desideri prelevare?",
@@ -2755,10 +2783,16 @@
       "availableHint": "Disponibile: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Conferma prelievo",
+      "confirmSubtitle_interestAll": "Preleva tutti i reward Bitcoin verso il tuo {{destination}}",
+      "confirmSubtitle_interest": "Preleva i reward Bitcoin verso il tuo {{destination}}",
+      "confirmSubtitle_goalAll": "Preleva tutto da {{goalName}} verso il tuo {{destination}}",
+      "confirmSubtitle_goal": "Preleva da {{goalName}} verso il tuo {{destination}}",
+      "confirmSubtitle_generalAll": "Preleva tutto dal saldo obiettivo verso il tuo {{destination}}",
+      "confirmSubtitle_general": "Preleva dal saldo obiettivo verso il tuo {{destination}}",
       "youAreWithdrawingAll": "Stai prelevando tutti i risparmi",
       "youAreWithdrawing": "Stai prelevando",
       "toYourBalance": "sul tuo {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats dopo lo scambio",
+      "estimatedSats": "≈ {{sats}} dopo lo scambio",
       "confirmButton": "Conferma",
       "processing": "Prelievo in corso…",
       "steps": {
@@ -2773,7 +2807,8 @@
       "paymentLabel": "Prelievo risparmio da {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Impossibile completare il prelievo"
-      }
+      },
+      "withdrawlAll": "Preleva tutto"
     },
     "howItWorks": {
       "headline1": "Il tuo denaro,",

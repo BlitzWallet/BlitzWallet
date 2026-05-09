@@ -1360,7 +1360,18 @@
       "usernameAlreadyExistsError": "Имя занято, выберите другое.",
       "unableToSaveError": "Не удалось сохранить фото.",
       "deleteProfileImageError": "Не удалось удалить фото.",
-      "deleteWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить."
+      "deleteWarning": "Удалить контакт? Сообщения старше недели нельзя восстановить.",
+      "receiveCurrencyPillTitle": "Валюта получения",
+      "receiveCurrencyPillDesc": "Настройте, как вы будете получать платежи через адрес Молнии",
+      "invalidCharactersError": "Имя и био не могут содержать символы < > { } ` \\",
+      "invalidReceiveAddressError": "Введите корректный адрес Молнии (например, user@domain.com)",
+      "aboutYou": "О вас",
+      "lightningAddress": "Lightning-адрес"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Валюта получения",
+      "futurePaymentsMessage": "Все будущие платежи будут получены в {{option}}",
+      "warningMessage": "При выборе {{option}} действует минимальная сумма {{amount}}. Более мелкие платежи будут получены в Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "Что вы хотите отправить?"
@@ -1475,6 +1486,11 @@
         "noDescription": "Добавьте описание.",
         "noContactsSelected": "Выберите хотя бы один контакт"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Ваше отображаемое имя видят другие пользователи. Его можно изменить в любой момент.",
+      "uniquenameDescription": "Изменение юзернейма также изменит ваш адрес Молнии. Платежи на ваш старый юзернейм будут потеряны.",
+      "bioDescription": "Ваше био — это короткое описание, которое помогает другим узнать вас лучше."
     }
   },
   "settings": {
@@ -1902,7 +1918,7 @@
       "settingsButton": "Настройки",
       "poolsTitle": "Пулы",
       "noPoolsMessage": "Вы ещё не создали ни одного пула. Нажмите, чтобы создать первый пул.",
-      "noActivePools": "У вас нет активных пулов",
+      "noActivePools": "У вас сейчас нет активных пулов. Нажмите, чтобы посмотреть свои пулы.",
       "yourAccountsTitle": "Ваши аккаунты",
       "addAccountButton": "Добавить аккаунт"
     },
@@ -2069,9 +2085,9 @@
         "dbInitError2": "Попробуйте снова. Если проблема сохраняется, восстановите кошелек через сид-фразу."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Платежи на Биткоин-адреса имеют сетевую комиссию + 0.1% комиссия Spark.\n\nПри отправке самому себе комиссия платится дважды (отправка + клейм).\n\nЕсли отправляет другой — вы платите комиссию только за клейм.",
-        "liquidFeeMessage": "Платежи на Liquid-адреса требуют перевода в Spark.\n\nПроцесс включает комиссию за блокировку (~{{fee}}), комиссию за клейм (~{{claimFee}}) и 0.1% сервисную комиссию Boltz.",
-        "rootstockFeeMessage": "Платежи на Rootstock-адреса требуют перевода в Spark.\n\nВключает комиссию за блокировку (~{{fee}}) и 0.1% Boltz.",
+        "onchainFeeMessage": "Чтобы получить платеж в биткоине, вы заплатите комиссию сети on-chain. Она зависит от текущих комиссий сети Bitcoin.",
+        "liquidFeeMessage": "Чтобы получить платеж в Liquid, вы заплатите комиссию блокировки ~{{fee}}, комиссию получения ~{{claimFee}} и сервисную комиссию Boltz 0,1%.",
+        "rootstockFeeMessage": "Чтобы получить платеж в Rootstock, вы заплатите комиссию блокировки ~{{fee}} и сервисную комиссию Boltz 0,1%.",
         "lightningConvertMessage": "Получение долларов через Молнию требует конвертации BTC в USD. Комиссия {{convertFee}}%, курс {{satExchangeRate}} за {{dollarAmount}}.",
         "generatingInvoice": "Создание инвойса",
         "amountPlaceholder": "Любая сумма",
@@ -2114,6 +2130,7 @@
         "about": "О приложении",
         "language": "Язык",
         "display currency": "Валюта",
+        "receive currency": "Адрес Молнии",
         "display options": "Отображение",
         "edit contact profile": "Редактировать профиль",
         "view all swaps": "Сетевые переводы",
@@ -2138,6 +2155,10 @@
         "point-of-sale": "Терминал (POS)",
         "pools": "Пулы",
         "show seed phrase": "Резервное копирование кошелька"
+      },
+      "remotePayments": {
+        "lnAddress": "Адрес Молнии",
+        "lnurlPageDesc": "Ваш адрес Молнии позволяет любому отправить вам платеж без инвойса."
       },
       "technicalTransactionDetails": {
         "txHash": "Хэш транзакции",
@@ -2405,7 +2426,9 @@
         "chooseCurrencyTitle": "Выберите валюту, из которой вы хотите обменять.",
         "enterAmountTitle": "Введите сумму для обмена.",
         "noContentTitle": "Нет доступного баланса",
-        "noContentSubTittle": "Пополните свой кошелёк, чтобы начать обмен между долларами и Bitcoin."
+        "noContentSubTittle": "Пополните свой кошелёк, чтобы начать обмен между долларами и Bitcoin.",
+        "insufficientBTCToSwap": "Для обмена из Bitcoin необходим баланс не менее {{amount}}.",
+        "insufficientUSDToSwap": "Для обмена из долларов необходим баланс не менее {{amount}}."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Не удалось загрузить историю обменов. Пожалуйста, попробуйте позже.",
@@ -2741,7 +2764,12 @@
       "paymentLabel": "Пополнение сбережений: {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Не удалось выполнить перевод"
-      }
+      },
+      "pageDescription": "Переведите средства с баланса {{fromBalance}} на баланс {{destination}}",
+      "noSourceTitle": "Нет доступного источника средств",
+      "noSourceSubtitle": "Добавьте Bitcoin или USD в ваш кошелёк. Для финансирования в Bitcoin требуется минимум {{amount}}.",
+      "noUSDInfoMessage": "Для финансирования сбережений требуется баланс USD больше {{amount}}.",
+      "noBTCInfoMessage": "Для финансирования сбережений требуется баланс Bitcoin выше минимальной суммы обмена {{amount}}."
     },
     "withdraw": {
       "balanceTypeTitle": "Что вы хотите вывести?",
@@ -2762,10 +2790,16 @@
       "availableHint": "Доступно: {{amount}}",
       "minHint": "Мин: {{amount}}",
       "confirmTitle": "Подтвердить вывод",
+      "confirmSubtitle_interestAll": "Вывести все биткоин-награды на ваш {{destination}}",
+      "confirmSubtitle_interest": "Вывести биткоин-награды на ваш {{destination}}",
+      "confirmSubtitle_goalAll": "Вывести всё из {{goalName}} на ваш {{destination}}",
+      "confirmSubtitle_goal": "Вывести из {{goalName}} на ваш {{destination}}",
+      "confirmSubtitle_generalAll": "Вывести всё с целевого баланса на ваш {{destination}}",
+      "confirmSubtitle_general": "Вывести с целевого баланса на ваш {{destination}}",
       "youAreWithdrawingAll": "Ты выводишь все сбережения",
       "youAreWithdrawing": "Ты выводишь",
       "toYourBalance": "на {{destination}}",
-      "estimatedSats": "≈ {{sats}} сат после обмена",
+      "estimatedSats": "≈ {{sats}} после обмена",
       "confirmButton": "Подтвердить",
       "processing": "Обработка вывода…",
       "steps": {
@@ -2780,7 +2814,8 @@
       "paymentLabel": "Вывод из сбережений: {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Не удалось выполнить вывод"
-      }
+      },
+      "withdrawlAll": "Вывести всё"
     },
     "howItWorks": {
       "headline1": "Твои деньги,",

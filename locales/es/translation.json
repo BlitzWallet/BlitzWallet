@@ -1359,7 +1359,18 @@
       "usernameAlreadyExistsError": "Este nombre de usuario ya existe, elige otro.",
       "unableToSaveError": "No se pudo guardar la imagen de perfil, intenta de nuevo.",
       "deleteProfileImageError": "No se pudo eliminar la imagen de perfil, intenta de nuevo.",
-      "deleteWarning": "¿Seguro que deseas eliminar este contacto? Los mensajes de más de una semana no se pueden restaurar."
+      "deleteWarning": "¿Seguro que deseas eliminar este contacto? Los mensajes de más de una semana no se pueden restaurar.",
+      "receiveCurrencyPillTitle": "Moneda de recepción",
+      "receiveCurrencyPillDesc": "Configura cómo recibes pagos mediante tu dirección Lightning",
+      "invalidCharactersError": "El nombre y la biografía no pueden contener los caracteres < > { } ` \\",
+      "invalidReceiveAddressError": "Introduce una dirección Lightning válida (p. ej., usuario@dominio.com)",
+      "aboutYou": "Sobre ti",
+      "lightningAddress": "Dirección Lightning"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Moneda de recepción",
+      "futurePaymentsMessage": "Todos los pagos futuros se recibirán en {{option}}",
+      "warningMessage": "Al seleccionar {{option}}, hay un mínimo de {{amount}}. Los pagos más pequeños se recibirán en Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "¿Qué deseas enviar?"
@@ -1474,6 +1485,11 @@
         "noDescription": "Agrega una descripción para esta división.",
         "noContactsSelected": "Selecciona al menos un contacto para continuar"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Tu nombre para mostrar es como te ven los demás. Puedes cambiarlo en cualquier momento.",
+      "uniquenameDescription": "Cambiar tu nombre de usuario también cambia tu dirección Lightning. Los pagos a tu nombre de usuario anterior se perderán.",
+      "bioDescription": "Tu biografía es una breve descripción para ayudar a otros a conocerte."
     }
   },
   "settings": {
@@ -1898,7 +1914,7 @@
       "settingsButton": "Configuración",
       "poolsTitle": "Pools",
       "noPoolsMessage": "Aún no has creado ningún pool. Toca para crear tu primer pool.",
-      "noActivePools": "No tienes pools activos",
+      "noActivePools": "No tienes pools activos en este momento. Toca para ver tus pools.",
       "yourAccountsTitle": "Tus cuentas",
       "addAccountButton": "Agregar cuenta"
     },
@@ -2068,9 +2084,9 @@
         "dbInitError2": "Por favor inténtalo de nuevo. Si este problema continúa, puede recuperar sus fondos de forma segura utilizando su frase inicial."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Los pagos en cadena tienen una tarifa de red y una tarifa de Spark del 0,1%.\n\nSi te envías dinero a ti mismo, pagarás la tarifa de red dos veces — una para enviar y otra para reclamar.\n\nSi otra persona te envía dinero, solo pagarás la tarifa de red una vez al reclamar.",
-        "liquidFeeMessage": "Los pagos recibidos en direcciones Liquid deben transferirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}}, una tarifa de reclamación de alrededor de {{claimFee}} y una tarifa de servicio del 0.1% de Boltz según el monto que envíes.",
-        "rootstockFeeMessage": "Los pagos recibidos en direcciones Rootstock deben transferirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}} y una tarifa de servicio del 0.1% de Boltz según el monto que envíes.",
+        "onchainFeeMessage": "Para recibir un pago de Bitcoin, pagarás una comisión de red on-chain. Esta comisión varía según las tarifas actuales de la red Bitcoin.",
+        "liquidFeeMessage": "Para recibir un pago en Liquid, pagarás una comisión de bloqueo de ~{{fee}}, una comisión de reclamación de ~{{claimFee}} y una comisión de servicio de Boltz del 0,1%.",
+        "rootstockFeeMessage": "Para recibir un pago en Rootstock, pagarás una comisión de bloqueo de ~{{fee}} y una comisión de servicio de Boltz del 0,1%.",
         "lightningConvertMessage": "Recibir dólares a través de Lightning requiere convertir Bitcoin a USD. Se aplica una comisión del {{convertFee}} %, y el tipo de cambio actual es:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generando factura",
         "amountPlaceholder": "Cualquier monto",
@@ -2113,6 +2129,7 @@
         "about": "Acerca de",
         "language": "idioma",
         "display currency": "Moneda",
+        "receive currency": "Dirección Lightning",
         "display options": "Opciones de visualización",
         "edit contact profile": "Editar perfil de contacto",
         "view all swaps": "Transferencias de red",
@@ -2137,6 +2154,10 @@
         "point-of-sale": "Punto de venta",
         "pools": "Pools",
         "show seed phrase": "Respaldar billetera"
+      },
+      "remotePayments": {
+        "lnAddress": "Dirección Lightning",
+        "lnurlPageDesc": "Tu dirección Lightning permite que cualquiera te pague sin necesidad de una factura."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash de transacción",
@@ -2398,6 +2419,8 @@
         "enterAmountTitle": "Ingresa la cantidad que deseas intercambiar.",
         "noContentTitle": "No hay saldo disponible",
         "noContentSubTittle": "Agrega fondos a tu billetera para comenzar a intercambiar entre dólares y Bitcoin.",
+        "insufficientBTCToSwap": "Se requiere un saldo de Bitcoin de al menos {{amount}} para intercambiar desde Bitcoin.",
+        "insufficientUSDToSwap": "Se requiere un saldo de dólares de al menos {{amount}} para intercambiar desde dólares.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
@@ -2734,7 +2757,12 @@
       "paymentLabel": "Depósito de ahorro a {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "No se pudo completar la transferencia"
-      }
+      },
+      "pageDescription": "Transfiere dinero desde tu saldo de {{fromBalance}} a tu saldo de {{destination}}",
+      "noSourceTitle": "No hay fuente de fondos disponible",
+      "noSourceSubtitle": "Agrega Bitcoin o USD a tu billetera. Financiar con Bitcoin requiere al menos {{amount}}.",
+      "noUSDInfoMessage": "Se requiere un saldo en USD mayor a {{amount}} para financiar tus ahorros.",
+      "noBTCInfoMessage": "Se requiere un saldo de Bitcoin mayor al monto mínimo de intercambio de {{amount}} para financiar tus ahorros."
     },
     "withdraw": {
       "balanceTypeTitle": "¿Qué te gustaría retirar?",
@@ -2755,10 +2783,16 @@
       "availableHint": "Disponible: {{amount}}",
       "minHint": "Mín: {{amount}}",
       "confirmTitle": "Confirmar retiro",
+      "confirmSubtitle_interestAll": "Retira todas las recompensas de bitcoin a tu {{destination}}",
+      "confirmSubtitle_interest": "Retira las recompensas de bitcoin a tu {{destination}}",
+      "confirmSubtitle_goalAll": "Retira todo de {{goalName}} a tu {{destination}}",
+      "confirmSubtitle_goal": "Retira de {{goalName}} a tu {{destination}}",
+      "confirmSubtitle_generalAll": "Retira todo del saldo del objetivo a tu {{destination}}",
+      "confirmSubtitle_general": "Retira del saldo del objetivo a tu {{destination}}",
       "youAreWithdrawingAll": "Estás retirando todos tus ahorros",
       "youAreWithdrawing": "Estás retirando",
       "toYourBalance": "a tu {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats tras el cambio",
+      "estimatedSats": "≈ {{sats}} tras el cambio",
       "confirmButton": "Confirmar",
       "processing": "Procesando retiro…",
       "steps": {
@@ -2773,7 +2807,8 @@
       "paymentLabel": "Retiro de ahorro de {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "No se pudo completar el retiro"
-      }
+      },
+      "withdrawlAll": "Retirar todo"
     },
     "howItWorks": {
       "headline1": "Tu dinero,",

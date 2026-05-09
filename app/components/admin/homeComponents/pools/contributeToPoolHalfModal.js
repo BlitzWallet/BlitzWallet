@@ -59,7 +59,7 @@ export default function ContributeToPoolHalfModal({
   const { fiatStats } = useNodeContext();
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { poolInfoRef, swapUSDPriceDollars } = useFlashnet();
+  const { poolInfoRef, swapUSDPriceDollars, swapLimits } = useFlashnet();
   const { addContributionToCache } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
@@ -173,7 +173,7 @@ export default function ContributeToPoolHalfModal({
     if (bitcoinBalance >= effectiveSats) {
       return 'BTC';
     }
-    if (dollarBalanceToken >= effectiveUSD) {
+    if (dollarBalanceToken >= effectiveUSD && effectiveUSD >= swapLimits.usd) {
       return 'USD';
     }
     return null;
@@ -195,12 +195,29 @@ export default function ContributeToPoolHalfModal({
       dollarBalanceToken,
       paymentAmountSats: effectiveSats,
       paymentAmountUSD: effectiveUSD,
+      swapLimits,
     });
 
     if (!validation.isValid) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.sendPages.acceptButton.balanceError'),
-      });
+      const errorMessage =
+        validation.errorReason === 'BELOW_USD_SWAP_MINIMUM'
+          ? t('wallet.sendPages.acceptButton.swapMinimumError', {
+              amount: displayCorrectDenomination({
+                amount:
+                  dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB) +
+                  10,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: inputDenomination,
+                },
+                fiatStats: conversionFiatStats,
+                forceCurrency: primaryDisplay.forceCurrency,
+              }),
+              currency1: t('constants.dollars_upper'),
+              currency2: t('constants.bitcoin_upper'),
+            })
+          : t('wallet.sendPages.acceptButton.balanceError');
+      navigate.navigate('ErrorScreen', { errorMessage });
       return;
     }
 
@@ -215,6 +232,7 @@ export default function ContributeToPoolHalfModal({
     step,
     clearPageStates,
     t,
+    swapLimits,
   ]);
 
   const handleConfirmPayment = useCallback(async () => {

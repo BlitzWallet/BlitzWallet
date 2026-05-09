@@ -1359,7 +1359,18 @@
       "usernameAlreadyExistsError": "Ce nom d'utilisateur existe déjà, veuillez en choisir un autre.",
       "unableToSaveError": "Impossible d'enregistrer l'image du profil, veuillez réessayer.",
       "deleteProfileImageError": "Impossible de supprimer l'image du profil, veuillez réessayer.",
-      "deleteWarning": "Êtes-vous sûr de vouloir supprimer ce contact ? Les messages datant de plus d'une semaine ne peuvent pas être restaurés."
+      "deleteWarning": "Êtes-vous sûr de vouloir supprimer ce contact ? Les messages datant de plus d'une semaine ne peuvent pas être restaurés.",
+      "receiveCurrencyPillTitle": "Devise de réception",
+      "receiveCurrencyPillDesc": "Définissez comment vous recevez via votre adresse Lightning",
+      "invalidCharactersError": "Le nom et la bio ne peuvent pas contenir les caractères < > { } ` \\",
+      "invalidReceiveAddressError": "Veuillez saisir une adresse Lightning valide (p. ex. utilisateur@domaine.com)",
+      "aboutYou": "À propos de vous",
+      "lightningAddress": "Adresse Lightning"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Devise de réception",
+      "futurePaymentsMessage": "Tous les paiements futurs seront reçus en {{option}}",
+      "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "Que souhaitez-vous envoyer ?"
@@ -1474,6 +1485,11 @@
         "noDescription": "Veuillez ajouter une description.",
         "noContactsSelected": "Veuillez sélectionner au moins un contact"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Votre nom d’affichage est la façon dont les autres vous voient. Vous pouvez le modifier à tout moment.",
+      "uniquenameDescription": "Changer votre nom d'utilisateur change aussi votre adresse Lightning. Les paiements envoyés à votre ancien nom d'utilisateur seront perdus.",
+      "bioDescription": "Votre bio est une courte description qui aide les autres à mieux vous connaître."
     }
   },
   "settings": {
@@ -1901,7 +1917,7 @@
       "settingsButton": "Paramètres",
       "poolsTitle": "Pools",
       "noPoolsMessage": "Vous n’avez pas encore créé de pool. Appuyez pour créer votre premier pool.",
-      "noActivePools": "Vous n’avez aucun pool actif",
+      "noActivePools": "Vous n’avez aucun pool actif pour le moment. Appuyez pour voir vos pools.",
       "yourAccountsTitle": "Vos comptes",
       "addAccountButton": "Ajouter un compte"
     },
@@ -2068,9 +2084,9 @@
         "dbInitError2": "Veuillez réessayer. Si le problème persiste, vous pouvez récupérer vos fonds en toute sécurité en utilisant votre phrase d'initialisation."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Les paiements reçus à des adresses Bitcoin sont soumis à une commission de réseau et à une commission d'étincelle de 0,1 %.\n\nSi vous vous envoyez de l'argent à vous-même, vous paierez deux fois les frais de réseau - une fois pour l'envoyer et une fois pour le réclamer.\n\nSi quelqu'un d'autre vous envoie de l'argent, vous ne paierez les frais de réseau qu'une seule fois pour le réclamer.",
-        "liquidFeeMessage": "Les paiements reçus aux adresses Liquid doivent être transférés dans Spark.\n\nCe processus comprend des frais de blocage d'environ {{fee}}, des frais de réclamation d'environ {{claimFee}}, et des frais de service de 0,1 % de Boltz basés sur le montant que vous envoyez.",
-        "rootstockFeeMessage": "Les paiements reçus aux adresses Rootstock doivent être transférés dans Spark.\n\nCe processus comprend des frais de blocage d'environ {{fee}}, et des frais de service de 0,1 % de Boltz basés sur le montant que vous envoyez.",
+        "onchainFeeMessage": "Pour recevoir un paiement Bitcoin, vous devrez payer des frais réseau on-chain. Ces frais varient selon les frais actuels du réseau Bitcoin.",
+        "liquidFeeMessage": "Pour recevoir un paiement Liquid, vous paierez des frais de verrouillage d’environ ~{{fee}}, des frais de réclamation d’environ ~{{claimFee}} et des frais de service Boltz de 0,1 %.",
+        "rootstockFeeMessage": "Pour recevoir un paiement Rootstock, vous paierez des frais de verrouillage d’environ ~{{fee}} et des frais de service Boltz de 0,1 %.",
         "lightningConvertMessage": "Recevoir des dollars via Lightning nécessite de convertir des bitcoins en USD. Des frais de {{convertFee}} % s’appliquent, et le taux de change actuel est de:\n{{satExchangeRate}}.",
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
@@ -2113,6 +2129,7 @@
         "about": "A propos de",
         "language": "Langue",
         "display currency": "Monnaie",
+        "receive currency": "Adresse Lightning",
         "display options": "Options d'affichage",
         "edit contact profile": "Modifier le profil du contact",
         "view all swaps": "Transferts de réseaux",
@@ -2137,6 +2154,10 @@
         "point-of-sale": "Point de vente",
         "pools": "Pools",
         "show seed phrase": "Sauvegarder le portefeuille"
+      },
+      "remotePayments": {
+        "lnAddress": "Adresse Lightning",
+        "lnurlPageDesc": "Votre adresse Lightning permet à n’importe qui de vous payer sans facture."
       },
       "technicalTransactionDetails": {
         "txHash": "Hachure de la transaction",
@@ -2398,6 +2419,8 @@
         "enterAmountTitle": "Entrez le montant à échanger.",
         "noContentTitle": "Aucun solde disponible",
         "noContentSubTittle": "Ajoutez des fonds à votre portefeuille pour commencer à échanger entre dollars et Bitcoin.",
+        "insufficientBTCToSwap": "Un solde Bitcoin d'au moins {{amount}} est requis pour échanger depuis Bitcoin.",
+        "insufficientUSDToSwap": "Un solde en dollars d'au moins {{amount}} est requis pour échanger depuis les dollars.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
@@ -2734,7 +2757,12 @@
       "paymentLabel": "Dépôt d'épargne vers {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Impossible de finaliser le transfert"
-      }
+      },
+      "pageDescription": "Ajoutez de l’argent de votre solde {{fromBalance}} vers votre solde {{destination}}",
+      "noSourceTitle": "Aucune source de financement disponible",
+      "noSourceSubtitle": "Ajoutez du Bitcoin ou des USD à votre portefeuille. Le financement en Bitcoin nécessite au moins {{amount}}.",
+      "noUSDInfoMessage": "Un solde USD supérieur à {{amount}} est requis pour financer votre épargne.",
+      "noBTCInfoMessage": "Un solde Bitcoin supérieur au montant minimum de swap de {{amount}} est requis pour financer votre épargne."
     },
     "withdraw": {
       "balanceTypeTitle": "Que souhaitez-vous retirer ?",
@@ -2755,10 +2783,16 @@
       "availableHint": "Disponible : {{amount}}",
       "minHint": "Min : {{amount}}",
       "confirmTitle": "Confirmer le retrait",
+      "confirmSubtitle_interestAll": "Retirer tous les gains Bitcoin vers votre {{destination}}",
+      "confirmSubtitle_interest": "Retirer les gains Bitcoin vers votre {{destination}}",
+      "confirmSubtitle_goalAll": "Tout retirer de {{goalName}} vers votre {{destination}}",
+      "confirmSubtitle_goal": "Retirer de {{goalName}} vers votre {{destination}}",
+      "confirmSubtitle_generalAll": "Tout retirer du solde objectif vers votre {{destination}}",
+      "confirmSubtitle_general": "Retirer du solde objectif vers votre {{destination}}",
       "youAreWithdrawingAll": "Tu retires toute ton épargne",
       "youAreWithdrawing": "Tu retires",
       "toYourBalance": "vers ton {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats après échange",
+      "estimatedSats": "≈ {{sats}} après échange",
       "confirmButton": "Confirmer",
       "processing": "Retrait en cours…",
       "steps": {
@@ -2773,7 +2807,8 @@
       "paymentLabel": "Retrait d'épargne depuis {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Impossible de finaliser le retrait"
-      }
+      },
+      "withdrawlAll": "Tout retirer"
     },
     "howItWorks": {
       "headline1": "Ton argent,",

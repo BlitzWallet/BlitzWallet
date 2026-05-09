@@ -1359,7 +1359,18 @@
       "usernameAlreadyExistsError": "Detta användarnamn finns redan, vänligen välj ett annat.",
       "unableToSaveError": "Det gick inte att spara profilbilden, försök igen.",
       "deleteProfileImageError": "Det går inte att ta bort profilbilden, försök igen.",
-      "deleteWarning": "Är du säker på att du vill ta bort den här kontakten? Meddelanden som är äldre än en vecka kan inte återställas."
+      "deleteWarning": "Är du säker på att du vill ta bort den här kontakten? Meddelanden som är äldre än en vecka kan inte återställas.",
+      "receiveCurrencyPillTitle": "Mottagningsvaluta",
+      "receiveCurrencyPillDesc": "Ställ in hur du tar emot via din Lightning-adress",
+      "invalidCharactersError": "Namn och bio får inte innehålla tecknen < > { } ` \\",
+      "invalidReceiveAddressError": "Ange en giltig Lightning-adress (t.ex. användare@domän.com)",
+      "aboutYou": "Om dig",
+      "lightningAddress": "Lightning-adress"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Mottagningsvaluta",
+      "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
+      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin."
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"
@@ -1474,6 +1485,11 @@
         "noDescription": "Lägg till en beskrivning.",
         "noContactsSelected": "Välj minst en kontakt"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Ditt visningsnamn är hur andra ser dig. Det kan ändras när som helst.",
+      "uniquenameDescription": "Om du ändrar ditt användarnamn ändras också din Lightning-adress. Betalningar till ditt gamla användarnamn går förlorade.",
+      "bioDescription": "Din bio är en kort beskrivning som hjälper andra att lära känna dig."
     }
   },
   "settings": {
@@ -1901,7 +1917,7 @@
       "settingsButton": "Inställningar",
       "poolsTitle": "Pools",
       "noPoolsMessage": "Du har inte skapat några pools ännu. Tryck för att skapa din första pool.",
-      "noActivePools": "Du har inga aktiva pools",
+      "noActivePools": "Du har inga aktiva pooler just nu. Tryck för att visa dina pooler.",
       "yourAccountsTitle": "Dina konton",
       "addAccountButton": "Lägg till konto"
     },
@@ -2068,9 +2084,9 @@
         "dbInitError2": "Vänligen försök igen. Om detta problem fortsätter kan du säkert återfå dina pengar med hjälp av din seed-fras."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Betalningar som tas emot till Bitcoin-adresser har en nätverksavgift och 0,1% Spark-avgift.\n\nOm du skickar pengar till dig själv betalar du nätverksavgiften två gånger - en gång för att skicka dem och en gång för att hämta ut dem.\n\nOm någon annan skickar pengar till dig betalar du bara nätverksavgiften en gång för att göra anspråk på dem.",
-        "liquidFeeMessage": "Betalningar som mottagits till Liquid-adresser måste överföras till Spark.\n\nDenna process inkluderar en låsningsavgift på cirka {{fee}}, en kravavgift på cirka {{claimFee}} och en serviceavgift på 0,1% från Boltz baserat på det belopp du skickar.",
-        "rootstockFeeMessage": "Betalningar som mottagits till Rootstock-adresser måste överföras till Spark.\n\nDenna process inkluderar en låsningsavgift på cirka {{fee}} och en serviceavgift på 0,1% från Boltz baserat på det belopp du skickar.",
+        "onchainFeeMessage": "För att ta emot en Bitcoin-betalning betalar du en on-chain-nätverksavgift. Denna avgift varierar beroende på aktuella Bitcoin-nätverksavgifter.",
+        "liquidFeeMessage": "För att ta emot en Liquid-betalning betalar du en låsningsavgift på ~{{fee}}, en uttagsavgift på ~{{claimFee}} och en Boltz-serviceavgift på 0,1%.",
+        "rootstockFeeMessage": "För att ta emot en Rootstock-betalning betalar du en låsningsavgift på ~{{fee}} och en Boltz-serviceavgift på 0,1%.",
         "lightningConvertMessage": "Att ta emot dollar via Lightning kräver att Bitcoin konverteras till USD. En avgift på {{convertFee}} % tillämpas, och den aktuella växelkursen är:\n{{satExchangeRate}}.",
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
@@ -2113,6 +2129,7 @@
         "about": "Om",
         "language": "Språk",
         "display currency": "Valuta",
+        "receive currency": "Lightning-adress",
         "display options": "Alternativ för visning",
         "edit contact profile": "Redigera kontaktprofil",
         "view all swaps": "Nätverksöverföringar",
@@ -2137,6 +2154,10 @@
         "point-of-sale": "Försäljningsställen",
         "pools": "Pooler",
         "show seed phrase": "Säkerhetskopiera plånbok"
+      },
+      "remotePayments": {
+        "lnAddress": "Lightning-adress",
+        "lnurlPageDesc": "Din Lightning-adress gör att vem som helst kan betala dig utan att någon faktura behövs."
       },
       "technicalTransactionDetails": {
         "txHash": "Transaktionens hash",
@@ -2398,6 +2419,8 @@
         "enterAmountTitle": "Ange beloppet du vill växla.",
         "noContentTitle": "Inget saldo tillgängligt",
         "noContentSubTittle": "Lägg till medel i din plånbok för att börja växla mellan dollar och Bitcoin.",
+        "insufficientBTCToSwap": "Ett Bitcoin-saldo på minst {{amount}} krävs för att växla från Bitcoin.",
+        "insufficientUSDToSwap": "Ett dollarsaldo på minst {{amount}} krävs för att växla från dollar.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
@@ -2734,7 +2757,12 @@
       "paymentLabel": "Sparinsättning till {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Det gick inte att slutföra överföringen"
-      }
+      },
+      "pageDescription": "Flytta pengar från ditt {{fromBalance}}-saldo till ditt {{destination}}-saldo",
+      "noSourceTitle": "Ingen finansieringskälla tillgänglig",
+      "noSourceSubtitle": "Lägg till Bitcoin eller USD i din plånbok. Finansiering med Bitcoin kräver minst {{amount}}.",
+      "noUSDInfoMessage": "Ett USD-saldo större än {{amount}} krävs för att finansiera ditt sparande.",
+      "noBTCInfoMessage": "Ett Bitcoin-saldo större än det minsta växlingsbeloppet på {{amount}} krävs för att finansiera ditt sparande."
     },
     "withdraw": {
       "balanceTypeTitle": "Vad vill du ta ut?",
@@ -2755,10 +2783,16 @@
       "availableHint": "Tillgängligt: {{amount}}",
       "minHint": "Min: {{amount}}",
       "confirmTitle": "Bekräfta uttag",
+      "confirmSubtitle_interestAll": "Ta ut alla bitcoin-belöningar till ditt {{destination}}",
+      "confirmSubtitle_interest": "Ta ut bitcoin-belöningar till ditt {{destination}}",
+      "confirmSubtitle_goalAll": "Ta ut allt från {{goalName}} till ditt {{destination}}",
+      "confirmSubtitle_goal": "Ta ut från {{goalName}} till ditt {{destination}}",
+      "confirmSubtitle_generalAll": "Ta ut allt från målsaldot till ditt {{destination}}",
+      "confirmSubtitle_general": "Ta ut från målsaldot till ditt {{destination}}",
       "youAreWithdrawingAll": "Du tar ut alla dina besparingar",
       "youAreWithdrawing": "Du tar ut",
       "toYourBalance": "till din {{destination}}",
-      "estimatedSats": "≈ {{sats}} sats efter byte",
+      "estimatedSats": "≈ {{sats}} efter byte",
       "confirmButton": "Bekräfta",
       "processing": "Bearbetar uttag…",
       "steps": {
@@ -2773,7 +2807,8 @@
       "paymentLabel": "Sparuttag från {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Det gick inte att slutföra uttaget"
-      }
+      },
+      "withdrawlAll": "Ta ut allt"
     },
     "howItWorks": {
       "headline1": "Dina pengar,",

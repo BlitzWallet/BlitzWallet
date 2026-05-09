@@ -533,6 +533,9 @@ export const GlobalContactsList = ({ children }) => {
             currentDecoded = decodedAddedContactsRef.current ?? [];
           }
 
+          if (!Array.isArray(currentDecoded)) {
+            currentDecoded = [];
+          }
           const newAddedContacts = currentDecoded.filter(
             c => c.uuid !== contact.uuid,
           );

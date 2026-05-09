@@ -221,9 +221,18 @@ export default function SendAndRequestPage(props) {
           );
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');
-          const fee = quote.quote.fee;
+
           if (quoteId.current !== id) return;
-          if (fee + amount > dollarBalanceSat) {
+          const estimatedAmmFeeSat = Math.round(
+            dollarsToSats(
+              quote.quote.estimatedAmmFee / Math.pow(10, 6),
+              poolInfoRef.currentPriceAInB,
+            ),
+          );
+          const dollarAmountRequired = quote.quote.tokenAmountRequired;
+          const userDollarBalance = dollarBalanceToken * Math.pow(10, 6);
+          const fee = quote.quote.estimatedLightningFee + estimatedAmmFeeSat;
+          if (dollarAmountRequired > userDollarBalance) {
             showToast({
               type: 'error',
               title: t('errormessages.lightningAmountFeeWarning', {
@@ -296,6 +305,7 @@ export default function SendAndRequestPage(props) {
       sendWebViewRequest,
       showToast,
       t,
+      dollarBalanceToken,
       dollarBalanceSat,
       bitcoinBalance,
     ],

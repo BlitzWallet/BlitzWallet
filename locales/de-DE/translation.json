@@ -803,7 +803,7 @@
     "giftCards": {
       "giftCardsPage": {
         "searchPlaceholder": "Nach einer Geschenkkarte suchen",
-        "leftPageMessage": "Wohin sind Sie gegangen?",
+        "leftPageMessage": "Sie haben die Seite verlassen!",
         "loadingCardsMessage": "Geschenkkarten werden geladen...",
         "noCardsAvailable": "Keine Geschenkkarten verfügbar"
       },
@@ -904,7 +904,7 @@
         "fetchOrderError": "Fehler beim Abrufen des Bestellstatus",
         "failedUpdate": "Fehler beim Aktualisieren des Bestellstatus",
         "refundedOrder": "Die Bestellung wurde erstattet. Die Gelder werden nach 21 Minuten automatisch auf Ihre Wallet zurückgebucht.",
-        "reclaimComplete": "Wiederholung abgeschlossen. Falls kein Code generiert wird, erhalten Sie nach 21 Minuten automatisch eine Rückerstattung.",
+        "reclaimComplete": "Erneuter Versuch abgeschlossen. Falls kein Code generiert wird, erhalten Sie nach 21 Minuten automatisch eine Rückerstattung.",
         "noCode": "Kein Code",
         "rateLimitError": "Zu viele Anfragen. Sie können nur 5 Anfragen alle 30 Sekunden stellen. Bitte warten Sie einen Moment.",
         "noPurchasesTitle": "Sie haben noch keine SMS-Nachrichten gesendet oder empfangen. Neue Nachrichten werden hier angezeigt."
@@ -1049,7 +1049,7 @@
       "failedToTransfer": "Übertragung der Sparpool-Gelder fehlgeschlagen.",
       "notFound": "Sparpool nicht gefunden",
       "closePoolTitle": "Diesen Sparpool schließen?",
-      "closePoolWarning": "Alle Gelder werden an Ihr Hauptkonto übertragen. Dieses Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
+      "closePoolWarning": "Alle Gelder werden an Ihr Hauptkonto übertragen. Dieser Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
       "closePool": "Sparpool schließen",
       "goal": "Ziel: ",
       "payment_one": "{{count}} Zahlung",
@@ -1062,8 +1062,8 @@
       "contribute": "Beitragen",
       "share": "Teilen",
       "noActivity": "Noch keine Aktivität. Seien Sie der Erste, der beiträgt!",
-      "noPoolsCreated": "Sie haben noch keine Sparpool erstellt.",
-      "noActivePools": "Keine aktiver Sparpool",
+      "noPoolsCreated": "Sie haben noch keinen Sparpool erstellt.",
+      "noActivePools": "Kein aktiver Sparpool",
       "closedSection": "Geschlossene Sparpools",
       "noClosedPools": "Kein geschlossener Sparpool",
       "sendingContribution": "Beitrag wird gesendet...",
@@ -1083,7 +1083,7 @@
       "info": {
         "title": "Über Sparpools",
         "whatArePools": "Was sind Sparpools?",
-        "whatArePoolsBody": "Mit Sparpools können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie einen Sparpool, legen Sie einen Zielbetrag fest und teilen Sie es mit beliebigen Personen.",
+        "whatArePoolsBody": "Mit Sparpools können Sie BTC-Zahlungen für ein gemeinsames Ziel sammeln. Erstellen Sie einen Sparpool, legen Sie einen Zielbetrag fest und teilen Sie ihn mit beliebigen Personen.",
         "howItWorks": "So funktioniert es:",
         "howStep1": "• Erstellen Sie einen neuen Sparpool mit einem Namen und einem Zielbetrag.",
         "howStep2": "• Teilen Sie den Sparpool-Link, damit andere ihn finden können.",
@@ -1287,13 +1287,13 @@
       "quoteExpired": "Angebot abgelaufen. Bitte versuche es erneut.",
       "quoteError": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
       "recipientGets": "Empfänger erhält",
-      "youSend": "Du sendest",
+      "youSend": "Sie senden",
       "quoteExpiresIn": "Angebot läuft ab in",
       "payWithLightning": "Mit Lightning bezahlen",
-      "payWithUSDb": "Mit USDb bezahlen",
+      "payWithUSDb": "Mit USDB bezahlen",
       "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
       "swapInProgress": "Tausch läuft",
-      "swapInProgressDescription": "Deine Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
+      "swapInProgressDescription": "Ihre Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
       "noAmount": "Bitte gib einen Betrag zum Senden ein.",
       "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
       "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
@@ -1303,7 +1303,7 @@
         "header": "Wählen Sie die Währung aus, die Sie senden möchten.",
         "notAvailable": "Nicht verfügbar auf {{chain}}"
       },
-      "networkLabel": "{{currency}} uf {{chain}}"
+      "networkLabel": "{{currency}} auf {{chain}}"
     }
   },
   "contacts": {
@@ -1359,7 +1359,18 @@
       "usernameAlreadyExistsError": "Dieser Benutzername existiert bereits, bitte wählen Sie einen anderen.",
       "unableToSaveError": "Profilbild konnte nicht gespeichert werden, bitte versuchen Sie es erneut.",
       "deleteProfileImageError": "Profilbild konnte nicht gelöscht werden, bitte versuchen Sie es erneut.",
-      "deleteWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden."
+      "deleteWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden.",
+      "receiveCurrencyPillTitle": "Empfangswährung",
+      "receiveCurrencyPillDesc": "Legen Sie fest, wie Sie über Ihre Lightning-Adresse Zahlungen empfangen",
+      "invalidCharactersError": "Name und Bio dürfen die Zeichen < > { } ` \\ nicht enthalten",
+      "invalidReceiveAddressError": "Bitte geben Sie eine gültige Lightning-Adresse ein (z. B. benutzer@domain.com)",
+      "aboutYou": "Über dich",
+      "lightningAddress": "Lightning-Adresse"
+    },
+    "remotePaymentCurrencySelect": {
+      "title": "Empfangswährung",
+      "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen",
+      "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in BTC empfangen."
     },
     "selectCurrencyToSend": {
       "header": "Wie möchten Sie senden?"
@@ -1369,7 +1380,7 @@
     },
     "sendAndRequestPage": {
       "profileMessage": "Bezahlung an {{name}}",
-      "contactMessage": "{{name}} hat Ihnen bezahlt",
+      "contactMessage": "{{name}} hat Ihnen Geld gesendet",
       "giftCardappVersionError": "Sie können keine Geschenkkarte an diesen Kontakt senden. Sie haben nicht die neueste Version von Blitz Wallet.",
       "giftCardDescription": "Sie haben {{name}} eine {{giftCardName}} Geschenkkarte gesendet.",
       "cardDetailsError": "Wir konnten Ihre Geschenkkarte derzeit nicht laden. Bitte versuchen Sie es erneut.",
@@ -1415,7 +1426,7 @@
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} Ihre Anfrage",
-        "acceptProfileMessage": "{{name}}'s Anfrage bezahlt",
+        "acceptProfileMessage": "Anfrage von {{name}} bezahlt",
         "acceptPayingContactMessage": "{{name}} hat Ihre Anfrage bezahlt",
         "requestTitle": "Anfrage über {{amount}} erhalten",
         "send": "Senden"
@@ -1451,18 +1462,18 @@
       "totalAmountLabel": "Gesamtbetrag",
       "evenSplit": "Gleichmäßig",
       "customSplit": "Individuell",
-      "remainderNote": "{{amount}} Sat Rest bleibt bei dir",
+      "remainderNote": "{{amount}} Sat Rest bleibt bei Ihnen",
       "perPerson": "{{amount}} / Person",
       "confirmButton": "Bestätigen",
       "maxContactsWarning": "Maximal 10 Kontakte pro Aufteilung",
-      "insufficientFunds": "Unzureichendes Guthaben. Dir fehlen {{shortfall}} Sats.",
+      "insufficientFunds": "Unzureichendes Guthaben. Ihnen fehlen {{shortfall}} Sats.",
       "swapPromptTitle": "USDB tauschen, um die Aufteilung zu decken?",
-      "swapPromptBody": "Du benötigst noch {{amount}} Sats. USDB tauschen, um die Differenz zu decken?",
+      "swapPromptBody": "Sie benötigen noch {{amount}} Sats. USDB tauschen, um die Differenz zu decken?",
       "swapConfirm": "Tauschen und bezahlen",
       "swapFailed": "Tausch fehlgeschlagen. Zahlung abgebrochen.",
       "customAmountsMismatch": "Die Beträge müssen insgesamt {{total}} Sats ergeben",
-      "noContactsEmpty": "Noch keine Kontakte. Füge Kontakte hinzu, um eine Rechnung aufzuteilen.",
-      "noContactsSearch": "Keine Kontakte entsprechen deiner Suche.",
+      "noContactsEmpty": "Sie haben noch keine Kontakte. Fügen Sie Kontakte hinzu, um eine Rechnung aufzuteilen.",
+      "noContactsSearch": "Keine Kontakte entsprechen Ihrer Suche.",
       "noSparkAddress": "Keine Spark-Adresse",
       "unknownContact": "Unbekannt",
       "noName": "Kein Name festgelegt",
@@ -1474,6 +1485,11 @@
         "noDescription": "Bitte fügen Sie eine Beschreibung hinzu.",
         "noContactsSelected": "Bitte wählen Sie mindestens einen weiteren Kontakt aus"
       }
+    },
+    "editProfileFieldPage": {
+      "nameDescription": "Ihr Anzeigename ist der Name, unter dem andere Sie sehen. Er kann jederzeit geändert werden.",
+      "uniquenameDescription": "Wenn Sie Ihren Benutzernamen ändern, ändert sich auch Ihre Lightning-Adresse. Zahlungen an Ihren alten Benutzernamen gehen verloren.",
+      "bioDescription": "Ihre Bio ist eine kurze Beschreibung, damit andere Sie besser kennenlernen können."
     }
   },
   "settings": {
@@ -1778,7 +1794,7 @@
         "connectionName": "Verbindungsname"
       },
       "hasNoAccounts": {
-        "warningMessage": "Um Geld von Ihrer Nostr Wallet Connect zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrer Hauptkonto zu NWC-Konto auf der Kontoeinstellungsseite übertragen."
+        "warningMessage": "Um Geld von Ihrem Nostr Wallet Connect zu senden, müssen Sie zuerst Gelder hinzufügen – entweder durch Empfangen von Geld oder durch Übertragung aus Ihrem Hauptkonto.\n\nSie können Gelder von Ihrem Hauptkonto auf Ihr NWC-Konto auf der Kontoeinstellungsseite übertragen."
       },
       "noNotifications": {
         "warningMessage": "Um Nostr Wallet Connect zu nutzen, müssen Sie Push-Benachrichtigungen für Nostr Wallet Connect aktiviert haben.\n\nBitte aktivieren Sie Push-Benachrichtigungen in den Einstellungen und versuchen Sie es erneut."
@@ -1790,7 +1806,7 @@
       },
       "combinedOnboarding": {
         "accountFundingHeader": "Ihr Nostr Connect-Konto aufladen",
-        "accountFundingMessage": "Um Geld von Ihrem Nostr Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder durch Empfangen von Geld oder durch eine Übertragung von Ihrem Hauptkonto.\n\nSie können Guthaben von Ihrem Hauptkonto in den Kontoeinstellungen auf Nostr Connect-Konto übertragen.",
+        "accountFundingMessage": "Um Geld von Ihrem Nostr Connect-Konto zu senden, müssen Sie zunächst Guthaben hinzufügen – entweder durch Empfangen von Geld oder durch eine Übertragung von Ihrem Hauptkonto.\n\nSie können Guthaben von Ihrem Hauptkonto in den Kontoeinstellungen auf Ihr Nostr Connect-Konto übertragen.",
         "securityHeader": "Sicher & isoliert",
         "securityMessage": "Nostr Connect erstellt aus Sicherheitsgründen ein separates Konto von Ihrem Hauptkonto. Diese Wiederherstellungsphrase wird sicher gespeichert und kann bei Bedarf später auf der Seite Konten in den Einstellungen eingesehen werden.",
         "continueButton": "Loslegen",
@@ -1903,14 +1919,14 @@
       "noPoolsMessage": "Sie haben noch keinen Sparpool erstellt. Tippen Sie, um Ihren ersten Sparpool zu erstellen.",
       "yourAccountsTitle": "Ihre Konten",
       "addAccountButton": "Konto hinzufügen",
-      "noActivePools": "Sie haben keine aktiven Pools"
+      "noActivePools": "Sie haben derzeit keine aktiven Pools. Tippen Sie, um Ihre Pools anzuzeigen."
     },
     "hub": {
       "viewAll": "Alle anzeigen",
       "accounts": "Konten",
       "pinAccount": "Anheften",
-      "unpinAccount": "Lösen",
-      "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines.",
+      "unpinAccount": "Loslösen",
+      "maxPinsReached": "Maximal 2 angeheftete Konten. Lösen Sie zuerst eines davon.",
       "morePoolsCount": "+{{count}} weitere",
       "pos": {
         "desc": "Akzeptieren Sie ganz einfach Bitcoin-Zahlungen für Ihr Unternehmen."
@@ -2068,9 +2084,9 @@
         "dbInitError2": "Bitte versuchen Sie es erneut. Wenn dieses Problem weiterhin besteht, können Sie Ihr Geld mithilfe Ihrer Wiederherstellungsphrase sicher zurückerhalten."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1 %.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
-        "liquidFeeMessage": "Zahlungen, die an Liquid-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}}, eine Anspruchsgebühr von rund {{claimFee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
-        "rootstockFeeMessage": "Zahlungen, die an Rootstock-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
+        "onchainFeeMessage": "Um eine BTC-Zahlung zu empfangen, zahlen Sie eine On-Chain-Netzwerkgebühr. Diese variiert je nach aktuellen BTC-Netzwerkgebühren.",
+        "liquidFeeMessage": "Um eine Liquid-Zahlung zu empfangen, zahlen Sie eine Lockup-Gebühr von ~{{fee}}, eine Claim-Gebühr von ~{{claimFee}} und eine Boltz-Servicegebühr von 0,1%.",
+        "rootstockFeeMessage": "Um eine Rootstock-Zahlung zu empfangen, zahlen Sie eine Lockup-Gebühr von ~{{fee}} und eine Boltz-Servicegebühr von 0,1%.",
         "lightningConvertMessage": "Der Empfang von USD über Lightning erfordert die Umwandlung von BTC in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
         "generatingInvoice": "Rechnung wird generiert...",
         "amountPlaceholder": "Beliebigen Betrag",
@@ -2099,7 +2115,7 @@
         "editDescriptionPlaceholder": "Beschreibung hinzufügen",
         "confirmToClaimTitle": "Vor dem Empfang bestätigen",
         "confirmToClaimOff": "Aus, Zahlungen werden sofort bestätigt",
-        "confirmToClaimOn": "An, Sie bestätigen jede Zahlung",
+        "confirmToClaimOn": "Ein, jede Zahlung wird von Ihnen bestätigt",
         "holdInvoiceExplainer": "Wenn aktiviert, werden an diese Rechnung gesendete Zahlungen zurückgehalten, bis Sie sie bestätigen. Wenn Sie sie nicht rechtzeitig einfordern, wird die Zahlung automatisch an den Absender zurückgesendet.",
         "expiryTitle": "Läuft ab nach",
         "expiry_3600": "1 Stunde",
@@ -2113,6 +2129,7 @@
         "about": "Über uns",
         "language": "Spracheinstellung",
         "display currency": "Standardwährung",
+        "receive currency": "Lightning-Adresse",
         "display options": "Anzeige & Layout",
         "edit contact profile": "Kontaktprofil bearbeiten",
         "view all swaps": "Netzwerk-Einstellungen",
@@ -2137,6 +2154,10 @@
         "point-of-sale": "Zahlungsterminal (POS)",
         "pools": "Sparpool",
         "show seed phrase": "Seed-Phrase sichern"
+      },
+      "remotePayments": {
+        "lnAddress": "Lightning-Adresse",
+        "lnurlPageDesc": "Ihre Lightning-Adresse ermöglicht es jedem, Sie zu bezahlen, ohne dass eine Rechnung nötig ist."
       },
       "technicalTransactionDetails": {
         "txHash": "Transaktions-Hash",
@@ -2398,6 +2419,8 @@
         "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten",
         "noContentTitle": "Kein Guthaben verfügbar",
         "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",
+        "insufficientBTCToSwap": "Ein BTC-Guthaben von mindestens {{amount}} ist erforderlich, um von BTC zu tauschen.",
+        "insufficientUSDToSwap": "Ein USD-Guthaben von mindestens {{amount}} ist erforderlich, um von USD zu tauschen.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
@@ -2408,13 +2431,13 @@
       }
     },
     "accumulationAddresses": {
-      "title": "Akkumulationsadressen",
+      "title": "Stablecoin-Adressen",
       "subtitle": "Stablecoins automatisch in BTC oder Dollar umwandeln",
       "navTitle": "Adressen",
       "sectionTitle": "Aktive Adressen",
       "empty": {
-        "title": "Keine Akkumulationsadressen",
-        "subtitle": "Erstellen Sie eine Adresse, um Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
+        "title": "Keine Stablecoin-Adressen",
+        "subtitle": "Erstellen Sie eine Adresse, um Stablecoin-Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
       },
       "createButton": "Adresse erstellen",
       "info": {
@@ -2423,7 +2446,7 @@
         "whatAreBody": "Dauerhafte Adressen, die eingehende USDC oder USDT automatisch in Bitcoin oder Dollar umwandeln und die Mittel an Ihre Wallet senden.",
         "howItWorks": "So funktioniert es",
         "step1": "1. Teilen Sie Ihre Einzahlungsadresse mit einem Absender oder einer Börse.",
-        "step2": "2. Die Mittel kommen on-chain an und werden automatisch umgewandelt.",
+        "step2": "2. Die Mittel kommen on-chain an und werden automatisch in die von Ihnen gewählte Währung umgewandelt.",
         "step3": "3. Der umgewandelte Betrag wird Ihrer Wallet gutgeschrieben."
       },
       "detail": {
@@ -2680,15 +2703,15 @@
     },
     "goalDetails": {
       "screenTitleFallback": "Sparziel",
-      "updateGoalButton": "Sparziel aktualisieren",
+      "updateGoalButton": "Sparziel anpassen",
       "emptyState": "Kein Sparziel gesetzt"
     },
     "updateGoal": {
-      "screenTitle": "Sparziel aktualisieren",
-      "title": "Sparziel aktualisieren",
-      "body": "Sie können den gesetzten Betrag für Ihr Sparziel ändern oder es entfernen.",
+      "screenTitle": "Sparziel anpassen",
+      "title": "Sparziel anpassen",
+      "body": "Sie können den Betrag Ihres Sparziels anpassen oder es entfernen.",
       "removeButton": "Sparziel entfernen",
-      "updateButton": "Sparziel aktualisieren"
+      "updateButton": "Sparziel anpassen"
     },
     "removeGoalConfirm": {
       "screenTitle": "Sparziel entfernen",
@@ -2734,7 +2757,12 @@
       "paymentLabel": "Einzahlung für {{savingsGoal}}",
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
-      }
+      },
+      "pageDescription": "Geld von deinem {{fromBalance}}-Guthaben auf dein {{destination}}-Guthaben übertragen",
+      "noSourceTitle": "Keine Finanzierungsquelle verfügbar",
+      "noSourceSubtitle": "Fügen Sie Bitcoin oder USD zu Ihrer Wallet hinzu. Finanzierung mit Bitcoin erfordert mindestens {{amount}}.",
+      "noUSDInfoMessage": "Ein USD-Guthaben von mehr als {{amount}} ist erforderlich, um Ihre Ersparnisse zu finanzieren.",
+      "noBTCInfoMessage": "Ein Bitcoin-Guthaben über dem Mindest-Swap-Betrag von {{amount}} ist erforderlich, um Ihre Ersparnisse zu finanzieren."
     },
     "withdraw": {
       "balanceTypeTitle": "Was möchten Sie auszahlen?",
@@ -2755,10 +2783,16 @@
       "availableHint": "Verfügbar: {{amount}}",
       "minHint": "Min.: {{amount}}",
       "confirmTitle": "Auszahlung bestätigen",
+      "confirmSubtitle_interestAll": "Alle Bitcoin-Rewards auf dein {{destination}} auszahlen",
+      "confirmSubtitle_interest": "Bitcoin-Rewards auf dein {{destination}} auszahlen",
+      "confirmSubtitle_goalAll": "Alles aus {{goalName}} auf dein {{destination}} auszahlen",
+      "confirmSubtitle_goal": "Aus {{goalName}} auf dein {{destination}} auszahlen",
+      "confirmSubtitle_generalAll": "Alles vom Zielsaldo auf dein {{destination}} auszahlen",
+      "confirmSubtitle_general": "Vom Zielsaldo auf dein {{destination}} auszahlen",
       "youAreWithdrawingAll": "Sie zahlen alle Ersparnisse aus",
       "youAreWithdrawing": "Sie zahlen aus",
       "toYourBalance": "auf Ihr {{destination}}",
-      "estimatedSats": "≈ {{sats}} Sats nach Umtausch",
+      "estimatedSats": "≈ {{sats}} nach Umtausch",
       "confirmButton": "Bestätigen",
       "processing": "Auszahlung wird verarbeitet...",
       "steps": {
@@ -2773,7 +2807,8 @@
       "paymentLabel": "Auszahlung von {{savingsGoal}}",
       "errors": {
         "unableToCompleteWithdrawal": "Auszahlung konnte nicht abgeschlossen werden."
-      }
+      },
+      "withdrawlAll": "Alles abheben"
     },
     "howItWorks": {
       "headline1": "Ihr Geld,",

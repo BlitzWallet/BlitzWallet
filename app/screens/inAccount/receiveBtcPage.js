@@ -84,9 +84,10 @@ export default function ReceivePaymentHome(props) {
   const [addressState, setAddressState] = useState({
     selectedRecieveOption: selectedRecieveOption,
     isReceivingSwap: false,
-    generatedAddress: isUsingAltAccount
-      ? ''
-      : `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
+    generatedAddress:
+      isUsingAltAccount || masterInfoObject.lnurlReceiveCurrency === 'usd'
+        ? ''
+        : `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
     isGeneratingInvoice: false,
     isHoldInvoice: false,
     minMaxSwapAmount: {
@@ -175,7 +176,8 @@ export default function ReceivePaymentHome(props) {
         !isUsingAltAccount &&
         endReceiveType === 'BTC' &&
         !paymentDescription &&
-        !addressState.isHoldInvoice
+        !addressState.isHoldInvoice &&
+        masterInfoObject.lnurlReceiveCurrency !== 'usd'
       ) {
         setInitialSendAmount(0);
         setAddressState(prev => ({
@@ -472,7 +474,8 @@ function QrCode(props) {
     !isUsingAltAccount &&
     endReceiveType === 'BTC' &&
     !paymentDescription &&
-    !isHoldInvoice;
+    !isHoldInvoice &&
+    masterInfoObject.lnurlReceiveCurrency !== 'usd';
 
   const qrOpacity = useSharedValue(addressState.generatedAddress ? 1 : 0);
   const loadingOpacity = useSharedValue(isUsingLnurl ? 0 : 1);

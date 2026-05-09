@@ -20,6 +20,11 @@ export function buildCumulativeData(
   isUSD,
 ) {
   const todayDay = today.getDate();
+  const daysInMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    0,
+  ).getDate();
   const satsFunction = isUSD ? getDollarsFromTx : getSatsFromTx;
 
   const byDay = {};
@@ -37,6 +42,8 @@ export function buildCumulativeData(
 
   const result = [];
   let running = 0;
+
+  // Build days up to today
   for (let d = 1; d <= todayDay; d++) {
     running += byDay[d] || 0;
     const timestamp = new Date(
@@ -49,5 +56,22 @@ export function buildCumulativeData(
       value: isUSD ? convertToDecimals(running) : Math.round(running),
     });
   }
+
+  // fill remaining days with the current max
+  if (todayDay < daysInMonth) {
+    const maxValue = running; // whatever we've accumulated so far
+    for (let d = todayDay + 1; d <= daysInMonth; d++) {
+      const timestamp = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        d,
+      ).getTime();
+      result.push({
+        timestamp,
+        value: isUSD ? convertToDecimals(maxValue) : Math.round(maxValue),
+      });
+    }
+  }
+
   return result;
 }

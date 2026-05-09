@@ -15,6 +15,7 @@ import {
   APPROXIMATE_SYMBOL,
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SIZES,
 } from '../../../../constants';
@@ -30,6 +31,7 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import {
@@ -49,6 +51,7 @@ import {
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import truncateToTwoDecimals from '../../../../functions/truncateNumber';
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 const MIN_STEP_MS = 800;
@@ -335,7 +338,7 @@ export default function AddMoneyToSavingsHalfModal({
       key: 'dollar',
       title: t('constants.usd_balance'),
       subtitle: displayCorrectDenomination({
-        amount: dollarBalanceToken.toFixed(2),
+        amount: truncateToTwoDecimals(dollarBalanceToken),
         masterInfoObject: {
           ...masterInfoObject,
           userBalanceDenomination: 'fiat',
@@ -468,6 +471,30 @@ export default function AddMoneyToSavingsHalfModal({
   }
 
   if (currentPage === 'source') {
+    const isBitcoinDisabled = bitcoinBalance < swapLimits.bitcoin;
+    const isDollarDisabled = dollarBalanceToken < 0.01;
+
+    if (isBitcoinDisabled && isDollarDisabled) {
+      return (
+        <View style={styles.container}>
+          <NoContentSceen
+            iconName="Wallet"
+            titleText={t('savings.addMoney.noSourceTitle')}
+            subTitleText={t('savings.addMoney.noSourceSubtitle', {
+              amount: displayCorrectDenomination({
+                amount: swapLimits.bitcoin,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'sats',
+                },
+                fiatStats,
+              }),
+            })}
+          />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.container}>
         <ThemeText
@@ -476,89 +503,119 @@ export default function AddMoneyToSavingsHalfModal({
         />
 
         <View style={styles.optionsList}>
-          {sourceOptions.map(option => (
-            <TouchableOpacity
-              key={option.key}
-              activeOpacity={0.7}
-              style={[
-                styles.optionRow,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                  opacity:
-                    (option.key === 'dollar' && dollarBalanceToken < 0.01) ||
-                    (option.key === 'bitcoin' &&
-                      bitcoinBalance < swapLimits.bitcoin)
-                      ? HIDDEN_OPACITY
-                      : 1,
-                },
-              ]}
-              disabled={
-                (option.key === 'dollar' && dollarBalanceToken < 0.01) ||
-                (option.key === 'bitcoin' &&
-                  bitcoinBalance < swapLimits.bitcoin)
-              }
-              onPress={() => {
-                setSelectedSource(option.key);
-                setInputDenomination(
-                  option.key === 'dollar'
-                    ? 'fiat'
-                    : masterInfoObject.userBalanceDenomination != 'fiat'
-                    ? 'sats'
-                    : 'fiat',
-                );
-                setStep(prev => [...prev, 'amount']);
-              }}
-            >
-              <View style={styles.optionLeft}>
-                <View
-                  style={[
-                    styles.iconContainer,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? darkModeType
-                            ? backgroundOffset
-                            : backgroundColor
-                          : option.key === 'dollar'
-                          ? COLORS.dollarGreen
-                          : COLORS.bitcoinOrange,
-                    },
-                  ]}
-                >
-                  <ThemeImage
-                    styles={{ width: 25, height: 25 }}
-                    lightModeIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                    darkModeIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                    lightsOutIcon={
-                      option.key === 'dollar'
-                        ? ICONS.dollarIcon
-                        : ICONS.bitcoinIcon
-                    }
-                  />
+          {sourceOptions.map(option => {
+            const isDisabled =
+              option.key === 'dollar' ? isDollarDisabled : isBitcoinDisabled;
+            return (
+              <TouchableOpacity
+                key={option.key}
+                activeOpacity={0.7}
+                style={[
+                  styles.optionRow,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                    opacity: isDisabled ? HIDDEN_OPACITY : 1,
+                  },
+                ]}
+                onPress={() => {
+                  if (option.key === 'dollar' && isDollarDisabled) {
+                    navigate.navigate('InformationPopup', {
+                      textContent: t('savings.addMoney.noUSDInfoMessage', {
+                        amount: displayCorrectDenomination({
+                          amount: 0.01,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination: 'fiat',
+                          },
+                          fiatStats,
+                          forceCurrency: 'USD',
+                          convertAmount: false,
+                        }),
+                      }),
+                      buttonText: t('constants.iunderstand'),
+                    });
+                    return;
+                  }
+                  if (option.key === 'bitcoin' && isBitcoinDisabled) {
+                    navigate.navigate('InformationPopup', {
+                      textContent: t('savings.addMoney.noBTCInfoMessage', {
+                        amount: displayCorrectDenomination({
+                          amount: swapLimits.bitcoin,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination: 'sats',
+                          },
+                          fiatStats,
+                        }),
+                      }),
+                      buttonText: t('constants.iunderstand'),
+                    });
+                    return;
+                  }
+                  setSelectedSource(option.key);
+                  setInputDenomination(
+                    option.key === 'dollar'
+                      ? 'fiat'
+                      : masterInfoObject.userBalanceDenomination != 'fiat'
+                      ? 'sats'
+                      : 'fiat',
+                  );
+                  setStep(prev => [...prev, 'amount']);
+                }}
+              >
+                <View style={styles.optionLeft}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? darkModeType
+                              ? backgroundOffset
+                              : backgroundColor
+                            : option.key === 'dollar'
+                            ? COLORS.dollarGreen
+                            : COLORS.bitcoinOrange,
+                      },
+                    ]}
+                  >
+                    <ThemeImage
+                      styles={{ width: 25, height: 25 }}
+                      lightModeIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                      darkModeIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                      lightsOutIcon={
+                        option.key === 'dollar'
+                          ? ICONS.dollarIcon
+                          : ICONS.bitcoinIcon
+                      }
+                    />
+                  </View>
+                  <View>
+                    <ThemeText
+                      styles={styles.optionTitle}
+                      content={option.title}
+                    />
+                    <ThemeText
+                      styles={styles.optionSubtitle}
+                      content={option.subtitle}
+                    />
+                  </View>
                 </View>
-                <View>
-                  <ThemeText
-                    styles={styles.optionTitle}
-                    content={option.title}
-                  />
-                  <ThemeText
-                    styles={styles.optionSubtitle}
-                    content={option.subtitle}
-                  />
-                </View>
-              </View>
-              <ThemeIcon iconName="ChevronRight" size={16} />
-            </TouchableOpacity>
-          ))}
+                <ThemeIcon iconName="ChevronRight" size={16} />
+              </TouchableOpacity>
+            );
+          })}
         </View>
         {step.length > 1 && (
           <CustomButton
@@ -575,10 +632,10 @@ export default function AddMoneyToSavingsHalfModal({
 
   if (currentPage === 'amount') {
     const deactivateButton =
-      ((paymentMode === 'BTC' && localSatAmount >= bitcoinBalance) ||
+      ((paymentMode === 'BTC' && localSatAmount > bitcoinBalance) ||
         (paymentMode === 'USD' &&
           fiatMicros >= dollarBalanceToken * Math.pow(10, 6)) ||
-        (paymentMode === 'BTC' && localSatAmount <= swapLimits.bitcoin)) &&
+        (paymentMode === 'BTC' && localSatAmount < swapLimits.bitcoin)) &&
       localSatAmount !== 0;
     return (
       <View style={styles.amountContainer}>
@@ -662,9 +719,9 @@ export default function AddMoneyToSavingsHalfModal({
             }
 
             if (
-              (paymentMode === 'BTC' && localSatAmount >= bitcoinBalance) ||
+              (paymentMode === 'BTC' && localSatAmount > bitcoinBalance) ||
               (paymentMode === 'USD' &&
-                fiatMicros >= dollarBalanceToken * Math.pow(10, 6))
+                fiatMicros > dollarBalanceToken * Math.pow(10, 6))
             ) {
               navigate.navigate('ErrorScreen', {
                 errorMessage: t(
@@ -674,7 +731,7 @@ export default function AddMoneyToSavingsHalfModal({
               return;
             }
 
-            if (paymentMode === 'BTC' && localSatAmount <= swapLimits.bitcoin) {
+            if (paymentMode === 'BTC' && localSatAmount < swapLimits.bitcoin) {
               navigate.navigate('ErrorScreen', {
                 errorMessage: t('screens.inAccount.swapsPage.minBTCError', {
                   min: displayCorrectDenomination({
@@ -700,60 +757,63 @@ export default function AddMoneyToSavingsHalfModal({
   }
 
   if (currentPage === 'confirm') {
+    const fromBalance =
+      selectedSource === 'bitcoin'
+        ? t('constants.bitcoin_upper')
+        : t('constants.dollars_upper');
+    const destinationLabel =
+      !selectedGoalId || selectedGoalId === UNALLOCATED_GOAL_ID
+        ? t('savings.addMoney.generalSavings')
+        : savingsGoals.find(g => g.id === selectedGoalId)?.name ??
+          t('savings.addMoney.generalSavings');
+
     return (
-      <View style={styles.container}>
+      <View style={styles.confirmContainer}>
         <ThemeText
-          styles={styles.title}
+          styles={[styles.title, { marginBottom: 8 }]}
           content={t('savings.addMoney.confirmTitle')}
         />
-        <View
-          style={[
-            styles.summaryCard,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
+        <ThemeText
+          styles={styles.confirmDescription}
+          content={t('savings.addMoney.pageDescription', {
+            fromBalance,
+            destination: destinationLabel,
+          })}
+        />
+        <ThemeText
+          styles={[
+            styles.summaryAmount,
+            { textAlign: 'center', marginBottom: 'auto' },
           ]}
-        >
+          content={displayCorrectDenomination({
+            amount: fiatMicros / Math.pow(10, 6),
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: 'fiat',
+            },
+            fiatStats,
+            forceCurrency: 'USD',
+            convertAmount: false,
+          })}
+        />
+        {selectedSource !== 'dollar' && (
           <ThemeText
-            styles={styles.summaryLabel}
-            content={t('savings.addMoney.youAreAdding')}
-          />
-          <ThemeText
-            styles={styles.summaryAmount}
-            content={displayCorrectDenomination({
-              amount: fiatMicros / Math.pow(10, 6),
+            styles={[
+              styles.summaryLabel,
+              { marginTop: 8, marginBottom: CONTENT_KEYBOARD_OFFSET },
+            ]}
+            content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+              amount: swapUSDPriceDollars?.toFixed(2),
               masterInfoObject: {
                 ...masterInfoObject,
                 userBalanceDenomination: 'fiat',
               },
               fiatStats,
-              forceCurrency: 'USD',
               convertAmount: false,
-            })}
+              forceCurrency: 'USD',
+            })}`}
           />
-          <ThemeText
-            styles={styles.summaryLabel}
-            content={t('savings.addMoney.fromBalance', {
-              context: selectedSource,
-            })}
-          />
-          {selectedSource !== 'dollar' && (
-            <ThemeText
-              styles={styles.summaryLabel}
-              content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
-                amount: swapUSDPriceDollars?.toFixed(2),
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: 'fiat',
-                },
-                fiatStats,
-                convertAmount: false,
-                forceCurrency: 'USD',
-              })}`}
-            />
-          )}
-        </View>
+        )}
         <CustomButton
           buttonStyles={styles.primaryButton}
           actionFunction={handleConfirm}
@@ -797,11 +857,22 @@ const styles = StyleSheet.create({
     ...CENTER,
     justifyContent: 'space-between',
   },
+  confirmContainer: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
   title: {
     fontSize: SIZES.large,
     fontWeight: 500,
     includeFontPadding: false,
     marginBottom: 16,
+  },
+  confirmDescription: {
+    opacity: 0.7,
+    includeFontPadding: false,
+    fontSize: SIZES.smedium,
+    marginBottom: 45,
   },
   optionsList: {
     gap: 10,
@@ -897,6 +968,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     includeFontPadding: false,
     fontSize: SIZES.smedium,
+    textAlign: 'center',
   },
   summaryAmount: {
     fontSize: 40,
