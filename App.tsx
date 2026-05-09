@@ -74,6 +74,7 @@ import { POSTransactionsProvider } from './context-store/pos';
 import {
   FADE_SCREENS,
   FADE_TRANSPARENT_MODAL_SCREENS,
+  MODAL_CARD_SCREENS,
   SLIDE_FROM_BOTTOM_SCREENS,
   SLIDE_FROM_RIGHT_SCREENS,
 } from './navigation/screens';
@@ -129,6 +130,7 @@ import { SavingsProvider } from './context-store/savingsContext';
 import { useTranslation } from 'react-i18next';
 import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
 import { AnalyticsProvider } from './context-store/analyticsContext';
+import { BTCMapProvider } from './context-store/btcMapContext';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
@@ -150,59 +152,61 @@ function App(): JSX.Element {
                   <AppStatusProvider>
                     <AuthStatusProvider>
                       <KeysContextProvider>
-                        <GlobalContactsList>
-                          <GlobalContextProvider>
-                            <ActiveCustodyAccountProvider>
-                              <WebViewProvider>
-                                {/* <GlobaleCashVariables> */}
-                                <SparkWalletProvider>
-                                  <GLobalNodeContextProider>
-                                    {/* <GlobalConbinedTxContextProvider> */}
-                                    <GlobalAppDataProvider>
-                                      <POSTransactionsProvider>
-                                        <PushNotificationProvider>
-                                          <LiquidEventProvider>
-                                            <RootstockSwapProvider>
-                                              {/* <LRC20EventProvider> */}
-                                              <GlobalNostrWalletConnectProvider>
-                                                {/* <LightningEventProvider> */}
-                                                <ImageCacheProvider>
-                                                  <GlobalServerTimeProvider>
-                                                    <GiftProvider>
-                                                      <PoolProvider>
-                                                        <FlashnetProvider>
-                                                          <UserBalanceProvider>
-                                                            <SavingsProvider>
-                                                              <AnalyticsProvider>
-                                                                {/* <Suspense
+                        <BTCMapProvider>
+                          <GlobalContactsList>
+                            <GlobalContextProvider>
+                              <ActiveCustodyAccountProvider>
+                                <WebViewProvider>
+                                  {/* <GlobaleCashVariables> */}
+                                  <SparkWalletProvider>
+                                    <GLobalNodeContextProider>
+                                      {/* <GlobalConbinedTxContextProvider> */}
+                                      <GlobalAppDataProvider>
+                                        <POSTransactionsProvider>
+                                          <PushNotificationProvider>
+                                            <LiquidEventProvider>
+                                              <RootstockSwapProvider>
+                                                {/* <LRC20EventProvider> */}
+                                                <GlobalNostrWalletConnectProvider>
+                                                  {/* <LightningEventProvider> */}
+                                                  <ImageCacheProvider>
+                                                    <GlobalServerTimeProvider>
+                                                      <GiftProvider>
+                                                        <PoolProvider>
+                                                          <FlashnetProvider>
+                                                            <UserBalanceProvider>
+                                                              <SavingsProvider>
+                                                                <AnalyticsProvider>
+                                                                  {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                                <ResetStack />
-                                                              </AnalyticsProvider>
-                                                            </SavingsProvider>
-                                                          </UserBalanceProvider>
-                                                        </FlashnetProvider>
-                                                      </PoolProvider>
-                                                    </GiftProvider>
-                                                    {/* </Suspense> */}
-                                                  </GlobalServerTimeProvider>
-                                                </ImageCacheProvider>
-                                                {/* </LightningEventProvider> */}
-                                              </GlobalNostrWalletConnectProvider>
-                                              {/* </LRC20EventProvider> */}
-                                            </RootstockSwapProvider>
-                                          </LiquidEventProvider>
-                                        </PushNotificationProvider>
-                                      </POSTransactionsProvider>
-                                    </GlobalAppDataProvider>
-                                    {/* <BreezTest /> */}
-                                    {/* </GlobalConbinedTxContextProvider> */}
-                                  </GLobalNodeContextProider>
-                                </SparkWalletProvider>
-                                {/* </GlobaleCashVariables> */}
-                              </WebViewProvider>
-                            </ActiveCustodyAccountProvider>
-                          </GlobalContextProvider>
-                        </GlobalContactsList>
+                                                                  <ResetStack />
+                                                                </AnalyticsProvider>
+                                                              </SavingsProvider>
+                                                            </UserBalanceProvider>
+                                                          </FlashnetProvider>
+                                                        </PoolProvider>
+                                                      </GiftProvider>
+                                                      {/* </Suspense> */}
+                                                    </GlobalServerTimeProvider>
+                                                  </ImageCacheProvider>
+                                                  {/* </LightningEventProvider> */}
+                                                </GlobalNostrWalletConnectProvider>
+                                                {/* </LRC20EventProvider> */}
+                                              </RootstockSwapProvider>
+                                            </LiquidEventProvider>
+                                          </PushNotificationProvider>
+                                        </POSTransactionsProvider>
+                                      </GlobalAppDataProvider>
+                                      {/* <BreezTest /> */}
+                                      {/* </GlobalConbinedTxContextProvider> */}
+                                    </GLobalNodeContextProider>
+                                  </SparkWalletProvider>
+                                  {/* </GlobaleCashVariables> */}
+                                </WebViewProvider>
+                              </ActiveCustodyAccountProvider>
+                            </GlobalContextProvider>
+                          </GlobalContactsList>
+                        </BTCMapProvider>
                       </KeysContextProvider>
                     </AuthStatusProvider>
                   </AppStatusProvider>
@@ -750,6 +754,19 @@ function ResetStack(): JSX.Element | null {
               />
             ),
           )}
+        </Stack.Group>
+        <Stack.Group
+          screenOptions={{
+            presentation: 'modal',
+          }}
+        >
+          {MODAL_CARD_SCREENS.map(({ name, component: Component }) => (
+            <Stack.Screen
+              key={name}
+              name={name}
+              component={Component as React.ComponentType<any>}
+            />
+          ))}
         </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>
