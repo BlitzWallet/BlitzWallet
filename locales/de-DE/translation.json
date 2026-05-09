@@ -290,16 +290,18 @@
   "apps": {
     "noPurchaseTitle": "Keine Käufe",
     "appList": {
-      "AI": "KI",
-      "AIDescription": "Chatten Sie mit den neuesten generativen KI-Modellen.",
-      "SMS": "SMS",
-      "SMSDescription": "Senden und empfangen Sie SMS weltweit mit BTC.",
+      "AI": "Generative KI",
+      "AIDescription": "Chatte mit den neuesten generativen KI-Modellen",
+      "SMS": "SMS-Nachrichten",
+      "SMSDescription": "Sende und empfange weltweit SMS-Nachrichten mit Bitcoin",
       "VPN": "VPN",
-      "VPNDescription": "Sicher surfen und Privatsphäre schützen.",
-      "onlineListings": "Shops",
-      "onlineListingsDescription": "Verzeichnis von Online-Shops, die BTC-Zahlungen akzeptieren.",
-      "Soon": "Bald verfügbar",
-      "SoonDescription": "Weitere Apps kommen bald."
+      "VPNDescription": "Sicher surfen und Privatsphäre schützen",
+      "onlineListings": "Online-Websites",
+      "onlineListingsDescription": "Durchsuche Online-Unternehmen, die Bitcoin akzeptieren",
+      "shop": "Mit Bitcoin einkaufen",
+      "shopDescription": "Geschenkkarten, eSIMs und mehr",
+      "Soon": "Bald",
+      "SoonDescription": "Weitere Integrationen folgen bald"
     },
     "VPN": {
       "VPNPlanPage": {
@@ -375,7 +377,14 @@
         "proPlanTitle": "Pro-Plan",
         "powerPlanTitle": "Power-Plan",
         "paymentMemo": "Shop - ChatGPT",
-        "notAvailableMessage": "Aufgrund der Apple-In-App-Kauf-Richtlinien ist diese Funktion derzeit auf iOS nicht verfügbar. Wir arbeiten an einer Lösung für Sie."
+        "notAvailableMessage": "Aufgrund der Apple-In-App-Kauf-Richtlinien ist diese Funktion derzeit auf iOS nicht verfügbar. Wir arbeiten an einer Lösung für Sie.",
+        "unlockTitle": "KI freischalten.",
+        "bestValue": "Bestes Angebot",
+        "feature1": "Zugriff auf die neuesten KI-Modelle",
+        "feature2": "Kein Abonnement — zahlen Sie nur, was Sie nutzen",
+        "feature3": "Private, Lightning-gestützte Zahlungen",
+        "feature4": "Wählen Sie Ihren Plan",
+        "feature5": "Einfache Einmalkäufe"
       },
       "countrySearch": {
         "inputPlaceholder": "Nach einem Land suchen..."
@@ -393,7 +402,12 @@
         "title": "Kauf bestätigen",
         "plan": "Tarif: {{planType}}",
         "price": "Preis: ",
-        "fee": "Gebühr: "
+        "fee": "Gebühr: ",
+        "chooseAmount": "Betrag wählen",
+        "minimumAmountError": "Mindestbetrag ist {{amount}}",
+        "maximumAmountError": "Höchstbetrag ist {{amount}}",
+        "confirmMessage": "Sie kaufen gleich KI-Guthaben.",
+        "contributionWarning": "Diese Zahlung ist endgültig. Zahlungen können nicht erstattet werden, auch wenn das Guthaben nicht verwendet wird."
       },
       "switchModel": {
         "inputLabel": "Eingabe: {{amount}}/M",
@@ -406,305 +420,381 @@
         "examples": [
           {
             "bottomLine": "als hätten Sie noch nie programmiert",
-            "topLine": "Wie fange ich an, React Native zu lernen?"
+            "topLine": "Wie fange ich an, React Native zu lernen?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Was ist der Unterschied zwischen Web2 und Web3?"
+            "topLine": "Was ist der Unterschied zwischen Web2 und Web3?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 12",
-            "topLine": "Wie funktioniert die Börse?"
+            "topLine": "Wie funktioniert die Börse?",
+            "category": "Finanzen"
           },
           {
             "bottomLine": "als wären Sie 10 Jahre alt",
-            "topLine": "Was ist Quantencomputing?"
+            "topLine": "Was ist Quantencomputing?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie 8",
-            "topLine": "Erklären Sie den Klimawandel"
+            "topLine": "Erklären Sie den Klimawandel",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie ein Gymnasiast",
-            "topLine": "Was ist künstliche Intelligenz?"
+            "topLine": "Was ist künstliche Intelligenz?",
+            "category": "KI"
           },
           {
             "bottomLine": "als wären Sie 15",
-            "topLine": "Wie funktionieren Kreditkarten?"
+            "topLine": "Wie funktionieren Kreditkarten?",
+            "category": "Finanzen"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Was ist Blockchain-Technologie?"
+            "topLine": "Was ist Blockchain-Technologie?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 7 Jahre alt",
-            "topLine": "Wie funktioniert GPS?"
+            "topLine": "Wie funktioniert GPS?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie 9",
-            "topLine": "Erklären Sie, wie Flugzeuge fliegen"
+            "topLine": "Erklären Sie, wie Flugzeuge fliegen",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie ein Großelternteil",
-            "topLine": "Was ist ein Meme?"
+            "topLine": "Was ist ein Meme?",
+            "category": "Kultur"
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
-            "topLine": "Wie funktionieren drahtlose Netzwerke?"
+            "topLine": "Wie funktionieren drahtlose Netzwerke?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Was ist Kryptowährung?"
+            "topLine": "Was ist Kryptowährung?",
+            "category": "Finanzen"
           },
           {
             "bottomLine": "als wären Sie 6",
-            "topLine": "Wie funktioniert das Internet?"
+            "topLine": "Wie funktioniert das Internet?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie neu im Programmieren",
-            "topLine": "Was ist eine API?"
+            "topLine": "Was ist eine API?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der 5. Klasse",
-            "topLine": "Erklären Sie Photosynthese"
+            "topLine": "Erklären Sie Photosynthese",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie 14",
-            "topLine": "Wie funktionieren Elektroautos?"
+            "topLine": "Wie funktionieren Elektroautos?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Was ist ein Smart Contract?"
+            "topLine": "Was ist ein Smart Contract?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 13",
-            "topLine": "Wie funktioniert Raumfahrt?"
+            "topLine": "Wie funktioniert Raumfahrt?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie 15",
-            "topLine": "Erklären Sie NFTs"
+            "topLine": "Erklären Sie NFTs",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 10 Jahre alt",
-            "topLine": "Was ist Augmented Reality?"
+            "topLine": "Was ist Augmented Reality?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Wie funktioniert ein 3D-Drucker?"
+            "topLine": "Wie funktioniert ein 3D-Drucker?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Erklären Sie maschinelles Lernen"
+            "topLine": "Erklären Sie maschinelles Lernen",
+            "category": "KI"
           },
           {
             "bottomLine": "als wären Sie 12",
-            "topLine": "Wie funktionieren Solarmodule?"
+            "topLine": "Wie funktionieren Solarmodule?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
-            "topLine": "Was ist Virtual Reality?"
+            "topLine": "Was ist Virtual Reality?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 10",
-            "topLine": "Wie funktionieren Impfstoffe?"
+            "topLine": "Wie funktionieren Impfstoffe?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie 5 Jahre alt",
-            "topLine": "Erklären Sie Gravitation"
+            "topLine": "Erklären Sie Gravitation",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie neu in der Blockchain",
-            "topLine": "Was ist eine dezentrale Anwendung (dApp)?"
+            "topLine": "Was ist eine dezentrale Anwendung (dApp)?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 8",
-            "topLine": "Wie kochen Mikrowellen Essen?"
+            "topLine": "Wie kochen Mikrowellen Essen?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie in der Grundschule",
-            "topLine": "Erklären Sie das Konzept der Zeitzonen"
+            "topLine": "Erklären Sie das Konzept der Zeitzonen",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
-            "topLine": "Wie verarbeitet ein Computer Daten?"
+            "topLine": "Wie verarbeitet ein Computer Daten?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Was ist Cloud Computing?"
+            "topLine": "Was ist Cloud Computing?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie ein Gymnasiast",
-            "topLine": "Erklären Sie das Konzept der KI-Ethik"
+            "topLine": "Erklären Sie das Konzept der KI-Ethik",
+            "category": "KI"
           },
           {
             "bottomLine": "als wären Sie 11",
-            "topLine": "Wie bleiben Satelliten in der Umlaufbahn?"
+            "topLine": "Wie bleiben Satelliten in der Umlaufbahn?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Was ist Cybersicherheit?"
+            "topLine": "Was ist Cybersicherheit?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der 8. Klasse",
-            "topLine": "Erklären Sie die Evolutionstheorie"
+            "topLine": "Erklären Sie die Evolutionstheorie",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Was ist der Zweck der Blockchain?"
+            "topLine": "Was ist der Zweck der Blockchain?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 9",
-            "topLine": "Wie funktioniert Wi-Fi?"
+            "topLine": "Wie funktioniert Wi-Fi?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 10 Jahre alt",
-            "topLine": "Was ist eine Suchmaschine?"
+            "topLine": "Was ist eine Suchmaschine?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der 7. Klasse",
-            "topLine": "Wie funktionieren Elektromotoren?"
+            "topLine": "Wie funktionieren Elektromotoren?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie 14",
-            "topLine": "Erklären Sie das Konzept der Relativität"
+            "topLine": "Erklären Sie das Konzept der Relativität",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
-            "topLine": "Was ist das Internet der Dinge (IoT)?"
+            "topLine": "Was ist das Internet der Dinge (IoT)?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Wie funktionieren Smartphones?"
+            "topLine": "Wie funktionieren Smartphones?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der 6. Klasse",
-            "topLine": "Erklären Sie das Konzept der erneuerbaren Energien"
+            "topLine": "Erklären Sie das Konzept der erneuerbaren Energien",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Was ist virtuelle Währung?"
+            "topLine": "Was ist virtuelle Währung?",
+            "category": "Finanzen"
           },
           {
             "bottomLine": "als wären Sie 12",
-            "topLine": "Wie funktionieren Smart Homes?"
+            "topLine": "Wie funktionieren Smart Homes?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie neu in der KI",
-            "topLine": "Was ist Deep Learning?"
+            "topLine": "Was ist Deep Learning?",
+            "category": "KI"
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
-            "topLine": "Wie funktioniert Online-Shopping?"
+            "topLine": "Wie funktioniert Online-Shopping?",
+            "category": "Kultur"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Erklären Sie das Konzept des Datenschutzes"
+            "topLine": "Erklären Sie das Konzept des Datenschutzes",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 14",
-            "topLine": "Was ist Virtual Reality Gaming?"
+            "topLine": "Was ist Virtual Reality Gaming?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Wie funktionieren selbstfahrende Autos?"
+            "topLine": "Wie funktionieren selbstfahrende Autos?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 13",
-            "topLine": "Was ist Gentechnik?"
+            "topLine": "Was ist Gentechnik?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
-            "topLine": "Erklären Sie das Konzept der Smart Cities"
+            "topLine": "Erklären Sie das Konzept der Smart Cities",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 11",
-            "topLine": "Wie funktionieren Drohnen?"
+            "topLine": "Wie funktionieren Drohnen?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Was ist eine digitale Wallet?"
+            "topLine": "Was ist eine digitale Wallet?",
+            "category": "Finanzen"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Wie funktioniert digitale Kunst?"
+            "topLine": "Wie funktioniert digitale Kunst?",
+            "category": "Kultur"
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
-            "topLine": "Erklären Sie das Konzept der 5G-Technologie"
+            "topLine": "Erklären Sie das Konzept der 5G-Technologie",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 15",
-            "topLine": "Was ist ein autonomes Fahrzeug?"
+            "topLine": "Was ist ein autonomes Fahrzeug?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 10",
-            "topLine": "Wie funktionieren Videospiele?"
+            "topLine": "Wie funktionieren Videospiele?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Erklären Sie das Konzept der Smart Contracts"
+            "topLine": "Erklären Sie das Konzept der Smart Contracts",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Was ist eine Smartwatch?"
+            "topLine": "Was ist eine Smartwatch?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 12 Jahre alt",
-            "topLine": "Wie funktioniert ein Touchscreen?"
+            "topLine": "Wie funktioniert ein Touchscreen?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
-            "topLine": "Erklären Sie das Konzept der maschinellen Übersetzung"
+            "topLine": "Erklären Sie das Konzept der maschinellen Übersetzung",
+            "category": "KI"
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
-            "topLine": "Was ist ein Rechenzentrum?"
+            "topLine": "Was ist ein Rechenzentrum?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Wie funktioniert Blockchain-Mining?"
+            "topLine": "Wie funktioniert Blockchain-Mining?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Was ist ein Mikrochip?"
+            "topLine": "Was ist ein Mikrochip?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Erklären Sie das Konzept der Cloud-Speicherung"
+            "topLine": "Erklären Sie das Konzept der Cloud-Speicherung",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 13",
-            "topLine": "Wie funktionieren Elektroscooter?"
+            "topLine": "Wie funktionieren Elektroscooter?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie ein Anfänger",
-            "topLine": "Was ist ein Algorithmus?"
+            "topLine": "Was ist ein Algorithmus?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie neu in der Technologie",
-            "topLine": "Erklären Sie das Konzept der virtuellen Meetings"
+            "topLine": "Erklären Sie das Konzept der virtuellen Meetings",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 14",
-            "topLine": "Wie funktionieren Elektrofahrräder?"
+            "topLine": "Wie funktionieren Elektrofahrräder?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Oberschule",
-            "topLine": "Was ist ein Quantencomputer?"
+            "topLine": "Was ist ein Quantencomputer?",
+            "category": "Wissenschaft"
           },
           {
             "bottomLine": "als wären Sie ein Teenager",
-            "topLine": "Erklären Sie das Konzept der Cybersicherheit"
+            "topLine": "Erklären Sie das Konzept der Cybersicherheit",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie 12",
-            "topLine": "Was ist Augmented Reality?"
+            "topLine": "Was ist Augmented Reality?",
+            "category": "Technik"
           },
           {
             "bottomLine": "als wären Sie in der Mittelschule",
-            "topLine": "Wie funktionieren Streaming-Dienste?"
+            "topLine": "Wie funktionieren Streaming-Dienste?",
+            "category": "Technik"
           }
-        ]
+        ],
+        "sectionTitle": "Ihre Fragen beantwortet"
       },
       "saveChat": {
         "errorMessage": "Ihre Konversation konnte leider nicht gespeichert werden."
@@ -765,7 +855,8 @@
     "sms4sats": {
       "home": {
         "pageDescription": "Senden und empfangen Sie SMS-Nachrichten, ohne Ihre persönliche Telefonnummer preiszugeben.",
-        "pricingError": "SMS-Preise konnten nicht abgerufen werden."
+        "pricingError": "SMS-Preise konnten nicht abgerufen werden.",
+        "codeLabel": "Code"
       },
       "confirmationSlideUp": {
         "title": "Nummer bestätigen",
@@ -785,7 +876,20 @@
         "payingMessage": "Bezahlung wird durchgeführt...",
         "runningTries": "Versuch {{runCount}} von {{maxTries}}",
         "notAbleToSettleInvoice": "Rechnung konnte nicht beglichen werden.",
-        "paymentMemo": "Shop – SMS senden"
+        "paymentMemo": "Shop – SMS senden",
+        "invalidPhoneError": "Bitte geben Sie eine gültige Telefonnummer ein",
+        "unsupportedCountryError": "Das Land der Telefonnummer wird nicht unterstützt",
+        "confirmedMessage": "Ihre SMS ist unterwegs",
+        "noCountry": "Sie müssen zuerst ein Land auswählen.",
+        "countryStepTitle": "Land wählen",
+        "countryStepSubtitle": "Wählen Sie die Ländervorwahl für die Nummer, an die Sie eine SMS senden möchten.",
+        "countrySearchPlaceholder": "Länder suchen",
+        "phoneStepTitle": "Telefonnummer eingeben",
+        "phoneStepSubtitle": "Geben Sie die vollständige Nummer ohne Ländervorwahl ein (z. B. 2025551234 für (202) 555-1234).",
+        "invalidMessageError": "Bitte geben Sie eine Nachricht ein, bevor Sie fortfahren",
+        "descriptionStepTitle": "Ihre Nachricht hinzufügen",
+        "descriptionStepSubtitle": "SMS4Sats erfordert eine Nachricht. Halten Sie sie kurz und unter 140 Zeichen.",
+        "descriptionInputPlaceholder": "Nachricht eingeben"
       },
       "sentPayments": {
         "titlesend": "Gesendete Nachrichten",
@@ -808,19 +912,20 @@
       "receivePage": {
         "paymentMemo": "Shop - SMS Empfang",
         "selectCountry": "Land auswählen",
-        "autoSelectInfoMessage": "Bitte wählen Sie das Land für die Telefonnummer aus. Für die beste Chance, den Code zu erhalten, empfehlen wir die automatische Auswahl.",
+        "autoSelectInfoMessage": "Wir empfehlen, die Einstellung auf „Automatische Auswahl“ zu belassen, damit das System die zuverlässigste Option auswählt.",
         "autoSelect": "Automatische Auswahl",
         "inputPlaceholder": "Nach einem Dienst suchen...",
         "locationLoadingMessage": "Standortbasierte Dienste werden abgerufen...",
         "noAvailableServices": "Dieser Standort hat keine verfügbaren Dienste.",
-        "orderDetailsLoading": "Bestelldetails werden abgerufen..."
+        "orderDetailsLoading": "Bestelldetails werden abgerufen...",
+        "countryStepTitle": "Land wählen",
+        "countrySearchPlaceholder": "Länder suchen"
       },
       "confirmCodePage": {
-        "header": "Ihre Bestellung wurde erfolgreich initiiert. Folgendes passiert als Nächstes:",
+        "header": "Ihre Bestellung wurde erfolgreich gestartet",
         "phoneNumberLabel": "Ihre Nummer:",
-        "step1": "• Tippen Sie auf das Rechnungssymbol oben rechts, um Ihren Bestellverlauf anzuzeigen",
-        "step2": "• Verwenden Sie die Schaltfläche „Code abrufen“, um Ihren Verifizierungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben.",
-        "step3": "• Falls kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet.",
+        "step2": "Verwenden Sie die Schaltfläche „Code abrufen“ auf der Startseite, um Ihren Bestätigungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben",
+        "step3": "Falls kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet",
         "automaticRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder wurden bereits zurückerstattet.",
         "waitedRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder werden nach 21 Minuten automatisch zurückerstattet."
       },
@@ -2348,6 +2453,26 @@
         "createFailed": "Adresse konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
         "deleteFailed": "Adresse konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
       }
+    },
+    "btcMap": {
+      "mapPreview": {
+        "header": "Bitcoin-Karte",
+        "subHeader": "Bitcoin lokal verwenden"
+      },
+      "map": {
+        "title": "Mit Bitcoin bezahlen",
+        "loadingMap": "Karte wird geladen...",
+        "loadingMerchants": "Händler werden geladen...",
+        "zoomIn": "Hineinzoomen, um alle Händler zu sehen"
+      },
+      "merchant": {
+        "noName": "Unbekannter Händler",
+        "directions": "Wegbeschreibung",
+        "pay": "Bezahlen",
+        "lightning": "Lightning",
+        "lightningMessage": "Akzeptiert Bitcoin-Zahlungen sofort über das Lightning-Netzwerk",
+        "dataMessage": "Daten von btcmap.org"
+      }
     }
   },
   "toastmessages": {
@@ -2701,7 +2826,6 @@
     "numberOfTxs_other": "{{count}} Transaktionen",
     "remaining": "Verbleibend",
     "overBy": "Überschritten um",
-
     "home": {
       "title": "Analysen",
       "activityHead": "Monatliche Aktivität",

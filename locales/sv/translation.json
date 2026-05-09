@@ -290,14 +290,16 @@
   "apps": {
     "noPurchaseTitle": "Inga Köp",
     "appList": {
-      "AI": "AI",
-      "AIDescription": "Chatta med de senaste generativa Ai-modellerna",
-      "SMS": "SMS",
-      "SMSDescription": "Skicka och ta emot SMS-meddelanden över hela världen med hjälp av Bitcoin",
+      "AI": "Generativ AI",
+      "AIDescription": "Chatta med de senaste generativa AI-modellerna",
+      "SMS": "SMS-meddelanden",
+      "SMSDescription": "Skicka och ta emot SMS världen över med Bitcoin",
       "VPN": "VPN",
-      "VPNDescription": "Säker surfning och skydd av privatlivet",
-      "onlineListings": "Butiker",
-      "onlineListingsDescription": "Katalog över onlineföretag som accepterar Bitcoin-betalningar",
+      "VPNDescription": "Surfa säkert och skydda din integritet",
+      "onlineListings": "Webbplatser online",
+      "onlineListingsDescription": "Utforska onlineföretag som accepterar Bitcoin",
+      "shop": "Handla med Bitcoin",
+      "shopDescription": "Presentkort, eSIM och mer",
       "Soon": "Snart",
       "SoonDescription": "Fler integrationer kommer snart"
     },
@@ -375,7 +377,14 @@
         "proPlanTitle": "Pro Plan",
         "powerPlanTitle": "Kraftplan",
         "paymentMemo": "Butik - chatGPT",
-        "notAvailableMessage": "På grund av Apples riktlinjer för köp i appen är den här funktionen för närvarande inte tillgänglig på iOS. Vi undersöker olika sätt att få den till iOS i framtiden."
+        "notAvailableMessage": "På grund av Apples riktlinjer för köp i appen är den här funktionen för närvarande inte tillgänglig på iOS. Vi undersöker olika sätt att få den till iOS i framtiden.",
+        "unlockTitle": "Lås upp AI.",
+        "bestValue": "Bäst värde",
+        "feature1": "Tillgång till de senaste AI-modellerna",
+        "feature2": "Inga prenumerationer — betala för det du använder",
+        "feature3": "Privata betalningar via Lightning",
+        "feature4": "Välj din planstorlek",
+        "feature5": "Enkla engångsköp"
       },
       "countrySearch": {
         "inputPlaceholder": "Sök efter ett land"
@@ -393,7 +402,12 @@
         "title": "Bekräfta köpet",
         "plan": "Plan: {{planType}}",
         "price": "Pris: ",
-        "fee": "Avgift: "
+        "fee": "Avgift: ",
+        "chooseAmount": "Välj ett belopp",
+        "minimumAmountError": "Minbelopp är {{amount}}",
+        "maximumAmountError": "Maxbelopp är {{amount}}",
+        "confirmMessage": "Du håller på att köpa AI-krediter.",
+        "contributionWarning": "Denna betalning är slutgiltig. Betalningar kan inte återbetalas, även om krediterna inte används."
       },
       "switchModel": {
         "inputLabel": "Inmatning: {{amount}}/M",
@@ -406,305 +420,381 @@
         "examples": [
           {
             "topLine": "Hur börjar jag lära mig React Native?",
-            "bottomLine": "som om jag aldrig har kodat förut"
+            "bottomLine": "som om jag aldrig har kodat förut",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är skillnaden mellan Web2 och Web3?",
-            "bottomLine": "som om jag vore en tonåring"
+            "bottomLine": "som om jag vore en tonåring",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar aktiemarknaden?",
-            "bottomLine": "som om jag är 12"
+            "bottomLine": "som om jag är 12",
+            "category": "Ekonomi"
           },
           {
             "topLine": "Vad är kvantdatorer?",
-            "bottomLine": "som om jag vore 10 år gammal"
+            "bottomLine": "som om jag vore 10 år gammal",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara klimatförändringar",
-            "bottomLine": "som om jag är 8"
+            "bottomLine": "som om jag är 8",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är artificiell intelligens?",
-            "bottomLine": "som om jag vore en high school-elev"
+            "bottomLine": "som om jag vore en high school-elev",
+            "category": "AI"
           },
           {
             "topLine": "Hur fungerar kreditkort?",
-            "bottomLine": "som om jag är 15"
+            "bottomLine": "som om jag är 15",
+            "category": "Ekonomi"
           },
           {
             "topLine": "Vad är blockkedjeteknik?",
-            "bottomLine": "som om jag vore i mellanstadiet"
+            "bottomLine": "som om jag vore i mellanstadiet",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar GPS?",
-            "bottomLine": "som om jag vore 7 år gammal"
+            "bottomLine": "som om jag vore 7 år gammal",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara hur flygplan flyger",
-            "bottomLine": "som om jag är 9 år"
+            "bottomLine": "som om jag är 9 år",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är ett meme?",
-            "bottomLine": "som om jag vore en farförälder"
+            "bottomLine": "som om jag vore en farförälder",
+            "category": "Kultur"
           },
           {
             "topLine": "Hur fungerar trådlösa nätverk?",
-            "bottomLine": "som om jag vore nybörjare"
+            "bottomLine": "som om jag vore nybörjare",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är kryptovaluta?",
-            "bottomLine": "som om jag vore en tonåring"
+            "bottomLine": "som om jag vore en tonåring",
+            "category": "Ekonomi"
           },
           {
             "topLine": "Hur fungerar internet?",
-            "bottomLine": "som jag är 6"
+            "bottomLine": "som jag är 6",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är ett API?",
-            "bottomLine": "som jag är ny på programmering"
+            "bottomLine": "som jag är ny på programmering",
+            "category": "Teknik"
           },
           {
             "topLine": "Förklara fotosyntesen",
-            "bottomLine": "som om jag gick i 5:e klass"
+            "bottomLine": "som om jag gick i 5:e klass",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Hur fungerar elbilar?",
-            "bottomLine": "som om jag vore 14 år"
+            "bottomLine": "som om jag vore 14 år",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är ett smart kontrakt?",
-            "bottomLine": "som om jag vore i high school"
+            "bottomLine": "som om jag vore i high school",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar rymdresor?",
-            "bottomLine": "som om jag var 13 år"
+            "bottomLine": "som om jag var 13 år",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara NFT",
-            "bottomLine": "som om jag är 15"
+            "bottomLine": "som om jag är 15",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är förstärkt verklighet?",
-            "bottomLine": "som om jag vore 10 år gammal"
+            "bottomLine": "som om jag vore 10 år gammal",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar en 3D-skrivare?",
-            "bottomLine": "som om jag vore i mellanstadiet"
+            "bottomLine": "som om jag vore i mellanstadiet",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara maskininlärning",
-            "bottomLine": "som om jag vore i high school"
+            "bottomLine": "som om jag vore i high school",
+            "category": "AI"
           },
           {
             "topLine": "Hur fungerar solpaneler?",
-            "bottomLine": "som om jag är 12"
+            "bottomLine": "som om jag är 12",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är virtuell verklighet?",
-            "bottomLine": "som om jag vore nybörjare"
+            "bottomLine": "som om jag vore nybörjare",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar vacciner?",
-            "bottomLine": "som jag är 10"
+            "bottomLine": "som jag är 10",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara gravitationen",
-            "bottomLine": "som om jag är 5 år gammal"
+            "bottomLine": "som om jag är 5 år gammal",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är en decentraliserad applikation (dApp)?",
-            "bottomLine": "som om jag är ny på blockchain"
+            "bottomLine": "som om jag är ny på blockchain",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur tillagar mikrovågor mat?",
-            "bottomLine": "som jag är 8"
+            "bottomLine": "som jag är 8",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara begreppet tidszoner",
-            "bottomLine": "som om jag vore i lågstadiet"
+            "bottomLine": "som om jag vore i lågstadiet",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Hur bearbetar en dator data?",
-            "bottomLine": "som om jag vore nybörjare"
+            "bottomLine": "som om jag vore nybörjare",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är cloud computing?",
-            "bottomLine": "som om jag vore i mellanstadiet"
+            "bottomLine": "som om jag vore i mellanstadiet",
+            "category": "Teknik"
           },
           {
             "topLine": "Förklara begreppet AI-etik",
-            "bottomLine": "som om jag vore en high school-elev"
+            "bottomLine": "som om jag vore en high school-elev",
+            "category": "AI"
           },
           {
             "topLine": "Hur håller sig satelliter i omloppsbana?",
-            "bottomLine": "som jag är 11"
+            "bottomLine": "som jag är 11",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är cybersäkerhet?",
-            "bottomLine": "som om jag vore en tonåring"
+            "bottomLine": "som om jag vore en tonåring",
+            "category": "Teknik"
           },
           {
             "topLine": "Förklara evolutionsteorin",
-            "bottomLine": "som om jag gick i 8:e klass"
+            "bottomLine": "som om jag gick i 8:e klass",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är syftet med blockkedjan?",
-            "bottomLine": "som om jag vore i high school"
+            "bottomLine": "som om jag vore i high school",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar Wi-Fi?",
-            "bottomLine": "som jag är 9"
+            "bottomLine": "som jag är 9",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är en sökmotor?",
-            "bottomLine": "som om jag vore 10 år gammal"
+            "bottomLine": "som om jag vore 10 år gammal",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar elektriska motorer?",
-            "bottomLine": "som om jag gick i 7:e klass"
+            "bottomLine": "som om jag gick i 7:e klass",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara begreppet relativitetsteori",
-            "bottomLine": "som om jag är 14"
+            "bottomLine": "som om jag är 14",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är sakernas internet (IoT)?",
-            "bottomLine": "som om jag är ny inom teknik"
+            "bottomLine": "som om jag är ny inom teknik",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar smartphones?",
-            "bottomLine": "som om jag vore i mellanstadiet"
+            "bottomLine": "som om jag vore i mellanstadiet",
+            "category": "Teknik"
           },
           {
             "topLine": "Förklara begreppet förnybar energi",
-            "bottomLine": "som om jag går i 6:e klass"
+            "bottomLine": "som om jag går i 6:e klass",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Vad är virtuell valuta?",
-            "bottomLine": "som om jag vore en tonåring"
+            "bottomLine": "som om jag vore en tonåring",
+            "category": "Ekonomi"
           },
           {
             "topLine": "Hur fungerar smarta hem?",
-            "bottomLine": "som om jag är 12"
+            "bottomLine": "som om jag är 12",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är djupinlärning?",
-            "bottomLine": "som jag är ny på AI"
+            "bottomLine": "som jag är ny på AI",
+            "category": "AI"
           },
           {
             "topLine": "Hur fungerar online shopping?",
-            "bottomLine": "som om jag vore nybörjare"
+            "bottomLine": "som om jag vore nybörjare",
+            "category": "Kultur"
           },
           {
             "topLine": "Förklara begreppet datasekretess",
-            "bottomLine": "som om jag vore en tonåring"
+            "bottomLine": "som om jag vore en tonåring",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är virtual reality-spel?",
-            "bottomLine": "som om jag är 14"
+            "bottomLine": "som om jag är 14",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar självkörande bilar?",
-            "bottomLine": "som om jag vore i high school"
+            "bottomLine": "som om jag vore i high school",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är genteknik?",
-            "bottomLine": "som om jag är 13"
+            "bottomLine": "som om jag är 13",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara konceptet med smarta städer",
-            "bottomLine": "som om jag är ny inom teknik"
+            "bottomLine": "som om jag är ny inom teknik",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar drönare?",
-            "bottomLine": "som jag är 11"
+            "bottomLine": "som jag är 11",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är en digital plånbok?",
-            "bottomLine": "som om jag vore en tonåring"
+            "bottomLine": "som om jag vore en tonåring",
+            "category": "Ekonomi"
           },
           {
             "topLine": "Hur fungerar digital konst?",
-            "bottomLine": "som om jag vore i mellanstadiet"
+            "bottomLine": "som om jag vore i mellanstadiet",
+            "category": "Kultur"
           },
           {
             "topLine": "Förklara konceptet med 5G-teknik",
-            "bottomLine": "som jag är ny på teknik"
+            "bottomLine": "som jag är ny på teknik",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är ett självkörande fordon?",
-            "bottomLine": "som om jag är 15"
+            "bottomLine": "som om jag är 15",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar videospel?",
-            "bottomLine": "som jag är 10"
+            "bottomLine": "som jag är 10",
+            "category": "Teknik"
           },
           {
             "topLine": "Förklara konceptet med smarta kontrakt",
-            "bottomLine": "som om jag vore i high school"
+            "bottomLine": "som om jag vore i high school",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är en smart klocka?",
-            "bottomLine": "som om jag vore i mellanstadiet"
+            "bottomLine": "som om jag vore i mellanstadiet",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar en pekskärm?",
-            "bottomLine": "som om jag vore 12 år gammal"
+            "bottomLine": "som om jag vore 12 år gammal",
+            "category": "Teknik"
           },
           {
             "topLine": "Förklara begreppet maskinöversättning",
-            "bottomLine": "som om jag vore nybörjare"
+            "bottomLine": "som om jag vore nybörjare",
+            "category": "AI"
           },
           {
             "topLine": "Vad är ett datacenter?",
-            "bottomLine": "som om jag är ny inom teknik"
+            "bottomLine": "som om jag är ny inom teknik",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar blockchain mining?",
-            "bottomLine": "som om jag vore en tonåring"
+            "bottomLine": "som om jag vore en tonåring",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är ett mikrochip?",
-            "bottomLine": "som om jag vore i high school"
+            "bottomLine": "som om jag vore i high school",
+            "category": "Teknik"
           },
           {
             "topLine": "Förklara konceptet med molnlagring",
-            "bottomLine": "som om jag vore i mellanstadiet"
+            "bottomLine": "som om jag vore i mellanstadiet",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar elektriska skotrar?",
-            "bottomLine": "som om jag var 13 år"
+            "bottomLine": "som om jag var 13 år",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är en algoritm?",
-            "bottomLine": "som om jag vore nybörjare"
+            "bottomLine": "som om jag vore nybörjare",
+            "category": "Teknik"
           },
           {
             "topLine": "Förklara konceptet med virtuella möten",
-            "bottomLine": "som om jag är ny inom teknik"
+            "bottomLine": "som om jag är ny inom teknik",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar elcyklar?",
-            "bottomLine": "som om jag är 14"
+            "bottomLine": "som om jag är 14",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är en kvantdator?",
-            "bottomLine": "som om jag vore i high school"
+            "bottomLine": "som om jag vore i high school",
+            "category": "Vetenskap"
           },
           {
             "topLine": "Förklara begreppet cybersäkerhet",
-            "bottomLine": "som om jag vore en tonåring"
+            "bottomLine": "som om jag vore en tonåring",
+            "category": "Teknik"
           },
           {
             "topLine": "Vad är förstärkt verklighet?",
-            "bottomLine": "som om jag är 12"
+            "bottomLine": "som om jag är 12",
+            "category": "Teknik"
           },
           {
             "topLine": "Hur fungerar streamingtjänster?",
-            "bottomLine": "som om jag vore i mellanstadiet"
+            "bottomLine": "som om jag vore i mellanstadiet",
+            "category": "Teknik"
           }
-        ]
+        ],
+        "sectionTitle": "Dina frågor besvarade"
       },
       "saveChat": {
         "errorMessage": "Tyvärr kunde vi inte spara din konversation."
@@ -765,7 +855,8 @@
     "sms4sats": {
       "home": {
         "pageDescription": "Skicka och ta emot sms-meddelanden utan att lämna ut ditt personliga telefonnummer.",
-        "pricingError": "Det går inte att få SMS-prissättning"
+        "pricingError": "Det går inte att få SMS-prissättning",
+        "codeLabel": "Kod"
       },
       "confirmationSlideUp": {
         "title": "Bekräfta nummer",
@@ -785,7 +876,20 @@
         "payingMessage": "Betalar...",
         "runningTries": "Kör {{runCount}} för {{maxTries}} försök",
         "notAbleToSettleInvoice": "Kan inte betala fakturan.",
-        "paymentMemo": "Butik - SMS Skicka"
+        "paymentMemo": "Butik - SMS Skicka",
+        "invalidPhoneError": "Ange ett giltigt telefonnummer",
+        "unsupportedCountryError": "Telefonbokens land stöds inte",
+        "confirmedMessage": "Ditt textmeddelande är på väg",
+        "noCountry": "Du måste välja ett land först.",
+        "countryStepTitle": "Välj ett land",
+        "countryStepSubtitle": "Välj landskoden för numret du vill skicka ett SMS till.",
+        "countrySearchPlaceholder": "Sök länder",
+        "phoneStepTitle": "Ange telefonnumret",
+        "phoneStepSubtitle": "Ange det fullständiga numret utan landskod (t.ex. 2025551234 för (202) 555-1234).",
+        "invalidMessageError": "Ange ett meddelande innan du fortsätter",
+        "descriptionStepTitle": "Lägg till ditt meddelande",
+        "descriptionStepSubtitle": "SMS4Sats kräver ett meddelande. Håll det kort och under 140 tecken.",
+        "descriptionInputPlaceholder": "Skriv meddelande"
       },
       "sentPayments": {
         "titlesend": "Skickade meddelanden",
@@ -808,21 +912,22 @@
       "receivePage": {
         "paymentMemo": "Butik - SMS-mottagning",
         "selectCountry": "Välj land",
-        "autoSelectInfoMessage": "Välj land för det telefonnummer som du vill använda. För att du ska ha störst chans att få din kod rekommenderar vi att du låter den vara inställd på Autoval så att systemet väljer det mest tillförlitliga alternativet.",
+        "autoSelectInfoMessage": "Vi rekommenderar att behålla det på ”Automatiskt val” så att systemet väljer det mest pålitliga alternativet.",
         "autoSelect": "Välj automatiskt",
         "inputPlaceholder": "Sök efter en tjänst",
         "locationLoadingMessage": "Hämta platsbaserade tjänster",
         "noAvailableServices": "Denna plats har inga tjänster",
-        "orderDetailsLoading": "Hämta orderinformation"
+        "orderDetailsLoading": "Hämta orderinformation",
+        "countryStepTitle": "Välj ett land",
+        "countrySearchPlaceholder": "Sök länder"
       },
       "confirmCodePage": {
-        "header": "Din order har framgångsrikt initierats. Här är vad som händer härnäst:",
+        "header": "Din beställning har startats framgångsrikt",
         "phoneNumberLabel": "Ditt nummer:",
-        "step1": "- Klicka på kvittosymbolen längst upp till höger för att se din orderhistorik",
-        "step2": "- Använd knappen \"Get Code\" för att hämta din verifieringskod efter att du har lagt till numret i tjänsten",
-        "step3": "- Om ingen kod tas emot kommer din betalning att återbetalas automatiskt inom 21 minuter",
-        "automaticRefund": "Inget nummer var tillgängligt för denna tjänst. Dina pengar har redan återbetalats.",
-        "waitedRefund": "Inget nummer var tillgängligt för denna tjänst. Dina pengar kommer att återbetalas automatiskt efter 21 minuter."
+        "step2": "Använd knappen ”Hämta kod” på startsidan för att få din verifieringskod efter att du har lagt till numret i tjänsten",
+        "step3": "Om ingen kod tas emot återbetalas din betalning automatiskt inom 21 minuter",
+        "automaticRefund": "Inget nummer var tillgängligt för denna tjänst. Dina medel har redan återbetalats.",
+        "waitedRefund": "Inget nummer var tillgängligt för denna tjänst. Dina medel återbetalas automatiskt efter 21 minuter."
       },
       "viewSMSReceiveCode": {
         "header": "Din kod"
@@ -2348,6 +2453,26 @@
         "createFailed": "Det gick inte att skapa adressen. Försök igen.",
         "deleteFailed": "Det gick inte att ta bort adressen. Försök igen."
       }
+    },
+    "btcMap": {
+      "mapPreview": {
+        "header": "Bitcoin-karta",
+        "subHeader": "Använd bitcoin lokalt"
+      },
+      "map": {
+        "title": "Betala med Bitcoin",
+        "loadingMap": "Laddar karta...",
+        "loadingMerchants": "Laddar handlare...",
+        "zoomIn": "Zooma in för att se alla handlare"
+      },
+      "merchant": {
+        "noName": "Okänd handlare",
+        "directions": "Vägbeskrivning",
+        "pay": "Betala",
+        "lightning": "Lightning",
+        "lightningMessage": "Tar emot bitcoinbetalningar direkt via Lightning-nätverket",
+        "dataMessage": "Data från btcmap.org"
+      }
     }
   },
   "toastmessages": {
@@ -2701,7 +2826,6 @@
     "numberOfTxs_other": "{{count}} transaktioner",
     "remaining": "Kvar",
     "overBy": "Överskrid med",
-
     "home": {
       "title": "Analys",
       "activityHead": "Månadsaktivitet",
