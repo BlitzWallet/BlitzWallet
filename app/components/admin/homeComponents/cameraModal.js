@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { detectQRCode } from '../../../functions/detectQrCode';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
 
 export default function CameraModal(props) {
   const navigate = useNavigation();
