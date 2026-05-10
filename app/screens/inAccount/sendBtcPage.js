@@ -2,7 +2,7 @@ import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { COLORS, SIZES } from '../../constants';
+import { BARCODE_FORMATS, COLORS, SIZES } from '../../constants';
 import {
   useFocusEffect,
   useIsFocused,
@@ -20,13 +20,15 @@ import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import { useTranslation } from 'react-i18next';
 import { CameraPageNavBar } from '../../functions/CustomElements/camera/cameraPageNavbar';
-import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../functions/sendBitcoin/handlePreSendPageParsing';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import getClipboardText from '../../functions/getClipboardText';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import GetThemeColors from '../../hooks/themeColors';
 
 export default function SendPaymentHome({ pageViewPage, from }) {
   const navigate = useNavigation();
@@ -39,7 +41,6 @@ export default function SendPaymentHome({ pageViewPage, from }) {
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const didScanRef = useRef(false);
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
   const { topPadding, bottomPadding } = useGlobalInsets();
 
   const isCameraActive = useMemo(() => {
@@ -119,8 +120,9 @@ export default function SendPaymentHome({ pageViewPage, from }) {
   );
 
   const barcodeOutput = useBarcodeScannerOutput({
-    barcodeFormats: ['qr-code'],
+    barcodeFormats: BARCODE_FORMATS,
     onBarcodeScanned: handleBarCodeScanned,
+    onError: err => crashlyticsRecordErrorReport(err),
   });
 
   useFocusEffect(
@@ -199,7 +201,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     }
     const clipboardData = response.data?.trim();
     handleInvoice(clipboardData);
-  }, [navigate, handleInvoice]);
+  }, [navigate, handleInvoice, t]);
 
   if (!hasPermission) {
     return (
@@ -245,7 +247,6 @@ export default function SendPaymentHome({ pageViewPage, from }) {
         device={device}
         isActive={isCameraActive}
         enableSmoothAutoFocus={true}
-        pixelFormat="yuv"
         torchMode={isFlashOn ? 'on' : 'off'}
       />
 

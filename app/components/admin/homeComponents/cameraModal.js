@@ -7,7 +7,7 @@ import {
 } from 'react-native-vision-camera';
 import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { COLORS, SIZES } from '../../../constants';
+import { BARCODE_FORMATS, COLORS, SIZES } from '../../../constants';
 import { ThemeText, GlobalThemeView } from '../../../functions/CustomElements';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import { getImageFromLibrary } from '../../../functions/imagePickerWrapper';
@@ -89,8 +89,9 @@ export default function CameraModal(props) {
   );
 
   const barcodeOutput = useBarcodeScannerOutput({
-    barcodeFormats: ['qr-code'],
+    barcodeFormats: BARCODE_FORMATS,
     onBarcodeScanned: handleBarcodeScanned,
+    onError: err => crashlyticsRecordErrorReport(err),
   });
 
   const toggleFlash = useCallback(() => {
@@ -192,7 +193,6 @@ export default function CameraModal(props) {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isCameraActive}
-        pixelFormat="yuv"
         torchMode={isFlashOn ? 'on' : 'off'}
       />
 
@@ -202,7 +202,10 @@ export default function CameraModal(props) {
           styles.cornerBtnLeft,
           { top: topPadding + 10 },
         ]}
-        onPress={() => navigate.goBack()}
+        onPress={() => {
+          setIsClosing(true);
+          navigate.goBack();
+        }}
       >
         <ThemeIcon
           iconName="ArrowLeft"
