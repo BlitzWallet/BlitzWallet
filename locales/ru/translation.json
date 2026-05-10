@@ -1103,7 +1103,8 @@
       "noCameraDevice": "Камера не обнаружена.",
       "noFlash": "Нет вспышки",
       "scanningResponse": "Принимаются только QR-коды.",
-      "qrDecodeError": "Ошибка декодирования QR"
+      "qrDecodeError": "Ошибка декодирования QR",
+      "scanHint": "Наведите камеру на QR-код"
     },
     "confirmClipboard": {
       "clipboardContent": "Текст скопирован",

@@ -1102,7 +1102,8 @@
       "noCameraDevice": "Du har ingen kameraenhet.",
       "noFlash": " Enheten har inte en fackla",
       "scanningResponse": "Endast QR-koder accepteras.",
-      "qrDecodeError": "Fel vid avkodning av QR-kod"
+      "qrDecodeError": "Fel vid avkodning av QR-kod",
+      "scanHint": "Rikta kameran mot QR-koden"
     },
     "confirmClipboard": {
       "clipboardContent": "Text kopierad till urklipp",

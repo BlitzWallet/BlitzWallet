@@ -1102,7 +1102,8 @@
       "noCameraDevice": "Vous n'avez pas d'appareil photo.",
       "noFlash": " L'appareil n'est pas équipé d'une torche",
       "scanningResponse": "Seuls les codes QR sont acceptés.",
-      "qrDecodeError": "Erreur de décodage du code QR"
+      "qrDecodeError": "Erreur de décodage du code QR",
+      "scanHint": "Pointez votre caméra vers le code QR"
     },
     "confirmClipboard": {
       "clipboardContent": "Texte copié dans le presse-papiers",
