@@ -296,12 +296,12 @@
       "SMSDescription": "Envie e receba mensagens SMS no mundo todo usando Bitcoin",
       "VPN": "VPN",
       "VPNDescription": "Navegue com segurança e proteja sua privacidade",
-      "onlineListings": "Sites online",
+      "onlineListings": "Lojas virtuais",
       "onlineListingsDescription": "Explore empresas online que aceitam Bitcoin",
       "shop": "Compre com Bitcoin",
       "shopDescription": "Cartões-presente, eSIMs e mais",
       "Soon": "Em breve",
-      "SoonDescription": "Mais integrações chegando em breve"
+      "SoonDescription": "Mais integrações em breve"
     },
     "VPN": {
       "VPNPlanPage": {
@@ -383,7 +383,7 @@
         "feature1": "Acesse os modelos de IA mais recentes",
         "feature2": "Sem assinaturas — pague conforme o uso",
         "feature3": "Pagamentos privados com Lightning",
-        "feature4": "Escolha o tamanho do seu plano",
+        "feature4": "Escolha um plano",
         "feature5": "Compras simples e únicas"
       },
       "countrySearch": {
@@ -2485,11 +2485,11 @@
       "map": {
         "title": "Pagar com Bitcoin",
         "loadingMap": "Carregando mapa...",
-        "loadingMerchants": "Carregando comerciantes...",
-        "zoomIn": "Aproxime para ver todos os comerciantes"
+        "loadingMerchants": "Carregando lista de lojas...",
+        "zoomIn": "Aproxime para ver todas as lojas"
       },
       "merchant": {
-        "noName": "Comerciante desconhecido",
+        "noName": "Loja desconhecida",
         "directions": "Direções",
         "pay": "Pagar",
         "lightning": "Lightning",
