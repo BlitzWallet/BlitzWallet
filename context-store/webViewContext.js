@@ -136,6 +136,7 @@ const mediumOperations = [
   OPERATION_TYPES.listClawbackableTransfers,
   OPERATION_TYPES.createSatsInvoice,
   OPERATION_TYPES.createTokensInvoice,
+  OPERATION_TYPES.getLightningPaymentQuote,
 ];
 
 const rejectIfNotConnectedToInternet = [
