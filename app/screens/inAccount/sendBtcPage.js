@@ -1,15 +1,8 @@
-import {
-  StyleSheet,
-  View,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-} from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { CENTER, COLORS, ICONS, WEBSITE_REGEX } from '../../constants';
+import { COLORS, SIZES } from '../../constants';
 import {
   useFocusEffect,
   useIsFocused,
@@ -19,80 +12,40 @@ import {
 import {
   Camera,
   useCameraDevice,
-  useCameraFormat,
   useCameraPermission,
-  useCodeScanner,
 } from 'react-native-vision-camera';
-import Reanimated, {
-  useAnimatedProps,
-  useSharedValue,
-} from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useBarcodeScannerOutput } from 'react-native-vision-camera-barcode-scanner';
 import { getQRImage, resolveExternalChainNavigation } from '../../functions';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import { backArrow } from '../../constants/styles';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import { useTranslation } from 'react-i18next';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { CameraPageNavBar } from '../../functions/CustomElements/camera/cameraPageNavbar';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../functions/sendBitcoin/handlePreSendPageParsing';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import getClipboardText from '../../functions/getClipboardText';
-
-const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import GetThemeColors from '../../hooks/themeColors';
 
 export default function SendPaymentHome({ pageViewPage, from }) {
-  console.log('SCREEN OPTIONS PAGE');
   const navigate = useNavigation();
   const isFocused = useIsFocused();
   const { theme, darkModeType } = useGlobalThemeContext();
   const isPhotoeLibraryOpen = useRef(false);
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
-  const minZoom = device?.minZoom || 1;
-  const maxZoom = device?.maxZoom || 100;
-  const zoomOffset = useSharedValue(0);
-  const zoom = useSharedValue(device?.neutralZoom || 1);
   const [isFlashOn, setIsFlashOn] = useState(false);
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const didScanRef = useRef(false);
   const { t } = useTranslation();
-
-  const screenDimensions = useMemo(() => Dimensions.get('screen'), []);
-  const screenAspectRatio = useMemo(
-    () => screenDimensions.height / screenDimensions.width,
-    [screenDimensions],
-  );
-  const format = useCameraFormat(device?.formats?.length ? device : undefined, [
-    { photoAspectRatio: screenAspectRatio },
-  ]);
+  const { backgroundOffset } = GetThemeColors();
+  const { topPadding, bottomPadding } = useGlobalInsets();
 
   const isCameraActive = useMemo(() => {
     const baseActive = navigate.canGoBack() ? isFocused : pageViewPage === 0;
     return baseActive && !isNavigatingAway;
   }, [isFocused, pageViewPage, navigate, isNavigatingAway]);
-
-  const qrBoxOutlineStyle = useMemo(
-    () => ({
-      ...styles.qrBoxOutline,
-      borderColor: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-    }),
-    [theme, darkModeType],
-  );
-
-  const gesture = Gesture.Pinch()
-    .onBegin(() => {
-      zoomOffset.value = zoom.value;
-    })
-    .onUpdate(event => {
-      let newZoom = zoomOffset.value * event.scale;
-
-      newZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
-
-      zoom.value = newZoom;
-    });
-  const animatedProps = useAnimatedProps(() => ({ zoom: zoom.value }), [zoom]);
 
   useFocusEffect(
     useCallback(() => {
@@ -154,19 +107,20 @@ export default function SendPaymentHome({ pageViewPage, from }) {
   const handleBarCodeScanned = useCallback(
     codes => {
       if (didScanRef.current || codes.length === 0 || isNavigatingAway) return;
-      const [data] = codes;
+      const [barcode] = codes;
 
-      if (data.type !== 'qr') return;
+      if (barcode.format !== 'qr-code') return;
+      if (!barcode.rawValue) return;
       crashlyticsLogReport('Hanlding scanned baracode');
       didScanRef.current = true;
-      handleInvoice(data.value);
+      handleInvoice(barcode.rawValue);
     },
     [handleInvoice, isNavigatingAway],
   );
 
-  const codeScanner = useCodeScanner({
-    codeTypes: ['qr'],
-    onCodeScanned: handleBarCodeScanned,
+  const barcodeOutput = useBarcodeScannerOutput({
+    barcodeFormats: ['qr-code'],
+    onBarcodeScanned: handleBarCodeScanned,
   });
 
   useFocusEffect(
@@ -234,7 +188,7 @@ export default function SendPaymentHome({ pageViewPage, from }) {
     } catch (err) {
       console.log('Error in getting QR image', err);
     }
-  }, [navigate]);
+  }, [navigate, from, handleInvoice, t]);
 
   const handlePaste = useCallback(async () => {
     const response = await getClipboardText();
@@ -279,113 +233,122 @@ export default function SendPaymentHome({ pageViewPage, from }) {
   }
 
   return (
-    <GestureDetector gesture={gesture}>
-      <View style={StyleSheet.absoluteFill}>
-        <ReanimatedCamera
-          codeScanner={codeScanner}
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={isCameraActive}
-          format={format}
-          animatedProps={animatedProps}
-          torch={isFlashOn ? 'on' : 'off'}
+    <View
+      style={[
+        StyleSheet.absoluteFill,
+        { alignItems: 'center', justifyContent: 'center' },
+      ]}
+    >
+      <Camera
+        outputs={[barcodeOutput]}
+        style={StyleSheet.absoluteFill}
+        device={device}
+        isActive={isCameraActive}
+        enableSmoothAutoFocus={true}
+        pixelFormat="yuv"
+        torchMode={isFlashOn ? 'on' : 'off'}
+      />
+
+      {from !== 'home' && (
+        <TouchableOpacity
+          style={[
+            styles.cornerBtn,
+            styles.cornerBtnLeft,
+            { top: topPadding + 10 },
+          ]}
+          onPress={() => navigate.goBack()}
+        >
+          <ThemeIcon
+            iconName="ArrowLeft"
+            size={22}
+            colorOverride={COLORS.darkModeText}
+          />
+        </TouchableOpacity>
+      )}
+
+      <View style={styles.qrCenter}>
+        <View
+          style={[
+            styles.qrBoxOutline,
+            {
+              borderColor:
+                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+            },
+          ]}
         />
-        <View style={styles.cameraOverlay}>
-          <View style={styles.overlay}>
-            {from != 'home' && (
-              <CameraPageNavBar useFullWidth={false} showWhiteImage={true} />
-            )}
-            <View style={styles.qrVerticalBackground}>
-              <TouchableOpacity onPress={toggleFlash}>
-                <Image
-                  style={backArrow}
-                  source={
-                    isFlashOn
-                      ? ICONS.FlashLightIcon
-                      : ICONS.flashlightNoFillWhite
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                disabled={isPhotoeLibraryOpen.current}
-                onPress={getPhoto}
-              >
-                <ThemeIcon
-                  colorOverride={COLORS.darkModeText}
-                  iconName={'Image'}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.middleRow}>
-            <View style={styles.overlay} />
-            <View style={qrBoxOutlineStyle} />
-            <View style={styles.overlay} />
-          </View>
-          <View style={styles.overlay}>
-            <TouchableOpacity
-              onPress={handlePaste}
-              style={styles.pasteBTN}
-              activeOpacity={0.2}
-            >
-              <ThemeText
-                styles={styles.pastBTNText}
-                content={t('constants.paste')}
-              />
-            </TouchableOpacity>
-          </View>
+        <ThemeText
+          styles={styles.qrHintText}
+          content={t('wallet.cameraModal.scanHint')}
+        />
+      </View>
+
+      <View style={[styles.bottomOverlay, { paddingBottom: bottomPadding }]}>
+        <View style={styles.bottomPill}>
+          <TouchableOpacity
+            disabled={isPhotoeLibraryOpen.current}
+            onPress={getPhoto}
+          >
+            <ThemeIcon iconName="Image" colorOverride={COLORS.darkModeText} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handlePaste}>
+            <ThemeIcon
+              iconName="Clipboard"
+              colorOverride={COLORS.darkModeText}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={toggleFlash}>
+            <ThemeIcon
+              iconName={isFlashOn ? 'Zap' : 'ZapOff'}
+              colorOverride={COLORS.darkModeText}
+            />
+          </TouchableOpacity>
         </View>
       </View>
-    </GestureDetector>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   errorText: { width: '80%', textAlign: 'center' },
-  qrBoxOutline: {
-    width: 250,
-    height: 250,
-    borderWidth: 3,
-  },
-  cameraOverlay: {
+  bottomOverlay: {
+    alignItems: 'center',
+    justifyContent: 'flex-end',
     position: 'absolute',
-    zIndex: 1,
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    flex: 1,
+    bottom: 0,
   },
-
-  qrVerticalBackground: {
-    width: 250,
-    flexDirection: 'row',
+  qrCenter: { alignItems: 'center' },
+  qrBoxOutline: {
+    width: 300,
+    height: 300,
+    borderWidth: 3,
+    borderRadius: 20,
+  },
+  qrHintText: {
+    color: COLORS.darkModeText,
+    marginTop: 14,
+    fontSize: SIZES.smedium,
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
+  bottomPill: {
+    width: 210,
     justifyContent: 'space-between',
-    paddingBottom: 10,
-    marginTop: 'auto',
-    ...CENTER,
+    flexDirection: 'row',
+    gap: 28,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 50,
   },
-  pasteBTN: {
-    borderRadius: 8,
-    borderWidth: 2,
+  cornerBtn: {
+    position: 'absolute',
+    zIndex: 2,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    ...CENTER,
-    borderColor: COLORS.darkModeText,
-    marginTop: 10,
   },
-
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  },
-  middleRow: {
-    flexDirection: 'row',
-  },
-  pastBTNText: {
-    color: COLORS.darkModeText,
-    includeFontPadding: false,
-    paddingHorizontal: 40,
-    paddingVertical: Platform.OS === 'ios' ? 8 : 5,
-  },
+  cornerBtnLeft: { left: 16 },
 });

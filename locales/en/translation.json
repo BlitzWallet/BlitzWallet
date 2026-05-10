@@ -1102,7 +1102,8 @@
       "noCameraDevice": "You do not have a camera device.",
       "noFlash": " Device does not have a torch",
       "scanningResponse": "Only QR codes are accepted.",
-      "qrDecodeError": "Error decoding QR code"
+      "qrDecodeError": "Error decoding QR code",
+      "scanHint": "Point your camera at the QR code"
     },
     "confirmClipboard": {
       "clipboardContent": "Text Copied to Clipboard",

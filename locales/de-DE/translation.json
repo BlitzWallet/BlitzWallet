@@ -1102,7 +1102,8 @@
       "noCameraDevice": "Kein Kameragerät verfügbar.",
       "noFlash": "Dieses Gerät verfügt über keine Taschenlampe.",
       "scanningResponse": "Es werden nur QR-Codes akzeptiert.",
-      "qrDecodeError": "Fehler beim Lesen des QR-Codes."
+      "qrDecodeError": "Fehler beim Lesen des QR-Codes.",
+      "scanHint": "Richten Sie Ihre Kamera auf den QR-Code"
     },
     "confirmClipboard": {
       "clipboardContent": "Text in die Zwischenablage kopiert.",

@@ -1102,7 +1102,8 @@
       "noCameraDevice": "No tienes un dispositivo con cámara.",
       "noFlash": "El dispositivo no tiene linterna",
       "scanningResponse": "Solo se aceptan códigos QR.",
-      "qrDecodeError": "Error al decodificar el código QR"
+      "qrDecodeError": "Error al decodificar el código QR",
+      "scanHint": "Apunta tu cámara al código QR"
     },
     "confirmClipboard": {
       "clipboardContent": "Texto copiado al portapapeles",
