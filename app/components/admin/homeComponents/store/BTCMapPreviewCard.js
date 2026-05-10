@@ -1,34 +1,14 @@
 import React from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { COLORS, FONT, SIZES } from '../../../../constants';
+import { COLORS, FONT, ICONS, SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
-import { useBTCMap } from '../../../../../context-store/btcMapContext';
-
-const MAP_DELTA = 0.04;
-
-const HAS_GOOGLE_MAPS_KEY = !!process.env.PUBLIC_GOOGLE_MAPS_API_KEY;
-
-const DISABLED_MAP_PROPS = {
-  scrollEnabled: false,
-  zoomEnabled: false,
-  rotateEnabled: false,
-  pitchEnabled: false,
-  showsCompass: false,
-  showsUserLocation: false,
-  showsMyLocationButton: false,
-  showsPointsOfInterest: false,
-  showsBuildings: false,
-  showsTraffic: false,
-  showsIndoors: false,
-  toolbarEnabled: false,
-};
+import { Image } from 'expo-image';
 
 function withAlpha(hexColor, alpha) {
   if (!hexColor || hexColor[0] !== '#') {
@@ -50,15 +30,7 @@ function withAlpha(hexColor, alpha) {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
-function MapPreview({ latitude, longitude, cardBackground, isDarkMode }) {
-  const region = {
-    latitude,
-    longitude,
-    latitudeDelta: MAP_DELTA,
-    longitudeDelta: MAP_DELTA,
-  };
-
-  const mapWash = withAlpha(cardBackground, isDarkMode ? 0.28 : 0.2);
+function MapPreview({ cardBackground, isDarkMode }) {
   const leftFade = [cardBackground, withAlpha(cardBackground, 0)];
   const topFade = [
     cardBackground,
@@ -76,20 +48,10 @@ function MapPreview({ latitude, longitude, cardBackground, isDarkMode }) {
 
   return (
     <View style={styles.mapArea} pointerEvents="none">
-      {Platform.OS === 'ios' || HAS_GOOGLE_MAPS_KEY ? (
-        <MapView
-          style={StyleSheet.absoluteFillObject}
-          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-          initialRegion={region}
-          userInterfaceStyle={isDarkMode ? 'dark' : 'light'}
-          {...DISABLED_MAP_PROPS}
-        ></MapView>
-      ) : (
-        <View
-          style={[StyleSheet.absoluteFillObject, { backgroundColor: mapWash }]}
-        />
-      )}
-
+      <Image
+        style={{ width: '100%', height: '100%' }}
+        source={ICONS[`${Platform.OS}_maps_${isDarkMode ? 'dark' : 'light'}`]}
+      />
       <LinearGradient
         colors={leftFade}
         start={{ x: 0, y: 0.5 }}
@@ -130,13 +92,6 @@ export default function BTCMapPreviewCard() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
-  const { userLocation, DEFAULT_LOCATION } = useBTCMap();
-
-  const activeLocation = userLocation ?? DEFAULT_LOCATION;
-  const mapCenter = {
-    latitude: activeLocation.latitude,
-    longitude: activeLocation.longitude,
-  };
 
   const isDarkMode = theme;
   const cardBackground = backgroundColor;
@@ -161,12 +116,7 @@ export default function BTCMapPreviewCard() {
         },
       ]}
     >
-      <MapPreview
-        latitude={mapCenter.latitude}
-        longitude={mapCenter.longitude}
-        cardBackground={cardBackground}
-        isDarkMode={isDarkMode}
-      />
+      <MapPreview cardBackground={cardBackground} isDarkMode={isDarkMode} />
 
       <View style={styles.textOverlay} pointerEvents="none">
         <ThemeText
