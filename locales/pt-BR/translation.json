@@ -1252,7 +1252,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Digite o destino",
-        "paymentTypesDesc": "A Blitz Wallet pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Lightning"
+        "paymentTypesDesc": "A Blitz Wallet pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Blitz"
       },
       "sparkErrorScreen": {
         "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase de recuperação mantém seus fundos seguros.",
@@ -1506,7 +1506,7 @@
       "licenseBody": "A Blitz Wallet é um aplicativo gratuito e de código aberto sob a",
       "licenseLinkLabel": "Licença Apache v2.0",
       "walletHeader": "Blitz Wallet",
-      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial compatível com a rede Lightning e com suporte a dólares digitais USDB, USDT e USDC nas principais redes do mercado. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder todo seu dinheiro.",
+      "walletDescription": "Esta é uma carteira Bitcoin Spark autocustodial com suporte a dólares digitais USDB, USDT e USDC nas principais redes do mercado. A Blitz Wallet não tem acesso aos seus fundos. Se você perder sua frase de recuperação, poderá perder todo seu dinheiro.",
       "poweredByLabel": "Desenvolvido com",
       "poweredByBreez": "Breez Liquid SDK",
       "poweredBySpark": "Spark",
@@ -2087,7 +2087,7 @@
         "onchainFeeMessage": "Para receber pagamentos em endereços Bitcoin, você pagará uma taxa de rede. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",
         "liquidFeeMessage": "Para receber pagamentos em endereços Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de reivindicação de ~{{claimFee}} e uma taxa de serviço de 0,1% da Boltz.",
         "rootstockFeeMessage": "Para receber pagamentos em endereços Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço de 0,1% da Boltz.",
-        "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
+        "lightningConvertMessage": "Receber dólares por essa rede exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "receiveAsHeader": "Receber em",
@@ -2102,8 +2102,8 @@
         "invoiceDescription_liquidAddress": "Endereço Liquid",
         "invoiceDescription_sparkAddress": "Endereço Spark",
         "invoiceDescription_rootstockAddress": "Endereço Rootstock",
-        "header_lightning_btc": "Bitcoin via Lightning",
-        "header_lightning_usd": "Dólares via Lightning",
+        "header_lightning_btc": "Bitcoin via Blitz",
+        "header_lightning_usd": "Dólares via Blitz",
         "header_bitcoin": "Bitcoin",
         "header_spark_btc": "Bitcoin/Tokens via Spark",
         "header_spark_usd": "Dólares via Spark",
@@ -2179,7 +2179,7 @@
       "viewAllTxPage": {
         "title": "Transações",
         "filterAll": "Todas",
-        "filterLightning": "Lightning",
+        "filterLightning": "Blitz",
         "filterBitcoin": "Bitcoin",
         "filterSpark": "Spark",
         "filterContacts": "Contatos",
