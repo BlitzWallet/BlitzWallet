@@ -38,6 +38,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
 import getClipboardText from '../../../../functions/getClipboardText';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import CustomButton from '../../../../functions/CustomElements/button';
 import getReceiveAddressAndContactForContactsPayment from '../contacts/internalComponents/getReceiveAddressAndKindForPayment';
 import { parse } from 'tldts';
@@ -300,6 +301,8 @@ export default function HalfModalSendOptions({
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAddContact, setShowAddContact] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
+  const didPasteRef = useRef(false);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({}); // { [uuid]: y }
   const textInputRef = useRef(null);
@@ -312,8 +315,7 @@ export default function HalfModalSendOptions({
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
-    GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
 
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
@@ -360,15 +362,32 @@ export default function HalfModalSendOptions({
     opacity: inputModeProgress.value,
   }));
 
-  const blurKeyboard = () => {
+  const blurKeyboard = useCallback(() => {
     try {
       if (textInputRef.current && textInputRef?.current.isFocused()) {
         textInputRef.current.blur();
+      } else {
+        setIsKeyboardActive(false);
+        setInputError('');
+        setInputText('');
+        setIsInputMode(false);
+        didPasteRef.current = false;
       }
     } catch (Err) {
       console.log(Err);
     }
-  };
+  }, []);
+
+  const handleInternalBackPress = useCallback(() => {
+    if (showAddContact) return false;
+    if (isInputMode) {
+      blurKeyboard();
+      return true;
+    }
+    return false;
+  }, [showAddContact, isInputMode, blurKeyboard]);
+
+  useHandleBackPressNew(handleInternalBackPress);
 
   const handleManualInputSubmit = useCallback(async () => {
     if (!inputText.trim()) return;
@@ -469,9 +488,9 @@ export default function HalfModalSendOptions({
       if (isFocused) setInputError(t(response.reason));
       return;
     }
-    if (textInputRef.current && !isFocused) {
-      textInputRef.current?.focus();
-    }
+
+    setIsInputMode(true);
+    didPasteRef.current = true;
     setInputText(response.data);
   }, [navigate, t]);
 
@@ -638,6 +657,30 @@ export default function HalfModalSendOptions({
     [navigate],
   );
 
+  const onBlurFunction = useCallback(() => {
+    setIsKeyboardActive(false);
+    if (didPasteRef.current) return;
+    setInputError('');
+    setInputText('');
+    setIsInputMode(false);
+    didPasteRef.current = false;
+  }, []);
+
+  const onFocusFunction = useCallback(() => {
+    setIsKeyboardActive(true);
+    setIsInputMode(true);
+    didPasteRef.current = false;
+  }, []);
+
+  const onTrimFunction = useCallback(() => {
+    if (textInputRef.current && !textInputRef?.current.isFocused()) {
+      setIsInputMode(false);
+      setIsKeyboardActive(false);
+    }
+    didPasteRef.current = false;
+    setInputText('');
+  }, []);
+
   const contactElements = useMemo(() => {
     return sortedContacts
       .slice(0, visibleCount)
@@ -692,14 +735,19 @@ export default function HalfModalSendOptions({
           }}
           scrollEventThrottle={16}
           onLayout={e => {
-            scrollViewHeightRef.current = e.nativeEvent.layout.height;
+            const h = e.nativeEvent.layout.height;
+            scrollViewHeightRef.current = h;
+            setScrollViewHeight(h);
           }}
         >
           {/* Search Input with Clipboard Icon */}
           <View
             style={[
               styles.searchContainer,
-              { backgroundColor: backgroundColor },
+              {
+                backgroundColor: backgroundColor,
+                maxHeight: Math.round(scrollViewHeight - 50),
+              },
             ]}
           >
             <CustomSearchInput
@@ -708,24 +756,15 @@ export default function HalfModalSendOptions({
               textInputMultiline={true}
               inputText={inputText}
               setInputText={setInputText}
-              onBlurFunction={() => {
-                setIsKeyboardActive(false);
-                setInputError('');
-                setInputText('');
-                setIsInputMode(false);
-              }}
-              onFocusFunction={() => {
-                setIsKeyboardActive(true);
-                setIsInputMode(true);
-              }}
+              onBlurFunction={onBlurFunction}
+              onFocusFunction={onFocusFunction}
               textInputStyles={{ paddingRight: 40 }}
-              containerStyles={{ maxHeight: 100 }}
               returnKeyType="go"
               onSubmitEditingFunction={handleManualInputSubmit}
             />
             {inputText.trim() ? (
               <TouchableOpacity
-                onPress={() => setInputText('')}
+                onPress={onTrimFunction}
                 style={styles.clipboardButton}
               >
                 <ThemeIcon
@@ -958,13 +997,17 @@ const styles = StyleSheet.create({
   searchContainer: {
     width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 15,
+  },
+  searchInputContainer: {
+    justifyContent: 'flex-start',
   },
   clipboardButton: {
     width: 45,
-    height: '100%',
     position: 'absolute',
+    top: 0,
+    bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
     right: 0,
