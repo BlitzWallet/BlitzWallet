@@ -1151,7 +1151,7 @@
         "rootstockTitle": "Endereço Rootstock"
       },
       "editLNURLContact": {
-        "informationMessage": "Alterar seu nome de usuário atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Blitz (usuário@blitzwalletapp.com).\n\nUm endereço Blitz permite que outras pessoas lhe enviem Bitcoin facilmente. Basta compartilhar seu endereço (usuário@blitzwalletapp.com) para receber um pagamento.",
+        "informationMessage": "Alterar seu nome de usuário atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Blitz (usuário@blitzwalletapp.com).\n\nUm endereço Blitz permite que outras pessoas lhe enviem dinheiro facilmente. Basta compartilhar seu endereço (usuário@blitzwalletapp.com) para receber um pagamento.",
         "usernameInputDesc": "Editar nome de usuário"
       }
     },
