@@ -382,7 +382,7 @@
         "bestValue": "Melhor custo-benefício",
         "feature1": "Acesse os modelos de IA mais recentes",
         "feature2": "Sem assinaturas — pague conforme o uso",
-        "feature3": "Pagamentos privados com Lightning",
+        "feature3": "Pagamentos privados com Blitz",
         "feature4": "Escolha um plano",
         "feature5": "Compras simples e únicas"
       },
@@ -1175,13 +1175,13 @@
       },
       "handlingAddressErrors": {
         "invalidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
-        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin, endereço/fatura Lightning ou um endereço USDT/USDC de uma rede suportada.",
+        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin, endereço Blitz/fatura ou um endereço USDT/USDC de uma rede suportada.",
         "paymentProcessingError": "Erro ao processar informações de pagamento",
         "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
         "processInputError": "Não é possível processar a entrada",
         "unkonwDecodeError": "Ocorreu um erro de decodificação desconhecido",
         "invalidInputType": "Não é um tipo de endereço válido",
-        "expiredLightningInvoice": "Esta fatura lightning expirou",
+        "expiredLightningInvoice": "Esta fatura expirou",
         "lnurlAuthStartMeessage": "Iniciando autenticação LNURL",
         "lnurlFailedAuthMessage": "Falha ao autenticar LNURL",
         "lnurlConfirmMessage": "LNURL autenticado com sucesso",
@@ -2492,7 +2492,7 @@
         "noName": "Loja desconhecida",
         "directions": "Direções",
         "pay": "Pagar",
-        "lightning": "Lightning",
+        "lightning": "Blitz",
         "lightningMessage": "Aceita pagamentos Blitz",
         "dataMessage": "Dados do btcmap.org"
       }
