@@ -1169,7 +1169,8 @@
         "swapRatesChangedTitle": "Tipo de cambio actualizado",
         "swapRatesChangedBody": "El tipo de cambio para este intercambio cambió mientras lo estabas revisando. Vuelve a ingresar el monto para continuar.",
         "swapRatesChangedButton": "Volver a ingresar el monto",
-        "feeEstimateError": "No se pudo estimar la comisión, inténtalo de nuevo"
+        "feeEstimateError": "No se pudo estimar la comisión, inténtalo de nuevo",
+        "brantaVerification": "Este pago ha sido verificado por Branta"
       },
       "selectPaymentMethod": {
         "header": "Selecciona cómo deseas financiar tu pago."

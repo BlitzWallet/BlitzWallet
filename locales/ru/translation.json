@@ -1170,7 +1170,8 @@
         "swapRatesChangedTitle": "Курс обмена обновлён",
         "swapRatesChangedBody": "Курс обмена для этой операции изменился во время проверки. Пожалуйста, введите сумму заново, чтобы продолжить.",
         "swapRatesChangedButton": "Ввести сумму снова",
-        "feeEstimateError": "Не удалось оценить комиссию, попробуйте снова"
+        "feeEstimateError": "Не удалось оценить комиссию, попробуйте снова",
+        "brantaVerification": "Этот платёж был подтверждён Branta"
       },
       "selectPaymentMethod": {
         "header": "Выберите источник средств."
