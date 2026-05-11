@@ -996,7 +996,7 @@
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
       "noAddedContactsTitle": "Nenhum contato adicionado",
       "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui.",
-      "payMe": "Endereço Lightning",
+      "payMe": "Endereço Blitz",
       "createInvoice": "Criar Fatura",
       "invoiceDescription": "Escolha a moeda e quantia desejada",
       "poolsDescription": "Colete pagamentos para um objetivo"
@@ -1146,12 +1146,12 @@
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
-        "lightningTitle": "Endereço Lightning",
+        "lightningTitle": "Endereço Blitz",
         "liquidTitle": "Endereço Liquid",
         "rootstockTitle": "Endereço Rootstock"
       },
       "editLNURLContact": {
-        "informationMessage": "Alterar seu nome de usuário atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Lightning (usuário@blitzwalletapp.com).\n\nUm endereço Lightning permite que outras pessoas lhe enviem Bitcoin facilmente. Basta compartilhar seu endereço (usuário@blitzwalletapp.com) para receber um pagamento.",
+        "informationMessage": "Alterar seu nome de usuário atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Blitz (usuário@blitzwalletapp.com).\n\nUm endereço Blitz permite que outras pessoas lhe enviem Bitcoin facilmente. Basta compartilhar seu endereço (usuário@blitzwalletapp.com) para receber um pagamento.",
         "usernameInputDesc": "Editar nome de usuário"
       }
     },
@@ -1331,13 +1331,13 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz.",
+      "startTypingMessage": "Procurar por endereço de pagamento (ex. nome@exemplo.com) ou nome de usuário Blitz.",
       "loadingMessage": "Procurando contato...",
       "profileImage": "Carregando foto de perfil..."
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
-      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços Lightning.",
+      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz.",
       "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações."
     },
     "expandedMessageHalfModal": {
@@ -1348,8 +1348,8 @@
       "navTitle": "Editar perfil",
       "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Digite seu nome",
-      "lnurlInputDesc": "Endereço Lightning",
-      "lnurlInputPlaceholder": "Digite seu endereço Lightning",
+      "lnurlInputDesc": "Endereço Blitz",
+      "lnurlInputPlaceholder": "Digite seu endereço Blitz",
       "uniqueNameInputDesc": "Nome de usuário",
       "uniqueNameInputPlaceholder": "Digite seu nome de usuário",
       "bioInputDesc": "Bio",
@@ -1361,11 +1361,11 @@
       "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
       "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas.",
       "receiveCurrencyPillTitle": "Moeda de recebimento",
-      "receiveCurrencyPillDesc": "Defina como você recebe pelo seu endereço Lightning",
+      "receiveCurrencyPillDesc": "Defina como você recebe pelo seu endereço Blitz",
       "invalidCharactersError": "O nome e a bio não podem conter os caracteres < > { } ` \\",
-      "invalidReceiveAddressError": "Digite um endereço Lightning válido (ex.: usuario@dominio.com)",
+      "invalidReceiveAddressError": "Digite um endereço de pagamento válido (ex.: usuario@dominio.com)",
       "aboutYou": "Sobre você",
-      "lightningAddress": "Endereço Lightning"
+      "lightningAddress": "Endereço Blitz"
     },
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",
@@ -1444,7 +1444,7 @@
     },
     "showProfileQr": {
       "header": "Compartilhar perfil",
-      "lnAddress": "Endereço Lightning",
+      "lnAddress": "Endereço Blitz",
       "blitzContact": "Contato Blitz",
       "copyMessage": "Copiado!",
       "lnurlCopy": "Copiar endereço",
@@ -1488,7 +1488,7 @@
     },
     "editProfileFieldPage": {
       "nameDescription": "Seu nome de exibição é como as outras pessoas veem você. Ele pode ser alterado a qualquer momento.",
-      "uniquenameDescription": "Alterar seu nome de usuário também altera seu endereço Lightning. Pagamentos para seu nome de usuário antigo serão perdidos.",
+      "uniquenameDescription": "Alterar seu nome de usuário também altera seu endereço Blitz. Pagamentos para seu nome de usuário antigo serão perdidos.",
       "bioDescription": "Sua bio é uma breve descrição para ajudar outras pessoas a conhecer você."
     }
   },
@@ -1713,8 +1713,8 @@
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
       "contactDesc": "Pagamentos recebidos dos seus contatos salvos",
-      "lnurl": "Endereço Lightning",
-      "lnurlDesc": "Pagamentos recebidos pelo seu endereço Lightning",
+      "lnurl": "Endereço Blitz",
+      "lnurlDesc": "Pagamentos recebidos pelo seu endereço Blitz",
       "nostrZaps": "Nostr Zaps",
       "nostrZapsDesc": "Pagamentos Zap enviados ao seu perfil Nostr",
       "nwc": "Conexão Nostr",
@@ -1756,7 +1756,7 @@
       "takenNameError": "Nome já escolhido",
       "nameConfirmationMessage": "NIP-05 adicionado com sucesso! Observe que pode levar até 24 horas para aparecer, pois a lista é atualizada uma vez por dia.",
       "title": "Veriticação Nip5",
-      "desc": "O Nip5 transforma sua longa chave Npub em um pequeno endereço com estrutura de e-mail, parecido com um endereço lightning.",
+      "desc": "O Nip5 transforma sua longa chave Npub em um pequeno endereço com estrutura de e-mail, parecido com um endereço Blitz.",
       "dataIsInvalid": "Algo deu errado, tente novamente,",
       "usernameInputLabel": "Nome de usuário",
       "usernameInputPlaceholder": "Satoshi...",
@@ -1965,7 +1965,7 @@
         "payingMessage": "Pagando...",
         "notifyngMessage": "Notificando...",
         "errorPaying": "Não foi possível pagar o contato Blitz. Tente novamente mais tarde.",
-        "invalidName": "Nome não é um endereço Lightning nem um usuário Blitz.",
+        "invalidName": "Nome não é um endereço Blitz nem um usuário Blitz.",
         "removeEmployeeWarning": "Tem certeza de que deseja remover este funcionário?",
         "startingPaymentProcessMessage": "'Ao iniciar o processo de pagamento, por favor, não saia desta página ou do aplicativo.",
         "goBack": "Voltar",
@@ -2096,8 +2096,8 @@
         "receiveAs_spark_USD": "Dólares",
         "receiveAs_lightning_USD": "Converter para dólares",
         "amount_USD_MIN": "Mín. {{swapAmountSat}}",
-        "invoiceDescription_lightningInvoice": "Fatura Lightning",
-        "invoiceDescription_lightningAddress": "Endereço Lightning",
+        "invoiceDescription_lightningInvoice": "Fatura",
+        "invoiceDescription_lightningAddress": "Endereço Blitz",
         "invoiceDescription_bitcoinAddress": "Endereço Bitcoin",
         "invoiceDescription_liquidAddress": "Endereço Liquid",
         "invoiceDescription_sparkAddress": "Endereço Spark",
@@ -2129,7 +2129,7 @@
         "about": "Sobre",
         "language": "Idioma",
         "display currency": "Moeda de exibição",
-        "receive currency": "Endereço Lightning",
+        "receive currency": "Endereço Blitz",
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
@@ -2156,8 +2156,8 @@
         "show seed phrase": "Fazer backup da carteira"
       },
       "remotePayments": {
-        "lnAddress": "Endereço Lightning",
-        "lnurlPageDesc": "Seu endereço Lightning permite que qualquer pessoa pague você sem precisar de fatura."
+        "lnAddress": "Endereço Blitz",
+        "lnurlPageDesc": "Seu endereço Blitz permite que qualquer pessoa pague você sem precisar de fatura."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
@@ -2531,7 +2531,7 @@
     "fullDeeplinkError": "Não foi possível recuperar as informações de contato, tente novamente.",
     "processingDeepLinkError": "Falha ao processar o link: {{error}}",
     "legacyContactError": "O contato ainda não atualizou a carteira. Peça para ele atualizar a carteira para enviar isso..",
-    "contactInvoiceGenerationError": "Erro ao gerar fatura. Certifique-se de que seja um endereço Lightning válido.",
+    "contactInvoiceGenerationError": "Erro ao gerar fatura. Certifique-se de que seja um endereço Blitz válido.",
     "explorePagenoDataError": "Não foi possível recuperar a contagem de usuários da Blitz Wallet.",
     "savingFileError": "Erro ao salvar arquivo no documento",
     "savingFilePermissionsError": "Erro ao obter permissões",
@@ -2550,7 +2550,7 @@
     "liquidInvoiceError": "Ocorreu um problema ao gerar seu endereço Liquid. Tente novamente.",
     "bitcoinInvoiceError": "Ocorreu um problema ao gerar seu endereço Bitcoin. Tente novamente..",
     "sparkInvoiceError": "Ocorreu um problema ao gerar seu endereço Spark. Tente novamente.",
-    "lightningInvoiceError": "Ocorreu um problema ao gerar seu endereço Lightning. Tente novamente.",
+    "lightningInvoiceError": "Ocorreu um problema ao gerar seu endereço Blitz. Tente novamente.",
     "sparkConnectionError": "Falha na conexão com a Spark. Tente novamente..",
     "giftCardExpiration": "Os vales-presente só podem ser recuperados em até 7 dias após o envio. Se este aplicativo for excluído ou o armazenamento local for limpo após esse período, seus vales-presente serão perdidos. Guarde os links de resgate ou os códigos dos vales-presente em um local seguro.",
     "receivedRootstock": "Pagamento Rootstock recebido — sua troca está começando. Pode levar até um minuto, então mantenha o aplicativo aberto.",
