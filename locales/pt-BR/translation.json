@@ -1331,7 +1331,7 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço de pagamento (ex. nome@exemplo.com) ou nome de usuário Blitz.",
+      "startTypingMessage": "Procurar por endereço de pagamento (ex. nome@domínio.com) ou nome de usuário Blitz.",
       "loadingMessage": "Procurando contato...",
       "profileImage": "Carregando foto de perfil..."
     },
