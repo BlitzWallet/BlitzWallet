@@ -2157,7 +2157,7 @@
       },
       "remotePayments": {
         "lnAddress": "Endereço Blitz",
-        "lnurlPageDesc": "Seu endereço Blitz permite que qualquer pessoa pague você sem precisar de fatura."
+        "lnurlPageDesc": "Seu endereço Blitz permite que qualquer pessoa pague você diretamente, sem necessidade de solicitar faturas."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
