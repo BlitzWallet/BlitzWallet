@@ -1574,6 +1574,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@branta-ops/branta@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@branta-ops/branta@npm:2.0.0"
+  checksum: 6966c87c85ee8547541849aa5b5499c8927b5808f79ab4f96f3ad38c0ff21f1162f381c1f4c196adf4ee6b9378e09463e0c2fe81a03d4c58f724ae4a0adce4e0
+  languageName: node
+  linkType: hard
+
 "@breeztech/react-native-breez-sdk-liquid@npm:^0.11.9":
   version: 0.11.9
   resolution: "@breeztech/react-native-breez-sdk-liquid@npm:0.11.9"
@@ -4710,6 +4717,7 @@ __metadata:
     "@babel/plugin-transform-class-static-block": ^7.28.3
     "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
+    "@branta-ops/branta": ^2.0.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
     "@buildonspark/spark-sdk": ^0.8.0
     "@craftzdog/react-native-buffer": ^6.1.0
