@@ -297,8 +297,8 @@
       "VPN": "VPN",
       "VPNDescription": "Navegue com segurança e proteja sua privacidade",
       "onlineListings": "Lojas virtuais",
-      "onlineListingsDescription": "Explore empresas online que aceitam Bitcoin",
-      "shop": "Compre com Bitcoin",
+      "onlineListingsDescription": "Empresas online que aceitam Blitz",
+      "shop": "Compre com Blitz",
       "shopDescription": "Cartões-presente, eSIMs e mais",
       "Soon": "Em breve",
       "SoonDescription": "Mais integrações em breve"
@@ -2479,11 +2479,11 @@
     },
     "btcMap": {
       "mapPreview": {
-        "header": "Mapa do Bitcoin",
-        "subHeader": "Use bitcoin localmente"
+        "header": "Mapa Blitz",
+        "subHeader": "Compre no comércio local"
       },
       "map": {
-        "title": "Pagar com Bitcoin",
+        "title": "Pagar com Blitz",
         "loadingMap": "Carregando mapa...",
         "loadingMerchants": "Carregando lista de lojas...",
         "zoomIn": "Aproxime para ver todas as lojas"
@@ -2493,7 +2493,7 @@
         "directions": "Direções",
         "pay": "Pagar",
         "lightning": "Lightning",
-        "lightningMessage": "Aceita pagamentos em bitcoin instantaneamente pela rede Lightning",
+        "lightningMessage": "Aceita pagamentos Blitz pela rede Lightning",
         "dataMessage": "Dados do btcmap.org"
       }
     }
