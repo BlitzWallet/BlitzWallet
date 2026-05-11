@@ -83,7 +83,15 @@ export default function ConfirmLeaveChatGPT(props) {
                 style={styles.btn}
               >
                 <ThemeText
-                  styles={styles.saveText}
+                  styles={[
+                    styles.saveText,
+                    {
+                      color:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                    },
+                  ]}
                   content={t('constants.yes')}
                 />
               </TouchableOpacity>
@@ -167,7 +175,6 @@ const styles = StyleSheet.create({
   },
   saveText: {
     fontSize: SIZES.medium,
-    color: COLORS.primary,
     includeFontPadding: false,
   },
   discardText: {

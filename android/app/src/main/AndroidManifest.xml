@@ -20,6 +20,9 @@
      <!-- Background fetch using expo-task manager -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- expo location for maps -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
       android:name=".MainApplication"
@@ -200,5 +203,10 @@
 
 
       </activity>
+
+       <!-- for google maps api -->
+     <meta-data
+      android:name="com.google.android.geo.API_KEY"
+      android:value="${MAPS_API_KEY}"/>
     </application>
 </manifest>

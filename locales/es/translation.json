@@ -290,16 +290,18 @@
   "apps": {
     "noPurchaseTitle": "Sin Compras",
     "appList": {
-      "AI": "IA",
-      "AIDescription": "Chatea con los últimos modelos generativos de IA",
-      "SMS": "SMS",
+      "AI": "IA generativa",
+      "AIDescription": "Chatea con los modelos de IA generativa más recientes",
+      "SMS": "Mensajes SMS",
       "SMSDescription": "Envía y recibe mensajes SMS en todo el mundo usando Bitcoin",
       "VPN": "VPN",
       "VPNDescription": "Navega de forma segura y protege tu privacidad",
-      "onlineListings": "Tiendas",
-      "onlineListingsDescription": "Directorio de negocios en línea que aceptan pagos con Bitcoin",
-      "Soon": "Pronto",
-      "SoonDescription": "Más aplicaciones próximamente"
+      "onlineListings": "Sitios web",
+      "onlineListingsDescription": "Explora negocios en línea que aceptan Bitcoin",
+      "shop": "Compra con Bitcoin",
+      "shopDescription": "Tarjetas regalo, eSIMs y más",
+      "Soon": "Próximamente",
+      "SoonDescription": "Más integraciones próximamente"
     },
     "VPN": {
       "VPNPlanPage": {
@@ -375,7 +377,14 @@
         "proPlanTitle": "Plan profesional",
         "powerPlanTitle": "Plan avanzado",
         "paymentMemo": "Tienda - chatGPT",
-        "notAvailableMessage": "Desafortunadamente, debido a las normas de compras dentro de la aplicación de Apple, esta función no está disponible actualmente en iOS. Estamos explorando maneras de incorporarla a iOS en el futuro."
+        "notAvailableMessage": "Desafortunadamente, debido a las normas de compras dentro de la aplicación de Apple, esta función no está disponible actualmente en iOS. Estamos explorando maneras de incorporarla a iOS en el futuro.",
+        "unlockTitle": "Desbloquea la IA.",
+        "bestValue": "Mejor valor",
+        "feature1": "Accede a los últimos modelos de IA",
+        "feature2": "Sin suscripciones — paga solo lo que usas",
+        "feature3": "Pagos privados impulsados por Lightning",
+        "feature4": "Elige el tamaño de tu plan",
+        "feature5": "Compras simples y únicas"
       },
       "countrySearch": {
         "inputPlaceholder": "Buscar un país"
@@ -393,7 +402,12 @@
         "title": "Confirmar compra",
         "plan": "Plan: {{planType}}",
         "price": "Precio: ",
-        "fee": "Tarifa: "
+        "fee": "Tarifa: ",
+        "chooseAmount": "Elige un monto",
+        "minimumAmountError": "El monto mínimo es {{amount}}",
+        "maximumAmountError": "El monto máximo es {{amount}}",
+        "confirmMessage": "Estás a punto de comprar créditos de IA.",
+        "contributionWarning": "Este pago es definitivo. Los pagos no pueden ser reembolsados, incluso si los créditos no se usan."
       },
       "switchModel": {
         "inputLabel": "Entrada: {{amount}}/M",
@@ -406,305 +420,381 @@
         "examples": [
           {
             "topLine": "¿Cómo empiezo a aprender React Native?",
-            "bottomLine": "como si nunca hubiera programado antes"
+            "bottomLine": "como si nunca hubiera programado antes",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cuál es la diferencia entre Web2 y Web3?",
-            "bottomLine": "como si fuera un adolescente"
+            "bottomLine": "como si fuera un adolescente",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funciona el mercado de valores?",
-            "bottomLine": "como si tuviera 12 años"
+            "bottomLine": "como si tuviera 12 años",
+            "category": "Finanzas"
           },
           {
             "topLine": "¿Qué es la computación cuántica?",
-            "bottomLine": "como si tuviera 10 años"
+            "bottomLine": "como si tuviera 10 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "Explica el cambio climático",
-            "bottomLine": "como si tuviera 8 años"
+            "bottomLine": "como si tuviera 8 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es la inteligencia artificial?",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "IA"
           },
           {
             "topLine": "¿Cómo funcionan las tarjetas de crédito?",
-            "bottomLine": "como si tuviera 15 años"
+            "bottomLine": "como si tuviera 15 años",
+            "category": "Finanzas"
           },
           {
             "topLine": "¿Qué es la tecnología blockchain?",
-            "bottomLine": "como si estuviera en la escuela intermedia"
+            "bottomLine": "como si estuviera en la escuela intermedia",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funciona el GPS?",
-            "bottomLine": "como si tuviera 7 años"
+            "bottomLine": "como si tuviera 7 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "Explica cómo vuelan los aviones",
-            "bottomLine": "como si tuviera 9 años"
+            "bottomLine": "como si tuviera 9 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es un meme?",
-            "bottomLine": "como si fuera un abuelo"
+            "bottomLine": "como si fuera un abuelo",
+            "category": "Cultura"
           },
           {
             "topLine": "¿Cómo funcionan las redes inalámbricas?",
-            "bottomLine": "como si fuera principiante"
+            "bottomLine": "como si fuera principiante",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es la criptomoneda?",
-            "bottomLine": "como si fuera un adolescente"
+            "bottomLine": "como si fuera un adolescente",
+            "category": "Finanzas"
           },
           {
             "topLine": "¿Cómo funciona internet?",
-            "bottomLine": "como si tuviera 6 años"
+            "bottomLine": "como si tuviera 6 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es una API?",
-            "bottomLine": "como si fuera nuevo en la programación"
+            "bottomLine": "como si fuera nuevo en la programación",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica la fotosíntesis",
-            "bottomLine": "como si estuviera en 5to grado"
+            "bottomLine": "como si estuviera en 5to grado",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Cómo funcionan los autos eléctricos?",
-            "bottomLine": "como si tuviera 14 años"
+            "bottomLine": "como si tuviera 14 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es un contrato inteligente?",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funciona el viaje espacial?",
-            "bottomLine": "como si tuviera 13 años"
+            "bottomLine": "como si tuviera 13 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "Explica los NFT",
-            "bottomLine": "como si tuviera 15 años"
+            "bottomLine": "como si tuviera 15 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es la realidad aumentada?",
-            "bottomLine": "como si tuviera 10 años"
+            "bottomLine": "como si tuviera 10 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funciona una impresora 3D?",
-            "bottomLine": "como si estuviera en la escuela intermedia"
+            "bottomLine": "como si estuviera en la escuela intermedia",
+            "category": "Ciencia"
           },
           {
             "topLine": "Explica el aprendizaje automático",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "IA"
           },
           {
             "topLine": "¿Cómo funcionan los paneles solares?",
-            "bottomLine": "como si tuviera 12 años"
+            "bottomLine": "como si tuviera 12 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es la realidad virtual?",
-            "bottomLine": "como si fuera principiante"
+            "bottomLine": "como si fuera principiante",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funcionan las vacunas?",
-            "bottomLine": "como si tuviera 10 años"
+            "bottomLine": "como si tuviera 10 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "Explica la gravedad",
-            "bottomLine": "como si tuviera 5 años"
+            "bottomLine": "como si tuviera 5 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es una aplicación descentralizada (dApp)?",
-            "bottomLine": "como si fuera nuevo en blockchain"
+            "bottomLine": "como si fuera nuevo en blockchain",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo cocinan los microondas?",
-            "bottomLine": "como si tuviera 8 años"
+            "bottomLine": "como si tuviera 8 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "Explica el concepto de husos horarios",
-            "bottomLine": "como si estuviera en primaria"
+            "bottomLine": "como si estuviera en primaria",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Cómo procesa datos una computadora?",
-            "bottomLine": "como si fuera principiante"
+            "bottomLine": "como si fuera principiante",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es la computación en la nube?",
-            "bottomLine": "como si estuviera en la escuela intermedia"
+            "bottomLine": "como si estuviera en la escuela intermedia",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica el concepto de ética en IA",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "IA"
           },
           {
             "topLine": "¿Cómo permanecen en órbita los satélites?",
-            "bottomLine": "como si tuviera 11 años"
+            "bottomLine": "como si tuviera 11 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es la ciberseguridad?",
-            "bottomLine": "como si fuera un adolescente"
+            "bottomLine": "como si fuera un adolescente",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica la teoría de la evolución",
-            "bottomLine": "como si estuviera en 8vo grado"
+            "bottomLine": "como si estuviera en 8vo grado",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Cuál es el propósito del blockchain?",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funciona el Wi-Fi?",
-            "bottomLine": "como si tuviera 9 años"
+            "bottomLine": "como si tuviera 9 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es un motor eléctrico?",
-            "bottomLine": "como si estuviera en 7mo grado"
+            "bottomLine": "como si estuviera en 7mo grado",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica el concepto de relatividad",
-            "bottomLine": "como si tuviera 14 años"
+            "bottomLine": "como si tuviera 14 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es un motor de búsqueda?",
-            "bottomLine": "como si tuviera 10 años"
+            "bottomLine": "como si tuviera 10 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es el Internet de las Cosas (IoT)?",
-            "bottomLine": "como si fuera nuevo en tecnología"
+            "bottomLine": "como si fuera nuevo en tecnología",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funcionan los teléfonos inteligentes?",
-            "bottomLine": "como si estuviera en la escuela intermedia"
+            "bottomLine": "como si estuviera en la escuela intermedia",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica el concepto de energía renovable",
-            "bottomLine": "como si estuviera en 6to grado"
+            "bottomLine": "como si estuviera en 6to grado",
+            "category": "Ciencia"
           },
           {
             "topLine": "¿Qué es la moneda virtual?",
-            "bottomLine": "como si fuera un adolescente"
+            "bottomLine": "como si fuera un adolescente",
+            "category": "Finanzas"
           },
           {
             "topLine": "¿Cómo funcionan los hogares inteligentes?",
-            "bottomLine": "como si tuviera 12 años"
+            "bottomLine": "como si tuviera 12 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es el aprendizaje profundo?",
-            "bottomLine": "como si fuera nuevo en IA"
+            "bottomLine": "como si fuera nuevo en IA",
+            "category": "IA"
           },
           {
             "topLine": "¿Cómo funciona el comercio en línea?",
-            "bottomLine": "como si fuera principiante"
+            "bottomLine": "como si fuera principiante",
+            "category": "Cultura"
           },
           {
             "topLine": "Explica el concepto de privacidad de datos",
-            "bottomLine": "como si fuera un adolescente"
+            "bottomLine": "como si fuera un adolescente",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es la realidad virtual en videojuegos?",
-            "bottomLine": "como si tuviera 14 años"
+            "bottomLine": "como si tuviera 14 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funcionan los autos autónomos?",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es la ingeniería genética?",
-            "bottomLine": "como si tuviera 13 años"
+            "bottomLine": "como si tuviera 13 años",
+            "category": "Ciencia"
           },
           {
             "topLine": "Explica el concepto de ciudades inteligentes",
-            "bottomLine": "como si fuera nuevo en tecnología"
+            "bottomLine": "como si fuera nuevo en tecnología",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funcionan los drones?",
-            "bottomLine": "como si tuviera 11 años"
+            "bottomLine": "como si tuviera 11 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es una billetera digital?",
-            "bottomLine": "como si fuera un adolescente"
+            "bottomLine": "como si fuera un adolescente",
+            "category": "Finanzas"
           },
           {
             "topLine": "¿Cómo funciona el arte digital?",
-            "bottomLine": "como si estuviera en la escuela intermedia"
+            "bottomLine": "como si estuviera en la escuela intermedia",
+            "category": "Cultura"
           },
           {
             "topLine": "Explica el concepto de tecnología 5G",
-            "bottomLine": "como si fuera nuevo en tecnología"
+            "bottomLine": "como si fuera nuevo en tecnología",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es un vehículo autónomo?",
-            "bottomLine": "como si tuviera 15 años"
+            "bottomLine": "como si tuviera 15 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funcionan los videojuegos?",
-            "bottomLine": "como si tuviera 10 años"
+            "bottomLine": "como si tuviera 10 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica el concepto de contratos inteligentes",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es un reloj inteligente?",
-            "bottomLine": "como si estuviera en la escuela intermedia"
+            "bottomLine": "como si estuviera en la escuela intermedia",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funciona una pantalla táctil?",
-            "bottomLine": "como si tuviera 12 años"
+            "bottomLine": "como si tuviera 12 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica el concepto de traducción automática",
-            "bottomLine": "como si fuera principiante"
+            "bottomLine": "como si fuera principiante",
+            "category": "IA"
           },
           {
             "topLine": "¿Qué es un centro de datos?",
-            "bottomLine": "como si fuera nuevo en tecnología"
+            "bottomLine": "como si fuera nuevo en tecnología",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funciona la minería de blockchain?",
-            "bottomLine": "como si fuera un adolescente"
+            "bottomLine": "como si fuera un adolescente",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es un microchip?",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica el concepto de almacenamiento en la nube",
-            "bottomLine": "como si estuviera en la escuela intermedia"
+            "bottomLine": "como si estuviera en la escuela intermedia",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funcionan los patinetes eléctricos?",
-            "bottomLine": "como si tuviera 13 años"
+            "bottomLine": "como si tuviera 13 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es un algoritmo?",
-            "bottomLine": "como si fuera principiante"
+            "bottomLine": "como si fuera principiante",
+            "category": "Tecnología"
           },
           {
             "topLine": "Explica el concepto de reuniones virtuales",
-            "bottomLine": "como si fuera nuevo en tecnología"
+            "bottomLine": "como si fuera nuevo en tecnología",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funcionan las bicicletas eléctricas?",
-            "bottomLine": "como si tuviera 14 años"
+            "bottomLine": "como si tuviera 14 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es una computadora cuántica?",
-            "bottomLine": "como si estuviera en la secundaria"
+            "bottomLine": "como si estuviera en la secundaria",
+            "category": "Ciencia"
           },
           {
             "topLine": "Explica el concepto de ciberseguridad",
-            "bottomLine": "como si fuera un adolescente"
+            "bottomLine": "como si fuera un adolescente",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Qué es la realidad aumentada?",
-            "bottomLine": "como si tuviera 12 años"
+            "bottomLine": "como si tuviera 12 años",
+            "category": "Tecnología"
           },
           {
             "topLine": "¿Cómo funcionan los servicios de streaming?",
-            "bottomLine": "como si estuviera en la escuela intermedia"
+            "bottomLine": "como si estuviera en la escuela intermedia",
+            "category": "Tecnología"
           }
-        ]
+        ],
+        "sectionTitle": "Tus preguntas respondidas"
       },
       "saveChat": {
         "errorMessage": "Lo sentimos, no pudimos guardar tu conversación."
@@ -765,7 +855,8 @@
     "sms4sats": {
       "home": {
         "pageDescription": "Envía y recibe mensajes SMS sin revelar tu número personal.",
-        "pricingError": "No se pudo obtener el precio de SMS"
+        "pricingError": "No se pudo obtener el precio de SMS",
+        "codeLabel": "Código"
       },
       "confirmationSlideUp": {
         "title": "Confirmar número",
@@ -785,7 +876,20 @@
         "payingMessage": "Pagando...",
         "runningTries": "Ejecutando {{runCount}} de {{maxTries}} intentos",
         "notAbleToSettleInvoice": "No se pudo liquidar la factura.",
-        "paymentMemo": "Tienda - Enviar SMS"
+        "paymentMemo": "Tienda - Enviar SMS",
+        "invalidPhoneError": "Introduce un número de teléfono válido",
+        "unsupportedCountryError": "El país del número de teléfono no es compatible",
+        "confirmedMessage": "Tu mensaje de texto está en camino",
+        "noCountry": "Debes elegir un país primero.",
+        "countryStepTitle": "Elige un país",
+        "countryStepSubtitle": "Selecciona el código de país del número al que quieres enviar un SMS.",
+        "countrySearchPlaceholder": "Buscar países",
+        "phoneStepTitle": "Introduce el número de teléfono",
+        "phoneStepSubtitle": "Introduce el número completo sin el código de país (p. ej. 2025551234 para (202) 555-1234).",
+        "invalidMessageError": "Escribe un mensaje antes de continuar",
+        "descriptionStepTitle": "Añade tu mensaje",
+        "descriptionStepSubtitle": "SMS4Sats requiere un mensaje. Mantenlo corto y bajo 140 caracteres.",
+        "descriptionInputPlaceholder": "Escribe tu mensaje"
       },
       "sentPayments": {
         "titlesend": "Mensajes enviados",
@@ -808,21 +912,22 @@
       "receivePage": {
         "paymentMemo": "Tienda - Recepción de SMS",
         "selectCountry": "Seleccionar país",
-        "autoSelectInfoMessage": "Elige el país del número de teléfono que deseas usar. Para tener la mejor posibilidad de recibir tu código, recomendamos mantenerlo en Auto Selección para que el sistema elija la opción más confiable.",
+        "autoSelectInfoMessage": "Recomendamos mantenerlo en 'Selección automática' para que el sistema elija la opción más confiable.",
         "autoSelect": "Selección automática",
         "inputPlaceholder": "Buscar un servicio",
         "locationLoadingMessage": "Obteniendo servicios basados en la ubicación",
         "noAvailableServices": "Esta ubicación no tiene servicios",
-        "orderDetailsLoading": "Obteniendo detalles del pedido"
+        "orderDetailsLoading": "Obteniendo detalles del pedido",
+        "countryStepTitle": "Elige un país",
+        "countrySearchPlaceholder": "Buscar países"
       },
       "confirmCodePage": {
-        "header": "Su pedido ha sido iniciado con éxito. A continuación, esto es lo que sucederá:",
+        "header": "Tu pedido se ha iniciado correctamente",
         "phoneNumberLabel": "Tu número:",
-        "step1": "• Haz clic en el ícono de recibo en la esquina superior derecha para ver tu historial de pedidos.",
-        "step2": "• Usa el botón 'Obtener código' para recuperar tu código de verificación.",
-        "step3": "• Si no se recibe ningún código, su pago será reembolsado automáticamente en 21 minutos.",
-        "automaticRefund": "No había un número disponible para este servicio. Tus fondos ya han sido reembolsados.",
-        "waitedRefund": "No se disponía de un número para este servicio. Sus fondos se reembolsarán automáticamente después de 21 minutos."
+        "step2": "Usa el botón 'Obtener código' en la página principal para recuperar tu código de verificación después de agregar el número al servicio",
+        "step3": "Si no se recibe ningún código, tu pago será reembolsado automáticamente en 21 minutos",
+        "automaticRefund": "No había ningún número disponible para este servicio. Tus fondos ya han sido reembolsados.",
+        "waitedRefund": "No había ningún número disponible para este servicio. Tus fondos serán reembolsados automáticamente después de 21 minutos."
       },
       "viewSMSReceiveCode": {
         "header": "Tu código"
@@ -844,6 +949,14 @@
       "tech": "Tecnología",
       "charity": "Caridad",
       "sustainability": "Sostenibilidad",
+      "filterTitle": "Filtrar tiendas",
+      "filterCategoriesTitle": "Categorías",
+      "filterCountryTitle": "País",
+      "filterAllCategories": "Todas las categorías",
+      "filterWorldwide": "Todo el mundo",
+      "filterCountrySearchPlaceholder": "Buscar países...",
+      "filterClear": "Limpiar",
+      "filterApply": "Aplicar",
       "selectCategoryPlaceholder": "Seleccionar categoría",
       "topBarLabel": "Tiendas",
       "loadingShopMessage": "Cargando tiendas en línea",
@@ -989,7 +1102,8 @@
       "noCameraDevice": "No tienes un dispositivo con cámara.",
       "noFlash": "El dispositivo no tiene linterna",
       "scanningResponse": "Solo se aceptan códigos QR.",
-      "qrDecodeError": "Error al decodificar el código QR"
+      "qrDecodeError": "Error al decodificar el código QR",
+      "scanHint": "Apunta tu cámara al código QR"
     },
     "confirmClipboard": {
       "clipboardContent": "Texto copiado al portapapeles",
@@ -2363,6 +2477,26 @@
         "createFailed": "No se pudo crear la dirección. Inténtalo de nuevo.",
         "deleteFailed": "No se pudo eliminar la dirección. Inténtalo de nuevo."
       }
+    },
+    "btcMap": {
+      "mapPreview": {
+        "header": "Mapa de Bitcoin",
+        "subHeader": "Usa bitcoin localmente"
+      },
+      "map": {
+        "title": "Pagar con Bitcoin",
+        "loadingMap": "Cargando mapa...",
+        "loadingMerchants": "Cargando comercios...",
+        "zoomIn": "Acercar para ver todos los comercios"
+      },
+      "merchant": {
+        "noName": "Comercio desconocido",
+        "directions": "Indicaciones",
+        "pay": "Pagar",
+        "lightning": "Lightning",
+        "lightningMessage": "Acepta pagos en bitcoin instantáneamente a través de la red Lightning",
+        "dataMessage": "Datos de btcmap.org"
+      }
     }
   },
   "toastmessages": {
@@ -2728,7 +2862,6 @@
     "numberOfTxs_other": "{{count}} transacciones",
     "remaining": "Restante",
     "overBy": "Excedido en",
-
     "home": {
       "title": "Analíticas",
       "activityHead": "Actividad mensual",

@@ -1352,9 +1352,7 @@ export default function SwapFlowHalfModal({
                         <ThemeIcon size={18} iconName={'History'} />
                         <ThemeText
                           styles={styles.historyButtonText}
-                          content={t(
-                            'screens.inAccount.swapHistory.pageTitle',
-                          )}
+                          content={t('screens.inAccount.swapHistory.pageTitle')}
                         />
                       </TouchableOpacity>
                     </>
@@ -1827,10 +1825,10 @@ export default function SwapFlowHalfModal({
                 }
                 actionFunction={executeSwapAction}
               />
-              <ThemeText
+              {/* <ThemeText
                 styles={styles.disclaimer}
                 content={t('screens.inAccount.swapsPage.swapDisclaimer')}
-              />
+              /> */}
             </View>
           </>
         )}
