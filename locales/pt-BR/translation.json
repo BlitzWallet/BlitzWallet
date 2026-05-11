@@ -2493,7 +2493,7 @@
         "directions": "Direções",
         "pay": "Pagar",
         "lightning": "Lightning",
-        "lightningMessage": "Aceita pagamentos Blitz pela rede Lightning",
+        "lightningMessage": "Aceita pagamentos Blitz",
         "dataMessage": "Dados do btcmap.org"
       }
     }
