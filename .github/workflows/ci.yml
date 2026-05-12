@@ -27,7 +27,7 @@ jobs:
         run: |
           set -euxo pipefail
           echo "@jsr:registry=https://npm.jsr.io" >> .npmrc
-          yarn config set registry https://registry.npmjs.org/
+          yarn config set npmRegistryServer https://registry.npmjs.org/
           for i in 1 2 3 4 5; do
             yarn install && break || {
               echo "Attempt $i failed, waiting 30s..."
