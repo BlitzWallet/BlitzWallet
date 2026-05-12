@@ -24,6 +24,7 @@ import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic'
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 const SettingsSection = ({ title, children, style }) => (
   <View style={[styles.section, style]}>
@@ -362,6 +363,14 @@ export default function LoginSecurity({ extraData }) {
               </TouchableOpacity>
             </View>
           </SettingsSection>
+
+          {securityLoginSettings.isBiometricEnabled && (
+            <NoContentSceen
+              iconName="TriangleAlert"
+              titleText={t('settings.loginSecurity.biometricsHead')}
+              subTitleText={t('settings.loginSecurity.biometricsSubHead')}
+            />
+          )}
 
           {securityLoginSettings.isPinEnabled && (
             <SettingsSection style={styles.lastSection}>

@@ -1103,7 +1103,8 @@
       "noCameraDevice": "Камера не обнаружена.",
       "noFlash": "Нет вспышки",
       "scanningResponse": "Принимаются только QR-коды.",
-      "qrDecodeError": "Ошибка декодирования QR"
+      "qrDecodeError": "Ошибка декодирования QR",
+      "scanHint": "Наведите камеру на QR-код"
     },
     "confirmClipboard": {
       "clipboardContent": "Текст скопирован",
@@ -1610,7 +1611,9 @@
       "createPinPageHeader": "{{type}} ваш PIN Blitz",
       "invalidPinconfirmation": "PIN-коды не совпадают!",
       "randomPinKeyboardToggle": "Перемешать клавиатуру",
-      "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN."
+      "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN.",
+      "biometricsHead": "О биометрии",
+      "biometricsSubHead": "Ваша фраза восстановления привязана к текущему биометрическому профилю. Если вы измените или добавите отпечаток пальца или Face ID, вы навсегда потеряете доступ к своей фразе восстановления."
     },
     "seedPhrase": {
       "header": "Храните сид-фразу в надежном месте",
@@ -2487,7 +2490,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Карта Bitcoin",
-        "subHeader": "Используйте биткоин локально"
+        "subHeader": "Тратьте с Blitz локально"
       },
       "map": {
         "title": "Оплатить с Bitcoin",

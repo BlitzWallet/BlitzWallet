@@ -19,7 +19,7 @@
   "dependencies": {
     "@azure/core-asynciterator-polyfill": "^1.0.2",
     "@breeztech/react-native-breez-sdk-liquid": "^0.11.9",
-    "@buildonspark/spark-sdk": "^0.7.13",
+    "@buildonspark/spark-sdk": "^0.8.0",
     "@craftzdog/react-native-buffer": "^6.1.0",
     "@flashnet/sdk": "^0.5.7",
     "@noble/hashes": "^1.8.0",
@@ -90,30 +90,32 @@
     "react-native-keyboard-controller": "1.18.5",
     "react-native-localize": "^3.6.0",
     "react-native-maps": "^1.27.2",
-    "react-native-nitro-modules": "^0.35.0",
+    "react-native-nitro-image": "^0.14.0",
+    "react-native-nitro-modules": "^0.35.6",
     "react-native-pager-view": "6.9.1",
     "react-native-pdf-from-image": "^0.3.6",
     "react-native-qrcode-svg": "^6.3.15",
     "react-native-quick-base64": "^2.2.2",
     "react-native-quick-crypto": "^1.0.19",
-    "react-native-reanimated": "^4.2.2",
+    "react-native-reanimated": "^4.3.1",
     "react-native-restart-newarch": "^1.0.85",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
     "react-native-view-shot": "^4.0.3",
-    "react-native-vision-camera": "^4.7.3",
+    "react-native-vision-camera": "^5.0.9",
+    "react-native-vision-camera-barcode-scanner": "^5.0.9",
     "react-native-wagmi-charts": "^2.9.1",
     "react-native-webview": "13.15.0",
-    "react-native-worklets": "^0.7.4",
+    "react-native-worklets": "^0.8.3",
     "rn-qr-generator": "^2.0.0",
-    "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#c3cb577fe289a48e9429b0c8329047e871b96278",
+    "spark-web-context": "https://github.com/blitzwallet/spark-web-context.git#34334e0d70c9b3e17e11796af37a5b31f069a514",
     "stream-browserify": "^3.0.0",
     "supercluster": "^8.0.1",
     "text-encoding": "^0.7.0",
     "tldts": "^7.0.28",
     "unique-names-generator": "^4.7.1",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
@@ -147,5 +149,6 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "packageManager": "yarn@3.6.4"
 }

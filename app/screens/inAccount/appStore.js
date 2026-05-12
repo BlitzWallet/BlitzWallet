@@ -32,8 +32,7 @@ export default function AppStore() {
   const hasLegacySMS =
     (decodedMessages?.sent?.length ?? 0) > 0 ||
     (decodedMessages?.received?.length ?? 0) > 0 ||
-    Platform.OS === 'android' ||
-    true;
+    Platform.OS === 'android';
   const showLegacySection =
     hasLegacyChatGPT || hasLegacySMS || Platform.OS === 'android';
 

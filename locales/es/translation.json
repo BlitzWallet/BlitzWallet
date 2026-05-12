@@ -1102,7 +1102,8 @@
       "noCameraDevice": "No tienes un dispositivo con cámara.",
       "noFlash": "El dispositivo no tiene linterna",
       "scanningResponse": "Solo se aceptan códigos QR.",
-      "qrDecodeError": "Error al decodificar el código QR"
+      "qrDecodeError": "Error al decodificar el código QR",
+      "scanHint": "Apunta tu cámara al código QR"
     },
     "confirmClipboard": {
       "clipboardContent": "Texto copiado al portapapeles",
@@ -1606,7 +1607,9 @@
       "createPinPageHeader": "{{type}} tu PIN de Blitz",
       "invalidPinconfirmation": "Los PIN no coinciden. ¡Intenta de nuevo!",
       "randomPinKeyboardToggle": "Mezclar teclado numérico",
-      "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN."
+      "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN.",
+      "biometricsHead": "Sobre la biometría",
+      "biometricsSubHead": "Tu frase de recuperación está vinculada a tu perfil biométrico actual. Si cambias o agregas una huella digital o Face ID, perderás permanentemente el acceso a tu frase de recuperación."
     },
     "seedPhrase": {
       "header": "Guarde esta frase semilla en un lugar seguro y protegido",
@@ -2480,7 +2483,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Mapa de Bitcoin",
-        "subHeader": "Usa bitcoin localmente"
+        "subHeader": "Gasta con Blitz localmente"
       },
       "map": {
         "title": "Pagar con Bitcoin",

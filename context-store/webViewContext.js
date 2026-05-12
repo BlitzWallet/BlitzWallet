@@ -136,6 +136,7 @@ const mediumOperations = [
   OPERATION_TYPES.listClawbackableTransfers,
   OPERATION_TYPES.createSatsInvoice,
   OPERATION_TYPES.createTokensInvoice,
+  OPERATION_TYPES.getLightningPaymentQuote,
 ];
 
 const rejectIfNotConnectedToInternet = [
@@ -692,6 +693,7 @@ export const WebViewProvider = ({ children }) => {
           if (expectedNonceRef.current !== decodedNonce) {
             // no need to handle anything here, will be handled with timeout
             console.log('Invalid runtime nonce, something went wrong');
+            aesKeyRef.current = null;
             return;
           }
           nonceVerified.current = true;

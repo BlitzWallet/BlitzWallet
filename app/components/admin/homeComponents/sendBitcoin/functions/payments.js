@@ -1,4 +1,5 @@
 import { InputTypes } from 'bitcoin-address-parser';
+import { isHTTPS } from '../../../../../functions/lnurl/ishttps';
 
 export async function getLNAddressForLiquidPayment(
   paymentInfo,
@@ -23,6 +24,8 @@ export async function getLNAddressForLiquidPayment(
       }
 
       console.log('Generated URL:', url);
+
+      if (!isHTTPS(url)) throw new Error('LNURL must use HTTPS');
 
       const response = await fetch(url);
 

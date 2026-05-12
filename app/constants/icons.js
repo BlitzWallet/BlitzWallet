@@ -33,6 +33,10 @@ import chain_solana from '../assets/icons/chain-solana.svg';
 import chain_tempo from '../assets/icons/chain-tempo.png';
 import usdcLogo from '../assets/icons/usdc.svg';
 import usdtLogo from '../assets/icons/usdt.svg';
+import ios_maps_light from '../assets/apple_maps_light.png';
+import ios_maps_dark from '../assets/apple_maps_dark.png';
+import android_maps_light from '../assets/google_maps_light.png';
+import android_maps_dark from '../assets/google_maps_dark.png';
 
 export default {
   logoIcon,
@@ -85,4 +89,10 @@ export default {
   chain_tempo,
   usdcLogo,
   usdtLogo,
+
+  // maps
+  ios_maps_light,
+  ios_maps_dark,
+  android_maps_light,
+  android_maps_dark,
 };

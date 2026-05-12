@@ -1102,7 +1102,8 @@
       "noCameraDevice": "Kein Kameragerät verfügbar.",
       "noFlash": "Dieses Gerät verfügt über keine Taschenlampe.",
       "scanningResponse": "Es werden nur QR-Codes akzeptiert.",
-      "qrDecodeError": "Fehler beim Lesen des QR-Codes."
+      "qrDecodeError": "Fehler beim Lesen des QR-Codes.",
+      "scanHint": "Richten Sie Ihre Kamera auf den QR-Code"
     },
     "confirmClipboard": {
       "clipboardContent": "Text in die Zwischenablage kopiert.",
@@ -1142,7 +1143,7 @@
         "swapWarning": "{{swapType}}-Zahlungen werden in Spark empfangen. Zahlungen unter {{amount}} werden nicht übertragen. Gelder werden erst übertragen, nachdem die {{swapType}}-Zahlung bestätigt wurde.",
         "oneMinute": "ca. {{numMins}} Minute",
         "tenMinutes": "ca. {{numMins}} Minuten",
-        "notUsingMainAccountWarning": "Warnung: Sie nutzen nicht Ihr Hauptkonto. Alle {{swapType}}-Übertragung werden an Ihr Hauptkonto gesendet.",
+        "notUsingMainAccountWarning": "Warnung: Sie nutzen nicht Ihr Hauptkonto. Alle {{swapType}}-Übertragungen werden an Ihr Hauptkonto gesendet.",
         "sparkDesc": "Sofort, unterstützte Token",
         "sparkTitle": "Spark-Adresse",
         "bitcoinTitle": "BTC-On-Chain-Adresse",
@@ -1364,7 +1365,7 @@
       "receiveCurrencyPillDesc": "Legen Sie fest, wie Sie über Ihre Lightning-Adresse Zahlungen empfangen",
       "invalidCharactersError": "Name und Bio dürfen die Zeichen < > { } ` \\ nicht enthalten",
       "invalidReceiveAddressError": "Bitte geben Sie eine gültige Lightning-Adresse ein (z. B. benutzer@domain.com)",
-      "aboutYou": "Über dich",
+      "aboutYou": "Über Sie",
       "lightningAddress": "Lightning-Adresse"
     },
     "remotePaymentCurrencySelect": {
@@ -1609,7 +1610,9 @@
       "createPinPageHeader": "{{type}} Ihren Blitz-PIN",
       "invalidPinconfirmation": "PINs stimmen nicht überein. Versuchen Sie es erneut!",
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
-      "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen."
+      "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
+      "biometricsHead": "Über Biometrie",
+      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist mit Ihrem aktuellen biometrischen Profil verknüpft. Wenn Sie einen Fingerabdruck oder Face ID ändern oder hinzufügen, verlieren Sie dauerhaft den Zugriff auf Ihre Wiederherstellungsphrase."
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",
@@ -2480,7 +2483,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Bitcoin-Karte",
-        "subHeader": "Bitcoin lokal verwenden"
+        "subHeader": "Mit Blitz lokal bezahlen"
       },
       "map": {
         "title": "Mit Bitcoin bezahlen",
@@ -2656,7 +2659,7 @@
     "quote_expired": "Dieses Angebot ist abgelaufen. Bitte fordern Sie ein neues an.",
     "not_found": "Die angeforderte Ressource wurde nicht gefunden.",
     "amount_too_small_chain_fees": "Der Betrag ist zu klein, um die Netzwerkgebühren der Ziel-Chain zu decken",
-    "amount_too_small_minimum": "Betrag zu klein. Minimum sind {{minimumSats}} Sats.",
+    "amount_too_small_minimum": "Der Betrag ist zu klein. Das Minimum beträgt {{minimumSats}} Sats.",
     "amount_too_small": "Der Betrag liegt unter dem für diese Route zulässigen Minimum.",
     "amount_too_large": "Der Betrag ist für diese Route zu groß.",
     "rate_limited": "Zu viele Anfragen. Bitte verlangsamen Sie und versuchen Sie es später erneut.",
@@ -2758,7 +2761,7 @@
       "errors": {
         "unableToCompleteTransfer": "Überweisung konnte nicht abgeschlossen werden."
       },
-      "pageDescription": "Geld von deinem {{fromBalance}}-Guthaben auf dein {{destination}}-Guthaben übertragen",
+      "pageDescription": "Übertragen Sie Geld von Ihrem {{fromBalance}}-Guthaben auf Ihr {{destination}}-Guthaben",
       "noSourceTitle": "Keine Finanzierungsquelle verfügbar",
       "noSourceSubtitle": "Fügen Sie Bitcoin oder USD zu Ihrer Wallet hinzu. Finanzierung mit Bitcoin erfordert mindestens {{amount}}.",
       "noUSDInfoMessage": "Ein USD-Guthaben von mehr als {{amount}} ist erforderlich, um Ihre Ersparnisse zu finanzieren.",
@@ -2783,12 +2786,12 @@
       "availableHint": "Verfügbar: {{amount}}",
       "minHint": "Min.: {{amount}}",
       "confirmTitle": "Auszahlung bestätigen",
-      "confirmSubtitle_interestAll": "Alle Bitcoin-Rewards auf dein {{destination}} auszahlen",
-      "confirmSubtitle_interest": "Bitcoin-Rewards auf dein {{destination}} auszahlen",
-      "confirmSubtitle_goalAll": "Alles aus {{goalName}} auf dein {{destination}} auszahlen",
-      "confirmSubtitle_goal": "Aus {{goalName}} auf dein {{destination}} auszahlen",
-      "confirmSubtitle_generalAll": "Alles vom Zielsaldo auf dein {{destination}} auszahlen",
-      "confirmSubtitle_general": "Vom Zielsaldo auf dein {{destination}} auszahlen",
+      "confirmSubtitle_interestAll": "Zahlen Sie alle Bitcoin-Rewards auf Ihr {{destination}} aus",
+      "confirmSubtitle_interest": "Zahlen Sie Bitcoin-Rewards auf Ihr {{destination}} aus",
+      "confirmSubtitle_goalAll": "Zahlen Sie alles aus {{goalName}} auf Ihr {{destination}} aus",
+      "confirmSubtitle_goal": "Zahlen Sie aus {{goalName}} auf Ihr {{destination}} aus",
+      "confirmSubtitle_generalAll": "Zahlen Sie den gesamten Zielsaldo auf Ihr {{destination}} aus",
+      "confirmSubtitle_general": "Zahlen Sie den Zielsaldo auf Ihr {{destination}} aus",
       "youAreWithdrawingAll": "Sie zahlen alle Ersparnisse aus",
       "youAreWithdrawing": "Sie zahlen aus",
       "toYourBalance": "auf Ihr {{destination}}",
@@ -2869,7 +2872,7 @@
       "budget": "Budget",
       "noBudgetTitle": "Kein Budget festgelegt",
       "noBudgetSub": "Tippen, um ein monatliches Budget zu erstellen",
-      "leftToSpend": "{{amount}} übrig zum Ausgeben",
+      "leftToSpend": "{{amount}} zum Ausgeben übrig",
       "percentRemaining": "{{percent}}% verbleibend",
       "totalBalance": "Gesamtsaldo"
     },
