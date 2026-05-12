@@ -693,6 +693,7 @@ export const WebViewProvider = ({ children }) => {
           if (expectedNonceRef.current !== decodedNonce) {
             // no need to handle anything here, will be handled with timeout
             console.log('Invalid runtime nonce, something went wrong');
+            aesKeyRef.current = null;
             return;
           }
           nonceVerified.current = true;
