@@ -84,13 +84,8 @@ function isArgon2Format(cipherText) {
 
 export async function generateAndStoreEncryptionKeyForMnemoinc() {
   try {
-    // const existingKey = await retrieveData(BIOMETRIC_KEY);
-    // console.log(existingKey, 'existing key');
-
-    // if (!existingKey.didWork)
-    //   throw new Error('Unable to authenticate with biomentrics');
-
-    // if (existingKey.value) return existingKey.value;
+    const existingKey = await retrieveData(BIOMETRIC_KEY);
+    if (existingKey.didWork && existingKey.value) return existingKey.value;
 
     const key = generateMnemonic(wordlist).toString();
 
@@ -127,7 +122,7 @@ export async function decryptMnemonicWithBiometrics() {
 
     if (!key.didWork) return null;
     const cipherText = await retrieveData('encryptedMnemonic');
-    console.log(key.value, cipherText);
+
     if (!cipherText.value || !key.value) return false;
 
     const decrypted = decryptMnemonic(cipherText.value, key.value);

@@ -1610,7 +1610,9 @@
       "createPinPageHeader": "{{type}} seu PIN Blitz",
       "invalidPinconfirmation": "Os PINs não correspondem. Tente novamente!",
       "randomPinKeyboardToggle": "Embaralhar teclado",
-      "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN."
+      "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN.",
+      "biometricsHead": "Sobre biometria",
+      "biometricsSubHead": "Sua frase de recuperação está vinculada ao seu perfil biométrico atual. Se você alterar ou adicionar uma impressão digital ou Face ID, perderá permanentemente o acesso à sua frase de recuperação."
     },
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",

@@ -1610,7 +1610,9 @@
       "createPinPageHeader": "{{type}} Ihren Blitz-PIN",
       "invalidPinconfirmation": "PINs stimmen nicht überein. Versuchen Sie es erneut!",
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
-      "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen."
+      "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
+      "biometricsHead": "Über Biometrie",
+      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist mit Ihrem aktuellen biometrischen Profil verknüpft. Wenn Sie einen Fingerabdruck oder Face ID ändern oder hinzufügen, verlieren Sie dauerhaft den Zugriff auf Ihre Wiederherstellungsphrase."
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",

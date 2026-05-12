@@ -1610,7 +1610,9 @@
       "createPinPageHeader": "{{type}} din Blitz PIN-kod",
       "invalidPinconfirmation": "PIN-koderna stämmer inte överens. Försök igen!",
       "randomPinKeyboardToggle": "Knappsats för shuffle",
-      "randomPinKeyboardInfo": "Aktivera den här funktionen för att blanda om knappsatsens nummer varje gång du loggar in. Det ger ett extra säkerhetslager genom att göra det svårare för någon i närheten att lära sig ditt PIN-mönster."
+      "randomPinKeyboardInfo": "Aktivera den här funktionen för att blanda om knappsatsens nummer varje gång du loggar in. Det ger ett extra säkerhetslager genom att göra det svårare för någon i närheten att lära sig ditt PIN-mönster.",
+      "biometricsHead": "Om biometri",
+      "biometricsSubHead": "Din återställningsfras är kopplad till din nuvarande biometriska profil. Om du ändrar eller lägger till ett fingeravtryck eller Face ID kommer du permanent att förlora åtkomsten till din återställningsfras."
     },
     "seedPhrase": {
       "header": "Förvara denna fröfras på ett säkert och tryggt ställe",

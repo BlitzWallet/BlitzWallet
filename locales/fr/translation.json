@@ -1610,7 +1610,9 @@
       "createPinPageHeader": "{{type}} votre code PIN Blitz",
       "invalidPinconfirmation": "Les codes PIN ne correspondent pas. Réessayez !",
       "randomPinKeyboardToggle": "Clavier de lecture aléatoire",
-      "randomPinKeyboardInfo": "Activez cette fonction pour mélanger les numéros du clavier à chaque fois que vous vous connectez. Cette fonction ajoute une couche de sécurité supplémentaire en rendant plus difficile l'apprentissage de votre code PIN par une personne se trouvant à proximité."
+      "randomPinKeyboardInfo": "Activez cette fonction pour mélanger les numéros du clavier à chaque fois que vous vous connectez. Cette fonction ajoute une couche de sécurité supplémentaire en rendant plus difficile l'apprentissage de votre code PIN par une personne se trouvant à proximité.",
+      "biometricsHead": "À propos de la biométrie",
+      "biometricsSubHead": "Votre phrase de récupération est liée à votre profil biométrique actuel. Si vous modifiez ou ajoutez une empreinte digitale ou Face ID, vous perdrez définitivement l’accès à votre phrase de récupération."
     },
     "seedPhrase": {
       "header": "Conservez cette phrase de semence dans un endroit sûr et sécurisé.",
