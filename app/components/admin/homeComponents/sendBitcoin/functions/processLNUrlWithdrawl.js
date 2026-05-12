@@ -1,6 +1,7 @@
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { sparkReceivePaymentWrapper } from '../../../../../functions/spark/payments';
 import { getSparkLightningPaymentStatus } from '../../../../../functions/spark';
+import { isHTTPS } from '../../../../../functions/lnurl/ishttps';
 
 export default async function processLNUrlWithdraw(input, context) {
   const { setLoadingMessage, currentWalletMnemoinc, t, sendWebViewRequest } =
@@ -28,6 +29,8 @@ export default async function processLNUrlWithdraw(input, context) {
   const callbackUrl = new URL(input.data.callback);
   callbackUrl.searchParams.set('k1', input.data.k1);
   callbackUrl.searchParams.set('pr', invoice.invoice);
+
+  if (!isHTTPS(callbackUrl.toString())) throw new Error('LNURL must use HTTPS');
 
   const callbackResponse = await fetch(callbackUrl.toString());
   const responseData = await callbackResponse.json();
