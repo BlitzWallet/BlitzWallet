@@ -1345,11 +1345,7 @@ export default function SendPaymentScreen(props) {
   return (
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
-        <CustomSettingsTopBar
-          label={t('constants.send')}
-          containerStyles={{ marginBottom: 0 }}
-        />
-        <ThemeText styles={styles.sectionTitle} content={sendingAsset} />
+        <CustomSettingsTopBar label={t('constants.send')} />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           {uiState !== 'SWAP_RATES_CHANGED' && (

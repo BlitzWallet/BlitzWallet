@@ -2481,7 +2481,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Mapa de Bitcoin",
-        "subHeader": "Usa bitcoin localmente"
+        "subHeader": "Gasta con Blitz localmente"
       },
       "map": {
         "title": "Pagar con Bitcoin",

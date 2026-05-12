@@ -1,4 +1,4 @@
-import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -31,6 +31,7 @@ export default function CustomSearchInput({
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
   const isFocusedRef = useRef(false);
+  const pendingBlurRef = useRef(false);
   const internalRef = useRef(null);
   const inputRef = textInputRef || internalRef;
 
@@ -84,6 +85,7 @@ export default function CustomSearchInput({
 
   const focusFunction = useCallback(() => {
     isFocusedRef.current = true;
+    pendingBlurRef.current = false;
     if (onFocusFunction) {
       onFocusFunction();
     }
@@ -92,23 +94,50 @@ export default function CustomSearchInput({
   const blurFunction = useCallback(() => {
     isFocusedRef.current = false;
     if (!onBlurFunction) return;
+
+    // On Android, a back gesture preview fires onBlur even when the keyboard
+    // stays visible. Defer the callback until the keyboard is confirmed gone.
+    if (Platform.OS === 'android' && Keyboard.isVisible()) {
+      pendingBlurRef.current = true;
+      return;
+    }
+
     if (shouldDelayBlur) {
       setTimeout(() => {
         onBlurFunction();
       }, 150);
-    } else onBlurFunction();
+    } else {
+      onBlurFunction();
+    }
   }, [onBlurFunction, shouldDelayBlur]);
 
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
       () => {
-        if (!isFocusedRef.current) return;
+        // Keyboard dismissed while input was still focused (e.g. external
+        // Keyboard.dismiss()). Blur the input — blurFunction will fire with
+        // Keyboard.isVisible() === false and proceed normally.
+        if (isFocusedRef.current) {
+          isFocusedRef.current = false;
+          if (inputRef?.current) {
+            inputRef.current.blur();
+          }
+          return;
+        }
 
-        isFocusedRef.current = false;
-
-        if (inputRef?.current) {
-          inputRef.current.blur();
+        // Android gesture false-blur: onBlur fired while keyboard was still
+        // visible, so we deferred the callback. Keyboard is truly gone now.
+        if (pendingBlurRef.current) {
+          pendingBlurRef.current = false;
+          if (!onBlurFunction) return;
+          if (shouldDelayBlur) {
+            setTimeout(() => {
+              onBlurFunction();
+            }, 150);
+          } else {
+            onBlurFunction();
+          }
         }
       },
     );

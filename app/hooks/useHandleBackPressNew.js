@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useRef } from 'react';
-import { BackHandler, AppState } from 'react-native';
+import { useCallback, useRef } from 'react';
+import { BackHandler } from 'react-native';
 
 /**
  * Custom hook to handle hardware back button press on Android
@@ -10,36 +10,7 @@ import { BackHandler, AppState } from 'react-native';
  * @param {boolean} shouldExitApp - If true and callback is null, exits the app instead of navigating back
  */
 export default function useHandleBackPressNew(callback, shouldExitApp = false) {
-  const appState = useRef(AppState.currentState);
   const subscriptionRef = useRef(null);
-
-  // Clean up and re-add listener when app state changes
-  useEffect(() => {
-    const handleAppStateChange = nextAppState => {
-      // When app comes to foreground from background
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        console.log('App has come to foreground - reinitializing back handler');
-        // Force cleanup and re-add the listener
-        if (subscriptionRef.current) {
-          subscriptionRef.current.remove();
-          subscriptionRef.current = null;
-        }
-      }
-      appState.current = nextAppState;
-    };
-
-    const subscription = AppState.addEventListener(
-      'change',
-      handleAppStateChange,
-    );
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   useFocusEffect(
     useCallback(() => {

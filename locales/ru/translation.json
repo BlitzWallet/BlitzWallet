@@ -2488,7 +2488,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Карта Bitcoin",
-        "subHeader": "Используйте биткоин локально"
+        "subHeader": "Тратьте с Blitz локально"
       },
       "map": {
         "title": "Оплатить с Bitcoin",
