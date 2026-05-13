@@ -137,6 +137,11 @@ const mediumOperations = [
   OPERATION_TYPES.createSatsInvoice,
   OPERATION_TYPES.createTokensInvoice,
   OPERATION_TYPES.getLightningPaymentQuote,
+  OPERATION_TYPES.getLightningFee,
+  OPERATION_TYPES.getSparkPaymentFee,
+  OPERATION_TYPES.getUserSwapHistory,
+  OPERATION_TYPES.checkClawbackEligibility,
+  OPERATION_TYPES.checkClawbackStatus,
 ];
 
 const rejectIfNotConnectedToInternet = [

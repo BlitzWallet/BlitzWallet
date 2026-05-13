@@ -114,8 +114,6 @@ export default function SendAndRequestPage(props) {
     selectedRequestMethod,
   });
 
-  const descriptionRef = useRef(null);
-
   useEffect(() => {
     if (typeof giftOption?.memo !== 'string') return;
     setDescriptionValue(giftOption.memo);
@@ -1045,7 +1043,6 @@ export default function SendAndRequestPage(props) {
               onBlurFunction={() => {
                 setIsDescriptionFocused(false);
               }}
-              textInputRef={descriptionRef}
               placeholderText={t('constants.paymentDescriptionPlaceholder')}
               editable={paymentType === 'send' ? true : !!convertedSendAmount}
               containerStyles={styles.descriptionInput}
