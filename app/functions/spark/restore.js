@@ -562,7 +562,9 @@ export const updateSparkTxStatus = async (
     const txsByType = {
       lightning: savedTxs.filter(tx => tx.paymentType === 'lightning'),
       bitcoin: savedTxs.filter(tx => tx.paymentType === 'bitcoin'),
-      spark: savedTxs.filter(tx => tx.paymentType === 'spark'),
+      spark: savedTxs.filter(
+        tx => tx.paymentType === 'spark' || tx.paymentType === 'unknown',
+      ),
     };
 
     const [unpaidInvoices] = await Promise.all([
@@ -1021,6 +1023,8 @@ async function processSparkTransactions(
     }
 
     if (IS_SPARK_ID.test(txStateUpdate.sparkID)) {
+      // This means the placeholder tx is created and we should defer this action to the debouceHandlIncomePayment function
+      if (txStateUpdate.paymentType === 'unknown' && !details.amount) continue;
       const findTxResponse = await getSingleTxDetails(
         mnemonic,
         txStateUpdate.sparkID,

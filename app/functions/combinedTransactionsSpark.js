@@ -36,6 +36,7 @@ const TRANSACTION_CONSTANTS = {
   LIGHTNING_INITIATED: 'LIGHTNING_PAYMENT_INITIATED',
   INCOMING: 'INCOMING',
   OUTGOING: 'OUTGOING',
+  UNKOWN: 'unknown',
 };
 
 const SKELETON_STYLES = {
@@ -305,6 +306,9 @@ export default function getFormattedHomepageTxsForSpark(props) {
         paymentDetails.LRC20Token !== USDB_TOKEN_ID
       )
         continue;
+
+      // block placeholder txs from displaying
+      if (transactionPaymentType === TRANSACTION_CONSTANTS.UNKOWN) continue;
 
       if (
         paymentDetails.senderIdentityPublicKey ===
