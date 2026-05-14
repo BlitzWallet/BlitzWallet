@@ -2505,7 +2505,14 @@
       "invalidInvoice": "Vi kunde inte behandla svaret från Bitrefill. Försök igen.",
       "insufficientBalance": "Du har inte tillräckligt saldo för att slutföra betalningen.",
       "paymentMemo": "Köp av presentkort",
-      "paymentFailed": "Din betalning kunde inte slutföras. Försök igen."
+      "paymentFailed": "Din betalning kunde inte slutföras. Försök igen.",
+      "editEmail": "Redigera din e-post",
+      "addEmail": "Lägg till din e-post",
+      "editEmailDesc": "Uppdatera din sparade e-postadress nedan.",
+      "addEmailDesc": "Spara din e-postadress för snabbare betalning.",
+      "textInputDescriptor": "E-POST",
+      "emailplaceholder": "du@exempel.se",
+      "emailError": "Ange en giltig e-postadress."
     }
   },
   "toastmessages": {

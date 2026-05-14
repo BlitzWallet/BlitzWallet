@@ -2505,7 +2505,14 @@
       "invalidInvoice": "Die Antwort von Bitrefill konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.",
       "insufficientBalance": "Ihr Guthaben reicht nicht aus, um diese Zahlung abzuschließen.",
       "paymentMemo": "Kauf einer Geschenkkarte",
-      "paymentFailed": "Ihre Zahlung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut."
+      "paymentFailed": "Ihre Zahlung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.",
+      "editEmail": "E-Mail bearbeiten",
+      "addEmail": "E-Mail hinzufügen",
+      "editEmailDesc": "Aktualisieren Sie unten Ihre gespeicherte E-Mail-Adresse.",
+      "addEmailDesc": "Speichern Sie Ihre E-Mail-Adresse für einen schnelleren Checkout.",
+      "textInputDescriptor": "E-MAIL",
+      "emailplaceholder": "du@beispiel.de",
+      "emailError": "Bitte geben Sie eine gültige E-Mail-Adresse ein."
     }
   },
   "toastmessages": {

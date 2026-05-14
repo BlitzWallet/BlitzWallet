@@ -2505,7 +2505,14 @@
       "invalidInvoice": "Nous n’avons pas pu traiter la réponse de Bitrefill. Veuillez réessayer.",
       "insufficientBalance": "Votre solde est insuffisant pour effectuer ce paiement.",
       "paymentMemo": "Achat de carte cadeau",
-      "paymentFailed": "Votre paiement n’a pas pu être effectué. Veuillez réessayer."
+      "paymentFailed": "Votre paiement n’a pas pu être effectué. Veuillez réessayer.",
+      "editEmail": "Modifier votre adresse e-mail",
+      "addEmail": "Ajouter votre adresse e-mail",
+      "editEmailDesc": "Mettez à jour votre adresse e-mail enregistrée ci-dessous.",
+      "addEmailDesc": "Enregistrez votre adresse e-mail pour un paiement plus rapide.",
+      "textInputDescriptor": "E-MAIL",
+      "emailplaceholder": "vous@exemple.com",
+      "emailError": "Veuillez saisir une adresse e-mail valide."
     }
   },
   "toastmessages": {

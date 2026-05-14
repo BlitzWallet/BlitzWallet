@@ -2505,7 +2505,15 @@
       "invalidInvoice": "We couldn’t process the response from Bitrefill. Please try again.",
       "insufficientBalance": "You don’t have enough balance to complete this payment.",
       "paymentMemo": "Gift Card Purchase",
-      "paymentFailed": "Your payment could not be completed. Please try again."
+      "paymentFailed": "Your payment could not be completed. Please try again.",
+
+      "editEmail": "Edit your email",
+      "addEmail": "Add your email",
+      "editEmailDesc": "Update your saved email address below.",
+      "addEmailDesc": "Save your email address for a faster checkout.",
+      "textInputDescriptor": "EMAIL",
+      "emailplaceholder": "you@example.com",
+      "emailError": "Please enter a valid email address."
     }
   },
   "toastmessages": {
