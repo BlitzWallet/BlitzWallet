@@ -98,15 +98,28 @@ export default async function processBolt11Invoice(input, context) {
 
     if (needUsdFee && !hasUsdQuote) {
       usdPromiseIndex = promises.length;
-      promises.push(
-        getLightningPaymentQuote(
-          currentWalletMnemoinc,
-          input.data.address,
-          USD_ASSET_ADDRESS,
-          undefined,
-          undefined,
-          { amountSats: amountSat },
+      const bolt11QuoteTimeout = new Promise(resolve =>
+        setTimeout(
+          () =>
+            resolve({
+              didWork: false,
+              error: 'Lightning payment quote timed out',
+            }),
+          25000,
         ),
+      );
+      promises.push(
+        Promise.race([
+          getLightningPaymentQuote(
+            currentWalletMnemoinc,
+            input.data.address,
+            USD_ASSET_ADDRESS,
+            undefined,
+            undefined,
+            { amountSats: amountSat },
+          ),
+          bolt11QuoteTimeout,
+        ]),
       );
     }
 

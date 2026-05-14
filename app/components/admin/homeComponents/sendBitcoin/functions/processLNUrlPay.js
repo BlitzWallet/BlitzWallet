@@ -186,15 +186,28 @@ export default async function processLNUrlPay(input, context) {
 
     if (needUsdFee && !hasUsdQuote) {
       usdPromiseIndex = promises.length;
-      promises.push(
-        getLightningPaymentQuote(
-          currentWalletMnemoinc,
-          invoice,
-          USD_ASSET_ADDRESS,
-          undefined,
-          undefined,
-          { amountSats: amountSat },
+      const lnurlQuoteTimeout = new Promise(resolve =>
+        setTimeout(
+          () =>
+            resolve({
+              didWork: false,
+              error: 'Lightning payment quote timed out',
+            }),
+          25000,
         ),
+      );
+      promises.push(
+        Promise.race([
+          getLightningPaymentQuote(
+            currentWalletMnemoinc,
+            invoice,
+            USD_ASSET_ADDRESS,
+            undefined,
+            undefined,
+            { amountSats: amountSat },
+          ),
+          lnurlQuoteTimeout,
+        ]),
       );
     }
 
