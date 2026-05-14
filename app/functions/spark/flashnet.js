@@ -11,12 +11,15 @@ import {
 } from '@flashnet/sdk';
 import {
   getFlashnetClient,
+  getSparkAddress,
   getSingleTxDetails,
   getSparkLightningPaymentStatus,
   initializeFlashnet,
   selectSparkRuntime,
+  sendSparkTokens,
   validateWebViewResponse,
 } from '.';
+import { getPublicKey } from 'nostr-tools';
 import i18next from 'i18next';
 import {
   OPERATION_TYPES,
@@ -37,6 +40,14 @@ import {
   getSingleSparkLightningRequest,
 } from './transactions';
 import { decode } from 'bolt11';
+import fetchBackend from '../../../db/handleBackend';
+import { privateKeyFromSeedWords } from '../nostrCompatability';
+import {
+  getLightningInvoiceAmountSats,
+  isUsableOrchestraQuote,
+  mapOrchestraQuoteToLightningQuote,
+  normalizeOrchestraBackendError,
+} from './orchestraLightning';
 
 // ============================================
 // CONSTANTS & PURE UTILITIES
@@ -719,62 +730,68 @@ export const getLightningPaymentQuote = async (
   mnemonic,
   invoice,
   tokenAddress,
-  integratorFeeRateBps = INTEGRATOR_FEE_BPS,
-  maxSlippageBps = DEFAULT_MAX_SLIPPAGE_BPS,
+  _integratorFeeRateBps = INTEGRATOR_FEE_BPS,
+  _maxSlippageBps = DEFAULT_MAX_SLIPPAGE_BPS,
+  options = {},
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.getLightningPaymentQuote,
-        {
-          mnemonic,
-          invoice,
-          tokenAddress,
-          integratorFeeRateBps,
-          maxSlippageBps,
-        },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to getLightningPaymentQuote',
-      );
-    } else {
-      const client = getFlashnetClient(mnemonic);
-
-      const quote = await client.getPayLightningWithTokenQuote(
-        invoice,
-        tokenAddress,
-        {
-          integratorFeeRateBps,
-          maxSlippageBps,
-        },
-      );
-
-      return {
-        didWork: true,
-        quote: {
-          invoiceAmountSats: quote.invoiceAmountSats,
-          estimatedLightningFee: quote.estimatedLightningFee,
-          btcAmountRequired: quote.btcAmountRequired,
-          tokenAmountRequired: quote.tokenAmountRequired,
-          estimatedAmmFee: quote.estimatedAmmFee,
-          executionPrice: quote.executionPrice,
-          priceImpact: quote.priceImpactPct,
-          poolId: quote.poolId,
-          fee: quote.btcAmountRequired - quote.invoiceAmountSats,
-        },
-      };
+    if (tokenAddress !== USD_ASSET_ADDRESS) {
+      throw new Error('Only USDB Lightning payments are supported');
     }
-  } catch (error) {
-    console.warn(
-      'Get Lightning quote error:',
-      formatError(error, 'getLightningPaymentQuote'),
+
+    const invoiceAmountSats = getLightningInvoiceAmountSats(
+      invoice,
+      options.amountSats,
     );
+    const privateKey =
+      options.contactsPrivateKey || (await privateKeyFromSeedWords(mnemonic));
+    const publicKey = options.publicKey || getPublicKey(privateKey);
+    const sparkAddressResponse = options.refundAddress
+      ? { didWork: true, response: options.refundAddress }
+      : await getSparkAddress(mnemonic);
+
+    if (!sparkAddressResponse.didWork || !sparkAddressResponse.response) {
+      throw new Error(
+        sparkAddressResponse.error || 'Unable to derive Spark refund address',
+      );
+    }
+
+    const result = await fetchBackend(
+      'createFlashnetStablecoinQuoteV2',
+      {
+        recipientAddress: invoice,
+        destinationChain: 'lightning',
+        destinationAsset: 'BTC',
+        amountSats: invoiceAmountSats,
+        sourceMethod: 'usdb',
+        refundAddress: sparkAddressResponse.response,
+      },
+      privateKey,
+      publicKey,
+    );
+
+    const quote = mapOrchestraQuoteToLightningQuote(result, invoiceAmountSats);
+    return { didWork: true, quote };
+  } catch (error) {
+    const backendError = normalizeOrchestraBackendError(
+      error,
+      'Unable to get Lightning quote',
+    );
+    console.warn('Get Lightning quote error:', {
+      operation: 'getLightningPaymentQuote',
+      message: backendError.message,
+      code: backendError.code,
+      minimumSats: backendError.minimumSats,
+    });
     return {
       didWork: false,
-      error: error.message,
-      details: formatError(error, 'getLightningPaymentQuote'),
+      error: backendError.message,
+      details: {
+        operation: 'getLightningPaymentQuote',
+        message: backendError.message,
+        code: backendError.code,
+        minimumSats: backendError.minimumSats,
+      },
     };
   }
 };
@@ -791,85 +808,123 @@ export const payLightningWithToken = async (
     invoice,
     tokenAddress,
     maxSlippageBps = DEFAULT_MAX_SLIPPAGE_BPS,
-    maxLightningFeeSats = null,
-    rollbackOnFailure = true,
-    useExistingBtcBalance = false,
     integratorFeeRateBps = INTEGRATOR_FEE_BPS,
+    quote = null,
+    amountSats,
+    contactsPrivateKey,
+    publicKey,
+    refundAddress,
   },
 ) => {
   try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
-        OPERATION_TYPES.payLightningWithToken,
-        {
-          mnemonic,
-          invoice,
-          tokenAddress,
-          maxSlippageBps,
-          maxLightningFeeSats,
-          rollbackOnFailure,
-          useExistingBtcBalance,
-          integratorFeeRateBps,
-        },
-      );
-      return validateWebViewResponse(
-        response,
-        'Not able to payLightningWithToken',
-      );
-    } else {
-      const client = getFlashnetClient(mnemonic);
+    if (tokenAddress !== USD_ASSET_ADDRESS) {
+      throw new Error('Only USDB Lightning payments are supported');
+    }
 
-      const result = await client.payLightningWithToken({
+    const privateKey =
+      contactsPrivateKey || (await privateKeyFromSeedWords(mnemonic));
+    const resolvedPublicKey = publicKey || getPublicKey(privateKey);
+    const sparkAddressResponse = refundAddress
+      ? { didWork: true, response: refundAddress }
+      : await getSparkAddress(mnemonic);
+
+    if (!sparkAddressResponse.didWork || !sparkAddressResponse.response) {
+      throw new Error(
+        sparkAddressResponse.error || 'Unable to derive Spark source address',
+      );
+    }
+
+    let paymentQuote = quote;
+    if (!isUsableOrchestraQuote(paymentQuote)) {
+      const quoteResponse = await getLightningPaymentQuote(
+        mnemonic,
         invoice,
         tokenAddress,
-        maxSlippageBps,
-        maxLightningFeeSats: maxLightningFeeSats || undefined,
-        rollbackOnFailure,
-        useExistingBtcBalance,
         integratorFeeRateBps,
-        integratorPublicKey: process.env.BLITZ_SPARK_PUBLICKEY,
-      });
+        maxSlippageBps,
+        {
+          amountSats,
+          contactsPrivateKey: privateKey,
+          publicKey: resolvedPublicKey,
+          refundAddress: sparkAddressResponse.response,
+        },
+      );
 
-      console.log('token lightning payment response:', result);
-
-      if (result.success) {
-        return {
-          didWork: true,
-          result: {
-            success: true,
-            lightningPaymentId: result.lightningPaymentId,
-            tokenAmountSpent: result.tokenAmountSpent,
-            btcAmountReceived: result.btcAmountReceived,
-            swapTransferId: result.swapTransferId,
-            ammFeePaid: result.ammFeePaid,
-            lightningFeePaid: result.lightningFeePaid,
-            poolId: result.poolId,
-          },
-        };
-      } else {
-        return {
-          didWork: false,
-          error: result.error,
-          result: {
-            success: false,
-            error: result.error,
-            poolId: result.poolId,
-            tokenAmountSpent: result.tokenAmountSpent,
-            btcAmountReceived: result.btcAmountReceived,
-          },
-        };
+      if (!quoteResponse.didWork) {
+        throw new Error(quoteResponse.error || 'Unable to create quote');
       }
+      paymentQuote = quoteResponse.quote;
     }
-  } catch (error) {
-    console.warn(
-      'Pay Lightning with token error:',
-      formatError(error, 'payLightningWithToken'),
+
+    const tokenAmount = Number(paymentQuote.tokenAmountRequired);
+    if (!Number.isFinite(tokenAmount) || tokenAmount <= 0) {
+      throw new Error('Invalid Orchestra token amount');
+    }
+
+    const tokenPayment = await sendSparkTokens({
+      tokenIdentifier: USDB_TOKEN_ID,
+      tokenAmount: Number(Math.ceil(tokenAmount)),
+      receiverSparkAddress: paymentQuote.depositAddress,
+      mnemonic,
+    });
+
+    if (!tokenPayment.didWork) {
+      throw new Error(tokenPayment.error || 'Unable to send USDB deposit');
+    }
+
+    const sparkTxHash = tokenPayment.response;
+    const submitResult = await fetchBackend(
+      'submitFlashnetStablecoinOrder',
+      {
+        quoteId: paymentQuote.quoteId,
+        sparkTxHash,
+        sourceSparkAddress: sparkAddressResponse.response,
+      },
+      privateKey,
+      resolvedPublicKey,
     );
+
+    return {
+      didWork: true,
+      result: {
+        success: true,
+        tokenAmountSpent: tokenAmount,
+        btcAmountReceived:
+          Number(paymentQuote.estimatedOut) ||
+          Number(paymentQuote.invoiceAmountSats) ||
+          0,
+        swapTransferId: sparkTxHash,
+        ammFeePaid: Number(paymentQuote.estimatedAmmFee || 0),
+        lightningFeePaid: 0,
+        poolId: paymentQuote.quoteId,
+        quoteId: paymentQuote.quoteId,
+        orderId: submitResult?.orderId || '',
+        depositAddress: paymentQuote.depositAddress,
+        expiresAt: paymentQuote.expiresAt,
+        orchestra: true,
+        sourceSparkAddress: sparkAddressResponse.response,
+      },
+    };
+  } catch (error) {
+    const backendError = normalizeOrchestraBackendError(
+      error,
+      'Unable to pay Lightning invoice with USDB',
+    );
+    console.warn('Pay Lightning with token error:', {
+      operation: 'payLightningWithToken',
+      message: backendError.message,
+      code: backendError.code,
+      minimumSats: backendError.minimumSats,
+    });
     return {
       didWork: false,
-      error: error.message,
-      details: formatError(error, 'payLightningWithToken'),
+      error: backendError.message,
+      details: {
+        operation: 'payLightningWithToken',
+        message: backendError.message,
+        code: backendError.code,
+        minimumSats: backendError.minimumSats,
+      },
     };
   }
 };
