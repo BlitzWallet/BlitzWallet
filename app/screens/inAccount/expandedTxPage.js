@@ -25,6 +25,7 @@ import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
+import { useToast } from '../../../context-store/toastManager';
 import { formatLocalTimeShort } from '../../functions/timeFormatter';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
@@ -39,7 +40,7 @@ import { useImageCache } from '../../../context-store/imageCache';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { currentPriceAinBToPriceDollars } from '../../functions/spark/flashnet';
-import { formatBalanceAmount } from '../../functions';
+import { formatBalanceAmount, copyToClipboard } from '../../functions';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import {
   claimSparkHodlLightningPayment,
@@ -52,6 +53,8 @@ import useAdaptiveButtonLayout from '../../hooks/useAdaptiveButtonLayout';
 import { useNavigateToContact } from '../../components/admin/homeComponents/contacts/utils/navigateToExpandedContact';
 import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../constants/theme';
 import ProfileImageRow from '../../components/admin/homeComponents/contacts/internalComponents/profileImageRow';
+import { isOrchestraSwapFailed } from '../../functions/spark/orchestraLightning';
+import { openComposer } from 'react-native-email-link';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContactsInfo();
@@ -72,9 +75,13 @@ export default function ExpandedTx(props) {
 
   const techicalDetailsLabel = t('screens.inAccount.expandedTxPage.detailsBTN');
   const claimHTLCLabel = t('screens.inAccount.expandedTxPage.claimPayment');
+  const contactSupportLabel = t(
+    'screens.inAccount.expandedTxPage.contactSupport',
+  );
+  const { showToast } = useToast();
 
   const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([techicalDetailsLabel, claimHTLCLabel]);
+    useAdaptiveButtonLayout([techicalDetailsLabel, contactSupportLabel]);
 
   const [transaction, setTransaction] = useState(
     props.route.params.transaction,
@@ -82,6 +89,8 @@ export default function ExpandedTx(props) {
 
   const isBulkPayment = !!transaction.details?.isBulkPayment;
   const bulkPaymentGroup = transaction.details?.bulkPaymentGroup ?? [];
+
+  const showLNOrchestraAsFailed = isOrchestraSwapFailed(transaction);
 
   // Contacts for ProfileImageRow — successful recipients only
   const bulkContacts = bulkPaymentGroup
@@ -145,7 +154,8 @@ export default function ExpandedTx(props) {
       ? t('screens.inAccount.expandedTxPage.gift')
       : transaction.paymentType;
 
-  const isFailedPayment = transaction.paymentStatus === 'failed';
+  const isFailedPayment =
+    transaction.paymentStatus === 'failed' || showLNOrchestraAsFailed;
   const isPending =
     transaction.paymentStatus === 'pending' || transaction.isBalancePending;
   const isSuccessful = !isFailedPayment && !isPending;
@@ -254,6 +264,33 @@ export default function ExpandedTx(props) {
       }
     } finally {
       setIsClaimingHtlc(false);
+    }
+  };
+
+  const handleContactSupport = async () => {
+    const fields = [
+      ['Payment ID', transaction.sparkID],
+      ['Quote ID', transaction.details.quoteId],
+      ['Destination Address', transaction.details.destinationAddress],
+      ['Destination Asset', transaction.details.destinationAsset],
+      ['Destination Chain', transaction.details.destinationChain],
+      ['Preimage', transaction.details.preimage],
+      ['Address', transaction.details.address],
+      ['Bitcoin TX ID', transaction.details.onChainTxid],
+    ];
+    const body = fields
+      .filter(([, v]) => v)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join('\n');
+
+    try {
+      await openComposer({
+        to: 'blake@blitzwalletapp.com',
+        subject: 'Failed Payment Support',
+        body,
+      });
+    } catch {
+      copyToClipboard('blake@blitzwalletapp.com', showToast, null);
     }
   };
 
@@ -578,7 +615,12 @@ export default function ExpandedTx(props) {
               {renderInfoRow(
                 t('constants.type'),
                 isFlashnetStablecoin
-                  ? t('screens.inAccount.expandedTxPage.chainSwap')
+                  ? t('screens.inAccount.expandedTxPage.chainSwap', {
+                      context:
+                        transaction.details.destinationChain === 'lightning'
+                          ? 'lightning'
+                          : 'other',
+                    })
                   : transactionPaymentType,
                 true,
                 {
@@ -675,42 +717,29 @@ export default function ExpandedTx(props) {
                   content={techicalDetailsLabel}
                 />
               </TouchableOpacity>
-              {transaction.details.isHoldInvoice &&
-                isPending &&
-                !transaction.details.didClaimHTLC && (
-                  <TouchableOpacity
-                    onPress={claimHTLC}
-                    style={[
-                      styles.button,
-                      {
-                        backgroundColor: theme
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
-                      },
-                      shouldStack ? styles.buttonStacked : styles.buttonColumn,
-                    ]}
-                    disabled={isClaimingHtlc}
-                  >
-                    {isClaimingHtlc ? (
-                      <ActivityIndicator
-                        color={
-                          theme ? COLORS.lightModeText : COLORS.darkModeText
-                        }
-                      />
-                    ) : (
-                      <ThemeText
-                        styles={{
-                          includeFontPadding: false,
-                          color: theme
-                            ? COLORS.lightModeText
-                            : COLORS.darkModeText,
-                        }}
-                        {...getLabelProps(1)}
-                        content={claimHTLCLabel}
-                      />
-                    )}
-                  </TouchableOpacity>
-                )}
+              {isFailedPayment && (
+                <TouchableOpacity
+                  onPress={handleContactSupport}
+                  style={[
+                    styles.button,
+                    {
+                      backgroundColor: theme
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                    },
+                    shouldStack ? styles.buttonStacked : styles.buttonColumn,
+                  ]}
+                >
+                  <ThemeText
+                    styles={{
+                      includeFontPadding: false,
+                      color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+                    }}
+                    {...getLabelProps(1)}
+                    content={contactSupportLabel}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Receipt Dots */}
