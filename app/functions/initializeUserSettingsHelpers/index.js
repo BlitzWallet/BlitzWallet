@@ -28,6 +28,7 @@ const keys = [
   'enabledLiquidAutoSwap',
   'pinnedAccounts',
   'monthlyBudget',
+  'bitrefillEmail',
 ];
 
 const defaultValues = {
@@ -65,6 +66,7 @@ const defaultValues = {
   enabledLiquidAutoSwap: true,
   pinnedAccounts: [],
   monthlyBudget: null,
+  bitrefillEmail: '',
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -111,6 +113,7 @@ export const fetchLocalStorageItems = async () => {
       parsedResults[20] ?? defaultValues.enabledLiquidAutoSwap,
     pinnedAccounts: parsedResults[21] ?? defaultValues.pinnedAccounts,
     monthlyBudget: parsedResults[22] ?? defaultValues.monthlyBudget,
+    bitrefillEmail: parsedResults[23] ?? defaultValues.bitrefillEmail,
   };
 };
 
