@@ -1295,7 +1295,7 @@
       "payWithUSDb": "Оплатить через USDb",
       "chainNotSupportedForAsset": "Недоступно в этой сети",
       "swapInProgress": "Обмен выполняется",
-      "swapInProgressDescription": "Ваши средства отправлены. Обмен стейблкоина обрабатывается и может занять несколько минут.",
+      "swapInProgressDescription": "Ваши средства отправлены. Платёж обрабатывается и может занять несколько минут.",
       "noAmount": "Пожалуйста, введите сумму для отправки.",
       "quoteStillLoading": "Получение котировки, подождите немного.",
       "noQuote": "Не удалось получить котировку. Попробуйте снова.",
@@ -2066,7 +2066,9 @@
         "gift": "Подарок",
         "claimPayment": "Получить платёж",
         "splitPayment": "Разделить",
-        "chainSwap": "Обмен в сети"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Поддержка"
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",

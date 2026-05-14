@@ -1294,7 +1294,7 @@
       "payWithUSDb": "Mit USDB bezahlen",
       "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
       "swapInProgress": "Tausch läuft",
-      "swapInProgressDescription": "Ihre Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
+      "swapInProgressDescription": "Ihre Mittel wurden gesendet. Die Zahlung wird verarbeitet und kann einige Minuten dauern.",
       "noAmount": "Bitte gib einen Betrag zum Senden ein.",
       "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
       "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
@@ -2065,7 +2065,9 @@
         "gift": "Geschenk",
         "claimPayment": "Zahlung einfordern",
         "splitPayment": "Aufteilen",
-        "chainSwap": "Chain-Tausch"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
