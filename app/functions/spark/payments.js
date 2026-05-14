@@ -11,7 +11,6 @@ import {
   getSparkAddress,
   sparkWallet,
   sendSparkTokens,
-  getSparkLightningSendRequest,
   getSingleTxDetails,
   getSparkPaymentStatus,
 } from '.';
@@ -22,7 +21,6 @@ import {
 import {
   DEFAULT_PAYMENT_EXPIRY_SEC,
   IS_SPARK_ID,
-  IS_SPARK_REQUEST_ID,
   USDB_TOKEN_ID,
 } from '../../constants';
 import sha256Hash from '../hash';
@@ -153,6 +151,9 @@ export const sparkPaymenWrapper = async ({
         const swapPaymentResponse = await payLightningWithToken(mnemonic, {
           invoice: address,
           tokenAddress: USD_ASSET_ADDRESS,
+          quote: swapPaymentQuote,
+          amountSats,
+          refundAddress: sparkInformation?.sparkAddress,
         });
 
         if (!swapPaymentResponse.didWork)
@@ -161,76 +162,38 @@ export const sparkPaymenWrapper = async ({
               'Error when sending lightning payment from USD balance',
           );
 
-        // delete swap transfer and combine all info into one tx
-        setFlashnetTransfer(swapPaymentResponse.result.swapTransferId);
-
-        const [lightningSendResponse, userSwaps] = await Promise.all([
-          IS_SPARK_REQUEST_ID.test(
-            swapPaymentResponse.result.lightningPaymentId,
-          )
-            ? getSparkLightningSendRequest(
-                swapPaymentResponse.result.lightningPaymentId,
-                mnemonic,
-              )
-            : getSingleTxDetails(
-                mnemonic,
-                swapPaymentResponse.result.lightningPaymentId,
-              ),
-          getUserSwapHistory(mnemonic, 5),
-        ]);
-
-        if (userSwaps.didWork) {
-          const swap = userSwaps.swaps.find(
-            savedSwap =>
-              savedSwap.outboundTransferId ===
-              swapPaymentResponse.result.swapTransferId,
-          );
-
-          // if swap is found delte from tx history
-          if (swap) {
-            setFlashnetTransfer(swap.inboundTransferId);
-          }
-        }
-
-        const didUseLightning = IS_SPARK_REQUEST_ID.test(
-          swapPaymentResponse.result.lightningPaymentId,
-        );
-
-        const usdToSatFee = dollarsToSats(
-          swapPaymentResponse.result.ammFeePaid / 1000000,
-          poolInfoRef.currentPriceAInB,
-        );
-        const lnFee = swapPaymentResponse.result.lightningFeePaid;
-
+        const now = Date.now();
         const tx = {
-          id: swapPaymentResponse.result.lightningPaymentId,
-          paymentStatus: didUseLightning ? 'pending' : 'completed',
-          paymentType: didUseLightning ? 'lightning' : 'spark',
+          id: swapPaymentResponse.result.swapTransferId,
+          paymentStatus: 'pending',
+          paymentType: 'spark',
           accountId: sparkInformation.identityPubKey,
           details: {
             sendingUUID,
-            fee: Math.round(usdToSatFee + lnFee),
-            totalFee: Math.round(usdToSatFee + lnFee),
+            fee: Math.round(
+              dollarsToSats(
+                swapPaymentResponse.result.ammFeePaid / 1000000,
+                poolInfoRef.currentPriceAInB,
+              ),
+            ),
+            totalFee: 0,
             supportFee: 0,
-            amount:
-              swapPaymentResponse.result.tokenAmountSpent -
-              swapPaymentResponse.result.ammFeePaid,
+            amount: swapPaymentResponse.result.tokenAmountSpent,
             description: memo || '',
-            address: address,
-            time: new Date(
-              lightningSendResponse[
-                didUseLightning ? 'updatedAt' : 'updatedTime'
-              ],
-            ).getTime(),
-            createdAt: new Date(
-              lightningSendResponse[
-                didUseLightning ? 'createdAt' : 'createdTime'
-              ],
-            ).getTime(),
+            address: swapPaymentResponse.result.depositAddress,
+            sourceSparkAddress: swapPaymentResponse.result.sourceSparkAddress,
+            time: now,
+            createdAt: now,
             direction: 'OUTGOING',
             preimage: '',
             isLRC20Payment: true,
             LRC20Token: USDB_TOKEN_ID,
+            isFlashnetStablecoin: true,
+            quoteId: swapPaymentResponse.result.quoteId,
+            destinationAddress: address,
+            destinationChain: 'lightning',
+            destinationAsset: 'BTC',
+            sourceMethod: 'USD',
             ...(paymentInfo?.data?.successAction
               ? { successAction: paymentInfo.data.successAction }
               : {}),

@@ -103,6 +103,9 @@ export default async function processBolt11Invoice(input, context) {
           currentWalletMnemoinc,
           input.data.address,
           USD_ASSET_ADDRESS,
+          undefined,
+          undefined,
+          { amountSats: amountSat },
         ),
       );
     }

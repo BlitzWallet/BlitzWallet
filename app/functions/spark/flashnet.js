@@ -898,7 +898,6 @@ export const payLightningWithToken = async (
         lightningFeePaid: 0,
         poolId: paymentQuote.quoteId,
         quoteId: paymentQuote.quoteId,
-        orderId: submitResult?.orderId || '',
         depositAddress: paymentQuote.depositAddress,
         expiresAt: paymentQuote.expiresAt,
         orchestra: true,

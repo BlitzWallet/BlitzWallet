@@ -191,6 +191,9 @@ export default async function processLNUrlPay(input, context) {
           currentWalletMnemoinc,
           invoice,
           USD_ASSET_ADDRESS,
+          undefined,
+          undefined,
+          { amountSats: amountSat },
         ),
       );
     }
