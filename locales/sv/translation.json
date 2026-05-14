@@ -2177,7 +2177,8 @@
         "destinationAddress": "Destinationsadress",
         "destinationAsset": "Destinations-tillgång",
         "destinationChain": "Destinations-kedja",
-        "transferIds": "Inkluderade personer"
+        "transferIds": "Inkluderade personer",
+        "bitrefillInvoiceId": "Bitrefill-faktura-ID"
       },
       "viewAllTxPage": {
         "title": "Transaktioner",
@@ -2499,6 +2500,12 @@
         "lightningMessage": "Tar emot bitcoinbetalningar direkt via Lightning-nätverket",
         "dataMessage": "Data från btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Vi kunde inte behandla svaret från Bitrefill. Försök igen.",
+      "insufficientBalance": "Du har inte tillräckligt saldo för att slutföra betalningen.",
+      "paymentMemo": "Köp av presentkort",
+      "paymentFailed": "Din betalning kunde inte slutföras. Försök igen."
     }
   },
   "toastmessages": {

@@ -2177,7 +2177,8 @@
         "destinationAddress": "Endereço de destino",
         "destinationAsset": "Moeda de destino",
         "destinationChain": "Rede de destino",
-        "transferIds": "Pessoas incluídas"
+        "transferIds": "Pessoas incluídas",
+        "bitrefillInvoiceId": "ID da fatura Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Transações",
@@ -2499,6 +2500,12 @@
         "lightningMessage": "Aceita pagamentos em bitcoin instantaneamente pela rede Lightning",
         "dataMessage": "Dados do btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Não foi possível processar a resposta da Bitrefill. Tente novamente.",
+      "insufficientBalance": "Você não tem saldo suficiente para concluir este pagamento.",
+      "paymentMemo": "Compra de cartão-presente",
+      "paymentFailed": "Não foi possível concluir seu pagamento. Tente novamente."
     }
   },
   "toastmessages": {
