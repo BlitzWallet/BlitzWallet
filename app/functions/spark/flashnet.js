@@ -873,7 +873,7 @@ export const payLightningWithToken = async (
     }
 
     const sparkTxHash = tokenPayment.response;
-    const submitResult = await fetchBackend(
+    await fetchBackend(
       'submitFlashnetStablecoinOrder',
       {
         quoteId: paymentQuote.quoteId,

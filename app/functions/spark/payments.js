@@ -176,9 +176,16 @@ export const sparkPaymenWrapper = async ({
                 poolInfoRef.currentPriceAInB,
               ),
             ),
-            totalFee: 0,
+            totalFee: Math.round(
+              dollarsToSats(
+                swapPaymentResponse.result.ammFeePaid / 1000000,
+                poolInfoRef.currentPriceAInB,
+              ),
+            ),
             supportFee: 0,
-            amount: swapPaymentResponse.result.tokenAmountSpent,
+            amount:
+              swapPaymentResponse.result.tokenAmountSpent -
+              swapPaymentResponse.result.ammFeePaid,
             description: memo || '',
             address: swapPaymentResponse.result.depositAddress,
             sourceSparkAddress: swapPaymentResponse.result.sourceSparkAddress,

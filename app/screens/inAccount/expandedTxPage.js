@@ -270,13 +270,13 @@ export default function ExpandedTx(props) {
   const handleContactSupport = async () => {
     const fields = [
       ['Payment ID', transaction.sparkID],
-      ['Quote ID', transaction.details.quoteId],
-      ['Destination Address', transaction.details.destinationAddress],
-      ['Destination Asset', transaction.details.destinationAsset],
-      ['Destination Chain', transaction.details.destinationChain],
-      ['Preimage', transaction.details.preimage],
-      ['Address', transaction.details.address],
-      ['Bitcoin TX ID', transaction.details.onChainTxid],
+      ['Quote ID', transaction.details?.quoteId],
+      ['Destination Address', transaction.details?.destinationAddress],
+      ['Destination Asset', transaction.details?.destinationAsset],
+      ['Destination Chain', transaction.details?.destinationChain],
+      ['Preimage', transaction.details?.preimage],
+      ['Address', transaction.details?.address],
+      ['Bitcoin TX ID', transaction.details?.onChainTxid],
     ];
     const body = fields
       .filter(([, v]) => v)
