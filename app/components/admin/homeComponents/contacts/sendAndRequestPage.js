@@ -216,6 +216,9 @@ export default function SendAndRequestPage(props) {
             currentWalletMnemoinc,
             invoiceResponse.pr,
             USD_ASSET_ADDRESS,
+            undefined,
+            undefined,
+            { amountSats: amount },
           );
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');

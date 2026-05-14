@@ -1294,7 +1294,7 @@
       "payWithUSDb": "Pagar con USDb",
       "chainNotSupportedForAsset": "No disponible en esta red",
       "swapInProgress": "Intercambio en Proceso",
-      "swapInProgressDescription": "Tus fondos han sido enviados. El intercambio de stablecoin está procesándose y puede tardar unos minutos.",
+      "swapInProgressDescription": "Tus fondos han sido enviados. El pago se está procesando y puede tardar unos minutos.",
       "noAmount": "Por favor, ingresa un monto para enviar.",
       "quoteStillLoading": "Obteniendo cotización, por favor espera un momento.",
       "noQuote": "No se pudo obtener una cotización. Por favor, inténtalo de nuevo.",
@@ -2065,7 +2065,9 @@
         "gift": "Regalo",
         "claimPayment": "Reclamar pago",
         "splitPayment": "Dividir",
-        "chainSwap": "Intercambio en Cadena"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Soporte"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
