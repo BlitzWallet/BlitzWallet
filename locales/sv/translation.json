@@ -1294,7 +1294,7 @@
       "payWithUSDb": "Betala med USDb",
       "chainNotSupportedForAsset": "Inte tillgängligt i detta nätverk",
       "swapInProgress": "Byte pågår",
-      "swapInProgressDescription": "Dina pengar har skickats. Stablecoin-bytet bearbetas och kan ta några minuter.",
+      "swapInProgressDescription": "Dina pengar har skickats. Betalningen behandlas och kan ta några minuter.",
       "noAmount": "Ange ett belopp att skicka.",
       "quoteStillLoading": "Hämtar offert, vänta ett ögonblick.",
       "noQuote": "Det gick inte att hämta en offert. Försök igen.",
@@ -2065,7 +2065,9 @@
         "gift": "Gåva",
         "claimPayment": "Ta emot betalning",
         "splitPayment": "Dela",
-        "chainSwap": "Kedjeswap"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",

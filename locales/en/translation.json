@@ -1294,7 +1294,7 @@
       "payWithUSDb": "Pay with USDb",
       "chainNotSupportedForAsset": "Not available on this network",
       "swapInProgress": "Payment in Progress",
-      "swapInProgressDescription": "Your funds have been sent. The stablecoin payment is processing and may take a few minutes.",
+      "swapInProgressDescription": "Your funds have been sent. The payment is processing and may take a few minutes.",
       "noAmount": "Please enter an amount to send.",
       "quoteStillLoading": "Getting a quote, please wait a moment.",
       "noQuote": "Could not get a quote. Please try again.",
@@ -2065,7 +2065,9 @@
         "gift": "Gift",
         "claimPayment": "Claim payment",
         "splitPayment": "Split",
-        "chainSwap": "Stablecoin"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
