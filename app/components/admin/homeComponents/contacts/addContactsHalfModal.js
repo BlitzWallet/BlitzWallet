@@ -70,7 +70,6 @@ export function AddContactContent({
   const [isSearching, setIsSearching] = useState(false);
   const [remoteLoadingMessage, setRemoteLoadingMessage] = useState('');
   const navigate = useNavigation();
-  const keyboardRef = useRef(null);
   const { refreshCacheObject } = useImageCache();
   const searchTrackerRef = useRef(null);
   const didClickCamera = useRef(null);
@@ -95,18 +94,6 @@ export function AddContactContent({
     searchTrackerRef.current = requestUUID; // Simply store the latest UUID
     return requestUUID;
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      if (keyboardRef.current && !keyboardRef.current.isFocused()) {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            keyboardRef.current?.focus();
-          });
-        });
-      }
-    }, []),
-  );
 
   const handleTextInputBlur = () => {
     if (setIsKeyboardActive) setIsKeyboardActive(false);
@@ -201,8 +188,11 @@ export function AddContactContent({
       );
       let newContact;
       if (isBlitzLNURLAddress(sanitizedData)) {
-        const {didWork, reason, data: userProfile} =
-          await resolveBlitzLNURLContact(sanitizedData);
+        const {
+          didWork,
+          reason,
+          data: userProfile,
+        } = await resolveBlitzLNURLContact(sanitizedData);
 
         if (!didWork) {
           navigate.navigate('ErrorScreen', {
@@ -282,11 +272,14 @@ export function AddContactContent({
         t('contacts.addContactsHalfModal.loadingMessage'),
       );
       try {
-        const {didWork, reason, data: userProfile} =
-          await resolveBlitzLNURLContact(searchInput);
+        const {
+          didWork,
+          reason,
+          data: userProfile,
+        } = await resolveBlitzLNURLContact(searchInput);
 
         if (!didWork) {
-          navigate.navigate('ErrorScreen', {errorMessage: t(reason)});
+          navigate.navigate('ErrorScreen', { errorMessage: t(reason) });
           return;
         }
 
@@ -370,16 +363,14 @@ export function AddContactContent({
         placeholderText={t('contacts.addContactsHalfModal.searchPlaceholder')}
         setInputText={handleSearch}
         inputText={searchInput}
-        textInputRef={keyboardRef}
+        autoFocus={true}
         blurOnSubmit={false}
         containerStyles={{
           justifyContent: 'center',
           marginBottom: CONTENT_KEYBOARD_OFFSET,
         }}
         textInputStyles={{ paddingRight: 45 }}
-        onSubmitEditingFunction={() => {
-          clearHalfModalForLNURL();
-        }}
+        onSubmitEditingFunction={clearHalfModalForLNURL}
         buttonComponent={
           <TouchableOpacity
             onPress={() => {
@@ -431,9 +422,7 @@ export function AddContactContent({
               ...CENTER,
               marginTop: 'auto',
             }}
-            actionFunction={() => {
-              clearHalfModalForLNURL();
-            }}
+            actionFunction={clearHalfModalForLNURL}
             textContent={t('constants.continue')}
           />
         </ScrollView>

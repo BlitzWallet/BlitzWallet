@@ -499,6 +499,21 @@ export async function fullRestoreSparkState({
   }
 }
 
+function shouldRunOnThisTick(runcount, lastRunTimestamp) {
+  if (runcount < 10) return true; // first 10 calls: let the 10s interval handle it naturally
+  if (runcount > 22) return false; // after 21 calls, stop backoff and check every tick to avoid infinite backoff
+
+  if (!lastRunTimestamp) return true;
+
+  const backoffRun = runcount - 10; // 0-indexed backoff phase
+  const backoffMs = Math.min(
+    10_000 * Math.pow(2, backoffRun), // 10s, 20s, 40s, 80s...
+    300_000, // cap at 5 minutes
+  );
+
+  return Date.now() - lastRunTimestamp >= backoffMs;
+}
+
 export async function checkFlashnetStablecoinStatusLogic(
   tx,
   contactsPrivateKey,
@@ -509,19 +524,39 @@ export async function checkFlashnetStablecoinStatusLogic(
       typeof tx.details === 'string' ? JSON.parse(tx.details) : tx.details;
     if (!details?.isFlashnetStablecoin || !details?.quoteId) return null;
 
+    const runcount = details.runcount || 0;
+
+    // Skip this tick if we haven't waited long enough
+    if (!shouldRunOnThisTick(runcount, details.lastRunTimestamp)) return null;
+
     const statusResult = await fetchBackend(
       'checkFlashnetStablecoinStatus',
-      { quoteId: details.quoteId },
+      {
+        quoteId: details.quoteId,
+        sourceSparkAddress: details.sourceSparkAddress,
+        sparkTxHash: tx.sparkID,
+      },
       contactsPrivateKey,
       publicKey,
     );
 
-    if (!statusResult || statusResult.error) return null;
+    if (!statusResult || statusResult.error)
+      return {
+        id: tx.sparkID,
+        paymentStatus: details.runcount === 21 ? 'completed' : 'pending',
+        paymentType: tx.paymentType,
+        accountId: tx.accountId,
+        details: {
+          ...details,
+          runcount: runcount + 1,
+          lastRunTimestamp: Date.now(), // <-- persist when we last fetched
+        },
+      };
 
     const newStatus =
-      statusResult.status === 'completed'
+      statusResult.status === 'completed' || details.runcount === 21
         ? 'completed'
-        : statusResult.status === 'failed'
+        : ['refunded', 'failed'].includes(statusResult.status)
         ? 'failed'
         : null;
 
@@ -532,7 +567,11 @@ export async function checkFlashnetStablecoinStatusLogic(
       paymentStatus: newStatus,
       paymentType: tx.paymentType,
       accountId: tx.accountId,
-      details,
+      details: {
+        ...details,
+        runcount: runcount + 1,
+        lastRunTimestamp: Date.now(), // <-- persist when we last fetched
+      },
     };
   } catch {
     return null;
@@ -562,7 +601,9 @@ export const updateSparkTxStatus = async (
     const txsByType = {
       lightning: savedTxs.filter(tx => tx.paymentType === 'lightning'),
       bitcoin: savedTxs.filter(tx => tx.paymentType === 'bitcoin'),
-      spark: savedTxs.filter(tx => tx.paymentType === 'spark'),
+      spark: savedTxs.filter(
+        tx => tx.paymentType === 'spark' || tx.paymentType === 'unknown',
+      ),
     };
 
     const [unpaidInvoices] = await Promise.all([
@@ -1021,6 +1062,8 @@ async function processSparkTransactions(
     }
 
     if (IS_SPARK_ID.test(txStateUpdate.sparkID)) {
+      // This means the placeholder tx is created and we should defer this action to the debouceHandlIncomePayment function
+      if (txStateUpdate.paymentType === 'unknown' && !details.amount) continue;
       const findTxResponse = await getSingleTxDetails(
         mnemonic,
         txStateUpdate.sparkID,

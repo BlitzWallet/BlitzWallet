@@ -88,7 +88,7 @@ const ContactRow = ({
     try {
       if (!contact.isLNURL) return '';
       const parsed = parse(contact.receiveAddress);
-      return parsed.domainWithoutSuffix;
+      return parsed.domain;
     } catch (err) {
       console.log('error parsing lnurl', err);
       return '';

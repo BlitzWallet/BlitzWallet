@@ -419,6 +419,7 @@ export default function StablecoinSendScreen() {
           supportFee: 0,
           description: description || '',
           address: quote.depositAddress,
+          sourceSparkAddress: sparkInformation.sparkAddress,
           time: Date.now(),
           createdAt: Date.now(),
           direction: 'OUTGOING',

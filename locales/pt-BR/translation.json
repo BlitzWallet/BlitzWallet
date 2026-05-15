@@ -1294,7 +1294,7 @@
       "payWithUSDb": "Pagar com USDB",
       "chainNotSupportedForAsset": "Não disponível nesta rede",
       "swapInProgress": "Transação em andamento",
-      "swapInProgressDescription": "Seus fundos foram enviados. O pagamento de dólar digital está sendo processado e pode levar alguns minutos.",
+      "swapInProgressDescription": "Seus fundos foram enviados. O pagamento está sendo processado e pode levar alguns minutos.",
       "noAmount": "Por favor, insira uma quantia para enviar.",
       "quoteStillLoading": "Obtendo cotação, aguarde um momento.",
       "noQuote": "Não foi possível obter uma cotação. Por favor, tente novamente.",
@@ -1610,7 +1610,9 @@
       "createPinPageHeader": "{{type}} seu PIN Blitz",
       "invalidPinconfirmation": "Os PINs não correspondem. Tente novamente!",
       "randomPinKeyboardToggle": "Embaralhar teclado",
-      "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN."
+      "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN.",
+      "biometricsHead": "Sobre biometria",
+      "biometricsSubHead": "Sua frase de recuperação está vinculada ao seu perfil biométrico atual. Se você alterar ou adicionar uma impressão digital ou Face ID, perderá permanentemente o acesso à sua frase de recuperação."
     },
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",
@@ -2063,7 +2065,9 @@
         "gift": "Vale-Blitz",
         "claimPayment": "Reivindicar pagamento",
         "splitPayment": "Dividir",
-        "chainSwap": "Dólar digital"
+        "chainSwap_other": "Dólar digital",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Suporte"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",

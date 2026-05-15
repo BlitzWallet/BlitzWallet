@@ -25,7 +25,6 @@ export default function LRC20AssetSelectorHalfModal({
   const [searchInput, setSearchInput] = useState('');
 
   const navigate = useNavigation();
-  const keyboardRef = useRef(null);
 
   const handleSearch = term => {
     setSearchInput(term);
@@ -77,7 +76,6 @@ export default function LRC20AssetSelectorHalfModal({
           )}
           setInputText={handleSearch}
           inputText={searchInput}
-          textInputRef={keyboardRef}
           blurOnSubmit={false}
         />
 

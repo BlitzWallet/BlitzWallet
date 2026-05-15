@@ -512,6 +512,9 @@ export default function SendPaymentScreen(props) {
             currentWalletMnemoinc,
             invoice,
             USD_ASSET_ADDRESS,
+            undefined,
+            undefined,
+            { amountSats: amount },
           );
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');

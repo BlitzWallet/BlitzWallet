@@ -79,6 +79,12 @@ import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analyti
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 
+const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
+  'AddMessageReceivePage',
+  'addContacts',
+  'manualEnterSendAddress',
+]);
+
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { screenDimensions } = useAppStatus();
@@ -94,9 +100,20 @@ export default function CustomHalfModal(props) {
   const isScreenActive = useRef(false);
   const { bottomPadding, topPadding } = useGlobalInsets();
   const didHandleBackpress = useRef(false);
+  const closeTimerRef = useRef(null);
+  const shouldDismissKeyboardOnMount =
+    !CONTENT_TYPES_WITH_MOUNT_FOCUS.has(contentType);
 
   const translateY = useSharedValue(screenDimensions.height);
   const animatedHeight = useSharedValue(screenDimensions.height * slideHeight);
+
+  const slideIn = useCallback(() => {
+    translateY.value = withTiming(0, { duration: 200 });
+  }, [translateY]);
+
+  const slideOut = useCallback(() => {
+    translateY.value = withTiming(screenDimensions.height, { duration: 200 });
+  }, [screenDimensions.height, translateY]);
 
   useEffect(() => {
     if (contentHeight) {
@@ -110,21 +127,29 @@ export default function CustomHalfModal(props) {
       return () => {
         isScreenActive.current = false;
       };
-    }, []),
+    }, [contentType]),
   );
 
   const handleBackPressFunction = useCallback(
     customBackFunction => {
+      const resolvedCustomBackFunction =
+        typeof customBackFunction === 'function' ? customBackFunction : null;
+
       if (!isScreenActive.current) return;
       if (didHandleBackpress.current) return true;
       didHandleBackpress.current = true;
       const keyboardVisible = Keyboard.isVisible();
       Keyboard.dismiss();
       slideOut();
-      setTimeout(
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+      closeTimerRef.current = setTimeout(
         () => {
-          if (customBackFunction && typeof customBackFunction === 'function') {
-            customBackFunction();
+          closeTimerRef.current = null;
+
+          if (resolvedCustomBackFunction) {
+            resolvedCustomBackFunction();
           } else {
             navigation.goBack();
           }
@@ -133,23 +158,25 @@ export default function CustomHalfModal(props) {
       );
       return true;
     },
-    [navigation],
+    [navigation, slideOut],
   );
 
   useHandleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
-    Keyboard.dismiss();
+    if (shouldDismissKeyboardOnMount && Keyboard.isVisible()) {
+      Keyboard.dismiss();
+    }
+
     slideIn();
-  }, []);
 
-  const slideIn = () => {
-    translateY.value = withTiming(0, { duration: 200 });
-  };
-
-  const slideOut = () => {
-    translateY.value = withTiming(screenDimensions.height, { duration: 200 });
-  };
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+    };
+  }, [shouldDismissKeyboardOnMount, slideIn]);
 
   const renderContent = () => {
     switch (contentType) {

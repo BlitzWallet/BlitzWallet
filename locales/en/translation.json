@@ -1294,7 +1294,7 @@
       "payWithUSDb": "Pay with USDb",
       "chainNotSupportedForAsset": "Not available on this network",
       "swapInProgress": "Payment in Progress",
-      "swapInProgressDescription": "Your funds have been sent. The stablecoin payment is processing and may take a few minutes.",
+      "swapInProgressDescription": "Your funds have been sent. The payment is processing and may take a few minutes.",
       "noAmount": "Please enter an amount to send.",
       "quoteStillLoading": "Getting a quote, please wait a moment.",
       "noQuote": "Could not get a quote. Please try again.",
@@ -1610,7 +1610,9 @@
       "createPinPageHeader": "{{type}} your Blitz PIN",
       "invalidPinconfirmation": "PINs do not match. Try again!",
       "randomPinKeyboardToggle": "Shuffle Keypad",
-      "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern."
+      "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern.",
+      "biometricsHead": "About biometrics",
+      "biometricsSubHead": "Your recovery phrase is tied to your current biometric profile. If you change or add a fingerprint or face ID, you will permanently lose access to your recovery phrase."
     },
     "seedPhrase": {
       "header": "Keep this recovery phrase in a secure and safe place",
@@ -2063,7 +2065,9 @@
         "gift": "Gift",
         "claimPayment": "Claim payment",
         "splitPayment": "Split",
-        "chainSwap": "Stablecoin"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",

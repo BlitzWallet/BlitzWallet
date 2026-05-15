@@ -24,6 +24,7 @@ import { isFlashnetTransfer } from './spark/handleFlashnetTransferIds';
 import { satsToDollars } from './spark/flashnet';
 import ThemeIcon from './CustomElements/themeIcon';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../constants/theme';
+import { isOrchestraSwapFailed } from './spark/orchestraLightning';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -36,6 +37,7 @@ const TRANSACTION_CONSTANTS = {
   LIGHTNING_INITIATED: 'LIGHTNING_PAYMENT_INITIATED',
   INCOMING: 'INCOMING',
   OUTGOING: 'OUTGOING',
+  UNKOWN: 'unknown',
 };
 
 const SKELETON_STYLES = {
@@ -163,9 +165,10 @@ const getTxIconName = (
   isFailedPayment,
   isReceive,
 ) => {
+  if (isFailedPayment) return { icon: 'CircleX', bg: null };
+
   // Default: Lightning / Bitcoin / Spark — directional arrows
   return { icon: isReceive ? 'ArrowDown' : 'ArrowUp', bg: null };
-  if (isFailedPayment) return { icon: 'CircleX', bg: null };
 
   // Pending / swap pending
   if (showSwapConversion) return { icon: 'Clock', bg: null };
@@ -306,6 +309,9 @@ export default function getFormattedHomepageTxsForSpark(props) {
       )
         continue;
 
+      // block placeholder txs from displaying
+      if (transactionPaymentType === TRANSACTION_CONSTANTS.UNKOWN) continue;
+
       if (
         paymentDetails.senderIdentityPublicKey ===
         process.env.SPARK_IDENTITY_PUBKEY
@@ -346,7 +352,10 @@ export default function getFormattedHomepageTxsForSpark(props) {
 
       const paymentDate = new Date(paymentDetails.time).getTime();
       const uniuqeIDFromTx = currentTransaction.sparkID;
-      const isFailedPayment = paymentStatus === TRANSACTION_CONSTANTS.FAILED;
+      const showLNOrchestraAsFailed = isOrchestraSwapFailed(currentTransaction);
+      const isFailedPayment =
+        paymentStatus === TRANSACTION_CONSTANTS.FAILED ||
+        showLNOrchestraAsFailed;
 
       // Calculate time difference once
       // const timeDifferenceInDays =
@@ -597,37 +606,21 @@ export const UserTransaction = memo(function UserTransaction({
   const descriptionTextStyle = useMemo(
     () => ({
       ...styles.descriptionText,
-      color: isFailedPayment
-        ? theme && darkModeType
-          ? COLORS.darkModeText
-          : COLORS.failedTransaction
-        : theme
-        ? COLORS.darkModeText
-        : COLORS.lightModeText,
-      fontStyle: isFailedPayment ? 'italic' : 'normal',
+      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
     }),
-    [isFailedPayment, theme, darkModeType],
+    [theme, darkModeType],
   );
 
   const dateTextStyle = useMemo(
     () => ({
       ...styles.dateText,
-      fontWeight: isFailedPayment ? 400 : 300,
-      color: isFailedPayment
-        ? theme && darkModeType
-          ? COLORS.darkModeText
-          : COLORS.failedTransaction
-        : theme
-        ? COLORS.darkModeText
-        : COLORS.lightModeText,
-      fontStyle: isFailedPayment ? 'italic' : 'normal',
+      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
     }),
-    [isFailedPayment, theme, darkModeType],
+    [theme, darkModeType],
   );
 
   // Pre-calculate description content
   const descriptionContent = useMemo(() => {
-    if (isFailedPayment) return t('transactionLabelText.notSent');
     // if (userBalanceDenomination === 'hidden') return HIDDEN_BALANCE_TEXT;
     if (isDefaultDescription || !paymentDescription) {
       return transaction.details.direction === TRANSACTION_CONSTANTS.OUTGOING
@@ -636,7 +629,6 @@ export const UserTransaction = memo(function UserTransaction({
     }
     return paymentDescription;
   }, [
-    isFailedPayment,
     userBalanceDenomination,
     isDefaultDescription,
     paymentDescription,
@@ -696,59 +688,54 @@ export const UserTransaction = memo(function UserTransaction({
           )}
         />
       </View>
-      {!isFailedPayment && (
-        <View>
-          {showSwapConversion ? (
-            <FormattedSatText
-              neverHideBalance={
-                frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
-              }
-              globalBalanceDenomination={userBalanceDenomination}
-              containerStyles={styles.amountContainer}
-              styles={{ color: amountColor }}
-              frontText={APPROXIMATE_SYMBOL}
-              balance={
-                satsToDollars(
-                  transaction.details.amount,
-                  poolInfoRef.currentPriceAInB,
-                ) *
-                (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
-              }
-              useCustomLabel={true}
-              customLabel={token?.tokenTicker || 'USDB'}
-              useMillionDenomination={true}
-            />
-          ) : (
-            <FormattedSatText
-              neverHideBalance={
-                frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
-              }
-              globalBalanceDenomination={userBalanceDenomination}
-              containerStyles={styles.amountContainer}
-              styles={{ color: amountColor }}
-              frontText={
-                userBalanceDenomination !== 'hidden'
-                  ? transaction.details.direction ===
-                    TRANSACTION_CONSTANTS.INCOMING
-                    ? '+'
-                    : '-'
-                  : ''
-              }
-              balance={
-                isLRC20Payment
-                  ? formatTokensNumber(
-                      transaction.details.amount,
-                      token?.decimals,
-                    )
-                  : transaction.details.amount
-              }
-              useCustomLabel={isLRC20Payment}
-              customLabel={token?.tokenTicker}
-              useMillionDenomination={true}
-            />
-          )}
-        </View>
-      )}
+      <View>
+        {showSwapConversion ? (
+          <FormattedSatText
+            neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
+            globalBalanceDenomination={userBalanceDenomination}
+            containerStyles={styles.amountContainer}
+            styles={{ color: amountColor }}
+            frontText={APPROXIMATE_SYMBOL}
+            balance={
+              satsToDollars(
+                transaction.details.amount,
+                poolInfoRef.currentPriceAInB,
+              ) *
+              (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
+            }
+            useCustomLabel={true}
+            customLabel={token?.tokenTicker || 'USDB'}
+            useMillionDenomination={true}
+          />
+        ) : (
+          <FormattedSatText
+            neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
+            globalBalanceDenomination={userBalanceDenomination}
+            containerStyles={styles.amountContainer}
+            styles={{ color: amountColor }}
+            frontText={
+              userBalanceDenomination !== 'hidden'
+                ? transaction.details.direction ===
+                  TRANSACTION_CONSTANTS.INCOMING
+                  ? '+'
+                  : '-'
+                : ''
+            }
+            balance={
+              isLRC20Payment
+                ? formatTokensNumber(
+                    transaction.details.amount,
+                    token?.decimals,
+                  )
+                : transaction.details.amount
+            }
+            useCustomLabel={isLRC20Payment}
+            customLabel={token?.tokenTicker}
+            useMillionDenomination={true}
+          />
+        )}
+      </View>
+
       {!isLastItem && (
         <View style={[styles.txDivider, { backgroundColor: textColor }]} />
       )}

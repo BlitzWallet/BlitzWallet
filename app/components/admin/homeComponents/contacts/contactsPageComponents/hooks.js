@@ -20,7 +20,7 @@ export const useFilteredContacts = (
   hideUnknownContacts,
 ) => {
   return useMemo(() => {
-    const searchTerm = inputText.toLowerCase();
+    const searchTerm = inputText.toLowerCase()?.replace(/@/g, '');
     return contactInfoList
       .filter(item => {
         const matchesSearch =

@@ -1294,7 +1294,7 @@
       "payWithUSDb": "Mit USDB bezahlen",
       "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
       "swapInProgress": "Tausch läuft",
-      "swapInProgressDescription": "Ihre Mittel wurden gesendet. Der Stablecoin-Tausch wird verarbeitet und kann einige Minuten dauern.",
+      "swapInProgressDescription": "Ihre Mittel wurden gesendet. Die Zahlung wird verarbeitet und kann einige Minuten dauern.",
       "noAmount": "Bitte gib einen Betrag zum Senden ein.",
       "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
       "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
@@ -1610,7 +1610,9 @@
       "createPinPageHeader": "{{type}} Ihren Blitz-PIN",
       "invalidPinconfirmation": "PINs stimmen nicht überein. Versuchen Sie es erneut!",
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
-      "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen."
+      "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
+      "biometricsHead": "Über Biometrie",
+      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist mit Ihrem aktuellen biometrischen Profil verknüpft. Wenn Sie einen Fingerabdruck oder Face ID ändern oder hinzufügen, verlieren Sie dauerhaft den Zugriff auf Ihre Wiederherstellungsphrase."
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",
@@ -2063,7 +2065,9 @@
         "gift": "Geschenk",
         "claimPayment": "Zahlung einfordern",
         "splitPayment": "Aufteilen",
-        "chainSwap": "Chain-Tausch"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
