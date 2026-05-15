@@ -87,7 +87,6 @@ export default function BitrefillShopModal() {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sendWebViewRequest } = useWebView();
   const { poolInfoRef } = useFlashnet();
-  const { showToast } = useToast();
   const isSendingPayment = useRef(false);
   const paidPaymentUris = useRef(new Set());
 
@@ -219,20 +218,16 @@ export default function BitrefillShopModal() {
             parsedInvoice = await parseInput(paymentUri);
           } catch (err) {
             console.error('Failed to parse payment URI:', err);
-            showToast({
-              type: 'error',
-              title: t('screens.bitrefill.invalidInvoice'),
-              duration: 5000,
+            naivgate.navigate('ErrorScreen', {
+              errorMessage: t('screens.bitrefill.invalidInvoice'),
             });
             break;
           }
 
           const invoiceAddress = parsedInvoice?.data?.address;
           if (!invoiceAddress) {
-            showToast({
-              type: 'error',
-              title: t('screens.bitrefill.invalidInvoice'),
-              duration: 5000,
+            naivgate.navigate('ErrorScreen', {
+              errorMessage: t('screens.bitrefill.invalidInvoice'),
             });
             break;
           }
@@ -268,6 +263,9 @@ export default function BitrefillShopModal() {
               currentWalletMnemoinc,
               invoiceAddress,
               USD_ASSET_ADDRESS,
+              undefined,
+              undefined,
+              { amountSats: amountSats },
             );
 
             if (usdQuote.didWork) {
@@ -297,10 +295,8 @@ export default function BitrefillShopModal() {
           }
 
           if (!usablePaymentMethod) {
-            showToast({
-              type: 'error',
-              title: t('screens.bitrefill.insufficientBalance'),
-              duration: 5000,
+            naivgate.navigate('ErrorScreen', {
+              errorMessage: t('screens.bitrefill.insufficientBalance'),
             });
             break;
           }
@@ -327,11 +323,9 @@ export default function BitrefillShopModal() {
           });
 
           if (!paymentResponse.didWork) {
-            showToast({
-              type: 'error',
-              title:
+            naivgate.navigate('ErrorScreen', {
+              errorMessage:
                 paymentResponse.error || t('screens.bitrefill.paymentFailed'),
-              duration: 5000,
             });
             break;
           }
@@ -339,10 +333,8 @@ export default function BitrefillShopModal() {
           paidPaymentUris.current.add(paymentUri);
         } catch (err) {
           console.error('Bitrefill payment error:', err);
-          showToast({
-            type: 'error',
-            title: err.message || t('screens.bitrefill.paymentFailed'),
-            duration: 5000,
+          naivgate.navigate('ErrorScreen', {
+            errorMessage: err.message || t('screens.bitrefill.paymentFailed'),
           });
         } finally {
           isSendingPayment.current = false;
@@ -414,7 +406,6 @@ export default function BitrefillShopModal() {
               onShouldStartLoadWithRequest={request =>
                 request.url.startsWith('https://')
               }
-              incognito={true}
             />
 
             {isLoading && (
