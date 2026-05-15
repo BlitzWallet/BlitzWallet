@@ -4999,7 +4999,7 @@ __metadata:
     react-native-email-link: ^1.16.1
     react-native-gesture-handler: ~2.28.0
     react-native-get-random-values: ^2.0.0
-    react-native-keyboard-controller: 1.18.5
+    react-native-keyboard-controller: 1.21.7
     react-native-localize: ^3.6.0
     react-native-maps: ^1.27.2
     react-native-nitro-image: ^0.14.0
@@ -5018,7 +5018,7 @@ __metadata:
     react-native-vision-camera: ^5.0.9
     react-native-vision-camera-barcode-scanner: ^5.0.9
     react-native-wagmi-charts: ^2.9.1
-    react-native-webview: 13.15.0
+    react-native-webview: ^13.16.1
     react-native-worklets: ^0.8.3
     react-test-renderer: 19.1.0
     rn-qr-generator: ^2.0.0
@@ -13106,16 +13106,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-keyboard-controller@npm:1.18.5":
-  version: 1.18.5
-  resolution: "react-native-keyboard-controller@npm:1.18.5"
+"react-native-keyboard-controller@npm:1.21.7":
+  version: 1.21.7
+  resolution: "react-native-keyboard-controller@npm:1.21.7"
   dependencies:
     react-native-is-edge-to-edge: ^1.2.1
   peerDependencies:
     react: "*"
     react-native: "*"
     react-native-reanimated: ">=3.0.0"
-  checksum: e9a27ef54b505e9296186bb359e87a1eff09336a77f78d4e766cfb3817b22598f0429fd1e0c1bd6a01f3dba6d61efb76fdc9a65d70d3c3a9314ac7988b5b90b5
+  checksum: ac8b8887021e819b78e50d1f32f003dbcff786c9b02eb6301412403baa4a3588e3eb77f898e420c1d1fabcd6e5c95c2919b15cfa1b3c49e351b2c772bd56614d
   languageName: node
   linkType: hard
 
@@ -13389,16 +13389,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-webview@npm:13.15.0":
-  version: 13.15.0
-  resolution: "react-native-webview@npm:13.15.0"
+"react-native-webview@npm:^13.16.1":
+  version: 13.16.1
+  resolution: "react-native-webview@npm:13.16.1"
   dependencies:
     escape-string-regexp: ^4.0.0
     invariant: 2.2.4
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 1c843206108358faef5cd8e25834de729a90319c3fa3f765923536fdd99b86b07a3e850b89ebe6503725a022dd9dddd5de76ef6e102d290cc5935dcf9c60198d
+  checksum: c202500df090114877d7a92549dbac1c36bdcc2010d50ddffb57aedcec81870d9695f1e4e3ef852cbe02a8ef952ef8626b120b774813c396a32b4fdc5838a4a5
   languageName: node
   linkType: hard
 

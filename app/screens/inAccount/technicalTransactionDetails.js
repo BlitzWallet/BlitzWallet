@@ -84,6 +84,13 @@ export default function TechnicalTransactionDetails(props) {
       t('screens.inAccount.technicalTransactionDetails.address'),
     ];
     infoValues = [sparkID, details.preimage, details.address];
+
+    if (details.bitrefillInvoiceId) {
+      paymentDetails.push(
+        t('screens.inAccount.technicalTransactionDetails.bitrefillInvoiceId'),
+      );
+      infoValues.push(details.bitrefillInvoiceId);
+    }
   } else {
     // bitcoin
     const bitcoinLabels = [

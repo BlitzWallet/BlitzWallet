@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Keyboard,
   TextInput,
   Platform,
   ScrollView,
@@ -43,6 +42,7 @@ import { useTranslation } from 'react-i18next';
 import { ONEMILLION } from '../../../../../constants/math';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 // Extract ChatMessage component for better performance
 const ChatMessage = ({
@@ -208,9 +208,9 @@ export default function ChatGPTHome(props) {
     flatListRef.current?.scrollTo({ x: 0, y: 0, animated: true });
   }, []);
 
-  const openModelSelector = useCallback(() => {
+  const openModelSelector = useCallback(async () => {
     if (Platform.OS === 'android') {
-      Keyboard.dismiss();
+      await KeyboardController.dismiss();
     }
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'switchGenerativeAiModel',
@@ -219,8 +219,8 @@ export default function ChatGPTHome(props) {
     });
   }, [navigate]);
 
-  const openDrawer = useCallback(() => {
-    Keyboard.dismiss();
+  const openDrawer = useCallback(async () => {
+    await KeyboardController.dismiss();
     props.navigation.openDrawer();
   }, [props.navigation]);
 

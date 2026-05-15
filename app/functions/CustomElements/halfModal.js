@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  KeyboardController,
+} from 'react-native-keyboard-controller';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import {
@@ -138,8 +141,8 @@ export default function CustomHalfModal(props) {
       if (!isScreenActive.current) return;
       if (didHandleBackpress.current) return true;
       didHandleBackpress.current = true;
-      const keyboardVisible = Keyboard.isVisible();
-      Keyboard.dismiss();
+      const keyboardVisible = KeyboardController.isVisible();
+      KeyboardController.dismiss();
       slideOut();
       if (closeTimerRef.current) {
         clearTimeout(closeTimerRef.current);
@@ -164,8 +167,8 @@ export default function CustomHalfModal(props) {
   useHandleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
-    if (shouldDismissKeyboardOnMount && Keyboard.isVisible()) {
-      Keyboard.dismiss();
+    if (shouldDismissKeyboardOnMount && KeyboardController.isVisible()) {
+      KeyboardController.dismiss();
     }
 
     slideIn();
@@ -185,6 +188,7 @@ export default function CustomHalfModal(props) {
           <HalfModalSendOptions
             handleBackPressFunction={handleBackPressFunction}
             setIsKeyboardActive={setIsKeyboardActive}
+            isKeyboardActive={isKeyboardActive}
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}

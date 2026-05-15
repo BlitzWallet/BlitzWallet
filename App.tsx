@@ -625,6 +625,7 @@ function ResetStack(): JSX.Element | null {
   const screenOptions = useMemo(() => {
     return {
       headerShown: false,
+      keyboardHandlingEnabled: true,
     };
   }, []);
 

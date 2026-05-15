@@ -2180,7 +2180,8 @@
         "destinationAddress": "Адрес назначения",
         "destinationAsset": "Актив назначения",
         "destinationChain": "Сеть назначения",
-        "transferIds": "Включённые участники"
+        "transferIds": "Включённые участники",
+        "bitrefillInvoiceId": "ID счёта Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Транзакции",
@@ -2508,6 +2509,19 @@
         "lightningMessage": "Принимает платежи в биткоинах мгновенно через сеть Lightning",
         "dataMessage": "Данные с btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Не удалось обработать ответ от Bitrefill. Попробуйте снова.",
+      "insufficientBalance": "На вашем балансе недостаточно средств для завершения этого платежа.",
+      "paymentMemo": "Покупка подарочной карты",
+      "paymentFailed": "Не удалось выполнить платёж. Попробуйте снова.",
+      "editEmail": "Изменить адрес электронной почты",
+      "addEmail": "Добавить адрес электронной почты",
+      "editEmailDesc": "Обновите сохранённый адрес электронной почты ниже.",
+      "addEmailDesc": "Сохраните адрес электронной почты для более быстрого оформления покупки.",
+      "textInputDescriptor": "ЭЛ. ПОЧТА",
+      "emailplaceholder": "you@example.com",
+      "emailError": "Введите действительный адрес электронной почты."
     }
   },
   "toastmessages": {
