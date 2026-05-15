@@ -119,7 +119,9 @@ export default function ViewAllTxPage() {
     return () => clearTimeout(debounceTimer);
   }, [
     currentTime,
-    sparkInformation,
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    sparkInformation.tokens,
     t,
     navigate,
     theme,
