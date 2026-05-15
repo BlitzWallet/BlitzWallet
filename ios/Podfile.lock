@@ -3499,7 +3499,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-keyboard-controller (1.18.5):
+  - react-native-keyboard-controller (1.21.7):
     - boost
     - DoubleConversion
     - fast_float
@@ -3517,7 +3517,7 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-keyboard-controller/common (= 1.18.5)
+    - react-native-keyboard-controller/common (= 1.21.7)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -3528,7 +3528,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-keyboard-controller/common (1.18.5):
+  - react-native-keyboard-controller/common (1.21.7):
     - boost
     - DoubleConversion
     - fast_float
@@ -3788,7 +3788,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-webview (13.15.0):
+  - react-native-webview (13.16.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -5665,14 +5665,14 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 86334c5c06315e0bccb7b6e6f2c905e92f98b615
   react-native-context-menu-view: 418877dcac6add4abba8fc2ee92c39f05b763f3a
   react-native-get-random-values: 5c2e7ce0c1eedefde8e97fe60152601887fcfa08
-  react-native-keyboard-controller: c4ca61f44d66c2f8987a7e67e9b78e80dc965c45
+  react-native-keyboard-controller: c610d1f839ad9cd41f4420db14beaa1cf64263f6
   react-native-maps: eaa585c9d9f7e848d835839f18e108a8821ed9aa
   react-native-pager-view: 0e228ec2dfdd87807d125c7bbfb83299edede19c
   react-native-pdf-from-image: af6ff3b4b4dd840d02fb733e0e7b047b9ebab4ae
   react-native-quick-base64: 6568199bb2ac8e72ecdfdc73a230fbc5c1d3aac4
   react-native-safe-area-context: ee1e8e2a7abf737a8d4d9d1a5686a7f2e7466236
   react-native-view-shot: aab9ffbcc2f01035ee8ffd9a00c773e215b35c8b
-  react-native-webview: d73728424a0e24989d71ffdc6fcf15d5f74ff4a2
+  react-native-webview: 83c663c5bdf1357d3e7c00986260cb888ea0e328
   React-NativeModulesApple: 8c7eb6057b00c191a11ad5ced41826ec5a0e4d78
   React-oscompat: 93b5535ea7f7dff46aaee4f78309a70979bdde9d
   React-perflogger: 5536d2df3d18fe0920263466f7b46a56351c0510

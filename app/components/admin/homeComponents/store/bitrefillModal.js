@@ -89,6 +89,7 @@ export default function BitrefillShopModal() {
   const { poolInfoRef } = useFlashnet();
   const isSendingPayment = useRef(false);
   const paidPaymentUris = useRef(new Set());
+  const initialLoadDone = useRef(false);
 
   const selectedLanguage = masterInfoObject?.userSelectedLanguage;
 
@@ -153,10 +154,12 @@ export default function BitrefillShopModal() {
   }, [selectedLanguage]);
 
   const bitrefillHomeUrl = useMemo(() => {
-    const bitrefillTheme = theme ? 'dark' : 'light';
-
-    const customStyles = encodeURIComponent(
-      JSON.stringify({
+    const config = {
+      ref: BITREFILL_REFERRAL_TOKEN,
+      paymentMethods: BITREFILL_PAYMENT_METHODS,
+      theme: theme ? 'dark' : 'light',
+      utm_source: 'blitzwallet',
+      customStyles: JSON.stringify({
         '--background-body': backgroundColor,
         '--background-primary': backgroundColor,
         '--background-secondary': backgroundOffset,
@@ -164,24 +167,11 @@ export default function BitrefillShopModal() {
         '--text-primary': textColor,
         '--preheader-bg': backgroundOffset,
       }),
-    );
+      hl: webViewLanguage,
+      ...(decryptedEmail ? { email: decryptedEmail } : {}),
+    };
 
-    const emailParam = decryptedEmail
-      ? `&email=${encodeURIComponent(decryptedEmail)}`
-      : '';
-
-    return (
-      'https://embed.bitrefill.com/' +
-      [
-        `?ref=${BITREFILL_REFERRAL_TOKEN}`,
-        `paymentMethods=${encodeURIComponent(BITREFILL_PAYMENT_METHODS)}`,
-        `theme=${bitrefillTheme}`,
-        `utm_source=${encodeURIComponent('blitzwallet')}`,
-        `customStyles=${customStyles}`,
-        `hl=${encodeURIComponent(webViewLanguage)}`,
-      ].join('&') +
-      emailParam
-    );
+    return `https://embed.bitrefill.com/?${new URLSearchParams(config)}`;
   }, [
     backgroundColor,
     backgroundOffset,
@@ -398,9 +388,17 @@ export default function BitrefillShopModal() {
             <WebView
               source={{ uri: bitrefillHomeUrl }}
               style={[styles.webView, { backgroundColor }]}
-              onLoadStart={() => setIsLoading(true)}
-              onLoadEnd={() => setIsLoading(false)}
-              onError={() => setIsLoading(false)}
+              onLoadStart={() => {
+                if (!initialLoadDone.current) setIsLoading(true);
+              }}
+              onLoadEnd={() => {
+                initialLoadDone.current = true;
+                setIsLoading(false);
+              }}
+              onError={() => {
+                initialLoadDone.current = true;
+                setIsLoading(false);
+              }}
               startInLoadingState={true}
               onMessage={handleMessage}
               onShouldStartLoadWithRequest={request =>
@@ -427,7 +425,7 @@ export default function BitrefillShopModal() {
                   <ThemeText
                     styles={styles.emailTitle}
                     content={
-                      step === 'emailEdit'
+                      step === 'emailEdit' && decryptedEmail.length > 0
                         ? t('screens.bitrefill.editEmail')
                         : t('screens.bitrefill.addEmail')
                     }
@@ -435,7 +433,7 @@ export default function BitrefillShopModal() {
                   <ThemeText
                     styles={styles.emailDescription}
                     content={
-                      step === 'emailEdit'
+                      step === 'emailEdit' && decryptedEmail.length > 0
                         ? t('screens.bitrefill.editEmailDesc')
                         : t('screens.bitrefill.addEmailDesc')
                     }
