@@ -290,6 +290,7 @@ const ContactRow = ({
 
 export default function HalfModalSendOptions({
   setIsKeyboardActive,
+  isKeyboardActive,
   theme,
   darkModeType,
   handleBackPressFunction,
@@ -926,7 +927,11 @@ export default function HalfModalSendOptions({
 
         {isInputMode && (
           <Animated.View
-            style={[styles.continueButtonWrapper, continueButtonStyle]}
+            style={[
+              styles.continueButtonWrapper,
+              continueButtonStyle,
+              { paddingBottom: isKeyboardActive ? 0 : bottomPadding },
+            ]}
             pointerEvents={isInputMode ? 'auto' : 'none'}
           >
             {!!inputError && (
