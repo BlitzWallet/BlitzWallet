@@ -1,6 +1,5 @@
 import {
   FlatList,
-  Keyboard,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -50,6 +49,7 @@ import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import { KeyboardController } from 'react-native-keyboard-controller';
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 const imgEndpoint = endpoint => {
@@ -129,7 +129,7 @@ export default function SMSMessagingReceivedPage(props) {
   }, [navigate, t, selectedCountry.value]);
 
   const handleItemSelector = useCallback(
-    (serviceCode, title, imgSrc) => {
+    async (serviceCode, title, imgSrc) => {
       setTimeout(
         () => {
           navigate.navigate('CustomHalfModal', {
@@ -142,9 +142,9 @@ export default function SMSMessagingReceivedPage(props) {
             sliderHight: 0.5,
           });
         },
-        Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+        KeyboardController.isVisible() ? KEYBOARDTIMEOUT : 0,
       );
-      Keyboard.dismiss();
+      await KeyboardController.dismiss();
     },
     [navigate, handlePurchase, selectedCountry],
   );

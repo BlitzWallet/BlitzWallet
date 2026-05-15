@@ -45,6 +45,7 @@ import {
   USD_ASSET_ADDRESS,
 } from '../../../../functions/spark/flashnet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 const BITREFILL_REFERRAL_TOKEN = 'blitzwallet_brtoken_26';
 const BITREFILL_PAYMENT_METHODS = ['lightning'].join(',');
@@ -420,7 +421,7 @@ export default function BitrefillShopModal() {
 
         {/* Email screen — slides in over the WebView */}
         {showEmailScreen && (
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <TouchableWithoutFeedback onPress={KeyboardController.dismiss}>
             <Animated.View
               style={[styles.emailOverlay, { backgroundColor }, emailAnimStyle]}
             >
