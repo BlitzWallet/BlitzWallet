@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Keyboard,
   StyleSheet,
@@ -44,6 +44,7 @@ import {
   dollarsToSats,
   USD_ASSET_ADDRESS,
 } from '../../../../functions/spark/flashnet';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 const BITREFILL_REFERRAL_TOKEN = 'blitzwallet_brtoken_26';
 const BITREFILL_PAYMENT_METHODS = ['lightning'].join(',');
@@ -363,13 +364,16 @@ export default function BitrefillShopModal() {
     setStep('emailEdit');
   };
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (step === 'emailEdit') {
       setStep('webview');
-      return;
+      return true;
     }
     naivgate.goBack();
-  };
+    return true;
+  }, [naivgate, step]);
+
+  useHandleBackPressNew(handleBack);
 
   return (
     <GlobalThemeView styles={styles.emailOverlayInner}>
@@ -402,7 +406,7 @@ export default function BitrefillShopModal() {
               startInLoadingState={true}
               onMessage={handleMessage}
               onShouldStartLoadWithRequest={request =>
-                request.url.startsWith('https://')
+                request.url.startsWith('https://embed.bitrefill.com')
               }
             />
 
