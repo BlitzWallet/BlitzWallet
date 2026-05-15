@@ -337,7 +337,7 @@ export default function PosSettingsPage() {
                 });
                 return;
               }
-              navigate.navigate('ViewPOSTransactions');
+              navigate.navigate('POSStack');
             });
           }}
         >

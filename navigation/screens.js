@@ -44,9 +44,8 @@ import BackupSeedWarning from '../app/components/admin/homeComponents/homeLightn
 import {
   ConfirmActionPage,
   NosterWalletConnect,
-  TotalTipsScreen,
-  ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
+import POSStack from './POSStack';
 import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
 import SelectCreateAccountType from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectCreateAccountType';
@@ -177,7 +176,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     component: HistoricalGiftCardPurchases,
   },
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
-  { name: 'ViewPOSTransactions', component: ViewPOSTransactions },
+  { name: 'POSStack', component: POSStack },
   // {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
   { name: 'DisclaimerPage', component: DislaimerPage },
   { name: 'GenerateKey', component: GenerateKey },
@@ -289,10 +288,6 @@ const FADE_SCREENS = [
   { name: 'BackupSeedWarning', component: BackupSeedWarning },
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
-  {
-    name: 'TotalTipsScreen',
-    component: TotalTipsScreen,
-  },
   // {
   //   name: 'RefundLiquidSwapPopup',
   //   component: RefundLiquidSwapPopup,
