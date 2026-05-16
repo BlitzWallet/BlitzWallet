@@ -34,17 +34,6 @@ export function AnalyticsProvider({ children }) {
   const [isReloading, setIsReloading] = useState(false);
   const hasLoadedRef = useRef(false);
 
-  const txStatusKey = useMemo(() => {
-    try {
-      return sparkInformation.transactions
-        .slice(0, 20)
-        .map(tx => `${tx.sparkID}:${tx.paymentStatus}`)
-        .join('|');
-    } catch (err) {
-      return sparkInformation.transactions.length || 21;
-    }
-  }, [sparkInformation.transactions]);
-
   useEffect(() => {
     async function load() {
       if (!sparkInformation.identityPubKey || !didGetToHomepage) return;
@@ -88,7 +77,7 @@ export function AnalyticsProvider({ children }) {
       }
     }
     load();
-  }, [sparkInformation.identityPubKey, txStatusKey, didGetToHomepage]);
+  }, [sparkInformation, didGetToHomepage]);
 
   const incomeTotalBTC = useMemo(() => {
     try {

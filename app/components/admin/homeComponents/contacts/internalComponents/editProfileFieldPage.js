@@ -235,7 +235,7 @@ export default function EditProfileFieldPage(props) {
       useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
     >
-      <CustomSettingsTopBar label="" />
+      <CustomSettingsTopBar shouldDismissKeyboard={true} label="" />
 
       <View style={styles.content}>
         <View style={styles.topSection}>

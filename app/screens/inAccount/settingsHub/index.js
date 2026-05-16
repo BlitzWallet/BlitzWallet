@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
@@ -11,8 +11,8 @@ import { useGlobalContextProvider } from '../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
 import { useAppStatus } from '../../../../context-store/appStatus';
-import { usePools } from '../../../../context-store/poolContext';
 import { useToast } from '../../../../context-store/toastManager';
+import { getAllLocalPools } from '../../../functions/pools/poolsStorage';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import useAccountSwitcher from '../../../hooks/useAccountSwitcher';
 import { copyToClipboard } from '../../../functions';
@@ -69,9 +69,10 @@ export default function SettingsHub(props) {
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { activePoolsArray, poolsArray } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
+  const [poolsArray, setPoolsArray] = useState([]);
+  const [activePoolsArray, setActivePoolsArray] = useState([]);
 
   const {
     isSwitchingAccount,
@@ -79,6 +80,22 @@ export default function SettingsHub(props) {
     isUsingNostr,
     selectedAltAccount,
   } = useAccountSwitcher();
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const allPools = await getAllLocalPools();
+        const uuid = masterInfoObject?.uuid;
+        const owned = allPools.filter(p => p.creatorUUID === uuid);
+        setPoolsArray(owned.sort((a, b) => b.createdAt - a.createdAt));
+        setActivePoolsArray(
+          owned
+            .filter(p => p.status === 'active')
+            .sort((a, b) => b.createdAt - a.createdAt),
+        );
+      })();
+    }, [masterInfoObject?.uuid]),
+  );
 
   const isDoomsday = props?.route?.params?.isDoomsday;
   const myProfileImage = cache[masterInfoObject?.uuid];
@@ -183,7 +200,7 @@ export default function SettingsHub(props) {
   }, [navigate]);
 
   const handleViewAllPools = useCallback(() => {
-    navigate.navigate('SettingsContentHome', { for: 'pools' });
+    navigate.navigate('PoolsStack');
   }, [navigate]);
 
   const handlePOS = useCallback(() => {

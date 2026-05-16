@@ -70,10 +70,9 @@ import {
 import { GLobalNodeContextProider } from './context-store/nodeContext';
 import { AppStatusProvider, useAppStatus } from './context-store/appStatus';
 import { KeysContextProvider, useKeysContext } from './context-store/keys';
-import { POSTransactionsProvider } from './context-store/pos';
 import {
   FADE_SCREENS,
-  FADE_TRANSPARENT_MODAL_SCREENS,
+  // FADE_TRANSPARENT_MODAL_SCREENS,
   MODAL_CARD_SCREENS,
   SLIDE_FROM_BOTTOM_SCREENS,
   SLIDE_FROM_RIGHT_SCREENS,
@@ -122,7 +121,6 @@ import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { GiftProvider } from './context-store/giftContext';
-import { PoolProvider } from './context-store/poolContext';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
 import { SavingsProvider } from './context-store/savingsContext';
@@ -162,40 +160,36 @@ function App(): JSX.Element {
                                     <GLobalNodeContextProider>
                                       {/* <GlobalConbinedTxContextProvider> */}
                                       <GlobalAppDataProvider>
-                                        <POSTransactionsProvider>
-                                          <PushNotificationProvider>
-                                            <LiquidEventProvider>
-                                              <RootstockSwapProvider>
-                                                {/* <LRC20EventProvider> */}
-                                                <GlobalNostrWalletConnectProvider>
-                                                  {/* <LightningEventProvider> */}
-                                                  <ImageCacheProvider>
-                                                    <GlobalServerTimeProvider>
-                                                      <GiftProvider>
-                                                        <PoolProvider>
-                                                          <FlashnetProvider>
-                                                            <UserBalanceProvider>
-                                                              <SavingsProvider>
-                                                                <AnalyticsProvider>
-                                                                  {/* <Suspense
+                                        <PushNotificationProvider>
+                                          <LiquidEventProvider>
+                                            <RootstockSwapProvider>
+                                              {/* <LRC20EventProvider> */}
+                                              <GlobalNostrWalletConnectProvider>
+                                                {/* <LightningEventProvider> */}
+                                                <ImageCacheProvider>
+                                                  <GlobalServerTimeProvider>
+                                                    <GiftProvider>
+                                                      <FlashnetProvider>
+                                                        <UserBalanceProvider>
+                                                          <SavingsProvider>
+                                                            <AnalyticsProvider>
+                                                              {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                                  <ResetStack />
-                                                                </AnalyticsProvider>
-                                                              </SavingsProvider>
-                                                            </UserBalanceProvider>
-                                                          </FlashnetProvider>
-                                                        </PoolProvider>
-                                                      </GiftProvider>
-                                                      {/* </Suspense> */}
-                                                    </GlobalServerTimeProvider>
-                                                  </ImageCacheProvider>
-                                                  {/* </LightningEventProvider> */}
-                                                </GlobalNostrWalletConnectProvider>
-                                                {/* </LRC20EventProvider> */}
-                                              </RootstockSwapProvider>
-                                            </LiquidEventProvider>
-                                          </PushNotificationProvider>
-                                        </POSTransactionsProvider>
+                                                              <ResetStack />
+                                                            </AnalyticsProvider>
+                                                          </SavingsProvider>
+                                                        </UserBalanceProvider>
+                                                      </FlashnetProvider>
+                                                    </GiftProvider>
+                                                    {/* </Suspense> */}
+                                                  </GlobalServerTimeProvider>
+                                                </ImageCacheProvider>
+                                                {/* </LightningEventProvider> */}
+                                              </GlobalNostrWalletConnectProvider>
+                                              {/* </LRC20EventProvider> */}
+                                            </RootstockSwapProvider>
+                                          </LiquidEventProvider>
+                                        </PushNotificationProvider>
                                       </GlobalAppDataProvider>
                                       {/* <BreezTest /> */}
                                       {/* </GlobalConbinedTxContextProvider> */}
@@ -392,8 +386,9 @@ function ResetStack(): JSX.Element | null {
           } else if (POOL_DEEPLINK_REGEX.test(url)) {
             const poolIdMatch = url.match(/pools\/([0-9a-f-]{36})/i);
             if (poolIdMatch) {
-              navigationRef.current.navigate('PoolDetailScreen', {
-                poolId: poolIdMatch[1],
+              navigationRef.current.navigate('PoolsStack', {
+                screen: 'PoolDetailScreen',
+                params: {poolId: poolIdMatch[1]},
               });
             }
           } else if (GIFT_DEEPLINK_REGEX.test(url)) {
@@ -625,6 +620,7 @@ function ResetStack(): JSX.Element | null {
   const screenOptions = useMemo(() => {
     return {
       headerShown: false,
+      keyboardHandlingEnabled: true,
     };
   }, []);
 
@@ -739,7 +735,7 @@ function ResetStack(): JSX.Element | null {
             />
           ))}
         </Stack.Group>
-        <Stack.Group
+        {/* <Stack.Group
           screenOptions={{
             animation: 'fade',
             presentation: 'transparentModal',
@@ -754,7 +750,7 @@ function ResetStack(): JSX.Element | null {
               />
             ),
           )}
-        </Stack.Group>
+        </Stack.Group> */}
         <Stack.Group
           screenOptions={{
             presentation: 'modal',

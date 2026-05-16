@@ -43,6 +43,7 @@ import EditProfileTextInput from './internalComponents/editProfileTextItems';
 import { areImagesSame } from './utils/imageComparison';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -546,8 +547,8 @@ function InnerContent({
             activeOpacity={!isAddingImage ? 0.2 : 1}
             onPress={async () => {
               if (isAddingImage) return;
-              if (Keyboard.isVisible()) {
-                Keyboard.dismiss();
+              if (KeyboardController.isVisible()) {
+                await KeyboardController.dismiss();
                 await new Promise(resolve => setTimeout(resolve, 250));
               }
               if (!hasImage) {
@@ -660,8 +661,8 @@ function InnerContent({
           onPress={async () => {
             if (!isEditingMyProfile && !selectedAddedContact.isLNURL) return;
             if (isAddingImage) return;
-            if (Keyboard.isVisible()) {
-              Keyboard.dismiss();
+            if (KeyboardController.isVisible()) {
+              await KeyboardController.dismiss();
               await new Promise(resolve => setTimeout(resolve, 250));
             }
             if (!hasImage) {

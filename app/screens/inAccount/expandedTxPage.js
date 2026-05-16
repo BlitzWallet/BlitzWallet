@@ -29,7 +29,13 @@ import { useToast } from '../../../context-store/toastManager';
 import { formatLocalTimeShort } from '../../functions/timeFormatter';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
-import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
+import {
+  bulkUpdateSparkTransactions,
+  getSingleSparkTransaction,
+  getSwapResultTransaction,
+  SPARK_TX_UPDATE_ENVENT_NAME,
+  sparkTransactionsEventEmitter,
+} from '../../functions/spark/transactions';
 import { keyboardNavigate } from '../../functions/customNavigation';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
@@ -99,33 +105,38 @@ export default function ExpandedTx(props) {
   const showSuccessActionLabel = transaction.details?.successAction;
 
   useEffect(() => {
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
+    const selectedTx = props.route.params.transaction;
+    const isSwap = !!selectedTx.details?.performSwaptoUSD;
 
-    try {
-      const selectedTx = props.route.params.transaction;
-      const activeTx = sparkInformation.transactions.find(tx => {
-        if (selectedTx.details?.performSwaptoUSD) {
-          return tx.details.includes(selectedTx.sparkID);
-        } else {
-          return tx.id === selectedTx?.id;
-        }
-      });
+    async function handleUpdate() {
+      try {
+        const txFromDB = isSwap
+          ? await getSwapResultTransaction(selectedTx.sparkID)
+          : await getSingleSparkTransaction(selectedTx.id);
+        if (!txFromDB) return;
 
-      if (activeTx.details?.includes(selectedTx.sparkID)) {
-        setTransaction({ ...activeTx, details: JSON.parse(activeTx.details) });
-      } else if (
-        selectedTx?.paymentStatus !== activeTx.paymentStatus ||
-        selectedTx?.isBalancePending !== activeTx.isBalancePending
-      ) {
-        setTransaction({ ...activeTx, details: JSON.parse(activeTx.details) });
+        setTransaction(prev => {
+          if (
+            prev.paymentStatus !== txFromDB.paymentStatus ||
+            prev.isBalancePending !== txFromDB.isBalancePending
+          ) {
+            return txFromDB; // details already parsed
+          }
+          return prev;
+        });
+      } catch (err) {
+        console.log('Error updating tx in expanded view', err.message);
       }
-    } catch (err) {
-      console.log('Error updating tx', err.message);
     }
-  }, [sparkInformation.transactions]);
+
+    sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
+    return () => {
+      sparkTransactionsEventEmitter.removeListener(
+        SPARK_TX_UPDATE_ENVENT_NAME,
+        handleUpdate,
+      );
+    };
+  }, []);
 
   const localContact = useMemo(() => {
     if (!decodedAddedContacts) return undefined;

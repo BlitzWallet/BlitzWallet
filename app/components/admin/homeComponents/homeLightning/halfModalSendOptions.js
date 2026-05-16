@@ -72,7 +72,7 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * (!HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
+    height: expandHeight.value * 160, //(!HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
     opacity: expandHeight.value,
   }));
 
@@ -239,7 +239,7 @@ const ContactRow = ({
             />
           </TouchableOpacity>
 
-          {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
+          {/* {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
             <TouchableOpacity
               style={[
                 styles.paymentOption,
@@ -281,7 +281,7 @@ const ContactRow = ({
                 content={t('constants.gift')}
               />
             </TouchableOpacity>
-          )}
+          )} */}
         </View>
       </Animated.View>
     </View>
@@ -290,6 +290,7 @@ const ContactRow = ({
 
 export default function HalfModalSendOptions({
   setIsKeyboardActive,
+  isKeyboardActive,
   theme,
   darkModeType,
   handleBackPressFunction,
@@ -568,7 +569,7 @@ export default function HalfModalSendOptions({
     const contact = sortedContacts.find(c => c.uuid === expandedContact);
     if (!contact) return;
 
-    const expandedPanelHeight = !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160;
+    const expandedPanelHeight = 160; // !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160;
 
     // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
     const collapsedRowHeight = 61;
@@ -926,7 +927,11 @@ export default function HalfModalSendOptions({
 
         {isInputMode && (
           <Animated.View
-            style={[styles.continueButtonWrapper, continueButtonStyle]}
+            style={[
+              styles.continueButtonWrapper,
+              continueButtonStyle,
+              { paddingBottom: isKeyboardActive ? 0 : bottomPadding },
+            ]}
             pointerEvents={isInputMode ? 'auto' : 'none'}
           >
             {!!inputError && (

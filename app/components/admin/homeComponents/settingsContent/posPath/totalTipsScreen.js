@@ -54,7 +54,7 @@ export default function TotalTipsScreen(props) {
 
   const createdGroup = useMemo(() => {
     return groupedTxs.find(item => item[0] === wantedName) || [];
-  }, [groupedTxs]);
+  }, [groupedTxs, wantedName]);
 
   const [
     name,
@@ -446,7 +446,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginHorizontal: 16,
-    marginBottom: 16,
   },
   attributeContainer: {
     width: '100%',

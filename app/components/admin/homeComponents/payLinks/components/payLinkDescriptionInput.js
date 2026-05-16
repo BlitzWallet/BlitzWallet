@@ -36,6 +36,7 @@ import { useToast } from '../../../../../../context-store/toastManager';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { satsToDollars } from '../../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation');
 
@@ -121,13 +122,7 @@ export default function PayLinkDescriptionInput({
       if (!success) throw new Error('Failed to save paylink');
 
       setDidCreatePaylink(payLinkId);
-      Keyboard.dismiss();
-
-      setTimeout(() => {
-        shareMessage({
-          message: `https://blitzwalletapp.com/paylink/${payLinkId}`,
-        });
-      }, 350);
+      await KeyboardController.dismiss();
     } catch (err) {
       console.log('Error creating paylink:', err);
       isAlreadyCreating.current = false;

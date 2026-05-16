@@ -1,7 +1,10 @@
 import { Keyboard, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import GlobalThemeView from './globalThemeView';
 import { CONTENT_KEYBOARD_OFFSET } from '../../constants';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import {
+  KeyboardAvoidingView,
+  KeyboardController,
+} from 'react-native-keyboard-controller';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useCallback, useMemo } from 'react';
 
@@ -32,7 +35,7 @@ export default function CustomKeyboardAvoidingView({
       touchableWithoutFeedbackFunction();
       return;
     }
-    Keyboard.dismiss();
+    KeyboardController.dismiss();
   }, [touchableWithoutFeedbackFunction]);
 
   if (useTouchableWithoutFeedback) {

@@ -109,10 +109,9 @@ export default function PoolDescriptionInput({
       if (handleBackPressFunction) {
         // For CustomHalfModal context (settings path)
         handleBackPressFunction(() => {
-          navigate.replace('PoolDetailScreen', {
-            poolId,
-            pool: poolDocument,
-            shouldSave: true,
+          navigate.replace('PoolsStack', {
+            screen: 'PoolDetailScreen',
+            params: {poolId, pool: poolDocument, shouldSave: true},
           });
         });
       } else {
@@ -124,10 +123,9 @@ export default function PoolDescriptionInput({
         });
 
         // Navigate to PoolDetailScreen after closing overlay
-        navigate.replace('PoolDetailScreen', {
-          poolId,
-          pool: poolDocument,
-          shouldSave: true,
+        navigate.replace('PoolsStack', {
+          screen: 'PoolDetailScreen',
+          params: {poolId, pool: poolDocument, shouldSave: true},
         });
       }
     } catch (err) {

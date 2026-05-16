@@ -11,6 +11,7 @@ import { db } from '../db/initializeFirebase';
 import {
   DID_OPEN_TABLES_EVENT_NAME,
   getSavedPOSTransactions,
+  isSavedPOSTxsDatabaseOpen,
   pointOfSaleEventEmitter,
   POS_EVENT_UPDATE,
   queuePOSTransactions,
@@ -31,7 +32,8 @@ const POSTransactionsContextManager = createContext(null);
 const POSTransactionsProvider = ({ children }) => {
   const { publicKey, contactsPrivateKey } = useKeysContext();
   const [txList, setTxList] = useState([]);
-  const [didOpenTable, setDidOpenTable] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const didOpenTable = isSavedPOSTxsDatabaseOpen();
 
   const updateTxListFunction = useCallback(async () => {
     const txs = await getSavedPOSTransactions();
@@ -88,95 +90,69 @@ const POSTransactionsProvider = ({ children }) => {
   }, [txList]);
 
   useEffect(() => {
-    if (!didOpenTable) return;
-    if (!publicKey) return;
-    console.log('running pos transactions listener...');
-    const now = new Date().getTime();
+    if (!didOpenTable || !publicKey) return;
 
-    const transaction = query(
-      collection(db, 'posTransactions'),
-      where('storePubKey', '==', publicKey),
-      orderBy('dateAdded'),
-      startAfter(now),
-    );
+    let unsubscribe;
 
-    const unsubscribe = onSnapshot(transaction, snapshot => {
-      snapshot?.docChanges()?.forEach(change => {
-        console.log('recived a new pos transaction', change.type);
-        if (change.type === 'added') {
-          const newTX = change.doc.data();
-          queuePOSTransactions({
-            transactionsList: [newTX],
-            privateKey: contactsPrivateKey,
-          });
-        }
+    async function initListener() {
+      const txs = await updateTxListFunction();
+      const lastTimestamp = txs.length
+        ? txs[0]?.dbDateAdded
+        : getTwoWeeksAgoDate();
+
+      const catchUpQuery = query(
+        collection(db, 'posTransactions'),
+        where('storePubKey', '==', publicKey),
+        where('dateAdded', '>', lastTimestamp),
+        orderBy('dateAdded'),
+      );
+
+      unsubscribe = onSnapshot(catchUpQuery, snapshot => {
+        const newTxs = [];
+
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'added') {
+            newTxs.push(change.doc.data());
+          }
+        });
+
+        if (!newTxs.length) return;
+
+        console.log(
+          'received pos transactions (catch-up + live):',
+          newTxs.length,
+        );
+        queuePOSTransactions({
+          transactionsList: newTxs,
+          privateKey: contactsPrivateKey,
+        });
       });
-    });
+
+      setIsLoading(false);
+    }
+
+    initListener();
 
     return () => {
-      console.log(`unsubscribing pos transactions listener...`, !!unsubscribe);
+      console.log('unsubscribing pos transactions listener...', !!unsubscribe);
       if (unsubscribe) unsubscribe();
     };
   }, [publicKey, didOpenTable]);
 
   useEffect(() => {
-    async function loadSavedTxs() {
-      const txs = await updateTxListFunction();
-      console.log('saved pos transactions', txs);
-      const lastMessageTimestamp = txs.length
-        ? txs[0]?.dbDateAdded
-        : getTwoWeeksAgoDate();
-
-      console.log('last pos transaction timestamp', txs[0]?.dbDateAdded);
-      const transactionsRef = collection(db, 'posTransactions');
-
-      const messagesQuery = query(
-        transactionsRef,
-        where('storePubKey', '==', publicKey),
-        where('dateAdded', '>', lastMessageTimestamp),
-      );
-
-      const querySnapshot = await getDocs(messagesQuery);
-
-      if (querySnapshot.empty) return;
-
-      let messsageList = [];
-
-      for (const doc of querySnapshot.docs) {
-        const data = doc.data();
-        messsageList.push(data);
-      }
-      console.log('loaded missed pos transactions', messsageList);
-      queuePOSTransactions({
-        transactionsList: messsageList,
-        privateKey: contactsPrivateKey,
-      });
-    }
-    if (!didOpenTable) return;
-    if (!publicKey) return;
-    loadSavedTxs();
-  }, [publicKey, didOpenTable]);
-
-  const handlePosTableOpen = useCallback(eventType => {
-    if (eventType === 'opened') {
-      setDidOpenTable(true);
-    }
-  }, []);
-  useEffect(() => {
     // listens for events from the db and updates the state
-    pointOfSaleEventEmitter.on(DID_OPEN_TABLES_EVENT_NAME, handlePosTableOpen);
     pointOfSaleEventEmitter.on(POS_EVENT_UPDATE, updateTxListFunction);
     return () => {
       pointOfSaleEventEmitter.removeAllListeners(POS_EVENT_UPDATE);
-      pointOfSaleEventEmitter.removeAllListeners(DID_OPEN_TABLES_EVENT_NAME);
     };
   }, []);
 
   const contextValue = useMemo(
     () => ({
       groupedTxs,
+      isLoading,
     }),
-    [groupedTxs],
+    [groupedTxs, isLoading],
   );
 
   return (

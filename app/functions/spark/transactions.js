@@ -198,6 +198,60 @@ export const initializeSparkDatabase = async () => {
     return false;
   }
 };
+export const getSingleSparkTransaction = async sparkId => {
+  if (!sparkId) {
+    console.error('Invalid sparkId provided');
+    return null;
+  }
+
+  try {
+    await ensureSparkDatabaseReady();
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE id = ?`,
+      [sparkId],
+    );
+
+    if (!rows.length) {
+      console.error('Lightning request not found for sparkID:', sparkId);
+      return null;
+    }
+
+    const request = rows[0];
+    if (request.details) {
+      try {
+        request.details = JSON.parse(request.details);
+      } catch (error) {
+        console.warn('Failed to parse request details JSON');
+      }
+    }
+
+    return request;
+  } catch (error) {
+    console.error('Error fetching single lightning request:', error);
+    return null;
+  }
+};
+
+export const getSwapResultTransaction = async originalSparkId => {
+  if (!originalSparkId) return null;
+  try {
+    await ensureSparkDatabaseReady();
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE json_extract(details, '$.ln_funding_id') = ?`,
+      [originalSparkId],
+    );
+    if (!rows?.length) return null;
+    const row = rows[0];
+    try {
+      row.details = JSON.parse(row.details);
+    } catch {}
+    return row;
+  } catch (err) {
+    console.error('Error fetching swap result tx', err.message);
+    return null;
+  }
+};
 export const getAllSparkTransactions = async (options = {}) => {
   try {
     await ensureSparkDatabaseReady();

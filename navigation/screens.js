@@ -44,9 +44,8 @@ import BackupSeedWarning from '../app/components/admin/homeComponents/homeLightn
 import {
   ConfirmActionPage,
   NosterWalletConnect,
-  TotalTipsScreen,
-  ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
+import POSStack from './POSStack';
 import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
 import SelectCreateAccountType from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectCreateAccountType';
@@ -71,9 +70,8 @@ import CreateGiftDescription from '../app/components/admin/homeComponents/gifts/
 import CreateGiftDuration from '../app/components/admin/homeComponents/gifts/createGiftDuration';
 import GiftConfirmation from '../app/components/admin/homeComponents/gifts/giftConfirmationScreen';
 import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
-import PoolManagementScreen from '../app/components/admin/homeComponents/pools/poolManagementScreen';
-import PoolDetailScreen from '../app/components/admin/homeComponents/pools/poolDetailScreen';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
+import PoolsStack from './PoolsStack';
 import SavingsHome from '../app/components/admin/homeComponents/savings/SavingsHome';
 import SavingsGoalEmoji from '../app/components/admin/homeComponents/savings/SavingsGoalEmoji';
 import SavingsGoalDescribe from '../app/components/admin/homeComponents/savings/SavingsGoalDescribe';
@@ -177,7 +175,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     component: HistoricalGiftCardPurchases,
   },
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
-  { name: 'ViewPOSTransactions', component: ViewPOSTransactions },
+  { name: 'POSStack', component: POSStack },
   // {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
   { name: 'DisclaimerPage', component: DislaimerPage },
   { name: 'GenerateKey', component: GenerateKey },
@@ -215,8 +213,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'CreateGiftDuration', component: CreateGiftDuration },
   { name: 'GiftConfirmation', component: GiftConfirmation },
   { name: 'AdvancedGiftClaim', component: AdvancedGiftClaim },
-  { name: 'PoolManagementScreen', component: PoolManagementScreen },
-  { name: 'PoolDetailScreen', component: PoolDetailScreen },
+  { name: 'PoolsStack', component: PoolsStack },
   { name: 'SavingsHome', component: SavingsHome },
   { name: 'SavingsGoalEmoji', component: SavingsGoalEmoji },
   { name: 'SavingsGoalDescribe', component: SavingsGoalDescribe },
@@ -289,10 +286,6 @@ const FADE_SCREENS = [
   { name: 'BackupSeedWarning', component: BackupSeedWarning },
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
-  {
-    name: 'TotalTipsScreen',
-    component: TotalTipsScreen,
-  },
   // {
   //   name: 'RefundLiquidSwapPopup',
   //   component: RefundLiquidSwapPopup,

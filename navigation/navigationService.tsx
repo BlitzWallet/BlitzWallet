@@ -4,7 +4,7 @@ type RootStackParamList = {
   Home: { someParam?: string };
   Details: { someParam?: string };
   ExpandedAddContactsPage: { newContact: object };
-  ConfirmPaymentScreen: { btcAdress: string; fromPage: string };
+  ConfirmPaymentScreen: { btcAdress: string; fromPage?: string };
   ErrorScreen: { errorMessage: string; useTranslationString?: boolean };
   CustomHalfModal: {
     wantedContent: string;
@@ -12,11 +12,12 @@ type RootStackParamList = {
     sliderHight: number;
     claimType: string;
   };
-  PoolDetailScreen: {
-    poolId: string;
-  };
   PayLinkPaymentScreen: {
     payLinkId: string;
+  };
+  PoolsStack: {
+    screen: string;
+    params: { poolId: string };
   };
 };
 
