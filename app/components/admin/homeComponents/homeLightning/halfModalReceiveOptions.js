@@ -907,7 +907,7 @@ const styles = StyleSheet.create({
 
   scanButtonSubtext: {
     fontSize: SIZES.small,
-    opacity: 0.6,
+    opacity: HIDDEN_OPACITY,
   },
 
   divider: {
