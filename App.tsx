@@ -120,7 +120,6 @@ import { GlobalNostrWalletConnectProvider } from './context-store/NWC';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
-import { GiftProvider } from './context-store/giftContext';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
 import { SavingsProvider } from './context-store/savingsContext';
@@ -168,19 +167,17 @@ function App(): JSX.Element {
                                                 {/* <LightningEventProvider> */}
                                                 <ImageCacheProvider>
                                                   <GlobalServerTimeProvider>
-                                                    <GiftProvider>
-                                                      <FlashnetProvider>
-                                                        <UserBalanceProvider>
-                                                          <SavingsProvider>
-                                                            <AnalyticsProvider>
-                                                              {/* <Suspense
+                                                    <FlashnetProvider>
+                                                      <UserBalanceProvider>
+                                                        <SavingsProvider>
+                                                          <AnalyticsProvider>
+                                                            {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                              <ResetStack />
-                                                            </AnalyticsProvider>
-                                                          </SavingsProvider>
-                                                        </UserBalanceProvider>
-                                                      </FlashnetProvider>
-                                                    </GiftProvider>
+                                                            <ResetStack />
+                                                          </AnalyticsProvider>
+                                                        </SavingsProvider>
+                                                      </UserBalanceProvider>
+                                                    </FlashnetProvider>
                                                     {/* </Suspense> */}
                                                   </GlobalServerTimeProvider>
                                                 </ImageCacheProvider>

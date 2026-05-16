@@ -65,13 +65,9 @@ import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
-import CreateGift from '../app/components/admin/homeComponents/gifts/createGift';
-import CreateGiftDescription from '../app/components/admin/homeComponents/gifts/createGiftDescription';
-import CreateGiftDuration from '../app/components/admin/homeComponents/gifts/createGiftDuration';
-import GiftConfirmation from '../app/components/admin/homeComponents/gifts/giftConfirmationScreen';
-import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
 import PoolsStack from './PoolsStack';
+import GiftsStack from './GiftsStack';
 import SavingsHome from '../app/components/admin/homeComponents/savings/SavingsHome';
 import SavingsGoalEmoji from '../app/components/admin/homeComponents/savings/SavingsGoalEmoji';
 import SavingsGoalDescribe from '../app/components/admin/homeComponents/savings/SavingsGoalDescribe';
@@ -103,8 +99,6 @@ import {
   SettingsHub,
   AnalyticsPage,
 } from '../app/screens/inAccount';
-import GiftsPageHome from '../app/screens/inAccount/giftsHome';
-import ReclaimGift from '../app/components/admin/homeComponents/gifts/reclaimGift';
 import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
 import StablecoinSendScreen from '../app/components/admin/homeComponents/sendBitcoin/stablecoinSendScreen';
 import AccumulationAddressDetail from '../app/components/admin/homeComponents/accumulationAddresses/AccumulationAddressDetail';
@@ -208,12 +202,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     name: 'SMSMessagingReceiveCountryPage',
     component: SMSMessagingReceiveCountryPage,
   },
-  { name: 'CreateGift', component: CreateGift },
-  { name: 'CreateGiftDescription', component: CreateGiftDescription },
-  { name: 'CreateGiftDuration', component: CreateGiftDuration },
-  { name: 'GiftConfirmation', component: GiftConfirmation },
-  { name: 'AdvancedGiftClaim', component: AdvancedGiftClaim },
   { name: 'PoolsStack', component: PoolsStack },
+  { name: 'GiftsStack', component: GiftsStack },
   { name: 'SavingsHome', component: SavingsHome },
   { name: 'SavingsGoalEmoji', component: SavingsGoalEmoji },
   { name: 'SavingsGoalDescribe', component: SavingsGoalDescribe },
@@ -223,8 +213,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SavingsRemoveGoalConfirm', component: SavingsRemoveGoalConfirm },
   { name: 'SavingsGoalRemovedSuccess', component: SavingsGoalRemovedSuccess },
   { name: 'SavingsGoalDetails', component: SavingsGoalDetails },
-  { name: 'GiftsPageHome', component: GiftsPageHome },
-  { name: 'ReclaimGift', component: ReclaimGift },
   {
     name: 'ConfirmSplitPayment',
     component: ConfirmSplitPayment,
