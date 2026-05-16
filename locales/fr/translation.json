@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "Aucun Achat",
     "appList": {
+      "title": "Explorer",
       "AI": "IA générative",
       "AIDescription": "Discutez avec les derniers modèles d’IA générative",
       "SMS": "Messages SMS",

@@ -45,7 +45,7 @@ export default function AppStore() {
       <View style={styles.navbar}>
         <ThemeText
           CustomNumberOfLines={1}
-          content={'Explore'}
+          content={t('apps.appList.title')}
           styles={styles.headerText}
         />
         <ProfileImageSettingsNavigator />

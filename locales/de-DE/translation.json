@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "Keine Käufe",
     "appList": {
+      "title": "Entdecken",
       "AI": "Generative KI",
       "AIDescription": "Chatte mit den neuesten generativen KI-Modellen",
       "SMS": "SMS-Nachrichten",

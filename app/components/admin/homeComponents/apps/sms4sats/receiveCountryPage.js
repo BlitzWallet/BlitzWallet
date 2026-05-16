@@ -22,8 +22,6 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 
-const AUTO_SELECT = { value: 999, label: 'Auto Select', iso: 'WW' };
-
 // Deduplicate countrymap by iso code, keeping first occurrence
 const uniqueCountries = (() => {
   const seen = new Set();
@@ -37,6 +35,11 @@ const uniqueCountries = (() => {
 export default function SMSMessagingReceiveCountryPage() {
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const AUTO_SELECT = {
+    value: 999,
+    label: t('apps.sms4sats.receivePage.autoSelect'),
+    iso: 'WW',
+  };
   const [searchInput, setSearchInput] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(AUTO_SELECT);
   const { backgroundOffset } = GetThemeColors();
@@ -120,7 +123,11 @@ export default function SMSMessagingReceiveCountryPage() {
                   <CountryFlag isoCode={item.iso} size={24} />
                 )}
                 <View style={styles.countryTextContainer}>
-                  <ThemeText styles={styles.countryName} content={item.label} />
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.countryName}
+                    content={item.label}
+                  />
                 </View>
                 <CheckMarkCircle
                   switchDarkMode={true}
