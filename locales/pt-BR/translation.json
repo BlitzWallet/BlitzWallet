@@ -2511,7 +2511,7 @@
       "editEmail": "Editar seu e-mail",
       "addEmail": "Adicionar seu e-mail",
       "editEmailDesc": "Atualize seu endereço de e-mail salvo abaixo.",
-      "addEmailDesc": "Salve seu endereço de e-mail para finalizar a compra mais rápido.",
+      "addEmailDesc": "Salve seu endereço de e-mail para finalizar a compra mais rápido",
       "textInputDescriptor": "E-MAIL",
       "emailplaceholder": "voce@domínio.com",
       "emailError": "Insira um endereço de e-mail válido."
