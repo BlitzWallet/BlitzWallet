@@ -121,7 +121,6 @@ import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { GiftProvider } from './context-store/giftContext';
-import { PoolProvider } from './context-store/poolContext';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
 import { SavingsProvider } from './context-store/savingsContext';
@@ -170,19 +169,17 @@ function App(): JSX.Element {
                                                 <ImageCacheProvider>
                                                   <GlobalServerTimeProvider>
                                                     <GiftProvider>
-                                                      <PoolProvider>
-                                                        <FlashnetProvider>
-                                                          <UserBalanceProvider>
-                                                            <SavingsProvider>
-                                                              <AnalyticsProvider>
-                                                                {/* <Suspense
+                                                      <FlashnetProvider>
+                                                        <UserBalanceProvider>
+                                                          <SavingsProvider>
+                                                            <AnalyticsProvider>
+                                                              {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                                <ResetStack />
-                                                              </AnalyticsProvider>
-                                                            </SavingsProvider>
-                                                          </UserBalanceProvider>
-                                                        </FlashnetProvider>
-                                                      </PoolProvider>
+                                                              <ResetStack />
+                                                            </AnalyticsProvider>
+                                                          </SavingsProvider>
+                                                        </UserBalanceProvider>
+                                                      </FlashnetProvider>
                                                     </GiftProvider>
                                                     {/* </Suspense> */}
                                                   </GlobalServerTimeProvider>
@@ -389,8 +386,9 @@ function ResetStack(): JSX.Element | null {
           } else if (POOL_DEEPLINK_REGEX.test(url)) {
             const poolIdMatch = url.match(/pools\/([0-9a-f-]{36})/i);
             if (poolIdMatch) {
-              navigationRef.current.navigate('PoolDetailScreen', {
-                poolId: poolIdMatch[1],
+              navigationRef.current.navigate('PoolsStack', {
+                screen: 'PoolDetailScreen',
+                params: {poolId: poolIdMatch[1]},
               });
             }
           } else if (GIFT_DEEPLINK_REGEX.test(url)) {

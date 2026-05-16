@@ -28,7 +28,6 @@ import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
 import { useTranslation } from 'react-i18next';
 import ChooseLangugae from '../../components/admin/homeComponents/settingsContent/langugae';
-import PoolManagementScreen from '../../components/admin/homeComponents/pools/poolManagementScreen';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
@@ -83,9 +82,6 @@ export default function SettingsContentIndex(props) {
             )} */}
               {selectedPage?.toLowerCase() === 'display options' && (
                 <DisplayOptions theme={theme} />
-              )}
-              {selectedPage?.toLowerCase() === 'pools' && (
-                <PoolManagementScreen theme={theme} />
               )}
               {/* {selectedPage?.toLowerCase() === 'support our work' && (
               <SupportWorkPage />

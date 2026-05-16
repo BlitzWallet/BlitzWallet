@@ -12,11 +12,12 @@ type RootStackParamList = {
     sliderHight: number;
     claimType: string;
   };
-  PoolDetailScreen: {
-    poolId: string;
-  };
   PayLinkPaymentScreen: {
     payLinkId: string;
+  };
+  PoolsStack: {
+    screen: string;
+    params: { poolId: string };
   };
 };
 

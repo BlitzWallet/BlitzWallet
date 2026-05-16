@@ -70,9 +70,8 @@ import CreateGiftDescription from '../app/components/admin/homeComponents/gifts/
 import CreateGiftDuration from '../app/components/admin/homeComponents/gifts/createGiftDuration';
 import GiftConfirmation from '../app/components/admin/homeComponents/gifts/giftConfirmationScreen';
 import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
-import PoolManagementScreen from '../app/components/admin/homeComponents/pools/poolManagementScreen';
-import PoolDetailScreen from '../app/components/admin/homeComponents/pools/poolDetailScreen';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
+import PoolsStack from './PoolsStack';
 import SavingsHome from '../app/components/admin/homeComponents/savings/SavingsHome';
 import SavingsGoalEmoji from '../app/components/admin/homeComponents/savings/SavingsGoalEmoji';
 import SavingsGoalDescribe from '../app/components/admin/homeComponents/savings/SavingsGoalDescribe';
@@ -214,8 +213,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'CreateGiftDuration', component: CreateGiftDuration },
   { name: 'GiftConfirmation', component: GiftConfirmation },
   { name: 'AdvancedGiftClaim', component: AdvancedGiftClaim },
-  { name: 'PoolManagementScreen', component: PoolManagementScreen },
-  { name: 'PoolDetailScreen', component: PoolDetailScreen },
+  { name: 'PoolsStack', component: PoolsStack },
   { name: 'SavingsHome', component: SavingsHome },
   { name: 'SavingsGoalEmoji', component: SavingsGoalEmoji },
   { name: 'SavingsGoalDescribe', component: SavingsGoalDescribe },
