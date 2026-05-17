@@ -8,7 +8,6 @@ import CustomNumberKeyboard from '../../../../functions/CustomElements/customNum
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import { useTranslation } from 'react-i18next';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';

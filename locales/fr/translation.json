@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "Aucun Achat",
     "appList": {
+      "title": "Explorer",
       "AI": "IA générative",
       "AIDescription": "Discutez avec les derniers modèles d’IA générative",
       "SMS": "Messages SMS",
@@ -1295,7 +1296,7 @@
       "payWithUSDb": "Payer avec USDb",
       "chainNotSupportedForAsset": "Non disponible sur ce réseau",
       "swapInProgress": "Échange en Cours",
-      "swapInProgressDescription": "Vos fonds ont été envoyés. L'échange de stablecoin est en cours de traitement et peut prendre quelques minutes.",
+      "swapInProgressDescription": "Vos fonds ont été envoyés. Le paiement est en cours de traitement et peut prendre quelques minutes.",
       "noAmount": "Veuillez saisir un montant à envoyer.",
       "quoteStillLoading": "Obtention d'un devis, veuillez patienter un instant.",
       "noQuote": "Impossible d'obtenir un devis. Veuillez réessayer.",
@@ -1611,7 +1612,9 @@
       "createPinPageHeader": "{{type}} votre code PIN Blitz",
       "invalidPinconfirmation": "Les codes PIN ne correspondent pas. Réessayez !",
       "randomPinKeyboardToggle": "Clavier de lecture aléatoire",
-      "randomPinKeyboardInfo": "Activez cette fonction pour mélanger les numéros du clavier à chaque fois que vous vous connectez. Cette fonction ajoute une couche de sécurité supplémentaire en rendant plus difficile l'apprentissage de votre code PIN par une personne se trouvant à proximité."
+      "randomPinKeyboardInfo": "Activez cette fonction pour mélanger les numéros du clavier à chaque fois que vous vous connectez. Cette fonction ajoute une couche de sécurité supplémentaire en rendant plus difficile l'apprentissage de votre code PIN par une personne se trouvant à proximité.",
+      "biometricsHead": "À propos de la biométrie",
+      "biometricsSubHead": "Votre phrase de récupération est liée à votre profil biométrique actuel. Si vous modifiez ou ajoutez une empreinte digitale ou Face ID, vous perdrez définitivement l’accès à votre phrase de récupération."
     },
     "seedPhrase": {
       "header": "Conservez cette phrase de semence dans un endroit sûr et sécurisé.",
@@ -2064,7 +2067,9 @@
         "gift": "Cadeau",
         "claimPayment": "Réclamer le paiement",
         "splitPayment": "Partager",
-        "chainSwap": "Échange de Chaîne"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -2176,7 +2181,8 @@
         "destinationAddress": "Adresse de Destination",
         "destinationAsset": "Actif de Destination",
         "destinationChain": "Chaîne de Destination",
-        "transferIds": "Personnes incluses"
+        "transferIds": "Personnes incluses",
+        "bitrefillInvoiceId": "ID de facture Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Transactions",
@@ -2482,7 +2488,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Carte Bitcoin",
-        "subHeader": "Utiliser bitcoin localement"
+        "subHeader": "Dépensez avec Blitz localement"
       },
       "map": {
         "title": "Payer avec Bitcoin",
@@ -2498,6 +2504,19 @@
         "lightningMessage": "Accepte les paiements en bitcoin instantanément via le réseau Lightning",
         "dataMessage": "Données de btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Nous n’avons pas pu traiter la réponse de Bitrefill. Veuillez réessayer.",
+      "insufficientBalance": "Votre solde est insuffisant pour effectuer ce paiement.",
+      "paymentMemo": "Achat de carte cadeau",
+      "paymentFailed": "Votre paiement n’a pas pu être effectué. Veuillez réessayer.",
+      "editEmail": "Modifier votre adresse e-mail",
+      "addEmail": "Ajouter votre adresse e-mail",
+      "editEmailDesc": "Mettez à jour votre adresse e-mail enregistrée ci-dessous.",
+      "addEmailDesc": "Enregistrez votre adresse e-mail pour un paiement plus rapide.",
+      "textInputDescriptor": "E-MAIL",
+      "emailplaceholder": "vous@exemple.com",
+      "emailError": "Veuillez saisir une adresse e-mail valide."
     }
   },
   "toastmessages": {

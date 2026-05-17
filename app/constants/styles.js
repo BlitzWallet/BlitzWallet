@@ -1,6 +1,6 @@
-import {COLORS, FONT, SHADOWS, SIZES} from './theme';
+import { COLORS, FONT, SHADOWS, SIZES } from './theme';
 
-const CENTER = {marginRight: 'auto', marginLeft: 'auto'};
+const CENTER = { marginRight: 'auto', marginLeft: 'auto' };
 
 const BTN = {
   width: '100%',
@@ -32,7 +32,7 @@ const Background = {
 };
 
 const ANDROIDSAFEAREA = 10;
-const KEYBOARDTIMEOUT = 200;
+const KEYBOARDTIMEOUT = 300;
 export {
   CENTER,
   BTN,

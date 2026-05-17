@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "No Purchases",
     "appList": {
+      "title": "Explore",
       "AI": "Generative AI",
       "AIDescription": "Chat with the latest generative AI models",
       "SMS": "SMS Messages",
@@ -1295,7 +1296,7 @@
       "payWithUSDb": "Pay with USDb",
       "chainNotSupportedForAsset": "Not available on this network",
       "swapInProgress": "Payment in Progress",
-      "swapInProgressDescription": "Your funds have been sent. The stablecoin payment is processing and may take a few minutes.",
+      "swapInProgressDescription": "Your funds have been sent. The payment is processing and may take a few minutes.",
       "noAmount": "Please enter an amount to send.",
       "quoteStillLoading": "Getting a quote, please wait a moment.",
       "noQuote": "Could not get a quote. Please try again.",
@@ -1611,7 +1612,9 @@
       "createPinPageHeader": "{{type}} your Blitz PIN",
       "invalidPinconfirmation": "PINs do not match. Try again!",
       "randomPinKeyboardToggle": "Shuffle Keypad",
-      "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern."
+      "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern.",
+      "biometricsHead": "About biometrics",
+      "biometricsSubHead": "Your recovery phrase is tied to your current biometric profile. If you change or add a fingerprint or face ID, you will permanently lose access to your recovery phrase."
     },
     "seedPhrase": {
       "header": "Keep this recovery phrase in a secure and safe place",
@@ -2064,7 +2067,9 @@
         "gift": "Gift",
         "claimPayment": "Claim payment",
         "splitPayment": "Split",
-        "chainSwap": "Stablecoin"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
@@ -2176,7 +2181,8 @@
         "destinationAddress": "Destination Address",
         "destinationAsset": "Destination Asset",
         "destinationChain": "Destination Chain",
-        "transferIds": "People Included"
+        "transferIds": "People Included",
+        "bitrefillInvoiceId": "Bitrefill Invoice ID"
       },
       "viewAllTxPage": {
         "title": "Transactions",
@@ -2482,7 +2488,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Bitcoin map",
-        "subHeader": "Use bitcoin locally"
+        "subHeader": "Spend with Blitz locally"
       },
       "map": {
         "title": "Pay with Bitcoin",
@@ -2498,6 +2504,20 @@
         "lightningMessage": "Accepts bitcoin payments instantly over the Lightning Network",
         "dataMessage": "Data from btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "We couldn’t process the response from Bitrefill. Please try again.",
+      "insufficientBalance": "You don’t have enough balance to complete this payment.",
+      "paymentMemo": "Gift Card Purchase",
+      "paymentFailed": "Your payment could not be completed. Please try again.",
+
+      "editEmail": "Edit your email",
+      "addEmail": "Add your email",
+      "editEmailDesc": "Update your saved email address below.",
+      "addEmailDesc": "Save your email address for a faster checkout.",
+      "textInputDescriptor": "EMAIL",
+      "emailplaceholder": "you@example.com",
+      "emailError": "Please enter a valid email address."
     }
   },
   "toastmessages": {

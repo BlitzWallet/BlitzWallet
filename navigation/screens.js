@@ -44,9 +44,8 @@ import BackupSeedWarning from '../app/components/admin/homeComponents/homeLightn
 import {
   ConfirmActionPage,
   NosterWalletConnect,
-  TotalTipsScreen,
-  ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
+import POSStack from './POSStack';
 import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
 import SelectCreateAccountType from '../app/components/admin/homeComponents/settingsContent/accountComponents/selectCreateAccountType';
@@ -66,23 +65,10 @@ import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
-import CreateGift from '../app/components/admin/homeComponents/gifts/createGift';
-import CreateGiftDescription from '../app/components/admin/homeComponents/gifts/createGiftDescription';
-import CreateGiftDuration from '../app/components/admin/homeComponents/gifts/createGiftDuration';
-import GiftConfirmation from '../app/components/admin/homeComponents/gifts/giftConfirmationScreen';
-import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
-import PoolManagementScreen from '../app/components/admin/homeComponents/pools/poolManagementScreen';
-import PoolDetailScreen from '../app/components/admin/homeComponents/pools/poolDetailScreen';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
-import SavingsHome from '../app/components/admin/homeComponents/savings/SavingsHome';
-import SavingsGoalEmoji from '../app/components/admin/homeComponents/savings/SavingsGoalEmoji';
-import SavingsGoalDescribe from '../app/components/admin/homeComponents/savings/SavingsGoalDescribe';
-import SavingsGoalAmount from '../app/components/admin/homeComponents/savings/SavingsGoalAmount';
-import SavingsGoalSuccess from '../app/components/admin/homeComponents/savings/SavingsGoalSuccess';
-import SavingsUpdateGoal from '../app/components/admin/homeComponents/savings/SavingsUpdateGoal';
-import SavingsRemoveGoalConfirm from '../app/components/admin/homeComponents/savings/SavingsRemoveGoalConfirm';
-import SavingsGoalRemovedSuccess from '../app/components/admin/homeComponents/savings/SavingsGoalRemovedSuccess';
-import SavingsGoalDetails from '../app/components/admin/homeComponents/savings/SavingsGoalDetails';
+import PoolsStack from './PoolsStack';
+import GiftsStack from './GiftsStack';
+import SavingsStack from './SavingsStack';
 import {
   CreateAccountHome,
   DislaimerPage,
@@ -105,8 +91,6 @@ import {
   SettingsHub,
   AnalyticsPage,
 } from '../app/screens/inAccount';
-import GiftsPageHome from '../app/screens/inAccount/giftsHome';
-import ReclaimGift from '../app/components/admin/homeComponents/gifts/reclaimGift';
 import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
 import StablecoinSendScreen from '../app/components/admin/homeComponents/sendBitcoin/stablecoinSendScreen';
 import AccumulationAddressDetail from '../app/components/admin/homeComponents/accumulationAddresses/AccumulationAddressDetail';
@@ -177,7 +161,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     component: HistoricalGiftCardPurchases,
   },
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
-  { name: 'ViewPOSTransactions', component: ViewPOSTransactions },
+  { name: 'POSStack', component: POSStack },
   // {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
   { name: 'DisclaimerPage', component: DislaimerPage },
   { name: 'GenerateKey', component: GenerateKey },
@@ -210,24 +194,9 @@ const SLIDE_FROM_RIGHT_SCREENS = [
     name: 'SMSMessagingReceiveCountryPage',
     component: SMSMessagingReceiveCountryPage,
   },
-  { name: 'CreateGift', component: CreateGift },
-  { name: 'CreateGiftDescription', component: CreateGiftDescription },
-  { name: 'CreateGiftDuration', component: CreateGiftDuration },
-  { name: 'GiftConfirmation', component: GiftConfirmation },
-  { name: 'AdvancedGiftClaim', component: AdvancedGiftClaim },
-  { name: 'PoolManagementScreen', component: PoolManagementScreen },
-  { name: 'PoolDetailScreen', component: PoolDetailScreen },
-  { name: 'SavingsHome', component: SavingsHome },
-  { name: 'SavingsGoalEmoji', component: SavingsGoalEmoji },
-  { name: 'SavingsGoalDescribe', component: SavingsGoalDescribe },
-  { name: 'SavingsGoalAmount', component: SavingsGoalAmount },
-  { name: 'SavingsGoalSuccess', component: SavingsGoalSuccess },
-  { name: 'SavingsUpdateGoal', component: SavingsUpdateGoal },
-  { name: 'SavingsRemoveGoalConfirm', component: SavingsRemoveGoalConfirm },
-  { name: 'SavingsGoalRemovedSuccess', component: SavingsGoalRemovedSuccess },
-  { name: 'SavingsGoalDetails', component: SavingsGoalDetails },
-  { name: 'GiftsPageHome', component: GiftsPageHome },
-  { name: 'ReclaimGift', component: ReclaimGift },
+  { name: 'PoolsStack', component: PoolsStack },
+  { name: 'GiftsStack', component: GiftsStack },
+  { name: 'SavingsStack', component: SavingsStack },
   {
     name: 'ConfirmSplitPayment',
     component: ConfirmSplitPayment,
@@ -289,10 +258,6 @@ const FADE_SCREENS = [
   { name: 'BackupSeedWarning', component: BackupSeedWarning },
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
-  {
-    name: 'TotalTipsScreen',
-    component: TotalTipsScreen,
-  },
   // {
   //   name: 'RefundLiquidSwapPopup',
   //   component: RefundLiquidSwapPopup,

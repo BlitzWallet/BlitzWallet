@@ -114,8 +114,6 @@ export default function SendAndRequestPage(props) {
     selectedRequestMethod,
   });
 
-  const descriptionRef = useRef(null);
-
   useEffect(() => {
     if (typeof giftOption?.memo !== 'string') return;
     setDescriptionValue(giftOption.memo);
@@ -218,6 +216,9 @@ export default function SendAndRequestPage(props) {
             currentWalletMnemoinc,
             invoiceResponse.pr,
             USD_ASSET_ADDRESS,
+            undefined,
+            undefined,
+            { amountSats: amount },
           );
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');
@@ -1045,7 +1046,6 @@ export default function SendAndRequestPage(props) {
               onBlurFunction={() => {
                 setIsDescriptionFocused(false);
               }}
-              textInputRef={descriptionRef}
               placeholderText={t('constants.paymentDescriptionPlaceholder')}
               editable={paymentType === 'send' ? true : !!convertedSendAmount}
               containerStyles={styles.descriptionInput}

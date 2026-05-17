@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "Sin Compras",
     "appList": {
+      "title": "Explorar",
       "AI": "IA generativa",
       "AIDescription": "Chatea con los modelos de IA generativa más recientes",
       "SMS": "Mensajes SMS",
@@ -1295,7 +1296,7 @@
       "payWithUSDb": "Pagar con USDb",
       "chainNotSupportedForAsset": "No disponible en esta red",
       "swapInProgress": "Intercambio en Proceso",
-      "swapInProgressDescription": "Tus fondos han sido enviados. El intercambio de stablecoin está procesándose y puede tardar unos minutos.",
+      "swapInProgressDescription": "Tus fondos han sido enviados. El pago se está procesando y puede tardar unos minutos.",
       "noAmount": "Por favor, ingresa un monto para enviar.",
       "quoteStillLoading": "Obteniendo cotización, por favor espera un momento.",
       "noQuote": "No se pudo obtener una cotización. Por favor, inténtalo de nuevo.",
@@ -1608,7 +1609,9 @@
       "createPinPageHeader": "{{type}} tu PIN de Blitz",
       "invalidPinconfirmation": "Los PIN no coinciden. ¡Intenta de nuevo!",
       "randomPinKeyboardToggle": "Mezclar teclado numérico",
-      "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN."
+      "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN.",
+      "biometricsHead": "Sobre la biometría",
+      "biometricsSubHead": "Tu frase de recuperación está vinculada a tu perfil biométrico actual. Si cambias o agregas una huella digital o Face ID, perderás permanentemente el acceso a tu frase de recuperación."
     },
     "seedPhrase": {
       "header": "Guarde esta frase semilla en un lugar seguro y protegido",
@@ -2064,7 +2067,9 @@
         "gift": "Regalo",
         "claimPayment": "Reclamar pago",
         "splitPayment": "Dividir",
-        "chainSwap": "Intercambio en Cadena"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Soporte"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -2176,7 +2181,8 @@
         "destinationAddress": "Dirección de Destino",
         "destinationAsset": "Activo de Destino",
         "destinationChain": "Cadena de Destino",
-        "transferIds": "Personas incluidas"
+        "transferIds": "Personas incluidas",
+        "bitrefillInvoiceId": "ID de factura de Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Transacciones",
@@ -2482,7 +2488,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Mapa de Bitcoin",
-        "subHeader": "Usa bitcoin localmente"
+        "subHeader": "Gasta con Blitz localmente"
       },
       "map": {
         "title": "Pagar con Bitcoin",
@@ -2498,6 +2504,19 @@
         "lightningMessage": "Acepta pagos en bitcoin instantáneamente a través de la red Lightning",
         "dataMessage": "Datos de btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "No pudimos procesar la respuesta de Bitrefill. Inténtalo de nuevo.",
+      "insufficientBalance": "No tienes saldo suficiente para completar este pago.",
+      "paymentMemo": "Compra de tarjeta de regalo",
+      "paymentFailed": "No se pudo completar tu pago. Inténtalo de nuevo.",
+      "editEmail": "Edita tu correo electrónico",
+      "addEmail": "Agrega tu correo electrónico",
+      "editEmailDesc": "Actualiza tu dirección de correo guardada abajo.",
+      "addEmailDesc": "Guarda tu dirección de correo para pagar más rápido.",
+      "textInputDescriptor": "CORREO ELECTRÓNICO",
+      "emailplaceholder": "tu@ejemplo.com",
+      "emailError": "Ingresa una dirección de correo electrónico válida."
     }
   },
   "toastmessages": {

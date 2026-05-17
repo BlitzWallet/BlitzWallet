@@ -15,12 +15,12 @@ async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
 
   const preParsingResponse = handlePreSendPageParsing(clipboardData);
 
-  if (preParsingResponse.error) {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: preParsingResponse.error,
-    });
-    return;
-  }
+  // if (preParsingResponse.error) {
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage: preParsingResponse.error,
+  //   });
+  //   return;
+  // }
 
   if (preParsingResponse.navigateToWebView) {
     navigate.navigate('CustomWebView', {

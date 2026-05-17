@@ -470,7 +470,7 @@ function withTimeout(promise, t) {
           reject(
             new Error(t('wallet.sendPages.handlingAddressErrors.timeoutError')),
           ),
-        20000,
+        60000,
       ),
     ),
   ]);

@@ -38,9 +38,11 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
 import getClipboardText from '../../../../functions/getClipboardText';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import CustomButton from '../../../../functions/CustomElements/button';
 import getReceiveAddressAndContactForContactsPayment from '../contacts/internalComponents/getReceiveAddressAndKindForPayment';
 import { parse } from 'tldts';
+import { hasStringAsync } from 'expo-clipboard';
 
 const ContactRow = ({
   contact,
@@ -71,7 +73,7 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * (!HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
+    height: expandHeight.value * 160, //(!HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
     opacity: expandHeight.value,
   }));
 
@@ -87,7 +89,7 @@ const ContactRow = ({
     try {
       if (!contact.isLNURL) return '';
       const parsed = parse(contact.receiveAddress);
-      return parsed.domainWithoutSuffix;
+      return parsed.domain;
     } catch (err) {
       console.log('error parsing lnurl', err);
       return '';
@@ -238,7 +240,7 @@ const ContactRow = ({
             />
           </TouchableOpacity>
 
-          {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
+          {/* {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
             <TouchableOpacity
               style={[
                 styles.paymentOption,
@@ -280,7 +282,7 @@ const ContactRow = ({
                 content={t('constants.gift')}
               />
             </TouchableOpacity>
-          )}
+          )} */}
         </View>
       </Animated.View>
     </View>
@@ -289,6 +291,7 @@ const ContactRow = ({
 
 export default function HalfModalSendOptions({
   setIsKeyboardActive,
+  isKeyboardActive,
   theme,
   darkModeType,
   handleBackPressFunction,
@@ -300,6 +303,9 @@ export default function HalfModalSendOptions({
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAddContact, setShowAddContact] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
+  const [showPasteButton, setShowPasteButton] = useState(true);
+  const didPasteRef = useRef(false);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({}); // { [uuid]: y }
   const textInputRef = useRef(null);
@@ -312,8 +318,7 @@ export default function HalfModalSendOptions({
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
-    GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
 
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
@@ -360,15 +365,32 @@ export default function HalfModalSendOptions({
     opacity: inputModeProgress.value,
   }));
 
-  const blurKeyboard = () => {
+  const blurKeyboard = useCallback(() => {
     try {
       if (textInputRef.current && textInputRef?.current.isFocused()) {
         textInputRef.current.blur();
+      } else {
+        setIsKeyboardActive(false);
+        setInputError('');
+        setInputText('');
+        setIsInputMode(false);
+        didPasteRef.current = false;
       }
     } catch (Err) {
       console.log(Err);
     }
-  };
+  }, []);
+
+  const handleInternalBackPress = useCallback(() => {
+    if (showAddContact) return false;
+    if (isInputMode) {
+      blurKeyboard();
+      return true;
+    }
+    return false;
+  }, [showAddContact, isInputMode, blurKeyboard]);
+
+  useHandleBackPressNew(handleInternalBackPress);
 
   const handleManualInputSubmit = useCallback(async () => {
     if (!inputText.trim()) return;
@@ -463,16 +485,17 @@ export default function HalfModalSendOptions({
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
-    const response = await getClipboardText();
-    const isFocused = textInputRef?.current?.isFocused?.();
-    if (!response.didWork) {
-      if (isFocused) setInputError(t(response.reason));
-      return;
-    }
-    if (textInputRef.current && !isFocused) {
-      textInputRef.current?.focus();
-    }
-    setInputText(response.data);
+    navigateToSendUsingClipboard(navigate, 'halfModal', 'notHome', t);
+    // const response = await getClipboardText();
+    // const isFocused = textInputRef?.current?.isFocused?.();
+    // if (!response.didWork) {
+    //   if (isFocused) setInputError(t(response.reason));
+    //   return;
+    // }
+
+    // setIsInputMode(true);
+    // didPasteRef.current = true;
+    // setInputText(response.data);
   }, [navigate, t]);
 
   const handleCameraScan = useCallback(async () => {
@@ -549,7 +572,7 @@ export default function HalfModalSendOptions({
     const contact = sortedContacts.find(c => c.uuid === expandedContact);
     if (!contact) return;
 
-    const expandedPanelHeight = !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160;
+    const expandedPanelHeight = 160; // !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160;
 
     // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
     const collapsedRowHeight = 61;
@@ -601,6 +624,19 @@ export default function HalfModalSendOptions({
     }
   }, [expandedContact, sortedContacts]);
 
+  // determine if we should show the past button based on state of clipboard and whether input is focused
+  useEffect(() => {
+    async function checkClipboard() {
+      try {
+        const hasString = await hasStringAsync();
+        setShowPasteButton(hasString);
+      } catch (err) {
+        console.log('error checking clipboard', err);
+      }
+    }
+    checkClipboard();
+  }, []);
+
   const handleSelectPaymentType = useCallback(
     (contact, paymentType, isLNURL) => {
       handleBackPressFunction(() => {
@@ -637,6 +673,30 @@ export default function HalfModalSendOptions({
     },
     [navigate],
   );
+
+  const onBlurFunction = useCallback(() => {
+    setIsKeyboardActive(false);
+    if (didPasteRef.current) return;
+    setInputError('');
+    setInputText('');
+    setIsInputMode(false);
+    didPasteRef.current = false;
+  }, []);
+
+  const onFocusFunction = useCallback(() => {
+    setIsKeyboardActive(true);
+    setIsInputMode(true);
+    didPasteRef.current = false;
+  }, []);
+
+  const onTrimFunction = useCallback(() => {
+    if (textInputRef.current && !textInputRef?.current.isFocused()) {
+      setIsInputMode(false);
+      setIsKeyboardActive(false);
+    }
+    didPasteRef.current = false;
+    setInputText('');
+  }, []);
 
   const contactElements = useMemo(() => {
     return sortedContacts
@@ -692,14 +752,19 @@ export default function HalfModalSendOptions({
           }}
           scrollEventThrottle={16}
           onLayout={e => {
-            scrollViewHeightRef.current = e.nativeEvent.layout.height;
+            const h = e.nativeEvent.layout.height;
+            scrollViewHeightRef.current = h;
+            setScrollViewHeight(h);
           }}
         >
           {/* Search Input with Clipboard Icon */}
           <View
             style={[
               styles.searchContainer,
-              { backgroundColor: backgroundColor },
+              {
+                backgroundColor: backgroundColor,
+                maxHeight: Math.round(scrollViewHeight - 50),
+              },
             ]}
           >
             <CustomSearchInput
@@ -708,24 +773,17 @@ export default function HalfModalSendOptions({
               textInputMultiline={true}
               inputText={inputText}
               setInputText={setInputText}
-              onBlurFunction={() => {
-                setIsKeyboardActive(false);
-                setInputError('');
-                setInputText('');
-                setIsInputMode(false);
+              onBlurFunction={onBlurFunction}
+              onFocusFunction={onFocusFunction}
+              textInputStyles={{
+                paddingRight: showPasteButton || inputText.trim() ? 40 : 0,
               }}
-              onFocusFunction={() => {
-                setIsKeyboardActive(true);
-                setIsInputMode(true);
-              }}
-              textInputStyles={{ paddingRight: 40 }}
-              containerStyles={{ maxHeight: 100 }}
               returnKeyType="go"
               onSubmitEditingFunction={handleManualInputSubmit}
             />
             {inputText.trim() ? (
               <TouchableOpacity
-                onPress={() => setInputText('')}
+                onPress={onTrimFunction}
                 style={styles.clipboardButton}
               >
                 <ThemeIcon
@@ -738,7 +796,7 @@ export default function HalfModalSendOptions({
                   iconName={'X'}
                 />
               </TouchableOpacity>
-            ) : (
+            ) : showPasteButton ? (
               <TouchableOpacity
                 onPress={handleClipboardPaste}
                 style={styles.clipboardButton}
@@ -753,7 +811,7 @@ export default function HalfModalSendOptions({
                   iconName={'Clipboard'}
                 />
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
 
           <Animated.View
@@ -887,7 +945,11 @@ export default function HalfModalSendOptions({
 
         {isInputMode && (
           <Animated.View
-            style={[styles.continueButtonWrapper, continueButtonStyle]}
+            style={[
+              styles.continueButtonWrapper,
+              continueButtonStyle,
+              { paddingBottom: isKeyboardActive ? 0 : bottomPadding },
+            ]}
             pointerEvents={isInputMode ? 'auto' : 'none'}
           >
             {!!inputError && (
@@ -958,13 +1020,17 @@ const styles = StyleSheet.create({
   searchContainer: {
     width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 15,
+  },
+  searchInputContainer: {
+    justifyContent: 'flex-start',
   },
   clipboardButton: {
     width: 45,
-    height: '100%',
     position: 'absolute',
+    top: 0,
+    bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
     right: 0,
@@ -996,7 +1062,7 @@ const styles = StyleSheet.create({
   },
   scanButtonSubtext: {
     fontSize: SIZES.small,
-    opacity: 0.6,
+    opacity: HIDDEN_OPACITY,
   },
   inputErrorContainer: {
     width: INSET_WINDOW_WIDTH,

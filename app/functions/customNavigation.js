@@ -1,12 +1,11 @@
-import { Keyboard } from 'react-native';
-import { KEYBOARDTIMEOUT } from '../constants/styles';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
-export function keyboardGoBack(navigate) {
-  setTimeout(navigate.goBack, Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0);
-  Keyboard.dismiss();
+export async function keyboardGoBack(navigate) {
+  await KeyboardController.dismiss();
+  setTimeout(navigate.goBack, KeyboardController.isVisible() ? 60 : 0);
 }
 
-export function keyboardNavigate(navigatorFunction) {
-  setTimeout(navigatorFunction, Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0);
-  Keyboard.dismiss();
+export async function keyboardNavigate(navigatorFunction) {
+  await KeyboardController.dismiss();
+  setTimeout(navigatorFunction, KeyboardController.isVisible() ? 60 : 0);
 }

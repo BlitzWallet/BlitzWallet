@@ -49,7 +49,7 @@ import { formatDisplayName } from './utils/formatListDisplayName';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import ProfileImageSettingsNavigator from '../../../../functions/CustomElements/profileSettingsNavigator';
 import { useNavigateToContact } from './utils/navigateToExpandedContact';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 export default function ContactsPage({ navigation }) {
@@ -222,23 +222,25 @@ export default function ContactsPage({ navigation }) {
   ]);
 
   const handleButtonPress = useCallback(() => {
-    if (!isConnectedToTheInternet) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('errormessages.nointernet'),
-      });
-      return;
-    }
-    if (didEditProfile) {
-      navigation.navigate('CustomHalfModal', {
-        wantedContent: 'addContacts',
-        sliderHight: 0.4,
-      });
-    } else {
-      navigation.navigate('EditMyProfilePage', {
-        pageType: 'myProfile',
-        fromSettings: false,
-      });
-    }
+    keyboardNavigate(() => {
+      if (!isConnectedToTheInternet) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.nointernet'),
+        });
+        return;
+      }
+      if (didEditProfile) {
+        navigation.navigate('CustomHalfModal', {
+          wantedContent: 'addContacts',
+          sliderHight: 0.4,
+        });
+      } else {
+        navigation.navigate('EditMyProfilePage', {
+          pageType: 'myProfile',
+          fromSettings: false,
+        });
+      }
+    });
   }, [isConnectedToTheInternet, didEditProfile, navigate, navigation]);
 
   useFocusEffect(
@@ -268,9 +270,11 @@ export default function ContactsPage({ navigation }) {
         <View style={memoizedStyles.topBar}>
           <TouchableOpacity
             onPress={() =>
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'ViewAllGiftCards',
-              })
+              keyboardNavigate(() =>
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'ViewAllGiftCards',
+                }),
+              )
             }
             style={[
               memoizedStyles.giftContainer,
@@ -314,9 +318,7 @@ export default function ContactsPage({ navigation }) {
           contentContainerStyle={scrollContentStyle}
           style={memoizedStyles.contactsPageWithContactsScrollview}
           stickyHeaderIndices={stickyHeaderIndicesValue}
-          keyboardShouldPersistTaps={
-            contactElements.length ? 'never' : 'always'
-          }
+          keyboardShouldPersistTaps={'always'}
         >
           {pinnedContacts.length !== 0 && (
             <View style={memoizedStyles.pinnedContactsScrollviewContainer}>
@@ -353,13 +355,13 @@ export default function ContactsPage({ navigation }) {
               />
               <CustomButton
                 actionFunction={() =>
-                  keyboardNavigate(() =>
+                  keyboardNavigate(() => {
                     navigate.navigate('CustomHalfModal', {
                       wantedContent: 'addContacts',
                       sliderHight: 0.4,
                       startingSearchValue: inputText.trim(),
-                    }),
-                  )
+                    });
+                  })
                 }
                 textContent={t('constants.search')}
               />
@@ -457,13 +459,17 @@ const PinnedContactElement = memo(
 
     const handleLongPress = useCallback(() => {
       if (!contact.isAdded) return;
-      navigate.navigate('ContactsPageLongPressActions', {
-        contact: contact,
+      keyboardNavigate(() => {
+        navigate.navigate('ContactsPageLongPressActions', {
+          contact: contact,
+        });
       });
     }, [contact, navigate]);
 
     const handlePress = useCallback(() => {
-      navigateToExpandedContact(contact, 'contacts');
+      keyboardNavigate(() => {
+        navigateToExpandedContact(contact, 'contacts');
+      });
     }, [contact, navigateToExpandedContact]);
 
     const handleTextLayout = useCallback(event => {
@@ -540,17 +546,21 @@ const ContactElement = memo(
 
     const handleLongPress = useCallback(() => {
       if (!contact.isAdded) return;
-      if (!isConnectedToTheInternet) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('errormessages.nointernet'),
-        });
-        return;
-      }
-      navigate.navigate('ContactsPageLongPressActions', { contact });
+      keyboardNavigate(() => {
+        if (!isConnectedToTheInternet) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('errormessages.nointernet'),
+          });
+          return;
+        }
+        navigate.navigate('ContactsPageLongPressActions', { contact });
+      });
     }, [contact, isConnectedToTheInternet, navigate]);
 
     const handlePress = useCallback(() => {
-      navigateToExpandedContact(contact);
+      keyboardNavigate(() => {
+        navigateToExpandedContact(contact);
+      });
     }, [contact, navigateToExpandedContact]);
 
     const formattedDate = lastUpdated
@@ -623,7 +633,11 @@ const ContactElement = memo(
             <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
                 CustomNumberOfLines={2}
-                styles={{ fontSize: SIZES.small, flexShrink: 1 }}
+                styles={{
+                  fontSize: SIZES.small,
+                  flexShrink: 1,
+                  opacity: HIDDEN_OPACITY,
+                }}
                 content={formatMessage(firstMessage)}
               />
             </View>
@@ -645,18 +659,18 @@ const AddContactRowItem = memo(
     numberOfContacts,
   }) => {
     const goToAddContact = useCallback(() => {
-      if (!isConnectedToTheInternet) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('errormessages.nointernet'),
-        });
-      } else {
-        keyboardNavigate(() =>
+      keyboardNavigate(() => {
+        if (!isConnectedToTheInternet) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('errormessages.nointernet'),
+          });
+        } else {
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'addContacts',
             sliderHight: 0.4,
-          }),
-        );
-      }
+          });
+        }
+      });
     }, [isConnectedToTheInternet, navigate]);
 
     const imageContainerStyle = useMemo(

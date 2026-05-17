@@ -513,6 +513,9 @@ export default function SendPaymentScreen(props) {
             currentWalletMnemoinc,
             invoice,
             USD_ASSET_ADDRESS,
+            undefined,
+            undefined,
+            { amountSats: amount },
           );
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');
@@ -1360,7 +1363,6 @@ export default function SendPaymentScreen(props) {
           iconNew="BadgeCheck"
           leftImageFunction={handleBrandaVerificationUrl}
         />
-        <ThemeText styles={styles.sectionTitle} content={sendingAsset} />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           {uiState !== 'SWAP_RATES_CHANGED' && (

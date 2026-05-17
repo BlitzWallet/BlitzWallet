@@ -11,7 +11,11 @@ import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { CENTER, SIZES } from '../../constants';
-import { MAX_CONTENT_WIDTH, WINDOWWIDTH } from '../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  MAX_CONTENT_WIDTH,
+  WINDOWWIDTH,
+} from '../../constants/theme';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 import BTCMapPreviewCard from '../../components/admin/homeComponents/store/BTCMapPreviewCard';
 import ProfileImageSettingsNavigator from '../../functions/CustomElements/profileSettingsNavigator';
@@ -41,7 +45,7 @@ export default function AppStore() {
       <View style={styles.navbar}>
         <ThemeText
           CustomNumberOfLines={1}
-          content={'Explore'}
+          content={t('apps.appList.title')}
           styles={styles.headerText}
         />
         <ProfileImageSettingsNavigator />
@@ -193,9 +197,9 @@ const styles = StyleSheet.create({
   },
   previewCardTitle: {
     fontSize: SIZES.medium,
-    fontWeight: 500,
+    includeFontPadding: false,
     marginBottom: 2,
   },
-  previewCardSubtitle: { fontSize: SIZES.xSmall, opacity: 0.55 },
+  previewCardSubtitle: { fontSize: SIZES.small, opacity: HIDDEN_OPACITY },
   previewCardChevron: { fontSize: 20, opacity: 0.4, marginLeft: 8 },
 });

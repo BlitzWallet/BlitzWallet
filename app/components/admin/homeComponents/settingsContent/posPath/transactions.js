@@ -10,6 +10,7 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { usePOSTransactions } from '../../../../../../context-store/pos';
+import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
@@ -22,7 +23,7 @@ import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import NoContentSceen from '../../../../../functions/CustomElements/noContentScreen';
 
 export default function ViewPOSTransactions() {
-  const { groupedTxs } = usePOSTransactions();
+  const { groupedTxs, isLoading } = usePOSTransactions();
   const [employeeName, setEmployeeName] = useState('');
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -80,6 +81,8 @@ export default function ViewPOSTransactions() {
     },
     [backgroundOffset, masterInfoObject, fiatStats, t, navigate],
   );
+
+  if (isLoading) return <FullLoadingScreen />;
 
   if (!groupedTxs.length) {
     return (

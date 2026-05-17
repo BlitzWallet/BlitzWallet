@@ -35,12 +35,20 @@ export default function SelectPaymentMethod({
   const { t } = useTranslation();
 
   const selectSendingBalance = term => {
+    if (fromPage === 'CreateGift') {
+      handleBackPressFunction(() =>
+        navigate.popTo(
+          'GiftsStack',
+          { screen: 'CreateGift', params: { selectedPaymentMethod: term } },
+          { merge: true },
+        ),
+      );
+      return;
+    }
     handleBackPressFunction(() =>
       navigate.popTo(
         fromPage || 'ConfirmPaymentScreen',
-        {
-          selectedPaymentMethod: term,
-        },
+        { selectedPaymentMethod: term },
         { merge: true },
       ),
     );

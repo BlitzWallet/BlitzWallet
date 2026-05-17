@@ -26,8 +26,8 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
-import { usePools } from '../../../../../context-store/poolContext';
 import { Timestamp } from '@react-native-firebase/firestore';
+import { saveContributionLocal } from '../../../../functions/pools/poolsStorage';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useWebView } from '../../../../../context-store/webViewContext';
@@ -60,7 +60,6 @@ export default function ContributeToPoolHalfModal({
   const { sparkInformation } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { poolInfoRef, swapUSDPriceDollars, swapLimits } = useFlashnet();
-  const { addContributionToCache } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
@@ -320,7 +319,7 @@ export default function ContributeToPoolHalfModal({
         paymentAmountSats,
       );
 
-      await addContributionToCache(contribution);
+      await saveContributionLocal(contribution);
 
       setStep([...step, 'success']);
     } catch (err) {

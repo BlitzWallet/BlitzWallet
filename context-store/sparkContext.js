@@ -22,6 +22,7 @@ import {
 } from '../app/functions/spark';
 import {
   bulkUpdateSparkTransactions,
+  insertSparkTransactionPlaceholders,
   getAllSparkTransactions,
   getAllSparkContactInvoices,
   getAllUnpaidSparkLightningInvoices,
@@ -438,7 +439,7 @@ const SparkWalletProvider = ({ children }) => {
       }));
 
       try {
-        await bulkUpdateSparkTransactions(placeholders, 'transactions');
+        await insertSparkTransactionPlaceholders(placeholders);
       } catch (error) {
         console.error('Error writing placeholder transactions:', error);
       }

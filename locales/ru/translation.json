@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "Нет покупок",
     "appList": {
+      "title": "Исследовать",
       "AI": "Генеративный ИИ",
       "AIDescription": "Общайтесь с новейшими моделями генеративного ИИ",
       "SMS": "SMS-сообщения",
@@ -1296,7 +1297,7 @@
       "payWithUSDb": "Оплатить через USDb",
       "chainNotSupportedForAsset": "Недоступно в этой сети",
       "swapInProgress": "Обмен выполняется",
-      "swapInProgressDescription": "Ваши средства отправлены. Обмен стейблкоина обрабатывается и может занять несколько минут.",
+      "swapInProgressDescription": "Ваши средства отправлены. Платёж обрабатывается и может занять несколько минут.",
       "noAmount": "Пожалуйста, введите сумму для отправки.",
       "quoteStillLoading": "Получение котировки, подождите немного.",
       "noQuote": "Не удалось получить котировку. Попробуйте снова.",
@@ -1612,7 +1613,9 @@
       "createPinPageHeader": "{{type}} ваш PIN Blitz",
       "invalidPinconfirmation": "PIN-коды не совпадают!",
       "randomPinKeyboardToggle": "Перемешать клавиатуру",
-      "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN."
+      "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN.",
+      "biometricsHead": "О биометрии",
+      "biometricsSubHead": "Ваша фраза восстановления привязана к текущему биометрическому профилю. Если вы измените или добавите отпечаток пальца или Face ID, вы навсегда потеряете доступ к своей фразе восстановления."
     },
     "seedPhrase": {
       "header": "Храните сид-фразу в надежном месте",
@@ -2065,7 +2068,9 @@
         "gift": "Подарок",
         "claimPayment": "Получить платёж",
         "splitPayment": "Разделить",
-        "chainSwap": "Обмен в сети"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Поддержка"
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
@@ -2177,7 +2182,8 @@
         "destinationAddress": "Адрес назначения",
         "destinationAsset": "Актив назначения",
         "destinationChain": "Сеть назначения",
-        "transferIds": "Включённые участники"
+        "transferIds": "Включённые участники",
+        "bitrefillInvoiceId": "ID счёта Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Транзакции",
@@ -2489,7 +2495,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Карта Bitcoin",
-        "subHeader": "Используйте биткоин локально"
+        "subHeader": "Тратьте с Blitz локально"
       },
       "map": {
         "title": "Оплатить с Bitcoin",
@@ -2505,6 +2511,19 @@
         "lightningMessage": "Принимает платежи в биткоинах мгновенно через сеть Lightning",
         "dataMessage": "Данные с btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Не удалось обработать ответ от Bitrefill. Попробуйте снова.",
+      "insufficientBalance": "На вашем балансе недостаточно средств для завершения этого платежа.",
+      "paymentMemo": "Покупка подарочной карты",
+      "paymentFailed": "Не удалось выполнить платёж. Попробуйте снова.",
+      "editEmail": "Изменить адрес электронной почты",
+      "addEmail": "Добавить адрес электронной почты",
+      "editEmailDesc": "Обновите сохранённый адрес электронной почты ниже.",
+      "addEmailDesc": "Сохраните адрес электронной почты для более быстрого оформления покупки.",
+      "textInputDescriptor": "ЭЛ. ПОЧТА",
+      "emailplaceholder": "you@example.com",
+      "emailError": "Введите действительный адрес электронной почты."
     }
   },
   "toastmessages": {

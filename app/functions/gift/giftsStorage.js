@@ -182,12 +182,17 @@ export const deleteGiftLocal = async uuid => {
   }
 };
 
-export const getAllLocalGifts = async () => {
+export const getAllLocalGifts = async (limit = null) => {
   try {
     const db = await getDatabase();
-    const result = await db.getAllAsync(
-      `SELECT * FROM giftsTable ORDER BY lastUpdated DESC`,
-    );
+
+    const query = limit
+      ? `SELECT * FROM giftsTable ORDER BY lastUpdated DESC LIMIT ?`
+      : `SELECT * FROM giftsTable ORDER BY lastUpdated DESC`;
+
+    const result = limit
+      ? await db.getAllAsync(query, [limit])
+      : await db.getAllAsync(query);
 
     console.log(`Retrieved ${result.length} gifts from database`);
 

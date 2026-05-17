@@ -143,7 +143,7 @@ export default function SelectPaymentType({
         />
       </TouchableOpacity>
 
-      {!HIDE_IN_APP_PURCHASE_ITEMS && paymentType !== 'request' && (
+      {/* {!HIDE_IN_APP_PURCHASE_ITEMS && paymentType !== 'request' && (
         <TouchableOpacity
           onPress={() => setSeelctedOption('Gift')}
           style={styles.containerRow}
@@ -188,7 +188,7 @@ export default function SelectPaymentType({
             switchDarkMode={theme && darkModeType ? true : false}
           />
         </TouchableOpacity>
-      )}
+      )} */}
 
       <CustomButton
         actionFunction={selectSendingBalance}

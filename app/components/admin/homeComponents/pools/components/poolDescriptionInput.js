@@ -40,7 +40,6 @@ export default function PoolDescriptionInput({
 }) {
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
-  const textInputRef = useRef(null);
   const isAlreadyCreating = useRef(null);
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { accountMnemoinc } = useKeysContext();
@@ -52,14 +51,6 @@ export default function PoolDescriptionInput({
   const [isLoading, setIsLoading] = useState(false);
 
   const isValid = poolTitle.trim().length > 0 && goalAmount > 0;
-
-  useFocusEffect(
-    useCallback(() => {
-      if (textInputRef.current && !textInputRef.current.isFocused()) {
-        textInputRef.current.focus();
-      }
-    }, []),
-  );
 
   const handleCreatePool = async () => {
     if (!isValid) return;
@@ -118,10 +109,9 @@ export default function PoolDescriptionInput({
       if (handleBackPressFunction) {
         // For CustomHalfModal context (settings path)
         handleBackPressFunction(() => {
-          navigate.replace('PoolDetailScreen', {
-            poolId,
-            pool: poolDocument,
-            shouldSave: true,
+          navigate.replace('PoolsStack', {
+            screen: 'PoolDetailScreen',
+            params: {poolId, pool: poolDocument, shouldSave: true},
           });
         });
       } else {
@@ -133,10 +123,9 @@ export default function PoolDescriptionInput({
         });
 
         // Navigate to PoolDetailScreen after closing overlay
-        navigate.replace('PoolDetailScreen', {
-          poolId,
-          pool: poolDocument,
-          shouldSave: true,
+        navigate.replace('PoolsStack', {
+          screen: 'PoolDetailScreen',
+          params: {poolId, pool: poolDocument, shouldSave: true},
         });
       }
     } catch (err) {
@@ -160,7 +149,6 @@ export default function PoolDescriptionInput({
       />
 
       <CustomSearchInput
-        textInputRef={textInputRef}
         inputText={poolTitle}
         setInputText={setPoolTitle}
         maxLength={100}
