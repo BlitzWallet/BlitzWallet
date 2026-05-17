@@ -1170,7 +1170,8 @@
         "swapRatesChangedTitle": "Tasso di cambio aggiornato",
         "swapRatesChangedBody": "Il tasso di cambio per questo scambio è cambiato durante la revisione. Inserisci nuovamente l’importo per continuare.",
         "swapRatesChangedButton": "Reinserisci importo",
-        "feeEstimateError": "Impossibile stimare la commissione, riprova"
+        "feeEstimateError": "Impossibile stimare la commissione, riprova",
+        "brantaVerification": "Questo pagamento è stato verificato da Branta"
       },
       "selectPaymentMethod": {
         "header": "Seleziona come desideri finanziare il pagamento."

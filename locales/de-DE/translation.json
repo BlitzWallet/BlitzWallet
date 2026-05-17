@@ -1170,7 +1170,8 @@
         "swapRatesChangedTitle": "Wechselkurs aktualisiert",
         "swapRatesChangedBody": "Der Wechselkurs für diesen Tausch hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
         "swapRatesChangedButton": "Betrag erneut eingeben",
-        "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut"
+        "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut",
+        "brantaVerification": "Diese Zahlung wurde von Branta verifiziert"
       },
       "selectPaymentMethod": {
         "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung senden möchten (BTC oder USD)."
