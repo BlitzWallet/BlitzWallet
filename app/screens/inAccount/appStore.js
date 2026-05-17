@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   View,
   ScrollView,
@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
@@ -23,12 +23,13 @@ import { useGlobalAppData } from '../../../context-store/appData';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
 
-export default function AppStore() {
+export default function AppStore({ navigation }) {
   const navigate = useNavigation();
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const { decodedChatGPT, decodedMessages } = useGlobalAppData();
   const { t } = useTranslation();
+  const scrollViewRef = useRef(null);
 
   const hasLegacyChatGPT =
     (decodedChatGPT?.credits ?? 0) > 0 || Platform.OS === 'android';
@@ -39,6 +40,19 @@ export default function AppStore() {
     Platform.OS === 'android';
   const showLegacySection =
     hasLegacyChatGPT || hasLegacySMS || Platform.OS === 'android';
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!navigation) return;
+      const listenerID = navigation?.addListener('tabPress', () => {
+        if (scrollViewRef.current) {
+          scrollViewRef.current.scrollTo({ y: 0, animated: true });
+        }
+      });
+
+      return navigation?.removeListener?.('click', listenerID);
+    }, [navigation]),
+  );
 
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={false}>
@@ -51,6 +65,7 @@ export default function AppStore() {
         <ProfileImageSettingsNavigator />
       </View>
       <ScrollView
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
