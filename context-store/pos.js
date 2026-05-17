@@ -9,7 +9,6 @@ import {
 import { useKeysContext } from './keys';
 import { db } from '../db/initializeFirebase';
 import {
-  DID_OPEN_TABLES_EVENT_NAME,
   getSavedPOSTransactions,
   isSavedPOSTxsDatabaseOpen,
   pointOfSaleEventEmitter,
