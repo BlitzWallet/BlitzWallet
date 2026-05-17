@@ -151,7 +151,7 @@ function PreviewCard({
       style={[styles.previewCard, { backgroundColor: backgroundOffset }]}
     >
       <View style={[styles.previewCardIcon, { backgroundColor }]}>
-        <ThemeIcon size={22} colorOverride={textColor} iconName={icon} />
+        <ThemeIcon size={22} iconName={icon} />
       </View>
       <View style={styles.previewCardBody}>
         <ThemeText content={title} styles={styles.previewCardTitle} />
