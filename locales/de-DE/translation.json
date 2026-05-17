@@ -292,13 +292,13 @@
     "appList": {
       "title": "Entdecken",
       "AI": "Generative KI",
-      "AIDescription": "Chatte mit den neuesten generativen KI-Modellen",
+      "AIDescription": "Chatten Sie mit den neuesten generativen KI-Modellen",
       "SMS": "SMS-Nachrichten",
-      "SMSDescription": "Sende und empfange weltweit SMS-Nachrichten mit Bitcoin",
+      "SMSDescription": "Senden und empfangen Sie weltweit SMS-Nachrichten mit Bitcoin",
       "VPN": "VPN",
       "VPNDescription": "Sicher surfen und Privatsphäre schützen",
-      "onlineListings": "Online-Websites",
-      "onlineListingsDescription": "Durchsuche Online-Unternehmen, die Bitcoin akzeptieren",
+      "onlineListings": "Webseiten",
+      "onlineListingsDescription": "Durchsuchen Sie Online-Unternehmen, die Bitcoin akzeptieren",
       "shop": "Mit Bitcoin einkaufen",
       "shopDescription": "Geschenkkarten, eSIMs und mehr",
       "Soon": "Bald",
@@ -1287,8 +1287,8 @@
       "selectAsset": "Asset auswählen",
       "recipient": "Empfänger",
       "gettingQuote": "Angebot wird abgerufen…",
-      "quoteExpired": "Angebot abgelaufen. Bitte versuche es erneut.",
-      "quoteError": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
+      "quoteExpired": "Angebot abgelaufen. Bitte versuchen Sie es erneut.",
+      "quoteError": "Angebot konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
       "recipientGets": "Empfänger erhält",
       "youSend": "Sie senden",
       "quoteExpiresIn": "Angebot läuft ab in",
@@ -1297,11 +1297,11 @@
       "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
       "swapInProgress": "Tausch läuft",
       "swapInProgressDescription": "Ihre Mittel wurden gesendet. Die Zahlung wird verarbeitet und kann einige Minuten dauern.",
-      "noAmount": "Bitte gib einen Betrag zum Senden ein.",
+      "noAmount": "Bitte geben Sie einen Betrag zum Senden ein.",
       "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
-      "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuche es erneut.",
+      "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
       "swapStatus": "Tauschstatus",
-      "chainSwap": "Chain-Tausch",
+      "chainSwap": "Netzwerk-Tausch",
       "assetPicker": {
         "header": "Wählen Sie die Währung aus, die Sie senden möchten.",
         "notAvailable": "Nicht verfügbar auf {{chain}}"
@@ -1365,7 +1365,7 @@
       "deleteWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden.",
       "receiveCurrencyPillTitle": "Empfangswährung",
       "receiveCurrencyPillDesc": "Legen Sie fest, wie Sie über Ihre Lightning-Adresse Zahlungen empfangen",
-      "invalidCharactersError": "Name und Bio dürfen die Zeichen < > { } ` \\ nicht enthalten",
+      "invalidCharactersError": "Name und Biografie dürfen die Zeichen < > { } ` \\ nicht enthalten",
       "invalidReceiveAddressError": "Bitte geben Sie eine gültige Lightning-Adresse ein (z. B. benutzer@domain.com)",
       "aboutYou": "Über Sie",
       "lightningAddress": "Lightning-Adresse"
@@ -1492,7 +1492,7 @@
     "editProfileFieldPage": {
       "nameDescription": "Ihr Anzeigename ist der Name, unter dem andere Sie sehen. Er kann jederzeit geändert werden.",
       "uniquenameDescription": "Wenn Sie Ihren Benutzernamen ändern, ändert sich auch Ihre Lightning-Adresse. Zahlungen an Ihren alten Benutzernamen gehen verloren.",
-      "bioDescription": "Ihre Bio ist eine kurze Beschreibung, damit andere Sie besser kennenlernen können."
+      "bioDescription": "Ihre Biografie ist eine kurze Beschreibung, damit andere Sie besser kennenlernen können."
     }
   },
   "settings": {
@@ -1613,7 +1613,7 @@
       "invalidPinconfirmation": "PINs stimmen nicht überein. Versuchen Sie es erneut!",
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
       "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
-      "biometricsHead": "Über Biometrie",
+      "biometricsHead": "Biometrie",
       "biometricsSubHead": "Ihre Wiederherstellungsphrase ist mit Ihrem aktuellen biometrischen Profil verknüpft. Wenn Sie einen Fingerabdruck oder Face ID ändern oder hinzufügen, verlieren Sie dauerhaft den Zugriff auf Ihre Wiederherstellungsphrase."
     },
     "seedPhrase": {
@@ -1685,10 +1685,10 @@
       "noSwapsMessage": "Sie haben keine gespeicherten Rootstock-Übertragungen."
     },
     "rootstockSwapInfo": {
-      "title": "Submarine Swap",
+      "title": "Kettenübergreifender Tausch",
       "id": "ID",
       "swapDetails": "Übertragungsdetails",
-      "claimAddress": "Anspruchsadresse",
+      "claimAddress": "Auszahlungsadresse",
       "timeoutBHeight": "Timeout-Blockhöhe",
       "expAmount": "Erwarteter Betrag",
       "invoice": "Rechnung",
@@ -2169,7 +2169,7 @@
       "technicalTransactionDetails": {
         "txHash": "Transaktions-Hash",
         "paymentId": "Zahlungs-ID",
-        "preimage": "Zahlungs-Preimage",
+        "preimage": "Zahlungsnachweis",
         "address": "Zahlungsadresse",
         "bitcoinTxId": "BTC-Txid",
         "paymentExp": "Zahlungsablauf",
@@ -2514,8 +2514,8 @@
       "addEmail": "E-Mail hinzufügen",
       "editEmailDesc": "Aktualisieren Sie unten Ihre gespeicherte E-Mail-Adresse.",
       "addEmailDesc": "Speichern Sie Ihre E-Mail-Adresse für einen schnelleren Checkout.",
-      "textInputDescriptor": "E-MAIL",
-      "emailplaceholder": "du@beispiel.de",
+      "textInputDescriptor": "E-Mail",
+      "emailplaceholder": "max.mustermann@beispiel.de",
       "emailError": "Bitte geben Sie eine gültige E-Mail-Adresse ein."
     }
   },
