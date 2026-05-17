@@ -122,7 +122,6 @@ import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
-import { SavingsProvider } from './context-store/savingsContext';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
 import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
@@ -169,13 +168,11 @@ function App(): JSX.Element {
                                                   <GlobalServerTimeProvider>
                                                     <FlashnetProvider>
                                                       <UserBalanceProvider>
-                                                        <SavingsProvider>
                                                           <AnalyticsProvider>
-                                                            {/* <Suspense
+                                                          {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                            <ResetStack />
-                                                          </AnalyticsProvider>
-                                                        </SavingsProvider>
+                                                          <ResetStack />
+                                                        </AnalyticsProvider>
                                                       </UserBalanceProvider>
                                                     </FlashnetProvider>
                                                     {/* </Suspense> */}

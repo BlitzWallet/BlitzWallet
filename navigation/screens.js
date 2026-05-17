@@ -68,15 +68,7 @@ import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
 import ViewContibutors from '../app/components/admin/homeComponents/pools/viewContributors';
 import PoolsStack from './PoolsStack';
 import GiftsStack from './GiftsStack';
-import SavingsHome from '../app/components/admin/homeComponents/savings/SavingsHome';
-import SavingsGoalEmoji from '../app/components/admin/homeComponents/savings/SavingsGoalEmoji';
-import SavingsGoalDescribe from '../app/components/admin/homeComponents/savings/SavingsGoalDescribe';
-import SavingsGoalAmount from '../app/components/admin/homeComponents/savings/SavingsGoalAmount';
-import SavingsGoalSuccess from '../app/components/admin/homeComponents/savings/SavingsGoalSuccess';
-import SavingsUpdateGoal from '../app/components/admin/homeComponents/savings/SavingsUpdateGoal';
-import SavingsRemoveGoalConfirm from '../app/components/admin/homeComponents/savings/SavingsRemoveGoalConfirm';
-import SavingsGoalRemovedSuccess from '../app/components/admin/homeComponents/savings/SavingsGoalRemovedSuccess';
-import SavingsGoalDetails from '../app/components/admin/homeComponents/savings/SavingsGoalDetails';
+import SavingsStack from './SavingsStack';
 import {
   CreateAccountHome,
   DislaimerPage,
@@ -204,15 +196,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   },
   { name: 'PoolsStack', component: PoolsStack },
   { name: 'GiftsStack', component: GiftsStack },
-  { name: 'SavingsHome', component: SavingsHome },
-  { name: 'SavingsGoalEmoji', component: SavingsGoalEmoji },
-  { name: 'SavingsGoalDescribe', component: SavingsGoalDescribe },
-  { name: 'SavingsGoalAmount', component: SavingsGoalAmount },
-  { name: 'SavingsGoalSuccess', component: SavingsGoalSuccess },
-  { name: 'SavingsUpdateGoal', component: SavingsUpdateGoal },
-  { name: 'SavingsRemoveGoalConfirm', component: SavingsRemoveGoalConfirm },
-  { name: 'SavingsGoalRemovedSuccess', component: SavingsGoalRemovedSuccess },
-  { name: 'SavingsGoalDetails', component: SavingsGoalDetails },
+  { name: 'SavingsStack', component: SavingsStack },
   {
     name: 'ConfirmSplitPayment',
     component: ConfirmSplitPayment,

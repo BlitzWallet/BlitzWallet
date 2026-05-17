@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSavings } from '../../../../../context-store/savingsContext';
@@ -20,6 +20,7 @@ import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import SavingsActivityContainer from './SavingsActivityContainer';
 import SavingsActionButtons from './SavingsActionButtons';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
 export default function SavingsHome() {
   const navigate = useNavigation();
@@ -34,14 +35,32 @@ export default function SavingsHome() {
     allSavingsTransactions,
     refreshInterestPayouts,
     refreshBalances,
+    refreshSavings,
     interestPayouts,
+    walletBalanceMicros,
   } = useSavings();
+
+  const dataWasLoadedAtMount = useRef(walletBalanceMicros !== null);
+  const [isInitializing, setIsInitializing] = useState(
+    !dataWasLoadedAtMount.current,
+  );
+  const skeletonStartRef = useRef(Date.now());
+
+  useEffect(() => {
+    if (dataWasLoadedAtMount.current) return;
+    if (walletBalanceMicros === null) return;
+    const elapsed = Date.now() - skeletonStartRef.current;
+    const remaining = Math.max(0, 750 - elapsed);
+    const timer = setTimeout(() => setIsInitializing(false), remaining);
+    return () => clearTimeout(timer);
+  }, [walletBalanceMicros]);
 
   useFocusEffect(
     useCallback(() => {
+      refreshSavings();
       refreshBalances();
       refreshInterestPayouts();
-    }, [refreshBalances, refreshInterestPayouts]),
+    }, [refreshSavings, refreshBalances, refreshInterestPayouts]),
   );
 
   const combinedTransactions = useMemo(
@@ -49,6 +68,24 @@ export default function SavingsHome() {
       mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts, t),
     [allSavingsTransactions, interestPayouts, t],
   );
+
+  if (isInitializing) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          label={t('savings.home.title')}
+          iconNew="Info"
+          showLeftImage={true}
+          leftImageFunction={() =>
+            navigate.navigate('CustomWebView', {
+              webViewURL: 'https://docs.flashnet.xyz/usdb/faq',
+            })
+          }
+        />
+        <FullLoadingScreen showText={false} />
+      </GlobalThemeView>
+    );
+  }
 
   return (
     <GlobalThemeView useStandardWidth={true}>

@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import { useMemo } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSavings } from '../../../../../context-store/savingsContext';
@@ -25,8 +25,13 @@ export default function SavingsGoalDetails(props) {
   const { t } = useTranslation();
   const goalIdFromRoute = props?.route?.params?.goalId;
   const { backgroundOffset } = GetThemeColors();
-  const { savingsGoals, allSavingsTransactions, getGoalBalanceMicros } =
-    useSavings();
+  const {
+    savingsGoals,
+    allSavingsTransactions,
+    getGoalBalanceMicros,
+    refreshSavings,
+    refreshBalances,
+  } = useSavings();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
 
@@ -42,6 +47,12 @@ export default function SavingsGoalDetails(props) {
   const goalTransactions = selectedGoal
     ? allSavingsTransactions.filter(tx => tx.goalId === selectedGoal.id)
     : [];
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshSavings();
+    }, [refreshSavings]),
+  );
 
   if (!selectedGoal) {
     return (

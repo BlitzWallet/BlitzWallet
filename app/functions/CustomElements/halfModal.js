@@ -69,6 +69,7 @@ import ClosePoolConfirmation from '../../components/admin/homeComponents/pools/c
 import ContributeToPoolHalfModal from '../../components/admin/homeComponents/pools/contributeToPoolHalfModal';
 import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/savings/AddMoneyToSavingsHalfModal';
 import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
+import { SavingsProvider } from '../../../context-store/savingsContext';
 import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
 import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gifts/addGiftQuantityHalfModal';
@@ -542,20 +543,24 @@ export default function CustomHalfModal(props) {
         );
       case 'addMoneyToSavings':
         return (
-          <AddMoneyToSavingsHalfModal
-            selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
-            setContentHeight={setContentHeight}
-            handleBackPressFunction={handleBackPressFunction}
-          />
+          <SavingsProvider>
+            <AddMoneyToSavingsHalfModal
+              selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
+              setContentHeight={setContentHeight}
+              handleBackPressFunction={handleBackPressFunction}
+            />
+          </SavingsProvider>
         );
       case 'withdrawFromSavings':
         return (
-          <WithdrawFromSavingsHalfModal
-            currentBalance={props?.route?.params?.currentBalance}
-            selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
-            setContentHeight={setContentHeight}
-            handleBackPressFunction={handleBackPressFunction}
-          />
+          <SavingsProvider>
+            <WithdrawFromSavingsHalfModal
+              currentBalance={props?.route?.params?.currentBalance}
+              selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
+              setContentHeight={setContentHeight}
+              handleBackPressFunction={handleBackPressFunction}
+            />
+          </SavingsProvider>
         );
       case 'howSavingsWorks':
         return (

@@ -189,7 +189,7 @@ export default function SettingsHub(props) {
   );
 
   const handleSavingsPress = useCallback(() => {
-    navigate.navigate('SavingsHome');
+    navigate.navigate('SavingsStack');
   }, [navigate]);
   const handleAccumulationPress = useCallback(() => {
     navigate.navigate('AccumulationAddressesHome');

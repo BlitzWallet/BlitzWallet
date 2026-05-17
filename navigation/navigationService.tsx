@@ -19,6 +19,10 @@ type RootStackParamList = {
     screen: string;
     params: { poolId: string };
   };
+  SavingsStack: {
+    screen: string;
+    params?: Record<string, any>;
+  };
 };
 
 // Correct way to define the navigationRef
