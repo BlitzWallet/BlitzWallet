@@ -1358,9 +1358,9 @@ export default function SendPaymentScreen(props) {
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
           label={t('constants.send')}
-          containerStyles={{ marginBottom: 0 }}
           showLeftImage={isUsingBranta}
           iconNew="BadgeCheck"
+          leftImageStyles={{ height: 25 }}
           leftImageFunction={handleBrandaVerificationUrl}
         />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>

@@ -5,12 +5,19 @@ import 'react-native-gesture-handler';
 import '@azure/core-asynciterator-polyfill';
 //neeed for encription + spark
 import 'react-native-quick-base64';
+
 import { Buffer } from '@craftzdog/react-native-buffer';
-import { pbkdf2Sync, createHash, subtle } from 'react-native-quick-crypto';
+import QuickCrypto, {
+  pbkdf2Sync,
+  createHash,
+  subtle,
+} from 'react-native-quick-crypto';
 global.Buffer = Buffer;
 
 // Polyfill Web Crypto API for packages that rely on crypto.subtle (e.g. @branta-ops/branta)
 // react-native-get-random-values (imported above) already provides crypto.getRandomValues
+// need for @branta-ops/branta
+global.crypto = QuickCrypto;
 global.crypto.subtle = subtle;
 global.crypto.randomUUID =
   global.crypto.randomUUID ||
