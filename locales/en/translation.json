@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "No Purchases",
     "appList": {
+      "title": "Explore",
       "AI": "Generative AI",
       "AIDescription": "Chat with the latest generative AI models",
       "SMS": "SMS Messages",

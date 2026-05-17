@@ -49,7 +49,7 @@ import { formatDisplayName } from './utils/formatListDisplayName';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import ProfileImageSettingsNavigator from '../../../../functions/CustomElements/profileSettingsNavigator';
 import { useNavigateToContact } from './utils/navigateToExpandedContact';
-import { WINDOWWIDTH } from '../../../../constants/theme';
+import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../../../constants/theme';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 export default function ContactsPage({ navigation }) {
@@ -633,7 +633,11 @@ const ContactElement = memo(
             <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
                 CustomNumberOfLines={2}
-                styles={{ fontSize: SIZES.small, flexShrink: 1 }}
+                styles={{
+                  fontSize: SIZES.small,
+                  flexShrink: 1,
+                  opacity: HIDDEN_OPACITY,
+                }}
                 content={formatMessage(firstMessage)}
               />
             </View>

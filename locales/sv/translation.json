@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "Inga Köp",
     "appList": {
+      "title": "Utforska",
       "AI": "Generativ AI",
       "AIDescription": "Chatta med de senaste generativa AI-modellerna",
       "SMS": "SMS-meddelanden",

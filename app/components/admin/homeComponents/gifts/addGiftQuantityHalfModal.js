@@ -148,16 +148,18 @@ export default function AddGiftQuantityHalfModal({
       }
     }
 
-    handleBackPressFunction(() => {
-      navigate.goBack();
-      navigate.navigate('CreateGiftDescription', {
-        amount,
-        amountValue,
-        dollarAmount,
-        giftDenomination,
-        giftQuantity: clampedQty,
-      });
-    });
+    handleBackPressFunction(() =>
+      navigate.popTo('GiftsStack', {
+        screen: 'CreateGiftDescription',
+        params: {
+          amount,
+          amountValue,
+          dollarAmount,
+          giftDenomination,
+          giftQuantity: clampedQty,
+        },
+      }),
+    );
   };
 
   const handleCustomContinue = () => {

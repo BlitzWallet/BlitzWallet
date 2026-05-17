@@ -215,7 +215,7 @@ export default function SettingsHub(props) {
   }, [isConnectedToTheInternet, navigate, t]);
 
   const handleOpenGifts = useCallback(() => {
-    navigate.navigate('GiftsPageHome');
+    navigate.navigate('GiftsStack');
   }, [navigate]);
 
   const renderWidgetItem = useCallback(

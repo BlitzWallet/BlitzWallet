@@ -92,13 +92,22 @@ export default function OnlineListingsFilterHalfModal({
 
         if (!mounted) return;
 
-        setAllCountries([
-          {
-            code: 'WW',
-            countryName: t('apps.onlineListings.filterWorldwide'),
-          },
-          ...countryInfoList,
-        ]);
+        const allCountriesAddOn = {
+          code: 'WW',
+          countryName: t('apps.onlineListings.filterWorldwide'),
+        };
+        const list = [allCountriesAddOn, ...countryInfoList];
+
+        const euopeanUnionAddOn = {
+          code: 'EU',
+          countryName: 'Eruopean Union',
+        };
+        const etheopiaIndex = list.findIndex(item => item.code === 'ET');
+        if (etheopiaIndex !== -1) {
+          list.splice(etheopiaIndex, 0, euopeanUnionAddOn);
+        }
+
+        setAllCountries(list);
       } finally {
         if (mounted) {
           setLoadingCountries(false);

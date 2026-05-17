@@ -42,6 +42,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import CustomButton from '../../../../functions/CustomElements/button';
 import getReceiveAddressAndContactForContactsPayment from '../contacts/internalComponents/getReceiveAddressAndKindForPayment';
 import { parse } from 'tldts';
+import { hasStringAsync } from 'expo-clipboard';
 
 const ContactRow = ({
   contact,
@@ -303,6 +304,7 @@ export default function HalfModalSendOptions({
   const [showAddContact, setShowAddContact] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
+  const [showPasteButton, setShowPasteButton] = useState(true);
   const didPasteRef = useRef(false);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({}); // { [uuid]: y }
@@ -483,16 +485,17 @@ export default function HalfModalSendOptions({
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
-    const response = await getClipboardText();
-    const isFocused = textInputRef?.current?.isFocused?.();
-    if (!response.didWork) {
-      if (isFocused) setInputError(t(response.reason));
-      return;
-    }
+    navigateToSendUsingClipboard(navigate, 'halfModal', 'notHome', t);
+    // const response = await getClipboardText();
+    // const isFocused = textInputRef?.current?.isFocused?.();
+    // if (!response.didWork) {
+    //   if (isFocused) setInputError(t(response.reason));
+    //   return;
+    // }
 
-    setIsInputMode(true);
-    didPasteRef.current = true;
-    setInputText(response.data);
+    // setIsInputMode(true);
+    // didPasteRef.current = true;
+    // setInputText(response.data);
   }, [navigate, t]);
 
   const handleCameraScan = useCallback(async () => {
@@ -620,6 +623,19 @@ export default function HalfModalSendOptions({
       }, 220);
     }
   }, [expandedContact, sortedContacts]);
+
+  // determine if we should show the past button based on state of clipboard and whether input is focused
+  useEffect(() => {
+    async function checkClipboard() {
+      try {
+        const hasString = await hasStringAsync();
+        setShowPasteButton(hasString);
+      } catch (err) {
+        console.log('error checking clipboard', err);
+      }
+    }
+    checkClipboard();
+  }, []);
 
   const handleSelectPaymentType = useCallback(
     (contact, paymentType, isLNURL) => {
@@ -759,7 +775,9 @@ export default function HalfModalSendOptions({
               setInputText={setInputText}
               onBlurFunction={onBlurFunction}
               onFocusFunction={onFocusFunction}
-              textInputStyles={{ paddingRight: 40 }}
+              textInputStyles={{
+                paddingRight: showPasteButton || inputText.trim() ? 40 : 0,
+              }}
               returnKeyType="go"
               onSubmitEditingFunction={handleManualInputSubmit}
             />
@@ -778,7 +796,7 @@ export default function HalfModalSendOptions({
                   iconName={'X'}
                 />
               </TouchableOpacity>
-            ) : (
+            ) : showPasteButton ? (
               <TouchableOpacity
                 onPress={handleClipboardPaste}
                 style={styles.clipboardButton}
@@ -793,7 +811,7 @@ export default function HalfModalSendOptions({
                   iconName={'Clipboard'}
                 />
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
 
           <Animated.View
@@ -1044,7 +1062,7 @@ const styles = StyleSheet.create({
   },
   scanButtonSubtext: {
     fontSize: SIZES.small,
-    opacity: 0.6,
+    opacity: HIDDEN_OPACITY,
   },
   inputErrorContainer: {
     width: INSET_WINDOW_WIDTH,

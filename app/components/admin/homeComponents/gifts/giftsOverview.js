@@ -26,24 +26,25 @@ import NoContentSceen from '../../../../functions/CustomElements/noContentScreen
 
 export default function GiftsOverview() {
   const navigate = useNavigation();
-  const { giftsArray, checkForRefunds } = useGifts();
+  const { giftsArray, checkForRefunds, updateGiftList } = useGifts();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
-      async function refreshList() {
-        await checkForRefunds();
-      }
-      refreshList();
-    }, [checkForRefunds]),
+      (async () => {
+        const giftList = await updateGiftList();
+        await checkForRefunds(giftList);
+      })();
+    }, [updateGiftList, checkForRefunds]),
   );
 
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
   const handleRefresh = async () => {
-    await checkForRefunds();
+    const giftList = await updateGiftList();
+    await checkForRefunds(giftList);
     setRefreshing(false);
   };
 

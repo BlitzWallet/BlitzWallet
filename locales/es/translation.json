@@ -290,6 +290,7 @@
   "apps": {
     "noPurchaseTitle": "Sin Compras",
     "appList": {
+      "title": "Explorar",
       "AI": "IA generativa",
       "AIDescription": "Chatea con los modelos de IA generativa más recientes",
       "SMS": "Mensajes SMS",

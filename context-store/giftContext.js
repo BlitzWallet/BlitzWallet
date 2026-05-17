@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useCallback,
 } from 'react';
 import { useAppStatus } from './appStatus';
 import {
@@ -87,13 +88,13 @@ export function GiftProvider({ children }) {
   const [state, dispatch] = useReducer(giftReducer, initialState);
   const isCheckingRefunds = useRef(null);
 
-  const updateGiftList = async () => {
+  const updateGiftList = useCallback(async () => {
     const updatedList = await getAllLocalGifts();
     dispatch({ type: 'LOAD_LOCAL_GIFTS', payload: updatedList });
     return updatedList;
-  };
+  }, []);
 
-  const saveGiftToCloud = async giftObj => {
+  const saveGiftToCloud = useCallback(async giftObj => {
     try {
       const localObject = JSON.parse(JSON.stringify(giftObj));
       const localResponse = await saveGiftLocal(localObject);
@@ -108,9 +109,9 @@ export function GiftProvider({ children }) {
       console.log('error saving gift to cloud');
       return false;
     }
-  };
+  }, []);
 
-  const bulkSaveGiftsToCloud = async gifts => {
+  const bulkSaveGiftsToCloud = useCallback(async gifts => {
     try {
       const localObjects = gifts.map(g => JSON.parse(JSON.stringify(g)));
       const [localResponse, serverResponse] = await Promise.all([
@@ -125,9 +126,9 @@ export function GiftProvider({ children }) {
       console.log('error bulk saving gifts to cloud', err);
       return false;
     }
-  };
+  }, []);
 
-  const bulkDeleteGiftsFromCloudAndLocal = async uuids => {
+  const bulkDeleteGiftsFromCloudAndLocal = useCallback(async uuids => {
     try {
       const [localResponse, serverResponse] = await Promise.all([
         bulkDeleteGiftsLocal(uuids),
@@ -144,23 +145,26 @@ export function GiftProvider({ children }) {
       console.log('error bulk deleting gifts from cloud and local', err);
       return false;
     }
-  };
+  }, []);
 
-  const deleteGiftFromCloudAndLocal = async UUID => {
-    try {
-      await deleteGiftLocal(UUID);
-      const response = await deleteGift(UUID);
+  const deleteGiftFromCloudAndLocal = useCallback(
+    async UUID => {
+      try {
+        await deleteGiftLocal(UUID);
+        const response = await deleteGift(UUID);
 
-      if (!response) throw new Error('Unable to delete gift from remote ');
-      await updateGiftList();
-      return true;
-    } catch (err) {
-      console.log('error saving gift to cloud');
-      return false;
-    }
-  };
+        if (!response) throw new Error('Unable to delete gift from remote ');
+        await updateGiftList();
+        return true;
+      } catch (err) {
+        console.log('error saving gift to cloud');
+        return false;
+      }
+    },
+    [updateGiftList],
+  );
 
-  const checkForRefunds = async giftList => {
+  const checkForRefunds = useCallback(async giftList => {
     try {
       if (isCheckingRefunds.current) return;
       isCheckingRefunds.current = true;
@@ -225,9 +229,9 @@ export function GiftProvider({ children }) {
     } finally {
       isCheckingRefunds.current = false;
     }
-  };
+  }, [updateGiftList]);
 
-  const handleGiftRestoreOnDomeseday = async giftList => {
+  const handleGiftRestoreOnDomeseday = useCallback(async giftList => {
     // If we have gifts that means we are not restoring and do not need to get gifts in database
     if (giftList?.length) return;
 
@@ -305,7 +309,7 @@ export function GiftProvider({ children }) {
 
     dispatch({ type: 'BULK_ADD_GIFTS', payload: reconstructedGifts });
     await setLocalStorageItem('checkForOutstandingGifts', JSON.stringify(true));
-  };
+  }, [accountMnemoinc, masterInfoObject.uuid]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
@@ -338,22 +342,33 @@ export function GiftProvider({ children }) {
     };
   }, [state.gifts]);
 
+  const contextValue = useMemo(
+    () => ({
+      ...state,
+      saveGiftToCloud,
+      bulkSaveGiftsToCloud,
+      checkForRefunds,
+      deleteGiftFromCloudAndLocal,
+      bulkDeleteGiftsFromCloudAndLocal,
+      updateGiftList,
+      giftsArray,
+      expiredGiftsArray,
+    }),
+    [
+      state,
+      saveGiftToCloud,
+      bulkSaveGiftsToCloud,
+      checkForRefunds,
+      deleteGiftFromCloudAndLocal,
+      bulkDeleteGiftsFromCloudAndLocal,
+      updateGiftList,
+      giftsArray,
+      expiredGiftsArray,
+    ],
+  );
+
   return (
-    <GiftContext.Provider
-      value={{
-        ...state,
-        saveGiftToCloud,
-        bulkSaveGiftsToCloud,
-        checkForRefunds,
-        deleteGiftFromCloudAndLocal,
-        bulkDeleteGiftsFromCloudAndLocal,
-        updateGiftList,
-        giftsArray,
-        expiredGiftsArray,
-      }}
-    >
-      {children}
-    </GiftContext.Provider>
+    <GiftContext.Provider value={contextValue}>{children}</GiftContext.Provider>
   );
 }
 

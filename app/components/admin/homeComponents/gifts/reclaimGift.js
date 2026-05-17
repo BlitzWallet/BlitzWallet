@@ -14,7 +14,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
@@ -27,8 +27,18 @@ import NoContentSceen from '../../../../functions/CustomElements/noContentScreen
 
 export default function ReclaimGift() {
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { expiredGiftsArray } = useGifts();
+  const { expiredGiftsArray, updateGiftList, checkForRefunds } = useGifts();
   const navigate = useNavigation();
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const giftList = await updateGiftList();
+        await checkForRefunds(giftList);
+      })();
+    }, [updateGiftList, checkForRefunds]),
+  );
+
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [enteredLink, setEnteredLink] = useState('');

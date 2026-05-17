@@ -767,6 +767,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   descriptionText: {
+    marginBottom: 2,
     includeFontPadding: false,
   },
   dateText: {
