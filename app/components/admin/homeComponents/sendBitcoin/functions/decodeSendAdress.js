@@ -21,7 +21,7 @@ import { getCachedProfileImage } from '../../../../../functions/cachedImage';
 import { getPayLinkDoc, addDataToCollection } from '../../../../../../db';
 import { receiveSparkLightningPayment } from '../../../../../functions/spark';
 import { isBlitzLNURLAddress } from '../../../../../functions/lnurl';
-import { useBrantaVerification } from '../../../../../functions/branta/index';
+import { handleBrantaVerification } from '../../../../../functions/branta/index';
 import { Image as ExpoImage } from 'expo-image';
 
 export default async function decodeSendAddress(props) {
@@ -249,7 +249,7 @@ export default async function decodeSendAddress(props) {
 
       const brantaVerificationPromise = shouldRunBrantaVerification
         ? Promise.race([
-            useBrantaVerification(btcAdress),
+            handleBrantaVerification(btcAdress),
             new Promise(resolve => setTimeout(() => resolve(null), 2000)),
           ])
         : Promise.resolve(null);

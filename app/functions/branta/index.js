@@ -5,7 +5,7 @@ const brantaClient = new V2BrantaClient({
   privacy: 'strict',
 });
 
-export async function useBrantaVerification(qrCode) {
+export async function handleBrantaVerification(qrCode) {
   try {
     const brantaResponse = await brantaClient.getPaymentsByQRCode(qrCode ?? '');
     return brantaResponse;
