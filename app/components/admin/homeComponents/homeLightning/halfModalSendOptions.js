@@ -430,24 +430,26 @@ export default function HalfModalSendOptions({
         return;
       }
 
-      navigate.replace('ConfirmPaymentScreen', {
-        btcAdress: receiveAddress,
-        fromPage: 'contacts',
-        enteredPaymentInfo: {
-          description: t('contacts.sendAndRequestPage.profileMessage', {
+      handleBackPressFunction(async () => {
+        navigate.replace('ConfirmPaymentScreen', {
+          btcAdress: receiveAddress,
+          fromPage: 'contacts',
+          enteredPaymentInfo: {
+            description: t('contacts.sendAndRequestPage.profileMessage', {
+              name: matchedContact.name || matchedContact.uniqueName,
+            }),
+          },
+          contactInfo: {
+            imageData: cache[matchedContact.uuid],
             name: matchedContact.name || matchedContact.uniqueName,
-          }),
-        },
-        contactInfo: {
-          imageData: cache[matchedContact.uuid],
-          name: matchedContact.name || matchedContact.uniqueName,
-          isLNURLPayment: matchedContact?.isLNURL,
-          payingContactMessage: formattedPayingContactMessage,
-          uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
-          uuid: matchedContact.uuid,
-        },
-        selectedContact: matchedContact,
-        retrivedContact,
+            isLNURLPayment: matchedContact?.isLNURL,
+            payingContactMessage: formattedPayingContactMessage,
+            uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
+            uuid: matchedContact.uuid,
+          },
+          selectedContact: matchedContact,
+          retrivedContact,
+        });
       });
       return;
     }
@@ -458,23 +460,29 @@ export default function HalfModalSendOptions({
       return;
     }
     if (parsed.navigateToWebView) {
-      navigate.navigate('CustomWebView', {
-        headerText: '',
-        webViewURL: parsed.webViewURL,
+      handleBackPressFunction(async () => {
+        navigate.replace('CustomWebView', {
+          headerText: '',
+          webViewURL: parsed.webViewURL,
+        });
+        return;
+      });
+    }
+    if (parsed.isExternalChain) {
+      handleBackPressFunction(async () => {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          parsed,
+          'notHome',
+        );
+        navigate['replace'](screen, params);
       });
       return;
     }
-    if (parsed.isExternalChain) {
-      const { method, screen, params } = resolveExternalChainNavigation(
-        parsed,
-        'notHome',
-      );
-      navigate[method](screen, params);
-      return;
-    }
-    navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: parsed.btcAdress,
-      fromPage: '',
+    handleBackPressFunction(async () => {
+      navigate.replace('ConfirmPaymentScreen', {
+        btcAdress: parsed.btcAdress,
+        fromPage: '',
+      });
     });
   }, [
     navigate,
