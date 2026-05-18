@@ -508,7 +508,7 @@ export default function HalfModalSendOptions({
       if (preParsingResponse.isExternalChain) {
         const { method, screen, params } = resolveExternalChainNavigation(
           preParsingResponse,
-          from,
+          'notHome',
         );
         navigate['navigate'](screen, params);
         return;
