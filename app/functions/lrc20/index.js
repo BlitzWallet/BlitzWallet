@@ -1,14 +1,13 @@
 import { AppState } from 'react-native';
 import { IS_SPARK_ID, USDB_TOKEN_ID } from '../../constants';
-import {
-  getCachedSparkTransactions,
-  getSparkTokenTransactions,
-} from '../spark';
+import { getSparkTokenTransactions } from '../spark';
 import { getActiveSwapTransferIds, isSwapActive } from '../spark/flashnet';
 import {
   bulkUpdateSparkTransactions,
   deleteSparkContactTransaction,
   getAllSparkContactInvoices,
+  getLatestSavedLRC20TransactionId,
+  getSparkTransactionBySparkId,
 } from '../spark/transactions';
 import { convertToBech32m } from './bech32';
 import tokenBufferAmountToDecimal from './bufferToDecimal';
@@ -24,24 +23,10 @@ export async function getLRC20Transactions({
     if (isRunning) throw new Error('process is already running');
     isRunning = true;
     if (AppState.currentState !== 'active') return;
-    const savedTxs = await getCachedSparkTransactions(null, ownerPublicKeys[0]);
-
-    // Find last saved token transaction (any status, including failed flashnet pairs)
-    let lastSavedTransactionId = null;
-    if (savedTxs) {
-      for (const tx of savedTxs) {
-        if (
-          tx.paymentType !== 'spark' ||
-          IS_SPARK_ID.test(tx.sparkID) ||
-          tx.sparkID.length < 40
-        ) {
-          continue;
-        }
-
-        lastSavedTransactionId = tx.sparkID;
-        break;
-      }
-    }
+    const ownerPubKey = ownerPublicKeys[0];
+    const lastSavedTransactionId = await getLatestSavedLRC20TransactionId(
+      ownerPubKey,
+    );
 
     const tokenTxs = await getSparkTokenTransactions({
       ownerPublicKeys,
@@ -53,23 +38,24 @@ export async function getLRC20Transactions({
     if (!tokenTxs?.tokenTransactionsWithStatus) return;
     const tokenTransactions = tokenTxs.tokenTransactionsWithStatus;
 
-    // Build savedIds set for all saved LRC20 token txs (any status) to avoid reprocessing
-    const savedIds = new Set();
-    if (savedTxs) {
-      for (const tx of savedTxs) {
-        if (tx.paymentType !== 'spark' || IS_SPARK_ID.test(tx.sparkID)) {
-          continue;
-        }
-
-        savedIds.add(tx.sparkID);
-      }
-    }
-
     const newTxs = [];
-    const ownerPubKey = ownerPublicKeys[0];
     const isSwapInProgress = isSwapActive();
     const activeSwaps = getActiveSwapTransferIds();
     const unpaidContactInvoices = await getAllSparkContactInvoices();
+    const savedTxCache = new Map();
+    const getSavedLRC20Tx = async txHash => {
+      if (!txHash) return null;
+      if (savedTxCache.has(txHash)) return savedTxCache.get(txHash);
+
+      const savedTx = await getSparkTransactionBySparkId(txHash, ownerPubKey);
+      const savedLRC20Tx =
+        savedTx?.paymentType === 'spark' && !IS_SPARK_ID.test(savedTx.sparkID)
+          ? savedTx
+          : null;
+
+      savedTxCache.set(txHash, savedLRC20Tx);
+      return savedLRC20Tx;
+    };
 
     for (const tokenTx of tokenTransactions) {
       const tokenOutput = tokenTx.tokenTransaction.tokenOutputs[0];
@@ -89,7 +75,7 @@ export async function getLRC20Transactions({
       ).toString('hex');
 
       // Skip if already saved
-      if (savedIds.has(txHash)) continue;
+      if (await getSavedLRC20Tx(txHash)) continue;
 
       const tokenOutputs = tokenTx.tokenTransaction.tokenOutputs;
 

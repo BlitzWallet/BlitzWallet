@@ -187,3 +187,110 @@ describe('Spark transaction bulk update guards', () => {
     });
   });
 });
+
+describe('hasPaidSparkLightningInvoice', () => {
+  it('asks SQLite for a single matching lightning invoice instead of loading transactions', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([{ found: 1 }]);
+    const { hasPaidSparkLightningInvoice } = loadTransactionsModule(mockDb);
+
+    const result = await hasPaidSparkLightningInvoice('  lnbc123  ');
+
+    expect(result).toBe(true);
+    expect(mockDb.getAllAsync).toHaveBeenCalledTimes(1);
+
+    const [sql, params] = mockDb.getAllAsync.mock.calls[0];
+    expect(sql).toContain('SELECT 1 as found');
+    expect(sql).toContain("paymentType = 'lightning'");
+    expect(sql).toContain("TRIM(json_extract(details, '$.address')) = ?");
+    expect(sql).toContain('LIMIT 1');
+    expect(sql).not.toContain('SELECT *');
+    expect(params).toEqual(['lnbc123']);
+  });
+
+  it('returns false without opening the database for empty invoice addresses', async () => {
+    const mockDb = createMockDb();
+    const { hasPaidSparkLightningInvoice } = loadTransactionsModule(mockDb);
+
+    await expect(hasPaidSparkLightningInvoice('   ')).resolves.toBe(false);
+
+    expect(mockOpenDatabaseAsync).not.toHaveBeenCalled();
+    expect(mockDb.getAllAsync).not.toHaveBeenCalled();
+  });
+});
+
+describe('getSparkTransactionBySparkId', () => {
+  it('returns the raw row for a single sparkID/accountId lookup', async () => {
+    const mockDb = createMockDb();
+    const row = {
+      sparkID: 'btc-txid',
+      accountId: 'identity-pubkey',
+      paymentStatus: 'pending',
+      paymentType: 'bitcoin',
+      details: JSON.stringify({ amount: 2500 }),
+    };
+    mockDb.getAllAsync.mockResolvedValue([row]);
+    const { getSparkTransactionBySparkId } = loadTransactionsModule(mockDb);
+
+    const result = await getSparkTransactionBySparkId(
+      ' btc-txid ',
+      'identity-pubkey',
+    );
+
+    expect(result).toBe(row);
+    expect(mockDb.getAllAsync).toHaveBeenCalledTimes(1);
+
+    const [sql, params] = mockDb.getAllAsync.mock.calls[0];
+    expect(sql).toContain('SELECT *');
+    expect(sql).toContain('WHERE sparkID = ? AND accountId = ?');
+    expect(sql).toContain('LIMIT 1');
+    expect(params).toEqual(['btc-txid', 'identity-pubkey']);
+  });
+
+  it('returns null without opening the database for missing lookup input', async () => {
+    const mockDb = createMockDb();
+    const { getSparkTransactionBySparkId } = loadTransactionsModule(mockDb);
+
+    await expect(
+      getSparkTransactionBySparkId('', 'identity-pubkey'),
+    ).resolves.toBe(null);
+    await expect(getSparkTransactionBySparkId('btc-txid')).resolves.toBe(null);
+
+    expect(mockOpenDatabaseAsync).not.toHaveBeenCalled();
+    expect(mockDb.getAllAsync).not.toHaveBeenCalled();
+  });
+});
+
+describe('getLatestSavedLRC20TransactionId', () => {
+  it('returns the latest saved token transaction id from SQLite', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([{ sparkID: 'token-tx-hash' }]);
+    const { getLatestSavedLRC20TransactionId } =
+      loadTransactionsModule(mockDb);
+
+    const result = await getLatestSavedLRC20TransactionId('identity-pubkey');
+
+    expect(result).toBe('token-tx-hash');
+    expect(mockDb.getAllAsync).toHaveBeenCalledTimes(1);
+
+    const [sql, params] = mockDb.getAllAsync.mock.calls[0];
+    expect(sql).toContain('SELECT sparkID');
+    expect(sql).toContain('accountId = ?');
+    expect(sql).toContain("paymentType = 'spark'");
+    expect(sql).toContain('LENGTH(sparkID) >= 40');
+    expect(sql).toContain("ORDER BY json_extract(details, '$.time') DESC");
+    expect(sql).toContain('LIMIT 1');
+    expect(params).toEqual(['identity-pubkey']);
+  });
+
+  it('returns null without opening the database for a missing account id', async () => {
+    const mockDb = createMockDb();
+    const { getLatestSavedLRC20TransactionId } =
+      loadTransactionsModule(mockDb);
+
+    await expect(getLatestSavedLRC20TransactionId()).resolves.toBe(null);
+
+    expect(mockOpenDatabaseAsync).not.toHaveBeenCalled();
+    expect(mockDb.getAllAsync).not.toHaveBeenCalled();
+  });
+});

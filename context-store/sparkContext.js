@@ -25,6 +25,7 @@ import {
   insertSparkTransactionPlaceholders,
   getAllSparkTransactions,
   getAllSparkContactInvoices,
+  getSparkTransactionBySparkId,
   getAllUnpaidSparkLightningInvoices,
   SPARK_TX_UPDATE_ENVENT_NAME,
   sparkTransactionsEventEmitter,
@@ -653,6 +654,7 @@ const SparkWalletProvider = ({ children }) => {
         appliedEpoch: balanceEpochRef.current.applied,
         limit: homepageTxPreferance,
       });
+      if (scrollPositionRef.current !== pos) return;
       setSparkInformation(prev => ({ ...prev, transactions: filtered }));
     },
     [showTokensInformation, homepageTxPreferance],
@@ -1632,10 +1634,18 @@ const SparkWalletProvider = ({ children }) => {
         if (AppState.currentState !== 'active') return;
         if (isSendingPaymentRef.current) return;
         if (!currentMnemonicRef.current) return;
-        const allTxs = await getAllSparkTransactions({
-          accountId: sparkInfoRef.current.identityPubKey,
-        });
-        const savedTxMap = new Map(allTxs.map(tx => [tx.sparkID, tx]));
+        const savedTxCache = new Map();
+        const getSavedTxByTxid = async txid => {
+          if (!txid) return null;
+          if (savedTxCache.has(txid)) return savedTxCache.get(txid);
+
+          const savedTx = await getSparkTransactionBySparkId(
+            txid,
+            sparkInfoRef.current.identityPubKey,
+          );
+          savedTxCache.set(txid, savedTx);
+          return savedTx;
+        };
         const depositAddresses = await queryAllStaticDepositAddresses(
           currentMnemonicRef.current,
         );
@@ -1669,7 +1679,8 @@ const SparkWalletProvider = ({ children }) => {
           for (const tx of exploraData) {
             if (claimableByTxid.has(tx.txid)) continue; // Spark has it, Phase 2 handles it
             if (allKnownByTxid.has(tx.txid)) continue; // Already claimed by Spark
-            if (savedTxMap.has(tx.txid)) continue; // Already in our DB
+            const savedTx = await getSavedTxByTxid(tx.txid);
+            if (savedTx) continue; // Already in our DB marked as pending
 
             console.log(
               'Adding pending deposit tx (not yet claimable):',
@@ -1687,7 +1698,11 @@ const SparkWalletProvider = ({ children }) => {
               address,
               sparkInfoRef.current,
             );
-            savedTxMap.set(tx.txid, true);
+            savedTxCache.set(tx.txid, {
+              sparkID: tx.txid,
+              accountId: sparkInfoRef.current.identityPubKey,
+              details: JSON.stringify({ amount: tx.amount }),
+            });
           }
 
           console.log('Unclaimed UTXOs for address:', address, unclaimedUtxos);
@@ -1697,7 +1712,8 @@ const SparkWalletProvider = ({ children }) => {
           for (const utxo of unclaimedUtxos.utxos) {
             const { txid, vout } = utxo;
             const exploraTx = exploraData?.find(t => t.txid === txid);
-            const hasAlreadySaved = savedTxMap.has(txid);
+            let savedTx = await getSavedTxByTxid(txid);
+            const hasAlreadySaved = !!savedTx;
 
             // Get quote for this specific UTXO
             const {
@@ -1729,7 +1745,17 @@ const SparkWalletProvider = ({ children }) => {
 
             // Add pending transaction if not already saved
             if (!hasAlreadySaved) {
-              await addPendingTransaction(quote, address, sparkInfoRef.current);
+              const pendingTx = await addPendingTransaction(
+                quote,
+                address,
+                sparkInfoRef.current,
+              );
+              savedTx = {
+                sparkID: pendingTx.id,
+                accountId: pendingTx.accountId,
+                details: JSON.stringify(pendingTx.details),
+              };
+              savedTxCache.set(txid, savedTx);
             }
 
             if (!claimTx || !didWork) {
@@ -1760,7 +1786,7 @@ const SparkWalletProvider = ({ children }) => {
             } else {
               const savedTxDetails = (() => {
                 try {
-                  return JSON.parse(savedTxMap.get(txid)?.details ?? 'null');
+                  return JSON.parse(savedTx?.details ?? 'null');
                 } catch {
                   return null;
                 }
@@ -1839,6 +1865,7 @@ const SparkWalletProvider = ({ children }) => {
         },
       };
       await bulkUpdateSparkTransactions([pendingTx], 'transactions');
+      return pendingTx;
     };
 
     clearAllDepositIntervals();
