@@ -485,7 +485,11 @@ export default function HalfModalSendOptions({
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
-    navigateToSendUsingClipboard(navigate, 'halfModal', 'notHome', t);
+    handleBackPressFunction(() => {
+      navigate.goBack();
+      navigateToSendUsingClipboard(navigate, 'halfModal', 'notHome', t);
+    });
+
     // const response = await getClipboardText();
     // const isFocused = textInputRef?.current?.isFocused?.();
     // if (!response.didWork) {
@@ -503,30 +507,33 @@ export default function HalfModalSendOptions({
   }, [navigate, t, handleBackPressFunction]);
 
   const handleImageScan = useCallback(async () => {
-    const response = await getQRImage();
-    if (response.error) {
-      navigate.replace('ErrorScreen', {
-        errorMessage: t(response.error),
+    handleBackPressFunction(async () => {
+      navigate.goBack();
+      const response = await getQRImage();
+      if (response.error) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t(response.error),
+        });
+        return;
+      }
+
+      if (response.isExternalChain) {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          response,
+          'notHome',
+        );
+        navigate['navigate'](screen, params);
+        return;
+      }
+
+      if (!response.didWork || !response.btcAdress) {
+        return;
+      }
+
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: response.btcAdress,
+        fromPage: '',
       });
-      return;
-    }
-
-    if (response.isExternalChain) {
-      const { method, screen, params } = resolveExternalChainNavigation(
-        response,
-        'notHome',
-      );
-      navigate[method](screen, params);
-      return;
-    }
-
-    if (!response.didWork || !response.btcAdress) {
-      return;
-    }
-
-    navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: response.btcAdress,
-      fromPage: '',
     });
   }, [navigate, t, handleBackPressFunction]);
 
