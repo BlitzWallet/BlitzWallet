@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 
 // Settings Section Component
 const SettingsSection = ({ title, children, style }) => {
@@ -88,6 +89,7 @@ export default function DisplayOptions() {
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
+  const { updateHomepageTxPreferance } = useSparkWallet();
 
   const dropdownOptions = [15, 20, 25, 30, 35, 40].map(value => ({
     label: t('settings.displayOptions.transactionsLabel', { context: value }),
@@ -268,9 +270,10 @@ export default function DisplayOptions() {
             selectedValue={t('settings.displayOptions.transactionsLabel', {
               context: masterInfoObject.homepageTxPreferance,
             })}
-            onSelect={item =>
-              toggleMasterInfoObject({ homepageTxPreferance: item.value })
-            }
+            onSelect={item => {
+              toggleMasterInfoObject({ homepageTxPreferance: item.value });
+              updateHomepageTxPreferance(item.value);
+            }}
             customButtonStyles={{
               backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
             }}

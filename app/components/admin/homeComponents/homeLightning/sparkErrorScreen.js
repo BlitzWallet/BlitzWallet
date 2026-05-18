@@ -19,7 +19,7 @@ import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 export default function SparkErrorScreen(props) {
   const { accountMnemoinc } = useKeysContext();
-  const { setSparkInformation } = useSparkWallet();
+  const { setSparkInformation, filterAndSetTransactions } = useSparkWallet();
   const { showToast } = useToast();
   const { backgroundColor, backgroundOffset, transparentOveraly } =
     GetThemeColors();
@@ -37,6 +37,7 @@ export default function SparkErrorScreen(props) {
       if (retryCount < 1) {
         const { didWork, error } = await initWallet({
           setSparkInformation,
+          filterAndSetTransactions,
           // toggleGlobalContactsInformation,
           // globalContactsInformation,
           mnemonic: accountMnemoinc,

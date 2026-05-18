@@ -65,7 +65,10 @@ export default function ViewAllTxPage() {
 
           let transactions;
           if (!hasActiveFilters) {
-            const txs = await getAllSparkTransactions({ limit: null });
+            const txs = await getAllSparkTransactions({
+              limit: null,
+              accountId: sparkInformation.identityPubKey,
+            });
             transactions = txs;
           } else {
             transactions = await getFilteredTransactions(

@@ -189,6 +189,23 @@ export const initializeSparkDatabase = async () => {
         tokens         TEXT    NOT NULL DEFAULT '{}',
         updatedAt      INTEGER NOT NULL
       );
+
+      CREATE INDEX IF NOT EXISTS idx_spark_tx_lightning_invoice_address
+      ON ${SPARK_TRANSACTIONS_TABLE_NAME} (
+        paymentType,
+        TRIM(json_extract(details, '$.address'))
+      )
+      WHERE paymentType = 'lightning' AND json_valid(details);
+
+      CREATE INDEX IF NOT EXISTS idx_spark_tx_spark_id_account_id
+      ON ${SPARK_TRANSACTIONS_TABLE_NAME} (sparkID, accountId);
+
+      CREATE INDEX IF NOT EXISTS idx_spark_tx_lrc20_latest
+      ON ${SPARK_TRANSACTIONS_TABLE_NAME} (
+        accountId,
+        paymentType,
+        json_extract(details, '$.time')
+      );
     `);
 
     console.log('Opened spark transaction and contacts tables');
@@ -295,6 +312,84 @@ export const getAllSparkTransactions = async (options = {}) => {
   } catch (error) {
     console.error('Error fetching transactions:', error);
     return [];
+  }
+};
+
+export const hasPaidSparkLightningInvoice = async invoiceAddress => {
+  const trimmedInvoiceAddress =
+    typeof invoiceAddress === 'string' ? invoiceAddress.trim() : '';
+
+  if (!trimmedInvoiceAddress) return false;
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const result = await sqlLiteDB.getAllAsync(
+      `SELECT 1 as found
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE paymentType = 'lightning'
+       AND json_valid(details)
+       AND TRIM(json_extract(details, '$.address')) = ?
+       LIMIT 1`,
+      [trimmedInvoiceAddress],
+    );
+
+    return result?.length > 0;
+  } catch (error) {
+    console.error('Error checking paid spark lightning invoice:', error);
+    return false;
+  }
+};
+
+export const getSparkTransactionBySparkId = async (sparkID, accountId) => {
+  const normalizedSparkID = typeof sparkID === 'string' ? sparkID.trim() : '';
+  const normalizedAccountId =
+    accountId !== undefined && accountId !== null ? String(accountId) : '';
+
+  if (!normalizedSparkID || !normalizedAccountId) return null;
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT *
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE sparkID = ? AND accountId = ?
+       LIMIT 1`,
+      [normalizedSparkID, normalizedAccountId],
+    );
+
+    return rows?.[0] ?? null;
+  } catch (error) {
+    console.error('Error fetching spark transaction by sparkID:', error);
+    return null;
+  }
+};
+
+export const getLatestSavedLRC20TransactionId = async accountId => {
+  const normalizedAccountId =
+    accountId !== undefined && accountId !== null ? String(accountId) : '';
+
+  if (!normalizedAccountId) return null;
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT sparkID
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+       AND paymentType = 'spark'
+       AND LENGTH(sparkID) >= 40
+       ORDER BY json_extract(details, '$.time') DESC
+       LIMIT 1`,
+      [normalizedAccountId],
+    );
+
+    return rows?.[0]?.sparkID ?? null;
+  } catch (error) {
+    console.error('Error fetching latest saved LRC20 transaction ID:', error);
+    return null;
   }
 };
 

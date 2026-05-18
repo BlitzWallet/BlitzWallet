@@ -1,5 +1,4 @@
 import {
-  getCachedSparkTransactions,
   getSingleTxDetails,
   getSparkBitcoinPaymentRequest,
   getSparkLightningPaymentStatus,

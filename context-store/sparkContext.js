@@ -25,6 +25,7 @@ import {
   insertSparkTransactionPlaceholders,
   getAllSparkTransactions,
   getAllSparkContactInvoices,
+  getSparkTransactionBySparkId,
   getAllUnpaidSparkLightningInvoices,
   SPARK_TX_UPDATE_ENVENT_NAME,
   sparkTransactionsEventEmitter,
@@ -36,10 +37,7 @@ import {
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
 import { useGlobalContactsInfo } from './globalContacts';
-import {
-  initializeSparkSession,
-  initWallet,
-} from '../app/functions/initiateWalletConnection';
+import { initWallet } from '../app/functions/initiateWalletConnection';
 // import { useNodeContext } from './nodeContext';
 import { AppState } from 'react-native';
 import getDepositAddressTxIds from '../app/functions/spark/getDepositAdressTxIds';
@@ -73,6 +71,7 @@ import {
   runTokenOptimization,
 } from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
+import { filterDisplayableTransactions } from '../app/functions/spark/filterTransactions';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -197,12 +196,14 @@ const SparkWalletProvider = ({ children }) => {
   const balanceSupervisorRunIdRef = useRef(0);
   const forcedPendingBySparkIdRef = useRef(new Map());
   const lastConfirmedTxBoundaryRef = useRef(null);
+  const scrollPositionRef = useRef('total');
 
   const isBalancePollerRunningRef = useRef(false);
   const lastBalancePollEventRef = useRef({
     updateType: null,
     timestamp: 0,
   });
+  const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
 
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
@@ -256,18 +257,17 @@ const SparkWalletProvider = ({ children }) => {
 
   useEffect(() => {
     sparkInfoRef.current = {
+      ...sparkInfoRef.current,
       balance: sparkInformation.balance,
       tokens: sparkInformation.tokens,
       identityPubKey: sparkInformation.identityPubKey,
       sparkAddress: sparkInformation.sparkAddress,
-      transactions: sparkInformation.transactions?.slice(0, 50),
     };
   }, [
     sparkInformation.balance,
     sparkInformation.tokens,
     sparkInformation.identityPubKey,
     sparkInformation.sparkAddress,
-    sparkInformation.transactions,
   ]);
 
   useEffect(() => {
@@ -621,6 +621,65 @@ const SparkWalletProvider = ({ children }) => {
     });
   };
 
+  const filterAndSetTransactions = useCallback(
+    freshTxs => {
+      sparkInfoRef.current.transactions = freshTxs.slice(0, 50);
+      const filtered = filterDisplayableTransactions({
+        transactions: freshTxs,
+        scrollPosition: scrollPositionRef.current,
+        enabledLRC20: showTokensInformation,
+        tokens: sparkInfoRef.current.tokens,
+        forcedPendingMap: forcedPendingBySparkIdRef.current,
+        appliedEpoch: balanceEpochRef.current.applied,
+        limit: homepageTxPreferance,
+      });
+      setSparkInformation(prev => ({ ...prev, transactions: filtered }));
+    },
+    [showTokensInformation, homepageTxPreferance],
+  );
+
+  const updateHomepageScrollPosition = useCallback(
+    async pos => {
+      scrollPositionRef.current = pos;
+      const allTxs = await getAllSparkTransactions({
+        limit: null,
+        accountId: sparkInfoRef.current.identityPubKey,
+      });
+      const filtered = filterDisplayableTransactions({
+        transactions: allTxs,
+        scrollPosition: pos,
+        enabledLRC20: showTokensInformation,
+        tokens: sparkInfoRef.current.tokens,
+        forcedPendingMap: forcedPendingBySparkIdRef.current,
+        appliedEpoch: balanceEpochRef.current.applied,
+        limit: homepageTxPreferance,
+      });
+      if (scrollPositionRef.current !== pos) return;
+      setSparkInformation(prev => ({ ...prev, transactions: filtered }));
+    },
+    [showTokensInformation, homepageTxPreferance],
+  );
+
+  const updateHomepageTxPreferance = useCallback(
+    async num => {
+      const allTxs = await getAllSparkTransactions({
+        limit: null,
+        accountId: sparkInfoRef.current.identityPubKey,
+      });
+      const filtered = filterDisplayableTransactions({
+        transactions: allTxs,
+        scrollPosition: scrollPositionRef.current,
+        enabledLRC20: showTokensInformation,
+        tokens: sparkInfoRef.current.tokens,
+        forcedPendingMap: forcedPendingBySparkIdRef.current,
+        appliedEpoch: balanceEpochRef.current.applied,
+        limit: num,
+      });
+      setSparkInformation(prev => ({ ...prev, transactions: filtered }));
+    },
+    [showTokensInformation],
+  );
+
   const enqueueTxLane = useCallback((updateType, task) => {
     queueDepthRef.current += 1;
     console.log(
@@ -856,10 +915,7 @@ const SparkWalletProvider = ({ children }) => {
 
       const txListWithPendingFlags = applyForcedPendingFlags(txs);
 
-      setSparkInformation(prev => ({
-        ...prev,
-        transactions: txListWithPendingFlags,
-      }));
+      filterAndSetTransactions(txs);
 
       enqueueUiLane(event.updateType, () =>
         maybeHandleConfirmNavigation(
@@ -869,7 +925,7 @@ const SparkWalletProvider = ({ children }) => {
         ),
       );
     },
-    [enqueueUiLane, maybeHandleConfirmNavigation],
+    [enqueueUiLane, maybeHandleConfirmNavigation, filterAndSetTransactions],
   );
 
   const applyConfirmedBalanceSnapshot = useCallback(
@@ -907,6 +963,8 @@ const SparkWalletProvider = ({ children }) => {
         'apply confimred balance snapshot',
       );
 
+      filterAndSetTransactions(freshTxs);
+
       const myVersion = ++balanceVersionRef.current;
       setSparkInformation(prev => {
         if (myVersion < balanceVersionRef.current) return prev;
@@ -916,11 +974,15 @@ const SparkWalletProvider = ({ children }) => {
             ? numericBalance
             : prev.balance,
           tokens: result?.didWork ? result.tokensObj : prev.tokens,
-          transactions: projectedTxs || prev.transactions,
         };
       });
     },
-    [maybeHandleConfirmNavigation, contactsPrivateKey, publicKey],
+    [
+      maybeHandleConfirmNavigation,
+      contactsPrivateKey,
+      publicKey,
+      filterAndSetTransactions,
+    ],
   );
 
   const runBalanceSupervisor = useCallback(async () => {
@@ -1011,16 +1073,13 @@ const SparkWalletProvider = ({ children }) => {
       if (shouldForcePending) {
         const currentTxs = sparkInfoRef.current.transactions || [];
         registerForcedPendingForEpoch(currentTxs, epoch);
-        setSparkInformation(prev => ({
-          ...prev,
-          transactions: applyForcedPendingFlags(prev.transactions || []),
-        }));
+        filterAndSetTransactions(sparkInfoRef.current.transactions || []);
       }
 
       runBalanceSupervisor();
       return epoch;
     },
-    [runBalanceSupervisor],
+    [runBalanceSupervisor, filterAndSetTransactions],
   );
 
   const applyIncomingPaymentSnapshot = useCallback(
@@ -1067,12 +1126,13 @@ const SparkWalletProvider = ({ children }) => {
         getBoundaryFromTxs(freshTxs),
       );
 
+      filterAndSetTransactions(freshTxs);
+
       const myVersion = ++balanceVersionRef.current;
       setSparkInformation(prev => {
         if (myVersion < balanceVersionRef.current) return prev;
         return {
           ...prev,
-          transactions: applyForcedPendingFlags(freshTxs || prev.transactions),
           balance: Number.isFinite(numericPassedBalance)
             ? numericPassedBalance
             : prev.balance,
@@ -1082,7 +1142,7 @@ const SparkWalletProvider = ({ children }) => {
         };
       });
     },
-    [contactsPrivateKey, publicKey],
+    [contactsPrivateKey, publicKey, filterAndSetTransactions],
   );
 
   const handleUpdate = useCallback(
@@ -1447,6 +1507,7 @@ const SparkWalletProvider = ({ children }) => {
         tokens: {},
         identityPubKey: '',
         sparkAddress: '',
+        transactions: [],
       };
       handledTransfers.current = new Set();
       prevListenerType.current = null;
@@ -1573,10 +1634,18 @@ const SparkWalletProvider = ({ children }) => {
         if (AppState.currentState !== 'active') return;
         if (isSendingPaymentRef.current) return;
         if (!currentMnemonicRef.current) return;
-        const allTxs = await getAllSparkTransactions({
-          accountId: sparkInfoRef.current.identityPubKey,
-        });
-        const savedTxMap = new Map(allTxs.map(tx => [tx.sparkID, tx]));
+        const savedTxCache = new Map();
+        const getSavedTxByTxid = async txid => {
+          if (!txid) return null;
+          if (savedTxCache.has(txid)) return savedTxCache.get(txid);
+
+          const savedTx = await getSparkTransactionBySparkId(
+            txid,
+            sparkInfoRef.current.identityPubKey,
+          );
+          savedTxCache.set(txid, savedTx);
+          return savedTx;
+        };
         const depositAddresses = await queryAllStaticDepositAddresses(
           currentMnemonicRef.current,
         );
@@ -1610,7 +1679,8 @@ const SparkWalletProvider = ({ children }) => {
           for (const tx of exploraData) {
             if (claimableByTxid.has(tx.txid)) continue; // Spark has it, Phase 2 handles it
             if (allKnownByTxid.has(tx.txid)) continue; // Already claimed by Spark
-            if (savedTxMap.has(tx.txid)) continue; // Already in our DB
+            const savedTx = await getSavedTxByTxid(tx.txid);
+            if (savedTx) continue; // Already in our DB marked as pending
 
             console.log(
               'Adding pending deposit tx (not yet claimable):',
@@ -1628,7 +1698,11 @@ const SparkWalletProvider = ({ children }) => {
               address,
               sparkInfoRef.current,
             );
-            savedTxMap.set(tx.txid, true);
+            savedTxCache.set(tx.txid, {
+              sparkID: tx.txid,
+              accountId: sparkInfoRef.current.identityPubKey,
+              details: JSON.stringify({ amount: tx.amount }),
+            });
           }
 
           console.log('Unclaimed UTXOs for address:', address, unclaimedUtxos);
@@ -1638,7 +1712,8 @@ const SparkWalletProvider = ({ children }) => {
           for (const utxo of unclaimedUtxos.utxos) {
             const { txid, vout } = utxo;
             const exploraTx = exploraData?.find(t => t.txid === txid);
-            const hasAlreadySaved = savedTxMap.has(txid);
+            let savedTx = await getSavedTxByTxid(txid);
+            const hasAlreadySaved = !!savedTx;
 
             // Get quote for this specific UTXO
             const {
@@ -1670,7 +1745,17 @@ const SparkWalletProvider = ({ children }) => {
 
             // Add pending transaction if not already saved
             if (!hasAlreadySaved) {
-              await addPendingTransaction(quote, address, sparkInfoRef.current);
+              const pendingTx = await addPendingTransaction(
+                quote,
+                address,
+                sparkInfoRef.current,
+              );
+              savedTx = {
+                sparkID: pendingTx.id,
+                accountId: pendingTx.accountId,
+                details: JSON.stringify(pendingTx.details),
+              };
+              savedTxCache.set(txid, savedTx);
             }
 
             if (!claimTx || !didWork) {
@@ -1701,7 +1786,7 @@ const SparkWalletProvider = ({ children }) => {
             } else {
               const savedTxDetails = (() => {
                 try {
-                  return JSON.parse(savedTxMap.get(txid)?.details ?? 'null');
+                  return JSON.parse(savedTx?.details ?? 'null');
                 } catch {
                   return null;
                 }
@@ -1780,6 +1865,7 @@ const SparkWalletProvider = ({ children }) => {
         },
       };
       await bulkUpdateSparkTransactions([pendingTx], 'transactions');
+      return pendingTx;
     };
 
     clearAllDepositIntervals();
@@ -1854,7 +1940,7 @@ const SparkWalletProvider = ({ children }) => {
         null,
         sparkInfoRef.current.identityPubKey,
       );
-      setSparkInformation(prev => ({ ...prev, transactions }));
+      filterAndSetTransactions(transactions);
       hasRestoreCompleted.current = true;
     }
 
@@ -1883,6 +1969,7 @@ const SparkWalletProvider = ({ children }) => {
     async identityPubKey => {
       const { didWork, error } = await initWallet({
         setSparkInformation,
+        filterAndSetTransactions,
         // toggleGlobalContactsInformation,
         // globalContactsInformation,
         mnemonic: accountMnemoinc,
@@ -1960,6 +2047,9 @@ const SparkWalletProvider = ({ children }) => {
       toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
+      updateHomepageScrollPosition,
+      filterAndSetTransactions,
+      updateHomepageTxPreferance,
     }),
     [
       sparkInformation,
@@ -1976,6 +2066,9 @@ const SparkWalletProvider = ({ children }) => {
       toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
+      updateHomepageScrollPosition,
+      filterAndSetTransactions,
+      updateHomepageTxPreferance,
     ],
   );
 
