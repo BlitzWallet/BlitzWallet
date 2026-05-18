@@ -1,6 +1,7 @@
+import { useState, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useSavings } from '../../../../../context-store/savingsContext';
+import { useFocusEffect } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { COLORS, FONT, ICONS, SIZES } from '../../../../constants';
@@ -10,14 +11,27 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import WidgetCard from './WidgetCard';
+import { getLocalStorageItem } from '../../../../functions/localStorage';
+import { fromMicros } from '../../../../components/admin/homeComponents/savings/utils';
 
 export default function SavingsPreview({ onPress }) {
   const { t } = useTranslation();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { savingsBalance } = useSavings();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const [savingsBalance, setSavingsBalance] = useState('0.00');
+
+  useFocusEffect(
+    useCallback(() => {
+      getLocalStorageItem('savings_wallet_balance_micros').then(cached => {
+        if (cached != null) {
+          const parsed = Number(cached);
+          if (Number.isFinite(parsed)) setSavingsBalance(fromMicros(parsed));
+        }
+      });
+    }, []),
+  );
 
   return (
     <WidgetCard onPress={onPress}>

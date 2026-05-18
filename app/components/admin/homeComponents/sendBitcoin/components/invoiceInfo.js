@@ -16,6 +16,7 @@ export default function InvoiceInfo({
   darkModeType,
   isSplitPayment,
   splitRecipients = [],
+  isUsingBranta,
 }) {
   const formmateedSparkPaymentInfo = formatSparkPaymentAddress(
     paymentInfo,
@@ -40,7 +41,30 @@ export default function InvoiceInfo({
       ]}
       disabled={isSplitPayment}
     >
-      {isSplitPayment ? (
+      {isUsingBranta ? (
+        <View style={styles.contactRow}>
+          <View
+            style={[
+              styles.profileImage,
+              {
+                backgroundColor: backgroundColor,
+              },
+            ]}
+          >
+            <ContactProfileImage
+              updated={undefined}
+              uri={paymentInfo?.brantaMerchantLogo}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+          <ThemeText
+            styles={styles.addressText}
+            CustomNumberOfLines={1}
+            content={paymentInfo?.brantaMerchantName || ''}
+          />
+        </View>
+      ) : isSplitPayment ? (
         <ProfileImageRow
           avatarSize={40}
           contacts={splitContacts}

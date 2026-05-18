@@ -1170,7 +1170,8 @@
         "swapRatesChangedTitle": "Taux de change mis à jour",
         "swapRatesChangedBody": "Le taux de change pour cet échange a changé pendant votre vérification. Veuillez saisir à nouveau le montant pour continuer.",
         "swapRatesChangedButton": "Ressaisir le montant",
-        "feeEstimateError": "Impossible d’estimer les frais, veuillez réessayer"
+        "feeEstimateError": "Impossible d’estimer les frais, veuillez réessayer",
+        "brantaVerification": "Ce paiement a été vérifié par Branta"
       },
       "selectPaymentMethod": {
         "header": "Veuillez sélectionner comment vous souhaitez financer votre paiement."

@@ -193,6 +193,7 @@ export default function SendPaymentScreen(props) {
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
   const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
   const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
+  const isUsingBranta = paymentInfo?.isUsingBranta;
 
   const enabledLRC20 = showTokensInformation;
   const defaultToken = enabledLRC20
@@ -1320,6 +1321,13 @@ export default function SendPaymentScreen(props) {
     };
   }, [isAmountFocused, bottomPadding]);
 
+  const handleBrandaVerificationUrl = useCallback(() => {
+    navigate.navigate('CustomWebView', {
+      headerText: 'Branta',
+      webViewURL: paymentInfo?.verificationURL,
+    });
+  }, [paymentInfo?.verificationURL, navigate, t]);
+
   const sendingAsset =
     selectedLRC20Asset === 'Bitcoin'
       ? !isLightningPayment &&
@@ -1348,7 +1356,13 @@ export default function SendPaymentScreen(props) {
   return (
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View style={styles.replacementContainer}>
-        <CustomSettingsTopBar label={t('constants.send')} />
+        <CustomSettingsTopBar
+          label={t('constants.send')}
+          showLeftImage={isUsingBranta}
+          iconNew="BadgeCheck"
+          leftImageStyles={{ height: 25 }}
+          leftImageFunction={handleBrandaVerificationUrl}
+        />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
@@ -1428,6 +1442,7 @@ export default function SendPaymentScreen(props) {
               }
               theme={theme}
               darkModeType={darkModeType}
+              isUsingBranta={isUsingBranta}
             />
           )}
           {uiState === 'CHOOSE_METHOD' && (

@@ -215,8 +215,15 @@ const restoreSparkTxState = async (
       // Process batch and check for overlap simultaneously
       const newBatchTxs = [];
       for (const tx of batchTxs) {
+        const type = sparkPaymentType(tx);
+
+        const lnRequsestId = type === 'lightning' ? tx?.userRequest?.id : null;
+        const paymentId = tx.id;
         // Check for overlap first (most likely to break early)
-        if (savedIds.has(tx.id)) {
+        if (
+          savedIds.has(paymentId) ||
+          (lnRequsestId && savedIds.has(lnRequsestId))
+        ) {
           foundOverlap = true;
           console.log(
             'Found overlap with saved transactions, stopping restore.',
@@ -234,8 +241,6 @@ const restoreSparkTxState = async (
 
         // This would cause a double transaction to be listed untill the pending items were clear
         if (tx.transferDirection === 'OUTGOING' && isSendingPayment) continue;
-
-        const type = sparkPaymentType(tx);
 
         if (type === 'bitcoin') {
           const response = txsByType.bitcoin.find(item => {

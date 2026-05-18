@@ -268,41 +268,43 @@ export default function ContactsPage({ navigation }) {
     >
       {(didEditProfile || hasContacts) && (
         <View style={memoizedStyles.topBar}>
-          <TouchableOpacity
-            onPress={() =>
-              keyboardNavigate(() =>
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'ViewAllGiftCards',
-                }),
-              )
-            }
-            style={[
-              memoizedStyles.giftContainer,
-              {
-                backgroundColor: !showHighlightedGifts
-                  ? backgroundOffset
-                  : theme && darkModeType
-                  ? COLORS.darkModeText
-                  : COLORS.primary,
-                zIndex: 99,
-              },
-            ]}
-          >
-            <ThemeImage
-              styles={{
-                width: 18,
-                height: 18,
-                tintColor: !showHighlightedGifts
-                  ? textColor
-                  : theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText,
-              }}
-              lightModeIcon={ICONS.giftCardIcon}
-              darkModeIcon={ICONS.giftCardIcon}
-              lightsOutIcon={ICONS.giftCardIcon}
-            />
-          </TouchableOpacity>
+          {showHighlightedGifts && (
+            <TouchableOpacity
+              onPress={() =>
+                keyboardNavigate(() =>
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'ViewAllGiftCards',
+                  }),
+                )
+              }
+              style={[
+                memoizedStyles.giftContainer,
+                {
+                  backgroundColor: !showHighlightedGifts
+                    ? backgroundOffset
+                    : theme && darkModeType
+                    ? COLORS.darkModeText
+                    : COLORS.primary,
+                  zIndex: 99,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={{
+                  width: 18,
+                  height: 18,
+                  tintColor: !showHighlightedGifts
+                    ? textColor
+                    : theme && darkModeType
+                    ? COLORS.lightModeText
+                    : COLORS.darkModeText,
+                }}
+                lightModeIcon={ICONS.giftCardIcon}
+                darkModeIcon={ICONS.giftCardIcon}
+                lightsOutIcon={ICONS.giftCardIcon}
+              />
+            </TouchableOpacity>
+          )}
           <ThemeText
             CustomNumberOfLines={1}
             content={t('contacts.contactsPage.contactsHeader')}

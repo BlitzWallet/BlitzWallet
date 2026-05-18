@@ -12,10 +12,11 @@ const AuthStatusProvider = ({ children }) => {
   useEffect(() => {
     if (appState === 'active' && shouldResetStateRef.current) {
       setAuthResetKey(prev => prev + 1);
-      navigationRef.current.reset({
-        index: 0,
-        routes: [{ name: 'SplashReload' }],
-      });
+      if (navigationRef.current)
+        navigationRef.current.reset({
+          index: 0,
+          routes: [{ name: 'SplashReload' }],
+        });
     }
   }, [appState]);
 

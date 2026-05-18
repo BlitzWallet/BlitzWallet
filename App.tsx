@@ -36,7 +36,6 @@ import { Linking, Platform, NativeModules } from 'react-native';
 import SplashScreen from './app/screens/splashScreen';
 import { GlobalContactsList } from './context-store/globalContacts';
 
-// import {GlobaleCashVariables} from './context-store/eCash';
 import { CreateAccountHome } from './app/screens/createAccount';
 import { getLocales } from 'react-native-localize';
 import { supportedLanguagesList } from './locales/localeslist';
@@ -57,12 +56,8 @@ import { LiquidEventProvider } from './context-store/liquidEventContext';
 import {
   LiquidNavigationListener,
   RootstockNavigationListener,
-  // EcashNavigationListener,
-  // LightningNavigationListener,
-  // LiquidNavigationListener,
   SparkNavigationListener,
 } from './context-store/SDKNavigation';
-// import {LightningEventProvider} from './context-store/lightningEventContext';
 import {
   GlobalThemeProvider,
   useGlobalThemeContext,
@@ -79,8 +74,6 @@ import {
 } from './navigation/screens';
 import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import { navigationRef } from './navigation/navigationService';
-// import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
-// import BreezTest from './app/screens/breezTest';
 import { ImageCacheProvider } from './context-store/imageCache';
 import {
   runPinAndMnemoicMigration,
@@ -88,22 +81,8 @@ import {
 } from './app/functions/secureStore';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
-// import {SparkConnectionListener} from './context-store/connectToNode';
 import { SparkWalletProvider } from './context-store/sparkContext';
 import { DropdownProvider } from './context-store/dropdownContext';
-
-// let setStatusBarBackgroundColor: ((color: string) => void) | undefined;
-// let setStatusBarStyle: ((style: 'light' | 'dark') => void) | undefined;
-// let SystemUI: any;
-// let NavigationBar: any;
-
-// if (Platform.OS === 'android') {
-//   const statusBar = require('expo-status-bar');
-//   setStatusBarBackgroundColor = statusBar.setStatusBarBackgroundColor;
-//   setStatusBarStyle = statusBar.setStatusBarStyle;
-//   SystemUI = require('expo-system-ui');
-//   NavigationBar = require('expo-navigation-bar');
-// }
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
 import {
@@ -122,10 +101,7 @@ import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
-import { SavingsProvider } from './context-store/savingsContext';
-// import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
-import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
 import { AnalyticsProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
@@ -154,45 +130,34 @@ function App(): JSX.Element {
                             <GlobalContextProvider>
                               <ActiveCustodyAccountProvider>
                                 <WebViewProvider>
-                                  {/* <GlobaleCashVariables> */}
                                   <SparkWalletProvider>
                                     <GLobalNodeContextProider>
-                                      {/* <GlobalConbinedTxContextProvider> */}
                                       <GlobalAppDataProvider>
                                         <PushNotificationProvider>
                                           <LiquidEventProvider>
                                             <RootstockSwapProvider>
-                                              {/* <LRC20EventProvider> */}
                                               <GlobalNostrWalletConnectProvider>
-                                                {/* <LightningEventProvider> */}
                                                 <ImageCacheProvider>
                                                   <GlobalServerTimeProvider>
                                                     <FlashnetProvider>
                                                       <UserBalanceProvider>
-                                                        <SavingsProvider>
-                                                          <AnalyticsProvider>
-                                                            {/* <Suspense
+                                                        <AnalyticsProvider>
+                                                          {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                            <ResetStack />
-                                                          </AnalyticsProvider>
-                                                        </SavingsProvider>
+                                                          <ResetStack />
+                                                        </AnalyticsProvider>
                                                       </UserBalanceProvider>
                                                     </FlashnetProvider>
                                                     {/* </Suspense> */}
                                                   </GlobalServerTimeProvider>
                                                 </ImageCacheProvider>
-                                                {/* </LightningEventProvider> */}
                                               </GlobalNostrWalletConnectProvider>
-                                              {/* </LRC20EventProvider> */}
                                             </RootstockSwapProvider>
                                           </LiquidEventProvider>
                                         </PushNotificationProvider>
                                       </GlobalAppDataProvider>
-                                      {/* <BreezTest /> */}
-                                      {/* </GlobalConbinedTxContextProvider> */}
                                     </GLobalNodeContextProider>
                                   </SparkWalletProvider>
-                                  {/* </GlobaleCashVariables> */}
                                 </WebViewProvider>
                               </ActiveCustodyAccountProvider>
                             </GlobalContextProvider>
@@ -352,10 +317,11 @@ function ResetStack(): JSX.Element | null {
             hasPublicKey: !!publicKey,
           },
         );
+        const rootState = navigationRef?.getRootState() ?? { routes: [] };
         const blockSoftReset =
-          (navigationRef.getRootState().routes[0]?.name === 'Home' &&
-            navigationRef.getRootState().routes.length === 1) ||
-          navigationRef.getRootState().routes[0]?.name === 'Splash';
+          (rootState.routes[0]?.name === 'Home' &&
+            rootState.routes.length === 1) ||
+          rootState.routes[0]?.name === 'Splash';
 
         if (!blockSoftReset) {
           let isContactLink = false;
@@ -385,7 +351,7 @@ function ResetStack(): JSX.Element | null {
             if (poolIdMatch) {
               navigationRef.current.navigate('PoolsStack', {
                 screen: 'PoolDetailScreen',
-                params: {poolId: poolIdMatch[1]},
+                params: { poolId: poolIdMatch[1] },
               });
             }
           } else if (GIFT_DEEPLINK_REGEX.test(url)) {
@@ -488,7 +454,8 @@ function ResetStack(): JSX.Element | null {
   }, [handleDeepLink]);
 
   useEffect(() => {
-    async function initWallet() {
+    let cancelled = false;
+    async function initWallet(skipURL = false) {
       await runPinAndMnemoicMigration();
       await runSecureStoreMigrationV2();
       const [
@@ -499,14 +466,18 @@ function ResetStack(): JSX.Element | null {
         securitySettings,
         userSelectedLanguage,
       ] = await Promise.all([
-        getInitialURL(),
+        skipURL ? Promise.resolve() : getInitialURL(),
         retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
         retrieveData('pinHash'),
         retrieveData('encryptedMnemonic'),
         getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-        getLocalStorageItem('userSelectedLanguage').then(data =>
-          JSON.parse(data),
-        ),
+        getLocalStorageItem('userSelectedLanguage').then(data => {
+          try {
+            return JSON.parse(data);
+          } catch {
+            return null;
+          }
+        }),
       ]);
 
       const storedSettings = JSON.parse(securitySettings);
@@ -524,6 +495,8 @@ function ResetStack(): JSX.Element | null {
           LOGIN_SECUITY_MODE_KEY,
           JSON.stringify(parsedSettings),
         );
+
+      if (cancelled) return;
 
       if (mnemonic.value && !parsedSettings.isSecurityEnabled) {
         setAccountMnemonic(mnemonic.value);
@@ -558,33 +531,14 @@ function ResetStack(): JSX.Element | null {
 
     if (!didInitializeSettings.current) {
       didInitializeSettings.current = true;
-      initWallet();
+      initWallet(false);
     } else {
-      // Re-check login status when app becomes active again
-      async function recheckLoginStatus() {
-        const [pin, mnemonic, securitySettings] = await Promise.all([
-          retrieveData('pinHash'),
-          retrieveData('encryptedMnemonic'),
-          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-        ]);
-
-        const storedSettings = JSON.parse(securitySettings);
-
-        if (mnemonic.value && !storedSettings.isSecurityEnabled) {
-          setAccountMnemonic(mnemonic.value);
-        }
-        setSecuritySettings(storedSettings);
-        setInitSettings(prev => {
-          return {
-            ...prev,
-            isLoggedIn: !!pin.value && !!mnemonic.value,
-            hasSecurityEnabled: storedSettings?.isSecurityEnabled ?? true,
-          };
-        });
-      }
-
-      recheckLoginStatus();
+      didInitializeSettings.current = true;
+      initWallet(true);
     }
+    return () => {
+      cancelled = true;
+    };
   }, [appState]);
 
   const handleAnimationFinish = () => {
