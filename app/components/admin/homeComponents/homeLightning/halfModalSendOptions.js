@@ -485,9 +485,39 @@ export default function HalfModalSendOptions({
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
-    handleBackPressFunction(() => {
+    handleBackPressFunction(async () => {
       navigate.goBack();
-      navigateToSendUsingClipboard(navigate, 'halfModal', 'notHome', t);
+      const response = await getClipboardText();
+
+      if (!response.didWork) {
+        navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
+        return;
+      }
+      const clipboardData = response.data?.trim();
+
+      const preParsingResponse = handlePreSendPageParsing(clipboardData);
+
+      if (preParsingResponse.navigateToWebView) {
+        navigate.navigate('CustomWebView', {
+          headerText: '',
+          webViewURL: preParsingResponse.webViewURL,
+        });
+        return;
+      }
+
+      if (preParsingResponse.isExternalChain) {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          preParsingResponse,
+          from,
+        );
+        navigate['navigate'](screen, params);
+        return;
+      }
+
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: preParsingResponse.btcAdress,
+        fromPage: '',
+      });
     });
 
     // const response = await getClipboardText();
