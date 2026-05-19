@@ -1,13 +1,15 @@
-import { BrantaServerBaseUrl, V2BrantaClient } from '@branta-ops/branta';
+import { BrantaServerBaseUrl } from '@branta-ops/branta';
+import { BrantaService } from '@branta-ops/branta/v2';
 
-const brantaClient = new V2BrantaClient({
+const service = new BrantaService({
   baseUrl: BrantaServerBaseUrl.Production,
   privacy: 'strict',
 });
 
 export async function handleBrantaVerification(qrCode) {
   try {
-    const brantaResponse = await brantaClient.getPaymentsByQRCode(qrCode ?? '');
+    const brantaResponse = await service.getPaymentsByQrCode(qrCode ?? '');
+    console.log(brantaResponse);
     return brantaResponse;
   } catch (err) {
     console.log('Error retriving branta verification', err);

@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@azure/core-asynciterator-polyfill": "^1.0.2",
-    "@branta-ops/branta": "2.0.0",
+    "@branta-ops/branta": "^3.1.2",
     "@breeztech/react-native-breez-sdk-liquid": "^0.11.9",
     "@buildonspark/spark-sdk": "^0.8.0",
     "@craftzdog/react-native-buffer": "^6.1.0",
@@ -103,6 +103,7 @@
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
+    "react-native-url-polyfill": "^3.0.0",
     "react-native-view-shot": "^4.0.3",
     "react-native-vision-camera": "^5.0.9",
     "react-native-vision-camera-barcode-scanner": "^5.0.9",
