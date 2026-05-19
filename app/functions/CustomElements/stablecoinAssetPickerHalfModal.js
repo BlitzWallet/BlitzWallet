@@ -24,6 +24,7 @@ const USDT_SUPPORTED_CHAINS = new Set([
   'Arbitrum',
   'Optimism',
   'Tron',
+  'Polygon',
 ]);
 
 const USDC_SUPPORTED_CHAINS = new Set([
