@@ -5,7 +5,12 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   WEBSITE_REGEX,
 } from '../../../../constants';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
@@ -17,6 +22,7 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import getClipboardText from '../../../../functions/getClipboardText';
 import ClaimGiftScreen from './claimGiftScreen';
 import GetThemeColors from '../../../../hooks/themeColors';
+import { hasStringAsync } from 'expo-clipboard';
 
 export default function ClaimGiftHomeHalfModal({
   setContentHeight,
@@ -25,6 +31,7 @@ export default function ClaimGiftHomeHalfModal({
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor } = GetThemeColors();
+  const [showPasteButton, setShowPasteButton] = useState(true);
 
   const [enteredLink, setEnteredLink] = useState('');
   const [didSave, setDidSave] = useState(false);
@@ -32,6 +39,19 @@ export default function ClaimGiftHomeHalfModal({
 
   useEffect(() => {
     setContentHeight(550);
+  }, []);
+
+  // determine if we should show the past button based on state of clipboard and whether input is focused
+  useEffect(() => {
+    async function checkClipboard() {
+      try {
+        const hasString = await hasStringAsync();
+        setShowPasteButton(hasString);
+      } catch (err) {
+        console.log('error checking clipboard', err);
+      }
+    }
+    checkClipboard();
   }, []);
 
   const handleClaimGift = async () => {
@@ -140,6 +160,7 @@ export default function ClaimGiftHomeHalfModal({
           {
             alignSelf: 'center',
             marginTop: 'auto',
+            opacity: !enteredLink && !showPasteButton ? HIDDEN_OPACITY : 1,
           },
         ]}
         actionFunction={handleClaimGift}
