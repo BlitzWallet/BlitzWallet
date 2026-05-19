@@ -430,24 +430,26 @@ export default function HalfModalSendOptions({
         return;
       }
 
-      navigate.replace('ConfirmPaymentScreen', {
-        btcAdress: receiveAddress,
-        fromPage: 'contacts',
-        enteredPaymentInfo: {
-          description: t('contacts.sendAndRequestPage.profileMessage', {
+      handleBackPressFunction(async () => {
+        navigate.replace('ConfirmPaymentScreen', {
+          btcAdress: receiveAddress,
+          fromPage: 'contacts',
+          enteredPaymentInfo: {
+            description: t('contacts.sendAndRequestPage.profileMessage', {
+              name: matchedContact.name || matchedContact.uniqueName,
+            }),
+          },
+          contactInfo: {
+            imageData: cache[matchedContact.uuid],
             name: matchedContact.name || matchedContact.uniqueName,
-          }),
-        },
-        contactInfo: {
-          imageData: cache[matchedContact.uuid],
-          name: matchedContact.name || matchedContact.uniqueName,
-          isLNURLPayment: matchedContact?.isLNURL,
-          payingContactMessage: formattedPayingContactMessage,
-          uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
-          uuid: matchedContact.uuid,
-        },
-        selectedContact: matchedContact,
-        retrivedContact,
+            isLNURLPayment: matchedContact?.isLNURL,
+            payingContactMessage: formattedPayingContactMessage,
+            uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
+            uuid: matchedContact.uuid,
+          },
+          selectedContact: matchedContact,
+          retrivedContact,
+        });
       });
       return;
     }
@@ -458,23 +460,29 @@ export default function HalfModalSendOptions({
       return;
     }
     if (parsed.navigateToWebView) {
-      navigate.navigate('CustomWebView', {
-        headerText: '',
-        webViewURL: parsed.webViewURL,
+      handleBackPressFunction(async () => {
+        navigate.replace('CustomWebView', {
+          headerText: '',
+          webViewURL: parsed.webViewURL,
+        });
+        return;
+      });
+    }
+    if (parsed.isExternalChain) {
+      handleBackPressFunction(async () => {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          parsed,
+          'notHome',
+        );
+        navigate['replace'](screen, params);
       });
       return;
     }
-    if (parsed.isExternalChain) {
-      const { method, screen, params } = resolveExternalChainNavigation(
-        parsed,
-        'notHome',
-      );
-      navigate[method](screen, params);
-      return;
-    }
-    navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: parsed.btcAdress,
-      fromPage: '',
+    handleBackPressFunction(async () => {
+      navigate.replace('ConfirmPaymentScreen', {
+        btcAdress: parsed.btcAdress,
+        fromPage: '',
+      });
     });
   }, [
     navigate,
@@ -485,7 +493,41 @@ export default function HalfModalSendOptions({
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
-    navigateToSendUsingClipboard(navigate, 'halfModal', 'notHome', t);
+    handleBackPressFunction(async () => {
+      navigate.goBack();
+      const response = await getClipboardText();
+
+      if (!response.didWork) {
+        navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
+        return;
+      }
+      const clipboardData = response.data?.trim();
+
+      const preParsingResponse = handlePreSendPageParsing(clipboardData);
+
+      if (preParsingResponse.navigateToWebView) {
+        navigate.navigate('CustomWebView', {
+          headerText: '',
+          webViewURL: preParsingResponse.webViewURL,
+        });
+        return;
+      }
+
+      if (preParsingResponse.isExternalChain) {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          preParsingResponse,
+          'notHome',
+        );
+        navigate['navigate'](screen, params);
+        return;
+      }
+
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: preParsingResponse.btcAdress,
+        fromPage: '',
+      });
+    });
+
     // const response = await getClipboardText();
     // const isFocused = textInputRef?.current?.isFocused?.();
     // if (!response.didWork) {
@@ -503,30 +545,33 @@ export default function HalfModalSendOptions({
   }, [navigate, t, handleBackPressFunction]);
 
   const handleImageScan = useCallback(async () => {
-    const response = await getQRImage();
-    if (response.error) {
-      navigate.replace('ErrorScreen', {
-        errorMessage: t(response.error),
+    handleBackPressFunction(async () => {
+      navigate.goBack();
+      const response = await getQRImage();
+      if (response.error) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t(response.error),
+        });
+        return;
+      }
+
+      if (response.isExternalChain) {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          response,
+          'notHome',
+        );
+        navigate['navigate'](screen, params);
+        return;
+      }
+
+      if (!response.didWork || !response.btcAdress) {
+        return;
+      }
+
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: response.btcAdress,
+        fromPage: '',
       });
-      return;
-    }
-
-    if (response.isExternalChain) {
-      const { method, screen, params } = resolveExternalChainNavigation(
-        response,
-        'notHome',
-      );
-      navigate[method](screen, params);
-      return;
-    }
-
-    if (!response.didWork || !response.btcAdress) {
-      return;
-    }
-
-    navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: response.btcAdress,
-      fromPage: '',
     });
   }, [navigate, t, handleBackPressFunction]);
 
@@ -776,7 +821,7 @@ export default function HalfModalSendOptions({
               onBlurFunction={onBlurFunction}
               onFocusFunction={onFocusFunction}
               textInputStyles={{
-                paddingRight: showPasteButton || inputText.trim() ? 40 : 0,
+                paddingRight: showPasteButton || inputText.trim() ? 40 : 10,
               }}
               returnKeyType="go"
               onSubmitEditingFunction={handleManualInputSubmit}

@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -1372,16 +1373,24 @@ export const WebViewProvider = ({ children }) => {
     [blockAndResetWebview],
   );
 
+  const providerValues = useMemo(() => {
+    return {
+      webViewRef,
+      sendWebViewRequest: sendWebViewRequestInternal,
+      fileHash,
+      changeSparkConnectionState,
+      didRunHandshakeRef,
+    };
+  }, [
+    webViewRef,
+    sendWebViewRequestInternal,
+    fileHash,
+    changeSparkConnectionState,
+    didRunHandshakeRef,
+  ]);
+
   return (
-    <WebViewContext.Provider
-      value={{
-        webViewRef,
-        sendWebViewRequest: sendWebViewRequestInternal,
-        fileHash,
-        changeSparkConnectionState,
-        didRunHandshakeRef,
-      }}
-    >
+    <WebViewContext.Provider value={providerValues}>
       {children}
       {verifiedPath && (
         <WebView

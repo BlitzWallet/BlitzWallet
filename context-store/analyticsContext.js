@@ -223,30 +223,48 @@ export function AnalyticsProvider({ children }) {
     }
   }, [spentTotalBTC, spentTotalUSD]);
 
+  const accountsValues = useMemo(() => {
+    return {
+      spentTotal,
+      inTxsBTC,
+      outTxsBTC,
+      inTxsUSD,
+      outTxsUSD,
+      incomeTotalBTC,
+      incomeTotalUSD,
+      spentTotalBTC,
+      spentTotalUSD,
+      incomeTxCountBTC: inTxsBTC.length,
+      spentTxCountBTC: outTxsBTC.length,
+      incomeTxCountUSD: inTxsUSD.length,
+      spentTxCountUSD: outTxsUSD.length,
+      cumulativeIncomeDataBTC,
+      cumulativeSpentDataBTC,
+      cumulativeIncomeDataUSD,
+      cumulativeSpentDataUSD,
+      isLoading,
+      isReloading,
+    };
+  }, [
+    spentTotal,
+    inTxsBTC,
+    outTxsBTC,
+    inTxsUSD,
+    outTxsUSD,
+    incomeTotalBTC,
+    incomeTotalUSD,
+    spentTotalBTC,
+    spentTotalUSD,
+    cumulativeIncomeDataBTC,
+    cumulativeSpentDataBTC,
+    cumulativeIncomeDataUSD,
+    cumulativeSpentDataUSD,
+    isLoading,
+    isReloading,
+  ]);
+
   return (
-    <AnalyticsContext.Provider
-      value={{
-        spentTotal,
-        inTxsBTC,
-        outTxsBTC,
-        inTxsUSD,
-        outTxsUSD,
-        incomeTotalBTC,
-        incomeTotalUSD,
-        spentTotalBTC,
-        spentTotalUSD,
-        incomeTxCountBTC: inTxsBTC.length,
-        spentTxCountBTC: outTxsBTC.length,
-        incomeTxCountUSD: inTxsUSD.length,
-        spentTxCountUSD: outTxsUSD.length,
-        cumulativeIncomeDataBTC,
-        cumulativeSpentDataBTC,
-        cumulativeIncomeDataUSD,
-        cumulativeSpentDataUSD,
-        isLoading,
-        isReloading,
-      }}
-    >
+    <AnalyticsContext.Provider value={accountsValues}>
       {children}
     </AnalyticsContext.Provider>
   );

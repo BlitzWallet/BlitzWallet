@@ -35,6 +35,7 @@ import {
   SIZES,
 } from '../../../../../constants/theme';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 const DEFAULT_FILTER = {
   categories: [],
@@ -210,20 +211,28 @@ export default function OnlineListingsFilterHalfModal({
   }, []);
 
   const handleCountryPress = useCallback(
-    countryCode => {
-      setDraft(prev => ({ ...prev, countryCode }));
-      setCountrySearch('');
-      setShowCountryPicker(false);
-      setIsKeyboardActive?.(false);
+    async countryCode => {
+      await KeyboardController.dismiss();
+      requestAnimationFrame(() => {
+        setDraft(prev => ({ ...prev, countryCode }));
+        setCountrySearch('');
+        setShowCountryPicker(false);
+        setIsKeyboardActive?.(false);
+      });
     },
     [setIsKeyboardActive],
   );
 
   const handleCountryBackPress = useCallback(() => {
     if (!showCountryPicker) return false;
-    setShowCountryPicker(false);
-    setCountrySearch('');
-    setIsKeyboardActive?.(false);
+    KeyboardController.dismiss().then(resp => {
+      requestAnimationFrame(() => {
+        setShowCountryPicker(false);
+        setCountrySearch('');
+        setIsKeyboardActive?.(false);
+      });
+    });
+
     return true;
   }, [setIsKeyboardActive, showCountryPicker]);
 

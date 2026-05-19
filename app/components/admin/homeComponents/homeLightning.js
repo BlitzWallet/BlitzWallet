@@ -157,6 +157,7 @@ export default function HomeLightning({ navigation }) {
     sparkInformation,
     showTokensInformation,
     isSendingPaymentRef,
+    updateHomepageScrollPosition,
     // numberOfCachedTxs
   } = useSparkWallet();
   const { poolInfoRef } = useFlashnet();
@@ -190,13 +191,15 @@ export default function HomeLightning({ navigation }) {
   const prevBg = useSharedValue(false);
   const [navbarHeight, setNavbarHeight] = useState(0);
   const [scrollPosition, setScrollPosition] = useState('total');
-  const scrollPositionRef = useRef('total');
 
-  const updateScrollPosition = useCallback(page => {
-    const pos = page === 0 ? 'total' : page === 1 ? 'sats' : 'usd';
-    scrollPositionRef.current = pos;
-    setScrollPosition(pos);
-  }, []);
+  const updateScrollPosition = useCallback(
+    page => {
+      const pos = page === 0 ? 'total' : page === 1 ? 'sats' : 'usd';
+      setScrollPosition(pos);
+      updateHomepageScrollPosition(pos);
+    },
+    [updateHomepageScrollPosition],
+  );
 
   const onBalancePageScroll = usePagerScrollHandler({
     onPageScroll: e => {
@@ -349,7 +352,6 @@ export default function HomeLightning({ navigation }) {
     darkModeType,
     t,
     showTokensInformation,
-    scrollPosition,
   ]);
 
   const handleRefresh = useCallback(async () => {
@@ -613,7 +615,7 @@ export default function HomeLightning({ navigation }) {
                 theme={theme}
                 darkModeType={darkModeType}
                 isConnectedToTheInternet={isConnectedToTheInternet}
-                scrollPositionRef={scrollPositionRef}
+                scrollPosition={scrollPosition}
               />
             </View>
           </View>

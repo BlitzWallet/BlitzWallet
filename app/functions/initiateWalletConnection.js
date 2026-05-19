@@ -12,6 +12,7 @@ import { getAccountBalanceSnapshot } from './spark/balanceSnapshots';
 
 export async function initWallet({
   setSparkInformation,
+  filterAndSetTransactions,
   // toggleGlobalContactsInformation,
   // globalContactsInformation,
   mnemonic,
@@ -32,6 +33,7 @@ export async function initWallet({
       }));
       const didSetSpark = await initializeSparkSession({
         setSparkInformation,
+        filterAndSetTransactions,
         // globalContactsInformation,
         // toggleGlobalContactsInformation,
         mnemonic,
@@ -59,6 +61,7 @@ export async function initWallet({
 
 export async function initializeSparkSession({
   setSparkInformation,
+  filterAndSetTransactions,
   mnemonic,
   sendWebViewRequest,
   hasRestoreCompleted,
@@ -116,8 +119,10 @@ export async function initializeSparkSession({
       setSparkInformation(prev => ({
         ...prev,
         ...storageObject,
-        transactions: transactions ?? prev.transactions,
       }));
+      const txToUse = transactions ?? [];
+      if (txToUse.length && filterAndSetTransactions)
+        filterAndSetTransactions(txToUse);
       return storageObject;
     }
 
@@ -130,15 +135,15 @@ export async function initializeSparkSession({
       initialBalance: Number(balance.balance),
     };
 
-    setSparkInformation(prev => {
-      const txToUse =
-        !hasRestoreCompleted ||
-        (prev.identityPubKey && prev.identityPubKey !== identityPubKey)
-          ? transactions ?? prev.transactions
-          : prev.transactions;
+    const txToUse =
+      !hasRestoreCompleted ||
+      (cachedIdentityPubKey && cachedIdentityPubKey !== identityPubKey)
+        ? transactions
+        : null;
 
-      return { ...prev, ...storageObject, transactions: txToUse };
-    });
+    setSparkInformation(prev => ({...prev, ...storageObject}));
+    if (txToUse && filterAndSetTransactions)
+      filterAndSetTransactions(txToUse);
     return storageObject;
   } catch (err) {
     console.log('Set spark error', err);

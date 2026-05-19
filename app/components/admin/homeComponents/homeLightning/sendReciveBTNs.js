@@ -14,7 +14,7 @@ export function SendRecieveBTNs({
   darkModeType,
   isConnectedToTheInternet,
   isNWCWallet = false,
-  scrollPositionRef,
+  scrollPosition,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -60,11 +60,11 @@ export function SendRecieveBTNs({
       return;
     }
     navigate.navigate('CustomHalfModal', {
-      scrollPosition: scrollPositionRef?.current === 'usd' ? 'USD' : 'BTC',
+      scrollPosition: scrollPosition === 'usd' ? 'USD' : 'BTC',
       wantedContent: 'receiveOptions',
       sliderHight: 0.8,
     });
-  }, [handleSettingsCheck, navigate, scrollPositionRef, t]);
+  }, [handleSettingsCheck, navigate, scrollPosition, t]);
 
   const handleCamera = useCallback(() => {
     const areSettingsSet = handleSettingsCheck();
