@@ -821,7 +821,7 @@ export default function HalfModalSendOptions({
               onBlurFunction={onBlurFunction}
               onFocusFunction={onFocusFunction}
               textInputStyles={{
-                paddingRight: showPasteButton || inputText.trim() ? 40 : 0,
+                paddingRight: showPasteButton || inputText.trim() ? 40 : 10,
               }}
               returnKeyType="go"
               onSubmitEditingFunction={handleManualInputSubmit}
