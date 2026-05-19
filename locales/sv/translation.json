@@ -1000,7 +1000,9 @@
       "payMe": "Snabb betalning",
       "createInvoice": "Skapa faktura",
       "invoiceDescription": "Begär betalning via en länk eller QR-kod.",
-      "poolsDescription": "Samla in bidrag från en grupp till ett gemensamt mål."
+      "poolsDescription": "Samla in bidrag från en grupp till ett gemensamt mål.",
+      "noContactHead": "{{username}} hittades inte",
+      "noContactDesc": "Lägg till {{username}} i dina kontakter för att hitta dem här i framtiden, eller fortsätt för att skicka en betalning nu."
     },
     "payLinks": {
       "skip": "Hoppa över",

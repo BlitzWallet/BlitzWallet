@@ -364,11 +364,14 @@ const BusinessCard = React.memo(
           style={[
             styles.button,
             {
-              paddingTop: item?.description ? 24 : 0,
+              marginTop: item?.description ? 24 : 0,
+              borderTopColor: backgroundColor,
+              borderTopWidth: StyleSheet.hairlineWidth,
             },
           ]}
           onPress={handleWebsitePress}
           activeOpacity={0.8}
+          hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
         >
           <View style={styles.buttonCopy}>
             <ThemeIcon
@@ -382,11 +385,7 @@ const BusinessCard = React.memo(
             />
           </View>
 
-          <ThemeIcon
-            size={16}
-            colorOverride={theme ? COLORS.darkModeText : COLORS.lightModeText}
-            iconName="ArrowUpRight"
-          />
+          <ThemeIcon size={16} iconName="ArrowUpRight" />
         </TouchableOpacity>
       </View>
     );
@@ -474,8 +473,7 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   button: {
-    paddingTop: 24,
-    borderRadius: 18,
+    paddingTop: 16,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
