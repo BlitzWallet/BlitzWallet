@@ -19,11 +19,12 @@ import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 import { Check } from 'lucide-react-native';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import QuestionDiscoveryGrid from './questionDiscoveryGrid';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 
 const FEATURES = [
   'apps.chatGPT.addCreditsPage.feature1',
@@ -42,10 +43,12 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
     toggleGlobalAppDataInformation,
     globalAppDataInformation,
   } = useGlobalAppData();
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
   const [isPaying, setIsPaying] = useState(false);
-
+  const offseColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -58,7 +61,7 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
 
   const featureElements = FEATURES.map((key, index) => (
     <View key={index} style={styles.featureRow}>
-      <View style={[styles.checkCircle, { backgroundColor: textColor }]}>
+      <View style={[styles.checkCircle, { backgroundColor: offseColor }]}>
         <Check size={14} color={backgroundColor} strokeWidth={3} />
       </View>
       <ThemeText styles={styles.featureText} content={t(key)} />
@@ -76,7 +79,7 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
               contentContainerStyle={styles.scrollContent}
             >
               <ThemeText
-                styles={styles.unlockTitle}
+                styles={[styles.unlockTitle, { color: offseColor }]}
                 content={t('apps.chatGPT.addCreditsPage.unlockTitle')}
               />
 

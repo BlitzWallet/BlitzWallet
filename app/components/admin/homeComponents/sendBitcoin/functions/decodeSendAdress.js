@@ -256,8 +256,8 @@ export default async function decodeSendAddress(props) {
 
       if (shouldRunBrantaVerification) {
         brantaVerificationPromise.then(brantaResult => {
-          if (brantaResult && brantaResult.length) {
-            const [details] = brantaResult;
+          if (brantaResult && brantaResult.payments?.length) {
+            const [details] = brantaResult.payments;
             if (details.platformLogoUrl) {
               ExpoImage.prefetch(details.platformLogoUrl).catch(err =>
                 console.log('Error prefetching branta merchant logo', err),
@@ -314,8 +314,8 @@ export default async function decodeSendAddress(props) {
       };
     }
 
-    if (brantaVerification && brantaVerification.length) {
-      const [details] = brantaVerification;
+    if (brantaVerification && brantaVerification.payments?.length) {
+      const [details] = brantaVerification.payments;
       const isHttpsUrl = val =>
         typeof val === 'string' && val.startsWith('https://');
       processedPaymentInfo = {
@@ -325,8 +325,8 @@ export default async function decodeSendAddress(props) {
         brantaMerchantLogo: isHttpsUrl(details.platformLogoUrl)
           ? details.platformLogoUrl
           : undefined,
-        verificationURL: isHttpsUrl(details.verifyUrl)
-          ? details.verifyUrl
+        verificationURL: isHttpsUrl(brantaVerification.verifyUrl)
+          ? brantaVerification.verifyUrl
           : undefined,
       };
     }

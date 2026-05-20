@@ -6,6 +6,9 @@ import '@azure/core-asynciterator-polyfill';
 //neeed for encription + spark
 import 'react-native-quick-base64';
 
+// needed for branta ops
+import 'react-native-url-polyfill/auto';
+
 import { Buffer } from '@craftzdog/react-native-buffer';
 import QuickCrypto, {
   pbkdf2Sync,

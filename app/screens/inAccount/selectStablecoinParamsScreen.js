@@ -22,7 +22,10 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
 const EVM_CHAINS = ['Base', 'Ethereum', 'Arbitrum', 'Optimism', 'Polygon'];
 const TRON_ASSETS = [{ id: 'USDT', label: 'USDT', icon: ICONS.usdtLogo }];
-const SOLANA_ASSETS = [{ id: 'USDC', label: 'USDC', icon: ICONS.usdcLogo }];
+const SOLANA_ASSETS = [
+  { id: 'USDC', label: 'USDC', icon: ICONS.usdcLogo },
+  { id: 'USDT', label: 'USDT', icon: ICONS.usdtLogo },
+];
 
 export default function SelectStablecoinParamsScreen() {
   const navigate = useNavigation();

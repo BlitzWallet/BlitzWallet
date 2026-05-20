@@ -1000,7 +1000,9 @@
       "payMe": "Schnell bezahlen",
       "createInvoice": "Rechnung erstellen",
       "invoiceDescription": "Fordern Sie eine Zahlung über einen Link oder QR-Code an.",
-      "poolsDescription": "Sammeln Sie Beiträge von einer Gruppe für ein gemeinsames Ziel."
+      "poolsDescription": "Sammeln Sie Beiträge von einer Gruppe für ein gemeinsames Ziel.",
+      "noContactHead": "{{username}} nicht gefunden",
+      "noContactDesc": "Füge {{username}} zu deinen Kontakten hinzu, um sie hier in Zukunft zu finden, oder fahre fort, um jetzt eine Zahlung zu senden."
     },
     "payLinks": {
       "skip": "Überspringen",

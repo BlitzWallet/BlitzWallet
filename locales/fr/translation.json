@@ -1000,7 +1000,9 @@
       "payMe": "Paiement rapide",
       "createInvoice": "Créer une facture",
       "invoiceDescription": "Demandez un paiement via un lien ou un code QR.",
-      "poolsDescription": "Collectez des contributions d’un groupe pour un objectif commun."
+      "poolsDescription": "Collectez des contributions d’un groupe pour un objectif commun.",
+      "noContactHead": "{{username}} introuvable",
+      "noContactDesc": "Ajoutez {{username}} à vos contacts pour le retrouver ici à l’avenir, ou continuez pour envoyer un paiement maintenant."
     },
     "payLinks": {
       "skip": "Passer",

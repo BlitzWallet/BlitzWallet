@@ -610,6 +610,28 @@ export default function HalfModalReceiveOptions({
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.mainContent, contentStyle]}>
+        {/* ── LNURL Banner ── */}
+        <View
+          style={{
+            width: INSET_WINDOW_WIDTH,
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+            ...CENTER,
+          }}
+        >
+          <LNURLBanner
+            lnurlAddress={globalContactsInformation?.myProfile?.uniqueName}
+            theme={theme}
+            darkModeType={darkModeType}
+            backgroundColor={backgroundColor}
+            backgroundOffset={backgroundOffset}
+            textColor={textColor}
+            onQRPress={() => {
+              setContentHeight(600);
+              setShowLNURLQR(true);
+            }}
+          />
+        </View>
         <ScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
@@ -618,7 +640,7 @@ export default function HalfModalReceiveOptions({
             ...styles.innerContainer,
             paddingBottom: bottomPadding,
           }}
-          stickyHeaderIndices={[4]}
+          stickyHeaderIndices={[3]}
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}
@@ -627,27 +649,6 @@ export default function HalfModalReceiveOptions({
             scrollViewHeightRef.current = e.nativeEvent.layout.height;
           }}
         >
-          {/* ── LNURL Banner ── */}
-          <View
-            style={{
-              backgroundColor:
-                theme && darkModeType ? backgroundOffset : backgroundColor,
-            }}
-          >
-            <LNURLBanner
-              lnurlAddress={globalContactsInformation?.myProfile?.uniqueName}
-              theme={theme}
-              darkModeType={darkModeType}
-              backgroundColor={backgroundColor}
-              backgroundOffset={backgroundOffset}
-              textColor={textColor}
-              onQRPress={() => {
-                setContentHeight(600);
-                setShowLNURLQR(true);
-              }}
-            />
-          </View>
-
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
             onPress={() => setShowPayLinkCreation(true)}

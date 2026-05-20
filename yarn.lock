@@ -1776,10 +1776,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@branta-ops/branta@npm:2.0.0":
-  version: 2.0.0
-  resolution: "@branta-ops/branta@npm:2.0.0"
-  checksum: 6966c87c85ee8547541849aa5b5499c8927b5808f79ab4f96f3ad38c0ff21f1162f381c1f4c196adf4ee6b9378e09463e0c2fe81a03d4c58f724ae4a0adce4e0
+"@branta-ops/branta@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "@branta-ops/branta@npm:3.1.2"
+  checksum: f9e5947ad8e812e296c4a5bf41da1919101bdd3dc5501095f74605d398b30c6b4528f35dfebf4b9480b3ed36edcdad0e701df415d4c712c640d8e4f507bf77a2
   languageName: node
   linkType: hard
 
@@ -4919,7 +4919,7 @@ __metadata:
     "@babel/plugin-transform-class-static-block": ^7.28.3
     "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
-    "@branta-ops/branta": 2.0.0
+    "@branta-ops/branta": ^3.1.2
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
     "@buildonspark/spark-sdk": ^0.8.0
     "@craftzdog/react-native-buffer": ^6.1.0
@@ -5022,6 +5022,7 @@ __metadata:
     react-native-safe-area-context: ~5.6.0
     react-native-screens: ~4.16.0
     react-native-svg: 15.12.1
+    react-native-url-polyfill: ^3.0.0
     react-native-view-shot: ^4.0.3
     react-native-vision-camera: ^5.0.9
     react-native-vision-camera-barcode-scanner: ^5.0.9
@@ -13329,7 +13330,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-url-polyfill@npm:3.0.0":
+"react-native-url-polyfill@npm:3.0.0, react-native-url-polyfill@npm:^3.0.0":
   version: 3.0.0
   resolution: "react-native-url-polyfill@npm:3.0.0"
   dependencies:

@@ -162,12 +162,10 @@ export default function BitrefillShopModal() {
       theme: theme ? 'dark' : 'light',
       utm_source: 'blitzwallet',
       customStyles: JSON.stringify({
+        '--brand-background:': backgroundColor,
         '--background-body': backgroundColor,
         '--background-primary': backgroundColor,
-        '--background-secondary': backgroundOffset,
-        '--background-contrast': backgroundOffset,
         '--text-primary': textColor,
-        '--preheader-bg': backgroundOffset,
       }),
       hl: webViewLanguage,
       ...(decryptedEmail ? { email: decryptedEmail } : {}),
@@ -460,7 +458,15 @@ export default function BitrefillShopModal() {
 
                   {emailValue.length > 0 && !isValidEmail && (
                     <ThemeText
-                      styles={[styles.statusText, { color: COLORS.cancelRed }]}
+                      styles={[
+                        styles.statusText,
+                        {
+                          color:
+                            theme && darkModeType
+                              ? COLORS.darkModeText
+                              : COLORS.cancelRed,
+                        },
+                      ]}
                       content={t('screens.bitrefill.emailError')}
                     />
                   )}
