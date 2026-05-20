@@ -973,7 +973,7 @@
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
-      "inputPlaceholder": "Insira @usuário, Bitcoin, Spark ou endereço USDT/USDC",
+      "inputPlaceholder": "Insira @usuário, Bitcoin ou endereço USDT/USDC",
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "O que você deseja enviar?",
@@ -2517,7 +2517,7 @@
       "editEmailDesc": "Atualize seu endereço de e-mail salvo abaixo.",
       "addEmailDesc": "Salve seu endereço de e-mail para finalizar as compras mais rápido",
       "textInputDescriptor": "E-MAIL",
-      "emailplaceholder": "voce@domínio.com",
+      "emailplaceholder": "Insira seu e-mail",
       "emailError": "Insira um endereço de e-mail válido."
     }
   },
