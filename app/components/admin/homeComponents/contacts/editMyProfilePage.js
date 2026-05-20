@@ -346,7 +346,7 @@ function MyProfileRows({
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.navRowValue}
-          content={t('contacts.editMyProfilePage.lightningAddress')}
+          content={t('contacts.remotePaymentCurrencySelect.title')}
         />
         <ThemeText styles={styles.navRowLabel} content={receiveCurrencyValue} />
         <ThemeIcon iconName="ChevronRight" size={16} />
