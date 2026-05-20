@@ -2552,6 +2552,7 @@
     "noUserFoundDeeplinkError": "Jag kan inte hitta någon användare för detta användarnamn.",
     "cannotAddSelfError": "Du kan inte lägga till dig själv som kontakt.",
     "fullDeeplinkError": "Det gick inte att få fram kontaktinformation, försök igen.",
+    "contactNotLoaded": "Kontakten kunde inte laddas. Försök igen.",
     "processingDeepLinkError": "Misslyckades med att bearbeta länken: {{error}}",
     "legacyContactError": "Kontakten har inte uppdaterat sin plånbok ännu. Be dem att uppdatera sin plånbok för att skicka detta.",
     "contactInvoiceGenerationError": "Fel vid generering av faktura. Kontrollera att detta är en giltig LNURL-adress.",
