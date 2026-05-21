@@ -36,6 +36,7 @@ export default function AcceptButtonSendPage({
   setDidSelectPaymentMethod,
   conversionFiatStats,
   primaryDisplay,
+  enteredPaymentInfo = {},
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -73,6 +74,7 @@ export default function AcceptButtonSendPage({
         //   minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
         comingFromAccept: true,
         enteredPaymentInfo: {
+          ...enteredPaymentInfo,
           amount: convertedSendAmount,
           description: paymentDescription,
           lnInvoiceData: paymentInfo?.data?.invoice
