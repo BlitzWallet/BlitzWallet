@@ -1617,7 +1617,7 @@
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
       "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
       "biometricsHead": "Biometrie",
-      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist mit Ihrem aktuellen biometrischen Profil verknüpft. Wenn Sie einen Fingerabdruck oder Face ID ändern oder hinzufügen, verlieren Sie dauerhaft den Zugriff auf Ihre Wiederherstellungsphrase."
+      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist durch die aktuellen biometrischen Daten Ihres Geräts geschützt. Änderungen daran verhindern, dass Blitz Wallet auf Ihre Wiederherstellungsphrase zugreifen kann, und sperren den Zugriff auf Ihre Wallet."
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",

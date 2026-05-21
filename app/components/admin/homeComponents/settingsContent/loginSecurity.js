@@ -17,7 +17,11 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic';
@@ -365,11 +369,17 @@ export default function LoginSecurity({ extraData }) {
           </SettingsSection>
 
           {securityLoginSettings.isBiometricEnabled && (
-            <NoContentSceen
-              iconName="TriangleAlert"
-              titleText={t('settings.loginSecurity.biometricsHead')}
-              subTitleText={t('settings.loginSecurity.biometricsSubHead')}
-            />
+            <View style={styles.biometricsWarningContainer}>
+              <ThemeIcon iconName={'TriangleAlert'} />
+              <ThemeText
+                styles={styles.emptyTitle}
+                content={t('settings.loginSecurity.biometricsHead')}
+              />
+              <ThemeText
+                styles={styles.emptySubtext}
+                content={t('settings.loginSecurity.biometricsSubHead')}
+              />
+            </View>
           )}
 
           {securityLoginSettings.isPinEnabled && (
@@ -470,5 +480,23 @@ const styles = StyleSheet.create({
   },
   infoButton: {
     marginRight: 8,
+  },
+  biometricsWarningContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...CENTER,
+  },
+  emptyTitle: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
   },
 });

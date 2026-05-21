@@ -1617,7 +1617,7 @@
       "randomPinKeyboardToggle": "Mescola tastierino numerico",
       "randomPinKeyboardInfo": "Abilita questa funzione per mescolare i numeri del tastierino ogni volta che accedi. Aggiunge un ulteriore livello di sicurezza rendendo più difficile per chi ti sta vicino scoprire il tuo schema PIN.",
       "biometricsHead": "Informazioni sulla biometria",
-      "biometricsSubHead": "La tua frase di recupero è collegata al tuo profilo biometrico attuale. Se modifichi o aggiungi un’impronta digitale o Face ID, perderai permanentemente l’accesso alla tua frase di recupero."
+      "biometricsSubHead": "La tua frase di recupero è protetta dai dati biometrici attuali del dispositivo. Modificarli impedirà a Blitz Wallet di accedere alla tua frase di recupero e bloccherà l’accesso al tuo wallet."
     },
     "seedPhrase": {
       "header": "Conserva questa frase seme in un luogo sicuro e protetto",

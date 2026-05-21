@@ -1617,7 +1617,7 @@
       "randomPinKeyboardToggle": "Shuffle Keypad",
       "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern.",
       "biometricsHead": "About biometrics",
-      "biometricsSubHead": "Your recovery phrase is tied to your current biometric profile. If you change or add a fingerprint or face ID, you will permanently lose access to your recovery phrase."
+      "biometricsSubHead": "Your recovery phrase is protected by your current device biometrics. Changing them will prevent Blitz Wallet from accessing your recovery phrase and lock you out of your wallet."
     },
     "seedPhrase": {
       "header": "Keep this recovery phrase in a secure and safe place",

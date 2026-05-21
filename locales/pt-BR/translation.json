@@ -1617,7 +1617,7 @@
       "randomPinKeyboardToggle": "Embaralhar teclado",
       "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN.",
       "biometricsHead": "Sobre biometria",
-      "biometricsSubHead": "Sua frase de recuperação está vinculada ao seu perfil biométrico atual. Se você alterar ou adicionar uma impressão digital ou Face ID, perderá permanentemente o acesso à sua frase de recuperação."
+      "biometricsSubHead": "Sua frase de recuperação é protegida pelos dados biométricos atuais do seu dispositivo. Alterá-los impedirá que a Blitz Wallet acesse sua frase de recuperação e bloqueará o acesso à sua carteira."
     },
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",
