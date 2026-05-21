@@ -135,9 +135,12 @@ export default async function decodeSendAddress(props) {
           t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
         );
       }
-      const results = await getSingleContact(username);
-      const profile = results?.[0]?.contacts?.myProfile;
+      const [results] = await getSingleContact(username);
+      const profile = results?.contacts?.myProfile;
       const sparkAddress = profile?.sparkAddress;
+      const endReceiveType =
+        results?.lnurlReceiveCurrency?.toLowerCase() === 'usd' ? 'USD' : 'BTC';
+
       if (!sparkAddress && btcAdress.startsWith('@')) {
         return goBackFunction(
           t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
@@ -148,6 +151,12 @@ export default async function decodeSendAddress(props) {
         const imageData = await getCachedProfileImage(profile.uuid).catch(
           () => null,
         );
+        comingFromAccept = true;
+        enteredPaymentInfo = {
+          ...enteredPaymentInfo,
+          fromContacts: true,
+          endReceiveType,
+        };
         resolvedBlitzContact = {
           name: profile.name || profile.uniqueName || '',
           uniqueName: profile.uniqueName || '',
