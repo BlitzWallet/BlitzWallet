@@ -1350,7 +1350,7 @@
       "noDescription": "Sem descrição"
     },
     "editMyProfilePage": {
-      "navTitle": "Editar perfil",
+      "navTitle": "Editar",
       "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Digite seu nome",
       "lnurlInputDesc": "Endereço Blitz",
@@ -1499,7 +1499,7 @@
   },
   "settings": {
     "index": {
-      "editProfile": "Editar perfil",
+      "editProfile": "Editar",
       "showQR": "Código QR",
       "identiconMessage": "Este design é único para sua carteira e ajuda outras pessoas a confirmar que é realmente você ao adicionar seu contato.",
       "profileHead": "Perfil",
