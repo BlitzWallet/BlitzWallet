@@ -329,7 +329,7 @@ export default async function processSparkAddress(input, context) {
     }
   }
 
-  const canEditPayment = comingFromAccept ? false : !amountMsat;
+  const canEditPayment = comingFromAccept && amountMsat ? false : !amountMsat;
 
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
