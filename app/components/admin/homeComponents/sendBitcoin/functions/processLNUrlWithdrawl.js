@@ -1,6 +1,5 @@
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { sparkReceivePaymentWrapper } from '../../../../../functions/spark/payments';
-import { getSparkLightningPaymentStatus } from '../../../../../functions/spark';
 import { isHTTPS } from '../../../../../functions/lnurl/ishttps';
 
 export default async function processLNUrlWithdraw(input, context) {
@@ -11,10 +10,10 @@ export default async function processLNUrlWithdraw(input, context) {
     t('wallet.sendPages.handlingAddressErrors.lnurlWithdrawlStart'),
   );
 
-  const minAmount = input.data.minWithdrawable;
+  const maxAmount = input.data.maxWithdrawable;
 
   const invoice = await sparkReceivePaymentWrapper({
-    amountSats: Math.round(minAmount / 1000),
+    amountSats: Math.round(maxAmount / 1000),
     memo: input.data.defaultDescription || '',
     paymentType: 'lightning',
     mnemoinc: currentWalletMnemoinc,
@@ -41,27 +40,4 @@ export default async function processLNUrlWithdraw(input, context) {
   setLoadingMessage(
     t('wallet.sendPages.handlingAddressErrors.waitingForLnurlWithdrawl'),
   );
-  // await pollForResponse(
-  //   invoice.data,
-  //   currentWalletMnemoinc,
-  //   sendWebViewRequest,
-  // );
-}
-
-async function pollForResponse(
-  invoiceData,
-  currentWalletMnemoinc,
-  sendWebViewRequest,
-) {
-  let didFind = false;
-  let maxCount = 5;
-  let currentCount = 0;
-  while (!didFind && currentCount < maxCount) {
-    await new Promise(res => setTimeout(res, 2000));
-    const sparkReceiveResposne = await getSparkLightningPaymentStatus({
-      lightningInvoiceId: invoiceData.id,
-      mnemonic: currentWalletMnemoinc,
-    });
-    if (sparkReceiveResposne.transfer) break;
-  }
 }

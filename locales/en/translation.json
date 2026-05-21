@@ -976,7 +976,7 @@
       "inputPlaceholder": "Enter @username, Bitcoin, or USDC/USDT address.",
       "scanImage": "Scan Image",
       "tapToScan": "Tap to get an address from an image",
-      "chooseWhatToSend": "Choose what to send",
+      "chooseWhatToSend": "Choose how to fund this payment",
       "noContacts": "Add contacts for them to show up here",
       "selectAddressType": "Select address type",
       "tapToGenerate_other": "Tap to see other receive options",
@@ -1375,7 +1375,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Receive currency",
       "futurePaymentsMessage": "All future payments will be received as {{option}}",
-      "warningMessage": "When selecting {{option}}, there’s a {{amount}} minimum. Smaller payments will be received in Bitcoin."
+      "warningMessage": "When selecting {{option}}, there’s a {{amount}} minimum. Smaller payments will be received in Bitcoin.",
+      "changeSelectionError": "{{option}} is already selected. Change your selection to update your setting."
     },
     "selectCurrencyToSend": {
       "header": "What do you want to send?"
@@ -1616,7 +1617,7 @@
       "randomPinKeyboardToggle": "Shuffle Keypad",
       "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern.",
       "biometricsHead": "About biometrics",
-      "biometricsSubHead": "Your recovery phrase is tied to your current biometric profile. If you change or add a fingerprint or face ID, you will permanently lose access to your recovery phrase."
+      "biometricsSubHead": "Your recovery phrase is protected by your current device biometrics. Changing them will prevent Blitz Wallet from accessing your recovery phrase and lock you out of your wallet."
     },
     "seedPhrase": {
       "header": "Keep this recovery phrase in a secure and safe place",
@@ -2553,6 +2554,7 @@
     "noUserFoundDeeplinkError": "Unable to find any user for this username.",
     "cannotAddSelfError": "You cannot add yourself as a contact.",
     "fullDeeplinkError": "Unable to retrieve contact information. Please try again.",
+    "contactNotLoaded": "Contact not loaded. Please try again.",
     "processingDeepLinkError": "Failed to process link: {{error}}",
     "legacyContactError": "Contact has not updated their wallet yet. Please ask them to update their wallet to send this.",
     "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid Lightning address.",
@@ -2585,7 +2587,8 @@
     "priceImpact": "This payment is large, so the final amount you receive in Dollars may change.",
     "removingImageError": "Unable to remove image. Please try again.",
     "usdcUsdtTokensOnly": "Only USDT and USDC tokens are supported",
-    "lightningAmountFeeWarning": "Your balance does not cover the amount and ≈{{amount}} fee."
+    "lightningAmountFeeWarning": "Your balance does not cover the amount and ≈{{amount}} fee.",
+    "lightningAmountRequiredWarning": "This payment requires ≈{{amount}}. Please lower the amount or add funds."
   },
   "loadingScreen": {
     "message1": "Please don't close the app",

@@ -327,7 +327,6 @@ export default function HalfModalSendOptions({
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAddContact, setShowAddContact] = useState(false);
   const [noInputMounted, setNoInputMounted] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(8);
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
   const [showPasteButton, setShowPasteButton] = useState(true);
   const didPasteRef = useRef(false);
@@ -363,13 +362,6 @@ export default function HalfModalSendOptions({
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
   const inputModeProgress = useSharedValue(0);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setVisibleCount(Infinity);
-    }, 250);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     if (showAddContact) {
@@ -471,14 +463,18 @@ export default function HalfModalSendOptions({
         return;
       }
 
+      const endReceiveType =
+        retrivedContact?.lnurlReceiveCurrency?.toLowerCase() === 'usd'
+          ? 'USD'
+          : 'BTC';
+
       handleBackPressFunction(async () => {
         navigate.replace('ConfirmPaymentScreen', {
           btcAdress: receiveAddress,
           fromPage: 'contacts',
           enteredPaymentInfo: {
-            description: t('contacts.sendAndRequestPage.profileMessage', {
-              name: matchedContact.name || matchedContact.uniqueName,
-            }),
+            endReceiveType,
+            fromContacts: true,
           },
           contactInfo: {
             imageData: cache[matchedContact.uuid],
@@ -531,6 +527,8 @@ export default function HalfModalSendOptions({
     decodedAddedContacts,
     globalContactsInformation,
     cache,
+    handleBackPressFunction,
+    t,
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
@@ -545,6 +543,13 @@ export default function HalfModalSendOptions({
       const clipboardData = response.data?.trim();
 
       const preParsingResponse = handlePreSendPageParsing(clipboardData);
+
+      if (preParsingResponse.error) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: preParsingResponse.error,
+        });
+        return;
+      }
 
       if (preParsingResponse.navigateToWebView) {
         navigate.navigate('CustomWebView', {
@@ -736,13 +741,13 @@ export default function HalfModalSendOptions({
             selectedContact: contact,
             paymentType: 'send',
             imageData: cache[contact.uuid],
-            endReceiveType: isLNURL ? 'BTC' : paymentType,
             selectedPaymentMethod: paymentType,
+            ...(isLNURL ? { endReceiveType: 'BTC' } : {}),
           });
         }
       });
     },
-    [navigate, cache],
+    [navigate, cache, handleBackPressFunction],
   );
 
   const hideAddContacts = useCallback(() => {
@@ -785,25 +790,23 @@ export default function HalfModalSendOptions({
   }, []);
 
   const contactElements = useMemo(() => {
-    return sortedContacts
-      .slice(0, visibleCount)
-      .map(contact => (
-        <ContactRow
-          key={contact.uuid}
-          contact={contact}
-          cache={cache}
-          theme={theme}
-          darkModeType={darkModeType}
-          backgroundOffset={backgroundOffset}
-          backgroundColor={backgroundColor}
-          textColor={textColor}
-          expandedContact={expandedContact}
-          onToggleExpand={handleToggleExpand}
-          onSelectPaymentType={handleSelectPaymentType}
-          onRowLayout={handleRowLayout}
-          t={t}
-        />
-      ));
+    return sortedContacts.map(contact => (
+      <ContactRow
+        key={contact.uuid}
+        contact={contact}
+        cache={cache}
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundOffset={backgroundOffset}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        expandedContact={expandedContact}
+        onToggleExpand={handleToggleExpand}
+        onSelectPaymentType={handleSelectPaymentType}
+        onRowLayout={handleRowLayout}
+        t={t}
+      />
+    ));
   }, [
     sortedContacts,
     cache,
@@ -817,7 +820,6 @@ export default function HalfModalSendOptions({
     handleSelectPaymentType,
     handleRowLayout,
     t,
-    visibleCount,
   ]);
 
   const handleFilteredContactPress = useCallback(
@@ -827,12 +829,11 @@ export default function HalfModalSendOptions({
           selectedContact: contact,
           paymentType: 'send',
           imageData: cache[contact.uuid],
-          endReceiveType: 'BTC',
           selectedPaymentMethod: 'BTC',
         });
       });
     },
-    [navigate, globalContactsInformation, cache, t, handleBackPressFunction],
+    [navigate, cache, handleBackPressFunction],
   );
 
   const renderFilteredContact = useCallback(

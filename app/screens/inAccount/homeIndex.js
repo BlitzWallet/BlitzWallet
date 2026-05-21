@@ -38,11 +38,19 @@ export default function AdminHomeIndex() {
   const [isCameraActive, setIsCameraActive] = useState(false);
   const pagerRef = useRef(null);
   const currentPageRef = useRef(HOME_PAGE);
+  const isTransitioning = useRef(false);
 
   const handleBackPressFunction = useCallback(() => {
     if (currentPageRef.current !== HOME_PAGE) {
-      console.log('RUNNING');
-      requestAnimationFrame(() => pagerRef.current?.setPage(HOME_PAGE));
+      if (isTransitioning.current) return true;
+      isTransitioning.current = true;
+      const timeout = setTimeout(() => {
+        isTransitioning.current = false;
+      }, 1000);
+      requestAnimationFrame(() => {
+        clearTimeout(timeout);
+        pagerRef.current?.setPage(HOME_PAGE);
+      });
       return true;
     } else {
       return false;
@@ -55,6 +63,7 @@ export default function AdminHomeIndex() {
     crashlyticsLogReport('Handling page change with pagerView');
     const newPage = e.nativeEvent.position;
     currentPageRef.current = newPage;
+    isTransitioning.current = false;
 
     if (newPage === CAMERA_PAGE) {
       setIsCameraActive(true);

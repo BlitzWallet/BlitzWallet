@@ -976,7 +976,7 @@
       "inputPlaceholder": "Geben Sie @Benutzername, Bitcoin-Adresse oder Lightning-Rechnung ein",
       "scanImage": "Bild scannen",
       "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild auszulesen.",
-      "chooseWhatToSend": "Bitte wählen Sie aus, was Sie senden möchten.",
+      "chooseWhatToSend": "Wählen Sie, wie diese Zahlung finanziert werden soll",
       "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden.",
       "selectAddressType": "Adresstyp auswählen",
       "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen.",
@@ -1375,7 +1375,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Empfangswährung",
       "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen",
-      "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in BTC empfangen."
+      "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in BTC empfangen.",
+      "changeSelectionError": "{{option}} ist bereits ausgewählt. Ändern Sie Ihre Auswahl, um die Einstellung zu aktualisieren."
     },
     "selectCurrencyToSend": {
       "header": "Wie möchten Sie senden?"
@@ -1616,7 +1617,7 @@
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
       "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
       "biometricsHead": "Biometrie",
-      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist mit Ihrem aktuellen biometrischen Profil verknüpft. Wenn Sie einen Fingerabdruck oder Face ID ändern oder hinzufügen, verlieren Sie dauerhaft den Zugriff auf Ihre Wiederherstellungsphrase."
+      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist durch die aktuellen biometrischen Daten Ihres Geräts geschützt. Änderungen daran verhindern, dass Blitz Wallet auf Ihre Wiederherstellungsphrase zugreifen kann, und sperren den Zugriff auf Ihre Wallet."
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",
@@ -2552,6 +2553,7 @@
     "noUserFoundDeeplinkError": "Für diesen Benutzernamen konnte kein Benutzer gefunden werden.",
     "cannotAddSelfError": "Sie können sich nicht selbst als Kontakt hinzufügen.",
     "fullDeeplinkError": "Kontaktinformationen konnten nicht abgerufen werden, bitte versuchen Sie es erneut.",
+    "contactNotLoaded": "Kontakt konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
     "processingDeepLinkError": "Der Link konnte nicht verarbeitet werden: {{error}}",
     "legacyContactError": "Der Kontakt hat seine Wallet noch nicht aktualisiert. Bitten Sie ihn, dies nachzuholen, um diese Funktion zu nutzen.",
     "contactInvoiceGenerationError": "Fehler beim Generieren der Rechnung. Stellen Sie sicher, dass dies eine gültige LNURL-Adresse ist.",
@@ -2584,7 +2586,8 @@
     "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch verändern.",
     "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut.",
     "usdcUsdtTokensOnly": "Nur USDT- und USDC-Token werden unterstützt",
-    "lightningAmountFeeWarning": "Ihr Guthaben deckt den Betrag und die Gebühr von ≈{{amount}} nicht ab."
+    "lightningAmountFeeWarning": "Ihr Guthaben deckt den Betrag und die Gebühr von ≈{{amount}} nicht ab.",
+    "lightningAmountRequiredWarning": "Für diese Zahlung werden ≈{{amount}} benötigt. Bitte verringern Sie den Betrag oder fügen Sie Guthaben hinzu."
   },
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht.",

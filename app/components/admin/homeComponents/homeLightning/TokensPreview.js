@@ -30,7 +30,7 @@ export default function TokensPreview({ didGetToHomepage }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor } = GetThemeColors();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
-  const containerWidth = screenDimensions.width * 0.85 - 30;
+  const containerWidth = (screenDimensions?.width ?? 0) * 0.85 - 30;
   const navigate = useNavigation();
   const availableTokens = useMemo(() => {
     return sparkInformation?.tokens
@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     paddingTop: 5,
     borderRadius: 20,
-    marginTop: 35,
     marginBottom: 20,
   },
   leftContainer: {

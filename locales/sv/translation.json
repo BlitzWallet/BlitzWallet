@@ -976,7 +976,7 @@
       "inputPlaceholder": "Ange @användarnamn, Bitcoin-adress eller Lightning-faktura",
       "scanImage": "Skanna bild",
       "tapToScan": "Tryck för att hämta en adress från en bild",
-      "chooseWhatToSend": "Välj vad som ska skickas",
+      "chooseWhatToSend": "Välj hur denna betalning ska finansieras",
       "noContacts": "Lägg till kontakter så visas de här",
       "selectAddressType": "Välj adresstyp",
       "tapToGenerate_other": "Tryck för att se andra mottagningsalternativ",
@@ -1375,7 +1375,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Mottagningsvaluta",
       "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
-      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin."
+      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin.",
+      "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen."
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"
@@ -1616,7 +1617,7 @@
       "randomPinKeyboardToggle": "Knappsats för shuffle",
       "randomPinKeyboardInfo": "Aktivera den här funktionen för att blanda om knappsatsens nummer varje gång du loggar in. Det ger ett extra säkerhetslager genom att göra det svårare för någon i närheten att lära sig ditt PIN-mönster.",
       "biometricsHead": "Om biometri",
-      "biometricsSubHead": "Din återställningsfras är kopplad till din nuvarande biometriska profil. Om du ändrar eller lägger till ett fingeravtryck eller Face ID kommer du permanent att förlora åtkomsten till din återställningsfras."
+      "biometricsSubHead": "Din återställningsfras skyddas av din enhets nuvarande biometriska data. Om du ändrar dem kommer Blitz Wallet inte längre att kunna komma åt din återställningsfras och du låses ute från din plånbok."
     },
     "seedPhrase": {
       "header": "Förvara denna fröfras på ett säkert och tryggt ställe",
@@ -2552,6 +2553,7 @@
     "noUserFoundDeeplinkError": "Jag kan inte hitta någon användare för detta användarnamn.",
     "cannotAddSelfError": "Du kan inte lägga till dig själv som kontakt.",
     "fullDeeplinkError": "Det gick inte att få fram kontaktinformation, försök igen.",
+    "contactNotLoaded": "Kontakten kunde inte laddas. Försök igen.",
     "processingDeepLinkError": "Misslyckades med att bearbeta länken: {{error}}",
     "legacyContactError": "Kontakten har inte uppdaterat sin plånbok ännu. Be dem att uppdatera sin plånbok för att skicka detta.",
     "contactInvoiceGenerationError": "Fel vid generering av faktura. Kontrollera att detta är en giltig LNURL-adress.",
@@ -2584,7 +2586,8 @@
     "priceImpact": "Den här betalningen är stor, så det slutliga beloppet du får i dollar kan förändras.",
     "removingImageError": "Kunde inte ta bort bilden. Försök igen.",
     "usdcUsdtTokensOnly": "Endast USDT- och USDC-token stöds",
-    "lightningAmountFeeWarning": "Ditt saldo täcker inte beloppet och avgiften på ≈{{amount}}."
+    "lightningAmountFeeWarning": "Ditt saldo täcker inte beloppet och avgiften på ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Denna betalning kräver ≈{{amount}}. Sänk beloppet eller lägg till medel."
   },
   "loadingScreen": {
     "message1": "Stäng inte appen, snälla",

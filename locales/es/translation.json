@@ -976,7 +976,7 @@
       "inputPlaceholder": "Introduce @usuario, dirección de Bitcoin o factura Lightning",
       "scanImage": "Escanear imagen",
       "tapToScan": "Toca para obtener una dirección desde una imagen",
-      "chooseWhatToSend": "Elige qué enviar",
+      "chooseWhatToSend": "Elige cómo financiar este pago",
       "noContacts": "Agrega contactos para que aparezcan aquí",
       "selectAddressType": "Seleccionar tipo de dirección",
       "tapToGenerate_other": "Toca para ver otras opciones de recepción",
@@ -1375,7 +1375,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Moneda de recepción",
       "futurePaymentsMessage": "Todos los pagos futuros se recibirán en {{option}}",
-      "warningMessage": "Al seleccionar {{option}}, hay un mínimo de {{amount}}. Los pagos más pequeños se recibirán en Bitcoin."
+      "warningMessage": "Al seleccionar {{option}}, hay un mínimo de {{amount}}. Los pagos más pequeños se recibirán en Bitcoin.",
+      "changeSelectionError": "{{option}} ya está seleccionado. Cambia tu selección para actualizar la configuración."
     },
     "selectCurrencyToSend": {
       "header": "¿Qué deseas enviar?"
@@ -1613,7 +1614,7 @@
       "randomPinKeyboardToggle": "Mezclar teclado numérico",
       "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN.",
       "biometricsHead": "Sobre la biometría",
-      "biometricsSubHead": "Tu frase de recuperación está vinculada a tu perfil biométrico actual. Si cambias o agregas una huella digital o Face ID, perderás permanentemente el acceso a tu frase de recuperación."
+      "biometricsSubHead": "Tu frase de recuperación está protegida por los datos biométricos actuales de tu dispositivo. Cambiarlos impedirá que Blitz Wallet acceda a tu frase de recuperación y bloqueará el acceso a tu billetera."
     },
     "seedPhrase": {
       "header": "Guarde esta frase semilla en un lugar seguro y protegido",
@@ -2552,6 +2553,7 @@
     "noUserFoundDeeplinkError": "No se pudo encontrar usuario con este nombre.",
     "cannotAddSelfError": "No puedes añadirte como contacto.",
     "fullDeeplinkError": "No se pudo recuperar información de contacto, por favor intenta de nuevo.",
+    "contactNotLoaded": "No se pudo cargar el contacto. Inténtalo de nuevo.",
     "processingDeepLinkError": "Error al procesar enlace: {{error}}",
     "legacyContactError": "El contacto aún no ha actualizado su billetera. Por favor pídele que la actualice para enviarle.",
     "contactInvoiceGenerationError": "Error al generar factura. Asegúrate de que sea una dirección LNURL válida.",
@@ -2584,7 +2586,8 @@
     "removingImageError": "No se pudo eliminar la imagen. Inténtalo de nuevo.",
     "bitcoinInvoiceError": "Hubo un problema al generar tu dirección de Bitcoin. Por favor, inténtalo de nuevo.",
     "usdcUsdtTokensOnly": "Solo se admiten los tokens USDT y USDC",
-    "lightningAmountFeeWarning": "Tu saldo no cubre el monto y la comisión de ≈{{amount}}."
+    "lightningAmountFeeWarning": "Tu saldo no cubre el monto y la comisión de ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Este pago requiere ≈{{amount}}. Reduce el monto o agrega fondos."
   },
   "loadingScreen": {
     "message1": "Por favor no cierres la aplicación",

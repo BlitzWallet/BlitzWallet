@@ -78,6 +78,7 @@ import useDebounce from '../../../../hooks/useDebounce';
 import customUUID from '../../../../functions/customUUID';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import { getLNAddressForLiquidPayment } from './functions/payments';
+import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -532,14 +533,18 @@ export default function SendPaymentScreen(props) {
           if (dollarAmountRequired > userDollarBalance) {
             showToast({
               type: 'error',
-              title: t('errormessages.lightningAmountFeeWarning', {
+              title: t('errormessages.lightningAmountRequiredWarning', {
                 amount: displayCorrectDenomination({
-                  amount: fee,
+                  amount: parseFloat(
+                    formatTokensNumber(quote.quote.tokenAmountRequired, 6),
+                  ).toFixed(2),
                   masterInfoObject: {
                     ...masterInfoObject,
-                    userBalanceDenomination: 'sats',
+                    userBalanceDenomination: 'fiat',
                   },
                   fiatStats,
+                  convertAmount: false,
+                  forceCurrency: 'USD',
                 }),
               }),
               duration: 6000,
@@ -1033,9 +1038,10 @@ export default function SendPaymentScreen(props) {
         isRedeemed: null,
         description: combinedPaymentDescription || '',
         isRequest: false,
-        paymentDenomination: inputDenominationRef.current || 'BTC',
+        paymentDenomination:
+          paymentInfo.data.expectedReceive === 'tokens' ? 'USD' : 'BTC',
         amountDollars:
-          inputDenominationRef.current === 'USD'
+          paymentInfo.data.expectedReceive === 'tokens'
             ? satsToDollars(
                 convertedSendAmount,
                 poolInfoRef.currentPriceAInB,
@@ -1075,6 +1081,7 @@ export default function SendPaymentScreen(props) {
       contactsPrivateKey,
       masterInfoObject,
       combinedPaymentDescription,
+      paymentInfo,
     ],
   );
   const effectivePublishMessageFunc =
@@ -1566,6 +1573,7 @@ export default function SendPaymentScreen(props) {
                   setDidSelectPaymentMethod={setDidSelectPaymentMethod}
                   conversionFiatStats={conversionFiatStats}
                   primaryDisplay={primaryDisplay}
+                  enteredPaymentInfo={enteredPaymentInfo}
                 />
               )
             }

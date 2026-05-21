@@ -976,7 +976,7 @@
       "inputPlaceholder": "Entrez @nomdutilisateur, une adresse Bitcoin ou une facture Lightning",
       "scanImage": "Scanner une image",
       "tapToScan": "Appuyez pour extraire une adresse depuis une image",
-      "chooseWhatToSend": "Choisir quoi envoyer",
+      "chooseWhatToSend": "Choisissez comment financer ce paiement",
       "noContacts": "Ajoutez des contacts pour les voir apparaître ici",
       "selectAddressType": "Sélectionner le type d’adresse",
       "tapToGenerate_other": "Appuyez pour voir d’autres options de réception",
@@ -1375,7 +1375,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Devise de réception",
       "futurePaymentsMessage": "Tous les paiements futurs seront reçus en {{option}}",
-      "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin."
+      "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin.",
+      "changeSelectionError": "{{option}} est déjà sélectionné. Modifiez votre sélection pour mettre à jour votre paramètre."
     },
     "selectCurrencyToSend": {
       "header": "Que souhaitez-vous envoyer ?"
@@ -1616,7 +1617,7 @@
       "randomPinKeyboardToggle": "Clavier de lecture aléatoire",
       "randomPinKeyboardInfo": "Activez cette fonction pour mélanger les numéros du clavier à chaque fois que vous vous connectez. Cette fonction ajoute une couche de sécurité supplémentaire en rendant plus difficile l'apprentissage de votre code PIN par une personne se trouvant à proximité.",
       "biometricsHead": "À propos de la biométrie",
-      "biometricsSubHead": "Votre phrase de récupération est liée à votre profil biométrique actuel. Si vous modifiez ou ajoutez une empreinte digitale ou Face ID, vous perdrez définitivement l’accès à votre phrase de récupération."
+      "biometricsSubHead": "Votre phrase de récupération est protégée par les données biométriques actuelles de votre appareil. Les modifier empêchera Blitz Wallet d’accéder à votre phrase de récupération et vous bloquera l’accès à votre portefeuille."
     },
     "seedPhrase": {
       "header": "Conservez cette phrase de semence dans un endroit sûr et sécurisé.",
@@ -2552,6 +2553,7 @@
     "noUserFoundDeeplinkError": "Impossible de trouver un utilisateur pour ce nom d'utilisateur.",
     "cannotAddSelfError": "Vous ne pouvez pas vous ajouter comme contact.",
     "fullDeeplinkError": "Impossible de récupérer les informations de contact, veuillez réessayer.",
+    "contactNotLoaded": "Le contact n’a pas pu être chargé. Veuillez réessayer.",
     "processingDeepLinkError": "Échec du traitement du lien : {{error}}",
     "legacyContactError": "Le contact n'a pas encore mis à jour son portefeuille. Veuillez lui demander de mettre à jour son portefeuille pour envoyer ce message.",
     "contactInvoiceGenerationError": "Erreur lors de la génération de la facture. Assurez-vous qu'il s'agit d'une adresse LNURL valide.",
@@ -2584,7 +2586,8 @@
     "priceImpact": "Ce paiement est important, le montant final que vous recevrez en dollars peut donc changer.",
     "removingImageError": "Impossible de supprimer l'image. Veuillez réessayer.",
     "usdcUsdtTokensOnly": "Seuls les tokens USDT et USDC sont pris en charge",
-    "lightningAmountFeeWarning": "Votre solde ne couvre pas le montant et les frais de ≈{{amount}}."
+    "lightningAmountFeeWarning": "Votre solde ne couvre pas le montant et les frais de ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Ce paiement nécessite ≈{{amount}}. Veuillez réduire le montant ou ajouter des fonds."
   },
   "loadingScreen": {
     "message1": "Ne fermez pas l'application",
