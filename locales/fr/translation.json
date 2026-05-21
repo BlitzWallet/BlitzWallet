@@ -976,7 +976,7 @@
       "inputPlaceholder": "Entrez @nomdutilisateur, une adresse Bitcoin ou une facture Lightning",
       "scanImage": "Scanner une image",
       "tapToScan": "Appuyez pour extraire une adresse depuis une image",
-      "chooseWhatToSend": "Choisir quoi envoyer",
+      "chooseWhatToSend": "Choisissez comment financer ce paiement",
       "noContacts": "Ajoutez des contacts pour les voir apparaître ici",
       "selectAddressType": "Sélectionner le type d’adresse",
       "tapToGenerate_other": "Appuyez pour voir d’autres options de réception",

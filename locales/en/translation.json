@@ -976,7 +976,7 @@
       "inputPlaceholder": "Enter @username, Bitcoin, or USDC/USDT address.",
       "scanImage": "Scan Image",
       "tapToScan": "Tap to get an address from an image",
-      "chooseWhatToSend": "Choose what to send",
+      "chooseWhatToSend": "Choose how to fund this payment",
       "noContacts": "Add contacts for them to show up here",
       "selectAddressType": "Select address type",
       "tapToGenerate_other": "Tap to see other receive options",
