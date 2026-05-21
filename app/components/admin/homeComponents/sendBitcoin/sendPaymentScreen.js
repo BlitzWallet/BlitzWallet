@@ -1036,7 +1036,7 @@ export default function SendPaymentScreen(props) {
         paymentDenomination:
           paymentInfo.data.expectedReceive === 'tokens' ? 'USD' : 'BTC',
         amountDollars:
-          inputDenominationRef.current === 'USD'
+          paymentInfo.data.expectedReceive === 'tokens'
             ? satsToDollars(
                 convertedSendAmount,
                 poolInfoRef.currentPriceAInB,
