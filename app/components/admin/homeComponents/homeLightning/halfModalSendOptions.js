@@ -463,14 +463,18 @@ export default function HalfModalSendOptions({
         return;
       }
 
+      const endReceiveType =
+        retrivedContact?.lnurlReceiveCurrency?.toLowerCase() === 'usd'
+          ? 'USD'
+          : 'BTC';
+
       handleBackPressFunction(async () => {
         navigate.replace('ConfirmPaymentScreen', {
           btcAdress: receiveAddress,
           fromPage: 'contacts',
           enteredPaymentInfo: {
-            description: t('contacts.sendAndRequestPage.profileMessage', {
-              name: matchedContact.name || matchedContact.uniqueName,
-            }),
+            endReceiveType,
+            fromContacts: true,
           },
           contactInfo: {
             imageData: cache[matchedContact.uuid],
@@ -523,6 +527,8 @@ export default function HalfModalSendOptions({
     decodedAddedContacts,
     globalContactsInformation,
     cache,
+    handleBackPressFunction,
+    t,
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
@@ -537,6 +543,13 @@ export default function HalfModalSendOptions({
       const clipboardData = response.data?.trim();
 
       const preParsingResponse = handlePreSendPageParsing(clipboardData);
+
+      if (preParsingResponse.error) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: preParsingResponse.error,
+        });
+        return;
+      }
 
       if (preParsingResponse.navigateToWebView) {
         navigate.navigate('CustomWebView', {
@@ -728,13 +741,13 @@ export default function HalfModalSendOptions({
             selectedContact: contact,
             paymentType: 'send',
             imageData: cache[contact.uuid],
-            endReceiveType: isLNURL ? 'BTC' : paymentType,
             selectedPaymentMethod: paymentType,
+            ...(isLNURL ? { endReceiveType: 'BTC' } : {}),
           });
         }
       });
     },
-    [navigate, cache],
+    [navigate, cache, handleBackPressFunction],
   );
 
   const hideAddContacts = useCallback(() => {
@@ -816,12 +829,11 @@ export default function HalfModalSendOptions({
           selectedContact: contact,
           paymentType: 'send',
           imageData: cache[contact.uuid],
-          endReceiveType: 'BTC',
           selectedPaymentMethod: 'BTC',
         });
       });
     },
-    [navigate, globalContactsInformation, cache, t, handleBackPressFunction],
+    [navigate, cache, handleBackPressFunction],
   );
 
   const renderFilteredContact = useCallback(
