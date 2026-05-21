@@ -973,7 +973,7 @@
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
-      "inputPlaceholder": "Insira @usuário, Bitcoin ou endereço USDT/USDC",
+      "inputPlaceholder": "Insira @perfil, Bitcoin ou endereço USDT/USDC",
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "O que você deseja enviar?",
@@ -1117,7 +1117,7 @@
     "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
     "contactsPage": {
       "header": "Selecione o contato",
-      "inputTextPlaceholder": "Procurar nome de usuário...",
+      "inputTextPlaceholder": "Procurar perfil...",
       "subHeader": "Meus contatos",
       "giftsText": "Cartões-presente recebidos"
     },
@@ -1155,8 +1155,8 @@
         "rootstockTitle": "Endereço Rootstock"
       },
       "editLNURLContact": {
-        "informationMessage": "Alterar seu nome de usuário atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Blitz (usuário@blitzwalletapp.com).\n\nUm endereço Blitz permite que outras pessoas lhe enviem dinheiro facilmente. Basta compartilhar seu endereço (usuário@blitzwalletapp.com) para receber um pagamento.",
-        "usernameInputDesc": "Editar nome de usuário"
+        "informationMessage": "Alterar seu perfil atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Blitz (perfil@blitzwalletapp.com).\n\nUm endereço Blitz permite que outras pessoas lhe enviem dinheiro facilmente. Basta compartilhar seu endereço (perfil@blitzwalletapp.com) para receber um pagamento.",
+        "usernameInputDesc": "Editar perfil"
       }
     },
     "sendPages": {
@@ -1336,7 +1336,7 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço de pagamento (ex. nome@domínio.com) ou nome de usuário Blitz",
+      "startTypingMessage": "Procurar por endereço de pagamento (ex. perfil@domínio.com) ou perfil Blitz",
       "loadingMessage": "Procurando contato...",
       "profileImage": "Carregando foto de perfil..."
     },
@@ -1355,13 +1355,13 @@
       "nameInputPlaceholder": "Digite seu nome",
       "lnurlInputDesc": "Endereço Blitz",
       "lnurlInputPlaceholder": "Digite seu endereço Blitz",
-      "uniqueNameInputDesc": "Nome de usuário",
-      "uniqueNameInputPlaceholder": "Digite seu nome de usuário",
+      "uniqueNameInputDesc": "Perfil",
+      "uniqueNameInputPlaceholder": "Digite seu perfil",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Escreva uma introdução curta",
       "addContactBTN": " Adicionar contato",
-      "unqiueNameRegexError": "O nome de usuário só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
-      "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
+      "unqiueNameRegexError": "O perfil só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
+      "usernameAlreadyExistsError": "Este perfil já existe, escolha outro.",
       "unableToSaveError": "Não foi possível salvar a imagem do perfil, tente novamente.",
       "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
       "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas.",
@@ -1493,7 +1493,7 @@
     },
     "editProfileFieldPage": {
       "nameDescription": "Seu nome de exibição é como as outras pessoas veem você. Ele pode ser alterado a qualquer momento.",
-      "uniquenameDescription": "Alterar seu nome de usuário também altera seu endereço Blitz. Pagamentos para seu nome de usuário antigo serão perdidos.",
+      "uniquenameDescription": "Alterar seu perfil também altera seu endereço Blitz. Pagamentos para seu perfil antigo serão perdidos.",
       "bioDescription": "Sua bio é uma breve descrição para ajudar outras pessoas a conhecer você."
     }
   },
@@ -1765,9 +1765,9 @@
       "title": "Veriticação Nip5",
       "desc": "O Nip5 transforma sua longa chave Npub em um pequeno endereço com estrutura de e-mail, parecido com um endereço Blitz.",
       "dataIsInvalid": "Algo deu errado, tente novamente,",
-      "usernameInputLabel": "Nome de usuário",
+      "usernameInputLabel": "Perfil",
       "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Nome de usuário",
+      "publicKeyLabel": "Perfil",
       "publicKeyPlaceholder": "Npub...",
       "errors": {
         "invalidPubKey": "Chave pública inválida: precisa ser uma string não vazia",
@@ -2549,7 +2549,7 @@
     "updateContactMessageError": "Ocorreu um problema ao atualizar esta mensagem. Tente novamente.",
     "declinePaymentError": "Ocorreu um problema ao recusar este pagamento, tente novamente.",
     "payingContactError": "Não conseguimos obter o endereço de contato, tente novamente.",
-    "noUserFoundDeeplinkError": "Não foi possível encontrar nenhum usuário para este nome de usuário.",
+    "noUserFoundDeeplinkError": "Não foi possível encontrar nenhum usuário para este perfil.",
     "cannotAddSelfError": "Você não pode adicionar a si mesmo como um contato.",
     "fullDeeplinkError": "Não foi possível recuperar as informações de contato, tente novamente.",
     "processingDeepLinkError": "Falha ao processar o link: {{error}}",
