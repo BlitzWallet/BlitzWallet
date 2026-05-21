@@ -106,6 +106,7 @@ export default function SendAndRequestPage(props) {
   const [lnFeeEstimate, setLnFeeEstimate] = useState(null);
   const [swapQuote, setSwapQuote] = useState({});
   const [lnInvoiceData, setLnInvoiceData] = useState(null);
+  const [prefetchedDoc, setPrefetchedDoc] = useState(null);
   const lnurlParsedRef = useRef(null);
   const quoteId = useRef(null);
   const poolInfoRefSnapshotRef = useRef(poolInfoRef);
@@ -113,11 +114,44 @@ export default function SendAndRequestPage(props) {
     selectedPaymentMethod,
     selectedRequestMethod,
   });
+  const requiresContactDoc =
+    paymentType === 'send' &&
+    Boolean(selectedContact) &&
+    !selectedContact?.isLNURL;
+  const resolvedEndReceiveType = requiresContactDoc
+    ? prefetchedDoc?.lnurlReceiveCurrency?.toLowerCase() === 'usd'
+      ? 'USD'
+      : 'BTC'
+    : endReceiveType;
 
   useEffect(() => {
     if (typeof giftOption?.memo !== 'string') return;
     setDescriptionValue(giftOption.memo);
   }, [giftOption?.memo]);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    if (!requiresContactDoc) {
+      setPrefetchedDoc(null);
+      return () => {
+        isCurrent = false;
+      };
+    }
+
+    setPrefetchedDoc(null);
+    getDataFromCollection('blitzWalletUsers', selectedContact.uuid)
+      .then(doc => {
+        if (isCurrent) setPrefetchedDoc(doc ?? null);
+      })
+      .catch(() => {
+        if (isCurrent) setPrefetchedDoc(null);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [requiresContactDoc, selectedContact?.uuid]);
 
   const paymentMode =
     paymentType === 'send' || paymentType === 'Gift'
@@ -321,8 +355,8 @@ export default function SendAndRequestPage(props) {
         giftOption || selectedContact?.isLNURL ? 'lightning' : 'spark',
       isLNURLPayment: selectedContact?.isLNURL,
       data: {
-        expectedReceive: endReceiveType === 'BTC' ? 'sats' : 'tokens',
-        expectedToken: endReceiveType === 'BTC' ? null : USDB_TOKEN_ID,
+        expectedReceive: resolvedEndReceiveType === 'BTC' ? 'sats' : 'tokens',
+        expectedToken: resolvedEndReceiveType === 'BTC' ? null : USDB_TOKEN_ID,
       },
       decodedInput: {
         tpye:
@@ -441,6 +475,8 @@ export default function SendAndRequestPage(props) {
 
   const canProceed =
     paymentType === 'request' ? !!amountValue : paymentValidation.canProceed;
+  const canReview =
+    canProceed && (!requiresContactDoc || Boolean(prefetchedDoc));
 
   const handleDenominationToggle = () => {
     if (isDescriptionFocused) return;
@@ -468,6 +504,12 @@ export default function SendAndRequestPage(props) {
       if (!isConnectedToTheInternet) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('errormessages.nointernet'),
+        });
+        return;
+      }
+      if (requiresContactDoc && !prefetchedDoc) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.contactNotLoaded'),
         });
         return;
       }
@@ -645,6 +687,7 @@ export default function SendAndRequestPage(props) {
         myProfileMessage,
         payingContactMessage,
         onlyGetContact: paymentType !== 'send',
+        prefetchedDoc,
       });
 
       if (!didWork) {
@@ -664,9 +707,9 @@ export default function SendAndRequestPage(props) {
       if (paymentType === 'send') {
         sendObject['description'] = contactMessage;
         sendObject['isRequest'] = false;
-        sendObject['paymentDenomination'] = endReceiveType;
+        sendObject['paymentDenomination'] = resolvedEndReceiveType;
         sendObject['amountDollars'] =
-          endReceiveType === 'USD'
+          resolvedEndReceiveType === 'USD'
             ? satsToDollars(
                 convertedSendAmount,
                 poolInfoRefSnapshotRef.current.currentPriceAInB,
@@ -680,7 +723,7 @@ export default function SendAndRequestPage(props) {
             fromContacts: true,
             amount: convertedSendAmount,
             description: myProfileMessage,
-            endReceiveType: endReceiveType,
+            endReceiveType: resolvedEndReceiveType,
             lnFeeEstimate: selectedContact?.isLNURL ? lnFeeEstimate : null,
             swapQuote: Object.keys(swapQuote).length ? swapQuote : null,
             lnInvoiceData: selectedContact?.isLNURL ? lnInvoiceData : null,
@@ -773,6 +816,10 @@ export default function SendAndRequestPage(props) {
     primaryDisplay,
     isUSDMode,
     inputDenomination,
+    resolvedEndReceiveType,
+    requiresContactDoc,
+    prefetchedDoc,
+    t,
   ]);
 
   const handleEmoji = newDescription => {
@@ -803,16 +850,6 @@ export default function SendAndRequestPage(props) {
           }
           containerStyles={{ marginBottom: 0 }}
         />
-        {paymentType === 'request' && (
-          <ThemeText
-            styles={styles.requestTypeIndicator}
-            content={
-              selectedRequestMethod === 'BTC'
-                ? t('constants.bitcoin_upper')
-                : t('constants.dollars_upper')
-            }
-          />
-        )}
 
         <View style={styles.identityBadge}>
           <TouchableOpacity
@@ -1010,34 +1047,32 @@ export default function SendAndRequestPage(props) {
         </ScrollView>
         {paymentType !== 'Gift' && (
           <View style={styles.inputAndGiftContainer}>
-            {paymentType === 'send' && (
-              <ChoosePaymentMethod
-                theme={theme}
-                darkModeType={darkModeType}
-                determinePaymentMethod={
-                  paymentType === 'send' || paymentType === 'Gift'
-                    ? selectedPaymentMethod
-                    : selectedRequestMethod
-                }
-                handleSelectPaymentMethod={handleSelectPaymentMethod}
-                bitcoinBalance={sparkInformation.balance}
-                dollarBalanceToken={dollarBalanceToken}
-                masterInfoObject={masterInfoObject}
-                fiatStats={fiatStats}
-                uiState={
-                  paymentType === 'send' || paymentType === 'Gift'
-                    ? 'SELECT_INLINE'
-                    : 'CONTACT_REQUEST'
-                }
-                t={t}
-                selectedMethod={
-                  paymentType === 'send' || paymentType === 'Gift'
-                    ? selectedPaymentMethod
-                    : selectedRequestMethod
-                }
-                containerStyles={{ width: '100%', marginBottom: 8 }}
-              />
-            )}
+            <ChoosePaymentMethod
+              theme={theme}
+              darkModeType={darkModeType}
+              determinePaymentMethod={
+                paymentType === 'send' || paymentType === 'Gift'
+                  ? selectedPaymentMethod
+                  : selectedRequestMethod
+              }
+              handleSelectPaymentMethod={handleSelectPaymentMethod}
+              bitcoinBalance={sparkInformation.balance}
+              dollarBalanceToken={dollarBalanceToken}
+              masterInfoObject={masterInfoObject}
+              fiatStats={fiatStats}
+              uiState={
+                paymentType === 'send' || paymentType === 'Gift'
+                  ? 'SELECT_INLINE'
+                  : 'CONTACT_REQUEST'
+              }
+              t={t}
+              selectedMethod={
+                paymentType === 'send' || paymentType === 'Gift'
+                  ? selectedPaymentMethod
+                  : selectedRequestMethod
+              }
+              containerStyles={{ width: '100%', marginBottom: 8 }}
+            />
 
             <CustomSearchInput
               onFocusFunction={() => {
@@ -1072,7 +1107,7 @@ export default function SendAndRequestPage(props) {
             <CustomButton
               buttonStyles={{
                 ...styles.button,
-                opacity: canProceed ? 1 : HIDDEN_OPACITY,
+                opacity: canReview ? 1 : HIDDEN_OPACITY,
               }}
               useLoading={isLoading}
               actionFunction={handleSubmit}
