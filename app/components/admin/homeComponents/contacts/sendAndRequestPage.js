@@ -140,13 +140,31 @@ export default function SendAndRequestPage(props) {
     }
 
     setPrefetchedDoc(null);
-    getDataFromCollection('blitzWalletUsers', selectedContact.uuid)
-      .then(doc => {
+
+    const MAX_ATTEMPTS = 5;
+    const BASE_DELAY_MS = 375; // ~375, 750, 1500, 3000, 6000 → ~11.6 s worst case, well under 30 s
+
+    const fetchWithBackoff = async (attempt = 0) => {
+      try {
+        const doc = await getDataFromCollection(
+          'blitzWalletUsers',
+          selectedContact.uuid,
+        );
         if (isCurrent) setPrefetchedDoc(doc ?? null);
-      })
-      .catch(() => {
-        if (isCurrent) setPrefetchedDoc(null);
-      });
+      } catch {
+        if (!isCurrent) return;
+
+        if (attempt < MAX_ATTEMPTS - 1) {
+          const delay = BASE_DELAY_MS * 2 ** attempt;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          if (isCurrent) fetchWithBackoff(attempt + 1);
+        } else {
+          setPrefetchedDoc(null);
+        }
+      }
+    };
+
+    fetchWithBackoff();
 
     return () => {
       isCurrent = false;
@@ -1138,7 +1156,6 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
 
-  requestTypeIndicator: { textAlign: 'center', opacity: HIDDEN_OPACITY },
   identityBadge: {
     alignItems: 'center',
     alignSelf: 'center',
