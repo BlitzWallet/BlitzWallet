@@ -1375,7 +1375,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Empfangswährung",
       "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen",
-      "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in BTC empfangen."
+      "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in BTC empfangen.",
+      "changeSelectionError": "{{option}} ist bereits ausgewählt. Ändern Sie Ihre Auswahl, um die Einstellung zu aktualisieren."
     },
     "selectCurrencyToSend": {
       "header": "Wie möchten Sie senden?"

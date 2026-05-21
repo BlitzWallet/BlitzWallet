@@ -1375,7 +1375,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Devise de réception",
       "futurePaymentsMessage": "Tous les paiements futurs seront reçus en {{option}}",
-      "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin."
+      "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin.",
+      "changeSelectionError": "{{option}} est déjà sélectionné. Modifiez votre sélection pour mettre à jour votre paramètre."
     },
     "selectCurrencyToSend": {
       "header": "Que souhaitez-vous envoyer ?"

@@ -6,12 +6,13 @@ import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useTranslation } from 'react-i18next';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import CustomButton from '../../../../functions/CustomElements/button';
 
 export default function LnurlReceiveCurrencySelect({
   handleBackPressFunction,
@@ -25,19 +26,36 @@ export default function LnurlReceiveCurrencySelect({
   const navigate = useNavigation();
   const { t } = useTranslation();
 
+  const currentCurrency =
+    masterInfoObject.lnurlReceiveCurrency === 'usd' ? 'usd' : 'btc';
+  const [selectedCurrency, setSelectedCurrency] = useState(currentCurrency);
+
+  const hasChanged = selectedCurrency !== currentCurrency;
+
   useEffect(() => {
-    setContentHeight(500);
+    setContentHeight(550);
   }, []);
 
-  const onSelect = currency => {
+  const onConfirm = () => {
+    if (!hasChanged) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t(
+          'contacts.remotePaymentCurrencySelect.changeSelectionError',
+          {
+            option:
+              selectedCurrency === 'usd'
+                ? t('constants.dollars_upper')
+                : t('constants.bitcoin_upper'),
+          },
+        ),
+      });
+      return;
+    }
     handleBackPressFunction(() => {
-      toggleMasterInfoObject({ lnurlReceiveCurrency: currency });
+      toggleMasterInfoObject({ lnurlReceiveCurrency: selectedCurrency });
       navigate.goBack();
     });
   };
-
-  const currentCurrency =
-    masterInfoObject.lnurlReceiveCurrency === 'usd' ? 'usd' : 'btc';
 
   return (
     <View style={styles.innerContainer}>
@@ -56,7 +74,7 @@ export default function LnurlReceiveCurrencySelect({
         ]}
       >
         <TouchableOpacity
-          onPress={() => onSelect('btc')}
+          onPress={() => setSelectedCurrency('btc')}
           style={styles.optionRow}
         >
           <View
@@ -93,7 +111,7 @@ export default function LnurlReceiveCurrencySelect({
             />
           </View>
           <CheckMarkCircle
-            isActive={currentCurrency === 'btc'}
+            isActive={selectedCurrency === 'btc'}
             containerSize={25}
             switchDarkMode={theme && !darkModeType ? true : false}
           />
@@ -102,7 +120,7 @@ export default function LnurlReceiveCurrencySelect({
         <View style={styles.separator} />
 
         <TouchableOpacity
-          onPress={() => onSelect('usd')}
+          onPress={() => setSelectedCurrency('usd')}
           style={styles.optionRow}
         >
           <View
@@ -137,26 +155,34 @@ export default function LnurlReceiveCurrencySelect({
             />
           </View>
           <CheckMarkCircle
-            isActive={currentCurrency === 'usd'}
+            isActive={selectedCurrency === 'usd'}
             containerSize={25}
             switchDarkMode={theme && !darkModeType ? true : false}
           />
         </TouchableOpacity>
       </View>
 
-      <ThemeText
-        styles={styles.footnote}
-        content={t('contacts.remotePaymentCurrencySelect.warningMessage', {
-          option: t('constants.dollars_upper'),
-          amount: displayCorrectDenomination({
-            amount: 2000,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'sats',
-            },
-            fiatStats,
-          }),
-        })}
+      {selectedCurrency === 'usd' && (
+        <ThemeText
+          styles={styles.footnote}
+          content={t('contacts.remotePaymentCurrencySelect.warningMessage', {
+            option: t('constants.dollars_upper'),
+            amount: displayCorrectDenomination({
+              amount: 2000,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'sats',
+              },
+              fiatStats,
+            }),
+          })}
+        />
+      )}
+
+      <CustomButton
+        buttonStyles={[styles.confirmButton, { opacity: hasChanged ? 1 : 0.5 }]}
+        textContent={t('constants.confirm')}
+        actionFunction={onConfirm}
       />
     </View>
   );
@@ -213,5 +239,9 @@ const styles = StyleSheet.create({
     fontSize: SIZES.small,
     opacity: 0.5,
     textAlign: 'center',
+  },
+  confirmButton: {
+    marginTop: 'auto',
+    ...CENTER,
   },
 });
