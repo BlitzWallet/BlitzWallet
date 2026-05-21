@@ -2553,6 +2553,7 @@
     "noUserFoundDeeplinkError": "Unable to find any user for this username.",
     "cannotAddSelfError": "You cannot add yourself as a contact.",
     "fullDeeplinkError": "Unable to retrieve contact information. Please try again.",
+    "contactNotLoaded": "Contact not loaded. Please try again.",
     "processingDeepLinkError": "Failed to process link: {{error}}",
     "legacyContactError": "Contact has not updated their wallet yet. Please ask them to update their wallet to send this.",
     "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid Lightning address.",

@@ -2552,6 +2552,7 @@
     "noUserFoundDeeplinkError": "No se pudo encontrar usuario con este nombre.",
     "cannotAddSelfError": "No puedes añadirte como contacto.",
     "fullDeeplinkError": "No se pudo recuperar información de contacto, por favor intenta de nuevo.",
+    "contactNotLoaded": "No se pudo cargar el contacto. Inténtalo de nuevo.",
     "processingDeepLinkError": "Error al procesar enlace: {{error}}",
     "legacyContactError": "El contacto aún no ha actualizado su billetera. Por favor pídele que la actualice para enviarle.",
     "contactInvoiceGenerationError": "Error al generar factura. Asegúrate de que sea una dirección LNURL válida.",

@@ -2552,6 +2552,7 @@
     "noUserFoundDeeplinkError": "Impossibile trovare un utente per questo username.",
     "cannotAddSelfError": "Non puoi aggiungerti come contatto.",
     "fullDeeplinkError": "Impossibile recuperare le informazioni del contatto, riprova.",
+    "contactNotLoaded": "Impossibile caricare il contatto. Riprova.",
     "processingDeepLinkError": "Errore nel processare il link: {{error}}",
     "legacyContactError": "Il contatto non ha ancora aggiornato il suo wallet. Chiedigli di aggiornare il wallet per inviare questo.",
     "contactInvoiceGenerationError": "Errore nella generazione della fattura. Assicurati che sia un indirizzo LNURL valido.",

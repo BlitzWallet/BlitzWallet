@@ -6,6 +6,7 @@ export default async function getReceiveAddressAndContactForContactsPayment({
   myProfileMessage = '',
   payingContactMessage = '',
   onlyGetContact = false,
+  prefetchedDoc = null,
 }) {
   try {
     let receiveAddress;
@@ -15,6 +16,26 @@ export default async function getReceiveAddressAndContactForContactsPayment({
     if (selectedContact.isLNURL) {
       receiveAddress = selectedContact.receiveAddress;
       retrivedContact = selectedContact;
+    } else if (prefetchedDoc) {
+      retrivedContact = prefetchedDoc;
+
+      if (onlyGetContact)
+        return { didWork: true, receiveAddress: '', retrivedContact };
+
+      if (retrivedContact?.contacts?.myProfile?.sparkAddress) {
+        if (payingContactMessage?.usingTranslation) {
+          message = retrivedContact.isUsingNewNotifications
+            ? JSON.stringify({
+                name: payingContactMessage.name,
+                translation: 'contacts.sendAndRequestPage.contactMessage',
+              })
+            : `${payingContactMessage.name} paid you`;
+        } else {
+          message = payingContactMessage;
+        }
+
+        receiveAddress = retrivedContact?.contacts?.myProfile?.sparkAddress;
+      } else throw new Error('errormessages.legacyContactError');
     } else {
       retrivedContact = await getDataFromCollection(
         'blitzWalletUsers',

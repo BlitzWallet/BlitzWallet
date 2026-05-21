@@ -2552,6 +2552,7 @@
     "noUserFoundDeeplinkError": "Impossible de trouver un utilisateur pour ce nom d'utilisateur.",
     "cannotAddSelfError": "Vous ne pouvez pas vous ajouter comme contact.",
     "fullDeeplinkError": "Impossible de récupérer les informations de contact, veuillez réessayer.",
+    "contactNotLoaded": "Le contact n’a pas pu être chargé. Veuillez réessayer.",
     "processingDeepLinkError": "Échec du traitement du lien : {{error}}",
     "legacyContactError": "Le contact n'a pas encore mis à jour son portefeuille. Veuillez lui demander de mettre à jour son portefeuille pour envoyer ce message.",
     "contactInvoiceGenerationError": "Erreur lors de la génération de la facture. Assurez-vous qu'il s'agit d'une adresse LNURL valide.",

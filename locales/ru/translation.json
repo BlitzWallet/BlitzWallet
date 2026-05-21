@@ -2559,6 +2559,7 @@
     "noUserFoundDeeplinkError": "Пользователь не найден.",
     "cannotAddSelfError": "Нельзя добавить самого себя.",
     "fullDeeplinkError": "Ошибка получения информации контакта.",
+    "contactNotLoaded": "Не удалось загрузить контакт. Попробуйте снова.",
     "processingDeepLinkError": "Ошибка ссылки: {{error}}",
     "legacyContactError": "У контакта старая версия кошелька. Попросите обновить.",
     "contactInvoiceGenerationError": "Ошибка генерации инвойса. Проверьте адрес Молнии.",
