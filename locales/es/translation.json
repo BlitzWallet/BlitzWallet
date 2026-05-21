@@ -2586,7 +2586,8 @@
     "removingImageError": "No se pudo eliminar la imagen. Inténtalo de nuevo.",
     "bitcoinInvoiceError": "Hubo un problema al generar tu dirección de Bitcoin. Por favor, inténtalo de nuevo.",
     "usdcUsdtTokensOnly": "Solo se admiten los tokens USDT y USDC",
-    "lightningAmountFeeWarning": "Tu saldo no cubre el monto y la comisión de ≈{{amount}}."
+    "lightningAmountFeeWarning": "Tu saldo no cubre el monto y la comisión de ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Este pago requiere ≈{{amount}}. Reduce el monto o agrega fondos."
   },
   "loadingScreen": {
     "message1": "Por favor no cierres la aplicación",

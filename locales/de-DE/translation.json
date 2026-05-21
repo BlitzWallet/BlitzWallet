@@ -2586,7 +2586,8 @@
     "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch verändern.",
     "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut.",
     "usdcUsdtTokensOnly": "Nur USDT- und USDC-Token werden unterstützt",
-    "lightningAmountFeeWarning": "Ihr Guthaben deckt den Betrag und die Gebühr von ≈{{amount}} nicht ab."
+    "lightningAmountFeeWarning": "Ihr Guthaben deckt den Betrag und die Gebühr von ≈{{amount}} nicht ab.",
+    "lightningAmountRequiredWarning": "Für diese Zahlung werden ≈{{amount}} benötigt. Bitte verringern Sie den Betrag oder fügen Sie Guthaben hinzu."
   },
   "loadingScreen": {
     "message1": "Bitte schließen Sie die App nicht.",

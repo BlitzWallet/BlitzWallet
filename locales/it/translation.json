@@ -2586,7 +2586,8 @@
     "priceImpact": "Questo pagamento è elevato, quindi l'importo finale che riceverai in dollari potrebbe cambiare.",
     "removingImageError": "Impossibile rimuovere l'immagine. Riprova.",
     "usdcUsdtTokensOnly": "Sono supportati solo i token USDT e USDC",
-    "lightningAmountFeeWarning": "Il tuo saldo non copre l’importo e la commissione di ≈{{amount}}."
+    "lightningAmountFeeWarning": "Il tuo saldo non copre l’importo e la commissione di ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Questo pagamento richiede ≈{{amount}}. Riduci l’importo o aggiungi fondi."
   },
   "loadingScreen": {
     "message1": "Non chiudere l'app",

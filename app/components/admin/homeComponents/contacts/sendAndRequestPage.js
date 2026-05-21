@@ -67,6 +67,7 @@ import { getLNAddressForLiquidPayment } from '../sendBitcoin/functions/payments'
 import { useToast } from '../../../../../context-store/toastManager';
 import useDebounce from '../../../../hooks/useDebounce';
 import { useWebView } from '../../../../../context-store/webViewContext';
+import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -288,14 +289,18 @@ export default function SendAndRequestPage(props) {
           if (dollarAmountRequired > userDollarBalance) {
             showToast({
               type: 'error',
-              title: t('errormessages.lightningAmountFeeWarning', {
+              title: t('errormessages.lightningAmountRequiredWarning', {
                 amount: displayCorrectDenomination({
-                  amount: fee,
+                  amount: parseFloat(
+                    formatTokensNumber(quote.quote.tokenAmountRequired, 6),
+                  ).toFixed(2),
                   masterInfoObject: {
                     ...masterInfoObject,
-                    userBalanceDenomination: 'sats',
+                    userBalanceDenomination: 'fiat',
                   },
                   fiatStats,
+                  convertAmount: false,
+                  forceCurrency: 'USD',
                 }),
               }),
               duration: 6000,

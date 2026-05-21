@@ -2586,7 +2586,8 @@
     "priceImpact": "Ce paiement est important, le montant final que vous recevrez en dollars peut donc changer.",
     "removingImageError": "Impossible de supprimer l'image. Veuillez réessayer.",
     "usdcUsdtTokensOnly": "Seuls les tokens USDT et USDC sont pris en charge",
-    "lightningAmountFeeWarning": "Votre solde ne couvre pas le montant et les frais de ≈{{amount}}."
+    "lightningAmountFeeWarning": "Votre solde ne couvre pas le montant et les frais de ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Ce paiement nécessite ≈{{amount}}. Veuillez réduire le montant ou ajouter des fonds."
   },
   "loadingScreen": {
     "message1": "Ne fermez pas l'application",

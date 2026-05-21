@@ -2586,7 +2586,8 @@
     "priceImpact": "Den här betalningen är stor, så det slutliga beloppet du får i dollar kan förändras.",
     "removingImageError": "Kunde inte ta bort bilden. Försök igen.",
     "usdcUsdtTokensOnly": "Endast USDT- och USDC-token stöds",
-    "lightningAmountFeeWarning": "Ditt saldo täcker inte beloppet och avgiften på ≈{{amount}}."
+    "lightningAmountFeeWarning": "Ditt saldo täcker inte beloppet och avgiften på ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Denna betalning kräver ≈{{amount}}. Sänk beloppet eller lägg till medel."
   },
   "loadingScreen": {
     "message1": "Stäng inte appen, snälla",
