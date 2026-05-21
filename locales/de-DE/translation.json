@@ -83,7 +83,7 @@
     "to": "An",
     "from": "Von",
     "asset": "Asset",
-    "chain": "Kette",
+    "chain": "Chain",
     "description": "Beschreibung",
     "regenerate": "Erneut generieren",
     "restore": "Wiederherstellen",
@@ -976,7 +976,7 @@
       "inputPlaceholder": "Geben Sie @Benutzername, Bitcoin-Adresse oder Lightning-Rechnung ein",
       "scanImage": "Bild scannen",
       "tapToScan": "Tippen Sie, um eine Adresse aus einem Bild auszulesen.",
-      "chooseWhatToSend": "Wählen Sie, wie diese Zahlung finanziert werden soll",
+      "chooseWhatToSend": "Wählen Sie, aus welchem Guthaben diese Zahlung finanziert werden soll.",
       "noContacts": "Fügen Sie Kontakte hinzu, damit diese hier angezeigt werden.",
       "selectAddressType": "Adresstyp auswählen",
       "tapToGenerate_other": "Tippen Sie, um weitere Empfangsoptionen anzuzeigen.",
@@ -1002,7 +1002,7 @@
       "invoiceDescription": "Fordern Sie eine Zahlung über einen Link oder QR-Code an.",
       "poolsDescription": "Sammeln Sie Beiträge von einer Gruppe für ein gemeinsames Ziel.",
       "noContactHead": "{{username}} nicht gefunden",
-      "noContactDesc": "Füge {{username}} zu deinen Kontakten hinzu, um sie hier in Zukunft zu finden, oder fahre fort, um jetzt eine Zahlung zu senden."
+      "noContactDesc": "Fügen Sie {{username}} zu Ihren Kontakten hinzu, damit der Kontakt hier künftig angezeigt wird, oder fahren Sie fort, um jetzt eine Zahlung zu senden."
     },
     "payLinks": {
       "skip": "Überspringen",
@@ -1097,7 +1097,7 @@
       "noPoolsSubTitle": "Sobald Sie einen Sparpool erstellt haben, wird er hier als aktiv oder inaktiv angezeigt."
     },
     "manualInputPage": {
-      "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Zahlungsanforderung ein oder fügen Sie sie ein."
+      "inputPlaceholder": "Geben Sie eine Liquid- oder Lightning-Adresse bzw. Rechnung ein oder fügen Sie sie ein."
     },
     "cameraModal": {
       "noCamera": "Kein Zugriff auf die Kamera.",
@@ -1173,7 +1173,7 @@
         "swapRatesChangedBody": "Der Wechselkurs für diesen Tausch hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
         "swapRatesChangedButton": "Betrag erneut eingeben",
         "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut",
-        "brantaVerification": "Diese Zahlung wurde von Branta verifiziert"
+        "brantaVerification": "Diese Zahlung ist von Branta verifiziert."
       },
       "selectPaymentMethod": {
         "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung senden möchten (BTC oder USD)."
@@ -1376,7 +1376,7 @@
       "title": "Empfangswährung",
       "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen",
       "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in BTC empfangen.",
-      "changeSelectionError": "{{option}} ist bereits ausgewählt. Ändern Sie Ihre Auswahl, um die Einstellung zu aktualisieren."
+      "changeSelectionError": "{{option}} ist bereits ausgewählt. Bitte wählen Sie eine andere Option, um die Einstellung zu ändern."
     },
     "selectCurrencyToSend": {
       "header": "Wie möchten Sie senden?"
@@ -1617,7 +1617,7 @@
       "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
       "randomPinKeyboardInfo": "Aktivieren Sie diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in Ihrer Nähe schwieriger wird, Ihr PIN-Muster zu erkennen.",
       "biometricsHead": "Biometrie",
-      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist durch die aktuellen biometrischen Daten Ihres Geräts geschützt. Änderungen daran verhindern, dass Blitz Wallet auf Ihre Wiederherstellungsphrase zugreifen kann, und sperren den Zugriff auf Ihre Wallet."
+      "biometricsSubHead": "Ihre Wiederherstellungsphrase ist durch die aktuellen biometrischen Daten Ihres Geräts geschützt. Wenn sich diese ändern, kann Blitz Wallet nicht mehr auf Ihre Wiederherstellungsphrase zugreifen und Ihre Wallet wird gesperrt."
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Wiederherstellungsphrase (Seed-Phrase) an einem sicheren Ort auf",
@@ -2139,10 +2139,10 @@
         "about": "Über uns",
         "language": "Spracheinstellung",
         "display currency": "Standardwährung",
-        "receive currency": "Lightning-Adresse",
+        "receive currency": "Empfangswährung",
         "display options": "Anzeige & Layout",
         "edit contact profile": "Kontaktprofil bearbeiten",
-        "view all swaps": "Netzwerk-Einstellungen",
+        "view all swaps": "Swap-Verlauf",
         "fast pay": "Schnellzahlungen",
         "blitz fee details": "Gebührenübersicht",
         "crash reports": "Absturzberichte (Logs)",
@@ -2162,7 +2162,7 @@
         "settings": "Einstellungen",
         "blitzRestore": "Blitz-Wiederherstellung",
         "point-of-sale": "Zahlungsterminal (POS)",
-        "pools": "Sparpool",
+        "pools": "Sparpools",
         "show seed phrase": "Seed-Phrase sichern"
       },
       "remotePayments": {
@@ -2174,7 +2174,7 @@
         "paymentId": "Zahlungs-ID",
         "preimage": "Zahlungsnachweis",
         "address": "Zahlungsadresse",
-        "bitcoinTxId": "BTC-Txid",
+        "bitcoinTxId": "BTC-Transaktions-ID",
         "paymentExp": "Zahlungsablauf",
         "noInformationLabel": "{{item}} wird nicht angezeigt, da diese Zahlung aus dem Verlauf wiederhergestellt wurde oder eine Rechnung mit Nullbetrag verwendet wurde.",
         "privacyMessage": "Um die Privatsphäre des {{type}} zu wahren, sind alle weiteren Informationen ausgeblendet.",
@@ -2183,7 +2183,7 @@
         "quoteId": "Angebots-ID",
         "destinationAddress": "Zieladresse",
         "destinationAsset": "Ziel-Asset",
-        "destinationChain": "Ziel-Kette",
+        "destinationChain": "Ziel-Chain",
         "transferIds": "Enthaltene Personen",
         "bitrefillInvoiceId": "Bitrefill-Rechnungs-ID"
       },
