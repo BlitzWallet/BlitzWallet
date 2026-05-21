@@ -47,7 +47,6 @@ export default function OnlineListingsFilterHalfModal({
   onSelectFilter,
   handleBackPressFunction,
   setContentHeight,
-  setIsKeyboardActive,
   categoryOptions = [],
 }) {
   const { t } = useTranslation();
@@ -62,6 +61,7 @@ export default function OnlineListingsFilterHalfModal({
   const [countrySearch, setCountrySearch] = useState('');
   const [allCountries, setAllCountries] = useState([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
@@ -318,7 +318,13 @@ export default function OnlineListingsFilterHalfModal({
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.mainContent, contentStyle]}>
+      <Animated.View
+        style={[
+          styles.mainContent,
+          contentStyle,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         <ThemeText
           styles={styles.title}
           content={t('apps.onlineListings.filterTitle')}
@@ -503,6 +509,7 @@ export default function OnlineListingsFilterHalfModal({
           {
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
+            marginBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
           },
           countryOverlayStyle,
         ]}

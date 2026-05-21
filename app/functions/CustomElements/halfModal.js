@@ -728,8 +728,7 @@ export default function CustomHalfModal(props) {
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
               contentType === 'createPoolFlow' ||
-              contentType === 'ClaimGiftHomeHalfModal' ||
-              contentType === 'onlineListingsFilter'
+              contentType === 'ClaimGiftHomeHalfModal'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
@@ -741,6 +740,8 @@ export default function CustomHalfModal(props) {
                   : contentType === 'receiveOptions'
                   ? 0
                   : bottomPadding
+                : contentType === 'onlineListingsFilter'
+                ? 0
                 : bottomPadding,
           }}
         >
