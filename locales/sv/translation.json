@@ -1375,7 +1375,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Mottagningsvaluta",
       "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
-      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin."
+      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin.",
+      "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen."
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"
