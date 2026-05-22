@@ -4991,7 +4991,7 @@ __metadata:
     i18next: ^25.2.0
     intl-pluralrules: ^2.0.1
     jest: ~29.7.0
-    libphonenumber-js: ^1.12.8
+    libphonenumber-js: 1.13.2
     lottie-react-native: ^7.3.4
     lucide-react-native: ^0.562.0
     nostr-tools: ^2.15.0
@@ -10707,10 +10707,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"libphonenumber-js@npm:^1.12.8":
-  version: 1.12.23
-  resolution: "libphonenumber-js@npm:1.12.23"
-  checksum: aad6c9ddc4e554af8f71238a69559ba4268ad4e9e2a84fbd8dfdedc13ce23d95a9a66ef4a1d7d39031f6ac2c915e338be2bc5d6ed4ec328a95bf7eef55c7eb3a
+"libphonenumber-js@npm:1.13.2":
+  version: 1.13.2
+  resolution: "libphonenumber-js@npm:1.13.2"
+  checksum: e3dc21920fc7726dbbb88f58eca18e690859c4794a6ac8160f2ba7b58b2ed03aabb1e8e4b7a0b9f7305deb235e68ad926ee0a5518a5b826c890adb0690e906de
   languageName: node
   linkType: hard
 

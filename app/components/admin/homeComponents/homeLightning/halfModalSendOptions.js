@@ -54,6 +54,7 @@ import getReceiveAddressAndContactForContactsPayment from '../contacts/internalC
 import { hasStringAsync } from 'expo-clipboard';
 import { scheduleOnRN } from 'react-native-worklets';
 import { KeyboardController } from 'react-native-keyboard-controller';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
 
 const ContactRow = ({
   contact,
@@ -359,6 +360,19 @@ export default function HalfModalSendOptions({
     return inputText.startsWith('@') ? inputText.slice(1).trim() : '';
   }, [inputText]);
 
+  const kenyanPhoneNumber = useMemo(() => {
+    const stripped = inputText.trim();
+    if (!stripped) return null;
+    try {
+      const normalized = stripped.startsWith('+') ? stripped : `+${stripped}`;
+      const parsed = parsePhoneNumberWithError(normalized);
+      if (parsed.country === 'KE' && parsed.isValid()) {
+        return parsed.number.slice(1);
+      }
+    } catch {}
+    return null;
+  }, [inputText]);
+
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
   const inputModeProgress = useSharedValue(0);
@@ -427,6 +441,22 @@ export default function HalfModalSendOptions({
   const handleManualInputSubmit = useCallback(async () => {
     if (!inputText.trim()) return;
     const input = inputText.trim();
+
+    try {
+      const phoneNormalized = input.startsWith('+') ? input : `+${input}`;
+      const parsed = parsePhoneNumberWithError(phoneNormalized);
+      if (parsed.country === 'KE' && parsed.isValid()) {
+        const lightningAddress = `${parsed.number.slice(1)}@bitcoin.co.ke`;
+        handleBackPressFunction(async () => {
+          navigate.replace('ConfirmPaymentScreen', {
+            btcAdress: lightningAddress,
+            fromPage: '',
+          });
+        });
+        return;
+      }
+    } catch {}
+
     const normalized = input.startsWith('@')
       ? input.slice(1).toLowerCase()
       : input.toLowerCase();
@@ -1122,6 +1152,25 @@ export default function HalfModalSendOptions({
                       />
                     </View>
                   ) : null
+                ) : kenyanPhoneNumber ? (
+                  <View style={styles.noContactContainer}>
+                    <ThemeIcon iconName={'Phone'} />
+                    <ThemeText
+                      styles={styles.emptyTitle}
+                      content={t('wallet.halfModal.kenyanPhoneTitle', {
+                        number: inputText.trim(),
+                      })}
+                    />
+                    <ThemeText
+                      styles={styles.emptySubtext}
+                      content={t('wallet.halfModal.kenyanPhoneDesc')}
+                    />
+                    <CustomButton
+                      buttonStyles={{...CENTER, marginTop: 'auto'}}
+                      textContent={t('constants.pay')}
+                      actionFunction={handleManualInputSubmit}
+                    />
+                  </View>
                 ) : (
                   <TouchableWithoutFeedback
                     onPress={KeyboardController.dismiss}

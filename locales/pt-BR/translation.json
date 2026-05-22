@@ -1002,7 +1002,9 @@
       "invoiceDescription": "Escolha a moeda e quantia desejada",
       "poolsDescription": "Colete pagamentos para um objetivo",
       "noContactHead": "{{username}} não encontrado",
-      "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora."
+      "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora.",
+      "kenyanPhoneTitle": "Pagar {{number}}",
+      "kenyanPhoneDesc": "Você está prestes a pagar um número de telefone queniano"
     },
     "payLinks": {
       "skip": "Pular",

@@ -1002,7 +1002,9 @@
       "invoiceDescription": "Richiedi un pagamento tramite un link o un codice QR.",
       "poolsDescription": "Raccogli contributi da un gruppo per un obiettivo condiviso.",
       "noContactHead": "{{username}} non trovato",
-      "noContactDesc": "Aggiungi {{username}} ai tuoi contatti per trovarlo qui in futuro, oppure continua per inviare un pagamento adesso."
+      "noContactDesc": "Aggiungi {{username}} ai tuoi contatti per trovarlo qui in futuro, oppure continua per inviare un pagamento adesso.",
+      "kenyanPhoneTitle": "Paga {{number}}",
+      "kenyanPhoneDesc": "Stai per pagare un numero di telefono keniota"
     },
     "payLinks": {
       "skip": "Salta",
