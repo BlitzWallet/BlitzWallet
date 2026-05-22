@@ -574,7 +574,7 @@ export async function checkFlashnetStablecoinStatusLogic(
         {
           id: statusResult.refundTxHash,
           paymentStatus: 'completed',
-          paymentType: tx.paymentType,
+          paymentType: 'unknown',
           accountId: tx.accountId,
           details: {
             description: i18next.t('constants.stablecoinRefundReceived'),
