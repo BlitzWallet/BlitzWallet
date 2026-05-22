@@ -1376,7 +1376,8 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Receive currency",
-      "futurePaymentsMessage": "All future payments will be received as {{option}}",
+      "description": "Choose how you receive payments from contacts and your Lightning Address.",
+      "futurePaymentsMessage": "Receive as {{option}}",
       "warningMessage": "When selecting {{option}}, there’s a {{amount}} minimum. Smaller payments will be received in Bitcoin.",
       "changeSelectionError": "{{option}} is already selected. Change your selection to update your setting."
     },

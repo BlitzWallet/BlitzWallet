@@ -1377,6 +1377,7 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Валюта получения",
+      "description": "Выберите, как получать платежи от контактов и на ваш Lightning-адрес.",
       "futurePaymentsMessage": "Все будущие платежи будут получены в {{option}}",
       "warningMessage": "При выборе {{option}} действует минимальная сумма {{amount}}. Более мелкие платежи будут получены в Bitcoin.",
       "changeSelectionError": "{{option}} уже выбрано. Измените выбор, чтобы обновить настройку."

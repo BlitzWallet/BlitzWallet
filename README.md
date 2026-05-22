@@ -2,71 +2,90 @@
 
 <hr/>
 
-Blitz Wallet is a self-custodial Bitcoin wallet built with React Native and Expo. Powered by the [Spark](https://spark.info) network, Blitz delivers fast, low-fee Bitcoin payments with a simple user experience.
+Blitz Wallet is a free, open-source, self-custodial Bitcoin and Lightning wallet built with React Native and Expo. It is designed for everyday Bitcoin use: users control their own 12-word seed phrase, no KYC is required, and Blitz does not custody user funds.
+
+Blitz is powered by the [Spark](https://spark.info) Layer 2 network for instant, low-fee Bitcoin payments without channel management or node maintenance. The product is available on iOS, Android.
 
 <hr>
 
-> **Self-Custodial** — Neither Blitz nor Spark has access to your seed phrase or funds. If you lose your seed phrase, access to your funds will be lost. Do not share your seed phrase with anyone.
+> **Self-Custodial** - Neither Blitz nor Spark has access to your seed phrase or funds. If you lose your seed phrase, access to your funds can be lost. Do not share your seed phrase with anyone.
 
 ## Download
 
 [![Google Play](.github/assets/images/google-play.svg)](https://play.google.com/store/apps/details?id=com.blitzwallet)
-[![IOS Appstore](.github/assets/images/app-store.svg)](https://apps.apple.com/us/app/blitz-wallet/id6476810582)
+[![iOS App Store](.github/assets/images/app-store.svg)](https://apps.apple.com/us/app/blitz-wallet/id6476810582)
 
 ## Features
 
-### Payments
+### Payments and Transfers
 
-- **Send Bitcoin** — via QR code, camera roll, clipboard, contacts, or Lightning address
-- **Receive Bitcoin** — via Lightning, Liquid, Spark, On-chain, roostock QR codes
-- **Stablecoin Payments** — send and receive USDB (LRC-20) tokens on Spark
-- **LNURL Support** — pay, withdraw, and auth
-- **Bulk Payments** — send to multiple recipients in a single operation
-- **Split Payments** — split a payment across multiple sources
-- **Pay Links** — create reusable payment request links with optional amounts and descriptions
-- **Lightning Address** — receive payments to your @bitcoin.co.ke address
+- **Account-based payments** - send Bitcoin to Blitz contacts or usernames without manually handling QR codes, invoices, or addresses.
+- **Free Blitz-to-Blitz transfers** - send between Blitz users with no Blitz transaction fee.
+- **Send Bitcoin** - pay from QR code, camera roll, clipboard, contacts, manual entry, Lightning address, LNURL, BOLT11, BOLT12, Liquid, Spark, and supported Bitcoin payment links.
+- **Receive Bitcoin** - generate Lightning, Spark, on-chain Bitcoin, Liquid, and Rootstock receive options.
+- **Offline receive** - receive supported Spark/Lightning payments even when the recipient's device is not online.
+- **Stablecoin payments** - send and receive USDB and other Spark tokens, with USDB displayed as a dollar balance.
+- **LNURL support** - pay, withdraw, and auth flows.
+- **Bulk and split payments** - send to multiple recipients or split a payment across available balances.
+- **Pay links** - create reusable payment request links with optional amounts and descriptions.
+- **Lightning Address** - receive to a Blitz-managed `@bitcoin.co.ke` Lightning address.
+
+### Savings and Goals
+
+- **USDB savings goals** - create named savings goals, deposit or withdraw funds, and track progress in a USD-backed stablecoin balance.
+- **Blitz Pools** - create collaborative funding pools, invite contributors, and track progress toward a shared target.
+- **Accumulation addresses** - receive USDC or USDT on Solana, Base, Ethereum, Arbitrum, Optimism, Polygon, Tron, or Plasma and auto-convert to BTC or USDB.
+- **Bitcoin/stablecoin swaps** - convert between BTC and USDB in-app through Flashnet liquidity.
+- **Analytics and budgeting** - review income and spending charts, set budgets, and monitor budget limits.
 
 ### Wallet Management
 
-- **Savings Goals** — create named savings goals, deposit and withdraw funds, track progress
-- **Accumulation Addresses** — receive stablecoins (USDC/USDT) on Solana, Base, Ethereum, Arbitrum, Optimism, Polygon, Tron, or Plasma and auto-convert to BTC or USDB
-- **Pools** — create group funding pools, invite contributors, and track progress toward a target amount
-- **Bitcoin/Stablecoin Swaps** — swap between BTC and USDB directly within the wallet
-- **Sub-Accounts** — create multiple accounts within a single wallet
-- **Contacts** — save and manage contacts for quick payments
-- **Transaction History** — detailed payment info (date, time, fee, type) and technical details (payment hash, preimage, ID)
-- **CSV Export** — export your transaction history
-- **Analytics & Budgeting** — view spending and income charts, set budgets, track against limits
-- **Nostr Wallet Connect (NWC)** — connect your wallet to Nostr apps
+- **Self-custodial recovery** - create or restore a wallet from a 12-word BIP39 seed phrase.
+- **Sub-accounts** - create and manage multiple accounts under one wallet.
+- **Contacts and profiles** - save contacts, profile images, notes, and payment details for faster repeat payments.
+- **Transaction history** - review payment direction, type, status, fee, date, memo, payment hash, preimage, and technical IDs.
+- **CSV export** - export transaction history.
+- **Nostr Wallet Connect (NWC)** - create NWC accounts with scoped permissions, budgets, and Nostr app connectivity.
 
-### Built-in Store
+### Gifting and Merchant Tools
 
-- **Gift Cards** — purchase gift cards from hundreds of brands
-- **Online Listings** — browse and discover Bitcoin-accepting businesses
-- **BTC Map** — find Bitcoin merchants near you on an interactive map
+- **Blitz Gifts** - send claimable Bitcoin gifts to anyone, including people who do not have a Blitz account yet.
+- **Bulk gifts** - create multiple gift links at once and reclaim expired gifts.
+- **Point of Sale** - accept Lightning payments, track sales, collect tips, configure POS items, and manage merchant payout settings.
+- **Bitrefill shop** - buy gift cards and digital services through the in-app Bitrefill integration.
+- **BTC Map** - find nearby Bitcoin-accepting merchants on an interactive map.
+- **Online listings** - browse Bitcoin-friendly businesses and listings.
 
-### Settings & Security
+### Settings and Security
 
-- **Biometric Login** — opt-in Face ID / fingerprint authentication
-- **PIN Protection** — secure your wallet with a custom PIN
-- **Wallet Recovery** — restore from your 12-word seed phrase with word suggestions
-- **Fiat Display** — support for numerous fiat currencies
-- **Balance Denomination** — switch between fiat, sats, or hidden
-- **Themes** — Dark mode, Light mode, and Lights Out mode
+- **PIN protection** - secure wallet access with a custom PIN.
+- **Biometric login** - opt in to Face ID or fingerprint authentication.
+- **Fast pay controls** - configure payment speed and confirmation preferences.
+- **Fiat display** - choose from many fiat display currencies.
+- **Balance denomination** - switch between fiat, sats, or hidden balances.
+- **Themes** - Light, Dark, and Lights Out modes.
+- **Push notifications** - receive payment and wallet event alerts.
+- **Crash reporting controls** - manage diagnostic reporting from settings.
 
 ### Localization
 
 Available in 8 languages: English, Spanish, French, German, Italian, Portuguese (Brazil), Swedish, and Russian.
 
-### Technical Highlights
+## Technical Highlights
 
-- **Spark SDK** — WebView-based WASM runtime with encrypted bridge (ECDH + AES-256-GCM) and native React Native SDK fallback
-- **Flashnet** — instant off-chain transfers between Spark wallets
-- **Liquid Network** — Breez SDK integration for Liquid sidechain support
-- **Atomic Swaps** — Boltz integration for trustless cross-chain swaps
-- **Rootstock** — receive via RSK bridge
-- **Push Notifications** — Firebase Cloud Messaging for payment alerts
-- **Point of Sale** — merchant-facing receive mode
+- **React Native 0.81.4 and Expo 54** - mobile app foundation for iOS and Android.
+- **Spark SDK** - Spark wallet runtime through a WebView-based WASM bridge with a native React Native SDK fallback.
+- **Flashnet** - BTC/USDB swaps and instant off-chain transfers between Spark wallets.
+- **Liquid Network** - Breez Liquid SDK integration for Liquid receive and transfer flows.
+- **Boltz atomic swaps** - trust-minimized swap support for Rootstock receive paths.
+- **Rootstock** - Rootstock receive support through Boltz swap flows.
+- **Firebase** - messaging, Crashlytics, Firestore, functions, storage, and auth integrations.
+- **Local-first storage** - SQLite, AsyncStorage, and SecureStore for wallet and app state.
+- **Nostr** - Nostr Wallet Connect support through `nostr-tools`.
+
+## Release Notes
+
+The public release history is maintained through [GitHub releases](https://github.com/BlitzWallet/BlitzWallet/releases) and [tags](https://github.com/BlitzWallet/BlitzWallet/tags). Recent local release tags include `Android-v0.7.10-pre4` and the Spark beta tag series through `Spark-v0.0.7-beta`; the app metadata currently reports version `0.2.7` in `app.json`.
 
 ## Contributing
 

@@ -980,7 +980,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     includeFontPadding: false,
     marginRight: 'auto',
-    flexShrink: 1,
   },
   copyLinkRow: {
     paddingVertical: 8,

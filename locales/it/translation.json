@@ -1376,6 +1376,7 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Valuta di ricezione",
+      "description": "Scegli come ricevere pagamenti dai contatti e dal tuo indirizzo Lightning.",
       "futurePaymentsMessage": "Tutti i pagamenti futuri saranno ricevuti in {{option}}",
       "warningMessage": "Se selezioni {{option}}, è previsto un minimo di {{amount}}. I pagamenti più piccoli saranno ricevuti in Bitcoin.",
       "changeSelectionError": "{{option}} è già selezionato. Modifica la selezione per aggiornare l’impostazione."
