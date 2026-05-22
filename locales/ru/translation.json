@@ -130,7 +130,8 @@
     "print": "Печать",
     "transfer": "Перевод",
     "details": "Детали",
-    "total": "Итого"
+    "total": "Итого",
+    "stablecoinRefundReceived": "Возврат стейблкоина"
   },
   "languages": {
     "english": "English",

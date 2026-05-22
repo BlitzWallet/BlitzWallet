@@ -130,7 +130,8 @@
     "custom...": "Anpassad...",
     "transfer": "Överföring",
     "details": "Detaljer",
-    "total": "Totalt"
+    "total": "Totalt",
+    "stablecoinRefundReceived": "Stablecoin-återbetalning"
   },
   "languages": {
     "english": "English",

@@ -130,7 +130,8 @@
     "print": "Imprimir",
     "transfer": "Transferir",
     "details": "Detalhes",
-    "total": "Total"
+    "total": "Total",
+    "stablecoinRefundReceived": "Reembolso de Dólar digital"
   },
   "languages": {
     "english": "English",

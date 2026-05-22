@@ -130,7 +130,8 @@
     "transfer": "Transfer",
     "details": "Details",
     "total": "Total",
-    "scan": "Scan"
+    "scan": "Scan",
+    "stablecoinRefundReceived": "Stablecoin refund"
   },
   "languages": {
     "english": "English",

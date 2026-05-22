@@ -130,7 +130,8 @@
     "paymentDescriptionPlaceholder": "Beschreibung (optional)",
     "transfer": "Übertragung",
     "details": "Details",
-    "total": "Gesamt"
+    "total": "Gesamt",
+    "stablecoinRefundReceived": "Stablecoin-Rückerstattung"
   },
   "languages": {
     "english": "English",

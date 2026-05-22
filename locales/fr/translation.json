@@ -130,7 +130,8 @@
     "custom...": "Sur mesure...",
     "transfer": "Transfert",
     "details": "Détails",
-    "total": "Total"
+    "total": "Total",
+    "stablecoinRefundReceived": "Remboursement de stablecoin"
   },
   "languages": {
     "english": "English",

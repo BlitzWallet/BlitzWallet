@@ -130,7 +130,8 @@
     "print": "Stampa",
     "transfer": "Trasferimento",
     "details": "Dettagli",
-    "total": "Totale"
+    "total": "Totale",
+    "stablecoinRefundReceived": "Rimborso stablecoin"
   },
   "languages": {
     "english": "English",
