@@ -21,14 +21,14 @@ Blitz is powered by the [Spark](https://spark.info) Layer 2 network for instant,
 
 - **Account-based payments** - send Bitcoin to Blitz contacts or usernames without manually handling QR codes, invoices, or addresses.
 - **Free Blitz-to-Blitz transfers** - send between Blitz users with no Blitz transaction fee.
-- **Send Bitcoin** - pay from QR code, camera roll, clipboard, contacts, manual entry, Lightning address, LNURL, BOLT11, BOLT12, Liquid, Spark, and supported Bitcoin payment links.
+- **Send Bitcoin** - pay from QR code, camera roll, clipboard, contacts, manual entry, Lightning address, LNURL, BOLT11, USDT, USDC, Liquid, Spark, and supported Bitcoin payment links.
 - **Receive Bitcoin** - generate Lightning, Spark, on-chain Bitcoin, Liquid, and Rootstock receive options.
 - **Offline receive** - receive supported Spark/Lightning payments even when the recipient's device is not online.
 - **Stablecoin payments** - send and receive USDB and other Spark tokens, with USDB displayed as a dollar balance.
 - **LNURL support** - pay, withdraw, and auth flows.
 - **Bulk and split payments** - send to multiple recipients or split a payment across available balances.
 - **Pay links** - create reusable payment request links with optional amounts and descriptions.
-- **Lightning Address** - receive to a Blitz-managed `@bitcoin.co.ke` Lightning address.
+- **Lightning Address** - receive to a Blitz-managed `@blitzwalletapp.com` Lightning address.
 
 ### Savings and Goals
 
@@ -70,18 +70,6 @@ Blitz is powered by the [Spark](https://spark.info) Layer 2 network for instant,
 ### Localization
 
 Available in 8 languages: English, Spanish, French, German, Italian, Portuguese (Brazil), Swedish, and Russian.
-
-## Technical Highlights
-
-- **React Native 0.81.4 and Expo 54** - mobile app foundation for iOS and Android.
-- **Spark SDK** - Spark wallet runtime through a WebView-based WASM bridge with a native React Native SDK fallback.
-- **Flashnet** - BTC/USDB swaps and instant off-chain transfers between Spark wallets.
-- **Liquid Network** - Breez Liquid SDK integration for Liquid receive and transfer flows.
-- **Boltz atomic swaps** - trust-minimized swap support for Rootstock receive paths.
-- **Rootstock** - Rootstock receive support through Boltz swap flows.
-- **Firebase** - messaging, Crashlytics, Firestore, functions, storage, and auth integrations.
-- **Local-first storage** - SQLite, AsyncStorage, and SecureStore for wallet and app state.
-- **Nostr** - Nostr Wallet Connect support through `nostr-tools`.
 
 ## Release Notes
 
