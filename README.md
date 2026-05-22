@@ -24,7 +24,7 @@ Blitz Wallet is a self-custodial Bitcoin wallet built with React Native and Expo
 - **Bulk Payments** — send to multiple recipients in a single operation
 - **Split Payments** — split a payment across multiple sources
 - **Pay Links** — create reusable payment request links with optional amounts and descriptions
-- **Lightning Address** — receive payments to your @bitcoin.co.ke address
+- **Lightning Address** — receive payments to your @blitzwalletapp.com address
 
 ### Wallet Management
 
