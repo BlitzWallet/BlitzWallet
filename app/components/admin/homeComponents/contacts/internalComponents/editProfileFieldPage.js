@@ -84,6 +84,7 @@ export default function EditProfileFieldPage(props) {
   const debounceRef = useRef(null);
   const isMountedRef = useRef(true);
   const inputRef = useRef(null);
+  const isGoingBackRef = useRef(false);
 
   const isValidContent =
     fieldKey === 'uniquename' || VALID_NAME_BIO_REGEX.test(value);
@@ -147,7 +148,10 @@ export default function EditProfileFieldPage(props) {
     (fieldKey !== 'uniquename' || usernameState === USERNAME_STATE.AVAILABLE);
 
   async function handleSave() {
+    if (isGoingBackRef.current) return;
+
     if (!canSave) {
+      isGoingBackRef.current = true;
       keyboardGoBack(navigate);
       return;
     }
@@ -162,6 +166,7 @@ export default function EditProfileFieldPage(props) {
         : trimmed === myContact?.bio;
 
     if (noChange) {
+      isGoingBackRef.current = true;
       keyboardGoBack(navigate);
       return;
     }
@@ -187,7 +192,8 @@ export default function EditProfileFieldPage(props) {
         },
         true,
       );
-      keyboardGoBack(navigate);
+      isGoingBackRef.current = true;
+      await keyboardGoBack(navigate);
     } catch (err) {
       console.log(err);
     } finally {
@@ -235,7 +241,13 @@ export default function EditProfileFieldPage(props) {
       useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
     >
-      <CustomSettingsTopBar shouldDismissKeyboard={true} label="" />
+      <CustomSettingsTopBar
+        customBackFunction={() => {
+          if (isGoingBackRef.current) return;
+          isGoingBackRef.current = true;
+          keyboardGoBack(navigate);
+        }}
+      />
 
       <View style={styles.content}>
         <View style={styles.topSection}>
