@@ -1003,7 +1003,7 @@
       "invoiceDescription": "Fordern Sie eine Zahlung über einen Link oder QR-Code an.",
       "poolsDescription": "Sammeln Sie Beiträge von einer Gruppe für ein gemeinsames Ziel.",
       "noContactHead": "{{username}} nicht gefunden",
-      "noContactDesc": "Fügen Sie {{username}} zu Ihren Kontakten hinzu, damit der Kontakt hier künftig angezeigt wird, oder fahren Sie fort, um jetzt eine Zahlung zu senden."
+      "noContactDesc": "Fügen Sie {{username}} zu Ihren Kontakten hinzu, damit der Kontakt hier künftig angezeigt wird, oder fahren Sie fort, um jetzt eine Zahlung zu senden.",
       "kenyanPhoneTitle": "{{number}} bezahlen",
       "kenyanPhoneDesc": "Sie sind dabei, eine kenianische Telefonnummer zu bezahlen"
     },
