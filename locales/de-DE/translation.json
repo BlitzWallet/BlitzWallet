@@ -130,7 +130,8 @@
     "paymentDescriptionPlaceholder": "Beschreibung (optional)",
     "transfer": "Übertragung",
     "details": "Details",
-    "total": "Gesamt"
+    "total": "Gesamt",
+    "stablecoinRefundReceived": "Stablecoin-Rückerstattung"
   },
   "languages": {
     "english": "English",
@@ -1003,6 +1004,8 @@
       "poolsDescription": "Sammeln Sie Beiträge von einer Gruppe für ein gemeinsames Ziel.",
       "noContactHead": "{{username}} nicht gefunden",
       "noContactDesc": "Fügen Sie {{username}} zu Ihren Kontakten hinzu, damit der Kontakt hier künftig angezeigt wird, oder fahren Sie fort, um jetzt eine Zahlung zu senden."
+      "kenyanPhoneTitle": "{{number}} bezahlen",
+      "kenyanPhoneDesc": "Sie sind dabei, eine kenianische Telefonnummer zu bezahlen"
     },
     "payLinks": {
       "skip": "Überspringen",
@@ -1374,6 +1377,7 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Empfangswährung",
+      "description": "Wählen Sie, wie Sie Zahlungen von Kontakten und Ihrer Lightning-Adresse erhalten möchten.",
       "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen",
       "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in BTC empfangen.",
       "changeSelectionError": "{{option}} ist bereits ausgewählt. Bitte wählen Sie eine andere Option, um die Einstellung zu ändern."

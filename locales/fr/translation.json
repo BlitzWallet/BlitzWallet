@@ -130,7 +130,8 @@
     "custom...": "Sur mesure...",
     "transfer": "Transfert",
     "details": "Détails",
-    "total": "Total"
+    "total": "Total",
+    "stablecoinRefundReceived": "Remboursement de stablecoin"
   },
   "languages": {
     "english": "English",
@@ -1002,7 +1003,9 @@
       "invoiceDescription": "Demandez un paiement via un lien ou un code QR.",
       "poolsDescription": "Collectez des contributions d’un groupe pour un objectif commun.",
       "noContactHead": "{{username}} introuvable",
-      "noContactDesc": "Ajoutez {{username}} à vos contacts pour le retrouver ici à l’avenir, ou continuez pour envoyer un paiement maintenant."
+      "noContactDesc": "Ajoutez {{username}} à vos contacts pour le retrouver ici à l’avenir, ou continuez pour envoyer un paiement maintenant.",
+      "kenyanPhoneTitle": "Payer {{number}}",
+      "kenyanPhoneDesc": "Vous êtes sur le point de payer un numéro de téléphone kényan"
     },
     "payLinks": {
       "skip": "Passer",
@@ -1374,6 +1377,7 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Devise de réception",
+      "description": "Choisissez comment vous recevez les paiements de vos contacts et de votre adresse Lightning.",
       "futurePaymentsMessage": "Tous les paiements futurs seront reçus en {{option}}",
       "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin.",
       "changeSelectionError": "{{option}} est déjà sélectionné. Modifiez votre sélection pour mettre à jour votre paramètre."

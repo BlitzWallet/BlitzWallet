@@ -32,6 +32,7 @@ import {
 import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
 import fetchBackend from '../../../db/handleBackend';
+import i18next from 'i18next';
 
 const RESTORE_STATE_KEY = 'spark_tx_restore_state';
 const MAX_BATCH_SIZE = 400;
@@ -563,6 +564,26 @@ export async function checkFlashnetStablecoinStatusLogic(
         : ['refunded', 'failed'].includes(statusResult.status)
         ? 'failed'
         : null;
+
+    if (
+      newStatus === 'failed' &&
+      statusResult.refundTxHash &&
+      statusResult.refundTxHash !== tx.sparkID
+    ) {
+      bulkUpdateSparkTransactions([
+        {
+          id: statusResult.refundTxHash,
+          paymentStatus: 'completed',
+          paymentType: 'unknown',
+          accountId: tx.accountId,
+          details: {
+            description: i18next.t('constants.stablecoinRefundReceived'),
+          },
+        },
+      ]).catch(err =>
+        console.error('Error updating refund tx description:', err),
+      );
+    }
 
     if (!newStatus) return null;
 

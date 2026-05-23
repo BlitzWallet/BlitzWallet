@@ -1,7 +1,7 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import { CENTER, ICONS } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET, ICONS } from '../../../../constants';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -57,25 +57,33 @@ export default function LnurlReceiveCurrencySelect({
     });
   };
 
+  const cardBackground =
+    theme && darkModeType ? backgroundColor : backgroundOffset;
+  const cardHighlightColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+
   return (
     <View style={styles.innerContainer}>
-      <ThemeText
-        styles={{ fontWeight: 500, fontSize: SIZES.large, marginBottom: 15 }}
-        content={t('contacts.remotePaymentCurrencySelect.title')}
-      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ThemeText
+          styles={styles.title}
+          content={t('contacts.remotePaymentCurrencySelect.title')}
+        />
+        <ThemeText
+          styles={styles.description}
+          content={t('contacts.remotePaymentCurrencySelect.description')}
+        />
 
-      <View
-        style={[
-          styles.card,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
-      >
         <TouchableOpacity
           onPress={() => setSelectedCurrency('btc')}
-          style={styles.optionRow}
+          style={[
+            styles.optionCard,
+            {
+              backgroundColor: cardBackground,
+              borderColor:
+                selectedCurrency === 'btc' ? cardHighlightColor : 'transparent',
+            },
+          ]}
         >
           <View
             style={[
@@ -104,9 +112,7 @@ export default function LnurlReceiveCurrencySelect({
               styles={styles.optionSubtitle}
               content={t(
                 'contacts.remotePaymentCurrencySelect.futurePaymentsMessage',
-                {
-                  option: t('constants.bitcoin_upper'),
-                },
+                { option: t('constants.bitcoin_upper') },
               )}
             />
           </View>
@@ -117,11 +123,16 @@ export default function LnurlReceiveCurrencySelect({
           />
         </TouchableOpacity>
 
-        <View style={styles.separator} />
-
         <TouchableOpacity
           onPress={() => setSelectedCurrency('usd')}
-          style={styles.optionRow}
+          style={[
+            styles.optionCard,
+            {
+              backgroundColor: cardBackground,
+              borderColor:
+                selectedCurrency === 'usd' ? cardHighlightColor : 'transparent',
+            },
+          ]}
         >
           <View
             style={[
@@ -148,9 +159,7 @@ export default function LnurlReceiveCurrencySelect({
               styles={styles.optionSubtitle}
               content={t(
                 'contacts.remotePaymentCurrencySelect.futurePaymentsMessage',
-                {
-                  option: t('constants.dollars_upper'),
-                },
+                { option: t('constants.dollars_upper') },
               )}
             />
           </View>
@@ -160,24 +169,24 @@ export default function LnurlReceiveCurrencySelect({
             switchDarkMode={theme && !darkModeType ? true : false}
           />
         </TouchableOpacity>
-      </View>
 
-      {selectedCurrency === 'usd' && (
-        <ThemeText
-          styles={styles.footnote}
-          content={t('contacts.remotePaymentCurrencySelect.warningMessage', {
-            option: t('constants.dollars_upper'),
-            amount: displayCorrectDenomination({
-              amount: 2000,
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'sats',
-              },
-              fiatStats,
-            }),
-          })}
-        />
-      )}
+        {selectedCurrency === 'usd' && (
+          <ThemeText
+            styles={styles.footnote}
+            content={t('contacts.remotePaymentCurrencySelect.warningMessage', {
+              option: t('constants.dollars_upper'),
+              amount: displayCorrectDenomination({
+                amount: 2000,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'sats',
+                },
+                fiatStats,
+              }),
+            })}
+          />
+        )}
+      </ScrollView>
 
       <CustomButton
         buttonStyles={[styles.confirmButton, { opacity: hasChanged ? 1 : 0.5 }]}
@@ -194,18 +203,28 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  card: {
+  title: {
+    fontWeight: '500',
+    fontSize: SIZES.large,
+    includeFontPadding: false,
+    marginBottom: 8,
+  },
+  description: {
+    opacity: 0.6,
+    fontSize: SIZES.smedium,
+    lineHeight: 22,
+    marginBottom: 30,
+  },
+  optionCard: {
     width: '100%',
     borderRadius: 12,
+    borderWidth: 1.5,
     paddingHorizontal: 15,
-    paddingVertical: 5,
-  },
-  optionRow: {
+    paddingVertical: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 15,
     gap: 10,
+    marginBottom: 12,
   },
   textContainer: {
     flex: 1,
@@ -219,7 +238,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   optionTitle: {
-    fontWeight: 500,
+    fontWeight: '500',
     fontSize: SIZES.large,
     includeFontPadding: false,
   },
@@ -228,20 +247,14 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     marginTop: 3,
   },
-  separator: {
-    width: '100%',
-    height: 1,
-    opacity: 0.1,
-    backgroundColor: 'white',
-  },
   footnote: {
-    marginTop: 15,
+    marginTop: 5,
     fontSize: SIZES.small,
     opacity: 0.5,
     textAlign: 'center',
   },
   confirmButton: {
-    marginTop: 'auto',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
   },
 });

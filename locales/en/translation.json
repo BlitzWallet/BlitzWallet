@@ -130,7 +130,8 @@
     "transfer": "Transfer",
     "details": "Details",
     "total": "Total",
-    "scan": "Scan"
+    "scan": "Scan",
+    "stablecoinRefundReceived": "Stablecoin refund"
   },
   "languages": {
     "english": "English",
@@ -1002,7 +1003,9 @@
       "invoiceDescription": "Request payment using a link or QR code.",
       "poolsDescription": "Collect contributions from a group toward a shared goal.",
       "noContactHead": "{{username}} not found",
-      "noContactDesc": "Add {{username}} to your contacts to find them here in the future, or continue to send a payment now."
+      "noContactDesc": "Add {{username}} to your contacts to find them here in the future, or continue to send a payment now.",
+      "kenyanPhoneTitle": "Pay {{number}}",
+      "kenyanPhoneDesc": "You are about to pay a Kenyan phone number"
     },
     "payLinks": {
       "skip": "Skip",
@@ -1374,7 +1377,8 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Receive currency",
-      "futurePaymentsMessage": "All future payments will be received as {{option}}",
+      "description": "Choose how you receive payments from contacts and your Lightning Address.",
+      "futurePaymentsMessage": "Receive as {{option}}",
       "warningMessage": "When selecting {{option}}, there’s a {{amount}} minimum. Smaller payments will be received in Bitcoin.",
       "changeSelectionError": "{{option}} is already selected. Change your selection to update your setting."
     },

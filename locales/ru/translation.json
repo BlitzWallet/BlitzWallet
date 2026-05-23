@@ -130,7 +130,8 @@
     "print": "Печать",
     "transfer": "Перевод",
     "details": "Детали",
-    "total": "Итого"
+    "total": "Итого",
+    "stablecoinRefundReceived": "Возврат стейблкоина"
   },
   "languages": {
     "english": "English",
@@ -1002,7 +1003,9 @@
       "invoiceDescription": "Запросите оплату с помощью ссылки или QR-кода.",
       "poolsDescription": "Собирайте взносы от группы для общей цели.",
       "noContactHead": "{{username}} не найден",
-      "noContactDesc": "Добавьте {{username}} в свои контакты, чтобы находить здесь в будущем, или продолжите, чтобы отправить платёж сейчас."
+      "noContactDesc": "Добавьте {{username}} в свои контакты, чтобы находить здесь в будущем, или продолжите, чтобы отправить платёж сейчас.",
+      "kenyanPhoneTitle": "Оплатить {{number}}",
+      "kenyanPhoneDesc": "Вы собираетесь оплатить кенийский номер телефона"
     },
     "payLinks": {
       "skip": "Пропустить",
@@ -1375,6 +1378,7 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Валюта получения",
+      "description": "Выберите, как получать платежи от контактов и на ваш Lightning-адрес.",
       "futurePaymentsMessage": "Все будущие платежи будут получены в {{option}}",
       "warningMessage": "При выборе {{option}} действует минимальная сумма {{amount}}. Более мелкие платежи будут получены в Bitcoin.",
       "changeSelectionError": "{{option}} уже выбрано. Измените выбор, чтобы обновить настройку."

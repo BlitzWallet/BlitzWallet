@@ -22,6 +22,8 @@ export default function SavingsGoalDescribe(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const [isSaving, setIsSaving] = useState(false);
+  const isGoingBackRef = useRef(false);
 
   const emoji = props?.route?.params?.emoji || '🎯';
 
@@ -36,6 +38,30 @@ export default function SavingsGoalDescribe(props) {
       : COLORS.cancelRed
     : textColor;
 
+  const handleSave = useCallback(async () => {
+    try {
+      if (isGoingBackRef.current) return;
+      setIsSaving(true);
+      isGoingBackRef.current = true;
+      if (!goalName.trim()) {
+        await keyboardGoBack(navigate);
+      } else {
+        await keyboardNavigate(() => {
+          navigate.navigate('SavingsGoalAmount', {
+            emoji,
+            goalName: goalName.trim(),
+            mode: 'create',
+          });
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      isGoingBackRef.current = false;
+      setIsSaving(false);
+    }
+  }, [goalName, navigate]);
+
   return (
     <CustomKeyboardAvoidingView
       isKeyboardActive={isKeyboardActive}
@@ -44,7 +70,11 @@ export default function SavingsGoalDescribe(props) {
       useStandardWidth={true}
     >
       <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
+        customBackFunction={() => {
+          if (isGoingBackRef.current) return;
+          isGoingBackRef.current = true;
+          keyboardGoBack(navigate);
+        }}
         label={t('savings.goalDescribe.screenTitle')}
       />
       <View style={styles.container}>
@@ -76,19 +106,8 @@ export default function SavingsGoalDescribe(props) {
 
         <CustomButton
           buttonStyles={[styles.primaryButton]}
-          actionFunction={() => {
-            if (!goalName.trim()) {
-              keyboardGoBack(navigate);
-            } else {
-              keyboardNavigate(() => {
-                navigate.navigate('SavingsGoalAmount', {
-                  emoji,
-                  goalName: goalName.trim(),
-                  mode: 'create',
-                });
-              });
-            }
-          }}
+          actionFunction={handleSave}
+          useLoading={isSaving}
           textContent={
             !goalName.trim() ? t('constants.back') : t('constants.continue')
           }

@@ -130,7 +130,8 @@
     "custom...": "Anpassad...",
     "transfer": "Överföring",
     "details": "Detaljer",
-    "total": "Totalt"
+    "total": "Totalt",
+    "stablecoinRefundReceived": "Stablecoin-återbetalning"
   },
   "languages": {
     "english": "English",
@@ -1002,7 +1003,9 @@
       "invoiceDescription": "Begär betalning via en länk eller QR-kod.",
       "poolsDescription": "Samla in bidrag från en grupp till ett gemensamt mål.",
       "noContactHead": "{{username}} hittades inte",
-      "noContactDesc": "Lägg till {{username}} i dina kontakter för att hitta dem här i framtiden, eller fortsätt för att skicka en betalning nu."
+      "noContactDesc": "Lägg till {{username}} i dina kontakter för att hitta dem här i framtiden, eller fortsätt för att skicka en betalning nu.",
+      "kenyanPhoneTitle": "Betala {{number}}",
+      "kenyanPhoneDesc": "Du är på väg att betala ett kenyanskt telefonnummer"
     },
     "payLinks": {
       "skip": "Hoppa över",
@@ -1374,6 +1377,7 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Mottagningsvaluta",
+      "description": "Välj hur du vill ta emot betalningar från kontakter och din Lightning-adress.",
       "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
       "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin.",
       "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen."
