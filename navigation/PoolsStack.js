@@ -17,7 +17,7 @@ export default function PoolsStack() {
         <Stack.Screen
           name="PoolDetailScreen"
           component={PoolDetailScreen}
-          options={{animation: 'slide_from_right'}}
+          options={{animation: 'slide_from_right', presentation: 'card'}}
         />
       </Stack.Navigator>
     </PoolProvider>
