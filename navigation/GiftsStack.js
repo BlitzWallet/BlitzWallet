@@ -17,6 +17,7 @@ export default function GiftsStack() {
         screenOptions={{
           headerShown: false,
           animation: 'slide_from_right',
+          presentation: 'card',
         }}
       >
         <Stack.Screen

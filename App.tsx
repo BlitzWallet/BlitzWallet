@@ -658,6 +658,7 @@ function ResetStack(): JSX.Element | null {
         <Stack.Group
           screenOptions={{
             animation: 'slide_from_right',
+            presentation: 'card',
           }}
         >
           {SLIDE_FROM_RIGHT_SCREENS.map(
