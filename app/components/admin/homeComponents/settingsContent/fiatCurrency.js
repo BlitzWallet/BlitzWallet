@@ -14,6 +14,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import {
+  HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
 } from '../../../../constants/theme';
@@ -27,6 +28,7 @@ import { fiatCurrencies } from '../../../../functions/currencyOptions';
 import { useKeysContext } from '../../../../../context-store/keys';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 
 function currencyToCountryCode(currencyId) {
   if (currencyId === 'XOF') return 'ne';
@@ -88,7 +90,7 @@ export default function FiatCurrencyPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
-  const { toggleFiatStats } = useNodeContext();
+  const { toggleFiatStats, fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const currencies = useMemo(() => {
     return fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
@@ -188,6 +190,19 @@ export default function FiatCurrencyPage() {
     [backgroundColor],
   );
 
+  const rateSubtitle = fiatStats?.value
+    ? `1 BTC ≈ ${displayCorrectDenomination({
+        amount: Math.round(fiatStats.value),
+        masterInfoObject: {
+          ...masterInfoObject,
+          userBalanceDenomination: 'fiat',
+        },
+        fiatStats,
+        forceCurrency: masterInfoObject.fiatCurrency,
+        convertAmount: false,
+      })}`
+    : undefined;
+
   if (isLoading) {
     return (
       <GlobalThemeView useStandardWidth={true}>
@@ -212,7 +227,9 @@ export default function FiatCurrencyPage() {
           keyboardGoBack(navigate);
         }}
         label={t('settings.fiatCurrency.title')}
+        containerStyles={{ marginBottom: 0 }}
       />
+      <ThemeText content={rateSubtitle} styles={styles.subtitleText} />
 
       <FlatList
         style={styles.list}
@@ -275,5 +292,13 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     includeFontPadding: false,
     marginTop: 2,
+  },
+  subtitleText: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    includeFontPadding: false,
+    marginBottom: 10,
+    marginTop: 5,
   },
 });
