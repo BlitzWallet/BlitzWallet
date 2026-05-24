@@ -10,7 +10,7 @@ import {
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import BalancePieChart from '../../components/admin/homeComponents/analytics/balancePieChart';
-import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { FONT, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import GetThemeColors from '../../hooks/themeColors';
@@ -52,6 +52,8 @@ export default function AnalyticsPage() {
   const budgetAmount = budget?.amount || 0;
   const leftToSpend = Math.max(budgetAmount - spentTotal, 0);
   const spentPercent = budgetAmount > 0 ? spentTotal / budgetAmount : 0;
+  const isBalanceHidden =
+    masterInfoObject?.userBalanceDenomination === 'hidden';
 
   const budgetStatus =
     spentPercent >= OVER_BUDGET_LIMIT
@@ -111,7 +113,7 @@ export default function AnalyticsPage() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <BalancePieChart />
+        <BalancePieChart isBalanceHidden={isBalanceHidden} />
 
         <ThemeText
           styles={styles.sectionTitle}
@@ -435,5 +437,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 0,
+  },
+  hiddenText: {
+    fontFamily: FONT.Asterisk,
   },
 });
