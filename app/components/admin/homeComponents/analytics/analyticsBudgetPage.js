@@ -33,7 +33,7 @@ import {
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import { useAnalytics } from '../../../../../context-store/analyticsContext';
+import { useAnalyticsNumbers } from '../../../../../context-store/analyticsContext';
 import { useTranslation } from 'react-i18next';
 
 const CIRCLE_SIZE = 220;
@@ -50,7 +50,8 @@ export default function AnalyticsBudgetPage() {
   const { bottomPadding } = useGlobalInsets();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { spentTotal, spentTxCountBTC, spentTxCountUSD } = useAnalytics();
+  const { spentTotal, spentTxCountBTC, spentTxCountUSD } =
+    useAnalyticsNumbers();
   const { t } = useTranslation();
 
   const budget = masterInfoObject?.monthlyBudget;

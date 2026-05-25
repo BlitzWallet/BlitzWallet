@@ -1,7 +1,6 @@
 import FaceIdPage from '../../components/admin/homeComponents/settingsContent/loginSecurity';
 // import toggleSecureStoreData from '../../functions/toggleSecureData';
 import AppStore from './appStore';
-import AnalyticsPage from './analyticsPage';
 import AppStorePageIndex from './appStorePageIndex';
 import BuyBitcoinHome from './buyBitcoinHome';
 // import {ConnectionToNode} from './conectionToNode';
@@ -37,5 +36,4 @@ export {
   AppStorePageIndex,
   BuyBitcoinHome,
   SettingsHub,
-  AnalyticsPage,
 };

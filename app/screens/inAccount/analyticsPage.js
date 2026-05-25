@@ -81,6 +81,15 @@ export default function AnalyticsPage() {
   const spentTxCount =
     localDenomination === 'sats' ? spentTxCountBTC : spentTxCountUSD;
 
+  if (isLoading) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar label={t('analytics.home.title')} />
+        <FullLoadingScreen showText={false} />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <View style={styles.topbar}>

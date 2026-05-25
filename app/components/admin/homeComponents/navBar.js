@@ -19,14 +19,6 @@ export const NavBar = memo(function NavBar({
 
   return (
     <View style={[styles.topBar]}>
-      <TouchableOpacity
-        onPress={() => navigate.navigate('AnalyticsPage')}
-        activeOpacity={0.5}
-        style={styles.iconButton}
-      >
-        <ThemeIcon iconName="ChartPie" />
-      </TouchableOpacity>
-
       {/* Center space for animated balance - invisible but takes up space */}
       <View style={styles.centerSpace} />
 

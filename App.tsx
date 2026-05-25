@@ -102,7 +102,7 @@ import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
 import { useTranslation } from 'react-i18next';
-import { AnalyticsProvider } from './context-store/analyticsContext';
+import { AnalyticsNumbersProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 const Stack = createNativeStackNavigator();
@@ -141,11 +141,11 @@ function App(): JSX.Element {
                                                   <GlobalServerTimeProvider>
                                                     <FlashnetProvider>
                                                       <UserBalanceProvider>
-                                                        <AnalyticsProvider>
+                                                        <AnalyticsNumbersProvider>
                                                           {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
                                                           <ResetStack />
-                                                        </AnalyticsProvider>
+                                                        </AnalyticsNumbersProvider>
                                                       </UserBalanceProvider>
                                                     </FlashnetProvider>
                                                     {/* </Suspense> */}
