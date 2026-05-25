@@ -11,6 +11,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useMemo, useState } from 'react';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
@@ -97,7 +98,9 @@ export default function AnalyticsIncomePage(props) {
         containerStyles={{ marginBottom: 0 }}
       />
 
-      {isLoading ? null : txs.length === 0 ? (
+      {isLoading ? (
+        <FullLoadingScreen showText={false} />
+      ) : txs.length === 0 ? (
         <View style={{ flex: 1 }}>
           <NoContentSceen
             iconName="Binoculars"

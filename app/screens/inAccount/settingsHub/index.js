@@ -24,6 +24,7 @@ import SavingsPreview from './components/SavingsPreview';
 import PointOfSaleBanner from './components/PointOfSaleBanner';
 import GiftsPreview from './components/GiftsPreview';
 import AccumulationAddressesPreview from './components/AccumulationAddressesPreview';
+import AnalyticsPreview from './components/AnalyticsPreview';
 
 import Animated, {
   Extrapolation,
@@ -44,6 +45,7 @@ const INITIAL_WIDGET_ORDER = [
   { id: 'pools', type: 'pools' },
   { id: 'gifts', type: 'gifts' },
   { id: 'accumulation', type: 'accumulation' },
+  { id: 'analytics', type: 'analytics' },
   { id: 'point-of-sale', type: 'point-of-sale' },
 ];
 
@@ -218,6 +220,10 @@ export default function SettingsHub(props) {
     navigate.navigate('GiftsStack');
   }, [navigate]);
 
+  const handleAnalyticsPress = useCallback(() => {
+    navigate.navigate('AnalyticsStack');
+  }, [navigate]);
+
   const renderWidgetItem = useCallback(
     ({ item }) => {
       // Ordering is driven by INITIAL_WIDGET_ORDER and rendered as-is in FlashList.
@@ -252,6 +258,8 @@ export default function SettingsHub(props) {
           return (
             <AccumulationAddressesPreview onPress={handleAccumulationPress} />
           );
+        case 'analytics':
+          return <AnalyticsPreview onPress={handleAnalyticsPress} />;
         default:
           return null;
       }
@@ -260,6 +268,7 @@ export default function SettingsHub(props) {
       activePoolsArray,
       handleAccountEdit,
       handleAccountPress,
+      handleAnalyticsPress,
       handleOpenGifts,
       handlePOS,
       handleViewAllAccounts,

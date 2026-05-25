@@ -2891,6 +2891,10 @@
     "numberOfTxs_other": "{{count}} transaktioner",
     "remaining": "Kvar",
     "overBy": "Överskrid med",
+    "preview": {
+      "title": "Plånboksanalys",
+      "subTitle": "Följ din månatliga inkomst, dina utgifter och din budget på ett ögonblick."
+    },
     "home": {
       "title": "Analys",
       "activityHead": "Månadsaktivitet",

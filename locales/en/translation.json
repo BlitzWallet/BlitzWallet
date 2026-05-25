@@ -2887,6 +2887,10 @@
     "numberOfTxs_other": "{{count}} transactions",
     "remaining": "Remaining",
     "overBy": "Over by",
+    "preview": {
+      "title": "Wallet Analytics",
+      "subTitle": "Track your monthly income, spending, and budget at a glance."
+    },
     "home": {
       "title": "Analytics",
       "activityHead": "Monthly activity",

@@ -2891,6 +2891,10 @@
     "numberOfTxs_other": "{{count}} transacciones",
     "remaining": "Restante",
     "overBy": "Excedido en",
+    "preview": {
+      "title": "Análisis de billetera",
+      "subTitle": "Haz seguimiento de tus ingresos, gastos y presupuesto mensuales de un vistazo."
+    },
     "home": {
       "title": "Analíticas",
       "activityHead": "Actividad mensual",

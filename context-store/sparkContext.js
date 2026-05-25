@@ -2031,9 +2031,19 @@ const SparkWalletProvider = ({ children }) => {
     };
   }, []);
 
+  const txsHashKey = useMemo(
+    () =>
+      sparkInformation.transactions
+        .filter(tx => tx.paymentStatus === 'completed')
+        .map(tx => tx.sparkID)
+        .join(','),
+    [sparkInformation.transactions],
+  );
+
   const contextValue = useMemo(
     () => ({
       sparkInformation,
+      txsHashKey,
       setSparkInformation,
       pendingNavigation,
       setPendingNavigation,
@@ -2053,6 +2063,7 @@ const SparkWalletProvider = ({ children }) => {
     }),
     [
       sparkInformation,
+      txsHashKey,
       setSparkInformation,
       pendingNavigation,
       setPendingNavigation,

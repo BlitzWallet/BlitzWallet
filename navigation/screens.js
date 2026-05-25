@@ -89,16 +89,12 @@ import {
   TechnicalTransactionDetails,
   ViewAllTxPage,
   SettingsHub,
-  AnalyticsPage,
 } from '../app/screens/inAccount';
 import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
 import StablecoinSendScreen from '../app/components/admin/homeComponents/sendBitcoin/stablecoinSendScreen';
 import AccumulationAddressDetail from '../app/components/admin/homeComponents/accumulationAddresses/AccumulationAddressDetail';
 import AccumulationAddressesHome from '../app/components/admin/homeComponents/accumulationAddresses/AccumulationAddressesHome';
-import AnalyticsIncomePage from '../app/components/admin/homeComponents/analytics/analyticsIncomePage';
-import AnalyticsSpentPage from '../app/components/admin/homeComponents/analytics/analyticsSpentPage';
-import AnalyticsBudgetPage from '../app/components/admin/homeComponents/analytics/analyticsBudgetPage';
-import AnalyticsCreateBudgetPage from '../app/components/admin/homeComponents/analytics/analyticsCreateBudgetPage';
+import AnalyticsStack from './analyticsStack';
 import BTCMapScreen from '../app/screens/inAccount/btcMap';
 import BitrefillShopModal from '../app/components/admin/homeComponents/store/bitrefillModal';
 
@@ -213,11 +209,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   },
   { name: 'AccumulationAddressesHome', component: AccumulationAddressesHome },
   { name: 'AccumulationAddressDetail', component: AccumulationAddressDetail },
-  { name: 'AnalyticsPage', component: AnalyticsPage },
-  { name: 'AnalyticsIncomePage', component: AnalyticsIncomePage },
-  { name: 'AnalyticsSpentPage', component: AnalyticsSpentPage },
-  { name: 'AnalyticsBudgetPage', component: AnalyticsBudgetPage },
-  { name: 'AnalyticsCreateBudgetPage', component: AnalyticsCreateBudgetPage },
+  { name: 'AnalyticsStack', component: AnalyticsStack },
 ];
 
 const FADE_SCREENS = [
