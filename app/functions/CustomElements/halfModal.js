@@ -82,6 +82,8 @@ import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
+import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLightning/halfModalDepositFunds';
+import HalfModalReceiveMethodOptions from '../../components/admin/homeComponents/homeLightning/halfModalReceiveMethodOptions';
 
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
@@ -666,6 +668,24 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             placeId={props?.route?.params?.placeId}
             setContentHeight={setContentHeight}
+          />
+        );
+      case 'depositFunds':
+        return (
+          <HalfModalDepositFunds
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
+      case 'receiveMethodOptions':
+        return (
+          <HalfModalReceiveMethodOptions
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            theme={theme}
+            darkModeType={darkModeType}
           />
         );
       default:
