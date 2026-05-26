@@ -1379,7 +1379,7 @@
       "title": "Moeda de recebimento",
       "description": "Escolha a moeda padrão nos recebimentos de pagamentos de contatos e do seu endereço Blitz",
       "futurePaymentsMessage": "Todos os pagamentos futuros serão recebidos em {{option}}",
-      "warningMessage": "Pagamentos em {{option}} menores do que {{amount}} serão recebidos em Bitcoin.",
+      "warningMessage": "Pagamentos em {{option}} menores do que {{amount}} serão sempre recebidos em Bitcoin.",
       "changeSelectionError": "{{option}} já está selecionado. Altere sua seleção para atualizar sua configuração."
     },
     "selectCurrencyToSend": {
