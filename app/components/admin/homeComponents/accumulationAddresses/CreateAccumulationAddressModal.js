@@ -34,6 +34,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 export default function CreateAccumulationAddressModal({
   setContentHeight,
   handleBackPressFunction,
+  forcedDestination,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -44,7 +45,7 @@ export default function CreateAccumulationAddressModal({
   const [step, setStep] = useState('asset');
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [selectedChain, setSelectedChain] = useState(null);
-  const [selectedDestination, setSelectedDestination] = useState(null);
+  const [selectedDestination, setSelectedDestination] = useState(forcedDestination || null);
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
@@ -70,8 +71,8 @@ export default function CreateAccumulationAddressModal({
     }
 
     if (step === 'confirm') {
-      setSelectedDestination(null);
-      setStep('destination');
+      setSelectedDestination(forcedDestination || null);
+      setStep(forcedDestination ? 'chain' : 'destination');
       return true;
     }
 
@@ -196,7 +197,7 @@ export default function CreateAccumulationAddressModal({
                 onPress={() => {
                   if (disabled) return;
                   setSelectedChain(chain);
-                  setStep('destination');
+                  setStep(forcedDestination ? 'confirm' : 'destination');
                 }}
               >
                 <Image
