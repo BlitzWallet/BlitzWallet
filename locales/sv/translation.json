@@ -1005,7 +1005,23 @@
       "noContactHead": "{{username}} hittades inte",
       "noContactDesc": "Lägg till {{username}} i dina kontakter för att hitta dem här i framtiden, eller fortsätt för att skicka en betalning nu.",
       "kenyanPhoneTitle": "Betala {{number}}",
-      "kenyanPhoneDesc": "Du är på väg att betala ett kenyanskt telefonnummer"
+      "kenyanPhoneDesc": "Du är på väg att betala ett kenyanskt telefonnummer",
+      "depositFunds": "Deposit Funds",
+      "depositFundsSubtitle": "Add funds to your wallet",
+      "onChainBitcoin": "On-Chain Bitcoin",
+      "onChainBitcoinSubtitle": "Receive via on-chain address",
+      "stablecoins": "Stablecoins",
+      "stablecoinsSubtitle": "USDC / USDT auto-convert to BTC",
+      "cashAppSubtitle": "Send from Cash App instantly",
+      "sparkAddressSubtitle": "Receive to your Spark address",
+      "otherBitcoin": "Other Bitcoin",
+      "otherBitcoinSubtitle": "Liquid and other methods",
+      "lightningInvoice": "Lightning Invoice",
+      "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
+      "otherReceivingMethods": "Other receiving methods",
+      "cashAppEnterAmount": "Enter amount in sats",
+      "cashAppOpen": "Open Cash App",
+      "cashAppBack": "Back"
     },
     "payLinks": {
       "skip": "Hoppa över",
@@ -1250,7 +1266,8 @@
         "send": "Skicka",
         "receive": "Ta emot",
         "scan": "Skanna",
-        "swap": "Swap"
+        "swap": "Swap",
+        "deposit": "Deposit"
       },
       "lrc20Assets": {
         "actionText": "{{action}} symboler",
@@ -2491,6 +2508,10 @@
         "createFailed": "Det gick inte att skapa adressen. Försök igen.",
         "deleteFailed": "Det gick inte att ta bort adressen. Försök igen."
       }
+    },
+    "sparkReceivePage": {
+      "header": "Spark Address",
+      "otherReceivingMethods": "Other receiving methods"
     },
     "btcMap": {
       "mapPreview": {

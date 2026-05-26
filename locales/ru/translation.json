@@ -1005,7 +1005,23 @@
       "noContactHead": "{{username}} не найден",
       "noContactDesc": "Добавьте {{username}} в свои контакты, чтобы находить здесь в будущем, или продолжите, чтобы отправить платёж сейчас.",
       "kenyanPhoneTitle": "Оплатить {{number}}",
-      "kenyanPhoneDesc": "Вы собираетесь оплатить кенийский номер телефона"
+      "kenyanPhoneDesc": "Вы собираетесь оплатить кенийский номер телефона",
+      "depositFunds": "Deposit Funds",
+      "depositFundsSubtitle": "Add funds to your wallet",
+      "onChainBitcoin": "On-Chain Bitcoin",
+      "onChainBitcoinSubtitle": "Receive via on-chain address",
+      "stablecoins": "Stablecoins",
+      "stablecoinsSubtitle": "USDC / USDT auto-convert to BTC",
+      "cashAppSubtitle": "Send from Cash App instantly",
+      "sparkAddressSubtitle": "Receive to your Spark address",
+      "otherBitcoin": "Other Bitcoin",
+      "otherBitcoinSubtitle": "Liquid and other methods",
+      "lightningInvoice": "Lightning Invoice",
+      "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
+      "otherReceivingMethods": "Other receiving methods",
+      "cashAppEnterAmount": "Enter amount in sats",
+      "cashAppOpen": "Open Cash App",
+      "cashAppBack": "Back"
     },
     "payLinks": {
       "skip": "Пропустить",
@@ -1251,7 +1267,8 @@
         "send": "Отправить",
         "receive": "Получить",
         "scan": "Сканировать",
-        "swap": "Обмен"
+        "swap": "Обмен",
+        "deposit": "Deposit"
       },
       "lrc20Assets": {
         "actionText": "{{action}} токены",
@@ -2498,6 +2515,10 @@
         "createFailed": "Не удалось создать адрес. Попробуйте снова.",
         "deleteFailed": "Не удалось удалить адрес. Попробуйте снова."
       }
+    },
+    "sparkReceivePage": {
+      "header": "Spark Address",
+      "otherReceivingMethods": "Other receiving methods"
     },
     "btcMap": {
       "mapPreview": {

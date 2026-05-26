@@ -1005,7 +1005,23 @@
       "noContactHead": "{{username}} introuvable",
       "noContactDesc": "Ajoutez {{username}} à vos contacts pour le retrouver ici à l’avenir, ou continuez pour envoyer un paiement maintenant.",
       "kenyanPhoneTitle": "Payer {{number}}",
-      "kenyanPhoneDesc": "Vous êtes sur le point de payer un numéro de téléphone kényan"
+      "kenyanPhoneDesc": "Vous êtes sur le point de payer un numéro de téléphone kényan",
+      "depositFunds": "Deposit Funds",
+      "depositFundsSubtitle": "Add funds to your wallet",
+      "onChainBitcoin": "On-Chain Bitcoin",
+      "onChainBitcoinSubtitle": "Receive via on-chain address",
+      "stablecoins": "Stablecoins",
+      "stablecoinsSubtitle": "USDC / USDT auto-convert to BTC",
+      "cashAppSubtitle": "Send from Cash App instantly",
+      "sparkAddressSubtitle": "Receive to your Spark address",
+      "otherBitcoin": "Other Bitcoin",
+      "otherBitcoinSubtitle": "Liquid and other methods",
+      "lightningInvoice": "Lightning Invoice",
+      "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
+      "otherReceivingMethods": "Other receiving methods",
+      "cashAppEnterAmount": "Enter amount in sats",
+      "cashAppOpen": "Open Cash App",
+      "cashAppBack": "Back"
     },
     "payLinks": {
       "skip": "Passer",
@@ -1250,7 +1266,8 @@
         "send": "Envoyer",
         "receive": "Recevoir",
         "scan": "Scanner",
-        "swap": "Swap"
+        "swap": "Swap",
+        "deposit": "Deposit"
       },
       "lrc20Assets": {
         "actionText": "{{action}} jetons",
@@ -2491,6 +2508,10 @@
         "createFailed": "Échec de la création de l’adresse. Veuillez réessayer.",
         "deleteFailed": "Échec de la suppression de l’adresse. Veuillez réessayer."
       }
+    },
+    "sparkReceivePage": {
+      "header": "Spark Address",
+      "otherReceivingMethods": "Other receiving methods"
     },
     "btcMap": {
       "mapPreview": {
