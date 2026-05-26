@@ -436,6 +436,20 @@ export default function ReceivePaymentHome(props) {
               <FormattedSatText neverHideBalance={true} balance={0} />
             )}
           </TouchableOpacity>
+          <TouchableOpacity
+            style={{ alignItems: 'center', marginTop: 12 }}
+            onPress={() =>
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'receiveMethodOptions',
+                sliderHight: 0.5,
+              })
+            }
+          >
+            <ThemeText
+              styles={{ fontSize: SIZES.small, opacity: 0.7, includeFontPadding: false }}
+              content={t('wallet.halfModal.otherReceivingMethods')}
+            />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </GlobalThemeView>
