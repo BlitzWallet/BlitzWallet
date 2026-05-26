@@ -19,6 +19,16 @@ export const NavBar = memo(function NavBar({
 
   return (
     <View style={[styles.topBar]}>
+      <TouchableOpacity
+        onPress={() => {
+          crashlyticsLogReport('Navigating to SendBTC from homepage navbar');
+          navigate.navigate('SendBTC');
+        }}
+        activeOpacity={0.5}
+        style={styles.iconButton}
+      >
+        <ThemeIcon iconName={'ScanQrCode'} />
+      </TouchableOpacity>
       {/* Center space for animated balance - invisible but takes up space */}
       <View style={styles.centerSpace} />
 
