@@ -20,6 +20,7 @@ import CreateAccumulationAddressModal from '../accumulationAddresses/CreateAccum
 import CustomButton from '../../../../functions/CustomElements/button';
 import { copyToClipboard } from '../../../../functions';
 import { useToast } from '../../../../../context-store/toastManager';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 const isUSTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone.startsWith('America/');
 
@@ -41,31 +42,51 @@ export default function HalfModalDepositFunds({
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { showToast } = useToast();
 
-  const subviewVisible = activeView !== 'options';
-
-  const subviewOpacity = useSharedValue(0);
-  const subviewTranslateX = useSharedValue(30);
+  // Fix 1: Separate shared values per subview so exit animation can play
+  const cashAppOpacity = useSharedValue(0);
+  const cashAppTranslateX = useSharedValue(30);
+  const stablecoinsOpacity = useSharedValue(0);
+  const stablecoinsTranslateX = useSharedValue(30);
   const optionsOpacity = useSharedValue(1);
   const optionsTranslateX = useSharedValue(0);
 
   useEffect(() => {
-    subviewOpacity.value = withTiming(subviewVisible ? 1 : 0, { duration: 250 });
-    subviewTranslateX.value = withTiming(subviewVisible ? 0 : 30, { duration: 250 });
-    optionsOpacity.value = withTiming(subviewVisible ? 0 : 1, { duration: 250 });
-    optionsTranslateX.value = withTiming(subviewVisible ? -30 : 0, { duration: 250 });
-  }, [subviewVisible]);
+    const showCashApp = activeView === 'cashApp';
+    const showStablecoins = activeView === 'stablecoins';
+    const showOptions = activeView === 'options';
+
+    cashAppOpacity.value = withTiming(showCashApp ? 1 : 0, { duration: 250 });
+    cashAppTranslateX.value = withTiming(showCashApp ? 0 : 30, { duration: 250 });
+    stablecoinsOpacity.value = withTiming(showStablecoins ? 1 : 0, { duration: 250 });
+    stablecoinsTranslateX.value = withTiming(showStablecoins ? 0 : 30, { duration: 250 });
+    optionsOpacity.value = withTiming(showOptions ? 1 : 0, { duration: 250 });
+    optionsTranslateX.value = withTiming(showOptions ? 0 : -30, { duration: 250 });
+  }, [activeView]);
 
   const optionsAnimatedStyle = useAnimatedStyle(() => ({
     opacity: optionsOpacity.value,
     transform: [{ translateX: optionsTranslateX.value }],
   }));
 
-  const subviewAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: subviewOpacity.value,
-    transform: [{ translateX: subviewTranslateX.value }],
+  const cashAppAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: cashAppOpacity.value,
+    transform: [{ translateX: cashAppTranslateX.value }],
+  }));
+
+  const stablecoinsAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: stablecoinsOpacity.value,
+    transform: [{ translateX: stablecoinsTranslateX.value }],
   }));
 
   const existingBtcAddress = addresses.find(a => a.destinationAsset === 'BTC') || null;
+
+  // Fix 4: Android back handler — navigate subview → options before closing modal
+  const handleSubviewBack = useCallback(() => {
+    if (activeView === 'options') return false;
+    setActiveView('options');
+    return true;
+  }, [activeView]);
+  useHandleBackPressNew(handleSubviewBack);
 
   const handleCashAppConfirm = useCallback(async () => {
     const amountSats = parseInt(cashAppAmount, 10);
@@ -83,18 +104,25 @@ export default function HalfModalDepositFunds({
         await Linking.openURL(
           `https://cash.app/launch/lightning/${encodeURIComponent(response.invoice)}`,
         );
+      } else {
+        // Fix 3: Show toast when invoice generation fails
+        showToast(t('errormessages.invoiceRetrivalError'));
       }
     } catch (e) {
-      // silent
+      // Fix 3: Show toast on unexpected errors
+      showToast(t('errormessages.invoiceRetrivalError'));
     } finally {
       setIsGeneratingInvoice(false);
     }
-  }, [cashAppAmount, currentWalletMnemoinc, sendWebViewRequest]);
+  }, [cashAppAmount, currentWalletMnemoinc, sendWebViewRequest, showToast, t]);
 
   return (
     <View style={styles.container}>
-      {/* Options list (tiles) */}
-      <Animated.View style={optionsAnimatedStyle}>
+      {/* Options list (tiles) — Fix 2: pointerEvents blocks interaction when hidden */}
+      <Animated.View
+        style={optionsAnimatedStyle}
+        pointerEvents={activeView === 'options' ? 'auto' : 'none'}
+      >
         {/* On-Chain Bitcoin */}
         <TouchableOpacity
           style={styles.scanButton}
@@ -266,119 +294,118 @@ export default function HalfModalDepositFunds({
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Cash App subview */}
-      {activeView === 'cashApp' && (
-        <Animated.View
-          style={[
-            StyleSheet.absoluteFill,
-            styles.subviewContainer,
-            { backgroundColor },
-            subviewAnimatedStyle,
-          ]}
-        >
-          <View style={styles.subviewContent}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => {
-                setCashAppAmount('');
-                setActiveView('options');
-              }}
-            >
-              <ThemeIcon iconName="ChevronLeft" size={20} />
-              <ThemeText content={t('wallet.halfModal.cashAppBack')} />
-            </TouchableOpacity>
+      {/* Fix 1: Cash App subview — always mounted, animated in/out via cashAppAnimatedStyle */}
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.subviewContainer,
+          { backgroundColor },
+          cashAppAnimatedStyle,
+        ]}
+        pointerEvents={activeView === 'cashApp' ? 'auto' : 'none'}
+      >
+        <View style={styles.subviewContent}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => {
+              setCashAppAmount('');
+              setActiveView('options');
+            }}
+          >
+            <ThemeIcon iconName="ChevronLeft" size={20} />
+            <ThemeText content={t('wallet.halfModal.cashAppBack')} />
+          </TouchableOpacity>
 
-            <ThemeText
-              content={t('wallet.halfModal.cashAppEnterAmount')}
-              styles={styles.subviewTitle}
-            />
+          <ThemeText
+            content={t('wallet.halfModal.cashAppEnterAmount')}
+            styles={styles.subviewTitle}
+          />
 
-            <TextInput
-              style={[
-                styles.amountInput,
-                { color: textColor, borderColor: backgroundOffset },
-              ]}
-              value={cashAppAmount}
-              onChangeText={setCashAppAmount}
-              keyboardType="number-pad"
-              placeholder="0"
-              placeholderTextColor={COLORS.opaicityGray}
-            />
+          <TextInput
+            style={[
+              styles.amountInput,
+              { color: textColor, borderColor: backgroundOffset },
+            ]}
+            value={cashAppAmount}
+            onChangeText={setCashAppAmount}
+            keyboardType="number-pad"
+            placeholder="0"
+            placeholderTextColor={COLORS.opaicityGray}
+          />
 
-            <CustomButton
-              buttonStyles={{ ...CENTER, marginTop: 'auto' }}
-              textContent={t('wallet.halfModal.cashAppOpen')}
-              actionFunction={handleCashAppConfirm}
-              useLoading={isGeneratingInvoice}
-            />
-          </View>
-        </Animated.View>
-      )}
+          <CustomButton
+            buttonStyles={{ ...CENTER, marginTop: 'auto' }}
+            textContent={t('wallet.halfModal.cashAppOpen')}
+            actionFunction={handleCashAppConfirm}
+            useLoading={isGeneratingInvoice}
+          />
+        </View>
+      </Animated.View>
 
-      {/* Stablecoins subview */}
-      {activeView === 'stablecoins' && (
-        <Animated.View
-          style={[
-            StyleSheet.absoluteFill,
-            styles.subviewContainer,
-            { backgroundColor },
-            subviewAnimatedStyle,
-          ]}
-        >
-          <View style={styles.subviewContent}>
-            {existingBtcAddress ? (
-              <>
-                <TouchableOpacity
-                  style={styles.backButton}
-                  onPress={() => setActiveView('options')}
-                >
-                  <ThemeIcon iconName="ChevronLeft" size={20} />
-                  <ThemeText content={t('constants.back')} />
-                </TouchableOpacity>
+      {/* Fix 1: Stablecoins subview — always mounted, animated in/out via stablecoinsAnimatedStyle */}
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.subviewContainer,
+          { backgroundColor },
+          stablecoinsAnimatedStyle,
+        ]}
+        pointerEvents={activeView === 'stablecoins' ? 'auto' : 'none'}
+      >
+        <View style={styles.subviewContent}>
+          {existingBtcAddress ? (
+            <>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setActiveView('options')}
+              >
+                <ThemeIcon iconName="ChevronLeft" size={20} />
+                <ThemeText content={t('constants.back')} />
+              </TouchableOpacity>
 
-                <ThemeText
-                  content={existingBtcAddress.sourceAsset + ' → BTC'}
-                  styles={styles.subviewTitle}
-                />
-                <ThemeText
-                  content={
-                    existingBtcAddress.depositAddress.slice(0, 12) +
-                    '...' +
-                    existingBtcAddress.depositAddress.slice(-8)
-                  }
-                  styles={styles.addressPreview}
-                />
-
-                <CustomButton
-                  buttonStyles={{ ...CENTER, marginTop: 8 }}
-                  textContent={t('constants.copy')}
-                  actionFunction={() =>
-                    copyToClipboard(existingBtcAddress.depositAddress, showToast)
-                  }
-                />
-                <TouchableOpacity
-                  style={styles.viewDetailsLink}
-                  onPress={() => {
-                    handleBackPressFunction();
-                    navigate.navigate('AccumulationAddressDetail', {
-                      address: existingBtcAddress,
-                    });
-                  }}
-                >
-                  <ThemeText content="View details" styles={styles.viewDetailsText} />
-                  <ThemeIcon iconName="ChevronRight" size={16} />
-                </TouchableOpacity>
-              </>
-            ) : (
-              <CreateAccumulationAddressModal
-                forcedDestination="BTC"
-                setContentHeight={() => {}}
-                handleBackPressFunction={() => setActiveView('options')}
+              <ThemeText
+                content={existingBtcAddress.sourceAsset + ' → BTC'}
+                styles={styles.subviewTitle}
               />
-            )}
-          </View>
-        </Animated.View>
-      )}
+              <ThemeText
+                content={
+                  existingBtcAddress.depositAddress.slice(0, 12) +
+                  '...' +
+                  existingBtcAddress.depositAddress.slice(-8)
+                }
+                styles={styles.addressPreview}
+              />
+
+              <CustomButton
+                buttonStyles={{ ...CENTER, marginTop: 8 }}
+                textContent={t('constants.copy')}
+                actionFunction={() =>
+                  copyToClipboard(existingBtcAddress.depositAddress, showToast)
+                }
+              />
+              <TouchableOpacity
+                style={styles.viewDetailsLink}
+                onPress={() => {
+                  handleBackPressFunction();
+                  navigate.navigate('AccumulationAddressDetail', {
+                    address: existingBtcAddress,
+                  });
+                }}
+              >
+                {/* Fix 5: "View details" wrapped in t() */}
+                <ThemeText content={t('wallet.halfModal.viewDetails')} styles={styles.viewDetailsText} />
+                <ThemeIcon iconName="ChevronRight" size={16} />
+              </TouchableOpacity>
+            </>
+          ) : (
+            <CreateAccumulationAddressModal
+              forcedDestination="BTC"
+              setContentHeight={() => {}}
+              handleBackPressFunction={() => setActiveView('options')}
+            />
+          )}
+        </View>
+      </Animated.View>
     </View>
   );
 }

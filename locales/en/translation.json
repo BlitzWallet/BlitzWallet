@@ -1021,7 +1021,8 @@
       "otherReceivingMethods": "Other receiving methods",
       "cashAppEnterAmount": "Enter amount in sats",
       "cashAppOpen": "Open Cash App",
-      "cashAppBack": "Back"
+      "cashAppBack": "Back",
+      "viewDetails": "View details"
     },
     "payLinks": {
       "skip": "Skip",
