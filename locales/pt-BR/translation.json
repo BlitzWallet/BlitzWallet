@@ -1165,9 +1165,9 @@
     "sendPages": {
       "sendPaymentScreen": {
         "initialLoadingMessage": "Preparando detalhes da fatura",
-        "alreadyPaidInvoiceError": "Esta fatura já foi paga.",
+        "alreadyPaidInvoiceError": "Esta fatura já foi paga",
         "fallbackErrorMessage": "Erro ao decodificar a fatura",
-        "connectToSparkMessage": "Conectando à sua carteira.",
+        "connectToSparkMessage": "Conectando à sua carteira",
         "switchTokenText": "Usar um token diferente",
         "zeroAmountInvoiceDollarPayments": "Faturas sem quantia definida não podem ser pagas em USD. Use BTC.",
         "decodingPayment": "Decodificando informações de pagamento...",
