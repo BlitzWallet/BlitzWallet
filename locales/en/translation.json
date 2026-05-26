@@ -2461,6 +2461,9 @@
         "noHistoryTitle": "No Swap History",
         "noHistoryDesc": "Your swap transactions will appear here",
         "pageTitle": "History"
+      },
+      "sparkReceivePage": {
+        "header": "Spark Address"
       }
     },
     "accumulationAddresses": {
@@ -2510,10 +2513,6 @@
         "deleteFailed": "Failed to delete address. Please try again."
       }
     },
-    "sparkReceivePage": {
-      "header": "Spark Address",
-      "otherReceivingMethods": "Other receiving methods"
-    },
     "btcMap": {
       "mapPreview": {
         "header": "Bitcoin map",
@@ -2539,7 +2538,6 @@
       "insufficientBalance": "You don’t have enough balance to complete this payment.",
       "paymentMemo": "Gift Card Purchase",
       "paymentFailed": "Your payment could not be completed. Please try again.",
-
       "editEmail": "Edit your email",
       "addEmail": "Add your email",
       "editEmailDesc": "Update your saved email address below.",

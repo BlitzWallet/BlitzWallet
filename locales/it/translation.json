@@ -2461,6 +2461,9 @@
         "noHistoryTitle": "Nessuna cronologia degli swap",
         "noHistoryDesc": "Le tue transazioni di swap appariranno qui.",
         "pageTitle": "Cronologia"
+      },
+      "sparkReceivePage": {
+        "header": "Spark Address"
       }
     },
     "accumulationAddresses": {
@@ -2509,10 +2512,6 @@
         "createFailed": "Creazione dell’indirizzo non riuscita. Riprova.",
         "deleteFailed": "Eliminazione dell’indirizzo non riuscita. Riprova."
       }
-    },
-    "sparkReceivePage": {
-      "header": "Spark Address",
-      "otherReceivingMethods": "Other receiving methods"
     },
     "btcMap": {
       "mapPreview": {

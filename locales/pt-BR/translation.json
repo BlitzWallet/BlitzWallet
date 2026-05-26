@@ -2461,6 +2461,9 @@
         "noHistoryTitle": "Nenhum histórico de trocas",
         "noHistoryDesc": "As trocas aparecerão aqui.",
         "pageTitle": "Histórico"
+      },
+      "sparkReceivePage": {
+        "header": "Spark Address"
       }
     },
     "accumulationAddresses": {
@@ -2509,10 +2512,6 @@
         "createFailed": "Falha ao criar endereço. Tente novamente.",
         "deleteFailed": "Falha ao excluir endereço. Tente novamente."
       }
-    },
-    "sparkReceivePage": {
-      "header": "Spark Address",
-      "otherReceivingMethods": "Other receiving methods"
     },
     "btcMap": {
       "mapPreview": {

@@ -78,7 +78,7 @@ export default function CreateAccumulationAddressModal({
 
     // 'asset' step — let the modal close naturally
     return false;
-  }, [isCreating, step]);
+  }, [isCreating, step, forcedDestination]);
 
   useHandleBackPressNew(handleBackPress);
 

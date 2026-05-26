@@ -2461,6 +2461,9 @@
         "noHistoryTitle": "Ingen swap-historik",
         "noHistoryDesc": "Dina swap-transaktioner visas här.",
         "pageTitle": "Historik"
+      },
+      "sparkReceivePage": {
+        "header": "Spark Address"
       }
     },
     "accumulationAddresses": {
@@ -2509,10 +2512,6 @@
         "createFailed": "Det gick inte att skapa adressen. Försök igen.",
         "deleteFailed": "Det gick inte att ta bort adressen. Försök igen."
       }
-    },
-    "sparkReceivePage": {
-      "header": "Spark Address",
-      "otherReceivingMethods": "Other receiving methods"
     },
     "btcMap": {
       "mapPreview": {

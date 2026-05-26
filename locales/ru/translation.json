@@ -2468,6 +2468,9 @@
         "noHistoryTitle": "Нет истории обменов",
         "noHistoryDesc": "Ваши операции обмена появятся здесь.",
         "pageTitle": "История"
+      },
+      "sparkReceivePage": {
+        "header": "Spark Address"
       }
     },
     "accumulationAddresses": {
@@ -2516,10 +2519,6 @@
         "createFailed": "Не удалось создать адрес. Попробуйте снова.",
         "deleteFailed": "Не удалось удалить адрес. Попробуйте снова."
       }
-    },
-    "sparkReceivePage": {
-      "header": "Spark Address",
-      "otherReceivingMethods": "Other receiving methods"
     },
     "btcMap": {
       "mapPreview": {

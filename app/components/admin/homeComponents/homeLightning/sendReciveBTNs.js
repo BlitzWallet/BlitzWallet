@@ -66,7 +66,7 @@ export function SendRecieveBTNs({
     });
   }, [handleSettingsCheck, navigate, scrollPosition, t]);
 
-  const handleCamera = useCallback(() => {
+  const handleDeposit = useCallback(() => {
     const areSettingsSet = handleSettingsCheck();
     if (!areSettingsSet) {
       navigate.navigate('ErrorScreen', {
@@ -75,9 +75,12 @@ export function SendRecieveBTNs({
       return;
     }
     crashlyticsLogReport(
-      'Running in send and receive buttons on homepage for button send BTC page',
+      'Running in send and receive buttons on homepage for button type: deposit',
     );
-    navigate.navigate('SendBTC');
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'depositFunds',
+      sliderHight: 0.5,
+    });
   }, [handleSettingsCheck, navigate, t]);
 
   const handleSwap = useCallback(() => {
@@ -163,12 +166,11 @@ export function SendRecieveBTNs({
         /> */}
       </TouchableOpacity>
 
-      {/* Camera/Scan — secondary */}
+      {/* Deposit — secondary */}
       {!isNWCWallet && (
         <TouchableOpacity
           style={styles.buttonWrapper}
-          // activeOpacity={1}
-          onPress={handleCamera}
+          onPress={handleDeposit}
         >
           <View
             style={[
@@ -181,15 +183,10 @@ export function SendRecieveBTNs({
           >
             <ThemeIcon
               size={25}
-              iconName="ScanQrCode"
+              iconName="Plus"
               colorOverride={arrowIconColor}
             />
           </View>
-          {/* <ThemeText
-            content={t('wallet.homeLightning.home.scan')}
-            styles={[styles.labelSecondary, { fontSize }]}
-            {...getLabelProps(2)}
-          /> */}
         </TouchableOpacity>
       )}
 
