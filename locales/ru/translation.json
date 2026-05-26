@@ -130,7 +130,8 @@
     "print": "Печать",
     "transfer": "Перевод",
     "details": "Детали",
-    "total": "Итого"
+    "total": "Итого",
+    "stablecoinRefundReceived": "Возврат стейблкоина"
   },
   "languages": {
     "english": "English",
@@ -290,6 +291,7 @@
   "apps": {
     "noPurchaseTitle": "Нет покупок",
     "appList": {
+      "title": "Исследовать",
       "AI": "Генеративный ИИ",
       "AIDescription": "Общайтесь с новейшими моделями генеративного ИИ",
       "SMS": "SMS-сообщения",
@@ -975,7 +977,7 @@
       "inputPlaceholder": "Введите @имяпользователя, адрес Bitcoin или инвойс Lightning",
       "scanImage": "Сканировать изображение",
       "tapToScan": "Нажмите, чтобы получить адрес из изображения",
-      "chooseWhatToSend": "Выберите, что отправить",
+      "chooseWhatToSend": "Выберите способ финансирования этого платежа",
       "noContacts": "Добавьте контакты, чтобы они отображались здесь",
       "selectAddressType": "Выберите тип адреса",
       "tapToGenerate_other": "Нажмите, чтобы увидеть другие варианты получения",
@@ -999,7 +1001,11 @@
       "payMe": "Быстрая оплата",
       "createInvoice": "Создать счёт",
       "invoiceDescription": "Запросите оплату с помощью ссылки или QR-кода.",
-      "poolsDescription": "Собирайте взносы от группы для общей цели."
+      "poolsDescription": "Собирайте взносы от группы для общей цели.",
+      "noContactHead": "{{username}} не найден",
+      "noContactDesc": "Добавьте {{username}} в свои контакты, чтобы находить здесь в будущем, или продолжите, чтобы отправить платёж сейчас.",
+      "kenyanPhoneTitle": "Оплатить {{number}}",
+      "kenyanPhoneDesc": "Вы собираетесь оплатить кенийский номер телефона"
     },
     "payLinks": {
       "skip": "Пропустить",
@@ -1170,7 +1176,8 @@
         "swapRatesChangedTitle": "Курс обмена обновлён",
         "swapRatesChangedBody": "Курс обмена для этой операции изменился во время проверки. Пожалуйста, введите сумму заново, чтобы продолжить.",
         "swapRatesChangedButton": "Ввести сумму снова",
-        "feeEstimateError": "Не удалось оценить комиссию, попробуйте снова"
+        "feeEstimateError": "Не удалось оценить комиссию, попробуйте снова",
+        "brantaVerification": "Этот платёж был подтверждён Branta"
       },
       "selectPaymentMethod": {
         "header": "Выберите источник средств."
@@ -1295,7 +1302,7 @@
       "payWithUSDb": "Оплатить через USDb",
       "chainNotSupportedForAsset": "Недоступно в этой сети",
       "swapInProgress": "Обмен выполняется",
-      "swapInProgressDescription": "Ваши средства отправлены. Обмен стейблкоина обрабатывается и может занять несколько минут.",
+      "swapInProgressDescription": "Ваши средства отправлены. Платёж обрабатывается и может занять несколько минут.",
       "noAmount": "Пожалуйста, введите сумму для отправки.",
       "quoteStillLoading": "Получение котировки, подождите немного.",
       "noQuote": "Не удалось получить котировку. Попробуйте снова.",
@@ -1371,8 +1378,10 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Валюта получения",
+      "description": "Выберите, как получать платежи от контактов и на ваш Lightning-адрес.",
       "futurePaymentsMessage": "Все будущие платежи будут получены в {{option}}",
-      "warningMessage": "При выборе {{option}} действует минимальная сумма {{amount}}. Более мелкие платежи будут получены в Bitcoin."
+      "warningMessage": "При выборе {{option}} действует минимальная сумма {{amount}}. Более мелкие платежи будут получены в Bitcoin.",
+      "changeSelectionError": "{{option}} уже выбрано. Измените выбор, чтобы обновить настройку."
     },
     "selectCurrencyToSend": {
       "header": "Что вы хотите отправить?"
@@ -1611,7 +1620,9 @@
       "createPinPageHeader": "{{type}} ваш PIN Blitz",
       "invalidPinconfirmation": "PIN-коды не совпадают!",
       "randomPinKeyboardToggle": "Перемешать клавиатуру",
-      "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN."
+      "randomPinKeyboardInfo": "Перемешивает цифры на клавиатуре при каждом входе, чтобы сложнее было подсмотреть PIN.",
+      "biometricsHead": "О биометрии",
+      "biometricsSubHead": "Ваша фраза восстановления защищена текущими биометрическими данными устройства. Их изменение не позволит Blitz Wallet получить доступ к вашей фразе восстановления и заблокирует доступ к кошельку."
     },
     "seedPhrase": {
       "header": "Храните сид-фразу в надежном месте",
@@ -2064,7 +2075,9 @@
         "gift": "Подарок",
         "claimPayment": "Получить платёж",
         "splitPayment": "Разделить",
-        "chainSwap": "Обмен в сети"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Поддержка"
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",
@@ -2176,7 +2189,8 @@
         "destinationAddress": "Адрес назначения",
         "destinationAsset": "Актив назначения",
         "destinationChain": "Сеть назначения",
-        "transferIds": "Включённые участники"
+        "transferIds": "Включённые участники",
+        "bitrefillInvoiceId": "ID счёта Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Транзакции",
@@ -2488,7 +2502,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Карта Bitcoin",
-        "subHeader": "Используйте биткоин локально"
+        "subHeader": "Тратьте с Blitz локально"
       },
       "map": {
         "title": "Оплатить с Bitcoin",
@@ -2504,6 +2518,19 @@
         "lightningMessage": "Принимает платежи в биткоинах мгновенно через сеть Lightning",
         "dataMessage": "Данные с btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Не удалось обработать ответ от Bitrefill. Попробуйте снова.",
+      "insufficientBalance": "На вашем балансе недостаточно средств для завершения этого платежа.",
+      "paymentMemo": "Покупка подарочной карты",
+      "paymentFailed": "Не удалось выполнить платёж. Попробуйте снова.",
+      "editEmail": "Изменить адрес электронной почты",
+      "addEmail": "Добавить адрес электронной почты",
+      "editEmailDesc": "Обновите сохранённый адрес электронной почты ниже.",
+      "addEmailDesc": "Сохраните адрес электронной почты для более быстрого оформления покупки.",
+      "textInputDescriptor": "ЭЛ. ПОЧТА",
+      "emailplaceholder": "you@example.com",
+      "emailError": "Введите действительный адрес электронной почты."
     }
   },
   "toastmessages": {
@@ -2537,6 +2564,7 @@
     "noUserFoundDeeplinkError": "Пользователь не найден.",
     "cannotAddSelfError": "Нельзя добавить самого себя.",
     "fullDeeplinkError": "Ошибка получения информации контакта.",
+    "contactNotLoaded": "Не удалось загрузить контакт. Попробуйте снова.",
     "processingDeepLinkError": "Ошибка ссылки: {{error}}",
     "legacyContactError": "У контакта старая версия кошелька. Попросите обновить.",
     "contactInvoiceGenerationError": "Ошибка генерации инвойса. Проверьте адрес Молнии.",
@@ -2569,7 +2597,8 @@
     "priceImpact": "Этот платёж является крупным, поэтому окончательная сумма, которую вы получите в долларах, может измениться.",
     "removingImageError": "Не удалось удалить изображение. Пожалуйста, попробуйте снова.",
     "usdcUsdtTokensOnly": "Поддерживаются только токены USDT и USDC",
-    "lightningAmountFeeWarning": "Ваш баланс не покрывает сумму и комиссию ≈{{amount}}."
+    "lightningAmountFeeWarning": "Ваш баланс не покрывает сумму и комиссию ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Для этого платежа требуется ≈{{amount}}. Уменьшите сумму или пополните баланс."
   },
   "loadingScreen": {
     "message1": "Пожалуйста, не закрывайте приложение",
@@ -2869,6 +2898,10 @@
     "numberOfTxs_other": "{{count}} транзакций",
     "remaining": "Осталось",
     "overBy": "Превышено на",
+    "preview": {
+      "title": "Аналитика кошелька",
+      "subTitle": "Отслеживайте свои ежемесячные доходы, расходы и бюджет с первого взгляда."
+    },
     "home": {
       "title": "Аналитика",
       "activityHead": "Месячная активность",

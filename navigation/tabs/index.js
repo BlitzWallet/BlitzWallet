@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { Gift, Home, Store, Users2 } from 'lucide-react-native';
 
@@ -14,39 +14,35 @@ import GetThemeColors from '../../app/hooks/themeColors';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useGlobalContactsMessages } from '../../context-store/globalContacts';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
-import useShowShopPage from '../../app/hooks/showShopPage';
 
 const Tab = createBottomTabNavigator();
 
 export const TAB_ITEM_HEIGHT = 60;
+const TAB_ITEM_WIDTH = 70;
+const TAB_BORDER_WIDTH = 1;
 const OVERLAY_HEIGHT = 50;
 const ICON_SIZE = 26;
 
-function MyTabBar({ state, descriptors, navigation, showShop }) {
+function MyTabBar({ state, descriptors, navigation }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContactsMessages();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
 
-  const firstRender = useRef(true);
+  const tabCount = state.routes.length || 1;
+  const selectedIndex = Math.min(state.index, tabCount - 1);
+  const containerWidth = tabCount * TAB_ITEM_WIDTH;
+  const adjustedWidth = containerWidth - TAB_BORDER_WIDTH * 2;
+  const tabWidth = adjustedWidth / tabCount;
+  const overlayOffset = selectedIndex * tabWidth;
 
-  const containerWidth = showShop ? 210 : 140;
-  const adjustedWidth = containerWidth - 2 * 1;
-  const tabWidth = adjustedWidth / (showShop ? 3 : 2);
-
-  const overlayTranslateX = useSharedValue(0);
+  const overlayTranslateX = useSharedValue(overlayOffset);
 
   useEffect(() => {
-    if (firstRender.current) {
-      overlayTranslateX.value = state.index * tabWidth;
-      firstRender.current = false;
-      return;
-    }
-
-    overlayTranslateX.value = withTiming(state.index * tabWidth, {
+    overlayTranslateX.value = withTiming(overlayOffset, {
       duration: 150,
     });
-  }, [state.index, tabWidth]);
+  }, [overlayOffset, overlayTranslateX]);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: overlayTranslateX.value }],
@@ -108,6 +104,7 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
       >
         {/* Animated selection overlay */}
         <Animated.View
+          pointerEvents="none"
           style={[
             styles.overlayContainer,
             overlayAnimatedStyle,
@@ -176,12 +173,7 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
 }
 
 export function MyTabs(props) {
-  const showShop = useShowShopPage();
-
-  const renderTabBar = useCallback(
-    tabProps => <MyTabBar {...tabProps} showShop={showShop} />,
-    [showShop],
-  );
+  const renderTabBar = useCallback(tabProps => <MyTabBar {...tabProps} />, []);
 
   return (
     <Tab.Navigator
@@ -197,7 +189,7 @@ export function MyTabs(props) {
       />
       <Tab.Screen name="Home" component={props.adminHome} />
       {/* <Tab.Screen name="Gifts" component={props.giftsPageHome} /> */}
-      {showShop && <Tab.Screen name="App Store" component={props.appStore} />}
+      <Tab.Screen name="App Store" component={props.appStore} />
     </Tab.Navigator>
   );
 }
@@ -221,6 +213,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 0,
   },
   overlay: {
     width: '80%',
@@ -232,6 +225,7 @@ const styles = StyleSheet.create({
     minHeight: TAB_ITEM_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 1,
   },
   iconWrapper: {
     width: 44,

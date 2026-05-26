@@ -43,6 +43,7 @@ import EditProfileTextInput from './internalComponents/editProfileTextItems';
 import { areImagesSame } from './utils/imageComparison';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -345,7 +346,7 @@ function MyProfileRows({
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.navRowValue}
-          content={t('contacts.editMyProfilePage.lightningAddress')}
+          content={t('contacts.remotePaymentCurrencySelect.title')}
         />
         <ThemeText styles={styles.navRowLabel} content={receiveCurrencyValue} />
         <ThemeIcon iconName="ChevronRight" size={16} />
@@ -546,8 +547,8 @@ function InnerContent({
             activeOpacity={!isAddingImage ? 0.2 : 1}
             onPress={async () => {
               if (isAddingImage) return;
-              if (Keyboard.isVisible()) {
-                Keyboard.dismiss();
+              if (KeyboardController.isVisible()) {
+                await KeyboardController.dismiss();
                 await new Promise(resolve => setTimeout(resolve, 250));
               }
               if (!hasImage) {
@@ -660,8 +661,8 @@ function InnerContent({
           onPress={async () => {
             if (!isEditingMyProfile && !selectedAddedContact.isLNURL) return;
             if (isAddingImage) return;
-            if (Keyboard.isVisible()) {
-              Keyboard.dismiss();
+            if (KeyboardController.isVisible()) {
+              await KeyboardController.dismiss();
               await new Promise(resolve => setTimeout(resolve, 250));
             }
             if (!hasImage) {
@@ -979,7 +980,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     includeFontPadding: false,
     marginRight: 'auto',
-    flexShrink: 1,
   },
   copyLinkRow: {
     paddingVertical: 8,

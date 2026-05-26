@@ -1,3 +1,4 @@
+import { uses24HourClock } from 'react-native-localize';
 import { formatLocalTimeNumeric } from '../../../../../functions/timeFormatter';
 
 // Utility functions
@@ -46,11 +47,15 @@ export function createFormattedDate(time, currentTime, t) {
     formattedTime = t('constants.yesterday');
   } else if (isSameDay(date, currentDate)) {
     const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-    formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    if (uses24HourClock()) {
+      formattedTime = `${hours}:${minutes}`;
+    } else {
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+      formattedTime = `${formattedHours}:${minutes} ${ampm}`;
+    }
   } else {
     const daysDiff = getDaysDifference(currentDate, date);
     if (daysDiff === 1) {

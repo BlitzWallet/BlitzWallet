@@ -21,6 +21,9 @@ import { getCachedProfileImage } from '../../../../../functions/cachedImage';
 import { getPayLinkDoc, addDataToCollection } from '../../../../../../db';
 import { receiveSparkLightningPayment } from '../../../../../functions/spark';
 import { isBlitzLNURLAddress } from '../../../../../functions/lnurl';
+import { handleBrantaVerification } from '../../../../../functions/branta/index';
+import { Image as ExpoImage } from 'expo-image';
+
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -132,9 +135,12 @@ export default async function decodeSendAddress(props) {
           t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
         );
       }
-      const results = await getSingleContact(username);
-      const profile = results?.[0]?.contacts?.myProfile;
+      const [results] = await getSingleContact(username);
+      const profile = results?.contacts?.myProfile;
       const sparkAddress = profile?.sparkAddress;
+      const endReceiveType =
+        results?.lnurlReceiveCurrency?.toLowerCase() === 'usd' ? 'USD' : 'BTC';
+
       if (!sparkAddress && btcAdress.startsWith('@')) {
         return goBackFunction(
           t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
@@ -145,6 +151,12 @@ export default async function decodeSendAddress(props) {
         const imageData = await getCachedProfileImage(profile.uuid).catch(
           () => null,
         );
+        comingFromAccept = true;
+        enteredPaymentInfo = {
+          ...enteredPaymentInfo,
+          fromContacts: true,
+          endReceiveType,
+        };
         resolvedBlitzContact = {
           name: profile.name || profile.uniqueName || '',
           uniqueName: profile.uniqueName || '',
@@ -212,33 +224,6 @@ export default async function decodeSendAddress(props) {
       }
     }
 
-    // handle bip21 qrs
-    // if (
-    //   btcAdress.toLowerCase().startsWith('lightning') ||
-    //   btcAdress.toLowerCase().startsWith('bitcoin')
-    // ) {
-    //   console.log(btcAdress);
-    //   const decodedAddress = decodeBip21Address(
-    //     btcAdress,
-    //     btcAdress.toLowerCase().startsWith('lightning')
-    //       ? 'lightning'
-    //       : 'bitcoin',
-    //   );
-
-    //   console.log(decodedAddress);
-    //   const lightningInvoice = btcAdress.toLowerCase().startsWith('lightning')
-    //     ? decodedAddress.address.toUpperCase()
-    //     : decodedAddress.options.lightning?.toUpperCase();
-
-    //   console.log(lightningInvoice);
-    //   if (lightningInvoice)
-    //     btcAdress = await hanndleLNURLAddress(lightningInvoice);
-    // }
-
-    // if (btcAdress.toLowerCase().startsWith('lnurl')) {
-    //   btcAdress = await hanndleLNURLAddress(btcAdress);
-    // }
-
     console.log(btcAdress, 'bitcoin address');
 
     let input;
@@ -256,37 +241,74 @@ export default async function decodeSendAddress(props) {
     }
 
     let processedPaymentInfo;
+    let brantaVerification;
     try {
-      processedPaymentInfo = await processInputType(input, {
-        fiatStats,
-        liquidNodeInformation,
-        masterInfoObject,
-        navigate,
-        // maxZeroConf,
-        comingFromAccept,
-        enteredPaymentInfo,
-        setPaymentInfo,
-        // webViewRef,
-        setLoadingMessage,
-        paymentInfo,
-        fromPage,
-        seletctedToken,
-        currentWalletMnemoinc,
-        t,
-        sendWebViewRequest,
-        contactInfo,
-        sparkInformation,
-        globalContactsInformation,
-        accountMnemoinc,
-        usablePaymentMethod,
-        bitcoinBalance,
-        dollarBalanceSat,
-        convertedSendAmount,
-        poolInfoRef,
-        swapLimits,
-        // usd_multiplier_coefiicent,
-        min_usd_swap_amount,
-      });
+      let shouldRunBrantaVerification = false;
+      if (input.type === InputTypes.BOLT11) shouldRunBrantaVerification = true;
+      if (input.type === InputTypes.BITCOIN_ADDRESS) {
+        try {
+          const url = new URL(btcAdress);
+          shouldRunBrantaVerification =
+            url.searchParams.has('branta_id') &&
+            url.searchParams.has('branta_secret');
+        } catch {
+          shouldRunBrantaVerification = false;
+        }
+      }
+
+      const brantaVerificationPromise = shouldRunBrantaVerification
+        ? Promise.race([
+            handleBrantaVerification(btcAdress),
+            new Promise(resolve => setTimeout(() => resolve(null), 2000)),
+          ])
+        : Promise.resolve(null);
+
+      if (shouldRunBrantaVerification) {
+        brantaVerificationPromise.then(brantaResult => {
+          if (brantaResult && brantaResult.payments?.length) {
+            const [details] = brantaResult.payments;
+            if (details.platformLogoUrl) {
+              ExpoImage.prefetch(details.platformLogoUrl).catch(err =>
+                console.log('Error prefetching branta merchant logo', err),
+              );
+            }
+          }
+        });
+      }
+
+      [processedPaymentInfo, brantaVerification] = await Promise.all([
+        processInputType(input, {
+          fiatStats,
+          liquidNodeInformation,
+          masterInfoObject,
+          navigate,
+          // maxZeroConf,
+          comingFromAccept,
+          enteredPaymentInfo,
+          setPaymentInfo,
+          // webViewRef,
+          setLoadingMessage,
+          paymentInfo,
+          fromPage,
+          seletctedToken,
+          currentWalletMnemoinc,
+          t,
+          sendWebViewRequest,
+          contactInfo,
+          sparkInformation,
+          globalContactsInformation,
+          accountMnemoinc,
+          usablePaymentMethod,
+          bitcoinBalance,
+          dollarBalanceSat,
+          convertedSendAmount,
+          poolInfoRef,
+          swapLimits,
+          // usd_multiplier_coefiicent,
+          min_usd_swap_amount,
+        }),
+        brantaVerificationPromise,
+      ]);
     } catch (err) {
       return goBackFunction(
         err.message ||
@@ -298,6 +320,23 @@ export default async function decodeSendAddress(props) {
       processedPaymentInfo = {
         ...processedPaymentInfo,
         publishMessageFunc: paylinkPublishFunc,
+      };
+    }
+
+    if (brantaVerification && brantaVerification.payments?.length) {
+      const [details] = brantaVerification.payments;
+      const isHttpsUrl = val =>
+        typeof val === 'string' && val.startsWith('https://');
+      processedPaymentInfo = {
+        ...processedPaymentInfo,
+        isUsingBranta: true,
+        brantaMerchantName: details.platform,
+        brantaMerchantLogo: isHttpsUrl(details.platformLogoUrl)
+          ? details.platformLogoUrl
+          : undefined,
+        verificationURL: isHttpsUrl(brantaVerification.verifyUrl)
+          ? brantaVerification.verifyUrl
+          : undefined,
       };
     }
 
@@ -440,7 +479,7 @@ function withTimeout(promise, t) {
           reject(
             new Error(t('wallet.sendPages.handlingAddressErrors.timeoutError')),
           ),
-        20000,
+        60000,
       ),
     ),
   ]);

@@ -40,6 +40,7 @@ const PRESET_LOCAL_DATA = {
   enabledLiquidAutoSwap: true,
   pinnedAccounts: [],
   monthlyBudget: null,
+  bitrefillEmail: '',
 };
 
 async function sendDataToDB(newObject, uuid) {

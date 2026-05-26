@@ -17,13 +17,18 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic';
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 const SettingsSection = ({ title, children, style }) => (
   <View style={[styles.section, style]}>
@@ -363,6 +368,20 @@ export default function LoginSecurity({ extraData }) {
             </View>
           </SettingsSection>
 
+          {securityLoginSettings.isBiometricEnabled && (
+            <View style={styles.biometricsWarningContainer}>
+              <ThemeIcon iconName={'TriangleAlert'} />
+              <ThemeText
+                styles={styles.emptyTitle}
+                content={t('settings.loginSecurity.biometricsHead')}
+              />
+              <ThemeText
+                styles={styles.emptySubtext}
+                content={t('settings.loginSecurity.biometricsSubHead')}
+              />
+            </View>
+          )}
+
           {securityLoginSettings.isPinEnabled && (
             <SettingsSection style={styles.lastSection}>
               <View
@@ -461,5 +480,23 @@ const styles = StyleSheet.create({
   },
   infoButton: {
     marginRight: 8,
+  },
+  biometricsWarningContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...CENTER,
+  },
+  emptyTitle: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
   },
 });

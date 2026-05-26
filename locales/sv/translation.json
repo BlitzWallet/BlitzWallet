@@ -130,7 +130,8 @@
     "custom...": "Anpassad...",
     "transfer": "Överföring",
     "details": "Detaljer",
-    "total": "Totalt"
+    "total": "Totalt",
+    "stablecoinRefundReceived": "Stablecoin-återbetalning"
   },
   "languages": {
     "english": "English",
@@ -290,6 +291,7 @@
   "apps": {
     "noPurchaseTitle": "Inga Köp",
     "appList": {
+      "title": "Utforska",
       "AI": "Generativ AI",
       "AIDescription": "Chatta med de senaste generativa AI-modellerna",
       "SMS": "SMS-meddelanden",
@@ -975,7 +977,7 @@
       "inputPlaceholder": "Ange @användarnamn, Bitcoin-adress eller Lightning-faktura",
       "scanImage": "Skanna bild",
       "tapToScan": "Tryck för att hämta en adress från en bild",
-      "chooseWhatToSend": "Välj vad som ska skickas",
+      "chooseWhatToSend": "Välj hur denna betalning ska finansieras",
       "noContacts": "Lägg till kontakter så visas de här",
       "selectAddressType": "Välj adresstyp",
       "tapToGenerate_other": "Tryck för att se andra mottagningsalternativ",
@@ -999,7 +1001,11 @@
       "payMe": "Snabb betalning",
       "createInvoice": "Skapa faktura",
       "invoiceDescription": "Begär betalning via en länk eller QR-kod.",
-      "poolsDescription": "Samla in bidrag från en grupp till ett gemensamt mål."
+      "poolsDescription": "Samla in bidrag från en grupp till ett gemensamt mål.",
+      "noContactHead": "{{username}} hittades inte",
+      "noContactDesc": "Lägg till {{username}} i dina kontakter för att hitta dem här i framtiden, eller fortsätt för att skicka en betalning nu.",
+      "kenyanPhoneTitle": "Betala {{number}}",
+      "kenyanPhoneDesc": "Du är på väg att betala ett kenyanskt telefonnummer"
     },
     "payLinks": {
       "skip": "Hoppa över",
@@ -1169,7 +1175,8 @@
         "swapRatesChangedTitle": "Växelkurs uppdaterad",
         "swapRatesChangedBody": "Växelkursen för denna växling ändrades medan du granskade den. Ange beloppet igen för att fortsätta.",
         "swapRatesChangedButton": "Ange belopp igen",
-        "feeEstimateError": "Kunde inte uppskatta avgiften, försök igen"
+        "feeEstimateError": "Kunde inte uppskatta avgiften, försök igen",
+        "brantaVerification": "Denna betalning har verifierats av Branta"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."
@@ -1294,7 +1301,7 @@
       "payWithUSDb": "Betala med USDb",
       "chainNotSupportedForAsset": "Inte tillgängligt i detta nätverk",
       "swapInProgress": "Byte pågår",
-      "swapInProgressDescription": "Dina pengar har skickats. Stablecoin-bytet bearbetas och kan ta några minuter.",
+      "swapInProgressDescription": "Dina pengar har skickats. Betalningen behandlas och kan ta några minuter.",
       "noAmount": "Ange ett belopp att skicka.",
       "quoteStillLoading": "Hämtar offert, vänta ett ögonblick.",
       "noQuote": "Det gick inte att hämta en offert. Försök igen.",
@@ -1370,8 +1377,10 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Mottagningsvaluta",
+      "description": "Välj hur du vill ta emot betalningar från kontakter och din Lightning-adress.",
       "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
-      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin."
+      "warningMessage": "När du väljer {{option}} finns ett minimum på {{amount}}. Mindre betalningar tas emot i Bitcoin.",
+      "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen."
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"
@@ -1610,7 +1619,9 @@
       "createPinPageHeader": "{{type}} din Blitz PIN-kod",
       "invalidPinconfirmation": "PIN-koderna stämmer inte överens. Försök igen!",
       "randomPinKeyboardToggle": "Knappsats för shuffle",
-      "randomPinKeyboardInfo": "Aktivera den här funktionen för att blanda om knappsatsens nummer varje gång du loggar in. Det ger ett extra säkerhetslager genom att göra det svårare för någon i närheten att lära sig ditt PIN-mönster."
+      "randomPinKeyboardInfo": "Aktivera den här funktionen för att blanda om knappsatsens nummer varje gång du loggar in. Det ger ett extra säkerhetslager genom att göra det svårare för någon i närheten att lära sig ditt PIN-mönster.",
+      "biometricsHead": "Om biometri",
+      "biometricsSubHead": "Din återställningsfras skyddas av din enhets nuvarande biometriska data. Om du ändrar dem kommer Blitz Wallet inte längre att kunna komma åt din återställningsfras och du låses ute från din plånbok."
     },
     "seedPhrase": {
       "header": "Förvara denna fröfras på ett säkert och tryggt ställe",
@@ -2063,7 +2074,9 @@
         "gift": "Gåva",
         "claimPayment": "Ta emot betalning",
         "splitPayment": "Dela",
-        "chainSwap": "Kedjeswap"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",
@@ -2175,7 +2188,8 @@
         "destinationAddress": "Destinationsadress",
         "destinationAsset": "Destinations-tillgång",
         "destinationChain": "Destinations-kedja",
-        "transferIds": "Inkluderade personer"
+        "transferIds": "Inkluderade personer",
+        "bitrefillInvoiceId": "Bitrefill-faktura-ID"
       },
       "viewAllTxPage": {
         "title": "Transaktioner",
@@ -2481,7 +2495,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Bitcoin-karta",
-        "subHeader": "Använd bitcoin lokalt"
+        "subHeader": "Handla lokalt med Blitz"
       },
       "map": {
         "title": "Betala med Bitcoin",
@@ -2497,6 +2511,19 @@
         "lightningMessage": "Tar emot bitcoinbetalningar direkt via Lightning-nätverket",
         "dataMessage": "Data från btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Vi kunde inte behandla svaret från Bitrefill. Försök igen.",
+      "insufficientBalance": "Du har inte tillräckligt saldo för att slutföra betalningen.",
+      "paymentMemo": "Köp av presentkort",
+      "paymentFailed": "Din betalning kunde inte slutföras. Försök igen.",
+      "editEmail": "Redigera din e-post",
+      "addEmail": "Lägg till din e-post",
+      "editEmailDesc": "Uppdatera din sparade e-postadress nedan.",
+      "addEmailDesc": "Spara din e-postadress för snabbare betalning.",
+      "textInputDescriptor": "E-POST",
+      "emailplaceholder": "du@exempel.se",
+      "emailError": "Ange en giltig e-postadress."
     }
   },
   "toastmessages": {
@@ -2530,6 +2557,7 @@
     "noUserFoundDeeplinkError": "Jag kan inte hitta någon användare för detta användarnamn.",
     "cannotAddSelfError": "Du kan inte lägga till dig själv som kontakt.",
     "fullDeeplinkError": "Det gick inte att få fram kontaktinformation, försök igen.",
+    "contactNotLoaded": "Kontakten kunde inte laddas. Försök igen.",
     "processingDeepLinkError": "Misslyckades med att bearbeta länken: {{error}}",
     "legacyContactError": "Kontakten har inte uppdaterat sin plånbok ännu. Be dem att uppdatera sin plånbok för att skicka detta.",
     "contactInvoiceGenerationError": "Fel vid generering av faktura. Kontrollera att detta är en giltig LNURL-adress.",
@@ -2562,7 +2590,8 @@
     "priceImpact": "Den här betalningen är stor, så det slutliga beloppet du får i dollar kan förändras.",
     "removingImageError": "Kunde inte ta bort bilden. Försök igen.",
     "usdcUsdtTokensOnly": "Endast USDT- och USDC-token stöds",
-    "lightningAmountFeeWarning": "Ditt saldo täcker inte beloppet och avgiften på ≈{{amount}}."
+    "lightningAmountFeeWarning": "Ditt saldo täcker inte beloppet och avgiften på ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Denna betalning kräver ≈{{amount}}. Sänk beloppet eller lägg till medel."
   },
   "loadingScreen": {
     "message1": "Stäng inte appen, snälla",
@@ -2862,6 +2891,10 @@
     "numberOfTxs_other": "{{count}} transaktioner",
     "remaining": "Kvar",
     "overBy": "Överskrid med",
+    "preview": {
+      "title": "Plånboksanalys",
+      "subTitle": "Följ din månatliga inkomst, dina utgifter och din budget på ett ögonblick."
+    },
     "home": {
       "title": "Analys",
       "activityHead": "Månadsaktivitet",

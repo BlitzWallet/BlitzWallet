@@ -78,6 +78,7 @@ import useDebounce from '../../../../hooks/useDebounce';
 import customUUID from '../../../../functions/customUUID';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import { getLNAddressForLiquidPayment } from './functions/payments';
+import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -193,6 +194,7 @@ export default function SendPaymentScreen(props) {
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
   const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
   const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
+  const isUsingBranta = paymentInfo?.isUsingBranta;
 
   const enabledLRC20 = showTokensInformation;
   const defaultToken = enabledLRC20
@@ -512,6 +514,9 @@ export default function SendPaymentScreen(props) {
             currentWalletMnemoinc,
             invoice,
             USD_ASSET_ADDRESS,
+            undefined,
+            undefined,
+            { amountSats: amount },
           );
           if (!quote.didWork)
             throw new Error(quote.error || 'Fee quote failed');
@@ -528,14 +533,18 @@ export default function SendPaymentScreen(props) {
           if (dollarAmountRequired > userDollarBalance) {
             showToast({
               type: 'error',
-              title: t('errormessages.lightningAmountFeeWarning', {
+              title: t('errormessages.lightningAmountRequiredWarning', {
                 amount: displayCorrectDenomination({
-                  amount: fee,
+                  amount: parseFloat(
+                    formatTokensNumber(quote.quote.tokenAmountRequired, 6),
+                  ).toFixed(2),
                   masterInfoObject: {
                     ...masterInfoObject,
-                    userBalanceDenomination: 'sats',
+                    userBalanceDenomination: 'fiat',
                   },
                   fiatStats,
+                  convertAmount: false,
+                  forceCurrency: 'USD',
                 }),
               }),
               duration: 6000,
@@ -1029,9 +1038,10 @@ export default function SendPaymentScreen(props) {
         isRedeemed: null,
         description: combinedPaymentDescription || '',
         isRequest: false,
-        paymentDenomination: inputDenominationRef.current || 'BTC',
+        paymentDenomination:
+          paymentInfo.data.expectedReceive === 'tokens' ? 'USD' : 'BTC',
         amountDollars:
-          inputDenominationRef.current === 'USD'
+          paymentInfo.data.expectedReceive === 'tokens'
             ? satsToDollars(
                 convertedSendAmount,
                 poolInfoRef.currentPriceAInB,
@@ -1071,6 +1081,7 @@ export default function SendPaymentScreen(props) {
       contactsPrivateKey,
       masterInfoObject,
       combinedPaymentDescription,
+      paymentInfo,
     ],
   );
   const effectivePublishMessageFunc =
@@ -1317,6 +1328,13 @@ export default function SendPaymentScreen(props) {
     };
   }, [isAmountFocused, bottomPadding]);
 
+  const handleBrandaVerificationUrl = useCallback(() => {
+    navigate.navigate('CustomWebView', {
+      headerText: 'Branta',
+      webViewURL: paymentInfo?.verificationURL,
+    });
+  }, [paymentInfo?.verificationURL, navigate, t]);
+
   const sendingAsset =
     selectedLRC20Asset === 'Bitcoin'
       ? !isLightningPayment &&
@@ -1347,9 +1365,11 @@ export default function SendPaymentScreen(props) {
       <View style={styles.replacementContainer}>
         <CustomSettingsTopBar
           label={t('constants.send')}
-          containerStyles={{ marginBottom: 0 }}
+          showLeftImage={isUsingBranta}
+          iconNew="BadgeCheck"
+          leftImageStyles={{ height: 25 }}
+          leftImageFunction={handleBrandaVerificationUrl}
         />
-        <ThemeText styles={styles.sectionTitle} content={sendingAsset} />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
@@ -1429,6 +1449,7 @@ export default function SendPaymentScreen(props) {
               }
               theme={theme}
               darkModeType={darkModeType}
+              isUsingBranta={isUsingBranta}
             />
           )}
           {uiState === 'CHOOSE_METHOD' && (
@@ -1552,6 +1573,7 @@ export default function SendPaymentScreen(props) {
                   setDidSelectPaymentMethod={setDidSelectPaymentMethod}
                   conversionFiatStats={conversionFiatStats}
                   primaryDisplay={primaryDisplay}
+                  enteredPaymentInfo={enteredPaymentInfo}
                 />
               )
             }

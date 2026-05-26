@@ -126,11 +126,11 @@ export function PoolProvider({ children }) {
   const poolUpdateTracker = useRef({});
   userUuidRef.current = masterInfoObject?.uuid;
 
-  const updatePoolList = async () => {
+  const updatePoolList = useCallback(async () => {
     const updatedList = await getAllLocalPools();
     dispatch({ type: 'LOAD_LOCAL_POOLS', payload: updatedList });
     return updatedList;
-  };
+  }, []);
 
   const savePoolToCloud = async poolObj => {
     try {
@@ -179,7 +179,7 @@ export function PoolProvider({ children }) {
   };
 
   // Sync active pools from Firestore for latest aggregates
-  const syncActivePoolsFromServer = async localPools => {
+  const syncActivePoolsFromServer = useCallback(async localPools => {
     try {
       const activePools = localPools.filter(p => p.status === 'active');
       if (!activePools.length) {
@@ -205,10 +205,10 @@ export function PoolProvider({ children }) {
     } catch (err) {
       console.log('error syncing active pools from server', err);
     }
-  };
+  }, []);
 
   // Restore pools from Firestore on new device / reinstall
-  const handlePoolRestore = async localPools => {
+  const handlePoolRestore = async (localPools, isActive = () => true) => {
     try {
       if (isRestoring.current) return;
       isRestoring.current = true;
@@ -253,6 +253,7 @@ export function PoolProvider({ children }) {
         });
       }
 
+      if (!isActive()) return;
       dispatch({ type: 'BULK_ADD_POOLS', payload: serverPools });
       await setLocalStorageItem(
         'checkForOutstandingPools',
@@ -337,10 +338,17 @@ export function PoolProvider({ children }) {
 
   useEffect(() => {
     if (!didGetToHomepage) return;
+    let active = true;
     (async () => {
-      const poolList = await updatePoolList();
-      await handlePoolRestore(poolList);
+      const allPools = await getAllLocalPools();
+      if (!active) return;
+      dispatch({ type: 'LOAD_LOCAL_POOLS', payload: allPools });
+      if (!active) return;
+      await handlePoolRestore(allPools, () => active);
     })();
+    return () => {
+      active = false;
+    };
   }, [didGetToHomepage]);
 
   const { poolsArray, activePoolsArray, closedPoolsArray } = useMemo(() => {

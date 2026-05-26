@@ -171,7 +171,12 @@ export default function ConfirmTxPage(props) {
             />
             <ThemeText
               styles={{ textTransform: 'capitalize' }}
-              content={t('wallet.stablecoinSend.chainSwap')}
+              content={t('screens.inAccount.expandedTxPage.chainSwap', {
+                context:
+                  paymentInformation.destinationChain === 'lightning'
+                    ? 'lightning'
+                    : 'other',
+              })}
             />
           </View>
         </View>

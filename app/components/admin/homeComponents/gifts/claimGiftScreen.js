@@ -29,7 +29,6 @@ import {
   sendSparkPayment,
   sendSparkTokens,
 } from '../../../../functions/spark';
-import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../../../../context-store/keys';
 import {
@@ -56,7 +55,6 @@ export default function ClaimGiftScreen({
 }) {
   const { poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
-  const { updateGiftList } = useGifts();
   const navigate = useNavigation();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -330,7 +328,6 @@ export default function ClaimGiftScreen({
           await updateGiftLocal(giftDetails.uuid, {
             state: 'Reclaimed',
           });
-          await updateGiftList();
         }
 
         throw new Error(
@@ -358,7 +355,6 @@ export default function ClaimGiftScreen({
       expertMode,
       claimType,
       giftDetails.uuid,
-      updateGiftList,
       t,
       denomination,
     ],
@@ -421,7 +417,6 @@ export default function ClaimGiftScreen({
           await updateGiftLocal(giftDetails.uuid, {
             state: 'Reclaimed',
           });
-          await updateGiftList();
         }
       }
     },
@@ -430,7 +425,6 @@ export default function ClaimGiftScreen({
       giftDetails.description,
       giftDetails.uuid,
       expertMode,
-      updateGiftList,
       t,
       accountMnemoinc,
     ],

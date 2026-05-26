@@ -15,7 +15,7 @@ import { ThemeText } from '../../../../functions/CustomElements/index';
 import GetThemeColors from '../../../../hooks/themeColors';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { HIDDEN_OPACITY } from '../../../../constants/theme';
+import { FONT, HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import { convertToDecimals } from '../../../../functions/spark/swapAmountUtils';
 
@@ -23,7 +23,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const SIZE = 200;
 const STROKE_WIDTH = 16;
-export default function BalancePieChart() {
+export default function BalancePieChart({ isBalanceHidden }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
@@ -157,8 +157,8 @@ export default function BalancePieChart() {
         {/* Center text */}
         <View style={styles.centerLabel} pointerEvents="none">
           <ThemeText
-            styles={styles.centerText}
-            content={centerText}
+            styles={[styles.centerText, isBalanceHidden && styles.hiddenText]}
+            content={isBalanceHidden ? 'A A A A A' : centerText}
             CustomNumberOfLines={1}
             adjustsFontSizeToFit={true}
           />
@@ -188,8 +188,16 @@ export default function BalancePieChart() {
                 <View style={[styles.swatch, { backgroundColor: seg.color }]} />
                 <ThemeText styles={styles.legendLabel} content={seg.label} />
                 <ThemeText
-                  styles={styles.legendAmount}
-                  content={formatLegendValue(seg.value, seg.key)}
+                  styles={[
+                    styles.legendAmount,
+                    isBalanceHidden && styles.hiddenText,
+                    isBalanceHidden && { fontSize: SIZES.xSmall },
+                  ]}
+                  content={
+                    isBalanceHidden
+                      ? 'A A A A A'
+                      : formatLegendValue(seg.value, seg.key)
+                  }
                   CustomNumberOfLines={1}
                   adjustsFontSizeToFit={true}
                 />
@@ -229,6 +237,9 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     textAlign: 'center',
     includeFontPadding: false,
+  },
+  hiddenText: {
+    fontFamily: FONT.Asterisk,
   },
   centerTextLabel: {
     fontSize: SIZES.small,

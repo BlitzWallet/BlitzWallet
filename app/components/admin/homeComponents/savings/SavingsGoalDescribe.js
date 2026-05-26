@@ -22,19 +22,14 @@ export default function SavingsGoalDescribe(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const inputRef = useRef(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const isGoingBackRef = useRef(false);
+
   const emoji = props?.route?.params?.emoji || '🎯';
 
   const [goalName, setGoalName] = useState('');
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor } = GetThemeColors();
-
-  useFocusEffect(
-    useCallback(() => {
-      const timer = setTimeout(() => inputRef.current?.focus(), 300);
-      return () => clearTimeout(timer);
-    }, []),
-  );
 
   const isOverLimit = goalName.length >= 50;
   const characterCountColor = isOverLimit
@@ -42,6 +37,30 @@ export default function SavingsGoalDescribe(props) {
       ? textColor
       : COLORS.cancelRed
     : textColor;
+
+  const handleSave = useCallback(async () => {
+    try {
+      if (isGoingBackRef.current) return;
+      setIsSaving(true);
+      isGoingBackRef.current = true;
+      if (!goalName.trim()) {
+        await keyboardGoBack(navigate);
+      } else {
+        await keyboardNavigate(() => {
+          navigate.navigate('SavingsGoalAmount', {
+            emoji,
+            goalName: goalName.trim(),
+            mode: 'create',
+          });
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      isGoingBackRef.current = false;
+      setIsSaving(false);
+    }
+  }, [goalName, navigate]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -51,7 +70,11 @@ export default function SavingsGoalDescribe(props) {
       useStandardWidth={true}
     >
       <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
+        customBackFunction={() => {
+          if (isGoingBackRef.current) return;
+          isGoingBackRef.current = true;
+          keyboardGoBack(navigate);
+        }}
         label={t('savings.goalDescribe.screenTitle')}
       />
       <View style={styles.container}>
@@ -62,14 +85,13 @@ export default function SavingsGoalDescribe(props) {
           />
 
           <CustomSearchInput
-            textInputRef={inputRef}
             containerStyles={styles.inputWrap}
             placeholderText={t('savings.goalDescribe.placeholder')}
             setInputText={setGoalName}
             inputText={goalName}
             onFocusFunction={() => setIsKeyboardActive(true)}
             onBlurFunction={() => setIsKeyboardActive(false)}
-            // autoFocus={true}
+            autoFocus={true}
             maxLength={50}
           />
           <ThemeText
@@ -84,19 +106,8 @@ export default function SavingsGoalDescribe(props) {
 
         <CustomButton
           buttonStyles={[styles.primaryButton]}
-          actionFunction={() => {
-            if (!goalName.trim()) {
-              keyboardGoBack(navigate);
-            } else {
-              keyboardNavigate(() => {
-                navigate.navigate('SavingsGoalAmount', {
-                  emoji,
-                  goalName: goalName.trim(),
-                  mode: 'create',
-                });
-              });
-            }
-          }}
+          actionFunction={handleSave}
+          useLoading={isSaving}
           textContent={
             !goalName.trim() ? t('constants.back') : t('constants.continue')
           }

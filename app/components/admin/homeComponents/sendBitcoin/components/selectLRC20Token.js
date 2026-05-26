@@ -32,7 +32,6 @@ export default function SelectLRC20Token({
   const navigate = useNavigation();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
   const [searchInput, setSearchInput] = useState('');
-  const keyboardRef = useRef(null);
   const assetsAvailable = sparkInformation?.tokens
     ? Object.entries(sparkInformation.tokens)
     : [];
@@ -213,7 +212,6 @@ export default function SelectLRC20Token({
         )}
         setInputText={handleSearch}
         inputText={searchInput}
-        textInputRef={keyboardRef}
         containerStyles={styles.textInputContainer}
         blurOnSubmit={false}
         onFocusFunction={() => setIsKeyboardActive(true)}

@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
@@ -11,8 +11,8 @@ import { useGlobalContextProvider } from '../../../../context-store/context';
 import { useGlobalContactsInfo } from '../../../../context-store/globalContacts';
 import { useImageCache } from '../../../../context-store/imageCache';
 import { useAppStatus } from '../../../../context-store/appStatus';
-import { usePools } from '../../../../context-store/poolContext';
 import { useToast } from '../../../../context-store/toastManager';
+import { getAllLocalPools } from '../../../functions/pools/poolsStorage';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import useAccountSwitcher from '../../../hooks/useAccountSwitcher';
 import { copyToClipboard } from '../../../functions';
@@ -24,6 +24,7 @@ import SavingsPreview from './components/SavingsPreview';
 import PointOfSaleBanner from './components/PointOfSaleBanner';
 import GiftsPreview from './components/GiftsPreview';
 import AccumulationAddressesPreview from './components/AccumulationAddressesPreview';
+import AnalyticsPreview from './components/AnalyticsPreview';
 
 import Animated, {
   Extrapolation,
@@ -44,6 +45,7 @@ const INITIAL_WIDGET_ORDER = [
   { id: 'pools', type: 'pools' },
   { id: 'gifts', type: 'gifts' },
   { id: 'accumulation', type: 'accumulation' },
+  { id: 'analytics', type: 'analytics' },
   { id: 'point-of-sale', type: 'point-of-sale' },
 ];
 
@@ -69,9 +71,10 @@ export default function SettingsHub(props) {
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { activePoolsArray, poolsArray } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
+  const [poolsArray, setPoolsArray] = useState([]);
+  const [activePoolsArray, setActivePoolsArray] = useState([]);
 
   const {
     isSwitchingAccount,
@@ -79,6 +82,22 @@ export default function SettingsHub(props) {
     isUsingNostr,
     selectedAltAccount,
   } = useAccountSwitcher();
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const allPools = await getAllLocalPools();
+        const uuid = masterInfoObject?.uuid;
+        const owned = allPools.filter(p => p.creatorUUID === uuid);
+        setPoolsArray(owned.sort((a, b) => b.createdAt - a.createdAt));
+        setActivePoolsArray(
+          owned
+            .filter(p => p.status === 'active')
+            .sort((a, b) => b.createdAt - a.createdAt),
+        );
+      })();
+    }, [masterInfoObject?.uuid]),
+  );
 
   const isDoomsday = props?.route?.params?.isDoomsday;
   const myProfileImage = cache[masterInfoObject?.uuid];
@@ -172,7 +191,7 @@ export default function SettingsHub(props) {
   );
 
   const handleSavingsPress = useCallback(() => {
-    navigate.navigate('SavingsHome');
+    navigate.navigate('SavingsStack');
   }, [navigate]);
   const handleAccumulationPress = useCallback(() => {
     navigate.navigate('AccumulationAddressesHome');
@@ -183,7 +202,7 @@ export default function SettingsHub(props) {
   }, [navigate]);
 
   const handleViewAllPools = useCallback(() => {
-    navigate.navigate('SettingsContentHome', { for: 'pools' });
+    navigate.navigate('PoolsStack');
   }, [navigate]);
 
   const handlePOS = useCallback(() => {
@@ -198,7 +217,11 @@ export default function SettingsHub(props) {
   }, [isConnectedToTheInternet, navigate, t]);
 
   const handleOpenGifts = useCallback(() => {
-    navigate.navigate('GiftsPageHome');
+    navigate.navigate('GiftsStack');
+  }, [navigate]);
+
+  const handleAnalyticsPress = useCallback(() => {
+    navigate.navigate('AnalyticsStack');
   }, [navigate]);
 
   const renderWidgetItem = useCallback(
@@ -235,6 +258,8 @@ export default function SettingsHub(props) {
           return (
             <AccumulationAddressesPreview onPress={handleAccumulationPress} />
           );
+        case 'analytics':
+          return <AnalyticsPreview onPress={handleAnalyticsPress} />;
         default:
           return null;
       }
@@ -243,6 +268,7 @@ export default function SettingsHub(props) {
       activePoolsArray,
       handleAccountEdit,
       handleAccountPress,
+      handleAnalyticsPress,
       handleOpenGifts,
       handlePOS,
       handleViewAllAccounts,

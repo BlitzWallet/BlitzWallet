@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useKeysContext } from '../../../../../context-store/keys';
-import { usePools } from '../../../../../context-store/poolContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import { updatePoolLocal } from '../../../../functions/pools/poolsStorage';
 import { derivePoolWallet } from '../../../../functions/pools/derivePoolWallet';
 import {
   getSparkBalance,
@@ -31,7 +31,6 @@ export default function ClosePoolConfirmation({
   const { accountMnemoinc } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
-  const { updatePool } = usePools();
   const isMounted = useRef(true);
   const { t } = useTranslation();
 
@@ -135,7 +134,7 @@ export default function ClosePoolConfirmation({
         };
 
         await updatePoolInDatabase(closedPool);
-        await updatePool(closedPool);
+        await updatePoolLocal(closedPool.poolId, closedPool);
 
         setIsLoading(false);
 
@@ -188,7 +187,7 @@ export default function ClosePoolConfirmation({
       }
 
       await updatePoolInDatabase(closedPool);
-      await updatePool(closedPool);
+      await updatePoolLocal(closedPool.poolId, closedPool);
 
       let tx = {
         id: transferTxId,
@@ -231,7 +230,6 @@ export default function ClosePoolConfirmation({
     pool,
     accountMnemoinc,
     currentWalletMnemoinc,
-    updatePool,
     navigate,
     getBalanceWithRetry,
     sparkInformation,

@@ -1,6 +1,7 @@
 import { generateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { AES, Utf8 } from 'crypto-es';
+import crypto, { argon2 as argon2KDF } from 'react-native-quick-crypto';
 import {
   BIOMETRIC_KEY,
   LOGIN_SECUITY_MODE_KEY,
@@ -17,15 +18,74 @@ import sha256Hash from './hash';
 import * as SecureStorage from 'expo-secure-store';
 import { removeLocalStorageItem, setLocalStorageItem } from './localStorage';
 
+const ARGON2_SALT_BYTES = 16;
+const ARGON2_KEY_LEN = 32;
+const ARGON2_PARAMS = { memory: 16384, passes: 2, parallelism: 1 };
+
+function argon2Async(password, salt) {
+  return new Promise((resolve, reject) =>
+    argon2KDF(
+      'argon2id',
+      {
+        message: password,
+        nonce: salt,
+        tagLength: ARGON2_KEY_LEN,
+        ...ARGON2_PARAMS,
+      },
+      (err, key) => (err ? reject(err) : resolve(key)),
+    ),
+  );
+}
+
+async function encryptMnemonicArgon2(mnemonic, pinString) {
+  const salt = crypto.randomBytes(ARGON2_SALT_BYTES);
+  const iv = crypto.randomBytes(16);
+  const keyBuf = await argon2Async(pinString, salt);
+  const cipher = crypto.createCipheriv('aes-256-cbc', keyBuf, iv);
+  const ct = Buffer.concat([
+    cipher.update(Buffer.from(mnemonic, 'utf8')),
+    cipher.final(),
+  ]).toString('base64');
+  return JSON.stringify({
+    v: 2,
+    salt: salt.toString('hex'),
+    iv: iv.toString('hex'),
+    ct,
+  });
+}
+
+async function decryptMnemonicArgon2(cipherText, pinString) {
+  const { salt, iv, ct } = JSON.parse(cipherText);
+  const keyBuf = await argon2Async(pinString, Buffer.from(salt, 'hex'));
+  const decipher = crypto.createDecipheriv(
+    'aes-256-cbc',
+    keyBuf,
+    Buffer.from(iv, 'hex'),
+  );
+  return Buffer.concat([
+    decipher.update(Buffer.from(ct, 'base64')),
+    decipher.final(),
+  ]).toString('utf8');
+}
+
+function isArgon2Format(cipherText) {
+  try {
+    const p = JSON.parse(cipherText);
+    return (
+      p?.v === 2 &&
+      typeof p.salt === 'string' &&
+      typeof p.iv === 'string' &&
+      typeof p.ct === 'string'
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function generateAndStoreEncryptionKeyForMnemoinc() {
   try {
-    // const existingKey = await retrieveData(BIOMETRIC_KEY);
-    // console.log(existingKey, 'existing key');
-
-    // if (!existingKey.didWork)
-    //   throw new Error('Unable to authenticate with biomentrics');
-
-    // if (existingKey.value) return existingKey.value;
+    const existingKey = await retrieveData(BIOMETRIC_KEY);
+    if (existingKey.didWork && existingKey.value) return existingKey.value;
 
     const key = generateMnemonic(wordlist).toString();
 
@@ -62,7 +122,7 @@ export async function decryptMnemonicWithBiometrics() {
 
     if (!key.didWork) return null;
     const cipherText = await retrieveData('encryptedMnemonic');
-    console.log(key.value, cipherText);
+
     if (!cipherText.value || !key.value) return false;
 
     const decrypted = decryptMnemonic(cipherText.value, key.value);
@@ -98,13 +158,16 @@ export async function storeMnemoincWithNoSecurity(mnemonic) {
  */
 export async function storeMnemonicWithPinSecurity(mnemonic, pin) {
   try {
-    const encripted = encryptMnemonic(mnemonic, JSON.stringify(pin));
+    const encrypted = await encryptMnemonicArgon2(
+      mnemonic,
+      JSON.stringify(pin),
+    );
     const pinHash = sha256Hash(JSON.stringify(pin));
     await storeData('pinHash', pinHash);
-    await storeData('encryptedMnemonic', encripted);
+    await storeData('encryptedMnemonic', encrypted);
     return true;
   } catch (err) {
-    console.log('error encripting mnemonic with pin', err);
+    console.log('error encrypting mnemonic with pin', err);
     return false;
   }
 }
@@ -116,16 +179,29 @@ export async function storeMnemonicWithPinSecurity(mnemonic, pin) {
  */
 export async function decryptMnemonicWithPin(pin) {
   try {
-    console.log(pin);
     const cipherText = await retrieveData('encryptedMnemonic');
     if (!cipherText.didWork) return null;
-    console.log(cipherText.value);
 
-    const decrypted = decryptMnemonic(cipherText.value, pin);
-    if (!decrypted) throw new Error('eror decrypting mnemionc with pin');
+    let decrypted;
+    if (isArgon2Format(cipherText.value)) {
+      decrypted = await decryptMnemonicArgon2(cipherText.value, pin);
+    } else {
+      // Legacy EvpKDF format — decrypt then re-encrypt with PBKDF2
+      decrypted = decryptMnemonic(cipherText.value, pin);
+      if (decrypted) {
+        encryptMnemonicArgon2(decrypted, pin)
+          .then(ct => storeData('encryptedMnemonic', ct))
+          .catch(err =>
+            console.log('migration write failed, will retry next login', err),
+          );
+      }
+    }
+
+    if (!decrypted) throw new Error('error decrypting mnemonic with pin');
     return decrypted;
   } catch (err) {
-    console.log('decrypt mnemoinc with pin error', err);
+    console.log('decrypt mnemonic with pin error', err);
+    return null;
   }
 }
 

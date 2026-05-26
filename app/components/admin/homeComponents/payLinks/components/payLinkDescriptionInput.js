@@ -36,6 +36,7 @@ import { useToast } from '../../../../../../context-store/toastManager';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { satsToDollars } from '../../../../../functions/spark/flashnet';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation');
 
@@ -71,7 +72,6 @@ export default function PayLinkDescriptionInput({
   const { sparkInformation } = useSparkWallet();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
-  const textInputRef = useRef(null);
   const isAlreadyCreating = useRef(null);
   const isButtonAction = useRef(false);
   const { t } = useTranslation();
@@ -122,13 +122,7 @@ export default function PayLinkDescriptionInput({
       if (!success) throw new Error('Failed to save paylink');
 
       setDidCreatePaylink(payLinkId);
-      Keyboard.dismiss();
-
-      setTimeout(() => {
-        shareMessage({
-          message: `https://blitzwalletapp.com/paylink/${payLinkId}`,
-        });
-      }, 350);
+      await KeyboardController.dismiss();
     } catch (err) {
       console.log('Error creating paylink:', err);
       isAlreadyCreating.current = false;
@@ -301,7 +295,6 @@ export default function PayLinkDescriptionInput({
       />
 
       <CustomSearchInput
-        textInputRef={textInputRef}
         inputText={description}
         setInputText={setDescription}
         maxLength={100}
@@ -309,7 +302,11 @@ export default function PayLinkDescriptionInput({
         containerStyles={{ width: '100%', marginBottom: 'auto' }}
         placeholderText={t('wallet.payLinks.descriptionPlaceholder')}
         onBlurFunction={() => {
-          if (!description.trim() && !isButtonAction.current && !didCreatePaylink) {
+          if (
+            !description.trim() &&
+            !isButtonAction.current &&
+            !didCreatePaylink
+          ) {
             onBack?.();
           }
           isButtonAction.current = false;

@@ -19,6 +19,11 @@ import {
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
 import CustomButton from '../../../../../functions/CustomElements/button';
+import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { formatBalanceAmount } from '../../../../../functions';
 
 export default function SelectPaymentType({
   selectedContact,
@@ -27,6 +32,9 @@ export default function SelectPaymentType({
   handleBackPressFunction,
   paymentType,
 }) {
+  const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
@@ -34,8 +42,10 @@ export default function SelectPaymentType({
   const [selectedOption, setSeelctedOption] = useState('BTC');
 
   useEffect(() => {
-    setContentHeight(!HIDE_IN_APP_PURCHASE_ITEMS ? 500 : 425);
+    setContentHeight(425);
   }, []);
+
+  const hideBalance = paymentType !== 'send';
 
   const selectSendingBalance = () => {
     handleBackPressFunction(() => {
@@ -49,10 +59,10 @@ export default function SelectPaymentType({
           selectedContact: selectedContact,
           paymentType,
           imageData,
-          endReceiveType: selectedOption,
           [paymentType === 'send'
             ? 'selectedPaymentMethod'
             : 'selectedRequestMethod']: selectedOption,
+          ...(paymentType !== 'send' ? { endReceiveType: selectedOption } : {}),
         });
       }
     });
@@ -65,7 +75,7 @@ export default function SelectPaymentType({
         content={
           paymentType === 'request'
             ? t('contacts.selectCurrencyToRequest.header')
-            : t('contacts.selectCurrencyToSend.header')
+            : t('wallet.sendPages.selectPaymentMethod.header')
         }
       />
 
@@ -96,8 +106,23 @@ export default function SelectPaymentType({
         <View style={styles.textContainer}>
           <ThemeText
             styles={styles.balanceTitle}
-            content={t('constants.bitcoin_upper')}
+            content={t(
+              hideBalance ? 'constants.bitcoin_upper' : 'constants.sat_balance',
+            )}
           />
+          {!hideBalance && (
+            <ThemeText
+              styles={styles.amountText}
+              content={`${displayCorrectDenomination({
+                amount: bitcoinBalance,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'sats',
+                },
+                fiatStats,
+              })}`}
+            />
+          )}
         </View>
         <CheckMarkCircle
           isActive={selectedOption === 'BTC'}
@@ -133,8 +158,29 @@ export default function SelectPaymentType({
         <View style={styles.textContainer}>
           <ThemeText
             styles={styles.balanceTitle}
-            content={t('constants.dollars_upper')}
+            content={t(
+              hideBalance ? 'constants.dollars_upper' : 'constants.usd_balance',
+            )}
           />
+          {!hideBalance && (
+            <ThemeText
+              styles={styles.amountText}
+              content={`${displayCorrectDenomination({
+                amount: formatBalanceAmount(
+                  dollarBalanceToken,
+                  false,
+                  masterInfoObject,
+                ),
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'fiat',
+                },
+                forceCurrency: 'USD',
+                convertAmount: false,
+                fiatStats,
+              })}`}
+            />
+          )}
         </View>
         <CheckMarkCircle
           isActive={selectedOption === 'USD'}
@@ -143,7 +189,7 @@ export default function SelectPaymentType({
         />
       </TouchableOpacity>
 
-      {!HIDE_IN_APP_PURCHASE_ITEMS && paymentType !== 'request' && (
+      {/* {!HIDE_IN_APP_PURCHASE_ITEMS && paymentType !== 'request' && (
         <TouchableOpacity
           onPress={() => setSeelctedOption('Gift')}
           style={styles.containerRow}
@@ -188,7 +234,7 @@ export default function SelectPaymentType({
             switchDarkMode={theme && darkModeType ? true : false}
           />
         </TouchableOpacity>
-      )}
+      )} */}
 
       <CustomButton
         actionFunction={selectSendingBalance}

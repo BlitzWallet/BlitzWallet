@@ -550,29 +550,50 @@ export const ActiveCustodyAccountProvider = ({ children }) => {
     });
   }, [custodyAccountsList, isUsingNostr, selectedAltAccount]);
 
+  const accountValues = useMemo(() => {
+    return {
+      custodyAccounts,
+      removeAccount,
+      createAccount,
+      updateAccount,
+      updateAccountCacheOnly,
+      createDerivedAccount,
+      createImportedAccount,
+      restoreDerivedAccount,
+      getAccountMnemonic,
+      restoreDerivedAccountsFromCloud,
+      selectedAltAccount,
+      isUsingAltAccount,
+      currentWalletMnemoinc,
+      toggleIsUsingNostr,
+      isUsingNostr,
+      nostrSeed,
+      activeAccount,
+      custodyAccountsList,
+    };
+  }, [
+    custodyAccounts,
+    removeAccount,
+    createAccount,
+    updateAccount,
+    updateAccountCacheOnly,
+    createDerivedAccount,
+    createImportedAccount,
+    restoreDerivedAccount,
+    getAccountMnemonic,
+    restoreDerivedAccountsFromCloud,
+    selectedAltAccount,
+    isUsingAltAccount,
+    currentWalletMnemoinc,
+    toggleIsUsingNostr,
+    isUsingNostr,
+    nostrSeed,
+    activeAccount,
+    custodyAccountsList,
+  ]);
+
   return (
-    <ActiveCustodyAccount.Provider
-      value={{
-        custodyAccounts,
-        removeAccount,
-        createAccount,
-        updateAccount,
-        updateAccountCacheOnly,
-        createDerivedAccount,
-        createImportedAccount,
-        restoreDerivedAccount,
-        getAccountMnemonic,
-        restoreDerivedAccountsFromCloud,
-        selectedAltAccount,
-        isUsingAltAccount,
-        currentWalletMnemoinc,
-        toggleIsUsingNostr,
-        isUsingNostr,
-        nostrSeed,
-        activeAccount,
-        custodyAccountsList,
-      }}
-    >
+    <ActiveCustodyAccount.Provider value={accountValues}>
       {children}
     </ActiveCustodyAccount.Provider>
   );

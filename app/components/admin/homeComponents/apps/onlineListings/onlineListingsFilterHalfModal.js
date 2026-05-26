@@ -35,6 +35,7 @@ import {
   SIZES,
 } from '../../../../../constants/theme';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 const DEFAULT_FILTER = {
   categories: [],
@@ -46,7 +47,6 @@ export default function OnlineListingsFilterHalfModal({
   onSelectFilter,
   handleBackPressFunction,
   setContentHeight,
-  setIsKeyboardActive,
   categoryOptions = [],
 }) {
   const { t } = useTranslation();
@@ -61,6 +61,7 @@ export default function OnlineListingsFilterHalfModal({
   const [countrySearch, setCountrySearch] = useState('');
   const [allCountries, setAllCountries] = useState([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
@@ -92,13 +93,22 @@ export default function OnlineListingsFilterHalfModal({
 
         if (!mounted) return;
 
-        setAllCountries([
-          {
-            code: 'WW',
-            countryName: t('apps.onlineListings.filterWorldwide'),
-          },
-          ...countryInfoList,
-        ]);
+        const allCountriesAddOn = {
+          code: 'WW',
+          countryName: t('apps.onlineListings.filterWorldwide'),
+        };
+        const list = [allCountriesAddOn, ...countryInfoList];
+
+        const euopeanUnionAddOn = {
+          code: 'EU',
+          countryName: 'Eruopean Union',
+        };
+        const etheopiaIndex = list.findIndex(item => item.code === 'ET');
+        if (etheopiaIndex !== -1) {
+          list.splice(etheopiaIndex, 0, euopeanUnionAddOn);
+        }
+
+        setAllCountries(list);
       } finally {
         if (mounted) {
           setLoadingCountries(false);
@@ -201,20 +211,28 @@ export default function OnlineListingsFilterHalfModal({
   }, []);
 
   const handleCountryPress = useCallback(
-    countryCode => {
-      setDraft(prev => ({ ...prev, countryCode }));
-      setCountrySearch('');
-      setShowCountryPicker(false);
-      setIsKeyboardActive?.(false);
+    async countryCode => {
+      await KeyboardController.dismiss();
+      requestAnimationFrame(() => {
+        setDraft(prev => ({ ...prev, countryCode }));
+        setCountrySearch('');
+        setShowCountryPicker(false);
+        setIsKeyboardActive?.(false);
+      });
     },
     [setIsKeyboardActive],
   );
 
   const handleCountryBackPress = useCallback(() => {
     if (!showCountryPicker) return false;
-    setShowCountryPicker(false);
-    setCountrySearch('');
-    setIsKeyboardActive?.(false);
+    KeyboardController.dismiss().then(resp => {
+      requestAnimationFrame(() => {
+        setShowCountryPicker(false);
+        setCountrySearch('');
+        setIsKeyboardActive?.(false);
+      });
+    });
+
     return true;
   }, [setIsKeyboardActive, showCountryPicker]);
 
@@ -300,7 +318,13 @@ export default function OnlineListingsFilterHalfModal({
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.mainContent, contentStyle]}>
+      <Animated.View
+        style={[
+          styles.mainContent,
+          contentStyle,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         <ThemeText
           styles={styles.title}
           content={t('apps.onlineListings.filterTitle')}
@@ -485,6 +509,7 @@ export default function OnlineListingsFilterHalfModal({
           {
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
+            marginBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
           },
           countryOverlayStyle,
         ]}

@@ -1,7 +1,7 @@
 // Pure computation — same logic tested in __tests__/budgetWarningHook.test.js.
 // Uses module-level NEAR_BUDGET_LIMIT / OVER_BUDGET_LIMIT constants rather than
 
-import { useAnalytics } from '../../context-store/analyticsContext';
+import { useAnalyticsNumbers } from '../../context-store/analyticsContext';
 import { useGlobalContextProvider } from '../../context-store/context';
 import { NEAR_BUDGET_LIMIT, OVER_BUDGET_LIMIT } from '../constants';
 
@@ -35,7 +35,7 @@ export function computeBudgetWarning(budget, spentTotal) {
 
 export function useBudgetWarning(sendingAmount = 0) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { spentTotal } = useAnalytics();
+  const { spentTotal } = useAnalyticsNumbers();
   const budget = masterInfoObject?.monthlyBudget ?? null;
   return computeBudgetWarning(budget, spentTotal + sendingAmount);
 }

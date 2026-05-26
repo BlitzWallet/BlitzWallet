@@ -398,7 +398,6 @@ export default function HalfModalReceiveOptions({
   const [showPoolCreation, setShowPoolCreation] = useState(false);
   const [showLNURLQR, setShowLNURLQR] = useState(false);
   const [showPayLinkCreation, setShowPayLinkCreation] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(8);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({});
   const scrollOffsetRef = useRef(0);
@@ -445,13 +444,6 @@ export default function HalfModalReceiveOptions({
     opacity: contentOpacity.value,
     transform: [{ translateX: contentTranslateX.value }],
   }));
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setVisibleCount(Infinity);
-    }, 250);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleContactAdded = useCallback(
     newContact => {
@@ -552,25 +544,23 @@ export default function HalfModalReceiveOptions({
   }, [expandedContact, sortedContacts]);
 
   const contactElements = useMemo(() => {
-    return sortedContacts
-      .slice(0, visibleCount)
-      .map(contact => (
-        <ContactRow
-          key={contact.uuid}
-          expandedContact={expandedContact}
-          contact={contact}
-          cache={cache}
-          theme={theme}
-          darkModeType={darkModeType}
-          backgroundOffset={backgroundOffset}
-          backgroundColor={backgroundColor}
-          textColor={textColor}
-          onToggleExpand={handleToggleExpand}
-          onSelectPaymentType={handleSelectPaymentType}
-          onRowLayout={handleRowLayout}
-          t={t}
-        />
-      ));
+    return sortedContacts.map(contact => (
+      <ContactRow
+        key={contact.uuid}
+        expandedContact={expandedContact}
+        contact={contact}
+        cache={cache}
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundOffset={backgroundOffset}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        onToggleExpand={handleToggleExpand}
+        onSelectPaymentType={handleSelectPaymentType}
+        onRowLayout={handleRowLayout}
+        t={t}
+      />
+    ));
   }, [
     expandedContact,
     sortedContacts,
@@ -584,7 +574,6 @@ export default function HalfModalReceiveOptions({
     handleSelectPaymentType,
     handleRowLayout,
     t,
-    visibleCount,
   ]);
 
   const handleLNURLClose = useCallback(() => {
@@ -610,6 +599,28 @@ export default function HalfModalReceiveOptions({
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.mainContent, contentStyle]}>
+        {/* ── LNURL Banner ── */}
+        <View
+          style={{
+            width: INSET_WINDOW_WIDTH,
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+            ...CENTER,
+          }}
+        >
+          <LNURLBanner
+            lnurlAddress={globalContactsInformation?.myProfile?.uniqueName}
+            theme={theme}
+            darkModeType={darkModeType}
+            backgroundColor={backgroundColor}
+            backgroundOffset={backgroundOffset}
+            textColor={textColor}
+            onQRPress={() => {
+              setContentHeight(600);
+              setShowLNURLQR(true);
+            }}
+          />
+        </View>
         <ScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
@@ -618,7 +629,7 @@ export default function HalfModalReceiveOptions({
             ...styles.innerContainer,
             paddingBottom: bottomPadding,
           }}
-          stickyHeaderIndices={[4]}
+          stickyHeaderIndices={[3]}
           onScroll={e => {
             scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
           }}
@@ -627,27 +638,6 @@ export default function HalfModalReceiveOptions({
             scrollViewHeightRef.current = e.nativeEvent.layout.height;
           }}
         >
-          {/* ── LNURL Banner ── */}
-          <View
-            style={{
-              backgroundColor:
-                theme && darkModeType ? backgroundOffset : backgroundColor,
-            }}
-          >
-            <LNURLBanner
-              lnurlAddress={globalContactsInformation?.myProfile?.uniqueName}
-              theme={theme}
-              darkModeType={darkModeType}
-              backgroundColor={backgroundColor}
-              backgroundOffset={backgroundOffset}
-              textColor={textColor}
-              onQRPress={() => {
-                setContentHeight(600);
-                setShowLNURLQR(true);
-              }}
-            />
-          </View>
-
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
             onPress={() => setShowPayLinkCreation(true)}
@@ -907,7 +897,7 @@ const styles = StyleSheet.create({
 
   scanButtonSubtext: {
     fontSize: SIZES.small,
-    opacity: 0.6,
+    opacity: HIDDEN_OPACITY,
   },
 
   divider: {

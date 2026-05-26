@@ -22,7 +22,10 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { formatBalanceAmount } from '../../../../../functions';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../../constants/theme';
 
 const ConfirmedOrSentTransaction = React.memo(
   ({
@@ -146,6 +149,7 @@ const ConfirmedOrSentTransaction = React.memo(
               ...styles.descriptionText,
               color: textColorValue,
               marginRight: 15,
+              marginBottom: 2,
               includeFontPadding: false,
             }}
             content={transactionContent}
@@ -169,7 +173,6 @@ const ConfirmedOrSentTransaction = React.memo(
               ? '-'
               : '+'
           }
-          containerStyles={styles.amountContainer}
           styles={{
             ...styles.amountText,
             color: textColorValue,
@@ -592,12 +595,10 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Regular,
-    fontWeight: '400',
   },
   dateText: {
     fontSize: SIZES.small,
-    fontWeight: '300',
+    opacity: HIDDEN_OPACITY,
   },
   amountText: {
     fontWeight: '400',

@@ -44,6 +44,7 @@ import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import BrandLogoUploader from './internalComponents/brandLogoUploader';
+import { KeyboardController } from 'react-native-keyboard-controller';
 
 const StoreNameInput = ({ value, onChange, onFocus, onBlur, theme }) => {
   const { t } = useTranslation();
@@ -250,8 +251,8 @@ export default function PosSettingsPage() {
   }, [savePOSSettings]);
 
   const handleCurrencyChange = useCallback(
-    currencyId => {
-      Keyboard.dismiss();
+    async currencyId => {
+      await KeyboardController.dismiss();
       savePOSSettings({ storeCurrency: currencyId }, 'currency');
     },
     [savePOSSettings],
@@ -336,7 +337,7 @@ export default function PosSettingsPage() {
                 });
                 return;
               }
-              navigate.navigate('ViewPOSTransactions');
+              navigate.navigate('POSStack');
             });
           }}
         >

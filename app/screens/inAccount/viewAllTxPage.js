@@ -14,7 +14,10 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import GetThemeColors from '../../hooks/themeColors';
-import { getFilteredTransactions } from '../../functions/spark/transactions';
+import {
+  getAllSparkTransactions,
+  getFilteredTransactions,
+} from '../../functions/spark/transactions';
 import customUUID from '../../functions/customUUID';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import NoContentSceen from '../../functions/CustomElements/noContentScreen';
@@ -52,73 +55,76 @@ export default function ViewAllTxPage() {
   const { bottomPadding } = useGlobalInsets();
 
   useEffect(() => {
-    const debounceTimer = setTimeout(
-      () => {
-        async function handleLoadTxs() {
-          try {
-            const hasActiveFilters =
-              currentFilter.directions.length > 0 ||
-              currentFilter.dateRange !== null ||
-              currentFilter.types.length > 0;
+    const debounceTimer = setTimeout(() => {
+      async function handleLoadTxs() {
+        try {
+          const hasActiveFilters =
+            currentFilter.directions.length > 0 ||
+            currentFilter.dateRange !== null ||
+            currentFilter.types.length > 0;
 
-            let transactions;
-            if (!hasActiveFilters) {
-              transactions = sparkInformation.transactions;
-            } else {
-              transactions = await getFilteredTransactions(
-                {
-                  directions: currentFilter.directions,
-                  dateRange: currentFilter.dateRange,
-                  types: currentFilter.types,
-                },
-                { accountId: sparkInformation.identityPubKey },
-              );
-            }
-
-            const formattedTxs = getFormattedHomepageTxsForSpark({
-              currentTime,
-              sparkInformation: {
-                ...sparkInformation,
-                transactions,
-              },
-              navigate,
-              frompage: 'viewAllTx',
-              viewAllTxText: t('wallet.see_all_txs'),
-              noTransactionHistoryText: t('wallet.no_transaction_history'),
-              todayText: t('constants.today'),
-              yesterdayText: t('constants.yesterday'),
-              dayText: t('constants.day'),
-              monthText: t('constants.month'),
-              yearText: t('constants.year'),
-              agoText: t('transactionLabelText.ago'),
-              theme,
-              darkModeType,
-              userBalanceDenomination,
-              didGetToHomepage: true,
-              enabledLRC20,
-              poolInfoRef,
-              t,
+          let transactions;
+          if (!hasActiveFilters) {
+            const txs = await getAllSparkTransactions({
+              limit: null,
+              accountId: sparkInformation.identityPubKey,
             });
+            transactions = txs;
+          } else {
+            transactions = await getFilteredTransactions(
+              {
+                directions: currentFilter.directions,
+                dateRange: currentFilter.dateRange,
+                types: currentFilter.types,
+              },
+              { accountId: sparkInformation.identityPubKey },
+            );
+          }
 
-            if (searchUUIDRef.current === currentFilter.searchUUID) {
-              setTxs(formattedTxs);
-            }
-          } finally {
-            isInitialLoad.current = false;
-            if (searchUUIDRef.current === currentFilter.searchUUID) {
-              setIsLoadingNewTxs(false);
-            }
+          const formattedTxs = getFormattedHomepageTxsForSpark({
+            currentTime,
+            sparkInformation: {
+              ...sparkInformation,
+              transactions,
+            },
+            navigate,
+            frompage: 'viewAllTx',
+            viewAllTxText: t('wallet.see_all_txs'),
+            noTransactionHistoryText: t('wallet.no_transaction_history'),
+            todayText: t('constants.today'),
+            yesterdayText: t('constants.yesterday'),
+            dayText: t('constants.day'),
+            monthText: t('constants.month'),
+            yearText: t('constants.year'),
+            agoText: t('transactionLabelText.ago'),
+            theme,
+            darkModeType,
+            userBalanceDenomination,
+            didGetToHomepage: true,
+            enabledLRC20,
+            poolInfoRef,
+            t,
+          });
+
+          if (searchUUIDRef.current === currentFilter.searchUUID) {
+            setTxs(formattedTxs);
+          }
+        } finally {
+          isInitialLoad.current = false;
+          if (searchUUIDRef.current === currentFilter.searchUUID) {
+            setIsLoadingNewTxs(false);
           }
         }
-        handleLoadTxs();
-      },
-      isInitialLoad.current ? 0 : FILTER_DEBOUNCE_MS,
-    );
+      }
+      handleLoadTxs();
+    }, FILTER_DEBOUNCE_MS);
 
     return () => clearTimeout(debounceTimer);
   }, [
     currentTime,
-    sparkInformation,
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    sparkInformation.tokens,
     t,
     navigate,
     theme,

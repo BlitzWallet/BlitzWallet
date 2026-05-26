@@ -11,7 +11,8 @@ import { navigationRef } from '../../navigation/navigationService';
 
 export default function useAccountSwitcher() {
   const navigate = useNavigation();
-  const { setSparkInformation, sparkInformation } = useSparkWallet();
+  const { setSparkInformation, sparkInformation, filterAndSetTransactions } =
+    useSparkWallet();
   const {
     currentWalletMnemoinc,
     selectedAltAccount,
@@ -60,6 +61,7 @@ export default function useAccountSwitcher() {
 
         const initResponse = await initWallet({
           setSparkInformation,
+          filterAndSetTransactions,
           mnemonic: accountMnemonic,
           hasRestoreCompleted: false,
         });

@@ -130,7 +130,8 @@
     "custom...": "Sur mesure...",
     "transfer": "Transfert",
     "details": "Détails",
-    "total": "Total"
+    "total": "Total",
+    "stablecoinRefundReceived": "Remboursement de stablecoin"
   },
   "languages": {
     "english": "English",
@@ -290,6 +291,7 @@
   "apps": {
     "noPurchaseTitle": "Aucun Achat",
     "appList": {
+      "title": "Explorer",
       "AI": "IA générative",
       "AIDescription": "Discutez avec les derniers modèles d’IA générative",
       "SMS": "Messages SMS",
@@ -975,7 +977,7 @@
       "inputPlaceholder": "Entrez @nomdutilisateur, une adresse Bitcoin ou une facture Lightning",
       "scanImage": "Scanner une image",
       "tapToScan": "Appuyez pour extraire une adresse depuis une image",
-      "chooseWhatToSend": "Choisir quoi envoyer",
+      "chooseWhatToSend": "Choisissez comment financer ce paiement",
       "noContacts": "Ajoutez des contacts pour les voir apparaître ici",
       "selectAddressType": "Sélectionner le type d’adresse",
       "tapToGenerate_other": "Appuyez pour voir d’autres options de réception",
@@ -999,7 +1001,11 @@
       "payMe": "Paiement rapide",
       "createInvoice": "Créer une facture",
       "invoiceDescription": "Demandez un paiement via un lien ou un code QR.",
-      "poolsDescription": "Collectez des contributions d’un groupe pour un objectif commun."
+      "poolsDescription": "Collectez des contributions d’un groupe pour un objectif commun.",
+      "noContactHead": "{{username}} introuvable",
+      "noContactDesc": "Ajoutez {{username}} à vos contacts pour le retrouver ici à l’avenir, ou continuez pour envoyer un paiement maintenant.",
+      "kenyanPhoneTitle": "Payer {{number}}",
+      "kenyanPhoneDesc": "Vous êtes sur le point de payer un numéro de téléphone kényan"
     },
     "payLinks": {
       "skip": "Passer",
@@ -1169,7 +1175,8 @@
         "swapRatesChangedTitle": "Taux de change mis à jour",
         "swapRatesChangedBody": "Le taux de change pour cet échange a changé pendant votre vérification. Veuillez saisir à nouveau le montant pour continuer.",
         "swapRatesChangedButton": "Ressaisir le montant",
-        "feeEstimateError": "Impossible d’estimer les frais, veuillez réessayer"
+        "feeEstimateError": "Impossible d’estimer les frais, veuillez réessayer",
+        "brantaVerification": "Ce paiement a été vérifié par Branta"
       },
       "selectPaymentMethod": {
         "header": "Veuillez sélectionner comment vous souhaitez financer votre paiement."
@@ -1294,7 +1301,7 @@
       "payWithUSDb": "Payer avec USDb",
       "chainNotSupportedForAsset": "Non disponible sur ce réseau",
       "swapInProgress": "Échange en Cours",
-      "swapInProgressDescription": "Vos fonds ont été envoyés. L'échange de stablecoin est en cours de traitement et peut prendre quelques minutes.",
+      "swapInProgressDescription": "Vos fonds ont été envoyés. Le paiement est en cours de traitement et peut prendre quelques minutes.",
       "noAmount": "Veuillez saisir un montant à envoyer.",
       "quoteStillLoading": "Obtention d'un devis, veuillez patienter un instant.",
       "noQuote": "Impossible d'obtenir un devis. Veuillez réessayer.",
@@ -1370,8 +1377,10 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Devise de réception",
+      "description": "Choisissez comment vous recevez les paiements de vos contacts et de votre adresse Lightning.",
       "futurePaymentsMessage": "Tous les paiements futurs seront reçus en {{option}}",
-      "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin."
+      "warningMessage": "Lors de la sélection de {{option}}, un minimum de {{amount}} s’applique. Les paiements plus petits seront reçus en Bitcoin.",
+      "changeSelectionError": "{{option}} est déjà sélectionné. Modifiez votre sélection pour mettre à jour votre paramètre."
     },
     "selectCurrencyToSend": {
       "header": "Que souhaitez-vous envoyer ?"
@@ -1610,7 +1619,9 @@
       "createPinPageHeader": "{{type}} votre code PIN Blitz",
       "invalidPinconfirmation": "Les codes PIN ne correspondent pas. Réessayez !",
       "randomPinKeyboardToggle": "Clavier de lecture aléatoire",
-      "randomPinKeyboardInfo": "Activez cette fonction pour mélanger les numéros du clavier à chaque fois que vous vous connectez. Cette fonction ajoute une couche de sécurité supplémentaire en rendant plus difficile l'apprentissage de votre code PIN par une personne se trouvant à proximité."
+      "randomPinKeyboardInfo": "Activez cette fonction pour mélanger les numéros du clavier à chaque fois que vous vous connectez. Cette fonction ajoute une couche de sécurité supplémentaire en rendant plus difficile l'apprentissage de votre code PIN par une personne se trouvant à proximité.",
+      "biometricsHead": "À propos de la biométrie",
+      "biometricsSubHead": "Votre phrase de récupération est protégée par les données biométriques actuelles de votre appareil. Les modifier empêchera Blitz Wallet d’accéder à votre phrase de récupération et vous bloquera l’accès à votre portefeuille."
     },
     "seedPhrase": {
       "header": "Conservez cette phrase de semence dans un endroit sûr et sécurisé.",
@@ -2063,7 +2074,9 @@
         "gift": "Cadeau",
         "claimPayment": "Réclamer le paiement",
         "splitPayment": "Partager",
-        "chainSwap": "Échange de Chaîne"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Support"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -2175,7 +2188,8 @@
         "destinationAddress": "Adresse de Destination",
         "destinationAsset": "Actif de Destination",
         "destinationChain": "Chaîne de Destination",
-        "transferIds": "Personnes incluses"
+        "transferIds": "Personnes incluses",
+        "bitrefillInvoiceId": "ID de facture Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Transactions",
@@ -2481,7 +2495,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Carte Bitcoin",
-        "subHeader": "Utiliser bitcoin localement"
+        "subHeader": "Dépensez avec Blitz localement"
       },
       "map": {
         "title": "Payer avec Bitcoin",
@@ -2497,6 +2511,19 @@
         "lightningMessage": "Accepte les paiements en bitcoin instantanément via le réseau Lightning",
         "dataMessage": "Données de btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Nous n’avons pas pu traiter la réponse de Bitrefill. Veuillez réessayer.",
+      "insufficientBalance": "Votre solde est insuffisant pour effectuer ce paiement.",
+      "paymentMemo": "Achat de carte cadeau",
+      "paymentFailed": "Votre paiement n’a pas pu être effectué. Veuillez réessayer.",
+      "editEmail": "Modifier votre adresse e-mail",
+      "addEmail": "Ajouter votre adresse e-mail",
+      "editEmailDesc": "Mettez à jour votre adresse e-mail enregistrée ci-dessous.",
+      "addEmailDesc": "Enregistrez votre adresse e-mail pour un paiement plus rapide.",
+      "textInputDescriptor": "E-MAIL",
+      "emailplaceholder": "vous@exemple.com",
+      "emailError": "Veuillez saisir une adresse e-mail valide."
     }
   },
   "toastmessages": {
@@ -2530,6 +2557,7 @@
     "noUserFoundDeeplinkError": "Impossible de trouver un utilisateur pour ce nom d'utilisateur.",
     "cannotAddSelfError": "Vous ne pouvez pas vous ajouter comme contact.",
     "fullDeeplinkError": "Impossible de récupérer les informations de contact, veuillez réessayer.",
+    "contactNotLoaded": "Le contact n’a pas pu être chargé. Veuillez réessayer.",
     "processingDeepLinkError": "Échec du traitement du lien : {{error}}",
     "legacyContactError": "Le contact n'a pas encore mis à jour son portefeuille. Veuillez lui demander de mettre à jour son portefeuille pour envoyer ce message.",
     "contactInvoiceGenerationError": "Erreur lors de la génération de la facture. Assurez-vous qu'il s'agit d'une adresse LNURL valide.",
@@ -2562,7 +2590,8 @@
     "priceImpact": "Ce paiement est important, le montant final que vous recevrez en dollars peut donc changer.",
     "removingImageError": "Impossible de supprimer l'image. Veuillez réessayer.",
     "usdcUsdtTokensOnly": "Seuls les tokens USDT et USDC sont pris en charge",
-    "lightningAmountFeeWarning": "Votre solde ne couvre pas le montant et les frais de ≈{{amount}}."
+    "lightningAmountFeeWarning": "Votre solde ne couvre pas le montant et les frais de ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Ce paiement nécessite ≈{{amount}}. Veuillez réduire le montant ou ajouter des fonds."
   },
   "loadingScreen": {
     "message1": "Ne fermez pas l'application",
@@ -2862,6 +2891,10 @@
     "numberOfTxs_other": "{{count}} transactions",
     "remaining": "Restant",
     "overBy": "Dépassement de",
+    "preview": {
+      "title": "Analyses du portefeuille",
+      "subTitle": "Suivez vos revenus, dépenses et budget mensuels en un coup d’œil."
+    },
     "home": {
       "title": "Analytique",
       "activityHead": "Activité mensuelle",

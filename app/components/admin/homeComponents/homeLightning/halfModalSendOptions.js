@@ -1,4 +1,11 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -35,12 +42,19 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
+import {
+  useProcessedContacts,
+  useFilteredContacts,
+} from '../contacts/contactsPageComponents/hooks';
 import getClipboardText from '../../../../functions/getClipboardText';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import CustomButton from '../../../../functions/CustomElements/button';
 import getReceiveAddressAndContactForContactsPayment from '../contacts/internalComponents/getReceiveAddressAndKindForPayment';
-import { parse } from 'tldts';
+import { hasStringAsync } from 'expo-clipboard';
+import { scheduleOnRN } from 'react-native-worklets';
+import { KeyboardController } from 'react-native-keyboard-controller';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
 
 const ContactRow = ({
   contact,
@@ -71,7 +85,7 @@ const ContactRow = ({
   }, [isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * (!HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
+    height: expandHeight.value * 160, //(!HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
     opacity: expandHeight.value,
   }));
 
@@ -82,17 +96,6 @@ const ContactRow = ({
   const chevronStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
   }));
-
-  const lnurlDomain = useMemo(() => {
-    try {
-      if (!contact.isLNURL) return '';
-      const parsed = parse(contact.receiveAddress);
-      return parsed.domainWithoutSuffix;
-    } catch (err) {
-      console.log('error parsing lnurl', err);
-      return '';
-    }
-  }, [contact.isLNURL]);
 
   return (
     <View
@@ -128,21 +131,6 @@ const ContactRow = ({
               styles={styles.contactName}
               content={formatDisplayName(contact) || contact.uniqueName || ''}
             />
-            {contact.isLNURL && lnurlDomain && (
-              <View
-                style={[
-                  styles.lnurlDomainContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                  },
-                ]}
-              >
-                <ThemeText styles={styles.lnurlDomain} content={lnurlDomain} />
-              </View>
-            )}
           </View>
           <Animated.View style={labelFadeStyle}>
             <ThemeText
@@ -151,12 +139,8 @@ const ContactRow = ({
             />
           </Animated.View>
         </View>
-        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
-          <ThemeIcon
-            size={20}
-            iconName={'ChevronDown'}
-            colorOverride={textColor}
-          />
+        <Animated.View style={chevronStyle}>
+          <ThemeIcon size={20} iconName={'ChevronDown'} />
         </Animated.View>
       </TouchableOpacity>
 
@@ -238,7 +222,7 @@ const ContactRow = ({
             />
           </TouchableOpacity>
 
-          {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
+          {/* {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
             <TouchableOpacity
               style={[
                 styles.paymentOption,
@@ -280,15 +264,59 @@ const ContactRow = ({
                 content={t('constants.gift')}
               />
             </TouchableOpacity>
-          )}
+          )} */}
         </View>
       </Animated.View>
     </View>
   );
 };
 
+const FilteredContactItem = ({
+  contact,
+  cache,
+  theme,
+  darkModeType,
+  backgroundOffset,
+  backgroundColor,
+  onPress,
+}) => {
+  return (
+    <TouchableOpacity
+      style={styles.contactRowContainer}
+      onPress={() => onPress(contact)}
+    >
+      <View
+        style={[
+          styles.contactImageContainer,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
+      >
+        <ContactProfileImage
+          updated={cache[contact.uuid]?.updated}
+          uri={cache[contact.uuid]?.localUri}
+          darkModeType={darkModeType}
+          theme={theme}
+        />
+      </View>
+      <View style={styles.nameContainer}>
+        <ThemeText
+          CustomEllipsizeMode={'tail'}
+          CustomNumberOfLines={1}
+          styles={styles.contactName}
+          content={formatDisplayName(contact) || contact.uniqueName || ''}
+        />
+      </View>
+      <ThemeIcon size={20} iconName={'ChevronRight'} />
+    </TouchableOpacity>
+  );
+};
+
 export default function HalfModalSendOptions({
   setIsKeyboardActive,
+  isKeyboardActive,
   theme,
   darkModeType,
   handleBackPressFunction,
@@ -299,7 +327,10 @@ export default function HalfModalSendOptions({
   const [inputError, setInputError] = useState('');
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAddContact, setShowAddContact] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [noInputMounted, setNoInputMounted] = useState(true);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
+  const [showPasteButton, setShowPasteButton] = useState(true);
+  const didPasteRef = useRef(false);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({}); // { [uuid]: y }
   const textInputRef = useRef(null);
@@ -312,24 +343,39 @@ export default function HalfModalSendOptions({
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
-    GetThemeColors();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const isContactInputMode = inputText.startsWith('@');
 
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
     contactsMessags,
   );
 
+  const filteredContacts = useFilteredContacts(
+    isContactInputMode ? contactInfoList : [],
+    isContactInputMode ? inputText.trim() : '',
+    false,
+  );
+  const contactSearchUsername = useMemo(() => {
+    return inputText.startsWith('@') ? inputText.slice(1).trim() : '';
+  }, [inputText]);
+
+  const kenyanPhoneNumber = useMemo(() => {
+    const stripped = inputText.trim();
+    if (!stripped) return null;
+    try {
+      const normalized = stripped.startsWith('+') ? stripped : `+${stripped}`;
+      const parsed = parsePhoneNumberWithError(normalized);
+      if (parsed.country === 'KE' && parsed.isValid()) {
+        return parsed.number.slice(1);
+      }
+    } catch {}
+    return null;
+  }, [inputText]);
+
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
   const inputModeProgress = useSharedValue(0);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setVisibleCount(Infinity);
-    }, 250);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     if (showAddContact) {
@@ -342,9 +388,14 @@ export default function HalfModalSendOptions({
   }, [showAddContact]);
 
   useEffect(() => {
-    inputModeProgress.value = withTiming(isInputMode ? 1 : 0, {
-      duration: 220,
-    });
+    if (isInputMode) {
+      inputModeProgress.value = withTiming(1, { duration: 220 }, finished => {
+        if (finished) scheduleOnRN(setNoInputMounted, false);
+      });
+    } else {
+      setNoInputMounted(true);
+      inputModeProgress.value = withTiming(0, { duration: 220 });
+    }
   }, [isInputMode]);
 
   const contentStyle = useAnimatedStyle(() => ({
@@ -352,30 +403,64 @@ export default function HalfModalSendOptions({
     transform: [{ translateX: contentTranslateX.value }],
   }));
 
-  const belowInputStyle = useAnimatedStyle(() => ({
+  const noInputPageStyle = useAnimatedStyle(() => ({
     opacity: 1 - inputModeProgress.value,
   }));
 
-  const continueButtonStyle = useAnimatedStyle(() => ({
+  const inputPageStyle = useAnimatedStyle(() => ({
     opacity: inputModeProgress.value,
   }));
 
-  const blurKeyboard = () => {
+  const blurKeyboard = useCallback(() => {
     try {
       if (textInputRef.current && textInputRef?.current.isFocused()) {
         textInputRef.current.blur();
+      } else {
+        setIsKeyboardActive(false);
+        setInputError('');
+        setInputText('');
+        setIsInputMode(false);
+        didPasteRef.current = false;
       }
     } catch (Err) {
       console.log(Err);
     }
-  };
+  }, []);
+
+  const handleInternalBackPress = useCallback(() => {
+    if (showAddContact) return false;
+    if (isInputMode) {
+      blurKeyboard();
+      return true;
+    }
+    return false;
+  }, [showAddContact, isInputMode, blurKeyboard]);
+
+  useHandleBackPressNew(handleInternalBackPress);
 
   const handleManualInputSubmit = useCallback(async () => {
     if (!inputText.trim()) return;
     const input = inputText.trim();
+
+    try {
+      const phoneNormalized = input.startsWith('+') ? input : `+${input}`;
+      const parsed = parsePhoneNumberWithError(phoneNormalized);
+      if (parsed.country === 'KE' && parsed.isValid()) {
+        const lightningAddress = `${parsed.number.slice(1)}@bitcoin.co.ke`;
+        handleBackPressFunction(async () => {
+          navigate.replace('ConfirmPaymentScreen', {
+            btcAdress: lightningAddress,
+            fromPage: '',
+          });
+        });
+        return;
+      }
+    } catch {}
+
     const normalized = input.startsWith('@')
       ? input.slice(1).toLowerCase()
       : input.toLowerCase();
+    if (!normalized) return;
     const matchedContact = decodedAddedContacts.find(
       c => c.uniqueName?.toLowerCase() === normalized,
     );
@@ -408,24 +493,30 @@ export default function HalfModalSendOptions({
         return;
       }
 
-      navigate.replace('ConfirmPaymentScreen', {
-        btcAdress: receiveAddress,
-        fromPage: 'contacts',
-        enteredPaymentInfo: {
-          description: t('contacts.sendAndRequestPage.profileMessage', {
+      const endReceiveType =
+        retrivedContact?.lnurlReceiveCurrency?.toLowerCase() === 'usd'
+          ? 'USD'
+          : 'BTC';
+
+      handleBackPressFunction(async () => {
+        navigate.replace('ConfirmPaymentScreen', {
+          btcAdress: receiveAddress,
+          fromPage: 'contacts',
+          enteredPaymentInfo: {
+            endReceiveType,
+            fromContacts: true,
+          },
+          contactInfo: {
+            imageData: cache[matchedContact.uuid],
             name: matchedContact.name || matchedContact.uniqueName,
-          }),
-        },
-        contactInfo: {
-          imageData: cache[matchedContact.uuid],
-          name: matchedContact.name || matchedContact.uniqueName,
-          isLNURLPayment: matchedContact?.isLNURL,
-          payingContactMessage: formattedPayingContactMessage,
-          uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
-          uuid: matchedContact.uuid,
-        },
-        selectedContact: matchedContact,
-        retrivedContact,
+            isLNURLPayment: matchedContact?.isLNURL,
+            payingContactMessage: formattedPayingContactMessage,
+            uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
+            uuid: matchedContact.uuid,
+          },
+          selectedContact: matchedContact,
+          retrivedContact,
+        });
       });
       return;
     }
@@ -436,23 +527,29 @@ export default function HalfModalSendOptions({
       return;
     }
     if (parsed.navigateToWebView) {
-      navigate.navigate('CustomWebView', {
-        headerText: '',
-        webViewURL: parsed.webViewURL,
+      handleBackPressFunction(async () => {
+        navigate.replace('CustomWebView', {
+          headerText: '',
+          webViewURL: parsed.webViewURL,
+        });
+        return;
+      });
+    }
+    if (parsed.isExternalChain) {
+      handleBackPressFunction(async () => {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          parsed,
+          'notHome',
+        );
+        navigate['replace'](screen, params);
       });
       return;
     }
-    if (parsed.isExternalChain) {
-      const { method, screen, params } = resolveExternalChainNavigation(
-        parsed,
-        'notHome',
-      );
-      navigate[method](screen, params);
-      return;
-    }
-    navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: parsed.btcAdress,
-      fromPage: '',
+    handleBackPressFunction(async () => {
+      navigate.replace('ConfirmPaymentScreen', {
+        btcAdress: parsed.btcAdress,
+        fromPage: '',
+      });
     });
   }, [
     navigate,
@@ -460,19 +557,63 @@ export default function HalfModalSendOptions({
     decodedAddedContacts,
     globalContactsInformation,
     cache,
+    handleBackPressFunction,
+    t,
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
-    const response = await getClipboardText();
-    const isFocused = textInputRef?.current?.isFocused?.();
-    if (!response.didWork) {
-      if (isFocused) setInputError(t(response.reason));
-      return;
-    }
-    if (textInputRef.current && !isFocused) {
-      textInputRef.current?.focus();
-    }
-    setInputText(response.data);
+    handleBackPressFunction(async () => {
+      navigate.goBack();
+      const response = await getClipboardText();
+
+      if (!response.didWork) {
+        navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
+        return;
+      }
+      const clipboardData = response.data?.trim();
+
+      const preParsingResponse = handlePreSendPageParsing(clipboardData);
+
+      if (preParsingResponse.error) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: preParsingResponse.error,
+        });
+        return;
+      }
+
+      if (preParsingResponse.navigateToWebView) {
+        navigate.navigate('CustomWebView', {
+          headerText: '',
+          webViewURL: preParsingResponse.webViewURL,
+        });
+        return;
+      }
+
+      if (preParsingResponse.isExternalChain) {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          preParsingResponse,
+          'notHome',
+        );
+        navigate['navigate'](screen, params);
+        return;
+      }
+
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: preParsingResponse.btcAdress,
+        fromPage: '',
+      });
+    });
+
+    // const response = await getClipboardText();
+    // const isFocused = textInputRef?.current?.isFocused?.();
+    // if (!response.didWork) {
+    //   if (isFocused) setInputError(t(response.reason));
+    //   return;
+    // }
+
+    // setIsInputMode(true);
+    // didPasteRef.current = true;
+    // setInputText(response.data);
   }, [navigate, t]);
 
   const handleCameraScan = useCallback(async () => {
@@ -480,30 +621,33 @@ export default function HalfModalSendOptions({
   }, [navigate, t, handleBackPressFunction]);
 
   const handleImageScan = useCallback(async () => {
-    const response = await getQRImage();
-    if (response.error) {
-      navigate.replace('ErrorScreen', {
-        errorMessage: t(response.error),
+    handleBackPressFunction(async () => {
+      navigate.goBack();
+      const response = await getQRImage();
+      if (response.error) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t(response.error),
+        });
+        return;
+      }
+
+      if (response.isExternalChain) {
+        const { method, screen, params } = resolveExternalChainNavigation(
+          response,
+          'notHome',
+        );
+        navigate['navigate'](screen, params);
+        return;
+      }
+
+      if (!response.didWork || !response.btcAdress) {
+        return;
+      }
+
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: response.btcAdress,
+        fromPage: '',
       });
-      return;
-    }
-
-    if (response.isExternalChain) {
-      const { method, screen, params } = resolveExternalChainNavigation(
-        response,
-        'notHome',
-      );
-      navigate[method](screen, params);
-      return;
-    }
-
-    if (!response.didWork || !response.btcAdress) {
-      return;
-    }
-
-    navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: response.btcAdress,
-      fromPage: '',
     });
   }, [navigate, t, handleBackPressFunction]);
 
@@ -549,7 +693,7 @@ export default function HalfModalSendOptions({
     const contact = sortedContacts.find(c => c.uuid === expandedContact);
     if (!contact) return;
 
-    const expandedPanelHeight = !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160;
+    const expandedPanelHeight = 160; // !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160;
 
     // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
     const collapsedRowHeight = 61;
@@ -601,6 +745,19 @@ export default function HalfModalSendOptions({
     }
   }, [expandedContact, sortedContacts]);
 
+  // determine if we should show the past button based on state of clipboard and whether input is focused
+  useEffect(() => {
+    async function checkClipboard() {
+      try {
+        const hasString = await hasStringAsync();
+        setShowPasteButton(hasString);
+      } catch (err) {
+        console.log('error checking clipboard', err);
+      }
+    }
+    checkClipboard();
+  }, []);
+
   const handleSelectPaymentType = useCallback(
     (contact, paymentType, isLNURL) => {
       handleBackPressFunction(() => {
@@ -614,13 +771,13 @@ export default function HalfModalSendOptions({
             selectedContact: contact,
             paymentType: 'send',
             imageData: cache[contact.uuid],
-            endReceiveType: isLNURL ? 'BTC' : paymentType,
             selectedPaymentMethod: paymentType,
+            ...(isLNURL ? { endReceiveType: 'BTC' } : {}),
           });
         }
       });
     },
-    [navigate, cache],
+    [navigate, cache, handleBackPressFunction],
   );
 
   const hideAddContacts = useCallback(() => {
@@ -638,26 +795,48 @@ export default function HalfModalSendOptions({
     [navigate],
   );
 
+  const onBlurFunction = useCallback(() => {
+    setIsKeyboardActive(false);
+    if (didPasteRef.current) return;
+    setInputError('');
+    setInputText('');
+    setIsInputMode(false);
+    didPasteRef.current = false;
+  }, []);
+
+  const onFocusFunction = useCallback(() => {
+    setIsKeyboardActive(true);
+    setIsInputMode(true);
+    didPasteRef.current = false;
+  }, []);
+
+  const onTrimFunction = useCallback(() => {
+    if (textInputRef.current && !textInputRef?.current.isFocused()) {
+      setIsInputMode(false);
+      setIsKeyboardActive(false);
+    }
+    didPasteRef.current = false;
+    setInputText('');
+  }, []);
+
   const contactElements = useMemo(() => {
-    return sortedContacts
-      .slice(0, visibleCount)
-      .map(contact => (
-        <ContactRow
-          key={contact.uuid}
-          contact={contact}
-          cache={cache}
-          theme={theme}
-          darkModeType={darkModeType}
-          backgroundOffset={backgroundOffset}
-          backgroundColor={backgroundColor}
-          textColor={textColor}
-          expandedContact={expandedContact}
-          onToggleExpand={handleToggleExpand}
-          onSelectPaymentType={handleSelectPaymentType}
-          onRowLayout={handleRowLayout}
-          t={t}
-        />
-      ));
+    return sortedContacts.map(contact => (
+      <ContactRow
+        key={contact.uuid}
+        contact={contact}
+        cache={cache}
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundOffset={backgroundOffset}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        expandedContact={expandedContact}
+        onToggleExpand={handleToggleExpand}
+        onSelectPaymentType={handleSelectPaymentType}
+        onRowLayout={handleRowLayout}
+        t={t}
+      />
+    ));
   }, [
     sortedContacts,
     cache,
@@ -671,245 +850,362 @@ export default function HalfModalSendOptions({
     handleSelectPaymentType,
     handleRowLayout,
     t,
-    visibleCount,
   ]);
+
+  const handleFilteredContactPress = useCallback(
+    async contact => {
+      handleBackPressFunction(async () => {
+        navigate.replace('SendAndRequestPage', {
+          selectedContact: contact,
+          paymentType: 'send',
+          imageData: cache[contact.uuid],
+          selectedPaymentMethod: 'BTC',
+        });
+      });
+    },
+    [navigate, cache, handleBackPressFunction],
+  );
+
+  const renderFilteredContact = useCallback(
+    ({ item: { contact } }) => (
+      <FilteredContactItem
+        contact={contact}
+        cache={cache}
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundOffset={backgroundOffset}
+        backgroundColor={backgroundColor}
+        onPress={handleFilteredContactPress}
+      />
+    ),
+    [
+      cache,
+      theme,
+      darkModeType,
+      backgroundOffset,
+      backgroundColor,
+      handleFilteredContactPress,
+    ],
+  );
+
+  const filteredContactKeyExtractor = useCallback(
+    ({ contact }) => contact.uuid,
+    [],
+  );
 
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.mainContent, contentStyle]}>
-        <ScrollView
-          ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          scrollEnabled={!isInputMode}
-          contentContainerStyle={{
-            ...styles.innerContainer,
-            paddingBottom: bottomPadding,
-          }}
-          stickyHeaderIndices={[4]}
-          onScroll={e => {
-            scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
-          }}
-          scrollEventThrottle={16}
-          onLayout={e => {
-            scrollViewHeightRef.current = e.nativeEvent.layout.height;
-          }}
+        {/* Search Input with Clipboard Icon */}
+        <View
+          style={[
+            styles.searchContainer,
+            {
+              backgroundColor: backgroundColor,
+              maxHeight: Math.round(scrollViewHeight - 50),
+            },
+          ]}
         >
-          {/* Search Input with Clipboard Icon */}
-          <View
-            style={[
-              styles.searchContainer,
-              { backgroundColor: backgroundColor },
-            ]}
-          >
-            <CustomSearchInput
-              textInputRef={textInputRef}
-              placeholderText={t('wallet.halfModal.inputPlaceholder')}
-              textInputMultiline={true}
-              inputText={inputText}
-              setInputText={setInputText}
-              onBlurFunction={() => {
-                setIsKeyboardActive(false);
-                setInputError('');
-                setInputText('');
-                setIsInputMode(false);
-              }}
-              onFocusFunction={() => {
-                setIsKeyboardActive(true);
-                setIsInputMode(true);
-              }}
-              textInputStyles={{ paddingRight: 40 }}
-              containerStyles={{ maxHeight: 100 }}
-              returnKeyType="go"
-              onSubmitEditingFunction={handleManualInputSubmit}
-            />
-            {inputText.trim() ? (
-              <TouchableOpacity
-                onPress={() => setInputText('')}
-                style={styles.clipboardButton}
-              >
-                <ThemeIcon
-                  colorOverride={
-                    theme && darkModeType
-                      ? COLORS.lightModeText
-                      : COLORS.primary
-                  }
-                  size={20}
-                  iconName={'X'}
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={handleClipboardPaste}
-                style={styles.clipboardButton}
-              >
-                <ThemeIcon
-                  colorOverride={
-                    theme && darkModeType
-                      ? COLORS.lightModeText
-                      : COLORS.primary
-                  }
-                  size={20}
-                  iconName={'Clipboard'}
-                />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <Animated.View
-            style={belowInputStyle}
-            pointerEvents={isInputMode ? 'none' : 'auto'}
-          >
-            {/* Scan QR Code Button */}
+          <CustomSearchInput
+            textInputRef={textInputRef}
+            placeholderText={t('wallet.halfModal.inputPlaceholder')}
+            textInputMultiline={true}
+            inputText={inputText}
+            setInputText={setInputText}
+            onBlurFunction={onBlurFunction}
+            onFocusFunction={onFocusFunction}
+            textInputStyles={{
+              paddingRight: showPasteButton || inputText.trim() ? 40 : 10,
+            }}
+            returnKeyType="go"
+            onSubmitEditingFunction={handleManualInputSubmit}
+          />
+          {inputText.trim() ? (
             <TouchableOpacity
-              style={[styles.scanButton, { marginBottom: 0 }]}
-              onPress={handleCameraScan}
+              onPress={onTrimFunction}
+              style={styles.clipboardButton}
             >
-              <View
-                style={[
-                  styles.scanIconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                  },
-                ]}
-              >
-                <ThemeIcon
-                  colorOverride={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
-                  size={24}
-                  iconName={'ScanQrCode'}
-                />
-              </View>
-              <View style={styles.scanTextContainer}>
-                <ThemeText
-                  styles={styles.scanButtonText}
-                  content={t('wallet.halfModal.scanQrCode')}
-                />
-                <ThemeText
-                  styles={styles.scanButtonSubtext}
-                  content={t('wallet.halfModal.tapToScanQr')}
-                />
-              </View>
-            </TouchableOpacity>
-
-            {/* Scan Image Button */}
-            <TouchableOpacity
-              style={styles.scanButton}
-              onPress={handleImageScan}
-            >
-              <View
-                style={[
-                  styles.scanIconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                  },
-                ]}
-              >
-                <ThemeIcon
-                  colorOverride={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
-                  size={24}
-                  iconName={'Image'}
-                />
-              </View>
-              <View style={styles.scanTextContainer}>
-                <ThemeText
-                  styles={styles.scanButtonText}
-                  content={t('wallet.halfModal.images')}
-                />
-                <ThemeText
-                  styles={styles.scanButtonSubtext}
-                  content={t('wallet.halfModal.tapToScan')}
-                />
-              </View>
-            </TouchableOpacity>
-
-            {/* Divider */}
-            <View
-              style={[
-                styles.divider,
-                {
-                  borderColor:
-                    theme && darkModeType
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'rgba(0, 0, 0, 0.05)',
-                },
-              ]}
-            />
-
-            <View
-              style={[
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundOffset : backgroundColor,
-                },
-              ]}
-            >
-              <ThemeText
-                styles={styles.sectionHeader}
-                content={t('wallet.halfModal.addressBook', {
-                  context: 'send',
-                })}
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={20}
+                iconName={'X'}
               />
-            </View>
+            </TouchableOpacity>
+          ) : showPasteButton ? (
+            <TouchableOpacity
+              onPress={handleClipboardPaste}
+              style={styles.clipboardButton}
+            >
+              <ThemeIcon
+                colorOverride={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={20}
+                iconName={'Clipboard'}
+              />
+            </TouchableOpacity>
+          ) : null}
+        </View>
 
-            {/* Address Book Section */}
-            {decodedAddedContacts.length > 0 ? (
-              contactElements
-            ) : (
-              <View style={styles.emptyContactsContainer}>
-                <ThemeIcon iconName={'UsersRound'} />
-                <ThemeText
-                  styles={styles.emptyTitle}
-                  content={t('wallet.halfModal.noAddedContactsTitle')}
+        <View style={styles.pageContainer}>
+          {/* Page: No Input */}
+          {noInputMounted && (
+            <Animated.View
+              style={[styles.page, noInputPageStyle]}
+              pointerEvents={isInputMode ? 'none' : 'auto'}
+            >
+              <ScrollView
+                ref={scrollViewRef}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{
+                  ...styles.innerContainer,
+                  paddingBottom: bottomPadding,
+                }}
+                stickyHeaderIndices={[3]}
+                onScroll={e => {
+                  scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+                }}
+                scrollEventThrottle={16}
+                onLayout={e => {
+                  const h = e.nativeEvent.layout.height;
+                  scrollViewHeightRef.current = h;
+                  setScrollViewHeight(h);
+                }}
+              >
+                {/* Scan QR Code Button */}
+                <TouchableOpacity
+                  style={[styles.scanButton, { marginBottom: 0 }]}
+                  onPress={handleCameraScan}
+                >
+                  <View
+                    style={[
+                      styles.scanIconContainer,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? backgroundColor
+                            : backgroundOffset,
+                      },
+                    ]}
+                  >
+                    <ThemeIcon
+                      colorOverride={
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary
+                      }
+                      size={24}
+                      iconName={'ScanQrCode'}
+                    />
+                  </View>
+                  <View style={styles.scanTextContainer}>
+                    <ThemeText
+                      styles={styles.scanButtonText}
+                      content={t('wallet.halfModal.scanQrCode')}
+                    />
+                    <ThemeText
+                      styles={styles.scanButtonSubtext}
+                      content={t('wallet.halfModal.tapToScanQr')}
+                    />
+                  </View>
+                </TouchableOpacity>
+
+                {/* Scan Image Button */}
+                <TouchableOpacity
+                  style={styles.scanButton}
+                  onPress={handleImageScan}
+                >
+                  <View
+                    style={[
+                      styles.scanIconContainer,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? backgroundColor
+                            : backgroundOffset,
+                      },
+                    ]}
+                  >
+                    <ThemeIcon
+                      colorOverride={
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary
+                      }
+                      size={24}
+                      iconName={'Image'}
+                    />
+                  </View>
+                  <View style={styles.scanTextContainer}>
+                    <ThemeText
+                      styles={styles.scanButtonText}
+                      content={t('wallet.halfModal.images')}
+                    />
+                    <ThemeText
+                      styles={styles.scanButtonSubtext}
+                      content={t('wallet.halfModal.tapToScan')}
+                    />
+                  </View>
+                </TouchableOpacity>
+
+                {/* Divider */}
+                <View
+                  style={[
+                    styles.divider,
+                    {
+                      borderColor:
+                        theme && darkModeType
+                          ? 'rgba(255, 255, 255, 0.1)'
+                          : 'rgba(0, 0, 0, 0.05)',
+                    },
+                  ]}
                 />
-                <ThemeText
-                  styles={styles.emptySubtext}
-                  content={t('wallet.halfModal.noAddedContactsDesc')}
-                />
-                <CustomButton
-                  buttonStyles={{ width: '100%' }}
-                  textContent={t('contacts.editMyProfilePage.addContactBTN')}
-                  actionFunction={() => setShowAddContact(true)}
-                />
+
+                <View
+                  style={[
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundOffset
+                          : backgroundColor,
+                    },
+                  ]}
+                >
+                  <ThemeText
+                    styles={styles.sectionHeader}
+                    content={t('wallet.halfModal.addressBook', {
+                      context: 'send',
+                    })}
+                  />
+                </View>
+
+                {/* Address Book Section */}
+                {decodedAddedContacts.length > 0 ? (
+                  contactElements
+                ) : (
+                  <View style={styles.emptyContactsContainer}>
+                    <ThemeIcon iconName={'UsersRound'} />
+                    <ThemeText
+                      styles={styles.emptyTitle}
+                      content={t('wallet.halfModal.noAddedContactsTitle')}
+                    />
+                    <ThemeText
+                      styles={styles.emptySubtext}
+                      content={t('wallet.halfModal.noAddedContactsDesc')}
+                    />
+                    <CustomButton
+                      buttonStyles={{ width: '100%' }}
+                      textContent={t(
+                        'contacts.editMyProfilePage.addContactBTN',
+                      )}
+                      actionFunction={() => setShowAddContact(true)}
+                    />
+                  </View>
+                )}
+              </ScrollView>
+            </Animated.View>
+          )}
+
+          {/* Page: Input */}
+          {isInputMode && (
+            <Animated.View
+              style={[
+                styles.page,
+                inputPageStyle,
+                { paddingBottom: isKeyboardActive ? 0 : bottomPadding },
+              ]}
+            >
+              <View style={styles.inputPageContent}>
+                {isContactInputMode ? (
+                  filteredContacts.length > 0 ? (
+                    <FlatList
+                      data={filteredContacts}
+                      renderItem={renderFilteredContact}
+                      keyExtractor={filteredContactKeyExtractor}
+                      keyboardShouldPersistTaps="handled"
+                      showsVerticalScrollIndicator={false}
+                    />
+                  ) : contactSearchUsername ? (
+                    <View style={styles.noContactContainer}>
+                      <ThemeIcon iconName={'SearchX'} />
+                      <ThemeText
+                        styles={styles.emptyTitle}
+                        content={t('wallet.halfModal.noContactHead', {
+                          username: contactSearchUsername,
+                        })}
+                      />
+                      <ThemeText
+                        styles={styles.emptySubtext}
+                        content={t('wallet.halfModal.noContactDesc', {
+                          username: contactSearchUsername,
+                        })}
+                      />
+                      <CustomButton
+                        buttonStyles={{ ...CENTER, marginTop: 'auto' }}
+                        textContent={`${t(
+                          'constants.pay',
+                        )} ${contactSearchUsername}`}
+                        actionFunction={handleManualInputSubmit}
+                      />
+                    </View>
+                  ) : null
+                ) : kenyanPhoneNumber ? (
+                  <View style={styles.noContactContainer}>
+                    <ThemeIcon iconName={'Phone'} />
+                    <ThemeText
+                      styles={styles.emptyTitle}
+                      content={t('wallet.halfModal.kenyanPhoneTitle', {
+                        number: inputText.trim(),
+                      })}
+                    />
+                    <ThemeText
+                      styles={styles.emptySubtext}
+                      content={t('wallet.halfModal.kenyanPhoneDesc')}
+                    />
+                    <CustomButton
+                      buttonStyles={{...CENTER, marginTop: 'auto'}}
+                      textContent={t('constants.pay')}
+                      actionFunction={handleManualInputSubmit}
+                    />
+                  </View>
+                ) : (
+                  <TouchableWithoutFeedback
+                    onPress={KeyboardController.dismiss}
+                  >
+                    <View style={styles.inputActionContainer}>
+                      {!!inputError && (
+                        <View style={styles.inputErrorContainer}>
+                          <ThemeIcon size={20} iconName={'TriangleAlert'} />
+                          <ThemeText
+                            styles={styles.inputError}
+                            content={inputError}
+                          />
+                        </View>
+                      )}
+
+                      <CustomButton
+                        buttonStyles={styles.inputModeButton}
+                        textContent={
+                          inputText?.trim()
+                            ? t('constants.continue')
+                            : t('constants.back')
+                        }
+                        actionFunction={
+                          inputText?.trim()
+                            ? handleManualInputSubmit
+                            : blurKeyboard
+                        }
+                      />
+                    </View>
+                  </TouchableWithoutFeedback>
+                )}
               </View>
-            )}
-          </Animated.View>
-        </ScrollView>
-
-        {isInputMode && (
-          <Animated.View
-            style={[styles.continueButtonWrapper, continueButtonStyle]}
-            pointerEvents={isInputMode ? 'auto' : 'none'}
-          >
-            {!!inputError && (
-              <View style={styles.inputErrorContainer}>
-                <ThemeIcon size={20} iconName={'TriangleAlert'} />
-                <ThemeText styles={styles.inputError} content={inputError} />
-              </View>
-            )}
-
-            <CustomButton
-              buttonStyles={styles.inputModeButton}
-              textContent={
-                inputText?.trim()
-                  ? t('constants.continue')
-                  : t('constants.back')
-              }
-              actionFunction={
-                inputText?.trim() ? handleManualInputSubmit : blurKeyboard
-              }
-            />
-          </Animated.View>
-        )}
+            </Animated.View>
+          )}
+        </View>
       </Animated.View>
 
       <AddContactOverlay
@@ -928,6 +1224,26 @@ const styles = StyleSheet.create({
   },
   mainContent: {
     flex: 1,
+  },
+  pageContainer: {
+    flex: 1,
+  },
+  page: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  inputPageContent: {
+    width: INSET_WINDOW_WIDTH,
+    alignSelf: 'center',
+    paddingTop: 12,
+    flex: 1,
+  },
+  noContactContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  inputActionContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   innerContainer: {
     width: INSET_WINDOW_WIDTH,
@@ -956,15 +1272,20 @@ const styles = StyleSheet.create({
   },
 
   searchContainer: {
-    width: '100%',
+    width: INSET_WINDOW_WIDTH,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 15,
+    ...CENTER,
+  },
+  searchInputContainer: {
+    justifyContent: 'flex-start',
   },
   clipboardButton: {
     width: 45,
-    height: '100%',
     position: 'absolute',
+    top: 0,
+    bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
     right: 0,
@@ -996,7 +1317,7 @@ const styles = StyleSheet.create({
   },
   scanButtonSubtext: {
     fontSize: SIZES.small,
-    opacity: 0.6,
+    opacity: HIDDEN_OPACITY,
   },
   inputErrorContainer: {
     width: INSET_WINDOW_WIDTH,
@@ -1010,11 +1331,6 @@ const styles = StyleSheet.create({
   inputError: {
     includeFontPadding: false,
     fontSize: SIZES.smedium,
-  },
-  continueButtonWrapper: {
-    width: INSET_WINDOW_WIDTH,
-    alignSelf: 'center',
-    paddingTop: 12,
   },
   divider: {
     width: '100%',

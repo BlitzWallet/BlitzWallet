@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { TriangleAlert } from 'lucide-react-native';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { useAnalytics } from '../../../../../../context-store/analyticsContext';
+import { useAnalyticsNumbers } from '../../../../../../context-store/analyticsContext';
 import { CENTER, COLORS, SIZES } from '../../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import { ThemeText } from '../../../../../functions/CustomElements';
@@ -18,7 +18,7 @@ export default function BudgetWarningModal({
   sendingAmount = 0,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
-  const { spentTotal } = useAnalytics();
+  const { spentTotal } = useAnalyticsNumbers();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();

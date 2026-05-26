@@ -44,6 +44,111 @@ export const ensureSparkDatabaseReady = async () => {
   return sqlLiteDB;
 };
 
+const isConcretePaymentType = paymentType =>
+  Boolean(paymentType) && paymentType !== 'unknown';
+
+const resolvePaymentTypeForUpdate = (
+  incomingPaymentType,
+  existingPaymentType,
+) =>
+  isConcretePaymentType(incomingPaymentType)
+    ? incomingPaymentType
+    : existingPaymentType;
+
+const resolvePaymentStatusForUpdate = (
+  incomingPaymentStatus,
+  existingPaymentStatus,
+  incomingPaymentType,
+  incomingDetails,
+) => {
+  if (!incomingPaymentStatus) return existingPaymentStatus;
+
+  const isPlaceholderLikeUpdate =
+    incomingDetails?.isPlaceholder ||
+    !isConcretePaymentType(incomingPaymentType);
+
+  if (
+    existingPaymentStatus === 'completed' &&
+    incomingPaymentStatus === 'pending' &&
+    isPlaceholderLikeUpdate
+  ) {
+    return existingPaymentStatus;
+  }
+
+  return incomingPaymentStatus;
+};
+
+export const insertSparkTransactionPlaceholders = async (
+  transactions,
+  updateType = 'transactions',
+) => {
+  if (!Array.isArray(transactions) || transactions.length === 0) return;
+
+  const validTransactions = transactions.filter(tx => tx?.id && tx?.accountId);
+  if (!validTransactions.length) return;
+
+  return addToBulkUpdateQueue(async () => {
+    try {
+      await ensureSparkDatabaseReady();
+      await sqlLiteDB.execAsync('BEGIN TRANSACTION');
+
+      let insertedCount = 0;
+
+      for (const tx of validTransactions) {
+        const sparkID = tx.id;
+        const accountId = tx.accountId;
+        const result = await sqlLiteDB.runAsync(
+          `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
+             (sparkID, paymentStatus, paymentType, accountId, details)
+           SELECT ?, ?, ?, ?, ?
+           WHERE NOT EXISTS (
+             SELECT 1 FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+             WHERE sparkID = ? AND accountId = ?
+           )`,
+          [
+            sparkID,
+            tx.paymentStatus || 'pending',
+            tx.paymentType || 'unknown',
+            accountId,
+            JSON.stringify({
+              ...(tx.details ?? {}),
+              dateAddedToDb: Date.now(),
+            }),
+            sparkID,
+            accountId,
+          ],
+        );
+
+        console.log(result, 'result of insert placeholder transaction');
+        insertedCount += result?.changes ?? 0;
+      }
+
+      await sqlLiteDB.execAsync('COMMIT');
+
+      if (insertedCount > 0) {
+        handleEventEmitterPost(
+          sparkTransactionsEventEmitter,
+          SPARK_TX_UPDATE_ENVENT_NAME,
+          updateType,
+        );
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error inserting placeholder transactions:', error);
+      try {
+        await sqlLiteDB.execAsync('ROLLBACK');
+      } catch (rollbackError) {
+        console.error(
+          'Error rolling back placeholder transaction insert:',
+          rollbackError,
+        );
+      }
+      return false;
+    }
+  });
+};
+
 export const initializeSparkDatabase = async () => {
   try {
     await ensureSparkDatabaseReady();
@@ -84,6 +189,23 @@ export const initializeSparkDatabase = async () => {
         tokens         TEXT    NOT NULL DEFAULT '{}',
         updatedAt      INTEGER NOT NULL
       );
+
+      CREATE INDEX IF NOT EXISTS idx_spark_tx_lightning_invoice_address
+      ON ${SPARK_TRANSACTIONS_TABLE_NAME} (
+        paymentType,
+        TRIM(json_extract(details, '$.address'))
+      )
+      WHERE paymentType = 'lightning' AND json_valid(details);
+
+      CREATE INDEX IF NOT EXISTS idx_spark_tx_spark_id_account_id
+      ON ${SPARK_TRANSACTIONS_TABLE_NAME} (sparkID, accountId);
+
+      CREATE INDEX IF NOT EXISTS idx_spark_tx_lrc20_latest
+      ON ${SPARK_TRANSACTIONS_TABLE_NAME} (
+        accountId,
+        paymentType,
+        json_extract(details, '$.time')
+      );
     `);
 
     console.log('Opened spark transaction and contacts tables');
@@ -91,6 +213,60 @@ export const initializeSparkDatabase = async () => {
   } catch (err) {
     console.log('Spark Database initialization failed:', err);
     return false;
+  }
+};
+export const getSingleSparkTransaction = async sparkId => {
+  if (!sparkId) {
+    console.error('Invalid sparkId provided');
+    return null;
+  }
+
+  try {
+    await ensureSparkDatabaseReady();
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE id = ?`,
+      [sparkId],
+    );
+
+    if (!rows.length) {
+      console.error('Lightning request not found for sparkID:', sparkId);
+      return null;
+    }
+
+    const request = rows[0];
+    if (request.details) {
+      try {
+        request.details = JSON.parse(request.details);
+      } catch (error) {
+        console.warn('Failed to parse request details JSON');
+      }
+    }
+
+    return request;
+  } catch (error) {
+    console.error('Error fetching single lightning request:', error);
+    return null;
+  }
+};
+
+export const getSwapResultTransaction = async originalSparkId => {
+  if (!originalSparkId) return null;
+  try {
+    await ensureSparkDatabaseReady();
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE json_extract(details, '$.ln_funding_id') = ?`,
+      [originalSparkId],
+    );
+    if (!rows?.length) return null;
+    const row = rows[0];
+    try {
+      row.details = JSON.parse(row.details);
+    } catch {}
+    return row;
+  } catch (err) {
+    console.error('Error fetching swap result tx', err.message);
+    return null;
   }
 };
 export const getAllSparkTransactions = async (options = {}) => {
@@ -136,6 +312,84 @@ export const getAllSparkTransactions = async (options = {}) => {
   } catch (error) {
     console.error('Error fetching transactions:', error);
     return [];
+  }
+};
+
+export const hasPaidSparkLightningInvoice = async invoiceAddress => {
+  const trimmedInvoiceAddress =
+    typeof invoiceAddress === 'string' ? invoiceAddress.trim() : '';
+
+  if (!trimmedInvoiceAddress) return false;
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const result = await sqlLiteDB.getAllAsync(
+      `SELECT 1 as found
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE paymentType = 'lightning'
+       AND json_valid(details)
+       AND TRIM(json_extract(details, '$.address')) = ?
+       LIMIT 1`,
+      [trimmedInvoiceAddress],
+    );
+
+    return result?.length > 0;
+  } catch (error) {
+    console.error('Error checking paid spark lightning invoice:', error);
+    return false;
+  }
+};
+
+export const getSparkTransactionBySparkId = async (sparkID, accountId) => {
+  const normalizedSparkID = typeof sparkID === 'string' ? sparkID.trim() : '';
+  const normalizedAccountId =
+    accountId !== undefined && accountId !== null ? String(accountId) : '';
+
+  if (!normalizedSparkID || !normalizedAccountId) return null;
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT *
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE sparkID = ? AND accountId = ?
+       LIMIT 1`,
+      [normalizedSparkID, normalizedAccountId],
+    );
+
+    return rows?.[0] ?? null;
+  } catch (error) {
+    console.error('Error fetching spark transaction by sparkID:', error);
+    return null;
+  }
+};
+
+export const getLatestSavedLRC20TransactionId = async accountId => {
+  const normalizedAccountId =
+    accountId !== undefined && accountId !== null ? String(accountId) : '';
+
+  if (!normalizedAccountId) return null;
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT sparkID
+       FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+       WHERE accountId = ?
+       AND paymentType = 'spark'
+       AND LENGTH(sparkID) >= 40
+       ORDER BY json_extract(details, '$.time') DESC
+       LIMIT 1`,
+      [normalizedAccountId],
+    );
+
+    return rows?.[0]?.sparkID ?? null;
+  } catch (error) {
+    console.error('Error fetching latest saved LRC20 transaction ID:', error);
+    return null;
   }
 };
 
@@ -780,9 +1034,16 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           console.log('merged detials', mergedDetails);
 
           // Update with merged data
-          existingTx.paymentStatus =
-            tx.paymentStatus || existingTx.paymentStatus;
-          existingTx.paymentType = tx.paymentType || existingTx.paymentType;
+          existingTx.paymentStatus = resolvePaymentStatusForUpdate(
+            tx.paymentStatus,
+            existingTx.paymentStatus,
+            tx.paymentType,
+            tx.details,
+          );
+          existingTx.paymentType = resolvePaymentTypeForUpdate(
+            tx.paymentType,
+            existingTx.paymentType,
+          );
           existingTx.accountId = tx.accountId || existingTx.accountId;
           existingTx.details = mergedDetails;
           existingTx.useTempId = tx.useTempId || existingTx.useTempId;
@@ -908,14 +1169,24 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             existingTx.details,
             processedTx.details,
           );
+          const paymentStatus = resolvePaymentStatusForUpdate(
+            processedTx.paymentStatus,
+            existingTx.paymentStatus,
+            processedTx.paymentType,
+            processedTx.details,
+          );
+          const paymentType = resolvePaymentTypeForUpdate(
+            processedTx.paymentType,
+            existingTx.paymentType,
+          );
 
           await sqlLiteDB.runAsync(
             `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
                SET paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
                WHERE sparkID = ? AND accountId = ?`,
             [
-              processedTx.paymentStatus,
-              processedTx.paymentType,
+              paymentStatus,
+              paymentType,
               processedTx.accountId,
               mergedDetails,
               finalSparkId,
@@ -942,6 +1213,16 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             existingTempTx.details,
             processedTx.details,
           );
+          const paymentStatus = resolvePaymentStatusForUpdate(
+            processedTx.paymentStatus,
+            existingTempTx.paymentStatus,
+            processedTx.paymentType,
+            processedTx.details,
+          );
+          const paymentType = resolvePaymentTypeForUpdate(
+            processedTx.paymentType,
+            existingTempTx.paymentType,
+          );
 
           await sqlLiteDB.runAsync(
             `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
@@ -949,8 +1230,8 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
                WHERE sparkID = ? AND accountId = ?`,
             [
               finalSparkId,
-              processedTx.paymentStatus,
-              processedTx.paymentType,
+              paymentStatus,
+              paymentType,
               processedTx.accountId,
               mergedDetails,
               processedTx.tempSparkId,

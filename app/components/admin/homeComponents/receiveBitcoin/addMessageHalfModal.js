@@ -24,37 +24,27 @@ export default function AddReceiveMessageHalfModal({
 
   const { t } = useTranslation();
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!textInputRef.current.isFocused()) {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            textInputRef.current.focus();
-          });
-        });
-      }
-    }, []),
-  );
-
   const handleTextInputBlur = () => {
     if (description === memo) {
       handleBackPressFunction?.();
     } else {
-      handlesave();
+      handleBackPressFunction(() => {
+        navigate.popTo(
+          'ReceiveBTC',
+          {
+            description: description,
+            uuid: customUUID(),
+          },
+          { merge: true },
+        );
+      });
     }
   };
 
   const handlesave = () => {
-    handleBackPressFunction(() => {
-      navigate.popTo(
-        'ReceiveBTC',
-        {
-          description: description,
-          uuid: customUUID(),
-        },
-        { merge: true },
-      );
-    });
+    if (textInputRef.current) {
+      textInputRef.current.blur();
+    }
   };
   useEffect(() => {
     // manualy set content height

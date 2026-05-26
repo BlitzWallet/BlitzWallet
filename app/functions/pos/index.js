@@ -72,19 +72,9 @@ export const initializePOSTransactionsDatabase = async () => {
 
     console.log('POS TRANSACTIONS TABLE READY');
 
-    handleEventEmitterPost(
-      pointOfSaleEventEmitter,
-      DID_OPEN_TABLES_EVENT_NAME,
-      'opened',
-    );
     return true;
   } catch (err) {
     console.log('error opening pos txs database', err);
-    handleEventEmitterPost(
-      pointOfSaleEventEmitter,
-      DID_OPEN_TABLES_EVENT_NAME,
-      'not opened',
-    );
 
     return false;
   }

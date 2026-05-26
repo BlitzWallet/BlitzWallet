@@ -60,6 +60,7 @@ export default function PoolDetailScreen(props) {
     savePoolToCloud,
     syncPool,
     loadContributionsForPool,
+    updatePoolList,
   } = usePools();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
@@ -164,8 +165,12 @@ export default function PoolDetailScreen(props) {
 
   useFocusEffect(
     useCallback(() => {
-      refreshPoolDetails(true);
-    }, [refreshPoolDetails]),
+      async function refreshData() {
+        await updatePoolList();
+        refreshPoolDetails(true);
+      }
+      refreshData();
+    }, [refreshPoolDetails, updatePoolList]),
   );
 
   const handleShare = useCallback(async () => {

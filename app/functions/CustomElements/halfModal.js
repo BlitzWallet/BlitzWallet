@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  KeyboardController,
+} from 'react-native-keyboard-controller';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import {
@@ -66,6 +69,7 @@ import ClosePoolConfirmation from '../../components/admin/homeComponents/pools/c
 import ContributeToPoolHalfModal from '../../components/admin/homeComponents/pools/contributeToPoolHalfModal';
 import AddMoneyToSavingsHalfModal from '../../components/admin/homeComponents/savings/AddMoneyToSavingsHalfModal';
 import WithdrawFromSavingsHalfModal from '../../components/admin/homeComponents/savings/WithdrawFromSavingsHalfModal';
+import { SavingsProvider } from '../../../context-store/savingsContext';
 import HowSavingsWorks from '../../components/admin/homeComponents/savings/howItWorks';
 import ClaimGiftHomeHalfModal from '../../components/admin/homeComponents/gifts/claimGiftHomeHalfModal';
 import AddGiftQuantityHalfModal from '../../components/admin/homeComponents/gifts/addGiftQuantityHalfModal';
@@ -78,6 +82,12 @@ import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
+
+const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
+  'AddMessageReceivePage',
+  'addContacts',
+  'manualEnterSendAddress',
+]);
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -94,9 +104,20 @@ export default function CustomHalfModal(props) {
   const isScreenActive = useRef(false);
   const { bottomPadding, topPadding } = useGlobalInsets();
   const didHandleBackpress = useRef(false);
+  const closeTimerRef = useRef(null);
+  const shouldDismissKeyboardOnMount =
+    !CONTENT_TYPES_WITH_MOUNT_FOCUS.has(contentType);
 
   const translateY = useSharedValue(screenDimensions.height);
   const animatedHeight = useSharedValue(screenDimensions.height * slideHeight);
+
+  const slideIn = useCallback(() => {
+    translateY.value = withTiming(0, { duration: 200 });
+  }, [translateY]);
+
+  const slideOut = useCallback(() => {
+    translateY.value = withTiming(screenDimensions.height, { duration: 200 });
+  }, [screenDimensions.height, translateY]);
 
   useEffect(() => {
     if (contentHeight) {
@@ -110,21 +131,29 @@ export default function CustomHalfModal(props) {
       return () => {
         isScreenActive.current = false;
       };
-    }, []),
+    }, [contentType]),
   );
 
   const handleBackPressFunction = useCallback(
     customBackFunction => {
+      const resolvedCustomBackFunction =
+        typeof customBackFunction === 'function' ? customBackFunction : null;
+
       if (!isScreenActive.current) return;
       if (didHandleBackpress.current) return true;
       didHandleBackpress.current = true;
-      const keyboardVisible = Keyboard.isVisible();
-      Keyboard.dismiss();
+      const keyboardVisible = KeyboardController.isVisible();
+      KeyboardController.dismiss();
       slideOut();
-      setTimeout(
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+      closeTimerRef.current = setTimeout(
         () => {
-          if (customBackFunction && typeof customBackFunction === 'function') {
-            customBackFunction();
+          closeTimerRef.current = null;
+
+          if (resolvedCustomBackFunction) {
+            resolvedCustomBackFunction();
           } else {
             navigation.goBack();
           }
@@ -133,23 +162,25 @@ export default function CustomHalfModal(props) {
       );
       return true;
     },
-    [navigation],
+    [navigation, slideOut],
   );
 
   useHandleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
-    Keyboard.dismiss();
+    if (shouldDismissKeyboardOnMount && KeyboardController.isVisible()) {
+      KeyboardController.dismiss();
+    }
+
     slideIn();
-  }, []);
 
-  const slideIn = () => {
-    translateY.value = withTiming(0, { duration: 200 });
-  };
-
-  const slideOut = () => {
-    translateY.value = withTiming(screenDimensions.height, { duration: 200 });
-  };
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+    };
+  }, [shouldDismissKeyboardOnMount, slideIn]);
 
   const renderContent = () => {
     switch (contentType) {
@@ -158,6 +189,7 @@ export default function CustomHalfModal(props) {
           <HalfModalSendOptions
             handleBackPressFunction={handleBackPressFunction}
             setIsKeyboardActive={setIsKeyboardActive}
+            isKeyboardActive={isKeyboardActive}
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
@@ -511,20 +543,24 @@ export default function CustomHalfModal(props) {
         );
       case 'addMoneyToSavings':
         return (
-          <AddMoneyToSavingsHalfModal
-            selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
-            setContentHeight={setContentHeight}
-            handleBackPressFunction={handleBackPressFunction}
-          />
+          <SavingsProvider>
+            <AddMoneyToSavingsHalfModal
+              selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
+              setContentHeight={setContentHeight}
+              handleBackPressFunction={handleBackPressFunction}
+            />
+          </SavingsProvider>
         );
       case 'withdrawFromSavings':
         return (
-          <WithdrawFromSavingsHalfModal
-            currentBalance={props?.route?.params?.currentBalance}
-            selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
-            setContentHeight={setContentHeight}
-            handleBackPressFunction={handleBackPressFunction}
-          />
+          <SavingsProvider>
+            <WithdrawFromSavingsHalfModal
+              currentBalance={props?.route?.params?.currentBalance}
+              selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
+              setContentHeight={setContentHeight}
+              handleBackPressFunction={handleBackPressFunction}
+            />
+          </SavingsProvider>
         );
       case 'howSavingsWorks':
         return (
@@ -692,8 +728,7 @@ export default function CustomHalfModal(props) {
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
               contentType === 'createPoolFlow' ||
-              contentType === 'ClaimGiftHomeHalfModal' ||
-              contentType === 'onlineListingsFilter'
+              contentType === 'ClaimGiftHomeHalfModal'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
@@ -705,6 +740,8 @@ export default function CustomHalfModal(props) {
                   : contentType === 'receiveOptions'
                   ? 0
                   : bottomPadding
+                : contentType === 'onlineListingsFilter'
+                ? 0
                 : bottomPadding,
           }}
         >

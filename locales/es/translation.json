@@ -130,7 +130,8 @@
     "print": "Imprimir",
     "transfer": "Transferencia",
     "details": "Detalles",
-    "total": "Total"
+    "total": "Total",
+    "stablecoinRefundReceived": "Reembolso de stablecoin"
   },
   "languages": {
     "english": "English",
@@ -290,6 +291,7 @@
   "apps": {
     "noPurchaseTitle": "Sin Compras",
     "appList": {
+      "title": "Explorar",
       "AI": "IA generativa",
       "AIDescription": "Chatea con los modelos de IA generativa más recientes",
       "SMS": "Mensajes SMS",
@@ -975,7 +977,7 @@
       "inputPlaceholder": "Introduce @usuario, dirección de Bitcoin o factura Lightning",
       "scanImage": "Escanear imagen",
       "tapToScan": "Toca para obtener una dirección desde una imagen",
-      "chooseWhatToSend": "Elige qué enviar",
+      "chooseWhatToSend": "Elige cómo financiar este pago",
       "noContacts": "Agrega contactos para que aparezcan aquí",
       "selectAddressType": "Seleccionar tipo de dirección",
       "tapToGenerate_other": "Toca para ver otras opciones de recepción",
@@ -999,7 +1001,11 @@
       "payMe": "Pago rápido",
       "createInvoice": "Crear factura",
       "invoiceDescription": "Solicita un pago mediante un enlace o código QR.",
-      "poolsDescription": "Reúne contribuciones de un grupo para un objetivo compartido."
+      "poolsDescription": "Reúne contribuciones de un grupo para un objetivo compartido.",
+      "noContactHead": "{{username}} no encontrado",
+      "noContactDesc": "Agrega a {{username}} a tus contactos para encontrarlo aquí en el futuro, o continúa para enviar un pago ahora.",
+      "kenyanPhoneTitle": "Pagar a {{number}}",
+      "kenyanPhoneDesc": "Estás a punto de pagar a un número de teléfono de Kenia"
     },
     "payLinks": {
       "skip": "Omitir",
@@ -1169,7 +1175,8 @@
         "swapRatesChangedTitle": "Tipo de cambio actualizado",
         "swapRatesChangedBody": "El tipo de cambio para este intercambio cambió mientras lo estabas revisando. Vuelve a ingresar el monto para continuar.",
         "swapRatesChangedButton": "Volver a ingresar el monto",
-        "feeEstimateError": "No se pudo estimar la comisión, inténtalo de nuevo"
+        "feeEstimateError": "No se pudo estimar la comisión, inténtalo de nuevo",
+        "brantaVerification": "Este pago ha sido verificado por Branta"
       },
       "selectPaymentMethod": {
         "header": "Selecciona cómo deseas financiar tu pago."
@@ -1294,7 +1301,7 @@
       "payWithUSDb": "Pagar con USDb",
       "chainNotSupportedForAsset": "No disponible en esta red",
       "swapInProgress": "Intercambio en Proceso",
-      "swapInProgressDescription": "Tus fondos han sido enviados. El intercambio de stablecoin está procesándose y puede tardar unos minutos.",
+      "swapInProgressDescription": "Tus fondos han sido enviados. El pago se está procesando y puede tardar unos minutos.",
       "noAmount": "Por favor, ingresa un monto para enviar.",
       "quoteStillLoading": "Obteniendo cotización, por favor espera un momento.",
       "noQuote": "No se pudo obtener una cotización. Por favor, inténtalo de nuevo.",
@@ -1370,8 +1377,10 @@
     },
     "remotePaymentCurrencySelect": {
       "title": "Moneda de recepción",
+      "description": "Elige cómo deseas recibir pagos de contactos y de tu dirección Lightning.",
       "futurePaymentsMessage": "Todos los pagos futuros se recibirán en {{option}}",
-      "warningMessage": "Al seleccionar {{option}}, hay un mínimo de {{amount}}. Los pagos más pequeños se recibirán en Bitcoin."
+      "warningMessage": "Al seleccionar {{option}}, hay un mínimo de {{amount}}. Los pagos más pequeños se recibirán en Bitcoin.",
+      "changeSelectionError": "{{option}} ya está seleccionado. Cambia tu selección para actualizar la configuración."
     },
     "selectCurrencyToSend": {
       "header": "¿Qué deseas enviar?"
@@ -1607,7 +1616,9 @@
       "createPinPageHeader": "{{type}} tu PIN de Blitz",
       "invalidPinconfirmation": "Los PIN no coinciden. ¡Intenta de nuevo!",
       "randomPinKeyboardToggle": "Mezclar teclado numérico",
-      "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN."
+      "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN.",
+      "biometricsHead": "Sobre la biometría",
+      "biometricsSubHead": "Tu frase de recuperación está protegida por los datos biométricos actuales de tu dispositivo. Cambiarlos impedirá que Blitz Wallet acceda a tu frase de recuperación y bloqueará el acceso a tu billetera."
     },
     "seedPhrase": {
       "header": "Guarde esta frase semilla en un lugar seguro y protegido",
@@ -2063,7 +2074,9 @@
         "gift": "Regalo",
         "claimPayment": "Reclamar pago",
         "splitPayment": "Dividir",
-        "chainSwap": "Intercambio en Cadena"
+        "chainSwap_other": "Stablecoin",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Soporte"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -2175,7 +2188,8 @@
         "destinationAddress": "Dirección de Destino",
         "destinationAsset": "Activo de Destino",
         "destinationChain": "Cadena de Destino",
-        "transferIds": "Personas incluidas"
+        "transferIds": "Personas incluidas",
+        "bitrefillInvoiceId": "ID de factura de Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Transacciones",
@@ -2481,7 +2495,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Mapa de Bitcoin",
-        "subHeader": "Usa bitcoin localmente"
+        "subHeader": "Gasta con Blitz localmente"
       },
       "map": {
         "title": "Pagar con Bitcoin",
@@ -2497,6 +2511,19 @@
         "lightningMessage": "Acepta pagos en bitcoin instantáneamente a través de la red Lightning",
         "dataMessage": "Datos de btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "No pudimos procesar la respuesta de Bitrefill. Inténtalo de nuevo.",
+      "insufficientBalance": "No tienes saldo suficiente para completar este pago.",
+      "paymentMemo": "Compra de tarjeta de regalo",
+      "paymentFailed": "No se pudo completar tu pago. Inténtalo de nuevo.",
+      "editEmail": "Edita tu correo electrónico",
+      "addEmail": "Agrega tu correo electrónico",
+      "editEmailDesc": "Actualiza tu dirección de correo guardada abajo.",
+      "addEmailDesc": "Guarda tu dirección de correo para pagar más rápido.",
+      "textInputDescriptor": "CORREO ELECTRÓNICO",
+      "emailplaceholder": "tu@ejemplo.com",
+      "emailError": "Ingresa una dirección de correo electrónico válida."
     }
   },
   "toastmessages": {
@@ -2530,6 +2557,7 @@
     "noUserFoundDeeplinkError": "No se pudo encontrar usuario con este nombre.",
     "cannotAddSelfError": "No puedes añadirte como contacto.",
     "fullDeeplinkError": "No se pudo recuperar información de contacto, por favor intenta de nuevo.",
+    "contactNotLoaded": "No se pudo cargar el contacto. Inténtalo de nuevo.",
     "processingDeepLinkError": "Error al procesar enlace: {{error}}",
     "legacyContactError": "El contacto aún no ha actualizado su billetera. Por favor pídele que la actualice para enviarle.",
     "contactInvoiceGenerationError": "Error al generar factura. Asegúrate de que sea una dirección LNURL válida.",
@@ -2562,7 +2590,8 @@
     "removingImageError": "No se pudo eliminar la imagen. Inténtalo de nuevo.",
     "bitcoinInvoiceError": "Hubo un problema al generar tu dirección de Bitcoin. Por favor, inténtalo de nuevo.",
     "usdcUsdtTokensOnly": "Solo se admiten los tokens USDT y USDC",
-    "lightningAmountFeeWarning": "Tu saldo no cubre el monto y la comisión de ≈{{amount}}."
+    "lightningAmountFeeWarning": "Tu saldo no cubre el monto y la comisión de ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Este pago requiere ≈{{amount}}. Reduce el monto o agrega fondos."
   },
   "loadingScreen": {
     "message1": "Por favor no cierres la aplicación",
@@ -2862,6 +2891,10 @@
     "numberOfTxs_other": "{{count}} transacciones",
     "remaining": "Restante",
     "overBy": "Excedido en",
+    "preview": {
+      "title": "Análisis de billetera",
+      "subTitle": "Haz seguimiento de tus ingresos, gastos y presupuesto mensuales de un vistazo."
+    },
     "home": {
       "title": "Analíticas",
       "activityHead": "Actividad mensual",

@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -137,6 +138,11 @@ const mediumOperations = [
   OPERATION_TYPES.createSatsInvoice,
   OPERATION_TYPES.createTokensInvoice,
   OPERATION_TYPES.getLightningPaymentQuote,
+  OPERATION_TYPES.getLightningFee,
+  OPERATION_TYPES.getSparkPaymentFee,
+  OPERATION_TYPES.getUserSwapHistory,
+  OPERATION_TYPES.checkClawbackEligibility,
+  OPERATION_TYPES.checkClawbackStatus,
 ];
 
 const rejectIfNotConnectedToInternet = [
@@ -693,6 +699,7 @@ export const WebViewProvider = ({ children }) => {
           if (expectedNonceRef.current !== decodedNonce) {
             // no need to handle anything here, will be handled with timeout
             console.log('Invalid runtime nonce, something went wrong');
+            aesKeyRef.current = null;
             return;
           }
           nonceVerified.current = true;
@@ -1366,16 +1373,24 @@ export const WebViewProvider = ({ children }) => {
     [blockAndResetWebview],
   );
 
+  const providerValues = useMemo(() => {
+    return {
+      webViewRef,
+      sendWebViewRequest: sendWebViewRequestInternal,
+      fileHash,
+      changeSparkConnectionState,
+      didRunHandshakeRef,
+    };
+  }, [
+    webViewRef,
+    sendWebViewRequestInternal,
+    fileHash,
+    changeSparkConnectionState,
+    didRunHandshakeRef,
+  ]);
+
   return (
-    <WebViewContext.Provider
-      value={{
-        webViewRef,
-        sendWebViewRequest: sendWebViewRequestInternal,
-        fileHash,
-        changeSparkConnectionState,
-        didRunHandshakeRef,
-      }}
-    >
+    <WebViewContext.Provider value={providerValues}>
       {children}
       {verifiedPath && (
         <WebView

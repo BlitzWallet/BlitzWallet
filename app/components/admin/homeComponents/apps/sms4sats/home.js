@@ -433,7 +433,7 @@ function SMSHistoryCard({
   t,
   theme,
 }) {
-  const { backgroundColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const [isLoading, setIsLoading] = useState(false);
   const isReceive = item.recordType === 'received';
   const isRecivePending = isReceive && item.isPending;
@@ -481,7 +481,7 @@ function SMSHistoryCard({
   }, [isReceive, item.code, item.isPending, t]);
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
       <View
         style={[
           styles.contentContainer,
@@ -525,7 +525,7 @@ function SMSHistoryCard({
           style={[
             styles.copyButton,
             {
-              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+              backgroundColor,
             },
           ]}
           onPress={() => {

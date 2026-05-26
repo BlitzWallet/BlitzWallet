@@ -1,4 +1,6 @@
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { COLORS, SIZES } from '../../../../constants';
@@ -6,18 +8,32 @@ import { useTranslation } from 'react-i18next';
 import WidgetCard from './WidgetCard';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useGifts } from '../../../../../context-store/giftContext';
+import { getAllLocalGifts } from '../../../../functions/gift/giftsStorage';
 import GiftCardItem from '../../../../components/admin/homeComponents/gifts/giftCardItem';
 
 export default function GiftsPreview({ onPress }) {
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { giftsArray } = useGifts();
+  const [giftsArray, setGiftsArray] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      (async () => {
+        const all = await getAllLocalGifts(2);
+        if (cancelled) return;
+        setGiftsArray(all.sort((a, b) => b.giftNum - a.giftNum));
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
 
   const shownGifts = giftsArray.slice(0, 2);
-  const hasMoreGifts = giftsArray.length > 2;
-  const numberOfMoreGifts = giftsArray.length - 2;
+  // const hasMoreGifts = giftsArray.length > 2;
+  // const numberOfMoreGifts = giftsArray.length - 2;
 
   if (!giftsArray.length) {
     return (
@@ -81,14 +97,14 @@ export default function GiftsPreview({ onPress }) {
           from="preview"
         />
       ))}
-      {hasMoreGifts && (
+      {/* {hasMoreGifts && (
         <ThemeText
           styles={styles.rateText}
           content={t('settings.hub.morePoolsCount', {
-            count: numberOfMoreGifts,
+            count: '',
           })}
         />
-      )}
+      )} */}
     </WidgetCard>
   );
 }

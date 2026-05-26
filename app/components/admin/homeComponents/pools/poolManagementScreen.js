@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { ThemeText } from '../../../../functions/CustomElements';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
 import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../../../constants/theme';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -11,6 +14,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import { useTranslation } from 'react-i18next';
 import PoolsInfoCard from './poolsInfoCard';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function PoolManagementScreen() {
   const navigate = useNavigation();
@@ -18,7 +22,7 @@ export default function PoolManagementScreen() {
     activePoolsArray,
     closedPoolsArray,
     syncActivePoolsFromServer,
-    poolsArray,
+    updatePoolList,
   } = usePools();
   const { t } = useTranslation();
 
@@ -62,11 +66,12 @@ export default function PoolManagementScreen() {
   useFocusEffect(
     useCallback(() => {
       async function loadPools() {
-        await syncActivePoolsFromServer(poolsArray);
+        const pools = await updatePoolList();
+        await syncActivePoolsFromServer(pools);
         setIsRefreshing(false);
       }
       loadPools();
-    }, []),
+    }, [updatePoolList, syncActivePoolsFromServer]),
   );
 
   const renderEmptyState = () => (
@@ -123,11 +128,18 @@ export default function PoolManagementScreen() {
   const pools = buildPoolsData();
 
   if (isRefreshing) {
-    return <FullLoadingScreen />;
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <FullLoadingScreen />
+      </GlobalThemeView>
+    );
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <GlobalThemeView useStandardWidth={true}>
+      <CustomSettingsTopBar
+        label={t(`screens.inAccount.settingsContent.pools`)}
+      />
       <FlatList
         data={pools}
         renderItem={renderPoolItem}
@@ -143,7 +155,7 @@ export default function PoolManagementScreen() {
         textContent={t('wallet.pools.createPool')}
         actionFunction={handleCreatePool}
       />
-    </View>
+    </GlobalThemeView>
   );
 }
 

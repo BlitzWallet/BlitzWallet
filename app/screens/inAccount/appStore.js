@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   View,
   ScrollView,
@@ -6,12 +6,16 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { CENTER, SIZES } from '../../constants';
-import { MAX_CONTENT_WIDTH, WINDOWWIDTH } from '../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  MAX_CONTENT_WIDTH,
+  WINDOWWIDTH,
+} from '../../constants/theme';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 import BTCMapPreviewCard from '../../components/admin/homeComponents/store/BTCMapPreviewCard';
 import ProfileImageSettingsNavigator from '../../functions/CustomElements/profileSettingsNavigator';
@@ -19,12 +23,13 @@ import { useGlobalAppData } from '../../../context-store/appData';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
 
-export default function AppStore() {
+export default function AppStore({ navigation }) {
   const navigate = useNavigation();
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const { decodedChatGPT, decodedMessages } = useGlobalAppData();
   const { t } = useTranslation();
+  const scrollViewRef = useRef(null);
 
   const hasLegacyChatGPT =
     (decodedChatGPT?.credits ?? 0) > 0 || Platform.OS === 'android';
@@ -36,17 +41,31 @@ export default function AppStore() {
   const showLegacySection =
     hasLegacyChatGPT || hasLegacySMS || Platform.OS === 'android';
 
+  useFocusEffect(
+    useCallback(() => {
+      if (!navigation) return;
+      const listenerID = navigation?.addListener('tabPress', () => {
+        if (scrollViewRef.current) {
+          scrollViewRef.current.scrollTo({ y: 0, animated: true });
+        }
+      });
+
+      return navigation?.removeListener?.('click', listenerID);
+    }, [navigation]),
+  );
+
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={false}>
       <View style={styles.navbar}>
         <ThemeText
           CustomNumberOfLines={1}
-          content={'Explore'}
+          content={t('apps.appList.title')}
           styles={styles.headerText}
         />
         <ProfileImageSettingsNavigator />
       </View>
       <ScrollView
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
@@ -132,7 +151,7 @@ function PreviewCard({
       style={[styles.previewCard, { backgroundColor: backgroundOffset }]}
     >
       <View style={[styles.previewCardIcon, { backgroundColor }]}>
-        <ThemeIcon size={22} colorOverride={textColor} iconName={icon} />
+        <ThemeIcon size={22} iconName={icon} />
       </View>
       <View style={styles.previewCardBody}>
         <ThemeText content={title} styles={styles.previewCardTitle} />
@@ -193,9 +212,9 @@ const styles = StyleSheet.create({
   },
   previewCardTitle: {
     fontSize: SIZES.medium,
-    fontWeight: 500,
+    includeFontPadding: false,
     marginBottom: 2,
   },
-  previewCardSubtitle: { fontSize: SIZES.xSmall, opacity: 0.55 },
+  previewCardSubtitle: { fontSize: SIZES.small, opacity: HIDDEN_OPACITY },
   previewCardChevron: { fontSize: 20, opacity: 0.4, marginLeft: 8 },
 });

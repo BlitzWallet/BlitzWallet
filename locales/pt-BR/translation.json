@@ -130,7 +130,8 @@
     "print": "Imprimir",
     "transfer": "Transferir",
     "details": "Detalhes",
-    "total": "Total"
+    "total": "Total",
+    "stablecoinRefundReceived": "Reembolso de Dólar digital"
   },
   "languages": {
     "english": "English",
@@ -290,18 +291,19 @@
   "apps": {
     "noPurchaseTitle": "Nenhuma compra",
     "appList": {
+      "title": "Explorar",
       "AI": "IA generativa",
       "AIDescription": "Converse com os modelos mais recentes de IA generativa",
       "SMS": "Mensagens SMS",
-      "SMSDescription": "Envie e receba mensagens SMS no mundo todo usando Bitcoin",
+      "SMSDescription": "Envie e receba mensagens SMS no mundo todo",
       "VPN": "VPN",
       "VPNDescription": "Navegue com segurança e proteja sua privacidade",
-      "onlineListings": "Sites online",
-      "onlineListingsDescription": "Explore empresas online que aceitam Bitcoin",
-      "shop": "Compre com Bitcoin",
+      "onlineListings": "Lojas virtuais",
+      "onlineListingsDescription": "Empresas online que aceitam Blitz",
+      "shop": "Compre na Bitrefill",
       "shopDescription": "Cartões-presente, eSIMs e mais",
       "Soon": "Em breve",
-      "SoonDescription": "Mais integrações chegando em breve"
+      "SoonDescription": "Mais integrações em breve"
     },
     "VPN": {
       "VPNPlanPage": {
@@ -382,8 +384,8 @@
         "bestValue": "Melhor custo-benefício",
         "feature1": "Acesse os modelos de IA mais recentes",
         "feature2": "Sem assinaturas — pague conforme o uso",
-        "feature3": "Pagamentos privados com Lightning",
-        "feature4": "Escolha o tamanho do seu plano",
+        "feature3": "Pagamentos privados com Blitz",
+        "feature4": "Escolha um plano",
         "feature5": "Compras simples e únicas"
       },
       "countrySearch": {
@@ -972,10 +974,10 @@
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
-      "inputPlaceholder": "@Usuário, Bitcoin, Tokens Spark ou USDT/USDC ",
+      "inputPlaceholder": "Insira @perfil, Bitcoin ou endereço USDT/USDC",
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
-      "chooseWhatToSend": "O que você deseja enviar?",
+      "chooseWhatToSend": "Escolha como financiar este pagamento",
       "noContacts": "Adicione contatos para que apareçam aqui",
       "selectAddressType": "Selecionar tipo de endereço",
       "tapToGenerate_other": "Toque para ver outras opções",
@@ -995,11 +997,15 @@
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
       "noAddedContactsTitle": "Nenhum contato adicionado",
-      "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui.",
-      "payMe": "Endereço Lightning",
+      "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui",
+      "payMe": "Endereço Blitz",
       "createInvoice": "Criar Fatura",
       "invoiceDescription": "Escolha a moeda e quantia desejada",
-      "poolsDescription": "Colete pagamentos para um objetivo"
+      "poolsDescription": "Colete pagamentos para um objetivo",
+      "noContactHead": "{{username}} não encontrado",
+      "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora.",
+      "kenyanPhoneTitle": "Pagar {{number}}",
+      "kenyanPhoneDesc": "Você está prestes a pagar um número de telefone queniano"
     },
     "payLinks": {
       "skip": "Pular",
@@ -1083,7 +1089,7 @@
       "info": {
         "title": "Entendendo as Vaquinhas",
         "whatArePools": "O que são Vaquinhas?",
-        "whatArePoolsBody": "As Vaquinhas permitem que você colete pagamentos em Bitcoin para um objetivo qualquer. Crie uma Vaquinha, defina um valor alvo e compartilhe com quem quiser.",
+        "whatArePoolsBody": "As Vaquinhas permitem que você colete pagamentos em Bitcoin para um objetivo qualquer. Crie uma Vaquinha, defina um valor alvo e compartilhe com quem quiser",
         "howItWorks": "Como funciona",
         "howStep1": "• Crie uma nova Vaquinha com um nome e um valor alvo",
         "howStep2": "• Compartilhe o link da Vaquinha com outras pessoas",
@@ -1114,7 +1120,7 @@
     "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
     "contactsPage": {
       "header": "Selecione o contato",
-      "inputTextPlaceholder": "Procurar nome de usuário...",
+      "inputTextPlaceholder": "Procurar perfil...",
       "subHeader": "Meus contatos",
       "giftsText": "Cartões-presente recebidos"
     },
@@ -1147,13 +1153,13 @@
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
-        "lightningTitle": "Endereço Lightning",
+        "lightningTitle": "Endereço Blitz",
         "liquidTitle": "Endereço Liquid",
         "rootstockTitle": "Endereço Rootstock"
       },
       "editLNURLContact": {
-        "informationMessage": "Alterar seu nome de usuário atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Lightning (usuário@blitzwalletapp.com).\n\nUm endereço Lightning permite que outras pessoas lhe enviem Bitcoin facilmente. Basta compartilhar seu endereço (usuário@blitzwalletapp.com) para receber um pagamento.",
-        "usernameInputDesc": "Editar nome de usuário"
+        "informationMessage": "Alterar seu perfil atualiza a forma como outras pessoas o encontram nos contatos Blitz e também altera seu endereço Blitz (perfil@blitzwalletapp.com).\n\nUm endereço Blitz permite que outras pessoas lhe enviem dinheiro facilmente. Basta compartilhar seu endereço (perfil@blitzwalletapp.com) para receber um pagamento.",
+        "usernameInputDesc": "Editar perfil"
       }
     },
     "sendPages": {
@@ -1169,20 +1175,21 @@
         "swapRatesChangedTitle": "Cotação atualizada",
         "swapRatesChangedBody": "A cotação para esta troca mudou enquanto você estava revisando. Insira o valor novamente para continuar.",
         "swapRatesChangedButton": "Inserir valor novamente",
-        "feeEstimateError": "Não foi possível estimar a taxa, tente novamente"
+        "feeEstimateError": "Não foi possível estimar a taxa, tente novamente",
+        "brantaVerification": "Este pagamento foi verificado pela Branta"
       },
       "selectPaymentMethod": {
         "header": "Escolha o saldo para realizar esse pagamento"
       },
       "handlingAddressErrors": {
         "invalidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
-        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin, endereço/fatura Lightning ou um endereço USDT/USDC de uma rede suportada.",
+        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin, endereço Blitz/fatura ou um endereço USDT/USDC de uma rede suportada.",
         "paymentProcessingError": "Erro ao processar informações de pagamento",
         "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
         "processInputError": "Não é possível processar a entrada",
         "unkonwDecodeError": "Ocorreu um erro de decodificação desconhecido",
         "invalidInputType": "Não é um tipo de endereço válido",
-        "expiredLightningInvoice": "Esta fatura lightning expirou",
+        "expiredLightningInvoice": "Esta fatura expirou",
         "lnurlAuthStartMeessage": "Iniciando autenticação LNURL",
         "lnurlFailedAuthMessage": "Falha ao autenticar LNURL",
         "lnurlConfirmMessage": "LNURL autenticado com sucesso",
@@ -1253,7 +1260,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Digite o destino",
-        "paymentTypesDesc": "A Blitz Wallet pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Lightning"
+        "paymentTypesDesc": "A Blitz Wallet pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Blitz"
       },
       "sparkErrorScreen": {
         "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase de recuperação mantém seus fundos seguros.",
@@ -1294,7 +1301,7 @@
       "payWithUSDb": "Pagar com USDB",
       "chainNotSupportedForAsset": "Não disponível nesta rede",
       "swapInProgress": "Transação em andamento",
-      "swapInProgressDescription": "Seus fundos foram enviados. O pagamento de dólar digital está sendo processado e pode levar alguns minutos.",
+      "swapInProgressDescription": "Seus fundos foram enviados. O pagamento está sendo processado e pode levar alguns minutos.",
       "noAmount": "Por favor, insira uma quantia para enviar.",
       "quoteStillLoading": "Obtendo cotação, aguarde um momento.",
       "noQuote": "Não foi possível obter uma cotação. Por favor, tente novamente.",
@@ -1321,7 +1328,7 @@
       "notFound": "não encontrado.",
       "noContent": {
         "editProfileTitle": "Editar seu perfil",
-        "editProfileDescription": "Adicione seus dados para que outras pessoas possam encontrá-lo e pagar você facilmente.",
+        "editProfileDescription": "Adicione seus dados para que outras pessoas possam encontrá-lo e pagar você facilmente",
         "addContactstitle": "Nenhum contato adicionado",
         "addContactsDescription": "Seus contatos aparecerão aqui quando você adicionar um."
       }
@@ -1332,13 +1339,13 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz.",
+      "startTypingMessage": "Procurar por endereço de pagamento (ex. perfil@domínio.com) ou perfil Blitz",
       "loadingMessage": "Procurando contato...",
       "profileImage": "Carregando foto de perfil..."
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
-      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços Lightning.",
+      "requestLNURLError": "Só é possível solicitar dinheiro dos contatos Blitz",
       "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações."
     },
     "expandedMessageHalfModal": {
@@ -1346,32 +1353,34 @@
       "noDescription": "Sem descrição"
     },
     "editMyProfilePage": {
-      "navTitle": "Editar perfil",
+      "navTitle": "Editar",
       "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Digite seu nome",
-      "lnurlInputDesc": "Endereço Lightning",
-      "lnurlInputPlaceholder": "Digite seu endereço Lightning",
-      "uniqueNameInputDesc": "Nome de usuário",
-      "uniqueNameInputPlaceholder": "Digite seu nome de usuário",
+      "lnurlInputDesc": "Endereço Blitz",
+      "lnurlInputPlaceholder": "Digite seu endereço Blitz",
+      "uniqueNameInputDesc": "Perfil",
+      "uniqueNameInputPlaceholder": "Digite seu perfil",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Escreva uma introdução curta",
       "addContactBTN": " Adicionar contato",
-      "unqiueNameRegexError": "O nome de usuário só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
-      "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
+      "unqiueNameRegexError": "O perfil só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
+      "usernameAlreadyExistsError": "Este perfil já existe, escolha outro.",
       "unableToSaveError": "Não foi possível salvar a imagem do perfil, tente novamente.",
       "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
       "deleteWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas.",
       "receiveCurrencyPillTitle": "Moeda de recebimento",
-      "receiveCurrencyPillDesc": "Defina como você recebe pelo seu endereço Lightning",
+      "receiveCurrencyPillDesc": "Defina a moeda padrão nos recebimentos por endereço Blitz",
       "invalidCharactersError": "O nome e a bio não podem conter os caracteres < > { } ` \\",
-      "invalidReceiveAddressError": "Digite um endereço Lightning válido (ex.: usuario@dominio.com)",
+      "invalidReceiveAddressError": "Digite um endereço de pagamento válido (ex.: usuario@dominio.com)",
       "aboutYou": "Sobre você",
-      "lightningAddress": "Endereço Lightning"
+      "lightningAddress": "Endereço Blitz"
     },
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",
+      "description": "Escolha a moeda padrão nos recebimentos de pagamentos de contatos e do seu endereço Blitz",
       "futurePaymentsMessage": "Todos os pagamentos futuros serão recebidos em {{option}}",
-      "warningMessage": "Ao selecionar {{option}}, há um mínimo de {{amount}}. Pagamentos menores serão recebidos em Bitcoin."
+      "warningMessage": "Pagamentos em {{option}} menores do que {{amount}} serão recebidos em Bitcoin.",
+      "changeSelectionError": "{{option}} já está selecionado. Altere sua seleção para atualizar sua configuração."
     },
     "selectCurrencyToSend": {
       "header": "O que você deseja enviar?"
@@ -1445,8 +1454,8 @@
     },
     "showProfileQr": {
       "header": "Compartilhar perfil",
-      "lnAddress": "Endereço Lightning",
-      "blitzContact": "Contato Blitz",
+      "lnAddress": "Endereço Blitz",
+      "blitzContact": "Meu perfil",
       "copyMessage": "Copiado!",
       "lnurlCopy": "Copiar endereço",
       "blitzCopy": "Copiar link",
@@ -1489,13 +1498,13 @@
     },
     "editProfileFieldPage": {
       "nameDescription": "Seu nome de exibição é como as outras pessoas veem você. Ele pode ser alterado a qualquer momento.",
-      "uniquenameDescription": "Alterar seu nome de usuário também altera seu endereço Lightning. Pagamentos para seu nome de usuário antigo serão perdidos.",
+      "uniquenameDescription": "Alterar seu perfil também altera seu endereço Blitz. Pagamentos para seu perfil antigo serão perdidos.",
       "bioDescription": "Sua bio é uma breve descrição para ajudar outras pessoas a conhecer você."
     }
   },
   "settings": {
     "index": {
-      "editProfile": "Editar perfil",
+      "editProfile": "Editar",
       "showQR": "Código QR",
       "identiconMessage": "Este design é único para sua carteira e ajuda outras pessoas a confirmar que é realmente você ao adicionar seu contato.",
       "profileHead": "Perfil",
@@ -1610,7 +1619,9 @@
       "createPinPageHeader": "{{type}} seu PIN Blitz",
       "invalidPinconfirmation": "Os PINs não correspondem. Tente novamente!",
       "randomPinKeyboardToggle": "Embaralhar teclado",
-      "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN."
+      "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN.",
+      "biometricsHead": "Sobre biometria",
+      "biometricsSubHead": "Sua frase de recuperação é protegida pelos dados biométricos atuais do seu dispositivo. Alterá-los impedirá que a Blitz Wallet acesse sua frase de recuperação e bloqueará o acesso à sua carteira."
     },
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",
@@ -1714,8 +1725,8 @@
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
       "contactDesc": "Pagamentos recebidos dos seus contatos salvos",
-      "lnurl": "Endereço Lightning",
-      "lnurlDesc": "Pagamentos recebidos pelo seu endereço Lightning",
+      "lnurl": "Endereço Blitz",
+      "lnurlDesc": "Pagamentos recebidos pelo seu endereço Blitz",
       "nostrZaps": "Nostr Zaps",
       "nostrZapsDesc": "Pagamentos Zap enviados ao seu perfil Nostr",
       "nwc": "Conexão Nostr",
@@ -1757,11 +1768,11 @@
       "takenNameError": "Nome já escolhido",
       "nameConfirmationMessage": "NIP-05 adicionado com sucesso! Observe que pode levar até 24 horas para aparecer, pois a lista é atualizada uma vez por dia.",
       "title": "Veriticação Nip5",
-      "desc": "O Nip5 transforma sua longa chave Npub em um pequeno endereço com estrutura de e-mail, parecido com um endereço lightning.",
+      "desc": "O Nip5 transforma sua longa chave Npub em um pequeno endereço com estrutura de e-mail, parecido com um endereço Blitz.",
       "dataIsInvalid": "Algo deu errado, tente novamente,",
-      "usernameInputLabel": "Nome de usuário",
+      "usernameInputLabel": "Perfil",
       "usernameInputPlaceholder": "Satoshi...",
-      "publicKeyLabel": "Nome de usuário",
+      "publicKeyLabel": "Perfil",
       "publicKeyPlaceholder": "Npub...",
       "errors": {
         "invalidPubKey": "Chave pública inválida: precisa ser uma string não vazia",
@@ -1966,7 +1977,7 @@
         "payingMessage": "Pagando...",
         "notifyngMessage": "Notificando...",
         "errorPaying": "Não foi possível pagar o contato Blitz. Tente novamente mais tarde.",
-        "invalidName": "Nome não é um endereço Lightning nem um usuário Blitz.",
+        "invalidName": "Nome não é um endereço Blitz nem um usuário Blitz.",
         "removeEmployeeWarning": "Tem certeza de que deseja remover este funcionário?",
         "startingPaymentProcessMessage": "'Ao iniciar o processo de pagamento, por favor, não saia desta página ou do aplicativo.",
         "goBack": "Voltar",
@@ -2063,7 +2074,9 @@
         "gift": "Vale-Blitz",
         "claimPayment": "Reivindicar pagamento",
         "splitPayment": "Dividir",
-        "chainSwap": "Dólar digital"
+        "chainSwap_other": "Dólar digital",
+        "chainSwap_lightning": "Lightning",
+        "contactSupport": "Suporte"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
@@ -2088,7 +2101,7 @@
         "onchainFeeMessage": "Para receber pagamentos em endereços Bitcoin, você pagará uma taxa de rede. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",
         "liquidFeeMessage": "Para receber pagamentos em endereços Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de reivindicação de ~{{claimFee}} e uma taxa de serviço de 0,1% da Boltz.",
         "rootstockFeeMessage": "Para receber pagamentos em endereços Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço de 0,1% da Boltz.",
-        "lightningConvertMessage": "Receber dólares via Lightning exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
+        "lightningConvertMessage": "Receber dólares por essa rede exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "receiveAsHeader": "Receber em",
@@ -2097,14 +2110,14 @@
         "receiveAs_spark_USD": "Dólares",
         "receiveAs_lightning_USD": "Converter para dólares",
         "amount_USD_MIN": "Mín. {{swapAmountSat}}",
-        "invoiceDescription_lightningInvoice": "Fatura Lightning",
-        "invoiceDescription_lightningAddress": "Endereço Lightning",
+        "invoiceDescription_lightningInvoice": "Fatura",
+        "invoiceDescription_lightningAddress": "Endereço Blitz",
         "invoiceDescription_bitcoinAddress": "Endereço Bitcoin",
         "invoiceDescription_liquidAddress": "Endereço Liquid",
         "invoiceDescription_sparkAddress": "Endereço Spark",
         "invoiceDescription_rootstockAddress": "Endereço Rootstock",
-        "header_lightning_btc": "Bitcoin via Lightning",
-        "header_lightning_usd": "Dólares via Lightning",
+        "header_lightning_btc": "Bitcoin via Blitz",
+        "header_lightning_usd": "Dólares via Blitz",
         "header_bitcoin": "Bitcoin",
         "header_spark_btc": "Bitcoin/Tokens via Spark",
         "header_spark_usd": "Dólares via Spark",
@@ -2130,7 +2143,7 @@
         "about": "Sobre",
         "language": "Idioma",
         "display currency": "Moeda de exibição",
-        "receive currency": "Endereço Lightning",
+        "receive currency": "Endereço Blitz",
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
@@ -2157,8 +2170,8 @@
         "show seed phrase": "Fazer backup da carteira"
       },
       "remotePayments": {
-        "lnAddress": "Endereço Lightning",
-        "lnurlPageDesc": "Seu endereço Lightning permite que qualquer pessoa pague você sem precisar de fatura."
+        "lnAddress": "Endereço Blitz",
+        "lnurlPageDesc": "Seu endereço Blitz permite que qualquer pessoa pague você diretamente, sem necessidade de solicitar faturas."
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
@@ -2175,12 +2188,13 @@
         "destinationAddress": "Endereço de destino",
         "destinationAsset": "Moeda de destino",
         "destinationChain": "Rede de destino",
-        "transferIds": "Pessoas incluídas"
+        "transferIds": "Pessoas incluídas",
+        "bitrefillInvoiceId": "ID da fatura Bitrefill"
       },
       "viewAllTxPage": {
         "title": "Transações",
         "filterAll": "Todas",
-        "filterLightning": "Lightning",
+        "filterLightning": "Blitz",
         "filterBitcoin": "Bitcoin",
         "filterSpark": "Spark",
         "filterContacts": "Contatos",
@@ -2237,7 +2251,7 @@
         "balanceDenominationHeader": "Selecione a moeda para o seu Vale-Blitz",
         "giftsOverview": {
           "noGiftsHead": "Nenhum Vale-Blitz ainda",
-          "noGiftsDesc": "Crie seu primeiro Vale-Blitz para presentear amigos e familiares com bitcoin ou dólares.",
+          "noGiftsDesc": "Crie seu primeiro Vale-Blitz para presentear amigos e familiares com bitcoin ou dólares",
           "createGift": "Criar Vale-Blitz",
           "claimed": "Resgatado",
           "expired": "Expirado",
@@ -2438,17 +2452,17 @@
       "sectionTitle": "Endereços ativos",
       "empty": {
         "title": "Nenhum endereço de conversão automática",
-        "subtitle": "Crie endereços USDT ou USDC em que os depósitos recebidos são convertidos automaticamente para bitcoin ou dólares"
+        "subtitle": "Crie endereços USDT ou USDC em que os depósitos recebidos são convertidos automaticamente em bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
       "info": {
         "title": "Para que serve?",
         "whatAre": "Para que serve?",
-        "whatAreBody": "Você recebe endereços únicos de USDC ou USDT em que os valores recebidos neles são automaticamente convertidos em bitcoin ou dólares e enviados para sua carteira.",
+        "whatAreBody": "Você recebe endereços únicos de USDC ou USDT em que os valores recebidos neles são automaticamente convertidos em bitcoin ou dólares e enviados para sua carteira",
         "howItWorks": "Como funciona",
-        "step1": "1. Compartilhe seu endereço de depósito com um remetente ou corretora.",
-        "step2": "2. Os fundos recebidos são automaticamente convertidos.",
-        "step3": "3. O valor convertido chega na sua carteira."
+        "step1": "1. Compartilhe seu endereço de depósito com um remetente ou corretora",
+        "step2": "2. Os fundos recebidos são automaticamente convertidos",
+        "step3": "3. O valor convertido chega na sua carteira"
       },
       "detail": {
         "copyAddress": "Copiar endereço",
@@ -2480,23 +2494,36 @@
     },
     "btcMap": {
       "mapPreview": {
-        "header": "Mapa do Bitcoin",
-        "subHeader": "Use bitcoin localmente"
+        "header": "Mapa Blitz",
+        "subHeader": "Compre no comércio local"
       },
       "map": {
-        "title": "Pagar com Bitcoin",
+        "title": "Pagar com Blitz",
         "loadingMap": "Carregando mapa...",
-        "loadingMerchants": "Carregando comerciantes...",
-        "zoomIn": "Aproxime para ver todos os comerciantes"
+        "loadingMerchants": "Carregando lista de lojas...",
+        "zoomIn": "Aproxime para ver todas as lojas"
       },
       "merchant": {
-        "noName": "Comerciante desconhecido",
+        "noName": "Loja desconhecida",
         "directions": "Direções",
         "pay": "Pagar",
-        "lightning": "Lightning",
-        "lightningMessage": "Aceita pagamentos em bitcoin instantaneamente pela rede Lightning",
+        "lightning": "Blitz",
+        "lightningMessage": "Aceita pagamentos Blitz",
         "dataMessage": "Dados do btcmap.org"
       }
+    },
+    "bitrefill": {
+      "invalidInvoice": "Não foi possível processar a resposta da Bitrefill. Tente novamente.",
+      "insufficientBalance": "Você não tem saldo suficiente para concluir este pagamento.",
+      "paymentMemo": "Compra de cartão-presente",
+      "paymentFailed": "Não foi possível concluir seu pagamento. Tente novamente.",
+      "editEmail": "Editar seu e-mail",
+      "addEmail": "Adicione seu e-mail",
+      "editEmailDesc": "Atualize seu endereço de e-mail salvo abaixo.",
+      "addEmailDesc": "Salve seu endereço de e-mail para finalizar as compras mais rápido",
+      "textInputDescriptor": "E-MAIL",
+      "emailplaceholder": "Insira seu e-mail",
+      "emailError": "Insira um endereço de e-mail válido."
     }
   },
   "toastmessages": {
@@ -2527,12 +2554,13 @@
     "updateContactMessageError": "Ocorreu um problema ao atualizar esta mensagem. Tente novamente.",
     "declinePaymentError": "Ocorreu um problema ao recusar este pagamento, tente novamente.",
     "payingContactError": "Não conseguimos obter o endereço de contato, tente novamente.",
-    "noUserFoundDeeplinkError": "Não foi possível encontrar nenhum usuário para este nome de usuário.",
+    "noUserFoundDeeplinkError": "Não foi possível encontrar nenhum usuário para este perfil.",
     "cannotAddSelfError": "Você não pode adicionar a si mesmo como um contato.",
     "fullDeeplinkError": "Não foi possível recuperar as informações de contato, tente novamente.",
+    "contactNotLoaded": "Contato não carregado. Tente novamente.",
     "processingDeepLinkError": "Falha ao processar o link: {{error}}",
     "legacyContactError": "O contato ainda não atualizou a carteira. Peça para ele atualizar a carteira para enviar isso..",
-    "contactInvoiceGenerationError": "Erro ao gerar fatura. Certifique-se de que seja um endereço Lightning válido.",
+    "contactInvoiceGenerationError": "Erro ao gerar fatura. Certifique-se de que seja um endereço Blitz válido.",
     "explorePagenoDataError": "Não foi possível recuperar a contagem de usuários da Blitz Wallet.",
     "savingFileError": "Erro ao salvar arquivo no documento",
     "savingFilePermissionsError": "Erro ao obter permissões",
@@ -2551,7 +2579,7 @@
     "liquidInvoiceError": "Ocorreu um problema ao gerar seu endereço Liquid. Tente novamente.",
     "bitcoinInvoiceError": "Ocorreu um problema ao gerar seu endereço Bitcoin. Tente novamente..",
     "sparkInvoiceError": "Ocorreu um problema ao gerar seu endereço Spark. Tente novamente.",
-    "lightningInvoiceError": "Ocorreu um problema ao gerar seu endereço Lightning. Tente novamente.",
+    "lightningInvoiceError": "Ocorreu um problema ao gerar seu endereço Blitz. Tente novamente.",
     "sparkConnectionError": "Falha na conexão com a Spark. Tente novamente..",
     "giftCardExpiration": "Os vales-presente só podem ser recuperados em até 7 dias após o envio. Se este aplicativo for excluído ou o armazenamento local for limpo após esse período, seus vales-presente serão perdidos. Guarde os links de resgate ou os códigos dos vales-presente em um local seguro.",
     "receivedRootstock": "Pagamento Rootstock recebido — sua troca está começando. Pode levar até um minuto, então mantenha o aplicativo aberto.",
@@ -2562,7 +2590,8 @@
     "priceImpact": "Este pagamento é grande, portanto o valor final que você receber em dólares pode mudar.",
     "removingImageError": "Não foi possível remover a imagem. Tente novamente.",
     "usdcUsdtTokensOnly": "Apenas os tokens USDT e USDC são suportados",
-    "lightningAmountFeeWarning": "Seu saldo não cobre o valor e a taxa de ≈{{amount}}."
+    "lightningAmountFeeWarning": "Seu saldo não cobre o valor e a taxa de ≈{{amount}}.",
+    "lightningAmountRequiredWarning": "Este pagamento requer ≈{{amount}}. Reduza o valor ou adicione fundos."
   },
   "loadingScreen": {
     "message1": "Por favor, não feche o aplicativo",
@@ -2674,7 +2703,7 @@
       "setGoalSubtitle": "Poupe e realize seus sonhos",
       "savingsGoalFallback": "Meta de poupança",
       "createAnotherGoal": "Criar outra meta",
-      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, um dólar digital emitido pela Brale e totalmente coberto 1:1 por títulos do tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. O Dólar digital USDB não é segurado pelo FDIC. Não é um produto bancário."
+      "disclaimer": "O saldo nas Caixinhas é mantido em USDB, um dólar digital emitido pela Brale e totalmente coberto 1:1 por títulos do tesouro dos EUA e equivalentes de caixa em instituições financeiras regulamentadas. As recompensas são pagas em Bitcoin através da Flashnet e é variável, não garantido e pode ser zero. O Dólar digital USDB não é segurado pelo FDIC. Não é um produto bancário"
     },
     "preview": {
       "title": "Caixinhas",
@@ -2728,12 +2757,12 @@
       "title": "Meta removida"
     },
     "actionButtons": {
-      "addMoney": "Guardar dinheiro",
+      "addMoney": "Depositar",
       "withdraw": "Resgatar"
     },
     "activity": {
       "title": "Atividade",
-      "emptyState": "As transações futuras aparecerão aqui."
+      "emptyState": "As transações futuras aparecerão aqui"
     },
     "addMoney": {
       "chooseGoalTitle": "Guardar dinheiro em",
@@ -2761,7 +2790,7 @@
       },
       "pageDescription": "Adicione dinheiro do seu saldo {{fromBalance}} para o seu saldo {{destination}}",
       "noSourceTitle": "Sem fundos disponíveis",
-      "noSourceSubtitle": "Adicione Bitcoin ou USD à sua carteira. Usar o saldo Bitcoin para realizar esse pagamento requer pelo menos {{amount}}.",
+      "noSourceSubtitle": "Deposite Bitcoin ou USD na sua carteira. Usar o saldo Bitcoin para adicionar fundos nas Caixinhas requer pelo menos {{amount}}",
       "noUSDInfoMessage": "É necessário um saldo em USD maior que {{amount}} para depositar nas Caixinhas.",
       "noBTCInfoMessage": "É necessário um saldo em Bitcoin maior que o valor mínimo de trocas, que é de {{amount}}, para depositar nas Caixinhas."
     },
@@ -2771,7 +2800,7 @@
       "savingsOption": "Saldo de Caixinhas",
       "interestZeroHint": "Não há recompensas para resgatar",
       "savingsZeroHint": "Nada salvo ainda",
-      "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para troca por USD. Por favor, transfira para o seu saldo em Bitcoin.",
+      "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para trocar por USD. Por favor, transfira para o seu saldo em Bitcoin",
       "loadingBalances": "Carregando saldos...",
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
@@ -2862,6 +2891,10 @@
     "numberOfTxs_other": "{{count}} transações",
     "remaining": "Restante",
     "overBy": "Excedido em",
+    "preview": {
+      "title": "Análises da carteira",
+      "subTitle": "Acompanhe sua renda, gastos e orçamento mensais rapidamente."
+    },
     "home": {
       "title": "Análise da conta",
       "activityHead": "Atividade mensal",

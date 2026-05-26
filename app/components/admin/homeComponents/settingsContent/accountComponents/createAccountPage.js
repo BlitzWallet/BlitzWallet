@@ -39,6 +39,7 @@ import getClipboardText from '../../../../../functions/getClipboardText';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { KeyboardController } from 'react-native-keyboard-controller';
 const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
@@ -288,7 +289,7 @@ export default function CreateCustodyAccountPage(props) {
       () => {
         setCurrentFocused(null);
         setIsKeyboardActive(false);
-        Keyboard.dismiss();
+        KeyboardController.dismiss();
       },
     );
 
