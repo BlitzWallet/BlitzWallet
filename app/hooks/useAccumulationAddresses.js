@@ -51,6 +51,15 @@ export function useAccumulationAddresses() {
     async ({ sourceChain, sourceAsset, destinationAsset }) => {
       if (!contactsPrivateKey || !publicKey) return { error: 'no_keys' };
       try {
+        const alreadySaved = addresses.find(
+          addr =>
+            addr?.sourceAsset === sourceAsset &&
+            addr?.sourceChain === sourceChain &&
+            addr?.destinationAsset === destinationAsset,
+        );
+
+        if (alreadySaved) return { address: alreadySaved?.depositAddress };
+
         const identityKey = await deriveSparkIdentityKey(accountMnemoinc, 1);
         const sparkAddress = await deriveSparkAddress(identityKey.publicKey);
 
