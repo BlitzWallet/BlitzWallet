@@ -5,7 +5,6 @@ import {
   EditReceivePaymentInformation,
   ErrorScreen,
   SendPaymentScreen,
-  SwitchReceiveOptionPage,
   ConfirmSplitPayment,
 } from '../app/components/admin';
 import {
@@ -113,7 +112,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
     name: 'EditReceivePaymentInformation',
     component: EditReceivePaymentInformation,
   },
-  { name: 'SwitchReceiveOptionPage', component: SwitchReceiveOptionPage },
+
   { name: 'ViewAllTxPage', component: ViewAllTxPage },
   { name: 'CameraModal', component: CameraModal },
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },

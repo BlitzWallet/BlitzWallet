@@ -8,7 +8,6 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import {
   HalfModalSendOptions,
-  SwitchReceiveOptionPage,
   HalfModalReceiveOptions,
 } from '../../components/admin';
 import {
@@ -83,7 +82,6 @@ import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analyti
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLightning/halfModalDepositFunds';
-import HalfModalReceiveMethodOptions from '../../components/admin/homeComponents/homeLightning/halfModalReceiveMethodOptions';
 
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
@@ -339,19 +337,6 @@ export default function CustomHalfModal(props) {
       //       handleBackPressFunction={handleBackPressFunction}
       //     />
       //   );
-      case 'switchReceiveOption':
-        return (
-          <SwitchReceiveOptionPage
-            slideOut={slideOut}
-            theme={theme}
-            darkModeType={darkModeType}
-            didWarnSpark={props?.route?.params?.didWarnSpark}
-            didWarnLiquid={props?.route?.params?.didWarnLiquid}
-            didWarnRootstock={props?.route?.params?.didWarnRootstock}
-            endReceiveType={props?.route?.params?.endReceiveType}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
       case 'customInputText':
         return (
           <CustomInputHalfModal
@@ -677,15 +662,17 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
             theme={theme}
             darkModeType={darkModeType}
+            showLightning={props.route.params?.showLightning ?? false}
           />
         );
       case 'receiveMethodOptions':
         return (
-          <HalfModalReceiveMethodOptions
+          <HalfModalDepositFunds
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
             theme={theme}
             darkModeType={darkModeType}
+            showLightning={true}
           />
         );
       default:
@@ -760,7 +747,10 @@ export default function CustomHalfModal(props) {
                   : contentType === 'receiveOptions'
                   ? 0
                   : bottomPadding
-                : contentType === 'onlineListingsFilter'
+                : contentType === 'onlineListingsFilter' ||
+                  contentType === 'depositFunds' ||
+                  contentType === 'receiveMethodOptions' ||
+                  contentType === 'createAccumulationAddress'
                 ? 0
                 : bottomPadding,
           }}
