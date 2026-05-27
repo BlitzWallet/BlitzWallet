@@ -1330,7 +1330,7 @@
         "editProfileTitle": "Editar seu perfil",
         "editProfileDescription": "Adicione seus dados para que outras pessoas possam encontrá-lo e pagar você facilmente",
         "addContactstitle": "Nenhum contato adicionado",
-        "addContactsDescription": "Seus contatos aparecerão aqui quando você adicionar um."
+        "addContactsDescription": "Os contatos adicionados aparecerão aqui"
       }
     },
     "addContactsHalfModal": {
@@ -1344,9 +1344,9 @@
       "profileImage": "Carregando foto de perfil..."
     },
     "expandedContactPage": {
-      "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
+      "loadingContactError": "Não foi possível carregar o contato, tente novamente",
       "requestLNURLError": "Só é possível solicitar dinheiro dos contatos Blitz",
-      "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações."
+      "noTransactions": "Envie ou solicite pagamentos para ver o histórico de transações"
     },
     "expandedMessageHalfModal": {
       "title": "Mensagem completa",
