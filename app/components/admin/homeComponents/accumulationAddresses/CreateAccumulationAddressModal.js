@@ -279,30 +279,61 @@ export default function CreateAccumulationAddressModal({
       />
 
       <View style={styles.confirmContent}>
-        <View style={styles.confirmIconWrapper}>
-          <View
-            style={[
-              styles.confirmChainCircle,
-              { backgroundColor: backgroundOffset },
-            ]}
-          >
-            <Image
-              style={styles.confirmChainIcon}
-              source={ICONS[`chain_${selectedChain?.label.toLowerCase()}`]}
-              contentFit="contain"
-            />
+        <View style={styles.assetRow}>
+          <View style={styles.confirmIconWrapper}>
+            <View
+              style={[
+                styles.confirmChainCircle,
+                { backgroundColor: backgroundOffset },
+              ]}
+            >
+              <Image
+                style={styles.confirmChainIcon}
+                source={ICONS[`chain_${selectedChain?.label.toLowerCase()}`]}
+                contentFit="contain"
+              />
+            </View>
+            <View
+              style={[
+                styles.confirmCurrencyBadge,
+                { borderColor: backgroundColor },
+              ]}
+            >
+              <Image
+                style={styles.confirmCurrencyIcon}
+                source={ICONS[`${selectedAsset?.toLowerCase()}Logo`]}
+                contentFit="contain"
+              />
+            </View>
           </View>
-          <View
-            style={[
-              styles.confirmCurrencyBadge,
-              { borderColor: backgroundColor },
-            ]}
-          >
-            <Image
-              style={styles.confirmCurrencyIcon}
-              source={ICONS[`${selectedAsset?.toLowerCase()}Logo`]}
-              contentFit="contain"
-            />
+          <ThemeIcon
+            styles={{ opacity: HIDDEN_OPACITY }}
+            iconName={'ArrowRight'}
+          />
+          <View style={styles.confirmIconWrapper}>
+            <View
+              style={[
+                styles.confirmChainCircle,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? backgroundColor
+                      : selectedDestination === 'BTC'
+                      ? COLORS.bitcoinOrange
+                      : COLORS.dollarGreen,
+                },
+              ]}
+            >
+              <Image
+                style={[styles.confirmChainIcon, { width: 50, height: 50 }]}
+                source={
+                  ICONS[
+                    selectedDestination === 'BTC' ? 'bitcoinIcon' : 'dollarIcon'
+                  ]
+                }
+                contentFit="contain"
+              />
+            </View>
           </View>
         </View>
 
@@ -312,11 +343,14 @@ export default function CreateAccumulationAddressModal({
         />
         <ThemeText
           styles={styles.confirmSubtitle}
-          content={`${selectedAsset} → ${
-            selectedDestination === 'BTC'
-              ? t('constants.bitcoin_upper')
-              : t('constants.dollars_upper')
-          }`}
+          content={t('screens.accumulationAddresses.create.convertDesc', {
+            chain: selectedChain?.label,
+            asset: selectedAsset,
+            receiveCurrency:
+              selectedDestination === 'BTC'
+                ? t('constants.bitcoin_upper')
+                : t('constants.dollars_upper'),
+          })}
         />
       </View>
 
@@ -458,6 +492,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     gap: 10,
   },
+  assetRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   optionLabel: {
     flex: 1,
     includeFontPadding: false,
@@ -479,21 +518,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   confirmChainCircle: {
-    width: 90,
-    height: 90,
+    width: 80,
+    height: 80,
     borderRadius: 45,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   confirmChainIcon: {
-    width: 90,
-    height: 90,
+    width: 80,
+    height: 80,
   },
   confirmCurrencyBadge: {
     position: 'absolute',
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
     borderRadius: 15,
     bottom: -4,
     right: -4,
@@ -512,6 +551,8 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   confirmSubtitle: {
+    maxWidth: 250,
+    width: '90%',
     fontSize: SIZES.smedium,
     opacity: HIDDEN_OPACITY,
     textAlign: 'center',
