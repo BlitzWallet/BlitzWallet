@@ -2433,7 +2433,7 @@
         "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar",
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
-        "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas.",
+        "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas",
         "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para trocar bitcoins.",
         "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para trocar dólares.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
