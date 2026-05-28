@@ -1006,23 +1006,30 @@
       "noContactDesc": "Aggiungi {{username}} ai tuoi contatti per trovarlo qui in futuro, oppure continua per inviare un pagamento adesso.",
       "kenyanPhoneTitle": "Paga {{number}}",
       "kenyanPhoneDesc": "Stai per pagare un numero di telefono keniota",
-      "depositFunds": "Deposit Funds",
-      "depositFundsSubtitle": "Add funds to your wallet",
-      "onChainBitcoin": "On-Chain Bitcoin",
-      "onChainBitcoinSubtitle": "Receive via on-chain address",
-      "stablecoins": "Stablecoins",
-      "stablecoinsSubtitle": "USDC / USDT auto-convert to BTC",
-      "cashAppSubtitle": "Send from Cash App instantly",
-      "sparkAddressSubtitle": "Receive to your Spark address",
-      "otherBitcoin": "Other Bitcoin",
-      "otherBitcoinSubtitle": "Liquid and other methods",
-      "lightningInvoice": "Lightning Invoice",
-      "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
-      "otherReceivingMethods": "Other receiving methods",
-      "cashAppEnterAmount": "Enter amount in sats",
-      "cashAppOpen": "Open Cash App",
-      "cashAppBack": "Back",
-      "viewDetails": "View details"
+      "depositFunds": "Deposita fondi",
+      "depositFundsSubtitle": "Aggiungi fondi al tuo wallet",
+      "onChainBitcoin": "Indirizzo Bitcoin",
+      "onChainBitcoinSubtitle": "Ricevi tramite indirizzo on-chain",
+      "stablecoins": "Stablecoin",
+      "stablecoinsSubtitle": "USDC / USDT convertiti automaticamente in BTC",
+      "cashAppSubtitle": "Invia da Cash App istantaneamente",
+      "sparkAddressSubtitle": "Ricevi sul tuo indirizzo Spark",
+      "otherBitcoin": "Altre opzioni Bitcoin",
+      "otherBitcoinSubtitle": "Liquid e altri metodi",
+      "lightningInvoice": "Fattura Lightning",
+      "lightningInvoiceSubtitle": "Ricevi BTC o USD istantaneamente",
+      "lightningUSDAmountRequired": "È richiesto un importo per creare una fattura Lightning in USD",
+      "otherReceivingMethods": "Altri metodi di ricezione",
+      "cashAppEnterAmount": "Inserisci importo in sats",
+      "cashAppOpen": "Apri Cash App",
+      "cashAppBack": "Indietro",
+      "viewDetails": "Visualizza dettagli",
+      "othersOptionTitle": "Seleziona metodo",
+      "liquidDesc": "Ricevi BTC Liquid nel tuo wallet.",
+      "roostockDesc": "Ricevi BTC Rootstock nel tuo wallet.",
+      "sparkDesc": "Ricevi BTC o token nel tuo wallet.",
+      "chooseMethodTitle": "Scegli metodo di ricezione",
+      "selectMethodTitle": "Seleziona metodo di deposito"
     },
     "payLinks": {
       "skip": "Salta",
@@ -1156,7 +1163,7 @@
         "minUSDSwap": "I pagamenti convertiti in dollari richiedono un importo minimo di:\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Altri metodi di ricezione",
+        "format": "Cambia metodo di ricezione",
         "infoMessage": "Gli importi personalizzati non sono supportati nei pagamenti Spark o Rootstock."
       },
       "switchReceiveOptionPage": {
@@ -1202,7 +1209,7 @@
         "invalidFormat": "Gli indirizzi devono essere solo testo. Controlla e riprova.",
         "parseError": "Non siamo riusciti a riconoscere il tipo di pagamento. Inserisci un indirizzo Spark valido, un nome utente Blitz, un indirizzo Bitcoin o un indirizzo/fattura Lightning.",
         "paymentProcessingError": "Non siamo riusciti a riconoscere il tipo di pagamento. Inserisci una fattura Spark, on-chain, LNURL o BOLT11 valida.",
-        "tooLowSendingAmount": "L'importo di invio è troppo alto per coprire il pagamento e le commissioni. L'importo di invio massimo è {{importo}}",
+        "tooLowSendingAmount": "L'importo di invio è troppo alto per coprire il pagamento e le commissioni. L'importo di invio massimo è {{amount}}",
         "processInputError": "Impossibile elaborare l'input",
         "unkonwDecodeError": "Si è verificato un errore di decodifica sconosciuto",
         "invalidInputType": "Non è un tipo di indirizzo valido",
@@ -1268,7 +1275,7 @@
         "receive": "Ricevi",
         "scan": "Scansiona",
         "swap": "Scambia",
-        "deposit": "Deposit"
+        "deposit": "Deposita"
       },
       "lrc20Assets": {
         "actionText": "token {{action}}",
@@ -2120,6 +2127,7 @@
         "liquidFeeMessage": "Per ricevere un pagamento Liquid, pagherai una commissione di lockup di ~{{fee}}, una commissione di claim di ~{{claimFee}} e una commissione di servizio Boltz dello 0,1%.",
         "rootstockFeeMessage": "Per ricevere un pagamento Rootstock, pagherai una commissione di lockup di ~{{fee}} e una commissione di servizio Boltz dello 0,1%.",
         "lightningConvertMessage": "Ricevere dollari tramite Lightning richiede la conversione di Bitcoin in USD. Si applica una commissione del {{convertFee}} % e il tasso di cambio attuale è:\n{{satExchangeRate}}.",
+        "stablecoinsFeeMessage": "Per ricevere stablecoin, si applicano una commissione Blitz dello 0,5% e una commissione Flashnet dello 0,05%.",
         "generatingInvoice": "Generazione Fattura",
         "amountPlaceholder": "Qualsiasi importo",
         "receiveAsHeader": "Ricevi come",
@@ -2133,6 +2141,7 @@
         "invoiceDescription_bitcoinAddress": "Indirizzo Bitcoin",
         "invoiceDescription_liquidAddress": "Indirizzo Liquid",
         "invoiceDescription_sparkAddress": "Indirizzo Spark",
+        "invoiceDescription_stablecoinsAddress": "Indirizzo {{chain}}",
         "invoiceDescription_rootstockAddress": "Indirizzo Rootstock",
         "header_lightning_btc": "Bitcoin tramite Lightning",
         "header_lightning_usd": "Dollari tramite Lightning",
@@ -2140,6 +2149,7 @@
         "header_spark_btc": "Bitcoin/Token tramite Spark",
         "header_spark_usd": "Dollari tramite Spark",
         "header_liquid": "Bitcoin tramite Liquid",
+        "header_stablecoins": "Bitcoin tramite {{chain}}",
         "header_rootstock": "Bitcoin tramite Rootstock",
         "selectReceiveAssetHead": "Seleziona l’asset da ricevere",
         "usd_convert_warning": "L'importo finale che riceverai può variare a causa delle variazioni di prezzo di mercato durante la conversione.",
@@ -2463,7 +2473,7 @@
         "pageTitle": "Cronologia"
       },
       "sparkReceivePage": {
-        "header": "Spark Address"
+        "header": "Indirizzo Spark"
       }
     },
     "accumulationAddresses": {
@@ -2500,7 +2510,8 @@
         "pickChain": "Seleziona rete",
         "pickDestination": "Seleziona destinazione",
         "confirm": "Conferma indirizzo",
-        "alreadyExists": "Hai già un indirizzo per questa combinazione"
+        "alreadyExists": "Hai già un indirizzo per questa combinazione",
+        "convertDesc": "Il tuo {{asset}} su {{chain}} verrà convertito in {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Rete",

@@ -1006,23 +1006,30 @@
       "noContactDesc": "Lägg till {{username}} i dina kontakter för att hitta dem här i framtiden, eller fortsätt för att skicka en betalning nu.",
       "kenyanPhoneTitle": "Betala {{number}}",
       "kenyanPhoneDesc": "Du är på väg att betala ett kenyanskt telefonnummer",
-      "depositFunds": "Deposit Funds",
-      "depositFundsSubtitle": "Add funds to your wallet",
-      "onChainBitcoin": "On-Chain Bitcoin",
-      "onChainBitcoinSubtitle": "Receive via on-chain address",
+      "depositFunds": "Sätt in pengar",
+      "depositFundsSubtitle": "Lägg till pengar i din plånbok",
+      "onChainBitcoin": "Bitcoin-adress",
+      "onChainBitcoinSubtitle": "Ta emot via on-chain-adress",
       "stablecoins": "Stablecoins",
-      "stablecoinsSubtitle": "USDC / USDT auto-convert to BTC",
-      "cashAppSubtitle": "Send from Cash App instantly",
-      "sparkAddressSubtitle": "Receive to your Spark address",
-      "otherBitcoin": "Other Bitcoin",
-      "otherBitcoinSubtitle": "Liquid and other methods",
-      "lightningInvoice": "Lightning Invoice",
-      "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
-      "otherReceivingMethods": "Other receiving methods",
-      "cashAppEnterAmount": "Enter amount in sats",
-      "cashAppOpen": "Open Cash App",
-      "cashAppBack": "Back",
-      "viewDetails": "View details"
+      "stablecoinsSubtitle": "USDC / USDT konverteras automatiskt till BTC",
+      "cashAppSubtitle": "Skicka från Cash App direkt",
+      "sparkAddressSubtitle": "Ta emot till din Spark-adress",
+      "otherBitcoin": "Andra Bitcoin-alternativ",
+      "otherBitcoinSubtitle": "Liquid och andra metoder",
+      "lightningInvoice": "Lightning-faktura",
+      "lightningInvoiceSubtitle": "Ta emot BTC eller USD direkt",
+      "lightningUSDAmountRequired": "Ett belopp krävs för att skapa en Lightning-faktura i USD",
+      "otherReceivingMethods": "Andra mottagningsmetoder",
+      "cashAppEnterAmount": "Ange belopp i sats",
+      "cashAppOpen": "Öppna Cash App",
+      "cashAppBack": "Tillbaka",
+      "viewDetails": "Visa detaljer",
+      "othersOptionTitle": "Välj metod",
+      "liquidDesc": "Ta emot Liquid BTC till din plånbok.",
+      "roostockDesc": "Ta emot Rootstock BTC till din plånbok.",
+      "sparkDesc": "Ta emot BTC eller token till din plånbok.",
+      "chooseMethodTitle": "Välj mottagningsmetod",
+      "selectMethodTitle": "Välj insättningsmetod"
     },
     "payLinks": {
       "skip": "Hoppa över",
@@ -1156,7 +1163,7 @@
         "minUSDSwap": "Betalningar som konverteras till dollar kräver ett minimibelopp på:\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Andra mottagningsmetoder",
+        "format": "Ändra mottagningsmetod",
         "infoMessage": "Anpassade belopp stöds inte på Spark- eller Rootstock-betalningar."
       },
       "switchReceiveOptionPage": {
@@ -1268,7 +1275,7 @@
         "receive": "Ta emot",
         "scan": "Skanna",
         "swap": "Swap",
-        "deposit": "Deposit"
+        "deposit": "Sätt in"
       },
       "lrc20Assets": {
         "actionText": "{{action}} symboler",
@@ -2120,6 +2127,7 @@
         "liquidFeeMessage": "För att ta emot en Liquid-betalning betalar du en låsningsavgift på ~{{fee}}, en uttagsavgift på ~{{claimFee}} och en Boltz-serviceavgift på 0,1%.",
         "rootstockFeeMessage": "För att ta emot en Rootstock-betalning betalar du en låsningsavgift på ~{{fee}} och en Boltz-serviceavgift på 0,1%.",
         "lightningConvertMessage": "Att ta emot dollar via Lightning kräver att Bitcoin konverteras till USD. En avgift på {{convertFee}} % tillämpas, och den aktuella växelkursen är:\n{{satExchangeRate}}.",
+        "stablecoinsFeeMessage": "För att ta emot stablecoins tillkommer en Blitz-avgift på 0,5 % och en Flashnet-avgift på 0,05 %.",
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
         "receiveAsHeader": "Ta emot som",
@@ -2133,6 +2141,7 @@
         "invoiceDescription_bitcoinAddress": "Bitcoin-adress",
         "invoiceDescription_liquidAddress": "Flytande adress",
         "invoiceDescription_sparkAddress": "Spark-adress",
+        "invoiceDescription_stablecoinsAddress": "{{chain}}-adress",
         "invoiceDescription_rootstockAddress": "Rotstockens adress",
         "header_lightning_btc": "Bitcoin via Lightning",
         "header_lightning_usd": "Dollar via Lightning",
@@ -2140,6 +2149,7 @@
         "header_spark_btc": "Bitcoin/Token via Spark",
         "header_spark_usd": "Dollar via Spark",
         "header_liquid": "Bitcoin via Liquid",
+        "header_stablecoins": "Bitcoin via {{chain}}",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Välj tillgång att ta emot",
         "usd_convert_warning": "Det slutliga beloppet du får kan variera på grund av marknadsprisförändringar under konverteringen.",
@@ -2463,7 +2473,7 @@
         "pageTitle": "Historik"
       },
       "sparkReceivePage": {
-        "header": "Spark Address"
+        "header": "Spark-adress"
       }
     },
     "accumulationAddresses": {
@@ -2500,7 +2510,8 @@
         "pickChain": "Välj kedja",
         "pickDestination": "Välj destination",
         "confirm": "Bekräfta adress",
-        "alreadyExists": "Du har redan en adress för denna kombination"
+        "alreadyExists": "Du har redan en adress för denna kombination",
+        "convertDesc": "Din {{asset}} på {{chain}} kommer att konverteras till {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Kedja",

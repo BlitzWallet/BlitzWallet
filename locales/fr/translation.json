@@ -1006,23 +1006,30 @@
       "noContactDesc": "Ajoutez {{username}} à vos contacts pour le retrouver ici à l’avenir, ou continuez pour envoyer un paiement maintenant.",
       "kenyanPhoneTitle": "Payer {{number}}",
       "kenyanPhoneDesc": "Vous êtes sur le point de payer un numéro de téléphone kényan",
-      "depositFunds": "Deposit Funds",
-      "depositFundsSubtitle": "Add funds to your wallet",
-      "onChainBitcoin": "On-Chain Bitcoin",
-      "onChainBitcoinSubtitle": "Receive via on-chain address",
+      "depositFunds": "Déposer des fonds",
+      "depositFundsSubtitle": "Ajoutez des fonds à votre portefeuille",
+      "onChainBitcoin": "Adresse Bitcoin",
+      "onChainBitcoinSubtitle": "Recevoir via une adresse on-chain",
       "stablecoins": "Stablecoins",
-      "stablecoinsSubtitle": "USDC / USDT auto-convert to BTC",
-      "cashAppSubtitle": "Send from Cash App instantly",
-      "sparkAddressSubtitle": "Receive to your Spark address",
-      "otherBitcoin": "Other Bitcoin",
-      "otherBitcoinSubtitle": "Liquid and other methods",
-      "lightningInvoice": "Lightning Invoice",
-      "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
-      "otherReceivingMethods": "Other receiving methods",
-      "cashAppEnterAmount": "Enter amount in sats",
-      "cashAppOpen": "Open Cash App",
-      "cashAppBack": "Back",
-      "viewDetails": "View details"
+      "stablecoinsSubtitle": "USDC / USDT convertis automatiquement en BTC",
+      "cashAppSubtitle": "Envoyer depuis Cash App instantanément",
+      "sparkAddressSubtitle": "Recevoir sur votre adresse Spark",
+      "otherBitcoin": "Autres options Bitcoin",
+      "otherBitcoinSubtitle": "Liquid et autres méthodes",
+      "lightningInvoice": "Facture Lightning",
+      "lightningInvoiceSubtitle": "Recevoir des BTC ou des USD instantanément",
+      "lightningUSDAmountRequired": "Un montant est requis pour créer une facture Lightning en USD",
+      "otherReceivingMethods": "Autres méthodes de réception",
+      "cashAppEnterAmount": "Saisir le montant en sats",
+      "cashAppOpen": "Ouvrir Cash App",
+      "cashAppBack": "Retour",
+      "viewDetails": "Voir les détails",
+      "othersOptionTitle": "Sélectionner une méthode",
+      "liquidDesc": "Recevez du BTC Liquid dans votre portefeuille.",
+      "roostockDesc": "Recevez du BTC Rootstock dans votre portefeuille.",
+      "sparkDesc": "Recevez des BTC ou des tokens dans votre portefeuille.",
+      "chooseMethodTitle": "Choisir la méthode de réception",
+      "selectMethodTitle": "Sélectionner la méthode de dépôt"
     },
     "payLinks": {
       "skip": "Passer",
@@ -1156,7 +1163,7 @@
         "minUSDSwap": "Les paiements convertis en dollars nécessitent un montant minimum de :\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Autres méthodes de réception",
+        "format": "Changer la méthode de réception",
         "infoMessage": "Les montants personnalisés ne sont pas pris en charge dans les paiements Spark ou Rootstock."
       },
       "switchReceiveOptionPage": {
@@ -1170,7 +1177,7 @@
         "sparkDesc": "Instantané, soutient les jetons",
         "sparkTitle": "Adresse de l'étincelle",
         "bitcoinTitle": "Adresse Bitcoin",
-        "lightningTitle": "Lightning Invoice",
+        "lightningTitle": "Facture Lightning",
         "liquidTitle": "Adresse liquide",
         "rootstockTitle": "Adresse du porte-greffe"
       },
@@ -1268,7 +1275,7 @@
         "receive": "Recevoir",
         "scan": "Scanner",
         "swap": "Swap",
-        "deposit": "Deposit"
+        "deposit": "Déposer"
       },
       "lrc20Assets": {
         "actionText": "{{action}} jetons",
@@ -2120,6 +2127,7 @@
         "liquidFeeMessage": "Pour recevoir un paiement Liquid, vous paierez des frais de verrouillage d’environ ~{{fee}}, des frais de réclamation d’environ ~{{claimFee}} et des frais de service Boltz de 0,1 %.",
         "rootstockFeeMessage": "Pour recevoir un paiement Rootstock, vous paierez des frais de verrouillage d’environ ~{{fee}} et des frais de service Boltz de 0,1 %.",
         "lightningConvertMessage": "Recevoir des dollars via Lightning nécessite de convertir des bitcoins en USD. Des frais de {{convertFee}} % s’appliquent, et le taux de change actuel est de:\n{{satExchangeRate}}.",
+        "stablecoinsFeeMessage": "Pour recevoir des stablecoins, des frais Blitz de 0,5 % et des frais Flashnet de 0,05 % s’appliquent.",
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
         "receiveAsHeader": "Recevoir en tant que",
@@ -2133,6 +2141,7 @@
         "invoiceDescription_bitcoinAddress": "Adresse Bitcoin",
         "invoiceDescription_liquidAddress": "Adresse liquide",
         "invoiceDescription_sparkAddress": "Adresse de l'étincelle",
+        "invoiceDescription_stablecoinsAddress": "Adresse {{chain}}",
         "invoiceDescription_rootstockAddress": "Adresse du porte-greffe",
         "header_lightning_btc": "Bitcoin via Lightning",
         "header_lightning_usd": "Dollars via Lightning",
@@ -2140,6 +2149,7 @@
         "header_spark_btc": "Bitcoin/Jetons via Spark",
         "header_spark_usd": "Dollars via Spark",
         "header_liquid": "Bitcoin via Liquid",
+        "header_stablecoins": "Bitcoin via {{chain}}",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Sélectionnez l’actif à recevoir",
         "usd_convert_warning": "Le montant final que vous recevrez peut varier en raison des fluctuations du prix du marché pendant la conversion.",
@@ -2463,7 +2473,7 @@
         "pageTitle": "Historique"
       },
       "sparkReceivePage": {
-        "header": "Spark Address"
+        "header": "Adresse Spark"
       }
     },
     "accumulationAddresses": {
@@ -2500,7 +2510,8 @@
         "pickChain": "Sélectionner le réseau",
         "pickDestination": "Sélectionner la destination",
         "confirm": "Confirmer l’adresse",
-        "alreadyExists": "Vous avez déjà une adresse pour cette combinaison"
+        "alreadyExists": "Vous avez déjà une adresse pour cette combinaison",
+        "convertDesc": "Votre {{asset}} sur {{chain}} sera converti en {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Réseau",

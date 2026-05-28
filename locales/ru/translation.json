@@ -1006,23 +1006,30 @@
       "noContactDesc": "Добавьте {{username}} в свои контакты, чтобы находить здесь в будущем, или продолжите, чтобы отправить платёж сейчас.",
       "kenyanPhoneTitle": "Оплатить {{number}}",
       "kenyanPhoneDesc": "Вы собираетесь оплатить кенийский номер телефона",
-      "depositFunds": "Deposit Funds",
-      "depositFundsSubtitle": "Add funds to your wallet",
-      "onChainBitcoin": "On-Chain Bitcoin",
-      "onChainBitcoinSubtitle": "Receive via on-chain address",
-      "stablecoins": "Stablecoins",
-      "stablecoinsSubtitle": "USDC / USDT auto-convert to BTC",
-      "cashAppSubtitle": "Send from Cash App instantly",
-      "sparkAddressSubtitle": "Receive to your Spark address",
-      "otherBitcoin": "Other Bitcoin",
-      "otherBitcoinSubtitle": "Liquid and other methods",
-      "lightningInvoice": "Lightning Invoice",
-      "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
-      "otherReceivingMethods": "Other receiving methods",
-      "cashAppEnterAmount": "Enter amount in sats",
-      "cashAppOpen": "Open Cash App",
-      "cashAppBack": "Back",
-      "viewDetails": "View details"
+      "depositFunds": "Пополнить баланс",
+      "depositFundsSubtitle": "Добавьте средства в ваш кошелёк",
+      "onChainBitcoin": "Bitcoin-адрес",
+      "onChainBitcoinSubtitle": "Получить через ончейн-адрес",
+      "stablecoins": "Стейблкоины",
+      "stablecoinsSubtitle": "USDC / USDT автоматически конвертируются в BTC",
+      "cashAppSubtitle": "Отправить из Cash App мгновенно",
+      "sparkAddressSubtitle": "Получить на ваш адрес Spark",
+      "otherBitcoin": "Другие варианты Bitcoin",
+      "otherBitcoinSubtitle": "Liquid и другие методы",
+      "lightningInvoice": "Инвойс Lightning",
+      "lightningInvoiceSubtitle": "Мгновенно получить BTC или USD",
+      "lightningUSDAmountRequired": "Для создания Lightning-инвойса в USD требуется сумма",
+      "otherReceivingMethods": "Другие способы получения",
+      "cashAppEnterAmount": "Введите сумму в sats",
+      "cashAppOpen": "Открыть Cash App",
+      "cashAppBack": "Назад",
+      "viewDetails": "Подробнее",
+      "othersOptionTitle": "Выберите метод",
+      "liquidDesc": "Получайте Liquid BTC на свой кошелёк.",
+      "roostockDesc": "Получайте Rootstock BTC на свой кошелёк.",
+      "sparkDesc": "Получайте BTC или токены на свой кошелёк.",
+      "chooseMethodTitle": "Выберите способ получения",
+      "selectMethodTitle": "Выберите способ депозита"
     },
     "payLinks": {
       "skip": "Пропустить",
@@ -1157,14 +1164,14 @@
         "minUSDSwap": "Платежи, конвертируемые в доллары, требуют минимальной суммы:\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Другие методы",
+        "format": "Изменить способ получения",
         "infoMessage": "Кастомные суммы не поддерживаются для Spark и Rootstock."
       },
       "switchReceiveOptionPage": {
         "title": "Методы получения",
         "actionBTN": "Показать {{action}}",
         "sparkWarningMessage": "Получение напрямую в Spark раскроет ваш баланс отправителю (не приватно).",
-        "swapWarning": "Платежи {{swapType}} придут в Spark. Суммы ниже {{amount}} не будут переведены. Средства зачислятся после подтверждения.",
+        "swapWarning": "Платежи {{swapType}} придут в Spark. Суммы ниже {{amount}} не будут переведены. Средства зачислятся только после подтверждения платежа {{swapType}}.",
         "oneMinute": "~ {{numMins}} минута",
         "tenMinutes": "~ {{numMins}} минут",
         "notUsingMainAccountWarning": "Внимание: используется не основной счет. Все переводы {{swapType}} пойдут на основной кошелек.",
@@ -1269,7 +1276,7 @@
         "receive": "Получить",
         "scan": "Сканировать",
         "swap": "Обмен",
-        "deposit": "Deposit"
+        "deposit": "Пополнить"
       },
       "lrc20Assets": {
         "actionText": "{{action}} токены",
@@ -2120,7 +2127,8 @@
         "onchainFeeMessage": "Чтобы получить платеж в биткоине, вы заплатите комиссию сети on-chain. Она зависит от текущих комиссий сети Bitcoin.",
         "liquidFeeMessage": "Чтобы получить платеж в Liquid, вы заплатите комиссию блокировки ~{{fee}}, комиссию получения ~{{claimFee}} и сервисную комиссию Boltz 0,1%.",
         "rootstockFeeMessage": "Чтобы получить платеж в Rootstock, вы заплатите комиссию блокировки ~{{fee}} и сервисную комиссию Boltz 0,1%.",
-        "lightningConvertMessage": "Получение долларов через Молнию требует конвертации BTC в USD. Комиссия {{convertFee}}%, курс {{satExchangeRate}} за {{dollarAmount}}.",
+        "lightningConvertMessage": "Получение долларов через Lightning требует конвертации Bitcoin в USD. Взимается комиссия {{convertFee}}%, текущий обменный курс:\n{{satExchangeRate}}.",
+        "stablecoinsFeeMessage": "Для получения стейблкоинов взимаются комиссия Blitz 0,5% и комиссия Flashnet 0,05%.",
         "generatingInvoice": "Создание инвойса",
         "amountPlaceholder": "Любая сумма",
         "receiveAsHeader": "Получить как",
@@ -2134,6 +2142,7 @@
         "invoiceDescription_bitcoinAddress": "Биткоин-адрес",
         "invoiceDescription_liquidAddress": "Адрес Liquid",
         "invoiceDescription_sparkAddress": "Адрес Spark",
+        "invoiceDescription_stablecoinsAddress": "Адрес {{chain}}",
         "invoiceDescription_rootstockAddress": "Адрес Rootstock",
         "header_lightning_btc": "Биткоин через Молнию",
         "header_lightning_usd": "Доллары через Молнию",
@@ -2141,6 +2150,7 @@
         "header_spark_btc": "BTC/Токены через Spark",
         "header_spark_usd": "Доллары через Spark",
         "header_liquid": "Биткоин через Liquid",
+        "header_stablecoins": "Биткоин через {{chain}}",
         "header_rootstock": "Биткоин через Rootstock",
         "selectReceiveAssetHead": "Выберите актив для получения",
         "usd_convert_warning": "Окончательная сумма, которую вы получите, может измениться из-за колебаний рыночной цены во время конвертации.",
@@ -2470,7 +2480,7 @@
         "pageTitle": "История"
       },
       "sparkReceivePage": {
-        "header": "Spark Address"
+        "header": "Адрес Spark"
       }
     },
     "accumulationAddresses": {
@@ -2507,7 +2517,8 @@
         "pickChain": "Выберите сеть",
         "pickDestination": "Выберите назначение",
         "confirm": "Подтвердить адрес",
-        "alreadyExists": "У вас уже есть адрес для этой комбинации"
+        "alreadyExists": "У вас уже есть адрес для этой комбинации",
+        "convertDesc": "Ваш {{asset}} в сети {{chain}} будет конвертирован в {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Сеть",
