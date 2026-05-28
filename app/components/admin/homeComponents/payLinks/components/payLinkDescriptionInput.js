@@ -313,18 +313,18 @@ export default function PayLinkDescriptionInput({
         }}
       />
 
-      <CustomButton
+      {/* <CustomButton
         enableElipsis={false}
         textContent={t('wallet.payLinks.genQRCode')}
         actionFunction={() => {
           isButtonAction.current = true;
           onSkip?.(payLinkAmount.amount, description);
         }}
-      />
+      /> */}
 
       <CustomButton
-        buttonStyles={[{ backgroundColor: 'transparent' }]}
-        textStyles={{ color: textColor }}
+        buttonStyles={[{ ...CENTER }]}
+        // textStyles={{ color: textColor }}
         useLoading={isLoading}
         textContent={t('wallet.payLinks.createPayLink')}
         actionFunction={() => {

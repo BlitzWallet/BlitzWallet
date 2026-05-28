@@ -652,7 +652,7 @@ export default function HalfModalReceiveOptions({
                   theme && darkModeType ? COLORS.darkModeText : COLORS.primary
                 }
                 size={24}
-                iconName={'QrCode'}
+                iconName={'Send'}
               />
             </View>
             <View style={styles.scanTextContainer}>

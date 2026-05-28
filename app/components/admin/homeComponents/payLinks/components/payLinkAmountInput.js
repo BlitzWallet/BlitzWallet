@@ -76,26 +76,28 @@ export default function PayLinkAmountInput({
 
   const handleNext = useCallback(() => {
     if (!localSatAmount || Number(localSatAmount) === 0) {
-      onSkip?.();
-      return;
-    }
-    if (paymentMode === 'USD' && localSatAmount < swapLimits.bitcoin) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
-          amount: displayCorrectDenomination({
-            amount: swapLimits.bitcoin,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination:
-                primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
-            },
-            forceCurrency: primaryDisplay.forceCurrency,
-            fiatStats: conversionFiatStats,
-          }),
-        }),
+        errorMessage: 'Please add an amount before creating your Link',
       });
       return;
     }
+    // if (paymentMode === 'USD' && localSatAmount < swapLimits.bitcoin) {
+    //   navigate.navigate('ErrorScreen', {
+    //     errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
+    //       amount: displayCorrectDenomination({
+    //         amount: swapLimits.bitcoin,
+    //         masterInfoObject: {
+    //           ...masterInfoObject,
+    //           userBalanceDenomination:
+    //             primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
+    //         },
+    //         forceCurrency: primaryDisplay.forceCurrency,
+    //         fiatStats: conversionFiatStats,
+    //       }),
+    //     }),
+    //   });
+    //   return;
+    // }
     onContinue?.(Number(localSatAmount), amountValue);
   }, [localSatAmount, onContinue, onBack]);
 
@@ -128,7 +130,7 @@ export default function PayLinkAmountInput({
         </TouchableOpacity>
       </ScrollView>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() =>
           navigate.push('CustomHalfModal', {
             wantedContent: 'payLinkCurrencySelect',
@@ -161,7 +163,7 @@ export default function PayLinkAmountInput({
           size={18}
           iconName={'ChevronDown'}
         />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <CustomNumberKeyboard
         showDot={primaryDisplay.denomination === 'fiat'}
@@ -171,11 +173,12 @@ export default function PayLinkAmountInput({
       />
 
       <CustomButton
-        buttonStyles={{ ...CENTER }}
+        buttonStyles={{
+          ...CENTER,
+          opacity: !localSatAmount ? HIDDEN_OPACITY : 1,
+        }}
         actionFunction={handleNext}
-        textContent={
-          !localSatAmount ? t('constants.skip') : t('wallet.payLinks.next')
-        }
+        textContent={t('wallet.payLinks.next')}
       />
     </View>
   );
