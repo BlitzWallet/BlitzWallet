@@ -1011,7 +1011,7 @@
       "onChainBitcoin": "Bitcoin-adress",
       "onChainBitcoinSubtitle": "Ta emot via on-chain-adress",
       "stablecoins": "Stablecoins",
-      "stablecoinsSubtitle": "USDC / USDT konverteras automatiskt till BTC",
+      "stablecoinsSubtitle": "Sätt in USDT / USDC i din plånbok",
       "cashAppSubtitle": "Skicka från Cash App direkt",
       "sparkAddressSubtitle": "Ta emot till din Spark-adress",
       "otherBitcoin": "Andra Bitcoin-alternativ",

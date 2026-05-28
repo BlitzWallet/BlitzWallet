@@ -1011,7 +1011,7 @@
       "onChainBitcoin": "Dirección Bitcoin",
       "onChainBitcoinSubtitle": "Recibir mediante dirección on-chain",
       "stablecoins": "Stablecoins",
-      "stablecoinsSubtitle": "USDC / USDT se convierten automáticamente a BTC",
+      "stablecoinsSubtitle": "Deposita USDT / USDC en tu billetera",
       "cashAppSubtitle": "Enviar desde Cash App al instante",
       "sparkAddressSubtitle": "Recibir en tu dirección Spark",
       "otherBitcoin": "Otras opciones de Bitcoin",

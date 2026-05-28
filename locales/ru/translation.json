@@ -1011,7 +1011,7 @@
       "onChainBitcoin": "Bitcoin-адрес",
       "onChainBitcoinSubtitle": "Получить через ончейн-адрес",
       "stablecoins": "Стейблкоины",
-      "stablecoinsSubtitle": "USDC / USDT автоматически конвертируются в BTC",
+      "stablecoinsSubtitle": "Пополните кошелёк USDT / USDC",
       "cashAppSubtitle": "Отправить из Cash App мгновенно",
       "sparkAddressSubtitle": "Получить на ваш адрес Spark",
       "otherBitcoin": "Другие варианты Bitcoin",

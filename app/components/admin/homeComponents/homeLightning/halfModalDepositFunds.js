@@ -445,6 +445,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     paddingVertical: 8,
+    gap: 15,
   },
   scanIconContainer: {
     width: 45,
@@ -452,7 +453,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 15,
   },
   scanTextContainer: {
     flex: 1,
