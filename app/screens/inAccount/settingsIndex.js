@@ -39,6 +39,11 @@ const PREFERENCES_ROWS = [
     iconName: 'ClockFading',
   },
   {
+    name: 'Spend and Replace',
+    displayName: 'screens.inAccount.settingsContent.spend and replace',
+    iconName: 'RefreshCcw',
+  },
+  {
     name: 'Notifications',
     displayName: 'screens.inAccount.settingsContent.notifications',
     iconName: 'Bell',

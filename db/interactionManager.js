@@ -1,5 +1,9 @@
 import { addDataToCollection } from '.';
-import { NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY } from '../app/constants';
+import {
+  NWC_IDENTITY_PUB_KEY,
+  QUICK_PAY_STORAGE_KEY,
+  SPEND_AND_REPLACE_STORAGE_KEY,
+} from '../app/constants';
 import { setLocalStorageItem } from '../app/functions';
 
 const PRESET_LOCAL_DATA = {
@@ -16,6 +20,7 @@ const PRESET_LOCAL_DATA = {
     isFastPayEnabled: false,
     fastPayThresholdSats: 5000,
   },
+  [SPEND_AND_REPLACE_STORAGE_KEY]: { isEnabled: false },
   boltzClaimTxs: [],
   savedLiquidSwaps: [],
   cachedContactsList: [],

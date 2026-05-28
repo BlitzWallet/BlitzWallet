@@ -97,7 +97,8 @@ const CustomToggleSwitch = ({
     page === 'settingsCrashReporting' ||
     page === 'tipPaymentStatus' ||
     page === 'liquidSwap' ||
-    page === 'pinAccount';
+    page === 'pinAccount' ||
+    page === 'spendAndReplace';
 
   const circleColor = animatedValue.interpolate({
     inputRange: [0, 1],

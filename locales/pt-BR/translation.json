@@ -2443,6 +2443,11 @@
         "noHistoryTitle": "Nenhum histórico de trocas",
         "noHistoryDesc": "As trocas aparecerão aqui.",
         "pageTitle": "Histórico"
+      },
+      "sendAndReplace": {
+        "slider": "{{state}} Gastar e substituir",
+        "userDollarAmount": "Saldo disponível em dólares: {{dollarAmount}}",
+        "explainer": "Quando ativado, cada pagamento de Bitcoin enviado é automaticamente substituído trocando um valor equivalente do seu saldo em dólares. Se seu saldo em dólares for menor que o valor gasto, o saldo total disponível será trocado. Nenhuma troca será realizada se o valor de reposição for inferior a {{minAmount}}."
       }
     },
     "accumulationAddresses": {
