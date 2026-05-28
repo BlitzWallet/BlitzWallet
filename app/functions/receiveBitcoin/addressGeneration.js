@@ -288,6 +288,29 @@ export async function initializeAddressProcess(wolletInfo) {
       if (!response) throw new Error('errormessages.rootstockInvoiceError');
       stateTracker = response;
     }
+    // Stablecoins (accumulation address)
+    else if (selectedRecieveOption.toLowerCase() === 'stablecoins') {
+      const result = await wolletInfo.createAddress({
+        sourceChain: wolletInfo.sourceChain,
+        sourceAsset: wolletInfo.sourceAsset,
+        destinationAsset: wolletInfo.destinationAsset,
+      });
+
+      if (result?.error) {
+        throw new Error('errormessages.stablecoinInvoiceError');
+      }
+
+      // createAddress returns { address: string } for existing, { address: object } for new
+      const depositAddress =
+        typeof result.address === 'string'
+          ? result.address
+          : result.address?.depositAddress;
+
+      stateTracker = {
+        generatedAddress: depositAddress,
+        fee: 0,
+      };
+    }
   } catch (error) {
     console.log(error, 'HANDLING ERROR');
 

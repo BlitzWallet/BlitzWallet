@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -23,7 +22,7 @@ export default function SelectOtherReceiveOptionHalfModal({
   // ── Chain step ──────────────────────────────────────────────────────────────
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <ThemeText
         styles={styles.stepTitle}
         content={t('wallet.halfModal.othersOptionTitle')}
@@ -32,15 +31,25 @@ export default function SelectOtherReceiveOptionHalfModal({
         {[
           { id: 'liquid', label: 'Liquid' },
           { id: 'rootstock', label: 'Rootstock' },
+          { id: 'spark', label: 'Spark' },
         ].map(chain => (
           <ChainRow
             key={chain.id}
             chain={chain}
             onSelectAsset={() => {
               handleBackPressFunction(() => {
-                navigate.replace('ReceiveBTC', {
-                  selectedRecieveOption: chain.id,
-                });
+                const isOnReceivePage = navigate
+                  .getState()
+                  .routes.some(r => r.name === 'ReceiveBTC');
+                if (isOnReceivePage) {
+                  navigate.popTo('ReceiveBTC', {
+                    selectedRecieveOption: chain.id,
+                  });
+                } else {
+                  navigate.replace('ReceiveBTC', {
+                    selectedRecieveOption: chain.id,
+                  });
+                }
               });
             }}
             theme={theme}
@@ -61,6 +70,15 @@ function ChainRow({
   darkModeType,
   backgroundColor,
 }) {
+  const { t } = useTranslation();
+
+  const subtext =
+    chain.id === 'liquid'
+      ? t('wallet.halfModal.liquidDesc')
+      : chain.id === 'rootstock'
+      ? t('wallet.halfModal.roostockDesc')
+      : t('wallet.halfModal.sparkDesc');
+
   return (
     <TouchableOpacity
       onPress={onSelectAsset}
@@ -79,18 +97,29 @@ function ChainRow({
         <Image
           style={styles.assetIcon}
           source={
-            ICONS[chain.id === 'liquid' ? 'blockstreamLiquid' : 'rootstockLogo']
+            ICONS[
+              chain.id === 'liquid'
+                ? 'blockstreamLiquid'
+                : chain.id === 'spark'
+                ? 'sparkAsteriskWhite'
+                : 'rootstockLogo'
+            ]
           }
           contentFit="contain"
         />
       </View>
-      <ThemeText styles={styles.optionLabel} content={chain.label} />
+      <View style={styles.chainTextContainer}>
+        <ThemeText styles={styles.optionLabel} content={chain.label} />
+        <ThemeText
+          styles={styles.chainSubtext}
+          content={subtext}
+          CustomNumberOfLines={1}
+        />
+      </View>
 
-      <ThemeIcon
-        styles={{ opacity: HIDDEN_OPACITY }}
-        iconName="ChevronRight"
-        size={18}
-      />
+      <View style={{ opacity: HIDDEN_OPACITY }}>
+        <ThemeIcon iconName="ChevronRight" size={18} />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -103,13 +132,15 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: SIZES.large,
     fontWeight: 500,
-    marginBottom: 8,
+    marginBottom: 16,
+    includeFontPadding: false,
   },
   chainRow: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    // paddingVertical: 8,
+    paddingBottom: 16,
   },
   chainIconContainer: {
     width: 45,
@@ -128,8 +159,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     gap: 10,
   },
-  optionLabel: {
+  chainTextContainer: {
     flex: 1,
+  },
+  optionLabel: {
+    includeFontPadding: false,
+    marginBottom: 2,
+  },
+  chainSubtext: {
+    fontSize: SIZES.small,
+    opacity: HIDDEN_OPACITY,
     includeFontPadding: false,
   },
   iconContainer: {
@@ -140,8 +179,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   assetIcon: {
-    width: 25,
-    height: 25,
+    width: 20,
+    height: 20,
   },
   assetOptionsContainer: {
     overflow: 'hidden',

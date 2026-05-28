@@ -297,11 +297,7 @@ const ContactRow = ({
           </Animated.View>
         </View>
         <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
-          <ThemeIcon
-            size={20}
-            iconName={'ChevronDown'}
-            colorOverride={textColor}
-          />
+          <ThemeIcon size={20} iconName={'ChevronDown'} />
         </Animated.View>
       </TouchableOpacity>
 

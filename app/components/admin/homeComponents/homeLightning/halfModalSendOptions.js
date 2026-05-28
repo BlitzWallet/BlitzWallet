@@ -139,7 +139,7 @@ const ContactRow = ({
             />
           </Animated.View>
         </View>
-        <Animated.View style={chevronStyle}>
+        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
           <ThemeIcon size={20} iconName={'ChevronDown'} />
         </Animated.View>
       </TouchableOpacity>
@@ -1166,7 +1166,7 @@ export default function HalfModalSendOptions({
                       content={t('wallet.halfModal.kenyanPhoneDesc')}
                     />
                     <CustomButton
-                      buttonStyles={{...CENTER, marginTop: 'auto'}}
+                      buttonStyles={{ ...CENTER, marginTop: 'auto' }}
                       textContent={t('constants.pay')}
                       actionFunction={handleManualInputSubmit}
                     />

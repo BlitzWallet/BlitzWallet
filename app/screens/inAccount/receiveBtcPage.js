@@ -4,7 +4,6 @@ import {
   SIZES,
   COLORS,
   SKELETON_ANIMATION_SPEED,
-  APPROXIMATE_SYMBOL,
   HIDDEN_BALANCE_TEXT,
 } from '../../constants';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -44,6 +43,7 @@ import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { shareMessage } from '../../functions/handleShare';
 import { useKeysContext } from '../../../context-store/keys';
 import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
+import { useAccumulationAddresses } from '../../hooks/useAccumulationAddresses';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -65,7 +65,10 @@ export default function ReceivePaymentHome(props) {
   const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
   const [holdExpirySeconds, setHoldExpirySeconds] = useState(2592000);
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
+  const { createAddress } = useAccumulationAddresses();
   const { bottomPadding } = useGlobalInsets();
+  const qrContainerSize = Math.round(screenDimensions.width * 0.85);
+  const qrInnerSize = qrContainerSize - 25;
   const isSharingRef = useRef(null);
 
   const paymentDescription = props.route.params?.description;
@@ -77,6 +80,9 @@ export default function ReceivePaymentHome(props) {
 
   const selectedRecieveOption =
     props.route.params?.selectedRecieveOption || 'Lightning';
+  const sourceChain = props.route.params?.sourceChain;
+  const sourceAsset = props.route.params?.sourceAsset;
+  const destinationAsset = props.route.params?.destinationAsset;
 
   const prevRequstInfo = useRef(null);
   const addressStateRef = useRef(null);
@@ -211,6 +217,10 @@ export default function ReceivePaymentHome(props) {
         holdExpirySeconds,
         contactsPrivateKey,
         contactsPublicKey,
+        createAddress,
+        sourceChain,
+        sourceAsset,
+        destinationAsset,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener(60);
@@ -263,9 +273,13 @@ export default function ReceivePaymentHome(props) {
         styles={styles.title}
         content={t('screens.inAccount.receiveBtcPage.header', {
           context: headerContext,
+          chain:
+            sourceChain &&
+            sourceChain[0]?.toUpperCase() + sourceChain?.slice(1),
         })}
       />
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={{
           justifyContent: 'center',
           flexGrow: 1,
@@ -304,6 +318,9 @@ export default function ReceivePaymentHome(props) {
             handleExpirySelect={handleExpirySelect}
             isHoldInvoice={addressState.isHoldInvoice}
             holdExpirySeconds={holdExpirySeconds}
+            sourceChain={sourceChain}
+            qrContainerSize={qrContainerSize}
+            qrInnerSize={qrInnerSize}
           />
 
           <ButtonsContainer
@@ -322,7 +339,8 @@ export default function ReceivePaymentHome(props) {
               (selectedRecieveOption.toLowerCase() !== 'lightning' ||
                 (selectedRecieveOption.toLowerCase() === 'lightning' &&
                   endReceiveType === 'USD')) &&
-              selectedRecieveOption.toLowerCase() !== 'spark'
+              selectedRecieveOption.toLowerCase() !== 'spark' &&
+              selectedRecieveOption.toLowerCase() !== 'stablecoins'
                 ? 0.2
                 : 1
             }
@@ -330,7 +348,8 @@ export default function ReceivePaymentHome(props) {
               if (
                 (selectedRecieveOption.toLowerCase() === 'lightning' &&
                   endReceiveType !== 'USD') ||
-                selectedRecieveOption.toLowerCase() === 'spark'
+                selectedRecieveOption.toLowerCase() === 'spark' ||
+                selectedRecieveOption.toLowerCase() === 'stablecoins'
               )
                 return;
 
@@ -416,39 +435,29 @@ export default function ReceivePaymentHome(props) {
                 styles={styles.feeTitleText}
                 content={t('constants.fee')}
               />
-              {(selectedRecieveOption.toLowerCase() !== 'lightning' ||
+              {selectedRecieveOption.toLowerCase() === 'stablecoins'
+                ? null
+                : (selectedRecieveOption.toLowerCase() !== 'lightning' ||
+                    (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                      endReceiveType === 'USD')) &&
+                  selectedRecieveOption.toLowerCase() !== 'spark' && (
+                    <ThemeIcon
+                      size={15}
+                      styles={{ marginLeft: 5 }}
+                      iconName={'Info'}
+                    />
+                  )}
+            </View>
+            {selectedRecieveOption.toLowerCase() === 'stablecoins' ? (
+              <ThemeText content={'0.55%'} />
+            ) : (selectedRecieveOption.toLowerCase() !== 'lightning' ||
                 (selectedRecieveOption.toLowerCase() === 'lightning' &&
                   endReceiveType === 'USD')) &&
-                selectedRecieveOption.toLowerCase() !== 'spark' && (
-                  <ThemeIcon
-                    size={15}
-                    styles={{ marginLeft: 5 }}
-                    iconName={'Info'}
-                  />
-                )}
-            </View>
-            {(selectedRecieveOption.toLowerCase() !== 'lightning' ||
-              (selectedRecieveOption.toLowerCase() === 'lightning' &&
-                endReceiveType === 'USD')) &&
-            selectedRecieveOption.toLowerCase() !== 'spark' ? (
+              selectedRecieveOption.toLowerCase() !== 'spark' ? (
               <ThemeText content={t('constants.variable')} />
             ) : (
               <FormattedSatText neverHideBalance={true} balance={0} />
             )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ alignItems: 'center', marginTop: 12 }}
-            onPress={() =>
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'receiveMethodOptions',
-                sliderHight: 0.5,
-              })
-            }
-          >
-            <ThemeText
-              styles={{ fontSize: SIZES.small, opacity: 0.7, includeFontPadding: false }}
-              content={t('wallet.halfModal.otherReceivingMethods')}
-            />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -477,6 +486,9 @@ function QrCode(props) {
     handleExpirySelect,
     isHoldInvoice,
     holdExpirySeconds,
+    sourceChain,
+    qrContainerSize,
+    qrInnerSize,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
@@ -571,7 +583,8 @@ function QrCode(props) {
 
   const canUseAmount =
     selectedRecieveOption?.toLowerCase() !== 'spark' &&
-    selectedRecieveOption?.toLowerCase() !== 'rootstock';
+    selectedRecieveOption?.toLowerCase() !== 'rootstock' &&
+    selectedRecieveOption?.toLowerCase() !== 'stablecoins';
 
   const canUseDescription =
     selectedRecieveOption?.toLowerCase() === 'lightning' ||
@@ -657,15 +670,28 @@ function QrCode(props) {
     <View
       style={[
         styles.qrCodeContainer,
-        { backgroundColor: backgroundOffset, marginTop: 'auto' },
+        {
+          backgroundColor: backgroundOffset,
+          marginTop: 'auto',
+          width: qrContainerSize,
+          minHeight: qrContainerSize,
+        },
       ]}
     >
       <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.8}
-        style={styles.qrCodeContainer}
+        style={[
+          styles.qrCodeContainer,
+          { width: qrContainerSize, minHeight: qrContainerSize },
+        ]}
       >
-        <View style={styles.animatedQRContainer}>
+        <View
+          style={[
+            styles.animatedQRContainer,
+            { width: qrContainerSize, height: qrContainerSize },
+          ]}
+        >
           {!addressState.errorMessageText?.text ||
           addressState.errorMessageText?.type === 'warning' ? (
             <>
@@ -678,7 +704,14 @@ function QrCode(props) {
                 <QrCodeWrapper
                   outerContainerStyle={{
                     backgroundColor: 'transparent',
+                    width: qrContainerSize,
+                    height: qrContainerSize,
                   }}
+                  innerContainerStyle={{
+                    width: qrInnerSize,
+                    height: qrInnerSize,
+                  }}
+                  qrSize={qrInnerSize}
                   QRData={qrData}
                 />
               </Animated.View>
@@ -686,8 +719,8 @@ function QrCode(props) {
               <Animated.View
                 style={{
                   position: 'absolute',
-                  width: 300,
-                  height: 300,
+                  width: qrContainerSize,
+                  height: qrContainerSize,
                   alignItems: 'center',
                   justifyContent: 'center',
                   opacity: loadingOpacity,
@@ -700,8 +733,8 @@ function QrCode(props) {
             <View
               style={{
                 position: 'absolute',
-                width: 300,
-                height: 300,
+                width: qrContainerSize,
+                height: qrContainerSize,
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 10,
@@ -773,6 +806,7 @@ function QrCode(props) {
           iconName={'SquarePen'}
           showBoder={true}
           actionFunction={editAmount}
+          qrInnerSize={qrInnerSize}
         />
       )}
 
@@ -787,6 +821,7 @@ function QrCode(props) {
           iconName={'SquarePen'}
           showBoder={true}
           actionFunction={editDescription}
+          qrInnerSize={qrInnerSize}
         />
       )}
 
@@ -877,6 +912,9 @@ function QrCode(props) {
       <QRInformationRow
         title={t('screens.inAccount.receiveBtcPage.invoiceDescription', {
           context: invoiceContext,
+          chain:
+            sourceChain &&
+            sourceChain[0]?.toUpperCase() + sourceChain?.slice(1),
         })}
         info={
           isUsingLnurl
@@ -894,6 +932,7 @@ function QrCode(props) {
             copyToClipboard(address, showToast);
         }}
         showSkeleton={addressState.isGeneratingInvoice}
+        qrInnerSize={qrInnerSize}
       />
     </View>
   );
@@ -907,6 +946,7 @@ function QRInformationRow({
   showSkeleton = false,
   iconName,
   customNumberOfLines = 1,
+  qrInnerSize,
 }) {
   const { backgroundColor, textColor } = GetThemeColors();
 
@@ -917,6 +957,7 @@ function QRInformationRow({
         {
           borderBottomWidth: showBoder ? 2 : 0,
           borderBottomColor: backgroundColor,
+          width: qrInnerSize,
         },
       ]}
       onPress={() => {
@@ -959,8 +1000,8 @@ function QRInformationRow({
       </View>
       <View
         style={{
-          width: 30,
-          height: 30,
+          width: 35,
+          height: 35,
           backgroundColor,
           alignItems: 'center',
           justifyContent: 'center',

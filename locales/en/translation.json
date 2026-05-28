@@ -1008,7 +1008,7 @@
       "kenyanPhoneDesc": "You are about to pay a Kenyan phone number",
       "depositFunds": "Deposit Funds",
       "depositFundsSubtitle": "Add funds to your wallet",
-      "onChainBitcoin": "On-Chain Bitcoin",
+      "onChainBitcoin": "Bitcoin Address",
       "onChainBitcoinSubtitle": "Receive via on-chain address",
       "stablecoins": "Stablecoins",
       "stablecoinsSubtitle": "USDC / USDT auto-convert to BTC",
@@ -1018,11 +1018,18 @@
       "otherBitcoinSubtitle": "Liquid and other methods",
       "lightningInvoice": "Lightning Invoice",
       "lightningInvoiceSubtitle": "Receive BTC or USD instantly",
+      "lightningUSDAmountRequired": "An amount is required to create a USD lightning invoice",
       "otherReceivingMethods": "Other receiving methods",
       "cashAppEnterAmount": "Enter amount in sats",
       "cashAppOpen": "Open Cash App",
       "cashAppBack": "Back",
-      "viewDetails": "View details"
+      "viewDetails": "View details",
+      "othersOptionTitle": "Select Method",
+      "liquidDesc": "Receive Liquid BTC to your wallet.",
+      "roostockDesc": "Receive Rootstock BTC to your wallet.",
+      "sparkDesc": "receive BTC or tokens to your wallet.",
+      "chooseMethodTitle": "Choose receive method",
+      "selectMethodTitle": "Select deposit method"
     },
     "payLinks": {
       "skip": "Skip",
@@ -1156,7 +1163,7 @@
         "minUSDSwap": "Payments converted to dollars require a minimum amount of:\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Other receiving methods",
+        "format": "Change receive method",
         "infoMessage": "Custom amounts aren’t supported on Spark or Rootstock payments."
       },
       "switchReceiveOptionPage": {
@@ -2120,6 +2127,7 @@
         "liquidFeeMessage": "To receive a Liquid payment, you'll pay a lockup fee of ~{{fee}}, a claim fee of ~{{claimFee}}, and a 0.1% Boltz service fee.",
         "rootstockFeeMessage": "To receive a Rootstock payment, you'll pay a lockup fee of ~{{fee}} and a 0.1% Boltz service fee.",
         "lightningConvertMessage": "Receiving dollars from Lightning requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is:\n{{satExchangeRate}}.",
+        "stablecoinsFeeMessage": "To receive stablecoins, a 0.5% Blitz fee and a 0.05% Flashnet fee apply.",
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
         "receiveAsHeader": "Receive as",
@@ -2133,6 +2141,7 @@
         "invoiceDescription_bitcoinAddress": "Bitcoin address",
         "invoiceDescription_liquidAddress": "Liquid address",
         "invoiceDescription_sparkAddress": "Spark address",
+        "invoiceDescription_stablecoinsAddress": "{{chain}} address",
         "invoiceDescription_rootstockAddress": "Rootstock address",
         "header_lightning_btc": "Bitcoin via Lightning",
         "header_lightning_usd": "Dollars via Lightning",
@@ -2140,6 +2149,7 @@
         "header_spark_btc": "Bitcoin/Tokens via Spark",
         "header_spark_usd": "Dollars via Spark",
         "header_liquid": "Bitcoin via Liquid",
+        "header_stablecoins": "Bitcoin via {{chain}}",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Select the currency to receive",
         "usd_convert_warning": "The final amount you receive may vary due to market price changes during the conversion.",
@@ -2500,7 +2510,8 @@
         "pickChain": "Select Chain",
         "pickDestination": "Select Destination",
         "confirm": "Confirm Address",
-        "alreadyExists": "You already have an address for this combination"
+        "alreadyExists": "You already have an address for this combination",
+        "convertDesc": "Your {{chain}} {{asset}} will be converted into {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Chain",
