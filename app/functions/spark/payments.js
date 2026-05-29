@@ -591,14 +591,9 @@ export const sparkPaymenWrapper = async ({
         tx.details.amount = usdbAmount;
       }
 
-      // Mark only plain Bitcoin-funded sats sends (not swaps, not token sends)
+      // Mark only plain Bitcoin-funded sats sends (not token sends)
       // as eligible for spend-and-replace.
-      if (
-        seletctedToken === 'Bitcoin' &&
-        expectedReceiveType === 'sats' &&
-        !isSwap &&
-        isSpendAndReplaceEnabled
-      ) {
+      if (seletctedToken === 'Bitcoin' && isSpendAndReplaceEnabled) {
         tx.details.isBitcoinFundedSend = true;
       }
       response = tx;
