@@ -104,6 +104,7 @@ import { FlashnetProvider } from './context-store/flashnetContext';
 import { useTranslation } from 'react-i18next';
 import { AnalyticsNumbersProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
+import { SpendAndReplaceProvider } from './context-store/spendAndReplaceContext';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
@@ -142,9 +143,11 @@ function App(): JSX.Element {
                                                     <FlashnetProvider>
                                                       <UserBalanceProvider>
                                                         <AnalyticsNumbersProvider>
-                                                          {/* <Suspense
+                                                          <SpendAndReplaceProvider>
+                                                            {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                          <ResetStack />
+                                                            <ResetStack />
+                                                          </SpendAndReplaceProvider>
                                                         </AnalyticsNumbersProvider>
                                                       </UserBalanceProvider>
                                                     </FlashnetProvider>
