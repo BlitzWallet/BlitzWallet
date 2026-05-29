@@ -603,6 +603,7 @@ export async function checkFlashnetStablecoinStatusLogic(
             description: i18next.t(
               'screens.inAccount.sendAndReplace.acceptingDescription',
             ),
+            isSARIncoming: true,
           },
         },
       ]).catch(err =>
