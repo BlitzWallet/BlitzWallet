@@ -2449,7 +2449,8 @@
         "userDollarAmount": "Solde en dollars disponible : {{dollarAmount}}",
         "explainer": "Lorsqu’il est activé, chaque paiement Bitcoin sortant est automatiquement remplacé en échangeant un montant équivalent depuis votre solde en dollars. Si votre solde en dollars est inférieur au montant dépensé, l’intégralité du solde sera échangée. Aucun échange n’est effectué si le montant de remplacement est inférieur à {{minAmount}}.",
         "fundingDescription": "Achat Spend & Replace",
-        "acceptingDescription": "Recharge Spend & Replace"
+        "acceptingDescription": "Recharge Spend & Replace",
+        "toastMessageTitle": "Solde Bitcoin rechargé"
       }
     },
     "accumulationAddresses": {

@@ -2449,7 +2449,8 @@
         "userDollarAmount": "Verfügbares Dollar-Guthaben: {{dollarAmount}}",
         "explainer": "Wenn aktiviert, wird jede ausgehende Bitcoin-Zahlung automatisch ersetzt, indem ein entsprechender Betrag aus Ihrem Dollar-Guthaben getauscht wird. Ist Ihr Dollar-Guthaben niedriger als der ausgegebene Betrag, wird stattdessen das gesamte Dollar-Guthaben getauscht. Es wird kein Tausch durchgeführt, wenn der Ersatzbetrag unter {{minAmount}} liegt.",
         "fundingDescription": "Spend & Replace-Kauf",
-        "acceptingDescription": "Spend & Replace-Aufladung"
+        "acceptingDescription": "Spend & Replace-Aufladung",
+        "toastMessageTitle": "Bitcoin-Guthaben aufgefüllt"
       }
     },
     "accumulationAddresses": {

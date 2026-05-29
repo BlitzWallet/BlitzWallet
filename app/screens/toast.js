@@ -173,7 +173,31 @@ export function Toast({
               <ThemeText styles={styles.toastIcon} content={getIconForType()} />
             )}
             <View style={styles.textContainer}>
-              {toast.type === 'confirmTx' ? (
+              {toast.isSARPayment ? (
+                <View>
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={[styles.paymentReceivedTitle, { fontWeight: 500 }]}
+                    content={t(
+                      'screens.inAccount.sendAndReplace.toastMessageTitle',
+                    )}
+                  />
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.paymentReceivedTitle}
+                    content={t('pushNotifications.paymentReceived.body', {
+                      totalAmount: displayCorrectDenomination({
+                        amount: !!token ? formattedTokensBalance : toast.amount,
+                        masterInfoObject,
+                        fiatStats,
+                        useCustomLabel: !!token,
+                        customLabel: token?.tokenMetadata?.tokenTicker,
+                        useMillionDenomination: true,
+                      }),
+                    })}
+                  />
+                </View>
+              ) : toast.type === 'confirmTx' ? (
                 <View>
                   <ThemeText
                     CustomNumberOfLines={1}

@@ -2449,7 +2449,8 @@
         "userDollarAmount": "Saldo disponible en dólares: {{dollarAmount}}",
         "explainer": "Cuando está activado, cada pago saliente en Bitcoin se reemplaza automáticamente intercambiando un monto equivalente desde tu saldo en dólares. Si tu saldo en dólares es menor al monto gastado, se intercambiará el saldo total disponible. No se realizará ningún intercambio si el monto de reemplazo es inferior a {{minAmount}}.",
         "fundingDescription": "Compra de Spend & Replace",
-        "acceptingDescription": "Recarga de Spend & Replace"
+        "acceptingDescription": "Recarga de Spend & Replace",
+        "toastMessageTitle": "Saldo de Bitcoin recargado"
       }
     },
     "accumulationAddresses": {
