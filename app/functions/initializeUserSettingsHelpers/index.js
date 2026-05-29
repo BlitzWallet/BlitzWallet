@@ -33,6 +33,7 @@ const keys = [
   'pinnedAccounts',
   'monthlyBudget',
   'bitrefillEmail',
+  SPEND_AND_REPLACE_STORAGE_KEY,
 ];
 
 const defaultValues = {
