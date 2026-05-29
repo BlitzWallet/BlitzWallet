@@ -10,6 +10,7 @@ import { useGlobalContextProvider } from './context';
 import { useSparkWallet } from './sparkContext';
 import { useKeysContext } from './keys';
 import { processSpendAndReplaceIntents } from '../app/functions/spark/spendAndReplace';
+import { useFlashnet } from './flashnetContext';
 
 const SpendAndReplaceContext = createContext(null);
 
@@ -23,6 +24,7 @@ export function SpendAndReplaceProvider({ children }) {
   const { sparkInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
   const { t } = useTranslation();
+  const { poolInfoRef } = useFlashnet();
 
   useEffect(() => {
     const handleTransactionUpdate = async () => {
@@ -49,6 +51,7 @@ export function SpendAndReplaceProvider({ children }) {
             mnemonic: accountMnemoinc,
             sparkAddress: sparkInformation.sparkAddress,
             t,
+            poolInfoRef,
           });
         } while (needsRerun);
       } catch (err) {
