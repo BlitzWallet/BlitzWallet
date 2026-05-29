@@ -2447,7 +2447,9 @@
       "sendAndReplace": {
         "slider": "{{state}} Spendi e sostituisci",
         "userDollarAmount": "Saldo disponibile in dollari: {{dollarAmount}}",
-        "explainer": "Quando attivato, ogni pagamento Bitcoin in uscita viene automaticamente sostituito convertendo un importo equivalente dal tuo saldo in dollari. Se il saldo in dollari è inferiore all’importo speso, verrà convertito l’intero saldo disponibile. Nessuna conversione verrà eseguita se l’importo sostitutivo è inferiore a {{minAmount}}."
+        "explainer": "Quando attivato, ogni pagamento Bitcoin in uscita viene automaticamente sostituito convertendo un importo equivalente dal tuo saldo in dollari. Se il saldo in dollari è inferiore all’importo speso, verrà convertito l’intero saldo disponibile. Nessuna conversione verrà eseguita se l’importo sostitutivo è inferiore a {{minAmount}}.",
+        "fundingDescription": "Acquisto Spend & Replace",
+        "acceptingDescription": "Ricarica Spend & Replace"
       }
     },
     "accumulationAddresses": {

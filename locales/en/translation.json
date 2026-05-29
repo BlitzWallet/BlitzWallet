@@ -2448,7 +2448,9 @@
       "sendAndReplace": {
         "slider": "{{state}} Spend and Replace",
         "userDollarAmount": "Available dollar balance: {{dollarAmount}}",
-        "explainer": "When enabled, each outgoing Bitcoin payment is automatically replaced by swapping an equivalent amount from your dollar balance. If your dollar balance is less than the spent amount, the full dollar balance is swapped instead. No swap is made if the replacement amount is less than {{minAmount}}."
+        "explainer": "When enabled, each outgoing Bitcoin payment is automatically replaced by swapping an equivalent amount from your dollar balance. If your dollar balance is less than the spent amount, the full dollar balance is swapped instead. No swap is made if the replacement amount is less than {{minAmount}}.",
+        "fundingDescription": "Spend & Replace purchase",
+        "acceptingDescription": "Spend & Replace refill"
       }
     },
     "accumulationAddresses": {
