@@ -31,7 +31,7 @@ export function getSatsFromTx(tx, currentPrice = 0, direction) {
     let amount = 0;
 
     if (!details.isLRC20Payment) {
-      amount = Number(JSON.parse(tx.details).amount || 0);
+      amount = Number(details.amount || 0);
     }
 
     if (direction === 'OUTGOING') {
