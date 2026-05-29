@@ -587,6 +587,29 @@ export async function checkFlashnetStablecoinStatusLogic(
 
     if (!newStatus) return null;
 
+    if (
+      details.sarFundingTx &&
+      newStatus === 'completed' &&
+      statusResult.sparkTxHash &&
+      statusResult.sparkTxHash !== tx.sparkID
+    ) {
+      bulkUpdateSparkTransactions([
+        {
+          id: statusResult.sparkTxHash,
+          paymentStatus: 'completed',
+          paymentType: 'unknown',
+          accountId: tx.accountId,
+          details: {
+            description: i18next.t(
+              'screens.inAccount.sendAndReplace.acceptingDescription',
+            ),
+          },
+        },
+      ]).catch(err =>
+        console.error('Error updating SAR incoming tx description:', err),
+      );
+    }
+
     return {
       id: tx.sparkID,
       paymentStatus: newStatus,
