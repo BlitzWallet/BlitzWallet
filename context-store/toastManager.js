@@ -3,15 +3,11 @@ import React, {
   useContext,
   useReducer,
   useCallback,
-  useState,
+  useMemo,
 } from 'react';
-import { View } from 'react-native';
-import { Toast } from '../app/screens/toast';
-import { useNodeContext } from './nodeContext';
-import { useSparkWallet } from './sparkContext';
-import { useGlobalContextProvider } from './context';
 
-const ToastContext = createContext();
+const ToastStateContext = createContext();
+const ToastActionsContext = createContext();
 
 const initialState = {
   toasts: [],
@@ -42,7 +38,7 @@ const toastReducer = (state, action) => {
 export const ToastProvider = ({ children }) => {
   const [state, dispatch] = useReducer(toastReducer, initialState);
 
-  const showToast = toast => {
+  const showToast = useCallback(toast => {
     const id = Date.now() + Math.random();
     const toastWithId = {
       id,
@@ -61,56 +57,44 @@ export const ToastProvider = ({ children }) => {
     }
 
     return id;
-  };
+  }, []);
 
-  const hideToast = id => {
+  const hideToast = useCallback(id => {
     dispatch({ type: 'REMOVE_TOAST', payload: id });
-  };
+  }, []);
 
-  const clearToasts = () => {
+  const clearToasts = useCallback(() => {
     dispatch({ type: 'CLEAR_TOASTS' });
-  };
+  }, []);
+
+  const actionsValue = useMemo(
+    () => ({ showToast, hideToast, clearToasts }),
+    [showToast, hideToast, clearToasts],
+  );
+  const stateValue = useMemo(() => ({ toasts: state.toasts }), [state.toasts]);
 
   return (
-    <ToastContext.Provider
-      value={{
-        toasts: state.toasts,
-        showToast,
-        hideToast,
-        clearToasts,
-      }}
-    >
-      {children}
-    </ToastContext.Provider>
+    <ToastActionsContext.Provider value={actionsValue}>
+      <ToastStateContext.Provider value={stateValue}>
+        {children}
+      </ToastStateContext.Provider>
+    </ToastActionsContext.Provider>
   );
 };
 
 export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
+  const stateContext = useContext(ToastStateContext);
+  const actionsContext = useContext(ToastActionsContext);
+  if (!stateContext || !actionsContext) {
     throw new Error('useToast must be used within a ToastProvider');
   }
-  return context;
+  return { ...stateContext, ...actionsContext };
 };
 
-export const ToastContainer = () => {
-  const { toasts, hideToast } = useToast();
-  const { fiatStats } = useNodeContext();
-  const { sparkInformation } = useSparkWallet();
-  const { masterInfoObject } = useGlobalContextProvider();
-
-  return (
-    <View pointerEvents="box-none">
-      {toasts.map(toast => (
-        <Toast
-          key={toast.id}
-          toast={toast}
-          onHide={() => hideToast(toast.id)}
-          fiatStats={fiatStats}
-          sparkInformation={sparkInformation}
-          masterInfoObject={masterInfoObject}
-        />
-      ))}
-    </View>
-  );
+export const useToastActions = () => {
+  const context = useContext(ToastActionsContext);
+  if (!context) {
+    throw new Error('useToastActions must be used within a ToastProvider');
+  }
+  return context;
 };
