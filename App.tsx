@@ -56,7 +56,6 @@ import { LiquidEventProvider } from './context-store/liquidEventContext';
 import {
   LiquidNavigationListener,
   RootstockNavigationListener,
-  SparkNavigationListener,
 } from './context-store/SDKNavigation';
 import {
   GlobalThemeProvider,
@@ -92,7 +91,8 @@ import {
 import * as SystemUI from 'expo-system-ui';
 import { InsetsProvider } from './context-store/insetsProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ToastContainer, ToastProvider } from './context-store/toastManager';
+import { ToastProvider } from './context-store/toastManager';
+import { ToastContainer } from './context-store/toastContainer';
 import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
 import { SparkConnectionManager } from './context-store/sparkConnection';
 import { GlobalNostrWalletConnectProvider } from './context-store/NWC';
@@ -597,7 +597,6 @@ function ResetStack(): JSX.Element | null {
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
-      <SparkNavigationListener />
       <RootstockNavigationListener />
       <LiquidNavigationListener />
       <ToastContainer />
