@@ -285,7 +285,7 @@ export default function HalfModalDepositFunds({
             {showLightning && (
               <TouchableOpacity
                 style={styles.scanButton}
-                onPress={() => handleSetActiveView('others')}
+                onPress={() => setActiveView('others')}
               >
                 <View
                   style={[
