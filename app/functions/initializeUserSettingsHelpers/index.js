@@ -1,4 +1,8 @@
-import { NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY } from '../../constants';
+import {
+  NWC_IDENTITY_PUB_KEY,
+  QUICK_PAY_STORAGE_KEY,
+  SPEND_AND_REPLACE_STORAGE_KEY,
+} from '../../constants';
 import { BLITZ_FEE_PERCET, BLITZ_FEE_SATS } from '../../constants/math';
 import { getLocalStorageItem } from '../localStorage';
 import { isNewDaySince } from '../rotateAddressDateChecker';
@@ -29,6 +33,7 @@ const keys = [
   'pinnedAccounts',
   'monthlyBudget',
   'bitrefillEmail',
+  SPEND_AND_REPLACE_STORAGE_KEY,
 ];
 
 const defaultValues = {
@@ -67,6 +72,7 @@ const defaultValues = {
   pinnedAccounts: [],
   monthlyBudget: null,
   bitrefillEmail: '',
+  [SPEND_AND_REPLACE_STORAGE_KEY]: { isEnabled: false },
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -114,6 +120,7 @@ export const fetchLocalStorageItems = async () => {
     pinnedAccounts: parsedResults[21] ?? defaultValues.pinnedAccounts,
     monthlyBudget: parsedResults[22] ?? defaultValues.monthlyBudget,
     bitrefillEmail: parsedResults[23] ?? defaultValues.bitrefillEmail,
+    spendAndReplace: parsedResults[24] ?? defaultValues.spendAndReplace,
   };
 };
 

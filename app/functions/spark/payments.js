@@ -21,6 +21,7 @@ import {
 import {
   DEFAULT_PAYMENT_EXPIRY_SEC,
   IS_SPARK_ID,
+  SPEND_AND_REPLACE_STORAGE_KEY,
   USDB_TOKEN_ID,
 } from '../../constants';
 import sha256Hash from '../hash';
@@ -44,6 +45,7 @@ import {
   addSingleUnpaidSparkLightningTransaction,
   bulkUpdateSparkTransactions,
 } from './transactions';
+import { getLocalStorageItem } from '../localStorage';
 
 export const sparkPaymenWrapper = async ({
   getFee = false,
@@ -72,6 +74,14 @@ export const sparkPaymenWrapper = async ({
 }) => {
   try {
     console.log('Begining spark payment');
+    let isSpendAndReplaceEnabled;
+    try {
+      isSpendAndReplaceEnabled = JSON.parse(
+        await getLocalStorageItem(SPEND_AND_REPLACE_STORAGE_KEY),
+      ).isEnabled;
+    } catch (err) {
+      isSpendAndReplaceEnabled = false;
+    }
 
     const sendingUUID =
       contactInfo?.uuid || paymentInfo?.blitzContactInfo?.uuid || '';
@@ -263,6 +273,11 @@ export const sparkPaymenWrapper = async ({
               ...(paymentInfo.blitzContactInfo
                 ? { remoteContactPayment: paymentInfo.blitzContactInfo }
                 : {}),
+              ...(isSpendAndReplaceEnabled
+                ? {
+                    isBitcoinFundedSend: true,
+                  }
+                : {}),
             },
           };
           response = tx;
@@ -290,6 +305,11 @@ export const sparkPaymenWrapper = async ({
                 : {}),
               ...(paymentInfo.blitzContactInfo
                 ? { remoteContactPayment: paymentInfo.blitzContactInfo }
+                : {}),
+              ...(isSpendAndReplaceEnabled
+                ? {
+                    isBitcoinFundedSend: true,
+                  }
                 : {}),
             },
           };
@@ -338,6 +358,11 @@ export const sparkPaymenWrapper = async ({
           direction: 'OUTGOING',
           description: memo || '',
           onChainTxid: data.coopExitTxid || '',
+          ...(isSpendAndReplaceEnabled
+            ? {
+                isBitcoinFundedSend: true,
+              }
+            : {}),
         },
       };
       response = tx;
@@ -564,6 +589,16 @@ export const sparkPaymenWrapper = async ({
           ? executionResponse.swap.amountOut
           : fiatValueConvertedSendAmount;
         tx.details.amount = usdbAmount;
+      }
+
+      // Mark only plain Bitcoin-funded sats sends (not token sends)
+      // as eligible for spend-and-replace.
+      if (
+        isSpendAndReplaceEnabled &&
+        usablePaymentMethod === 'BTC' &&
+        seletctedToken === 'Bitcoin'
+      ) {
+        tx.details.isBitcoinFundedSend = true;
       }
       response = tx;
     }

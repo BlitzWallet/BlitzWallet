@@ -42,6 +42,10 @@ import { initWallet } from '../app/functions/initiateWalletConnection';
 import { AppState } from 'react-native';
 import getDepositAddressTxIds from '../app/functions/spark/getDepositAdressTxIds';
 import { useKeysContext } from './keys';
+import {
+  clearSpendAndReplaceCorrelationMemo,
+  setSpendAndReplaceAuthGetter,
+} from '../app/functions/spark/spendAndReplaceCorrelation';
 import { navigationRef } from '../navigation/navigationService';
 import { transformTxToPaymentObject } from '../app/functions/spark/transformTxToPayment';
 import EventEmitter from 'events';
@@ -72,6 +76,7 @@ import {
 } from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
 import { filterDisplayableTransactions } from '../app/functions/spark/filterTransactions';
+import { useToastActions } from './toastManager';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -125,6 +130,7 @@ const SparkWalletProvider = ({ children }) => {
   const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { showToast } = useToastActions();
   const {
     didGetToHomepage,
     appState,
@@ -134,6 +140,8 @@ const SparkWalletProvider = ({ children }) => {
   const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContactsInfo();
   const prevAccountMnemoincRef = useRef(null);
+  const contactsPrivateKeyRef = useRef('');
+  const contactsPublicKeyRef = useRef(null);
   const [sparkConnectionError, setSparkConnectionError] = useState(null);
   const isRunningAddListeners = useRef(false);
   const [sparkInformation, setSparkInformation] = useState({
@@ -146,7 +154,6 @@ const SparkWalletProvider = ({ children }) => {
     didConnectToFlashnet: null,
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
-  const [pendingNavigation, setPendingNavigation] = useState(null);
   const [restoreCompleted, setRestoreCompleted] = useState(false);
   const hasRestoreCompleted = useRef(false);
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
@@ -877,19 +884,19 @@ const SparkWalletProvider = ({ children }) => {
         //   }
         // }
 
-        // Handle confirm animation here
-        setPendingNavigation({
-          tx: parsedTx,
+        showToast({
           amount: details.amount,
           LRC20Token: details.LRC20Token,
           isLRC20Payment: !!details.LRC20Token,
-          showFullAnimation: false,
+          duration: 7000,
+          isSARPayment: !!details.isSARIncoming,
+          type: 'confirmTx',
         });
       } catch (err) {
         console.log('[UiLane] confirm navigation error', err);
       }
     },
-    [],
+    [showToast],
   );
 
   const projectTransactionsForEvent = useCallback(
@@ -1558,7 +1565,9 @@ const SparkWalletProvider = ({ children }) => {
         didConnect: null,
         didConnectToFlashnet: null,
       });
-      setPendingNavigation(null);
+      contactsPrivateKeyRef.current = '';
+      contactsPublicKeyRef.current = null;
+      clearSpendAndReplaceCorrelationMemo();
       if (!internalRefresh) {
         setDidRunNormalConnection(false);
         setNormalConnectionTimeout(false);
@@ -1575,6 +1584,22 @@ const SparkWalletProvider = ({ children }) => {
 
     resetSparkState();
   }, [authResetkey]);
+
+  useEffect(() => {
+    contactsPrivateKeyRef.current = contactsPrivateKey;
+    contactsPublicKeyRef.current = publicKey;
+  }, [contactsPrivateKey, publicKey]);
+
+  // Register a stable getter so transaction writes can snapshot the centralized
+  // auth keys without storing key material in module scope or changing every
+  // bulkUpdateSparkTransactions call site.
+  useEffect(() => {
+    setSpendAndReplaceAuthGetter(() => ({
+      privateKey: contactsPrivateKeyRef.current,
+      publicKey: contactsPublicKeyRef.current,
+    }));
+    return () => setSpendAndReplaceAuthGetter(null);
+  }, []);
 
   // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving only when screen is active
   useEffect(() => {
@@ -1834,10 +1859,10 @@ const SparkWalletProvider = ({ children }) => {
             if (updatedTx.details) {
               if (handledNavigatedTxs.current.has(updatedTx.id)) return;
               handledNavigatedTxs.current.add(updatedTx.id);
-              setPendingNavigation({
-                tx: updatedTx,
+              showToast({
                 amount: updatedTx.details.amount,
-                showFullAnimation: false,
+                duration: 7000,
+                type: 'confirmTx',
               });
             }
           }
@@ -1903,6 +1928,7 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.didConnect,
     didGetToHomepage,
     sparkInformation.identityPubKey,
+    showToast,
   ]);
 
   // Run fullRestore when didConnect becomes true
@@ -2045,8 +2071,6 @@ const SparkWalletProvider = ({ children }) => {
       sparkInformation,
       txsHashKey,
       setSparkInformation,
-      pendingNavigation,
-      setPendingNavigation,
       // numberOfCachedTxs,
       // setNumberOfCachedTxs,
       connectToSparkWallet,
@@ -2065,8 +2089,6 @@ const SparkWalletProvider = ({ children }) => {
       sparkInformation,
       txsHashKey,
       setSparkInformation,
-      pendingNavigation,
-      setPendingNavigation,
       // numberOfCachedTxs,
       // setNumberOfCachedTxs,
       connectToSparkWallet,

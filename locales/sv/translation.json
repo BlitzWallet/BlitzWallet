@@ -2443,6 +2443,14 @@
         "noHistoryTitle": "Ingen swap-historik",
         "noHistoryDesc": "Dina swap-transaktioner visas här.",
         "pageTitle": "Historik"
+      },
+      "sendAndReplace": {
+        "slider": "{{state}} Spendera och ersätt",
+        "userDollarAmount": "Tillgängligt dollarsaldo: {{dollarAmount}}",
+        "explainer": "När funktionen är aktiverad ersätts varje utgående Bitcoin-betalning automatiskt genom att ett motsvarande belopp växlas från ditt dollarsaldo. Om ditt dollarsaldo är lägre än det spenderade beloppet växlas hela dollarsaldot istället. Ingen växling görs om ersättningsbeloppet är mindre än {{minAmount}}.",
+        "fundingDescription": "Spend & Replace-köp",
+        "acceptingDescription": "Spend & Replace-påfyllning",
+        "toastMessageTitle": "Bitcoin-saldo påfyllt"
       }
     },
     "accumulationAddresses": {
