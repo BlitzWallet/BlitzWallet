@@ -393,7 +393,10 @@ export default function HalfModalReceiveOptions({
   const [showAddContact, setShowAddContact] = useState(false);
   const [showPoolCreation, setShowPoolCreation] = useState(false);
   const [showLNURLQR, setShowLNURLQR] = useState(false);
-  const [showPayLinkCreation, setShowPayLinkCreation] = useState(false);
+  const [showPayLinkCreation, setShowPayLinkCreation] = useState({
+    isVisibile: false,
+    path: '',
+  });
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({});
   const scrollOffsetRef = useRef(0);
@@ -424,7 +427,10 @@ export default function HalfModalReceiveOptions({
 
   // Any overlay being shown slides/fades the main list out
   const anyOverlayVisible =
-    showAddContact || showPoolCreation || showLNURLQR || showPayLinkCreation;
+    showAddContact ||
+    showPoolCreation ||
+    showLNURLQR ||
+    showPayLinkCreation.isVisibile;
 
   useEffect(() => {
     if (anyOverlayVisible) {
@@ -588,7 +594,7 @@ export default function HalfModalReceiveOptions({
   );
 
   const handlePaylinkClose = useCallback(
-    () => setShowPayLinkCreation(false),
+    () => setShowPayLinkCreation({ isVisibile: false, path: '' }),
     [setShowPayLinkCreation],
   );
 
@@ -636,7 +642,9 @@ export default function HalfModalReceiveOptions({
         >
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => setShowPayLinkCreation(true)}
+            onPress={() =>
+              setShowPayLinkCreation({ isVisibile: true, path: 'lightning' })
+            }
           >
             <View
               style={[
@@ -669,7 +677,9 @@ export default function HalfModalReceiveOptions({
 
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => setShowPoolCreation(true)}
+            onPress={() =>
+              setShowPayLinkCreation({ isVisibile: true, path: 'paylink' })
+            }
           >
             <View
               style={[
@@ -680,12 +690,12 @@ export default function HalfModalReceiveOptions({
                 },
               ]}
             >
-              <ThemeIcon size={25} iconName={'PiggyBank'} />
+              <ThemeIcon size={25} iconName={'Send'} />
             </View>
             <View style={styles.scanTextContainer}>
               <ThemeText
                 styles={styles.scanButtonText}
-                content={t('wallet.pools.createPool')}
+                content={t('wallet.halfModal.poolsTitle')}
               />
               <ThemeText
                 styles={styles.scanButtonSubtext}

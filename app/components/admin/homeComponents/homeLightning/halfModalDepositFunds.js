@@ -32,6 +32,7 @@ export default function HalfModalDepositFunds({
   showLightning = false,
 }) {
   const [activeView, setActiveView] = useState('options');
+  const [mountedViews, setMountedViews] = useState(() => new Set(['options']));
 
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -112,6 +113,16 @@ export default function HalfModalDepositFunds({
     transform: [{ translateX: bankTranslateX.value }],
   }));
 
+  const handleSetActiveView = useCallback(view => {
+    setActiveView(view);
+    setMountedViews(prev => {
+      if (prev.has(view)) return prev;
+      const next = new Set(prev);
+      next.add(view);
+      return next;
+    });
+  }, []);
+
   // Fix 4: Android back handler — navigate subview → options before closing modal
   const handleSubviewBack = useCallback(() => {
     if (activeView === 'options') return false;
@@ -121,267 +132,288 @@ export default function HalfModalDepositFunds({
   useHandleBackPressNew(handleSubviewBack);
 
   return (
-    <View style={styles.container}>
-      {/* Options list (tiles) — Fix 2: pointerEvents blocks interaction when hidden */}
-      <Animated.View
-        style={[styles.animatedContainer, optionsAnimatedStyle]}
-        pointerEvents={activeView === 'options' ? 'auto' : 'none'}
-      >
-        <ThemeText
-          styles={styles.stepTitle}
-          content={
-            showLightning
-              ? t('wallet.halfModal.chooseMethodTitle')
-              : t('wallet.halfModal.selectMethodTitle')
-          }
-        />
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: bottomPadding }}
+    <View style={styles.noWidthContainer}>
+      <View style={styles.container}>
+        {/* Options list (tiles) — Fix 2: pointerEvents blocks interaction when hidden */}
+        <Animated.View
+          style={[styles.animatedContainer, optionsAnimatedStyle]}
+          pointerEvents={activeView === 'options' ? 'auto' : 'none'}
         >
-          {/* Lightning Invoice */}
-          {showLightning && (
+          <ThemeText
+            styles={styles.stepTitle}
+            content={
+              showLightning
+                ? t('wallet.halfModal.chooseMethodTitle')
+                : t('wallet.halfModal.selectMethodTitle')
+            }
+          />
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: bottomPadding,
+            }}
+          >
+            {/* On-Chain Bitcoin */}
             <TouchableOpacity
               style={styles.scanButton}
-              onPress={() => setActiveView('lightning')}
+              onPress={() =>
+                handleBackPressFunction(() => {
+                  const isOnReceivePage = navigate
+                    .getState()
+                    .routes.some(r => r.name === 'ReceiveBTC');
+                  if (isOnReceivePage) {
+                    navigate.popTo('ReceiveBTC', {
+                      selectedRecieveOption: 'Bitcoin',
+                    });
+                  } else {
+                    navigate.replace('ReceiveBTC', {
+                      selectedRecieveOption: 'Bitcoin',
+                    });
+                  }
+                })
+              }
             >
               <View
                 style={[
                   styles.scanIconContainer,
                   {
                     backgroundColor:
-                      theme && darkModeType ? backgroundColor : COLORS.primary,
+                      theme && darkModeType
+                        ? backgroundColor
+                        : COLORS.bitcoinOrange,
                   },
                 ]}
               >
                 <Image
-                  source={ICONS.lightningReceiveIcon}
-                  style={[
-                    styles.rowIcon,
-                    { tintColor: 'white', width: 15, height: 20 },
-                  ]}
+                  source={ICONS.bitcoinIcon}
+                  style={[styles.rowIcon, { tintColor: 'white' }]}
                 />
               </View>
               <View style={styles.scanTextContainer}>
                 <ThemeText
                   styles={styles.scanButtonText}
-                  content={t('wallet.halfModal.lightningInvoice')}
+                  content={t('wallet.halfModal.onChainBitcoin')}
                 />
                 <ThemeText
                   styles={styles.scanButtonSubtext}
-                  content={t('wallet.halfModal.lightningInvoiceSubtitle')}
+                  content={t('wallet.halfModal.onChainBitcoinSubtitle')}
                 />
               </View>
               <View style={{ opacity: HIDDEN_OPACITY }}>
                 <ThemeIcon iconName={'ChevronRight'} size={18} />
               </View>
             </TouchableOpacity>
-          )}
 
-          {/* On-Chain Bitcoin */}
-          <TouchableOpacity
-            style={styles.scanButton}
-            onPress={() =>
-              handleBackPressFunction(() => {
-                const isOnReceivePage = navigate
-                  .getState()
-                  .routes.some(r => r.name === 'ReceiveBTC');
-                if (isOnReceivePage) {
-                  navigate.popTo('ReceiveBTC', {
-                    selectedRecieveOption: 'Bitcoin',
-                  });
-                } else {
-                  navigate.replace('ReceiveBTC', {
-                    selectedRecieveOption: 'Bitcoin',
-                  });
-                }
-              })
-            }
-          >
-            <View
-              style={[
-                styles.scanIconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? backgroundColor
-                      : COLORS.bitcoinOrange,
-                },
-              ]}
+            {/* Stablecoins */}
+            <TouchableOpacity
+              style={styles.scanButton}
+              onPress={() => handleSetActiveView('stablecoins')}
             >
-              <Image
-                source={ICONS.bitcoinIcon}
-                style={[styles.rowIcon, { tintColor: 'white' }]}
-              />
-            </View>
-            <View style={styles.scanTextContainer}>
-              <ThemeText
-                styles={styles.scanButtonText}
-                content={t('wallet.halfModal.onChainBitcoin')}
-              />
-              <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.onChainBitcoinSubtitle')}
-              />
-            </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
-              <ThemeIcon iconName={'ChevronRight'} size={18} />
-            </View>
-          </TouchableOpacity>
+              <View
+                style={[
+                  styles.scanIconContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : COLORS.dollarGreen,
+                  },
+                ]}
+              >
+                <Image
+                  source={ICONS.dollarIcon}
+                  style={[styles.rowIcon, { tintColor: 'white' }]}
+                />
+              </View>
+              <View style={styles.scanTextContainer}>
+                <ThemeText
+                  styles={styles.scanButtonText}
+                  content={t('wallet.halfModal.stablecoins')}
+                />
+                <ThemeText
+                  styles={styles.scanButtonSubtext}
+                  content={t('wallet.halfModal.stablecoinsSubtitle')}
+                />
+              </View>
+              <View style={{ opacity: HIDDEN_OPACITY }}>
+                <ThemeIcon iconName={'ChevronRight'} size={18} />
+              </View>
+            </TouchableOpacity>
 
-          {/* Stablecoins */}
-          <TouchableOpacity
-            style={styles.scanButton}
-            onPress={() => setActiveView('stablecoins')}
+            {/* Lightning Invoice */}
+            {showLightning && (
+              <TouchableOpacity
+                style={styles.scanButton}
+                onPress={() => handleSetActiveView('lightning')}
+              >
+                <View
+                  style={[
+                    styles.scanIconContainer,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundColor
+                          : COLORS.primary,
+                    },
+                  ]}
+                >
+                  <Image
+                    source={ICONS.lightningReceiveIcon}
+                    style={[
+                      styles.rowIcon,
+                      { tintColor: 'white', width: 15, height: 20 },
+                    ]}
+                  />
+                </View>
+                <View style={styles.scanTextContainer}>
+                  <ThemeText
+                    styles={styles.scanButtonText}
+                    content={t('wallet.halfModal.lightningInvoice')}
+                  />
+                  <ThemeText
+                    styles={styles.scanButtonSubtext}
+                    content={t('wallet.halfModal.lightningInvoiceSubtitle')}
+                  />
+                </View>
+                <View style={{ opacity: HIDDEN_OPACITY }}>
+                  <ThemeIcon iconName={'ChevronRight'} size={18} />
+                </View>
+              </TouchableOpacity>
+            )}
+
+            {/* Other Bitcoin */}
+            {showLightning && (
+              <TouchableOpacity
+                style={styles.scanButton}
+                onPress={() => handleSetActiveView('others')}
+              >
+                <View
+                  style={[
+                    styles.scanIconContainer,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundColor
+                          : COLORS.primary,
+                    },
+                  ]}
+                >
+                  <ThemeIcon
+                    colorOverride={COLORS.darkModeText}
+                    size={20}
+                    iconName={'Ellipsis'}
+                  />
+                </View>
+                <View style={styles.scanTextContainer}>
+                  <ThemeText
+                    styles={styles.scanButtonText}
+                    content={'Other Methods'}
+                  />
+                  <ThemeText
+                    styles={styles.scanButtonSubtext}
+                    content={t('wallet.halfModal.otherBitcoinSubtitle')}
+                  />
+                </View>
+                <View style={{ opacity: HIDDEN_OPACITY }}>
+                  <ThemeIcon iconName={'ChevronRight'} size={18} />
+                </View>
+              </TouchableOpacity>
+            )}
+          </ScrollView>
+        </Animated.View>
+
+        {/* Stablecoins subview */}
+        {mountedViews.has('stablecoins') && (
+          <Animated.View
+            style={[
+              StyleSheet.absoluteFill,
+              styles.animatedContainer,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+              stablecoinsAnimatedStyle,
+            ]}
+            pointerEvents={activeView === 'stablecoins' ? 'auto' : 'none'}
           >
-            <View
-              style={[
-                styles.scanIconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? backgroundColor
-                      : COLORS.dollarGreen,
-                },
-              ]}
-            >
-              <Image
-                source={ICONS.dollarIcon}
-                style={[styles.rowIcon, { tintColor: 'white' }]}
-              />
-            </View>
-            <View style={styles.scanTextContainer}>
-              <ThemeText
-                styles={styles.scanButtonText}
-                content={t('wallet.halfModal.stablecoins')}
-              />
-              <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.stablecoinsSubtitle')}
-              />
-            </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
-              <ThemeIcon iconName={'ChevronRight'} size={18} />
-            </View>
-          </TouchableOpacity>
+            <CreateAccumulationAddressDepositModal
+              setContentHeight={() => {}}
+              handleBackPressFunction={handleBackPressFunction}
+            />
+          </Animated.View>
+        )}
 
-          {/* Other Bitcoin */}
-          <TouchableOpacity
-            style={styles.scanButton}
-            onPress={() => setActiveView('others')}
+        {/* Others subview */}
+        {mountedViews.has('others') && (
+          <Animated.View
+            style={[
+              StyleSheet.absoluteFill,
+              styles.animatedContainer,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+              othersAnimatedStyle,
+            ]}
+            pointerEvents={activeView === 'others' ? 'auto' : 'none'}
           >
-            <View
-              style={[
-                styles.scanIconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : COLORS.primary,
-                },
-              ]}
-            >
-              <ThemeIcon
-                colorOverride={COLORS.darkModeText}
-                size={20}
-                iconName={'Ellipsis'}
-              />
-            </View>
-            <View style={styles.scanTextContainer}>
-              <ThemeText
-                styles={styles.scanButtonText}
-                content={'Other Methods'}
-              />
-              <ThemeText
-                styles={styles.scanButtonSubtext}
-                content={t('wallet.halfModal.otherBitcoinSubtitle')}
-              />
-            </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
-              <ThemeIcon iconName={'ChevronRight'} size={18} />
-            </View>
-          </TouchableOpacity>
-        </ScrollView>
-      </Animated.View>
+            <SelectOtherReceiveOptionHalfModal
+              handleBackPressFunction={handleBackPressFunction}
+            />
+          </Animated.View>
+        )}
 
-      {/* Stablecoins subview */}
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.animatedContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          },
-          stablecoinsAnimatedStyle,
-        ]}
-        pointerEvents={activeView === 'stablecoins' ? 'auto' : 'none'}
-      >
-        <CreateAccumulationAddressDepositModal
-          setContentHeight={() => {}}
-          handleBackPressFunction={handleBackPressFunction}
-        />
-      </Animated.View>
-
-      {/* Others subview */}
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.animatedContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          },
-          othersAnimatedStyle,
-        ]}
-        pointerEvents={activeView === 'others' ? 'auto' : 'none'}
-      >
-        <SelectOtherReceiveOptionHalfModal
-          handleBackPressFunction={handleBackPressFunction}
-        />
-      </Animated.View>
-
+        {/* bank subview */}
+        {mountedViews.has('bank') && (
+          <Animated.View
+            style={[
+              StyleSheet.absoluteFill,
+              styles.animatedContainer,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              },
+              bankAnimatedStyle,
+            ]}
+            pointerEvents={activeView === 'bank' ? 'auto' : 'none'}
+          >
+            <AddFundsFromBankHalfModal
+              handleBackPressFunction={handleBackPressFunction}
+              setContentHeight={setContentHeight}
+              activeView={activeView}
+            />
+          </Animated.View>
+        )}
+      </View>
       {/* lightning subview */}
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.animatedContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          },
-          lightningAnimatedStyle,
-        ]}
-        pointerEvents={activeView === 'lightning' ? 'auto' : 'none'}
-      >
-        <AddAmountToLightningPath
-          handleBackPressFunction={handleBackPressFunction}
-          setContentHeight={setContentHeight}
-          activeView={activeView}
-        />
-      </Animated.View>
-
-      {/* bank subview */}
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.animatedContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          },
-          bankAnimatedStyle,
-        ]}
-        pointerEvents={activeView === 'bank' ? 'auto' : 'none'}
-      >
-        <AddFundsFromBankHalfModal
-          handleBackPressFunction={handleBackPressFunction}
-          setContentHeight={setContentHeight}
-          activeView={activeView}
-        />
-      </Animated.View>
+      {mountedViews.has('lightning') && (
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            styles.animatedContainer,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : backgroundColor,
+            },
+            lightningAnimatedStyle,
+          ]}
+          pointerEvents={activeView === 'lightning' ? 'auto' : 'none'}
+        >
+          <AddAmountToLightningPath
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            activeView={activeView}
+          />
+        </Animated.View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  noWidthContainer: {
+    flex: 1,
+  },
   container: {
     width: INSET_WINDOW_WIDTH,
     ...CENTER,

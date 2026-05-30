@@ -65,6 +65,7 @@ export default function PayLinkDescriptionInput({
   didCreatePaylink,
   setDidCreatePaylink,
   currencyType,
+  isLightning,
 }) {
   const navigate = useNavigation();
   const { globalContactsInformation } = useGlobalContactsInfo();
@@ -81,7 +82,7 @@ export default function PayLinkDescriptionInput({
   const [isLoading, setIsLoading] = useState(false);
 
   // Description is optional — only amount must be > 0
-  const isValid = payLinkAmount.rawAmount > 0;
+  const isValid = isLightning ? true : payLinkAmount.rawAmount > 0;
 
   const handleCreatePayLink = useCallback(async () => {
     if (!isValid || isAlreadyCreating.current) return;
@@ -314,22 +315,21 @@ export default function PayLinkDescriptionInput({
       />
 
       <CustomButton
-        enableElipsis={false}
-        textContent={t('wallet.payLinks.genQRCode')}
-        actionFunction={() => {
-          isButtonAction.current = true;
-          onSkip?.(payLinkAmount.amount, description);
-        }}
-      />
-
-      <CustomButton
-        buttonStyles={[{ backgroundColor: 'transparent' }]}
-        textStyles={{ color: textColor }}
+        buttonStyles={[{ ...CENTER }]}
         useLoading={isLoading}
-        textContent={t('wallet.payLinks.createPayLink')}
+        textContent={
+          isLightning
+            ? t('wallet.payLinks.genQRCode')
+            : t('wallet.payLinks.createPayLink')
+        }
         actionFunction={() => {
           isButtonAction.current = true;
-          handleCreatePayLink();
+          console.log('test');
+          if (isLightning) {
+            onSkip?.(payLinkAmount.amount, description);
+          } else {
+            handleCreatePayLink();
+          }
         }}
         disabled={isLoading || !isValid}
       />

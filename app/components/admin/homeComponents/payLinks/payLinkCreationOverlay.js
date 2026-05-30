@@ -24,7 +24,7 @@ import customUUID from '../../../../functions/customUUID';
  * @param {Function} handleBackPressFunction - Back press handler from parent modal
  */
 export default function PayLinkCreationOverlay({
-  visible,
+  visible: visibleState,
   onClose,
   theme,
   darkModeType,
@@ -35,6 +35,8 @@ export default function PayLinkCreationOverlay({
   const navigate = useNavigation();
   const [didCreatePaylink, setDidCreatePaylink] = useState('');
   const [currencyType, setCurrencyType] = useState('BTC');
+  const visible = visibleState.isVisibile;
+  const isLightning = visibleState.path === 'lightning';
 
   const {
     currentStep,
@@ -122,6 +124,7 @@ export default function PayLinkCreationOverlay({
             }}
             onSkip={() => handleSkip(undefined, undefined)}
             onBack={onClose}
+            isLightning={isLightning}
           />
         </Animated.View>
       )}
@@ -138,6 +141,7 @@ export default function PayLinkCreationOverlay({
             setContentHeight={setContentHeight}
             setDidCreatePaylink={setDidCreatePaylink}
             didCreatePaylink={didCreatePaylink}
+            isLightning={isLightning}
           />
         </Animated.View>
       )}

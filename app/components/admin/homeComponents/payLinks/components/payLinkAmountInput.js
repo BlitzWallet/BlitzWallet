@@ -32,6 +32,7 @@ export default function PayLinkAmountInput({
   onBack,
   paymentMode = 'BTC',
   onSelectCurrency,
+  isLightning,
 }) {
   const navigate = useNavigation();
   const { swapUSDPriceDollars, swapLimits } = useFlashnet();
@@ -75,29 +76,38 @@ export default function PayLinkAmountInput({
   };
 
   const handleNext = useCallback(() => {
-    if (!localSatAmount || Number(localSatAmount) === 0) {
-      onSkip?.();
-      return;
-    }
-    if (paymentMode === 'USD' && localSatAmount < swapLimits.bitcoin) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
-          amount: displayCorrectDenomination({
-            amount: swapLimits.bitcoin,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination:
-                primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
-            },
-            forceCurrency: primaryDisplay.forceCurrency,
-            fiatStats: conversionFiatStats,
+    if (isLightning) {
+      if (paymentMode === 'USD' && localSatAmount < swapLimits.bitcoin) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
+            amount: displayCorrectDenomination({
+              amount: swapLimits.bitcoin,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination:
+                  primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
+              },
+              forceCurrency: primaryDisplay.forceCurrency,
+              fiatStats: conversionFiatStats,
+            }),
           }),
-        }),
-      });
-      return;
+        });
+        return;
+      }
+      onContinue?.(Number(localSatAmount), amountValue);
+    } else {
+      if (
+        (!localSatAmount || Number(localSatAmount) === 0) &&
+        paymentMode === 'BTC'
+      ) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('wallet.halfModal.paylinkAmountRequired'),
+        });
+        return;
+      }
+      onContinue?.(Number(localSatAmount), amountValue);
     }
-    onContinue?.(Number(localSatAmount), amountValue);
-  }, [localSatAmount, onContinue, onBack]);
+  }, [localSatAmount, onContinue, onBack, isLightning]);
 
   return (
     <View style={styles.container}>
@@ -128,40 +138,42 @@ export default function PayLinkAmountInput({
         </TouchableOpacity>
       </ScrollView>
 
-      <TouchableOpacity
-        onPress={() =>
-          navigate.push('CustomHalfModal', {
-            wantedContent: 'payLinkCurrencySelect',
-            currentCurrency: paymentMode,
-            onSelectCurrency: cur => {
-              setAmountValue('');
-              setInputDenomination(null);
-              onSelectCurrency(cur);
-            },
-          })
-        }
-        style={[
-          styles.currencyToggle,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
-      >
-        <ThemeText
-          styles={styles.currencyToggleText}
-          content={
-            paymentMode === 'BTC'
-              ? t('constants.bitcoin_upper')
-              : t('constants.dollars_upper')
+      {isLightning && (
+        <TouchableOpacity
+          onPress={() =>
+            navigate.push('CustomHalfModal', {
+              wantedContent: 'payLinkCurrencySelect',
+              currentCurrency: paymentMode,
+              onSelectCurrency: cur => {
+                setAmountValue('');
+                setInputDenomination(null);
+                onSelectCurrency(cur);
+              },
+            })
           }
-        />
-        <ThemeIcon
-          colorOverride={textColor}
-          size={18}
-          iconName={'ChevronDown'}
-        />
-      </TouchableOpacity>
+          style={[
+            styles.currencyToggle,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        >
+          <ThemeText
+            styles={styles.currencyToggleText}
+            content={
+              paymentMode === 'BTC'
+                ? t('constants.bitcoin_upper')
+                : t('constants.dollars_upper')
+            }
+          />
+          <ThemeIcon
+            colorOverride={textColor}
+            size={18}
+            iconName={'ChevronDown'}
+          />
+        </TouchableOpacity>
+      )}
 
       <CustomNumberKeyboard
         showDot={primaryDisplay.denomination === 'fiat'}
@@ -171,11 +183,16 @@ export default function PayLinkAmountInput({
       />
 
       <CustomButton
-        buttonStyles={{ ...CENTER }}
+        buttonStyles={{
+          ...CENTER,
+          opacity:
+            (isLightning && !localSatAmount && paymentMode === 'USD') ||
+            (!isLightning && !localSatAmount)
+              ? HIDDEN_OPACITY
+              : 1,
+        }}
         actionFunction={handleNext}
-        textContent={
-          !localSatAmount ? t('constants.skip') : t('wallet.payLinks.next')
-        }
+        textContent={t('wallet.payLinks.next')}
       />
     </View>
   );
