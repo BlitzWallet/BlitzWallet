@@ -9,6 +9,7 @@ const {
   getPendingSpendAndReplaceFundingLegs,
   claimIntents,
   resolveIntents,
+  releaseIntents,
 } = require('../../../app/functions/spark/spendAndReplaceStorage');
 
 const makeDb = () => {
@@ -257,5 +258,50 @@ describe('resolveIntents', () => {
     expect(row.status).toBe('completed');
     expect(row.swap_request_id).toBe('swap-99');
     expect(row.amount_swapped_micro).toBe(4_200_000);
+  });
+});
+
+describe('releaseIntents', () => {
+  let db;
+
+  beforeEach(async () => {
+    db = makeDb();
+    await createSpendAndReplaceTable(db);
+  });
+
+  it('deletes the claimed rows so the payment can be claimed again', async () => {
+    await claimIntents(db, ACCOUNT, [
+      { payment_id: 'p-a', amount_sats: 10_000 },
+      { payment_id: 'p-b', amount_sats: 20_000 },
+    ]);
+
+    await releaseIntents(db, ACCOUNT, ['p-a']);
+
+    const remaining = db._raw
+      .prepare(
+        'SELECT payment_id FROM spend_and_replace_intents WHERE account_id = ?',
+      )
+      .all(ACCOUNT)
+      .map(r => r.payment_id);
+    expect(remaining).toEqual(['p-b']);
+
+    // the released payment is no longer claimed, so it can be re-claimed
+    const reclaim = await claimIntents(db, ACCOUNT, [
+      { payment_id: 'p-a', amount_sats: 10_000 },
+    ]);
+    expect(reclaim.map(r => r.payment_id)).toEqual(['p-a']);
+  });
+
+  it('is a no-op for an empty id list', async () => {
+    await claimIntents(db, ACCOUNT, [{ payment_id: 'p-a', amount_sats: 10_000 }]);
+
+    await releaseIntents(db, ACCOUNT, []);
+
+    const remaining = db._raw
+      .prepare(
+        'SELECT payment_id FROM spend_and_replace_intents WHERE account_id = ?',
+      )
+      .all(ACCOUNT);
+    expect(remaining).toHaveLength(1);
   });
 });

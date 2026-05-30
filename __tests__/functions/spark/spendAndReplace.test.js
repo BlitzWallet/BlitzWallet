@@ -228,7 +228,7 @@ describe('runSpendAndReplace', () => {
     });
   });
 
-  it('throws (pre-submission) when the quote returns an error, without sending USDB', async () => {
+  it('returns failed (terminal) when the quote returns a backend error, without sending USDB', async () => {
     fetchBackend.mockImplementation(async method => {
       if (method === 'createSpendAndReplaceQuote') {
         return { error: { message: 'no liquidity' } };
@@ -240,17 +240,37 @@ describe('runSpendAndReplace', () => {
       runSpendAndReplace,
     } = require('../../../app/functions/spark/spendAndReplace');
 
-    await expect(
-      runSpendAndReplace({
-        paymentAmountsSats: [50_000],
-        mnemonic: 'test mnemonic',
-        sparkAddress: 'spark-addr-1',
-      }),
-    ).rejects.toThrow('no liquidity');
+    const result = await runSpendAndReplace({
+      paymentAmountsSats: [50_000],
+      mnemonic: 'test mnemonic',
+      sparkAddress: 'spark-addr-1',
+    });
+
+    expect(result).toEqual({ status: 'failed', reason: 'no liquidity' });
     expect(sendSparkTokens).not.toHaveBeenCalled();
   });
 
-  it('throws (pre-submission) when the USDB deposit send fails, without submitting', async () => {
+  it('returns retry when the quote request fails at the transport layer (fetchBackend false)', async () => {
+    fetchBackend.mockImplementation(async method => {
+      if (method === 'createSpendAndReplaceQuote') return false;
+      return {};
+    });
+
+    const {
+      runSpendAndReplace,
+    } = require('../../../app/functions/spark/spendAndReplace');
+
+    const result = await runSpendAndReplace({
+      paymentAmountsSats: [50_000],
+      mnemonic: 'test mnemonic',
+      sparkAddress: 'spark-addr-1',
+    });
+
+    expect(result).toEqual({ status: 'retry', reason: 'quote_network_error' });
+    expect(sendSparkTokens).not.toHaveBeenCalled();
+  });
+
+  it('returns failed (terminal) when the USDB deposit fails with a non-network error, without submitting', async () => {
     sendSparkTokens.mockResolvedValue({
       didWork: false,
       error: 'insufficient balance',
@@ -260,13 +280,13 @@ describe('runSpendAndReplace', () => {
       runSpendAndReplace,
     } = require('../../../app/functions/spark/spendAndReplace');
 
-    await expect(
-      runSpendAndReplace({
-        paymentAmountsSats: [50_000],
-        mnemonic: 'test mnemonic',
-        sparkAddress: 'spark-addr-1',
-      }),
-    ).rejects.toThrow('insufficient balance');
+    const result = await runSpendAndReplace({
+      paymentAmountsSats: [50_000],
+      mnemonic: 'test mnemonic',
+      sparkAddress: 'spark-addr-1',
+    });
+
+    expect(result).toEqual({ status: 'failed', reason: 'insufficient balance' });
     expect(fetchBackend).not.toHaveBeenCalledWith(
       'submitFlashnetStablecoinOrder',
       expect.anything(),
@@ -275,7 +295,35 @@ describe('runSpendAndReplace', () => {
     );
   });
 
-  it('throws when the order submission returns an error', async () => {
+  it('returns retry when the USDB deposit fails with a network error, without submitting', async () => {
+    sendSparkTokens.mockResolvedValue({
+      didWork: false,
+      error: 'Network request failed',
+    });
+
+    const {
+      runSpendAndReplace,
+    } = require('../../../app/functions/spark/spendAndReplace');
+
+    const result = await runSpendAndReplace({
+      paymentAmountsSats: [50_000],
+      mnemonic: 'test mnemonic',
+      sparkAddress: 'spark-addr-1',
+    });
+
+    expect(result).toEqual({
+      status: 'retry',
+      reason: 'token_send_network_error',
+    });
+    expect(fetchBackend).not.toHaveBeenCalledWith(
+      'submitFlashnetStablecoinOrder',
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it('completes even when the fire-and-forget order submission errors', async () => {
     fetchBackend.mockImplementation(async method => {
       if (method === 'createSpendAndReplaceQuote') {
         return {
@@ -294,12 +342,18 @@ describe('runSpendAndReplace', () => {
       runSpendAndReplace,
     } = require('../../../app/functions/spark/spendAndReplace');
 
-    await expect(
-      runSpendAndReplace({
-        paymentAmountsSats: [50_000],
-        mnemonic: 'test mnemonic',
-        sparkAddress: 'spark-addr-1',
-      }),
-    ).rejects.toThrow('submit failed');
+    const result = await runSpendAndReplace({
+      paymentAmountsSats: [50_000],
+      mnemonic: 'test mnemonic',
+      sparkAddress: 'spark-addr-1',
+    });
+
+    // The deposit was sent; submit is best-effort, so the swap is terminal-completed
+    // regardless of the submit response.
+    expect(result).toEqual({
+      status: 'completed',
+      swapRequestId: 'quote-1',
+      amountSwappedMicro: 5_000_000,
+    });
   });
 });

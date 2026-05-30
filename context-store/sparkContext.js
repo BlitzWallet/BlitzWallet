@@ -42,6 +42,7 @@ import { initWallet } from '../app/functions/initiateWalletConnection';
 import { AppState } from 'react-native';
 import getDepositAddressTxIds from '../app/functions/spark/getDepositAdressTxIds';
 import { useKeysContext } from './keys';
+import { setSpendAndReplaceAuthKeys } from '../app/functions/spark/spendAndReplaceCorrelation';
 import { navigationRef } from '../navigation/navigationService';
 import { transformTxToPaymentObject } from '../app/functions/spark/transformTxToPayment';
 import EventEmitter from 'events';
@@ -72,6 +73,7 @@ import {
 } from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
 import { filterDisplayableTransactions } from '../app/functions/spark/filterTransactions';
+import { useToastActions } from './toastManager';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -125,6 +127,7 @@ const SparkWalletProvider = ({ children }) => {
   const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { showToast } = useToastActions();
   const {
     didGetToHomepage,
     appState,
@@ -146,7 +149,6 @@ const SparkWalletProvider = ({ children }) => {
     didConnectToFlashnet: null,
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
-  const [pendingNavigation, setPendingNavigation] = useState(null);
   const [restoreCompleted, setRestoreCompleted] = useState(false);
   const hasRestoreCompleted = useRef(false);
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
@@ -877,19 +879,19 @@ const SparkWalletProvider = ({ children }) => {
         //   }
         // }
 
-        // Handle confirm animation here
-        setPendingNavigation({
-          tx: parsedTx,
+        showToast({
           amount: details.amount,
           LRC20Token: details.LRC20Token,
           isLRC20Payment: !!details.LRC20Token,
-          showFullAnimation: false,
+          duration: 7000,
+          isSARPayment: !!details.isSARIncoming,
+          type: 'confirmTx',
         });
       } catch (err) {
         console.log('[UiLane] confirm navigation error', err);
       }
     },
-    [],
+    [showToast],
   );
 
   const projectTransactionsForEvent = useCallback(
@@ -1558,7 +1560,9 @@ const SparkWalletProvider = ({ children }) => {
         didConnect: null,
         didConnectToFlashnet: null,
       });
-      setPendingNavigation(null);
+      // Drop any cached auth credential so an account switch can't leave a
+      // previous user's keys in module memory.
+      setSpendAndReplaceAuthKeys(null, null);
       if (!internalRefresh) {
         setDidRunNormalConnection(false);
         setNormalConnectionTimeout(false);
@@ -1575,6 +1579,13 @@ const SparkWalletProvider = ({ children }) => {
 
     resetSparkState();
   }, [authResetkey]);
+
+  // Keep the SAR correlation module's session auth credential in sync with the
+  // current account's keys so incoming SAR txs can be labeled at write time.
+  useEffect(() => {
+    setSpendAndReplaceAuthKeys(contactsPrivateKey, publicKey);
+    return () => setSpendAndReplaceAuthKeys(null, null);
+  }, [contactsPrivateKey, publicKey]);
 
   // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving only when screen is active
   useEffect(() => {
@@ -1834,10 +1845,10 @@ const SparkWalletProvider = ({ children }) => {
             if (updatedTx.details) {
               if (handledNavigatedTxs.current.has(updatedTx.id)) return;
               handledNavigatedTxs.current.add(updatedTx.id);
-              setPendingNavigation({
-                tx: updatedTx,
+              showToast({
                 amount: updatedTx.details.amount,
-                showFullAnimation: false,
+                duration: 7000,
+                type: 'confirmTx',
               });
             }
           }
@@ -1903,6 +1914,7 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.didConnect,
     didGetToHomepage,
     sparkInformation.identityPubKey,
+    showToast,
   ]);
 
   // Run fullRestore when didConnect becomes true
@@ -2045,8 +2057,6 @@ const SparkWalletProvider = ({ children }) => {
       sparkInformation,
       txsHashKey,
       setSparkInformation,
-      pendingNavigation,
-      setPendingNavigation,
       // numberOfCachedTxs,
       // setNumberOfCachedTxs,
       connectToSparkWallet,
@@ -2065,8 +2075,6 @@ const SparkWalletProvider = ({ children }) => {
       sparkInformation,
       txsHashKey,
       setSparkInformation,
-      pendingNavigation,
-      setPendingNavigation,
       // numberOfCachedTxs,
       // setNumberOfCachedTxs,
       connectToSparkWallet,

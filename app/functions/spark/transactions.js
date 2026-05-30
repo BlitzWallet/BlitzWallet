@@ -2,6 +2,8 @@ import EventEmitter from 'events';
 import { handleEventEmitterPost } from '../handleEventEmitters';
 import { openDatabaseAsync } from 'expo-sqlite';
 import { USDB_TOKEN_ID } from '../../constants';
+import { createSpendAndReplaceTable } from './spendAndReplaceStorage';
+import { labelSpendAndReplaceIncoming } from './spendAndReplaceCorrelation';
 
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
@@ -207,6 +209,9 @@ export const initializeSparkDatabase = async () => {
         json_extract(details, '$.time')
       );
     `);
+
+    // Shared connection so the spend-and-replace discovery JOIN works.
+    await createSpendAndReplaceTable(sqlLiteDB);
 
     console.log('Opened spark transaction and contacts tables');
     return true;
@@ -1000,6 +1005,17 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
   return addToBulkUpdateQueue(async () => {
     try {
       await ensureSparkDatabaseReady();
+
+      // Label SAR incoming txs before they are persisted/displayed. Runs as the
+      // first step of the queued op (so write ordering is preserved) and before
+      // BEGIN TRANSACTION (so it never holds the SQLite write lock); a short
+      // internal timeout bounds how long it can stall the queue.
+      try {
+        await labelSpendAndReplaceIncoming(transactions, sqlLiteDB);
+      } catch (e) {
+        console.warn('SAR incoming correlation failed:', e);
+      }
+
       console.log('Running bulk updates', updateType);
       console.log(transactions);
 

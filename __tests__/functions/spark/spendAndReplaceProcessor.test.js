@@ -6,6 +6,7 @@ jest.mock('../../../app/functions/spark/spendAndReplaceStorage', () => ({
   getEligiblePayments: jest.fn(),
   claimIntents: jest.fn(),
   resolveIntents: jest.fn(),
+  releaseIntents: jest.fn(),
 }));
 
 jest.mock('../../../app/functions/spark/flashnet', () => ({
@@ -48,6 +49,7 @@ const {
   getEligiblePayments,
   claimIntents,
   resolveIntents,
+  releaseIntents,
 } = require('../../../app/functions/spark/spendAndReplaceStorage');
 const {
   findBestPool,
@@ -69,13 +71,17 @@ const ACCOUNT = 'acct-1';
 const quoteCalls = () =>
   fetchBackend.mock.calls.filter(c => c[0] === 'createSpendAndReplaceQuote');
 
-const runPass = showToast =>
+// poolInfoRef defaults to empty so the pool price comes from the findBestPool
+// mock (the in-context value path is exercised separately by overriding it).
+const runPass = (overrides = {}) =>
   processSpendAndReplaceIntents({
     db,
     accountId: ACCOUNT,
     mnemonic: 'test mnemonic',
     sparkAddress: 'spark-addr-1',
-    showToast,
+    t: k => k,
+    poolInfoRef: {},
+    ...overrides,
   });
 
 describe('processSpendAndReplaceIntents', () => {
@@ -102,12 +108,13 @@ describe('processSpendAndReplaceIntents', () => {
       return {};
     });
     resolveIntents.mockResolvedValue(undefined);
+    releaseIntents.mockResolvedValue(undefined);
   });
 
   it('does nothing and runs no swap when there are no eligible payments', async () => {
     getEligiblePayments.mockResolvedValue([]);
 
-    const result = await runPass(jest.fn());
+    const result = await runPass();
 
     expect(result).toEqual({ processed: 0 });
     expect(claimIntents).not.toHaveBeenCalled();
@@ -120,14 +127,14 @@ describe('processSpendAndReplaceIntents', () => {
     ]);
     claimIntents.mockResolvedValue([]); // lost the claim race / already claimed
 
-    const result = await runPass(jest.fn());
+    const result = await runPass();
 
     expect(result).toEqual({ processed: 0 });
     expect(fetchBackend).not.toHaveBeenCalled();
     expect(resolveIntents).not.toHaveBeenCalled();
   });
 
-  it('batches multiple claimed payments into one swap, one toast, and marks them completed', async () => {
+  it('batches multiple claimed payments into one swap and marks them completed', async () => {
     getEligiblePayments.mockResolvedValue([
       { payment_id: 'p1', amount_sats: 1000 },
       { payment_id: 'p2', amount_sats: 2000 },
@@ -136,13 +143,12 @@ describe('processSpendAndReplaceIntents', () => {
       { payment_id: 'p1', amount_sats: 1000 },
       { payment_id: 'p2', amount_sats: 2000 },
     ]);
-    const showToast = jest.fn();
 
-    const result = await runPass(showToast);
+    const result = await runPass();
 
     expect(result).toEqual({ processed: 2 });
     expect(quoteCalls()).toHaveLength(1); // single batched swap
-    expect(showToast).toHaveBeenCalledTimes(1);
+    expect(releaseIntents).not.toHaveBeenCalled();
     expect(resolveIntents).toHaveBeenCalledWith(db, ACCOUNT, ['p1', 'p2'], {
       status: 'completed',
       swapRequestId: 'quote-1',
@@ -150,24 +156,23 @@ describe('processSpendAndReplaceIntents', () => {
     });
   });
 
-  it('marks intents skipped (no toast) when the swap is skipped', async () => {
+  it('marks intents skipped when the swap is skipped (no pool)', async () => {
     findBestPool.mockResolvedValue({ didWork: false });
     getEligiblePayments.mockResolvedValue([
       { payment_id: 'p1', amount_sats: 1000 },
     ]);
     claimIntents.mockResolvedValue([{ payment_id: 'p1', amount_sats: 1000 }]);
-    const showToast = jest.fn();
 
-    const result = await runPass(showToast);
+    const result = await runPass();
 
     expect(result).toEqual({ processed: 1 });
-    expect(showToast).not.toHaveBeenCalled();
+    expect(releaseIntents).not.toHaveBeenCalled();
     expect(resolveIntents).toHaveBeenCalledWith(db, ACCOUNT, ['p1'], {
       status: 'skipped',
     });
   });
 
-  it('marks intents failed (no toast, no retry) when the swap throws pre-submission', async () => {
+  it('marks intents failed (terminal) when the backend rejects the quote', async () => {
     fetchBackend.mockImplementation(async method => {
       if (method === 'createSpendAndReplaceQuote') {
         return { error: { message: 'no liquidity' } };
@@ -178,26 +183,78 @@ describe('processSpendAndReplaceIntents', () => {
       { payment_id: 'p1', amount_sats: 1000 },
     ]);
     claimIntents.mockResolvedValue([{ payment_id: 'p1', amount_sats: 1000 }]);
-    const showToast = jest.fn();
 
-    const result = await runPass(showToast);
+    const result = await runPass();
 
     expect(result).toEqual({ processed: 1 });
-    expect(showToast).not.toHaveBeenCalled();
     expect(sendSparkTokens).not.toHaveBeenCalled();
+    expect(releaseIntents).not.toHaveBeenCalled();
+    expect(resolveIntents).toHaveBeenCalledWith(db, ACCOUNT, ['p1'], {
+      status: 'failed',
+    });
+  });
+
+  it('releases the claim (no terminal resolve) when the quote request fails at the transport layer', async () => {
+    // fetchBackend returns false on network/timeout failure — no funds have moved.
+    fetchBackend.mockImplementation(async method => {
+      if (method === 'createSpendAndReplaceQuote') return false;
+      return {};
+    });
+    getEligiblePayments.mockResolvedValue([
+      { payment_id: 'p1', amount_sats: 1000 },
+    ]);
+    claimIntents.mockResolvedValue([{ payment_id: 'p1', amount_sats: 1000 }]);
+
+    const result = await runPass();
+
+    expect(result).toEqual({ processed: 1 });
+    expect(sendSparkTokens).not.toHaveBeenCalled();
+    expect(resolveIntents).not.toHaveBeenCalled();
+    expect(releaseIntents).toHaveBeenCalledWith(db, ACCOUNT, ['p1']);
+  });
+
+  it('releases the claim when the USDB deposit fails with a network error', async () => {
+    sendSparkTokens.mockResolvedValue({
+      didWork: false,
+      error: 'Network request failed',
+    });
+    getEligiblePayments.mockResolvedValue([
+      { payment_id: 'p1', amount_sats: 1000 },
+    ]);
+    claimIntents.mockResolvedValue([{ payment_id: 'p1', amount_sats: 1000 }]);
+
+    const result = await runPass();
+
+    expect(result).toEqual({ processed: 1 });
+    expect(resolveIntents).not.toHaveBeenCalled();
+    expect(releaseIntents).toHaveBeenCalledWith(db, ACCOUNT, ['p1']);
+  });
+
+  it('marks failed (terminal) when the USDB deposit fails with a non-network error', async () => {
+    sendSparkTokens.mockResolvedValue({
+      didWork: false,
+      error: 'insufficient token balance',
+    });
+    getEligiblePayments.mockResolvedValue([
+      { payment_id: 'p1', amount_sats: 1000 },
+    ]);
+    claimIntents.mockResolvedValue([{ payment_id: 'p1', amount_sats: 1000 }]);
+
+    const result = await runPass();
+
+    expect(result).toEqual({ processed: 1 });
+    expect(releaseIntents).not.toHaveBeenCalled();
     expect(resolveIntents).toHaveBeenCalledWith(db, ACCOUNT, ['p1'], {
       status: 'failed',
     });
   });
 
   it('reprocesses newly eligible rows on a subsequent pass (drain-loop safe)', async () => {
-    const showToast = jest.fn();
-
     getEligiblePayments.mockResolvedValueOnce([
       { payment_id: 'p1', amount_sats: 1000 },
     ]);
     claimIntents.mockResolvedValueOnce([{ payment_id: 'p1', amount_sats: 1000 }]);
-    const first = await runPass(showToast);
+    const first = await runPass();
     expect(first).toEqual({ processed: 1 });
 
     // a payment confirmed mid-pass shows up on the rerun
@@ -205,7 +262,7 @@ describe('processSpendAndReplaceIntents', () => {
       { payment_id: 'p2', amount_sats: 2000 },
     ]);
     claimIntents.mockResolvedValueOnce([{ payment_id: 'p2', amount_sats: 2000 }]);
-    const second = await runPass(showToast);
+    const second = await runPass();
     expect(second).toEqual({ processed: 1 });
 
     expect(quoteCalls()).toHaveLength(2);
