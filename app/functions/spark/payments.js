@@ -593,7 +593,11 @@ export const sparkPaymenWrapper = async ({
 
       // Mark only plain Bitcoin-funded sats sends (not token sends)
       // as eligible for spend-and-replace.
-      if (seletctedToken === 'Bitcoin' && isSpendAndReplaceEnabled) {
+      if (
+        isSpendAndReplaceEnabled &&
+        usablePaymentMethod === 'BTC' &&
+        seletctedToken === 'Bitcoin'
+      ) {
         tx.details.isBitcoinFundedSend = true;
       }
       response = tx;
