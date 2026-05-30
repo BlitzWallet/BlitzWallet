@@ -134,6 +134,27 @@ describe('processSpendAndReplaceIntents', () => {
     expect(resolveIntents).not.toHaveBeenCalled();
   });
 
+  it('releases claimed rows without swapping when the active account changes after claim', async () => {
+    let isActiveAccount = true;
+    getEligiblePayments.mockResolvedValue([
+      { payment_id: 'p1', amount_sats: 1000 },
+    ]);
+    claimIntents.mockImplementation(async () => {
+      isActiveAccount = false;
+      return [{ payment_id: 'p1', amount_sats: 1000 }];
+    });
+
+    const result = await runPass({
+      isSameActiveAccount: () => isActiveAccount,
+    });
+
+    expect(result).toEqual({ processed: 0 });
+    expect(fetchBackend).not.toHaveBeenCalled();
+    expect(sendSparkTokens).not.toHaveBeenCalled();
+    expect(resolveIntents).not.toHaveBeenCalled();
+    expect(releaseIntents).toHaveBeenCalledWith(db, ACCOUNT, ['p1']);
+  });
+
   it('batches multiple claimed payments into one swap and marks them completed', async () => {
     getEligiblePayments.mockResolvedValue([
       { payment_id: 'p1', amount_sats: 1000 },

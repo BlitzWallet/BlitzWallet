@@ -115,8 +115,13 @@ export const runSpendAndReplace = async ({
   sparkAddress,
   t,
   poolInfoRef,
+  isSameActiveAccount = () => true,
 }) => {
   let poolResult = {};
+
+  if (!isSameActiveAccount()) {
+    return { status: 'retry', reason: 'account_changed_before_send' };
+  }
 
   if (poolInfoRef?.currentPriceAInB) {
     poolResult = poolInfoRef;
@@ -126,6 +131,9 @@ export const runSpendAndReplace = async ({
       USD_ASSET_ADDRESS,
       BTC_ASSET_ADDRESS,
     );
+    if (!isSameActiveAccount()) {
+      return { status: 'retry', reason: 'account_changed_before_send' };
+    }
     if (!poolResponse.didWork) {
       return { status: 'skipped', reason: 'no_pool' };
     }
@@ -149,6 +157,9 @@ export const runSpendAndReplace = async ({
   const amountIn = Math.round(swapMicro);
   const privateKey = await privateKeyFromSeedWords(mnemonic);
   const publicKey = getPublicKey(privateKey);
+  if (!isSameActiveAccount()) {
+    return { status: 'retry', reason: 'account_changed_before_send' };
+  }
 
   const quote = await fetchBackend(
     'createSpendAndReplaceQuote',
@@ -160,6 +171,9 @@ export const runSpendAndReplace = async ({
     privateKey,
     publicKey,
   );
+  if (!isSameActiveAccount()) {
+    return { status: 'retry', reason: 'account_changed_before_send' };
+  }
 
   // fetchBackend returns false on a transport/network/timeout failure (it never
   // throws). No funds have moved, so this is safe to retry.
@@ -173,6 +187,10 @@ export const runSpendAndReplace = async ({
       status: 'failed',
       reason: quote.error?.message || 'invalid_quote',
     };
+  }
+
+  if (!isSameActiveAccount()) {
+    return { status: 'retry', reason: 'account_changed_before_send' };
   }
 
   const tokenPayment = await sendSparkTokens({
@@ -233,14 +251,22 @@ export const processSpendAndReplaceIntents = async ({
   sparkAddress,
   t,
   poolInfoRef,
+  isSameActiveAccount = () => true,
 }) => {
+  if (!isSameActiveAccount()) return { processed: 0 };
+
   const rows = await getEligiblePayments(db, accountId);
   if (!rows.length) return { processed: 0 };
+  if (!isSameActiveAccount()) return { processed: 0 };
 
   const claimed = await claimIntents(db, accountId, rows);
   if (!claimed.length) return { processed: 0 };
 
   const ids = claimed.map(r => r.payment_id);
+  if (!isSameActiveAccount()) {
+    await releaseIntents(db, accountId, ids);
+    return { processed: 0 };
+  }
 
   let result;
   try {
@@ -251,6 +277,7 @@ export const processSpendAndReplaceIntents = async ({
       sparkAddress,
       t,
       poolInfoRef,
+      isSameActiveAccount,
     });
   } catch (err) {
     // Unexpected throw from the swap pipeline. Retry transient/network failures

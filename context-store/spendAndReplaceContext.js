@@ -1,4 +1,4 @@
-import { useEffect, createContext } from 'react';
+import { useEffect, createContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   sparkTransactionsEventEmitter,
@@ -14,50 +14,87 @@ import { useFlashnet } from './flashnetContext';
 
 const SpendAndReplaceContext = createContext(null);
 
-// Module-level so concurrent event fires share one lock. needsRerun captures
-// events that land while a pass is running so they aren't dropped.
-let isProcessing = false;
-let needsRerun = false;
-
 export function SpendAndReplaceProvider({ children }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
   const { t } = useTranslation();
   const { poolInfoRef } = useFlashnet();
+  const isProcessingRef = useRef(false);
+  const needsRerunRef = useRef(false);
+  const latestAccountRef = useRef({
+    accountId: '',
+    sparkAddress: '',
+    mnemonic: '',
+  });
+
+  useEffect(() => {
+    latestAccountRef.current = {
+      accountId: sparkInformation?.identityPubKey || '',
+      sparkAddress: sparkInformation?.sparkAddress || '',
+      mnemonic: accountMnemoinc || '',
+    };
+  }, [
+    sparkInformation?.identityPubKey,
+    sparkInformation?.sparkAddress,
+    accountMnemoinc,
+  ]);
 
   useEffect(() => {
     const handleTransactionUpdate = async () => {
       if (!masterInfoObject[SPEND_AND_REPLACE_STORAGE_KEY]?.isEnabled) return;
-      if (!sparkInformation?.identityPubKey) return;
-      if (!sparkInformation?.sparkAddress) return;
-      if (!accountMnemoinc) return;
 
-      if (isProcessing) {
-        needsRerun = true;
+      const accountSnapshot = {
+        accountId: sparkInformation?.identityPubKey || '',
+        sparkAddress: sparkInformation?.sparkAddress || '',
+        mnemonic: accountMnemoinc || '',
+      };
+      if (
+        !accountSnapshot.accountId ||
+        !accountSnapshot.sparkAddress ||
+        !accountSnapshot.mnemonic
+      ) {
         return;
       }
-      isProcessing = true;
+
+      const isSameActiveAccount = () => {
+        const latestAccount = latestAccountRef.current;
+        return (
+          latestAccount.accountId === accountSnapshot.accountId &&
+          latestAccount.sparkAddress === accountSnapshot.sparkAddress &&
+          latestAccount.mnemonic === accountSnapshot.mnemonic
+        );
+      };
+
+      if (!isSameActiveAccount()) return;
+
+      if (isProcessingRef.current) {
+        needsRerunRef.current = true;
+        return;
+      }
+      isProcessingRef.current = true;
 
       try {
         // Drain loop: rerun while events landed mid-pass, until a pass finds no
         // freshly-claimable rows.
         do {
-          needsRerun = false;
+          needsRerunRef.current = false;
+          if (!isSameActiveAccount()) return;
           const db = await ensureSparkDatabaseReady();
           await processSpendAndReplaceIntents({
             db,
-            accountId: sparkInformation.identityPubKey,
-            mnemonic: accountMnemoinc,
-            sparkAddress: sparkInformation.sparkAddress,
+            accountId: accountSnapshot.accountId,
+            mnemonic: accountSnapshot.mnemonic,
+            sparkAddress: accountSnapshot.sparkAddress,
             t,
             poolInfoRef,
+            isSameActiveAccount,
           });
-        } while (needsRerun);
+        } while (needsRerunRef.current && isSameActiveAccount());
       } catch (err) {
         console.error('SpendAndReplace handler error:', err);
       } finally {
-        isProcessing = false;
+        isProcessingRef.current = false;
       }
     };
 

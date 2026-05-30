@@ -193,6 +193,43 @@ describe('runSpendAndReplace', () => {
     });
   });
 
+  it('returns retry without sending USDB when the active account changes after quote', async () => {
+    let isActiveAccount = true;
+    fetchBackend.mockImplementation(async method => {
+      if (method === 'createSpendAndReplaceQuote') {
+        isActiveAccount = false;
+        return {
+          quoteId: 'quote-1',
+          depositAddress: 'deposit-addr-1',
+          amountIn: 5_000_000,
+        };
+      }
+      return {};
+    });
+
+    const {
+      runSpendAndReplace,
+    } = require('../../../app/functions/spark/spendAndReplace');
+    const result = await runSpendAndReplace({
+      paymentAmountsSats: [50_000],
+      mnemonic: 'test mnemonic',
+      sparkAddress: 'spark-addr-1',
+      isSameActiveAccount: () => isActiveAccount,
+    });
+
+    expect(result).toEqual({
+      status: 'retry',
+      reason: 'account_changed_before_send',
+    });
+    expect(sendSparkTokens).not.toHaveBeenCalled();
+    expect(fetchBackend).not.toHaveBeenCalledWith(
+      'submitFlashnetStablecoinOrder',
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
   it('labels the deposit leg as a flashnet stablecoin swap keyed by the spark tx hash', async () => {
     const {
       runSpendAndReplace,
