@@ -1453,6 +1453,12 @@ const formatDetailsJSON = tx => {
   return newDetails;
 };
 
+// Run an arbitrary spark-DB write through the same FIFO queue that serializes
+// bulkUpdateSparkTransactions, so independent BEGIN/COMMIT scopes on the shared
+// sqlLiteDB connection can never interleave.
+export const runSerializedSparkDbWrite = operation =>
+  addToBulkUpdateQueue(operation);
+
 const addToBulkUpdateQueue = async operation => {
   console.log('Adding transaction to bulk updates que');
   return new Promise((resolve, reject) => {

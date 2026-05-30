@@ -7,7 +7,10 @@ import {
 import { getDollarBalanceToken } from './balanceStore';
 import { sendSparkTokens } from '.';
 import { USDB_TOKEN_ID } from '../../constants';
-import { bulkUpdateSparkTransactions } from './transactions';
+import {
+  bulkUpdateSparkTransactions,
+  runSerializedSparkDbWrite,
+} from './transactions';
 import fetchBackend from '../../../db/handleBackend';
 import { getPublicKey } from 'nostr-tools';
 import { privateKeyFromSeedWords } from '../nostrCompatability';
@@ -259,12 +262,14 @@ export const processSpendAndReplaceIntents = async ({
   if (!rows.length) return { processed: 0 };
   if (!isSameActiveAccount()) return { processed: 0 };
 
-  const claimed = await claimIntents(db, accountId, rows);
+  const claimed = await runSerializedSparkDbWrite(() =>
+    claimIntents(db, accountId, rows),
+  );
   if (!claimed.length) return { processed: 0 };
 
   const ids = claimed.map(r => r.payment_id);
   if (!isSameActiveAccount()) {
-    await releaseIntents(db, accountId, ids);
+    await runSerializedSparkDbWrite(() => releaseIntents(db, accountId, ids));
     return { processed: 0 };
   }
 
@@ -288,19 +293,23 @@ export const processSpendAndReplaceIntents = async ({
   }
 
   if (result.status === 'completed') {
-    await resolveIntents(db, accountId, ids, {
-      status: 'completed',
-      swapRequestId: result.swapRequestId,
-      amountSwappedMicro: result.amountSwappedMicro,
-    });
+    await runSerializedSparkDbWrite(() =>
+      resolveIntents(db, accountId, ids, {
+        status: 'completed',
+        swapRequestId: result.swapRequestId,
+        amountSwappedMicro: result.amountSwappedMicro,
+      }),
+    );
   } else if (result.status === 'retry') {
     // Transient/network failure before any funds moved — undo the claim so the
     // payments are rediscovered and retried on the next pass.
-    await releaseIntents(db, accountId, ids);
+    await runSerializedSparkDbWrite(() => releaseIntents(db, accountId, ids));
   } else {
     // 'skipped' (no pool / amount too small) or 'failed' (backend rejection /
     // non-retryable) — terminal, never reprocessed.
-    await resolveIntents(db, accountId, ids, { status: result.status });
+    await runSerializedSparkDbWrite(() =>
+      resolveIntents(db, accountId, ids, { status: result.status }),
+    );
   }
 
   return { processed: claimed.length };

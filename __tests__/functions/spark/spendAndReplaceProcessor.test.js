@@ -18,6 +18,7 @@ jest.mock('../../../app/functions/spark/flashnet', () => ({
 
 jest.mock('../../../app/functions/spark/transactions', () => ({
   bulkUpdateSparkTransactions: jest.fn(),
+  runSerializedSparkDbWrite: jest.fn(operation => operation()),
 }));
 
 jest.mock('../../../app/functions/spark/balanceStore', () => ({
