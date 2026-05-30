@@ -2447,7 +2447,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Gastar e repor",
         "userDollarAmount": "Saldo disponível em dólares: {{dollarAmount}}",
-        "explainer": "Quando ativado, cada gasto realizado usando Bitcoin é automaticamente reposto usando o seu saldo de dólar. Se seu saldo em dólares for menor que o valor gasto, o saldo total disponível será trocado. Nenhuma troca será realizada se o valor de reposição for inferior a {{minAmount}}.",
+        "explainer": "Quando ativado, cada gasto realizado usando Bitcoin é automaticamente reposto usando o seu saldo de dólar. Se seu saldo em dólares for menor que o valor gasto, o saldo total disponível será trocado. Nenhuma troca será realizada se o valor a ser reposto for inferior a {{minAmount}}.",
         "fundingDescription": "Compra Gasto & Reposição",
         "acceptingDescription": "Recarga Gasto & Reposição",
         "toastMessageTitle": "Saldo de Bitcoin recarregado"
