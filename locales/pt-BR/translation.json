@@ -1000,7 +1000,7 @@
       "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui",
       "payMe": "Endereço Blitz",
       "createInvoice": "Solicitar Dinheiro",
-      "invoiceDescription": "Escolha a moeda e quantia desejada",
+      "invoiceDescription": "Cobrar por link de pagamento ou código QR",
       "poolsDescription": "Colete pagamentos para um objetivo",
       "noContactHead": "{{username}} não encontrado",
       "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora.",
