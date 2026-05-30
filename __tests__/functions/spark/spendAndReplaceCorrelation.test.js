@@ -20,7 +20,7 @@ const {
   getPendingSpendAndReplaceFundingLegs,
 } = require('../../../app/functions/spark/spendAndReplaceStorage');
 const {
-  setSpendAndReplaceAuthKeys,
+  setSpendAndReplaceAuthGetter,
   labelSpendAndReplaceIncoming,
 } = require('../../../app/functions/spark/spendAndReplaceCorrelation');
 
@@ -50,7 +50,7 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 
 beforeEach(() => {
   jest.clearAllMocks();
-  setSpendAndReplaceAuthKeys('priv', 'pub');
+  setSpendAndReplaceAuthGetter(() => ({ privateKey: 'priv', publicKey: 'pub' }));
   getPendingSpendAndReplaceFundingLegs.mockResolvedValue([]);
 });
 
@@ -211,8 +211,8 @@ describe('labelSpendAndReplaceIncoming', () => {
     expect(fetchBackend).not.toHaveBeenCalled();
   });
 
-  it('no auth keys set → no DB query, no backend call', async () => {
-    setSpendAndReplaceAuthKeys(null, null);
+  it('no auth getter set → no DB query, no backend call', async () => {
+    setSpendAndReplaceAuthGetter(null);
     const tx = incomingSparkTx(uniqueHash());
 
     await labelSpendAndReplaceIncoming([tx], db);
@@ -220,6 +220,41 @@ describe('labelSpendAndReplaceIncoming', () => {
     expect(getPendingSpendAndReplaceFundingLegs).not.toHaveBeenCalled();
     expect(fetchBackend).not.toHaveBeenCalled();
     expect(tx.paymentStatus).toBe('pending');
+  });
+
+  it('snapshots auth once so a later getter change cannot affect an in-flight pass', async () => {
+    const incomingId = uniqueHash();
+    const leg = fundingLeg(uniqueHash());
+    let resolveLegs;
+    getPendingSpendAndReplaceFundingLegs.mockImplementation(
+      () => new Promise(resolve => (resolveLegs = resolve)),
+    );
+    fetchBackend.mockResolvedValue({
+      status: 'completed',
+      sparkTxHash: incomingId,
+    });
+
+    const tx = incomingSparkTx(incomingId);
+    const p = labelSpendAndReplaceIncoming([tx], db);
+
+    setSpendAndReplaceAuthGetter(() => ({
+      privateKey: 'new-priv',
+      publicKey: 'new-pub',
+    }));
+    resolveLegs([leg]);
+    await p;
+
+    expect(fetchBackend).toHaveBeenCalledWith(
+      'checkFlashnetStablecoinStatus',
+      {
+        quoteId: leg.quote_id,
+        sourceSparkAddress: leg.source_spark_address,
+        sparkTxHash: leg.funding_leg_spark_id,
+      },
+      'priv',
+      'pub',
+    );
+    expect(tx.paymentStatus).toBe('completed');
   });
 
   it('backend stalls past the timeout → resolves without labeling', async () => {

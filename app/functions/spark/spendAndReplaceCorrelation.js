@@ -2,15 +2,15 @@
 // write so the "received → spend and replace incoming" flip never happens.
 //
 // SAR state lives entirely in the DB (getPendingSpendAndReplaceFundingLegs).
-// The only thing held in memory is the session auth credential (nostr
-// private/public key) that fetchBackend's encrypted bridge requires — these are
-// not and should not be persisted. This module intentionally does NOT import
+// This module only keeps an auth getter registered by React; it snapshots the
+// current centralized keys for each correlation pass and does not store key
+// material in module scope. This module intentionally does NOT import
 // transactions.js (the db handle is always passed in) to avoid an import cycle.
 import fetchBackend from '../../../db/handleBackend';
 import i18next from 'i18next';
 import { getPendingSpendAndReplaceFundingLegs } from './spendAndReplaceStorage';
 
-let authKeys = null;
+let getAuthSnapshot = null;
 
 // Bounds the whole backend phase: correlation runs inside the serialized
 // bulkUpdate queue, so an unbounded backend stall would hold up every
@@ -24,10 +24,12 @@ const TIMEOUT = Symbol('sar-correlation-timeout');
 const MEMO_TTL_MS = 5_000;
 const statusMemo = new Map();
 
-export const setSpendAndReplaceAuthKeys = (privateKey, publicKey) => {
-  // Null out on falsy keys so a logged-out/empty or account-switch state can't
-  // leave a previous user's credential in module memory.
-  authKeys = privateKey && publicKey ? { privateKey, publicKey } : null;
+export const setSpendAndReplaceAuthGetter = getter => {
+  getAuthSnapshot = typeof getter === 'function' ? getter : null;
+  statusMemo.clear();
+};
+
+export const clearSpendAndReplaceCorrelationMemo = () => {
   statusMemo.clear();
 };
 
@@ -50,11 +52,15 @@ const withTimeout = promise => {
 
 // Resolves to the incoming BTC tx hash for a finalized funding leg, or null.
 // Memoized (with a short TTL) and shared by funding leg spark id.
-const getLegIncomingHash = leg => {
+const getLegIncomingHash = (leg, auth) => {
   const key = leg.funding_leg_spark_id;
   const now = Date.now();
   const cached = statusMemo.get(key);
-  if (cached && cached.expiresAt > now) return cached.promise;
+  if (cached && cached.expiresAt > now) {
+    return cached.status === 'resolved'
+      ? Promise.resolve(cached.value)
+      : cached.promise;
+  }
 
   const promise = (async () => {
     const statusResult = await fetchBackend(
@@ -64,8 +70,8 @@ const getLegIncomingHash = leg => {
         sourceSparkAddress: leg.source_spark_address,
         sparkTxHash: leg.funding_leg_spark_id,
       },
-      authKeys.privateKey,
-      authKeys.publicKey,
+      auth.privateKey,
+      auth.publicKey,
     );
 
     if (
@@ -79,8 +85,31 @@ const getLegIncomingHash = leg => {
     return null;
   })();
 
-  statusMemo.set(key, { promise, expiresAt: now + MEMO_TTL_MS });
-  return promise;
+  const memoizedPromise = promise.then(
+    value => {
+      const current = statusMemo.get(key);
+      if (current?.promise === memoizedPromise) {
+        statusMemo.set(key, {
+          status: 'resolved',
+          value,
+          expiresAt: Date.now() + MEMO_TTL_MS,
+        });
+      }
+      return value;
+    },
+    err => {
+      const current = statusMemo.get(key);
+      if (current?.promise === memoizedPromise) statusMemo.delete(key);
+      throw err;
+    },
+  );
+
+  statusMemo.set(key, {
+    status: 'pending',
+    promise: memoizedPromise,
+    expiresAt: now + MEMO_TTL_MS,
+  });
+  return memoizedPromise;
 };
 
 // Mutates matching incoming SAR txs in `transactions` in place. Never throws.
@@ -102,7 +131,10 @@ export const labelSpendAndReplaceIncoming = async (transactions, db) => {
     if (!candidates.length) return;
 
     // 2. fetchBackend's encrypted bridge needs the session auth credential.
-    if (!authKeys) return;
+    // Snapshot once so an async pass cannot read a different account's keys
+    // halfway through correlation.
+    const auth = getAuthSnapshot?.();
+    if (!auth?.privateKey || !auth?.publicKey) return;
 
     // 3. Group by accountId (a batch is usually one account, but handle several
     // defensively) and collect every pending funding leg.
@@ -118,9 +150,12 @@ export const labelSpendAndReplaceIncoming = async (transactions, db) => {
     // 4. Query the backend for all pending legs in parallel, bounded by a short
     // timeout. allSettled so one failed leg doesn't drop the others.
     const settled = await withTimeout(
-      Promise.allSettled(legs.map(getLegIncomingHash)),
+      Promise.allSettled(legs.map(leg => getLegIncomingHash(leg, auth))),
     );
-    if (settled === TIMEOUT) return;
+    if (settled === TIMEOUT) {
+      statusMemo.clear();
+      return;
+    }
 
     const incomingHashes = new Set();
     for (const r of settled) {

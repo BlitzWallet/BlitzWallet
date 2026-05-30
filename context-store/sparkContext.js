@@ -42,7 +42,10 @@ import { initWallet } from '../app/functions/initiateWalletConnection';
 import { AppState } from 'react-native';
 import getDepositAddressTxIds from '../app/functions/spark/getDepositAdressTxIds';
 import { useKeysContext } from './keys';
-import { setSpendAndReplaceAuthKeys } from '../app/functions/spark/spendAndReplaceCorrelation';
+import {
+  clearSpendAndReplaceCorrelationMemo,
+  setSpendAndReplaceAuthGetter,
+} from '../app/functions/spark/spendAndReplaceCorrelation';
 import { navigationRef } from '../navigation/navigationService';
 import { transformTxToPaymentObject } from '../app/functions/spark/transformTxToPayment';
 import EventEmitter from 'events';
@@ -137,6 +140,8 @@ const SparkWalletProvider = ({ children }) => {
   const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContactsInfo();
   const prevAccountMnemoincRef = useRef(null);
+  const contactsPrivateKeyRef = useRef('');
+  const contactsPublicKeyRef = useRef(null);
   const [sparkConnectionError, setSparkConnectionError] = useState(null);
   const isRunningAddListeners = useRef(false);
   const [sparkInformation, setSparkInformation] = useState({
@@ -1560,9 +1565,9 @@ const SparkWalletProvider = ({ children }) => {
         didConnect: null,
         didConnectToFlashnet: null,
       });
-      // Drop any cached auth credential so an account switch can't leave a
-      // previous user's keys in module memory.
-      setSpendAndReplaceAuthKeys(null, null);
+      contactsPrivateKeyRef.current = '';
+      contactsPublicKeyRef.current = null;
+      clearSpendAndReplaceCorrelationMemo();
       if (!internalRefresh) {
         setDidRunNormalConnection(false);
         setNormalConnectionTimeout(false);
@@ -1580,12 +1585,21 @@ const SparkWalletProvider = ({ children }) => {
     resetSparkState();
   }, [authResetkey]);
 
-  // Keep the SAR correlation module's session auth credential in sync with the
-  // current account's keys so incoming SAR txs can be labeled at write time.
   useEffect(() => {
-    setSpendAndReplaceAuthKeys(contactsPrivateKey, publicKey);
-    return () => setSpendAndReplaceAuthKeys(null, null);
+    contactsPrivateKeyRef.current = contactsPrivateKey;
+    contactsPublicKeyRef.current = publicKey;
   }, [contactsPrivateKey, publicKey]);
+
+  // Register a stable getter so transaction writes can snapshot the centralized
+  // auth keys without storing key material in module scope or changing every
+  // bulkUpdateSparkTransactions call site.
+  useEffect(() => {
+    setSpendAndReplaceAuthGetter(() => ({
+      privateKey: contactsPrivateKeyRef.current,
+      publicKey: contactsPublicKeyRef.current,
+    }));
+    return () => setSpendAndReplaceAuthGetter(null);
+  }, []);
 
   // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving only when screen is active
   useEffect(() => {
