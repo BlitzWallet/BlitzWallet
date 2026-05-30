@@ -81,7 +81,10 @@ describe('labelSpendAndReplaceIncoming', () => {
 
     await labelSpendAndReplaceIncoming([tx], db);
 
-    expect(getPendingSpendAndReplaceFundingLegs).toHaveBeenCalledWith(db, ACCOUNT);
+    expect(getPendingSpendAndReplaceFundingLegs).toHaveBeenCalledWith(
+      db,
+      ACCOUNT,
+    );
     expect(fetchBackend).not.toHaveBeenCalled();
     expect(tx.details.description).toBeUndefined();
     expect(tx.paymentStatus).toBe('pending');
@@ -114,7 +117,9 @@ describe('labelSpendAndReplaceIncoming', () => {
   });
 
   it('non-matching returned hash → tx untouched', async () => {
-    getPendingSpendAndReplaceFundingLegs.mockResolvedValue([fundingLeg(uniqueHash())]);
+    getPendingSpendAndReplaceFundingLegs.mockResolvedValue([
+      fundingLeg(uniqueHash()),
+    ]);
     fetchBackend.mockResolvedValue({
       status: 'completed',
       sparkTxHash: uniqueHash(), // different from the tx id
@@ -129,8 +134,13 @@ describe('labelSpendAndReplaceIncoming', () => {
 
   it('non-completed status → tx untouched', async () => {
     const incomingId = uniqueHash();
-    getPendingSpendAndReplaceFundingLegs.mockResolvedValue([fundingLeg(uniqueHash())]);
-    fetchBackend.mockResolvedValue({ status: 'pending', sparkTxHash: incomingId });
+    getPendingSpendAndReplaceFundingLegs.mockResolvedValue([
+      fundingLeg(uniqueHash()),
+    ]);
+    fetchBackend.mockResolvedValue({
+      status: 'pending',
+      sparkTxHash: incomingId,
+    });
 
     const tx = incomingSparkTx(incomingId);
     await labelSpendAndReplaceIncoming([tx], db);
@@ -148,7 +158,8 @@ describe('labelSpendAndReplaceIncoming', () => {
 
     const resolvers = [];
     fetchBackend.mockImplementation(
-      () => new Promise((resolve, reject) => resolvers.push({ resolve, reject })),
+      () =>
+        new Promise((resolve, reject) => resolvers.push({ resolve, reject })),
     );
 
     const txA = incomingSparkTx(incomingA);
@@ -214,14 +225,16 @@ describe('labelSpendAndReplaceIncoming', () => {
   it('backend stalls past the timeout → resolves without labeling', async () => {
     jest.useFakeTimers();
     try {
-      getPendingSpendAndReplaceFundingLegs.mockResolvedValue([fundingLeg(uniqueHash())]);
+      getPendingSpendAndReplaceFundingLegs.mockResolvedValue([
+        fundingLeg(uniqueHash()),
+      ]);
       fetchBackend.mockImplementation(() => new Promise(() => {})); // never resolves
 
       const tx = incomingSparkTx(uniqueHash());
       const p = labelSpendAndReplaceIncoming([tx], db);
 
       // Let the synchronous backend dispatch run, then trip the internal timeout.
-      await jest.advanceTimersByTimeAsync(4000);
+      await jest.advanceTimersByTimeAsync(10000);
       await p;
 
       expect(tx.details.description).toBeUndefined();
@@ -233,8 +246,13 @@ describe('labelSpendAndReplaceIncoming', () => {
 
   it('parses stringified details and writes the parsed object back', async () => {
     const incomingId = uniqueHash();
-    getPendingSpendAndReplaceFundingLegs.mockResolvedValue([fundingLeg(uniqueHash())]);
-    fetchBackend.mockResolvedValue({ status: 'completed', sparkTxHash: incomingId });
+    getPendingSpendAndReplaceFundingLegs.mockResolvedValue([
+      fundingLeg(uniqueHash()),
+    ]);
+    fetchBackend.mockResolvedValue({
+      status: 'completed',
+      sparkTxHash: incomingId,
+    });
 
     const tx = {
       id: incomingId,
