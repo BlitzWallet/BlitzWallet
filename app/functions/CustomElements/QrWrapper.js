@@ -1,7 +1,8 @@
 import { StyleSheet, View } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import QRCode from './StyledQRCode';
+import { Image } from 'expo-image';
 
-import { CENTER, COLORS, ICONS } from '../../constants';
+import { CENTER, COLORS } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 
 import { useGlobalContextProvider } from '../../../context-store/context';
@@ -10,15 +11,7 @@ import ContactProfileImage from '../../components/admin/homeComponents/contacts/
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 
-const createTransparentLogo = size => {
-  // Create SVG string for a transparent circle/square of the specified size
-  const svgString = `
-    <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="orange"/>
-    </svg>
-  `;
-  return `data:image/svg+xml;base64,${btoa(svgString)}`;
-};
+const EmptyLogo = () => null;
 
 export default function QrCodeWrapper({
   QRData,
@@ -26,8 +19,9 @@ export default function QrCodeWrapper({
   innerContainerStyle,
   qrSize = 275,
   quietZone = 15,
-  logoMargin = 5,
+  logoMargin = 2,
   logoBorderRadius = 50,
+  centerLogo,
 }) {
   const { cache } = useImageCache();
   const { darkModeType, theme } = useGlobalThemeContext();
@@ -37,10 +31,10 @@ export default function QrCodeWrapper({
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
-  const imageSize = Math.round(qrSize * 0.23);
+  const imageSize = Math.round(qrSize * 0.2);
 
   const content = QRData || t('constants.noData');
-
+  console.log(content);
   return (
     <View
       style={{
@@ -57,27 +51,50 @@ export default function QrCodeWrapper({
           value={content}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logo={createTransparentLogo(imageSize)} //placeholder
+          logoSVG={EmptyLogo}
           logoSize={imageSize}
           logoMargin={logoMargin}
           logoBorderRadius={logoBorderRadius}
           logoBackgroundColor={COLORS.darkModeText}
+          ecl="H"
         />
       </View>
-      <View
-        style={[
-          styles.qrImageContainer,
-          { width: imageSize - 5, height: imageSize - 5 },
-        ]}
-      >
-        <ContactProfileImage
-          updated={imageData?.updated}
-          uri={imageData?.uri}
-          darkModeType={darkModeType}
-          theme={theme}
-          fromCustomQR={true}
-        />
-      </View>
+      {centerLogo ? (
+        <View
+          style={[
+            styles.qrImageContainer,
+            {
+              width: imageSize,
+              height: imageSize,
+              borderRadius: 12,
+              backgroundColor: COLORS.darkModeText,
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          ]}
+        >
+          <Image
+            source={centerLogo}
+            style={{ width: imageSize * 0.65, height: imageSize * 0.65 }}
+            contentFit="contain"
+          />
+        </View>
+      ) : (
+        <View
+          style={[
+            styles.qrImageContainer,
+            { width: imageSize - 5, height: imageSize - 5 },
+          ]}
+        >
+          <ContactProfileImage
+            updated={imageData?.updated}
+            uri={imageData?.uri}
+            darkModeType={darkModeType}
+            theme={theme}
+            fromCustomQR={true}
+          />
+        </View>
+      )}
     </View>
   );
 }
