@@ -2149,6 +2149,7 @@
         "edit contact profile": "Edit Contact Profile",
         "view all swaps": "Network Transfers",
         "fast pay": "Fast Pay",
+        "spend and replace": "Spend and Replace",
         "blitz fee details": "Blitz Fee Details",
         "crash reports": "Crash Reports",
         "notifications": "Notifications",
@@ -2443,6 +2444,14 @@
         "noHistoryTitle": "No Swap History",
         "noHistoryDesc": "Your swap transactions will appear here",
         "pageTitle": "History"
+      },
+      "sendAndReplace": {
+        "slider": "{{state}} Spend and Replace",
+        "userDollarAmount": "Available dollar balance: {{dollarAmount}}",
+        "explainer": "When enabled, each outgoing Bitcoin payment is automatically replaced by swapping an equivalent amount from your dollar balance. If your dollar balance is less than the spent amount, the full dollar balance is swapped instead. No swap is made if the replacement amount is less than {{minAmount}}.",
+        "fundingDescription": "Spend & Replace purchase",
+        "acceptingDescription": "Spend & Replace refill",
+        "toastMessageTitle": "Bitcoin balance refilled"
       }
     },
     "accumulationAddresses": {

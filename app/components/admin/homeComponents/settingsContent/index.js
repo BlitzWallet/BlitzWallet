@@ -18,6 +18,7 @@ import NotificationPreferances from './notifications';
 import BlitzFeeInformation from './feeInformation';
 import CreateCustodyAccounts from './accounts';
 import ViewSwapsHome from './viewAllSwapsHome';
+import SpendAndReplace from './spendAndReplace';
 
 export {
   AboutPage,
@@ -40,4 +41,5 @@ export {
   SparkInfo,
   NotificationPreferances,
   BlitzFeeInformation,
+  SpendAndReplace,
 };
