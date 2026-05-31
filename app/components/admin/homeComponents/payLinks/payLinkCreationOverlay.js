@@ -119,6 +119,7 @@ export default function PayLinkCreationOverlay({
             onContinue={(amount, rawAmount) => {
               handleSkip(amount);
             }}
+            onSkip={() => handleSkip(undefined, undefined)}
             onBack={onClose}
           />
         </Animated.View>
