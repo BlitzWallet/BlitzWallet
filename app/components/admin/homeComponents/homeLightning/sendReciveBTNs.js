@@ -79,7 +79,7 @@ export function SendRecieveBTNs({
     );
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'depositFunds',
-      sliderHight: 0.5,
+      sliderHight: 0.6,
     });
   }, [handleSettingsCheck, navigate, t]);
 
@@ -93,7 +93,7 @@ export function SendRecieveBTNs({
     }
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'swapFlow',
-      sliderHight: 0.5,
+      sliderHight: 0.6,
     });
   }, [handleSettingsCheck, navigate, t]);
 
@@ -168,10 +168,7 @@ export function SendRecieveBTNs({
 
       {/* Deposit — secondary */}
       {!isNWCWallet && (
-        <TouchableOpacity
-          style={styles.buttonWrapper}
-          onPress={handleDeposit}
-        >
+        <TouchableOpacity style={styles.buttonWrapper} onPress={handleDeposit}>
           <View
             style={[
               styles.btn,
