@@ -1,5 +1,4 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
@@ -11,11 +10,7 @@ import { Image } from 'expo-image';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 
-export default function SelectOtherReceiveOptionHalfModal({
-  handleBackPressFunction,
-}) {
-  const navigate = useNavigation();
-  const { t } = useTranslation();
+export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
@@ -23,10 +18,6 @@ export default function SelectOtherReceiveOptionHalfModal({
 
   return (
     <View style={{ flex: 1 }}>
-      <ThemeText
-        styles={styles.stepTitle}
-        content={t('wallet.halfModal.othersOptionTitle')}
-      />
       <ScrollView showsVerticalScrollIndicator={false}>
         {[
           { id: 'liquid', label: 'Liquid' },
@@ -36,22 +27,9 @@ export default function SelectOtherReceiveOptionHalfModal({
           <ChainRow
             key={chain.id}
             chain={chain}
-            onSelectAsset={() => {
-              handleBackPressFunction(() => {
-                const isOnReceivePage = navigate
-                  .getState()
-                  .routes.some(r => r.name === 'ReceiveBTC');
-                if (isOnReceivePage) {
-                  navigate.popTo('ReceiveBTC', {
-                    selectedRecieveOption: chain.id,
-                  });
-                } else {
-                  navigate.replace('ReceiveBTC', {
-                    selectedRecieveOption: chain.id,
-                  });
-                }
-              });
-            }}
+            onSelectAsset={() =>
+              onShowQR({ selectedRecieveOption: chain.id })
+            }
             theme={theme}
             darkModeType={darkModeType}
             backgroundColor={backgroundColor}
@@ -128,12 +106,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-  },
-  stepTitle: {
-    fontSize: SIZES.large,
-    fontWeight: 500,
-    marginBottom: 16,
-    includeFontPadding: false,
   },
   chainRow: {
     width: '100%',

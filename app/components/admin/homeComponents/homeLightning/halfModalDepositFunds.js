@@ -1,5 +1,5 @@
 import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -21,22 +21,28 @@ import { Image } from 'expo-image';
 import ICONS from '../../../../constants/icons';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import SelectOtherReceiveOptionHalfModal from './halfModalOtherOptions';
-import AddAmountToLightningPath from './halfModalLightningAmount';
 import AddFundsFromBankHalfModal from './halfModalBank';
+import DepositQRView from './depositQRView';
+
+const capitalize = value =>
+  value ? value[0].toUpperCase() + value.slice(1) : '';
 
 export default function HalfModalDepositFunds({
   handleBackPressFunction,
   setContentHeight,
+  setBackNav,
   theme,
   darkModeType,
   showLightning = false,
 }) {
   const [activeView, setActiveView] = useState('options');
+  const [qrConfig, setQrConfig] = useState(null);
+  const [expandedChain, setExpandedChain] = useState(null);
 
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
-  const { bottomPadding } = useAppStatus();
+  const { bottomPadding, screenDimensions } = useAppStatus();
 
   // Fix 1: Separate shared values per subview so exit animation can play
   const stablecoinsOpacity = useSharedValue(0);
@@ -45,17 +51,16 @@ export default function HalfModalDepositFunds({
   const optionsTranslateX = useSharedValue(0);
   const othersOpacity = useSharedValue(0);
   const othersTranslateX = useSharedValue(30);
-  const lightningOpacity = useSharedValue(0);
-  const lightningTranslateX = useSharedValue(30);
   const bankOpacity = useSharedValue(0);
   const bankTranslateX = useSharedValue(30);
+  const qrOpacity = useSharedValue(0);
 
   useEffect(() => {
     const showStablecoins = activeView === 'stablecoins';
     const showOthers = activeView === 'others';
     const showOptions = activeView === 'options';
-    const showLightning = activeView === 'lightning';
     const showBank = activeView === 'bank';
+    const showQR = activeView === 'qr';
 
     stablecoinsOpacity.value = withTiming(showStablecoins ? 1 : 0, {
       duration: 250,
@@ -73,16 +78,13 @@ export default function HalfModalDepositFunds({
     optionsTranslateX.value = withTiming(showOptions ? 0 : -30, {
       duration: 250,
     });
-    lightningOpacity.value = withTiming(showLightning ? 1 : 0, {
-      duration: 250,
-    });
-    lightningTranslateX.value = withTiming(showLightning ? 0 : -30, {
-      duration: 250,
-    });
     bankOpacity.value = withTiming(showBank ? 1 : 0, {
       duration: 250,
     });
     bankTranslateX.value = withTiming(showBank ? 0 : -30, {
+      duration: 250,
+    });
+    qrOpacity.value = withTiming(showQR ? 1 : 0, {
       duration: 250,
     });
   }, [activeView]);
@@ -102,23 +104,69 @@ export default function HalfModalDepositFunds({
     transform: [{ translateX: othersTranslateX.value }],
   }));
 
-  const lightningAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: lightningOpacity.value,
-    transform: [{ translateX: lightningTranslateX.value }],
-  }));
-
   const bankAnimatedStyle = useAnimatedStyle(() => ({
     opacity: bankOpacity.value,
     transform: [{ translateX: bankTranslateX.value }],
   }));
 
-  // Fix 4: Android back handler — navigate subview → options before closing modal
-  const handleSubviewBack = useCallback(() => {
+  const qrAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: qrOpacity.value,
+  }));
+
+  const restoreOptionsHeight = useCallback(() => {
+    setContentHeight(Math.round(screenDimensions.height * 0.6));
+  }, [setContentHeight, screenDimensions]);
+
+  const handleShowQR = useCallback(config => {
+    setQrConfig(config);
+    setActiveView('qr');
+  }, []);
+
+  // Per-page back behavior: QR/others/lightning/bank return to the main
+  // options list; the stablecoin picker first collapses an expanded chain
+  // (its "previous step") before returning to options.
+  const handleStepBack = useCallback(() => {
     if (activeView === 'options') return false;
+    if (activeView === 'stablecoins' && expandedChain) {
+      setExpandedChain(null);
+      return true;
+    }
+    if (activeView === 'qr') restoreOptionsHeight();
     setActiveView('options');
     return true;
-  }, [activeView]);
-  useHandleBackPressNew(handleSubviewBack);
+  }, [activeView, expandedChain, restoreOptionsHeight]);
+
+  // Android hardware back mirrors the visual back arrow.
+  useHandleBackPressNew(handleStepBack);
+
+  // Title shown in the chrome header next to the back arrow, per subview.
+  // The main options list and the title-less lightning/bank views show none.
+  const headerTitle = useMemo(() => {
+    switch (activeView) {
+      case 'qr': {
+        const option = qrConfig?.selectedRecieveOption?.toLowerCase();
+        return option === 'stablecoins'
+          ? capitalize(qrConfig?.sourceChain)
+          : capitalize(qrConfig?.selectedRecieveOption);
+      }
+      case 'others':
+        return t('wallet.halfModal.othersOptionTitle');
+      case 'stablecoins':
+        return t('screens.accumulationAddresses.create.pickChain');
+      default:
+        return '';
+    }
+  }, [activeView, qrConfig, t]);
+
+  // Register/unregister the chrome's back arrow + header based on the subview.
+  useEffect(() => {
+    if (activeView === 'options') {
+      setBackNav?.(null);
+    } else {
+      setBackNav?.({ onPress: handleStepBack, title: headerTitle });
+    }
+    return () => setBackNav?.(null);
+  }, [activeView, headerTitle, handleStepBack, setBackNav]);
 
   return (
     <View style={styles.container}>
@@ -180,22 +228,7 @@ export default function HalfModalDepositFunds({
           {/* On-Chain Bitcoin */}
           <TouchableOpacity
             style={styles.scanButton}
-            onPress={() =>
-              handleBackPressFunction(() => {
-                const isOnReceivePage = navigate
-                  .getState()
-                  .routes.some(r => r.name === 'ReceiveBTC');
-                if (isOnReceivePage) {
-                  navigate.popTo('ReceiveBTC', {
-                    selectedRecieveOption: 'Bitcoin',
-                  });
-                } else {
-                  navigate.replace('ReceiveBTC', {
-                    selectedRecieveOption: 'Bitcoin',
-                  });
-                }
-              })
-            }
+            onPress={() => handleShowQR({ selectedRecieveOption: 'Bitcoin' })}
           >
             <View
               style={[
@@ -317,6 +350,9 @@ export default function HalfModalDepositFunds({
         <CreateAccumulationAddressDepositModal
           setContentHeight={() => {}}
           handleBackPressFunction={handleBackPressFunction}
+          onShowQR={handleShowQR}
+          expandedChain={expandedChain}
+          setExpandedChain={setExpandedChain}
         />
       </Animated.View>
 
@@ -335,26 +371,7 @@ export default function HalfModalDepositFunds({
       >
         <SelectOtherReceiveOptionHalfModal
           handleBackPressFunction={handleBackPressFunction}
-        />
-      </Animated.View>
-
-      {/* lightning subview */}
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.animatedContainer,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          },
-          lightningAnimatedStyle,
-        ]}
-        pointerEvents={activeView === 'lightning' ? 'auto' : 'none'}
-      >
-        <AddAmountToLightningPath
-          handleBackPressFunction={handleBackPressFunction}
-          setContentHeight={setContentHeight}
-          activeView={activeView}
+          onShowQR={handleShowQR}
         />
       </Animated.View>
 
@@ -375,6 +392,27 @@ export default function HalfModalDepositFunds({
           handleBackPressFunction={handleBackPressFunction}
           setContentHeight={setContentHeight}
           activeView={activeView}
+        />
+      </Animated.View>
+
+      {/* qr subview */}
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.animatedContainer,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          },
+          qrAnimatedStyle,
+        ]}
+        pointerEvents={activeView === 'qr' ? 'auto' : 'none'}
+      >
+        <DepositQRView
+          config={qrConfig}
+          setContentHeight={setContentHeight}
+          onBack={handleStepBack}
+          isActive={activeView === 'qr'}
         />
       </Animated.View>
     </View>
