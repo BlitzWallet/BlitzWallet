@@ -321,6 +321,7 @@ export default function HalfModalSendOptions({
   darkModeType,
   handleBackPressFunction,
   isScreenActive,
+  setBackNav,
 }) {
   const [inputText, setInputText] = useState('');
   const [isInputMode, setIsInputMode] = useState(false);
@@ -1213,6 +1214,7 @@ export default function HalfModalSendOptions({
         onClose={hideAddContacts}
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
+        setBackNav={setBackNav}
       />
     </View>
   );

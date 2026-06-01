@@ -32,7 +32,6 @@ import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 // ─── LNURL Banner ────────────────────────────────────────────────────────────
 
@@ -124,29 +123,18 @@ export const LNURLBanner = ({
 
 // ─── LNURL QR Overlay ────────────────────────────────────────────────────────
 
-const LNURLQROverlay = ({
-  visible,
-  onClose,
-  lnurlAddress,
-  navigate,
-  masterInfoObject,
-  theme,
-  darkModeType,
-  t,
-}) => {
+const LNURLQROverlay = ({ visible, onClose, lnurlAddress, navigate, t }) => {
   const { bottomPadding } = useGlobalInsets();
+  const { screenDimensions } = useAppStatus();
+  const { showToast } = useToast();
   const overlayOpacity = useSharedValue(0);
-  const overlayTranslateX = useSharedValue(30);
-  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
 
   useEffect(() => {
     overlayOpacity.value = withTiming(visible ? 1 : 0, { duration: 250 });
-    overlayTranslateX.value = withTiming(visible ? 0 : 30, { duration: 250 });
   }, [visible]);
 
   const overlayStyle = useAnimatedStyle(() => ({
     opacity: overlayOpacity.value,
-    transform: [{ translateX: overlayTranslateX.value }],
   }));
 
   const handleBackPress = useCallback(() => {
@@ -159,55 +147,63 @@ const LNURLQROverlay = ({
 
   if (!visible) return null;
 
+  const qrContainerSize = Math.round(screenDimensions.width * 0.75);
+  const qrInnerSize = qrContainerSize - 25;
+
+  const handleCopy = () => {
+    if (!lnurlAddress) return;
+    copyToClipboard(lnurlAddress, showToast);
+  };
+
   return (
     <Animated.View style={[styles.overlayContainer, overlayStyle]}>
-      <View style={styles.qrOverlayContent}>
-        {/* QR Card */}
-        <QrCodeWrapper
-          outerContainerStyle={{ backgroundColor: COLORS.darkModeText }}
-          QRData={`${lnurlAddress}`}
-        />
-
-        <View style={styles.selectionContainer}>
-          <TouchableOpacity
-            onPress={() =>
-              navigate.push('CustomHalfModal', {
-                wantedContent: 'lnurlReceiveCurrencySelect',
-              })
-            }
-            style={[
-              styles.currencyToggle,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-          >
-            <ThemeText
-              styles={styles.currencyToggleText}
-              content={
-                masterInfoObject.lnurlReceiveCurrency === 'btc'
-                  ? t('constants.bitcoin_upper')
-                  : t('constants.dollars_upper')
-              }
+      <View style={styles.qrViewContainer}>
+        <ScrollView
+          contentContainerStyle={styles.qrViewScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <TouchableOpacity activeOpacity={0.8} onPress={handleCopy}>
+            <QrCodeWrapper
+              QRData={`${lnurlAddress}`}
+              qrSize={qrInnerSize}
+              outerContainerStyle={{
+                width: qrContainerSize,
+                height: qrContainerSize,
+              }}
+              innerContainerStyle={{
+                width: qrInnerSize,
+                height: qrInnerSize,
+              }}
             />
-            <ThemeIcon
-              colorOverride={textColor}
-              size={18}
-              iconName={'ChevronDown'}
+            <ThemeText
+              CustomNumberOfLines={1}
+              adjustsFontSizeToFit={true}
+              styles={styles.qrViewAddressText}
+              content={lnurlAddress}
             />
           </TouchableOpacity>
-        </View>
+        </ScrollView>
 
-        {/* Back button */}
         <CustomButton
-          buttonStyles={{
-            ...CENTER,
-            marginBottom: bottomPadding,
-          }}
-          actionFunction={onClose}
-          textContent={t('constants.back')}
+          buttonStyles={{ width: '100%', ...CENTER }}
+          actionFunction={handleCopy}
+          textContent={t('wallet.halfModal.copyAddress')}
         />
+        <TouchableOpacity
+          style={[styles.changeCurrencyButton, { marginBottom: bottomPadding }]}
+          onPress={() =>
+            navigate.push('CustomHalfModal', {
+              wantedContent: 'lnurlReceiveCurrencySelect',
+            })
+          }
+        >
+          <ThemeText
+            CustomNumberOfLines={1}
+            adjustsFontSizeToFit={true}
+            styles={styles.changeCurrencyText}
+            content={t('wallet.halfModal.changeReceiveCurrency')}
+          />
+        </TouchableOpacity>
       </View>
     </Animated.View>
   );
@@ -388,6 +384,7 @@ export default function HalfModalReceiveOptions({
   handleBackPressFunction,
   isScreenActive,
   setContentHeight,
+  setBackNav,
 }) {
   const [expandedContact, setExpandedContact] = useState(null);
   const [showAddContact, setShowAddContact] = useState(false);
@@ -403,7 +400,6 @@ export default function HalfModalReceiveOptions({
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
   const { screenDimensions } = useAppStatus();
-  const { masterInfoObject } = useGlobalContextProvider();
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
@@ -573,9 +569,9 @@ export default function HalfModalReceiveOptions({
   ]);
 
   const handleLNURLClose = useCallback(() => {
-    setContentHeight(Math.round(screenDimensions.height * 0.8));
     setShowLNURLQR(false);
-  }, [setContentHeight, setShowLNURLQR, screenDimensions]);
+    setBackNav(null);
+  }, [setShowLNURLQR, setBackNav]);
 
   const handleAddContactsClose = useCallback(
     () => setShowAddContact(false),
@@ -587,10 +583,10 @@ export default function HalfModalReceiveOptions({
     [setShowPoolCreation],
   );
 
-  const handlePaylinkClose = useCallback(
-    () => setShowPayLinkCreation(false),
-    [setShowPayLinkCreation],
-  );
+  const handlePaylinkClose = useCallback(() => {
+    setShowPayLinkCreation(false);
+    setBackNav(null);
+  }, [setShowPayLinkCreation, setBackNav]);
 
   return (
     <View style={styles.container}>
@@ -612,7 +608,11 @@ export default function HalfModalReceiveOptions({
             backgroundOffset={backgroundOffset}
             textColor={textColor}
             onQRPress={() => {
-              setContentHeight(600);
+              // setContentHeight(600);
+              setBackNav?.({
+                onPress: handleLNURLClose,
+                title: t('wallet.halfModal.payMe'),
+              });
               setShowLNURLQR(true);
             }}
           />
@@ -636,7 +636,13 @@ export default function HalfModalReceiveOptions({
         >
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => setShowPayLinkCreation(true)}
+            onPress={() => {
+              setBackNav?.({
+                onPress: handlePaylinkClose,
+                title: '',
+              });
+              setShowPayLinkCreation(true);
+            }}
           >
             <View
               style={[
@@ -742,7 +748,13 @@ export default function HalfModalReceiveOptions({
               <CustomButton
                 buttonStyles={{ width: '100%' }}
                 textContent={t('contacts.editMyProfilePage.addContactBTN')}
-                actionFunction={() => setShowAddContact(true)}
+                actionFunction={() => {
+                  setBackNav?.({
+                    onPress: handleAddContactsClose,
+                    title: '',
+                  });
+                  setShowAddContact(true);
+                }}
               />
             </View>
           )}
@@ -755,15 +767,8 @@ export default function HalfModalReceiveOptions({
         visible={showLNURLQR}
         onClose={handleLNURLClose}
         lnurlAddress={lnurlAddress}
-        theme={theme}
-        darkModeType={darkModeType}
-        backgroundColor={backgroundColor}
-        backgroundOffset={backgroundOffset}
-        textColor={textColor}
         t={t}
         navigate={navigate}
-        masterInfoObject={masterInfoObject}
-        setContentHeight={setContentHeight}
       />
 
       <AddContactOverlay
@@ -771,6 +776,7 @@ export default function HalfModalReceiveOptions({
         onClose={handleAddContactsClose}
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
+        setBackNav={setBackNav}
       />
 
       <PoolCreationOverlay
@@ -779,15 +785,13 @@ export default function HalfModalReceiveOptions({
         theme={theme}
         darkModeType={darkModeType}
         handleBackPressFunction={handleBackPressFunction}
+        from="halfModalReceiveOptions"
+        setBackNav={setBackNav}
       />
 
       <PayLinkCreationOverlay
         visible={showPayLinkCreation}
         onClose={handlePaylinkClose}
-        theme={theme}
-        darkModeType={darkModeType}
-        handleBackPressFunction={handleBackPressFunction}
-        setContentHeight={setContentHeight}
       />
     </View>
   );
@@ -844,8 +848,44 @@ const styles = StyleSheet.create({
   },
 
   // ── QR Overlay ──
-  qrOverlayContent: {
+  qrViewContainer: {
     flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
+  qrViewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 40,
+    marginBottom: 12,
+  },
+  qrViewHeaderTitle: {
+    fontSize: SIZES.large,
+    fontWeight: 500,
+    includeFontPadding: false,
+  },
+  qrViewScrollContent: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingTop: 20,
+  },
+  qrViewAddressText: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    marginTop: 12,
+    includeFontPadding: false,
+  },
+  changeCurrencyButton: {
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  changeCurrencyText: {
+    opacity: 0.6,
+    includeFontPadding: false,
   },
 
   stickyHeaderContainer: {
@@ -1002,26 +1042,5 @@ const styles = StyleSheet.create({
   overlayContent: {
     flex: 1,
     justifyContent: 'space-between',
-  },
-  selectionContainer: {
-    width: INSET_WINDOW_WIDTH,
-    flex: 1,
-    marginVertical: 20,
-    ...CENTER,
-    alignItems: 'center',
-    gap: 5,
-  },
-  currencyToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    ...CENTER,
-    minHeight: 40,
-    paddingHorizontal: 15,
-    borderRadius: 50,
-  },
-
-  currencyToggleText: {
-    includeFontPadding: false,
   },
 });

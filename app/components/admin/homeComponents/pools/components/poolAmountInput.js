@@ -20,7 +20,7 @@ import { useFlashnet } from '../../../../../../context-store/flashnetContext';
  * @param {Function} onContinue - Callback when user taps "Add Description" with amount
  * @param {Function} onBack - Callback when user cancels/goes back
  */
-export default function PoolAmountInput({ onContinue, onBack }) {
+export default function PoolAmountInput({ onContinue, onBack, from }) {
   const { swapUSDPriceDollars } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -31,6 +31,7 @@ export default function PoolAmountInput({ onContinue, onBack }) {
     masterInfoObject.userBalanceDenomination !== 'fiat' ? 'sats' : 'fiat',
   );
 
+  const isInReceiveModal = from === 'halfModalReceiveOptions';
   const {
     primaryDisplay,
     secondaryDisplay,
@@ -56,7 +57,9 @@ export default function PoolAmountInput({ onContinue, onBack }) {
 
   const handleNext = useCallback(() => {
     if (!localSatAmount || Number(localSatAmount) === 0) {
-      onBack?.();
+      if (!isInReceiveModal) {
+        onBack?.();
+      }
       return;
     }
 
@@ -102,10 +105,12 @@ export default function PoolAmountInput({ onContinue, onBack }) {
       <CustomButton
         buttonStyles={{
           ...CENTER,
+          opacity: amountValue ? 1 : isInReceiveModal ? HIDDEN_OPACITY : 1,
         }}
+        disabled={!amountValue && isInReceiveModal}
         actionFunction={handleNext}
         textContent={
-          !localSatAmount
+          !localSatAmount && !isInReceiveModal
             ? t('constants.back')
             : t('wallet.pools.addDescription')
         }
