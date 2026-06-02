@@ -68,26 +68,29 @@ export default function PayLinkAmountInput({
   };
 
   const handleNext = useCallback(() => {
-    if (!localSatAmount || Number(localSatAmount) === 0) {
-      onSkip?.();
-      return;
-    }
-    if (paymentMode === 'USD' && localSatAmount < swapLimits.bitcoin) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
-          amount: displayCorrectDenomination({
-            amount: swapLimits.bitcoin,
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination:
-                primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
-            },
-            forceCurrency: primaryDisplay.forceCurrency,
-            fiatStats: conversionFiatStats,
+    if (paymentMode === 'USD') {
+      if (localSatAmount < swapLimits.bitcoin) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
+            amount: displayCorrectDenomination({
+              amount: swapLimits.bitcoin + 20,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination:
+                  primaryDisplay.denomination === 'fiat' ? 'fiat' : 'sats',
+              },
+              forceCurrency: primaryDisplay.forceCurrency,
+              fiatStats: conversionFiatStats,
+            }),
           }),
-        }),
-      });
-      return;
+        });
+        return;
+      }
+    } else {
+      if (!localSatAmount || Number(localSatAmount) === 0) {
+        onSkip?.();
+        return;
+      }
     }
     onContinue?.(Number(localSatAmount), amountValue);
   }, [localSatAmount, onContinue, onBack]);
@@ -129,10 +132,20 @@ export default function PayLinkAmountInput({
       />
 
       <CustomButton
-        buttonStyles={{ ...CENTER }}
+        buttonStyles={{
+          ...CENTER,
+          opacity:
+            paymentMode === 'USD' && localSatAmount < swapLimits.bitcoin
+              ? 0.5
+              : 1,
+        }}
         actionFunction={handleNext}
         textContent={
-          !localSatAmount ? t('constants.skip') : t('wallet.payLinks.next')
+          paymentMode === 'USD'
+            ? t('wallet.payLinks.next')
+            : !localSatAmount
+            ? t('constants.skip')
+            : t('wallet.payLinks.next')
         }
       />
     </View>
