@@ -20,7 +20,7 @@ import { Image } from 'expo-image';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 
-const EVM_CHAINS = ['Base', 'Ethereum', 'Arbitrum', 'Optimism', 'Polygon'];
+const EVM_CHAINS = ['Base', 'Ethereum', 'Arbitrum', 'Optimism', 'Polygon', 'BNB'];
 const TRON_ASSETS = [{ id: 'USDT', label: 'USDT', icon: ICONS.usdtLogo }];
 const SOLANA_ASSETS = [
   { id: 'USDC', label: 'USDC', icon: ICONS.usdcLogo },
