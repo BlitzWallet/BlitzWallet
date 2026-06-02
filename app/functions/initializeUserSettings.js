@@ -8,6 +8,7 @@ import {
   MIN_CHANNEL_OPEN_FEE,
   NWC_IDENTITY_PUB_KEY,
   QUICK_PAY_STORAGE_KEY,
+  SPEND_AND_REPLACE_STORAGE_KEY,
 } from '../constants';
 import { sendDataToDB } from '../../db/interactionManager';
 import { firebaseAuth, initializeFirebase } from '../../db/initializeFirebase';
@@ -96,6 +97,7 @@ export default async function initializeUserSettingsFromHistory({
       pinnedAccounts,
       monthlyBudget,
       bitrefillEmail,
+      spendAndReplace,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -408,6 +410,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['monthlyBudget'] = monthlyBudget;
     tempObject['lnurlReceiveCurrency'] = lnurlReceiveCurrency;
     tempObject['bitrefillEmail'] = bitrefillEmail;
+    tempObject[SPEND_AND_REPLACE_STORAGE_KEY] = spendAndReplace;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

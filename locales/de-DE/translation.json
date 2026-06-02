@@ -873,7 +873,7 @@
         "phoneNumberCountryDescription": "Ländervorwahl",
         "messageInputDescription": "Nachricht eingeben",
         "sendBTN": "Nachricht senden",
-        "invalidInputError": "Muss ein {{errorType}} enthalten",
+        "invalidInputError": "Muss ein {{errorTyoe}} enthalten",
         "invalidCountryError": "Kein gültiges Land",
         "payingMessage": "Bezahlung wird durchgeführt...",
         "runningTries": "Versuch {{runCount}} von {{maxTries}}",
@@ -1000,12 +1000,45 @@
       "noAddedContactsDesc": "Ihre Kontakte erscheinen hier, sobald Sie einen hinzufügen.",
       "payMe": "Schnell bezahlen",
       "createInvoice": "Rechnung erstellen",
-      "invoiceDescription": "Fordern Sie eine Zahlung über einen Link oder QR-Code an.",
+      "invoiceDescription": "Erstellen Sie eine Rechnung und erhalten Sie sofort eine Zahlung.",
       "poolsDescription": "Sammeln Sie Beiträge von einer Gruppe für ein gemeinsames Ziel.",
       "noContactHead": "{{username}} nicht gefunden",
       "noContactDesc": "Fügen Sie {{username}} zu Ihren Kontakten hinzu, damit der Kontakt hier künftig angezeigt wird, oder fahren Sie fort, um jetzt eine Zahlung zu senden.",
       "kenyanPhoneTitle": "{{number}} bezahlen",
-      "kenyanPhoneDesc": "Sie sind dabei, eine kenianische Telefonnummer zu bezahlen"
+      "kenyanPhoneDesc": "Sie sind dabei, eine kenianische Telefonnummer zu bezahlen",
+      "depositFunds": "Guthaben einzahlen",
+      "depositFundsSubtitle": "Fügen Sie Ihrem Wallet Guthaben hinzu",
+      "onChainBitcoin": "Bitcoin-Adresse",
+      "onChainBitcoinSubtitle": "Über On-Chain-Adresse empfangen",
+      "stablecoins": "Stablecoins",
+      "stablecoinsSubtitle": "USDT / USDC in Ihre Wallet einzahlen",
+      "cashAppSubtitle": "Sofort von Cash App senden",
+      "sparkAddressSubtitle": "An Ihre Spark-Adresse empfangen",
+      "otherBitcoin": "Andere Bitcoin-Optionen",
+      "otherBitcoinSubtitle": "Liquid und andere Methoden",
+      "lightningInvoice": "Lightning-Rechnung",
+      "lightningInvoiceSubtitle": "BTC oder USD sofort empfangen",
+      "lightningUSDAmountRequired": "Zum Erstellen einer USD-Lightning-Rechnung ist ein Betrag erforderlich",
+      "paylinkAmountRequired": "Fügen Sie einen Betrag hinzu, bevor Sie die Rechnung teilen.",
+      "otherReceivingMethods": "Weitere Empfangsmethoden",
+      "cashAppEnterAmount": "Betrag in Sats eingeben",
+      "cashAppOpen": "Cash App öffnen",
+      "cashAppBack": "Zurück",
+      "viewDetails": "Details anzeigen",
+      "othersOptionTitle": "Methode auswählen",
+      "liquidDesc": "Empfangen Sie Liquid BTC in Ihrem Wallet.",
+      "roostockDesc": "Empfangen Sie Rootstock BTC in Ihrem Wallet.",
+      "sparkDesc": "Empfangen Sie BTC oder Token in Ihrem Wallet.",
+      "chooseMethodTitle": "Empfangsmethode wählen",
+      "selectMethodTitle": "Einzahlungsmethode auswählen",
+      "copyAddress": "Adresse kopieren",
+      "depositQRError": "Beim Generieren Ihrer {{addressType}}-Adresse ist ein Problem aufgetreten",
+      "changeReceiveCurrency": "Empfangswährung ändern",
+      "depositQRInstruction_stablecoins": "Senden Sie nur {{asset}} über {{chain}} an diese Adresse. Sie erhalten es direkt in Ihrem Dollar-Guthaben",
+      "depositQRInstruction_bitcoin": "Senden Sie nur Bitcoin an diese Adresse. Das Geld kommt nach drei On-Chain-Bestätigungen an.",
+      "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse.",
+      "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse.",
+      "depositQRInstruction_spark": "Senden Sie nur Bitcoin oder Tokens an Ihre Spark-Adresse."
     },
     "payLinks": {
       "skip": "Überspringen",
@@ -1022,13 +1055,15 @@
       "invoiceError": "Rechnung konnte nicht erstellt werden.",
       "requestHeader": "Was möchten Sie erhalten?",
       "genQRCode": "QR-Code generieren",
+      "allSetTitle": "Alles bereit",
+      "allSetSubtitle": "Jeder mit diesem Link kann Sie bezahlen.",
       "howItWorks": {
-        "step1Label": "Link teilen",
-        "step1Desc": "Senden Sie ihn per Nachricht, E-Mail oder über eine beliebige App. Jeder mit dem Link kann Ihnen Geld senden.",
-        "step2Label": "Im Browser öffnen",
-        "step2Desc": "Keine App erforderlich. Der Link öffnet eine Zahlungsseite, auf der mit Lightning, USDC oder USDT bezahlt werden kann.",
-        "step3Label": "Geld kommt sofort an",
-        "step3Desc": "Sobald die Zahlung abgeschlossen ist, wird das Geld sofort in Ihrer Wallet gutgeschrieben."
+        "step1Label": "Überall teilen",
+        "step1Desc": "Nachricht, E-Mail oder eine beliebige App.",
+        "step2Label": "Sie bezahlen im Browser",
+        "step2Desc": "Bitcoin, USDC oder USDT.",
+        "step3Label": "Sie werden sofort bezahlt",
+        "step3Desc": "Das Geld landet, sobald sie bezahlen."
       },
       "copyLink": "Link kopieren"
     },
@@ -1135,18 +1170,18 @@
       "editPaymentInfo": {
         "receive_amount": "Empfangsbetrag",
         "descriptionInputPlaceholder": "Beschreibung...",
-        "editAmount": "Betrag bearbeiten",
+        "editAmount": "Rechnung bearbeiten",
         "minUSDSwap": "Zahlungen, die in USD umgewandelt werden, erfordern einen Mindestbetrag von:\n{{amount}}."
       },
       "buttonContainer": {
-        "format": "Weitere Empfangsmethoden",
+        "format": "Empfangsmethode ändern",
         "infoMessage": "Benutzerdefinierte Beträge werden bei Spark- oder Rootstock-Zahlungen nicht unterstützt."
       },
       "switchReceiveOptionPage": {
         "title": "Empfangsmethoden",
         "actionBTN": "{{action}} anzeigen",
         "sparkWarningMessage": "Der direkte Empfang über Spark macht Ihr Guthaben für die zahlende Person sichtbar und gilt nicht als privat.",
-        "swapWarning": "{{swapType}}-Zahlungen werden in Spark empfangen. Zahlungen unter {{amount}} werden nicht übertragen. Gelder werden erst übertragen, nachdem die {{swapType}}-Zahlung bestätigt wurde.",
+        "swapWarning": "{{swapType}}-Zahlungen müssen mindestens {{amount}} betragen.",
         "oneMinute": "ca. {{numMins}} Minute",
         "tenMinutes": "ca. {{numMins}} Minuten",
         "notUsingMainAccountWarning": "Warnung: Sie nutzen nicht Ihr Hauptkonto. Alle {{swapType}}-Übertragungen werden an Ihr Hauptkonto gesendet.",
@@ -1250,7 +1285,8 @@
         "send": "Senden",
         "receive": "Empfangen",
         "scan": "Scannen",
-        "swap": "Tauschen"
+        "swap": "Tauschen",
+        "deposit": "Einzahlen"
       },
       "lrc20Assets": {
         "actionText": "USDB-Token {{action}}",
@@ -1952,7 +1988,7 @@
         "storeNameInputDesc": "Markenname",
         "storeNameInputPlaceholder": "Markennamen eingeben",
         "displayCurrencyDesc": "Standardwährung",
-        "numAddeditems": "{{number}} hinzugefügte Artikel",
+        "numAddeditems": "{{number}} hinzugefügte{{isPlurl}} Artikel",
         "differingCurrencyItemsError": "Ihre aktuelle Standardwährung unterscheidet sich von {{number}} Ihrer gespeicherten Elemente. Bitte aktualisieren Sie Ihre Elementpreise, um sicherzustellen, dass Sie den richtigen Betrag berechnen.",
         "itemsDescription": "Wenn Sie Elemente zu Ihrem Zahlungsterminal (POS) hinzufügen, müssen Mitarbeiter die Preise nicht mehr manuell eingeben. Sie klicken einfach auf den Produktnamen – der festgelegte Preis wird automatisch zum Gesamtbetrag hinzugefügt.",
         "updateItems": "Elemente aktualisieren",
@@ -2070,7 +2106,7 @@
         "confReqired": "Benötigte Bestätigungen",
         "detailsBTN": "Technische Details",
         "contactPaymentType": "Kontakt",
-        "converstionRate": "{{satAmount}} pro {{USDAmount}}",
+        "converstionRate": "{{satAmount}} pro {{dollarAmount}}",
         "gift": "Geschenk",
         "claimPayment": "Zahlung einfordern",
         "splitPayment": "Aufteilen",
@@ -2102,8 +2138,13 @@
         "liquidFeeMessage": "Um eine Liquid-Zahlung zu empfangen, zahlen Sie eine Lockup-Gebühr von ~{{fee}}, eine Claim-Gebühr von ~{{claimFee}} und eine Boltz-Servicegebühr von 0,1%.",
         "rootstockFeeMessage": "Um eine Rootstock-Zahlung zu empfangen, zahlen Sie eine Lockup-Gebühr von ~{{fee}} und eine Boltz-Servicegebühr von 0,1%.",
         "lightningConvertMessage": "Der Empfang von USD über Lightning erfordert die Umwandlung von BTC in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
+        "stablecoinsFeeMessage": "Für den Empfang von Stablecoins fallen eine Blitz-Gebühr von 0,5 % und eine Flashnet-Gebühr von 0,05 % an.",
         "generatingInvoice": "Rechnung wird generiert...",
         "amountPlaceholder": "Beliebigen Betrag",
+        "copyInvoice": "Rechnung kopieren",
+        "shareInvoice": "Rechnung teilen",
+        "walletNotConnected": "Wallet nicht verbunden. Bitte versuchen Sie es erneut.",
+        "paylinkSaveError": "Paylink konnte nicht gespeichert werden",
         "receiveAsHeader": "Empfangen als",
         "receiveAs_spark_BTC": "BTC oder Token",
         "receiveAs_lightning_BTC": "In BTC behalten",
@@ -2115,6 +2156,7 @@
         "invoiceDescription_bitcoinAddress": "BTC-On-Chain-Adresse",
         "invoiceDescription_liquidAddress": "Liquid-Adresse",
         "invoiceDescription_sparkAddress": "Spark-Adresse",
+        "invoiceDescription_stablecoinsAddress": "{{chain}}-Adresse",
         "invoiceDescription_rootstockAddress": "Rootstock-Adresse",
         "header_lightning_btc": "BTC über Lightning",
         "header_lightning_usd": "USD über Lightning",
@@ -2122,6 +2164,7 @@
         "header_spark_btc": "BTC/Token über Spark",
         "header_spark_usd": "USD über Spark",
         "header_liquid": "BTC über Liquid",
+        "header_stablecoins": "BTC über {{chain}}",
         "header_rootstock": "BTC über Rootstock",
         "selectReceiveAssetHead": "Bitte wählen Sie das Asset zum Empfangen aus.",
         "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
@@ -2443,6 +2486,17 @@
         "noHistoryTitle": "Kein Swap-Verlauf",
         "noHistoryDesc": "Ihre Swap-Transaktionen werden hier angezeigt.",
         "pageTitle": "Verlauf"
+      },
+      "sendAndReplace": {
+        "slider": "{{state}} Ausgeben und ersetzen",
+        "userDollarAmount": "Verfügbares Dollar-Guthaben: {{dollarAmount}}",
+        "explainer": "Wenn aktiviert, wird jede ausgehende Bitcoin-Zahlung automatisch ersetzt, indem ein entsprechender Betrag aus Ihrem Dollar-Guthaben getauscht wird. Ist Ihr Dollar-Guthaben niedriger als der ausgegebene Betrag, wird stattdessen das gesamte Dollar-Guthaben getauscht. Es wird kein Tausch durchgeführt, wenn der Ersatzbetrag unter {{minAmount}} liegt.",
+        "fundingDescription": "Spend & Replace-Kauf",
+        "acceptingDescription": "Spend & Replace-Aufladung",
+        "toastMessageTitle": "Bitcoin-Guthaben aufgefüllt"
+      },
+      "sparkReceivePage": {
+        "header": "Spark-Adresse"
       }
     },
     "accumulationAddresses": {
@@ -2479,7 +2533,8 @@
         "pickChain": "Chain auswählen",
         "pickDestination": "Ziel auswählen",
         "confirm": "Adresse bestätigen",
-        "alreadyExists": "Sie haben bereits eine Adresse für diese Kombination"
+        "alreadyExists": "Sie haben bereits eine Adresse für diese Kombination",
+        "convertDesc": "Ihre {{chain}}-{{asset}} werden in {{receiveCurrency}} umgewandelt"
       },
       "summary": {
         "chain": "Chain",

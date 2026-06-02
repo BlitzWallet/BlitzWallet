@@ -1000,12 +1000,45 @@
       "noAddedContactsDesc": "Tus contactos aparecerán aquí cuando agregues uno.",
       "payMe": "Pago rápido",
       "createInvoice": "Crear factura",
-      "invoiceDescription": "Solicita un pago mediante un enlace o código QR.",
+      "invoiceDescription": "Crea una factura y recibe el pago al instante.",
       "poolsDescription": "Reúne contribuciones de un grupo para un objetivo compartido.",
       "noContactHead": "{{username}} no encontrado",
       "noContactDesc": "Agrega a {{username}} a tus contactos para encontrarlo aquí en el futuro, o continúa para enviar un pago ahora.",
       "kenyanPhoneTitle": "Pagar a {{number}}",
-      "kenyanPhoneDesc": "Estás a punto de pagar a un número de teléfono de Kenia"
+      "kenyanPhoneDesc": "Estás a punto de pagar a un número de teléfono de Kenia",
+      "depositFunds": "Depositar fondos",
+      "depositFundsSubtitle": "Agrega fondos a tu billetera",
+      "onChainBitcoin": "Dirección Bitcoin",
+      "onChainBitcoinSubtitle": "Recibir mediante dirección on-chain",
+      "stablecoins": "Stablecoins",
+      "stablecoinsSubtitle": "Deposita USDT / USDC en tu billetera",
+      "cashAppSubtitle": "Enviar desde Cash App al instante",
+      "sparkAddressSubtitle": "Recibir en tu dirección Spark",
+      "otherBitcoin": "Otras opciones de Bitcoin",
+      "otherBitcoinSubtitle": "Liquid y otros métodos",
+      "lightningInvoice": "Factura Lightning",
+      "lightningInvoiceSubtitle": "Recibir BTC o USD al instante",
+      "lightningUSDAmountRequired": "Se requiere un monto para crear una factura Lightning en USD",
+      "paylinkAmountRequired": "Agrega un monto antes de compartir la factura.",
+      "otherReceivingMethods": "Otros métodos de recepción",
+      "cashAppEnterAmount": "Ingresa el monto en sats",
+      "cashAppOpen": "Abrir Cash App",
+      "cashAppBack": "Atrás",
+      "viewDetails": "Ver detalles",
+      "othersOptionTitle": "Seleccionar método",
+      "liquidDesc": "Recibe BTC de Liquid en tu billetera.",
+      "roostockDesc": "Recibe BTC de Rootstock en tu billetera.",
+      "sparkDesc": "Recibe BTC o tokens en tu billetera.",
+      "chooseMethodTitle": "Elige método de recepción",
+      "selectMethodTitle": "Selecciona método de depósito",
+      "copyAddress": "Copiar dirección",
+      "depositQRError": "Hubo un problema al generar tu dirección de {{addressType}}",
+      "changeReceiveCurrency": "Cambiar moneda de recepción",
+      "depositQRInstruction_stablecoins": "Envía solo {{asset}} en {{chain}} a esta dirección. Lo recibirás directamente en tu saldo en dólares",
+      "depositQRInstruction_bitcoin": "Envía solo Bitcoin a esta dirección. Los fondos llegan después de tres confirmaciones en la cadena.",
+      "depositQRInstruction_liquid": "Envía solo Liquid Bitcoin a esta dirección.",
+      "depositQRInstruction_rootstock": "Envía solo Rootstock Bitcoin a esta dirección.",
+      "depositQRInstruction_spark": "Envía solo Bitcoin o tokens a tu dirección Spark."
     },
     "payLinks": {
       "skip": "Omitir",
@@ -1022,13 +1055,15 @@
       "invoiceError": "No se pudo crear la factura.",
       "requestHeader": "¿Qué quieres recibir?",
       "genQRCode": "Generar código QR",
+      "allSetTitle": "Todo listo",
+      "allSetSubtitle": "Cualquiera con este enlace puede pagarte.",
       "howItWorks": {
-        "step1Label": "Comparte el enlace",
-        "step1Desc": "Envíalo por mensaje, correo electrónico o cualquier app. Cualquiera con el enlace puede pagarte.",
-        "step2Label": "Lo abren en el navegador",
-        "step2Desc": "No se necesita app. El enlace abre una página de pago donde pueden pagar con Lightning, USDC o USDT.",
-        "step3Label": "Los fondos llegan al instante",
-        "step3Desc": "Una vez que completen el pago, el dinero llega a tu billetera."
+        "step1Label": "Compártelo donde quieras",
+        "step1Desc": "Mensaje, correo electrónico o cualquier app.",
+        "step2Label": "Pagan en un navegador",
+        "step2Desc": "Bitcoin, USDC o USDT.",
+        "step3Label": "Recibes el pago al instante",
+        "step3Desc": "Los fondos llegan en cuanto pagan."
       },
       "copyLink": "Copiar enlace"
     },
@@ -1135,18 +1170,18 @@
       "editPaymentInfo": {
         "receive_amount": "monto a recibir",
         "descriptionInputPlaceholder": "Descripción...",
-        "editAmount": "Editar monto",
+        "editAmount": "Editar factura",
         "minUSDSwap": "Los pagos convertidos a dólares requieren un monto mínimo de:\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Otros métodos de recepción",
+        "format": "Cambiar método de recepción",
         "infoMessage": "No se admiten montos personalizados en los pagos de Spark o Rootstock."
       },
       "switchReceiveOptionPage": {
         "title": "Métodos de recepción",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Recibir directamente por Spark mostrará tu saldo a la persona que paga y no se considera privado.",
-        "swapWarning": "Los pagos de {{swapType}} se recibirán en Spark. Los pagos inferiores a {{amount}} no se transferirán. Los fondos solo se transferirán después de que el pago de {{swapType}} esté confirmado.",
+        "swapWarning": "Los pagos de {{swapType}} deben ser de al menos {{amount}}.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
         "notUsingMainAccountWarning": "Advertencia: No estás usando tu cuenta principal. Todas las transferencias de {{swapType}} se enviarán a tu billetera principal.",
@@ -1185,7 +1220,7 @@
         "invalidFormat": "Las direcciones deben ser solo texto. Por favor revisa e intenta de nuevo.",
         "parseError": "No pudimos reconocer el tipo de pago. Por favor, introduce una dirección Spark válida, un nombre de usuario de Blitz, una dirección de Bitcoin o una dirección/factura de Lightning.",
         "paymentProcessingError": "No pudimos reconocer el tipo de pago. Ingrese una factura válida de Spark, en cadena, LNURL o BOLT11.",
-        "tooLowSendingAmount": "El monto de envío es demasiado alto para cubrir el pago y las tarifas. La cantidad máxima de envío es {{cantidad}}",
+        "tooLowSendingAmount": "El monto de envío es demasiado alto para cubrir el pago y las tarifas. La cantidad máxima de envío es {{amount}}",
         "processInputError": "No se pudo procesar la entrada",
         "unkonwDecodeError": "Ocurrió un error de decodificación desconocido",
         "invalidInputType": "No es un tipo de dirección válido",
@@ -1250,7 +1285,8 @@
         "send": "Enviar",
         "receive": "Recibir",
         "scan": "Escanear",
-        "swap": "Intercambiar"
+        "swap": "Intercambiar",
+        "deposit": "Depositar"
       },
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
@@ -2102,8 +2138,13 @@
         "liquidFeeMessage": "Para recibir un pago en Liquid, pagarás una comisión de bloqueo de ~{{fee}}, una comisión de reclamación de ~{{claimFee}} y una comisión de servicio de Boltz del 0,1%.",
         "rootstockFeeMessage": "Para recibir un pago en Rootstock, pagarás una comisión de bloqueo de ~{{fee}} y una comisión de servicio de Boltz del 0,1%.",
         "lightningConvertMessage": "Recibir dólares a través de Lightning requiere convertir Bitcoin a USD. Se aplica una comisión del {{convertFee}} %, y el tipo de cambio actual es:\n{{satExchangeRate}}.",
+        "stablecoinsFeeMessage": "Para recibir stablecoins, se aplica una comisión de Blitz del 0,5 % y una comisión de Flashnet del 0,05 %.",
         "generatingInvoice": "Generando factura",
         "amountPlaceholder": "Cualquier monto",
+        "copyInvoice": "Copiar factura",
+        "shareInvoice": "Compartir factura",
+        "walletNotConnected": "La billetera no está conectada. Inténtalo de nuevo.",
+        "paylinkSaveError": "No se pudo guardar el enlace de pago",
         "receiveAsHeader": "Recibir como",
         "receiveAs_spark_BTC": "Bitcoin o tokens",
         "receiveAs_lightning_BTC": "Mantener en Bitcoin",
@@ -2115,6 +2156,7 @@
         "invoiceDescription_bitcoinAddress": "Dirección Bitcoin",
         "invoiceDescription_liquidAddress": "Dirección Liquid",
         "invoiceDescription_sparkAddress": "Dirección Spark",
+        "invoiceDescription_stablecoinsAddress": "Dirección de {{chain}}",
         "invoiceDescription_rootstockAddress": "Dirección Rootstock",
         "header_lightning_btc": "Bitcoin vía Lightning",
         "header_lightning_usd": "Dólares vía Lightning",
@@ -2122,6 +2164,7 @@
         "header_spark_btc": "Bitcoin/Tokens vía Spark",
         "header_spark_usd": "Dólares vía Spark",
         "header_liquid": "Bitcoin vía Liquid",
+        "header_stablecoins": "Bitcoin vía {{chain}}",
         "header_rootstock": "Bitcoin vía Rootstock",
         "selectReceiveAssetHead": "Selecciona el activo a recibir",
         "usd_convert_warning": "El monto final que recibas puede variar debido a cambios en el precio del mercado durante la conversión.",
@@ -2443,6 +2486,17 @@
         "noHistoryTitle": "Sin historial de intercambios",
         "noHistoryDesc": "Tus transacciones de intercambio aparecerán aquí.",
         "pageTitle": "Historial"
+      },
+      "sparkReceivePage": {
+        "header": "Dirección Spark"
+      },
+      "sendAndReplace": {
+        "slider": "{{state}} Gastar y reemplazar",
+        "userDollarAmount": "Saldo disponible en dólares: {{dollarAmount}}",
+        "explainer": "Cuando está activado, cada pago saliente en Bitcoin se reemplaza automáticamente intercambiando un monto equivalente desde tu saldo en dólares. Si tu saldo en dólares es menor al monto gastado, se intercambiará el saldo total disponible. No se realizará ningún intercambio si el monto de reemplazo es inferior a {{minAmount}}.",
+        "fundingDescription": "Compra de Spend & Replace",
+        "acceptingDescription": "Recarga de Spend & Replace",
+        "toastMessageTitle": "Saldo de Bitcoin recargado"
       }
     },
     "accumulationAddresses": {
@@ -2479,7 +2533,8 @@
         "pickChain": "Seleccionar red",
         "pickDestination": "Seleccionar destino",
         "confirm": "Confirmar dirección",
-        "alreadyExists": "Ya tienes una dirección para esta combinación"
+        "alreadyExists": "Ya tienes una dirección para esta combinación",
+        "convertDesc": "Tu {{asset}} en {{chain}} se convertirá en {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Red",

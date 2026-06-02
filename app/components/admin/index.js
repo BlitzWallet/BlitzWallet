@@ -24,7 +24,6 @@ import {
   ButtonsContainer,
   EditReceivePaymentInformation,
 } from './homeComponents/receiveBitcoin';
-import SwitchReceiveOptionPage from './homeComponents/receiveBitcoin/switchReceiveOptionPage';
 
 import SendPaymentScreen from './homeComponents/sendBitcoin/sendPaymentScreen';
 import ConfirmSplitPayment from './homeComponents/sendBitcoin/confirmSplitPayment';
@@ -56,7 +55,6 @@ export {
   SendPaymentScreen,
   ButtonsContainer,
   EditReceivePaymentInformation,
-  SwitchReceiveOptionPage,
   SendRecieveBTNs,
   UserSatAmount,
   PinPage,

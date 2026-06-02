@@ -630,7 +630,7 @@ export default function StablecoinSendScreen() {
           styles={styles.sectionTitle}
           content={`${t('wallet.stablecoinSend.networkLabel', {
             currency: asset,
-            chain: capitalizeChain(chain),
+            chain: chainLabel || capitalizeChain(chain),
           })}`}
         />
 
@@ -773,7 +773,11 @@ export default function StablecoinSendScreen() {
                       },
                     ]}
                     content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
-                      formatStablecoinAmount(quote?.estimatedOut || 0),
+                      formatStablecoinAmount(
+                        quote?.estimatedOut || 0,
+                        2,
+                        chain === 'bsc' ? 18 : 6,
+                      ),
                       false,
                       masterInfoObject,
                     )} ${asset}`}

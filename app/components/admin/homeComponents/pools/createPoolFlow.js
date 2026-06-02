@@ -22,6 +22,7 @@ export default function CreatePoolFlow({
   setContentHeight,
   handleBackPressFunction,
   navigate,
+  setBackNav,
 }) {
   const { bottomPadding } = useGlobalInsets();
 
@@ -42,17 +43,27 @@ export default function CreatePoolFlow({
     setContentHeight?.(height);
   }, [currentStep, setContentHeight]);
 
-  // Handle Android back button with multi-step logic
+  // Handle back navigation (header arrow + Android hardware back)
   const handleBackPress = useCallback(() => {
     if (currentStep === 'description') {
       // On description step, go back to amount step
       setCurrentStep('amount');
       return true;
     } else {
-      // On amount step, close the modal (let parent handle it)
-      return false;
+      // On amount step, close the modal
+      handleBackPressFunction();
+      return true;
     }
-  }, [currentStep, setCurrentStep]);
+  }, [currentStep, setCurrentStep, handleBackPressFunction]);
+
+  // Register the header back button in the half modal
+  useEffect(() => {
+    if (currentStep === 'description') {
+      setBackNav?.({ onPress: handleBackPress, title: '' });
+    } else {
+      setBackNav?.(null);
+    }
+  }, [setBackNav, handleBackPress]);
 
   useHandleBackPressNew(handleBackPress);
 

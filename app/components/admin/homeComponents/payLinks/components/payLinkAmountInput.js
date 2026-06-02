@@ -12,10 +12,6 @@ import { HIDDEN_OPACITY, SIZES } from '../../../../../constants/theme';
 import convertTextInputValue from '../../../../../functions/textInputConvertValue';
 import usePaymentInputDisplay from '../../../../../hooks/usePaymentInputDisplay';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
-import { ThemeText } from '../../../../../functions/CustomElements';
-import GetThemeColors from '../../../../../hooks/themeColors';
-import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useNavigation } from '@react-navigation/native';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
@@ -31,7 +27,6 @@ export default function PayLinkAmountInput({
   onSkip,
   onBack,
   paymentMode = 'BTC',
-  onSelectCurrency,
 }) {
   const navigate = useNavigation();
   const { swapUSDPriceDollars, swapLimits } = useFlashnet();
@@ -39,8 +34,6 @@ export default function PayLinkAmountInput({
   const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
-  const { theme, darkModeType } = useGlobalThemeContext();
   const [inputDenomination, setInputDenomination] = useState(null);
 
   const normalizedInputDenomination = inputDenomination
@@ -128,41 +121,6 @@ export default function PayLinkAmountInput({
         </TouchableOpacity>
       </ScrollView>
 
-      <TouchableOpacity
-        onPress={() =>
-          navigate.push('CustomHalfModal', {
-            wantedContent: 'payLinkCurrencySelect',
-            currentCurrency: paymentMode,
-            onSelectCurrency: cur => {
-              setAmountValue('');
-              setInputDenomination(null);
-              onSelectCurrency(cur);
-            },
-          })
-        }
-        style={[
-          styles.currencyToggle,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
-      >
-        <ThemeText
-          styles={styles.currencyToggleText}
-          content={
-            paymentMode === 'BTC'
-              ? t('constants.bitcoin_upper')
-              : t('constants.dollars_upper')
-          }
-        />
-        <ThemeIcon
-          colorOverride={textColor}
-          size={18}
-          iconName={'ChevronDown'}
-        />
-      </TouchableOpacity>
-
       <CustomNumberKeyboard
         showDot={primaryDisplay.denomination === 'fiat'}
         setInputValue={setAmountValue}
@@ -184,18 +142,6 @@ export default function PayLinkAmountInput({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  currencyToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    ...CENTER,
-    minHeight: 40,
-    paddingHorizontal: 15,
-    borderRadius: 50,
-  },
-  currencyToggleText: {
-    includeFontPadding: false,
   },
   amountScrollContainer: {
     justifyContent: 'center',

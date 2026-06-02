@@ -4,6 +4,7 @@ import {
   LoginSecurity,
   DisplayOptions,
   FastPay,
+  SpendAndReplace,
   FiatCurrencyPage,
   PosSettingsPage,
   ResetPage,
@@ -92,6 +93,9 @@ export default function SettingsContentIndex(props) {
             )} */}
 
               {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
+              {selectedPage?.toLowerCase() === 'spend and replace' && (
+                <SpendAndReplace />
+              )}
               {selectedPage?.toLowerCase() === 'blitz fee details' && (
                 <BlitzFeeInformation />
               )}

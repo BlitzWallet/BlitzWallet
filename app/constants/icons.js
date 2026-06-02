@@ -31,12 +31,14 @@ import chain_tron from '../assets/icons/chain-tron.svg';
 import chain_polygon from '../assets/icons/chain-polygon.png';
 import chain_solana from '../assets/icons/chain-solana.svg';
 import chain_tempo from '../assets/icons/chain-tempo.png';
+import chain_bnb from '../assets/icons/chain-bnb.svg';
 import usdcLogo from '../assets/icons/usdc.svg';
 import usdtLogo from '../assets/icons/usdt.svg';
 import ios_maps_light from '../assets/apple_maps_light.png';
 import ios_maps_dark from '../assets/apple_maps_dark.png';
 import android_maps_light from '../assets/google_maps_light.png';
 import android_maps_dark from '../assets/google_maps_dark.png';
+import bankIcon from '../assets/icons/bank.png';
 
 export default {
   logoIcon,
@@ -87,6 +89,7 @@ export default {
   chain_polygon,
   chain_solana,
   chain_tempo,
+  chain_bnb,
   usdcLogo,
   usdtLogo,
 
@@ -95,4 +98,6 @@ export default {
   ios_maps_dark,
   android_maps_light,
   android_maps_dark,
+
+  bankIcon,
 };

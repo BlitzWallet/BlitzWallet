@@ -1,5 +1,6 @@
 const mockOpenDatabaseAsync = jest.fn();
 const mockHandleEventEmitterPost = jest.fn();
+const mockLabelSpendAndReplaceIncoming = jest.fn(async () => undefined);
 
 jest.mock('expo-sqlite', () => ({
   openDatabaseAsync: mockOpenDatabaseAsync,
@@ -7,6 +8,12 @@ jest.mock('expo-sqlite', () => ({
 
 jest.mock('../../../app/functions/handleEventEmitters', () => ({
   handleEventEmitterPost: mockHandleEventEmitterPost,
+}));
+
+// transactions.js now imports the SAR correlation module, which pulls in the
+// Firebase-backed backend client; stub it so the bulk-update tests stay isolated.
+jest.mock('../../../app/functions/spark/spendAndReplaceCorrelation', () => ({
+  labelSpendAndReplaceIncoming: mockLabelSpendAndReplaceIncoming,
 }));
 
 const createMockDb = () => ({
@@ -19,6 +26,8 @@ const loadTransactionsModule = mockDb => {
   jest.resetModules();
   mockOpenDatabaseAsync.mockReset();
   mockHandleEventEmitterPost.mockClear();
+  mockLabelSpendAndReplaceIncoming.mockReset();
+  mockLabelSpendAndReplaceIncoming.mockResolvedValue(undefined);
   mockOpenDatabaseAsync.mockResolvedValue(mockDb);
   return require('../../../app/functions/spark/transactions');
 };
@@ -184,6 +193,62 @@ describe('Spark transaction bulk update guards', () => {
     expect(JSON.parse(values[3])).toMatchObject({
       amount: 2500,
       description: 'updated memo',
+    });
+  });
+
+  it('runs SAR correlation before BEGIN and preserves its description on update', async () => {
+    const callOrder = [];
+    const mockDb = createMockDb();
+    mockDb.execAsync.mockImplementation(async sql => {
+      if (sql === 'BEGIN TRANSACTION') callOrder.push('begin');
+    });
+    mockDb.getAllAsync.mockResolvedValue([
+      {
+        sparkID: 'incoming-sar',
+        paymentStatus: 'pending',
+        paymentType: 'spark',
+        accountId: 'identity-pubkey',
+        details: JSON.stringify({
+          amount: 2500,
+          direction: 'INCOMING',
+          description: 'received',
+        }),
+      },
+    ]);
+    const { bulkUpdateSparkTransactions } = loadTransactionsModule(mockDb);
+    mockLabelSpendAndReplaceIncoming.mockImplementation(async transactions => {
+      callOrder.push('label');
+      transactions[0].paymentStatus = 'completed';
+      transactions[0].details.description = 'spend and replace incoming';
+    });
+
+    await bulkUpdateSparkTransactions([
+      {
+        id: 'incoming-sar',
+        paymentStatus: 'pending',
+        paymentType: 'spark',
+        accountId: 'identity-pubkey',
+        details: {
+          amount: 2500,
+          direction: 'INCOMING',
+        },
+      },
+    ]);
+
+    expect(callOrder).toEqual(['label', 'begin']);
+    expect(mockLabelSpendAndReplaceIncoming).toHaveBeenCalledWith(
+      expect.any(Array),
+      mockDb,
+    );
+
+    const updateCall = findUpdateCall(mockDb);
+    expect(updateCall).toBeDefined();
+    const values = updateCall[1];
+    expect(values[0]).toBe('completed');
+    expect(JSON.parse(values[3])).toMatchObject({
+      amount: 2500,
+      direction: 'INCOMING',
+      description: 'spend and replace incoming',
     });
   });
 });
