@@ -1056,14 +1056,14 @@
       "requestHeader": "Qual moeda você deseja receber?",
       "genQRCode": "Gerar código QR",
       "allSetTitle": "Tudo pronto",
-      "allSetSubtitle": "Qualquer pessoa com este link pode te pagar.",
+      "allSetSubtitle": "Qualquer pessoa com este link pode te pagar",
       "howItWorks": {
         "step1Label": "Compartilhe em qualquer lugar",
         "step1Desc": "Mensagem, e-mail ou qualquer aplicativo.",
-        "step2Label": "A pessoa paga no navegador",
-        "step2Desc": "Bitcoin, USDC ou USDT.",
+        "step2Label": "A pessoa abre o link e paga",
+        "step2Desc": "Bitcoin, USDC ou USDT",
         "step3Label": "Você recebe instantaneamente",
-        "step3Desc": "Os fundos chegam no momento em que a pessoa paga."
+        "step3Desc": "Os fundos chegam no momento em que a pessoa paga"
       },
       "copyLink": "Copiar link"
     },
