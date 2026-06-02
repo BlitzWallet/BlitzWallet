@@ -5,7 +5,7 @@ import {
   KeyboardController,
 } from 'react-native-keyboard-controller';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../constants';
+import { COLORS, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
 import {
   HalfModalSendOptions,
   HalfModalReceiveOptions,
@@ -16,6 +16,7 @@ import {
   SwitchGenerativeAIModel,
 } from '../../components/admin/homeComponents/apps';
 import ThemeText from './textTheme';
+import ThemeIcon from './themeIcon';
 import ConfirmGiftCardPurchase from '../../components/admin/homeComponents/apps/giftCards/confimPurchase';
 import ConfirmExportPayments from '../../components/admin/homeComponents/exportTransactions/exportTracker';
 import ConfirmChatGPTPage from '../../components/admin/homeComponents/apps/chatGPT/components/confirmationPage';
@@ -82,12 +83,44 @@ import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analyti
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLightning/halfModalDepositFunds';
+import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/receiveBitcoin/shareInvoicePayLinkModal';
 
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
   'manualEnterSendAddress',
 ]);
+
+// Flip to 'arrow' for the plain app-standard back arrow, or 'circle' for the
+// circular chevron that matches the reference screenshot.
+
+function HalfModalBackButton({
+  onPress,
+  backgroundOffset,
+  backgroundColor,
+  theme,
+  darkModeType,
+  btnType = 'circle',
+}) {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.backButton} hitSlop={10}>
+      <View
+        style={[
+          styles.backButtonCircle,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
+      >
+        <ThemeIcon
+          iconName={btnType === 'circle' ? 'ChevronLeft' : 'X'}
+          size={22}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+}
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -98,6 +131,8 @@ export default function CustomHalfModal(props) {
   const { backgroundColor, backgroundOffset, transparentOveraly } =
     GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
+  // { onPress, title } when the active content registers a back step, else null
+  const [backNav, setBackNav] = useState(null);
   const [isKeyboardActive, setIsKeyboardActive] = useState(
     contentType === 'AddMessageReceivePage' ? true : false,
   );
@@ -194,6 +229,7 @@ export default function CustomHalfModal(props) {
             darkModeType={darkModeType}
             slideHeight={slideHeight}
             isScreenActive={isScreenActive}
+            setBackNav={setBackNav}
           />
         );
       case 'receiveOptions':
@@ -207,6 +243,7 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
             isScreenActive={isScreenActive}
+            setBackNav={setBackNav}
           />
         );
       case 'confirmSMS':
@@ -497,6 +534,7 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
             navigate={navigation}
+            setBackNav={setBackNav}
           />
         );
       case 'closePoolConfirmation':
@@ -660,6 +698,7 @@ export default function CustomHalfModal(props) {
           <HalfModalDepositFunds
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            setBackNav={setBackNav}
             theme={theme}
             darkModeType={darkModeType}
             showLightning={props.route.params?.showLightning ?? false}
@@ -670,9 +709,20 @@ export default function CustomHalfModal(props) {
           <HalfModalDepositFunds
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            setBackNav={setBackNav}
             theme={theme}
             darkModeType={darkModeType}
             showLightning={true}
+          />
+        );
+      case 'shareInvoicePaylink':
+        return (
+          <ShareInvoicePayLinkModal
+            rawAmount={props.route.params?.rawAmount}
+            currencyType={props.route.params?.currencyType}
+            onCreated={props.route.params?.onCreated}
+            setContentHeight={setContentHeight}
+            sharePayLinkCache={props.route.params?.sharePayLinkCache}
           />
         );
       default:
@@ -731,7 +781,6 @@ export default function CustomHalfModal(props) {
               // contentType === 'editLNURLOnReceive' ||
               contentType === 'addContacts' ||
               contentType === 'SelectLRC20Token' ||
-              contentType === 'AddMessageReceivePage' ||
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
               contentType === 'createPoolFlow' ||
@@ -757,17 +806,37 @@ export default function CustomHalfModal(props) {
         >
           <GestureDetector gesture={panGesture}>
             <View style={styles.topBarContainer}>
-              <View
-                style={[
-                  styles.topBar,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                  },
-                ]}
-              />
+              {backNav ? (
+                <View style={styles.headerRow}>
+                  <HalfModalBackButton
+                    onPress={backNav.onPress}
+                    backgroundOffset={backgroundOffset}
+                    btnType={backNav.btnType}
+                    theme={theme}
+                    darkModeType={darkModeType}
+                    backgroundColor={backgroundColor}
+                  />
+                  {!!backNav.title && (
+                    <ThemeText
+                      CustomNumberOfLines={1}
+                      styles={styles.headerTitle}
+                      content={backNav.title}
+                    />
+                  )}
+                </View>
+              ) : (
+                <View
+                  style={[
+                    styles.topBar,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundColor
+                          : backgroundOffset,
+                    },
+                  ]}
+                />
+              )}
             </View>
           </GestureDetector>
           {renderContent()}
@@ -801,6 +870,35 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 8,
     marginBottom: 20,
+  },
+  headerRow: {
+    width: '100%',
+    minHeight: 36,
+    marginTop: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: SIZES.large,
+    includeFontPadding: false,
+    textAlign: 'center',
+    paddingHorizontal: 56,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    zIndex: 3,
+  },
+  backButtonCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   contentContainer: {
     borderTopLeftRadius: 20,

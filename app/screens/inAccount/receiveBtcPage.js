@@ -3,16 +3,14 @@ import {
   CENTER,
   SIZES,
   COLORS,
-  SKELETON_ANIMATION_SPEED,
-  HIDDEN_BALANCE_TEXT,
+  ICONS,
+  CONTENT_KEYBOARD_OFFSET,
 } from '../../constants';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { copyToClipboard, formatBalanceAmount } from '../../functions';
+import { copyToClipboard } from '../../functions';
 import { useGlobalContextProvider } from '../../../context-store/context';
-import { ButtonsContainer } from '../../components/admin/homeComponents/receiveBitcoin';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../hooks/themeColors';
 import { initializeAddressProcess } from '../../functions/receiveBitcoin/addressGeneration';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
@@ -21,129 +19,90 @@ import { useNodeContext } from '../../../context-store/nodeContext';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
-import { useLiquidEvent } from '../../../context-store/liquidEventContext';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useToast } from '../../../context-store/toastManager';
-import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
-import { encodeLNURL } from '../../functions/lnurl/bench32Formmater';
-import { useLRC20EventContext } from '../../../context-store/lrc20Listener';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../context-store/webViewContext';
-import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { dollarsToSats, satsToDollars } from '../../functions/spark/flashnet';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import { shareMessage } from '../../functions/handleShare';
 import { useKeysContext } from '../../../context-store/keys';
-import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
 import { useAccumulationAddresses } from '../../hooks/useAccumulationAddresses';
+import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
+import customUUID from '../../functions/customUUID';
+import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { shareMessage } from '../../functions/handleShare';
+import ThemeImage from '../../functions/CustomElements/themeImage';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import usePaymentInputDisplay from '../../hooks/usePaymentInputDisplay';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
   const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContactsInfo();
-  const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
-  const { signer, startRootstockEventListener } = useRootstockProvider();
-  // const { startLrc20EventListener } = useLRC20EventContext();
+  const { screenDimensions } = useAppStatus();
+  const { signer } = useRootstockProvider();
   const { t } = useTranslation();
+  const { backgroundOffset } = GetThemeColors();
   const { isUsingAltAccount, currentWalletMnemoinc } =
     useActiveCustodyAccount();
-  const [contentHeight, setContentHeight] = useState(0);
-  const { startLiquidEventListener } = useLiquidEvent();
-  const userReceiveAmount = props.route.params?.receiveAmount || 0;
-  const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
-  const [holdExpirySeconds, setHoldExpirySeconds] = useState(2592000);
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
   const { createAddress } = useAccumulationAddresses();
   const { bottomPadding } = useGlobalInsets();
-  const qrContainerSize = Math.round(screenDimensions.width * 0.85);
+  const qrContainerSize = Math.round(screenDimensions.width * 0.8);
   const qrInnerSize = qrContainerSize - 25;
-  const isSharingRef = useRef(null);
 
-  const paymentDescription = props.route.params?.description;
-  const requestUUID = props.route.params?.uuid;
+  const routeParams = props.route?.params || {};
+  const paymentDescription = routeParams.description;
+  const requestUUID = routeParams.uuid;
   const endReceiveType =
-    props?.route.params.endReceiveType ||
-    props?.route.params.initialReceiveType ||
-    'BTC';
+    routeParams.endReceiveType || routeParams.initialReceiveType || 'BTC';
 
-  const selectedRecieveOption =
-    props.route.params?.selectedRecieveOption || 'Lightning';
-  const sourceChain = props.route.params?.sourceChain;
-  const sourceAsset = props.route.params?.sourceAsset;
-  const destinationAsset = props.route.params?.destinationAsset;
+  const userReceiveAmount = routeParams.receiveAmount || 0;
+  const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
 
   const prevRequstInfo = useRef(null);
   const addressStateRef = useRef(null);
+  const generationRef = useRef(0);
+  const toggleDebounceRef = useRef(null);
+
+  const [sharePayLinkCache, setSharePayLinkCache] = useState(null);
 
   const [addressState, setAddressState] = useState({
-    selectedRecieveOption: selectedRecieveOption,
     isReceivingSwap: false,
-    generatedAddress:
-      isUsingAltAccount || masterInfoObject.lnurlReceiveCurrency === 'usd'
-        ? ''
-        : `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
-    isGeneratingInvoice: false,
-    isHoldInvoice: false,
-    minMaxSwapAmount: {
-      min: 0,
-      max: 0,
-    },
-    swapPegInfo: {},
+    generatedAddress: '',
+    isGeneratingInvoice: true,
     errorMessageText: {
       type: null,
       text: '',
     },
-    hasGlobalError: false,
     fee: 0,
   });
 
   useEffect(() => {
+    return () => {
+      if (toggleDebounceRef.current) clearTimeout(toggleDebounceRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
     addressStateRef.current = addressState;
   }, [addressState]);
-
-  const handleHoldToggle = useCallback(() => {
-    if (!addressState.isHoldInvoice) {
-      // Turning ON — show explanation first
-      navigate.navigate('InformationPopup', {
-        textContent: t('screens.inAccount.receiveBtcPage.holdInvoiceExplainer'),
-        buttonText: t('constants.understandText'),
-        customNavigation: () => proceedWithHoldToggle(true),
-      });
-      return;
-    }
-    proceedWithHoldToggle(false);
-  }, [addressState.isHoldInvoice]);
-
-  const proceedWithHoldToggle = useCallback(async newValue => {
-    if (newValue) navigate.goBack();
-    setAddressState(prev => ({
-      ...prev,
-      isHoldInvoice: newValue,
-      generatedAddress: '',
-      isGeneratingInvoice: newValue,
-    }));
-  }, []);
-
-  const handleExpirySelect = useCallback(async seconds => {
-    setAddressState(prev => ({
-      ...prev,
-      generatedAddress: '',
-      isGeneratingInvoice: true,
-    }));
-    setHoldExpirySeconds(seconds.value);
-  }, []);
 
   useEffect(() => {
     async function runAddressInit() {
@@ -153,58 +112,49 @@ export default function ReceivePaymentHome(props) {
       if (
         prevRequstInfo.current &&
         userReceiveAmount === prevRequstInfo.current.userReceiveAmount &&
-        selectedRecieveOption.toLowerCase() ===
-          prevRequstInfo.current.selectedRecieveOption.toLowerCase() &&
         paymentDescription === prevRequstInfo.current.paymentDescription &&
         !addressStateRef.current.errorMessageText.text &&
-        endReceiveType === prevRequstInfo.current.endReceiveType &&
-        addressState.isHoldInvoice === prevRequstInfo.current.isHoldInvoice &&
-        holdExpirySeconds === prevRequstInfo.current.holdExpirySeconds
+        endReceiveType === prevRequstInfo.current.endReceiveType
       ) {
-        // This checks if we had a previous requst
-        // And all other formation is the same
-        // if the requst did not fail we block but if it did fail we rety since it failed
         return;
       }
 
-      // Update prev request info to the new data
       prevRequstInfo.current = {
         userReceiveAmount,
-        selectedRecieveOption,
         paymentDescription,
         endReceiveType,
-        isHoldInvoice: addressState.isHoldInvoice,
-        holdExpirySeconds,
       };
-      if (
-        !userReceiveAmount &&
-        selectedRecieveOption.toLowerCase() === 'lightning' &&
-        !isUsingAltAccount &&
-        endReceiveType === 'BTC' &&
-        !paymentDescription &&
-        !addressState.isHoldInvoice &&
-        masterInfoObject.lnurlReceiveCurrency !== 'usd'
-      ) {
-        setInitialSendAmount(0);
-        setAddressState(prev => ({
-          ...prev,
-          generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
-        }));
-        return;
-      }
+
+      // if (
+      //   !userReceiveAmount &&
+      //   !isUsingAltAccount &&
+      //   endReceiveType === 'BTC' &&
+      //   !paymentDescription &&
+      //   masterInfoObject.lnurlReceiveCurrency !== 'usd'
+      // ) {
+      //   setInitialSendAmount(0);
+      //   setAddressState(prev => ({
+      //     ...prev,
+      //     generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
+      //   }));
+      //   return;
+      // }
+
+      generationRef.current += 1;
+      const gen = generationRef.current;
+      const guardedSetAddressState = updater => {
+        if (generationRef.current === gen) setAddressState(updater);
+      };
 
       await initializeAddressProcess({
         userBalanceDenomination: masterInfoObject.userBalanceDenomination,
         receivingAmount: userReceiveAmount,
         description: paymentDescription,
         masterInfoObject,
-        // minMaxSwapAmounts: minMaxLiquidSwapAmounts,
-        // mintURL: currentMintURL,
-        setAddressState: setAddressState,
-        selectedRecieveOption: selectedRecieveOption,
+        setAddressState: guardedSetAddressState,
+        selectedRecieveOption: 'Lightning',
         navigate,
         signer,
-        // eCashBalance,
         currentWalletMnemoinc,
         sendWebViewRequest,
         sparkInformation,
@@ -213,295 +163,351 @@ export default function ReceivePaymentHome(props) {
         setInitialSendAmount,
         userReceiveAmount,
         poolInfoRef,
-        isHoldInvoice: addressState.isHoldInvoice,
-        holdExpirySeconds,
+        isHoldInvoice: false,
+        holdExpirySeconds: 2592000,
         contactsPrivateKey,
         contactsPublicKey,
         createAddress,
-        sourceChain,
-        sourceAsset,
-        destinationAsset,
+        sourceChain: undefined,
+        sourceAsset: undefined,
+        destinationAsset: undefined,
       });
-      if (selectedRecieveOption === 'Liquid') {
-        startLiquidEventListener(60);
-      } else if (selectedRecieveOption === 'Rootstock') {
-        startRootstockEventListener({ durationMs: 1200000 });
-      }
     }
     runAddressInit();
-  }, [
-    userReceiveAmount,
-    paymentDescription,
-    selectedRecieveOption,
-    requestUUID,
-    endReceiveType,
-    addressState.isHoldInvoice,
-    holdExpirySeconds,
-  ]);
+  }, [userReceiveAmount, paymentDescription, requestUUID, endReceiveType]);
 
-  const headerContext =
-    selectedRecieveOption?.toLowerCase() === 'spark' ||
-    selectedRecieveOption?.toLowerCase() === 'lightning'
-      ? selectedRecieveOption?.toLowerCase() +
-        `_${endReceiveType?.toLowerCase()}`
-      : selectedRecieveOption?.toLowerCase();
-  const handleShare = async () => {
-    if (!addressState.generatedAddress) return;
-    if (addressState.isGeneratingInvoice) return;
-    try {
-      isSharingRef.current = true;
-      await shareMessage({
-        message: addressState.generatedAddress,
+  const minUsdSats = Math.round(
+    Math.max(
+      swapLimits.bitcoin || 0,
+      dollarsToSats(1, poolInfoRef?.currentPriceAInB),
+    ),
+  );
+
+  const toggleReceiveAsset = target => {
+    if (target === endReceiveType) return;
+    if (toggleDebounceRef.current) clearTimeout(toggleDebounceRef.current);
+    toggleDebounceRef.current = setTimeout(() => {
+      let amount = Math.round(initialSendAmount || userReceiveAmount || 0);
+      if (target === 'USD' && amount < minUsdSats) amount = minUsdSats;
+      navigate.setParams({
+        endReceiveType: target,
+        receiveAmount: amount,
+        uuid: customUUID(),
       });
-    } catch (err) {
-      console.log('Error sharing invoice', err);
-    } finally {
-      isSharingRef.current = false;
+    }, 300);
+  };
+
+  const { showToast } = useToast();
+  const address = addressState.generatedAddress || '';
+
+  const isUsingLnurl = false;
+  // !initialSendAmount &&
+  // !isUsingAltAccount &&
+  // endReceiveType === 'BTC' &&
+  // !paymentDescription &&
+  // masterInfoObject.lnurlReceiveCurrency !== 'usd';
+
+  const displayAddress = isUsingLnurl
+    ? `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`
+    : address;
+
+  const displayedReceiveAmount = initialSendAmount || userReceiveAmount || 0;
+  const amountCardValue = displayedReceiveAmount;
+  const actionTextColor =
+    theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
+  const primaryButtonBackground =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+
+  const handleShareInvoice = () => {
+    const amount = displayedReceiveAmount;
+    const currencyType = endReceiveType;
+
+    if (!amount) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('wallet.halfModal.paylinkAmountRequired'),
+      });
+      return;
     }
+
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'shareInvoicePaylink',
+      rawAmount: amount,
+      currencyType,
+      sharePayLinkCache,
+      onCreated: payLinkId => {
+        setSharePayLinkCache({ payLinkId, amount, currencyType });
+      },
+    });
   };
 
   return (
-    <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
+    <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
-        showLeftImage={true}
-        iconNew="Share"
-        leftImageFunction={handleShare}
         label={t('constants.receive')}
-        containerStyles={{ marginBottom: 0 }}
-      />
-      <ThemeText
-        styles={styles.title}
-        content={t('screens.inAccount.receiveBtcPage.header', {
-          context: headerContext,
-          chain:
-            sourceChain &&
-            sourceChain[0]?.toUpperCase() + sourceChain?.slice(1),
-        })}
-      />
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          justifyContent: 'center',
-          flexGrow: 1,
-          paddingBottom: bottomPadding,
+        showLeftImage={true}
+        iconNew={'SquarePen'}
+        leftImageStyles={{ width: 25, height: 25 }}
+        leftImageFunction={() => {
+          navigate.navigate('EditReceivePaymentInformation', {
+            from: 'receivePage',
+            receiveType: 'Lightning',
+            endReceiveType,
+            userReceiveAmount: displayedReceiveAmount,
+            description: paymentDescription,
+          });
         }}
-        showsVerticalScrollIndicator={false}
+      />
+      <View
+        style={{ flex: 1, ...CENTER, width: INSET_WINDOW_WIDTH, height: 500 }}
       >
-        <View
-          onLayout={e => {
-            if (!e.nativeEvent.layout.height) return;
-            setContentHeight(e.nativeEvent.layout.height);
-          }}
-          style={{
-            width: '100%',
+        <View style={styles.toggleContainer}>
+          <BtcUsdToggle
+            endReceiveType={endReceiveType}
+            onToggle={toggleReceiveAsset}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        </View>
+
+        <ScrollView
+          style={{ width: '100%' }}
+          contentContainerStyle={{
+            justifyContent: 'center',
             alignItems: 'center',
-            flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
+            flexGrow: 1,
+            paddingBottom: bottomPadding,
           }}
+          showsVerticalScrollIndicator={false}
         >
-          <QrCode
-            globalContactsInformation={globalContactsInformation}
-            selectedRecieveOption={selectedRecieveOption}
-            navigate={navigate}
-            addressState={addressState}
-            initialSendAmount={initialSendAmount || userReceiveAmount}
+          <AmountDisplay
+            displayedReceiveAmount={displayedReceiveAmount}
+            amountCardValue={amountCardValue}
+            endReceiveType={endReceiveType}
             masterInfoObject={masterInfoObject}
             fiatStats={fiatStats}
-            isUsingAltAccount={isUsingAltAccount}
-            t={t}
-            endReceiveType={endReceiveType}
-            swapLimits={swapLimits}
-            poolInfoRef={poolInfoRef}
-            isSharingRef={isSharingRef}
-            paymentDescription={paymentDescription}
-            userReceiveAmount={userReceiveAmount}
-            handleHoldToggle={handleHoldToggle}
-            handleExpirySelect={handleExpirySelect}
-            isHoldInvoice={addressState.isHoldInvoice}
-            holdExpirySeconds={holdExpirySeconds}
-            sourceChain={sourceChain}
-            qrContainerSize={qrContainerSize}
-            qrInnerSize={qrInnerSize}
+            swapUSDPriceDollars={swapUSDPriceDollars}
           />
-
-          <ButtonsContainer
-            generatingInvoiceQRCode={addressState.isGeneratingInvoice}
-            generatedAddress={addressState.generatedAddress}
-            selectedRecieveOption={selectedRecieveOption}
-            initialSendAmount={initialSendAmount || userReceiveAmount}
-            isUsingAltAccount={isUsingAltAccount}
-            endReceiveType={endReceiveType}
-          />
-
-          <View style={{ marginBottom: 'auto' }}></View>
-
           <TouchableOpacity
-            activeOpacity={
-              (selectedRecieveOption.toLowerCase() !== 'lightning' ||
-                (selectedRecieveOption.toLowerCase() === 'lightning' &&
-                  endReceiveType === 'USD')) &&
-              selectedRecieveOption.toLowerCase() !== 'spark' &&
-              selectedRecieveOption.toLowerCase() !== 'stablecoins'
-                ? 0.2
-                : 1
-            }
             onPress={() => {
-              if (
-                (selectedRecieveOption.toLowerCase() === 'lightning' &&
-                  endReceiveType !== 'USD') ||
-                selectedRecieveOption.toLowerCase() === 'spark' ||
-                selectedRecieveOption.toLowerCase() === 'stablecoins'
-              )
-                return;
-
-              let informationText = '';
-              if (selectedRecieveOption.toLowerCase() === 'bitcoin') {
-                informationText = t(
-                  'screens.inAccount.receiveBtcPage.onchainFeeMessage',
-                );
-              } else if (selectedRecieveOption.toLowerCase() === 'liquid') {
-                informationText = t(
-                  'screens.inAccount.receiveBtcPage.liquidFeeMessage',
-                  {
-                    fee: displayCorrectDenomination({
-                      amount: 34,
-                      masterInfoObject,
-                      fiatStats,
-                    }),
-                    claimFee: displayCorrectDenomination({
-                      amount: 19,
-                      masterInfoObject,
-                      fiatStats,
-                    }),
-                  },
-                );
-              } else if (selectedRecieveOption.toLowerCase() === 'rootstock') {
-                informationText = t(
-                  'screens.inAccount.receiveBtcPage.rootstockFeeMessage',
-                  {
-                    fee: displayCorrectDenomination({
-                      amount:
-                        (minMaxLiquidSwapAmounts?.rsk?.submarine?.fees
-                          ?.minerFees?.claim || 64) +
-                        (minMaxLiquidSwapAmounts?.rsk?.submarine?.fees
-                          ?.minerFees?.lockup || 121),
-                      masterInfoObject,
-                      fiatStats,
-                    }),
-                  },
-                );
-              } else if (selectedRecieveOption.toLowerCase() === 'lightning') {
-                informationText = t(
-                  'screens.inAccount.receiveBtcPage.lightningConvertMessage',
-                  {
-                    convertFee: formatBalanceAmount(
-                      poolInfoRef.lpFeeBps / 100 + 1,
-                      false,
-                      masterInfoObject,
-                    ),
-                    satExchangeRate: displayCorrectDenomination({
-                      amount: Number(swapUSDPriceDollars).toFixed(2),
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination: 'fiat',
-                      },
-                      fiatStats,
-                      forceCurrency: 'USD',
-                      convertAmount: false,
-                    }),
-                    dollarAmount: displayCorrectDenomination({
-                      amount: 1,
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination: 'fiat',
-                      },
-                      fiatStats,
-                      forceCurrency: 'USD',
-                      convertAmount: false,
-                    }),
-                  },
-                );
-              }
-              navigate.navigate('InformationPopup', {
-                textContent: informationText,
-                buttonText: t('constants.understandText'),
-              });
+              if (displayAddress) copyToClipboard(displayAddress, showToast);
             }}
-            style={{
-              alignItems: 'center',
-            }}
+            style={styles.invoiceRow}
           >
-            <View style={styles.feeTitleContainer}>
-              <ThemeText
-                styles={styles.feeTitleText}
-                content={t('constants.fee')}
-              />
-              {selectedRecieveOption.toLowerCase() === 'stablecoins'
-                ? null
-                : (selectedRecieveOption.toLowerCase() !== 'lightning' ||
-                    (selectedRecieveOption.toLowerCase() === 'lightning' &&
-                      endReceiveType === 'USD')) &&
-                  selectedRecieveOption.toLowerCase() !== 'spark' && (
-                    <ThemeIcon
-                      size={15}
-                      styles={{ marginLeft: 5 }}
-                      iconName={'Info'}
-                    />
-                  )}
-            </View>
-            {selectedRecieveOption.toLowerCase() === 'stablecoins' ? (
-              <ThemeText content={'0.55%'} />
-            ) : (selectedRecieveOption.toLowerCase() !== 'lightning' ||
-                (selectedRecieveOption.toLowerCase() === 'lightning' &&
-                  endReceiveType === 'USD')) &&
-              selectedRecieveOption.toLowerCase() !== 'spark' ? (
-              <ThemeText content={t('constants.variable')} />
-            ) : (
-              <FormattedSatText neverHideBalance={true} balance={0} />
-            )}
+            <QrCode
+              globalContactsInformation={globalContactsInformation}
+              addressState={addressState}
+              qrContainerSize={qrContainerSize}
+              qrInnerSize={qrInnerSize}
+              isUsingLnurl={isUsingLnurl}
+            />
           </TouchableOpacity>
-        </View>
-      </ScrollView>
+
+          <NotePill description={paymentDescription} t={t} />
+        </ScrollView>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={[
+            styles.actionButton,
+            {
+              backgroundColor: primaryButtonBackground,
+              marginTop: CONTENT_KEYBOARD_OFFSET,
+            },
+          ]}
+          onPress={() => {
+            if (displayAddress) copyToClipboard(displayAddress, showToast);
+          }}
+        >
+          <ThemeIcon
+            iconName={'Copy'}
+            size={18}
+            colorOverride={actionTextColor}
+          />
+          <ThemeText
+            CustomNumberOfLines={1}
+            content={t('screens.inAccount.receiveBtcPage.copyInvoice')}
+            styles={[styles.actionButtonText, { color: actionTextColor }]}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={[
+            styles.actionButton,
+            styles.ctaSecondary,
+            { borderColor: backgroundOffset, marginTop: 10 },
+          ]}
+          onPress={handleShareInvoice}
+        >
+          <ThemeIcon iconName={'Share'} size={18} />
+          <ThemeText
+            CustomNumberOfLines={1}
+            content={t('screens.inAccount.receiveBtcPage.shareInvoice')}
+            styles={styles.actionButtonText}
+          />
+        </TouchableOpacity>
+      </View>
     </GlobalThemeView>
   );
 }
 
-function QrCode(props) {
-  const {
-    addressState,
-    navigate,
-    selectedRecieveOption,
-    globalContactsInformation,
-    initialSendAmount,
-    masterInfoObject,
-    fiatStats,
-    isUsingAltAccount,
-    t,
-    endReceiveType,
-    swapLimits,
-    poolInfoRef,
-    isSharingRef,
-    paymentDescription,
-    userReceiveAmount,
-    handleHoldToggle,
-    handleExpirySelect,
-    isHoldInvoice,
-    holdExpirySeconds,
-    sourceChain,
-    qrContainerSize,
-    qrInnerSize,
-  } = props;
-  const { showToast } = useToast();
-  const { theme } = useGlobalThemeContext();
-  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { t } = useTranslation();
+  const [pillWidth, setPillWidth] = useState(0);
 
-  const isUsingLnurl =
-    selectedRecieveOption.toLowerCase() === 'lightning' &&
-    !initialSendAmount &&
-    !isUsingAltAccount &&
-    endReceiveType === 'BTC' &&
-    !paymentDescription &&
-    !isHoldInvoice &&
-    masterInfoObject.lnurlReceiveCurrency !== 'usd';
+  const thumbX = useSharedValue(0);
+
+  useEffect(() => {
+    thumbX.value = withTiming(
+      endReceiveType === 'USD' ? (pillWidth - 10) / 2 : 0,
+      { duration: 350 },
+    );
+  }, [endReceiveType, pillWidth]);
+
+  const thumbAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: thumbX.value }],
+  }));
+
+  const options = [
+    { key: 'BTC', symbol: 'bitcoinIcon', label: t('constants.bitcoin_upper') },
+    { key: 'USD', symbol: 'dollarIcon', label: t('constants.dollars_upper') },
+  ];
+
+  return (
+    <View
+      style={[styles.togglePill, { backgroundColor: backgroundOffset }]}
+      onLayout={e => setPillWidth(e.nativeEvent.layout.width)}
+    >
+      {pillWidth > 0 && (
+        <Animated.View
+          style={[
+            styles.toggleThumb,
+            { width: pillWidth / 2 - 4, backgroundColor },
+            thumbAnimStyle,
+          ]}
+        />
+      )}
+      {options.map(option => {
+        const active = endReceiveType === option.key;
+        return (
+          <TouchableOpacity
+            key={option.key}
+            activeOpacity={0.8}
+            onPress={() => onToggle(option.key)}
+            style={styles.toggleOption}
+          >
+            <ThemeImage
+              styles={{
+                width: SIZES.medium,
+                height: SIZES.medium,
+                tintColor: textColor,
+                opacity: active ? 1 : 0.4,
+              }}
+              lightModeIcon={ICONS?.[option.symbol]}
+              darkModeIcon={ICONS?.[option.symbol]}
+              lightsOutIcon={ICONS?.[option.symbol]}
+            />
+            <ThemeText
+              styles={[
+                styles.toggleOptionText,
+                {
+                  opacity: active ? 1 : 0.4,
+                  fontWeight: active ? '500' : '400',
+                },
+              ]}
+              content={option.label}
+            />
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+function AmountDisplay({
+  displayedReceiveAmount,
+  amountCardValue,
+  endReceiveType,
+  masterInfoObject,
+  fiatStats,
+  swapUSDPriceDollars,
+}) {
+  const inputDenomination = endReceiveType === 'USD' ? 'fiat' : 'sats';
+  const { primaryDisplay, secondaryDisplay, conversionFiatStats } =
+    usePaymentInputDisplay({
+      paymentMode: endReceiveType,
+      inputDenomination,
+      fiatStats,
+      usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+      masterInfoObject,
+    });
+
+  if (!amountCardValue) return null;
+
+  const primaryFiatStats = primaryDisplay.forceFiatStats || conversionFiatStats;
+  const secondaryFiatStats =
+    secondaryDisplay.forceFiatStats ||
+    (secondaryDisplay.forceCurrency === 'USD'
+      ? { coin: 'USD', value: swapUSDPriceDollars }
+      : fiatStats);
+
+  return (
+    <View style={styles.amountContainer}>
+      <ThemeText
+        styles={[
+          styles.amountPrimary,
+          !displayedReceiveAmount && { opacity: 0.4 },
+        ]}
+        content={displayCorrectDenomination({
+          amount: amountCardValue,
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: primaryDisplay.denomination,
+          },
+          fiatStats: primaryFiatStats,
+          forceCurrency: primaryDisplay.forceCurrency,
+        })}
+        adjustsFontSizeToFit
+        CustomNumberOfLines={1}
+      />
+      <ThemeText
+        styles={styles.amountSecondary}
+        content={displayCorrectDenomination({
+          amount: amountCardValue,
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: secondaryDisplay.denomination,
+          },
+          fiatStats: secondaryFiatStats,
+          forceCurrency: secondaryDisplay.forceCurrency,
+        })}
+      />
+    </View>
+  );
+}
+
+function NotePill({ description, t }) {
+  const { backgroundOffset } = GetThemeColors();
+  return (
+    <View style={[styles.notePill, { backgroundColor: backgroundOffset }]}>
+      <ThemeText
+        styles={[styles.notePillText, !description && { opacity: 0.5 }]}
+        content={description || t('constants.noDescription')}
+        CustomNumberOfLines={1}
+      />
+    </View>
+  );
+}
+
+function QrCode({
+  addressState,
+  globalContactsInformation,
+  qrContainerSize,
+  qrInnerSize,
+  isUsingLnurl,
+}) {
+  const { backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
 
   const qrOpacity = useSharedValue(addressState.generatedAddress ? 1 : 0);
   const loadingOpacity = useSharedValue(isUsingLnurl ? 0 : 1);
@@ -545,7 +551,6 @@ function QrCode(props) {
       loadingOpacity.value = 0;
       previousAddress.current = '';
     } else if (newAddress) {
-      // if we have an address just show the qr code
       loadingOpacity.value = 0;
       qrOpacity.value = withTiming(1, { duration: fadeInDuration });
     }
@@ -569,102 +574,12 @@ function QrCode(props) {
     }
   };
 
-  const handlePress = () => {
-    if (!addressState.generatedAddress) return;
-    if (addressState.isGeneratingInvoice) return;
-    if (isSharingRef.current) return;
-    copyToClipboard(addressState.generatedAddress, showToast);
-  };
-
-  const address =
+  const qrData =
     (isUsingLnurl
       ? `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`
-      : addressState.generatedAddress) || '';
-
-  const canUseAmount =
-    selectedRecieveOption?.toLowerCase() !== 'spark' &&
-    selectedRecieveOption?.toLowerCase() !== 'rootstock' &&
-    selectedRecieveOption?.toLowerCase() !== 'stablecoins';
-
-  const canUseDescription =
-    selectedRecieveOption?.toLowerCase() === 'lightning' ||
-    selectedRecieveOption?.toLowerCase() === 'bitcoin' ||
-    selectedRecieveOption?.toLowerCase() === 'liquid';
-
-  const canConvert =
-    selectedRecieveOption?.toLowerCase() === 'spark' ||
-    selectedRecieveOption?.toLowerCase() === 'lightning';
-
-  const showLongerAddress =
-    (selectedRecieveOption?.toLowerCase() === 'bitcoin' ||
-      selectedRecieveOption?.toLowerCase() === 'liquid') &&
-    !!initialSendAmount;
-
-  const editAmount = () => {
-    if (isSharingRef.current) return;
-    navigate.navigate('EditReceivePaymentInformation', {
-      from: 'receivePage',
-      receiveType: selectedRecieveOption,
-      endReceiveType,
-      userReceiveAmount,
-    });
-  };
-
-  const editDescription = () => {
-    if (isSharingRef.current) return;
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'AddMessageReceivePage',
-      memo: paymentDescription,
-    });
-  };
-  const selectReceiveTypeAsset = () => {
-    if (isSharingRef.current) return;
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'SelectReceiveAsset',
-      endReceiveType,
-      selectedRecieveOption: selectedRecieveOption?.toLowerCase(),
-      sliderHight: 0.5,
-    });
-  };
-
-  const qrData =
-    addressState.generatedAddress || previousAddress.current || ' ';
-
-  const invoiceContext =
-    selectedRecieveOption.toLowerCase() === 'lightning'
-      ? !isUsingLnurl
-        ? 'lightningInvoice'
-        : 'lightningAddress'
-      : `${selectedRecieveOption.toLowerCase()}Address`;
-
-  const minBTCUSDSwapAmountSat = dollarsToSats(
-    swapLimits.usd,
-    poolInfoRef?.currentPriceAInB,
-  );
-
-  // const approximateUSDAmount = ` ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination(
-  //   {
-  //     masterInfoObject: {
-  //       ...masterInfoObject,
-  //       userBalanceDenomination: 'fiat',
-  //     },
-  //     forceCurrency: 'USD',
-  //     fiatStats: fiatStats,
-  //     amount: formatBalanceAmount(
-  //       addressState?.swapResponse?.expectedOutput
-  //         ? (
-  //             addressState?.swapResponse?.expectedOutput / Math.pow(10, 6)
-  //           ).toFixed(2)
-  //         : (
-  //             satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
-  //             (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
-  //           ).toFixed(2),
-  //       false,
-  //       masterInfoObject,
-  //     ),
-  //     convertAmount: false,
-  //   },
-  // )}`;
+      : addressState.generatedAddress) ||
+    previousAddress.current ||
+    ' ';
 
   return (
     <View
@@ -672,372 +587,152 @@ function QrCode(props) {
         styles.qrCodeContainer,
         {
           backgroundColor: backgroundOffset,
-          marginTop: 'auto',
           width: qrContainerSize,
           minHeight: qrContainerSize,
         },
       ]}
     >
-      <TouchableOpacity
-        onPress={handlePress}
-        activeOpacity={0.8}
+      <View
         style={[
-          styles.qrCodeContainer,
-          { width: qrContainerSize, minHeight: qrContainerSize },
+          styles.animatedQRContainer,
+          { width: qrContainerSize, height: qrContainerSize },
         ]}
       >
-        <View
-          style={[
-            styles.animatedQRContainer,
-            { width: qrContainerSize, height: qrContainerSize },
-          ]}
-        >
-          {!addressState.errorMessageText?.text ||
-          addressState.errorMessageText?.type === 'warning' ? (
-            <>
-              <Animated.View
-                style={{
-                  position: 'absolute',
-                  opacity: qrOpacity,
-                }}
-              >
-                <QrCodeWrapper
-                  outerContainerStyle={{
-                    backgroundColor: 'transparent',
-                    width: qrContainerSize,
-                    height: qrContainerSize,
-                  }}
-                  innerContainerStyle={{
-                    width: qrInnerSize,
-                    height: qrInnerSize,
-                  }}
-                  qrSize={qrInnerSize}
-                  QRData={qrData}
-                />
-              </Animated.View>
-
-              <Animated.View
-                style={{
-                  position: 'absolute',
+        {!addressState.errorMessageText?.text ||
+        addressState.errorMessageText?.type === 'warning' ? (
+          <>
+            <Animated.View
+              style={{
+                position: 'absolute',
+                opacity: qrOpacity,
+              }}
+            >
+              <QrCodeWrapper
+                outerContainerStyle={{
+                  backgroundColor: 'transparent',
                   width: qrContainerSize,
                   height: qrContainerSize,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: loadingOpacity,
+                  borderRadius: 10,
                 }}
-              >
-                <FullLoadingScreen showText={false} />
-              </Animated.View>
-            </>
-          ) : (
-            <View
+                innerContainerStyle={{
+                  width: qrContainerSize,
+                  height: qrContainerSize,
+                  borderRadius: 10,
+                }}
+                quietZone={15}
+                qrSize={qrContainerSize}
+                QRData={qrData}
+              />
+            </Animated.View>
+
+            <Animated.View
               style={{
                 position: 'absolute',
                 width: qrContainerSize,
                 height: qrContainerSize,
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: 10,
-                zIndex: 99,
-                backgroundColor: backgroundOffset,
+                opacity: loadingOpacity,
               }}
             >
-              <ThemeText
-                styles={styles.errorText}
-                content={
-                  t(addressState.errorMessageText.text) ||
-                  t('errormessages.invoiceRetrivalError')
-                }
-              />
-            </View>
-          )}
-        </View>
-        {addressState.errorMessageText?.text &&
-          addressState.errorMessageText?.type === 'warning' && (
+              <FullLoadingScreen showText={false} />
+            </Animated.View>
+          </>
+        ) : (
+          <View
+            style={{
+              position: 'absolute',
+              width: qrContainerSize,
+              height: qrContainerSize,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 10,
+              zIndex: 99,
+              backgroundColor: backgroundOffset,
+            }}
+          >
             <ThemeText
-              styles={[
-                styles.errorText,
-                { marginTop: 10, marginBottom: 20, fontSize: SIZES.smedium },
-              ]}
+              styles={styles.errorText}
               content={t(addressState.errorMessageText.text)}
             />
-          )}
-      </TouchableOpacity>
-
-      {/* {canConvert && (
-        <QRInformationRow
-          title={t('screens.inAccount.receiveBtcPage.receiveAsHeader')}
-          info={t(
-            `screens.inAccount.receiveBtcPage.receiveAs_${selectedRecieveOption?.toLowerCase()}_${endReceiveType}`,
-          )}
-          iconName={'ChevronDown'}
-          showBoder={true}
-          rotateIcon={true}
-          actionFunction={selectReceiveTypeAsset}
-        />
-      )} */}
-
-      {canUseAmount && (
-        <QRInformationRow
-          title={t('constants.amount')}
-          info={
-            !initialSendAmount
-              ? t('screens.inAccount.receiveBtcPage.amountPlaceholder')
-              : displayCorrectDenomination({
-                  masterInfoObject: {
-                    ...masterInfoObject,
-                    userBalanceDenomination:
-                      endReceiveType === 'USD'
-                        ? 'fiat'
-                        : masterInfoObject.userBalanceDenomination,
-                  },
-                  fiatStats: fiatStats,
-                  amount:
-                    endReceiveType === 'USD'
-                      ? satsToDollars(
-                          initialSendAmount,
-                          poolInfoRef?.currentPriceAInB,
-                        ).toFixed(2)
-                      : initialSendAmount,
-                  convertAmount: endReceiveType !== 'USD',
-                  forceCurrency: endReceiveType === 'USD' ? 'USD' : null,
-                })
-          }
-          iconName={'SquarePen'}
-          showBoder={true}
-          actionFunction={editAmount}
-          qrInnerSize={qrInnerSize}
-        />
-      )}
-
-      {canUseDescription && (
-        <QRInformationRow
-          title={t('constants.description')}
-          info={
-            !paymentDescription
-              ? t('screens.inAccount.receiveBtcPage.editDescriptionPlaceholder')
-              : paymentDescription
-          }
-          iconName={'SquarePen'}
-          showBoder={true}
-          actionFunction={editDescription}
-          qrInnerSize={qrInnerSize}
-        />
-      )}
-
-      {/* {selectedRecieveOption?.toLowerCase() === 'lightning' &&
-        endReceiveType !== 'USD' && (
-          <>
-            <QRInformationRow
-              title={t('screens.inAccount.receiveBtcPage.confirmToClaimTitle')}
-              info={
-                isHoldInvoice
-                  ? t('screens.inAccount.receiveBtcPage.confirmToClaimOn')
-                  : t('screens.inAccount.receiveBtcPage.confirmToClaimOff')
-              }
-              customNumberOfLines={5}
-              iconName={isHoldInvoice ? 'LockOpen' : 'Lock'}
-              showBoder={true}
-              actionFunction={handleHoldToggle}
-            />
-            {isHoldInvoice && (
-              <View
-                style={[
-                  styles.qrInfoContainer,
-                  {
-                    gap: 25,
-                    borderBottomWidth: 2,
-                    borderBottomColor: backgroundColor,
-                  },
-                ]}
-              >
-                <ThemeText
-                  styles={{
-                    flexGrow: 1,
-                    includeFontPadding: false,
-                    fontSize: SIZES.small,
-                  }}
-                  content={t('screens.inAccount.receiveBtcPage.expiryTitle')}
-                />
-                <DropdownMenu
-                  options={[
-                    {
-                      label: t('screens.inAccount.receiveBtcPage.expiry_86400'),
-                      value: 86400,
-                    },
-                    {
-                      label: t(
-                        'screens.inAccount.receiveBtcPage.expiry_604800',
-                      ),
-                      value: 604800,
-                    },
-                    {
-                      label: t(
-                        'screens.inAccount.receiveBtcPage.expiry_2592000',
-                      ),
-                      value: 2592000,
-                    },
-                    {
-                      label: t(
-                        'screens.inAccount.receiveBtcPage.expiry_7776000',
-                      ),
-                      value: 7776000,
-                    },
-                  ]}
-                  customVericalArrowsColor={textColor}
-                  selectedValue={t(
-                    `screens.inAccount.receiveBtcPage.expiry_${holdExpirySeconds}`,
-                  )}
-                  onSelect={handleExpirySelect}
-                  showClearIcon={false}
-                  translateLabelText={false}
-                  showVerticalArrows={true}
-                  showVerticalArrowsAbsolute={true}
-                  customButtonStyles={{
-                    backgroundColor,
-                    justifyContent: 'center',
-                  }}
-                  dropdownItemCustomStyles={{
-                    justifyContent: 'center',
-                  }}
-                  globalContainerStyles={{
-                    flexShrink: 1,
-                  }}
-                />
-              </View>
-            )}
-          </>
-        )} */}
-
-      <QRInformationRow
-        title={t('screens.inAccount.receiveBtcPage.invoiceDescription', {
-          context: invoiceContext,
-          chain:
-            sourceChain &&
-            sourceChain[0]?.toUpperCase() + sourceChain?.slice(1),
-        })}
-        info={
-          isUsingLnurl
-            ? address
-            : address.slice(0, showLongerAddress ? 14 : 7) +
-              '...' +
-              address.slice(address.length - 7)
-        }
-        iconName={'Copy'}
-        actionFunction={() => {
-          if (addressState.isGeneratingInvoice) return;
-          if (isSharingRef.current) return;
-          // if (isUsingLnurl) editLNURL();
-          if (addressState.generatedAddress)
-            copyToClipboard(address, showToast);
-        }}
-        showSkeleton={addressState.isGeneratingInvoice}
-        qrInnerSize={qrInnerSize}
-      />
+          </View>
+        )}
+      </View>
+      {addressState.errorMessageText?.text &&
+        addressState.errorMessageText?.type === 'warning' && (
+          <ThemeText
+            styles={[
+              styles.errorText,
+              { marginTop: 10, marginBottom: 20, fontSize: SIZES.smedium },
+            ]}
+            content={t(addressState.errorMessageText.text)}
+          />
+        )}
     </View>
   );
 }
 
-function QRInformationRow({
-  title = '',
-  info = '',
-  showBoder,
-  actionFunction,
-  showSkeleton = false,
-  iconName,
-  customNumberOfLines = 1,
-  qrInnerSize,
-}) {
-  const { backgroundColor, textColor } = GetThemeColors();
-
-  return (
-    <TouchableOpacity
-      style={[
-        styles.qrInfoContainer,
-        {
-          borderBottomWidth: showBoder ? 2 : 0,
-          borderBottomColor: backgroundColor,
-          width: qrInnerSize,
-        },
-      ]}
-      onPress={() => {
-        if (actionFunction) actionFunction();
-      }}
-    >
-      <View style={styles.infoTextContiner}>
-        <ThemeText
-          CustomNumberOfLines={customNumberOfLines}
-          styles={{ includeFontPadding: false, fontSize: SIZES.small }}
-          content={title}
-        />
-        {showSkeleton ? (
-          <SkeletonPlaceholder
-            highlightColor={backgroundColor}
-            backgroundColor={COLORS.opaicityGray}
-            enabled={true}
-            speed={SKELETON_ANIMATION_SPEED}
-          >
-            <View
-              style={{
-                width: '100%',
-                height: SIZES.medium,
-                marginVertical: 3,
-                borderRadius: 8,
-              }}
-            />
-          </SkeletonPlaceholder>
-        ) : (
-          <ThemeText
-            CustomNumberOfLines={customNumberOfLines}
-            styles={{
-              includeFontPadding: false,
-              fontSize: SIZES.small,
-              opacity: 0.6,
-            }}
-            content={info}
-          />
-        )}
-      </View>
-      <View
-        style={{
-          width: 35,
-          height: 35,
-          backgroundColor,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: 8,
-          flexShrink: 0,
-        }}
-      >
-        <ThemeIcon colorOverride={textColor} size={15} iconName={iconName} />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 const styles = StyleSheet.create({
-  title: {
-    marginBottom: 10,
-    opacity: 0.7,
+  toggleContainer: {
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
+    width: '100%',
+    ...CENTER,
+  },
+  togglePill: {
+    width: '100%',
+    height: 50,
+    flexDirection: 'row',
+    borderRadius: 999,
+    padding: 4,
+    position: 'relative',
+  },
+  toggleThumb: {
+    position: 'absolute',
+    left: 4,
+    top: 4,
+    bottom: 4,
+    borderRadius: 999,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  toggleOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 999,
+    gap: 5,
+  },
+  toggleSymbol: {
+    fontSize: SIZES.medium,
     includeFontPadding: false,
-    textAlign: 'center',
+  },
+  toggleOptionText: {
+    fontSize: SIZES.smedium,
+    includeFontPadding: false,
   },
   animatedQRContainer: {
     position: 'relative',
     alignItems: 'center',
-    width: 300,
-    height: 300,
+  },
+  qrShadowCard: {
+    borderRadius: 24,
+    backgroundColor: 'white',
+    padding: 12,
+    marginTop: 10,
   },
   qrCodeContainer: {
-    width: 300,
-    height: 'auto',
-    minHeight: 300,
-    borderRadius: 8,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-
   errorText: {
     width: '90%',
     fontSize: SIZES.medium,
@@ -1045,48 +740,86 @@ const styles = StyleSheet.create({
     marginTop: 20,
     includeFontPadding: false,
   },
-
-  secondaryButton: {
-    width: 'auto',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    ...CENTER,
+  invoiceRow: {
+    alignItems: 'center',
+    marginBottom: 8,
   },
-
-  feeTitleContainer: {
+  actionButton: {
+    minWidth: 120,
+    minHeight: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    backgroundColor: COLORS.darkModeText,
+    flexDirection: 'row',
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  actionButtonText: {
+    includeFontPadding: false,
+    textAlign: 'center',
+    flexShrink: 1,
+  },
+  ctaPrimary: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 56,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    width: '100%',
+    marginTop: 8,
   },
-  feeTitleText: {
+  ctaPrimaryText: {
+    fontSize: SIZES.medium,
+    fontWeight: '600',
+    color: 'white',
     includeFontPadding: false,
   },
-  AboutIcon: {
-    width: 15,
-    height: 15,
-    marginLeft: 5,
-  },
-
-  qrInfoContainer: {
-    width: 275,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    minHeight: 50,
-  },
-  infoTextContiner: {
-    flex: 1,
-    marginRight: 10,
-  },
-  dollarPrice: {
-    textAlign: 'center',
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_BALANCE_TEXT,
+  ctaSecondary: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    width: '100%',
     marginTop: 12,
-    lineHeight: 16,
-    maxWidth: 250,
-    ...CENTER,
+  },
+  ctaSecondaryText: {
+    fontSize: SIZES.medium,
+    fontWeight: '600',
+    includeFontPadding: false,
+  },
+  amountContainer: {
+    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 34,
+    width: '100%',
+  },
+  amountPrimary: {
+    fontSize: SIZES.huge,
+    includeFontPadding: false,
+    textAlign: 'center',
+  },
+  amountSecondary: {
+    fontSize: SIZES.smedium,
+    opacity: 0.5,
+    includeFontPadding: false,
+
+    textAlign: 'center',
+  },
+  notePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+    marginTop: 16,
+    maxWidth: '80%',
+  },
+  notePillText: {
+    fontSize: SIZES.small,
+    includeFontPadding: false,
   },
 });
