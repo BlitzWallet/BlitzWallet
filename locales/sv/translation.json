@@ -1019,7 +1019,7 @@
       "lightningInvoice": "Lightning-faktura",
       "lightningInvoiceSubtitle": "Ta emot BTC eller USD direkt",
       "lightningUSDAmountRequired": "Ett belopp krävs för att skapa en Lightning-faktura i USD",
-      "paylinkAmountRequired": "Ett belopp krävs för att skapa en betalningslänkförfrågan",
+      "paylinkAmountRequired": "Lägg till ett belopp innan du delar fakturan.",
       "otherReceivingMethods": "Andra mottagningsmetoder",
       "cashAppEnterAmount": "Ange belopp i sats",
       "cashAppOpen": "Öppna Cash App",
@@ -1030,7 +1030,15 @@
       "roostockDesc": "Ta emot Rootstock BTC till din plånbok.",
       "sparkDesc": "Ta emot BTC eller token till din plånbok.",
       "chooseMethodTitle": "Välj mottagningsmetod",
-      "selectMethodTitle": "Välj insättningsmetod"
+      "selectMethodTitle": "Välj insättningsmetod",
+      "copyAddress": "Kopiera adress",
+      "depositQRError": "Vi stötte på ett problem när din {{addressType}}-adress skulle genereras",
+      "changeReceiveCurrency": "Byt mottagningsvaluta",
+      "depositQRInstruction_stablecoins": "Skicka bara {{asset}} på {{chain}} till den här adressen. Du får det direkt till ditt dollarsaldo",
+      "depositQRInstruction_bitcoin": "Skicka bara Bitcoin till den här adressen. Pengarna kommer efter tre bekräftelser på kedjan.",
+      "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen.",
+      "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen.",
+      "depositQRInstruction_spark": "Skicka bara Bitcoin eller tokens till din Spark-adress."
     },
     "payLinks": {
       "skip": "Hoppa över",
@@ -1047,13 +1055,15 @@
       "invoiceError": "Misslyckades med att skapa faktura.",
       "requestHeader": "Vad vill du ta emot?",
       "genQRCode": "Generera QR-kod",
+      "allSetTitle": "Allt är klart",
+      "allSetSubtitle": "Alla med den här länken kan betala dig.",
       "howItWorks": {
-        "step1Label": "Dela länken",
-        "step1Desc": "Skicka den via meddelande, e-post eller vilken app som helst. Alla med länken kan betala dig.",
-        "step2Label": "De öppnar den i en webbläsare",
-        "step2Desc": "Ingen app behövs. Länken öppnar en betalningssida där de kan betala med Lightning, USDC eller USDT.",
-        "step3Label": "Pengarna kommer direkt",
-        "step3Desc": "När betalningen är klar kommer pengarna direkt till din plånbok."
+        "step1Label": "Dela den var som helst",
+        "step1Desc": "Meddelande, e-post eller valfri app.",
+        "step2Label": "De betalar i en webbläsare",
+        "step2Desc": "Bitcoin, USDC eller USDT.",
+        "step3Label": "Du får betalt direkt",
+        "step3Desc": "Pengarna landar så fort de betalar."
       },
       "copyLink": "Kopiera länk"
     },
@@ -1160,7 +1170,7 @@
       "editPaymentInfo": {
         "receive_amount": "ta emot belopp",
         "descriptionInputPlaceholder": "Beskrivning...",
-        "editAmount": "Redigera belopp",
+        "editAmount": "Redigera faktura",
         "minUSDSwap": "Betalningar som konverteras till dollar kräver ett minimibelopp på:\n{{amount}}"
       },
       "buttonContainer": {
@@ -1171,7 +1181,7 @@
         "title": "Metoder för mottagning",
         "actionBTN": "Visa {{action}}",
         "sparkWarningMessage": "Om du tar emot direkt via Spark kommer ditt saldo att exponeras för den person som betalar och anses inte vara privat.",
-        "swapWarning": "{{swapType}} betalningar kommer att tas emot i Spark. Betalningar under {{amount}} kommer inte att överföras. Pengar kommer endast att överföras efter att betalningen till {{swapType}} har bekräftats.",
+        "swapWarning": "{{swapType}}-betalningar måste vara minst {{amount}}.",
         "oneMinute": "~ {{numMins}} minut",
         "tenMinutes": "~ {{numMins}} minuter",
         "notUsingMainAccountWarning": "Varning för detta: Du använder inte ditt huvudsakliga plånbokskonto. Alla överföringar till {{swapType}} kommer att skickas till din huvudplånbok.",
@@ -2131,6 +2141,10 @@
         "stablecoinsFeeMessage": "För att ta emot stablecoins tillkommer en Blitz-avgift på 0,5 % och en Flashnet-avgift på 0,05 %.",
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
+        "copyInvoice": "Kopiera faktura",
+        "shareInvoice": "Dela faktura",
+        "walletNotConnected": "Plånboken är inte ansluten. Försök igen.",
+        "paylinkSaveError": "Det gick inte att spara betalningslänken",
         "receiveAsHeader": "Ta emot som",
         "receiveAs_spark_BTC": "Bitcoin eller token",
         "receiveAs_lightning_BTC": "Behåll i Bitcoin",

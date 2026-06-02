@@ -1019,7 +1019,7 @@
       "lightningInvoice": "Factura Lightning",
       "lightningInvoiceSubtitle": "Recibir BTC o USD al instante",
       "lightningUSDAmountRequired": "Se requiere un monto para crear una factura Lightning en USD",
-      "paylinkAmountRequired": "Se requiere un monto para crear una solicitud de enlace de pago",
+      "paylinkAmountRequired": "Agrega un monto antes de compartir la factura.",
       "otherReceivingMethods": "Otros métodos de recepción",
       "cashAppEnterAmount": "Ingresa el monto en sats",
       "cashAppOpen": "Abrir Cash App",
@@ -1030,7 +1030,15 @@
       "roostockDesc": "Recibe BTC de Rootstock en tu billetera.",
       "sparkDesc": "Recibe BTC o tokens en tu billetera.",
       "chooseMethodTitle": "Elige método de recepción",
-      "selectMethodTitle": "Selecciona método de depósito"
+      "selectMethodTitle": "Selecciona método de depósito",
+      "copyAddress": "Copiar dirección",
+      "depositQRError": "Hubo un problema al generar tu dirección de {{addressType}}",
+      "changeReceiveCurrency": "Cambiar moneda de recepción",
+      "depositQRInstruction_stablecoins": "Envía solo {{asset}} en {{chain}} a esta dirección. Lo recibirás directamente en tu saldo en dólares",
+      "depositQRInstruction_bitcoin": "Envía solo Bitcoin a esta dirección. Los fondos llegan después de tres confirmaciones en la cadena.",
+      "depositQRInstruction_liquid": "Envía solo Liquid Bitcoin a esta dirección.",
+      "depositQRInstruction_rootstock": "Envía solo Rootstock Bitcoin a esta dirección.",
+      "depositQRInstruction_spark": "Envía solo Bitcoin o tokens a tu dirección Spark."
     },
     "payLinks": {
       "skip": "Omitir",
@@ -1047,13 +1055,15 @@
       "invoiceError": "No se pudo crear la factura.",
       "requestHeader": "¿Qué quieres recibir?",
       "genQRCode": "Generar código QR",
+      "allSetTitle": "Todo listo",
+      "allSetSubtitle": "Cualquiera con este enlace puede pagarte.",
       "howItWorks": {
-        "step1Label": "Comparte el enlace",
-        "step1Desc": "Envíalo por mensaje, correo electrónico o cualquier app. Cualquiera con el enlace puede pagarte.",
-        "step2Label": "Lo abren en el navegador",
-        "step2Desc": "No se necesita app. El enlace abre una página de pago donde pueden pagar con Lightning, USDC o USDT.",
-        "step3Label": "Los fondos llegan al instante",
-        "step3Desc": "Una vez que completen el pago, el dinero llega a tu billetera."
+        "step1Label": "Compártelo donde quieras",
+        "step1Desc": "Mensaje, correo electrónico o cualquier app.",
+        "step2Label": "Pagan en un navegador",
+        "step2Desc": "Bitcoin, USDC o USDT.",
+        "step3Label": "Recibes el pago al instante",
+        "step3Desc": "Los fondos llegan en cuanto pagan."
       },
       "copyLink": "Copiar enlace"
     },
@@ -1160,7 +1170,7 @@
       "editPaymentInfo": {
         "receive_amount": "monto a recibir",
         "descriptionInputPlaceholder": "Descripción...",
-        "editAmount": "Editar monto",
+        "editAmount": "Editar factura",
         "minUSDSwap": "Los pagos convertidos a dólares requieren un monto mínimo de:\n{{amount}}"
       },
       "buttonContainer": {
@@ -1171,7 +1181,7 @@
         "title": "Métodos de recepción",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Recibir directamente por Spark mostrará tu saldo a la persona que paga y no se considera privado.",
-        "swapWarning": "Los pagos de {{swapType}} se recibirán en Spark. Los pagos inferiores a {{amount}} no se transferirán. Los fondos solo se transferirán después de que el pago de {{swapType}} esté confirmado.",
+        "swapWarning": "Los pagos de {{swapType}} deben ser de al menos {{amount}}.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
         "notUsingMainAccountWarning": "Advertencia: No estás usando tu cuenta principal. Todas las transferencias de {{swapType}} se enviarán a tu billetera principal.",
@@ -2131,6 +2141,10 @@
         "stablecoinsFeeMessage": "Para recibir stablecoins, se aplica una comisión de Blitz del 0,5 % y una comisión de Flashnet del 0,05 %.",
         "generatingInvoice": "Generando factura",
         "amountPlaceholder": "Cualquier monto",
+        "copyInvoice": "Copiar factura",
+        "shareInvoice": "Compartir factura",
+        "walletNotConnected": "La billetera no está conectada. Inténtalo de nuevo.",
+        "paylinkSaveError": "No se pudo guardar el enlace de pago",
         "receiveAsHeader": "Recibir como",
         "receiveAs_spark_BTC": "Bitcoin o tokens",
         "receiveAs_lightning_BTC": "Mantener en Bitcoin",
