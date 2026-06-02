@@ -2138,7 +2138,7 @@
         "liquidFeeMessage": "Para receber pagamentos em endereços Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de reivindicação de ~{{claimFee}} e uma taxa de serviço de 0,1% da Boltz.",
         "rootstockFeeMessage": "Para receber pagamentos em endereços Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço de 0,1% da Boltz.",
         "lightningConvertMessage": "Receber dólares por essa rede exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
-        "stablecoinsFeeMessage": "Para receber stablecoins, aplicam-se uma taxa Blitz de 0,5% e uma taxa Flashnet de 0,05%.",
+        "stablecoinsFeeMessage": "Para receber dólares digitais, aplica-se uma taxa Blitz de 0,5% e uma taxa Flashnet de 0,05%.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "copyInvoice": "Copiar fatura",
@@ -2534,7 +2534,7 @@
         "pickDestination": "Selecionar destino",
         "confirm": "Confirmar endereço",
         "alreadyExists": "Você já tem um endereço para esta combinação",
-        "convertDesc": "Seu {{asset}} em {{chain}} será convertido em {{receiveCurrency}}"
+        "convertDesc": "Seu {{asset}} na rede {{chain}} será convertido em {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Rede",
