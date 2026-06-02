@@ -6,7 +6,7 @@ import {
   Share,
   ScrollView,
 } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import QRCode from './StyledQRCode';
 import copyToClipboard from '../copyToClipboard';
 import { useToast } from '../../../context-store/toastManager';
 import GlobalThemeView from './globalThemeView';

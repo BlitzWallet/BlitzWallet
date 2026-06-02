@@ -1000,12 +1000,45 @@
       "noAddedContactsDesc": "Vos contacts apparaîtront ici une fois que vous en aurez ajouté un.",
       "payMe": "Paiement rapide",
       "createInvoice": "Créer une facture",
-      "invoiceDescription": "Demandez un paiement via un lien ou un code QR.",
+      "invoiceDescription": "Créez une facture et recevez un paiement instantanément.",
       "poolsDescription": "Collectez des contributions d’un groupe pour un objectif commun.",
       "noContactHead": "{{username}} introuvable",
       "noContactDesc": "Ajoutez {{username}} à vos contacts pour le retrouver ici à l’avenir, ou continuez pour envoyer un paiement maintenant.",
       "kenyanPhoneTitle": "Payer {{number}}",
-      "kenyanPhoneDesc": "Vous êtes sur le point de payer un numéro de téléphone kényan"
+      "kenyanPhoneDesc": "Vous êtes sur le point de payer un numéro de téléphone kényan",
+      "depositFunds": "Déposer des fonds",
+      "depositFundsSubtitle": "Ajoutez des fonds à votre portefeuille",
+      "onChainBitcoin": "Adresse Bitcoin",
+      "onChainBitcoinSubtitle": "Recevoir via une adresse on-chain",
+      "stablecoins": "Stablecoins",
+      "stablecoinsSubtitle": "Déposez des USDT / USDC dans votre portefeuille",
+      "cashAppSubtitle": "Envoyer depuis Cash App instantanément",
+      "sparkAddressSubtitle": "Recevoir sur votre adresse Spark",
+      "otherBitcoin": "Autres options Bitcoin",
+      "otherBitcoinSubtitle": "Liquid et autres méthodes",
+      "lightningInvoice": "Facture Lightning",
+      "lightningInvoiceSubtitle": "Recevoir des BTC ou des USD instantanément",
+      "lightningUSDAmountRequired": "Un montant est requis pour créer une facture Lightning en USD",
+      "paylinkAmountRequired": "Ajoutez un montant avant de partager la facture.",
+      "otherReceivingMethods": "Autres méthodes de réception",
+      "cashAppEnterAmount": "Saisir le montant en sats",
+      "cashAppOpen": "Ouvrir Cash App",
+      "cashAppBack": "Retour",
+      "viewDetails": "Voir les détails",
+      "othersOptionTitle": "Sélectionner une méthode",
+      "liquidDesc": "Recevez du BTC Liquid dans votre portefeuille.",
+      "roostockDesc": "Recevez du BTC Rootstock dans votre portefeuille.",
+      "sparkDesc": "Recevez des BTC ou des tokens dans votre portefeuille.",
+      "chooseMethodTitle": "Choisir la méthode de réception",
+      "selectMethodTitle": "Sélectionner la méthode de dépôt",
+      "copyAddress": "Copier l’adresse",
+      "depositQRError": "Un problème est survenu lors de la génération de votre adresse {{addressType}}",
+      "changeReceiveCurrency": "Changer la devise de réception",
+      "depositQRInstruction_stablecoins": "Envoyez uniquement {{asset}} sur {{chain}} à cette adresse. Vous le recevrez directement dans votre solde en dollars",
+      "depositQRInstruction_bitcoin": "Envoyez uniquement du Bitcoin à cette adresse. Les fonds arrivent après trois confirmations on-chain.",
+      "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse.",
+      "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse.",
+      "depositQRInstruction_spark": "Envoyez uniquement du Bitcoin ou des tokens à votre adresse Spark."
     },
     "payLinks": {
       "skip": "Passer",
@@ -1022,13 +1055,15 @@
       "invoiceError": "Échec de la création de la facture.",
       "requestHeader": "Que souhaitez-vous recevoir ?",
       "genQRCode": "Générer un code QR",
+      "allSetTitle": "Tout est prêt",
+      "allSetSubtitle": "Toute personne disposant de ce lien peut vous payer.",
       "howItWorks": {
-        "step1Label": "Partagez le lien",
-        "step1Desc": "Envoyez-le par message, e-mail ou toute autre application. Toute personne disposant du lien peut vous payer.",
-        "step2Label": "Ils l’ouvrent dans un navigateur",
-        "step2Desc": "Aucune application nécessaire. Le lien ouvre une page de paiement où ils peuvent payer avec Lightning, USDC ou USDT.",
-        "step3Label": "Les fonds arrivent instantanément",
-        "step3Desc": "Une fois le paiement effectué, l’argent arrive dans votre portefeuille."
+        "step1Label": "Partagez-le partout",
+        "step1Desc": "Message, e-mail ou toute application.",
+        "step2Label": "Ils paient dans un navigateur",
+        "step2Desc": "Bitcoin, USDC ou USDT.",
+        "step3Label": "Vous êtes payé instantanément",
+        "step3Desc": "Les fonds arrivent dès qu’ils paient."
       },
       "copyLink": "Copier le lien"
     },
@@ -1135,25 +1170,25 @@
       "editPaymentInfo": {
         "receive_amount": "recevoir le montant",
         "descriptionInputPlaceholder": "Description...",
-        "editAmount": "Modifier le montant",
+        "editAmount": "Modifier la facture",
         "minUSDSwap": "Les paiements convertis en dollars nécessitent un montant minimum de :\n{{amount}}"
       },
       "buttonContainer": {
-        "format": "Autres méthodes de réception",
+        "format": "Changer la méthode de réception",
         "infoMessage": "Les montants personnalisés ne sont pas pris en charge dans les paiements Spark ou Rootstock."
       },
       "switchReceiveOptionPage": {
         "title": "Méthodes de réception",
         "actionBTN": "Afficher {{action}}",
         "sparkWarningMessage": "La réception directe via Spark exposera votre solde à la personne qui paie et n'est pas considérée comme privée.",
-        "swapWarning": "{{swapType}} seront reçus dans Spark. Les paiements inférieurs à {{amount}} ne seront pas transférés. Les fonds ne seront transférés qu'après confirmation du paiement sur {{swapType}}.",
+        "swapWarning": "Les paiements {{swapType}} doivent être d’au moins {{amount}}.",
         "oneMinute": "~ {{numMins}} minute",
         "tenMinutes": "~ {{numMins}} minutes",
         "notUsingMainAccountWarning": "Avertissement : Vous n'utilisez pas votre compte principal. Tous les transferts de {{swapType}} seront envoyés à votre portefeuille principal.",
         "sparkDesc": "Instantané, soutient les jetons",
         "sparkTitle": "Adresse de l'étincelle",
         "bitcoinTitle": "Adresse Bitcoin",
-        "lightningTitle": "Lightning Invoice",
+        "lightningTitle": "Facture Lightning",
         "liquidTitle": "Adresse liquide",
         "rootstockTitle": "Adresse du porte-greffe"
       },
@@ -1250,7 +1285,8 @@
         "send": "Envoyer",
         "receive": "Recevoir",
         "scan": "Scanner",
-        "swap": "Swap"
+        "swap": "Swap",
+        "deposit": "Déposer"
       },
       "lrc20Assets": {
         "actionText": "{{action}} jetons",
@@ -2102,8 +2138,13 @@
         "liquidFeeMessage": "Pour recevoir un paiement Liquid, vous paierez des frais de verrouillage d’environ ~{{fee}}, des frais de réclamation d’environ ~{{claimFee}} et des frais de service Boltz de 0,1 %.",
         "rootstockFeeMessage": "Pour recevoir un paiement Rootstock, vous paierez des frais de verrouillage d’environ ~{{fee}} et des frais de service Boltz de 0,1 %.",
         "lightningConvertMessage": "Recevoir des dollars via Lightning nécessite de convertir des bitcoins en USD. Des frais de {{convertFee}} % s’appliquent, et le taux de change actuel est de:\n{{satExchangeRate}}.",
+        "stablecoinsFeeMessage": "Pour recevoir des stablecoins, des frais Blitz de 0,5 % et des frais Flashnet de 0,05 % s’appliquent.",
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
+        "copyInvoice": "Copier la facture",
+        "shareInvoice": "Partager la facture",
+        "walletNotConnected": "Portefeuille non connecté. Veuillez réessayer.",
+        "paylinkSaveError": "Échec de l’enregistrement du lien de paiement",
         "receiveAsHeader": "Recevoir en tant que",
         "receiveAs_spark_BTC": "Bitcoin ou jetons",
         "receiveAs_lightning_BTC": "Conserver en Bitcoin",
@@ -2115,6 +2156,7 @@
         "invoiceDescription_bitcoinAddress": "Adresse Bitcoin",
         "invoiceDescription_liquidAddress": "Adresse liquide",
         "invoiceDescription_sparkAddress": "Adresse de l'étincelle",
+        "invoiceDescription_stablecoinsAddress": "Adresse {{chain}}",
         "invoiceDescription_rootstockAddress": "Adresse du porte-greffe",
         "header_lightning_btc": "Bitcoin via Lightning",
         "header_lightning_usd": "Dollars via Lightning",
@@ -2122,6 +2164,7 @@
         "header_spark_btc": "Bitcoin/Jetons via Spark",
         "header_spark_usd": "Dollars via Spark",
         "header_liquid": "Bitcoin via Liquid",
+        "header_stablecoins": "Bitcoin via {{chain}}",
         "header_rootstock": "Bitcoin via Rootstock",
         "selectReceiveAssetHead": "Sélectionnez l’actif à recevoir",
         "usd_convert_warning": "Le montant final que vous recevrez peut varier en raison des fluctuations du prix du marché pendant la conversion.",
@@ -2444,6 +2487,9 @@
         "noHistoryDesc": "Vos transactions d’échange apparaîtront ici.",
         "pageTitle": "Historique"
       },
+      "sparkReceivePage": {
+        "header": "Adresse Spark"
+      },
       "sendAndReplace": {
         "slider": "{{state}} Dépenser et remplacer",
         "userDollarAmount": "Solde en dollars disponible : {{dollarAmount}}",
@@ -2487,7 +2533,8 @@
         "pickChain": "Sélectionner le réseau",
         "pickDestination": "Sélectionner la destination",
         "confirm": "Confirmer l’adresse",
-        "alreadyExists": "Vous avez déjà une adresse pour cette combinaison"
+        "alreadyExists": "Vous avez déjà une adresse pour cette combinaison",
+        "convertDesc": "Votre {{asset}} sur {{chain}} sera converti en {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Réseau",

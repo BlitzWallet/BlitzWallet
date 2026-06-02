@@ -38,6 +38,7 @@ import ios_maps_light from '../assets/apple_maps_light.png';
 import ios_maps_dark from '../assets/apple_maps_dark.png';
 import android_maps_light from '../assets/google_maps_light.png';
 import android_maps_dark from '../assets/google_maps_dark.png';
+import bankIcon from '../assets/icons/bank.png';
 
 export default {
   logoIcon,
@@ -97,4 +98,6 @@ export default {
   ios_maps_dark,
   android_maps_light,
   android_maps_dark,
+
+  bankIcon,
 };

@@ -5,7 +5,6 @@ import {
   EditReceivePaymentInformation,
   ErrorScreen,
   SendPaymentScreen,
-  SwitchReceiveOptionPage,
   ConfirmSplitPayment,
 } from '../app/components/admin';
 import {
@@ -89,6 +88,7 @@ import {
   TechnicalTransactionDetails,
   ViewAllTxPage,
   SettingsHub,
+  SparkReceivePage,
 } from '../app/screens/inAccount';
 import SelectStablecoinParamsScreen from '../app/screens/inAccount/selectStablecoinParamsScreen';
 import StablecoinSendScreen from '../app/components/admin/homeComponents/sendBitcoin/stablecoinSendScreen';
@@ -112,7 +112,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
     name: 'EditReceivePaymentInformation',
     component: EditReceivePaymentInformation,
   },
-  { name: 'SwitchReceiveOptionPage', component: SwitchReceiveOptionPage },
+
   { name: 'ViewAllTxPage', component: ViewAllTxPage },
   { name: 'CameraModal', component: CameraModal },
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },
@@ -209,6 +209,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   },
   { name: 'AccumulationAddressesHome', component: AccumulationAddressesHome },
   { name: 'AccumulationAddressDetail', component: AccumulationAddressDetail },
+  { name: 'SparkReceivePage', component: SparkReceivePage },
   { name: 'AnalyticsStack', component: AnalyticsStack },
 ];
 

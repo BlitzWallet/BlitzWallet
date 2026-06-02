@@ -158,7 +158,7 @@ export default function SwapFlowHalfModal({
 
   const HEIGHT_FOR_STEP = useMemo(
     () => ({
-      routeSelection: 500,
+      routeSelection: screenDimensions.height * 0.6,
       historyExpanded: screenDimensions.height,
       amountInput: 700,
       review: screenDimensions.height,
