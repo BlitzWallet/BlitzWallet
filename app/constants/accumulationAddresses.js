@@ -7,5 +7,6 @@ export const ACCUMULATION_CHAINS = [
   { id: 'polygon', label: 'Polygon', assets: ['USDC', 'USDT'] },
   { id: 'tron', label: 'Tron', assets: ['USDT'] },
   { id: 'plasma', label: 'Plasma', assets: ['USDT'] },
+  { id: 'bsc', label: 'BNB', assets: ['USDC', 'USDT'] },
 ];
 export const ACCUMULATION_DESTINATIONS = ['BTC', 'USDB'];
