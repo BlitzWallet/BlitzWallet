@@ -3,13 +3,21 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
-import { CENTER, SIZES } from '../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+  SIZES,
+} from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { copyToClipboard } from '../../../../functions';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 import { initializeAddressProcess } from '../../../../functions/receiveBitcoin/addressGeneration';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
@@ -44,6 +52,7 @@ export default function DepositQRView({
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
   const { swapLimits, poolInfoRef } = useFlashnet();
@@ -55,7 +64,7 @@ export default function DepositQRView({
     useActiveCustodyAccount();
   const { contactsPrivateKey, publicKey: contactsPublicKey } = useKeysContext();
   const { createAddress } = useAccumulationAddresses();
-  const { screenDimensions } = useAppStatus();
+  const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
   const { bottomPadding } = useGlobalInsets();
 
   const qrContainerSize = Math.round(screenDimensions.width * 0.7);
@@ -69,6 +78,8 @@ export default function DepositQRView({
     fee: 0,
   });
 
+  const option = config?.selectedRecieveOption?.toLowerCase();
+
   const errorAnimation = useMemo(() => {
     return applyErrorAnimationTheme(
       errorTxAnimation,
@@ -77,7 +88,7 @@ export default function DepositQRView({
   }, [theme, darkModeType]);
 
   useEffect(() => {
-    if (isActive) setContentHeight(600);
+    if (isActive) setContentHeight(625);
   }, [isActive]);
 
   useEffect(() => {
@@ -135,9 +146,30 @@ export default function DepositQRView({
     };
   }, [config]);
 
+  const minimumDepositWarning = useMemo(() => {
+    if (option !== 'liquid' && option !== 'rootstock') return null;
+
+    const minSendAmount =
+      option === 'rootstock'
+        ? minMaxLiquidSwapAmounts?.rsk?.min + 1000
+        : minMaxLiquidSwapAmounts?.min;
+
+    if (!Number.isFinite(minSendAmount)) return null;
+
+    const swapType = option === 'rootstock' ? 'Rootstock' : 'Liquid';
+
+    return t('wallet.receivePages.switchReceiveOptionPage.swapWarning', {
+      amount: displayCorrectDenomination({
+        amount: minSendAmount,
+        masterInfoObject,
+        fiatStats,
+      }),
+      swapType,
+    });
+  }, [fiatStats, masterInfoObject, minMaxLiquidSwapAmounts, option, t]);
+
   if (!config) return null;
 
-  const option = config.selectedRecieveOption?.toLowerCase();
   const title =
     option === 'stablecoins'
       ? capitalize(config.sourceChain)
@@ -186,13 +218,6 @@ export default function DepositQRView({
           styles={styles.errorText}
           content={t('wallet.halfModal.depositQRError', { addressType: title })}
         />
-        <ThemeText
-          styles={styles.errorSubText}
-          content={
-            t(addressState.errorMessageText.text) ||
-            t('errormessages.invoiceRetrivalError')
-          }
-        />
         <CustomButton
           buttonStyles={{
             width: '100%',
@@ -234,9 +259,22 @@ export default function DepositQRView({
         </TouchableOpacity>
         <ThemeText styles={styles.instruction} content={instruction} />
       </ScrollView>
-
+      {minimumDepositWarning ? (
+        <View style={[styles.warningContainer]}>
+          <ThemeIcon iconName="TriangleAlert" size={20} />
+          <ThemeText
+            styles={styles.warningDescription}
+            content={minimumDepositWarning}
+          />
+        </View>
+      ) : null}
       <CustomButton
-        buttonStyles={{ width: '100%', marginBottom: bottomPadding, ...CENTER }}
+        buttonStyles={{
+          width: '100%',
+          marginBottom: bottomPadding,
+          ...CENTER,
+          marginTop: CONTENT_KEYBOARD_OFFSET,
+        }}
         actionFunction={handleCopy}
         textContent={t('wallet.halfModal.copyAddress')}
       />
@@ -255,7 +293,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 40,
-    marginBottom: 12,
+    // marginBottom: 12,
   },
   backChevron: {
     position: 'absolute',
@@ -269,6 +307,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   scrollContent: {
+    width: '100%',
     flexGrow: 1,
     alignItems: 'center',
   },
@@ -285,6 +324,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     includeFontPadding: false,
+  },
+  warningContainer: {
+    width: '100%',
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    ...CENTER,
+  },
+  warningHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  warningTitle: {
+    fontSize: SIZES.small,
+    fontFamily: FONT.Title_Medium,
+    flexShrink: 1,
+    includeFontPadding: false,
+  },
+  warningDescription: {
+    includeFontPadding: false,
+    fontSize: SIZES.small,
   },
   errorText: {
     width: '90%',
