@@ -1063,7 +1063,7 @@
         "step2Label": "A pessoa abre o link e paga",
         "step2Desc": "Bitcoin, USDC ou USDT",
         "step3Label": "Você recebe instantaneamente",
-        "step3Desc": "Os fundos chegam no momento em que a pessoa paga"
+        "step3Desc": "Os fundos chegam no momento em que a pessoa pagar"
       },
       "copyLink": "Copiar link"
     },
