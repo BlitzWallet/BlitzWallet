@@ -80,6 +80,25 @@ const resolvePaymentStatusForUpdate = (
   return incomingPaymentStatus;
 };
 
+const isMeaningfulDetailValue = (key, value, shouldUpdateDescription) =>
+  (value !== '' && value !== null && value !== undefined && value !== 0) ||
+  (key === 'description' && shouldUpdateDescription);
+
+const shouldUseIncomingDetailValue = (
+  key,
+  incomingValue,
+  existingValue,
+  shouldUpdateDescription,
+) => {
+  if (key === 'fee') {
+    const incomingFee = Number(incomingValue);
+    const existingFee = Number(existingValue) || 0;
+    return Number.isFinite(incomingFee) && incomingFee > existingFee;
+  }
+
+  return isMeaningfulDetailValue(key, incomingValue, shouldUpdateDescription);
+};
+
 export const insertSparkTransactionPlaceholders = async (
   transactions,
   updateType = 'transactions',
@@ -773,6 +792,40 @@ export const getAllUnpaidSparkLightningInvoices = async () => {
   }
 };
 
+// Returns a still-valid Liquid->Spark swap lightning request (created by the
+// auto-swap flow) so we can reuse it instead of minting a new invoice on every
+// balance update or after an app restart. Validity is tracked by the explicit
+// `swapExpiresAt` (ms) we store at creation time to avoid SDK timestamp-unit
+// ambiguity.
+export const getActiveLiquidSwapInvoice = async () => {
+  try {
+    await ensureSparkDatabaseReady();
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${LIGHTNING_REQUEST_IDS_TABLE_NAME}
+       WHERE json_extract(details, '$.isLiquidSwap') = 1`,
+    );
+    const now = Date.now();
+    const active = rows.find(row => {
+      try {
+        const details = row.details ? JSON.parse(row.details) : {};
+        return Number(details.swapExpiresAt) > now;
+      } catch {
+        return false;
+      }
+    });
+    if (!active) return null;
+    try {
+      active.details = active.details ? JSON.parse(active.details) : {};
+    } catch {
+      active.details = {};
+    }
+    return active;
+  } catch (error) {
+    console.error('Error fetching active liquid swap invoice:', error);
+    return null;
+  }
+};
+
 export const getAllUnpaidHoldInvoicesFromTxs = async () => {
   try {
     await ensureSparkDatabaseReady();
@@ -1037,10 +1090,12 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           for (const key in tx.details) {
             const value = tx.details[key];
             if (
-              value !== '' &&
-              value !== null &&
-              value !== undefined &&
-              value !== 0
+              shouldUseIncomingDetailValue(
+                key,
+                value,
+                mergedDetails[key],
+                shouldUpdateDescription,
+              )
             ) {
               mergedDetails[key] = value;
             }
@@ -1140,11 +1195,12 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
         for (const key in newDetails) {
           const value = newDetails[key];
           if (
-            (value !== '' &&
-              value !== null &&
-              value !== undefined &&
-              value !== 0) ||
-            (key === 'description' && shouldUpdateDescription)
+            shouldUseIncomingDetailValue(
+              key,
+              value,
+              merged[key],
+              shouldUpdateDescription,
+            )
           ) {
             merged[key] = value;
           }

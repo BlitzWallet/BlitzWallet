@@ -196,6 +196,57 @@ describe('Spark transaction bulk update guards', () => {
     });
   });
 
+  it('only overwrites an existing fee when the incoming fee is larger', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([
+      {
+        sparkID: 'liquid-swap',
+        paymentStatus: 'pending',
+        paymentType: 'lightning',
+        accountId: 'identity-pubkey',
+        details: JSON.stringify({
+          amount: 49254,
+          fee: 250,
+          direction: 'INCOMING',
+        }),
+      },
+    ]);
+    const { bulkUpdateSparkTransactions } = loadTransactionsModule(mockDb);
+
+    await bulkUpdateSparkTransactions([
+      {
+        id: 'liquid-swap',
+        paymentStatus: 'completed',
+        paymentType: 'lightning',
+        accountId: 'identity-pubkey',
+        details: {
+          amount: 49254,
+          fee: 0,
+          direction: 'INCOMING',
+        },
+      },
+    ]);
+
+    let updateCall = findUpdateCall(mockDb);
+    expect(JSON.parse(updateCall[1][3]).fee).toBe(250);
+
+    mockDb.runAsync.mockClear();
+    await bulkUpdateSparkTransactions([
+      {
+        id: 'liquid-swap',
+        paymentStatus: 'completed',
+        paymentType: 'lightning',
+        accountId: 'identity-pubkey',
+        details: {
+          fee: 300,
+        },
+      },
+    ]);
+
+    updateCall = findUpdateCall(mockDb);
+    expect(JSON.parse(updateCall[1][3]).fee).toBe(300);
+  });
+
   it('runs SAR correlation before BEGIN and preserves its description on update', async () => {
     const callOrder = [];
     const mockDb = createMockDb();

@@ -9,7 +9,7 @@ import {
   receivePayment,
   sendPayment,
 } from '@breeztech/react-native-breez-sdk-liquid';
-import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../constants';
+import { BLITZ_DEFAULT_PAYMENT_DESCRIPTION } from '../../constants';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
@@ -56,7 +56,7 @@ export async function breezLiquidReceivePaymentWrapper({
     });
 
     const destination = res.destination;
-    return {destination, receiveFeesSat};
+    return { destination, receiveFeesSat };
   } catch (err) {
     console.log(err);
     crashlyticsRecordErrorReport(err.message);
@@ -68,17 +68,21 @@ export async function breezLiquidPaymentWrapper({
   sendAmount,
   invoice,
   shouldDrain,
+  getFee = false,
 }) {
   try {
     crashlyticsLogReport('Starting liquid payment process');
     let optionalAmount;
 
-    if (paymentType === 'bolt12') {
+    if (paymentType === 'bolt12' || sendAmount) {
       optionalAmount = {
-        type: AmountVariant.BITCOIN,
+        type: PayAmountVariant.BITCOIN,
         receiverAmountSat: sendAmount,
       };
-    } else if (paymentType === 'bip21Liquid' && shouldDrain) {
+    } else if (
+      (paymentType === 'bip21Liquid' || paymentType === 'lightning') &&
+      shouldDrain
+    ) {
       optionalAmount = {
         type: PayAmountVariant.DRAIN,
       };
@@ -93,17 +97,21 @@ export async function breezLiquidPaymentWrapper({
     // If the fees are acceptable, continue to create the Send Payment
     const sendFeesSat = prepareResponse.feesSat;
     console.log(`Fees: ${sendFeesSat} sats`);
+    if (getFee) {
+      return { fee: sendFeesSat, didWork: true, prepareResponse };
+    }
+
     console.log('Sending payment');
     const sendResponse = await sendPayment({
       prepareResponse,
     });
 
     const payment = sendResponse.payment;
-    return {payment, fee: sendFeesSat, didWork: true};
+    return { payment, fee: sendFeesSat, didWork: true };
   } catch (err) {
     console.log(err);
     crashlyticsRecordErrorReport(err.message);
-    return {error: err, didWork: false};
+    return { error: err, didWork: false };
   }
 }
 
@@ -144,10 +152,10 @@ export async function breezLiquidLNAddressPaymentWrapper({
     });
     result.data.payment;
     const payment = result.data.payment;
-    return {payment, fee: feesSat, didWork: true};
+    return { payment, fee: feesSat, didWork: true };
   } catch (err) {
     console.log(err, 'BREEZ LIQUID TO LN ADDRESS PAYMENT WRAPPER');
     crashlyticsRecordErrorReport(err.message);
-    return {error: err, didWork: false};
+    return { error: err, didWork: false };
   }
 }

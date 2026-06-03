@@ -14,10 +14,12 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import SkeletonTextPlaceholder from '../../../../../functions/CustomElements/skeletonTextView';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
-import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 import liquidToSparkSwap from '../../../../../functions/spark/liquidToSparkSwap';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -29,7 +31,9 @@ import {
 
 export default function LiquidSwapsPage() {
   const { minMaxLiquidSwapAmounts } = useAppStatus();
-  const { globalContactsInformation } = useGlobalContactsInfo();
+  const { sparkInformation } = useSparkWallet();
+  const { accountMnemoinc } = useKeysContext();
+  const { sendWebViewRequest } = useWebView();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -101,9 +105,12 @@ export default function LiquidSwapsPage() {
 
     try {
       setIsSwapping(true);
-      const response = await liquidToSparkSwap(
-        globalContactsInformation.myProfile.uniqueName,
-      );
+      const response = await liquidToSparkSwap({
+        mnemonic: accountMnemoinc,
+        sparkInformation,
+        spendableSat,
+        sendWebViewRequest,
+      });
       if (!response.didWork) throw new Error(t(response.error));
 
       navigate.navigate('ErrorScreen', {
