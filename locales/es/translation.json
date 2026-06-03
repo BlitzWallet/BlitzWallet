@@ -223,16 +223,17 @@
       "header": "Tu dinero. Tu control.",
       "subHeader": "Algunas cosas que debes saber antes de comenzar.",
       "row1Label": "Solo tú controlas tus fondos",
-      "row1Description": "Blitz nunca guarda ni accede a tu dinero.",
-      "row2Label": "Tendrás una frase de recuperación",
-      "row2Description": "Es la llave maestra de tu wallet. Encuéntrala en Configuración → Respaldo de wallet.",
-      "row3Label": "Sin recuperación si se pierde",
-      "row3Description": "No podemos restaurar el acceso. Guarda tu frase en un lugar seguro.",
-      "acceptPrefix": "Entiendo que perder mi frase de recuperación significa la pérdida permanente de fondos y acepto los",
-      "terms&Conditions": "Términos y condiciones",
-      "acceptSuffix": " de Blitz Wallet.",
+      "row1Description": "Blitz no puede retenerlos, congelarlos ni tocarlos.",
+      "row2Label": "Tu frase de recuperación es la clave",
+      "row2Description": "12 palabras protegen tu wallet.",
+      "row3Label": "Si pierdes la frase, pierdes el acceso",
+      "row3Description": "Nadie puede recuperar tu wallet por ti.",
+      "readTerms": "Leer Términos y Privacidad completos",
+      "acceptPrefix": "Entiendo que soy el único responsable de mi frase de recuperación y acepto los",
+      "terms&Conditions": "Términos",
+      "acceptSuffix": ".",
       "acceptError": "Para continuar, debes aceptar los Términos y Condiciones.",
-      "continueBTN": "Siguiente"
+      "continueBTN": "Aceptar y continuar"
     },
     "verifyKeyPage": {
       "header": "¡Confirmemos tu frase semilla!"

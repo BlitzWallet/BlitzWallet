@@ -9,7 +9,6 @@ import { CENTER, COLORS } from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { FONT, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
-import LoginNavbar from '../../components/login/navBar';
 import { useTranslation } from 'react-i18next';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useState } from 'react';
@@ -23,7 +22,7 @@ import IconActionCircle from '../../functions/CustomElements/actionCircleContain
 export default function DisclaimerPage({ navigation: { navigate }, route }) {
   const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
   const nextPageName = route?.params?.nextPage;
 
@@ -81,13 +80,13 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
         <ThemeText
           adjustsFontSizeToFit={true}
           minimumFontScale={0.53}
-          CustomNumberOfLines={1}
+          CustomNumberOfLines={2}
           styles={[styles.descriptionText, { marginBottom: 35 }]}
           content={t('createAccount.disclaimerPage.subHeader')}
         />
 
-        {/* ── Info rows ── */}
-        <View style={styles.infoContainer}>
+        {/* ── Boxed card: info rows + dedicated terms row ── */}
+        <View style={[styles.card, { backgroundColor: backgroundOffset }]}>
           {[
             {
               icon: 'Lock',
@@ -104,14 +103,20 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
               label: t('createAccount.disclaimerPage.row3Label'),
               desc: t('createAccount.disclaimerPage.row3Description'),
             },
-          ].map(({ icon, label, desc }) => (
+          ].map(({ icon, label, desc }, index) => (
             <View
               key={icon}
-              style={[styles.infoRow, { backgroundColor: backgroundOffset }]}
+              style={[
+                styles.infoRow,
+                index > 0 && {
+                  borderTopWidth: 1,
+                  borderTopColor: backgroundColor,
+                },
+              ]}
             >
               <View style={styles.infoIcon}>
                 <ThemeIcon
-                  size={15}
+                  size={20}
                   iconName={icon}
                   colorOverride={COLORS.darkModeText}
                 />
@@ -122,10 +127,31 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
               </View>
             </View>
           ))}
+
+          {/* ── Dedicated, tappable Terms row ── */}
+          <TouchableOpacity
+            onPress={openTermsAndConditions}
+            activeOpacity={0.7}
+            style={[
+              styles.termsRow,
+              { borderTopWidth: 1, borderTopColor: backgroundColor },
+            ]}
+          >
+            <ThemeIcon
+              size={20}
+              iconName={'FileText'}
+              colorOverride={COLORS.primary}
+            />
+            <ThemeText
+              styles={styles.termsRowLabel}
+              content={t('createAccount.disclaimerPage.readTerms')}
+            />
+            <ThemeIcon size={18} iconName={'ChevronRight'} />
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* ── Single checkbox — risk acknowledgment + T&C acceptance ── */}
+      {/* ── Acknowledgment checkbox — risk + T&C ── */}
       <TouchableOpacity
         onPress={() => setTermsAccepted(prev => !prev)}
         style={styles.checkboxContainer}
@@ -136,20 +162,19 @@ export default function DisclaimerPage({ navigation: { navigate }, route }) {
         >
           {termsAccepted && (
             <ThemeIcon
-              size={12}
+              size={15}
               colorOverride={COLORS.darkModeText}
               iconName={'Check'}
             />
           )}
         </View>
 
-        {/* Inline sentence with tappable T&C link */}
         <View style={styles.termsTextContainer}>
           <Text style={styles.checkboxText}>
             {t('createAccount.disclaimerPage.acceptPrefix')}{' '}
             <Text style={styles.termsLink} onPress={openTermsAndConditions}>
               {t('createAccount.disclaimerPage.terms&Conditions')}
-            </Text>{' '}
+            </Text>
             {t('createAccount.disclaimerPage.acceptSuffix')}
           </Text>
         </View>
@@ -180,51 +205,68 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: SIZES.huge,
     fontWeight: '500',
-    marginTop: 25,
-    marginBottom: 5,
+    marginTop: 16,
+    marginBottom: 12,
     includeFontPadding: false,
-    textAlign: 'center',
-    ...CENTER,
   },
   descriptionText: {
-    width: '80%',
+    width: '90%',
     textAlign: 'center',
     opacity: 0.8,
     includeFontPadding: false,
   },
 
-  // ── Info rows ──
-  infoContainer: {
+  // ── Card ──
+  card: {
     width: '100%',
-    maxWidth: 400,
+    borderRadius: 22,
+    overflow: 'hidden',
     marginBottom: 32,
-    gap: 15,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
-    padding: 16,
-    borderRadius: 12,
+    gap: 14,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
   },
   infoIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 11,
     backgroundColor: COLORS.primary,
-    padding: 9,
-    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
   infoText: {
     flex: 1,
-    gap: 2,
-    marginTop: -2,
+    gap: 3,
+    paddingTop: 1,
   },
   infoLabel: {
-    fontSize: SIZES.medium,
+    fontSize: SIZES.smedium,
     fontWeight: '500',
     includeFontPadding: false,
   },
   infoDesc: {
-    fontSize: SIZES.smedium,
+    fontSize: SIZES.small,
     opacity: 0.65,
+    includeFontPadding: false,
+  },
+
+  // ── Terms row ──
+  termsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
+  },
+  termsRowLabel: {
+    flex: 1,
+    fontSize: SIZES.smedium,
+    fontWeight: '500',
     includeFontPadding: false,
   },
 
@@ -237,13 +279,13 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   checkbox: {
-    width: 18,
-    height: 18,
+    width: 24,
+    height: 24,
     borderWidth: 2,
     borderColor: COLORS.lightModeText,
-    borderRadius: 4,
-    marginRight: 8,
-    marginTop: 2,
+    borderRadius: 8,
+    marginRight: 12,
+    marginTop: 1,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
