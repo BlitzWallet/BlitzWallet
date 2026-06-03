@@ -9,6 +9,7 @@ import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
 
 export default function SavingsActionButtons({
   savingsBalance,
+  walletBitcoinBalanceSats,
   selectedGoalUUID = null,
 }) {
   const navigate = useNavigation();
@@ -25,7 +26,7 @@ export default function SavingsActionButtons({
   const depositBg =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
   const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
-  const canWithdraw = savingsBalance > 0;
+  const canWithdraw = savingsBalance > 0 || walletBitcoinBalanceSats > 0;
 
   return (
     <View
