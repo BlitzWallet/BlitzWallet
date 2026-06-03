@@ -228,7 +228,7 @@
       "row2Description": "Não pode ser recuperada se for perdida", 
       "row3Label": "Não é possível restaurar o acesso sem sua frase de recuperação. Guarde sua frase em um local seguro",
       "row3Description": "Ninguém pode recuperar sua carteira por você.",
-      "readTerms": "Ler os termos completos",
+      "readTerms": "Ler todos os termos",
       "acceptPrefix": "Entendo que sou o único responsável pela minha frase de recuperação e aceito os",
       "terms&Conditions": "Termos",
       "acceptSuffix": ".",
