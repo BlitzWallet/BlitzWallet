@@ -44,7 +44,6 @@ export default function SavingsHome() {
       initializeSavings({ force: true });
     }, [initializeSavings]),
   );
-  console.log(walletBitcoinBalanceSats, 'testing');
 
   const combinedTransactions = useMemo(
     () =>
