@@ -13,6 +13,7 @@ export const AddContactOverlay = ({
   onClose,
   onContactAdded,
   isScreenActive,
+  setBackNav,
 }) => {
   const opacity = useSharedValue(0);
 
@@ -32,6 +33,17 @@ export const AddContactOverlay = ({
     onClose();
     return true;
   }, [visible, onClose]);
+
+  useEffect(() => {
+    if (!visible) return;
+    if (setBackNav) {
+      setBackNav?.({
+        onPress: handleBackPress,
+        title: '',
+      });
+    }
+    return () => setBackNav?.(null);
+  }, [setBackNav, visible, handleBackPress]);
 
   useHandleBackPressNew(handleBackPress);
 

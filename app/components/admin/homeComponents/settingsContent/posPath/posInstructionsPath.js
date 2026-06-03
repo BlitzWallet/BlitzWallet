@@ -10,7 +10,7 @@ import {
   SIZES,
 } from '../../../../../constants/theme';
 import { CENTER } from '../../../../../constants/styles';
-import QRCode from 'react-native-qrcode-svg';
+import QRCode from '../../../../../functions/CustomElements/StyledQRCode';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';

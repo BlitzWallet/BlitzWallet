@@ -17,6 +17,7 @@ import SettingsIndex from './settingsIndex';
 import TechnicalTransactionDetails from './technicalTransactionDetails';
 import ViewAllTxPage from './viewAllTxPage';
 import SettingsHub from './settingsHub';
+import SparkReceivePage from './sparkReceivePage';
 export {
   ExpandedTx,
   AdminLogin,
@@ -36,4 +37,5 @@ export {
   AppStorePageIndex,
   BuyBitcoinHome,
   SettingsHub,
+  SparkReceivePage,
 };

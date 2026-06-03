@@ -31,6 +31,8 @@ export default function PoolCreationOverlay({
   theme,
   darkModeType,
   handleBackPressFunction,
+  from,
+  setBackNav,
 }) {
   const { bottomPadding } = useGlobalInsets();
 
@@ -72,6 +74,17 @@ export default function PoolCreationOverlay({
     }
   }, [visible, currentStep, setCurrentStep, onClose]);
 
+  useEffect(() => {
+    if (!visible || from !== 'halfModalReceiveOptions') return;
+    if (setBackNav) {
+      setBackNav({
+        onPress: handleBackPress,
+        title: '',
+      });
+    }
+    return () => setBackNav?.(null);
+  }, [setBackNav, visible, handleBackPress, from]);
+
   useHandleBackPressNew(handleBackPress);
 
   if (!visible) return null;
@@ -93,6 +106,7 @@ export default function PoolCreationOverlay({
               setCurrentStep('description');
             }}
             onBack={onClose}
+            from={from}
           />
         </Animated.View>
       )}

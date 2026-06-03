@@ -14,9 +14,8 @@ export default function ButtonsContainer({ endReceiveType }) {
         style={styles.switchButton}
         onPress={() => {
           navigate.navigate('CustomHalfModal', {
-            wantedContent: 'switchReceiveOption',
-            sliderHight: 0.8,
-            endReceiveType,
+            wantedContent: 'receiveMethodOptions',
+            sliderHight: 0.5,
           });
         }}
       >

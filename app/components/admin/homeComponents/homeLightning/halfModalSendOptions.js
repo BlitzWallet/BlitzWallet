@@ -139,7 +139,7 @@ const ContactRow = ({
             />
           </Animated.View>
         </View>
-        <Animated.View style={chevronStyle}>
+        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
           <ThemeIcon size={20} iconName={'ChevronDown'} />
         </Animated.View>
       </TouchableOpacity>
@@ -321,6 +321,7 @@ export default function HalfModalSendOptions({
   darkModeType,
   handleBackPressFunction,
   isScreenActive,
+  setBackNav,
 }) {
   const [inputText, setInputText] = useState('');
   const [isInputMode, setIsInputMode] = useState(false);
@@ -1166,7 +1167,7 @@ export default function HalfModalSendOptions({
                       content={t('wallet.halfModal.kenyanPhoneDesc')}
                     />
                     <CustomButton
-                      buttonStyles={{...CENTER, marginTop: 'auto'}}
+                      buttonStyles={{ ...CENTER, marginTop: 'auto' }}
                       textContent={t('constants.pay')}
                       actionFunction={handleManualInputSubmit}
                     />
@@ -1213,6 +1214,7 @@ export default function HalfModalSendOptions({
         onClose={hideAddContacts}
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
+        setBackNav={setBackNav}
       />
     </View>
   );
