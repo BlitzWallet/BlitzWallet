@@ -14,8 +14,6 @@ import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
-  IS_SPARK_ID,
   SIZES,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   USDB_TOKEN_ID,
@@ -29,18 +27,11 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
 import {
-  BTC_ASSET_ADDRESS,
   dollarsToSats,
-  getUserSwapHistory,
   satsToDollars,
-  simulateSwap,
-  swapBitcoinToToken,
-  swapTokenToBitcoin,
-  USD_ASSET_ADDRESS,
 } from '../../../../functions/spark/flashnet';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useKeysContext } from '../../../../../context-store/keys';
-import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { deriveSparkGiftMnemonic } from '../../../../functions/gift/deriveGiftWallet';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {
@@ -48,8 +39,6 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
-import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
@@ -59,15 +48,9 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
 import {
   getSparkBalance,
-  getSparkPaymentStatus,
-  getSingleTxDetails,
   initializeSparkWallet,
 } from '../../../../functions/spark';
-import {
-  addSingleUnpaidSparkTransaction,
-  bulkUpdateSparkTransactions,
-} from '../../../../functions/spark/transactions';
-import { setFlashnetTransfer } from '../../../../functions/spark/handleFlashnetTransferIds';
+import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { createBalancePoller } from '../../../../functions/pollingManager';
 import {
   getLocalStorageItem,
@@ -109,7 +92,6 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const HEIGHT_FOR_PAGE = {
   balanceType: 500,
   chooseGoal: 500,
-  destination: 500,
   amount: 600,
   confirm: 500,
   loading: 500,
@@ -128,12 +110,9 @@ export default function WithdrawFromSavingsHalfModal({
   const { fiatStats: globalFiatStats } = useNodeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { swapUSDPriceDollars, poolInfoRef, swapLimits } = useFlashnet();
+  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { accountMnemoinc } = useKeysContext();
-  const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { screenDimensions } = useAppStatus();
-  const { bitcoinBalance, dollarBalanceToken, dollarBalanceSat } =
-    useUserBalanceContext();
   const {
     withdrawMoney,
     withdrawlFromRewards,
@@ -150,11 +129,16 @@ export default function WithdrawFromSavingsHalfModal({
   const { sparkInformation } = useSparkWallet();
   console.log(screenDimensions);
   const [step, setStep] = useState([
-    selectedGoalUUID ? 'destination' : 'balanceType',
+    selectedGoalUUID ? 'amount' : 'balanceType',
   ]);
   const [walletBTCBalance, setWalletBTCBalance] = useState(null);
   const [cachedBalance, setCachedBalance] = useState(0);
-  const [selectedDestination, setSelectedDestination] = useState(null);
+  // Destination is derived from the balance type: interest → main wallet's
+  // Bitcoin balance, savings → main wallet's dollar balance. A preselected goal
+  // is always a savings (dollar) withdrawal.
+  const [selectedDestination, setSelectedDestination] = useState(
+    selectedGoalUUID ? 'dollar' : null,
+  );
   const [amountValue, setAmountValue] = useState('');
   // When true the user chose "Withdraw All" — skips amount step and drains
   // every goal + unallocated balance in a single payment.
@@ -239,39 +223,6 @@ export default function WithdrawFromSavingsHalfModal({
     masterInfoObject,
   });
 
-  const destinationOptions = [
-    {
-      key: 'bitcoin',
-      title: t('constants.sat_balance'),
-      subtitle: displayCorrectDenomination({
-        amount: bitcoinBalance,
-        masterInfoObject: {
-          ...masterInfoObject,
-          userBalanceDenomination: 'sats',
-        },
-        fiatStats,
-      }),
-      icon: 'Bitcoin',
-    },
-    {
-      key: 'dollar',
-      title: t('constants.usd_balance'),
-      subtitle: displayCorrectDenomination({
-        amount: dollarBalanceToken.toFixed(2),
-        masterInfoObject: {
-          ...masterInfoObject,
-          userBalanceDenomination: 'fiat',
-        },
-        fiatStats,
-        forceCurrency: 'USD',
-        convertAmount: false,
-      }),
-      icon: 'CircleDollarSign',
-    },
-  ];
-
-  const visibleDestinationOptions = destinationOptions;
-
   const handleSkeletonLayout = useCallback(event => {
     const { height, width } = event.nativeEvent.layout;
     console.log(height, width);
@@ -308,52 +259,6 @@ export default function WithdrawFromSavingsHalfModal({
       : getGoalBalanceMicros(selectedGoalId);
 
   const balanceUsd = availableBalanceMicros / 1_000_000;
-
-  // Simulate USDB→BTC swap upfront so fee info is ready for BTC withdrawals.
-  // For Withdraw All, simulate the full wallet balance. For normal path,
-  // simulate the user-entered fiatMicros amount.
-  // The simulation uses the savings wallet mnemonic but swaps execute in the
-  // main wallet after USDB arrives there.
-  const simulationPromiseRef = useRef(null);
-  const [simulationResult, setSimulationResult] = useState(null);
-  const simulationAmountMicros = isWithdrawAll
-    ? totalWithdrawMicros
-    : isSendMax
-    ? availableBalanceMicros
-    : fiatMicros;
-
-  useEffect(() => {
-    if (selectedDestination !== 'bitcoin' || !simulationAmountMicros) {
-      simulationPromiseRef.current = null;
-      setSimulationResult(null);
-      return;
-    }
-    // NEW: Interest→bitcoin is a direct BTC send from savings wallet; no USDB→BTC swap needed
-    if (selectedBalanceType === 'interest') {
-      simulationPromiseRef.current = null;
-      setSimulationResult(null);
-      return;
-    }
-    const promise = simulateSwap(currentWalletMnemoinc, {
-      poolId: poolInfoRef.lpPublicKey,
-      assetInAddress: USD_ASSET_ADDRESS,
-      assetOutAddress: BTC_ASSET_ADDRESS,
-      amountIn: Math.round(simulationAmountMicros),
-    });
-    simulationPromiseRef.current = promise;
-    promise
-      .then(swap => {
-        if (swap?.didWork) setSimulationResult(swap.simulation);
-        else setSimulationResult(null);
-      })
-      .catch(() => setSimulationResult(null));
-  }, [
-    selectedDestination,
-    selectedBalanceType,
-    simulationAmountMicros,
-    poolInfoRef.lpPublicKey,
-    getSavingsWalletMnemonic,
-  ]);
 
   // ─── BACKGROUND INIT EFFECT ───────────────────────────────────────────────
   // Fires once when the balanceType page first mounts. The page renders
@@ -450,17 +355,14 @@ export default function WithdrawFromSavingsHalfModal({
 
   const handleBackPress = useCallback(() => {
     if (currentPage === 'loading') return true; // block
-    // balanceType is now the first step; success still closes
+    // balanceType is the first step (amount when entered from a goal); success
+    // still closes.
     if (
       currentPage === 'balanceType' ||
-      (currentPage === 'destination' && step.length === 1) ||
+      (currentPage === 'amount' && step.length === 1) ||
       currentPage === 'success'
     )
       return false; // let parent close
-    // reset balance type selection when going back past destination
-    if (currentPage === 'destination') {
-      setSelectedBalanceType(null);
-    }
     if (currentPage === 'confirm') {
       setIsSendMax(false);
     }
@@ -575,91 +477,6 @@ export default function WithdrawFromSavingsHalfModal({
         const elapsed2 = Date.now() - step2Start;
         if (elapsed2 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed2);
 
-        if (selectedDestination === 'dollar') {
-          setLoadingStep('swapping');
-
-          // Poll until the inbound BTC transfer is claimed by the main wallet
-          // before swapping. Without this, swapBitcoinToToken can fail because
-          // the balance hasn't settled yet, and the funds would appear to vanish
-          // since they were already hidden as a flashnet transfer.
-          const inboundTxId = sendResponse.response.id;
-          if (IS_SPARK_ID.test(inboundTxId)) {
-            const MAX_WAIT_TIME = 60000;
-            const startTime = Date.now();
-            while (true) {
-              if (Date.now() - startTime > MAX_WAIT_TIME) {
-                throw new Error(
-                  t('savings.withdraw.errors.unableToCompleteWithdrawal'),
-                );
-              }
-              const txDetails = await getSingleTxDetails(
-                currentWalletMnemoinc,
-                inboundTxId,
-              );
-              const status = getSparkPaymentStatus(txDetails?.status);
-              if (status === 'completed') break;
-              await new Promise(res => setTimeout(res, 1500));
-            }
-          }
-
-          const swapResult = await swapBitcoinToToken(currentWalletMnemoinc, {
-            tokenAddress: USD_ASSET_ADDRESS,
-            amountSats,
-            poolId: poolInfoRef.lpPublicKey,
-          });
-
-          if (swapResult?.didWork && swapResult?.swap) {
-            // Only hide the inbound BTC transfer once the swap succeeds so
-            // that a swap failure leaves the transfer visible in the feed.
-            setFlashnetTransfer(inboundTxId);
-            const userSwaps = await getUserSwapHistory(
-              currentWalletMnemoinc,
-              5,
-            );
-            const swap = userSwaps.swaps?.find(
-              s => s.outboundTransferId === swapResult.swap.outboundTransferId,
-            );
-            if (swap) {
-              setFlashnetTransfer(swap.inboundTransferId);
-
-              const realFeeAmount = Math.round(
-                dollarsToSats(
-                  parseFloat(swapResult.swap.feeAmount) / Math.pow(10, 6),
-                  swapResult.swap.executionPrice,
-                ),
-              );
-
-              bulkUpdateSparkTransactions(
-                [
-                  {
-                    id: swap.outboundTransferId,
-                    paymentStatus: 'completed',
-                    paymentType: 'spark',
-                    accountId: sparkInformation.identityPubKey,
-                    details: {
-                      fee: realFeeAmount,
-                      totalFee: realFeeAmount,
-                      supportFee: 0,
-                      amount: parseFloat(swap.amountOut),
-                      description: t('savings.withdraw.interestPaymentLabel'),
-                      address: sparkInformation.sparkAddress,
-                      time: Date.now(),
-                      createdAt: Date.now(),
-                      direction: 'INCOMING',
-                      showSwapLabel: true,
-                      currentPriceAInB: swapResult.swap.executionPrice,
-                      isSavings: true,
-                      isLRC20Payment: true,
-                      LRC20Token: USDB_TOKEN_ID,
-                    },
-                  },
-                ],
-                'fullUpdate',
-              );
-            }
-          }
-        }
-
         setStep(prev => [...prev, 'success']);
         return;
       }
@@ -722,63 +539,19 @@ export default function WithdrawFromSavingsHalfModal({
       const elapsed2 = Date.now() - step2Start;
       if (elapsed2 < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed2);
 
-      // Step 3: Swapping to Bitcoin — optional USDB→BTC swap + DB record
-
-      if (selectedDestination === 'bitcoin') {
-        setLoadingStep('swapping');
-
-        if (simulationPromiseRef.current) {
-          await simulationPromiseRef.current;
-        }
-        if (!simulationResult) {
-          addSingleUnpaidSparkTransaction({
+      // Record the incoming USDB token in the main wallet's dollar balance.
+      await bulkUpdateSparkTransactions(
+        [
+          {
             id: sendResponse.response.id,
-            description: t('savings.withdraw.paymentLabel', {
-              context: selectedGoalId,
-              savingsGoal: savingsGoals.find(item => item.id === selectedGoalId)
-                ?.name,
-            }),
-            sendersPubkey: '',
-            details: { isSavings: true },
-          });
-          throw new Error(t('savings.swapSimulationError'));
-        }
-        // set incoming tx as hidden
-        setFlashnetTransfer(sendResponse.response.id);
-
-        // start swap
-        const result = await swapTokenToBitcoin(currentWalletMnemoinc, {
-          tokenAddress: USD_ASSET_ADDRESS,
-          tokenAmount: Math.round(simulationAmountMicros),
-          poolId: poolInfoRef.lpPublicKey,
-        });
-
-        if (result.didWork && result.swap) {
-          const userSwaps = await getUserSwapHistory(currentWalletMnemoinc, 5);
-          const swap = userSwaps.swaps.find(
-            savedSwap =>
-              savedSwap.outboundTransferId === result.swap.outboundTransferId,
-          );
-          // set incoming tx to swap as hidden
-          setFlashnetTransfer(swap.inboundTransferId);
-
-          const realFeeAmount = Math.round(
-            dollarsToSats(
-              parseFloat(result.swap.feeAmount) / Math.pow(10, 6),
-              result.swap.executionPrice,
-            ),
-          );
-
-          const incomingTransfer = {
-            id: swap.outboundTransferId,
-            paymentStatus: 'pending',
+            paymentStatus: 'completed',
             paymentType: 'spark',
             accountId: sparkInformation.identityPubKey,
             details: {
-              fee: realFeeAmount,
-              totalFee: realFeeAmount,
+              fee: 0,
+              totalFee: 0,
               supportFee: 0,
-              amount: parseFloat(swap.amountOut),
+              amount: confirmMicros,
               description: t('savings.withdraw.paymentLabel', {
                 context: selectedGoalId,
                 savingsGoal: savingsGoals.find(
@@ -789,45 +562,14 @@ export default function WithdrawFromSavingsHalfModal({
               time: Date.now(),
               createdAt: Date.now(),
               direction: 'INCOMING',
-              showSwapLabel: true,
-              currentPriceAInB: result.swap.executionPrice,
               isSavings: true,
+              isLRC20Payment: true,
+              LRC20Token: USDB_TOKEN_ID,
             },
-          };
-          bulkUpdateSparkTransactions([incomingTransfer], 'fullUpdate');
-        }
-      } else {
-        await bulkUpdateSparkTransactions(
-          [
-            {
-              id: sendResponse.response.id,
-              paymentStatus: 'completed',
-              paymentType: 'spark',
-              accountId: sparkInformation.identityPubKey,
-              details: {
-                fee: 0,
-                totalFee: 0,
-                supportFee: 0,
-                amount: confirmMicros,
-                description: t('savings.withdraw.paymentLabel', {
-                  context: selectedGoalId,
-                  savingsGoal: savingsGoals.find(
-                    item => item.id === selectedGoalId,
-                  )?.name,
-                }),
-                address: sparkInformation.sparkAddress,
-                time: Date.now(),
-                createdAt: Date.now(),
-                direction: 'INCOMING',
-                isSavings: true,
-                isLRC20Payment: true,
-                LRC20Token: USDB_TOKEN_ID,
-              },
-            },
-          ],
-          'fullUpdate',
-        );
-      }
+          },
+        ],
+        'fullUpdate',
+      );
 
       // Record withdrawal(s) in savings database.
       if (isWithdrawAll) {
@@ -918,8 +660,9 @@ export default function WithdrawFromSavingsHalfModal({
                 onPress={() => {
                   if (isInterestDisabled || !balanceReady) return;
                   setSelectedBalanceType('interest');
+                  setSelectedDestination('bitcoin');
                   setInputDenomination('sats');
-                  setStep(prev => [...prev, 'destination']);
+                  setStep(prev => [...prev, 'amount']);
                 }}
               >
                 {balanceReady ? (
@@ -1019,9 +762,10 @@ export default function WithdrawFromSavingsHalfModal({
               onPress={() => {
                 if (isSavingsDisabled) return;
                 setSelectedBalanceType('savings');
+                setSelectedDestination('dollar');
                 setInputDenomination('fiat');
                 if (selectedGoalUUID && !savingsGoals.length) {
-                  setStep(prev => [...prev, 'destination']);
+                  setStep(prev => [...prev, 'amount']);
                 } else {
                   setStep(prev => [...prev, 'chooseGoal']);
                 }
@@ -1106,7 +850,8 @@ export default function WithdrawFromSavingsHalfModal({
               onPress={() => {
                 setIsWithdrawAll(true);
                 setSelectedGoalId(UNALLOCATED_GOAL_ID);
-                setStep(prev => [...prev, 'destination']);
+                // Withdraw All drains the whole wallet — skip amount entry.
+                setStep(prev => [...prev, 'confirm']);
               }}
             >
               <View style={styles.optionLeft}>
@@ -1163,7 +908,7 @@ export default function WithdrawFromSavingsHalfModal({
             ]}
             onPress={() => {
               setSelectedGoalId(UNALLOCATED_GOAL_ID);
-              setStep(prev => [...prev, 'destination']);
+              setStep(prev => [...prev, 'amount']);
             }}
           >
             <View style={styles.optionLeft}>
@@ -1219,7 +964,7 @@ export default function WithdrawFromSavingsHalfModal({
                 ]}
                 onPress={() => {
                   setSelectedGoalId(goal.id);
-                  setStep(prev => [...prev, 'destination']);
+                  setStep(prev => [...prev, 'amount']);
                 }}
               >
                 <View style={styles.optionLeft}>
@@ -1272,158 +1017,20 @@ export default function WithdrawFromSavingsHalfModal({
     );
   }
 
-  if (currentPage === 'destination') {
-    return (
-      <View style={styles.container}>
-        <ThemeText
-          styles={styles.title}
-          content={t('savings.withdraw.destinationTitle')}
-        />
-
-        <View style={styles.optionsList}>
-          {visibleDestinationOptions.map(option => {
-            const disabledForIntrest =
-              selectedBalanceType === 'interest' &&
-              option.key === 'dollar' &&
-              interestSats > 0 &&
-              interestSats < swapLimits.bitcoin;
-
-            const disableForBalance =
-              selectedBalanceType === 'savings' &&
-              ((option.key === 'dollar' && balanceUsd <= 0) ||
-                (option.key === 'bitcoin' && balanceUsd < swapLimits.usd));
-
-            return (
-              <TouchableOpacity
-                key={option.key}
-                activeOpacity={0.7}
-                style={[
-                  styles.optionRow,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                    opacity: disabledForIntrest || disableForBalance ? 0.5 : 1,
-                  },
-                ]}
-                disabled={disableForBalance}
-                onPress={() => {
-                  if (disabledForIntrest && option.key === 'dollar') {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('savings.withdraw.interestBelowMinHint'),
-                    });
-                    return;
-                  }
-                  setSelectedDestination(option.key);
-                  // Withdraw All skips amount step. Dollar destination with a
-                  // sub-cent balance also goes straight to confirm via Send Max
-                  // so the full micro balance is swept without decimal truncation.
-                  const skipAmount =
-                    isWithdrawAll ||
-                    (option.key === 'dollar' &&
-                      selectedBalanceType === 'savings' &&
-                      balanceUsd > 0 &&
-                      balanceUsd < 0.01);
-                  if (skipAmount && !isWithdrawAll) setIsSendMax(true);
-                  setStep(prev => [...prev, skipAmount ? 'confirm' : 'amount']);
-                }}
-              >
-                <View style={styles.optionLeft}>
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? darkModeType
-                              ? backgroundOffset
-                              : backgroundColor
-                            : option.key === 'dollar'
-                            ? COLORS.dollarGreen
-                            : COLORS.bitcoinOrange,
-                      },
-                    ]}
-                  >
-                    <ThemeImage
-                      styles={{ width: 25, height: 25 }}
-                      lightModeIcon={
-                        option.key === 'dollar'
-                          ? ICONS.dollarIcon
-                          : ICONS.bitcoinIcon
-                      }
-                      darkModeIcon={
-                        option.key === 'dollar'
-                          ? ICONS.dollarIcon
-                          : ICONS.bitcoinIcon
-                      }
-                      lightsOutIcon={
-                        option.key === 'dollar'
-                          ? ICONS.dollarIcon
-                          : ICONS.bitcoinIcon
-                      }
-                    />
-                  </View>
-                  <View style={{ flexShrink: 1 }}>
-                    <ThemeText
-                      styles={styles.optionTitle}
-                      content={option.title}
-                    />
-                    <ThemeText
-                      styles={styles.optionSubtitle}
-                      content={option.subtitle}
-                    />
-                  </View>
-                </View>
-                <ThemeIcon iconName="ChevronRight" size={16} />
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-        {step.length > 1 && (
-          <CustomButton
-            buttonStyles={{ ...CENTER }}
-            actionFunction={() => {
-              setStep(prev => prev.slice(0, -1));
-            }}
-            textContent={t('constants.back')}
-          />
-        )}
-      </View>
-    );
-  }
-
   if (currentPage === 'amount') {
-    // MODIFIED: canContinue branches on selectedBalanceType
+    // Interest → direct BTC send (validate sats); savings → direct USDB send
+    // (validate USD micros). Neither path swaps, so there's no swap minimum.
     const canContinue = (() => {
       if (!amountValue || parsedAmount <= 0) return false;
 
       if (selectedBalanceType === 'interest') {
-        // Interest is BTC sats — validate directly in sats
-        if (localSatAmount > interestSats) return false;
-        if (selectedDestination === 'dollar') {
-          // BTC→USDB swap requires meeting the swap minimum
-          if (localSatAmount < swapLimits.bitcoin) return false;
-        }
-        // interest→bitcoin: direct BTC send, no swap minimum
-        return true;
+        return localSatAmount <= interestSats;
       }
 
-      // Savings path — unchanged
-      if (selectedDestination === 'bitcoin') {
-        if (
-          localSatAmount <=
-          dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB)
-        )
-          return false;
-        if (fiatMicros > availableBalanceMicros) return false;
-      } else {
-        if (fiatMicros > availableBalanceMicros) return false;
-      }
-      return true;
+      return fiatMicros <= availableBalanceMicros;
     })();
 
-    // MODIFIED: available hint — show sats for interest, USD for savings
+    // available hint — show sats for interest, USD for savings
     const availableHintAmount =
       selectedBalanceType === 'interest'
         ? displayCorrectDenomination({
@@ -1444,12 +1051,6 @@ export default function WithdrawFromSavingsHalfModal({
             forceCurrency: 'USD',
             convertAmount: false,
           });
-
-    // MODIFIED: show min hint for savings→bitcoin OR interest→dollar (both need a swap)
-    const showMinHint =
-      (selectedBalanceType !== 'interest' &&
-        selectedDestination === 'bitcoin') ||
-      (selectedBalanceType === 'interest' && selectedDestination === 'dollar');
 
     return (
       <View style={styles.amountContainer}>
@@ -1487,30 +1088,6 @@ export default function WithdrawFromSavingsHalfModal({
               amount: availableHintAmount,
             })}
           />
-
-          {showMinHint && (
-            <ThemeText
-              styles={styles.minHintText}
-              content={t('savings.withdraw.minHint', {
-                amount: displayCorrectDenomination({
-                  // MODIFIED: for interest→dollar use bitcoin swap min (sats);
-                  // for savings→bitcoin use USD-converted swap min
-                  amount:
-                    selectedBalanceType === 'interest'
-                      ? swapLimits.bitcoin
-                      : swapLimits.usd,
-                  masterInfoObject: {
-                    ...masterInfoObject,
-                    userBalanceDenomination:
-                      selectedBalanceType === 'interest' ? 'sats' : 'fiat',
-                  },
-                  fiatStats,
-                  convertAmount: selectedBalanceType === 'interest',
-                  forceCurrency: 'USD',
-                }),
-              })}
-            />
-          )}
         </ScrollView>
         <TouchableOpacity
           style={styles.sendMaxButton}
@@ -1552,50 +1129,8 @@ export default function WithdrawFromSavingsHalfModal({
                 });
                 return;
               }
-
-              // if amount is less than the swap amount
-              if (
-                selectedDestination === 'dollar' &&
-                localSatAmount < swapLimits.bitcoin
-              ) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t('screens.inAccount.swapsPage.minBTCError', {
-                    min: displayCorrectDenomination({
-                      amount: swapLimits.bitcoin,
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination: 'sats',
-                      },
-                      fiatStats,
-                    }),
-                  }),
-                });
-                return;
-              }
             } else {
               // balance is in dollars
-              if (
-                selectedDestination === 'bitcoin' &&
-                localSatAmount <=
-                  dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB)
-              ) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t('screens.inAccount.swapsPage.minUSDError', {
-                    min: displayCorrectDenomination({
-                      amount: swapLimits.usd,
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination: 'fiat',
-                      },
-                      fiatStats,
-                      convertAmount: false,
-                      forceCurrency: 'USD',
-                    }),
-                  }),
-                });
-                return;
-              }
-
               if (fiatMicros > availableBalanceMicros) {
                 navigate.navigate('ErrorScreen', {
                   errorMessage: t(
@@ -1652,21 +1187,6 @@ export default function WithdrawFromSavingsHalfModal({
         ? t('constants.sat_balance')
         : t('constants.usd_balance');
 
-    // MODIFIED: suppress simulation output for interest→bitcoin (no swap occurs)
-    const estimatedBtcOut =
-      selectedBalanceType !== 'interest' &&
-      selectedDestination === 'bitcoin' &&
-      simulationResult
-        ? displayCorrectDenomination({
-            amount: Math.round(Number(simulationResult?.expectedOutput || 0)),
-            masterInfoObject: {
-              ...masterInfoObject,
-              userBalanceDenomination: 'sats',
-            },
-            fiatStats,
-          })
-        : null;
-
     const selectedGoal = savingsGoals.find(item => item.id === selectedGoalId);
     const isMaxOrAll = isWithdrawAll || isSendMax;
     const confirmDescription = (() => {
@@ -1717,17 +1237,6 @@ export default function WithdrawFromSavingsHalfModal({
           ]}
           content={withdrawAmountDisplay}
         />
-        {estimatedBtcOut && (
-          <ThemeText
-            styles={[
-              styles.summaryLabel,
-              { marginTop: 8, marginBottom: CONTENT_KEYBOARD_OFFSET },
-            ]}
-            content={t('savings.withdraw.estimatedSats', {
-              sats: estimatedBtcOut,
-            })}
-          />
-        )}
         <CustomButton
           buttonStyles={styles.primaryButton}
           actionFunction={handleConfirm}
