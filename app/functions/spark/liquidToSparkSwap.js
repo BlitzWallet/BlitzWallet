@@ -1,8 +1,7 @@
-// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
-import {breezLiquidLNAddressPaymentWrapper} from '../breezLiquid';
+import { breezLiquidLNAddressPaymentWrapper } from '../breezLiquid';
 import i18next from 'i18next';
 import getLNURLDetails from '../lnurl/getLNURLDetails';
-import {InputTypes} from 'bitcoin-address-parser';
+import { InputTypes } from 'bitcoin-address-parser';
 
 export default async function liquidToSparkSwap(contactUsername) {
   try {
@@ -42,10 +41,10 @@ export default async function liquidToSparkSwap(contactUsername) {
 
     if (!paymentResponse.didWork) throw new Error(paymentResponse.error);
 
-    return {didWork: true};
+    return { didWork: true };
   } catch (err) {
     console.log(err);
 
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 }
