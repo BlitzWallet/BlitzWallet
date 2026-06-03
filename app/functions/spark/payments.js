@@ -659,6 +659,7 @@ export const sparkReceivePaymentWrapper = async ({
   paymentHash,
   holdExpirySeconds,
   encryptedPreimage,
+  extraDetails = {},
 }) => {
   try {
     // if (!sparkWallet[sha256Hash(mnemoinc)])
@@ -723,6 +724,7 @@ export const sparkReceivePaymentWrapper = async ({
           shouldNavigate: true,
           isBlitzContactPayment: false,
           performSwaptoUSD,
+          ...extraDetails,
         },
       };
       await addSingleUnpaidSparkLightningTransaction(tempTransaction);
