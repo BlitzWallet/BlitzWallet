@@ -1,34 +1,9 @@
 import {Contract, Signature} from 'ethers';
 import EtherSwapArtifact from 'boltz-core/out/EtherSwap.sol/EtherSwap.json';
-import {rootstockEnvironment, satoshisToWei, satoshiWeiFactor} from '.';
-import {deleteSwapById, getSwapById} from './swapDb';
+import {rootstockEnvironment, satoshisToWei} from '.';
+import {deleteSwapById} from './swapDb';
 import bolt11 from 'bolt11';
 import {getBoltzApiUrl} from '../boltzEndpoitns';
-
-export async function claimRootstockReverseSwap(selectedSwap, signer) {
-  const {swap, preimage} = selectedSwap.data;
-
-  // Get contracts
-  const contractsRes = await fetch(
-    getBoltzApiUrl(rootstockEnvironment) + '/v2/chain/RBTC/contracts',
-  );
-  const contracts = await contractsRes.json();
-
-  const contract = new Contract(
-    contracts.swapContracts.EtherSwap,
-    EtherSwapArtifact.abi,
-    signer,
-  );
-
-  const tx = await contract['claim(bytes32,uint256,address,uint256)'](
-    Buffer.from(preimage, 'hex'),
-    BigInt(swap.onchainAmount) * satoshiWeiFactor,
-    swap.refundAddress,
-    swap.timeoutBlockHeight,
-  );
-
-  console.log(`Claimed RBTC tx: ${tx.hash}`);
-}
 
 export async function refundRootstockSubmarineSwap(swap, signer) {
   try {
