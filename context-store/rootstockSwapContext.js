@@ -7,27 +7,18 @@ import React, {
   useState,
 } from 'react';
 
-import {
-  deleteSwapById,
-  getSwapById,
-  loadSwaps,
-  updateSwap,
-} from '../app/functions/boltz/rootstock/swapDb';
-import {
-  claimRootstockReverseSwap,
-  refundRootstockSubmarineSwap,
-} from '../app/functions/boltz/rootstock/claims';
-import {
-  executeSubmarineSwap,
-  lockSubmarineSwap,
-} from '../app/functions/boltz/rootstock/submarineSwap';
+import { loadSwaps } from '../app/functions/boltz/rootstock/swapDb';
+import { executeSubmarineSwap } from '../app/functions/boltz/rootstock/submarineSwap';
+import { isRootstockSwapActive } from '../app/functions/boltz/rootstock/swapStatus';
+import { handleRootstockSwapUpdate } from '../app/functions/boltz/rootstock/swapLifecycle';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
 import {
-  getRoostockProviderEndpoint,
+  getRoostockProviderEndpoints,
+  getRoostockProviderNetwork,
   rootstockEnvironment,
 } from '../app/functions/boltz/rootstock';
-import { JsonRpcProvider, Wallet } from 'ethers';
+import { FallbackProvider, JsonRpcProvider, Wallet } from 'ethers';
 import { getBoltzWsUrl } from '../app/functions/boltz/boltzEndpoitns';
 import { useSparkWallet } from './sparkContext';
 import { useWebView } from './webViewContext';
@@ -52,17 +43,6 @@ export const RootstockSwapProvider = ({ children }) => {
   const timeoutRef = useRef(null);
   const cleanupDebounceRef = useRef(null);
   const didRunSignerCreation = useRef(null);
-
-  // Helper function to check if a swap is in a terminal state
-  const isSwapCompleted = status => {
-    return [
-      'transaction.claimed',
-      'transaction.claim.pending',
-      'swap.expired',
-      'invoice.failedToPay',
-      'transaction.lockupFailed',
-    ].includes(status);
-  };
 
   // Smart cleanup function that only clears if no active swaps
   const cleanupRootstockListener = useCallback(() => {
@@ -124,9 +104,21 @@ export const RootstockSwapProvider = ({ children }) => {
   }, [cleanupRootstockListener]);
 
   const provider = useMemo(() => {
-    return new JsonRpcProvider(
-      getRoostockProviderEndpoint(rootstockEnvironment),
+    const network = getRoostockProviderNetwork(rootstockEnvironment);
+    const providers = getRoostockProviderEndpoints(rootstockEnvironment).map(
+      (endpoint, index) => ({
+        provider: new JsonRpcProvider(endpoint, network, {
+          staticNetwork: true,
+        }),
+        priority: index + 1,
+        weight: 1,
+        stallTimeout: 2000,
+      }),
     );
+
+    return providers.length === 1
+      ? providers[0].provider
+      : new FallbackProvider(providers, network, { quorum: 1 });
   }, []);
 
   const createSigner = useCallback(() => {
@@ -164,19 +156,25 @@ export const RootstockSwapProvider = ({ children }) => {
   };
 
   const loadRootstockSwaps = async () => {
-    let swaps = await loadSwaps();
-    if (!swaps.length) {
-      const swap = await executeSubmarineSwap(
-        accountMnemoinc,
-        minMaxLiquidSwapAmounts,
-        provider,
-        signer,
-        sendWebViewRequest,
-      );
-      if (swap) swaps.push(swap);
+    try {
+      const swaps = (await loadSwaps()) || [];
+      const activeSwaps = swaps.filter(isRootstockSwapActive);
+
+      if (!activeSwaps.length) {
+        const swap = await executeSubmarineSwap(
+          accountMnemoinc,
+          minMaxLiquidSwapAmounts,
+          provider,
+          signer,
+          sendWebViewRequest,
+        );
+        if (swap) activeSwaps.push(swap);
+      }
+      return activeSwaps;
+    } catch (err) {
+      console.log(err, 'error in load rootstock swaps');
+      return [];
     }
-    console.log('saved swaps', swaps);
-    return swaps || [];
   };
 
   // Runs after every interval or ws update
@@ -206,7 +204,7 @@ export const RootstockSwapProvider = ({ children }) => {
 
     // Update active swaps tracking
     newSwaps.forEach(swap => {
-      if (!isSwapCompleted(swap.status)) {
+      if (isRootstockSwapActive(swap)) {
         activeSwapIdsRef.current.add(swap.id);
       }
     });
@@ -255,16 +253,14 @@ export const RootstockSwapProvider = ({ children }) => {
 
       // Initialize active swaps tracking
       swaps.forEach(swap => {
-        if (!isSwapCompleted(swap.status)) {
+        if (isRootstockSwapActive(swap)) {
           activeSwapIdsRef.current.add(swap.id);
         }
       });
 
       if (swaps.length) {
         // Open websocket
-        const ws = new WebSocket(
-          `${getBoltzWsUrl(rootstockEnvironment)}/v2/ws`,
-        );
+        const ws = new WebSocket(getBoltzWsUrl(rootstockEnvironment));
         wsRef.current = ws;
 
         ws.onopen = event => {
@@ -282,44 +278,13 @@ export const RootstockSwapProvider = ({ children }) => {
 
             console.log(`Swap ${swapId} updated: ${status}`);
 
-            // Find swap type from state
-            const swapResponse = await getSwapById(swapId);
-            console.log(swapResponse, 'saved swap in history');
-            if (!swapResponse) return;
-            const [swap] = swapResponse;
-            console.log(swap, 'DESTRUCTED SWAP');
-
-            // Perform actions based on type + status
-            if (swap.type === 'reverse' && status === 'transaction.confirmed') {
-              await claimRootstockReverseSwap(swap, signer);
-            }
-
-            if (swap.type === 'submarine') {
-              if (status == 'invoice.set') {
-                await lockSubmarineSwap(swap, signer);
-                setPendingNavigation(true);
-              }
-              if (
-                [
-                  'invoice.failedToPay',
-                  'swap.expired',
-                  'transaction.lockupFailed',
-                ].includes(status)
-              ) {
-                await updateSwap(swapId, { didSwapFail: true });
-                await refundRootstockSubmarineSwap(swap, signer);
-                // Remove from active swaps when it fails/expires
-                activeSwapIdsRef.current.delete(swapId);
-              }
-              if (
-                status == 'transaction.claimed' ||
-                status === 'transaction.claim.pending'
-              ) {
-                await deleteSwapById(swapId);
-                // Remove from active swaps when completed
-                activeSwapIdsRef.current.delete(swapId);
-              }
-            }
+            await handleRootstockSwapUpdate({
+              swapId,
+              status,
+              signer,
+              activeSwapIds: activeSwapIdsRef.current,
+              setPendingNavigation,
+            });
 
             debouncedCleanup();
           } catch (error) {
@@ -334,10 +299,17 @@ export const RootstockSwapProvider = ({ children }) => {
 
         ws.onclose = event => {
           console.log('WebSocket closed:', event.code, event.reason);
+          const shouldReconnect = activeSwapIdsRef.current.size > 0;
           // Clean up subscribed IDs when connection closes
           subscribedIdsRef.current.clear();
           // Clear active swaps since we can't monitor them without WebSocket
           activeSwapIdsRef.current.clear();
+          wsRef.current = null;
+          if (shouldReconnect) {
+            setTimeout(() => {
+              startRootstockEventListener({ durationMs, intervalMs });
+            }, 1000);
+          }
         };
       }
 
@@ -345,8 +317,8 @@ export const RootstockSwapProvider = ({ children }) => {
         const freshSwaps = await loadRootstockSwaps();
         if (freshSwaps && freshSwaps.length > 0) {
           // Update active swaps based on current status
-          const currentActiveSwaps = freshSwaps.filter(
-            swap => !isSwapCompleted(swap.status),
+          const currentActiveSwaps = freshSwaps.filter(swap =>
+            isRootstockSwapActive(swap),
           );
 
           // Update the active swaps ref

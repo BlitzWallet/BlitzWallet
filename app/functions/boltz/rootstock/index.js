@@ -5,12 +5,25 @@ const WEI_PER_RBTC = 10n ** 18n; // 1,000,000,000,000,000,000 wei = 1 RBTC
 const SATOSHI_TO_WEI_FACTOR = WEI_PER_RBTC / SATOSHIS_PER_BTC; // 10^10
 const providerEndpointTestnet = 'https://public-node.testnet.rsk.co';
 const providerEndpointMainnet = 'https://public-node.rsk.co/';
+const providerEndpointMainnetBackup = 'https://mycrypto.rsk.co';
+const rootstockNetworkMainnet = { name: 'rootstock', chainId: 30 };
+const rootstockNetworkTestnet = { name: 'rootstock-testnet', chainId: 31 };
 
 export const rootstockEnvironment = 'liquid';
-export const getRoostockProviderEndpoint = environment => {
+export const getRoostockProviderEndpoints = environment => {
   return environment === 'liquid'
-    ? providerEndpointMainnet
-    : providerEndpointTestnet;
+    ? [providerEndpointMainnet, providerEndpointMainnetBackup]
+    : [providerEndpointTestnet];
+};
+
+export const getRoostockProviderNetwork = environment => {
+  return environment === 'liquid'
+    ? rootstockNetworkMainnet
+    : rootstockNetworkTestnet;
+};
+
+export const getRoostockProviderEndpoint = environment => {
+  return getRoostockProviderEndpoints(environment)[0];
 };
 
 /**

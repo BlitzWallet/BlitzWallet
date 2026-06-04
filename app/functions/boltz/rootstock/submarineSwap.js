@@ -8,10 +8,19 @@ import {
   satoshiWeiFactor,
   weiToSatoshis,
 } from '.';
-import { loadSwaps, saveSwap } from './swapDb';
+import { loadSwaps, saveSwap, updateSwap } from './swapDb';
 import { randomBytes } from 'react-native-quick-crypto';
 import { sparkReceivePaymentWrapper } from '../../spark/payments';
 import i18next from 'i18next';
+import {
+  calculateBufferedBoltzFeeSats,
+  calculateInvoiceAmountAfterFees,
+  getRootstockSubmarinePair,
+  normalizeSubmarineFees,
+} from './swapLimits';
+
+const inFlightSubmarineLocks = new Set();
+const ETHER_SWAP_RBTC_LOCK_SIGNATURE = 'lock(bytes32,address,uint256)';
 
 export async function createRootstockSubmarineSwap(invoice) {
   const res = await fetch(
@@ -28,13 +37,31 @@ export async function createRootstockSubmarineSwap(invoice) {
 
   console.log(swap);
 
-  saveSwap(swap.id, 'submarine', {
-    swap,
-    invoice,
-    createdAt: Date.now(),
-  });
+  const savedSwap = {
+    id: swap.id,
+    type: 'submarine',
+    data: {
+      swap,
+      invoice,
+      createdAt: Date.now(),
+      status: 'swap.created',
+    },
+  };
 
-  return swap;
+  await saveSwap(savedSwap.id, savedSwap.type, savedSwap.data);
+
+  return savedSwap;
+}
+
+export function hasSubmarineSwapLockStarted(swap) {
+  return Boolean(
+    swap?.data?.locked || swap?.data?.lockTxHash || swap?.data?.lockState,
+  );
+}
+
+async function markSubmarineSwapLockState(id, newState) {
+  if (!id) return;
+  await updateSwap(id, newState);
 }
 
 export async function getRootstockAddress(signer) {
@@ -49,37 +76,73 @@ export async function getRootstockAddress(signer) {
 export async function lockSubmarineSwap(swap, signer) {
   const { claimAddress, timeoutBlockHeight, expectedAmount } = swap.data.swap;
   const { invoice } = swap.data;
+  const swapId = swap.id || swap.data.swap.id;
 
-  // Fetch current contract addresses from Boltz
-  const contractsRes = await fetch(
-    getBoltzApiUrl(rootstockEnvironment) + '/v2/chain/RBTC/contracts',
-  );
-  const contracts = await contractsRes.json();
+  if (hasSubmarineSwapLockStarted(swap)) {
+    console.log(`Skipping Rootstock lock for ${swapId}; lock already started`);
+    return { didLock: false, reason: 'lock_already_started' };
+  }
 
-  const contract = new Contract(
-    contracts.swapContracts.EtherSwap,
-    EtherSwapArtifact.abi,
-    signer,
-  );
+  if (inFlightSubmarineLocks.has(swapId)) {
+    console.log(`Skipping Rootstock lock for ${swapId}; lock in flight`);
+    return { didLock: false, reason: 'lock_in_flight' };
+  }
 
-  // Extract payment hash from the invoice
-  const invoicePreimageHash = Buffer.from(
-    bolt11.decode(invoice).tags.find(tag => tag.tagName === 'payment_hash')
-      ?.data,
-    'hex',
-  );
+  inFlightSubmarineLocks.add(swapId);
+  await markSubmarineSwapLockState(swapId, {
+    lockState: 'locking',
+    lockStartedAt: Date.now(),
+  });
 
-  // Send lock transaction
-  const tx = await contract.lock(
-    invoicePreimageHash,
-    claimAddress,
-    timeoutBlockHeight,
-    {
-      value: BigInt(expectedAmount) * satoshiWeiFactor,
-    },
-  );
+  try {
+    // Fetch current contract addresses from Boltz
+    const contractsRes = await fetch(
+      getBoltzApiUrl(rootstockEnvironment) + '/v2/chain/RBTC/contracts',
+    );
+    const contracts = await contractsRes.json();
 
-  console.log(`Lock tx sent: ${tx.hash}`);
+    const contract = new Contract(
+      contracts.swapContracts.EtherSwap,
+      EtherSwapArtifact.abi,
+      signer,
+    );
+
+    // Extract payment hash from the invoice
+    const invoicePreimageHash = Buffer.from(
+      bolt11.decode(invoice).tags.find(tag => tag.tagName === 'payment_hash')
+        ?.data,
+      'hex',
+    );
+
+    // Send lock transaction
+    const tx = await contract[ETHER_SWAP_RBTC_LOCK_SIGNATURE](
+      invoicePreimageHash,
+      claimAddress,
+      timeoutBlockHeight,
+      {
+        value: BigInt(expectedAmount) * satoshiWeiFactor,
+      },
+    );
+
+    await markSubmarineSwapLockState(swapId, {
+      locked: true,
+      lockState: 'locked',
+      lockTxHash: tx.hash,
+      lockedAt: Date.now(),
+    });
+
+    console.log(`Lock tx sent: ${tx.hash}`);
+    return { didLock: true, tx };
+  } catch (err) {
+    await markSubmarineSwapLockState(swapId, {
+      lockState: 'lock_error',
+      lockError: err?.message || String(err),
+      lockErrorAt: Date.now(),
+    });
+    throw err;
+  } finally {
+    inFlightSubmarineLocks.delete(swapId);
+  }
 }
 
 export async function executeSubmarineSwap(
@@ -89,34 +152,39 @@ export async function executeSubmarineSwap(
   signer,
   sendWebViewRequest,
 ) {
-  console.log('Running rootstock excecution');
-  const address = await signer.getAddress();
-  const rootStockWalletBalance = await provider.getBalance(address);
+  try {
+    console.log('Running rootstock excecution');
+    const address = await signer.getAddress();
+    const rootStockWalletBalance = await provider.getBalance(address);
+    console.log(address, rootStockWalletBalance);
 
-  console.log(address, rootStockWalletBalance);
-  const maxSendAmountResponse = await calculateMaxSubmarineSwapAmount({
-    limits: swapLimits,
-    provider,
-    signer,
-    rootStockWalletBalance,
-  });
+    console.log(address, rootStockWalletBalance);
+    const maxSendAmountResponse = await calculateMaxSubmarineSwapAmount({
+      limits: swapLimits,
+      provider,
+      signer,
+      rootStockWalletBalance,
+    });
 
-  if (!maxSendAmountResponse.maxSats) return;
+    if (!maxSendAmountResponse.maxSats) return;
 
-  console.log(maxSendAmountResponse, 'max send amoutn resposne');
+    console.log(maxSendAmountResponse, 'max send amoutn resposne');
 
-  const sparkInvoice = await sparkReceivePaymentWrapper({
-    amountSats: Number(maxSendAmountResponse.maxSats),
-    memo: i18next.t('transactionLabelText.roostockSwap'),
-    paymentType: 'lightning',
-    shouldNavigate: false,
-    mnemoinc: signerMnemonic,
-    sendWebViewRequest,
-  });
-  if (!sparkInvoice.didWork) return;
+    const sparkInvoice = await sparkReceivePaymentWrapper({
+      amountSats: Number(maxSendAmountResponse.maxSats),
+      memo: i18next.t('transactionLabelText.roostockSwap'),
+      paymentType: 'lightning',
+      shouldNavigate: false,
+      mnemoinc: signerMnemonic,
+      sendWebViewRequest,
+    });
+    if (!sparkInvoice.didWork) return;
 
-  const swap = await createRootstockSubmarineSwap(sparkInvoice.invoice);
-  return swap;
+    return createRootstockSubmarineSwap(sparkInvoice.invoice);
+  } catch (err) {
+    console.log(err, 'error in execute submarine swaps');
+    return false;
+  }
 }
 
 /**
@@ -134,8 +202,7 @@ export async function calculateMaxSubmarineSwapAmount({
   try {
     const userAddress = await signer.getAddress();
     const rootstockBalance = await provider.getBalance(userAddress); // in wei
-    const rootstockSatBalance = Number(rootstockBalance / satoshiWeiFactor);
-    const swaps = await loadSwaps();
+    const swaps = (await loadSwaps()) || [];
     const outboundSwapsBalance = swaps
       .filter(swap => swap.type === 'submarine' && !swap.data.didSwapFail)
       .reduce(
@@ -155,7 +222,7 @@ export async function calculateMaxSubmarineSwapAmount({
 
     const preimage = randomBytes(32);
 
-    const gasLimit = await contract.lock.estimateGas(
+    const gasLimit = await contract[ETHER_SWAP_RBTC_LOCK_SIGNATURE].estimateGas(
       preimage,
       userAddress,
       timeoutBlockHeight,
@@ -167,43 +234,48 @@ export async function calculateMaxSubmarineSwapAmount({
     const gasPrice = feeData.gasPrice || 1n;
     console.log('Gas price:', gasPrice);
 
-    console.log(limits, 'limits');
-    console.log('rootstockSatBalance', rootstockSatBalance);
-    const boltzFee = Math.round(
-      (limits.rsk.submarine.fees.minerFees.claim +
-        limits.rsk.submarine.fees.minerFees.lockup +
-        rootstockSatBalance * (limits.rsk.submarine.fees.percentage / 100)) *
-        1.1,
+    const submarinePair = getRootstockSubmarinePair(limits);
+    const { minerFeeSats, percentage } = normalizeSubmarineFees(
+      submarinePair.fees,
     );
     console.log('outboundSwapsBalance', outboundSwapsBalance);
 
     const estimatedFeeWei = gasLimit * gasPrice;
     console.log('Estimated fee (wei):', estimatedFeeWei);
-    console.log('Estimated boltz fee:', boltzFee, satoshisToWei(boltzFee));
 
-    const usableWei =
-      rootstockBalance -
-      estimatedFeeWei -
-      satoshisToWei(boltzFee) -
-      satoshisToWei(outboundSwapsBalance);
-    if (usableWei <= 0n) {
+    const availableWei =
+      rootstockBalance - estimatedFeeWei - satoshisToWei(outboundSwapsBalance);
+    if (availableWei <= 0n) {
       return { maxSats: 0n, reason: 'Insufficient RBTC for fee' };
     }
 
-    const usableSats = weiToSatoshis(usableWei);
+    const availableSats = weiToSatoshis(availableWei);
 
-    const min = BigInt(limits.rsk.min);
-    const max = BigInt(limits.rsk.max);
-    if (usableSats < min) {
+    const min = BigInt(submarinePair.limits?.minimal ?? limits.rsk.min);
+    const max = BigInt(submarinePair.limits?.maximal ?? limits.rsk.max);
+    const maxSats = calculateInvoiceAmountAfterFees({
+      availableSats,
+      minSats: min,
+      maxSats: max,
+      minerFeeSats,
+      percentage,
+    });
+
+    if (maxSats < min) {
       return { maxSats: 0n, reason: 'Below Boltz min swap' };
     }
 
-    const maxSats = usableSats > max ? max : usableSats;
+    const boltzFee = calculateBufferedBoltzFeeSats({
+      swapAmountSats: maxSats,
+      minerFeeSats,
+      percentage,
+    });
 
     return {
       maxSats,
-      usableSats,
-      usableWei,
+      availableSats,
+      availableWei,
+      boltzFee,
       estimatedFeeWei,
       gasLimit,
       gasPrice,
