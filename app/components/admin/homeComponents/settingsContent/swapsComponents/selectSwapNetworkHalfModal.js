@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   optionTitle: {
-    fontWeight: 500,
     fontSize: SIZES.large,
     includeFontPadding: false,
   },
