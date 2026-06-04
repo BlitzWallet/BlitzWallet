@@ -143,3 +143,62 @@ test('a normal (non-liquid) lightning match does not set tempId', async () => {
   expect(result.useTempId).toBeUndefined();
   expect(result.tempId).toBeUndefined();
 });
+
+test('rootstock-swap match remaps the Boltz placeholder via rootstock swap id', async () => {
+  const tx = {
+    totalValue: 12000,
+    status: 'TRANSFER_STATUS_COMPLETED',
+    transferDirection: 'INCOMING',
+    receiverIdentityPublicKey: 'acct-1',
+    senderIdentityPublicKey: 'someone',
+    createdTime: '2026-06-03T00:00:00.000Z',
+    transfer: { sparkId: 'final-rootstock-spark-id' },
+    userRequest: {
+      id: 'invoice-id-rsk',
+      typename: 'LightningReceiveRequest',
+      invoice: { encodedInvoice: '' },
+    },
+  };
+
+  const unpaidLNInvoices = [
+    {
+      sparkID: 'invoice-id-rsk',
+      description: 'Rootstock swap',
+      shouldNavigate: 0,
+      details: JSON.stringify({
+        isRootstockSwap: true,
+        rootstockSwapId: 'boltz-swap-id',
+        rootstockSwapInvoiceId: 'invoice-id-rsk',
+        rootstockSwapStatus: 'transaction.claim.pending',
+        createdTime: 333,
+        rootstockSwapFeeSat: 145,
+      }),
+    },
+  ];
+
+  const result = await transformTxToPaymentObject(
+    tx,
+    'spark-addr',
+    'lightning',
+    false,
+    unpaidLNInvoices,
+    'acct-1',
+    1,
+    false,
+    [],
+    'seed words',
+  );
+
+  expect(result.id).toBe('final-rootstock-spark-id');
+  expect(result.useTempId).toBe(true);
+  expect(result.tempId).toBe('boltz-swap-id');
+  expect(result.paymentStatus).toBe('completed');
+  expect(result.details.isRootstockSwap).toBe(true);
+  expect(result.details.rootstockSwapId).toBe('boltz-swap-id');
+  expect(result.details.fee).toBe(145);
+  expect(result.details.totalFee).toBe(145);
+  expect(result.details.amount).toBe(12000);
+  expect(deleteUnpaidSparkLightningTransaction).toHaveBeenCalledWith(
+    'invoice-id-rsk',
+  );
+});

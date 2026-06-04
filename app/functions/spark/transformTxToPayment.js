@@ -71,11 +71,20 @@ export async function transformTxToPaymentObject(
 
     const isSwapPayment = foundInvoice && foundInvoiceDetails.performSwaptoUSD;
     const isLiquidSwap = foundInvoice && foundInvoiceDetails.isLiquidSwap;
-    const liquidSwapFee = Number(
-      foundInvoiceDetails?.fee ?? foundInvoiceDetails?.swapFeeSat ?? 0,
+    const isRootstockSwap =
+      foundInvoice && foundInvoiceDetails.isRootstockSwap;
+    const placeholderSwapId = isRootstockSwap
+      ? foundInvoiceDetails.rootstockSwapId
+      : userRequestId;
+    const swapFee = Number(
+      foundInvoiceDetails?.fee ??
+        foundInvoiceDetails?.swapFeeSat ??
+        foundInvoiceDetails?.rootstockSwapFeeSat ??
+        0,
     );
-    const effectivePaymentFee = isLiquidSwap
-      ? Math.max(paymentFee, Number.isFinite(liquidSwapFee) ? liquidSwapFee : 0)
+    const effectivePaymentFee =
+      isLiquidSwap || isRootstockSwap
+        ? Math.max(paymentFee, Number.isFinite(swapFee) ? swapFee : 0)
       : paymentFee;
 
     if (isSwapPayment) {
@@ -99,10 +108,10 @@ export async function transformTxToPaymentObject(
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
-      // The Liquid->Spark auto-swap pre-inserts a pending placeholder keyed by
-      // the lightning request id. Remap it onto the settled payment so the
-      // placeholder is updated rather than duplicated.
-      ...(isLiquidSwap && { useTempId: true, tempId: userRequestId }),
+      // Auto-swap flows pre-insert pending placeholders. Remap the settled
+      // payment onto that row so history updates instead of duplicating it.
+      ...((isLiquidSwap || isRootstockSwap) &&
+        placeholderSwapId && { useTempId: true, tempId: placeholderSwapId }),
       paymentStatus: isSwapPayment
         ? 'pending'
         : status === 'completed' || preimage
@@ -116,6 +125,8 @@ export async function transformTxToPaymentObject(
         totalFee: effectivePaymentFee + supportFee,
         supportFee: supportFee,
         amount: isLiquidSwap
+          ? paymentAmount
+          : isRootstockSwap
           ? paymentAmount
           : paymentAmount - effectivePaymentFee,
         address: userRequest

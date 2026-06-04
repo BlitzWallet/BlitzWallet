@@ -85,6 +85,19 @@ export default function TechnicalTransactionDetails(props) {
     ];
     infoValues = [sparkID, details.preimage, details.address];
 
+    if (details.isRootstockSwap) {
+      paymentDetails.push(
+        t('screens.inAccount.technicalTransactionDetails.rootstockSwapId'),
+        t('screens.inAccount.technicalTransactionDetails.rootstockSwapStatus'),
+        t('screens.inAccount.technicalTransactionDetails.rootstockPaymentTxId'),
+      );
+      infoValues.push(
+        details.rootstockSwapId,
+        details.rootstockSwapStatus,
+        details.rootstockPaymentTxId || details.lockTxHash,
+      );
+    }
+
     if (details.bitrefillInvoiceId) {
       paymentDetails.push(
         t('screens.inAccount.technicalTransactionDetails.bitrefillInvoiceId'),
