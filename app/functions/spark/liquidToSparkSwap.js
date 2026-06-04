@@ -16,34 +16,101 @@ import {
 // happens mid-swap; we track it explicitly to avoid SDK timestamp-unit guessing.
 const LIQUID_SWAP_INVOICE_EXPIRY_SECONDS = 60 * 60;
 const LIQUID_SWAP_MAX_QUOTE_ATTEMPTS = 8;
+const LIQUID_SWAP_LOCKUP_TX_FEE_SATS = 34;
+const LIQUID_SWAP_CLAIM_TX_FEE_SATS = 19;
+const LIQUID_SWAP_SERVICE_FEE_RATE = 0.001;
 const LIQUID_SWAP_PARTNER_FEE_RATE = 0.01;
 const LIQUID_SWAP_ROUNDING_BUFFER_SATS = 2;
+const LIQUID_SWAP_RETRY_PERCENT_STEP = 0.1;
+const LIQUID_SWAP_RETRY_FEE_MULTIPLIER = 2;
+const LIQUID_SWAP_UNKNOWN_UPPER_BOUND_SATS = Number.MAX_SAFE_INTEGER;
 
 // In-memory reentrancy guard. Liquid balance updates can fire several times in
 // quick succession (sync + payment events); without this they would each kick
 // off a concurrent swap and race over the same funds.
 let isRunningLiquidSwap = false;
 
-function getFeeBufferSat(amountSat) {
+function normalizeSats(value) {
+  return Math.max(Math.ceil(Number(value) || 0), 0);
+}
+
+function getPercentageFeeSat(amountSat, feeRate) {
+  return Math.ceil(Math.max(Number(amountSat) || 0, 0) * feeRate);
+}
+
+function getModeledBaseSwapFeeSat(amountSat) {
   return (
-    Math.ceil(
-      Math.max(Number(amountSat) || 0, 0) * LIQUID_SWAP_PARTNER_FEE_RATE,
-    ) + LIQUID_SWAP_ROUNDING_BUFFER_SATS
+    LIQUID_SWAP_LOCKUP_TX_FEE_SATS +
+    LIQUID_SWAP_CLAIM_TX_FEE_SATS +
+    getPercentageFeeSat(amountSat, LIQUID_SWAP_SERVICE_FEE_RATE)
   );
 }
 
-function getInvoiceAmountForFee(spendableSat, feeSat) {
-  return Math.floor(
-    (spendableSat - feeSat - LIQUID_SWAP_ROUNDING_BUFFER_SATS - 1) /
-      (1 + LIQUID_SWAP_PARTNER_FEE_RATE),
+function getPartnerFeeSat(amountSat) {
+  return getPercentageFeeSat(amountSat, LIQUID_SWAP_PARTNER_FEE_RATE);
+}
+
+function getEstimatedSwapFeeSat(amountSat) {
+  return getModeledBaseSwapFeeSat(amountSat) + getPartnerFeeSat(amountSat);
+}
+
+function getTrustedOrEstimatedFeeSat(amountSat, trustedFeeSat) {
+  if (trustedFeeSat === undefined || trustedFeeSat === null) {
+    return getEstimatedSwapFeeSat(amountSat);
+  }
+
+  return normalizeSats(trustedFeeSat);
+}
+
+function getTotalRequiredSat(amountSat, trustedFeeSat) {
+  return (
+    amountSat +
+    getTrustedOrEstimatedFeeSat(amountSat, trustedFeeSat) +
+    LIQUID_SWAP_ROUNDING_BUFFER_SATS
   );
 }
 
 function invoiceFitsSpendable({ amountSat, feeSat, spendableSat }) {
-  return (
-    amountSat > 0 &&
-    amountSat + feeSat + getFeeBufferSat(amountSat) < spendableSat
-  );
+  return amountSat > 0 && getTotalRequiredSat(amountSat, feeSat) < spendableSat;
+}
+
+function getInvoiceAmountForFee(spendableSat, feeSat) {
+  let low = 1;
+  let high = Math.max(Math.floor(Number(spendableSat) || 0) - 1, 0);
+  let bestAmountSat = 0;
+
+  while (low <= high) {
+    const amountSat = Math.floor((low + high) / 2);
+
+    if (
+      invoiceFitsSpendable({
+        amountSat,
+        feeSat,
+        spendableSat,
+      })
+    ) {
+      bestAmountSat = amountSat;
+      low = amountSat + 1;
+    } else {
+      high = amountSat - 1;
+    }
+  }
+
+  return bestAmountSat;
+}
+
+function getNextAmountAfterQuoteFailure({ amountSat, spendableSat }) {
+  const feeAwareTargetSat = getInvoiceAmountForFee(spendableSat);
+  if (feeAwareTargetSat > 0 && feeAwareTargetSat < amountSat) {
+    return feeAwareTargetSat;
+  }
+
+  const percentStepSat = Math.ceil(amountSat * LIQUID_SWAP_RETRY_PERCENT_STEP);
+  const feeStepSat =
+    getEstimatedSwapFeeSat(amountSat) * LIQUID_SWAP_RETRY_FEE_MULTIPLIER;
+  const reductionSat = Math.max(1, Math.min(percentStepSat, feeStepSat));
+
+  return Math.floor(amountSat - reductionSat);
 }
 
 function getSwapError(error, fallback) {
@@ -144,7 +211,8 @@ async function createQuotedSwapInvoice({
   sendWebViewRequest,
 }) {
   const triedAmounts = new Set();
-  let nextAmountSat = Math.floor(spendableSat - 1);
+  let nextAmountSat = getInvoiceAmountForFee(spendableSat);
+  let upperBoundSat = LIQUID_SWAP_UNKNOWN_UPPER_BOUND_SATS;
   let lastError;
 
   for (
@@ -168,11 +236,19 @@ async function createQuotedSwapInvoice({
     } catch (err) {
       lastError = err;
       await cleanupUnusedSwapInvoice(invoice.placeholderId);
-      nextAmountSat = Math.floor(nextAmountSat * 0.9);
+      upperBoundSat = Math.min(upperBoundSat, nextAmountSat - 1);
+      nextAmountSat = getNextAmountAfterQuoteFailure({
+        amountSat: nextAmountSat,
+        spendableSat,
+      });
+      nextAmountSat = Math.min(nextAmountSat, upperBoundSat);
       continue;
     }
 
-    const targetAmountSat = getInvoiceAmountForFee(spendableSat, feeSat);
+    const targetAmountSat = Math.min(
+      getInvoiceAmountForFee(spendableSat, feeSat),
+      upperBoundSat,
+    );
     if (targetAmountSat <= 0) {
       await cleanupUnusedSwapInvoice(invoice.placeholderId);
       throw new Error('Insufficient Liquid balance to cover swap fees');
