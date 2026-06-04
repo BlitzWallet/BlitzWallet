@@ -8,6 +8,7 @@ export default function IconActionCircle({
   size = 80,
   icon,
   bottomOffset = 0,
+  customBackgroundColor,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
@@ -16,7 +17,7 @@ export default function IconActionCircle({
       style={[
         styles.iconContainer,
         {
-          backgroundColor: backgroundOffset,
+          backgroundColor: customBackgroundColor ?? backgroundOffset,
           borderColor: backgroundColor,
         },
         {
@@ -32,6 +33,7 @@ export default function IconActionCircle({
           theme && darkModeType ? COLORS.darkModeText : COLORS.primary
         }
         iconName={icon}
+        size={Math.round(size * 0.375)}
       />
     </View>
   );

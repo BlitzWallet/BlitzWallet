@@ -54,7 +54,8 @@ import getReceiveAddressAndContactForContactsPayment from '../contacts/internalC
 import { hasStringAsync } from 'expo-clipboard';
 import { scheduleOnRN } from 'react-native-worklets';
 import { KeyboardController } from 'react-native-keyboard-controller';
-import { parsePhoneNumberWithError } from 'libphonenumber-js';
+import { isPhonePaymentNumber } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
+import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 
 const ContactRow = ({
   contact,
@@ -361,18 +362,10 @@ export default function HalfModalSendOptions({
     return inputText.startsWith('@') ? inputText.slice(1).trim() : '';
   }, [inputText]);
 
-  const kenyanPhoneNumber = useMemo(() => {
-    const stripped = inputText.trim();
-    if (!stripped) return null;
-    try {
-      const normalized = stripped.startsWith('+') ? stripped : `+${stripped}`;
-      const parsed = parsePhoneNumberWithError(normalized);
-      if (parsed.country === 'KE' && parsed.isValid()) {
-        return parsed.number.slice(1);
-      }
-    } catch {}
-    return null;
-  }, [inputText]);
+  const isPhoneNumber = useMemo(
+    () => isPhonePaymentNumber(inputText),
+    [inputText],
+  );
 
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
@@ -442,21 +435,6 @@ export default function HalfModalSendOptions({
   const handleManualInputSubmit = useCallback(async () => {
     if (!inputText.trim()) return;
     const input = inputText.trim();
-
-    try {
-      const phoneNormalized = input.startsWith('+') ? input : `+${input}`;
-      const parsed = parsePhoneNumberWithError(phoneNormalized);
-      if (parsed.country === 'KE' && parsed.isValid()) {
-        const lightningAddress = `${parsed.number.slice(1)}@bitcoin.co.ke`;
-        handleBackPressFunction(async () => {
-          navigate.replace('ConfirmPaymentScreen', {
-            btcAdress: lightningAddress,
-            fromPage: '',
-          });
-        });
-        return;
-      }
-    } catch {}
 
     const normalized = input.startsWith('@')
       ? input.slice(1).toLowerCase()
@@ -1153,19 +1131,31 @@ export default function HalfModalSendOptions({
                       />
                     </View>
                   ) : null
-                ) : kenyanPhoneNumber ? (
+                ) : isPhoneNumber ? (
                   <View style={styles.noContactContainer}>
-                    <ThemeIcon iconName={'Phone'} />
-                    <ThemeText
-                      styles={styles.emptyTitle}
-                      content={t('wallet.halfModal.kenyanPhoneTitle', {
-                        number: inputText.trim(),
-                      })}
+                    <IconActionCircle
+                      size={70}
+                      icon={'Phone'}
+                      customBackgroundColor={
+                        theme && darkModeType ? backgroundColor : undefined
+                      }
+                      bottomOffset={10}
                     />
                     <ThemeText
-                      styles={styles.emptySubtext}
-                      content={t('wallet.halfModal.kenyanPhoneDesc')}
+                      styles={[
+                        styles.emptySubtext,
+                        { fontSize: SIZES.smedium, marginBottom: 10 },
+                      ]}
+                      content={t('wallet.halfModal.phonePaymentDesc')}
                     />
+                    <ThemeText
+                      styles={[
+                        styles.emptyTitle,
+                        { marginTop: 0, fontSize: SIZES.xLarge },
+                      ]}
+                      content={inputText}
+                    />
+
                     <CustomButton
                       buttonStyles={{ ...CENTER, marginTop: 'auto' }}
                       textContent={t('constants.pay')}

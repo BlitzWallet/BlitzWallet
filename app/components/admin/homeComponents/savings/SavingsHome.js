@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSavings } from '../../../../../context-store/savingsContext';
@@ -33,34 +33,16 @@ export default function SavingsHome() {
     savingsBalance,
     savingsGoals,
     allSavingsTransactions,
-    refreshInterestPayouts,
-    refreshBalances,
-    refreshSavings,
+    initializeSavings,
+    isInitializing,
     interestPayouts,
-    walletBalanceMicros,
+    walletBitcoinBalanceSats,
   } = useSavings();
-
-  const dataWasLoadedAtMount = useRef(walletBalanceMicros !== null);
-  const [isInitializing, setIsInitializing] = useState(
-    !dataWasLoadedAtMount.current,
-  );
-  const skeletonStartRef = useRef(Date.now());
-
-  useEffect(() => {
-    if (dataWasLoadedAtMount.current) return;
-    if (walletBalanceMicros === null) return;
-    const elapsed = Date.now() - skeletonStartRef.current;
-    const remaining = Math.max(0, 750 - elapsed);
-    const timer = setTimeout(() => setIsInitializing(false), remaining);
-    return () => clearTimeout(timer);
-  }, [walletBalanceMicros]);
 
   useFocusEffect(
     useCallback(() => {
-      refreshSavings();
-      refreshBalances();
-      refreshInterestPayouts();
-    }, [refreshSavings, refreshBalances, refreshInterestPayouts]),
+      initializeSavings({ force: true });
+    }, [initializeSavings]),
   );
 
   const combinedTransactions = useMemo(
@@ -126,7 +108,10 @@ export default function SavingsHome() {
           />
         </View>
 
-        <SavingsActionButtons savingsBalance={savingsBalance} />
+        <SavingsActionButtons
+          savingsBalance={savingsBalance}
+          walletBitcoinBalanceSats={walletBitcoinBalanceSats}
+        />
 
         <View
           style={[styles.sectionCard, { backgroundColor: backgroundOffset }]}

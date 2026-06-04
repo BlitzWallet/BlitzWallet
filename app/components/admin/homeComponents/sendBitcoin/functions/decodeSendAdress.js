@@ -23,6 +23,9 @@ import { receiveSparkLightningPayment } from '../../../../../functions/spark';
 import { isBlitzLNURLAddress } from '../../../../../functions/lnurl';
 import { handleBrantaVerification } from '../../../../../functions/branta/index';
 import { Image as ExpoImage } from 'expo-image';
+import getPhonePaymentAddress, {
+  getPhonePaymentCandidates,
+} from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 
 export default async function decodeSendAddress(props) {
   let {
@@ -115,10 +118,19 @@ export default async function decodeSendAddress(props) {
       };
     }
 
+    // Phone-number payments (KE/ZM): convert the dialed number into a provider
+    // lightning address. Use the preferred candidate (KE first) optimistically so
+    // parseInput's own LNURL fetch validates it; probe further only if it fails.
+    const phoneInput = btcAdress;
+    const phoneCandidates = getPhonePaymentCandidates(phoneInput);
+    const isPhonePayment = phoneCandidates.length > 0;
+    if (isPhonePayment) btcAdress = phoneCandidates[0];
+
     if (
-      btcAdress.startsWith('@') ||
-      btcAdress.length <= 30 ||
-      isBlitzLNURLAddress(btcAdress)
+      !isPhonePayment &&
+      (btcAdress.startsWith('@') ||
+        btcAdress.length <= 30 ||
+        isBlitzLNURLAddress(btcAdress))
     ) {
       let username = '';
 
@@ -234,10 +246,22 @@ export default async function decodeSendAddress(props) {
       input = await chosenPath;
       if (!input) throw new Error('Invalid address provided');
     } catch (err) {
-      console.log(err, 'parse error');
-      return goBackFunction(
-        t('wallet.sendPages.handlingAddressErrors.parseError'),
-      );
+      if (isPhonePayment && phoneCandidates.length > 1) {
+        const resolved = await getPhonePaymentAddress(phoneInput);
+        btcAdress = resolved;
+        try {
+          input = await parseInput(resolved);
+        } catch (err) {
+          return goBackFunction(
+            t('wallet.sendPages.handlingAddressErrors.parseError'),
+          );
+        }
+      } else {
+        console.log(err, 'parse error');
+        return goBackFunction(
+          t('wallet.sendPages.handlingAddressErrors.parseError'),
+        );
+      }
     }
 
     let processedPaymentInfo;

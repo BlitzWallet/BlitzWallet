@@ -47,6 +47,8 @@ import {
 } from '../app/components/admin/homeComponents/savings/utils';
 import {
   getBitcoinWithdrawls,
+  getBitcoinBalance,
+  initializeSparkWalletViewer,
   getTokensBalance,
   getTokenTransactions,
 } from '../app/functions/spark/walletViewer';
@@ -82,8 +84,34 @@ const SavingsContext = createContext(null);
 export const UNALLOCATED_GOAL_ID = 'unallocated';
 
 const SAVINGS_BALANCE_CACHE_KEY = 'savings_wallet_balance_micros';
+const SAVINGS_BITCOIN_BALANCE_CACHE_KEY = 'savings_wallet_bitcoin_balance_sats';
 const SAVINGS_BALANCE_FETCH_TIME_KEY = 'savings_wallet_balance_fetch_time';
 const SAVINGS_PAYOUTS_FETCH_TIME_KEY = 'savings_payouts_fetch_time';
+const TX_RECONCILIATION_WINDOW_MS = 10 * 60 * 1000;
+
+const coerceBalanceNumber = balance => {
+  const candidate =
+    balance?.balance ??
+    balance?.availableBalance ??
+    balance?.availableToSendBalance ??
+    balance ??
+    0;
+  const parsed = Number(candidate);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const isLikelySameSavingsTransaction = (existingTx, sparkTx) => {
+  if (existingTx?.id === sparkTx?.id) return true;
+  if (existingTx?.type !== sparkTx?.type) return false;
+  if (Number(existingTx?.amountMicros) !== Number(sparkTx?.amountMicros)) {
+    return false;
+  }
+
+  return (
+    Math.abs(Number(existingTx?.timestamp) - Number(sparkTx?.timestamp)) <=
+    TX_RECONCILIATION_WINDOW_MS
+  );
+};
 
 export function SavingsProvider({ children }) {
   const { accountMnemoinc } = useKeysContext();
@@ -93,8 +121,15 @@ export function SavingsProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
   const [savingsWallet, setSavingsWallet] = useState(null);
   const [walletBalanceMicros, setWalletBalanceMicros] = useState(null);
+  const [walletBitcoinBalanceSats, setWalletBitcoinBalanceSats] =
+    useState(null);
   const [interestPayouts, setInterestPayouts] = useState([]);
   const hasDerivedWalletRef = useRef(false);
+  const savingsWalletMnemonicRef = useRef(null);
+  const initPromiseRef = useRef(null);
+  const hasInitializedRef = useRef(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [initializationError, setInitializationError] = useState(null);
   const { t } = useTranslation();
   // Set to true by recordTransaction after a successful deposit/withdrawal so
   // the next refreshBalances call knows the on-chain balance has changed.
@@ -110,8 +145,13 @@ export function SavingsProvider({ children }) {
     setLocalStorageItem(SAVINGS_BALANCE_FETCH_TIME_KEY, now);
   }, []);
 
+  const updateWalletBitcoinBalance = useCallback(sats => {
+    setWalletBitcoinBalanceSats(sats);
+    setLocalStorageItem(SAVINGS_BITCOIN_BALANCE_CACHE_KEY, String(sats));
+  }, []);
+
   const deriveSingleSavingsWallet = useCallback(async () => {
-    if (hasDerivedWalletRef.current) return null;
+    if (hasDerivedWalletRef.current) return savingsWallet;
     if (!accountMnemoinc) return null;
 
     try {
@@ -142,28 +182,41 @@ export function SavingsProvider({ children }) {
         sparkAddress: sparkAddr.address,
       };
 
+      savingsWalletMnemonicRef.current = step1.derivedMnemonic;
       hasDerivedWalletRef.current = true;
       setSavingsWallet(derivedWallet);
       return derivedWallet;
     } catch (deriveError) {
       return null;
     }
-  }, [accountMnemoinc]);
+  }, [accountMnemoinc, savingsWallet]);
 
   const loadSavingsState = useCallback(async () => {
     try {
       // Load cached balance immediately so UI renders without loading state
-      const [cachedBalance, cachedBalanceFetchTime, cachedPayoutFetchTime] =
-        await Promise.all([
-          getLocalStorageItem(SAVINGS_BALANCE_CACHE_KEY),
-          getLocalStorageItem(SAVINGS_BALANCE_FETCH_TIME_KEY),
-          getLocalStorageItem(SAVINGS_PAYOUTS_FETCH_TIME_KEY),
-        ]);
+      const [
+        cachedBalance,
+        cachedBitcoinBalance,
+        cachedBalanceFetchTime,
+        cachedPayoutFetchTime,
+      ] = await Promise.all([
+        getLocalStorageItem(SAVINGS_BALANCE_CACHE_KEY),
+        getLocalStorageItem(SAVINGS_BITCOIN_BALANCE_CACHE_KEY),
+        getLocalStorageItem(SAVINGS_BALANCE_FETCH_TIME_KEY),
+        getLocalStorageItem(SAVINGS_PAYOUTS_FETCH_TIME_KEY),
+      ]);
 
       if (cachedBalance !== null && cachedBalance !== undefined) {
         const parsed = Number(cachedBalance);
         if (Number.isFinite(parsed)) {
           setWalletBalanceMicros(parsed);
+        }
+      }
+
+      if (cachedBitcoinBalance !== null && cachedBitcoinBalance !== undefined) {
+        const parsed = Number(cachedBitcoinBalance);
+        if (Number.isFinite(parsed)) {
+          setWalletBitcoinBalanceSats(parsed);
         }
       }
 
@@ -175,7 +228,7 @@ export function SavingsProvider({ children }) {
         payoutFetchTimeRef.current = Number(cachedPayoutFetchTime);
       }
 
-      await deriveSingleSavingsWallet();
+      const derivedWallet = await deriveSingleSavingsWallet();
       const [
         goalsFromStorage,
         transactionsFromStorage,
@@ -190,21 +243,27 @@ export function SavingsProvider({ children }) {
       setTransactions(transactionsFromStorage);
       setInterestPayouts(payoutsTransactionsFromStorage);
       console.log('savigs loaded succesfully');
+      return {
+        didWork: true,
+        savingsWallet: derivedWallet || savingsWallet,
+        goals: goalsFromStorage,
+        transactions: transactionsFromStorage,
+        interestPayouts: payoutsTransactionsFromStorage,
+      };
     } catch (loadError) {
       console.log(loadError, 'loading savings errro');
+      return { didWork: false, error: loadError?.message };
     }
-  }, [deriveSingleSavingsWallet]);
-
-  useEffect(() => {
-    if (!didGetToHomepage) return;
-    loadSavingsState();
-  }, [loadSavingsState, didGetToHomepage]);
+  }, [deriveSingleSavingsWallet, savingsWallet]);
 
   const createGoal = useCallback(async payload => {
     try {
       const name = String(payload?.name || '').trim();
       if (!name) {
-        return { didWork: false, error: t('savings.howItWorks.context.goalNameRequired') };
+        return {
+          didWork: false,
+          error: t('savings.howItWorks.context.goalNameRequired'),
+        };
       }
 
       const now = Date.now();
@@ -411,17 +470,19 @@ export function SavingsProvider({ children }) {
     );
   }, [goals, transactions, t]);
 
-  const handleRestorePayments = useCallback(
-    async balance => {
+  const restorePaymentsFromSpark = useCallback(
+    async ({ tokenTransactions, bitcoinWithdrawls, wallet } = {}) => {
       try {
-        if (!balance) return;
-        const txs = await getAllSavingsTransactions();
-        if (txs.length) return;
+        const activeWallet = wallet || savingsWallet;
+        if (!activeWallet?.sparkAddress) return;
 
-        const [pastTxs, pastBitcoinTxs] = await Promise.all([
-          getTokenTransactions(savingsWallet.sparkAddress),
-          getBitcoinWithdrawls(savingsWallet.sparkAddress),
-        ]);
+        const [pastTxs, pastBitcoinTxs] =
+          tokenTransactions || bitcoinWithdrawls
+            ? [tokenTransactions, bitcoinWithdrawls]
+            : await Promise.all([
+                getTokenTransactions(activeWallet.sparkAddress),
+                getBitcoinWithdrawls(activeWallet.sparkAddress),
+              ]);
 
         const tokenTxs = (pastTxs?.transactions ?? [])
           .slice(0, 50)
@@ -447,7 +508,7 @@ export function SavingsProvider({ children }) {
               id: txHash,
               goalId: UNALLOCATED_GOAL_ID,
               type:
-                ownerPublicKey !== savingsWallet.identityPublicKeyHex
+                ownerPublicKey !== activeWallet.identityPublicKeyHex
                   ? 'withdrawal'
                   : 'deposit',
               amountMicros,
@@ -463,7 +524,7 @@ export function SavingsProvider({ children }) {
           .filter(
             transfer =>
               Buffer.from(transfer.senderIdentityPublicKey).toString('hex') ===
-              savingsWallet.identityPublicKeyHex,
+              activeWallet.identityPublicKeyHex,
           )
           .map(tx => ({
             id: tx.id,
@@ -474,9 +535,16 @@ export function SavingsProvider({ children }) {
           }));
 
         const newTxs = [...tokenTxs, ...bitcoinTxs];
+        const existingTxs = await getAllSavingsTransactions();
+        const txsToSave = newTxs.filter(
+          sparkTx =>
+            !existingTxs.some(existingTx =>
+              isLikelySameSavingsTransaction(existingTx, sparkTx),
+            ),
+        );
 
-        if (newTxs.length) {
-          await createSavingsTransactions(newTxs);
+        if (txsToSave.length) {
+          await createSavingsTransactions(txsToSave);
         }
 
         setTransactions(await getAllSavingsTransactions());
@@ -491,26 +559,28 @@ export function SavingsProvider({ children }) {
     async ({ force = false } = {}) => {
       if (!savingsWallet?.sparkAddress) return { didWork: false };
 
-      const balance = await getTokensBalance(savingsWallet.sparkAddress);
+      const viewerReady = await initializeSparkWalletViewer(
+        savingsWalletMnemonicRef.current || accountMnemoinc,
+      );
+      if (!viewerReady) return { didWork: false };
 
-      if (typeof balance === 'undefined') {
-        handleRestorePayments(0);
-        updateWalletBalance(0);
-        return { didWork: true };
-      } else if (balance) {
-        const converted = Number(balance);
-        handleRestorePayments(converted);
-        updateWalletBalance(converted);
-        return { didWork: true };
-      }
+      const [balance, bitcoinBalance] = await Promise.all([
+        getTokensBalance(savingsWallet.sparkAddress),
+        getBitcoinBalance(savingsWallet.sparkAddress),
+      ]);
 
-      return { didWork: false };
+      await restorePaymentsFromSpark();
+      updateWalletBalance(coerceBalanceNumber(balance));
+      updateWalletBitcoinBalance(coerceBalanceNumber(bitcoinBalance));
+
+      return { didWork: true };
     },
     [
       savingsWallet,
       accountMnemoinc,
       updateWalletBalance,
-      handleRestorePayments,
+      updateWalletBitcoinBalance,
+      restorePaymentsFromSpark,
     ],
   );
 
@@ -529,6 +599,105 @@ export function SavingsProvider({ children }) {
     },
     [savingsWallet],
   );
+
+  const initializeSavings = useCallback(
+    async ({ force = false } = {}) => {
+      if (initPromiseRef.current) return initPromiseRef.current;
+      if (hasInitializedRef.current && !force) {
+        return { didWork: true, skipped: true };
+      }
+
+      const shouldShowInitializing = !hasInitializedRef.current;
+      if (shouldShowInitializing) {
+        setIsInitializing(true);
+      }
+
+      const initPromise = (async () => {
+        try {
+          setInitializationError(null);
+          const loadedState = await loadSavingsState();
+          const activeWallet = loadedState?.savingsWallet || savingsWallet;
+
+          if (!activeWallet?.sparkAddress) {
+            const message = 'Savings wallet unavailable';
+            setInitializationError(message);
+            return { didWork: false, error: message };
+          }
+
+          const viewerReady = await initializeSparkWalletViewer(
+            savingsWalletMnemonicRef.current || accountMnemoinc,
+          );
+
+          if (!viewerReady) {
+            const message = 'Spark wallet viewer unavailable';
+            setInitializationError(message);
+            return { didWork: false, error: message };
+          }
+
+          const [
+            tokenBalance,
+            bitcoinBalance,
+            tokenTransactions,
+            bitcoinWithdrawls,
+            payouts,
+          ] = await Promise.all([
+            getTokensBalance(activeWallet.sparkAddress),
+            getBitcoinBalance(activeWallet.sparkAddress),
+            getTokenTransactions(activeWallet.sparkAddress),
+            getBitcoinWithdrawls(activeWallet.sparkAddress),
+            activeWallet.identityPublicKeyHex
+              ? fetchSavingsInterestPayouts(activeWallet.identityPublicKeyHex)
+              : Promise.resolve([]),
+          ]);
+
+          updateWalletBalance(coerceBalanceNumber(tokenBalance));
+          updateWalletBitcoinBalance(coerceBalanceNumber(bitcoinBalance));
+
+          await restorePaymentsFromSpark({
+            tokenTransactions,
+            bitcoinWithdrawls,
+            wallet: activeWallet,
+          });
+
+          await setPayoutsTransactions(payouts);
+          setInterestPayouts(payouts);
+          setLocalStorageItem(
+            SAVINGS_PAYOUTS_FETCH_TIME_KEY,
+            String(Date.now()),
+          );
+
+          return { didWork: true };
+        } catch (initError) {
+          const message = initError?.message || 'Unable to initialize savings';
+          setInitializationError(message);
+          console.log(initError, 'initializing savings error');
+          return { didWork: false, error: message };
+        } finally {
+          hasInitializedRef.current = true;
+          initPromiseRef.current = null;
+          if (shouldShowInitializing) {
+            setIsInitializing(false);
+          }
+        }
+      })();
+
+      initPromiseRef.current = initPromise;
+      return initPromise;
+    },
+    [
+      accountMnemoinc,
+      loadSavingsState,
+      restorePaymentsFromSpark,
+      savingsWallet,
+      updateWalletBalance,
+      updateWalletBitcoinBalance,
+    ],
+  );
+
+  useEffect(() => {
+    if (!didGetToHomepage) return;
+    initializeSavings();
+  }, [initializeSavings, didGetToHomepage]);
 
   const savingsBalanceMicros = useMemo(() => {
     // Live wallet balance is the source of truth (survives goal deletion)
@@ -571,14 +740,18 @@ export function SavingsProvider({ children }) {
       withdrawMoney: async ({ amount, goalId }) =>
         withdrawFromGoal({ amount, goalId }),
       withdrawlFromRewards,
+      initializeSavings,
       refreshSavings: loadSavingsState,
       refreshBalances,
       refreshInterestPayouts,
       interestPayouts,
       walletBalanceMicros,
+      walletBitcoinBalanceSats,
       savingsWallet,
       totalGoalsBalance,
       totalIntrestEarned,
+      isInitializing,
+      initializationError,
     }),
     [
       deriveSingleSavingsWallet,
@@ -592,14 +765,18 @@ export function SavingsProvider({ children }) {
       savingsBalanceMicros,
       updateGoal,
       removeGoal,
+      initializeSavings,
       loadSavingsState,
       refreshBalances,
       refreshInterestPayouts,
       interestPayouts,
       walletBalanceMicros,
+      walletBitcoinBalanceSats,
       savingsWallet,
       totalGoalsBalance,
       totalIntrestEarned,
+      isInitializing,
+      initializationError,
     ],
   );
 
