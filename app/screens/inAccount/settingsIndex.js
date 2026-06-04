@@ -141,6 +141,12 @@ export default function SettingsIndex() {
         });
         return;
       }
+      if (row.name === 'ViewAllSwaps') {
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'selectSwapNetwork',
+        });
+        return;
+      }
       navigate.navigate('SettingsContentHome', {
         for: row.name,
       });

@@ -59,7 +59,6 @@ import Nip5VerificationPage from '../app/components/admin/homeComponents/setting
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
-import RoostockSwapInfo from '../app/components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
@@ -247,7 +246,6 @@ const FADE_SCREENS = [
   { name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode },
   { name: 'ViewSMSReceiveCode', component: ViewSmsReceiveCode },
   { name: 'ConfirmSMSReceivePage', component: ConfirmSMSReceivePage },
-  { name: 'RoostockSwapInfo', component: RoostockSwapInfo },
   { name: 'BackupSeedWarning', component: BackupSeedWarning },
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
