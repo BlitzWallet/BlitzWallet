@@ -5,6 +5,8 @@ import {
   bulkUpdateSparkTransactions,
   deleteUnpaidSparkLightningTransaction,
   getActiveLiquidSwapInvoice,
+  getSparkTransactionBySparkId,
+  hasPaidSparkLightningInvoice,
   insertSparkTransactionPlaceholders,
   updateSparkTransactionDetails,
 } from './transactions';
@@ -295,18 +297,28 @@ export default async function liquidToSparkSwap({
     // through despite a failed response, a later settled payment will remap
     // onto this id and flip it back to completed.
     if (placeholderId && accountId) {
-      try {
-        await bulkUpdateSparkTransactions([
-          {
-            id: placeholderId,
-            accountId,
-            paymentStatus: 'failed',
-            paymentType: 'lightning',
-            details: { isLiquidSwap: true },
-          },
-        ]);
-      } catch (cleanupErr) {
-        console.log('liquidToSparkSwap placeholder cleanup error', cleanupErr);
+      const savedTransaction = await getSparkTransactionBySparkId(
+        placeholderId,
+        accountId,
+      );
+
+      if (savedTransaction.paymentStatus !== 'completed') {
+        try {
+          await bulkUpdateSparkTransactions([
+            {
+              id: placeholderId,
+              accountId,
+              paymentStatus: 'failed',
+              paymentType: 'lightning',
+              details: { isLiquidSwap: true },
+            },
+          ]);
+        } catch (cleanupErr) {
+          console.log(
+            'liquidToSparkSwap placeholder cleanup error',
+            cleanupErr,
+          );
+        }
       }
     }
     return { didWork: false, error: err.message };
