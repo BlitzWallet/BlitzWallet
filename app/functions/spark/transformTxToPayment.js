@@ -70,6 +70,13 @@ export async function transformTxToPaymentObject(
       : undefined;
 
     const isSwapPayment = foundInvoice && foundInvoiceDetails.performSwaptoUSD;
+    const isLiquidSwap = foundInvoice && foundInvoiceDetails.isLiquidSwap;
+    const liquidSwapFee = Number(
+      foundInvoiceDetails?.fee ?? foundInvoiceDetails?.swapFeeSat ?? 0,
+    );
+    const effectivePaymentFee = isLiquidSwap
+      ? Math.max(paymentFee, Number.isFinite(liquidSwapFee) ? liquidSwapFee : 0)
+      : paymentFee;
 
     if (isSwapPayment) {
       updateSparkTransactionDetails(foundInvoice.sparkID, {
@@ -92,6 +99,10 @@ export async function transformTxToPaymentObject(
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
+      // The Liquid->Spark auto-swap pre-inserts a pending placeholder keyed by
+      // the lightning request id. Remap it onto the settled payment so the
+      // placeholder is updated rather than duplicated.
+      ...(isLiquidSwap && { useTempId: true, tempId: userRequestId }),
       paymentStatus: isSwapPayment
         ? 'pending'
         : status === 'completed' || preimage
@@ -101,10 +112,12 @@ export async function transformTxToPaymentObject(
       accountId: accountId,
       details: {
         ...foundInvoiceDetails,
-        fee: paymentFee,
-        totalFee: paymentFee + supportFee,
+        fee: effectivePaymentFee,
+        totalFee: effectivePaymentFee + supportFee,
         supportFee: supportFee,
-        amount: paymentAmount - paymentFee,
+        amount: isLiquidSwap
+          ? paymentAmount
+          : paymentAmount - effectivePaymentFee,
         address: userRequest
           ? isSendRequest
             ? userRequest?.encodedInvoice

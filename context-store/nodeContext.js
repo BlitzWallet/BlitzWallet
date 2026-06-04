@@ -12,7 +12,7 @@ import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
 import { useSparkWallet } from './sparkContext';
-import { useGlobalContactsInfo } from './globalContacts';
+import { useWebView } from './webViewContext';
 import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 import { useAuthContext } from './authContext';
 import { ensureLiquidConnection } from '../app/functions/breezLiquid/liquidNodeManager';
@@ -22,12 +22,11 @@ import { SATSPERBITCOIN } from '../app/constants';
 const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({ children }) => {
-  const { globalContactsInformation } = useGlobalContactsInfo();
   const { sparkInformation } = useSparkWallet();
+  const { sendWebViewRequest } = useWebView();
   const { contactsPrivateKey, publicKey, accountMnemoinc } = useKeysContext();
   const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
-  const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({
     didConnectToNode: null,
     transactions: [],
@@ -108,11 +107,18 @@ const GLobalNodeContextProider = ({ children }) => {
   useEffect(() => {
     async function swapLiquidToSpark() {
       try {
-        if (liquidNodeInformation.userBalance > minMaxLiquidSwapAmounts.min) {
-          setPendingLiquidPayment(true);
-          await liquidToSparkSwap(
-            globalContactsInformation.myProfile.uniqueName,
-          );
+        // Only sweep funds that aren't already locked in an in-flight send,
+        // so overlapping balance updates can't trigger a double swap.
+        const spendableSat =
+          liquidNodeInformation.userBalance -
+          (liquidNodeInformation.pendingSend || 0);
+        if (spendableSat > minMaxLiquidSwapAmounts.min) {
+          await liquidToSparkSwap({
+            mnemonic: accountMnemoinc,
+            sparkInformation,
+            spendableSat,
+            sendWebViewRequest,
+          });
         }
       } catch (err) {
         console.log('transfering liquid to spark error', err);
@@ -126,10 +132,12 @@ const GLobalNodeContextProider = ({ children }) => {
   }, [
     didGetToHomepage,
     liquidNodeInformation.userBalance,
-    minMaxLiquidSwapAmounts,
+    liquidNodeInformation.pendingSend,
+    minMaxLiquidSwapAmounts.min,
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
-    globalContactsInformation?.myProfile?.uniqueName,
+    accountMnemoinc,
+    sendWebViewRequest,
     masterInfoObject.enabledLiquidAutoSwap,
   ]);
 
@@ -147,8 +155,6 @@ const GLobalNodeContextProider = ({ children }) => {
       toggleLiquidNodeInformation,
       toggleFiatStats,
       fiatStats,
-      pendingLiquidPayment,
-      setPendingLiquidPayment,
       SATS_PER_DOLLAR,
     }),
     [
@@ -156,8 +162,6 @@ const GLobalNodeContextProider = ({ children }) => {
       fiatStats,
       toggleFiatStats,
       toggleLiquidNodeInformation,
-      pendingLiquidPayment,
-      setPendingLiquidPayment,
       SATS_PER_DOLLAR,
     ],
   );

@@ -53,10 +53,7 @@ import {
   LOGIN_SECURITY_MODE_TYPE_KEY,
 } from './app/constants';
 import { LiquidEventProvider } from './context-store/liquidEventContext';
-import {
-  LiquidNavigationListener,
-  RootstockNavigationListener,
-} from './context-store/SDKNavigation';
+import { RootstockNavigationListener } from './context-store/SDKNavigation';
 import {
   GlobalThemeProvider,
   useGlobalThemeContext,
@@ -598,7 +595,6 @@ function ResetStack(): JSX.Element | null {
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <RootstockNavigationListener />
-      <LiquidNavigationListener />
       <ToastContainer />
       <SparkConnectionManager />
       {/* <EcashNavigationListener /> */}

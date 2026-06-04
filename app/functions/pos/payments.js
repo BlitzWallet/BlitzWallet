@@ -2,7 +2,6 @@ import { InputTypes } from 'bitcoin-address-parser';
 import { getLNAddressForLiquidPayment } from '../../components/admin/homeComponents/sendBitcoin/functions/payments';
 import getLNURLDetails from '../lnurl/getLNURLDetails';
 import { sparkPaymenWrapper } from '../spark/payments';
-// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 
 /**
  * Pay to a Lightning address using the most efficient available payment method
