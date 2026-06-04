@@ -1,4 +1,3 @@
-// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {
   MIN_USD_BTC_LIGHTNING_SWAP,
   SATSPERBITCOIN,

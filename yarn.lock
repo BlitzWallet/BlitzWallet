@@ -1783,13 +1783,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@breeztech/react-native-breez-sdk-liquid@npm:^0.11.9":
-  version: 0.11.9
-  resolution: "@breeztech/react-native-breez-sdk-liquid@npm:0.11.9"
+"@breeztech/react-native-breez-sdk-liquid@npm:^0.11.13":
+  version: 0.11.13
+  resolution: "@breeztech/react-native-breez-sdk-liquid@npm:0.11.13"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: cd359313669852aa36f5046a7217f64734b88ee11c581273ac1a6314c8081eb6d60d2f31785321fbe89bf3a1d8add508576d7e216287b5d5430e7ad199a1a979
+  checksum: 48ba269676182de36b3689f5940bfcc0a2849bac3ed641c68c6e2cf6e89df9c27b12606df3ed63b5ec2ab21ff5b7a9696384ab4d28111810dba0efb63f2c824c
   languageName: node
   linkType: hard
 
@@ -4924,7 +4924,7 @@ __metadata:
     "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
     "@branta-ops/branta": ^3.1.2
-    "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
+    "@breeztech/react-native-breez-sdk-liquid": ^0.11.13
     "@buildonspark/spark-sdk": ^0.8.0
     "@craftzdog/react-native-buffer": ^6.1.0
     "@flashnet/sdk": ^0.5.7

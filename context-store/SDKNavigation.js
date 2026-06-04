@@ -4,7 +4,6 @@ import { useAppStatus } from './appStatus';
 import { crashlyticsLogReport } from '../app/functions/crashlyticsLogs';
 import { useRootstockProvider } from './rootstockSwapContext';
 import i18next from 'i18next';
-import { useNodeContext } from './nodeContext';
 
 export function RootstockNavigationListener() {
   const navigation = useNavigation();
@@ -34,38 +33,6 @@ export function RootstockNavigationListener() {
 
     setPendingNavigation(null);
   }, [pendingNavigation, didGetToHomepage]);
-
-  return null;
-}
-
-export function LiquidNavigationListener() {
-  const navigation = useNavigation();
-  const { didGetToHomepage } = useAppStatus();
-  const { pendingLiquidPayment, setPendingLiquidPayment } = useNodeContext();
-  const isNavigating = useRef(false); // Use a ref for local state
-
-  useEffect(() => {
-    if (!pendingLiquidPayment) return;
-    if (!didGetToHomepage) {
-      setPendingLiquidPayment(null);
-      return;
-    }
-    if (isNavigating.current) return;
-    crashlyticsLogReport(`Navigating to confirm tx page in liquid listener `);
-    isNavigating.current = true;
-
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        navigation.navigate('ErrorScreen', {
-          errorMessage: i18next.t('errormessages.receivedLiquid'),
-        });
-        isNavigating.current = false;
-        console.log('cleaning up navigation for liquid');
-      });
-    }, 100);
-
-    setPendingLiquidPayment(null);
-  }, [pendingLiquidPayment, didGetToHomepage]);
 
   return null;
 }
