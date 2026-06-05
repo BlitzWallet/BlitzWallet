@@ -1596,6 +1596,8 @@
       "displayForm": "Формат",
       "homepage": "Главная",
       "txToDisplay": "Транзакций в списке",
+      "hideSmallPayments": "Скрывать мелкие платежи",
+      "hideSmallPaymentsDesc": "Скрывать платежи Bitcoin меньше {{btcAmount}} и долларовые платежи меньше {{dollarAmount}}.",
       "transactionsLabel_15": "15 транзакций",
       "transactionsLabel_20": "20 транзакций",
       "transactionsLabel_25": "25 транзакций",

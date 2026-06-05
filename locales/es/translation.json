@@ -1592,6 +1592,8 @@
       "displayForm": "Formato de visualización",
       "homepage": "Página principal",
       "txToDisplay": "Transacciones a mostrar",
+      "hideSmallPayments": "Ocultar pagos pequeños",
+      "hideSmallPaymentsDesc": "Oculta los pagos de Bitcoin menores de {{btcAmount}} y los pagos en dólares menores de {{dollarAmount}}.",
       "transactionsLabel_15": "15 transacciones",
       "transactionsLabel_20": "20 transacciones",
       "transactionsLabel_25": "25 transacciones",

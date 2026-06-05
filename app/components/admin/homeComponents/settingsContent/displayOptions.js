@@ -4,6 +4,8 @@ import {
   COLORS,
   HIDDEN_BALANCE_TEXT,
   SIZES,
+  SMALL_BTC_PAYMENT_LIMIT,
+  SMALL_USD_PAYMENT_LIMIT,
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
@@ -90,6 +92,7 @@ export default function DisplayOptions() {
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
   const { updateHomepageTxPreferance } = useSparkWallet();
+  const hideSmallPaymentsHomepage = masterInfoObject?.hideSmallPaymentsHomepage;
 
   const dropdownOptions = [15, 20, 25, 30, 35, 40].map(value => ({
     label: t('settings.displayOptions.transactionsLabel', { context: value }),
@@ -119,6 +122,11 @@ export default function DisplayOptions() {
     if (newTheme && darkModeType !== newDarkModeType) {
       toggleDarkModeType(newDarkModeType);
     }
+  };
+
+  const updateSmallPaymentSettings = update => {
+    toggleMasterInfoObject({ hideSmallPaymentsHomepage: update });
+    updateHomepageTxPreferance(masterInfoObject.homepageTxPreferance, update);
   };
 
   const containerBackground = backgroundOffset;
@@ -284,6 +292,41 @@ export default function DisplayOptions() {
             dropdownItemCustomStyles={{ justifyContent: 'start' }}
             textStyles={{ paddingRight: 20 }}
           />
+
+          <View style={[styles.divider, { backgroundColor }]} />
+
+          <SettingsItem
+            isLast={true}
+            label={t('settings.displayOptions.hideSmallPayments')}
+            description={t('settings.displayOptions.hideSmallPaymentsDesc', {
+              btcAmount: displayCorrectDenomination({
+                amount: SMALL_BTC_PAYMENT_LIMIT,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'sats',
+                },
+                fiatStats,
+              }),
+              dollarAmount: displayCorrectDenomination({
+                amount: SMALL_USD_PAYMENT_LIMIT,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'fiat',
+                },
+                fiatStats,
+                convertAmount: false,
+                forceCurrency: 'USD',
+              }),
+            })}
+          >
+            <CustomToggleSwitch
+              stateValue={hideSmallPaymentsHomepage}
+              toggleSwitchFunction={() =>
+                updateSmallPaymentSettings(!hideSmallPaymentsHomepage)
+              }
+              page={'cameraSlider'}
+            />
+          </SettingsItem>
         </View>
       </SettingsSection>
 

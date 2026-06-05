@@ -1595,6 +1595,8 @@
       "displayForm": "Visningsformat",
       "homepage": "Hemsida",
       "txToDisplay": "Transaktioner som ska visas",
+      "hideSmallPayments": "Dölj små betalningar",
+      "hideSmallPaymentsDesc": "Dölj Bitcoin-betalningar under {{btcAmount}} och dollarbetalningar under {{dollarAmount}}.",
       "transactionsLabel_15": "15 Transaktioner",
       "transactionsLabel_20": "20 Transaktioner",
       "transactionsLabel_25": "25 Transaktioner",

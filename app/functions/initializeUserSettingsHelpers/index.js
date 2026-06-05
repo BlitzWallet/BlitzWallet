@@ -34,6 +34,7 @@ const keys = [
   'monthlyBudget',
   'bitrefillEmail',
   SPEND_AND_REPLACE_STORAGE_KEY,
+  'hideSmallPaymentsHomepage',
 ];
 
 const defaultValues = {
@@ -73,6 +74,7 @@ const defaultValues = {
   monthlyBudget: null,
   bitrefillEmail: '',
   [SPEND_AND_REPLACE_STORAGE_KEY]: { isEnabled: false },
+  hideSmallPaymentsHomepage: false,
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -121,6 +123,8 @@ export const fetchLocalStorageItems = async () => {
     monthlyBudget: parsedResults[22] ?? defaultValues.monthlyBudget,
     bitrefillEmail: parsedResults[23] ?? defaultValues.bitrefillEmail,
     spendAndReplace: parsedResults[24] ?? defaultValues.spendAndReplace,
+    hideSmallPaymentsHomepage:
+      parsedResults[25] ?? defaultValues.hideSmallPaymentsHomepage,
   };
 };
 

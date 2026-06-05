@@ -9,6 +9,8 @@ import {
   ICONS,
   SIZES,
   SKELETON_ANIMATION_SPEED,
+  SMALL_BTC_PAYMENT_LIMIT,
+  SMALL_USD_PAYMENT_LIMIT,
   USDB_TOKEN_ID,
 } from '../constants';
 import GetThemeColors from '../hooks/themeColors';
@@ -38,6 +40,30 @@ const TRANSACTION_CONSTANTS = {
   INCOMING: 'INCOMING',
   OUTGOING: 'OUTGOING',
   UNKOWN: 'unknown',
+};
+
+const shouldHideSmallPayment = ({
+  frompage,
+  hideSmallPaymentsHomepage,
+  paymentDetails,
+  isLRC20Payment,
+  tokenDecimals,
+}) => {
+  if (frompage !== TRANSACTION_CONSTANTS.HOME || !hideSmallPaymentsHomepage) {
+    return false;
+  }
+
+  const amount = Math.abs(Number(paymentDetails?.amount));
+  if (!Number.isFinite(amount)) return false;
+
+  if (isLRC20Payment) {
+    if (paymentDetails?.LRC20Token !== USDB_TOKEN_ID) return false;
+    const decimals = Number(tokenDecimals ?? 6);
+    const usdAmount = amount / 10 ** decimals;
+    return usdAmount < SMALL_USD_PAYMENT_LIMIT;
+  }
+
+  return amount < SMALL_BTC_PAYMENT_LIMIT;
 };
 
 const SKELETON_STYLES = {
@@ -227,6 +253,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     scrollPosition,
     poolInfoRef,
     t,
+    hideSmallPaymentsHomepage,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -300,6 +327,17 @@ export default function getFormattedHomepageTxsForSpark(props) {
         paymentDetails.performSwaptoUSD &&
         (!paymentDetails.completedSwaptoUSD ||
           !ln_funding_txIds.has(currentTransaction.sparkID));
+
+      if (
+        shouldHideSmallPayment({
+          frompage,
+          hideSmallPaymentsHomepage,
+          paymentDetails,
+          isLRC20Payment,
+          tokenDecimals: hasSavedTokenData?.tokenMetadata?.decimals,
+        })
+      )
+        continue;
 
       // Early continue conditions
       if (

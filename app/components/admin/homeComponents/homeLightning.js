@@ -210,6 +210,7 @@ export default function HomeLightning({ navigation }) {
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const didViewSeedPhrase = masterInfoObject?.didViewSeedPhrase;
+  const hideSmallPaymentsHomepage = masterInfoObject?.hideSmallPaymentsHomepage;
 
   const BALANCE_FADE_START = navbarHeight;
   const BALANCE_FADE_END = 100;
@@ -296,6 +297,7 @@ export default function HomeLightning({ navigation }) {
         scrollPosition,
         poolInfoRef,
         t,
+        hideSmallPaymentsHomepage,
       }) || []
     );
   }, [
@@ -310,6 +312,7 @@ export default function HomeLightning({ navigation }) {
     darkModeType,
     t,
     showTokensInformation,
+    hideSmallPaymentsHomepage,
   ]);
 
   const handleRefresh = useCallback(async () => {
