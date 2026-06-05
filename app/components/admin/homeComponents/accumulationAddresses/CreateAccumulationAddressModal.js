@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -27,8 +27,8 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import ChainRow from './chainRow';
 
 // Steps: 'chain' | 'destination' | 'confirm'
 const STEPS = ['chain', 'destination', 'confirm'];
@@ -37,6 +37,7 @@ export default function CreateAccumulationAddressModal({
   setContentHeight,
   handleBackPressFunction,
   forcedDestination,
+  setBackNav,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -46,8 +47,6 @@ export default function CreateAccumulationAddressModal({
   const { bottomPadding } = useGlobalInsets();
 
   const [step, setStep] = useState('chain');
-  const [renderedStep, setRenderedStep] = useState('chain');
-  const renderedStepRef = useRef('chain');
   const [expandedChain, setExpandedChain] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [selectedChain, setSelectedChain] = useState(null);
@@ -55,6 +54,7 @@ export default function CreateAccumulationAddressModal({
     forcedDestination || null,
   );
   const [isCreating, setIsCreating] = useState(false);
+  const [mountedSteps, setMountedSteps] = useState(() => new Set(['chain']));
 
   const isPairTaken = useCallback(
     (chainId, asset, dest) =>
@@ -67,38 +67,65 @@ export default function CreateAccumulationAddressModal({
     [addresses],
   );
 
-  const pageOpacity = useSharedValue(1);
-  const pageTranslateX = useSharedValue(0);
-
-  const startInAnimation = useCallback(
-    (newStep, goingForward) => {
-      renderedStepRef.current = newStep;
-      setRenderedStep(newStep);
-      pageTranslateX.value = goingForward ? 30 : -30;
-      pageOpacity.value = withTiming(1, { duration: 125 });
-      pageTranslateX.value = withTiming(0, { duration: 125 });
-    },
-    [pageTranslateX, pageOpacity],
-  );
+  const chainOpacity = useSharedValue(1);
+  const chainTranslateX = useSharedValue(0);
+  const destinationOpacity = useSharedValue(0);
+  const destinationTranslateX = useSharedValue(30);
+  const confirmOpacity = useSharedValue(0);
+  const confirmTranslateX = useSharedValue(30);
 
   useEffect(() => {
-    if (step === renderedStepRef.current) return;
-    const goingForward =
-      STEPS.indexOf(step) > STEPS.indexOf(renderedStepRef.current);
-    pageOpacity.value = withTiming(0, { duration: 125 });
-    pageTranslateX.value = withTiming(
-      goingForward ? -30 : 30,
-      { duration: 125 },
-      finished => {
-        if (finished) scheduleOnRN(startInAnimation, step, goingForward);
-      },
-    );
+    const activeIndex = STEPS.indexOf(step);
+    const translateForStep = screenStep => {
+      const screenIndex = STEPS.indexOf(screenStep);
+      if (screenIndex === activeIndex) return 0;
+      return screenIndex < activeIndex ? -30 : 30;
+    };
+
+    chainOpacity.value = withTiming(step === 'chain' ? 1 : 0, {
+      duration: 250,
+    });
+    chainTranslateX.value = withTiming(translateForStep('chain'), {
+      duration: 250,
+    });
+    destinationOpacity.value = withTiming(step === 'destination' ? 1 : 0, {
+      duration: 250,
+    });
+    destinationTranslateX.value = withTiming(translateForStep('destination'), {
+      duration: 250,
+    });
+    confirmOpacity.value = withTiming(step === 'confirm' ? 1 : 0, {
+      duration: 250,
+    });
+    confirmTranslateX.value = withTiming(translateForStep('confirm'), {
+      duration: 250,
+    });
   }, [step]);
 
-  const pageAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: pageOpacity.value,
-    transform: [{ translateX: pageTranslateX.value }],
+  const chainAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: chainOpacity.value,
+    transform: [{ translateX: chainTranslateX.value }],
   }));
+
+  const destinationAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: destinationOpacity.value,
+    transform: [{ translateX: destinationTranslateX.value }],
+  }));
+
+  const confirmAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: confirmOpacity.value,
+    transform: [{ translateX: confirmTranslateX.value }],
+  }));
+
+  const goToStep = useCallback(nextStep => {
+    setMountedSteps(prev => {
+      if (prev.has(nextStep)) return prev;
+      const next = new Set(prev);
+      next.add(nextStep);
+      return next;
+    });
+    setStep(nextStep);
+  }, []);
 
   useEffect(() => {
     setContentHeight(450);
@@ -109,21 +136,37 @@ export default function CreateAccumulationAddressModal({
 
     if (step === 'destination') {
       setSelectedDestination(null);
-      setStep('chain');
+      goToStep('chain');
       return true;
     }
 
     if (step === 'confirm') {
       setSelectedDestination(forcedDestination || null);
-      setStep(forcedDestination ? 'chain' : 'destination');
+      goToStep(forcedDestination ? 'chain' : 'destination');
       return true;
     }
 
     // 'chain' step — let the modal close naturally
     return false;
-  }, [isCreating, step, forcedDestination]);
+  }, [isCreating, step, forcedDestination, goToStep]);
 
   useHandleBackPressNew(handleBackPress);
+
+  // Register the chrome's back arrow whenever past the first step.
+  useEffect(() => {
+    if (step === 'chain') {
+      setBackNav?.(null);
+    } else {
+      setBackNav?.({
+        onPress: handleBackPress,
+        title:
+          step === 'destination'
+            ? t('screens.accumulationAddresses.create.pickDestination')
+            : t('screens.accumulationAddresses.create.confirm'),
+      });
+    }
+    return () => setBackNav?.(null);
+  }, [step, handleBackPress, setBackNav]);
 
   const handleCreate = useCallback(async () => {
     setIsCreating(true);
@@ -150,15 +193,21 @@ export default function CreateAccumulationAddressModal({
     t,
   ]);
 
-  // ── Chain step ──────────────────────────────────────────────────────────────
-  if (renderedStep === 'chain') {
-    return (
-      <Animated.View style={[styles.container, pageAnimatedStyle]}>
+  return (
+    <View style={styles.container}>
+      {/* Chain step */}
+      <Animated.View
+        style={[styles.animatedContainer, chainAnimatedStyle]}
+        pointerEvents={step === 'chain' ? 'auto' : 'none'}
+      >
         <ThemeText
           styles={styles.stepTitle}
           content={t('screens.accumulationAddresses.create.pickChain')}
         />
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: bottomPadding }}
+          showsVerticalScrollIndicator={false}
+        >
           {ACCUMULATION_CHAINS.map(chain => (
             <ChainRow
               key={chain.id}
@@ -170,7 +219,8 @@ export default function CreateAccumulationAddressModal({
               onSelectAsset={(c, asset) => {
                 setSelectedChain(c);
                 setSelectedAsset(asset);
-                setStep(forcedDestination ? 'confirm' : 'destination');
+                goToStep(forcedDestination ? 'confirm' : 'destination');
+                setExpandedChain(null);
               }}
               isAssetTaken={
                 forcedDestination
@@ -192,268 +242,176 @@ export default function CreateAccumulationAddressModal({
           ))}
         </ScrollView>
       </Animated.View>
-    );
-  }
 
-  // ── Destination step ────────────────────────────────────────────────────────
-  if (renderedStep === 'destination') {
-    return (
-      <Animated.View style={[styles.container, pageAnimatedStyle]}>
-        <ThemeText
-          styles={styles.stepTitle}
-          content={t('screens.accumulationAddresses.create.pickDestination')}
-        />
-        {ACCUMULATION_DESTINATIONS.map(dest => {
-          const taken = isPairTaken(selectedChain?.id, selectedAsset, dest);
-          return (
-            <TouchableOpacity
-              key={dest}
-              activeOpacity={taken ? HIDDEN_OPACITY : 0.2}
-              style={[
-                styles.optionRow,
-                { opacity: taken ? HIDDEN_OPACITY : 1 },
-              ]}
-              onPress={() => {
-                if (taken) {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: t(
-                      'screens.accumulationAddresses.create.alreadyExists',
-                    ),
-                  });
-                  return;
-                }
-                setSelectedDestination(dest);
-                setStep('confirm');
-              }}
-            >
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? darkModeType
-                          ? backgroundColor
-                          : backgroundOffset
-                        : dest === 'BTC'
-                        ? COLORS.bitcoinOrange
-                        : COLORS.dollarGreen,
-                  },
-                ]}
-              >
-                <ThemeImage
-                  styles={{ width: 25, height: 25 }}
-                  lightModeIcon={
-                    dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
-                  }
-                  darkModeIcon={
-                    dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
-                  }
-                  lightsOutIcon={
-                    dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
-                  }
-                />
-              </View>
-              <ThemeText
-                styles={styles.optionLabel}
-                content={
-                  dest === 'BTC'
-                    ? t('constants.bitcoin_upper')
-                    : t('constants.dollars_upper')
-                }
-              />
-              <ThemeIcon iconName="ChevronRight" size={18} />
-            </TouchableOpacity>
-          );
-        })}
-      </Animated.View>
-    );
-  }
-
-  // ── Confirm step ────────────────────────────────────────────────────────────
-  return (
-    <Animated.View style={[styles.container, pageAnimatedStyle]}>
-      <ThemeText
-        styles={styles.stepTitle}
-        content={t('screens.accumulationAddresses.create.confirm')}
-      />
-
-      <View style={styles.confirmContent}>
-        <View style={styles.assetRow}>
-          <View style={styles.confirmIconWrapper}>
-            <View
-              style={[
-                styles.confirmChainCircle,
-                { backgroundColor: backgroundOffset },
-              ]}
-            >
-              <Image
-                style={styles.confirmChainIcon}
-                source={ICONS[`chain_${selectedChain?.label.toLowerCase()}`]}
-                contentFit="contain"
-              />
-            </View>
-            <View
-              style={[
-                styles.confirmCurrencyBadge,
-                { borderColor: backgroundColor },
-              ]}
-            >
-              <Image
-                style={styles.confirmCurrencyIcon}
-                source={ICONS[`${selectedAsset?.toLowerCase()}Logo`]}
-                contentFit="contain"
-              />
-            </View>
-          </View>
-          <ThemeIcon
-            styles={{ opacity: HIDDEN_OPACITY }}
-            iconName={'ArrowRight'}
-          />
-          <View style={styles.confirmIconWrapper}>
-            <View
-              style={[
-                styles.confirmChainCircle,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? backgroundColor
-                      : selectedDestination === 'BTC'
-                      ? COLORS.bitcoinOrange
-                      : COLORS.dollarGreen,
-                },
-              ]}
-            >
-              <Image
-                style={[styles.confirmChainIcon, { width: 50, height: 50 }]}
-                source={
-                  ICONS[
-                    selectedDestination === 'BTC' ? 'bitcoinIcon' : 'dollarIcon'
-                  ]
-                }
-                contentFit="contain"
-              />
-            </View>
-          </View>
-        </View>
-
-        <ThemeText
-          styles={styles.confirmChainName}
-          content={selectedChain?.label}
-        />
-        <ThemeText
-          styles={styles.confirmSubtitle}
-          content={t('screens.accumulationAddresses.create.convertDesc', {
-            chain: selectedChain?.label,
-            asset: selectedAsset,
-            receiveCurrency:
-              selectedDestination === 'BTC'
-                ? t('constants.bitcoin_upper')
-                : t('constants.dollars_upper'),
-          })}
-        />
-      </View>
-
-      <CustomButton
-        buttonStyles={[styles.createBtn, { marginBottom: bottomPadding }]}
-        textContent={t('screens.accumulationAddresses.summary.create')}
-        actionFunction={handleCreate}
-        useLoading={isCreating}
-      />
-    </Animated.View>
-  );
-}
-
-function ChainRow({
-  chain,
-  expanded,
-  onToggleExpand,
-  onSelectAsset,
-  isAssetTaken,
-  onDisabledAssetPress,
-  theme,
-  darkModeType,
-  backgroundColor,
-  backgroundOffset,
-}) {
-  const expandHeight = useSharedValue(0);
-  const chevronRotation = useSharedValue(0);
-
-  useEffect(() => {
-    expandHeight.value = withTiming(expanded ? 1 : 0, { duration: 200 });
-    chevronRotation.value = withTiming(expanded ? 1 : 0, { duration: 200 });
-  }, [expanded]);
-
-  const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * (chain.assets.length * 65 + 16),
-    opacity: expandHeight.value,
-  }));
-
-  const chevronStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
-  }));
-
-  return (
-    <View>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        style={styles.chainRow}
-        onPress={() => onToggleExpand(chain.id)}
-      >
-        <View
+      {mountedSteps.has('destination') && (
+        <Animated.View
           style={[
-            styles.chainIconContainer,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
+            StyleSheet.absoluteFill,
+            styles.animatedContainer,
+            destinationAnimatedStyle,
           ]}
+          pointerEvents={step === 'destination' ? 'auto' : 'none'}
         >
-          <Image
-            style={styles.assetIcon}
-            source={ICONS[`chain_${chain.label.toLowerCase()}`]}
-            contentFit="contain"
-          />
-        </View>
-        <ThemeText styles={styles.optionLabel} content={chain.label} />
-        <View style={{ opacity: HIDDEN_OPACITY }}>
-          <Animated.View style={chevronStyle}>
-            <ThemeIcon iconName="ChevronDown" size={18} />
-          </Animated.View>
-        </View>
-      </TouchableOpacity>
-
-      <Animated.View style={[styles.assetOptionsContainer, expandedStyle]}>
-        {chain.assets.map(asset => {
-          const disabled = isAssetTaken(asset);
-          return (
-            <TouchableOpacity
-              key={asset}
-              activeOpacity={0.7}
-              style={[
-                styles.assetOptionRow,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                  opacity: disabled ? HIDDEN_OPACITY : 1,
-                },
-              ]}
-              onPress={() =>
-                disabled ? onDisabledAssetPress() : onSelectAsset(chain, asset)
-              }
-            >
-              <View style={styles.assetOptionIconContainer}>
-                <Image
-                  style={styles.assetOptionIcon}
-                  source={ICONS[`${asset.toLowerCase()}Logo`]}
-                  contentFit="contain"
+          {ACCUMULATION_DESTINATIONS.map(dest => {
+            const taken = isPairTaken(selectedChain?.id, selectedAsset, dest);
+            return (
+              <TouchableOpacity
+                key={dest}
+                activeOpacity={taken ? HIDDEN_OPACITY : 0.2}
+                style={[
+                  styles.optionRow,
+                  { opacity: taken ? HIDDEN_OPACITY : 1 },
+                ]}
+                onPress={() => {
+                  if (taken) {
+                    navigate.navigate('ErrorScreen', {
+                      errorMessage: t(
+                        'screens.accumulationAddresses.create.alreadyExists',
+                      ),
+                    });
+                    return;
+                  }
+                  setSelectedDestination(dest);
+                  goToStep('confirm');
+                }}
+              >
+                <View
+                  style={[
+                    styles.iconContainer,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? darkModeType
+                            ? backgroundColor
+                            : backgroundOffset
+                          : dest === 'BTC'
+                          ? COLORS.bitcoinOrange
+                          : COLORS.dollarGreen,
+                    },
+                  ]}
+                >
+                  <ThemeImage
+                    styles={{ width: 25, height: 25 }}
+                    lightModeIcon={
+                      dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                    }
+                    darkModeIcon={
+                      dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                    }
+                    lightsOutIcon={
+                      dest === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                    }
+                  />
+                </View>
+                <ThemeText
+                  styles={styles.optionLabel}
+                  content={
+                    dest === 'BTC'
+                      ? t('constants.bitcoin_upper')
+                      : t('constants.dollars_upper')
+                  }
                 />
+                <ThemeIcon iconName="ChevronRight" size={18} />
+              </TouchableOpacity>
+            );
+          })}
+        </Animated.View>
+      )}
+
+      {mountedSteps.has('confirm') && (
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            styles.animatedContainer,
+            confirmAnimatedStyle,
+          ]}
+          pointerEvents={step === 'confirm' ? 'auto' : 'none'}
+        >
+          <View style={styles.confirmContent}>
+            <View style={styles.assetRow}>
+              <View style={styles.confirmIconWrapper}>
+                <View
+                  style={[
+                    styles.confirmChainCircle,
+                    { backgroundColor: backgroundOffset },
+                  ]}
+                >
+                  <Image
+                    style={styles.confirmChainIcon}
+                    source={
+                      ICONS[`chain_${selectedChain?.label.toLowerCase()}`]
+                    }
+                    contentFit="contain"
+                  />
+                </View>
+                <View
+                  style={[
+                    styles.confirmCurrencyBadge,
+                    { borderColor: backgroundColor },
+                  ]}
+                >
+                  <Image
+                    style={styles.confirmCurrencyIcon}
+                    source={ICONS[`${selectedAsset?.toLowerCase()}Logo`]}
+                    contentFit="contain"
+                  />
+                </View>
               </View>
-              <ThemeText styles={styles.optionLabel} content={asset} />
-            </TouchableOpacity>
-          );
-        })}
-      </Animated.View>
+              <ThemeIcon styles={{ opacity: 0.7 }} iconName={'ArrowRight'} />
+              <View style={styles.confirmIconWrapper}>
+                <View
+                  style={[
+                    styles.confirmChainCircle,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundColor
+                          : selectedDestination === 'BTC'
+                          ? COLORS.bitcoinOrange
+                          : COLORS.dollarGreen,
+                    },
+                  ]}
+                >
+                  <Image
+                    style={[styles.confirmChainIcon, { width: 50, height: 50 }]}
+                    source={
+                      ICONS[
+                        selectedDestination === 'BTC'
+                          ? 'bitcoinIcon'
+                          : 'dollarIcon'
+                      ]
+                    }
+                    contentFit="contain"
+                  />
+                </View>
+              </View>
+            </View>
+
+            <ThemeText
+              styles={styles.confirmChainName}
+              content={selectedChain?.label}
+            />
+            <ThemeText
+              styles={styles.confirmSubtitle}
+              content={t('screens.accumulationAddresses.create.convertDesc', {
+                chain: selectedChain?.label,
+                asset: selectedAsset,
+                receiveCurrency:
+                  selectedDestination === 'BTC'
+                    ? t('constants.bitcoin_upper')
+                    : t('constants.dollars_upper'),
+              })}
+            />
+          </View>
+
+          <CustomButton
+            buttonStyles={[styles.createBtn, { marginBottom: bottomPadding }]}
+            textContent={t('screens.accumulationAddresses.summary.create')}
+            actionFunction={handleCreate}
+            useLoading={isCreating}
+          />
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -464,32 +422,20 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
+  animatedContainer: {
+    flex: 1,
+    width: '100%',
+  },
   stepTitle: {
     fontSize: SIZES.large,
     fontWeight: 500,
     marginBottom: 8,
   },
-  chainRow: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  chainIconContainer: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 15,
-  },
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
-    paddingVertical: 10,
-    marginBottom: 8,
+    paddingBottom: 16,
     gap: 10,
   },
   assetRow: {
