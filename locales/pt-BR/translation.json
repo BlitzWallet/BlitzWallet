@@ -1728,7 +1728,7 @@
       "loadingMessage": "Carregando transferências Roostock salvas",
       "noSwapsMessage": "Você não tem transferências Roostock salvas",
       "swap.created": "Preparando",
-      "invoice.set": "Financiando",
+      "invoice.set": "Usando fundos",
       "transaction.mempool": "Confirmando",
       "transaction.confirmed": "Confirmado na Rootstock",
       "invoice.pending": "Pagando",
@@ -1740,10 +1740,10 @@
       "swap.expired": "Expirado"
     },
     "rootstockSwapInfo": {
-      "title": "Trocas submarinas",
+      "title": "Trocas",
       "id": "ID",
       "swapDetails": "Detalhes da transferência",
-      "claimAddress": "Endereço de reclamação",
+      "claimAddress": "Endereço de resgate",
       "timeoutBHeight": "Altura do bloco de tempo limite",
       "expAmount": "Quantidade esperada",
       "invoice": "Fatura",
@@ -1751,9 +1751,9 @@
       "date": "Data",
       "completed": "Concluído",
       "refunded": "Reembolsado",
-      "rootstockTx": "Tx Rootstock",
-      "lockTx": "Tx de bloqueio",
-      "refundTx": "Tx de reembolso"
+      "rootstockTx": "Transação Rootstock",
+      "lockTx": "Transação de bloqueio",
+      "refundTx": "Transação de reembolso"
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Verificação concluída",
@@ -2121,7 +2121,7 @@
         "confirmMessage_sent": "Valor enviado",
         "confirmMessage_received": "Valor recebido",
         "paymentStatus": "Status do pagamento",
-        "swapStatus": "Status do swap",
+        "swapStatus": "Status da troca",
         "confReqired": "Confirmações necessárias",
         "detailsBTN": "Mostrar detalhes",
         "contactPaymentType": "Contato",
@@ -2210,7 +2210,7 @@
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
         "fast pay": "Pagamentos Rápidos",
-        "spend and replace": "Gastar e substituir",
+        "spend and replace": "Gastar e repor",
         "blitz fee details": "Taxas Blitz Wallet",
         "crash reports": "Relatório de falhas",
         "notifications": "Notificações",
@@ -2252,9 +2252,9 @@
         "destinationAsset": "Moeda de destino",
         "destinationChain": "Rede de destino",
         "transferIds": "Pessoas incluídas",
-        "rootstockSwapId": "ID do swap Rootstock",
-        "rootstockSwapStatus": "Status do swap Rootstock",
-        "rootstockPaymentTxId": "Txid do pagamento Rootstock",
+        "rootstockSwapId": "ID da troca Rootstock",
+        "rootstockSwapStatus": "Status da troca Rootstock",
+        "rootstockPaymentTxId": "ID do pagamento Rootstock",
         "bitrefillInvoiceId": "ID da fatura Bitrefill"
       },
       "viewAllTxPage": {
