@@ -1008,15 +1008,15 @@
       "phonePaymentTitle": "{{number}} bezahlen",
       "phonePaymentDesc": "Senden an Mobilnummer",
       "depositFunds": "Guthaben einzahlen",
-      "depositFundsSubtitle": "Fügen Sie Ihrem Wallet Guthaben hinzu",
+      "depositFundsSubtitle": "Fügen Sie Ihrer Wallet Guthaben hinzu",
       "onChainBitcoin": "Bitcoin-Adresse",
-      "onChainBitcoinSubtitle": "Über On-Chain-Adresse empfangen",
+      "onChainBitcoinSubtitle": "Über eine On-Chain-Adresse empfangen",
       "stablecoins": "Stablecoins",
       "stablecoinsSubtitle": "USDT / USDC in Ihre Wallet einzahlen",
       "cashAppSubtitle": "Sofort von Cash App senden",
       "sparkAddressSubtitle": "An Ihre Spark-Adresse empfangen",
-      "otherBitcoin": "Andere Bitcoin-Optionen",
-      "otherBitcoinSubtitle": "Liquid und andere Methoden",
+      "otherBitcoin": "Weitere Bitcoin-Optionen",
+      "otherBitcoinSubtitle": "Liquid und weitere Methoden",
       "lightningInvoice": "Lightning-Rechnung",
       "lightningInvoiceSubtitle": "BTC oder USD sofort empfangen",
       "lightningUSDAmountRequired": "Zum Erstellen einer USD-Lightning-Rechnung ist ein Betrag erforderlich",
@@ -1027,15 +1027,15 @@
       "cashAppBack": "Zurück",
       "viewDetails": "Details anzeigen",
       "othersOptionTitle": "Methode auswählen",
-      "liquidDesc": "Empfangen Sie Liquid BTC in Ihrem Wallet.",
-      "roostockDesc": "Empfangen Sie Rootstock BTC in Ihrem Wallet.",
-      "sparkDesc": "Empfangen Sie BTC oder Token in Ihrem Wallet.",
+      "liquidDesc": "Empfangen Sie Liquid BTC direkt in Ihrer Wallet.",
+      "roostockDesc": "Empfangen Sie Rootstock BTC direkt in Ihrer Wallet.",
+      "sparkDesc": "Empfangen Sie BTC oder Token direkt in Ihrer Wallet.",
       "chooseMethodTitle": "Empfangsmethode wählen",
       "selectMethodTitle": "Einzahlungsmethode auswählen",
       "copyAddress": "Adresse kopieren",
-      "depositQRError": "Beim Generieren Ihrer {{addressType}}-Adresse ist ein Problem aufgetreten",
+      "depositQRError": "Beim Erstellen Ihrer {{addressType}}-Adresse ist ein Problem aufgetreten.",
       "changeReceiveCurrency": "Empfangswährung ändern",
-      "depositQRInstruction_stablecoins": "Senden Sie nur {{asset}} über {{chain}} an diese Adresse. Sie erhalten es direkt in Ihrem Dollar-Guthaben",
+      "depositQRInstruction_stablecoins": "Senden Sie nur {{asset}} über {{chain}} an diese Adresse. Der Betrag wird direkt Ihrem Dollar-Guthaben gutgeschrieben.",
       "depositQRInstruction_bitcoin": "Senden Sie nur Bitcoin an diese Adresse. Das Geld kommt nach drei On-Chain-Bestätigungen an.",
       "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse.",
       "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse.",
@@ -1057,14 +1057,14 @@
       "requestHeader": "Was möchten Sie erhalten?",
       "genQRCode": "QR-Code generieren",
       "allSetTitle": "Alles bereit",
-      "allSetSubtitle": "Jeder mit diesem Link kann Sie bezahlen.",
+      "allSetSubtitle": "Jeder, der diesen Link hat, kann Ihnen Geld senden.",
       "howItWorks": {
         "step1Label": "Überall teilen",
-        "step1Desc": "Nachricht, E-Mail oder eine beliebige App.",
-        "step2Label": "Sie bezahlen im Browser",
+        "step1Desc": "Per Nachricht, E-Mail oder in einer beliebigen App.",
+        "step2Label": "Zahlung im Browser",
         "step2Desc": "Bitcoin, USDC oder USDT.",
         "step3Label": "Sie werden sofort bezahlt",
-        "step3Desc": "Das Geld landet, sobald sie bezahlen."
+        "step3Desc": "Das Geld kommt sofort an, sobald bezahlt wird."
       },
       "copyLink": "Link kopieren"
     },
@@ -2157,7 +2157,7 @@
         "liquidFeeMessage": "Um eine Liquid-Zahlung zu empfangen, zahlen Sie eine Lockup-Gebühr von ~{{fee}}, eine Claim-Gebühr von ~{{claimFee}} und eine Boltz-Servicegebühr von 0,1%.",
         "rootstockFeeMessage": "Um eine Rootstock-Zahlung zu empfangen, zahlen Sie eine Lockup-Gebühr von ~{{fee}} und eine Boltz-Servicegebühr von 0,1%.",
         "lightningConvertMessage": "Der Empfang von USD über Lightning erfordert die Umwandlung von BTC in USD. Es fällt eine Gebühr von {{convertFee}} % an, und der aktuelle Wechselkurs beträgt:\n{{satExchangeRate}}.",
-        "stablecoinsFeeMessage": "Für den Empfang von Stablecoins fallen eine Blitz-Gebühr von 0,5 % und eine Flashnet-Gebühr von 0,05 % an.",
+        "stablecoinsFeeMessage": "Für den Empfang über Stablecoin-Adressen fallen eine Blitz-Gebühr von 0,5 % und eine Flashnet-Gebühr von 0,05 % an.",
         "generatingInvoice": "Rechnung wird generiert...",
         "amountPlaceholder": "Beliebigen Betrag",
         "copyInvoice": "Rechnung kopieren",
@@ -2513,7 +2513,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Ausgeben und ersetzen",
         "userDollarAmount": "Verfügbares Dollar-Guthaben: {{dollarAmount}}",
-        "explainer": "Wenn aktiviert, wird jede ausgehende Bitcoin-Zahlung automatisch ersetzt, indem ein entsprechender Betrag aus Ihrem Dollar-Guthaben getauscht wird. Ist Ihr Dollar-Guthaben niedriger als der ausgegebene Betrag, wird stattdessen das gesamte Dollar-Guthaben getauscht. Es wird kein Tausch durchgeführt, wenn der Ersatzbetrag unter {{minAmount}} liegt.",
+        "explainer": "Wenn diese Option aktiviert ist, wird jede ausgehende Bitcoin-Zahlung automatisch ausgeglichen, indem ein entsprechender Betrag aus Ihrem Dollar-Guthaben getauscht wird. Ist Ihr Dollar-Guthaben niedriger als der ausgegebene Betrag, wird stattdessen das gesamte Dollar-Guthaben getauscht. Kein Tausch erfolgt, wenn der Ersatzbetrag unter {{minAmount}} liegt.",
         "fundingDescription": "Spend & Replace-Kauf",
         "acceptingDescription": "Spend & Replace-Aufladung",
         "toastMessageTitle": "Bitcoin-Guthaben aufgefüllt"
@@ -2557,7 +2557,7 @@
         "pickDestination": "Ziel auswählen",
         "confirm": "Adresse bestätigen",
         "alreadyExists": "Sie haben bereits eine Adresse für diese Kombination",
-        "convertDesc": "Ihre {{chain}}-{{asset}} werden in {{receiveCurrency}} umgewandelt"
+        "convertDesc": "Ihre {{asset}} auf {{chain}} werden in {{receiveCurrency}} umgewandelt"
       },
       "summary": {
         "chain": "Chain",
@@ -2971,7 +2971,7 @@
     "overBy": "Überschritten um",
     "preview": {
       "title": "Wallet-Analysen",
-      "subTitle": "Behalten Sie Ihre monatlichen Einnahmen, Ausgaben und Ihr Budget auf einen Blick im Blick."
+      "subTitle": "Behalten Sie Ihre monatlichen Einnahmen, Ausgaben und Ihr Budget auf einen Blick."
     },
     "home": {
       "title": "Analysen",
