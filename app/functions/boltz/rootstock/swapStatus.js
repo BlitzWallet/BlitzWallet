@@ -36,6 +36,7 @@ export function isRootstockSwapActive(swap) {
   return Boolean(
     swap &&
       !swap?.data?.didSwapFail &&
+      !swap?.data?.abandonedNoFunds &&
       !isRootstockSwapCompleted(swap),
   );
 }
