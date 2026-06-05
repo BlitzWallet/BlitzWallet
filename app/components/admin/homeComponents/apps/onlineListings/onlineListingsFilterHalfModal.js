@@ -48,6 +48,7 @@ export default function OnlineListingsFilterHalfModal({
   handleBackPressFunction,
   setContentHeight,
   categoryOptions = [],
+  setBackNav,
 }) {
   const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
@@ -238,6 +239,16 @@ export default function OnlineListingsFilterHalfModal({
 
   useHandleBackPressNew(handleCountryBackPress);
 
+  // Register the chrome's back arrow while the country picker is open.
+  useEffect(() => {
+    if (showCountryPicker) {
+      setBackNav?.({ onPress: handleCountryBackPress, title: '' });
+    } else {
+      setBackNav?.(null);
+    }
+    return () => setBackNav?.(null);
+  }, [showCountryPicker, handleCountryBackPress, setBackNav]);
+
   const renderCountryItem = useCallback(
     ({ item }) => {
       const isSelected = draft.countryCode === item.code;
@@ -325,11 +336,6 @@ export default function OnlineListingsFilterHalfModal({
           { paddingBottom: bottomPadding },
         ]}
       >
-        <ThemeText
-          styles={styles.title}
-          content={t('apps.onlineListings.filterTitle')}
-        />
-
         <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
@@ -514,16 +520,6 @@ export default function OnlineListingsFilterHalfModal({
           countryOverlayStyle,
         ]}
       >
-        <View style={styles.countryOverlayHeader}>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleCountryBackPress}
-            style={styles.countryOverlayBack}
-          >
-            <ThemeIcon iconName="ArrowLeft" />
-          </TouchableOpacity>
-        </View>
-
         <CustomSearchInput
           inputText={countrySearch}
           setInputText={setCountrySearch}
@@ -658,18 +654,6 @@ const styles = StyleSheet.create({
   },
   countryOverlay: {
     ...StyleSheet.absoluteFillObject,
-  },
-  countryOverlayHeader: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  countryOverlayBack: {
-    // width: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   searchInput: {
     width: '100%',
