@@ -127,7 +127,7 @@ describe('Rootstock submarine refunds', () => {
     expect(didRefund).toBe(true);
   });
 
-  it('does not delete when Boltz refuses a cooperative refund signature', async () => {
+  it('returns false and records a retryable error when Boltz refuses a cooperative refund signature', async () => {
     global.fetch = jest
       .fn()
       .mockResolvedValueOnce({
@@ -142,17 +142,23 @@ describe('Rootstock submarine refunds', () => {
 
     const didRefund = await refundRootstockSubmarineSwap(buildSwap(), signer);
 
-    expect(didRefund).toBeUndefined();
+    expect(didRefund).toBe(false);
     expect(mockContract.refundCooperative).not.toHaveBeenCalled();
-    expect(updateSwap).not.toHaveBeenCalled();
+    expect(updateSwap).toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ refundState: 'retryable_error' }),
+    );
   });
 
-  it('swallows broadcast errors and leaves the swap for later retry', async () => {
+  it('returns false and records a retryable error when the broadcast throws', async () => {
     mockContract.refundCooperative.mockRejectedValue(new Error('broadcast'));
 
     const didRefund = await refundRootstockSubmarineSwap(buildSwap(), signer);
 
-    expect(didRefund).toBeUndefined();
-    expect(updateSwap).not.toHaveBeenCalled();
+    expect(didRefund).toBe(false);
+    expect(updateSwap).toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ refundState: 'retryable_error' }),
+    );
   });
 });

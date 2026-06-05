@@ -21,22 +21,34 @@ import {
 import { insertRootstockSwapPlaceholder } from './swapProgress';
 import { updateSparkTransactionDetails } from '../../spark/transactions';
 import { isRootstockSwapActive } from './swapStatus';
+import { fetchBoltzJson } from './boltzHttp';
 
 const inFlightSubmarineLocks = new Set();
 const ETHER_SWAP_RBTC_LOCK_SIGNATURE = 'lock(bytes32,address,uint256)';
 
 export async function createRootstockSubmarineSwap(invoice, placeholder = {}) {
-  const res = await fetch(
-    getBoltzApiUrl(rootstockEnvironment) + '/v2/swap/submarine',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ invoice, to: 'BTC', from: 'RBTC' }),
-    },
-  );
-  const swap = await res.json();
+  let swap;
+  try {
+    swap = await fetchBoltzJson(
+      getBoltzApiUrl(rootstockEnvironment) + '/v2/swap/submarine',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoice, to: 'BTC', from: 'RBTC' }),
+      },
+    );
+  } catch (err) {
+    console.log('Error creating rootstock submarine swap', err);
+    return;
+  }
   console.log(swap, 'boltz swap response');
-  if (swap.error) return;
+
+  // A swap we cannot lock or track later is worse than none — bail before any
+  // DB/placeholder write if Boltz omitted the fields the lock/refund paths need.
+  if (!swap?.id || !swap?.claimAddress || swap?.timeoutBlockHeight == null) {
+    console.log('Boltz submarine response missing required fields', swap);
+    return;
+  }
 
   const createdAt = placeholder.createdTime || Date.now();
 

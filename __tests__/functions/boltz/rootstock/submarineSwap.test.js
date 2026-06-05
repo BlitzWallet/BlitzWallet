@@ -125,6 +125,7 @@ describe('Rootstock submarine swaps', () => {
   it('creates an RBTC to BTC submarine swap and persists the active row', async () => {
     global.fetch = jest.fn(() =>
       Promise.resolve({
+        ok: true,
         json: () =>
           Promise.resolve({
             id: 'swap-1',

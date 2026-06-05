@@ -10,15 +10,14 @@ import {
 
 export function getRootstockSwapStatusLabel(status) {
   if (!status) return '';
-  if (status) {
-    return i18next.t(`settings.viewRoostockSwaps.${status}`);
-  }
-
-  return String(status)
+  const humanized = String(status)
     .replace(/[._-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .replace(/\b\w/g, char => char.toUpperCase());
+  return i18next.t(`settings.viewRoostockSwaps.${status}`, {
+    defaultValue: humanized,
+  });
 }
 
 export function getRootstockPlaceholderPaymentStatus(status) {

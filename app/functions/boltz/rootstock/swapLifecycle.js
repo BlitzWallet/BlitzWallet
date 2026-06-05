@@ -6,7 +6,55 @@ import {
   isRootstockSwapLockupFailed,
   isRootstockSwapSuccessStatus,
   isRootstockSwapTerminalFailureStatus,
+  shouldApplyRootstockStatus,
 } from './swapStatus';
+
+async function processTerminalRefund({
+  swapId,
+  swapWithStatus,
+  signer,
+  activeSwapIds,
+  updateSwapFn,
+  refundFn,
+}) {
+  const attemptCount = (swapWithStatus.data?.refundAttemptCount || 0) + 1;
+  await updateSwapFn(swapId, {
+    refundState: 'pending',
+    refundAttemptCount: attemptCount,
+    refundLastAttemptAt: Date.now(),
+  });
+
+  const failedSwap = {
+    ...swapWithStatus,
+    data: { ...swapWithStatus.data, didSwapFail: true },
+  };
+  const didRefund = await refundFn(failedSwap, signer);
+
+  if (didRefund) {
+    await updateSwapFn(swapId, {
+      didSwapFail: true,
+      refundState: 'completed',
+    });
+    activeSwapIds?.delete(swapId);
+  } else {
+    // Leave the swap recoverable. The provider re-drives pending refunds on the
+    // interval and on restart (isRootstockSwapPendingRefund), so locked RBTC is
+    // never stranded by a transient Boltz/RPC failure.
+    await updateSwapFn(swapId, {
+      refundState: 'retryable_error',
+      refundErrorAt: Date.now(),
+    });
+  }
+}
+
+function hasLockedRootstockFunds(swap) {
+  return Boolean(
+    swap?.data?.lockTxHash ||
+      swap?.data?.locked ||
+      swap?.data?.lockState === 'broadcasted' ||
+      swap?.data?.lockState === 'confirmed',
+  );
+}
 
 function getRootstockPaymentTxId(swapUpdate) {
   return (
@@ -45,6 +93,14 @@ export async function handleRootstockSwapUpdate({
   const [swap] = swapResponse;
   if (!swap) return;
   console.log(swap, 'DESTRUCTED SWAP');
+
+  const previousStatus = swap.data?.status;
+  if (!shouldApplyRootstockStatus(previousStatus, status)) {
+    console.log(
+      `Ignoring stale Rootstock status ${status} (have ${previousStatus}) for ${swapId}`,
+    );
+    return;
+  }
 
   await updateSwapFn(swapId, {
     status,
@@ -117,20 +173,34 @@ export async function handleRootstockSwapUpdate({
   }
 
   if (isRootstockSwapLockupFailed(status)) {
-    await updateSwapFn(swapId, { lockupFailed: true });
+    if (hasLockedRootstockFunds(swap)) {
+      // Funds are on-chain — recover them through the refund path.
+      await processTerminalRefund({
+        swapId,
+        swapWithStatus,
+        signer,
+        activeSwapIds,
+        updateSwapFn,
+        refundFn: refundRootstockSubmarineSwapFn,
+      });
+    } else {
+      // No lockup ever broadcast; nothing to refund, close it out.
+      await updateSwapFn(swapId, { lockupFailed: true, abandonedNoFunds: true });
+      activeSwapIds?.delete(swapId);
+    }
+    return;
   }
 
   if (isRootstockSwapTerminalFailureStatus(status)) {
-    const failedSwap = {
-      ...swapWithStatus,
-      data: {
-        ...swapWithStatus.data,
-        didSwapFail: true,
-      },
-    };
-    await updateSwapFn(swapId, { didSwapFail: true });
-    await refundRootstockSubmarineSwapFn(failedSwap, signer);
-    activeSwapIds?.delete(swapId);
+    await processTerminalRefund({
+      swapId,
+      swapWithStatus,
+      signer,
+      activeSwapIds,
+      updateSwapFn,
+      refundFn: refundRootstockSubmarineSwapFn,
+    });
+    return;
   }
 
   if (isRootstockSwapSuccessStatus(status)) {

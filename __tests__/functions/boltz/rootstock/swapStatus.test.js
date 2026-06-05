@@ -2,7 +2,9 @@ import {
   isRootstockSwapActive,
   isRootstockSwapCompleted,
   isRootstockSwapLockupFailed,
+  isRootstockSwapPendingRefund,
   isRootstockSwapTerminalFailureStatus,
+  shouldApplyRootstockStatus,
 } from '../../../../app/functions/boltz/rootstock/swapStatus';
 
 describe('Rootstock swap status helpers', () => {
@@ -50,6 +52,87 @@ describe('Rootstock swap status helpers', () => {
         type: 'submarine',
         data: { abandonedNoFunds: true, status: 'invoice.set' },
       }),
+    ).toBe(false);
+  });
+
+  it('is inactive once didSwapComplete is set even if status looks pending', () => {
+    expect(
+      isRootstockSwapActive({
+        type: 'submarine',
+        data: { didSwapComplete: true, status: 'transaction.mempool' },
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('shouldApplyRootstockStatus (monotonic ordering)', () => {
+  it('applies forward progress', () => {
+    expect(
+      shouldApplyRootstockStatus('invoice.set', 'transaction.mempool'),
+    ).toBe(true);
+  });
+
+  it('rejects a stale regression', () => {
+    expect(
+      shouldApplyRootstockStatus('transaction.confirmed', 'transaction.mempool'),
+    ).toBe(false);
+  });
+
+  it('always applies terminal success even out of order', () => {
+    expect(
+      shouldApplyRootstockStatus('transaction.confirmed', 'transaction.claimed'),
+    ).toBe(true);
+  });
+
+  it('always applies terminal failure', () => {
+    expect(
+      shouldApplyRootstockStatus('transaction.mempool', 'swap.expired'),
+    ).toBe(true);
+  });
+
+  it('never regresses out of a completed state', () => {
+    expect(
+      shouldApplyRootstockStatus('transaction.claimed', 'transaction.mempool'),
+    ).toBe(false);
+  });
+
+  it('applies the first status when none recorded', () => {
+    expect(shouldApplyRootstockStatus(undefined, 'swap.created')).toBe(true);
+  });
+});
+
+describe('isRootstockSwapPendingRefund', () => {
+  it('is true for a terminal swap with an unfinished refund', () => {
+    expect(
+      isRootstockSwapPendingRefund({
+        data: { status: 'swap.expired', refundState: 'retryable_error' },
+      }),
+    ).toBe(true);
+  });
+
+  it('is false once the refund completed', () => {
+    expect(
+      isRootstockSwapPendingRefund({
+        data: { status: 'swap.expired', refundState: 'completed' },
+      }),
+    ).toBe(false);
+  });
+
+  it('is false when nothing was ever locked', () => {
+    expect(
+      isRootstockSwapPendingRefund({
+        data: {
+          status: 'swap.expired',
+          refundState: 'retryable_error',
+          abandonedNoFunds: true,
+        },
+      }),
+    ).toBe(false);
+  });
+
+  it('is false for a non-terminal swap', () => {
+    expect(
+      isRootstockSwapPendingRefund({ data: { status: 'transaction.mempool' } }),
     ).toBe(false);
   });
 });

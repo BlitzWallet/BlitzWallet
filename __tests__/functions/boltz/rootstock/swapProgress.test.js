@@ -5,7 +5,18 @@ jest.mock('../../../../app/functions/spark/transactions', () => ({
 
 jest.mock('i18next', () => ({
   __esModule: true,
-  default: { t: key => key },
+  default: {
+    t: (key, opts) =>
+      ({
+        'settings.viewRoostockSwaps.transaction.confirmed':
+          'Confirmed on Rootstock',
+        'settings.viewRoostockSwaps.swap.created': 'Preparing swap',
+        'transactionLabelText.roostockSwap':
+          'transactionLabelText.roostockSwap',
+      })[key] ??
+      opts?.defaultValue ??
+      key,
+  },
 }));
 
 const {
@@ -17,6 +28,7 @@ const {
   insertRootstockSwapPlaceholder,
   updateRootstockSwapPlaceholder,
 } = require('../../../../app/functions/boltz/rootstock/swapProgress');
+const { default: i18next } = require('i18next');
 
 describe('Rootstock swap progress helpers', () => {
   beforeEach(() => {
@@ -106,5 +118,16 @@ describe('Rootstock swap progress helpers', () => {
     expect(bulkUpdateSparkTransactions).toHaveBeenCalledWith([
       expect.objectContaining({ id: 'swap-1', updateOnly: true }),
     ]);
+  });
+
+  it('humanizes the status when no translation exists', () => {
+    jest
+      .spyOn(i18next, 't')
+      .mockImplementation((key, opts) =>
+        opts?.defaultValue !== undefined ? opts.defaultValue : key,
+      );
+    expect(getRootstockSwapStatusLabel('transaction.mempool')).toBe(
+      'Transaction Mempool',
+    );
   });
 });

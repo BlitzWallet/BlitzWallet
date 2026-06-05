@@ -176,8 +176,10 @@ describe('Rootstock swap lifecycle transitions', () => {
   });
 
   it.each(['invoice.failedToPay', 'swap.expired'])(
-    'marks failed and refunds on terminal failure %s',
+    'completes refund and stops monitoring on terminal failure %s',
     async status => {
+      deps.refundRootstockSubmarineSwapFn.mockResolvedValue(true);
+
       await runStatus(status);
 
       expect(deps.updateRootstockSwapPlaceholderFn).toHaveBeenCalledWith(
@@ -186,9 +188,6 @@ describe('Rootstock swap lifecycle transitions', () => {
           status,
         }),
       );
-      expect(deps.updateSwapFn).toHaveBeenCalledWith('swap-1', {
-        didSwapFail: true,
-      });
       expect(deps.refundRootstockSubmarineSwapFn).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -198,19 +197,71 @@ describe('Rootstock swap lifecycle transitions', () => {
         }),
         signer,
       );
+      expect(deps.updateSwapFn).toHaveBeenCalledWith(
+        'swap-1',
+        expect.objectContaining({
+          didSwapFail: true,
+          refundState: 'completed',
+        }),
+      );
       expect(activeSwapIds.has('swap-1')).toBe(false);
     },
   );
 
-  it('marks lockupFailed but keeps the swap active for later expiry/refund', async () => {
+  it('keeps the swap monitored when the refund fails', async () => {
+    deps.refundRootstockSubmarineSwapFn.mockResolvedValue(false);
+
+    await runStatus('swap.expired');
+
+    expect(deps.updateSwapFn).toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ refundState: 'retryable_error' }),
+    );
+    expect(deps.updateSwapFn).not.toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ refundState: 'completed' }),
+    );
+    expect(activeSwapIds.has('swap-1')).toBe(true);
+  });
+
+  it('refunds lockupFailed when funds were locked', async () => {
+    deps.getSwapByIdFn.mockResolvedValue([
+      buildSwap({ data: { lockTxHash: '0xlocked' } }),
+    ]);
+    deps.refundRootstockSubmarineSwapFn.mockResolvedValue(true);
+
     await runStatus('transaction.lockupFailed');
 
-    expect(deps.updateSwapFn).toHaveBeenCalledWith('swap-1', {
-      lockupFailed: true,
-    });
+    expect(deps.refundRootstockSubmarineSwapFn).toHaveBeenCalled();
+    expect(deps.updateSwapFn).toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ didSwapFail: true, refundState: 'completed' }),
+    );
+  });
+
+  it('closes lockupFailed as abandoned when nothing was locked', async () => {
+    await runStatus('transaction.lockupFailed');
+
     expect(deps.refundRootstockSubmarineSwapFn).not.toHaveBeenCalled();
-    expect(deps.deleteSwapByIdFn).not.toHaveBeenCalled();
-    expect(activeSwapIds.has('swap-1')).toBe(true);
+    expect(deps.updateSwapFn).toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ lockupFailed: true, abandonedNoFunds: true }),
+    );
+    expect(activeSwapIds.has('swap-1')).toBe(false);
+  });
+
+  it('ignores a stale status that would regress a confirmed swap', async () => {
+    deps.getSwapByIdFn.mockResolvedValue([
+      buildSwap({ data: { status: 'transaction.confirmed' } }),
+    ]);
+
+    await runStatus('transaction.mempool', { transaction: { id: '0xstale' } });
+
+    expect(deps.updateSwapFn).not.toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ status: 'transaction.mempool' }),
+    );
+    expect(deps.lockSubmarineSwapFn).not.toHaveBeenCalled();
   });
 
   it('persists passive statuses without money-moving actions', async () => {

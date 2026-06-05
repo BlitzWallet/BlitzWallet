@@ -5,6 +5,19 @@ import { updateSwap } from './swapDb';
 import bolt11 from 'bolt11';
 import { getBoltzApiUrl } from '../boltzEndpoitns';
 
+async function persistRefundError(id, message) {
+  if (!id) return;
+  try {
+    await updateSwap(id, {
+      refundState: 'retryable_error',
+      refundError: message,
+      refundErrorAt: Date.now(),
+    });
+  } catch (updateError) {
+    console.log('Error saving rootstock refund error state', updateError);
+  }
+}
+
 export async function refundRootstockSubmarineSwap(swap, signer) {
   try {
     const invoice = swap.data.invoice;
@@ -46,7 +59,10 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
       const refundData = await refundRes.json();
 
       console.log(refundData, 'boltz refund data');
-      if (refundData.error) return;
+      if (refundData.error) {
+        await persistRefundError(id, refundData.error);
+        return false;
+      }
 
       const { signature } = refundData;
       const decSignature = Signature.from(signature);
@@ -67,6 +83,7 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
       try {
         await updateSwap(id, {
           didSwapFail: true,
+          refundState: 'completed',
           refundTxHash: tx.hash,
           refundedAt: Date.now(),
         });
@@ -75,7 +92,11 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
       }
       return true;
     }
+
+    return false;
   } catch (err) {
     console.log('Error refunding rootstock swap', err);
+    await persistRefundError(swap?.data?.swap?.id, err?.message || String(err));
+    return false;
   }
 }
