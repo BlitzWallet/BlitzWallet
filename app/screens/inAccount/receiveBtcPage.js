@@ -41,7 +41,6 @@ import { useAccumulationAddresses } from '../../hooks/useAccumulationAddresses';
 import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
 import customUUID from '../../functions/customUUID';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
-import { shareMessage } from '../../functions/handleShare';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import usePaymentInputDisplay from '../../hooks/usePaymentInputDisplay';
@@ -382,7 +381,11 @@ function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
         <Animated.View
           style={[
             styles.toggleThumb,
-            { width: pillWidth / 2 - 4, backgroundColor },
+            {
+              width: pillWidth / 2 - 4,
+              backgroundColor:
+                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+            },
             thumbAnimStyle,
           ]}
         />
@@ -400,7 +403,11 @@ function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
               styles={{
                 width: SIZES.medium,
                 height: SIZES.medium,
-                tintColor: textColor,
+                tintColor: active
+                  ? theme && darkModeType
+                    ? COLORS.lightModeText
+                    : COLORS.darkModeText
+                  : textColor,
                 opacity: active ? 1 : 0.4,
               }}
               lightModeIcon={ICONS?.[option.symbol]}
@@ -413,6 +420,11 @@ function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
                 {
                   opacity: active ? 1 : 0.4,
                   fontWeight: active ? '500' : '400',
+                  color: active
+                    ? theme && darkModeType
+                      ? COLORS.lightModeText
+                      : COLORS.darkModeText
+                    : textColor,
                 },
               ]}
               content={option.label}
