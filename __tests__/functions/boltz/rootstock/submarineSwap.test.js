@@ -16,6 +16,12 @@ jest.mock('../../../../app/functions/spark/payments', () => ({
   sparkReceivePaymentWrapper: jest.fn(),
 }));
 
+jest.mock('../../../../app/functions/spark/transactions', () => ({
+  insertSparkTransactionPlaceholders: jest.fn(() => Promise.resolve(true)),
+  bulkUpdateSparkTransactions: jest.fn(() => Promise.resolve(true)),
+  updateSparkTransactionDetails: jest.fn(() => Promise.resolve(true)),
+}));
+
 jest.mock('i18next', () => ({
   t: key => key,
 }));
@@ -44,8 +50,17 @@ const {
   updateSwap,
 } = require('../../../../app/functions/boltz/rootstock/swapDb');
 const {
+  sparkReceivePaymentWrapper,
+} = require('../../../../app/functions/spark/payments');
+const {
+  insertSparkTransactionPlaceholders,
+  updateSparkTransactionDetails,
+} = require('../../../../app/functions/spark/transactions');
+const {
   calculateMaxSubmarineSwapAmount,
   createRootstockSubmarineSwap,
+  executeSubmarineSwap,
+  isSubmarineLockUnresolved,
   lockSubmarineSwap,
 } = require('../../../../app/functions/boltz/rootstock/submarineSwap');
 const {
@@ -98,6 +113,13 @@ describe('Rootstock submarine swaps', () => {
     loadSwaps.mockResolvedValue([]);
     saveSwap.mockResolvedValue(true);
     updateSwap.mockResolvedValue(true);
+    sparkReceivePaymentWrapper.mockResolvedValue({
+      didWork: true,
+      data: { id: 'invoice-id-1' },
+      invoice: 'lnbc1invoice',
+    });
+    insertSparkTransactionPlaceholders.mockResolvedValue(true);
+    updateSparkTransactionDetails.mockResolvedValue(true);
   });
 
   it('creates an RBTC to BTC submarine swap and persists the active row', async () => {
@@ -113,7 +135,13 @@ describe('Rootstock submarine swaps', () => {
       }),
     );
 
-    const row = await createRootstockSubmarineSwap('lnbc1invoice');
+    const row = await createRootstockSubmarineSwap('lnbc1invoice', {
+      accountId: 'acct-1',
+      invoiceId: 'invoice-id-1',
+      amountSat: 5000,
+      feeSat: 32,
+      createdTime: 123,
+    });
 
     expect(global.fetch).toHaveBeenCalledWith(
       'https://api.boltz.exchange/v2/swap/submarine',
@@ -131,9 +159,39 @@ describe('Rootstock submarine swaps', () => {
       'submarine',
       expect.objectContaining({
         invoice: 'lnbc1invoice',
+        invoiceId: 'invoice-id-1',
+        accountId: 'acct-1',
+        amountSat: 5000,
+        feeSat: 32,
         status: 'swap.created',
       }),
     );
+    expect(updateSparkTransactionDetails).toHaveBeenCalledWith(
+      'invoice-id-1',
+      expect.objectContaining({
+        isRootstockSwap: true,
+        rootstockSwapId: 'swap-1',
+        rootstockSwapInvoiceId: 'invoice-id-1',
+        rootstockSwapStatus: 'swap.created',
+      }),
+    );
+    expect(insertSparkTransactionPlaceholders).toHaveBeenCalledWith([
+      expect.objectContaining({
+        id: 'swap-1',
+        accountId: 'acct-1',
+        paymentStatus: 'pending',
+        paymentType: 'lightning',
+        details: expect.objectContaining({
+          isRootstockSwap: true,
+          rootstockSwapId: 'swap-1',
+          rootstockSwapInvoiceId: 'invoice-id-1',
+          rootstockSwapStatus: 'swap.created',
+          amount: 5000,
+          fee: 32,
+          description: 'transactionLabelText.roostockSwap',
+        }),
+      }),
+    ]);
     expect(row).toEqual(
       expect.objectContaining({
         id: 'swap-1',
@@ -153,6 +211,47 @@ describe('Rootstock submarine swaps', () => {
 
     expect(row).toBeUndefined();
     expect(saveSwap).not.toHaveBeenCalled();
+    expect(insertSparkTransactionPlaceholders).not.toHaveBeenCalled();
+  });
+
+  it('tags the Spark invoice with Rootstock metadata when executing a swap', async () => {
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({
+        json: () => Promise.resolve({ swapContracts: { EtherSwap: '0xcontract' } }),
+      })
+      .mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            id: 'swap-1',
+            claimAddress: '0xclaim',
+            timeoutBlockHeight: 100,
+            expectedAmount: 5000,
+          }),
+      });
+
+    await executeSubmarineSwap(
+      'seed words',
+      limits,
+      provider,
+      signer,
+      jest.fn(),
+      'acct-1',
+    );
+
+    expect(sparkReceivePaymentWrapper).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amountSats: 99755,
+        memo: 'transactionLabelText.roostockSwap',
+        shouldNavigate: false,
+        extraDetails: expect.objectContaining({
+          isRootstockSwap: true,
+          rootstockSwapStatus: 'swap.created',
+          rootstockSwapAmountSat: 99755,
+          rootstockSwapFeeSat: 145,
+        }),
+      }),
+    );
   });
 
   it('calculates max amount with submarine scalar fees and gas reserved', async () => {
@@ -230,27 +329,37 @@ describe('Rootstock submarine swaps', () => {
     });
   });
 
-  it('persists lock state before broadcasting and then stores the lock tx hash', async () => {
-    const swap = {
-      id: 'swap-1',
-      type: 'submarine',
-      data: {
-        invoice: 'lnbc1invoice',
-        swap: {
-          id: 'swap-1',
-          claimAddress: '0xclaim',
-          timeoutBlockHeight: 100,
-          expectedAmount: 5000,
-        },
+  const buildLockSwap = overrides => ({
+    id: 'swap-1',
+    type: 'submarine',
+    data: {
+      invoice: 'lnbc1invoice',
+      swap: {
+        id: 'swap-1',
+        claimAddress: '0xclaim',
+        timeoutBlockHeight: 100,
+        expectedAmount: 5000,
       },
-    };
+      ...overrides,
+    },
+  });
 
-    const response = await lockSubmarineSwap(swap, signer);
+  // Path 1 — happy path: lock_intent -> broadcasting -> broadcasted + hash
+  it('persists lock_intent -> broadcasting -> broadcasted with the tx hash', async () => {
+    const response = await lockSubmarineSwap(buildLockSwap(), signer);
 
     expect(updateSwap).toHaveBeenNthCalledWith(
       1,
       'swap-1',
-      expect.objectContaining({ lockState: 'locking' }),
+      expect.objectContaining({
+        lockState: 'lock_intent',
+        lockStartedAt: expect.any(Number),
+      }),
+    );
+    expect(updateSwap).toHaveBeenNthCalledWith(
+      2,
+      'swap-1',
+      expect.objectContaining({ lockState: 'broadcasting' }),
     );
     expect(mockContract['lock(bytes32,address,uint256)']).toHaveBeenCalledWith(
       expect.any(Buffer),
@@ -260,33 +369,127 @@ describe('Rootstock submarine swaps', () => {
     );
     expect(mockContract.lock).not.toHaveBeenCalled();
     expect(updateSwap).toHaveBeenNthCalledWith(
-      2,
+      3,
       'swap-1',
       expect.objectContaining({
         locked: true,
-        lockState: 'locked',
+        lockState: 'broadcasted',
         lockTxHash: '0xlocktx',
+        lockedAt: expect.any(Number),
       }),
     );
     expect(response.didLock).toBe(true);
   });
 
-  it('does not broadcast a second lock once lock state exists', async () => {
+  // Path 2 — ordering invariant: 'broadcasting' is persisted BEFORE the lock tx
+  // is submitted. This is what makes lock_intent/lock_error provably pre-broadcast.
+  it('persists broadcasting before submitting the lock transaction', async () => {
+    const callOrder = [];
+    updateSwap.mockImplementation((_id, details) => {
+      callOrder.push(`updateSwap:${details.lockState}`);
+      return Promise.resolve(true);
+    });
+    mockContract['lock(bytes32,address,uint256)'].mockImplementation(() => {
+      callOrder.push('lock');
+      return Promise.resolve({ hash: '0xlocktx' });
+    });
+
+    await lockSubmarineSwap(buildLockSwap(), signer);
+
+    expect(callOrder.indexOf('updateSwap:broadcasting')).toBeLessThan(
+      callOrder.indexOf('lock'),
+    );
+    expect(callOrder).toEqual([
+      'updateSwap:lock_intent',
+      'updateSwap:broadcasting',
+      'lock',
+      'updateSwap:broadcasted',
+    ]);
+  });
+
+  // Path 3 — pre-broadcast failure (bad invoice): no payment hash decoded.
+  it('records lock_error without broadcasting when the invoice has no payment hash', async () => {
+    bolt11.decode.mockReturnValue({ tags: [] });
+
+    await expect(
+      lockSubmarineSwap(buildLockSwap({ invoice: 'lnbc1missinghash' }), signer),
+    ).rejects.toThrow();
+
+    expect(mockContract['lock(bytes32,address,uint256)']).not.toHaveBeenCalled();
+    expect(updateSwap).not.toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ lockState: 'broadcasting' }),
+    );
+    expect(updateSwap).toHaveBeenLastCalledWith(
+      'swap-1',
+      expect.objectContaining({ lockState: 'lock_error' }),
+    );
+  });
+
+  // Path 4 — pre-broadcast failure: contracts fetch is down (the lock_error bug).
+  it('records lock_error without broadcasting when the contracts fetch fails', async () => {
+    global.fetch = jest.fn(() => Promise.reject(new Error('network down')));
+
+    await expect(lockSubmarineSwap(buildLockSwap(), signer)).rejects.toThrow(
+      'network down',
+    );
+
+    expect(updateSwap).toHaveBeenNthCalledWith(
+      1,
+      'swap-1',
+      expect.objectContaining({ lockState: 'lock_intent' }),
+    );
+    expect(updateSwap).not.toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({ lockState: 'broadcasting' }),
+    );
+    expect(mockContract['lock(bytes32,address,uint256)']).not.toHaveBeenCalled();
+    expect(updateSwap).toHaveBeenLastCalledWith(
+      'swap-1',
+      expect.objectContaining({ lockState: 'lock_error' }),
+    );
+  });
+
+  // Path 5 — post-broadcast failure: submit rejects. MUST be broadcast_unknown,
+  // not a cleanly-retryable lock_error, so reconciliation chain-checks first.
+  it('records broadcast_unknown when the lock submission rejects after broadcasting', async () => {
+    mockContract['lock(bytes32,address,uint256)'].mockRejectedValue(
+      new Error('broadcast failed'),
+    );
+
+    await expect(lockSubmarineSwap(buildLockSwap(), signer)).rejects.toThrow(
+      'broadcast failed',
+    );
+
+    expect(updateSwap).toHaveBeenNthCalledWith(
+      1,
+      'swap-1',
+      expect.objectContaining({ lockState: 'lock_intent' }),
+    );
+    expect(updateSwap).toHaveBeenNthCalledWith(
+      2,
+      'swap-1',
+      expect.objectContaining({ lockState: 'broadcasting' }),
+    );
+    expect(updateSwap).toHaveBeenLastCalledWith(
+      'swap-1',
+      expect.objectContaining({
+        lockState: 'broadcast_unknown',
+        lockError: 'broadcast failed',
+      }),
+    );
+  });
+
+  // Path 6 — guard: any prior lock attempt blocks a direct re-lock.
+  it.each([
+    'lock_intent',
+    'broadcasting',
+    'broadcast_unknown',
+    'broadcasted',
+    'locking',
+  ])('does not re-lock when a prior lock state %s exists', async lockState => {
     const response = await lockSubmarineSwap(
-      {
-        id: 'swap-1',
-        type: 'submarine',
-        data: {
-          lockState: 'locking',
-          invoice: 'lnbc1invoice',
-          swap: {
-            id: 'swap-1',
-            claimAddress: '0xclaim',
-            timeoutBlockHeight: 100,
-            expectedAmount: 5000,
-          },
-        },
-      },
+      buildLockSwap({ lockState }),
       signer,
     );
 
@@ -299,6 +502,45 @@ describe('Rootstock submarine swaps', () => {
     expect(updateSwap).not.toHaveBeenCalled();
   });
 
+  it('does not re-lock when a lock tx hash is already recorded', async () => {
+    const response = await lockSubmarineSwap(
+      buildLockSwap({ lockTxHash: '0xexisting' }),
+      signer,
+    );
+
+    expect(response).toEqual({
+      didLock: false,
+      reason: 'lock_already_started',
+    });
+    expect(mockContract['lock(bytes32,address,uint256)']).not.toHaveBeenCalled();
+    expect(updateSwap).not.toHaveBeenCalled();
+  });
+
+  it.each(['lock_intent', 'broadcasting', 'broadcast_unknown', 'lock_error', 'locking'])(
+    'flags %s as an unresolved lock needing reconciliation',
+    lockState => {
+      expect(
+        isSubmarineLockUnresolved(buildLockSwap({ lockState })),
+      ).toBe(true);
+    },
+  );
+
+  it.each([
+    ['broadcasted', { lockState: 'broadcasted' }],
+    ['confirmed', { lockState: 'confirmed' }],
+    ['a recorded lock tx hash', { lockState: 'broadcasting', lockTxHash: '0xabc' }],
+    ['no lock attempt', {}],
+  ])('does not flag %s as unresolved', (_label, data) => {
+    expect(isSubmarineLockUnresolved(buildLockSwap(data))).toBe(false);
+  });
+
+  it('does not flag non-submarine swaps as unresolved', () => {
+    expect(
+      isSubmarineLockUnresolved({ type: 'reverse', data: { lockState: 'lock_intent' } }),
+    ).toBe(false);
+  });
+
+  // Path 7 — guard: concurrent in-flight lock on the same id.
   it('does not broadcast a second lock while the first lock is in flight', async () => {
     let resolveLock;
     mockContract['lock(bytes32,address,uint256)'].mockReturnValue(
@@ -307,19 +549,7 @@ describe('Rootstock submarine swaps', () => {
       }),
     );
 
-    const swap = {
-      id: 'swap-1',
-      type: 'submarine',
-      data: {
-        invoice: 'lnbc1invoice',
-        swap: {
-          id: 'swap-1',
-          claimAddress: '0xclaim',
-          timeoutBlockHeight: 100,
-          expectedAmount: 5000,
-        },
-      },
-    };
+    const swap = buildLockSwap();
 
     const firstLock = lockSubmarineSwap(swap, signer);
     await Promise.resolve();
@@ -335,69 +565,5 @@ describe('Rootstock submarine swaps', () => {
       1,
     );
     expect(mockContract.lock).not.toHaveBeenCalled();
-  });
-
-  it('records a lock error without marking the swap locked', async () => {
-    mockContract['lock(bytes32,address,uint256)'].mockRejectedValue(
-      new Error('broadcast failed'),
-    );
-
-    await expect(
-      lockSubmarineSwap(
-        {
-          id: 'swap-1',
-          type: 'submarine',
-          data: {
-            invoice: 'lnbc1invoice',
-            swap: {
-              id: 'swap-1',
-              claimAddress: '0xclaim',
-              timeoutBlockHeight: 100,
-              expectedAmount: 5000,
-            },
-          },
-        },
-        signer,
-      ),
-    ).rejects.toThrow('broadcast failed');
-
-    expect(updateSwap).toHaveBeenLastCalledWith(
-      'swap-1',
-      expect.objectContaining({
-        lockState: 'lock_error',
-        lockError: 'broadcast failed',
-      }),
-    );
-  });
-
-  it('records a lock error when the invoice has no payment hash', async () => {
-    bolt11.decode.mockReturnValue({ tags: [] });
-
-    await expect(
-      lockSubmarineSwap(
-        {
-          id: 'swap-1',
-          type: 'submarine',
-          data: {
-            invoice: 'lnbc1missinghash',
-            swap: {
-              id: 'swap-1',
-              claimAddress: '0xclaim',
-              timeoutBlockHeight: 100,
-              expectedAmount: 5000,
-            },
-          },
-        },
-        signer,
-      ),
-    ).rejects.toThrow();
-
-    expect(mockContract['lock(bytes32,address,uint256)']).not.toHaveBeenCalled();
-    expect(updateSwap).toHaveBeenLastCalledWith(
-      'swap-1',
-      expect.objectContaining({
-        lockState: 'lock_error',
-      }),
-    );
   });
 });

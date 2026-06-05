@@ -72,6 +72,78 @@ describe('Spark transaction bulk update guards', () => {
     expect(mockHandleEventEmitterPost).not.toHaveBeenCalled();
   });
 
+  it('skips the insert for an updateOnly write when no row exists', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([]); // settled payment already renamed the row away
+    const { bulkUpdateSparkTransactions } = loadTransactionsModule(mockDb);
+
+    await bulkUpdateSparkTransactions([
+      {
+        id: 'rootstock-swap-id',
+        paymentStatus: 'completed',
+        paymentType: 'lightning',
+        accountId: 'identity-pubkey',
+        updateOnly: true,
+        details: { amount: 2500, direction: 'INCOMING' },
+      },
+    ]);
+
+    const insertCall = mockDb.runAsync.mock.calls.find(([sql]) =>
+      sql.includes('INSERT INTO SPARK_TRANSACTIONS'),
+    );
+    expect(insertCall).toBeUndefined();
+  });
+
+  it('still updates an existing row for an updateOnly write', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([
+      {
+        sparkID: 'rootstock-swap-id',
+        paymentStatus: 'pending',
+        paymentType: 'lightning',
+        accountId: 'identity-pubkey',
+        details: JSON.stringify({ amount: 2500, direction: 'INCOMING' }),
+      },
+    ]);
+    const { bulkUpdateSparkTransactions } = loadTransactionsModule(mockDb);
+
+    await bulkUpdateSparkTransactions([
+      {
+        id: 'rootstock-swap-id',
+        paymentStatus: 'completed',
+        paymentType: 'lightning',
+        accountId: 'identity-pubkey',
+        updateOnly: true,
+        details: { amount: 2500, direction: 'INCOMING' },
+      },
+    ]);
+
+    const updateCall = findUpdateCall(mockDb);
+    expect(updateCall).toBeDefined();
+    expect(updateCall[1][0]).toBe('completed');
+  });
+
+  it('inserts as normal when updateOnly is not set', async () => {
+    const mockDb = createMockDb();
+    mockDb.getAllAsync.mockResolvedValue([]);
+    const { bulkUpdateSparkTransactions } = loadTransactionsModule(mockDb);
+
+    await bulkUpdateSparkTransactions([
+      {
+        id: 'transfer-id',
+        paymentStatus: 'completed',
+        paymentType: 'lightning',
+        accountId: 'identity-pubkey',
+        details: { amount: 2500, direction: 'INCOMING' },
+      },
+    ]);
+
+    const insertCall = mockDb.runAsync.mock.calls.find(([sql]) =>
+      sql.includes('INSERT INTO SPARK_TRANSACTIONS'),
+    );
+    expect(insertCall).toBeDefined();
+  });
+
   it('does not let a late placeholder downgrade a completed payment', async () => {
     const mockDb = createMockDb();
     mockDb.getAllAsync.mockResolvedValue([

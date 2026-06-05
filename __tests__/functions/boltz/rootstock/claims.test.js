@@ -4,12 +4,12 @@ jest.mock('boltz-core/out/EtherSwap.sol/EtherSwap.json', () => ({
 
 jest.mock('bolt11', () => ({
   decode: jest.fn(() => ({
-    tags: [{tagName: 'payment_hash', data: 'b'.repeat(64)}],
+    tags: [{ tagName: 'payment_hash', data: 'b'.repeat(64) }],
   })),
 }));
 
 jest.mock('../../../../app/functions/boltz/rootstock/swapDb', () => ({
-  deleteSwapById: jest.fn(),
+  updateSwap: jest.fn(),
 }));
 
 const mockContract = {
@@ -28,10 +28,14 @@ jest.mock('ethers', () => ({
   },
 }));
 
-const {Signature} = require('ethers');
-const {deleteSwapById} = require('../../../../app/functions/boltz/rootstock/swapDb');
-const {refundRootstockSubmarineSwap} = require('../../../../app/functions/boltz/rootstock/claims');
-const {satoshisToWei} = require('../../../../app/functions/boltz/rootstock');
+const { Signature } = require('ethers');
+const {
+  updateSwap,
+} = require('../../../../app/functions/boltz/rootstock/swapDb');
+const {
+  refundRootstockSubmarineSwap,
+} = require('../../../../app/functions/boltz/rootstock/claims');
+const { satoshisToWei } = require('../../../../app/functions/boltz/rootstock');
 
 const buildSwap = () => ({
   id: 'swap-1',
@@ -57,7 +61,7 @@ describe('Rootstock submarine refunds', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     signer.provider.getBlockNumber.mockResolvedValue(50);
-    mockContract.refundCooperative.mockResolvedValue({hash: '0xcoop'});
+    mockContract.refundCooperative.mockResolvedValue({ hash: '0xcoop' });
     mockContract['refund(bytes32,uint256,address,uint256)'].mockResolvedValue({
       hash: '0xtimeout',
     });
@@ -66,15 +70,15 @@ describe('Rootstock submarine refunds', () => {
       .mockResolvedValueOnce({
         json: () =>
           Promise.resolve({
-            swapContracts: {EtherSwap: '0xcontract'},
+            swapContracts: { EtherSwap: '0xcontract' },
           }),
       })
       .mockResolvedValueOnce({
-        json: () => Promise.resolve({signature: '0xsigned'}),
+        json: () => Promise.resolve({ signature: '0xsigned' }),
       });
   });
 
-  it('uses cooperative refund before timeout and deletes the swap', async () => {
+  it('uses cooperative refund before timeout and stores refund metadata', async () => {
     const didRefund = await refundRootstockSubmarineSwap(buildSwap(), signer);
 
     expect(Signature.from).toHaveBeenCalledWith('0xsigned');
@@ -87,11 +91,18 @@ describe('Rootstock submarine refunds', () => {
       '0xr',
       '0xs',
     );
-    expect(deleteSwapById).toHaveBeenCalledWith('swap-1');
+    expect(updateSwap).toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({
+        didSwapFail: true,
+        refundTxHash: '0xcoop',
+        refundedAt: expect.any(Number),
+      }),
+    );
     expect(didRefund).toBe(true);
   });
 
-  it('uses timeout refund after the timeout block and deletes the swap', async () => {
+  it('uses timeout refund after the timeout block and stores refund metadata', async () => {
     signer.provider.getBlockNumber.mockResolvedValue(101);
 
     const didRefund = await refundRootstockSubmarineSwap(buildSwap(), signer);
@@ -105,7 +116,14 @@ describe('Rootstock submarine refunds', () => {
       100,
     );
     expect(mockContract.refundCooperative).not.toHaveBeenCalled();
-    expect(deleteSwapById).toHaveBeenCalledWith('swap-1');
+    expect(updateSwap).toHaveBeenCalledWith(
+      'swap-1',
+      expect.objectContaining({
+        didSwapFail: true,
+        refundTxHash: '0xtimeout',
+        refundedAt: expect.any(Number),
+      }),
+    );
     expect(didRefund).toBe(true);
   });
 
@@ -115,18 +133,18 @@ describe('Rootstock submarine refunds', () => {
       .mockResolvedValueOnce({
         json: () =>
           Promise.resolve({
-            swapContracts: {EtherSwap: '0xcontract'},
+            swapContracts: { EtherSwap: '0xcontract' },
           }),
       })
       .mockResolvedValueOnce({
-        json: () => Promise.resolve({error: 'not refundable yet'}),
+        json: () => Promise.resolve({ error: 'not refundable yet' }),
       });
 
     const didRefund = await refundRootstockSubmarineSwap(buildSwap(), signer);
 
     expect(didRefund).toBeUndefined();
     expect(mockContract.refundCooperative).not.toHaveBeenCalled();
-    expect(deleteSwapById).not.toHaveBeenCalled();
+    expect(updateSwap).not.toHaveBeenCalled();
   });
 
   it('swallows broadcast errors and leaves the swap for later retry', async () => {
@@ -135,6 +153,6 @@ describe('Rootstock submarine refunds', () => {
     const didRefund = await refundRootstockSubmarineSwap(buildSwap(), signer);
 
     expect(didRefund).toBeUndefined();
-    expect(deleteSwapById).not.toHaveBeenCalled();
+    expect(updateSwap).not.toHaveBeenCalled();
   });
 });

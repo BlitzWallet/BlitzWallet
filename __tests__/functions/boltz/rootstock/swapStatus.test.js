@@ -43,4 +43,13 @@ describe('Rootstock swap status helpers', () => {
       }),
     ).toBe(false);
   });
+
+  it('treats a swap discarded with no funds as inactive', () => {
+    expect(
+      isRootstockSwapActive({
+        type: 'submarine',
+        data: { abandonedNoFunds: true, status: 'invoice.set' },
+      }),
+    ).toBe(false);
+  });
 });

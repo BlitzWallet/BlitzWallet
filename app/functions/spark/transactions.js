@@ -1118,6 +1118,11 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           existingTx.accountId = tx.accountId || existingTx.accountId;
           existingTx.details = mergedDetails;
           existingTx.useTempId = tx.useTempId || existingTx.useTempId;
+          // Only stay update-only if EVERY merged contributor opted in. If any
+          // sibling wants a normal insert, honor it (defaults to insert).
+          existingTx.updateOnly = Boolean(
+            existingTx.updateOnly && tx.updateOnly,
+          );
         } else {
           processedTransactions.set(removeDuplicateKey, {
             sparkID: finalSparkId,
@@ -1127,6 +1132,10 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             accountId: tx.accountId || 'unknown',
             details: tx.details ?? {},
             useTempId: tx.useTempId,
+            // When set, this write may only update an existing row. If the row is
+            // gone (e.g. a settled payment already replaced a placeholder), skip
+            // the insert so we don't resurrect a duplicate.
+            updateOnly: tx.updateOnly,
           });
         }
       }
@@ -1311,7 +1320,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             ],
           );
           // }
-        } else {
+        } else if (!processedTx.updateOnly) {
           // if (processedTx.paymentStatus !== 'failed') {
           await sqlLiteDB.runAsync(
             `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}

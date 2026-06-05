@@ -18,11 +18,14 @@ import {
   getRootstockSubmarinePair,
   normalizeSubmarineFees,
 } from './swapLimits';
+import { insertRootstockSwapPlaceholder } from './swapProgress';
+import { updateSparkTransactionDetails } from '../../spark/transactions';
+import { isRootstockSwapActive } from './swapStatus';
 
 const inFlightSubmarineLocks = new Set();
 const ETHER_SWAP_RBTC_LOCK_SIGNATURE = 'lock(bytes32,address,uint256)';
 
-export async function createRootstockSubmarineSwap(invoice) {
+export async function createRootstockSubmarineSwap(invoice, placeholder = {}) {
   const res = await fetch(
     getBoltzApiUrl(rootstockEnvironment) + '/v2/swap/submarine',
     {
@@ -35,7 +38,7 @@ export async function createRootstockSubmarineSwap(invoice) {
   console.log(swap, 'boltz swap response');
   if (swap.error) return;
 
-  console.log(swap);
+  const createdAt = placeholder.createdTime || Date.now();
 
   const savedSwap = {
     id: swap.id,
@@ -43,20 +46,75 @@ export async function createRootstockSubmarineSwap(invoice) {
     data: {
       swap,
       invoice,
-      createdAt: Date.now(),
+      invoiceId: placeholder.invoiceId,
+      accountId: placeholder.accountId,
+      amountSat: placeholder.amountSat,
+      feeSat: placeholder.feeSat,
+      createdAt,
       status: 'swap.created',
     },
   };
 
   await saveSwap(savedSwap.id, savedSwap.type, savedSwap.data);
+  if (placeholder.invoiceId) {
+    await updateSparkTransactionDetails(placeholder.invoiceId, {
+      isRootstockSwap: true,
+      rootstockSwapId: swap.id,
+      rootstockSwapInvoiceId: placeholder.invoiceId,
+      rootstockSwapStatus: 'swap.created',
+    });
+  }
+  await insertRootstockSwapPlaceholder({
+    swapId: swap.id,
+    accountId: placeholder.accountId,
+    invoiceId: placeholder.invoiceId,
+    invoice,
+    amountSat: placeholder.amountSat,
+    feeSat: placeholder.feeSat,
+    createdTime: createdAt,
+  });
 
   return savedSwap;
 }
 
+// Lock states that represent a real or possible on-chain broadcast. A swap in
+// any of these (or with a recorded tx hash) must never be re-locked directly;
+// recovery happens through reconciliation, not by loosening this guard.
+const SUBMARINE_LOCK_ATTEMPTED_STATES = new Set([
+  'lock_intent',
+  'broadcasting',
+  'broadcast_unknown',
+  'broadcasted',
+  'confirmed',
+  'lock_error',
+  'locked', // legacy
+  'locking', // legacy
+]);
+
+// Lock states a crash can leave behind that reconciliation must resolve before
+// the swap can make progress (no confirmed broadcast yet).
+const SUBMARINE_LOCK_UNRESOLVED_STATES = new Set([
+  'lock_intent',
+  'broadcasting',
+  'broadcast_unknown',
+  'lock_error',
+  'locking', // legacy single pre-broadcast marker
+]);
+
 export function hasSubmarineSwapLockStarted(swap) {
   return Boolean(
-    swap?.data?.locked || swap?.data?.lockTxHash || swap?.data?.lockState,
+    swap?.data?.locked ||
+      swap?.data?.lockTxHash ||
+      SUBMARINE_LOCK_ATTEMPTED_STATES.has(swap?.data?.lockState),
   );
+}
+
+// True when a submarine swap has a lock attempt that crashed/stalled before a
+// confirmed broadcast, so reconciliation needs to chain-check it.
+export function isSubmarineLockUnresolved(swap) {
+  if (swap?.type !== 'submarine') return false;
+  if (swap?.data?.lockTxHash) return false;
+  return SUBMARINE_LOCK_UNRESOLVED_STATES.has(swap?.data?.lockState);
 }
 
 async function markSubmarineSwapLockState(id, newState) {
@@ -89,11 +147,15 @@ export async function lockSubmarineSwap(swap, signer) {
   }
 
   inFlightSubmarineLocks.add(swapId);
+  // Intent only — no network call that moves funds has run yet.
   await markSubmarineSwapLockState(swapId, {
-    lockState: 'locking',
+    lockState: 'lock_intent',
     lockStartedAt: Date.now(),
   });
 
+  // Tracks whether we have reached the broadcast boundary. Everything before it
+  // is provably fund-safe (no tx submitted); a failure after it is uncertain.
+  let reachedBroadcast = false;
   try {
     // Fetch current contract addresses from Boltz
     const contractsRes = await fetch(
@@ -114,6 +176,10 @@ export async function lockSubmarineSwap(swap, signer) {
       'hex',
     );
 
+    // Tx construction is complete; we are about to submit to the network.
+    await markSubmarineSwapLockState(swapId, { lockState: 'broadcasting' });
+    reachedBroadcast = true;
+
     // Send lock transaction
     const tx = await contract[ETHER_SWAP_RBTC_LOCK_SIGNATURE](
       invoicePreimageHash,
@@ -126,7 +192,7 @@ export async function lockSubmarineSwap(swap, signer) {
 
     await markSubmarineSwapLockState(swapId, {
       locked: true,
-      lockState: 'locked',
+      lockState: 'broadcasted',
       lockTxHash: tx.hash,
       lockedAt: Date.now(),
     });
@@ -134,8 +200,11 @@ export async function lockSubmarineSwap(swap, signer) {
     console.log(`Lock tx sent: ${tx.hash}`);
     return { didLock: true, tx };
   } catch (err) {
+    // Pre-broadcast failure → no tx was sent, safe to retry (lock_error).
+    // Post-broadcast failure → a tx may be in flight, must chain-check before
+    // any retry (broadcast_unknown).
     await markSubmarineSwapLockState(swapId, {
-      lockState: 'lock_error',
+      lockState: reachedBroadcast ? 'broadcast_unknown' : 'lock_error',
       lockError: err?.message || String(err),
       lockErrorAt: Date.now(),
     });
@@ -151,14 +220,13 @@ export async function executeSubmarineSwap(
   provider,
   signer,
   sendWebViewRequest,
+  accountId,
 ) {
   try {
     console.log('Running rootstock excecution');
     const address = await signer.getAddress();
     const rootStockWalletBalance = await provider.getBalance(address);
-    console.log(address, rootStockWalletBalance);
 
-    console.log(address, rootStockWalletBalance);
     const maxSendAmountResponse = await calculateMaxSubmarineSwapAmount({
       limits: swapLimits,
       provider,
@@ -168,8 +236,6 @@ export async function executeSubmarineSwap(
 
     if (!maxSendAmountResponse.maxSats) return;
 
-    console.log(maxSendAmountResponse, 'max send amoutn resposne');
-
     const sparkInvoice = await sparkReceivePaymentWrapper({
       amountSats: Number(maxSendAmountResponse.maxSats),
       memo: i18next.t('transactionLabelText.roostockSwap'),
@@ -177,10 +243,22 @@ export async function executeSubmarineSwap(
       shouldNavigate: false,
       mnemoinc: signerMnemonic,
       sendWebViewRequest,
+      extraDetails: {
+        isRootstockSwap: true,
+        rootstockSwapStatus: 'swap.created',
+        rootstockSwapAmountSat: Number(maxSendAmountResponse.maxSats),
+        rootstockSwapFeeSat: maxSendAmountResponse.boltzFee,
+      },
     });
     if (!sparkInvoice.didWork) return;
 
-    return createRootstockSubmarineSwap(sparkInvoice.invoice);
+    return createRootstockSubmarineSwap(sparkInvoice.invoice, {
+      accountId,
+      invoiceId: sparkInvoice.data?.id,
+      amountSat: Number(maxSendAmountResponse.maxSats),
+      feeSat: maxSendAmountResponse.boltzFee,
+      createdTime: Date.now(),
+    });
   } catch (err) {
     console.log(err, 'error in execute submarine swaps');
     return false;
@@ -204,7 +282,7 @@ export async function calculateMaxSubmarineSwapAmount({
     const rootstockBalance = await provider.getBalance(userAddress); // in wei
     const swaps = (await loadSwaps()) || [];
     const outboundSwapsBalance = swaps
-      .filter(swap => swap.type === 'submarine' && !swap.data.didSwapFail)
+      .filter(swap => swap.type === 'submarine' && isRootstockSwapActive(swap))
       .reduce(
         (prev, cur) => prev + (Number(cur?.data?.swap?.expectedAmount) || 0),
         0,

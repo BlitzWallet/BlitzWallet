@@ -8,8 +8,12 @@ import React, {
 } from 'react';
 
 import { loadSwaps } from '../app/functions/boltz/rootstock/swapDb';
-import { executeSubmarineSwap } from '../app/functions/boltz/rootstock/submarineSwap';
+import {
+  executeSubmarineSwap,
+  isSubmarineLockUnresolved,
+} from '../app/functions/boltz/rootstock/submarineSwap';
 import { isRootstockSwapActive } from '../app/functions/boltz/rootstock/swapStatus';
+import { reconcileSubmarineSwapLock } from '../app/functions/boltz/rootstock/reconcileSubmarineSwap';
 import { handleRootstockSwapUpdate } from '../app/functions/boltz/rootstock/swapLifecycle';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
@@ -26,6 +30,10 @@ import { useAuthContext } from './authContext';
 
 export const RootstockSwapContext = createContext();
 
+// Minimum gap between on-chain reconciliation attempts for the same swap, so the
+// recurring interval doesn't hammer the RPC for swaps left in broadcast_unknown.
+const RECONCILE_THROTTLE_MS = 60000;
+
 export const RootstockSwapProvider = ({ children }) => {
   const { sendWebViewRequest } = useWebView();
   const { authResetkey } = useAuthContext();
@@ -35,7 +43,6 @@ export const RootstockSwapProvider = ({ children }) => {
   const subscribedIdsRef = useRef(new Set());
   const activeSwapIdsRef = useRef(new Set()); // Track active swaps
   const [signer, setSigner] = useState(null);
-  const [pendingNavigation, setPendingNavigation] = useState(null);
 
   const isInitialRender = useRef(true);
   const wsRef = useRef(null);
@@ -43,6 +50,7 @@ export const RootstockSwapProvider = ({ children }) => {
   const timeoutRef = useRef(null);
   const cleanupDebounceRef = useRef(null);
   const didRunSignerCreation = useRef(null);
+  const reconcileThrottleRef = useRef(new Map());
 
   // Smart cleanup function that only clears if no active swaps
   const cleanupRootstockListener = useCallback(() => {
@@ -155,9 +163,36 @@ export const RootstockSwapProvider = ({ children }) => {
     return false;
   };
 
+  // Resolve any swap whose lock attempt crashed/stalled before a confirmed
+  // broadcast. Throttled per-swap so the recurring interval can't spam the RPC.
+  const reconcileUnresolvedSwaps = async swaps => {
+    if (!signer) return;
+    const now = Date.now();
+    const throttle = reconcileThrottleRef.current;
+    const unresolved = swaps.filter(isSubmarineLockUnresolved);
+    for (const swap of unresolved) {
+      const lastReconciledAt = throttle.get(swap.id) || 0;
+      if (now - lastReconciledAt < RECONCILE_THROTTLE_MS) continue;
+      throttle.set(swap.id, now);
+      try {
+        await reconcileSubmarineSwapLock(swap, signer, provider);
+      } catch (err) {
+        console.log('error reconciling rootstock swap', swap.id, err);
+      }
+    }
+  };
+
   const loadRootstockSwaps = async () => {
     try {
-      const swaps = (await loadSwaps()) || [];
+      let swaps = (await loadSwaps()) || [];
+
+      // Heal swaps stuck mid-lock before deciding whether to create a new one.
+      // A discard here drops the active count to zero so a fresh swap is minted.
+      if (swaps.some(isSubmarineLockUnresolved)) {
+        await reconcileUnresolvedSwaps(swaps);
+        swaps = (await loadSwaps()) || [];
+      }
+
       const activeSwaps = swaps.filter(isRootstockSwapActive);
 
       if (!activeSwaps.length) {
@@ -167,6 +202,7 @@ export const RootstockSwapProvider = ({ children }) => {
           provider,
           signer,
           sendWebViewRequest,
+          sparkInformation.identityPubKey,
         );
         if (swap) activeSwaps.push(swap);
       }
@@ -273,17 +309,18 @@ export const RootstockSwapProvider = ({ children }) => {
             const msg = JSON.parse(event.data);
             if (msg.event !== 'update') return;
 
-            const swapId = msg.args[0].id;
-            const status = msg.args[0].status;
+            const swapUpdate = msg.args[0];
+            const swapId = swapUpdate.id;
+            const status = swapUpdate.status;
 
             console.log(`Swap ${swapId} updated: ${status}`);
 
             await handleRootstockSwapUpdate({
               swapId,
               status,
+              swapUpdate,
               signer,
               activeSwapIds: activeSwapIdsRef.current,
-              setPendingNavigation,
             });
 
             debouncedCleanup();
@@ -313,7 +350,7 @@ export const RootstockSwapProvider = ({ children }) => {
         };
       }
 
-      intervalRef.current = setInterval(async () => {
+      const intervalFunction = async () => {
         const freshSwaps = await loadRootstockSwaps();
         if (freshSwaps && freshSwaps.length > 0) {
           // Update active swaps based on current status
@@ -333,7 +370,11 @@ export const RootstockSwapProvider = ({ children }) => {
           // Clear active swaps since no swaps exist
           activeSwapIdsRef.current.clear();
         }
-      }, intervalMs);
+      };
+
+      // quick call to not wait for the first interval
+      intervalFunction();
+      intervalRef.current = setInterval(intervalFunction, intervalMs);
 
       scheduleCleanup(durationMs);
     },
@@ -344,6 +385,7 @@ export const RootstockSwapProvider = ({ children }) => {
       accountMnemoinc,
       minMaxLiquidSwapAmounts,
       provider,
+      sparkInformation.identityPubKey,
     ],
   );
 
@@ -363,17 +405,8 @@ export const RootstockSwapProvider = ({ children }) => {
       signer,
       createSigner,
       startRootstockEventListener,
-      pendingNavigation,
-      setPendingNavigation,
     };
-  }, [
-    provider,
-    signer,
-    createSigner,
-    startRootstockEventListener,
-    pendingNavigation,
-    setPendingNavigation,
-  ]);
+  }, [provider, signer, createSigner, startRootstockEventListener]);
 
   return (
     <RootstockSwapContext.Provider value={contextValue}>
