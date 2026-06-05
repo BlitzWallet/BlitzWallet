@@ -7,33 +7,40 @@ import React, {
   useState,
 } from 'react';
 
-import {
-  deleteSwapById,
-  getSwapById,
-  loadSwaps,
-  updateSwap,
-} from '../app/functions/boltz/rootstock/swapDb';
-import {
-  claimRootstockReverseSwap,
-  refundRootstockSubmarineSwap,
-} from '../app/functions/boltz/rootstock/claims';
+import { loadSwaps } from '../app/functions/boltz/rootstock/swapDb';
 import {
   executeSubmarineSwap,
-  lockSubmarineSwap,
+  isSubmarineLockUnresolved,
 } from '../app/functions/boltz/rootstock/submarineSwap';
+import {
+  isRootstockSwapActive,
+  isRootstockSwapPendingRefund,
+} from '../app/functions/boltz/rootstock/swapStatus';
+import { reconcileSubmarineSwapLock } from '../app/functions/boltz/rootstock/reconcileSubmarineSwap';
+import { handleRootstockSwapUpdate } from '../app/functions/boltz/rootstock/swapLifecycle';
+import { refundRootstockSubmarineSwap } from '../app/functions/boltz/rootstock/claims';
+import { fetchBoltzSwapStatus } from '../app/functions/boltz/rootstock/boltzStatus';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
 import {
-  getRoostockProviderEndpoint,
+  getRoostockProviderEndpoints,
+  getRoostockProviderNetwork,
   rootstockEnvironment,
 } from '../app/functions/boltz/rootstock';
-import { JsonRpcProvider, Wallet } from 'ethers';
+import { FallbackProvider, JsonRpcProvider, Wallet } from 'ethers';
 import { getBoltzWsUrl } from '../app/functions/boltz/boltzEndpoitns';
 import { useSparkWallet } from './sparkContext';
 import { useWebView } from './webViewContext';
 import { useAuthContext } from './authContext';
 
 export const RootstockSwapContext = createContext();
+
+// Minimum gap between on-chain reconciliation attempts for the same swap, so the
+// recurring interval doesn't hammer the RPC for swaps left in broadcast_unknown.
+const RECONCILE_THROTTLE_MS = 60000;
+
+const isRootstockSwapMonitored = swap =>
+  isRootstockSwapActive(swap) || isRootstockSwapPendingRefund(swap);
 
 export const RootstockSwapProvider = ({ children }) => {
   const { sendWebViewRequest } = useWebView();
@@ -44,7 +51,6 @@ export const RootstockSwapProvider = ({ children }) => {
   const subscribedIdsRef = useRef(new Set());
   const activeSwapIdsRef = useRef(new Set()); // Track active swaps
   const [signer, setSigner] = useState(null);
-  const [pendingNavigation, setPendingNavigation] = useState(null);
 
   const isInitialRender = useRef(true);
   const wsRef = useRef(null);
@@ -52,17 +58,8 @@ export const RootstockSwapProvider = ({ children }) => {
   const timeoutRef = useRef(null);
   const cleanupDebounceRef = useRef(null);
   const didRunSignerCreation = useRef(null);
-
-  // Helper function to check if a swap is in a terminal state
-  const isSwapCompleted = status => {
-    return [
-      'transaction.claimed',
-      'transaction.claim.pending',
-      'swap.expired',
-      'invoice.failedToPay',
-      'transaction.lockupFailed',
-    ].includes(status);
-  };
+  const reconcileThrottleRef = useRef(new Map());
+  const createSwapInFlightRef = useRef(false);
 
   // Smart cleanup function that only clears if no active swaps
   const cleanupRootstockListener = useCallback(() => {
@@ -124,9 +121,21 @@ export const RootstockSwapProvider = ({ children }) => {
   }, [cleanupRootstockListener]);
 
   const provider = useMemo(() => {
-    return new JsonRpcProvider(
-      getRoostockProviderEndpoint(rootstockEnvironment),
+    const network = getRoostockProviderNetwork(rootstockEnvironment);
+    const providers = getRoostockProviderEndpoints(rootstockEnvironment).map(
+      (endpoint, index) => ({
+        provider: new JsonRpcProvider(endpoint, network, {
+          staticNetwork: true,
+        }),
+        priority: index + 1,
+        weight: 1,
+        stallTimeout: 2000,
+      }),
     );
+
+    return providers.length === 1
+      ? providers[0].provider
+      : new FallbackProvider(providers, network, { quorum: 1 });
   }, []);
 
   const createSigner = useCallback(() => {
@@ -163,20 +172,96 @@ export const RootstockSwapProvider = ({ children }) => {
     return false;
   };
 
-  const loadRootstockSwaps = async () => {
-    let swaps = await loadSwaps();
-    if (!swaps.length) {
-      const swap = await executeSubmarineSwap(
-        accountMnemoinc,
-        minMaxLiquidSwapAmounts,
-        provider,
-        signer,
-        sendWebViewRequest,
-      );
-      if (swap) swaps.push(swap);
+  // Resolve any swap whose lock attempt crashed/stalled before a confirmed
+  // broadcast. Throttled per-swap so the recurring interval can't spam the RPC.
+  const reconcileUnresolvedSwaps = async swaps => {
+    if (!signer) return;
+    const now = Date.now();
+    const throttle = reconcileThrottleRef.current;
+    const unresolved = swaps.filter(isSubmarineLockUnresolved);
+    for (const swap of unresolved) {
+      const lastReconciledAt = throttle.get(swap.id) || 0;
+      if (now - lastReconciledAt < RECONCILE_THROTTLE_MS) continue;
+      throttle.set(swap.id, now);
+      try {
+        await reconcileSubmarineSwapLock(swap, signer, provider);
+      } catch (err) {
+        console.log('error reconciling rootstock swap', swap.id, err);
+      }
     }
-    console.log('saved swaps', swaps);
-    return swaps || [];
+  };
+
+  // Re-drive refunds for swaps that reached a terminal failure but whose refund
+  // never confirmed. Idempotent and throttled per-swap so locked RBTC is
+  // recovered without spamming the RPC.
+  const retryPendingRefunds = async swaps => {
+    if (!signer) return;
+    const now = Date.now();
+    const throttle = reconcileThrottleRef.current;
+    const pending = swaps.filter(isRootstockSwapPendingRefund);
+    for (const swap of pending) {
+      const throttleKey = `${swap.id}:refund`;
+      const lastAttemptAt = throttle.get(throttleKey) || 0;
+      if (now - lastAttemptAt < RECONCILE_THROTTLE_MS) continue;
+      throttle.set(throttleKey, now);
+      try {
+        await refundRootstockSubmarineSwap(swap, signer);
+      } catch (err) {
+        console.log('error retrying rootstock refund', swap.id, err);
+      }
+    }
+  };
+
+  const loadRootstockSwaps = async () => {
+    try {
+      let swaps = (await loadSwaps()) || [];
+
+      // Heal swaps stuck mid-lock before deciding whether to create a new one.
+      // A discard here drops the active count to zero so a fresh swap is minted.
+      if (swaps.some(isSubmarineLockUnresolved)) {
+        await reconcileUnresolvedSwaps(swaps);
+        swaps = (await loadSwaps()) || [];
+      }
+
+      await retryPendingRefunds(swaps);
+      swaps = (await loadSwaps()) || [];
+
+      let activeSwaps = swaps.filter(isRootstockSwapActive);
+      if (activeSwaps.length) return activeSwaps;
+
+      const pendingRefunds = swaps.filter(isRootstockSwapPendingRefund);
+      if (pendingRefunds.length) return pendingRefunds;
+
+      // Only one creation may be in flight; concurrent callers (signer effect,
+      // interval, ws reconnect) bail rather than mint a second Boltz swap +
+      // Lightning invoice.
+      if (createSwapInFlightRef.current) return [];
+      createSwapInFlightRef.current = true;
+      try {
+        // Re-check after winning the latch — another path may have just created.
+        swaps = (await loadSwaps()) || [];
+        activeSwaps = swaps.filter(isRootstockSwapActive);
+        if (activeSwaps.length) return activeSwaps;
+
+        const pending = swaps.filter(isRootstockSwapPendingRefund);
+        if (pending.length) return pending;
+
+        const swap = await executeSubmarineSwap(
+          accountMnemoinc,
+          minMaxLiquidSwapAmounts,
+          provider,
+          signer,
+          sendWebViewRequest,
+          sparkInformation.identityPubKey,
+        );
+        return swap ? [swap] : [];
+      } finally {
+        createSwapInFlightRef.current = false;
+      }
+    } catch (err) {
+      console.log(err, 'error in load rootstock swaps');
+      return [];
+    }
   };
 
   // Runs after every interval or ws update
@@ -206,7 +291,7 @@ export const RootstockSwapProvider = ({ children }) => {
 
     // Update active swaps tracking
     newSwaps.forEach(swap => {
-      if (!isSwapCompleted(swap.status)) {
+      if (isRootstockSwapMonitored(swap)) {
         activeSwapIdsRef.current.add(swap.id);
       }
     });
@@ -255,16 +340,14 @@ export const RootstockSwapProvider = ({ children }) => {
 
       // Initialize active swaps tracking
       swaps.forEach(swap => {
-        if (!isSwapCompleted(swap.status)) {
+        if (isRootstockSwapMonitored(swap)) {
           activeSwapIdsRef.current.add(swap.id);
         }
       });
 
       if (swaps.length) {
         // Open websocket
-        const ws = new WebSocket(
-          `${getBoltzWsUrl(rootstockEnvironment)}/v2/ws`,
-        );
+        const ws = new WebSocket(getBoltzWsUrl(rootstockEnvironment));
         wsRef.current = ws;
 
         ws.onopen = event => {
@@ -277,49 +360,19 @@ export const RootstockSwapProvider = ({ children }) => {
             const msg = JSON.parse(event.data);
             if (msg.event !== 'update') return;
 
-            const swapId = msg.args[0].id;
-            const status = msg.args[0].status;
+            const swapUpdate = msg.args[0];
+            const swapId = swapUpdate.id;
+            const status = swapUpdate.status;
 
             console.log(`Swap ${swapId} updated: ${status}`);
 
-            // Find swap type from state
-            const swapResponse = await getSwapById(swapId);
-            console.log(swapResponse, 'saved swap in history');
-            if (!swapResponse) return;
-            const [swap] = swapResponse;
-            console.log(swap, 'DESTRUCTED SWAP');
-
-            // Perform actions based on type + status
-            if (swap.type === 'reverse' && status === 'transaction.confirmed') {
-              await claimRootstockReverseSwap(swap, signer);
-            }
-
-            if (swap.type === 'submarine') {
-              if (status == 'invoice.set') {
-                await lockSubmarineSwap(swap, signer);
-                setPendingNavigation(true);
-              }
-              if (
-                [
-                  'invoice.failedToPay',
-                  'swap.expired',
-                  'transaction.lockupFailed',
-                ].includes(status)
-              ) {
-                await updateSwap(swapId, { didSwapFail: true });
-                await refundRootstockSubmarineSwap(swap, signer);
-                // Remove from active swaps when it fails/expires
-                activeSwapIdsRef.current.delete(swapId);
-              }
-              if (
-                status == 'transaction.claimed' ||
-                status === 'transaction.claim.pending'
-              ) {
-                await deleteSwapById(swapId);
-                // Remove from active swaps when completed
-                activeSwapIdsRef.current.delete(swapId);
-              }
-            }
+            await handleRootstockSwapUpdate({
+              swapId,
+              status,
+              swapUpdate,
+              signer,
+              activeSwapIds: activeSwapIdsRef.current,
+            });
 
             debouncedCleanup();
           } catch (error) {
@@ -334,26 +387,52 @@ export const RootstockSwapProvider = ({ children }) => {
 
         ws.onclose = event => {
           console.log('WebSocket closed:', event.code, event.reason);
+          const shouldReconnect = activeSwapIdsRef.current.size > 0;
           // Clean up subscribed IDs when connection closes
           subscribedIdsRef.current.clear();
           // Clear active swaps since we can't monitor them without WebSocket
           activeSwapIdsRef.current.clear();
+          wsRef.current = null;
+          if (shouldReconnect) {
+            setTimeout(() => {
+              startRootstockEventListener({ durationMs, intervalMs });
+            }, 1000);
+          }
         };
       }
 
-      intervalRef.current = setInterval(async () => {
+      const intervalFunction = async () => {
         const freshSwaps = await loadRootstockSwaps();
         if (freshSwaps && freshSwaps.length > 0) {
           // Update active swaps based on current status
-          const currentActiveSwaps = freshSwaps.filter(
-            swap => !isSwapCompleted(swap.status),
+          const currentMonitoredSwaps = freshSwaps.filter(swap =>
+            isRootstockSwapMonitored(swap),
+          );
+          const currentActiveSwaps = freshSwaps.filter(swap =>
+            isRootstockSwapActive(swap),
           );
 
           // Update the active swaps ref
           activeSwapIdsRef.current.clear();
-          currentActiveSwaps.forEach(swap => {
+          currentMonitoredSwaps.forEach(swap => {
             activeSwapIdsRef.current.add(swap.id);
           });
+
+          // Fallback for a websocket that went silent without closing: poll each
+          // active swap's status. The monotonic guard in handleRootstockSwapUpdate
+          // makes a duplicate/late poll a no-op, so WS and poll never double-apply.
+          for (const swap of currentActiveSwaps) {
+            const polled = await fetchBoltzSwapStatus(swap.id);
+            if (polled?.status && polled.status !== swap.data?.status) {
+              await handleRootstockSwapUpdate({
+                swapId: swap.id,
+                status: polled.status,
+                swapUpdate: polled,
+                signer,
+                activeSwapIds: activeSwapIdsRef.current,
+              });
+            }
+          }
 
           loadAndSubscribeSwaps(false, freshSwaps);
         } else {
@@ -361,7 +440,11 @@ export const RootstockSwapProvider = ({ children }) => {
           // Clear active swaps since no swaps exist
           activeSwapIdsRef.current.clear();
         }
-      }, intervalMs);
+      };
+
+      // quick call to not wait for the first interval
+      intervalFunction();
+      intervalRef.current = setInterval(intervalFunction, intervalMs);
 
       scheduleCleanup(durationMs);
     },
@@ -372,6 +455,7 @@ export const RootstockSwapProvider = ({ children }) => {
       accountMnemoinc,
       minMaxLiquidSwapAmounts,
       provider,
+      sparkInformation.identityPubKey,
     ],
   );
 
@@ -391,17 +475,8 @@ export const RootstockSwapProvider = ({ children }) => {
       signer,
       createSigner,
       startRootstockEventListener,
-      pendingNavigation,
-      setPendingNavigation,
     };
-  }, [
-    provider,
-    signer,
-    createSigner,
-    startRootstockEventListener,
-    pendingNavigation,
-    setPendingNavigation,
-  ]);
+  }, [provider, signer, createSigner, startRootstockEventListener]);
 
   return (
     <RootstockSwapContext.Provider value={contextValue}>

@@ -9,6 +9,10 @@ import {
 } from 'react';
 import { AppState, Dimensions, Platform } from 'react-native';
 import { getBoltzSwapPairInformation } from '../app/functions/boltz/boltzSwapInfo';
+import {
+  buildRootstockSubmarineLimits,
+  DEFAULT_ROOTSTOCK_SUBMARINE_PAIR,
+} from '../app/functions/boltz/rootstock/swapLimits';
 import * as Network from 'expo-network';
 import { navigationRef } from '../navigation/navigationService';
 import {
@@ -25,8 +29,9 @@ const AppStatusProvider = ({ children }) => {
     min: 1000,
     max: 25000000,
     rsk: {
-      min: 3000,
-      max: 10000000,
+      min: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR.limits.minimal,
+      max: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR.limits.maximal,
+      submarine: DEFAULT_ROOTSTOCK_SUBMARINE_PAIR,
     },
   });
   const [isConnectedToTheInternet, setIsConnectedToTheInternet] =
@@ -174,14 +179,14 @@ const AppStatusProvider = ({ children }) => {
     (async () => {
       try {
         const [
-          // submarineSwapStats,
+          submarineSwapStats,
           reverseSwapStats,
         ] = await Promise.all([
-          // getBoltzSwapPairInformation('submarine'),
+          getBoltzSwapPairInformation('submarine'),
           getBoltzSwapPairInformation('reverse'),
         ]);
 
-        const liquidReverse = reverseSwapStats.BTC['L-BTC'];
+        const liquidReverse = reverseSwapStats?.BTC?.['L-BTC'];
         const min = liquidReverse?.limits?.minimal || 1000;
         const max = liquidReverse?.limits?.maximal || 25000000;
 
@@ -191,13 +196,7 @@ const AppStatusProvider = ({ children }) => {
           ...prev,
           min,
           max,
-          rsk: {
-            ...prev.rsk,
-            submarine: reverseSwapStats.BTC.RBTC,
-            // reverse: submarineSwapStats.RBTC.BTC,
-            min: reverseSwapStats.BTC.RBTC.limits.minimal,
-            max: reverseSwapStats.BTC.RBTC.limits.maximal,
-          },
+          rsk: buildRootstockSubmarineLimits(submarineSwapStats, prev.rsk),
         }));
       } catch (error) {
         console.error('Error fetching Boltz swap information:', error);

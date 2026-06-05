@@ -46,6 +46,7 @@ export default function TechnicalTransactionDetails(props) {
     ? sparkInformation.tokens?.[details?.LRC20Token]
     : '';
   const isPending = transaction.paymentStatus === 'pending';
+  const isConfirmed = transaction.paymentStatus === 'completed';
 
   let paymentDetails = [];
   let infoValues = [];
@@ -85,6 +86,25 @@ export default function TechnicalTransactionDetails(props) {
     ];
     infoValues = [sparkID, details.preimage, details.address];
 
+    if (details.isRootstockSwap) {
+      paymentDetails.push(
+        t('screens.inAccount.technicalTransactionDetails.rootstockSwapId'),
+        !isConfirmed &&
+          t(
+            'screens.inAccount.technicalTransactionDetails.rootstockSwapStatus',
+          ),
+        !isConfirmed &&
+          t(
+            'screens.inAccount.technicalTransactionDetails.rootstockPaymentTxId',
+          ),
+      );
+      infoValues.push(
+        details.rootstockSwapId,
+        !isConfirmed && details.rootstockSwapStatus,
+        !isConfirmed && (details.rootstockPaymentTxId || details.lockTxHash),
+      );
+    }
+
     if (details.bitrefillInvoiceId) {
       paymentDetails.push(
         t('screens.inAccount.technicalTransactionDetails.bitrefillInvoiceId'),
@@ -110,7 +130,7 @@ export default function TechnicalTransactionDetails(props) {
     infoValues = bitcoinValues.slice(0, count);
   }
 
-  const infoElements = paymentDetails.map((item, id) => {
+  const infoElements = paymentDetails.filter(Boolean).map((item, id) => {
     const txItem = infoValues[id];
 
     const isBitcoinTxId =

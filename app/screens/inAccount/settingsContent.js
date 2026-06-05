@@ -61,7 +61,10 @@ export default function SettingsContentIndex(props) {
             <CreateCustodyAccounts />
           )}
           {selectedPage?.toLowerCase() === 'viewallswaps' && (
-            <ViewSwapsHome theme={theme} />
+            <ViewSwapsHome
+              theme={theme}
+              swapType={props?.route?.params?.swapType}
+            />
           )}
         </>
       ) : (

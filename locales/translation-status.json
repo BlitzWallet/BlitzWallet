@@ -379,7 +379,6 @@
   "app/screens/splashScreen.js": true,
   "app/screens/toast.js": true,
   "context-store/NWC.js": true,
-  "context-store/SDKNavigation.js": true,
   "context-store/activeAccount.js": true,
   "context-store/appData.js": true,
   "context-store/appStatus.js": true,
