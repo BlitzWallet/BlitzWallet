@@ -1,14 +1,14 @@
-import {Contract, Signature} from 'ethers';
+import { Contract, Signature } from 'ethers';
 import EtherSwapArtifact from 'boltz-core/out/EtherSwap.sol/EtherSwap.json';
-import {rootstockEnvironment, satoshisToWei} from '.';
-import {deleteSwapById} from './swapDb';
+import { rootstockEnvironment, satoshisToWei } from '.';
+import { updateSwap } from './swapDb';
 import bolt11 from 'bolt11';
-import {getBoltzApiUrl} from '../boltzEndpoitns';
+import { getBoltzApiUrl } from '../boltzEndpoitns';
 
 export async function refundRootstockSubmarineSwap(swap, signer) {
   try {
     const invoice = swap.data.invoice;
-    const {claimAddress, timeoutBlockHeight, id, expectedAmount} =
+    const { claimAddress, timeoutBlockHeight, id, expectedAmount } =
       swap.data.swap;
     const currentBlockHeight = await signer.provider.getBlockNumber();
     const decoded = bolt11.decode(invoice);
@@ -48,7 +48,7 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
       console.log(refundData, 'boltz refund data');
       if (refundData.error) return;
 
-      const {signature} = refundData;
+      const { signature } = refundData;
       const decSignature = Signature.from(signature);
       tx = await contract.refundCooperative(
         `0x${invoicePreimageHash}`,
@@ -64,7 +64,15 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
     console.log(`Refunded RBTC tx: ${tx.hash}`);
 
     if (tx) {
-      await deleteSwapById(id);
+      try {
+        await updateSwap(id, {
+          didSwapFail: true,
+          refundTxHash: tx.hash,
+          refundedAt: Date.now(),
+        });
+      } catch (updateError) {
+        console.log('Error saving rootstock refund metadata', updateError);
+      }
       return true;
     }
   } catch (err) {
