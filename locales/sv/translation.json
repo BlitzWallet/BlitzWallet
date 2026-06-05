@@ -202,7 +202,7 @@
     "date": "Datum",
     "time": "Tid",
     "memo": "Memo",
-    "roostockSwap": "Överföring från rotstock till gnista"
+    "roostockSwap": "RBTC <> BTC"
   },
   "createAccount": {
     "chooseLanguage": {
@@ -1718,7 +1718,7 @@
     },
     "viewSwapsHome": {
       "swaps": "Nätverksöverföringar",
-      "selectionTitle": "Välj nätverk",
+      "selectionTitle": "Vilket nätverk vill du se?",
       "liquid": "Vätska",
       "rootstock": "Rotstock",
       "flashnet": "BTC <> USD",
@@ -1726,7 +1726,18 @@
     },
     "viewRoostockSwaps": {
       "loadingMessage": "Laddar sparade Roostock-transfereringar",
-      "noSwapsMessage": "Du har inga sparade Roostock-överföringar"
+      "noSwapsMessage": "Du har inga sparade Roostock-överföringar",
+      "swap.created": "Förbereder",
+      "invoice.set": "Finansierar",
+      "transaction.mempool": "Bekräftar",
+      "transaction.confirmed": "Bekräftad på Rootstock",
+      "invoice.pending": "Betalar",
+      "invoice.paid": "Betalning mottagen",
+      "transaction.claim.pending": "Slutförd",
+      "transaction.claimed": "Slutförd",
+      "transaction.lockupFailed": "Kräver återbetalning",
+      "invoice.failedToPay": "Betalning misslyckades",
+      "swap.expired": "Utgången"
     },
     "rootstockSwapInfo": {
       "title": "Byte av ubåt",
@@ -1736,7 +1747,13 @@
       "timeoutBHeight": "Timeout Blockhöjd",
       "expAmount": "Förväntat belopp",
       "invoice": "Faktura",
-      "refundSwap": "Överföring av återbetalning"
+      "refundSwap": "Överföring av återbetalning",
+      "date": "Datum",
+      "completed": "Slutförd",
+      "refunded": "Återbetald",
+      "rootstockTx": "Rootstock-Tx",
+      "lockTx": "Låsnings-Tx",
+      "refundTx": "Återbetalnings-Tx"
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Återskanning slutförd",
@@ -2104,6 +2121,7 @@
         "confirmMessage_sent": "Utskickat belopp",
         "confirmMessage_received": "Erhållet belopp",
         "paymentStatus": "Betalningsstatus",
+        "swapStatus": "Bytestatus",
         "confReqired": "Confs krävs",
         "detailsBTN": "Tekniska detaljer",
         "contactPaymentType": "Kontakt",
@@ -2192,6 +2210,7 @@
         "edit contact profile": "Redigera kontaktprofil",
         "view all swaps": "Nätverksöverföringar",
         "fast pay": "Snabb betalning",
+        "spend and replace": "Spendera och ersätt",
         "blitz fee details": "Detaljer om Blitz-avgift",
         "crash reports": "Krockrapporter",
         "notifications": "Meddelanden",
@@ -2233,6 +2252,9 @@
         "destinationAsset": "Destinations-tillgång",
         "destinationChain": "Destinations-kedja",
         "transferIds": "Inkluderade personer",
+        "rootstockSwapId": "Rootstock-byte-ID",
+        "rootstockSwapStatus": "Rootstock-bytestatus",
+        "rootstockPaymentTxId": "Rootstock-betalnings-Txid",
         "bitrefillInvoiceId": "Bitrefill-faktura-ID"
       },
       "viewAllTxPage": {
@@ -2664,7 +2686,7 @@
     "contact": "Hej, lägg till mig på Blitz!"
   },
   "swapMessages": {
-    "liquid": "Överföring av vätska till gnista"
+    "liquid": "LBTC <> BTC"
   },
   "tabs": {
     "home": "Plånbok",
