@@ -2517,7 +2517,6 @@ const styles = StyleSheet.create({
   },
   reviewReceiveAmount: {
     fontSize: SIZES.xxLarge,
-    fontWeight: '500',
     textAlign: 'center',
     includeFontPadding: false,
     marginBottom: 24,
