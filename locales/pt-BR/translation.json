@@ -1000,7 +1000,7 @@
       "noAddedContactsTitle": "Nenhum contato adicionado",
       "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui",
       "payMe": "Endereço Blitz",
-      "createInvoice": "Solicitar Dinheiro",
+      "createInvoice": "Gerar Cobrança",
       "invoiceDescription": "Escolha a moeda e quantia desejada",
       "poolsDescription": "Colete pagamentos para um objetivo",
       "noContactHead": "{{username}} não encontrado",
