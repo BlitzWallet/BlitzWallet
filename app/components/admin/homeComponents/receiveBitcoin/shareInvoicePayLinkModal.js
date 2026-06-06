@@ -78,7 +78,7 @@ export default function ShareInvoicePayLinkModal({
       }
 
       if (sharePayLinkCache?.payLinkId) {
-        setContentHeight?.(700);
+        setContentHeight?.(650);
         setPayLinkId(sharePayLinkCache?.payLinkId);
         return;
       }
@@ -119,7 +119,7 @@ export default function ShareInvoicePayLinkModal({
         }
 
         onCreated?.(newPayLinkId);
-        setContentHeight?.(700);
+        setContentHeight?.(650);
         setPayLinkId(newPayLinkId);
       } catch (err) {
         console.log('Error creating share paylink:', err);
@@ -251,11 +251,7 @@ export default function ShareInvoicePayLinkModal({
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={handleCopy}
-          style={[
-            styles.actionButton,
-            styles.ctaSecondary,
-            { borderColor: backgroundOffset },
-          ]}
+          style={[styles.actionButton, { backgroundColor: 'transparent' }]}
         >
           <ThemeIcon size={18} iconName={'Copy'} />
           <ThemeText

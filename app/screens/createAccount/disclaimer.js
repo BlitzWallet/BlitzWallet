@@ -208,6 +208,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 12,
     includeFontPadding: false,
+    textAlign: 'center',
   },
   descriptionText: {
     width: '90%',
