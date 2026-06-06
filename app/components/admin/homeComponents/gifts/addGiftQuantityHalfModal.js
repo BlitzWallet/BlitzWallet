@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { ThemeText } from '../../../../functions/CustomElements';
 import {
   CENTER,
@@ -24,8 +25,11 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import useHalfModalStepTransition from '../../../../hooks/useHalfModalStepTransition';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+
+const STEP_ORDER = ['select', 'custom'];
 
 export default function AddGiftQuantityHalfModal({
   amount,
@@ -34,6 +38,7 @@ export default function AddGiftQuantityHalfModal({
   giftDenomination,
   setContentHeight,
   handleBackPressFunction,
+  setBackNav,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -46,6 +51,11 @@ export default function AddGiftQuantityHalfModal({
 
   const [step, setStep] = useState('select');
   const [customValue, setCustomValue] = useState('');
+
+  const { renderedPage, pageAnimatedStyle } = useHalfModalStepTransition(
+    step,
+    STEP_ORDER,
+  );
 
   const currentDerivedGiftIndex = masterInfoObject.currentDerivedGiftIndex || 1;
 
@@ -63,6 +73,16 @@ export default function AddGiftQuantityHalfModal({
   }, [step]);
 
   useHandleBackPressNew(handleBackPress);
+
+  // Register the chrome's back arrow while on the custom-quantity step.
+  useEffect(() => {
+    if (step === 'custom') {
+      setBackNav?.({ onPress: handleBackPress, title: '' });
+    } else {
+      setBackNav?.(null);
+    }
+    return () => setBackNav?.(null);
+  }, [step, handleBackPress, setBackNav]);
 
   const validateAndProceed = quantity => {
     if (!quantity || quantity <= 0) return;
@@ -229,12 +249,12 @@ export default function AddGiftQuantityHalfModal({
     );
   };
 
-  if (step === 'custom') {
+  if (renderedPage === 'custom') {
     const customQty = parseInt(customValue, 10) || 0;
     const isValid = customQty >= 1 && customQty <= MAX_GIFT_QUANTITY;
 
     return (
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, pageAnimatedStyle]}>
         <View style={styles.inputContainer}>
           <ThemeText
             styles={styles.quantityDisplay}
@@ -274,12 +294,12 @@ export default function AddGiftQuantityHalfModal({
           textContent={isValid ? t('constants.continue') : t('constants.back')}
           actionFunction={handleCustomContinue}
         />
-      </View>
+      </Animated.View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, pageAnimatedStyle]}>
       <ThemeText
         styles={styles.header}
         content={t('screens.inAccount.giftPages.createGift.quantityHeader')}
@@ -291,7 +311,7 @@ export default function AddGiftQuantityHalfModal({
           </View>
         ))}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

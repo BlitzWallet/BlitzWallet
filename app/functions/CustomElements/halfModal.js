@@ -555,6 +555,7 @@ export default function CustomHalfModal(props) {
             poolId={props?.route?.params?.poolId}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
+            setBackNav={setBackNav}
           />
         );
       case 'addGiftQuantity':
@@ -566,6 +567,7 @@ export default function CustomHalfModal(props) {
             giftDenomination={props?.route?.params?.giftDenomination}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
+            setBackNav={setBackNav}
           />
         );
       case 'addMoneyToSavings':
@@ -575,6 +577,7 @@ export default function CustomHalfModal(props) {
               selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
               setContentHeight={setContentHeight}
               handleBackPressFunction={handleBackPressFunction}
+              setBackNav={setBackNav}
             />
           </SavingsProvider>
         );
@@ -586,6 +589,7 @@ export default function CustomHalfModal(props) {
               selectedGoalUUID={props?.route?.params?.selectedGoalUUID}
               setContentHeight={setContentHeight}
               handleBackPressFunction={handleBackPressFunction}
+              setBackNav={setBackNav}
             />
           </SavingsProvider>
         );
@@ -602,6 +606,7 @@ export default function CustomHalfModal(props) {
           <ViewAllTokensHalfModal
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            setBackNav={setBackNav}
           />
         );
 
@@ -618,6 +623,7 @@ export default function CustomHalfModal(props) {
           <SwapFlowHalfModal
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
+            setBackNav={setBackNav}
           />
         );
       case 'txFilter':
@@ -638,6 +644,7 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
             setIsKeyboardActive={setIsKeyboardActive}
+            setBackNav={setBackNav}
           />
         );
       case 'payLinkCurrencySelect':
@@ -670,6 +677,7 @@ export default function CustomHalfModal(props) {
           <CreateAccumulationAddressModal
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            setBackNav={setBackNav}
           />
         );
       case 'RemoveBudgetHalfModal':

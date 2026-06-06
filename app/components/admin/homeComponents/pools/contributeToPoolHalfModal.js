@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { CENTER, SIZES, SATSPERBITCOIN } from '../../../../constants';
+import { CENTER, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
@@ -44,11 +49,14 @@ import { simulateSwap } from '../../../../functions/spark/flashnet';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
+const STEP_ORDER = ['select', 'custom', 'confirm', 'loading', 'success'];
+
 export default function ContributeToPoolHalfModal({
   pool,
   poolId,
   setContentHeight,
   handleBackPressFunction,
+  setBackNav,
 }) {
   const navigate = useNavigation();
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
@@ -73,6 +81,96 @@ export default function ContributeToPoolHalfModal({
   );
   // extract current page for easier handling
   const currentPage = step[step.length - 1];
+  const previousPageRef = useRef(currentPage);
+
+  const selectOpacity = useSharedValue(1);
+  const selectTranslateX = useSharedValue(0);
+  const customOpacity = useSharedValue(0);
+  const customTranslateX = useSharedValue(30);
+  const confirmOpacity = useSharedValue(0);
+  const confirmTranslateX = useSharedValue(30);
+  const loadingOpacity = useSharedValue(0);
+  const loadingTranslateX = useSharedValue(30);
+  const successOpacity = useSharedValue(0);
+  const successTranslateX = useSharedValue(30);
+
+  const getStepAnimation = useCallback(
+    page => {
+      switch (page) {
+        case 'custom':
+          return { opacity: customOpacity, translateX: customTranslateX };
+        case 'confirm':
+          return { opacity: confirmOpacity, translateX: confirmTranslateX };
+        case 'loading':
+          return { opacity: loadingOpacity, translateX: loadingTranslateX };
+        case 'success':
+          return { opacity: successOpacity, translateX: successTranslateX };
+        case 'select':
+        default:
+          return { opacity: selectOpacity, translateX: selectTranslateX };
+      }
+    },
+    [
+      confirmOpacity,
+      confirmTranslateX,
+      customOpacity,
+      customTranslateX,
+      loadingOpacity,
+      loadingTranslateX,
+      selectOpacity,
+      selectTranslateX,
+      successOpacity,
+      successTranslateX,
+    ],
+  );
+
+  useEffect(() => {
+    const previousPage = previousPageRef.current;
+    if (previousPage === currentPage) return;
+
+    const previousIndex = STEP_ORDER.indexOf(previousPage);
+    const currentIndex = STEP_ORDER.indexOf(currentPage);
+    const isForward = currentIndex > previousIndex;
+    const previousAnimation = getStepAnimation(previousPage);
+    const currentAnimation = getStepAnimation(currentPage);
+
+    previousAnimation.opacity.value = withTiming(0, { duration: 250 });
+    previousAnimation.translateX.value = withTiming(isForward ? -30 : 30, {
+      duration: 250,
+    });
+
+    currentAnimation.opacity.value = 0;
+    currentAnimation.translateX.value = isForward ? 30 : -30;
+    currentAnimation.opacity.value = withTiming(1, { duration: 250 });
+    currentAnimation.translateX.value = withTiming(0, { duration: 250 });
+
+    previousPageRef.current = currentPage;
+  }, [currentPage, getStepAnimation]);
+
+  const selectAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: selectOpacity.value,
+    transform: [{ translateX: selectTranslateX.value }],
+  }));
+
+  const customAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: customOpacity.value,
+    transform: [{ translateX: customTranslateX.value }],
+  }));
+
+  const confirmAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: confirmOpacity.value,
+    transform: [{ translateX: confirmTranslateX.value }],
+  }));
+
+  const loadingAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: loadingOpacity.value,
+    transform: [{ translateX: loadingTranslateX.value }],
+  }));
+
+  const successAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: successOpacity.value,
+    transform: [{ translateX: successTranslateX.value }],
+  }));
 
   const normalizedInputDenomination = inputDenomination
     ? inputDenomination
@@ -123,11 +221,24 @@ export default function ContributeToPoolHalfModal({
 
   useHandleBackPressNew(handleBackPress);
 
+  // Register the chrome's back arrow whenever a previous step exists.
+  useEffect(() => {
+    if (
+      step.length > 1 &&
+      currentPage !== 'loading' &&
+      currentPage !== 'success'
+    ) {
+      setBackNav?.({ onPress: handleBackPress, title: '' });
+    } else {
+      setBackNav?.(null);
+    }
+    return () => setBackNav?.(null);
+  }, [step, currentPage, handleBackPress, setBackNav]);
+
   const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
 
   // Convert current keyboard input to sats (used only in custom step)
   const localSatAmount = convertDisplayToSats(amountValue);
-  const localFiatAmount = convertSatsToDisplay(localSatAmount);
   const effectiveSats =
     currentPage === 'custom' ? localSatAmount : selectedAmountSats;
 
@@ -143,18 +254,8 @@ export default function ContributeToPoolHalfModal({
   };
 
   useEffect(() => {
-    if (currentPage === 'select') {
-      setContentHeight(500);
-    } else if (
-      currentPage === 'confirm' ||
-      currentPage === 'loading' ||
-      currentPage === 'success'
-    ) {
-      setContentHeight(500);
-    } else {
-      setContentHeight(550);
-    }
-  }, [currentPage]);
+    setContentHeight(550);
+  }, []);
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -342,79 +443,61 @@ export default function ContributeToPoolHalfModal({
     dollarBalanceToken,
   ]);
 
-  if (currentPage === 'loading') {
-    return (
-      <View style={styles.stepContainer}>
-        <FullLoadingScreen text={t('wallet.pools.sendingContribution')} />
-      </View>
-    );
-  }
+  const displayAmount = isFiatMode
+    ? convertSatsToDisplay(effectiveSats)
+    : effectiveSats;
+  const stepBackgroundStyle = {
+    backgroundColor: theme && darkModeType ? backgroundOffset : backgroundColor,
+  };
+  const layerChrome = page => ({
+    zIndex: currentPage === page ? 2 : 1,
+  });
+  const layerPointerEvents = page => (currentPage === page ? 'auto' : 'none');
 
-  if (currentPage === 'success') {
-    return (
-      <View style={[styles.stepContainer, styles.successContainer]}>
-        <LottieView
-          source={confirmAnimation}
-          loop={false}
-          style={styles.lottieView}
-          autoPlay={true}
-        />
+  return (
+    <View style={styles.container}>
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepContainer,
+          stepBackgroundStyle,
+          selectAnimatedStyle,
+          layerChrome('select'),
+        ]}
+        pointerEvents={layerPointerEvents('select')}
+      >
         <ThemeText
-          styles={styles.successText}
-          content={t('wallet.pools.contributionSent')}
+          styles={styles.selectTitle}
+          content={t('wallet.pools.chooseContributionAmount')}
         />
+
+        <PresetAmountGrid
+          onSelectPreset={setSelectedAmountSats}
+          selectedAmountSats={selectedAmountSats}
+          fiatStats={fiatStats}
+          onCustomPress={handleCustomPress}
+        />
+
         <CustomButton
-          actionFunction={handleBackPressFunction}
-          textContent={t('constants.back')}
+          buttonStyles={[
+            styles.continueButton,
+            { opacity: !selectedAmountSats ? HIDDEN_OPACITY : 1 },
+          ]}
+          textContent={t('constants.continue')}
+          actionFunction={handleContinue}
         />
-      </View>
-    );
-  }
+      </Animated.View>
 
-  if (currentPage === 'confirm') {
-    const displayAmount = isFiatMode ? localFiatAmount : effectiveSats;
-
-    return (
-      <View style={styles.stepContainer}>
-        <FormattedBalanceInput
-          maxWidth={0.9}
-          amountValue={displayAmount}
-          inputDenomination={isFiatMode ? 'fiat' : 'sats'}
-        />
-        <ThemeText
-          styles={styles.confirmPoolTitle}
-          content={`${t('wallet.pools.contributeTo')}${pool.poolTitle}`}
-        />
-
-        <ThemeText
-          styles={styles.infoItem}
-          content={t('wallet.pools.contributionWarning')}
-        />
-
-        <SwipeButtonNew
-          onSwipeSuccess={handleConfirmPayment}
-          width={0.95}
-          containerStyles={{ marginBottom: 12 }}
-          thumbIconStyles={{
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-            borderColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          }}
-          railStyles={{
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-            borderColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          }}
-        />
-      </View>
-    );
-  }
-
-  if (currentPage === 'custom') {
-    return (
-      <View style={styles.stepContainer}>
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepContainer,
+          stepBackgroundStyle,
+          customAnimatedStyle,
+          layerChrome('custom'),
+        ]}
+        pointerEvents={layerPointerEvents('custom')}
+      >
         <TouchableOpacity
           style={{ marginTop: 10 }}
           activeOpacity={1}
@@ -450,38 +533,101 @@ export default function ContributeToPoolHalfModal({
             Number(amountValue) ? t('constants.continue') : t('constants.back')
           }
         />
-      </View>
-    );
-  }
+      </Animated.View>
 
-  // Step: 'select'
-  return (
-    <View style={styles.stepContainer}>
-      <ThemeText
-        styles={styles.selectTitle}
-        content={t('wallet.pools.chooseContributionAmount')}
-      />
-
-      <PresetAmountGrid
-        onSelectPreset={setSelectedAmountSats}
-        selectedAmountSats={selectedAmountSats}
-        fiatStats={fiatStats}
-        onCustomPress={handleCustomPress}
-      />
-
-      <CustomButton
-        buttonStyles={[
-          styles.continueButton,
-          { opacity: !selectedAmountSats ? HIDDEN_OPACITY : 1 },
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepContainer,
+          stepBackgroundStyle,
+          confirmAnimatedStyle,
+          layerChrome('confirm'),
         ]}
-        textContent={t('constants.continue')}
-        actionFunction={handleContinue}
-      />
+        pointerEvents={layerPointerEvents('confirm')}
+      >
+        <FormattedBalanceInput
+          maxWidth={0.9}
+          amountValue={displayAmount}
+          inputDenomination={isFiatMode ? 'fiat' : 'sats'}
+        />
+        <ThemeText
+          styles={styles.confirmPoolTitle}
+          content={`${t('wallet.pools.contributeTo')}${pool.poolTitle}`}
+        />
+
+        <ThemeText
+          styles={styles.infoItem}
+          content={t('wallet.pools.contributionWarning')}
+        />
+
+        <SwipeButtonNew
+          onSwipeSuccess={handleConfirmPayment}
+          width={0.9}
+          containerStyles={{ marginBottom: 12 }}
+          thumbIconStyles={{
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+            borderColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          }}
+          railStyles={{
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+            borderColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          }}
+        />
+      </Animated.View>
+
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepContainer,
+          stepBackgroundStyle,
+          loadingAnimatedStyle,
+          layerChrome('loading'),
+        ]}
+        pointerEvents={layerPointerEvents('loading')}
+      >
+        <FullLoadingScreen text={t('wallet.pools.sendingContribution')} />
+      </Animated.View>
+
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepContainer,
+          styles.successContainer,
+          stepBackgroundStyle,
+          successAnimatedStyle,
+          layerChrome('success'),
+        ]}
+        pointerEvents={layerPointerEvents('success')}
+      >
+        {currentPage === 'success' && (
+          <LottieView
+            source={confirmAnimation}
+            loop={false}
+            style={styles.lottieView}
+            autoPlay={true}
+          />
+        )}
+        <ThemeText
+          styles={styles.successText}
+          content={t('wallet.pools.contributionSent')}
+        />
+        <CustomButton
+          actionFunction={handleBackPressFunction}
+          textContent={t('constants.back')}
+        />
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   stepContainer: {
     flex: 1,
     paddingHorizontal: 16,
