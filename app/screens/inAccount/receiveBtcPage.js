@@ -330,11 +330,7 @@ export default function ReceivePaymentHome(props) {
 
         <TouchableOpacity
           activeOpacity={0.8}
-          style={[
-            styles.actionButton,
-            styles.ctaSecondary,
-            { borderColor: backgroundOffset, marginTop: 10 },
-          ]}
+          style={[styles.actionButton, { backgroundColor: 'transparent' }]}
           onPress={handleShareInvoice}
         >
           <ThemeIcon iconName={'Share'} size={18} />
