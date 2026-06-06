@@ -46,6 +46,7 @@ const PRESET_LOCAL_DATA = {
   pinnedAccounts: [],
   monthlyBudget: null,
   bitrefillEmail: '',
+  hideSmallPaymentsHomepage: false,
 };
 
 async function sendDataToDB(newObject, uuid) {

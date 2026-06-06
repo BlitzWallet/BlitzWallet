@@ -202,7 +202,7 @@
     "date": "Дата",
     "time": "Время",
     "memo": "Заметка",
-    "roostockSwap": "Перевод Rootstock -> Spark"
+    "roostockSwap": "RBTC <> BTC"
   },
   "createAccount": {
     "chooseLanguage": {
@@ -1596,6 +1596,8 @@
       "displayForm": "Формат",
       "homepage": "Главная",
       "txToDisplay": "Транзакций в списке",
+      "hideSmallPayments": "Скрывать мелкие платежи",
+      "hideSmallPaymentsDesc": "Скрывать платежи Bitcoin меньше {{btcAmount}} и долларовые платежи меньше {{dollarAmount}}.",
       "transactionsLabel_15": "15 транзакций",
       "transactionsLabel_20": "20 транзакций",
       "transactionsLabel_25": "25 транзакций",
@@ -1719,7 +1721,7 @@
     },
     "viewSwapsHome": {
       "swaps": "Сетевые переводы",
-      "selectionTitle": "Выберите сеть",
+      "selectionTitle": "Какую сеть вы хотите посмотреть?",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
       "flashnet": "BTC <> USD",
@@ -1727,7 +1729,18 @@
     },
     "viewRoostockSwaps": {
       "loadingMessage": "Загрузка переводов Rootstock",
-      "noSwapsMessage": "Нет сохраненных переводов Rootstock"
+      "noSwapsMessage": "Нет сохраненных переводов Rootstock",
+      "swap.created": "Подготовка",
+      "invoice.set": "Пополнение",
+      "transaction.mempool": "Подтверждение",
+      "transaction.confirmed": "Подтверждено в Rootstock",
+      "invoice.pending": "Оплата",
+      "invoice.paid": "Платеж получен",
+      "transaction.claim.pending": "Завершено",
+      "transaction.claimed": "Завершено",
+      "transaction.lockupFailed": "Требуется возврат",
+      "invoice.failedToPay": "Платеж не выполнен",
+      "swap.expired": "Истек"
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
@@ -1737,7 +1750,13 @@
       "timeoutBHeight": "Высота блока таймаута",
       "expAmount": "Ожидаемая сумма",
       "invoice": "Инвойс",
-      "refundSwap": "Вернуть средства"
+      "refundSwap": "Вернуть средства",
+      "date": "Дата",
+      "completed": "Завершено",
+      "refunded": "Возвращено",
+      "rootstockTx": "Tx Rootstock",
+      "lockTx": "Tx блокировки",
+      "refundTx": "Tx возврата"
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Повторное сканирование завершено",
@@ -2105,6 +2124,7 @@
         "confirmMessage_sent": "Отправлено",
         "confirmMessage_received": "Получено",
         "paymentStatus": "Статус",
+        "swapStatus": "Статус обмена",
         "confReqired": "Нужно подтверждений",
         "detailsBTN": "Тех. детали",
         "contactPaymentType": "Контакт",
@@ -2193,6 +2213,7 @@
         "edit contact profile": "Редактировать профиль",
         "view all swaps": "Сетевые переводы",
         "fast pay": "Быстрая оплата",
+        "spend and replace": "Потратить и заменить",
         "blitz fee details": "Детали комиссии Blitz",
         "crash reports": "Отчеты о сбоях",
         "notifications": "Уведомления",
@@ -2234,6 +2255,9 @@
         "destinationAsset": "Актив назначения",
         "destinationChain": "Сеть назначения",
         "transferIds": "Включённые участники",
+        "rootstockSwapId": "ID обмена Rootstock",
+        "rootstockSwapStatus": "Статус обмена Rootstock",
+        "rootstockPaymentTxId": "Txid платежа Rootstock",
         "bitrefillInvoiceId": "ID счёта Bitrefill"
       },
       "viewAllTxPage": {
@@ -2671,7 +2695,7 @@
     "contact": "Привет, добавь меня в Blitz!"
   },
   "swapMessages": {
-    "liquid": "Перевод Liquid -> Spark"
+    "liquid": "LBTC <> BTC"
   },
   "tabs": {
     "home": "Кошелек",

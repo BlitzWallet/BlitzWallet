@@ -98,6 +98,7 @@ export default async function initializeUserSettingsFromHistory({
       monthlyBudget,
       bitrefillEmail,
       spendAndReplace,
+      hideSmallPaymentsHomepage,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -411,6 +412,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['lnurlReceiveCurrency'] = lnurlReceiveCurrency;
     tempObject['bitrefillEmail'] = bitrefillEmail;
     tempObject[SPEND_AND_REPLACE_STORAGE_KEY] = spendAndReplace;
+    tempObject['hideSmallPaymentsHomepage'] = hideSmallPaymentsHomepage;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

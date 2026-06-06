@@ -84,6 +84,8 @@ import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoi
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLightning/halfModalDepositFunds';
 import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/receiveBitcoin/shareInvoicePayLinkModal';
+import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
+import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
 
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
@@ -723,6 +725,19 @@ export default function CustomHalfModal(props) {
             onCreated={props.route.params?.onCreated}
             setContentHeight={setContentHeight}
             sharePayLinkCache={props.route.params?.sharePayLinkCache}
+          />
+        );
+      case 'rootstockSwapInfo':
+        return (
+          <RootstockSwapInfo
+            swap={props?.route?.params?.swap}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'selectSwapNetwork':
+        return (
+          <SelectSwapNetworkHalfModal
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       default:

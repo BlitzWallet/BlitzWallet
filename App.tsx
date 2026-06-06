@@ -54,10 +54,6 @@ import {
 } from './app/constants';
 import { LiquidEventProvider } from './context-store/liquidEventContext';
 import {
-  LiquidNavigationListener,
-  RootstockNavigationListener,
-} from './context-store/SDKNavigation';
-import {
   GlobalThemeProvider,
   useGlobalThemeContext,
 } from './context-store/theme';
@@ -597,14 +593,8 @@ function ResetStack(): JSX.Element | null {
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
-      <RootstockNavigationListener />
-      <LiquidNavigationListener />
       <ToastContainer />
       <SparkConnectionManager />
-      {/* <EcashNavigationListener /> */}
-      {/* <SparkConnectionListener /> */}
-      {/* <LiquidNavigationListener /> */}
-      {/* <LightningNavigationListener /> */}
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
           name="Splash"

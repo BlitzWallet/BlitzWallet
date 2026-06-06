@@ -202,7 +202,7 @@
     "date": "Date",
     "time": "Time",
     "memo": "Memo",
-    "roostockSwap": "Rootstock to Spark Transfer"
+    "roostockSwap": "RBTC <> BTC"
   },
   "createAccount": {
     "chooseLanguage": {
@@ -1595,6 +1595,8 @@
       "displayForm": "Display Format",
       "homepage": "Homepage",
       "txToDisplay": "Transactions to Display",
+      "hideSmallPayments": "Hide Small Payments",
+      "hideSmallPaymentsDesc": "Hide Bitcoin payments under {{btcAmount}} and Dollar payments under {{dollarAmount}}.",
       "transactionsLabel_15": "15 Transactions",
       "transactionsLabel_20": "20 Transactions",
       "transactionsLabel_25": "25 Transactions",
@@ -1718,7 +1720,7 @@
     },
     "viewSwapsHome": {
       "swaps": "Network Transfers",
-      "selectionTitle": "Choose Network",
+      "selectionTitle": "Which network do you want to see?",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
       "flashnet": "BTC <> USD",
@@ -1726,7 +1728,18 @@
     },
     "viewRoostockSwaps": {
       "loadingMessage": "Loading saved Roostock transfers",
-      "noSwapsMessage": "You have no saved Roostock transfers"
+      "noSwapsMessage": "You have no saved Roostock transfers",
+      "swap.created": "Preparing",
+      "invoice.set": "Funding",
+      "transaction.mempool": "Confirming",
+      "transaction.confirmed": "Confirmed on Rootstock",
+      "invoice.pending": "Paying",
+      "invoice.paid": "Payment received",
+      "transaction.claim.pending": "Complete",
+      "transaction.claimed": "Complete",
+      "transaction.lockupFailed": "Needs refund",
+      "invoice.failedToPay": "Payment failed",
+      "swap.expired": "Expired"
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
@@ -1736,7 +1749,13 @@
       "timeoutBHeight": "Timeout Block Height",
       "expAmount": "Expected Amount",
       "invoice": "Invoice",
-      "refundSwap": "Refund transfer"
+      "refundSwap": "Refund transfer",
+      "date": "Date",
+      "completed": "Completed",
+      "refunded": "Refunded",
+      "rootstockTx": "Rootstock Tx",
+      "lockTx": "Lock Tx",
+      "refundTx": "Refund Tx"
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Rescan complete",
@@ -2104,6 +2123,7 @@
         "confirmMessage_sent": "Sent amount",
         "confirmMessage_received": "Received amount",
         "paymentStatus": "Payment status",
+        "swapStatus": "Swap status",
         "confReqired": "Confs required",
         "detailsBTN": "Technical details",
         "contactPaymentType": "Contact",
@@ -2234,6 +2254,9 @@
         "destinationAsset": "Destination Asset",
         "destinationChain": "Destination Chain",
         "transferIds": "People Included",
+        "rootstockSwapId": "Rootstock Swap ID",
+        "rootstockSwapStatus": "Rootstock Swap Status",
+        "rootstockPaymentTxId": "Rootstock Payment Txid",
         "bitrefillInvoiceId": "Bitrefill Invoice ID"
       },
       "viewAllTxPage": {
@@ -2665,7 +2688,7 @@
     "contact": "Hi, add me on Blitz!"
   },
   "swapMessages": {
-    "liquid": "Liquid to Spark Transfer"
+    "liquid": "LBTC <> BTC"
   },
   "tabs": {
     "home": "Wallet",

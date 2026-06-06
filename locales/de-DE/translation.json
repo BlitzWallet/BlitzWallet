@@ -202,7 +202,7 @@
     "date": "Datum",
     "time": "Zeit",
     "memo": "Notiz",
-    "roostockSwap": "Rootstock-zu-Spark-Übertragung"
+    "roostockSwap": "RBTC <> BTC"
   },
   "createAccount": {
     "chooseLanguage": {
@@ -1595,6 +1595,8 @@
       "displayForm": "Anzeigeformat",
       "homepage": "Startseite",
       "txToDisplay": "Anzuzeigende Transaktionen",
+      "hideSmallPayments": "Kleine Zahlungen ausblenden",
+      "hideSmallPaymentsDesc": "Bitcoin-Zahlungen unter {{btcAmount}} und Dollar-Zahlungen unter {{dollarAmount}} ausblenden.",
       "transactionsLabel_15": "15 Transaktionen",
       "transactionsLabel_20": "20 Transaktionen",
       "transactionsLabel_25": "25 Transaktionen",
@@ -1718,7 +1720,7 @@
     },
     "viewSwapsHome": {
       "swaps": "Netzwerkübertragungen",
-      "selectionTitle": "Netzwerk wählen",
+      "selectionTitle": "Welches Netzwerk möchtest du anzeigen?",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
       "flashnet": "BTC <> USD",
@@ -1726,7 +1728,18 @@
     },
     "viewRoostockSwaps": {
       "loadingMessage": "Gespeicherte Rootstock-Übertragungen werden geladen...",
-      "noSwapsMessage": "Sie haben keine gespeicherten Rootstock-Übertragungen."
+      "noSwapsMessage": "Sie haben keine gespeicherten Rootstock-Übertragungen.",
+      "swap.created": "Vorbereitung",
+      "invoice.set": "Finanzierung",
+      "transaction.mempool": "Bestätigung",
+      "transaction.confirmed": "Auf Rootstock bestätigt",
+      "invoice.pending": "Zahlung",
+      "invoice.paid": "Zahlung erhalten",
+      "transaction.claim.pending": "Abgeschlossen",
+      "transaction.claimed": "Abgeschlossen",
+      "transaction.lockupFailed": "Rückerstattung erforderlich",
+      "invoice.failedToPay": "Zahlung fehlgeschlagen",
+      "swap.expired": "Abgelaufen"
     },
     "rootstockSwapInfo": {
       "title": "Kettenübergreifender Tausch",
@@ -1736,7 +1749,13 @@
       "timeoutBHeight": "Timeout-Blockhöhe",
       "expAmount": "Erwarteter Betrag",
       "invoice": "Rechnung",
-      "refundSwap": "Übertragung erstatten"
+      "refundSwap": "Übertragung erstatten",
+      "date": "Datum",
+      "completed": "Abgeschlossen",
+      "refunded": "Erstattet",
+      "rootstockTx": "Rootstock-Tx",
+      "lockTx": "Sperr-Tx",
+      "refundTx": "Rückerstattungs-Tx"
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Neu scannen abgeschlossen",
@@ -2104,6 +2123,7 @@
         "confirmMessage_sent": "Gesendeter Betrag",
         "confirmMessage_received": "Erhaltener Betrag",
         "paymentStatus": "Zahlungsstatus",
+        "swapStatus": "Tauschstatus",
         "confReqired": "Benötigte Bestätigungen",
         "detailsBTN": "Technische Details",
         "contactPaymentType": "Kontakt",
@@ -2192,6 +2212,7 @@
         "edit contact profile": "Kontaktprofil bearbeiten",
         "view all swaps": "Swap-Verlauf",
         "fast pay": "Schnellzahlungen",
+        "spend and replace": "Ausgeben und ersetzen",
         "blitz fee details": "Gebührenübersicht",
         "crash reports": "Absturzberichte (Logs)",
         "notifications": "Benachrichtigungen",
@@ -2233,6 +2254,9 @@
         "destinationAsset": "Ziel-Asset",
         "destinationChain": "Ziel-Chain",
         "transferIds": "Enthaltene Personen",
+        "rootstockSwapId": "Rootstock-Swap-ID",
+        "rootstockSwapStatus": "Rootstock-Swap-Status",
+        "rootstockPaymentTxId": "Rootstock-Zahlungs-Txid",
         "bitrefillInvoiceId": "Bitrefill-Rechnungs-ID"
       },
       "viewAllTxPage": {
@@ -2664,7 +2688,7 @@
     "contact": "Hallo, fügen Sie mich auf Blitz hinzu!"
   },
   "swapMessages": {
-    "liquid": "Liquid-zu-Spark-Übertragung"
+    "liquid": "LBTC <> BTC"
   },
   "tabs": {
     "home": "Wallet",

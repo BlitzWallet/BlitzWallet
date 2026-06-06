@@ -80,6 +80,25 @@ const resolvePaymentStatusForUpdate = (
   return incomingPaymentStatus;
 };
 
+const isMeaningfulDetailValue = (key, value, shouldUpdateDescription) =>
+  (value !== '' && value !== null && value !== undefined && value !== 0) ||
+  (key === 'description' && shouldUpdateDescription);
+
+const shouldUseIncomingDetailValue = (
+  key,
+  incomingValue,
+  existingValue,
+  shouldUpdateDescription,
+) => {
+  if (key === 'fee') {
+    const incomingFee = Number(incomingValue);
+    const existingFee = Number(existingValue) || 0;
+    return Number.isFinite(incomingFee) && incomingFee > existingFee;
+  }
+
+  return isMeaningfulDetailValue(key, incomingValue, shouldUpdateDescription);
+};
+
 export const insertSparkTransactionPlaceholders = async (
   transactions,
   updateType = 'transactions',
@@ -773,6 +792,40 @@ export const getAllUnpaidSparkLightningInvoices = async () => {
   }
 };
 
+// Returns a still-valid Liquid->Spark swap lightning request (created by the
+// auto-swap flow) so we can reuse it instead of minting a new invoice on every
+// balance update or after an app restart. Validity is tracked by the explicit
+// `swapExpiresAt` (ms) we store at creation time to avoid SDK timestamp-unit
+// ambiguity.
+export const getActiveLiquidSwapInvoice = async () => {
+  try {
+    await ensureSparkDatabaseReady();
+    const rows = await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${LIGHTNING_REQUEST_IDS_TABLE_NAME}
+       WHERE json_extract(details, '$.isLiquidSwap') = 1`,
+    );
+    const now = Date.now();
+    const active = rows.find(row => {
+      try {
+        const details = row.details ? JSON.parse(row.details) : {};
+        return Number(details.swapExpiresAt) > now;
+      } catch {
+        return false;
+      }
+    });
+    if (!active) return null;
+    try {
+      active.details = active.details ? JSON.parse(active.details) : {};
+    } catch {
+      active.details = {};
+    }
+    return active;
+  } catch (error) {
+    console.error('Error fetching active liquid swap invoice:', error);
+    return null;
+  }
+};
+
 export const getAllUnpaidHoldInvoicesFromTxs = async () => {
   try {
     await ensureSparkDatabaseReady();
@@ -1037,10 +1090,12 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           for (const key in tx.details) {
             const value = tx.details[key];
             if (
-              value !== '' &&
-              value !== null &&
-              value !== undefined &&
-              value !== 0
+              shouldUseIncomingDetailValue(
+                key,
+                value,
+                mergedDetails[key],
+                shouldUpdateDescription,
+              )
             ) {
               mergedDetails[key] = value;
             }
@@ -1063,6 +1118,11 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           existingTx.accountId = tx.accountId || existingTx.accountId;
           existingTx.details = mergedDetails;
           existingTx.useTempId = tx.useTempId || existingTx.useTempId;
+          // Only stay update-only if EVERY merged contributor opted in. If any
+          // sibling wants a normal insert, honor it (defaults to insert).
+          existingTx.updateOnly = Boolean(
+            existingTx.updateOnly && tx.updateOnly,
+          );
         } else {
           processedTransactions.set(removeDuplicateKey, {
             sparkID: finalSparkId,
@@ -1072,6 +1132,10 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             accountId: tx.accountId || 'unknown',
             details: tx.details ?? {},
             useTempId: tx.useTempId,
+            // When set, this write may only update an existing row. If the row is
+            // gone (e.g. a settled payment already replaced a placeholder), skip
+            // the insert so we don't resurrect a duplicate.
+            updateOnly: tx.updateOnly,
           });
         }
       }
@@ -1140,11 +1204,12 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
         for (const key in newDetails) {
           const value = newDetails[key];
           if (
-            (value !== '' &&
-              value !== null &&
-              value !== undefined &&
-              value !== 0) ||
-            (key === 'description' && shouldUpdateDescription)
+            shouldUseIncomingDetailValue(
+              key,
+              value,
+              merged[key],
+              shouldUpdateDescription,
+            )
           ) {
             merged[key] = value;
           }
@@ -1255,7 +1320,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             ],
           );
           // }
-        } else {
+        } else if (!processedTx.updateOnly) {
           // if (processedTx.paymentStatus !== 'failed') {
           await sqlLiteDB.runAsync(
             `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}

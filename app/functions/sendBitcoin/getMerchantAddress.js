@@ -1,4 +1,3 @@
-// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import { InputTypes } from 'bitcoin-address-parser';
 
 const merchants = [

@@ -202,7 +202,7 @@
     "date": "Data",
     "time": "Hora",
     "memo": "Descrição",
-    "roostockSwap": "Transferência de Rootstock para Spark"
+    "roostockSwap": "RBTC <> BTC"
   },
   "createAccount": {
     "chooseLanguage": {
@@ -223,12 +223,12 @@
       "header": "Seu dinheiro. Seu controle.",
       "subHeader": "Algumas informações importantes antes de começar.",
       "row1Label": "Só você controla seus fundos",
-      "row1Description": "A Blitz não pode custodiar, congelar nem tocar nele.",
-      "row2Label": "Sua frase de recuperação é a chave",
-      "row2Description": "12 palavras protegem sua carteira.",
-      "row3Label": "Perca a frase, perca o acesso",
+      "row1Description": "A Blitz não custodia nem tem acesso ao seu dinheiro",
+      "row2Label": "12 palavras protegem sua carteira.",
+      "row2Description": "Não pode ser recuperada se for perdida", 
+      "row3Label": "Não é possível restaurar o acesso sem sua frase de recuperação. Guarde sua frase em um local seguro",
       "row3Description": "Ninguém pode recuperar sua carteira por você.",
-      "readTerms": "Ler Termos e Privacidade completos",
+      "readTerms": "Ler todos os termos",
       "acceptPrefix": "Entendo que sou o único responsável pela minha frase de recuperação e aceito os",
       "terms&Conditions": "Termos",
       "acceptSuffix": ".",
@@ -1001,25 +1001,25 @@
       "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui",
       "payMe": "Endereço Blitz",
       "createInvoice": "Solicitar Dinheiro",
-      "invoiceDescription": "Crie uma fatura e receba o pagamento instantaneamente.",
+      "invoiceDescription": "Escolha a moeda e quantia desejada",
       "poolsDescription": "Colete pagamentos para um objetivo",
       "noContactHead": "{{username}} não encontrado",
       "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora.",
       "phonePaymentTitle": "Pagar {{number}}",
       "phonePaymentDesc": "Enviando para número de celular",
       "depositFunds": "Depositar fundos",
-      "depositFundsSubtitle": "Adicione fundos à sua carteira",
+      "depositFundsSubtitle": "Adicione fundos na sua carteira",
       "onChainBitcoin": "Endereço Bitcoin",
-      "onChainBitcoinSubtitle": "Receber por endereço on-chain",
-      "stablecoins": "Stablecoins",
+      "onChainBitcoinSubtitle": "Receber por endereço bitcoin",
+      "stablecoins": "Dólares Digitais",
       "stablecoinsSubtitle": "Deposite dólar digital na sua carteira",
       "cashAppSubtitle": "Enviar pelo Cash App instantaneamente",
       "sparkAddressSubtitle": "Receber no seu endereço Spark",
-      "otherBitcoin": "Outras opções de Bitcoin",
+      "otherBitcoin": "Bitcoin em outras redes",
       "otherBitcoinSubtitle": "Liquid e outros métodos",
-      "lightningInvoice": "Fatura Lightning",
+      "lightningInvoice": "Fatura Blitz",
       "lightningInvoiceSubtitle": "Receber BTC ou USD instantaneamente",
-      "lightningUSDAmountRequired": "É necessário informar um valor para criar uma fatura Lightning em USD",
+      "lightningUSDAmountRequired": "É necessário informar um valor para criar uma fatura Blitz em USD",
       "paylinkAmountRequired": "Adicione um valor antes de compartilhar a fatura.",
       "otherReceivingMethods": "Outros métodos de recebimento",
       "cashAppEnterAmount": "Insira o valor em sats",
@@ -1027,19 +1027,19 @@
       "cashAppBack": "Voltar",
       "viewDetails": "Ver detalhes",
       "othersOptionTitle": "Selecionar método",
-      "liquidDesc": "Receba BTC Liquid na sua carteira.",
-      "roostockDesc": "Receba BTC Rootstock na sua carteira.",
+      "liquidDesc": "Receba Liquid BTC na sua carteira.",
+      "roostockDesc": "Receba Rootstock BTC na sua carteira.",
       "sparkDesc": "Receba BTC ou tokens na sua carteira.",
       "chooseMethodTitle": "Escolha o método de recebimento",
       "selectMethodTitle": "Selecionar método de depósito",
       "copyAddress": "Copiar endereço",
       "depositQRError": "Encontramos um problema ao gerar seu endereço {{addressType}}",
       "changeReceiveCurrency": "Alterar moeda de recebimento",
-      "depositQRInstruction_stablecoins": "Envie apenas {{asset}} na {{chain}} para este endereço. Você receberá diretamente no seu saldo em dólares",
-      "depositQRInstruction_bitcoin": "Envie apenas Bitcoin para este endereço. Os fundos chegam após três confirmações on-chain.",
+      "depositQRInstruction_stablecoins": "Envie apenas {{asset}} na rede {{chain}} para este endereço. Você receberá diretamente no seu saldo em dólares",
+      "depositQRInstruction_bitcoin": "Envie apenas Bitcoin para este endereço. Os fundos chegam após três confirmações na rede Bitcoin.",
       "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço.",
-      "depositQRInstruction_rootstock": "Envie apenas Rootstock Bitcoin para este endereço.",
-      "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens para seu endereço Spark."
+      "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço.",
+      "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark."
     },
     "payLinks": {
       "skip": "Pular",
@@ -1057,14 +1057,14 @@
       "requestHeader": "Qual moeda você deseja receber?",
       "genQRCode": "Gerar código QR",
       "allSetTitle": "Tudo pronto",
-      "allSetSubtitle": "Qualquer pessoa com este link pode te pagar.",
+      "allSetSubtitle": "Qualquer pessoa com este link pode te pagar",
       "howItWorks": {
         "step1Label": "Compartilhe em qualquer lugar",
         "step1Desc": "Mensagem, e-mail ou qualquer aplicativo.",
-        "step2Label": "A pessoa paga no navegador",
-        "step2Desc": "Bitcoin, USDC ou USDT.",
+        "step2Label": "A pessoa abre o link e paga",
+        "step2Desc": "Bitcoin, USDC ou USDT",
         "step3Label": "Você recebe instantaneamente",
-        "step3Desc": "Os fundos chegam no momento em que a pessoa paga."
+        "step3Desc": "Os fundos chegam no momento em que a pessoa pagar"
       },
       "copyLink": "Copiar link"
     },
@@ -1595,6 +1595,8 @@
       "displayForm": "Formato de exibição",
       "homepage": "Página inicial",
       "txToDisplay": "Máximo de exibições",
+      "hideSmallPayments": "Ocultar pagamentos pequenos",
+      "hideSmallPaymentsDesc": "Oculta pagamentos em Bitcoin abaixo de {{btcAmount}} e pagamentos em dólar abaixo de {{dollarAmount}}.",
       "transactionsLabel_15": "15 transações",
       "transactionsLabel_20": "20 transações",
       "transactionsLabel_25": "25 transações",
@@ -1718,7 +1720,7 @@
     },
     "viewSwapsHome": {
       "swaps": "Transferências de rede",
-      "selectionTitle": "Escolher rede",
+      "selectionTitle": "Qual rede você quer ver?",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
       "flashnet": "BTC <> USD",
@@ -1726,7 +1728,18 @@
     },
     "viewRoostockSwaps": {
       "loadingMessage": "Carregando transferências Roostock salvas",
-      "noSwapsMessage": "Você não tem transferências Roostock salvas"
+      "noSwapsMessage": "Você não tem transferências Roostock salvas",
+      "swap.created": "Preparando",
+      "invoice.set": "Financiando",
+      "transaction.mempool": "Confirmando",
+      "transaction.confirmed": "Confirmado na Rootstock",
+      "invoice.pending": "Pagando",
+      "invoice.paid": "Pagamento recebido",
+      "transaction.claim.pending": "Concluído",
+      "transaction.claimed": "Concluído",
+      "transaction.lockupFailed": "Precisa de reembolso",
+      "invoice.failedToPay": "Falha no pagamento",
+      "swap.expired": "Expirado"
     },
     "rootstockSwapInfo": {
       "title": "Trocas submarinas",
@@ -1736,7 +1749,13 @@
       "timeoutBHeight": "Altura do bloco de tempo limite",
       "expAmount": "Quantidade esperada",
       "invoice": "Fatura",
-      "refundSwap": "Reembolsar transferência"
+      "refundSwap": "Reembolsar transferência",
+      "date": "Data",
+      "completed": "Concluído",
+      "refunded": "Reembolsado",
+      "rootstockTx": "Tx Rootstock",
+      "lockTx": "Tx de bloqueio",
+      "refundTx": "Tx de reembolso"
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Verificação concluída",
@@ -2104,6 +2123,7 @@
         "confirmMessage_sent": "Valor enviado",
         "confirmMessage_received": "Valor recebido",
         "paymentStatus": "Status do pagamento",
+        "swapStatus": "Status do swap",
         "confReqired": "Confirmações necessárias",
         "detailsBTN": "Mostrar detalhes",
         "contactPaymentType": "Contato",
@@ -2139,7 +2159,7 @@
         "liquidFeeMessage": "Para receber pagamentos em endereços Liquid, você pagará uma taxa de bloqueio de ~{{fee}}, uma taxa de reivindicação de ~{{claimFee}} e uma taxa de serviço de 0,1% da Boltz.",
         "rootstockFeeMessage": "Para receber pagamentos em endereços Rootstock, você pagará uma taxa de bloqueio de ~{{fee}} e uma taxa de serviço de 0,1% da Boltz.",
         "lightningConvertMessage": "Receber dólares por essa rede exige a conversão de Bitcoin para USD. Aplica-se uma taxa de {{convertFee}}%, e a cotação atual é:\n{{satExchangeRate}}.",
-        "stablecoinsFeeMessage": "Para receber stablecoins, aplicam-se uma taxa Blitz de 0,5% e uma taxa Flashnet de 0,05%.",
+        "stablecoinsFeeMessage": "Para receber dólares digitais, aplica-se uma taxa Blitz de 0,5% e uma taxa Flashnet de 0,05%.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "copyInvoice": "Copiar fatura",
@@ -2192,6 +2212,7 @@
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
         "fast pay": "Pagamentos Rápidos",
+        "spend and replace": "Gastar e substituir",
         "blitz fee details": "Taxas Blitz Wallet",
         "crash reports": "Relatório de falhas",
         "notifications": "Notificações",
@@ -2233,6 +2254,9 @@
         "destinationAsset": "Moeda de destino",
         "destinationChain": "Rede de destino",
         "transferIds": "Pessoas incluídas",
+        "rootstockSwapId": "ID do swap Rootstock",
+        "rootstockSwapStatus": "Status do swap Rootstock",
+        "rootstockPaymentTxId": "Txid do pagamento Rootstock",
         "bitrefillInvoiceId": "ID da fatura Bitrefill"
       },
       "viewAllTxPage": {
@@ -2535,7 +2559,7 @@
         "pickDestination": "Selecionar destino",
         "confirm": "Confirmar endereço",
         "alreadyExists": "Você já tem um endereço para esta combinação",
-        "convertDesc": "Seu {{asset}} em {{chain}} será convertido em {{receiveCurrency}}"
+        "convertDesc": "Seu {{asset}} na rede {{chain}} será convertido em {{receiveCurrency}}"
       },
       "summary": {
         "chain": "Rede",
@@ -2664,7 +2688,7 @@
     "contact": "Oi, me adicione na Blitz Wallet!"
   },
   "swapMessages": {
-    "liquid": "Transferência de Liquid para Spark"
+    "liquid": "LBTC <> BTC"
   },
   "tabs": {
     "home": "Carteira",

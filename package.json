@@ -19,7 +19,7 @@
   "dependencies": {
     "@azure/core-asynciterator-polyfill": "^1.0.2",
     "@branta-ops/branta": "^3.1.2",
-    "@breeztech/react-native-breez-sdk-liquid": "^0.11.9",
+    "@breeztech/react-native-breez-sdk-liquid": "^0.11.13",
     "@buildonspark/spark-sdk": "^0.8.0",
     "@craftzdog/react-native-buffer": "^6.1.0",
     "@flashnet/sdk": "^0.5.7",
@@ -44,7 +44,7 @@
     "bip21": "^3.0.0",
     "bitcoin-address-parser": "^1.0.6",
     "bolt11": "^1.4.1",
-    "boltz-core": "^3.0.0",
+    "boltz-core": "^5.0.0",
     "crypto-es": "^3.1.2",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",

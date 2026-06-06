@@ -61,6 +61,7 @@ import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../constants/theme';
 import ProfileImageRow from '../../components/admin/homeComponents/contacts/internalComponents/profileImageRow';
 import { isOrchestraSwapFailed } from '../../functions/spark/orchestraLightning';
 import { openComposer } from 'react-native-email-link';
+import { getRootstockSwapStatusLabel } from '../../functions/boltz/rootstock/swapProgress';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContactsInfo();
@@ -306,6 +307,7 @@ export default function ExpandedTx(props) {
   };
 
   const isFlashnetStablecoin = !!transaction.details?.isFlashnetStablecoin;
+  const isRootstockSwap = !!transaction.details?.isRootstockSwap;
 
   const isLRC20Payment = transaction.details.isLRC20Payment;
   const selectedToken = isLRC20Payment
@@ -645,6 +647,16 @@ export default function ExpandedTx(props) {
               )}
 
               {renderLRC20TokenRow()}
+
+              {isRootstockSwap &&
+                transaction?.paymentStatus !== 'completed' &&
+                renderInfoRow(
+                  t('screens.inAccount.expandedTxPage.swapStatus'),
+                  getRootstockSwapStatusLabel(
+                    transaction.details.rootstockSwapStatus,
+                  ),
+                  true,
+                )}
 
               {isFlashnetStablecoin &&
                 transaction.paymentStatus !== 'completed' &&

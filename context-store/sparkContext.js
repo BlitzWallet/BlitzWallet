@@ -211,6 +211,7 @@ const SparkWalletProvider = ({ children }) => {
     timestamp: 0,
   });
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
+  const hideSmallPaymentsHomepage = masterInfoObject.hideSmallPaymentsHomepage;
 
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
@@ -639,10 +640,11 @@ const SparkWalletProvider = ({ children }) => {
         forcedPendingMap: forcedPendingBySparkIdRef.current,
         appliedEpoch: balanceEpochRef.current.applied,
         limit: homepageTxPreferance,
+        hideSmallPaymentsHomepage,
       });
       setSparkInformation(prev => ({ ...prev, transactions: filtered }));
     },
-    [showTokensInformation, homepageTxPreferance],
+    [showTokensInformation, homepageTxPreferance, hideSmallPaymentsHomepage],
   );
 
   const updateHomepageScrollPosition = useCallback(
@@ -660,15 +662,16 @@ const SparkWalletProvider = ({ children }) => {
         forcedPendingMap: forcedPendingBySparkIdRef.current,
         appliedEpoch: balanceEpochRef.current.applied,
         limit: homepageTxPreferance,
+        hideSmallPaymentsHomepage,
       });
       if (scrollPositionRef.current !== pos) return;
       setSparkInformation(prev => ({ ...prev, transactions: filtered }));
     },
-    [showTokensInformation, homepageTxPreferance],
+    [showTokensInformation, homepageTxPreferance, hideSmallPaymentsHomepage],
   );
 
   const updateHomepageTxPreferance = useCallback(
-    async num => {
+    async (num, smallPaymentOverrides) => {
       const allTxs = await getAllSparkTransactions({
         limit: null,
         accountId: sparkInfoRef.current.identityPubKey,
@@ -681,10 +684,12 @@ const SparkWalletProvider = ({ children }) => {
         forcedPendingMap: forcedPendingBySparkIdRef.current,
         appliedEpoch: balanceEpochRef.current.applied,
         limit: num,
+        hideSmallPaymentsHomepage:
+          smallPaymentOverrides ?? hideSmallPaymentsHomepage,
       });
       setSparkInformation(prev => ({ ...prev, transactions: filtered }));
     },
-    [showTokensInformation],
+    [showTokensInformation, hideSmallPaymentsHomepage],
   );
 
   const enqueueTxLane = useCallback((updateType, task) => {

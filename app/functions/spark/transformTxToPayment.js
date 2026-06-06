@@ -70,6 +70,22 @@ export async function transformTxToPaymentObject(
       : undefined;
 
     const isSwapPayment = foundInvoice && foundInvoiceDetails.performSwaptoUSD;
+    const isLiquidSwap = foundInvoice && foundInvoiceDetails.isLiquidSwap;
+    const isRootstockSwap =
+      foundInvoice && foundInvoiceDetails.isRootstockSwap;
+    const placeholderSwapId = isRootstockSwap
+      ? foundInvoiceDetails.rootstockSwapId
+      : userRequestId;
+    const swapFee = Number(
+      foundInvoiceDetails?.fee ??
+        foundInvoiceDetails?.swapFeeSat ??
+        foundInvoiceDetails?.rootstockSwapFeeSat ??
+        0,
+    );
+    const effectivePaymentFee =
+      isLiquidSwap || isRootstockSwap
+        ? Math.max(paymentFee, Number.isFinite(swapFee) ? swapFee : 0)
+      : paymentFee;
 
     if (isSwapPayment) {
       updateSparkTransactionDetails(foundInvoice.sparkID, {
@@ -92,6 +108,10 @@ export async function transformTxToPaymentObject(
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
+      // Auto-swap flows pre-insert pending placeholders. Remap the settled
+      // payment onto that row so history updates instead of duplicating it.
+      ...((isLiquidSwap || isRootstockSwap) &&
+        placeholderSwapId && { useTempId: true, tempId: placeholderSwapId }),
       paymentStatus: isSwapPayment
         ? 'pending'
         : status === 'completed' || preimage
@@ -101,10 +121,14 @@ export async function transformTxToPaymentObject(
       accountId: accountId,
       details: {
         ...foundInvoiceDetails,
-        fee: paymentFee,
-        totalFee: paymentFee + supportFee,
+        fee: effectivePaymentFee,
+        totalFee: effectivePaymentFee + supportFee,
         supportFee: supportFee,
-        amount: paymentAmount - paymentFee,
+        amount: isLiquidSwap
+          ? paymentAmount
+          : isRootstockSwap
+          ? paymentAmount
+          : paymentAmount - effectivePaymentFee,
         address: userRequest
           ? isSendRequest
             ? userRequest?.encodedInvoice

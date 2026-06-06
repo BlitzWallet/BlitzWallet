@@ -1,5 +1,30 @@
-import {USDB_TOKEN_ID} from '../../constants';
-import {isFlashnetTransfer} from './handleFlashnetTransferIds';
+import {
+  SMALL_BTC_PAYMENT_LIMIT,
+  SMALL_USD_PAYMENT_LIMIT,
+  USDB_TOKEN_ID,
+} from '../../constants';
+import { isFlashnetTransfer } from './handleFlashnetTransferIds';
+
+const shouldHideSmallPayment = ({
+  hideSmallPaymentsHomepage,
+  paymentDetails,
+  isLRC20Payment,
+  tokenDecimals,
+}) => {
+  if (!hideSmallPaymentsHomepage) return false;
+
+  const amount = Math.abs(Number(paymentDetails?.amount));
+  if (!Number.isFinite(amount)) return false;
+
+  if (isLRC20Payment) {
+    if (paymentDetails?.LRC20Token !== USDB_TOKEN_ID) return false;
+    const decimals = Number(tokenDecimals ?? 6);
+    const usdAmount = amount / 10 ** decimals;
+    return usdAmount < SMALL_USD_PAYMENT_LIMIT;
+  }
+
+  return amount < SMALL_BTC_PAYMENT_LIMIT;
+};
 
 export function filterDisplayableTransactions({
   transactions,
@@ -9,6 +34,7 @@ export function filterDisplayableTransactions({
   forcedPendingMap,
   appliedEpoch = 0,
   limit = 25,
+  hideSmallPaymentsHomepage,
 }) {
   if (!transactions?.length) return [];
 
@@ -35,10 +61,19 @@ export function filterDisplayableTransactions({
       lnFundingTxIds.add(paymentDetails.ln_funding_id);
     }
 
+    if (
+      shouldHideSmallPayment({
+        hideSmallPaymentsHomepage,
+        paymentDetails,
+        isLRC20Payment,
+        tokenDecimals: hasSavedTokenData?.tokenMetadata?.decimals,
+      })
+    )
+      continue;
+
     const showSwapConversion =
       paymentDetails.performSwaptoUSD &&
-      (!paymentDetails.completedSwaptoUSD ||
-        !lnFundingTxIds.has(tx.sparkID));
+      (!paymentDetails.completedSwaptoUSD || !lnFundingTxIds.has(tx.sparkID));
 
     // Static filters
     if (
@@ -87,8 +122,12 @@ export function filterDisplayableTransactions({
 
     // Apply pending flag
     const pendingMeta = forcedPendingMap?.get(tx.sparkID);
-    if (pendingMeta && pendingMeta.epoch > appliedEpoch && !tx.isBalancePending) {
-      result.push({...tx, isBalancePending: true});
+    if (
+      pendingMeta &&
+      pendingMeta.epoch > appliedEpoch &&
+      !tx.isBalancePending
+    ) {
+      result.push({ ...tx, isBalancePending: true });
     } else {
       result.push(tx);
     }
