@@ -1,6 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, COLORS, FONT, SIZES } from '../../../../constants';
-import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
@@ -8,6 +7,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import useAdaptiveFontSize from '../../../../hooks/useAdaptiveFontSIze';
+import useGuardedNavigation from '../../../../hooks/useGuardedNavigation';
 
 export function SendRecieveBTNs({
   theme,
@@ -16,7 +16,7 @@ export function SendRecieveBTNs({
   isNWCWallet = false,
   scrollPosition,
 }) {
-  const navigate = useNavigation();
+  const navigateGuarded = useGuardedNavigation();
   const { t } = useTranslation();
   const { backgroundOffset, textColor } = GetThemeColors();
 
@@ -37,16 +37,16 @@ export function SendRecieveBTNs({
     );
     const areSettingsSet = handleSettingsCheck();
     if (!areSettingsSet) {
-      navigate.navigate('ErrorScreen', {
+      navigateGuarded('ErrorScreen', {
         errorMessage: t('errormessages.nointernet'),
       });
       return;
     }
-    navigate.navigate('CustomHalfModal', {
+    navigateGuarded('CustomHalfModal', {
       wantedContent: 'sendOptions',
       sliderHight: 0.8,
     });
-  }, [handleSettingsCheck, navigate, t]);
+  }, [handleSettingsCheck, navigateGuarded, t]);
 
   const handleReceive = useCallback(() => {
     crashlyticsLogReport(
@@ -54,22 +54,22 @@ export function SendRecieveBTNs({
     );
     const areSettingsSet = handleSettingsCheck();
     if (!areSettingsSet) {
-      navigate.navigate('ErrorScreen', {
+      navigateGuarded('ErrorScreen', {
         errorMessage: t('errormessages.nointernet'),
       });
       return;
     }
-    navigate.navigate('CustomHalfModal', {
+    navigateGuarded('CustomHalfModal', {
       scrollPosition: scrollPosition === 'usd' ? 'USD' : 'BTC',
       wantedContent: 'receiveOptions',
       sliderHight: 0.8,
     });
-  }, [handleSettingsCheck, navigate, scrollPosition, t]);
+  }, [handleSettingsCheck, navigateGuarded, scrollPosition, t]);
 
   const handleDeposit = useCallback(() => {
     const areSettingsSet = handleSettingsCheck();
     if (!areSettingsSet) {
-      navigate.navigate('ErrorScreen', {
+      navigateGuarded('ErrorScreen', {
         errorMessage: t('errormessages.nointernet'),
       });
       return;
@@ -77,25 +77,25 @@ export function SendRecieveBTNs({
     crashlyticsLogReport(
       'Running in send and receive buttons on homepage for button type: deposit',
     );
-    navigate.navigate('CustomHalfModal', {
+    navigateGuarded('CustomHalfModal', {
       wantedContent: 'depositFunds',
       sliderHight: 0.6,
     });
-  }, [handleSettingsCheck, navigate, t]);
+  }, [handleSettingsCheck, navigateGuarded, t]);
 
   const handleSwap = useCallback(() => {
     const areSettingsSet = handleSettingsCheck();
     if (!areSettingsSet) {
-      navigate.navigate('ErrorScreen', {
+      navigateGuarded('ErrorScreen', {
         errorMessage: t('errormessages.nointernet'),
       });
       return;
     }
-    navigate.navigate('CustomHalfModal', {
+    navigateGuarded('CustomHalfModal', {
       wantedContent: 'swapFlow',
       sliderHight: 0.6,
     });
-  }, [handleSettingsCheck, navigate, t]);
+  }, [handleSettingsCheck, navigateGuarded, t]);
 
   const { fontSize, getLabelProps } = useAdaptiveFontSize(
     [

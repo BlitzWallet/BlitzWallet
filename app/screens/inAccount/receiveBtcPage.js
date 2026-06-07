@@ -44,9 +44,11 @@ import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import usePaymentInputDisplay from '../../hooks/usePaymentInputDisplay';
+import useGuardedNavigation from '../../hooks/useGuardedNavigation';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
+  const guardedNavigate = useGuardedNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -132,6 +134,7 @@ export default function ReceivePaymentHome(props) {
         setInitialSendAmount(0);
         setAddressState(prev => ({
           ...prev,
+          isGeneratingInvoice: false,
           generatedAddress: lnurlAddress,
         }));
         return;
@@ -239,7 +242,12 @@ export default function ReceivePaymentHome(props) {
   };
 
   const handleShowEditPage = () => {
-    navigate.navigate('EditReceivePaymentInformation', {
+    // Don't push the (transparent-modal) edit screen on top of the receive
+    // page while its address/invoice is still generating — the underlying
+    // screen is still mounting/re-rendering, and stacking a transition on top
+    // is what triggers the Fabric "Unable to find viewState" mount crash.
+    if (addressState.isGeneratingInvoice) return;
+    guardedNavigate('EditReceivePaymentInformation', {
       from: 'receivePage',
       receiveType: 'Lightning',
       endReceiveType,

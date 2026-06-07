@@ -8,7 +8,8 @@ import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useGlobalAppData } from '../../../context-store/appData';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
+import { navigationRef } from '../../../navigation/navigationService';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useKeysContext } from '../../../context-store/keys';
 import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTransformer';
@@ -26,9 +27,7 @@ import { useAppStatus } from '../../../context-store/appStatus';
 
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
-export default function ConnectingToNodeLoadingScreen({
-  navigation: { replace },
-}) {
+export default function ConnectingToNodeLoadingScreen() {
   const navigate = useNavigation();
   const {
     toggleMasterInfoObject,
@@ -59,6 +58,10 @@ export default function ConnectingToNodeLoadingScreen({
       const startTime = Date.now();
 
       try {
+        // A duplicate loading-screen instance can mount during the
+        // restore/login navigation race. If the app has already reached the
+        // home stack, this instance is stale — bail before re-running connect.
+        if (navigationRef.getCurrentRoute()?.name === 'HomeAdmin') return;
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
         );
@@ -143,7 +146,18 @@ export default function ConnectingToNodeLoadingScreen({
           setTimeout(resolve, Math.max(60, minDuration - elapsed)),
         );
 
-        replace('HomeAdmin', { screen: 'Home' });
+        // Idempotent + dispatched through the container (not this instance's
+        // possibly-stale navigation prop): if a duplicate instance already
+        // moved us to HomeAdmin, skip — re-committing the screen is what throws
+        // "No view found for id … for fragment ScreenFragment" on Android.
+        if (
+          navigationRef.isReady() &&
+          navigationRef.getCurrentRoute()?.name !== 'HomeAdmin'
+        ) {
+          navigationRef.dispatch(
+            StackActions.replace('HomeAdmin', { screen: 'Home' }),
+          );
+        }
       } catch (err) {
         console.log('intializatiion error', err);
         setHasError(err.message);
