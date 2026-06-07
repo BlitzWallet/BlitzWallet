@@ -1016,7 +1016,7 @@
       "cashAppSubtitle": "Invia da Cash App istantaneamente",
       "sparkAddressSubtitle": "Ricevi sul tuo indirizzo Spark",
       "otherBitcoin": "Altre opzioni Bitcoin",
-      "otherBitcoinSubtitle": "Liquid e altri metodi",
+      "otherBitcoinSubtitle": "Liquid, Rootstock e Spark",
       "lightningInvoice": "Fattura Lightning",
       "lightningInvoiceSubtitle": "Ricevi BTC o USD istantaneamente",
       "lightningUSDAmountRequired": "È richiesto un importo per creare una fattura Lightning in USD",
@@ -1037,8 +1037,8 @@
       "changeReceiveCurrency": "Cambia valuta di ricezione",
       "depositQRInstruction_stablecoins": "Invia solo {{asset}} su {{chain}} a questo indirizzo. Lo riceverai direttamente nel tuo saldo in dollari",
       "depositQRInstruction_bitcoin": "Invia solo Bitcoin a questo indirizzo. I fondi arrivano dopo tre conferme on-chain.",
-      "depositQRInstruction_liquid": "Invia solo Liquid Bitcoin a questo indirizzo.",
-      "depositQRInstruction_rootstock": "Invia solo Rootstock Bitcoin a questo indirizzo.",
+      "depositQRInstruction_liquid": "Invia solo Liquid Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin",
+      "depositQRInstruction_rootstock": "Invia solo Rootstock Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin.",
       "depositQRInstruction_spark": "Invia solo Bitcoin o token al tuo indirizzo Spark."
     },
     "payLinks": {
@@ -1812,6 +1812,13 @@
       "swapsType": "Swap BTC <> USD",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % di commissione pool + {{blitzFee}} % di commissione Blitz",
+      "sparkSwapType": "Swap BTC <> USDB (Spark)",
+      "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
+      "chainSwapFee": "0,5% commissione Blitz + 0,1%+ commissione piattaforma",
+      "liquid": "Liquid <> BTC",
+      "liquidFee": "0,5% commissione Blitz + commissioni di rete",
+      "accumulationType": "Indirizzi di accumulo",
+      "accumulationFee": "0,5% commissione Blitz + 0,5% commissione piattaforma",
       "othersType": "Altro",
       "othersFee": "Commissioni di rete",
       "networkFeeLinkDesc": "Tocca per vedere il dettaglio delle commissioni della rete Spark"

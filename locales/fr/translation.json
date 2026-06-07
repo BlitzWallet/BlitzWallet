@@ -1016,7 +1016,7 @@
       "cashAppSubtitle": "Envoyer depuis Cash App instantanément",
       "sparkAddressSubtitle": "Recevoir sur votre adresse Spark",
       "otherBitcoin": "Autres options Bitcoin",
-      "otherBitcoinSubtitle": "Liquid et autres méthodes",
+      "otherBitcoinSubtitle": "Liquid, Rootstock et Spark",
       "lightningInvoice": "Facture Lightning",
       "lightningInvoiceSubtitle": "Recevoir des BTC ou des USD instantanément",
       "lightningUSDAmountRequired": "Un montant est requis pour créer une facture Lightning en USD",
@@ -1037,8 +1037,8 @@
       "changeReceiveCurrency": "Changer la devise de réception",
       "depositQRInstruction_stablecoins": "Envoyez uniquement {{asset}} sur {{chain}} à cette adresse. Vous le recevrez directement dans votre solde en dollars",
       "depositQRInstruction_bitcoin": "Envoyez uniquement du Bitcoin à cette adresse. Les fonds arrivent après trois confirmations on-chain.",
-      "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse.",
-      "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse.",
+      "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin",
+      "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin.",
       "depositQRInstruction_spark": "Envoyez uniquement du Bitcoin ou des tokens à votre adresse Spark."
     },
     "payLinks": {
@@ -1812,6 +1812,13 @@
       "swapsType": "Échanges BTC <> USD",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % de frais de pool + {{blitzFee}} % de frais Blitz",
+      "sparkSwapType": "Échanges BTC <> USDB (Spark)",
+      "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
+      "chainSwapFee": "0,5 % de frais Blitz + 0,1 %+ de frais de plateforme",
+      "liquid": "Liquid <> BTC",
+      "liquidFee": "0,5 % de frais Blitz + frais de réseau",
+      "accumulationType": "Adresses d'accumulation",
+      "accumulationFee": "0,5 % de frais Blitz + 0,5 % de frais de plateforme",
       "othersType": "Autres",
       "othersFee": "Frais de réseau",
       "networkFeeLinkDesc": "Appuyez pour voir le détail des frais du réseau Spark"
