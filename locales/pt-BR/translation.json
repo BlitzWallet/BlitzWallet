@@ -1016,7 +1016,7 @@
       "cashAppSubtitle": "Enviar pelo Cash App instantaneamente",
       "sparkAddressSubtitle": "Receber no seu endereço Spark",
       "otherBitcoin": "Bitcoin em outras redes",
-      "otherBitcoinSubtitle": "Liquid, Rootstock, Spark...",
+      "otherBitcoinSubtitle": "Liquid, Rootstock e Spark",
       "lightningInvoice": "Fatura Blitz",
       "lightningInvoiceSubtitle": "Receber BTC ou USD instantaneamente",
       "lightningUSDAmountRequired": "É necessário informar um valor para criar uma fatura Blitz em USD",
@@ -1037,8 +1037,8 @@
       "changeReceiveCurrency": "Alterar moeda de recebimento",
       "depositQRInstruction_stablecoins": "Envie apenas {{asset}} na rede {{chain}} para este endereço. Você receberá diretamente no seu saldo em dólares",
       "depositQRInstruction_bitcoin": "Envie apenas Bitcoin para este endereço. Os fundos chegam após três confirmações na rede Bitcoin",
-      "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço",
-      "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço",
+      "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
+      "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin.",
       "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark"
     },
     "payLinks": {
