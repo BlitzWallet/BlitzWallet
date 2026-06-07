@@ -2212,7 +2212,7 @@
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
         "fast pay": "Pagamentos Rápidos",
-        "spend and replace": "Gastar e repor",
+        "spend and replace": "Gastar & Repor",
         "blitz fee details": "Taxas Blitz Wallet",
         "crash reports": "Relatório de falhas",
         "notifications": "Notificações",
@@ -2516,7 +2516,7 @@
         "header": "Endereço Spark"
       },
       "sendAndReplace": {
-        "slider": "{{state}} Gastar e repor",
+        "slider": "{{state}} Gastar & Repor",
         "userDollarAmount": "Saldo disponível em dólares: {{dollarAmount}}",
         "explainer": "Quando ativado, cada gasto realizado usando Bitcoin é automaticamente reposto usando o seu saldo de dólar. Se seu saldo em dólares for menor que o valor gasto, o saldo total disponível será trocado. Nenhuma troca será realizada se o valor a ser reposto for inferior a {{minAmount}}.",
         "fundingDescription": "Compra Gasto & Reposição",
