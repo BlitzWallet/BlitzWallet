@@ -103,6 +103,10 @@ export default function ReceivePaymentHome(props) {
     addressStateRef.current = addressState;
   }, [addressState]);
 
+  // Append a currency suffix to signal receive method to backend.
+  const lnurlSuffix = endReceiveType === 'USD' ? '-d60fbd' : '-e40605';
+  const lnurlAddress = `${globalContactsInformation?.myProfile?.uniqueName}${lnurlSuffix}@blitzwalletapp.com`;
+
   useEffect(() => {
     async function runAddressInit() {
       crashlyticsLogReport('Begining adddress initialization');
@@ -124,20 +128,14 @@ export default function ReceivePaymentHome(props) {
         endReceiveType,
       };
 
-      // if (
-      //   !userReceiveAmount &&
-      //   !isUsingAltAccount &&
-      //   endReceiveType === 'BTC' &&
-      //   !paymentDescription &&
-      //   masterInfoObject.lnurlReceiveCurrency !== 'usd'
-      // ) {
-      //   setInitialSendAmount(0);
-      //   setAddressState(prev => ({
-      //     ...prev,
-      //     generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
-      //   }));
-      //   return;
-      // }
+      if (!userReceiveAmount && !isUsingAltAccount && !paymentDescription) {
+        setInitialSendAmount(0);
+        setAddressState(prev => ({
+          ...prev,
+          generatedAddress: lnurlAddress,
+        }));
+        return;
+      }
 
       generationRef.current += 1;
       const gen = generationRef.current;
@@ -173,7 +171,13 @@ export default function ReceivePaymentHome(props) {
       });
     }
     runAddressInit();
-  }, [userReceiveAmount, paymentDescription, requestUUID, endReceiveType]);
+  }, [
+    userReceiveAmount,
+    paymentDescription,
+    requestUUID,
+    endReceiveType,
+    lnurlAddress,
+  ]);
 
   const minUsdSats = Math.round(
     Math.max(
@@ -187,7 +191,8 @@ export default function ReceivePaymentHome(props) {
     if (toggleDebounceRef.current) clearTimeout(toggleDebounceRef.current);
     toggleDebounceRef.current = setTimeout(() => {
       let amount = Math.round(initialSendAmount || userReceiveAmount || 0);
-      if (target === 'USD' && amount < minUsdSats) amount = minUsdSats;
+      if (amount && target === 'USD' && amount < minUsdSats)
+        amount = minUsdSats;
       navigate.setParams({
         endReceiveType: target,
         receiveAmount: amount,
@@ -199,18 +204,12 @@ export default function ReceivePaymentHome(props) {
   const { showToast } = useToast();
   const address = addressState.generatedAddress || '';
 
-  const isUsingLnurl = false;
-  // !initialSendAmount &&
-  // !isUsingAltAccount &&
-  // endReceiveType === 'BTC' &&
-  // !paymentDescription &&
-  // masterInfoObject.lnurlReceiveCurrency !== 'usd';
-
-  const displayAddress = isUsingLnurl
-    ? `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`
-    : address;
-
   const displayedReceiveAmount = initialSendAmount || userReceiveAmount || 0;
+
+  const isUsingLnurl =
+    !displayedReceiveAmount && !isUsingAltAccount && !paymentDescription;
+
+  const displayAddress = address;
   const amountCardValue = displayedReceiveAmount;
   const actionTextColor =
     theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
@@ -239,6 +238,16 @@ export default function ReceivePaymentHome(props) {
     });
   };
 
+  const handleShowEditPage = () => {
+    navigate.navigate('EditReceivePaymentInformation', {
+      from: 'receivePage',
+      receiveType: 'Lightning',
+      endReceiveType,
+      userReceiveAmount: displayedReceiveAmount,
+      description: paymentDescription,
+    });
+  };
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
@@ -246,15 +255,7 @@ export default function ReceivePaymentHome(props) {
         showLeftImage={true}
         iconNew={'SquarePen'}
         leftImageStyles={{ width: 25, height: 25 }}
-        leftImageFunction={() => {
-          navigate.navigate('EditReceivePaymentInformation', {
-            from: 'receivePage',
-            receiveType: 'Lightning',
-            endReceiveType,
-            userReceiveAmount: displayedReceiveAmount,
-            description: paymentDescription,
-          });
-        }}
+        leftImageFunction={handleShowEditPage}
       />
       <View
         style={{ flex: 1, ...CENTER, width: INSET_WINDOW_WIDTH, height: 500 }}
@@ -293,7 +294,6 @@ export default function ReceivePaymentHome(props) {
             style={styles.invoiceRow}
           >
             <QrCode
-              globalContactsInformation={globalContactsInformation}
               addressState={addressState}
               qrContainerSize={qrContainerSize}
               qrInnerSize={qrInnerSize}
@@ -301,7 +301,11 @@ export default function ReceivePaymentHome(props) {
             />
           </TouchableOpacity>
 
-          <NotePill description={paymentDescription} t={t} />
+          <NotePill
+            description={paymentDescription}
+            t={t}
+            handleShowEditPage={handleShowEditPage}
+          />
         </ScrollView>
         <TouchableOpacity
           activeOpacity={0.8}
@@ -494,26 +498,24 @@ function AmountDisplay({
   );
 }
 
-function NotePill({ description, t }) {
+function NotePill({ description, t, handleShowEditPage }) {
   const { backgroundOffset } = GetThemeColors();
   return (
-    <View style={[styles.notePill, { backgroundColor: backgroundOffset }]}>
+    <TouchableOpacity
+      style={[styles.notePill, { backgroundColor: backgroundOffset }]}
+      onPress={handleShowEditPage}
+    >
       <ThemeText
         styles={[styles.notePillText, !description && { opacity: 0.5 }]}
         content={description || t('constants.noDescription')}
         CustomNumberOfLines={1}
       />
-    </View>
+      <ThemeIcon iconName={'Edit'} size={SIZES.smedium} />
+    </TouchableOpacity>
   );
 }
 
-function QrCode({
-  addressState,
-  globalContactsInformation,
-  qrContainerSize,
-  qrInnerSize,
-  isUsingLnurl,
-}) {
+function QrCode({ addressState, qrContainerSize, qrInnerSize, isUsingLnurl }) {
   const { backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
 
@@ -583,11 +585,7 @@ function QrCode({
   };
 
   const qrData =
-    (isUsingLnurl
-      ? `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`
-      : addressState.generatedAddress) ||
-    previousAddress.current ||
-    ' ';
+    addressState.generatedAddress || previousAddress.current || ' ';
 
   return (
     <View
@@ -825,6 +823,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     marginTop: 16,
     maxWidth: '80%',
+    gap: 5,
   },
   notePillText: {
     fontSize: SIZES.small,
