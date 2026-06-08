@@ -1728,8 +1728,8 @@
       "pageTitle": "{{type}} Överföringar"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Laddar sparade Roostock-transfereringar",
-      "noSwapsMessage": "Du har inga sparade Roostock-överföringar",
+      "loadingMessage": "Laddar sparade Rootstock-transfereringar",
+      "noSwapsMessage": "Du har inga sparade Rootstock-överföringar",
       "swap.created": "Förbereder",
       "invoice.set": "Finansierar",
       "transaction.mempool": "Bekräftar",

@@ -1725,8 +1725,8 @@
       "pageTitle": "Transferencias de {{type}}"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Cargando transferencias de Roostock guardadas",
-      "noSwapsMessage": "No tienes transferencias de Roostock guardadas",
+      "loadingMessage": "Cargando transferencias de Rootstock guardadas",
+      "noSwapsMessage": "No tienes transferencias de Rootstock guardadas",
       "swap.created": "Preparando",
       "invoice.set": "Financiando",
       "transaction.mempool": "Confirmando",

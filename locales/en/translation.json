@@ -1728,8 +1728,8 @@
       "pageTitle": "{{type}} Transfers"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Loading saved Roostock transfers",
-      "noSwapsMessage": "You have no saved Roostock transfers",
+      "loadingMessage": "Loading saved Rootstock transfers",
+      "noSwapsMessage": "You have no saved Rootstock transfers",
       "swap.created": "Preparing",
       "invoice.set": "Funding",
       "transaction.mempool": "Confirming",

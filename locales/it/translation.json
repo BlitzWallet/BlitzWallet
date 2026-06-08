@@ -1728,8 +1728,8 @@
       "pageTitle": "Trasferimenti {{type}}"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Caricamento delle trasferenze Roostock salvate",
-      "noSwapsMessage": "Non hai trasferenze Roostock salvate",
+      "loadingMessage": "Caricamento delle trasferenze Rootstock salvate",
+      "noSwapsMessage": "Non hai trasferenze Rootstock salvate",
       "swap.created": "Preparazione",
       "invoice.set": "Finanziamento",
       "transaction.mempool": "Conferma",
