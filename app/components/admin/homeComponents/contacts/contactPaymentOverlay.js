@@ -141,9 +141,7 @@ export default function ContactPaymentOverlay({
           convertedSendAmount={payment.convertedSendAmount}
           canReview={payment.canReview}
           isLoading={payment.isLoading}
-          onNext={() => {
-            if (payment.canReview) handleSubmit();
-          }}
+          onNext={handleSubmit}
           onToggleDenomination={payment.handleDenominationToggle}
           paymentMethod={payment.paymentMethod}
           onSelectPaymentMethod={handleSelectPaymentMethod}

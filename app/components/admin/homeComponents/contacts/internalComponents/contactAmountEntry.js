@@ -137,7 +137,9 @@ export default function ContactAmountEntry({
         }}
         useLoading={isLoading}
         actionFunction={onNext}
-        textContent={t('constants.next')}
+        textContent={
+          paymentType === 'send' ? t('constants.next') : t('constants.request')
+        }
       />
     </View>
   );
@@ -166,6 +168,8 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     overflow: 'hidden',
     ...CENTER,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   contactName: {
     includeFontPadding: false,
