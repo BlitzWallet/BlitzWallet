@@ -15,7 +15,10 @@ import {
   FONT,
   SIZES,
 } from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
@@ -299,13 +302,10 @@ export default function DepositQRView({
         <ThemeText styles={styles.instruction} content={instruction} />
       </ScrollView>
       {minimumDepositWarning ? (
-        <View style={styles.warningContainer}>
-          <ThemeIcon iconName="TriangleAlert" size={20} />
-          <ThemeText
-            styles={styles.warningDescription}
-            content={minimumDepositWarning}
-          />
-        </View>
+        <ThemeText
+          styles={styles.warningDescription}
+          content={minimumDepositWarning}
+        />
       ) : null}
       <CustomButton
         buttonStyles={{
@@ -380,33 +380,16 @@ const styles = StyleSheet.create({
   },
   instruction: {
     fontSize: SIZES.small,
-    opacity: 0.6,
+    opacity: HIDDEN_OPACITY,
     textAlign: 'center',
-    includeFontPadding: false,
-  },
-  warningContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 16,
-    ...CENTER,
-  },
-  warningHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  warningTitle: {
-    fontSize: SIZES.small,
-    fontFamily: FONT.Title_Medium,
-    flexShrink: 1,
     includeFontPadding: false,
   },
   warningDescription: {
     includeFontPadding: false,
     fontSize: SIZES.small,
+    textAlign: 'center',
+    opacity: HIDDEN_OPACITY,
+    marginTop: 16,
   },
   errorText: {
     width: '90%',
