@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { CENTER, ICONS } from '../../../../constants';
-import { HIDDEN_OPACITY } from '../../../../constants/theme';
+import { COLORS, HIDDEN_OPACITY } from '../../../../constants/theme';
 import {
   CHAIN_ASSET_ROW_HEIGHT,
   CHAIN_EXPAND_PADDING,
@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 export default function ChainRow({
   chain,
   expanded,
+  disableExpand = false,
   onToggleExpand,
   onSelectAsset,
   isAssetTaken,
@@ -46,6 +47,8 @@ export default function ChainRow({
     transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
   }));
 
+  const isSpark = chain.id === 'spark';
+
   return (
     <View>
       <TouchableOpacity
@@ -60,18 +63,37 @@ export default function ChainRow({
               backgroundColor:
                 theme && darkModeType ? backgroundColor : backgroundOffset,
             },
+            isSpark && {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : COLORS.primary,
+            },
           ]}
         >
           <Image
-            style={styles.assetIcon}
-            source={ICONS[`chain_${chain.label.toLowerCase()}`]}
+            style={[
+              styles.assetIcon,
+              isSpark && {
+                width: 20,
+                height: 20,
+              },
+            ]}
+            source={
+              ICONS[
+                isSpark
+                  ? 'sparkAsteriskWhite'
+                  : `chain_${chain.label.toLowerCase()}`
+              ]
+            }
             contentFit="contain"
           />
         </View>
         <ThemeText styles={styles.optionLabel} content={chain.label} />
 
         <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
-          <ThemeIcon iconName="ChevronDown" size={18} />
+          <ThemeIcon
+            iconName={disableExpand ? 'ChevronRight' : 'ChevronDown'}
+            size={18}
+          />
         </Animated.View>
       </TouchableOpacity>
 

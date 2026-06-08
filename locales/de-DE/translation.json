@@ -1012,7 +1012,7 @@
       "onChainBitcoin": "Bitcoin einzahlen",
       "onChainBitcoinSubtitle": "Über eine On-Chain-Adresse empfangen",
       "stablecoins": "Dollar einzahlen",
-      "stablecoinsSubtitle": "USDT / USDC in Ihre Wallet einzahlen",
+      "stablecoinsSubtitle": "Zahlen Sie Dollar in Ihre Wallet ein",
       "cashAppSubtitle": "Sofort von Cash App senden",
       "sparkAddressSubtitle": "An Ihre Spark-Adresse empfangen",
       "otherBitcoin": "Weitere Einzahlungsoptionen",
@@ -1039,7 +1039,8 @@
       "depositQRInstruction_bitcoin": "Senden Sie nur Bitcoin an diese Adresse. Das Geld kommt nach drei On-Chain-Bestätigungen an.",
       "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
-      "depositQRInstruction_spark": "Senden Sie nur Bitcoin oder Tokens an Ihre Spark-Adresse."
+      "depositQRInstruction_spark": "Senden Sie Bitcoin oder Tokens an diese Adresse.",
+      "depositQRInstruction_spark_dollars": "Senden Sie USDB an diese Adresse."
     },
     "payLinks": {
       "skip": "Überspringen",

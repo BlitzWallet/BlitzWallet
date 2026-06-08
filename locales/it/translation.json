@@ -1012,7 +1012,7 @@
       "onChainBitcoin": "Deposita Bitcoin",
       "onChainBitcoinSubtitle": "Ricevi tramite indirizzo on-chain",
       "stablecoins": "Deposita dollari",
-      "stablecoinsSubtitle": "Deposita USDT / USDC nel tuo wallet",
+      "stablecoinsSubtitle": "Deposita dollari nel tuo wallet",
       "cashAppSubtitle": "Invia da Cash App istantaneamente",
       "sparkAddressSubtitle": "Ricevi sul tuo indirizzo Spark",
       "otherBitcoin": "Altre opzioni di deposito",
@@ -1039,7 +1039,8 @@
       "depositQRInstruction_bitcoin": "Invia solo Bitcoin a questo indirizzo. I fondi arrivano dopo tre conferme on-chain.",
       "depositQRInstruction_liquid": "Invia solo Liquid Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin",
       "depositQRInstruction_rootstock": "Invia solo Rootstock Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin.",
-      "depositQRInstruction_spark": "Invia solo Bitcoin o token al tuo indirizzo Spark."
+      "depositQRInstruction_spark": "Invia Bitcoin o token a questo indirizzo.",
+      "depositQRInstruction_spark_dollars": "Invia USDB a questo indirizzo."
     },
     "payLinks": {
       "skip": "Salta",

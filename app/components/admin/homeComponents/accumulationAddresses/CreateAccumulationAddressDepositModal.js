@@ -38,7 +38,10 @@ export default function CreateAccumulationAddressDepositModal({
         scrollEventThrottle={16}
         onLayout={onLayout}
       >
-        {ACCUMULATION_CHAINS.map(chain => (
+        {[
+          ...ACCUMULATION_CHAINS,
+          { id: 'spark', label: 'Spark', assets: [] },
+        ].map(chain => (
           <View
             key={chain.id}
             onLayout={e => handleRowLayout(chain.id, e.nativeEvent.layout.y)}
@@ -46,9 +49,18 @@ export default function CreateAccumulationAddressDepositModal({
             <ChainRow
               chain={chain}
               expanded={expandedChain === chain.id}
-              onToggleExpand={id =>
-                setExpandedChain(prev => (prev === id ? null : id))
-              }
+              disableExpand={chain.id === 'spark'}
+              onToggleExpand={id => {
+                if (chain.id === 'spark') {
+                  setExpandedChain(null);
+                  onShowQR({
+                    selectedRecieveOption: 'spark',
+                    fromStablecoin: true,
+                  });
+                } else {
+                  setExpandedChain(prev => (prev === id ? null : id));
+                }
+              }}
               onSelectAsset={(c, asset) => {
                 setExpandedChain(null);
                 onShowQR({

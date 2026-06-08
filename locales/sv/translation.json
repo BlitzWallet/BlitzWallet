@@ -1012,7 +1012,7 @@
       "onChainBitcoin": "Sätt in Bitcoin",
       "onChainBitcoinSubtitle": "Ta emot via on-chain-adress",
       "stablecoins": "Sätt in dollar",
-      "stablecoinsSubtitle": "Sätt in USDT / USDC i din plånbok",
+      "stablecoinsSubtitle": "Sätt in dollar i din plånbok",
       "cashAppSubtitle": "Skicka från Cash App direkt",
       "sparkAddressSubtitle": "Ta emot till din Spark-adress",
       "otherBitcoin": "Andra insättningsalternativ",
@@ -1039,7 +1039,8 @@
       "depositQRInstruction_bitcoin": "Skicka bara Bitcoin till den här adressen. Pengarna kommer efter tre bekräftelser på kedjan.",
       "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo",
       "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo.",
-      "depositQRInstruction_spark": "Skicka bara Bitcoin eller tokens till din Spark-adress."
+      "depositQRInstruction_spark": "Skicka Bitcoin eller tokens till denna adress.",
+      "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress."
     },
     "payLinks": {
       "skip": "Hoppa över",
