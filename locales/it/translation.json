@@ -131,7 +131,9 @@
     "transfer": "Trasferimento",
     "details": "Dettagli",
     "total": "Totale",
-    "stablecoinRefundReceived": "Rimborso stablecoin"
+    "stablecoinRefundReceived": "Rimborso stablecoin",
+    "payWith": "Paga con",
+    "receiveAs": "Ricevi come"
   },
   "languages": {
     "english": "English",

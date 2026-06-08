@@ -131,7 +131,9 @@
     "transfer": "Transferir",
     "details": "Detalhes",
     "total": "Total",
-    "stablecoinRefundReceived": "Reembolso de Dólar digital"
+    "stablecoinRefundReceived": "Reembolso de Dólar digital",
+    "payWith": "Pagar com",
+    "receiveAs": "Receber como"
   },
   "languages": {
     "english": "English",
@@ -1039,7 +1041,8 @@
       "depositQRInstruction_bitcoin": "Envie apenas Bitcoin para este endereço. Os fundos chegam após três confirmações na rede Bitcoin",
       "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
       "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
-      "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark"
+      "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark",
+      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço."
     },
     "payLinks": {
       "skip": "Pular",

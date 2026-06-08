@@ -57,7 +57,6 @@ export default function ChooseLRC20TokenContainer({
   console.log(selectedLRC20Asset, seletctedToken, 'tokens', imageUri);
   return (
     <View style={[styles.paymentMethodContainer, containerStyles]}>
-      {/* <ThemeText styles={styles.header} content={'Pay with'} /> */}
       <TouchableOpacity
         onPress={handleSelectPaymentMethod}
         style={styles.selectorContainer}

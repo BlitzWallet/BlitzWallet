@@ -96,7 +96,11 @@ export default function ContactAmountEntry({
       <View style={{ width: INSET_WINDOW_WIDTH }}>
         <ThemeText
           styles={{ opacity: HIDDEN_OPACITY }}
-          content={paymentType === 'send' ? 'Pay with' : 'Receive as'}
+          content={
+            paymentType === 'send'
+              ? t('constants.payWith')
+              : t('constants.receiveAs')
+          }
         />
         <ChoosePaymentMethod
           theme={theme}

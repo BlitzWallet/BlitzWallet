@@ -205,7 +205,11 @@ export default function SendAndRequestPage(props) {
         <View style={styles.inputAndGiftContainer}>
           <ThemeText
             styles={{ opacity: HIDDEN_OPACITY }}
-            content={paymentType === 'send' ? 'Pay with' : 'Receive as'}
+            content={
+              paymentType === 'send'
+                ? t('constants.payWith')
+                : t('constants.receiveAs')
+            }
           />
           <ChoosePaymentMethod
             theme={theme}
