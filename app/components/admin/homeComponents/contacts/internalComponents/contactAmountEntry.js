@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { CENTER } from '../../../../../constants';
 import {
@@ -42,56 +42,62 @@ export default function ContactAmountEntry({
 }) {
   return (
     <View style={styles.container}>
-      <View style={styles.profileContainer}>
-        <View
-          style={[
-            styles.profileImageContainer,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
-          ]}
-        >
-          <ContactProfileImage
-            updated={imageData?.updated}
-            uri={imageData?.localUri}
-            darkModeType={darkModeType}
-            theme={theme}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.profileContainer}>
+          <View
+            style={[
+              styles.profileImageContainer,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+          >
+            <ContactProfileImage
+              updated={imageData?.updated}
+              uri={imageData?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.contactName}
+            content={selectedContact?.name || selectedContact?.uniqueName || ''}
           />
         </View>
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.contactName}
-          content={selectedContact?.name || selectedContact?.uniqueName || ''}
-        />
-      </View>
 
-      <TouchableOpacity
-        style={{ marginBottom: 'auto' }}
-        activeOpacity={1}
-        onPress={onToggleDenomination}
-      >
-        <FormattedBalanceInput
-          maxWidth={0.88}
-          amountValue={amountValue || 0}
-          inputDenomination={primaryDisplay.denomination}
-          forceCurrency={primaryDisplay.forceCurrency}
-          forceFiatStats={primaryDisplay.forceFiatStats}
-          customTextInputContainerStyles={styles.amountInputContainer}
-        />
+        <TouchableOpacity
+          style={{ marginBottom: 'auto' }}
+          activeOpacity={1}
+          onPress={onToggleDenomination}
+        >
+          <FormattedBalanceInput
+            maxWidth={0.88}
+            amountValue={amountValue || 0}
+            inputDenomination={primaryDisplay.denomination}
+            forceCurrency={primaryDisplay.forceCurrency}
+            forceFiatStats={primaryDisplay.forceFiatStats}
+            customTextInputContainerStyles={styles.amountInputContainer}
+          />
 
-        <FormattedSatText
-          containerStyles={{
-            ...styles.convertedAmount,
-            opacity: !amountValue ? HIDDEN_OPACITY : 1,
-          }}
-          neverHideBalance={true}
-          globalBalanceDenomination={secondaryDisplay.denomination}
-          forceCurrency={secondaryDisplay.forceCurrency}
-          forceFiatStats={secondaryDisplay.forceFiatStats}
-          balance={convertedSendAmount}
-        />
-      </TouchableOpacity>
+          <FormattedSatText
+            containerStyles={{
+              ...styles.convertedAmount,
+              opacity: !amountValue ? HIDDEN_OPACITY : 1,
+            }}
+            neverHideBalance={true}
+            globalBalanceDenomination={secondaryDisplay.denomination}
+            forceCurrency={secondaryDisplay.forceCurrency}
+            forceFiatStats={secondaryDisplay.forceFiatStats}
+            balance={convertedSendAmount}
+          />
+        </TouchableOpacity>
+      </ScrollView>
 
       <View style={{ width: INSET_WINDOW_WIDTH }}>
         <ThemeText
@@ -141,6 +147,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+  },
+  scrollView: { width: '100%' },
+  scrollViewContainer: {
+    width: '100%',
+    alignItems: 'center',
+    flexGrow: 1,
   },
   profileContainer: {
     alignItems: 'center',

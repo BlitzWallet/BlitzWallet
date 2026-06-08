@@ -119,7 +119,17 @@ export default function useContactPayment({
     });
 
     if (!userChangedPaymentMethodRef.current) {
-      setPaymentMethod(resolvedDefault);
+      setPaymentMethod(prev => {
+        // The contact's preferred currency can resolve asynchronously (after the
+        // receive-option cache/doc loads). If that flips the method while the
+        // user has already typed an amount, clear it so a sats entry isn't
+        // silently reinterpreted as fiat (or vice versa).
+        if (prev !== resolvedDefault) {
+          setAmountValue('');
+          setUserSetInputDenomination(null);
+        }
+        return resolvedDefault;
+      });
     }
   }, [
     dollarBalanceToken,
