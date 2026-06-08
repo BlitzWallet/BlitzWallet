@@ -1009,9 +1009,9 @@
       "phonePaymentDesc": "Enviando para número de celular",
       "depositFunds": "Depositar fundos",
       "depositFundsSubtitle": "Adicione fundos na sua carteira",
-      "onChainBitcoin": "Depositar Bitcoin",
-      "onChainBitcoinSubtitle": "Receba bitcoins na sua carteira",
-      "stablecoins": "Depositar Dólares",
+      "onChainBitcoin": "Endereço Bitcoin",
+      "onChainBitcoinSubtitle": "Receber por endereço bitcoin",
+      "stablecoins": "Dólares Digitais",
       "stablecoinsSubtitle": "Receba dólares na sua carteira",
       "cashAppSubtitle": "Enviar pelo Cash App instantaneamente",
       "sparkAddressSubtitle": "Receber no seu endereço Spark",
@@ -1038,8 +1038,9 @@
       "depositQRInstruction_stablecoins": "Envie apenas {{asset}} na rede {{chain}} para este endereço. Você receberá diretamente no seu saldo em dólares",
       "depositQRInstruction_bitcoin": "Envie apenas Bitcoin para este endereço. Os fundos chegam após três confirmações na rede Bitcoin",
       "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
-      "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
-      "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark"
+      "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin.",
+      "depositQRInstruction_spark": "Envie Bitcoin ou tokens na rede Spark",
+      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço"
     },
     "payLinks": {
       "skip": "Pular",
