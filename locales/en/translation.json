@@ -1031,7 +1031,7 @@
       "roostockDesc": "Receive Rootstock BTC to your wallet.",
       "sparkDesc": "Receive BTC or tokens to your wallet.",
       "chooseMethodTitle": "Choose receive method",
-      "selectMethodTitle": "Select deposit method",
+      "selectMethodTitle": "Add funds",
       "copyAddress": "Copy Address",
       "depositQRError": "We ran into a problem when generating your {{addressType}} address",
       "changeReceiveCurrency": "Change receive currency",
