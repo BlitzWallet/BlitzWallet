@@ -7,6 +7,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { CENTER, ICONS } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
+import {
+  CHAIN_ASSET_ROW_HEIGHT,
+  CHAIN_EXPAND_PADDING,
+} from '../../../../constants/accumulationAddresses';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useEffect } from 'react';
@@ -32,7 +36,9 @@ export default function ChainRow({
   }, [expanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * (chain.assets.length * 65 + 26),
+    height:
+      expandHeight.value *
+      (chain.assets.length * CHAIN_ASSET_ROW_HEIGHT + CHAIN_EXPAND_PADDING),
     opacity: expandHeight.value,
   }));
 

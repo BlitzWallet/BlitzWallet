@@ -2,10 +2,15 @@ import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import GetThemeColors from '../../../../hooks/themeColors';
 
-import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
+import {
+  ACCUMULATION_CHAINS,
+  getChainExpandHeight,
+} from '../../../../constants/accumulationAddresses';
 import { CENTER, ICONS } from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import ChainRow from './chainRow';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import useExpandAutoScroll from '../../../../hooks/useExpandAutoScroll';
 
 export default function CreateAccumulationAddressDepositModal({
   setContentHeight,
@@ -13,36 +18,54 @@ export default function CreateAccumulationAddressDepositModal({
   expandedChain,
   setExpandedChain,
 }) {
+  const { bottomPadding } = useGlobalInsets();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
 
+  const { scrollViewRef, handleRowLayout, onScroll, onLayout } =
+    useExpandAutoScroll({
+      expandedId: expandedChain,
+      getPanelHeight: getChainExpandHeight,
+    });
+
   const chainElements = useMemo(() => {
     return (
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        contentContainerStyle={{ paddingBottom: bottomPadding }}
+        showsVerticalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        onLayout={onLayout}
+      >
         {ACCUMULATION_CHAINS.map(chain => (
-          <ChainRow
+          <View
             key={chain.id}
-            chain={chain}
-            expanded={expandedChain === chain.id}
-            onToggleExpand={id =>
-              setExpandedChain(prev => (prev === id ? null : id))
-            }
-            onSelectAsset={(c, asset) => {
-              setExpandedChain(null);
-              onShowQR({
-                selectedRecieveOption: 'Stablecoins',
-                sourceChain: c.id,
-                sourceAsset: asset,
-                destinationAsset: 'USDB',
-              });
-            }}
-            isAssetTaken={() => false}
-            onDisabledAssetPress={() => {}}
-            theme={theme}
-            darkModeType={darkModeType}
-            backgroundColor={backgroundColor}
-            backgroundOffset={backgroundOffset}
-          />
+            onLayout={e => handleRowLayout(chain.id, e.nativeEvent.layout.y)}
+          >
+            <ChainRow
+              chain={chain}
+              expanded={expandedChain === chain.id}
+              onToggleExpand={id =>
+                setExpandedChain(prev => (prev === id ? null : id))
+              }
+              onSelectAsset={(c, asset) => {
+                setExpandedChain(null);
+                onShowQR({
+                  selectedRecieveOption: 'Stablecoins',
+                  sourceChain: c.id,
+                  sourceAsset: asset,
+                  destinationAsset: 'USDB',
+                });
+              }}
+              isAssetTaken={() => false}
+              onDisabledAssetPress={() => {}}
+              theme={theme}
+              darkModeType={darkModeType}
+              backgroundColor={backgroundColor}
+              backgroundOffset={backgroundOffset}
+            />
+          </View>
         ))}
       </ScrollView>
     );

@@ -10,3 +10,11 @@ export const ACCUMULATION_CHAINS = [
   { id: 'bsc', label: 'BNB', assets: ['USDC', 'USDT'] },
 ];
 export const ACCUMULATION_DESTINATIONS = ['BTC', 'USDB'];
+
+export const CHAIN_ASSET_ROW_HEIGHT = 65;
+export const CHAIN_EXPAND_PADDING = 26;
+export const getChainExpandHeight = chainId => {
+  const chain = ACCUMULATION_CHAINS.find(c => c.id === chainId);
+  if (!chain) return null;
+  return chain.assets.length * CHAIN_ASSET_ROW_HEIGHT + CHAIN_EXPAND_PADDING;
+};

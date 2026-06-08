@@ -16,6 +16,7 @@ import {
 import {
   ACCUMULATION_CHAINS,
   ACCUMULATION_DESTINATIONS,
+  getChainExpandHeight,
 } from '../../../../constants/accumulationAddresses';
 import { CENTER, ICONS } from '../../../../constants';
 import { Image } from 'expo-image';
@@ -29,6 +30,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import ChainRow from './chainRow';
+import useExpandAutoScroll from '../../../../hooks/useExpandAutoScroll';
 
 // Steps: 'chain' | 'destination' | 'confirm'
 const STEPS = ['chain', 'destination', 'confirm'];
@@ -66,6 +68,12 @@ export default function CreateAccumulationAddressModal({
       ),
     [addresses],
   );
+
+  const { scrollViewRef, handleRowLayout, onScroll, onLayout } =
+    useExpandAutoScroll({
+      expandedId: expandedChain,
+      getPanelHeight: getChainExpandHeight,
+    });
 
   const chainOpacity = useSharedValue(1);
   const chainTranslateX = useSharedValue(0);
@@ -205,40 +213,48 @@ export default function CreateAccumulationAddressModal({
           content={t('screens.accumulationAddresses.create.pickChain')}
         />
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={{ paddingBottom: bottomPadding }}
           showsVerticalScrollIndicator={false}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          onLayout={onLayout}
         >
           {ACCUMULATION_CHAINS.map(chain => (
-            <ChainRow
+            <View
               key={chain.id}
-              chain={chain}
-              expanded={expandedChain === chain.id}
-              onToggleExpand={id =>
-                setExpandedChain(prev => (prev === id ? null : id))
-              }
-              onSelectAsset={(c, asset) => {
-                setSelectedChain(c);
-                setSelectedAsset(asset);
-                goToStep(forcedDestination ? 'confirm' : 'destination');
-                setExpandedChain(null);
-              }}
-              isAssetTaken={
-                forcedDestination
-                  ? asset => isPairTaken(chain.id, asset, forcedDestination)
-                  : () => false
-              }
-              onDisabledAssetPress={() =>
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t(
-                    'screens.accumulationAddresses.create.alreadyExists',
-                  ),
-                })
-              }
-              theme={theme}
-              darkModeType={darkModeType}
-              backgroundColor={backgroundColor}
-              backgroundOffset={backgroundOffset}
-            />
+              onLayout={e => handleRowLayout(chain.id, e.nativeEvent.layout.y)}
+            >
+              <ChainRow
+                chain={chain}
+                expanded={expandedChain === chain.id}
+                onToggleExpand={id =>
+                  setExpandedChain(prev => (prev === id ? null : id))
+                }
+                onSelectAsset={(c, asset) => {
+                  setSelectedChain(c);
+                  setSelectedAsset(asset);
+                  goToStep(forcedDestination ? 'confirm' : 'destination');
+                  setExpandedChain(null);
+                }}
+                isAssetTaken={
+                  forcedDestination
+                    ? asset => isPairTaken(chain.id, asset, forcedDestination)
+                    : () => false
+                }
+                onDisabledAssetPress={() =>
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage: t(
+                      'screens.accumulationAddresses.create.alreadyExists',
+                    ),
+                  })
+                }
+                theme={theme}
+                darkModeType={darkModeType}
+                backgroundColor={backgroundColor}
+                backgroundOffset={backgroundOffset}
+              />
+            </View>
           ))}
         </ScrollView>
       </Animated.View>
