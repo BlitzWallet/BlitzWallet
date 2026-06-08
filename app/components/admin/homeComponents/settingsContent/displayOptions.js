@@ -64,7 +64,7 @@ const SettingsItem = ({
     <>
       <View style={styles.settingsItem}>
         <View style={styles.settingsItemText}>
-          <ThemeText styles={styles.settingsItemLabel} content={label} />
+          <ThemeText styles={styles.subsectionTitle} content={label} />
           {description && (
             <ThemeText
               styles={styles.settingsItemDescription}
@@ -395,7 +395,6 @@ const styles = StyleSheet.create({
   },
   subsectionTitle: {
     marginBottom: 10,
-    fontWeight: '500',
   },
   subsectionTitleSpacing: {
     marginTop: 10,

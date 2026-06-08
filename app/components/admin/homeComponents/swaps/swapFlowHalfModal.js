@@ -90,6 +90,7 @@ const SLIPPAGE_DROPDOWN_OPTIONS = [
 export default function SwapFlowHalfModal({
   setContentHeight,
   handleBackPressFunction,
+  setBackNav,
 }) {
   const navigate = useNavigation();
   const {
@@ -111,8 +112,16 @@ export default function SwapFlowHalfModal({
   // Step state
   const [currentStep, setCurrentStep] = useState('routeSelection');
   const dirRef = useRef('forward');
-  const stepOpacity = useSharedValue(1);
-  const stepTranslateX = useSharedValue(0);
+  const routeSelectionOpacity = useSharedValue(1);
+  const routeSelectionTranslateX = useSharedValue(0);
+  const historyOpacity = useSharedValue(0);
+  const historyTranslateX = useSharedValue(30);
+  const amountOpacity = useSharedValue(0);
+  const amountTranslateX = useSharedValue(30);
+  const reviewOpacity = useSharedValue(0);
+  const reviewTranslateX = useSharedValue(30);
+  const confirmationOpacity = useSharedValue(0);
+  const confirmationTranslateX = useSharedValue(30);
 
   // Swap state (migrated from SwapsPage verbatim)
   const [fromAmount, setFromAmount] = useState('');
@@ -149,11 +158,77 @@ export default function SwapFlowHalfModal({
   const lastSimulatedAmount = useRef(null);
   const isPillPressRef = useRef(false);
 
-  // Step transition animated style — matches PoolCreationOverlay pattern
-  const stepAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: stepOpacity.value,
-    transform: [{ translateX: stepTranslateX.value }],
-    pointerEvents: stepOpacity.value > 0.5 ? 'auto' : 'none',
+  const animateStepValue = useCallback(
+    (step, opacityValue, translateValue) => {
+      const isActive = currentStep === step;
+      opacityValue.value = withTiming(isActive ? 1 : 0, { duration: 250 });
+      translateValue.value = withTiming(
+        isActive ? 0 : dirRef.current === 'forward' ? -30 : 30,
+        { duration: 250 },
+      );
+    },
+    [currentStep],
+  );
+
+  const getStepAnimationValues = useCallback(
+    step => {
+      switch (step) {
+        case 'historyExpanded':
+          return { opacity: historyOpacity, translateX: historyTranslateX };
+        case 'amountInput':
+          return { opacity: amountOpacity, translateX: amountTranslateX };
+        case 'review':
+          return { opacity: reviewOpacity, translateX: reviewTranslateX };
+        case 'confirmation':
+          return {
+            opacity: confirmationOpacity,
+            translateX: confirmationTranslateX,
+          };
+        case 'routeSelection':
+        default:
+          return {
+            opacity: routeSelectionOpacity,
+            translateX: routeSelectionTranslateX,
+          };
+      }
+    },
+    [
+      amountOpacity,
+      amountTranslateX,
+      confirmationOpacity,
+      confirmationTranslateX,
+      historyOpacity,
+      historyTranslateX,
+      reviewOpacity,
+      reviewTranslateX,
+      routeSelectionOpacity,
+      routeSelectionTranslateX,
+    ],
+  );
+
+  const routeSelectionAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: routeSelectionOpacity.value,
+    transform: [{ translateX: routeSelectionTranslateX.value }],
+  }));
+
+  const historyAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: historyOpacity.value,
+    transform: [{ translateX: historyTranslateX.value }],
+  }));
+
+  const amountAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: amountOpacity.value,
+    transform: [{ translateX: amountTranslateX.value }],
+  }));
+
+  const reviewAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: reviewOpacity.value,
+    transform: [{ translateX: reviewTranslateX.value }],
+  }));
+
+  const confirmationAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: confirmationOpacity.value,
+    transform: [{ translateX: confirmationTranslateX.value }],
   }));
 
   const HEIGHT_FOR_STEP = useMemo(
@@ -161,8 +236,8 @@ export default function SwapFlowHalfModal({
       routeSelection: screenDimensions.height * 0.6,
       historyExpanded: screenDimensions.height,
       amountInput: 700,
-      review: screenDimensions.height,
-      confirmation: 500,
+      review: 600,
+      confirmation: 600,
     }),
     [screenDimensions.height],
   );
@@ -172,17 +247,32 @@ export default function SwapFlowHalfModal({
     if (setContentHeight) {
       setContentHeight(HEIGHT_FOR_STEP[currentStep]);
     }
-    stepOpacity.value = withTiming(1, { duration: 250 });
-    stepTranslateX.value = withTiming(0, { duration: 250 });
-  }, [currentStep]);
+    animateStepValue(
+      'routeSelection',
+      routeSelectionOpacity,
+      routeSelectionTranslateX,
+    );
+    animateStepValue('historyExpanded', historyOpacity, historyTranslateX);
+    animateStepValue('amountInput', amountOpacity, amountTranslateX);
+    animateStepValue('review', reviewOpacity, reviewTranslateX);
+    animateStepValue(
+      'confirmation',
+      confirmationOpacity,
+      confirmationTranslateX,
+    );
+  }, [currentStep, animateStepValue, setContentHeight, HEIGHT_FOR_STEP]);
 
   // Navigate between steps with slide direction
-  const navigateToStep = useCallback((newStep, dir = 'forward') => {
-    dirRef.current = dir;
-    stepOpacity.value = 0;
-    stepTranslateX.value = dir === 'forward' ? 30 : -30;
-    setCurrentStep(newStep);
-  }, []);
+  const navigateToStep = useCallback(
+    (newStep, dir = 'forward') => {
+      dirRef.current = dir;
+      const { opacity, translateX } = getStepAnimationValues(newStep);
+      opacity.value = 0;
+      translateX.value = dir === 'forward' ? 30 : -30;
+      setCurrentStep(newStep);
+    },
+    [getStepAnimationValues],
+  );
 
   // Android hardware back press — intercepts step-level navigation
   const handleBackPressAndroid = useCallback(() => {
@@ -202,6 +292,26 @@ export default function SwapFlowHalfModal({
     return false;
   }, [currentStep, navigateToStep, isSwapping]);
   useHandleBackPressNew(handleBackPressAndroid);
+
+  // Register the chrome's back arrow on the steps that support stepping back.
+  useEffect(() => {
+    if (
+      currentStep === 'amountInput' ||
+      currentStep === 'review' ||
+      currentStep === 'historyExpanded'
+    ) {
+      setBackNav?.({
+        onPress: handleBackPressAndroid,
+        title:
+          currentStep === 'historyExpanded'
+            ? t('screens.inAccount.swapHistory.pageTitle')
+            : '',
+      });
+    } else {
+      setBackNav?.(null);
+    }
+    return () => setBackNav?.(null);
+  }, [currentStep, handleBackPressAndroid, setBackNav]);
 
   // Derived state
   const tokenInformation = sparkInformation?.tokens?.[USDB_TOKEN_ID];
@@ -1098,25 +1208,27 @@ export default function SwapFlowHalfModal({
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
-  if (!dollarBalanceToken && !bitcoinBalance) {
-    return (
-      <View style={styles.container}>
-        <NoContentSceen
-          iconName="ArrowRightLeft"
-          titleText={t('screens.inAccount.swapsPage.noContentTitle')}
-          subTitleText={t('screens.inAccount.swapsPage.noContentSubTittle')}
-        />
-      </View>
-    );
-  }
+  const hasAnySwapBalance = !!dollarBalanceToken || !!bitcoinBalance;
+  const stepBackgroundStyle = {
+    backgroundColor: theme && darkModeType ? backgroundOffset : backgroundColor,
+  };
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.stepWrapper, stepAnimatedStyle]}>
-        {/* ── Step 1: Route Selection ─────────────────────────────────── */}
-        {currentStep === 'routeSelection' && (
-          <>
-            <View style={styles.stepContent}>
+      {/* ── Step 1: Route Selection ─────────────────────────────────── */}
+      <Animated.View
+        style={[styles.stepTouchpoint, routeSelectionAnimatedStyle]}
+        pointerEvents={currentStep === 'routeSelection' ? 'auto' : 'none'}
+      >
+        <View style={styles.stepContent}>
+          {!hasAnySwapBalance ? (
+            <NoContentSceen
+              iconName="ArrowRightLeft"
+              titleText={t('screens.inAccount.swapsPage.noContentTitle')}
+              subTitleText={t('screens.inAccount.swapsPage.noContentSubTittle')}
+            />
+          ) : (
+            <>
               {isLoadingPool && (
                 <View style={styles.loadingContainer}>
                   <FullLoadingScreen
@@ -1359,805 +1471,672 @@ export default function SwapFlowHalfModal({
                   )}
                 </>
               )}
-            </View>
-          </>
-        )}
+            </>
+          )}
+        </View>
+      </Animated.View>
 
-        {/* ── History Expanded ────────────────────────────────────────── */}
-        {currentStep === 'historyExpanded' && (
-          <View style={[styles.stepContent, styles.historyContainer]}>
-            <View style={styles.historyHeader}>
-              <TouchableOpacity
-                onPress={() => navigateToStep('routeSelection', 'backward')}
-                activeOpacity={0.7}
-                style={styles.backButton}
-              >
-                <ThemeIcon size={30} iconName={'ArrowLeft'} />
-              </TouchableOpacity>
-            </View>
+      {/* ── History Expanded ────────────────────────────────────────── */}
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepTouchpoint,
+          stepBackgroundStyle,
+          historyAnimatedStyle,
+        ]}
+        pointerEvents={currentStep === 'historyExpanded' ? 'auto' : 'none'}
+      >
+        <View style={[styles.stepContent, styles.historyContainer]}>
+          {!finishedInitialHistoryLoad ? (
+            <FullLoadingScreen />
+          ) : (
+            <FlatList
+              data={swapHistory.swaps}
+              keyExtractor={item => item.id}
+              renderItem={({ item }) => {
+                const isBtcToUsdSwap =
+                  item.assetInAddress === BTC_ASSET_ADDRESS;
+                const formattedAmountOut = isBtcToUsdSwap
+                  ? formatBalanceAmount(
+                      item.amountOut / Math.pow(10, 6),
+                      false,
+                      masterInfoObject,
+                    )
+                  : item.amountOut;
+                const price = currentPriceAinBToPriceDollars(
+                  item.price,
+                ).toFixed(2);
+                const date = formatDate(item.timestamp);
 
-            {!finishedInitialHistoryLoad ? (
-              <FullLoadingScreen />
-            ) : (
-              <FlatList
-                data={swapHistory.swaps}
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => {
-                  const isBtcToUsdSwap =
-                    item.assetInAddress === BTC_ASSET_ADDRESS;
-                  const formattedAmountOut = isBtcToUsdSwap
-                    ? formatBalanceAmount(
-                        item.amountOut / Math.pow(10, 6),
-                        false,
-                        masterInfoObject,
-                      )
-                    : item.amountOut;
-                  const price = currentPriceAinBToPriceDollars(
-                    item.price,
-                  ).toFixed(2);
-                  const date = formatDate(item.timestamp);
-
-                  return (
-                    <View
-                      style={[
-                        styles.transactionRow,
-                        {
-                          backgroundColor:
-                            theme && darkModeType
-                              ? backgroundColor
-                              : backgroundOffset,
-                        },
-                      ]}
-                    >
-                      <View
-                        style={[
-                          styles.iconContainer,
-                          {
-                            backgroundColor:
-                              theme && darkModeType
-                                ? backgroundOffset
-                                : isBtcToUsdSwap
-                                ? COLORS.bitcoinOrange
-                                : COLORS.dollarGreen,
-
-                            width: 42,
-                            height: 42,
-                            borderRadius: 26,
-                            borderWidth: 2,
-                            borderColor:
-                              theme && darkModeType
-                                ? backgroundColor
-                                : backgroundOffset,
-                            zIndex: 99,
-                            marginRight: -5,
-                          },
-                        ]}
-                      >
-                        <ThemeImage
-                          styles={{ width: 20, height: 20 }}
-                          lightModeIcon={
-                            isBtcToUsdSwap
-                              ? ICONS.bitcoinIcon
-                              : ICONS.dollarIcon
-                          }
-                          darkModeIcon={
-                            isBtcToUsdSwap
-                              ? ICONS.bitcoinIcon
-                              : ICONS.dollarIcon
-                          }
-                          lightsOutIcon={
-                            isBtcToUsdSwap
-                              ? ICONS.bitcoinIcon
-                              : ICONS.dollarIcon
-                          }
-                        />
-                      </View>
-                      <View
-                        style={[
-                          styles.iconContainer,
-                          {
-                            backgroundColor:
-                              theme && darkModeType
-                                ? backgroundOffset
-                                : isBtcToUsdSwap
-                                ? COLORS.dollarGreen
-                                : COLORS.bitcoinOrange,
-                            marginRight: 5,
-                          },
-                        ]}
-                      >
-                        <ThemeImage
-                          styles={{ width: 20, height: 20 }}
-                          lightModeIcon={
-                            isBtcToUsdSwap
-                              ? ICONS.dollarIcon
-                              : ICONS.bitcoinIcon
-                          }
-                          darkModeIcon={
-                            isBtcToUsdSwap
-                              ? ICONS.dollarIcon
-                              : ICONS.bitcoinIcon
-                          }
-                          lightsOutIcon={
-                            isBtcToUsdSwap
-                              ? ICONS.dollarIcon
-                              : ICONS.bitcoinIcon
-                          }
-                        />
-                      </View>
-                      <View style={styles.transactionContent}>
-                        <ThemeText
-                          styles={styles.transactionTitle}
-                          content={
-                            isBtcToUsdSwap
-                              ? t(
-                                  'screens.inAccount.swapsPage.swapDirection_btcusd',
-                                )
-                              : t(
-                                  'screens.inAccount.swapsPage.swapDirection_usdbtc',
-                                )
-                          }
-                        />
-                        <ThemeText
-                          styles={styles.transactionSubtext}
-                          content={date}
-                        />
-                      </View>
-                      <View style={styles.amountContainer}>
-                        <ThemeText
-                          styles={styles.amountText}
-                          content={displayCorrectDenomination({
-                            amount: formattedAmountOut,
-                            fiatStats,
-                            masterInfoObject: {
-                              ...masterInfoObject,
-                              userBalanceDenomination: isBtcToUsdSwap
-                                ? 'fiat'
-                                : 'sats',
-                            },
-                            convertAmount: !isBtcToUsdSwap,
-                            forceCurrency: 'USD',
-                          })}
-                        />
-                        <ThemeText
-                          styles={styles.transactionSubtext}
-                          content={`${APPROXIMATE_SYMBOL}${displayCorrectDenomination(
-                            {
-                              amount: price,
-                              fiatStats,
-                              masterInfoObject: {
-                                ...masterInfoObject,
-                                userBalanceDenomination: 'fiat',
-                              },
-                              convertAmount: false,
-                              forceCurrency: 'USD',
-                            },
-                          )}`}
-                        />
-                      </View>
-                    </View>
-                  );
-                }}
-                ListEmptyComponent={
-                  <NoContentSceen
-                    iconName="ArrowUpDown"
-                    titleText={t(
-                      'screens.inAccount.swapHistory.noHistoryTitle',
-                    )}
-                    subTitleText={t(
-                      'screens.inAccount.swapHistory.noHistoryDesc',
-                    )}
-                  />
-                }
-                ListFooterComponent={
-                  swapHistory.swaps.length < swapHistory.totalCount ? (
-                    <View style={styles.footerContainer}>
-                      <CustomButton
-                        useLoading={isLoadingHistory}
-                        textContent={t('constants.loadMore')}
-                        disabled={isLoadingHistory}
-                        actionFunction={loadMoreHistory}
-                      />
-                    </View>
-                  ) : null
-                }
-                contentContainerStyle={
-                  swapHistory.totalCount === 0
-                    ? styles.emptyListContainer
-                    : styles.historyList
-                }
-                showsVerticalScrollIndicator={false}
-              />
-            )}
-          </View>
-        )}
-
-        {/* ── Step 2: Amount Input ────────────────────────────────────── */}
-        {currentStep === 'amountInput' && (
-          <>
-            <View style={styles.stepContent}>
-              <ScrollView
-                contentContainerStyle={{ paddingBottom: 20 }}
-                showsVerticalScrollIndicator={false}
-              >
-                {/* Amount display card — from row + divider + to row */}
-                <View
-                  style={[
-                    styles.amountDisplayCard,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? backgroundColor
-                          : backgroundOffset,
-                    },
-                  ]}
-                >
-                  {/* From row */}
-                  <TouchableOpacity
-                    style={[
-                      styles.amountRow,
-                      {
-                        opacity:
-                          lastEditedField === 'from' ? 1 : HIDDEN_OPACITY,
-                      },
-                    ]}
-                    onPress={() => handleInputPress('from')}
-                    activeOpacity={0.7}
-                  >
-                    <View
-                      style={[
-                        styles.amountRowIcon,
-                        {
-                          backgroundColor:
-                            theme && darkModeType
-                              ? backgroundOffset
-                              : fromAsset === 'BTC'
-                              ? COLORS.bitcoinOrange
-                              : COLORS.dollarGreen,
-                        },
-                      ]}
-                    >
-                      {fromAsset === 'BTC' ? (
-                        <ThemeImage
-                          styles={{ width: 18, height: 18 }}
-                          lightModeIcon={ICONS.bitcoinIcon}
-                          darkModeIcon={ICONS.bitcoinIcon}
-                          lightsOutIcon={ICONS.bitcoinIcon}
-                        />
-                      ) : (
-                        <ThemeImage
-                          styles={{ width: 18, height: 18 }}
-                          lightModeIcon={ICONS.dollarIcon}
-                          darkModeIcon={ICONS.dollarIcon}
-                          lightsOutIcon={ICONS.dollarIcon}
-                        />
-                      )}
-                    </View>
-                    <Animated.Text
-                      style={[
-                        styles.amountRowText,
-                        {
-                          color: theme
-                            ? COLORS.darkModeText
-                            : COLORS.lightModeText,
-                        },
-                        fromAmountAnimatedStyle,
-                      ]}
-                    >
-                      {displayCorrectDenomination({
-                        amount: fromAmount || 0,
-                        masterInfoObject: {
-                          ...masterInfoObject,
-                          userBalanceDenomination:
-                            fromAsset === 'BTC' ? 'sats' : 'fiat',
-                        },
-                        fiatStats,
-                        convertAmount: fromAsset === 'BTC',
-                        forceCurrency: 'USD',
-                      })}
-                    </Animated.Text>
-                    <ThemeText
-                      styles={styles.amountRowCurrency}
-                      content={fromAssetLabel}
-                    />
-                  </TouchableOpacity>
-
+                return (
                   <View
                     style={[
-                      styles.amountRowDivider,
+                      styles.transactionRow,
                       {
                         backgroundColor:
                           theme && darkModeType
-                            ? backgroundOffset
-                            : backgroundColor,
+                            ? backgroundColor
+                            : backgroundOffset,
                       },
                     ]}
-                  />
-
-                  {/* To row */}
-                  <TouchableOpacity
-                    style={[
-                      styles.amountRow,
-                      {
-                        opacity: lastEditedField === 'to' ? 1 : HIDDEN_OPACITY,
-                      },
-                    ]}
-                    onPress={() => handleInputPress('to')}
-                    activeOpacity={0.7}
                   >
                     <View
                       style={[
-                        styles.amountRowIcon,
+                        styles.iconContainer,
                         {
                           backgroundColor:
                             theme && darkModeType
                               ? backgroundOffset
-                              : toAsset === 'BTC'
+                              : isBtcToUsdSwap
                               ? COLORS.bitcoinOrange
                               : COLORS.dollarGreen,
-                        },
-                      ]}
-                    >
-                      {toAsset === 'BTC' ? (
-                        <ThemeImage
-                          styles={{ width: 18, height: 18 }}
-                          lightModeIcon={ICONS.bitcoinIcon}
-                          darkModeIcon={ICONS.bitcoinIcon}
-                          lightsOutIcon={ICONS.bitcoinIcon}
-                        />
-                      ) : (
-                        <ThemeImage
-                          styles={{ width: 18, height: 18 }}
-                          lightModeIcon={ICONS.dollarIcon}
-                          darkModeIcon={ICONS.dollarIcon}
-                          lightsOutIcon={ICONS.dollarIcon}
-                        />
-                      )}
-                    </View>
-                    {isSimulating ? (
-                      <FullLoadingScreen
-                        showText={false}
-                        containerStyles={{ flex: 0, marginRight: 'auto' }}
-                        size="small"
-                      />
-                    ) : (
-                      <Animated.Text
-                        style={[
-                          styles.amountRowText,
-                          {
-                            color: theme
-                              ? COLORS.darkModeText
-                              : COLORS.lightModeText,
-                          },
-                          toAmountAnimatedStyle,
-                        ]}
-                      >
-                        {`${APPROXIMATE_SYMBOL}${displayCorrectDenomination({
-                          amount: toAmount || 0,
-                          masterInfoObject: {
-                            ...masterInfoObject,
-                            userBalanceDenomination:
-                              toAsset === 'BTC' ? 'sats' : 'fiat',
-                          },
-                          fiatStats,
-                          convertAmount: toAsset === 'BTC',
-                          forceCurrency: 'USD',
-                        })}`}
-                      </Animated.Text>
-                    )}
-                    <ThemeText
-                      styles={styles.amountRowCurrency}
-                      content={toAssetLabel}
-                    />
-                  </TouchableOpacity>
-                </View>
 
-                {/* Quick-select % pills */}
-                <View style={styles.pillRow}>
-                  {[
-                    { label: '25%', value: '25', pct: 0.25 },
-                    { label: '50%', value: '50', pct: 0.5 },
-                    { label: '75%', value: '75', pct: 0.75 },
-                    { label: '100%', value: '100', pct: 1 },
-                  ].map(btn => (
-                    <TouchableOpacity
-                      key={btn.value}
-                      style={[
-                        styles.pill,
-                        {
-                          backgroundColor:
-                            activePercentage === btn.value
-                              ? theme && darkModeType
-                                ? COLORS.darkModeText
-                                : COLORS.primary
-                              : theme && darkModeType
+                          width: 42,
+                          height: 42,
+                          borderRadius: 26,
+                          borderWidth: 2,
+                          borderColor:
+                            theme && darkModeType
                               ? backgroundColor
                               : backgroundOffset,
+                          zIndex: 99,
+                          marginRight: -5,
                         },
                       ]}
-                      onPress={() => {
-                        isPillPressRef.current = true;
-                        setActivePercentage(btn.value);
-                        setPercentage(btn.pct);
-                      }}
-                      activeOpacity={0.7}
-                      disabled={isSwapping || isLoadingPool}
                     >
-                      <ThemeText
-                        styles={[
-                          styles.pillText,
-                          {
-                            color:
-                              activePercentage === btn.value
-                                ? theme && darkModeType
-                                  ? COLORS.lightModeText
-                                  : COLORS.darkModeText
-                                : textColor,
-                          },
-                        ]}
-                        content={btn.label}
+                      <ThemeImage
+                        styles={{ width: 20, height: 20 }}
+                        lightModeIcon={
+                          isBtcToUsdSwap ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                        }
+                        darkModeIcon={
+                          isBtcToUsdSwap ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                        }
+                        lightsOutIcon={
+                          isBtcToUsdSwap ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                        }
                       />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </ScrollView>
-
-              <View style={{ marginTop: 'auto' }} />
-
-              <HandleKeyboardRender
-                lastEditedField={lastEditedField}
-                fromAsset={fromAsset}
-                toAsset={toAsset}
-                handleKeyboardInput={handleKeyboardInput}
-                fromAmount={fromAmount}
-                toAmount={toAmount}
-              />
-
-              <CustomButton
-                buttonStyles={{
-                  ...CENTER,
-                  opacity: canProceed ? 1 : HIDDEN_OPACITY,
-                }}
-                disabled={isSwapping || isLoadingPool || isSimulating}
-                useLoading={isSwapping || isLoadingPool || isSimulating}
-                textContent={
-                  fromAmount ? t('constants.review') : t('constants.back')
-                }
-                actionFunction={executeSwapAction}
-              />
-              {/* <ThemeText
-                styles={styles.disclaimer}
-                content={t('screens.inAccount.swapsPage.swapDisclaimer')}
-              /> */}
-            </View>
-          </>
-        )}
-
-        {/* ── Step 3: Review ──────────────────────────────────────────── */}
-        {currentStep === 'review' && (
-          <>
-            <ScrollView
+                    </View>
+                    <View
+                      style={[
+                        styles.iconContainer,
+                        {
+                          backgroundColor:
+                            theme && darkModeType
+                              ? backgroundOffset
+                              : isBtcToUsdSwap
+                              ? COLORS.dollarGreen
+                              : COLORS.bitcoinOrange,
+                          marginRight: 5,
+                        },
+                      ]}
+                    >
+                      <ThemeImage
+                        styles={{ width: 20, height: 20 }}
+                        lightModeIcon={
+                          isBtcToUsdSwap ? ICONS.dollarIcon : ICONS.bitcoinIcon
+                        }
+                        darkModeIcon={
+                          isBtcToUsdSwap ? ICONS.dollarIcon : ICONS.bitcoinIcon
+                        }
+                        lightsOutIcon={
+                          isBtcToUsdSwap ? ICONS.dollarIcon : ICONS.bitcoinIcon
+                        }
+                      />
+                    </View>
+                    <View style={styles.transactionContent}>
+                      <ThemeText
+                        styles={styles.transactionTitle}
+                        content={
+                          isBtcToUsdSwap
+                            ? t(
+                                'screens.inAccount.swapsPage.swapDirection_btcusd',
+                              )
+                            : t(
+                                'screens.inAccount.swapsPage.swapDirection_usdbtc',
+                              )
+                        }
+                      />
+                      <ThemeText
+                        styles={styles.transactionSubtext}
+                        content={date}
+                      />
+                    </View>
+                    <View style={styles.amountContainer}>
+                      <ThemeText
+                        styles={styles.amountText}
+                        content={displayCorrectDenomination({
+                          amount: formattedAmountOut,
+                          fiatStats,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination: isBtcToUsdSwap
+                              ? 'fiat'
+                              : 'sats',
+                          },
+                          convertAmount: !isBtcToUsdSwap,
+                          forceCurrency: 'USD',
+                        })}
+                      />
+                      <ThemeText
+                        styles={styles.transactionSubtext}
+                        content={`${APPROXIMATE_SYMBOL}${displayCorrectDenomination(
+                          {
+                            amount: price,
+                            fiatStats,
+                            masterInfoObject: {
+                              ...masterInfoObject,
+                              userBalanceDenomination: 'fiat',
+                            },
+                            convertAmount: false,
+                            forceCurrency: 'USD',
+                          },
+                        )}`}
+                      />
+                    </View>
+                  </View>
+                );
+              }}
+              ListEmptyComponent={
+                <NoContentSceen
+                  iconName="ArrowUpDown"
+                  titleText={t('screens.inAccount.swapHistory.noHistoryTitle')}
+                  subTitleText={t(
+                    'screens.inAccount.swapHistory.noHistoryDesc',
+                  )}
+                />
+              }
+              ListFooterComponent={
+                swapHistory.swaps.length < swapHistory.totalCount ? (
+                  <View style={styles.footerContainer}>
+                    <CustomButton
+                      useLoading={isLoadingHistory}
+                      textContent={t('constants.loadMore')}
+                      disabled={isLoadingHistory}
+                      actionFunction={loadMoreHistory}
+                    />
+                  </View>
+                ) : null
+              }
+              contentContainerStyle={
+                swapHistory.totalCount === 0
+                  ? styles.emptyListContainer
+                  : styles.historyList
+              }
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.reviewScroll}
+            />
+          )}
+        </View>
+      </Animated.View>
+
+      {/* ── Step 2: Amount Input ────────────────────────────────────── */}
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepTouchpoint,
+          stepBackgroundStyle,
+          amountAnimatedStyle,
+        ]}
+        pointerEvents={currentStep === 'amountInput' ? 'auto' : 'none'}
+      >
+        <View style={styles.stepContent}>
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Amount display card — from row + divider + to row */}
+            <View
+              style={[
+                styles.amountDisplayCard,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
             >
-              <View style={[styles.cardContainer, { marginBottom: 20 }]}>
-                <View
-                  style={[
-                    styles.card,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? backgroundColor
-                          : backgroundOffset,
-                    },
-                  ]}
-                >
-                  <View style={[styles.cardHeader, { marginBottom: 5 }]}>
-                    <ThemeText
-                      styles={styles.label}
-                      content={t(
-                        'screens.inAccount.swapsPage.yourAreConverting',
-                      )}
-                    />
-                  </View>
-                  <View style={styles.assetRow}>
-                    <ThemeText
-                      styles={[styles.reviewAmount, { fontSize: SIZES.large }]}
-                      content={displayCorrectDenomination({
-                        amount: fromAmount || 0,
-                        masterInfoObject: {
-                          ...masterInfoObject,
-                          userBalanceDenomination:
-                            fromAsset === 'BTC' ? 'sats' : 'fiat',
-                        },
-                        fiatStats,
-                        convertAmount: fromAsset === 'BTC',
-                        forceCurrency: 'USD',
-                      })}
-                    />
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={[
-                    styles.swapButton,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
-                    },
-                  ]}
-                  activeOpacity={1}
-                >
-                  <ThemeIcon
-                    size={22}
-                    iconName={'ArrowDownUp'}
-                    styles={{
-                      color:
-                        theme && darkModeType
-                          ? COLORS.lightModeText
-                          : COLORS.darkModeText,
-                    }}
-                  />
-                </TouchableOpacity>
-
-                <View
-                  style={[
-                    styles.card,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? backgroundColor
-                          : backgroundOffset,
-                    },
-                  ]}
-                >
-                  <View style={[styles.cardHeader, { marginBottom: 5 }]}>
-                    <ThemeText
-                      styles={styles.label}
-                      content={t('screens.inAccount.swapsPage.youWillReceive')}
-                    />
-                  </View>
-                  <View style={styles.assetRow}>
-                    <ThemeText
-                      styles={[styles.reviewAmount, { fontSize: SIZES.large }]}
-                      content={displayCorrectDenomination({
-                        amount: toAmount || 0,
-                        masterInfoObject: {
-                          ...masterInfoObject,
-                          userBalanceDenomination:
-                            toAsset === 'BTC' ? 'sats' : 'fiat',
-                        },
-                        fiatStats,
-                        convertAmount: toAsset === 'BTC',
-                        forceCurrency: 'USD',
-                      })}
-                    />
-                  </View>
-                </View>
-              </View>
-
-              {/* Rate card */}
-              <View
+              {/* From row */}
+              <TouchableOpacity
                 style={[
-                  styles.card,
+                  styles.amountRow,
                   {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                    marginBottom: 20,
+                    opacity: lastEditedField === 'from' ? 1 : HIDDEN_OPACITY,
                   },
                 ]}
+                onPress={() => handleInputPress('from')}
+                activeOpacity={0.7}
               >
-                <View style={styles.reviewSection}>
-                  <ThemeText
-                    styles={[styles.reviewLabel, { opacity: 0.6 }]}
-                    content={t('screens.inAccount.swapsPage.exchangeRate')}
-                  />
-                  <ThemeText
-                    styles={styles.reviewAmount}
-                    content={reviewExchangeRate}
-                  />
-                </View>
                 <View
-                  style={{
-                    width: '100%',
-                    height: 1,
+                  style={[
+                    styles.amountRowIcon,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? backgroundOffset
+                          : fromAsset === 'BTC'
+                          ? COLORS.bitcoinOrange
+                          : COLORS.dollarGreen,
+                    },
+                  ]}
+                >
+                  {fromAsset === 'BTC' ? (
+                    <ThemeImage
+                      styles={{ width: 18, height: 18 }}
+                      lightModeIcon={ICONS.bitcoinIcon}
+                      darkModeIcon={ICONS.bitcoinIcon}
+                      lightsOutIcon={ICONS.bitcoinIcon}
+                    />
+                  ) : (
+                    <ThemeImage
+                      styles={{ width: 18, height: 18 }}
+                      lightModeIcon={ICONS.dollarIcon}
+                      darkModeIcon={ICONS.dollarIcon}
+                      lightsOutIcon={ICONS.dollarIcon}
+                    />
+                  )}
+                </View>
+                <Animated.Text
+                  style={[
+                    styles.amountRowText,
+                    {
+                      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                    },
+                    fromAmountAnimatedStyle,
+                  ]}
+                >
+                  {displayCorrectDenomination({
+                    amount: fromAmount || 0,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination:
+                        fromAsset === 'BTC' ? 'sats' : 'fiat',
+                    },
+                    fiatStats,
+                    convertAmount: fromAsset === 'BTC',
+                    forceCurrency: 'USD',
+                  })}
+                </Animated.Text>
+                <ThemeText
+                  styles={styles.amountRowCurrency}
+                  content={fromAssetLabel}
+                />
+              </TouchableOpacity>
+
+              <View
+                style={[
+                  styles.amountRowDivider,
+                  {
                     backgroundColor:
                       theme && darkModeType
                         ? backgroundOffset
                         : backgroundColor,
-                    marginVertical: 10,
-                  }}
-                />
-                <View style={styles.reviewSection}>
-                  <ThemeText
-                    styles={[styles.reviewLabel, { opacity: 0.6 }]}
-                    content={t('screens.inAccount.swapsPage.bitcoinPrice')}
-                  />
-                  <ThemeText
-                    styles={styles.reviewAmount}
-                    content={`${APPROXIMATE_SYMBOL} ${reviewFormattedBitcoinPrice}`}
-                  />
-                </View>
-              </View>
-
-              {/* Fee card */}
-              <View
-                style={[
-                  styles.card,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                    marginBottom: 20,
                   },
                 ]}
-              >
-                <View style={styles.reviewSection}>
-                  <ThemeText
-                    styles={[styles.reviewLabel, { opacity: 0.6 }]}
-                    content={t('screens.inAccount.swapsPage.swapFee')}
-                  />
-                  <ThemeText
-                    styles={styles.reviewAmount}
-                    content={`${APPROXIMATE_SYMBOL} ${reviewFormattedFee}`}
-                  />
-                </View>
-              </View>
+              />
 
-              {/* Slippage card */}
-              <View
+              {/* To row */}
+              <TouchableOpacity
                 style={[
-                  styles.card,
+                  styles.amountRow,
                   {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                    marginBottom: 'auto',
+                    opacity: lastEditedField === 'to' ? 1 : HIDDEN_OPACITY,
                   },
                 ]}
+                onPress={() => handleInputPress('to')}
+                activeOpacity={0.7}
               >
-                <View style={styles.reviewSection}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      navigate.navigate('InformationPopup', {
-                        textContent: t(
-                          'screens.inAccount.swapsPage.slippageDesc',
-                        ),
-                        buttonText: t('constants.iunderstand'),
-                      });
-                    }}
-                    style={styles.slippageInfoContainer}
-                  >
-                    <ThemeText
-                      styles={[styles.reviewLabel, { opacity: 0.6 }]}
-                      content={t('screens.inAccount.swapsPage.slippage')}
-                    />
-                    <ThemeIcon
-                      size={20}
-                      styles={{ marginLeft: 5 }}
-                      iconName={'Info'}
-                    />
-                  </TouchableOpacity>
-                  <DropdownMenu
-                    placeholder={t('screens.inAccount.swapsPage.auto')}
-                    options={SLIPPAGE_DROPDOWN_OPTIONS}
-                    selectedValue={
-                      slippagePercent ? `${slippagePercent}%` : undefined
-                    }
-                    globalContainerStyles={{ width: 'unset', flexShrink: 1 }}
-                    onSelect={handleDropdownToggle}
-                    showVerticalArrowsAbsolute={true}
-                    customButtonStyles={{
-                      width: 'unset',
-                      minWidth: 'unset',
-                      flex: 0,
-                      marginLeft: 'auto',
+                <View
+                  style={[
+                    styles.amountRowIcon,
+                    {
                       backgroundColor:
                         theme && darkModeType
                           ? backgroundOffset
-                          : theme
-                          ? backgroundColor
-                          : COLORS.darkModeText,
-                    }}
-                    showClearIcon={false}
-                  />
+                          : toAsset === 'BTC'
+                          ? COLORS.bitcoinOrange
+                          : COLORS.dollarGreen,
+                    },
+                  ]}
+                >
+                  {toAsset === 'BTC' ? (
+                    <ThemeImage
+                      styles={{ width: 18, height: 18 }}
+                      lightModeIcon={ICONS.bitcoinIcon}
+                      darkModeIcon={ICONS.bitcoinIcon}
+                      lightsOutIcon={ICONS.bitcoinIcon}
+                    />
+                  ) : (
+                    <ThemeImage
+                      styles={{ width: 18, height: 18 }}
+                      lightModeIcon={ICONS.dollarIcon}
+                      darkModeIcon={ICONS.dollarIcon}
+                      lightsOutIcon={ICONS.dollarIcon}
+                    />
+                  )}
                 </View>
-              </View>
-            </ScrollView>
+                {isSimulating ? (
+                  <FullLoadingScreen
+                    showText={false}
+                    containerStyles={{ flex: 0, marginRight: 'auto' }}
+                    size="small"
+                  />
+                ) : (
+                  <Animated.Text
+                    style={[
+                      styles.amountRowText,
+                      {
+                        color: theme
+                          ? COLORS.darkModeText
+                          : COLORS.lightModeText,
+                      },
+                      toAmountAnimatedStyle,
+                    ]}
+                  >
+                    {`${APPROXIMATE_SYMBOL}${displayCorrectDenomination({
+                      amount: toAmount || 0,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination:
+                          toAsset === 'BTC' ? 'sats' : 'fiat',
+                      },
+                      fiatStats,
+                      convertAmount: toAsset === 'BTC',
+                      forceCurrency: 'USD',
+                    })}`}
+                  </Animated.Text>
+                )}
+                <ThemeText
+                  styles={styles.amountRowCurrency}
+                  content={toAssetLabel}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Quick-select % pills */}
+            <View style={styles.pillRow}>
+              {[
+                { label: '25%', value: '25', pct: 0.25 },
+                { label: '50%', value: '50', pct: 0.5 },
+                { label: '75%', value: '75', pct: 0.75 },
+                { label: '100%', value: '100', pct: 1 },
+              ].map(btn => (
+                <TouchableOpacity
+                  key={btn.value}
+                  style={[
+                    styles.pill,
+                    {
+                      backgroundColor:
+                        activePercentage === btn.value
+                          ? theme && darkModeType
+                            ? COLORS.darkModeText
+                            : COLORS.primary
+                          : theme && darkModeType
+                          ? backgroundColor
+                          : backgroundOffset,
+                    },
+                  ]}
+                  onPress={() => {
+                    isPillPressRef.current = true;
+                    setActivePercentage(btn.value);
+                    setPercentage(btn.pct);
+                  }}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ThemeText
+                    styles={[
+                      styles.pillText,
+                      {
+                        color:
+                          activePercentage === btn.value
+                            ? theme && darkModeType
+                              ? COLORS.lightModeText
+                              : COLORS.darkModeText
+                            : textColor,
+                      },
+                    ]}
+                    content={btn.label}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+
+          <View style={{ marginTop: 'auto' }} />
+
+          {currentStep === 'amountInput' && (
+            <HandleKeyboardRender
+              lastEditedField={lastEditedField}
+              fromAsset={fromAsset}
+              toAsset={toAsset}
+              handleKeyboardInput={handleKeyboardInput}
+              fromAmount={fromAmount}
+              toAmount={toAmount}
+            />
+          )}
+
+          <CustomButton
+            buttonStyles={{
+              ...CENTER,
+              opacity: canProceed ? 1 : HIDDEN_OPACITY,
+            }}
+            disabled={isSwapping || isLoadingPool || isSimulating}
+            useLoading={isSwapping || isLoadingPool || isSimulating}
+            textContent={
+              fromAmount ? t('constants.review') : t('constants.back')
+            }
+            actionFunction={executeSwapAction}
+          />
+          {/* <ThemeText
+                styles={styles.disclaimer}
+                content={t('screens.inAccount.swapsPage.swapDisclaimer')}
+              /> */}
+        </View>
+      </Animated.View>
+
+      {/* ── Step 3: Review ──────────────────────────────────────────── */}
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepTouchpoint,
+          stepBackgroundStyle,
+          reviewAnimatedStyle,
+        ]}
+        pointerEvents={currentStep === 'review' ? 'auto' : 'none'}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.reviewScroll}
+        >
+          {/* From → To asset logos */}
+          <View style={styles.reviewAssetRow}>
             <View
-              {...containerProps}
               style={[
-                styles.buttonRow,
-                shouldStack ? styles.containerStacked : styles.containerRow,
+                styles.reviewAssetCircle,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? backgroundColor
+                      : fromAsset === 'BTC'
+                      ? COLORS.bitcoinOrange
+                      : COLORS.dollarGreen,
+                },
               ]}
             >
-              <CustomButton
-                actionFunction={() => navigateToStep('amountInput', 'backward')}
-                buttonStyles={[
-                  {
-                    opacity: isSwapping ? HIDDEN_OPACITY : 1,
-                  },
-                  shouldStack ? styles.buttonStacked : styles.buttonColumn,
-                ]}
-                enableElipsis={false}
-                {...getLabelProps(0)}
-                textContent={backLabel}
-                disabled={isSwapping}
-              />
-
-              <CustomButton
-                useLoading={isSwapping}
-                buttonStyles={[
-                  shouldStack ? styles.buttonStacked : styles.buttonColumn,
-                ]}
-                {...getLabelProps(1)}
-                enableElipsis={false}
-                actionFunction={handleAcceptReview}
-                textContent={confirmLabel}
+              <ThemeImage
+                styles={styles.reviewAssetIcon}
+                lightModeIcon={
+                  fromAsset === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                }
+                darkModeIcon={
+                  fromAsset === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                }
+                lightsOutIcon={
+                  fromAsset === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                }
               />
             </View>
-            <ThemeText
-              styles={styles.disclaimer}
-              content={t('screens.inAccount.swapsPage.swapDisclaimer')}
-            />
-          </>
-        )}
+            <ThemeIcon styles={{ opacity: 0.7 }} iconName={'ArrowRight'} />
+            <View
+              style={[
+                styles.reviewAssetCircle,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? backgroundColor
+                      : toAsset === 'BTC'
+                      ? COLORS.bitcoinOrange
+                      : COLORS.dollarGreen,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={styles.reviewAssetIcon}
+                lightModeIcon={
+                  toAsset === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                }
+                darkModeIcon={
+                  toAsset === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                }
+                lightsOutIcon={
+                  toAsset === 'BTC' ? ICONS.bitcoinIcon : ICONS.dollarIcon
+                }
+              />
+            </View>
+          </View>
 
-        {/* ── Step 4: Confirmation ────────────────────────────────────── */}
-        {currentStep === 'confirmation' && (
-          <>
-            <View style={[styles.stepContent, styles.confirmContainer]}>
-              <LottieView
-                source={confirmAnimation}
-                loop={false}
-                autoPlay={true}
-                style={{
-                  width: 100,
-                  height: 100,
-                }}
+          {/* Receiving amount — focal element */}
+          <ThemeText
+            styles={styles.reviewReceiveLabel}
+            content={t('screens.inAccount.swapsPage.youWillReceive')}
+          />
+          <ThemeText
+            styles={styles.reviewReceiveAmount}
+            content={displayCorrectDenomination({
+              amount: toAmount || 0,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: toAsset === 'BTC' ? 'sats' : 'fiat',
+              },
+              fiatStats,
+              convertAmount: toAsset === 'BTC',
+              forceCurrency: 'USD',
+            })}
+          />
+
+          {/* Details card */}
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+          >
+            <View style={styles.reviewSection}>
+              <ThemeText
+                styles={[styles.reviewLabel, { opacity: 0.6 }]}
+                content={t('screens.inAccount.swapsPage.bitcoinPrice')}
               />
               <ThemeText
-                styles={{ fontSize: SIZES.xLarge, marginBottom: 8 }}
-                content={t('screens.inAccount.swapsPage.swapConfimred')}
+                styles={styles.reviewAmount}
+                content={`${APPROXIMATE_SYMBOL} ${reviewFormattedBitcoinPrice}`}
               />
-              <View style={styles.confirmButtons}>
-                <CustomButton
-                  buttonStyles={{
-                    width: INSET_WINDOW_WIDTH,
-                    backgroundColor: theme
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                    ...CENTER,
-                  }}
-                  textStyles={{
-                    color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-                  }}
-                  actionFunction={handleBackPressFunction}
-                  textContent={t('constants.done')}
-                />
-                <CustomButton
-                  buttonStyles={{
-                    width: INSET_WINDOW_WIDTH,
-                    backgroundColor: 'transparent',
-                    ...CENTER,
-                  }}
-                  textStyles={{ color: textColor }}
-                  actionFunction={() => {
-                    clearPageStates();
-                    navigateToStep('routeSelection', 'backward');
-                  }}
-                  textContent={t('screens.inAccount.swapsPage.newSwap')}
-                />
-              </View>
             </View>
-          </>
-        )}
+            <View
+              style={[
+                styles.reviewDivider,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                },
+              ]}
+            />
+            <View style={styles.reviewSection}>
+              <ThemeText
+                styles={[styles.reviewLabel, { opacity: 0.6 }]}
+                content={t('screens.inAccount.swapsPage.swapFee')}
+              />
+              <ThemeText
+                styles={styles.reviewAmount}
+                content={`${APPROXIMATE_SYMBOL} ${reviewFormattedFee}`}
+              />
+            </View>
+          </View>
+        </ScrollView>
+        <View
+          {...containerProps}
+          style={[
+            styles.buttonRow,
+            shouldStack ? styles.containerStacked : styles.containerRow,
+          ]}
+        >
+          <CustomButton
+            useLoading={isSwapping}
+            actionFunction={handleAcceptReview}
+            textContent={confirmLabel}
+          />
+        </View>
+        <ThemeText
+          styles={styles.disclaimer}
+          content={t('screens.inAccount.swapsPage.swapDisclaimer')}
+        />
+      </Animated.View>
+
+      {/* ── Step 4: Confirmation ────────────────────────────────────── */}
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.stepTouchpoint,
+          stepBackgroundStyle,
+          confirmationAnimatedStyle,
+        ]}
+        pointerEvents={currentStep === 'confirmation' ? 'auto' : 'none'}
+      >
+        <View style={[styles.stepContent, styles.confirmContainer]}>
+          {currentStep === 'confirmation' && (
+            <LottieView
+              source={confirmAnimation}
+              loop={false}
+              autoPlay={true}
+              style={{
+                width: 100,
+                height: 100,
+              }}
+            />
+          )}
+          <ThemeText
+            styles={{ fontSize: SIZES.xLarge, marginBottom: 8 }}
+            content={t('screens.inAccount.swapsPage.swapConfimred')}
+          />
+          <View style={styles.confirmButtons}>
+            <CustomButton
+              buttonStyles={{
+                width: INSET_WINDOW_WIDTH,
+                backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+                ...CENTER,
+              }}
+              textStyles={{
+                color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+              }}
+              actionFunction={handleBackPressFunction}
+              textContent={t('constants.done')}
+            />
+            <CustomButton
+              buttonStyles={{
+                width: INSET_WINDOW_WIDTH,
+                backgroundColor: 'transparent',
+                ...CENTER,
+              }}
+              textStyles={{ color: textColor }}
+              actionFunction={() => {
+                clearPageStates();
+                navigateToStep('routeSelection', 'backward');
+              }}
+              textContent={t('screens.inAccount.swapsPage.newSwap')}
+            />
+          </View>
+        </View>
       </Animated.View>
     </View>
   );
@@ -2242,7 +2221,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  stepWrapper: {
+  stepTouchpoint: {
     flex: 1,
   },
   stepContent: {
@@ -2282,22 +2261,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 15,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  label: {
-    fontSize: SIZES.smedium,
-    opacity: HIDDEN_OPACITY,
-    includeFontPadding: false,
-  },
-  assetRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   assetInfo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2321,21 +2284,6 @@ const styles = StyleSheet.create({
     minWidth: 100,
     includeFontPadding: false,
   },
-  cardContainer: {
-    gap: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  swapButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 26,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    position: 'absolute',
-    zIndex: 10,
-  },
   historyButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2352,16 +2300,6 @@ const styles = StyleSheet.create({
   historyContainer: {
     paddingHorizontal: 0,
     paddingTop: 0,
-  },
-  historyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    // paddingTop: 16,
-    paddingBottom: 16,
-  },
-  backButton: {
-    marginRight: 8,
   },
   historyTitle: {
     fontSize: SIZES.large,
@@ -2551,6 +2489,42 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 16,
     // paddingTop: 16,
+  },
+  reviewAssetRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 24,
+  },
+  reviewAssetCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reviewAssetIcon: {
+    width: 35,
+    height: 35,
+  },
+  reviewReceiveLabel: {
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    includeFontPadding: false,
+    marginBottom: 6,
+  },
+  reviewReceiveAmount: {
+    fontSize: SIZES.xxLarge,
+    textAlign: 'center',
+    includeFontPadding: false,
+    marginBottom: 24,
+  },
+  reviewDivider: {
+    width: '100%',
+    height: 1,
+    marginVertical: 12,
   },
   reviewLabel: {
     fontSize: SIZES.smedium,

@@ -151,11 +151,23 @@ function FeeTable({ masterInfoObject }) {
     //   }),
     // },
     {
-      transactionType: t('settings.feeInformation.stablecoinType'),
+      transactionType: t('settings.feeInformation.sparkSwapType'),
       fee: t('settings.feeInformation.swapsFee', {
         poolFee: formatBalanceAmount(0.05, false, masterInfoObject),
         blitzFee: 0.5,
       }),
+    },
+    {
+      transactionType: t('settings.feeInformation.chainSwapType'),
+      fee: t('settings.feeInformation.chainSwapFee'),
+    },
+    {
+      transactionType: t('settings.feeInformation.liquid'),
+      fee: t('settings.feeInformation.liquidFee'),
+    },
+    {
+      transactionType: t('settings.feeInformation.accumulationType'),
+      fee: t('settings.feeInformation.accumulationFee'),
     },
     {
       transactionType: t('settings.feeInformation.othersType'),
@@ -235,7 +247,7 @@ const styles = StyleSheet.create({
   dataRow: {
     flexDirection: 'row',
     paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     borderBottomWidth: 2,
     gap: 10,
   },
@@ -250,6 +262,7 @@ const styles = StyleSheet.create({
   dataCell: {
     flex: 1,
     justifyContent: 'center',
+    maxWidth: '50%',
   },
   cellText: {
     fontSize: SIZES.small,

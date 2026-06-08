@@ -31,7 +31,6 @@ import {
   INFINITY_SYMBOL,
   TOKEN_TICKER_MAX_LENGTH,
 } from '../../../../constants';
-import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import openWebBrowser from '../../../../functions/openWebBrowser';
@@ -125,13 +124,7 @@ function TokenListItem({
 
 // ─── Token Detail View ───────────────────────────────────────────────────────
 
-function TokenDetailView({
-  token,
-  tokenIdentifier,
-  onBack,
-  theme,
-  darkModeType,
-}) {
+function TokenDetailView({ token, tokenIdentifier, theme, darkModeType }) {
   const navigate = useNavigation();
   const { tokensImageCache } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -368,13 +361,6 @@ function TokenDetailView({
           content={t('screens.inAccount.lrc20TokenDataHalfModal.tokenInfo')}
         />
       </TouchableOpacity>
-
-      {/* Back button */}
-      <CustomButton
-        actionFunction={onBack}
-        buttonStyles={{ ...CENTER, marginTop: 'auto' }}
-        textContent={t('constants.back')}
-      />
     </Animated.ScrollView>
   );
 }
@@ -384,6 +370,7 @@ function TokenDetailView({
 export default function ViewAllTokensHalfModal({
   setContentHeight,
   handleBackPressFunction,
+  setBackNav,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { sparkInformation } = useSparkWallet();
@@ -413,6 +400,16 @@ export default function ViewAllTokensHalfModal({
 
   useHandleBackPressNew(customBackHandler);
 
+  // Register the chrome's back arrow while viewing a token's detail page.
+  useEffect(() => {
+    if (selectedIdentifier && selectedToken) {
+      setBackNav?.({ onPress: handleBack, title: '' });
+    } else {
+      setBackNav?.(null);
+    }
+    return () => setBackNav?.(null);
+  }, [selectedIdentifier, selectedToken, setBackNav]);
+
   useEffect(() => {
     setContentHeight(selectedIdentifier && selectedToken ? 700 : 500);
   }, [selectedIdentifier, selectedToken]);
@@ -423,7 +420,6 @@ export default function ViewAllTokensHalfModal({
         <TokenDetailView
           token={selectedToken}
           tokenIdentifier={selectedIdentifier}
-          onBack={handleBack}
           theme={theme}
           darkModeType={darkModeType}
         />
@@ -478,8 +474,8 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     fontSize: SIZES.large,
+    fontWeight: 500,
     marginBottom: 14,
-    textAlign: 'center',
   },
   tokenList: {
     flexGrow: 1,

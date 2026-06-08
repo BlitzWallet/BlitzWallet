@@ -1016,7 +1016,7 @@
       "cashAppSubtitle": "Skicka från Cash App direkt",
       "sparkAddressSubtitle": "Ta emot till din Spark-adress",
       "otherBitcoin": "Andra Bitcoin-alternativ",
-      "otherBitcoinSubtitle": "Liquid och andra metoder",
+      "otherBitcoinSubtitle": "Liquid, Rootstock och Spark",
       "lightningInvoice": "Lightning-faktura",
       "lightningInvoiceSubtitle": "Ta emot BTC eller USD direkt",
       "lightningUSDAmountRequired": "Ett belopp krävs för att skapa en Lightning-faktura i USD",
@@ -1037,8 +1037,8 @@
       "changeReceiveCurrency": "Byt mottagningsvaluta",
       "depositQRInstruction_stablecoins": "Skicka bara {{asset}} på {{chain}} till den här adressen. Du får det direkt till ditt dollarsaldo",
       "depositQRInstruction_bitcoin": "Skicka bara Bitcoin till den här adressen. Pengarna kommer efter tre bekräftelser på kedjan.",
-      "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen.",
-      "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen.",
+      "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo",
+      "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo.",
       "depositQRInstruction_spark": "Skicka bara Bitcoin eller tokens till din Spark-adress."
     },
     "payLinks": {
@@ -1812,6 +1812,13 @@
       "swapsType": "BTC <> USD-växlingar",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % poolavgift + {{blitzFee}} % Blitz-avgift",
+      "sparkSwapType": "BTC <> USDB-växlingar (Spark)",
+      "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
+      "chainSwapFee": "0,5 % Blitz-avgift + 0,1 %+ plattformsavgift",
+      "liquid": "Liquid <> BTC",
+      "liquidFee": "0,5 % Blitz-avgift + nätverksavgifter",
+      "accumulationType": "Ackumuleringsadresser",
+      "accumulationFee": "0,5 % Blitz-avgift + 0,5 % plattformsavgift",
       "othersType": "Övrigt",
       "othersFee": "Nätverksavgifter",
       "networkFeeLinkDesc": "Tryck för att se en uppdelning av Spark-nätverksavgifter"

@@ -1016,7 +1016,7 @@
       "cashAppSubtitle": "Sofort von Cash App senden",
       "sparkAddressSubtitle": "An Ihre Spark-Adresse empfangen",
       "otherBitcoin": "Weitere Bitcoin-Optionen",
-      "otherBitcoinSubtitle": "Liquid und weitere Methoden",
+      "otherBitcoinSubtitle": "Liquid, Rootstock und Spark",
       "lightningInvoice": "Lightning-Rechnung",
       "lightningInvoiceSubtitle": "BTC oder USD sofort empfangen",
       "lightningUSDAmountRequired": "Zum Erstellen einer USD-Lightning-Rechnung ist ein Betrag erforderlich",
@@ -1037,8 +1037,8 @@
       "changeReceiveCurrency": "Empfangswährung ändern",
       "depositQRInstruction_stablecoins": "Senden Sie nur {{asset}} über {{chain}} an diese Adresse. Der Betrag wird direkt Ihrem Dollar-Guthaben gutgeschrieben.",
       "depositQRInstruction_bitcoin": "Senden Sie nur Bitcoin an diese Adresse. Das Geld kommt nach drei On-Chain-Bestätigungen an.",
-      "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse.",
-      "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse.",
+      "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
+      "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_spark": "Senden Sie nur Bitcoin oder Tokens an Ihre Spark-Adresse."
     },
     "payLinks": {
@@ -1812,6 +1812,13 @@
       "swapsType": "BTC-USD-Umtausch",
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % Sparpool-Gebühr + {{blitzFee}} % Blitz-Gebühr",
+      "sparkSwapType": "BTC <> USDB-Umtausch (Spark)",
+      "chainSwapType": "BTC/USDB <> Stablecoin (Cross-Chain)",
+      "chainSwapFee": "0,5 % Blitz-Gebühr + 0,1 %+ Plattformgebühr",
+      "liquid": "Liquid <> BTC",
+      "liquidFee": "0,5 % Blitz-Gebühr + Netzwerkgebühren",
+      "accumulationType": "Akkumulationsadressen",
+      "accumulationFee": "0,5 % Blitz-Gebühr + 0,5 % Plattformgebühr",
       "othersType": "Alle anderen",
       "othersFee": "Netzwerkgebühren",
       "networkFeeLinkDesc": "Tippen, um eine Aufschlüsselung der Spark-Netzwerkgebühren zu sehen"

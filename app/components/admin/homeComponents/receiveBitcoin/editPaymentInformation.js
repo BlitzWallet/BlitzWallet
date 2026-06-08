@@ -34,13 +34,12 @@ export default function EditReceivePaymentInformation(props) {
   const fromPage = props.route.params.from;
   const receiveType = props.route.params.receiveType;
   const initialDescription = props.route.params.description || '';
-  const [paymentDescription, setPaymentDescription] =
-    useState(initialDescription);
-  const amountPrefillKeyRef = useRef(null);
+  const [paymentDescription, setPaymentDescription] = useState('');
 
   const endReceiveType = props.route.params.endReceiveType;
   const userReceiveAmount = Number(props.route.params.userReceiveAmount) || 0;
   const hasReceiveAmount = !!userReceiveAmount;
+  const hasDescription = !!initialDescription;
 
   const isUSDReceiveMode = endReceiveType === 'USD';
 
@@ -85,20 +84,6 @@ export default function EditReceivePaymentInformation(props) {
     setInputDenomination(nextDenom);
     setAmountValue(convertForToggle(amountValue, convertTextInputValue));
   };
-
-  useEffect(() => {
-    setPaymentDescription(initialDescription);
-  }, [initialDescription]);
-
-  useEffect(() => {
-    const prefillKey = `${userReceiveAmount}-${endReceiveType}`;
-    if (amountPrefillKeyRef.current === prefillKey) return;
-
-    amountPrefillKeyRef.current = prefillKey;
-    setAmountValue(
-      userReceiveAmount ? String(convertSatsToDisplay(userReceiveAmount)) : '',
-    );
-  }, [convertSatsToDisplay, endReceiveType, userReceiveAmount]);
 
   const handleSubmit = useCallback(() => {
     const sendAmount = !Number(localSatAmount) ? 0 : Number(localSatAmount);
@@ -236,7 +221,8 @@ export default function EditReceivePaymentInformation(props) {
               }}
               actionFunction={handleSubmit}
               textContent={
-                hasReceiveAmount && !localSatAmount
+                (hasReceiveAmount && !localSatAmount) ||
+                (hasDescription && !paymentDescription)
                   ? t('constants.remove')
                   : !hasReceiveAmount && !localSatAmount && !descriptionChanged
                   ? t('constants.back')
@@ -275,7 +261,6 @@ const styles = StyleSheet.create({
   descriptionInputContainer: {
     width: '90%',
     maxWidth: 350,
-    marginBottom: 10,
   },
   textInputStyles: {
     width: '100%',

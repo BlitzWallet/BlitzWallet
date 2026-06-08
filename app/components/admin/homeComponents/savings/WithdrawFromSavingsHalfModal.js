@@ -103,6 +103,7 @@ export default function WithdrawFromSavingsHalfModal({
   setContentHeight,
   handleBackPressFunction,
   selectedGoalUUID,
+  setBackNav,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -378,6 +379,20 @@ export default function WithdrawFromSavingsHalfModal({
   }, [theme, darkModeType]);
 
   useHandleBackPressNew(handleBackPress);
+
+  // Register the chrome's back arrow whenever a previous step exists.
+  useEffect(() => {
+    if (
+      step.length > 1 &&
+      currentPage !== 'loading' &&
+      currentPage !== 'success'
+    ) {
+      setBackNav?.({ onPress: handleBackPress, title: '' });
+    } else {
+      setBackNav?.(null);
+    }
+    return () => setBackNav?.(null);
+  }, [step, currentPage, handleBackPress, setBackNav]);
 
   const parsedAmount = Number(amountValue || 0);
 

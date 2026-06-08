@@ -327,7 +327,6 @@ const styles = StyleSheet.create({
   },
   warningContainer: {
     width: '100%',
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
