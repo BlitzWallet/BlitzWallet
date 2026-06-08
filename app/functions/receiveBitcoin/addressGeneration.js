@@ -1,6 +1,7 @@
 import {
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   GENERATED_BITCOIN_ADDRESSES,
+  MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
   SATSPERBITCOIN,
 } from '../../constants';
 import { breezLiquidReceivePaymentWrapper } from '../breezLiquid';
@@ -16,7 +17,6 @@ import sha256Hash from '../hash';
 import { createTokensInvoice } from '../spark';
 import {
   BTC_ASSET_ADDRESS,
-  dollarsToSats,
   simulateSwap,
   USD_ASSET_ADDRESS,
 } from '../spark/flashnet';
@@ -78,24 +78,28 @@ export async function initializeAddressProcess(wolletInfo) {
 
     // Lightning
     if (selectedRecieveOption.toLowerCase() === 'lightning') {
+      // USD receives with no requested amount use a zero-amount (amountless)
+      // invoice. The auto-swap handler decides per-payment based on the actual
+      // amount received: below the swap minimum it keeps the payment as BTC,
+      // at/above it swaps to USD. This avoids forcing a minimum $1 invoice.
+      const isZeroAmountUSD =
+        wolletInfo.endReceiveType === 'USD' && !wolletInfo.receivingAmount;
+
       const userAmount =
         wolletInfo.endReceiveType === 'BTC'
           ? wolletInfo.receivingAmount
           : Math.max(
               wolletInfo.receivingAmount,
-              wolletInfo.swapLimits?.bitcoin,
+              MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
             );
 
-      // hard coding 1,000 here so if swap limits change this becomes irrelevent
       const realAmount =
-        wolletInfo.endReceiveType === 'BTC'
+        wolletInfo.endReceiveType === 'BTC' || !isZeroAmountUSD
           ? userAmount
-          : !wolletInfo.receivingAmount
-          ? dollarsToSats(1, wolletInfo.poolInfoRef?.currentPriceAInB)
-          : userAmount;
+          : 0;
 
       const randomSats =
-        wolletInfo.endReceiveType === 'USD'
+        wolletInfo.endReceiveType === 'USD' && !isZeroAmountUSD
           ? Math.floor(Math.random() * 10) + 1
           : 0;
       const uniqueAmount = Number(realAmount) + randomSats;
@@ -145,19 +149,22 @@ export async function initializeAddressProcess(wolletInfo) {
         const [response, swapResponse] = await Promise.all([
           sparkReceivePaymentWrapper({
             paymentType: 'lightning',
-            amountSats:
-              wolletInfo.endReceiveType === 'USD'
-                ? swapAmountWithFee
-                : uniqueAmount,
+            amountSats: isZeroAmountUSD
+              ? 0
+              : wolletInfo.endReceiveType === 'USD'
+              ? swapAmountWithFee
+              : uniqueAmount,
             memo: wolletInfo.description,
             mnemoinc: wolletInfo.currentWalletMnemoinc,
             sendWebViewRequest,
             performSwaptoUSD: wolletInfo.endReceiveType === 'USD',
             expirySeconds:
-              wolletInfo.endReceiveType === 'USD' ? 600 : undefined,
+              wolletInfo.endReceiveType === 'USD' && !isZeroAmountUSD
+                ? 600
+                : undefined,
             includeSparkAddress: wolletInfo.endReceiveType !== 'USD',
           }),
-          wolletInfo.endReceiveType === 'USD'
+          wolletInfo.endReceiveType === 'USD' && !isZeroAmountUSD
             ? simulateSwap(wolletInfo.currentWalletMnemoinc, {
                 poolId: wolletInfo.poolInfoRef.lpPublicKey,
                 assetInAddress: BTC_ASSET_ADDRESS,

@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER } from '../../../../constants';
+import { CENTER, MIN_BTC_USD_AMOUNT_RECEIVEPAGE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
@@ -24,7 +24,7 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
-  const { swapLimits, swapUSDPriceDollars } = useFlashnet();
+  const { swapUSDPriceDollars } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
@@ -34,13 +34,12 @@ export default function EditReceivePaymentInformation(props) {
   const fromPage = props.route.params.from;
   const receiveType = props.route.params.receiveType;
   const initialDescription = props.route.params.description || '';
-  const [paymentDescription, setPaymentDescription] =
-    useState(initialDescription);
-  const amountPrefillKeyRef = useRef(null);
+  const [paymentDescription, setPaymentDescription] = useState('');
 
   const endReceiveType = props.route.params.endReceiveType;
   const userReceiveAmount = Number(props.route.params.userReceiveAmount) || 0;
   const hasReceiveAmount = !!userReceiveAmount;
+  const hasDescription = !!initialDescription;
 
   const isUSDReceiveMode = endReceiveType === 'USD';
 
@@ -71,7 +70,7 @@ export default function EditReceivePaymentInformation(props) {
   const cannotRequset =
     receiveType.toLowerCase() === 'lightning' &&
     endReceiveType === 'USD' &&
-    localSatAmount < swapLimits.bitcoin;
+    localSatAmount <= MIN_BTC_USD_AMOUNT_RECEIVEPAGE;
 
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);
@@ -86,20 +85,6 @@ export default function EditReceivePaymentInformation(props) {
     setAmountValue(convertForToggle(amountValue, convertTextInputValue));
   };
 
-  useEffect(() => {
-    setPaymentDescription(initialDescription);
-  }, [initialDescription]);
-
-  useEffect(() => {
-    const prefillKey = `${userReceiveAmount}-${endReceiveType}`;
-    if (amountPrefillKeyRef.current === prefillKey) return;
-
-    amountPrefillKeyRef.current = prefillKey;
-    setAmountValue(
-      userReceiveAmount ? String(convertSatsToDisplay(userReceiveAmount)) : '',
-    );
-  }, [convertSatsToDisplay, endReceiveType, userReceiveAmount]);
-
   const handleSubmit = useCallback(() => {
     const sendAmount = !Number(localSatAmount) ? 0 : Number(localSatAmount);
     crashlyticsLogReport(`Running in edit payment information submit function`);
@@ -113,7 +98,7 @@ export default function EditReceivePaymentInformation(props) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
           amount: displayCorrectDenomination({
-            amount: swapLimits.bitcoin,
+            amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
             masterInfoObject: {
               ...masterInfoObject,
               userBalanceDenomination:
@@ -151,7 +136,6 @@ export default function EditReceivePaymentInformation(props) {
     navigate,
     cannotRequset,
     masterInfoObject,
-    swapLimits,
     primaryDisplay,
     conversionFiatStats,
     fromPage,
@@ -236,7 +220,8 @@ export default function EditReceivePaymentInformation(props) {
               }}
               actionFunction={handleSubmit}
               textContent={
-                hasReceiveAmount && !localSatAmount
+                (hasReceiveAmount && !localSatAmount) ||
+                (hasDescription && !paymentDescription)
                   ? t('constants.remove')
                   : !hasReceiveAmount && !localSatAmount && !descriptionChanged
                   ? t('constants.back')
@@ -275,7 +260,6 @@ const styles = StyleSheet.create({
   descriptionInputContainer: {
     width: '90%',
     maxWidth: 350,
-    marginBottom: 10,
   },
   textInputStyles: {
     width: '100%',

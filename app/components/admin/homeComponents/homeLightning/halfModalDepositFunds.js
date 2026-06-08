@@ -320,7 +320,7 @@ export default function HalfModalDepositFunds({
             <View style={styles.scanTextContainer}>
               <ThemeText
                 styles={styles.scanButtonText}
-                content={'Other Methods'}
+                content={t('wallet.halfModal.otherBitcoin')}
               />
               <ThemeText
                 styles={styles.scanButtonSubtext}

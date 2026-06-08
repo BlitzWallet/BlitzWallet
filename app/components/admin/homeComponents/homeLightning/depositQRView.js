@@ -181,7 +181,11 @@ export default function DepositQRView({
           asset: config.sourceAsset,
           chain: capitalize(config.sourceChain),
         })
-      : t(`wallet.halfModal.depositQRInstruction_${option}`);
+      : t(
+          `wallet.halfModal.depositQRInstruction_${option}${
+            option === 'spark' && config.fromStablecoin ? '_dollars' : ''
+          }`,
+        );
 
   const address = addressState.generatedAddress || '';
   const truncatedAddress =
@@ -327,7 +331,6 @@ const styles = StyleSheet.create({
   },
   warningContainer: {
     width: '100%',
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

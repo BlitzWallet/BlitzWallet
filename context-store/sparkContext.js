@@ -1809,25 +1809,12 @@ const SparkWalletProvider = ({ children }) => {
               claimTx.transferId,
             );
 
-            let fee = 0;
-
-            if (exploraTx) {
-              fee = Math.abs(exploraTx?.amount - bitcoinTransfer.totalValue);
-            } else {
-              const savedTxDetails = (() => {
-                try {
-                  return JSON.parse(savedTx?.details ?? 'null');
-                } catch {
-                  return null;
-                }
-              })();
-              fee = Math.abs(
-                savedTxDetails?.amount - bitcoinTransfer.totalValue,
-              );
-            }
-
             let updatedTx = {};
             if (!bitcoinTransfer) {
+              // Claim succeeded but the transfer has not settled yet (or the
+              // SDK lookup failed). Keep it pending keyed by the new
+              // transferId; a later run finalizes it. bitcoinTransfer is
+              // undefined here, so it must NOT be dereferenced below.
               updatedTx = {
                 useTempId: true,
                 id: claimTx.transferId,
@@ -1837,6 +1824,22 @@ const SparkWalletProvider = ({ children }) => {
                 accountId: sparkInfoRef.current.identityPubKey,
               };
             } else {
+              let fee = 0;
+
+              if (exploraTx) {
+                fee = Math.abs(exploraTx?.amount - bitcoinTransfer.totalValue);
+              } else {
+                const savedTxDetails = (() => {
+                  try {
+                    return JSON.parse(savedTx?.details ?? 'null');
+                  } catch {
+                    return null;
+                  }
+                })();
+                fee = Math.abs(
+                  savedTxDetails?.amount - bitcoinTransfer.totalValue,
+                );
+              }
               updatedTx = {
                 useTempId: true,
                 tempId: quote.transactionId,
@@ -1862,7 +1865,7 @@ const SparkWalletProvider = ({ children }) => {
 
             // Navigate to confirm screen if we have details
             if (updatedTx.details) {
-              if (handledNavigatedTxs.current.has(updatedTx.id)) return;
+              if (handledNavigatedTxs.current.has(updatedTx.id)) continue;
               handledNavigatedTxs.current.add(updatedTx.id);
               showToast({
                 amount: updatedTx.details.amount,
