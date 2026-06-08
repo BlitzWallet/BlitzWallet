@@ -2172,6 +2172,7 @@
         "generatingInvoice": "Создание инвойса",
         "amountPlaceholder": "Любая сумма",
         "copyInvoice": "Скопировать счёт",
+        "usdSwapMinNotice": "Только платежи свыше {{amount}} будут конвертированы в доллары",
         "shareInvoice": "Поделиться счётом",
         "walletNotConnected": "Кошелёк не подключён. Повторите попытку.",
         "paylinkSaveError": "Не удалось сохранить платёжную ссылку",

@@ -5,6 +5,7 @@ import {
   COLORS,
   ICONS,
   CONTENT_KEYBOARD_OFFSET,
+  MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
 } from '../../constants';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -109,6 +110,24 @@ export default function ReceivePaymentHome(props) {
   const lnurlSuffix = endReceiveType === 'USD' ? '-d60fbd' : '-e40605';
   const lnurlAddress = `${globalContactsInformation?.myProfile?.uniqueName}${lnurlSuffix}@blitzwalletapp.com`;
 
+  const minUsdSats = Math.round(
+    Math.max(
+      MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+      dollarsToSats(1, poolInfoRef?.currentPriceAInB),
+    ),
+  );
+
+  // When a USD amount falls below the swap minimum we show the LNURL instead of
+  // prefilling a $1 invoice. The requested sats stay in the route param so
+  // toggling back to Bitcoin restores the original invoice.
+  const canUseLnurl = !isUsingAltAccount && !paymentDescription;
+  const isBelowUsdSwapMin =
+    canUseLnurl &&
+    endReceiveType === 'USD' &&
+    !!userReceiveAmount &&
+    minUsdSats > 0 &&
+    userReceiveAmount < minUsdSats;
+
   useEffect(() => {
     async function runAddressInit() {
       crashlyticsLogReport('Begining adddress initialization');
@@ -130,7 +149,7 @@ export default function ReceivePaymentHome(props) {
         endReceiveType,
       };
 
-      if (!userReceiveAmount && !isUsingAltAccount && !paymentDescription) {
+      if ((!userReceiveAmount || isBelowUsdSwapMin) && canUseLnurl) {
         setInitialSendAmount(0);
         setAddressState(prev => ({
           ...prev,
@@ -180,22 +199,14 @@ export default function ReceivePaymentHome(props) {
     requestUUID,
     endReceiveType,
     lnurlAddress,
+    minUsdSats,
   ]);
-
-  const minUsdSats = Math.round(
-    Math.max(
-      swapLimits.bitcoin || 0,
-      dollarsToSats(1, poolInfoRef?.currentPriceAInB),
-    ),
-  );
 
   const toggleReceiveAsset = target => {
     if (target === endReceiveType) return;
     if (toggleDebounceRef.current) clearTimeout(toggleDebounceRef.current);
     toggleDebounceRef.current = setTimeout(() => {
       let amount = Math.round(initialSendAmount || userReceiveAmount || 0);
-      if (amount && target === 'USD' && amount < minUsdSats)
-        amount = minUsdSats;
       navigate.setParams({
         endReceiveType: target,
         receiveAmount: amount,
@@ -207,7 +218,9 @@ export default function ReceivePaymentHome(props) {
   const { showToast } = useToast();
   const address = addressState.generatedAddress || '';
 
-  const displayedReceiveAmount = initialSendAmount || userReceiveAmount || 0;
+  const displayedReceiveAmount = isBelowUsdSwapMin
+    ? 0
+    : initialSendAmount || userReceiveAmount || 0;
 
   const isUsingLnurl =
     !displayedReceiveAmount && !isUsingAltAccount && !paymentDescription;
@@ -265,9 +278,8 @@ export default function ReceivePaymentHome(props) {
         leftImageStyles={{ width: 25, height: 25 }}
         leftImageFunction={handleShowEditPage}
       />
-      <View
-        style={{ flex: 1, ...CENTER, width: INSET_WINDOW_WIDTH, height: 500 }}
-      >
+
+      <View style={{ flex: 1, ...CENTER, width: INSET_WINDOW_WIDTH }}>
         <View style={styles.toggleContainer}>
           <BtcUsdToggle
             endReceiveType={endReceiveType}
@@ -314,6 +326,20 @@ export default function ReceivePaymentHome(props) {
             t={t}
             handleShowEditPage={handleShowEditPage}
           />
+
+          {endReceiveType === 'USD' && !displayedReceiveAmount && (
+            <ThemeText
+              styles={styles.swapMinNotice}
+              CustomNumberOfLines={2}
+              content={t('screens.inAccount.receiveBtcPage.usdSwapMinNotice', {
+                amount: displayCorrectDenomination({
+                  amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+                  masterInfoObject,
+                  fiatStats,
+                }),
+              })}
+            />
+          )}
         </ScrollView>
         <TouchableOpacity
           activeOpacity={0.8}
@@ -835,6 +861,15 @@ const styles = StyleSheet.create({
   },
   notePillText: {
     fontSize: SIZES.small,
+    includeFontPadding: false,
+  },
+  swapMinNotice: {
+    fontSize: SIZES.small,
+    opacity: 0.5,
+    textAlign: 'center',
+    marginTop: 16,
+    maxWidth: '80%',
+    alignSelf: 'center',
     includeFontPadding: false,
   },
 });

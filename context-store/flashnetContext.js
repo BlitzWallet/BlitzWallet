@@ -278,7 +278,7 @@ export function FlashnetProvider({ children }) {
         const tx = {
           id: lightningRequest.details?.finalSparkID,
           accountId: sparkInfoRef.current.identityPubKey,
-          paymentStatus: 'completed',
+          paymentStatus: 'pending',
           paymentType: 'lightning',
           details: {
             performSwaptoUSD: false,

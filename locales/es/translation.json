@@ -2171,6 +2171,7 @@
         "generatingInvoice": "Generando factura",
         "amountPlaceholder": "Cualquier monto",
         "copyInvoice": "Copiar factura",
+        "usdSwapMinNotice": "Solo los pagos superiores a {{amount}} se convertirán a dólares",
         "shareInvoice": "Compartir factura",
         "walletNotConnected": "La billetera no está conectada. Inténtalo de nuevo.",
         "paylinkSaveError": "No se pudo guardar el enlace de pago",

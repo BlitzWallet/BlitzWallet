@@ -2171,6 +2171,7 @@
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
         "copyInvoice": "Copier la facture",
+        "usdSwapMinNotice": "Seuls les paiements supérieurs à {{amount}} seront convertis en dollars",
         "shareInvoice": "Partager la facture",
         "walletNotConnected": "Portefeuille non connecté. Veuillez réessayer.",
         "paylinkSaveError": "Échec de l’enregistrement du lien de paiement",

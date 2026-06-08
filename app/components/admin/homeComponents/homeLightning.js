@@ -154,7 +154,7 @@ export default function HomeLightning({ navigation }) {
     updateHomepageScrollPosition,
     // numberOfCachedTxs
   } = useSparkWallet();
-  const { poolInfoRef } = useFlashnet();
+  const { poolInfoRef, swapLimits } = useFlashnet();
   const {
     bitcoinBalance,
     dollarBalanceSat,
@@ -298,6 +298,7 @@ export default function HomeLightning({ navigation }) {
         poolInfoRef,
         t,
         hideSmallPaymentsHomepage,
+        swapLimits,
       }) || []
     );
   }, [
@@ -313,6 +314,7 @@ export default function HomeLightning({ navigation }) {
     t,
     showTokensInformation,
     hideSmallPaymentsHomepage,
+    swapLimits.bitcoin,
   ]);
 
   const handleRefresh = useCallback(async () => {
