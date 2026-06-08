@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, ICONS, SIZES } from '../../../../constants';
+import { CENTER, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
@@ -22,7 +22,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
 import PoolCreationOverlay from '../pools/poolCreationOverlay';
@@ -32,6 +31,7 @@ import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import { useAppStatus } from '../../../../../context-store/appStatus';
+import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
 
 // ─── LNURL Banner ────────────────────────────────────────────────────────────
 
@@ -212,46 +212,15 @@ const LNURLQROverlay = ({ visible, onClose, lnurlAddress, navigate, t }) => {
 // ─── Contact Row ─────────────────────────────────────────────────────────────
 
 const ContactRow = ({
-  expandedContact,
   contact,
   cache,
   theme,
   darkModeType,
   backgroundOffset,
   backgroundColor,
-  onToggleExpand,
-  onSelectPaymentType,
-  textColor,
+  onSelectContact,
   onRowLayout,
-  t,
 }) => {
-  const isExpanded = expandedContact === contact.uuid;
-
-  const expandHeight = useSharedValue(0);
-  const chevronRotation = useSharedValue(0);
-
-  useEffect(() => {
-    expandHeight.value = withTiming(isExpanded ? 1 : 0, {
-      duration: 200,
-    });
-    chevronRotation.value = withTiming(isExpanded ? 1 : 0, {
-      duration: 200,
-    });
-  }, [isExpanded]);
-
-  const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * 170,
-    opacity: expandHeight.value,
-  }));
-
-  const labelFadeStyle = useAnimatedStyle(() => ({
-    opacity: expandHeight.value,
-  }));
-
-  const chevronStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
-  }));
-
   return (
     <View
       style={styles.contactWrapper}
@@ -259,7 +228,7 @@ const ContactRow = ({
     >
       <TouchableOpacity
         style={styles.contactRowContainer}
-        onPress={() => onToggleExpand(contact.uuid)}
+        onPress={() => onSelectContact(contact)}
       >
         <View
           style={[
@@ -285,93 +254,9 @@ const ContactRow = ({
             styles={styles.contactName}
             content={formatDisplayName(contact) || contact.uniqueName || ''}
           />
-          <Animated.View style={labelFadeStyle}>
-            <ThemeText
-              styles={styles.chooseWhatToSendText}
-              content={t('wallet.halfModal.chooseWhatToReceive')}
-            />
-          </Animated.View>
         </View>
-        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
-          <ThemeIcon size={20} iconName={'ChevronDown'} />
-        </Animated.View>
+        <ThemeIcon size={20} iconName={'ChevronRight'} />
       </TouchableOpacity>
-
-      <Animated.View style={[styles.expandedContainer, expandedStyle]}>
-        <View style={styles.paymentOptionsRow}>
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-            onPress={() => onSelectPaymentType(contact, 'BTC')}
-          >
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundOffset
-                        : backgroundColor
-                      : COLORS.bitcoinOrange,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ width: 18, height: 18 }}
-                lightModeIcon={ICONS.bitcoinIcon}
-                darkModeIcon={ICONS.bitcoinIcon}
-                lightsOutIcon={ICONS.bitcoinIcon}
-              />
-            </View>
-            <ThemeText
-              styles={styles.paymentOptionText}
-              content={t('constants.bitcoin_upper')}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-            onPress={() => onSelectPaymentType(contact, 'USD')}
-          >
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundOffset
-                        : backgroundColor
-                      : COLORS.dollarGreen,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ width: 18, height: 18 }}
-                lightModeIcon={ICONS.dollarIcon}
-                darkModeIcon={ICONS.dollarIcon}
-                lightsOutIcon={ICONS.dollarIcon}
-              />
-            </View>
-            <ThemeText
-              styles={styles.paymentOptionText}
-              content={t('constants.dollars_upper')}
-            />
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
     </View>
   );
 };
@@ -385,17 +270,17 @@ export default function HalfModalReceiveOptions({
   isScreenActive,
   setContentHeight,
   setBackNav,
+  selectedRequestMethod,
 }) {
-  const [expandedContact, setExpandedContact] = useState(null);
   const [showAddContact, setShowAddContact] = useState(false);
   const [showPoolCreation, setShowPoolCreation] = useState(false);
   const [showLNURLQR, setShowLNURLQR] = useState(false);
   const [showPayLinkCreation, setShowPayLinkCreation] = useState(false);
+  const [contactFlow, setContactFlow] = useState(null);
   const scrollViewRef = useRef(null);
   const rowLayoutsRef = useRef({});
   const scrollOffsetRef = useRef(0);
   const scrollViewHeightRef = useRef(0);
-  const previousExpandedRef = useRef(null);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -403,10 +288,7 @@ export default function HalfModalReceiveOptions({
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
-    GetThemeColors();
-
-  const iconColor = theme && darkModeType ? textColor : COLORS.primary;
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
 
   const lnurlAddress = `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`;
 
@@ -420,7 +302,11 @@ export default function HalfModalReceiveOptions({
 
   // Any overlay being shown slides/fades the main list out
   const anyOverlayVisible =
-    showAddContact || showPoolCreation || showLNURLQR || showPayLinkCreation;
+    showAddContact ||
+    showPoolCreation ||
+    showLNURLQR ||
+    showPayLinkCreation ||
+    !!contactFlow;
 
   useEffect(() => {
     if (anyOverlayVisible) {
@@ -448,25 +334,14 @@ export default function HalfModalReceiveOptions({
     [navigate],
   );
 
-  const handleToggleExpand = useCallback(contactUuid => {
-    setExpandedContact(prev => {
-      previousExpandedRef.current = prev;
-      return prev === contactUuid ? null : contactUuid;
-    });
-  }, []);
-
-  const handleSelectPaymentType = useCallback(
-    (contact, paymentType) => {
-      handleBackPressFunction(() => {
-        navigate.replace('SendAndRequestPage', {
-          selectedContact: contact,
-          paymentType: 'request',
-          imageData: cache[contact.uuid],
-          selectedRequestMethod: paymentType,
-        });
+  const handleSelectContact = useCallback(
+    contact => {
+      setContactFlow({
+        selectedContact: contact,
+        imageData: cache[contact.uuid],
       });
     },
-    [navigate, cache, handleBackPressFunction],
+    [cache],
   );
 
   const handleRowLayout = useCallback((uuid, y) => {
@@ -491,81 +366,29 @@ export default function HalfModalReceiveOptions({
       .filter(contact => !contact.isLNURL);
   }, [contactInfoList]);
 
-  useEffect(() => {
-    if (!expandedContact || !scrollViewRef.current) return;
-
-    const rowY = rowLayoutsRef.current[expandedContact];
-    if (rowY == null) return;
-
-    const contact = sortedContacts.find(c => c.uuid === expandedContact);
-    if (!contact) return;
-
-    const expandedPanelHeight = 160;
-    const collapsedRowHeight = 61;
-
-    let collapseShift = 0;
-    const prevExpanded = previousExpandedRef.current;
-    if (prevExpanded && prevExpanded !== expandedContact) {
-      const prevY = rowLayoutsRef.current[prevExpanded];
-      if (prevY != null && prevY < rowY) {
-        collapseShift = expandedPanelHeight;
-      }
-    }
-
-    const adjustedRowY = rowY - collapseShift;
-    const expandedBottomEdge =
-      adjustedRowY + collapsedRowHeight + expandedPanelHeight;
-    const visibleTop = scrollOffsetRef.current;
-    const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
-
-    if (expandedBottomEdge > visibleBottom) {
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({
-          y: expandedBottomEdge - scrollViewHeightRef.current + 16,
-          animated: true,
-        });
-      }, 220);
-    } else if (adjustedRowY < visibleTop + 50) {
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({
-          y: Math.max(0, adjustedRowY - 35),
-          animated: true,
-        });
-      }, 220);
-    }
-  }, [expandedContact, sortedContacts]);
-
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
       <ContactRow
         key={contact.uuid}
-        expandedContact={expandedContact}
         contact={contact}
         cache={cache}
         theme={theme}
         darkModeType={darkModeType}
         backgroundOffset={backgroundOffset}
         backgroundColor={backgroundColor}
-        textColor={textColor}
-        onToggleExpand={handleToggleExpand}
-        onSelectPaymentType={handleSelectPaymentType}
+        onSelectContact={handleSelectContact}
         onRowLayout={handleRowLayout}
-        t={t}
       />
     ));
   }, [
-    expandedContact,
     sortedContacts,
     cache,
     theme,
     darkModeType,
     backgroundOffset,
     backgroundColor,
-    textColor,
-    handleToggleExpand,
-    handleSelectPaymentType,
+    handleSelectContact,
     handleRowLayout,
-    t,
   ]);
 
   const handleLNURLClose = useCallback(() => {
@@ -587,6 +410,12 @@ export default function HalfModalReceiveOptions({
     setShowPayLinkCreation(false);
     setBackNav(null);
   }, [setShowPayLinkCreation, setBackNav]);
+
+  const handleContactFlowClose = useCallback(() => {
+    // Reset the chosen currency so the next contact starts from its default.
+    navigate.setParams({ selectedRequestMethod: undefined });
+    setContactFlow(null);
+  }, [navigate]);
 
   return (
     <View style={styles.container}>
@@ -792,6 +621,22 @@ export default function HalfModalReceiveOptions({
       <PayLinkCreationOverlay
         visible={showPayLinkCreation}
         onClose={handlePaylinkClose}
+      />
+
+      <ContactPaymentOverlay
+        key={contactFlow?.selectedContact?.uuid}
+        visible={!!contactFlow}
+        onClose={handleContactFlowClose}
+        paymentType="request"
+        selectedContact={contactFlow?.selectedContact}
+        imageData={contactFlow?.imageData}
+        selectedMethod={selectedRequestMethod}
+        handleBackPressFunction={handleBackPressFunction}
+        setBackNav={setBackNav}
+        navigate={navigate}
+        theme={theme}
+        darkModeType={darkModeType}
+        setContentHeight={setContentHeight}
       />
     </View>
   );

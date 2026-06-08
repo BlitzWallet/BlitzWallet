@@ -232,6 +232,8 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
             isScreenActive={isScreenActive}
             setBackNav={setBackNav}
+            setContentHeight={setContentHeight}
+            selectedPaymentMethod={props.route.params?.selectedPaymentMethod}
           />
         );
       case 'receiveOptions':
@@ -246,6 +248,7 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
             isScreenActive={isScreenActive}
             setBackNav={setBackNav}
+            selectedRequestMethod={props.route.params?.selectedRequestMethod}
           />
         );
       case 'confirmSMS':
@@ -453,6 +456,8 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
             setContentHeight={setContentHeight}
             selectedRecieveOption={props?.route?.params?.selectedRecieveOption}
+            fromPage={props?.route?.params?.fromPage}
+            onSelectMethod={props?.route?.params?.onSelectMethod}
           />
         );
 
@@ -492,6 +497,7 @@ export default function CustomHalfModal(props) {
             selectedPaymentMethod={props?.route?.params?.selectedPaymentMethod}
             handleBackPressFunction={handleBackPressFunction}
             fromPage={props?.route?.params?.fromPage}
+            onSelectMethod={props?.route?.params?.onSelectMethod}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}

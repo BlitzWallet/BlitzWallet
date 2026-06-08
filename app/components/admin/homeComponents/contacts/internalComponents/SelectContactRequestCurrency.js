@@ -18,6 +18,8 @@ export default function SelectContactRequestCurrency({
   selectedRecieveOption,
   handleBackPressFunction,
   setContentHeight,
+  fromPage,
+  onSelectMethod,
 }) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -25,11 +27,17 @@ export default function SelectContactRequestCurrency({
   const { t } = useTranslation();
 
   const selectSendingBalance = term => {
+    const selected = term || selectedRecieveOption;
+    if (onSelectMethod) {
+      onSelectMethod(selected);
+      handleBackPressFunction();
+      return;
+    }
     handleBackPressFunction(() =>
       navigate.popTo(
-        'SendAndRequestPage',
+        fromPage || 'SendAndRequestPage',
         {
-          selectedRequestMethod: term || selectedRecieveOption,
+          selectedRequestMethod: selected,
         },
         { merge: true },
       ),

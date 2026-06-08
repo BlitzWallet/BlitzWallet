@@ -6,13 +6,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  HIDE_IN_APP_PURCHASE_ITEMS,
-  ICONS,
-  SIZES,
-} from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import {
   navigateToSendUsingClipboard,
@@ -41,7 +35,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {
   useProcessedContacts,
   useFilteredContacts,
@@ -56,6 +49,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { KeyboardController } from 'react-native-keyboard-controller';
 import { isPhonePaymentNumber } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
+import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
 
 const ContactRow = ({
   contact,
@@ -64,40 +58,9 @@ const ContactRow = ({
   darkModeType,
   backgroundOffset,
   backgroundColor,
-  textColor,
-  expandedContact,
-  onToggleExpand,
-  onSelectPaymentType,
+  onSelectContact,
   onRowLayout,
-  t,
 }) => {
-  const isExpanded = expandedContact === contact.uuid;
-
-  const expandHeight = useSharedValue(0);
-  const chevronRotation = useSharedValue(0);
-
-  useEffect(() => {
-    expandHeight.value = withTiming(isExpanded ? 1 : 0, {
-      duration: 200,
-    });
-    chevronRotation.value = withTiming(isExpanded ? 1 : 0, {
-      duration: 200,
-    });
-  }, [isExpanded]);
-
-  const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * 160, //(!HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160),
-    opacity: expandHeight.value,
-  }));
-
-  const labelFadeStyle = useAnimatedStyle(() => ({
-    opacity: expandHeight.value,
-  }));
-
-  const chevronStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
-  }));
-
   return (
     <View
       style={styles.contactWrapper}
@@ -105,7 +68,7 @@ const ContactRow = ({
     >
       <TouchableOpacity
         style={styles.contactRowContainer}
-        onPress={() => onToggleExpand(contact.uuid)}
+        onPress={() => onSelectContact(contact)}
       >
         <View
           style={[
@@ -133,141 +96,9 @@ const ContactRow = ({
               content={formatDisplayName(contact) || contact.uniqueName || ''}
             />
           </View>
-          <Animated.View style={labelFadeStyle}>
-            <ThemeText
-              styles={styles.chooseWhatToSendText}
-              content={t('wallet.halfModal.chooseWhatToSend')}
-            />
-          </Animated.View>
         </View>
-        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
-          <ThemeIcon size={20} iconName={'ChevronDown'} />
-        </Animated.View>
+        <ThemeIcon size={20} iconName={'ChevronRight'} />
       </TouchableOpacity>
-
-      <Animated.View style={[styles.expandedContainer, expandedStyle]}>
-        <View style={styles.paymentOptionsRow}>
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-            onPress={() =>
-              onSelectPaymentType(contact, 'BTC', contact?.isLNURL)
-            }
-          >
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundOffset
-                        : backgroundColor
-                      : COLORS.bitcoinOrange,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ width: 18, height: 18 }}
-                lightModeIcon={ICONS.bitcoinIcon}
-                darkModeIcon={ICONS.bitcoinIcon}
-                lightsOutIcon={ICONS.bitcoinIcon}
-              />
-            </View>
-            <ThemeText
-              styles={styles.paymentOptionText}
-              content={t('constants.bitcoin_upper')}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-            onPress={() =>
-              onSelectPaymentType(contact, 'USD', contact?.isLNURL)
-            }
-          >
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundOffset
-                        : backgroundColor
-                      : COLORS.dollarGreen,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ width: 18, height: 18 }}
-                lightModeIcon={ICONS.dollarIcon}
-                darkModeIcon={ICONS.dollarIcon}
-                lightsOutIcon={ICONS.dollarIcon}
-              />
-            </View>
-            <ThemeText
-              styles={styles.paymentOptionText}
-              content={t('constants.dollars_upper')}
-            />
-          </TouchableOpacity>
-
-          {/* {!contact?.isLNURL && !HIDE_IN_APP_PURCHASE_ITEMS && (
-            <TouchableOpacity
-              style={[
-                styles.paymentOption,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                },
-              ]}
-              onPress={() =>
-                onSelectPaymentType(contact, 'gift', contact?.isLNURL)
-              }
-            >
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? darkModeType
-                          ? backgroundOffset
-                          : backgroundColor
-                        : COLORS.tertiary,
-                  },
-                ]}
-              >
-                <ThemeImage
-                  styles={{
-                    width: 18,
-                    height: 18,
-                    tintColor: COLORS.darkModeText,
-                  }}
-                  lightModeIcon={ICONS.giftCardIcon}
-                  darkModeIcon={ICONS.giftCardIcon}
-                  lightsOutIcon={ICONS.giftCardIcon}
-                />
-              </View>
-              <ThemeText
-                styles={styles.paymentOptionText}
-                content={t('constants.gift')}
-              />
-            </TouchableOpacity>
-          )} */}
-        </View>
-      </Animated.View>
     </View>
   );
 };
@@ -323,12 +154,14 @@ export default function HalfModalSendOptions({
   handleBackPressFunction,
   isScreenActive,
   setBackNav,
+  setContentHeight,
+  selectedPaymentMethod,
 }) {
   const [inputText, setInputText] = useState('');
   const [isInputMode, setIsInputMode] = useState(false);
   const [inputError, setInputError] = useState('');
-  const [expandedContact, setExpandedContact] = useState(null);
   const [showAddContact, setShowAddContact] = useState(false);
+  const [contactFlow, setContactFlow] = useState(null);
   const [noInputMounted, setNoInputMounted] = useState(true);
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
   const [showPasteButton, setShowPasteButton] = useState(true);
@@ -338,14 +171,13 @@ export default function HalfModalSendOptions({
   const textInputRef = useRef(null);
   const scrollOffsetRef = useRef(0);
   const scrollViewHeightRef = useRef(0);
-  const previousExpandedRef = useRef(null);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const isContactInputMode = inputText.startsWith('@');
 
   const contactInfoList = useProcessedContacts(
@@ -370,16 +202,17 @@ export default function HalfModalSendOptions({
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
   const inputModeProgress = useSharedValue(0);
+  const anyOverlayVisible = showAddContact || !!contactFlow;
 
   useEffect(() => {
-    if (showAddContact) {
-      contentOpacity.value = withTiming(0, { duration: 250 });
+    if (anyOverlayVisible) {
+      contentOpacity.value = withTiming(0, { duration: 0 });
       contentTranslateX.value = withTiming(-30, { duration: 250 });
     } else {
       contentOpacity.value = withTiming(1, { duration: 250 });
       contentTranslateX.value = withTiming(0, { duration: 250 });
     }
-  }, [showAddContact]);
+  }, [anyOverlayVisible]);
 
   useEffect(() => {
     if (isInputMode) {
@@ -422,13 +255,13 @@ export default function HalfModalSendOptions({
   }, []);
 
   const handleInternalBackPress = useCallback(() => {
-    if (showAddContact) return false;
+    if (showAddContact || contactFlow) return false;
     if (isInputMode) {
       blurKeyboard();
       return true;
     }
     return false;
-  }, [showAddContact, isInputMode, blurKeyboard]);
+  }, [blurKeyboard, contactFlow, isInputMode, showAddContact]);
 
   useHandleBackPressNew(handleInternalBackPress);
 
@@ -630,13 +463,6 @@ export default function HalfModalSendOptions({
     });
   }, [navigate, t, handleBackPressFunction]);
 
-  const handleToggleExpand = useCallback(contactUuid => {
-    setExpandedContact(prev => {
-      previousExpandedRef.current = prev;
-      return prev === contactUuid ? null : contactUuid;
-    });
-  }, []);
-
   const handleRowLayout = useCallback((uuid, y) => {
     rowLayoutsRef.current[uuid] = y;
   }, []);
@@ -658,72 +484,6 @@ export default function HalfModalSendOptions({
       .map(contact => contact.contact);
   }, [contactInfoList]);
 
-  // When a contact expands, check whether the expanded panel extends past
-  // the visible area of the ScrollView (either above or below). If so, scroll
-  // just enough to bring it into view.
-  // Also accounts for the previously expanded contact collapsing, which shifts
-  // content upward when it was above the newly expanded contact.
-  useEffect(() => {
-    if (!expandedContact || !scrollViewRef.current) return;
-
-    const rowY = rowLayoutsRef.current[expandedContact];
-    if (rowY == null) return;
-
-    const contact = sortedContacts.find(c => c.uuid === expandedContact);
-    if (!contact) return;
-
-    const expandedPanelHeight = 160; // !HIDE_IN_APP_PURCHASE_ITEMS ? 230 : 160;
-
-    // Approximate collapsed row height (avatar 45 + paddingVertical 8*2 = 61)
-    const collapsedRowHeight = 61;
-
-    // If a different contact was previously expanded and it is above the
-    // newly expanded contact, collapsing it will shift everything above
-    // downward by -expandedPanelHeight (i.e. content moves up).
-    let collapseShift = 0;
-    const prevExpanded = previousExpandedRef.current;
-    if (prevExpanded && prevExpanded !== expandedContact) {
-      const prevY = rowLayoutsRef.current[prevExpanded];
-      if (prevY != null && prevY < rowY) {
-        collapseShift = expandedPanelHeight;
-      }
-    }
-    const adjustedRowY = rowY - collapseShift;
-    const rowTopEdge = adjustedRowY;
-    const expandedBottomEdge =
-      adjustedRowY + collapsedRowHeight + expandedPanelHeight;
-
-    const visibleTop = scrollOffsetRef.current;
-    const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
-
-    const bottomBuffer = 16;
-    const topBuffer = 35;
-
-    // Check if content extends below visible area
-    if (expandedBottomEdge > visibleBottom) {
-      const targetOffset =
-        expandedBottomEdge - scrollViewHeightRef.current + bottomBuffer;
-
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({
-          y: targetOffset,
-          animated: true,
-        });
-      }, 220);
-    }
-    // Check if content extends above visible area (including shift from collapse)
-    else if (rowTopEdge < visibleTop + 50) {
-      const targetOffset = Math.max(0, rowTopEdge - topBuffer);
-
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({
-          y: targetOffset,
-          animated: true,
-        });
-      }, 220);
-    }
-  }, [expandedContact, sortedContacts]);
-
   // determine if we should show the past button based on state of clipboard and whether input is focused
   useEffect(() => {
     async function checkClipboard() {
@@ -737,26 +497,18 @@ export default function HalfModalSendOptions({
     checkClipboard();
   }, []);
 
-  const handleSelectPaymentType = useCallback(
-    (contact, paymentType, isLNURL) => {
-      handleBackPressFunction(() => {
-        if (paymentType === 'gift') {
-          navigate.replace('SelectGiftCardForContacts', {
-            selectedContact: contact,
-            imageData: cache[contact.uuid],
-          });
-        } else {
-          navigate.replace('SendAndRequestPage', {
-            selectedContact: contact,
-            paymentType: 'send',
-            imageData: cache[contact.uuid],
-            selectedPaymentMethod: paymentType,
-            ...(isLNURL ? { endReceiveType: 'BTC' } : {}),
-          });
-        }
+  const handleSelectContact = useCallback(
+    async contact => {
+      await KeyboardController.dismiss();
+      // Clear any payment method left over from a previous contact so the new
+      // contact starts from its resolved default currency.
+      navigate.setParams({ selectedPaymentMethod: undefined });
+      setContactFlow({
+        selectedContact: contact,
+        imageData: cache[contact.uuid],
       });
     },
-    [navigate, cache, handleBackPressFunction],
+    [cache, navigate],
   );
 
   const hideAddContacts = useCallback(() => {
@@ -808,12 +560,8 @@ export default function HalfModalSendOptions({
         darkModeType={darkModeType}
         backgroundOffset={backgroundOffset}
         backgroundColor={backgroundColor}
-        textColor={textColor}
-        expandedContact={expandedContact}
-        onToggleExpand={handleToggleExpand}
-        onSelectPaymentType={handleSelectPaymentType}
+        onSelectContact={handleSelectContact}
         onRowLayout={handleRowLayout}
-        t={t}
       />
     ));
   }, [
@@ -823,26 +571,21 @@ export default function HalfModalSendOptions({
     darkModeType,
     backgroundOffset,
     backgroundColor,
-    textColor,
-    expandedContact,
-    handleToggleExpand,
-    handleSelectPaymentType,
+    handleSelectContact,
     handleRowLayout,
-    t,
   ]);
 
   const handleFilteredContactPress = useCallback(
     async contact => {
-      handleBackPressFunction(async () => {
-        navigate.replace('SendAndRequestPage', {
-          selectedContact: contact,
-          paymentType: 'send',
-          imageData: cache[contact.uuid],
-          selectedPaymentMethod: 'BTC',
-        });
+      KeyboardController.dismiss();
+      setIsKeyboardActive(false);
+      navigate.setParams({ selectedPaymentMethod: undefined });
+      setContactFlow({
+        selectedContact: contact,
+        imageData: cache[contact.uuid],
       });
     },
-    [navigate, cache, handleBackPressFunction],
+    [cache, navigate, setIsKeyboardActive],
   );
 
   const renderFilteredContact = useCallback(
@@ -869,6 +612,11 @@ export default function HalfModalSendOptions({
 
   const filteredContactKeyExtractor = useCallback(
     ({ contact }) => contact.uuid,
+    [],
+  );
+
+  const handleContactsPaymentClose = useCallback(
+    () => setContactFlow(null),
     [],
   );
 
@@ -1205,6 +953,22 @@ export default function HalfModalSendOptions({
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
         setBackNav={setBackNav}
+      />
+
+      <ContactPaymentOverlay
+        key={contactFlow?.selectedContact?.uuid}
+        visible={!!contactFlow}
+        onClose={handleContactsPaymentClose}
+        paymentType="send"
+        selectedContact={contactFlow?.selectedContact}
+        imageData={contactFlow?.imageData}
+        selectedMethod={selectedPaymentMethod}
+        handleBackPressFunction={handleBackPressFunction}
+        setBackNav={setBackNav}
+        navigate={navigate}
+        theme={theme}
+        darkModeType={darkModeType}
+        setContentHeight={setContentHeight}
       />
     </View>
   );
