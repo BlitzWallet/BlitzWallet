@@ -70,7 +70,7 @@ export default function EditReceivePaymentInformation(props) {
   const cannotRequset =
     receiveType.toLowerCase() === 'lightning' &&
     endReceiveType === 'USD' &&
-    localSatAmount <= MIN_BTC_USD_AMOUNT_RECEIVEPAGE;
+    localSatAmount < MIN_BTC_USD_AMOUNT_RECEIVEPAGE;
 
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);
