@@ -2171,6 +2171,7 @@
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
         "copyInvoice": "Copy Invoice",
+        "usdSwapMinNotice": "Only payments over {{amount}} will be converted to dollars",
         "shareInvoice": "Share Invoice",
         "walletNotConnected": "Wallet not connected. Please try again.",
         "paylinkSaveError": "Failed to save paylink",

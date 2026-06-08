@@ -35,7 +35,7 @@ export default function AnalyticsSpentPage(props) {
   const { localDenomination } = props.route.params || {};
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
-  const { poolInfoRef } = useFlashnet();
+  const { poolInfoRef, swapLimits } = useFlashnet();
   const { fiatStats } = useNodeContext();
   const { bottomPadding } = useGlobalInsets();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
@@ -88,8 +88,16 @@ export default function AnalyticsSpentPage(props) {
       enabledLRC20: false,
       poolInfoRef,
       t,
+      swapLimits,
     });
-  }, [txs, currentTime, theme, darkModeType, localDenomination]);
+  }, [
+    txs,
+    currentTime,
+    theme,
+    darkModeType,
+    localDenomination,
+    swapLimits.bitcoin,
+  ]);
 
   return (
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>

@@ -2171,6 +2171,7 @@
         "generatingInvoice": "Rechnung wird generiert...",
         "amountPlaceholder": "Beliebigen Betrag",
         "copyInvoice": "Rechnung kopieren",
+        "usdSwapMinNotice": "Nur Zahlungen über {{amount}} werden in Dollar umgewandelt",
         "shareInvoice": "Rechnung teilen",
         "walletNotConnected": "Wallet nicht verbunden. Bitte versuchen Sie es erneut.",
         "paylinkSaveError": "Paylink konnte nicht gespeichert werden",

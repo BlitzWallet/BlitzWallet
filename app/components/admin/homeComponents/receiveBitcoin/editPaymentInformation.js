@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER } from '../../../../constants';
+import { CENTER, MIN_BTC_USD_AMOUNT_RECEIVEPAGE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
@@ -24,7 +24,7 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
-  const { swapLimits, swapUSDPriceDollars } = useFlashnet();
+  const { swapUSDPriceDollars } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
@@ -70,7 +70,7 @@ export default function EditReceivePaymentInformation(props) {
   const cannotRequset =
     receiveType.toLowerCase() === 'lightning' &&
     endReceiveType === 'USD' &&
-    localSatAmount < swapLimits.bitcoin;
+    localSatAmount <= MIN_BTC_USD_AMOUNT_RECEIVEPAGE;
 
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);
@@ -98,7 +98,7 @@ export default function EditReceivePaymentInformation(props) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
           amount: displayCorrectDenomination({
-            amount: swapLimits.bitcoin,
+            amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
             masterInfoObject: {
               ...masterInfoObject,
               userBalanceDenomination:
@@ -136,7 +136,6 @@ export default function EditReceivePaymentInformation(props) {
     navigate,
     cannotRequset,
     masterInfoObject,
-    swapLimits,
     primaryDisplay,
     conversionFiatStats,
     fromPage,

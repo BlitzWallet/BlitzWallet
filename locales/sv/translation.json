@@ -2171,6 +2171,7 @@
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
         "copyInvoice": "Kopiera faktura",
+        "usdSwapMinNotice": "Endast betalningar över {{amount}} kommer att konverteras till dollar",
         "shareInvoice": "Dela faktura",
         "walletNotConnected": "Plånboken är inte ansluten. Försök igen.",
         "paylinkSaveError": "Det gick inte att spara betalningslänken",

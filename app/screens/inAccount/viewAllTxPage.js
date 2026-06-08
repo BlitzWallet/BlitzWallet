@@ -41,7 +41,7 @@ export default function ViewAllTxPage() {
   });
   const [isLoadingNewTxs, setIsLoadingNewTxs] = useState(false);
   const { sparkInformation, showTokensInformation } = useSparkWallet();
-  const { poolInfoRef } = useFlashnet();
+  const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [txs, setTxs] = useState([]);
@@ -104,6 +104,7 @@ export default function ViewAllTxPage() {
             enabledLRC20,
             poolInfoRef,
             t,
+            swapLimits,
           });
 
           if (searchUUIDRef.current === currentFilter.searchUUID) {
@@ -132,6 +133,7 @@ export default function ViewAllTxPage() {
     userBalanceDenomination,
     enabledLRC20,
     currentFilter,
+    swapLimits.bitcoin,
   ]);
 
   const handleFilterApply = useCallback(filters => {
