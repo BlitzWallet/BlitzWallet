@@ -1212,7 +1212,7 @@
         "decodingPayment": "Zahlungsinformationen werden dekodiert...",
         "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren.",
         "swapRatesChangedTitle": "Wechselkurs aktualisiert",
-        "swapRatesChangedBody": "Der Wechselkurs für diesen Tausch hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
+        "swapRatesChangedBody": "Der Wechselkurs für diesen Swap hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
         "swapRatesChangedButton": "Betrag erneut eingeben",
         "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut",
         "brantaVerification": "Diese Zahlung ist von Branta verifiziert."
@@ -1289,7 +1289,7 @@
         "send": "Senden",
         "receive": "Empfangen",
         "scan": "Scannen",
-        "swap": "Tauschen",
+        "swap": "Swap",
         "deposit": "Einzahlen"
       },
       "lrc20Assets": {
@@ -1340,13 +1340,13 @@
       "payWithLightning": "Mit Lightning bezahlen",
       "payWithUSDb": "Mit USDB bezahlen",
       "chainNotSupportedForAsset": "Nicht verfügbar in diesem Netzwerk",
-      "swapInProgress": "Tausch läuft",
+      "swapInProgress": "Swap läuft",
       "swapInProgressDescription": "Ihre Mittel wurden gesendet. Die Zahlung wird verarbeitet und kann einige Minuten dauern.",
       "noAmount": "Bitte geben Sie einen Betrag zum Senden ein.",
       "quoteStillLoading": "Angebot wird abgerufen, bitte einen Moment warten.",
       "noQuote": "Angebot konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
-      "swapStatus": "Tauschstatus",
-      "chainSwap": "Netzwerk-Tausch",
+      "swapStatus": "Swap-Status",
+      "chainSwap": "Netzwerk-Swap",
       "assetPicker": {
         "header": "Wählen Sie die Währung aus, die Sie senden möchten.",
         "notAvailable": "Nicht verfügbar auf {{chain}}"
@@ -1519,8 +1519,8 @@
       "insufficientFunds": "Unzureichendes Guthaben. Ihnen fehlen {{shortfall}} Sats.",
       "swapPromptTitle": "USDB tauschen, um die Aufteilung zu decken?",
       "swapPromptBody": "Sie benötigen noch {{amount}} Sats. USDB tauschen, um die Differenz zu decken?",
-      "swapConfirm": "Tauschen und bezahlen",
-      "swapFailed": "Tausch fehlgeschlagen. Zahlung abgebrochen.",
+      "swapConfirm": "Per Swap bezahlen",
+      "swapFailed": "Swap fehlgeschlagen. Zahlung abgebrochen.",
       "customAmountsMismatch": "Die Beträge müssen insgesamt {{total}} Sats ergeben",
       "noContactsEmpty": "Sie haben noch keine Kontakte. Fügen Sie Kontakte hinzu, um eine Rechnung aufzuteilen.",
       "noContactsSearch": "Keine Kontakte entsprechen Ihrer Suche.",
@@ -1723,7 +1723,7 @@
     },
     "viewSwapsHome": {
       "swaps": "Netzwerkübertragungen",
-      "selectionTitle": "Welches Netzwerk möchtest du anzeigen?",
+      "selectionTitle": "Welches Netzwerk möchten Sie anzeigen?",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
       "flashnet": "BTC <> USD",
@@ -1745,7 +1745,7 @@
       "swap.expired": "Abgelaufen"
     },
     "rootstockSwapInfo": {
-      "title": "Kettenübergreifender Tausch",
+      "title": "Kettenübergreifender Swap",
       "id": "ID",
       "swapDetails": "Übertragungsdetails",
       "claimAddress": "Auszahlungsadresse",
@@ -2133,7 +2133,7 @@
         "confirmMessage_sent": "Gesendeter Betrag",
         "confirmMessage_received": "Erhaltener Betrag",
         "paymentStatus": "Zahlungsstatus",
-        "swapStatus": "Tauschstatus",
+        "swapStatus": "Swap-Status",
         "confReqired": "Benötigte Bestätigungen",
         "detailsBTN": "Technische Details",
         "contactPaymentType": "Kontakt",
@@ -2358,7 +2358,7 @@
           "insufficientBalanceQuantity": "Nicht genug Guthaben für {{count}} Geschenke",
           "descriptionTitle": "Notiz hinzufügen",
           "descriptionSubtitle": "Geben Sie dem Empfänger einen Hinweis, wofür dieses Geschenk ist.",
-          "swapError": "Tauschsimulation nicht verfügbar oder fehlgeschlagen",
+          "swapError": "Swap-Simulation nicht verfügbar oder fehlgeschlagen",
           "durationTitle": "Wie lange soll dieses Geschenk gültig sein?",
           "durationSubtitle": "Wählen Sie, wie lange es eingelöst werden kann.",
           "warningTitle": "Guthaben gesperrt",
@@ -2505,7 +2505,7 @@
         "slippageDesc": "Die Preisabweichung ist der prozentuale Preisunterschied, den Sie akzeptieren. Eine niedrige Preisabweichung kann dazu führen, dass Transaktionen fehlschlagen, während eine höhere Preisabweichung dazu führen kann, dass Sie weniger als erwartet erhalten.",
         "auto": "Auto",
         "navbar": {
-          "swap": "Tauschen",
+          "swap": "Swap",
           "amount": "Betrag",
           "details": "Details"
         },
@@ -2526,7 +2526,7 @@
       "sendAndReplace": {
         "slider": "{{state}} Ausgeben und ersetzen",
         "userDollarAmount": "Verfügbares Dollar-Guthaben: {{dollarAmount}}",
-        "explainer": "Wenn diese Option aktiviert ist, wird jede ausgehende Bitcoin-Zahlung automatisch ausgeglichen, indem ein entsprechender Betrag aus Ihrem Dollar-Guthaben getauscht wird. Ist Ihr Dollar-Guthaben niedriger als der ausgegebene Betrag, wird stattdessen das gesamte Dollar-Guthaben getauscht. Kein Tausch erfolgt, wenn der Ersatzbetrag unter {{minAmount}} liegt.",
+        "explainer": "Wenn diese Option aktiviert ist, wird jede ausgehende Bitcoin-Zahlung automatisch ausgeglichen, indem ein entsprechender Betrag aus Ihrem Dollar-Guthaben per Swap umgewandelt wird. Ist Ihr Dollar-Guthaben niedriger als der ausgegebene Betrag, wird stattdessen das gesamte Dollar-Guthaben per Swap umgewandelt. Kein Swap erfolgt, wenn der Ersatzbetrag unter {{minAmount}} liegt.",
         "fundingDescription": "Spend & Replace-Kauf",
         "acceptingDescription": "Spend & Replace-Aufladung",
         "toastMessageTitle": "Bitcoin-Guthaben aufgefüllt"
@@ -2794,7 +2794,7 @@
       "setGoalSubtitle": "Sparen Sie für das, was Ihnen wichtig ist!",
       "savingsGoalFallback": "Sparziel",
       "createAnotherGoal": "Weiteres Sparziel erstellen",
-      "disclaimer": "Guthaben wird in USDB gehalten, einem dollargedeckten Stablecoin von Brale. USDB ist 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt."
+      "disclaimer": "Guthaben wird in USDB gehalten, einem USD-gedeckten Stablecoin von Brale. USDB ist 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt."
     },
     "preview": {
       "title": "Gesamtersparnisse",
@@ -2891,7 +2891,7 @@
       "savingsOption": "Sparziel-Guthaben",
       "interestZeroHint": "Keine Zinsen vorhanden",
       "savingsZeroHint": "Noch nichts gespart",
-      "interestBelowMinHint": "Ihr BTC-Guthaben liegt unter dem Mindestbetrag für einen Tausch. Bitte zahlen Sie auf Ihr BTC-Guthaben aus.",
+      "interestBelowMinHint": "Ihr BTC-Guthaben liegt unter dem Mindestbetrag für einen Swap. Bitte zahlen Sie auf Ihr BTC-Guthaben aus.",
       "loadingBalances": "Guthaben werden geladen...",
       "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehen Sie zurück und versuchen Sie es erneut.",
       "fromInterest": "Aus Ihren Zinsen",
