@@ -8,8 +8,8 @@ const TRON_REGEX = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
 const SOLANA_REGEX = /^[1-9A-HJ-NP-Za-km-z]{43,44}$/;
 
 // URI scheme regexes
-const EIP681_REGEX =
-  /^ethereum:(0x[0-9a-fA-F]{40})(?:@\d+)?(?:\/([^?]*))?(?:\?(.*))?$/i;
+const EVM_URI_REGEX =
+  /^[a-z][a-z0-9+ .-]*:(0x[0-9a-fA-F]{40})(?:@\d+)?(?:\/([^?]*))?(?:\?(.*))?$/i;
 const SOLANA_URI_REGEX = /^solana:([1-9A-HJ-NP-Za-km-z]{32,44})(?:\?(.*))?$/;
 const TRON_URI_REGEX = /^tron:(T[1-9A-HJ-NP-Za-km-z]{33})(?:\?(.*))?$/;
 
@@ -129,8 +129,8 @@ export default function handlePreSendPageParsing(data) {
       };
     }
 
-    // ethereum:0xAddress[?token=0xContract&amount=X]
-    const evmMatch = EIP681_REGEX.exec(trimmed);
+    // evm-chain-label:0xAddress[?token=0xContract&amount=X]
+    const evmMatch = EVM_URI_REGEX.exec(trimmed);
     if (evmMatch) {
       const recipient = evmMatch[1];
       const params = parseQueryString(evmMatch[3]);
