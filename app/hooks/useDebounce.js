@@ -1,4 +1,4 @@
-import {useCallback, useRef} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
 
 function useDebounce(func, wait) {
   const debounceTimeout = useRef(null);
@@ -10,6 +10,13 @@ function useDebounce(func, wait) {
     },
     [func, wait],
   );
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(debounceTimeout.current);
+      debounceTimeout.current = null;
+    };
+  }, []);
 
   return debouncedFunction;
 }
