@@ -62,6 +62,7 @@ import ProfileImageRow from '../../components/admin/homeComponents/contacts/inte
 import { isOrchestraSwapFailed } from '../../functions/spark/orchestraLightning';
 import { openComposer } from 'react-native-email-link';
 import { getRootstockSwapStatusLabel } from '../../functions/boltz/rootstock/swapProgress';
+import { uses24HourClock } from 'react-native-localize';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContactsInfo();
@@ -512,9 +513,16 @@ export default function ExpandedTx(props) {
   };
 
   const formatTime = date => {
-    const hours = date.getHours().toString().padStart(2, '0');
+    const hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
+
+    if (uses24HourClock()) {
+      return `${hours}:${minutes}`;
+    }
+
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+    return `${formattedHours}:${minutes} ${ampm}`;
   };
 
   return (
@@ -1129,7 +1137,7 @@ const styles = StyleSheet.create({
   descriptionContainer: {
     width: '100%',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
   memoHeader: {
     width: '100%',
