@@ -44,10 +44,6 @@ export default function SelectContactRequestCurrency({
     );
   };
 
-  useEffect(() => {
-    setContentHeight(375);
-  }, []);
-
   return (
     <View style={styles.innerContainer}>
       <ThemeText
