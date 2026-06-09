@@ -131,7 +131,9 @@
     "transfer": "Överföring",
     "details": "Detaljer",
     "total": "Totalt",
-    "stablecoinRefundReceived": "Stablecoin-återbetalning"
+    "stablecoinRefundReceived": "Stablecoin-återbetalning",
+    "payWith": "Betala med",
+    "receiveAs": "Ta emot som"
   },
   "languages": {
     "english": "English",

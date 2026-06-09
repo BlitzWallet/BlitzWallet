@@ -131,7 +131,9 @@
     "transfer": "Перевод",
     "details": "Детали",
     "total": "Итого",
-    "stablecoinRefundReceived": "Возврат стейблкоина"
+    "stablecoinRefundReceived": "Возврат стейблкоина",
+    "payWith": "Оплатить с помощью",
+    "receiveAs": "Получить в виде"
   },
   "languages": {
     "english": "English",

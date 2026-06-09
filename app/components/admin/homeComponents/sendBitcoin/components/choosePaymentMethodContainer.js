@@ -75,7 +75,6 @@ export default function ChoosePaymentMethod({
         containerStyles,
       ]}
     >
-      {/* <ThemeText styles={styles.header} content={'Pay with'} /> */}
       <TouchableOpacity
         onPress={() => !showBitcoinCardOnly && handleSelectPaymentMethod(false)}
         activeOpacity={showBitcoinCardOnly ? 1 : 0.2}

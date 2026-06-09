@@ -13,7 +13,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import {
   CENTER,
-  HIDE_IN_APP_PURCHASE_ITEMS,
   ICONS,
 } from '../../../../../constants';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
@@ -49,22 +48,15 @@ export default function SelectPaymentType({
 
   const selectSendingBalance = () => {
     handleBackPressFunction(() => {
-      if (selectedOption === 'Gift') {
-        navigate.replace('SelectGiftCardForContacts', {
-          selectedContact: selectedContact,
-          imageData,
-        });
-      } else {
-        navigate.replace('SendAndRequestPage', {
-          selectedContact: selectedContact,
-          paymentType,
-          imageData,
-          [paymentType === 'send'
-            ? 'selectedPaymentMethod'
-            : 'selectedRequestMethod']: selectedOption,
-          ...(paymentType !== 'send' ? { endReceiveType: selectedOption } : {}),
-        });
-      }
+      navigate.replace('SendAndRequestPage', {
+        selectedContact: selectedContact,
+        paymentType,
+        imageData,
+        [paymentType === 'send'
+          ? 'selectedPaymentMethod'
+          : 'selectedRequestMethod']: selectedOption,
+        ...(paymentType !== 'send' ? { endReceiveType: selectedOption } : {}),
+      });
     });
   };
 
@@ -188,53 +180,6 @@ export default function SelectPaymentType({
           switchDarkMode={theme && darkModeType ? true : false}
         />
       </TouchableOpacity>
-
-      {/* {!HIDE_IN_APP_PURCHASE_ITEMS && paymentType !== 'request' && (
-        <TouchableOpacity
-          onPress={() => setSeelctedOption('Gift')}
-          style={styles.containerRow}
-        >
-          <View
-            style={[
-              styles.iconContainer,
-              {
-                backgroundColor:
-                  theme && darkModeType
-                    ? darkModeType
-                      ? backgroundColor
-                      : backgroundOffset
-                    : COLORS.tertiary,
-              },
-            ]}
-          >
-            <ThemeImage
-              styles={{
-                width: 25,
-                height: 25,
-                tintColor:
-                  theme && darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.darkModeText,
-              }}
-              lightModeIcon={ICONS.giftCardIcon}
-              darkModeIcon={ICONS.giftCardIcon}
-              lightsOutIcon={ICONS.giftCardIcon}
-            />
-          </View>
-
-          <View style={styles.textContainer}>
-            <ThemeText
-              styles={styles.balanceTitle}
-              content={t('constants.gift')}
-            />
-          </View>
-          <CheckMarkCircle
-            isActive={selectedOption === 'Gift'}
-            containerSize={25}
-            switchDarkMode={theme && darkModeType ? true : false}
-          />
-        </TouchableOpacity>
-      )} */}
 
       <CustomButton
         actionFunction={selectSendingBalance}

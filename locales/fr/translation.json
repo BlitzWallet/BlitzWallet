@@ -131,7 +131,9 @@
     "transfer": "Transfert",
     "details": "Détails",
     "total": "Total",
-    "stablecoinRefundReceived": "Remboursement de stablecoin"
+    "stablecoinRefundReceived": "Remboursement de stablecoin",
+    "payWith": "Payer avec",
+    "receiveAs": "Recevoir en"
   },
   "languages": {
     "english": "English",
