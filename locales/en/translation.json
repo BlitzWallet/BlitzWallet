@@ -1818,11 +1818,11 @@
       "swapsFee": "{{poolFee}}% pool fee + {{blitzFee}}% Blitz fee",
       "sparkSwapType": "BTC <> USDB (Spark)",
       "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
-      "chainSwapFee": "0.5% Blitz fee + 0.1%+ platform fee",
+      "chainSwapFee": "0.5% Blitz fee + 0.1%+ Flashnet fee",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% Blitz fee + network fees",
       "accumulationType": "Accumulation addresses",
-      "accumulationFee": "0.5% Blitz fee + 0.5% platform fee",
+      "accumulationFee": "0.5% Blitz fee + 0.5% Flashnet fee",
       "othersType": "All other",
       "othersFee": "Network Fees",
       "networkFeeLinkDesc": "Tap to see a breakdown of Spark network fees"
