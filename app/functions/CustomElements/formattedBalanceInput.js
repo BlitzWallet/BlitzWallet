@@ -32,6 +32,8 @@ export default function FormattedBalanceInput({
   customCurrencyCode = '',
   forceCurrency = false,
   maxDecimals = 2,
+  placeholderAmountValue,
+  placeholderOpacity = HIDDEN_OPACITY,
 }) {
   const { screenDimensions } = useAppStatus();
   const [inputWidth, setInputWidth] = useState(0);
@@ -40,7 +42,7 @@ export default function FormattedBalanceInput({
   const { masterInfoObject } = useGlobalContextProvider();
 
   const currencyText = forceCurrency || masterInfoObject.fiatCurrency || 'USD';
-  const showSymbol = masterInfoObject.satDisplay != 'word';
+  const showSymbol = masterInfoObject.satDisplay !== 'word';
 
   const currencyInfo = useMemo(
     () =>
@@ -56,6 +58,21 @@ export default function FormattedBalanceInput({
   const { textColor } = GetThemeColors();
   const showSats =
     inputDenomination === 'sats' || inputDenomination === 'hidden';
+  const isAmountEmpty =
+    amountValue === '' || amountValue === null || amountValue === undefined;
+  const isShowingPlaceholder =
+    isAmountEmpty &&
+    placeholderAmountValue !== '' &&
+    placeholderAmountValue !== null &&
+    placeholderAmountValue !== undefined;
+  const displayAmountValue = isShowingPlaceholder
+    ? placeholderAmountValue
+    : amountValue;
+  const inputOpacity = isShowingPlaceholder
+    ? placeholderOpacity
+    : !amountValue
+    ? HIDDEN_OPACITY
+    : 1;
 
   const maxContainerWidth = screenDimensions.width * maxWidth;
   const availableInputWidth = useMemo(() => {
@@ -76,7 +93,7 @@ export default function FormattedBalanceInput({
         style={[
           styles.textInputContainer,
           {
-            opacity: !amountValue ? HIDDEN_OPACITY : 1,
+            opacity: inputOpacity,
             maxWidth: maxContainerWidth,
             ...customTextInputContainerStyles,
           },
@@ -96,7 +113,12 @@ export default function FormattedBalanceInput({
                 { color: textColor },
                 customTextInputStyles,
               ]}
-              value={formatBalanceAmount(amountValue, false, masterInfoObject, maxDecimals)}
+              value={formatBalanceAmount(
+                displayAmountValue,
+                false,
+                masterInfoObject,
+                maxDecimals,
+              )}
               editable={false}
               scrollEnabled
               multiline={false}
@@ -128,7 +150,12 @@ export default function FormattedBalanceInput({
             setInputWidth(prev => (w === prev ? prev : w));
           }}
         >
-          {formatBalanceAmount(amountValue, false, masterInfoObject, maxDecimals)}
+          {formatBalanceAmount(
+            displayAmountValue,
+            false,
+            masterInfoObject,
+            maxDecimals,
+          )}
         </Text>
       </View>
     );
@@ -144,7 +171,7 @@ export default function FormattedBalanceInput({
       style={[
         styles.textInputContainer,
         {
-          opacity: !amountValue ? HIDDEN_OPACITY : 1,
+          opacity: inputOpacity,
           maxWidth: maxContainerWidth,
           ...customTextInputContainerStyles,
         },
@@ -170,7 +197,12 @@ export default function FormattedBalanceInput({
               { color: textColor },
               customTextInputStyles,
             ]}
-            value={formatBalanceAmount(amountValue, false, masterInfoObject, maxDecimals)}
+            value={formatBalanceAmount(
+              displayAmountValue,
+              false,
+              masterInfoObject,
+              maxDecimals,
+            )}
             editable={false}
             scrollEnabled
             multiline={false}
@@ -198,7 +230,12 @@ export default function FormattedBalanceInput({
           setInputWidth(prev => (newWidth === prev ? prev : newWidth));
         }}
       >
-        {formatBalanceAmount(amountValue, false, masterInfoObject, maxDecimals)}
+        {formatBalanceAmount(
+          displayAmountValue,
+          false,
+          masterInfoObject,
+          maxDecimals,
+        )}
       </Text>
     </View>
   );

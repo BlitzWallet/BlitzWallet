@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, MIN_BTC_USD_AMOUNT_RECEIVEPAGE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -34,12 +34,11 @@ export default function EditReceivePaymentInformation(props) {
   const fromPage = props.route.params.from;
   const receiveType = props.route.params.receiveType;
   const initialDescription = props.route.params.description || '';
-  const [paymentDescription, setPaymentDescription] = useState('');
+  const [paymentDescription, setPaymentDescription] =
+    useState(initialDescription);
 
   const endReceiveType = props.route.params.endReceiveType;
   const userReceiveAmount = Number(props.route.params.userReceiveAmount) || 0;
-  const hasReceiveAmount = !!userReceiveAmount;
-  const hasDescription = !!initialDescription;
 
   const isUSDReceiveMode = endReceiveType === 'USD';
 
@@ -65,12 +64,24 @@ export default function EditReceivePaymentInformation(props) {
 
   // Calculate sat amount based on which fiat we're using
   const localSatAmount = convertDisplayToSats(amountValue);
+  const hasAmountInput = amountValue !== '';
+  const requestedSatAmount = hasAmountInput
+    ? Number(localSatAmount) || 0
+    : userReceiveAmount;
+  const amountChanged =
+    hasAmountInput && requestedSatAmount !== userReceiveAmount;
+  const previousAmountDisplayValue = userReceiveAmount
+    ? convertSatsToDisplay(userReceiveAmount)
+    : '';
   const descriptionChanged = paymentDescription !== initialDescription;
+  const requestChanged = amountChanged || descriptionChanged;
+  const finalDescription = paymentDescription;
 
-  const cannotRequset =
+  const cannotRequest =
     receiveType.toLowerCase() === 'lightning' &&
     endReceiveType === 'USD' &&
-    localSatAmount < MIN_BTC_USD_AMOUNT_RECEIVEPAGE;
+    requestedSatAmount > 0 &&
+    requestedSatAmount < MIN_BTC_USD_AMOUNT_RECEIVEPAGE;
 
   const handleEmoji = newDescription => {
     setPaymentDescription(newDescription);
@@ -86,15 +97,15 @@ export default function EditReceivePaymentInformation(props) {
   };
 
   const handleSubmit = useCallback(() => {
-    const sendAmount = !Number(localSatAmount) ? 0 : Number(localSatAmount);
+    const sendAmount = Number(requestedSatAmount) || 0;
     crashlyticsLogReport(`Running in edit payment information submit function`);
 
-    if (!localSatAmount && !hasReceiveAmount && !descriptionChanged) {
+    if (!requestChanged) {
       navigate.goBack();
       return;
     }
 
-    if (localSatAmount && cannotRequset) {
+    if (cannotRequest) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('wallet.receivePages.editPaymentInfo.minUSDSwap', {
           amount: displayCorrectDenomination({
@@ -115,7 +126,7 @@ export default function EditReceivePaymentInformation(props) {
     if (fromPage === 'homepage') {
       navigate.replace('ReceiveBTC', {
         receiveAmount: sendAmount,
-        description: paymentDescription,
+        description: finalDescription,
         endReceiveType,
         uuid: customUUID(),
       });
@@ -124,7 +135,7 @@ export default function EditReceivePaymentInformation(props) {
         'ReceiveBTC',
         {
           receiveAmount: sendAmount,
-          description: paymentDescription,
+          description: finalDescription,
           endReceiveType: endReceiveType,
           uuid: customUUID(),
         },
@@ -132,17 +143,16 @@ export default function EditReceivePaymentInformation(props) {
       );
     }
   }, [
-    localSatAmount,
+    requestedSatAmount,
     navigate,
-    cannotRequset,
+    cannotRequest,
     masterInfoObject,
     primaryDisplay,
     conversionFiatStats,
     fromPage,
     endReceiveType,
-    paymentDescription,
-    hasReceiveAmount,
-    descriptionChanged,
+    finalDescription,
+    requestChanged,
     t,
   ]);
 
@@ -174,19 +184,22 @@ export default function EditReceivePaymentInformation(props) {
             <FormattedBalanceInput
               maxWidth={0.9}
               amountValue={amountValue}
+              placeholderAmountValue={previousAmountDisplayValue}
               inputDenomination={primaryDisplay.denomination}
               forceCurrency={primaryDisplay.forceCurrency}
               forceFiatStats={primaryDisplay.forceFiatStats}
             />
 
             <FormattedSatText
-              containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
+              containerStyles={{
+                opacity: hasAmountInput ? 1 : HIDDEN_OPACITY,
+              }}
               neverHideBalance={true}
               styles={{ includeFontPadding: false, ...styles.satValue }}
               globalBalanceDenomination={secondaryDisplay.denomination}
               forceCurrency={secondaryDisplay.forceCurrency}
               forceFiatStats={secondaryDisplay.forceFiatStats}
-              balance={localSatAmount}
+              balance={hasAmountInput ? localSatAmount : userReceiveAmount}
             />
           </TouchableOpacity>
         </ScrollView>
@@ -216,16 +229,11 @@ export default function EditReceivePaymentInformation(props) {
             <CustomButton
               buttonStyles={{
                 ...CENTER,
-                opacity: localSatAmount && cannotRequset ? HIDDEN_OPACITY : 1,
+                opacity: cannotRequest ? HIDDEN_OPACITY : 1,
               }}
               actionFunction={handleSubmit}
               textContent={
-                (hasReceiveAmount && !localSatAmount) ||
-                (hasDescription && !paymentDescription)
-                  ? t('constants.remove')
-                  : !hasReceiveAmount && !localSatAmount && !descriptionChanged
-                  ? t('constants.back')
-                  : t('constants.request')
+                requestChanged ? t('constants.request') : t('constants.back')
               }
             />
           </>
