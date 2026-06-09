@@ -96,6 +96,7 @@ import AccumulationAddressesHome from '../app/components/admin/homeComponents/ac
 import AnalyticsStack from './analyticsStack';
 import BTCMapScreen from '../app/screens/inAccount/btcMap';
 import BitrefillShopModal from '../app/components/admin/homeComponents/store/bitrefillModal';
+import SparkHodlInvoiceTest from '../app/screens/sparkHodlInvoiceTest';
 
 const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'CustomWebView', component: CustomWebView },
@@ -209,6 +210,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'AccumulationAddressesHome', component: AccumulationAddressesHome },
   { name: 'AccumulationAddressDetail', component: AccumulationAddressDetail },
   { name: 'SparkReceivePage', component: SparkReceivePage },
+  { name: 'SparkHodlInvoiceTest', component: SparkHodlInvoiceTest },
   { name: 'AnalyticsStack', component: AnalyticsStack },
 ];
 
