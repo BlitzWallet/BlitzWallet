@@ -146,8 +146,14 @@ export default function HalfModalDepositFunds({
       case 'qr': {
         const option = qrConfig?.selectedRecieveOption?.toLowerCase();
         return option === 'stablecoins'
-          ? capitalize(qrConfig?.sourceChain)
-          : capitalize(qrConfig?.selectedRecieveOption);
+          ? t('wallet.halfModal.stablecoinSelectedTitle', {
+              curr: qrConfig?.sourceAsset || '',
+              chain: capitalize(qrConfig?.sourceChain),
+            })
+          : t('wallet.halfModal.stablecoinSelectedTitle', {
+              curr: 'USDB',
+              chain: 'Spark',
+            });
       }
       case 'others':
         return t('wallet.halfModal.othersOptionTitle');

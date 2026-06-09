@@ -1029,6 +1029,7 @@
       "cashAppBack": "Назад",
       "viewDetails": "Подробнее",
       "othersOptionTitle": "Выберите метод",
+      "stablecoinSelectedTitle": "{{curr}} в сети {{chain}}",
       "liquidDesc": "Получайте Liquid BTC на свой кошелёк.",
       "roostockDesc": "Получайте Rootstock BTC на свой кошелёк.",
       "sparkDesc": "Получайте BTC или токены на свой кошелёк.",

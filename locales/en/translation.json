@@ -1029,6 +1029,7 @@
       "cashAppBack": "Back",
       "viewDetails": "View details",
       "othersOptionTitle": "Select Method",
+      "stablecoinSelectedTitle": "{{curr}} on {{chain}}",
       "liquidDesc": "Receive Liquid BTC to your wallet.",
       "roostockDesc": "Receive Rootstock BTC to your wallet.",
       "sparkDesc": "Receive BTC or tokens to your wallet.",

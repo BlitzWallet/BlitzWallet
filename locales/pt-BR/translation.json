@@ -1029,6 +1029,7 @@
       "cashAppBack": "Voltar",
       "viewDetails": "Ver detalhes",
       "othersOptionTitle": "Selecionar rede",
+      "stablecoinSelectedTitle": "{{curr}} na {{chain}}",
       "liquidDesc": "Receba BTC pela rede Liquid",
       "roostockDesc": "Receba BTC pela rede Rootstock",
       "sparkDesc": "Receba BTC ou tokens pela rede Spark",

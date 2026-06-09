@@ -1029,6 +1029,7 @@
       "cashAppBack": "Tillbaka",
       "viewDetails": "Visa detaljer",
       "othersOptionTitle": "Välj metod",
+      "stablecoinSelectedTitle": "{{curr}} på {{chain}}",
       "liquidDesc": "Ta emot Liquid BTC till din plånbok.",
       "roostockDesc": "Ta emot Rootstock BTC till din plånbok.",
       "sparkDesc": "Ta emot BTC eller token till din plånbok.",
