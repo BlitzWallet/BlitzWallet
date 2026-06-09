@@ -1012,7 +1012,7 @@
       "onChainBitcoin": "Deposit Bitcoin",
       "onChainBitcoinSubtitle": "Receive via on-chain address",
       "stablecoins": "Deposit Dollars",
-      "stablecoinsSubtitle": "Deposit Dollars into your wallet",
+      "stablecoinsSubtitle": "Receive Dollars into your wallet",
       "cashAppSubtitle": "Send from Cash App instantly",
       "sparkAddressSubtitle": "Receive to your Spark address",
       "otherBitcoin": "Other Deposit Options",
