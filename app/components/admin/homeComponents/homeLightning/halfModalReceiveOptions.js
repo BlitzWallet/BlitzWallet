@@ -219,13 +219,9 @@ const ContactRow = ({
   backgroundOffset,
   backgroundColor,
   onSelectContact,
-  onRowLayout,
 }) => {
   return (
-    <View
-      style={styles.contactWrapper}
-      onLayout={e => onRowLayout(contact.uuid, e.nativeEvent.layout.y)}
-    >
+    <View style={styles.contactWrapper}>
       <TouchableOpacity
         style={styles.contactRowContainer}
         onPress={() => onSelectContact(contact)}
@@ -272,19 +268,18 @@ export default function HalfModalReceiveOptions({
   setBackNav,
   selectedRequestMethod,
 }) {
-  const [showAddContact, setShowAddContact] = useState(false);
-  const [showPoolCreation, setShowPoolCreation] = useState(false);
-  const [showLNURLQR, setShowLNURLQR] = useState(false);
-  const [showPayLinkCreation, setShowPayLinkCreation] = useState(false);
-  const [contactFlow, setContactFlow] = useState(null);
-  const scrollViewRef = useRef(null);
-  const rowLayoutsRef = useRef({});
-  const scrollOffsetRef = useRef(0);
-  const scrollViewHeightRef = useRef(0);
+  // Single source of truth for the active secondary view. Enforcing one
+  // overlay at a time (instead of five independent booleans) prevents stacked
+  // overlays from rapid cross-button taps and keeps both the header back button
+  // and hardware back handling deterministic.
+  // null | { type: 'lnurlQR' | 'addContact' | 'pool' | 'payLink' | 'contact', ...payload }
+  const [overlay, setOverlay] = useState(null);
+  // Mirrors `overlay` synchronously so two taps dispatched in the same frame
+  // (before React re-renders) cannot both open an overlay.
+  const overlayRef = useRef(null);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
-  const { screenDimensions } = useAppStatus();
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
@@ -301,12 +296,29 @@ export default function HalfModalReceiveOptions({
   );
 
   // Any overlay being shown slides/fades the main list out
-  const anyOverlayVisible =
-    showAddContact ||
-    showPoolCreation ||
-    showLNURLQR ||
-    showPayLinkCreation ||
-    !!contactFlow;
+  const overlayType = overlay?.type ?? null;
+  const anyOverlayVisible = overlay !== null;
+  const contactOverlay = overlay?.type === 'contact' ? overlay : null;
+
+  // Opens an overlay only when none is active. The ref is set synchronously so
+  // a second tap in the same frame is ignored (idempotent, no stacking).
+  // `backNavConfig` is omitted for overlays that register their own header
+  // back step internally (pool, contact flow).
+  const openOverlay = useCallback(
+    (next, backNavConfig) => {
+      if (overlayRef.current) return;
+      overlayRef.current = next;
+      setOverlay(next);
+      if (backNavConfig !== undefined) setBackNav?.(backNavConfig);
+    },
+    [setBackNav],
+  );
+
+  const closeOverlay = useCallback(() => {
+    overlayRef.current = null;
+    setOverlay(null);
+    setBackNav?.(null);
+  }, [setBackNav]);
 
   useEffect(() => {
     if (anyOverlayVisible) {
@@ -336,17 +348,14 @@ export default function HalfModalReceiveOptions({
 
   const handleSelectContact = useCallback(
     contact => {
-      setContactFlow({
+      openOverlay({
+        type: 'contact',
         selectedContact: contact,
         imageData: cache[contact.uuid],
       });
     },
-    [cache],
+    [cache, openOverlay],
   );
-
-  const handleRowLayout = useCallback((uuid, y) => {
-    rowLayoutsRef.current[uuid] = y;
-  }, []);
 
   const sortedContacts = useMemo(() => {
     return contactInfoList
@@ -377,7 +386,6 @@ export default function HalfModalReceiveOptions({
         backgroundOffset={backgroundOffset}
         backgroundColor={backgroundColor}
         onSelectContact={handleSelectContact}
-        onRowLayout={handleRowLayout}
       />
     ));
   }, [
@@ -388,38 +396,31 @@ export default function HalfModalReceiveOptions({
     backgroundOffset,
     backgroundColor,
     handleSelectContact,
-    handleRowLayout,
   ]);
 
-  const handleLNURLClose = useCallback(() => {
-    setShowLNURLQR(false);
-    setBackNav(null);
-  }, [setShowLNURLQR, setBackNav]);
-
-  const handleAddContactsClose = useCallback(
-    () => setShowAddContact(false),
-    [setShowAddContact],
-  );
-
-  const handlePoolClose = useCallback(
-    () => setShowPoolCreation(false),
-    [setShowPoolCreation],
-  );
-
-  const handlePaylinkClose = useCallback(() => {
-    setShowPayLinkCreation(false);
-    setBackNav(null);
-  }, [setShowPayLinkCreation, setBackNav]);
+  // All single-step overlays close the same way: clear the active overlay and
+  // reset the header back step. `closeOverlay` is idempotent so repeated back
+  // presses during the close cannot fire duplicate navigation.
+  const handleLNURLClose = closeOverlay;
+  const handleAddContactsClose = closeOverlay;
+  const handlePoolClose = closeOverlay;
+  const handlePaylinkClose = closeOverlay;
 
   const handleContactFlowClose = useCallback(() => {
     // Reset the chosen currency so the next contact starts from its default.
     navigate.setParams({ selectedRequestMethod: undefined });
-    setContactFlow(null);
-  }, [navigate]);
+    closeOverlay();
+  }, [navigate, closeOverlay]);
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.mainContent, contentStyle]}>
+      <Animated.View
+        style={[styles.mainContent, contentStyle]}
+        // While an overlay is active the list is faded to opacity 0 but, in RN,
+        // a transparent view still receives touches. Disabling pointer events
+        // stops spam taps from hitting the hidden buttons / contact rows.
+        pointerEvents={anyOverlayVisible ? 'none' : 'auto'}
+      >
         {/* ── LNURL Banner ── */}
         <View
           style={{
@@ -436,18 +437,18 @@ export default function HalfModalReceiveOptions({
             backgroundColor={backgroundColor}
             backgroundOffset={backgroundOffset}
             textColor={textColor}
-            onQRPress={() => {
-              // setContentHeight(600);
-              setBackNav?.({
-                onPress: handleLNURLClose,
-                title: t('wallet.halfModal.payMe'),
-              });
-              setShowLNURLQR(true);
-            }}
+            onQRPress={() =>
+              openOverlay(
+                { type: 'lnurlQR' },
+                {
+                  onPress: handleLNURLClose,
+                  title: t('wallet.halfModal.payMe'),
+                },
+              )
+            }
           />
         </View>
         <ScrollView
-          ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
@@ -455,23 +456,16 @@ export default function HalfModalReceiveOptions({
             paddingBottom: bottomPadding,
           }}
           stickyHeaderIndices={[3]}
-          onScroll={e => {
-            scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
-          }}
           scrollEventThrottle={16}
-          onLayout={e => {
-            scrollViewHeightRef.current = e.nativeEvent.layout.height;
-          }}
         >
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => {
-              setBackNav?.({
-                onPress: handlePaylinkClose,
-                title: '',
-              });
-              setShowPayLinkCreation(true);
-            }}
+            onPress={() =>
+              openOverlay(
+                { type: 'payLink' },
+                { onPress: handlePaylinkClose, title: '' },
+              )
+            }
           >
             <View
               style={[
@@ -504,7 +498,7 @@ export default function HalfModalReceiveOptions({
 
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => setShowPoolCreation(true)}
+            onPress={() => openOverlay({ type: 'pool' })}
           >
             <View
               style={[
@@ -577,13 +571,12 @@ export default function HalfModalReceiveOptions({
               <CustomButton
                 buttonStyles={{ width: '100%' }}
                 textContent={t('contacts.editMyProfilePage.addContactBTN')}
-                actionFunction={() => {
-                  setBackNav?.({
-                    onPress: handleAddContactsClose,
-                    title: '',
-                  });
-                  setShowAddContact(true);
-                }}
+                actionFunction={() =>
+                  openOverlay(
+                    { type: 'addContact' },
+                    { onPress: handleAddContactsClose, title: '' },
+                  )
+                }
               />
             </View>
           )}
@@ -593,7 +586,7 @@ export default function HalfModalReceiveOptions({
       {/* ── Overlays ── */}
 
       <LNURLQROverlay
-        visible={showLNURLQR}
+        visible={overlayType === 'lnurlQR'}
         onClose={handleLNURLClose}
         lnurlAddress={lnurlAddress}
         t={t}
@@ -601,7 +594,7 @@ export default function HalfModalReceiveOptions({
       />
 
       <AddContactOverlay
-        visible={showAddContact}
+        visible={overlayType === 'addContact'}
         onClose={handleAddContactsClose}
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
@@ -609,7 +602,7 @@ export default function HalfModalReceiveOptions({
       />
 
       <PoolCreationOverlay
-        visible={showPoolCreation}
+        visible={overlayType === 'pool'}
         onClose={handlePoolClose}
         theme={theme}
         darkModeType={darkModeType}
@@ -619,17 +612,17 @@ export default function HalfModalReceiveOptions({
       />
 
       <PayLinkCreationOverlay
-        visible={showPayLinkCreation}
+        visible={overlayType === 'payLink'}
         onClose={handlePaylinkClose}
       />
 
       <ContactPaymentOverlay
-        key={contactFlow?.selectedContact?.uuid}
-        visible={!!contactFlow}
+        key={contactOverlay?.selectedContact?.uuid}
+        visible={overlayType === 'contact'}
         onClose={handleContactFlowClose}
         paymentType="request"
-        selectedContact={contactFlow?.selectedContact}
-        imageData={contactFlow?.imageData}
+        selectedContact={contactOverlay?.selectedContact}
+        imageData={contactOverlay?.imageData}
         selectedMethod={selectedRequestMethod}
         handleBackPressFunction={handleBackPressFunction}
         setBackNav={setBackNav}
