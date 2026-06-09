@@ -59,13 +59,9 @@ const ContactRow = ({
   backgroundOffset,
   backgroundColor,
   onSelectContact,
-  onRowLayout,
 }) => {
   return (
-    <View
-      style={styles.contactWrapper}
-      onLayout={e => onRowLayout(contact.uuid, e.nativeEvent.layout.y)}
-    >
+    <View style={styles.contactWrapper}>
       <TouchableOpacity
         style={styles.contactRowContainer}
         onPress={() => onSelectContact(contact)}
@@ -166,11 +162,18 @@ export default function HalfModalSendOptions({
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
   const [showPasteButton, setShowPasteButton] = useState(true);
   const didPasteRef = useRef(false);
-  const scrollViewRef = useRef(null);
-  const rowLayoutsRef = useRef({}); // { [uuid]: y }
   const textInputRef = useRef(null);
-  const scrollOffsetRef = useRef(0);
-  const scrollViewHeightRef = useRef(0);
+  // Tracks mount so async callbacks (clipboard check, contact resolve, animation
+  // finish) never call setState after the modal has closed/unmounted.
+  const isMountedRef = useRef(true);
+  // One-way latch: once a terminal navigation (scan/paste/image/submit/contact
+  // added) begins, reversible entry actions (opening a contact flow, add-contact)
+  // are ignored so nothing can open on top of a modal that is navigating away.
+  const hasCommittedRef = useRef(false);
+  // Re-entrancy guard for the async manual-input submit (Enter/button spam).
+  const isSubmittingRef = useRef(false);
+  // Dedupes contact-flow open across the keyboard-dismiss await.
+  const pendingContactOpenRef = useRef(false);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -205,6 +208,13 @@ export default function HalfModalSendOptions({
   const anyOverlayVisible = showAddContact || !!contactFlow;
 
   useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (anyOverlayVisible) {
       contentOpacity.value = withTiming(0, { duration: 0 });
       contentTranslateX.value = withTiming(-30, { duration: 250 });
@@ -214,16 +224,25 @@ export default function HalfModalSendOptions({
     }
   }, [anyOverlayVisible]);
 
+  // Runs on JS thread after the open animation finishes; ignored if the modal
+  // unmounted mid-transition so we never setState on a dead component.
+  const unmountNoInputPage = useCallback(() => {
+    if (isMountedRef.current) setNoInputMounted(false);
+  }, []);
+
   useEffect(() => {
     if (isInputMode) {
       inputModeProgress.value = withTiming(1, { duration: 220 }, finished => {
-        if (finished) scheduleOnRN(setNoInputMounted, false);
+        // `finished` is false when reanimated cancels this animation (e.g. the
+        // user toggles back out before it completes), so we only collapse the
+        // page on a clean finish.
+        if (finished) scheduleOnRN(unmountNoInputPage);
       });
     } else {
       setNoInputMounted(true);
       inputModeProgress.value = withTiming(0, { duration: 220 });
     }
-  }, [isInputMode]);
+  }, [isInputMode, unmountNoInputPage]);
 
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
@@ -267,12 +286,19 @@ export default function HalfModalSendOptions({
 
   const handleManualInputSubmit = useCallback(async () => {
     if (!inputText.trim()) return;
+    // Block concurrent submits (Enter + button spam). Reset on error paths so
+    // the user can retry; left set on the navigation paths since the modal closes.
+    if (isSubmittingRef.current || hasCommittedRef.current) return;
+    isSubmittingRef.current = true;
     const input = inputText.trim();
 
     const normalized = input.startsWith('@')
       ? input.slice(1).toLowerCase()
       : input.toLowerCase();
-    if (!normalized) return;
+    if (!normalized) {
+      isSubmittingRef.current = false;
+      return;
+    }
     const matchedContact = decodedAddedContacts.find(
       c => c.uniqueName?.toLowerCase() === normalized,
     );
@@ -300,8 +326,10 @@ export default function HalfModalSendOptions({
         payingContactMessage,
       });
 
+      if (!isMountedRef.current) return;
       if (!didWork) {
         setInputError(t(error));
+        isSubmittingRef.current = false;
         return;
       }
 
@@ -310,6 +338,7 @@ export default function HalfModalSendOptions({
           ? 'USD'
           : 'BTC';
 
+      hasCommittedRef.current = true;
       handleBackPressFunction(async () => {
         navigate.replace('ConfirmPaymentScreen', {
           btcAdress: receiveAddress,
@@ -336,8 +365,10 @@ export default function HalfModalSendOptions({
     const parsed = handlePreSendPageParsing(input);
     if (parsed.error) {
       setInputError(parsed.error);
+      isSubmittingRef.current = false;
       return;
     }
+    hasCommittedRef.current = true;
     if (parsed.navigateToWebView) {
       handleBackPressFunction(async () => {
         navigate.replace('CustomWebView', {
@@ -346,6 +377,7 @@ export default function HalfModalSendOptions({
         });
         return;
       });
+      return;
     }
     if (parsed.isExternalChain) {
       handleBackPressFunction(async () => {
@@ -374,6 +406,8 @@ export default function HalfModalSendOptions({
   ]);
 
   const handleClipboardPaste = useCallback(async () => {
+    if (hasCommittedRef.current) return;
+    hasCommittedRef.current = true;
     handleBackPressFunction(async () => {
       navigate.goBack();
       const response = await getClipboardText();
@@ -429,10 +463,14 @@ export default function HalfModalSendOptions({
   }, [navigate, t]);
 
   const handleCameraScan = useCallback(async () => {
+    if (hasCommittedRef.current) return;
+    hasCommittedRef.current = true;
     handleBackPressFunction(() => navigate.replace('SendBTC'));
   }, [navigate, t, handleBackPressFunction]);
 
   const handleImageScan = useCallback(async () => {
+    if (hasCommittedRef.current) return;
+    hasCommittedRef.current = true;
     handleBackPressFunction(async () => {
       navigate.goBack();
       const response = await getQRImage();
@@ -463,12 +501,10 @@ export default function HalfModalSendOptions({
     });
   }, [navigate, t, handleBackPressFunction]);
 
-  const handleRowLayout = useCallback((uuid, y) => {
-    rowLayoutsRef.current[uuid] = y;
-  }, []);
-
   const sortedContacts = useMemo(() => {
-    return contactInfoList
+    // Copy before sorting: contactInfoList is memoized upstream and .sort()
+    // mutates in place, which would corrupt the shared hook value.
+    return [...contactInfoList]
       .sort((contactA, contactB) => {
         const updatedA = contactA?.lastUpdated || 0;
         const updatedB = contactB?.lastUpdated || 0;
@@ -489,6 +525,7 @@ export default function HalfModalSendOptions({
     async function checkClipboard() {
       try {
         const hasString = await hasStringAsync();
+        if (!isMountedRef.current) return;
         setShowPasteButton(hasString);
       } catch (err) {
         console.log('error checking clipboard', err);
@@ -499,14 +536,23 @@ export default function HalfModalSendOptions({
 
   const handleSelectContact = useCallback(
     async contact => {
-      await KeyboardController.dismiss();
-      // Clear any payment method left over from a previous contact so the new
-      // contact starts from its resolved default currency.
-      navigate.setParams({ selectedPaymentMethod: undefined });
-      setContactFlow({
-        selectedContact: contact,
-        imageData: cache[contact.uuid],
-      });
+      // Ignore if we're already navigating away, or a contact open is mid-flight
+      // (dedupes rapid row taps across the keyboard-dismiss await below).
+      if (hasCommittedRef.current || pendingContactOpenRef.current) return;
+      pendingContactOpenRef.current = true;
+      try {
+        await KeyboardController.dismiss();
+        if (!isMountedRef.current) return;
+        // Clear any payment method left over from a previous contact so the new
+        // contact starts from its resolved default currency.
+        navigate.setParams({ selectedPaymentMethod: undefined });
+        setContactFlow({
+          selectedContact: contact,
+          imageData: cache[contact.uuid],
+        });
+      } finally {
+        pendingContactOpenRef.current = false;
+      }
     },
     [cache, navigate],
   );
@@ -515,15 +561,22 @@ export default function HalfModalSendOptions({
     setShowAddContact(false);
   }, [setShowAddContact]);
 
+  const showAddContacts = useCallback(() => {
+    if (hasCommittedRef.current) return;
+    setShowAddContact(true);
+  }, []);
+
   const handleContactAdded = useCallback(
     newContact => {
+      if (hasCommittedRef.current) return;
+      hasCommittedRef.current = true;
       handleBackPressFunction(() => {
         navigate.replace('ExpandedAddContactsPage', {
           newContact: newContact,
         });
       });
     },
-    [navigate],
+    [navigate, handleBackPressFunction],
   );
 
   const onBlurFunction = useCallback(() => {
@@ -561,7 +614,6 @@ export default function HalfModalSendOptions({
         backgroundOffset={backgroundOffset}
         backgroundColor={backgroundColor}
         onSelectContact={handleSelectContact}
-        onRowLayout={handleRowLayout}
       />
     ));
   }, [
@@ -572,18 +624,23 @@ export default function HalfModalSendOptions({
     backgroundOffset,
     backgroundColor,
     handleSelectContact,
-    handleRowLayout,
   ]);
 
   const handleFilteredContactPress = useCallback(
     async contact => {
-      KeyboardController.dismiss();
-      setIsKeyboardActive(false);
-      navigate.setParams({ selectedPaymentMethod: undefined });
-      setContactFlow({
-        selectedContact: contact,
-        imageData: cache[contact.uuid],
-      });
+      if (hasCommittedRef.current || pendingContactOpenRef.current) return;
+      pendingContactOpenRef.current = true;
+      try {
+        KeyboardController.dismiss();
+        setIsKeyboardActive(false);
+        navigate.setParams({ selectedPaymentMethod: undefined });
+        setContactFlow({
+          selectedContact: contact,
+          imageData: cache[contact.uuid],
+        });
+      } finally {
+        pendingContactOpenRef.current = false;
+      }
     },
     [cache, navigate, setIsKeyboardActive],
   );
@@ -684,7 +741,6 @@ export default function HalfModalSendOptions({
               pointerEvents={isInputMode ? 'none' : 'auto'}
             >
               <ScrollView
-                ref={scrollViewRef}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={{
@@ -692,13 +748,9 @@ export default function HalfModalSendOptions({
                   paddingBottom: bottomPadding,
                 }}
                 stickyHeaderIndices={[3]}
-                onScroll={e => {
-                  scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
-                }}
                 scrollEventThrottle={16}
                 onLayout={e => {
                   const h = e.nativeEvent.layout.height;
-                  scrollViewHeightRef.current = h;
                   setScrollViewHeight(h);
                 }}
               >
@@ -828,7 +880,7 @@ export default function HalfModalSendOptions({
                       textContent={t(
                         'contacts.editMyProfilePage.addContactBTN',
                       )}
-                      actionFunction={() => setShowAddContact(true)}
+                      actionFunction={showAddContacts}
                     />
                   </View>
                 )}
