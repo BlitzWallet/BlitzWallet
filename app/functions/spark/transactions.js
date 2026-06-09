@@ -441,6 +441,10 @@ const TYPE_SQL = {
   Pools: { clause: `json_extract(details, '$.isPoolPayment') = 1`, params: [] },
 };
 
+const EXCLUDE_SAVINGS_TRANSFER_SQL = `
+  AND COALESCE(json_extract(details, '$.isSavings'), 0) != 1
+`;
+
 /**
  * Pure function — builds a SQLite SELECT query and params array from a filter
  * object. No DB access; safe to unit-test.
@@ -570,6 +574,7 @@ export const getMonthlyTransactions = async (
       AND paymentStatus = 'completed'
       AND json_extract(details, '$.time') >= ?
       AND json_extract(details, '$.time') < ?
+      ${EXCLUDE_SAVINGS_TRANSFER_SQL}
       ${dirClause}
       ${typeClause}
       ORDER BY json_extract(details, '$.time') DESC`;
