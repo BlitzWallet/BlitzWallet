@@ -254,6 +254,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     poolInfoRef,
     t,
     hideSmallPaymentsHomepage,
+    swapLimits,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -433,6 +434,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
           isLRC20Payment={isLRC20Payment}
           poolInfoRef={poolInfoRef}
           showSwapConversion={showSwapConversion}
+          swapLimits={swapLimits}
         />
       );
       shownTxs.add(uniuqeIDFromTx);
@@ -579,6 +581,7 @@ export const UserTransaction = memo(function UserTransaction({
   showSwapConversion,
   isLastItem,
   isFirstItem,
+  swapLimits,
 }) {
   const { t } = useTranslation();
   const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
@@ -727,7 +730,9 @@ export const UserTransaction = memo(function UserTransaction({
         />
       </View>
       <View>
-        {showSwapConversion ? (
+        {showSwapConversion &&
+        transaction.details.amount &&
+        swapLimits.bitcoin <= transaction.details.amount ? (
           <FormattedSatText
             neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
             globalBalanceDenomination={userBalanceDenomination}

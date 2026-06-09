@@ -526,7 +526,13 @@ export const claimnSparkStaticDepositAddress = async ({
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.claimStaticDepositAddress,
-        { mnemonic, creditAmountSats, sspSignature, transactionId },
+        {
+          mnemonic,
+          creditAmountSats,
+          sspSignature,
+          transactionId,
+          outputIndex,
+        },
       );
 
       return validateWebViewResponse(
@@ -539,6 +545,7 @@ export const claimnSparkStaticDepositAddress = async ({
         creditAmountSats,
         sspSignature,
         transactionId,
+        outputIndex,
       });
       return { didWork: true, response };
     }

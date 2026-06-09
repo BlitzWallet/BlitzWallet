@@ -1009,13 +1009,13 @@
       "phonePaymentDesc": "Skickar till mobilnummer",
       "depositFunds": "Sätt in pengar",
       "depositFundsSubtitle": "Lägg till pengar i din plånbok",
-      "onChainBitcoin": "Bitcoin-adress",
+      "onChainBitcoin": "Sätt in Bitcoin",
       "onChainBitcoinSubtitle": "Ta emot via on-chain-adress",
-      "stablecoins": "Stablecoins",
-      "stablecoinsSubtitle": "Sätt in USDT / USDC i din plånbok",
+      "stablecoins": "Sätt in dollar",
+      "stablecoinsSubtitle": "Sätt in dollar i din plånbok",
       "cashAppSubtitle": "Skicka från Cash App direkt",
       "sparkAddressSubtitle": "Ta emot till din Spark-adress",
-      "otherBitcoin": "Andra Bitcoin-alternativ",
+      "otherBitcoin": "Andra insättningsalternativ",
       "otherBitcoinSubtitle": "Liquid, Rootstock och Spark",
       "lightningInvoice": "Lightning-faktura",
       "lightningInvoiceSubtitle": "Ta emot BTC eller USD direkt",
@@ -1039,7 +1039,8 @@
       "depositQRInstruction_bitcoin": "Skicka bara Bitcoin till den här adressen. Pengarna kommer efter tre bekräftelser på kedjan.",
       "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo",
       "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo.",
-      "depositQRInstruction_spark": "Skicka bara Bitcoin eller tokens till din Spark-adress."
+      "depositQRInstruction_spark": "Skicka Bitcoin eller tokens till denna adress.",
+      "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress."
     },
     "payLinks": {
       "skip": "Hoppa över",
@@ -1727,8 +1728,8 @@
       "pageTitle": "{{type}} Överföringar"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Laddar sparade Roostock-transfereringar",
-      "noSwapsMessage": "Du har inga sparade Roostock-överföringar",
+      "loadingMessage": "Laddar sparade Rootstock-transfereringar",
+      "noSwapsMessage": "Du har inga sparade Rootstock-överföringar",
       "swap.created": "Förbereder",
       "invoice.set": "Finansierar",
       "transaction.mempool": "Bekräftar",
@@ -2170,6 +2171,7 @@
         "generatingInvoice": "Generera faktura",
         "amountPlaceholder": "Valfritt belopp",
         "copyInvoice": "Kopiera faktura",
+        "usdSwapMinNotice": "Endast betalningar över {{amount}} kommer att konverteras till dollar",
         "shareInvoice": "Dela faktura",
         "walletNotConnected": "Plånboken är inte ansluten. Försök igen.",
         "paylinkSaveError": "Det gick inte att spara betalningslänken",

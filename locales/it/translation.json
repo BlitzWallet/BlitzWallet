@@ -1009,13 +1009,13 @@
       "phonePaymentDesc": "Invio a un numero di cellulare",
       "depositFunds": "Deposita fondi",
       "depositFundsSubtitle": "Aggiungi fondi al tuo wallet",
-      "onChainBitcoin": "Indirizzo Bitcoin",
+      "onChainBitcoin": "Deposita Bitcoin",
       "onChainBitcoinSubtitle": "Ricevi tramite indirizzo on-chain",
-      "stablecoins": "Stablecoin",
-      "stablecoinsSubtitle": "Deposita USDT / USDC nel tuo wallet",
+      "stablecoins": "Deposita dollari",
+      "stablecoinsSubtitle": "Deposita dollari nel tuo wallet",
       "cashAppSubtitle": "Invia da Cash App istantaneamente",
       "sparkAddressSubtitle": "Ricevi sul tuo indirizzo Spark",
-      "otherBitcoin": "Altre opzioni Bitcoin",
+      "otherBitcoin": "Altre opzioni di deposito",
       "otherBitcoinSubtitle": "Liquid, Rootstock e Spark",
       "lightningInvoice": "Fattura Lightning",
       "lightningInvoiceSubtitle": "Ricevi BTC o USD istantaneamente",
@@ -1039,7 +1039,8 @@
       "depositQRInstruction_bitcoin": "Invia solo Bitcoin a questo indirizzo. I fondi arrivano dopo tre conferme on-chain.",
       "depositQRInstruction_liquid": "Invia solo Liquid Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin",
       "depositQRInstruction_rootstock": "Invia solo Rootstock Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin.",
-      "depositQRInstruction_spark": "Invia solo Bitcoin o token al tuo indirizzo Spark."
+      "depositQRInstruction_spark": "Invia Bitcoin o token a questo indirizzo.",
+      "depositQRInstruction_spark_dollars": "Invia USDB a questo indirizzo."
     },
     "payLinks": {
       "skip": "Salta",
@@ -1727,8 +1728,8 @@
       "pageTitle": "Trasferimenti {{type}}"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Caricamento delle trasferenze Roostock salvate",
-      "noSwapsMessage": "Non hai trasferenze Roostock salvate",
+      "loadingMessage": "Caricamento delle trasferenze Rootstock salvate",
+      "noSwapsMessage": "Non hai trasferenze Rootstock salvate",
       "swap.created": "Preparazione",
       "invoice.set": "Finanziamento",
       "transaction.mempool": "Conferma",
@@ -2170,6 +2171,7 @@
         "generatingInvoice": "Generazione Fattura",
         "amountPlaceholder": "Qualsiasi importo",
         "copyInvoice": "Copia fattura",
+        "usdSwapMinNotice": "Solo i pagamenti superiori a {{amount}} saranno convertiti in dollari",
         "shareInvoice": "Condividi fattura",
         "walletNotConnected": "Wallet non connesso. Riprova.",
         "paylinkSaveError": "Impossibile salvare il link di pagamento",

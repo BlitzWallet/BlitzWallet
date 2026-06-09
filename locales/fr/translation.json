@@ -1009,13 +1009,13 @@
       "phonePaymentDesc": "Envoi vers un numéro de mobile",
       "depositFunds": "Déposer des fonds",
       "depositFundsSubtitle": "Ajoutez des fonds à votre portefeuille",
-      "onChainBitcoin": "Adresse Bitcoin",
+      "onChainBitcoin": "Déposer du Bitcoin",
       "onChainBitcoinSubtitle": "Recevoir via une adresse on-chain",
-      "stablecoins": "Stablecoins",
-      "stablecoinsSubtitle": "Déposez des USDT / USDC dans votre portefeuille",
+      "stablecoins": "Déposer des dollars",
+      "stablecoinsSubtitle": "Déposez des dollars dans votre portefeuille",
       "cashAppSubtitle": "Envoyer depuis Cash App instantanément",
       "sparkAddressSubtitle": "Recevoir sur votre adresse Spark",
-      "otherBitcoin": "Autres options Bitcoin",
+      "otherBitcoin": "Autres options de dépôt",
       "otherBitcoinSubtitle": "Liquid, Rootstock et Spark",
       "lightningInvoice": "Facture Lightning",
       "lightningInvoiceSubtitle": "Recevoir des BTC ou des USD instantanément",
@@ -1039,7 +1039,8 @@
       "depositQRInstruction_bitcoin": "Envoyez uniquement du Bitcoin à cette adresse. Les fonds arrivent après trois confirmations on-chain.",
       "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin",
       "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin.",
-      "depositQRInstruction_spark": "Envoyez uniquement du Bitcoin ou des tokens à votre adresse Spark."
+      "depositQRInstruction_spark": "Envoyez du Bitcoin ou des tokens à cette adresse.",
+      "depositQRInstruction_spark_dollars": "Envoyez de l'USDB à cette adresse."
     },
     "payLinks": {
       "skip": "Passer",
@@ -1727,8 +1728,8 @@
       "pageTitle": "{{type}} Transferts"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Chargement des transferts enregistrés de Roostock",
-      "noSwapsMessage": "Vous n'avez pas sauvegardé de transferts Roostock",
+      "loadingMessage": "Chargement des transferts enregistrés de Rootstock",
+      "noSwapsMessage": "Vous n'avez pas sauvegardé de transferts Rootstock",
       "swap.created": "Préparation",
       "invoice.set": "Financement",
       "transaction.mempool": "Confirmation",
@@ -2170,6 +2171,7 @@
         "generatingInvoice": "Générer une facture",
         "amountPlaceholder": "Tout montant",
         "copyInvoice": "Copier la facture",
+        "usdSwapMinNotice": "Seuls les paiements supérieurs à {{amount}} seront convertis en dollars",
         "shareInvoice": "Partager la facture",
         "walletNotConnected": "Portefeuille non connecté. Veuillez réessayer.",
         "paylinkSaveError": "Échec de l’enregistrement du lien de paiement",

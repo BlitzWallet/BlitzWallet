@@ -1,4 +1,10 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +15,10 @@ import {
   FONT,
   SIZES,
 } from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
@@ -52,7 +61,7 @@ export default function DepositQRView({
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
   const { swapLimits, poolInfoRef } = useFlashnet();
@@ -88,7 +97,7 @@ export default function DepositQRView({
   }, [theme, darkModeType]);
 
   useEffect(() => {
-    if (isActive) setContentHeight(625);
+    if (isActive) setContentHeight(700);
   }, [isActive]);
 
   useEffect(() => {
@@ -181,13 +190,26 @@ export default function DepositQRView({
           asset: config.sourceAsset,
           chain: capitalize(config.sourceChain),
         })
-      : t(`wallet.halfModal.depositQRInstruction_${option}`);
+      : t(
+          `wallet.halfModal.depositQRInstruction_${option}${
+            option === 'spark' && config.fromStablecoin ? '_dollars' : ''
+          }`,
+        );
 
   const address = addressState.generatedAddress || '';
-  const truncatedAddress =
-    address.length > 24
-      ? `${address.slice(0, 10)}...${address.slice(-12)}`
-      : address;
+  const addressSegments = (address.match(/.{1,4}/g) || []).map(
+    (group, i, all) => (
+      <Text
+        key={i}
+        style={{
+          fontFamily: i % 2 === 0 ? FONT.Title_SemiBold : FONT.Title_Regular,
+        }}
+      >
+        {group}
+        {i < all.length - 1 ? ' ' : ''}
+      </Text>
+    ),
+  );
 
   const handleCopy = () => {
     if (!address) return;
@@ -235,10 +257,17 @@ export default function DepositQRView({
   return (
     <View style={styles.container}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: bottomPadding },
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity activeOpacity={0.8} onPress={handleCopy}>
+        <TouchableOpacity
+          style={styles.qrWrapper}
+          activeOpacity={0.8}
+          onPress={handleCopy}
+        >
           <QrCodeWrapper
             QRData={address}
             qrSize={qrInnerSize}
@@ -251,22 +280,32 @@ export default function DepositQRView({
               height: qrInnerSize,
             }}
           />
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.addressText}
-            content={truncatedAddress}
-          />
         </TouchableOpacity>
+
+        <ThemeText
+          CustomNumberOfLines={3}
+          adjustsFontSizeToFit={true}
+          styles={styles.addressText}
+          content={addressSegments}
+        />
+
+        <View
+          style={[
+            styles.divider,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        />
+
         <ThemeText styles={styles.instruction} content={instruction} />
       </ScrollView>
       {minimumDepositWarning ? (
-        <View style={[styles.warningContainer]}>
-          <ThemeIcon iconName="TriangleAlert" size={20} />
-          <ThemeText
-            styles={styles.warningDescription}
-            content={minimumDepositWarning}
-          />
-        </View>
+        <ThemeText
+          styles={styles.warningDescription}
+          content={minimumDepositWarning}
+        />
       ) : null}
       <CustomButton
         buttonStyles={{
@@ -309,44 +348,48 @@ const styles = StyleSheet.create({
   scrollContent: {
     width: '100%',
     flexGrow: 1,
+    alignItems: 'stretch',
+  },
+  qrWrapper: {
+    alignSelf: 'center',
+  },
+  addressHeaderRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    marginTop: 24,
+  },
+  addressLabel: {
+    fontSize: SIZES.small,
+    opacity: 0.6,
+    textTransform: 'uppercase',
+    includeFontPadding: false,
   },
   addressText: {
     fontSize: SIZES.small,
-    opacity: 0.6,
-    textAlign: 'center',
-    marginTop: 12,
+    lineHeight: 24,
+    letterSpacing: 1,
+    marginTop: 10,
     includeFontPadding: false,
+    textAlign: 'center',
+  },
+  divider: {
+    height: 1,
+    width: '100%',
+    marginVertical: 16,
   },
   instruction: {
     fontSize: SIZES.small,
-    opacity: 0.6,
+    opacity: HIDDEN_OPACITY,
     textAlign: 'center',
-    marginTop: 20,
-    includeFontPadding: false,
-  },
-  warningContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    ...CENTER,
-  },
-  warningHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  warningTitle: {
-    fontSize: SIZES.small,
-    fontFamily: FONT.Title_Medium,
-    flexShrink: 1,
     includeFontPadding: false,
   },
   warningDescription: {
     includeFontPadding: false,
     fontSize: SIZES.small,
+    textAlign: 'center',
+    opacity: HIDDEN_OPACITY,
+    marginTop: 16,
   },
   errorText: {
     width: '90%',
