@@ -1045,7 +1045,7 @@
       "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
       "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
       "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark",
-      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço."
+      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço. Você receberá diretamente no seu saldo em dólares"
     },
     "payLinks": {
       "skip": "Pular",
