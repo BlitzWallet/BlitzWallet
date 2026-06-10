@@ -555,18 +555,30 @@ export default function HalfModalReceiveOptions({
           </View>
 
           {/* Address Book Section */}
-          {decodedAddedContacts.length > 0 ? (
+          {contactElements.length > 0 ? (
             contactElements
           ) : (
             <View style={styles.emptyContactsContainer}>
               <ThemeIcon iconName={'UsersRound'} />
               <ThemeText
                 styles={styles.emptyTitle}
-                content={t('wallet.halfModal.noAddedContactsTitle')}
+                content={t(
+                  `wallet.halfModal.${
+                    !decodedAddedContacts.length
+                      ? 'noAddedContactsTitle'
+                      : 'noAvailableContactsTitle'
+                  }`,
+                )}
               />
               <ThemeText
                 styles={styles.emptySubtext}
-                content={t('wallet.halfModal.noAddedContactsDesc')}
+                content={t(
+                  `wallet.halfModal.${
+                    !decodedAddedContacts.length
+                      ? 'noAddedContactsDesc'
+                      : 'noAvailableContactsDescription'
+                  }`,
+                )}
               />
               <CustomButton
                 buttonStyles={{ width: '100%' }}
