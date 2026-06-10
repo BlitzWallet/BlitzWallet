@@ -62,19 +62,26 @@ export default function HalfModalDepositFunds({
     const showOptions = activeView === 'options';
     const showBank = activeView === 'bank';
     const showQR = activeView === 'qr';
+    const subviewHiddenTranslateX = showQR ? -30 : 30;
 
     stablecoinsOpacity.value = withTiming(showStablecoins ? 1 : 0, {
       duration: 250,
     });
-    stablecoinsTranslateX.value = withTiming(showStablecoins ? 0 : 30, {
-      duration: 250,
-    });
+    stablecoinsTranslateX.value = withTiming(
+      showStablecoins ? 0 : subviewHiddenTranslateX,
+      {
+        duration: 250,
+      },
+    );
     othersOpacity.value = withTiming(showOthers ? 1 : 0, {
       duration: 250,
     });
-    othersTranslateX.value = withTiming(showOthers ? 0 : 30, {
-      duration: 250,
-    });
+    othersTranslateX.value = withTiming(
+      showOthers ? 0 : subviewHiddenTranslateX,
+      {
+        duration: 250,
+      },
+    );
     optionsOpacity.value = withTiming(showOptions ? 1 : 0, { duration: 250 });
     optionsTranslateX.value = withTiming(showOptions ? 0 : -30, {
       duration: 250,
