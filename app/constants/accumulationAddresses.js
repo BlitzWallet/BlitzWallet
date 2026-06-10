@@ -1,7 +1,7 @@
 export const ACCUMULATION_CHAINS = [
   { id: 'arbitrum', label: 'Arbitrum', assets: ['USDC', 'USDT'] },
   { id: 'base', label: 'Base', assets: ['USDC'] },
-  { id: 'bsc', label: 'BNB', assets: ['USDC', 'USDT'] },
+  { id: 'bsc', label: 'BSC', assets: ['USDC', 'USDT'] },
   { id: 'solana', label: 'Solana', assets: ['USDC', 'USDT'] },
   { id: 'ethereum', label: 'Ethereum', assets: ['USDC', 'USDT'] },
   { id: 'optimism', label: 'Optimism', assets: ['USDC', 'USDT'] },
