@@ -2163,7 +2163,8 @@
         "liquidWalletError": "La información de la billetera no se configuró correctamente, intenta de nuevo.",
         "liquidWalletError2": "No pudimos configurar tu billetera. Intenta de nuevo.",
         "dbInitError1": "No podemos configurar su aplicación.",
-        "dbInitError2": "Por favor inténtalo de nuevo. Si este problema continúa, puede recuperar sus fondos de forma segura utilizando su frase inicial."
+        "dbInitError2": "Por favor inténtalo de nuevo. Si este problema continúa, puede recuperar sus fondos de forma segura utilizando su frase inicial.",
+        "initErrorTitle": "Algo salió mal"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Para recibir un pago de Bitcoin, pagarás una comisión de red on-chain. Esta comisión varía según las tarifas actuales de la red Bitcoin.",

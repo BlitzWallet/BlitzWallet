@@ -2163,7 +2163,8 @@
         "liquidWalletError": "Wallet-Informationen wurden nicht korrekt eingerichtet, bitte versuchen Sie es erneut.",
         "liquidWalletError2": "Wir konnten Ihre Wallet nicht einrichten. Bitte versuchen Sie es erneut.",
         "dbInitError1": "Wir konnten Ihre App nicht einrichten.",
-        "dbInitError2": "Bitte versuchen Sie es erneut. Wenn dieses Problem weiterhin besteht, können Sie Ihr Geld mithilfe Ihrer Wiederherstellungsphrase sicher zurückerhalten."
+        "dbInitError2": "Bitte versuchen Sie es erneut. Wenn dieses Problem weiterhin besteht, können Sie Ihr Geld mithilfe Ihrer Wiederherstellungsphrase sicher zurückerhalten.",
+        "initErrorTitle": "Etwas ist schiefgelaufen"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Um eine BTC-Zahlung zu empfangen, zahlen Sie eine On-Chain-Netzwerkgebühr. Diese variiert je nach aktuellen BTC-Netzwerkgebühren.",

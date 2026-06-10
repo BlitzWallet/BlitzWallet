@@ -2163,7 +2163,8 @@
         "liquidWalletError": "Le informazioni del wallet non sono state impostate correttamente, riprova.",
         "liquidWalletError2": "Non siamo riusciti a configurare il tuo wallet. Riprova.",
         "dbInitError1": "Non siamo in grado di configurare la tua app.",
-        "dbInitError2": "Per favore riprova. Se il problema persiste, puoi recuperare i tuoi fondi in tutta sicurezza utilizzando la frase seed."
+        "dbInitError2": "Per favore riprova. Se il problema persiste, puoi recuperare i tuoi fondi in tutta sicurezza utilizzando la frase seed.",
+        "initErrorTitle": "Qualcosa è andato storto"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Per ricevere un pagamento in Bitcoin, pagherai una commissione di rete on-chain. Questa commissione varia in base alle tariffe attuali della rete Bitcoin.",

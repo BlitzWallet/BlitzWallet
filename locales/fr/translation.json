@@ -2163,7 +2163,8 @@
         "liquidWalletError": "Les informations sur le portefeuille n'ont pas été définies correctement, veuillez réessayer.",
         "liquidWalletError2": "Nous n'avons pas pu configurer votre portefeuille. Veuillez réessayer.",
         "dbInitError1": "Nous ne pouvons pas configurer votre application.",
-        "dbInitError2": "Veuillez réessayer. Si le problème persiste, vous pouvez récupérer vos fonds en toute sécurité en utilisant votre phrase d'initialisation."
+        "dbInitError2": "Veuillez réessayer. Si le problème persiste, vous pouvez récupérer vos fonds en toute sécurité en utilisant votre phrase d'initialisation.",
+        "initErrorTitle": "Une erreur s’est produite"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Pour recevoir un paiement Bitcoin, vous devrez payer des frais réseau on-chain. Ces frais varient selon les frais actuels du réseau Bitcoin.",

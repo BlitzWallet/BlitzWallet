@@ -2163,7 +2163,8 @@
         "liquidWalletError": "Plånboksinformationen var inte korrekt inställd, försök igen.",
         "liquidWalletError2": "Vi kunde inte konfigurera din plånbok. Vänligen försök igen.",
         "dbInitError1": "Vi kan inte konfigurera din app.",
-        "dbInitError2": "Vänligen försök igen. Om detta problem fortsätter kan du säkert återfå dina pengar med hjälp av din seed-fras."
+        "dbInitError2": "Vänligen försök igen. Om detta problem fortsätter kan du säkert återfå dina pengar med hjälp av din seed-fras.",
+        "initErrorTitle": "Något gick fel"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "För att ta emot en Bitcoin-betalning betalar du en on-chain-nätverksavgift. Denna avgift varierar beroende på aktuella Bitcoin-nätverksavgifter.",
