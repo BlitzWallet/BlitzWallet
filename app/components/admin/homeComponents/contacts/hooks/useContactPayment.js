@@ -75,6 +75,7 @@ export default function useContactPayment({
   const [lnFeeEstimate, setLnFeeEstimate] = useState(null);
   const [swapQuote, setSwapQuote] = useState({});
   const [lnInvoiceData, setLnInvoiceData] = useState(null);
+  const [lnurlPayData, setLnurlPayData] = useState(null);
   const [prefetchedDoc, setPrefetchedDoc] = useState(null);
   const [contactReceiveOption, setContactReceiveOption] = useState(null);
   const lnurlParsedRef = useRef(null);
@@ -196,6 +197,47 @@ export default function useContactPayment({
     requiresContactDoc,
     selectedContact?.uuid,
   ]);
+
+  // For LNURL contacts the receive address must be resolved against its
+  // .well-known/lnurlp endpoint to learn the min/max sendable bounds. Fetch it
+  // up front (not lazily during fee estimation) so usePaymentValidation can
+  // enforce those bounds on the input screen instead of failing at confirm.
+  useEffect(() => {
+    let isCurrent = true;
+
+    if (!selectedContact?.isLNURL || paymentType !== 'send') {
+      setLnurlPayData(null);
+      return () => {
+        isCurrent = false;
+      };
+    }
+
+    setLnurlPayData(null);
+
+    (async () => {
+      try {
+        const parsed = await parseInput(selectedContact.receiveAddress);
+        if (!isCurrent) return;
+        setLnurlPayData(parsed);
+        // Seed the ref so estimateLNURLFee reuses it instead of re-parsing.
+        lnurlParsedRef.current = parsed;
+      } catch {
+        // Leave lnurlPayData null — review stays blocked with an explanatory
+        // message until bounds are known.
+      }
+    })();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [paymentType, selectedContact?.isLNURL, selectedContact?.receiveAddress]);
+
+  const minLNURLSatAmount = lnurlPayData
+    ? lnurlPayData.data.minSendable / 1000
+    : 0;
+  const maxLNURLSatAmount = lnurlPayData
+    ? lnurlPayData.data.maxSendable / 1000
+    : Infinity;
 
   const resolvedEndReceiveType =
     paymentType === 'send'
@@ -390,6 +432,7 @@ export default function useContactPayment({
   const paymentValidation = usePaymentValidation({
     paymentInfo: {
       sendAmount: convertedSendAmount,
+      type: selectedContact?.isLNURL ? InputTypes.LNURL_PAY : undefined,
       paymentNetwork: selectedContact?.isLNURL ? 'lightning' : 'spark',
       isLNURLPayment: selectedContact?.isLNURL,
       data: {
@@ -423,6 +466,8 @@ export default function useContactPayment({
     dollarBalanceToken,
     min_usd_swap_amount,
     swapLimits,
+    minLNURLSatAmount,
+    maxLNURLSatAmount,
     isUsingLRC20: false,
     canEditAmount: true,
     t,
@@ -438,6 +483,7 @@ export default function useContactPayment({
   useEffect(() => {
     lnurlParsedRef.current = null;
     setLnFeeEstimate(null);
+    setLnurlPayData(null);
   }, [selectedContact?.uuid]);
 
   useEffect(() => {
@@ -459,8 +505,10 @@ export default function useContactPayment({
 
   const canProceed =
     paymentType === 'request' ? !!amountValue : paymentValidation.canProceed;
+  const lnurlBoundsReady = !selectedContact?.isLNURL || Boolean(lnurlPayData);
   const canReview =
     canProceed &&
+    lnurlBoundsReady &&
     (!requiresContactDoc || Boolean(contactReceiveOption || prefetchedDoc));
 
   const handleDenominationToggle = useCallback(() => {
@@ -492,6 +540,12 @@ export default function useContactPayment({
     if (!isConnectedToTheInternet) {
       return { didWork: false, errorMessage: t('errormessages.nointernet') };
     }
+    if (selectedContact?.isLNURL && !lnurlPayData) {
+      return {
+        didWork: false,
+        errorMessage: t('errormessages.lnurlLimitsLoading'),
+      };
+    }
     if (requiresContactDoc && !contactReceiveOption && !prefetchedDoc) {
       return {
         didWork: false,
@@ -503,9 +557,11 @@ export default function useContactPayment({
     canProceed,
     isConnectedToTheInternet,
     contactReceiveOption,
+    lnurlPayData,
     paymentValidation,
     prefetchedDoc,
     requiresContactDoc,
+    selectedContact?.isLNURL,
     t,
   ]);
 

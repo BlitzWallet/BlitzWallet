@@ -2654,6 +2654,7 @@
     "cannotAddSelfError": "Você não pode adicionar a si mesmo como um contato.",
     "fullDeeplinkError": "Não foi possível recuperar as informações de contato, tente novamente.",
     "contactNotLoaded": "Contato não carregado. Tente novamente.",
+    "lnurlLimitsLoading": "Ainda buscando os limites de pagamento deste contato. Tente novamente em um instante.",
     "processingDeepLinkError": "Falha ao processar o link: {{error}}",
     "legacyContactError": "O contato ainda não atualizou a carteira. Peça para ele atualizar a carteira para enviar isso..",
     "contactInvoiceGenerationError": "Erro ao gerar fatura. Certifique-se de que seja um endereço Blitz válido.",

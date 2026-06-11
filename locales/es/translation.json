@@ -2654,6 +2654,7 @@
     "cannotAddSelfError": "No puedes añadirte como contacto.",
     "fullDeeplinkError": "No se pudo recuperar información de contacto, por favor intenta de nuevo.",
     "contactNotLoaded": "No se pudo cargar el contacto. Inténtalo de nuevo.",
+    "lnurlLimitsLoading": "Aún se están obteniendo los límites de pago de este contacto. Inténtalo de nuevo en un momento.",
     "processingDeepLinkError": "Error al procesar enlace: {{error}}",
     "legacyContactError": "El contacto aún no ha actualizado su billetera. Por favor pídele que la actualice para enviarle.",
     "contactInvoiceGenerationError": "Error al generar factura. Asegúrate de que sea una dirección LNURL válida.",
