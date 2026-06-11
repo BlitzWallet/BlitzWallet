@@ -379,7 +379,7 @@ export default function usePaymentValidation({
         'wallet.sendPages.acceptButton.noSwapForBTCPaymentsError',
       ),
       BELOW_LNURL_MINIMUM: t('wallet.sendPages.acceptButton.lnurlPayError', {
-        overFlowType: t('constants.minimum'),
+        context: 'minimum',
         amount: displayCorrectDenomination({
           amount: minLNURLSatAmount,
           masterInfoObject: {
@@ -391,7 +391,7 @@ export default function usePaymentValidation({
         }),
       }),
       ABOVE_LNURL_MAXIMUM: t('wallet.sendPages.acceptButton.lnurlPayError', {
-        overFlowType: t('constants.maximum'),
+        context: 'maximum',
         amount: displayCorrectDenomination({
           amount: maxLNURLSatAmount,
           masterInfoObject: {
