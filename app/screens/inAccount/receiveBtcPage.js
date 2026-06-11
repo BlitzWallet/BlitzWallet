@@ -122,7 +122,6 @@ export default function ReceivePaymentHome(props) {
   // toggling back to Bitcoin restores the original invoice.
   const canUseLnurl = !isUsingAltAccount && !paymentDescription;
   const isBelowUsdSwapMin =
-    canUseLnurl &&
     endReceiveType === 'USD' &&
     !!userReceiveAmount &&
     minUsdSats > 0 &&
@@ -235,6 +234,11 @@ export default function ReceivePaymentHome(props) {
   const handleShareInvoice = () => {
     const amount = displayedReceiveAmount;
     const currencyType = endReceiveType;
+    const matchingSharePayLinkCache =
+      sharePayLinkCache?.amount === amount &&
+      sharePayLinkCache?.currencyType === currencyType
+        ? sharePayLinkCache
+        : null;
 
     if (!amount) {
       navigate.navigate('ErrorScreen', {
@@ -247,7 +251,7 @@ export default function ReceivePaymentHome(props) {
       wantedContent: 'shareInvoicePaylink',
       rawAmount: amount,
       currencyType,
-      sharePayLinkCache,
+      sharePayLinkCache: matchingSharePayLinkCache,
       onCreated: payLinkId => {
         setSharePayLinkCache({ payLinkId, amount, currencyType });
       },
@@ -327,19 +331,25 @@ export default function ReceivePaymentHome(props) {
             handleShowEditPage={handleShowEditPage}
           />
 
-          {endReceiveType === 'USD' && !displayedReceiveAmount && (
-            <ThemeText
-              styles={styles.swapMinNotice}
-              CustomNumberOfLines={2}
-              content={t('screens.inAccount.receiveBtcPage.usdSwapMinNotice', {
-                amount: displayCorrectDenomination({
-                  amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
-                  masterInfoObject,
-                  fiatStats,
-                }),
-              })}
-            />
-          )}
+          <ThemeText
+            styles={[
+              styles.swapMinNotice,
+              {
+                opacity:
+                  endReceiveType === 'USD' && !displayedReceiveAmount
+                    ? HIDDEN_OPACITY
+                    : 0,
+              },
+            ]}
+            CustomNumberOfLines={2}
+            content={t('screens.inAccount.receiveBtcPage.usdSwapMinNotice', {
+              amount: displayCorrectDenomination({
+                amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+                masterInfoObject,
+                fiatStats,
+              }),
+            })}
+          />
         </ScrollView>
         <TouchableOpacity
           activeOpacity={0.8}

@@ -283,7 +283,6 @@ export default function DepositQRView({
         </TouchableOpacity>
 
         <ThemeText
-          CustomNumberOfLines={3}
           adjustsFontSizeToFit={true}
           styles={styles.addressText}
           content={addressSegments}
@@ -368,10 +367,10 @@ const styles = StyleSheet.create({
   addressText: {
     fontSize: SIZES.small,
     lineHeight: 24,
-    letterSpacing: 1,
     marginTop: 10,
     includeFontPadding: false,
     textAlign: 'center',
+    width: '100%',
   },
   divider: {
     height: 1,

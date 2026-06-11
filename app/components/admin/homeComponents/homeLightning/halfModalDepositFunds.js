@@ -1,5 +1,5 @@
 import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -38,6 +38,7 @@ export default function HalfModalDepositFunds({
   const [activeView, setActiveView] = useState('options');
   const [qrConfig, setQrConfig] = useState(null);
   const [expandedChain, setExpandedChain] = useState(null);
+  const viewHistoryRef = useRef([]);
 
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -61,19 +62,26 @@ export default function HalfModalDepositFunds({
     const showOptions = activeView === 'options';
     const showBank = activeView === 'bank';
     const showQR = activeView === 'qr';
+    const subviewHiddenTranslateX = showQR ? -30 : 30;
 
     stablecoinsOpacity.value = withTiming(showStablecoins ? 1 : 0, {
       duration: 250,
     });
-    stablecoinsTranslateX.value = withTiming(showStablecoins ? 0 : 30, {
-      duration: 250,
-    });
+    stablecoinsTranslateX.value = withTiming(
+      showStablecoins ? 0 : subviewHiddenTranslateX,
+      {
+        duration: 250,
+      },
+    );
     othersOpacity.value = withTiming(showOthers ? 1 : 0, {
       duration: 250,
     });
-    othersTranslateX.value = withTiming(showOthers ? 0 : 30, {
-      duration: 250,
-    });
+    othersTranslateX.value = withTiming(
+      showOthers ? 0 : subviewHiddenTranslateX,
+      {
+        duration: 250,
+      },
+    );
     optionsOpacity.value = withTiming(showOptions ? 1 : 0, { duration: 250 });
     optionsTranslateX.value = withTiming(showOptions ? 0 : -30, {
       duration: 250,
@@ -117,22 +125,33 @@ export default function HalfModalDepositFunds({
     setContentHeight(Math.round(screenDimensions.height * 0.6));
   }, [setContentHeight, screenDimensions]);
 
-  const handleShowQR = useCallback(config => {
-    setQrConfig(config);
-    setActiveView('qr');
-  }, []);
+  const showView = useCallback(
+    nextView => {
+      if (nextView === activeView) return;
+      viewHistoryRef.current = [...viewHistoryRef.current, activeView];
+      setActiveView(nextView);
+    },
+    [activeView],
+  );
 
-  // Per-page back behavior: QR/others/lightning/bank return to the main
-  // options list; the stablecoin picker first collapses an expanded chain
-  // (its "previous step") before returning to options.
+  const handleShowQR = useCallback(
+    config => {
+      setQrConfig(config);
+      showView('qr');
+    },
+    [showView],
+  );
+
   const handleStepBack = useCallback(() => {
     if (activeView === 'options') return false;
     if (activeView === 'stablecoins' && expandedChain) {
       setExpandedChain(null);
       return true;
     }
+
+    const previousView = viewHistoryRef.current.pop() || 'options';
     if (activeView === 'qr') restoreOptionsHeight();
-    setActiveView('options');
+    setActiveView(previousView);
     return true;
   }, [activeView, expandedChain, restoreOptionsHeight]);
 
@@ -146,7 +165,15 @@ export default function HalfModalDepositFunds({
       case 'qr': {
         const option = qrConfig?.selectedRecieveOption?.toLowerCase();
         return option === 'stablecoins'
-          ? capitalize(qrConfig?.sourceChain)
+          ? t('wallet.halfModal.stablecoinSelectedTitle', {
+              curr: qrConfig?.sourceAsset || '',
+              chain: capitalize(qrConfig?.sourceChain),
+            })
+          : option === 'spark' && qrConfig.fromStablecoin
+          ? t('wallet.halfModal.stablecoinSelectedTitle', {
+              curr: 'USDB',
+              chain: 'Spark',
+            })
           : capitalize(qrConfig?.selectedRecieveOption);
       }
       case 'others':
@@ -190,7 +217,7 @@ export default function HalfModalDepositFunds({
           {showLightning && (
             <TouchableOpacity
               style={styles.scanButton}
-              onPress={() => setActiveView('lightning')}
+              onPress={() => showView('lightning')}
             >
               <View
                 style={[
@@ -264,7 +291,7 @@ export default function HalfModalDepositFunds({
           {/* Stablecoins */}
           <TouchableOpacity
             style={styles.scanButton}
-            onPress={() => setActiveView('stablecoins')}
+            onPress={() => showView('stablecoins')}
           >
             <View
               style={[
@@ -300,7 +327,7 @@ export default function HalfModalDepositFunds({
           {/* Other Bitcoin */}
           <TouchableOpacity
             style={styles.scanButton}
-            onPress={() => setActiveView('others')}
+            onPress={() => showView('others')}
           >
             <View
               style={[

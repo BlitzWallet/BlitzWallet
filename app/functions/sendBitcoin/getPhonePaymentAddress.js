@@ -49,6 +49,25 @@ export function isPhonePaymentNumber(input) {
   return getPhonePaymentCandidates(input).length > 0;
 }
 
+// Maps a phone-provider lightning address (national or international form) to its
+// canonical provider form, e.g. 0717252303@bitcoin.co.ke -> 254717252303@bitcoin.co.ke.
+// Returns null for non-phone addresses (regular lightning addresses, blitz, etc.).
+export function canonicalizePhonePaymentAddress(address) {
+  if (typeof address !== 'string') return null;
+  const at = address.indexOf('@');
+  if (at === -1) return null;
+  const local = address.slice(0, at);
+  const domain = address.slice(at + 1).toLowerCase();
+
+  const isProviderDomain = Object.values(PHONE_PAYMENT_PROVIDERS).some(
+    p => p.domain === domain,
+  );
+  if (!isProviderDomain) return null;
+
+  const candidates = getPhonePaymentCandidates(local);
+  return candidates.find(c => c.endsWith(`@${domain}`)) || null;
+}
+
 // Resolves the input to a single lightning address. When the number is valid
 // for multiple supported countries (overlapping 075/076/077 range), probe each
 // candidate's LNURL endpoint in order (KE first) and use the first one that

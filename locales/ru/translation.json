@@ -131,7 +131,9 @@
     "transfer": "Перевод",
     "details": "Детали",
     "total": "Итого",
-    "stablecoinRefundReceived": "Возврат стейблкоина"
+    "stablecoinRefundReceived": "Возврат стейблкоина",
+    "payWith": "Оплатить с помощью",
+    "receiveAs": "Получить в виде"
   },
   "languages": {
     "english": "English",
@@ -998,7 +1000,9 @@
       "tapToGenerate_lightning_btc": "Мгновенно получить BTC",
       "tapToGenerate_lightning_usd": "Мгновенно получить USD",
       "noAddedContactsTitle": "Нет добавленных контактов",
+      "noAvailableContactsTitle": "Нет доступных контактов",
       "noAddedContactsDesc": "Ваши контакты появятся здесь, как только вы добавите один.",
+      "noAvailableContactsDescription": "Вы можете отправлять запросы только контактам Blitz; они появятся здесь, когда вы добавите контакт.",
       "payMe": "Быстрая оплата",
       "createInvoice": "Создать счёт",
       "invoiceDescription": "Создайте счёт и получите оплату мгновенно.",
@@ -1027,6 +1031,7 @@
       "cashAppBack": "Назад",
       "viewDetails": "Подробнее",
       "othersOptionTitle": "Выберите метод",
+      "stablecoinSelectedTitle": "{{curr}} в сети {{chain}}",
       "liquidDesc": "Получайте Liquid BTC на свой кошелёк.",
       "roostockDesc": "Получайте Rootstock BTC на свой кошелёк.",
       "sparkDesc": "Получайте BTC или токены на свой кошелёк.",
@@ -2161,7 +2166,8 @@
         "liquidWalletError": "Информация о кошельке задана неверно.",
         "liquidWalletError2": "Не удалось настроить кошелек.",
         "dbInitError1": "Не удалось настроить приложение.",
-        "dbInitError2": "Попробуйте снова. Если проблема сохраняется, восстановите кошелек через сид-фразу."
+        "dbInitError2": "Попробуйте снова. Если проблема сохраняется, восстановите кошелек через сид-фразу.",
+        "initErrorTitle": "Что-то пошло не так"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Чтобы получить платеж в биткоине, вы заплатите комиссию сети on-chain. Она зависит от текущих комиссий сети Bitcoin.",

@@ -30,6 +30,7 @@ import { getCachedProfileImage } from '../../functions/cachedImage';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import normalizeLNURLAddress from '../../functions/lnurl/normalizeLNURLAddress';
 import { isBlitzLNURLAddress } from '../../functions/lnurl';
+import { canonicalizePhonePaymentAddress } from '../../functions/sendBitcoin/getPhonePaymentAddress';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
@@ -57,12 +58,19 @@ export default function ConfirmTxPage(props) {
 
   const didSucceed = !hasError || isLNURLAuth;
 
+  const canonicalLnurl = lnurlAddress
+    ? canonicalizePhonePaymentAddress(lnurlAddress)
+    : null;
+
   const isAlreadyContact = lnurlAddress
     ? decodedAddedContacts.some(c =>
         isBlitzAddress
           ? c.uniqueName?.toLowerCase() === lnurlUsername
           : c.isLNURL &&
-            c.receiveAddress?.toLowerCase() === lnurlAddress.toLowerCase(),
+            (c.receiveAddress?.toLowerCase() === lnurlAddress.toLowerCase() ||
+              (canonicalLnurl &&
+                canonicalizePhonePaymentAddress(c.receiveAddress) ===
+                  canonicalLnurl)),
       )
     : false;
   const showAddContact =

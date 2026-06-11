@@ -131,7 +131,9 @@
     "transfer": "Transfert",
     "details": "Détails",
     "total": "Total",
-    "stablecoinRefundReceived": "Remboursement de stablecoin"
+    "stablecoinRefundReceived": "Remboursement de stablecoin",
+    "payWith": "Payer avec",
+    "receiveAs": "Recevoir en"
   },
   "languages": {
     "english": "English",
@@ -998,7 +1000,9 @@
       "tapToGenerate_lightning_btc": "Recevoir BTC instantanément",
       "tapToGenerate_lightning_usd": "Recevoir USD instantanément",
       "noAddedContactsTitle": "Aucun contact ajouté",
+      "noAvailableContactsTitle": "Aucun contact disponible",
       "noAddedContactsDesc": "Vos contacts apparaîtront ici une fois que vous en aurez ajouté un.",
+      "noAvailableContactsDescription": "Vous ne pouvez faire une demande qu'à des contacts Blitz ; ils apparaîtront ici une fois que vous en aurez ajouté un.",
       "payMe": "Paiement rapide",
       "createInvoice": "Créer une facture",
       "invoiceDescription": "Créez une facture et recevez un paiement instantanément.",
@@ -1027,6 +1031,7 @@
       "cashAppBack": "Retour",
       "viewDetails": "Voir les détails",
       "othersOptionTitle": "Sélectionner une méthode",
+      "stablecoinSelectedTitle": "{{curr}} sur {{chain}}",
       "liquidDesc": "Recevez du BTC Liquid dans votre portefeuille.",
       "roostockDesc": "Recevez du BTC Rootstock dans votre portefeuille.",
       "sparkDesc": "Recevez des BTC ou des tokens dans votre portefeuille.",
@@ -2160,7 +2165,8 @@
         "liquidWalletError": "Les informations sur le portefeuille n'ont pas été définies correctement, veuillez réessayer.",
         "liquidWalletError2": "Nous n'avons pas pu configurer votre portefeuille. Veuillez réessayer.",
         "dbInitError1": "Nous ne pouvons pas configurer votre application.",
-        "dbInitError2": "Veuillez réessayer. Si le problème persiste, vous pouvez récupérer vos fonds en toute sécurité en utilisant votre phrase d'initialisation."
+        "dbInitError2": "Veuillez réessayer. Si le problème persiste, vous pouvez récupérer vos fonds en toute sécurité en utilisant votre phrase d'initialisation.",
+        "initErrorTitle": "Une erreur s’est produite"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Pour recevoir un paiement Bitcoin, vous devrez payer des frais réseau on-chain. Ces frais varient selon les frais actuels du réseau Bitcoin.",

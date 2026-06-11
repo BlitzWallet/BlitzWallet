@@ -1,7 +1,7 @@
 // SplashScreen.js
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { Image } from 'expo-image';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,164 +9,59 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { CENTER, COLORS } from '../constants';
+import { COLORS } from '../constants';
 import { useGlobalThemeContext } from '../../context-store/theme';
-import {
-  applyErrorAnimationTheme,
-  updateBlitzAnimationData,
-} from '../functions/lottieViewColorTransformer';
-import {
-  initializeDatabase,
-  isMessagesDatabaseOpen,
-} from '../functions/messaging/cachedMessages';
-import {
-  initializeGiftCardDatabase,
-  isGiftCardDatabaseOpen,
-} from '../functions/contacts/giftCardStorage';
-import {
-  initializePOSTransactionsDatabase,
-  isSavedPOSTxsDatabaseOpen,
-} from '../functions/pos';
-import {
-  initializeSparkDatabase,
-  isSparkTxDatabaseOpen,
-} from '../functions/spark/transactions';
-import {
-  initRootstockSwapDB,
-  isRoostockDatabaseOpen,
-} from '../functions/boltz/rootstock/swapDb';
-import { GlobalThemeView, ThemeText } from '../functions/CustomElements';
-import { t } from 'i18next';
-import CustomButton from '../functions/CustomElements/button';
-import { INSET_WINDOW_WIDTH } from '../constants/theme';
-import openWebBrowser from '../functions/openWebBrowser';
 import { useNavigation } from '@react-navigation/native';
-import { initGiftDb, isGiftDatabaseOpen } from '../functions/gift/giftsStorage';
 
 import * as ExpoSplashScreen from 'expo-splash-screen';
-import { initPoolDb } from '../functions/pools/poolsStorage';
-import {
-  initSavingsDb,
-  isSavingsDatabaseOpen,
-} from '../functions/savings/savingsStorage';
+import { initializeAllDatabases } from '../functions/initializeAllDatabases';
 
-const BlitzAnimation = require('../assets/BlitzAnimation.json');
-const errorTxAnimation = require('../assets/errorTxAnimation.json');
+const SplashLogo = require('../assets/adaptive-icon.png');
 
 const SplashScreen = () => {
   const navigate = useNavigation();
   const opacity = useSharedValue(1);
+  const didHideSplashRef = useRef(false);
   const { theme, darkModeType } = useGlobalThemeContext();
 
-  const [error, setError] = useState('');
-
-  const animationRef = useRef(null);
-
-  const blueModeColor = {
-    rectangleFill: [0.92157, 0.92157, 0.92157, 1],
-    shapeFill: [0.011765, 0.458824, 0.964706, 1],
-  };
-
-  const darkModeColor = {
-    rectangleFill: [0, 0.1451, 0.3059, 1],
-    shapeFill: [1, 1, 1, 1],
-  };
-
-  const lightsOutMode = {
-    rectangleFill: [0, 0, 0, 1],
-    shapeFill: [1, 1, 1, 1],
-  };
-
-  const darkModeAnimation = updateBlitzAnimationData(
-    BlitzAnimation,
-    theme ? (darkModeType ? lightsOutMode : darkModeColor) : blueModeColor,
-  );
-  const errorAnimation = useMemo(() => {
-    return applyErrorAnimationTheme(
-      errorTxAnimation,
-      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
-    );
-  }, [theme, darkModeType]);
-
   useEffect(() => {
-    async function loadAnimation() {
-      ExpoSplashScreen.setOptions({
-        duration: 250,
-        fade: true,
-      });
-      ExpoSplashScreen.hideAsync();
+    // Fire database initialization in the background. The login page needs no
+    // databases; the post-login loading screen awaits this same memoized
+    // promise and surfaces any error, so the splash never blocks on DB work.
+    initializeAllDatabases().catch(() => {});
 
-      const tablesOpen =
-        isMessagesDatabaseOpen() &&
-        isGiftCardDatabaseOpen() &&
-        isSavedPOSTxsDatabaseOpen() &&
-        isSparkTxDatabaseOpen() &&
-        isRoostockDatabaseOpen() &&
-        isGiftDatabaseOpen() &&
-        isSavingsDatabaseOpen();
+    ExpoSplashScreen.setOptions({
+      duration: 250,
+      fade: true,
+    });
 
-      if (tablesOpen) {
-        animationRef.current?.pause();
-        // Warm restart fast path: fade out in 0.5s, no animation
-        const goHome = () => navigate.replace('Home');
-        opacity.value = withDelay(
-          750,
-          withTiming(0, { duration: 500 }, finished => {
-            if (finished) scheduleOnRN(goHome);
-          }),
-        );
-        return;
-      }
-
-      try {
-        setTimeout(() => {
-          animationRef.current?.play();
-        }, 500);
-
-        if (!tablesOpen) {
-          const didOpen = await initializeDatabase();
-          const giftCardTable = await initializeGiftCardDatabase();
-          const posTransactions = await initializePOSTransactionsDatabase();
-          const sparkTxs = await initializeSparkDatabase();
-          const rootstockSwaps = await initRootstockSwapDB();
-          const giftsDb = await initGiftDb();
-          const poolsDB = await initPoolDb();
-          const savingsDB = await initSavingsDb();
-
-          if (
-            !didOpen ||
-            !giftCardTable ||
-            !posTransactions ||
-            !sparkTxs ||
-            !rootstockSwaps ||
-            !giftsDb ||
-            !poolsDB ||
-            !savingsDB
-          )
-            throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
-        }
-
-        setTimeout(() => {
-          if (navigate) {
-            navigate.replace('Home');
-          } else {
-            console.warn('navigationRef not yet ready');
-          }
-        }, 2750);
-      } catch (err) {
-        console.log('error loading databases');
-        setError(err.message);
-      }
-    }
-    loadAnimation();
+    const goHome = () => navigate.replace('Home');
+    opacity.value = withDelay(
+      250,
+      withTiming(0, { duration: 500 }, finished => {
+        if (finished) scheduleOnRN(goHome);
+      }),
+    );
   }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
   }));
 
+  // Hide the native splash only once this themed View has been laid out/painted,
+  // so the gray (#EBEBEB) JS background is already on screen before the native
+  // splash is torn down — otherwise the window flashes black during the handoff.
+  // Mandatory: native auto-hide is disabled (MainActivity sets preventAutoHideCalled),
+  // so the splash stays up until this call.
+  const handleLayout = () => {
+    if (didHideSplashRef.current) return;
+    didHideSplashRef.current = true;
+    ExpoSplashScreen.hideAsync();
+  };
+
   return (
     <View
+      onLayout={handleLayout}
       style={{
         flex: 1,
         backgroundColor: theme
@@ -176,55 +71,9 @@ const SplashScreen = () => {
           : COLORS.lightModeBackground,
       }}
     >
-      {error ? (
-        <GlobalThemeView useStandardWidth={true}>
-          <View style={styles.errorContainer}>
-            <LottieView
-              ref={animationRef}
-              source={errorAnimation}
-              loop={false}
-              style={{
-                width: 225,
-                height: 225,
-              }}
-            />
-            <ThemeText
-              styles={{
-                textAlign: 'center',
-                marginBottom: 15,
-              }}
-              content={t('screens.inAccount.loadingScreen.dbInitError1')}
-            />
-            <ThemeText
-              styles={{
-                textAlign: 'center',
-                marginBottom: 20,
-              }}
-              content={t('screens.inAccount.loadingScreen.dbInitError2')}
-            />
-            <CustomButton
-              actionFunction={() => {
-                openWebBrowser({
-                  navigate: navigate,
-                  link: 'https://recover.blitzwalletapp.com/',
-                });
-              }}
-              textContent={t('constants.recover')}
-            />
-          </View>
-        </GlobalThemeView>
-      ) : (
-        <Animated.View style={[styles.container, animatedStyle]}>
-          <LottieView
-            ref={animationRef}
-            source={darkModeAnimation}
-            autoPlay={false}
-            speed={0.8}
-            loop={false}
-            style={styles.lottie}
-          />
-        </Animated.View>
-      )}
+      <Animated.View style={[styles.container, animatedStyle]}>
+        <Image source={SplashLogo} style={styles.logo} contentFit="contain" />
+      </Animated.View>
     </View>
   );
 };
@@ -235,17 +84,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  lottie: {
-    width: 150,
-    height: 150,
-    backgroundColor: 'transparent',
-  },
-
-  errorContainer: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    alignItems: 'center',
-    ...CENTER,
+  logo: {
+    width: 131,
+    height: 131,
   },
 });
 

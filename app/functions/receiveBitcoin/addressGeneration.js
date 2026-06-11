@@ -83,15 +83,16 @@ export async function initializeAddressProcess(wolletInfo) {
       // amount received: below the swap minimum it keeps the payment as BTC,
       // at/above it swaps to USD. This avoids forcing a minimum $1 invoice.
       const isZeroAmountUSD =
-        wolletInfo.endReceiveType === 'USD' && !wolletInfo.receivingAmount;
+        wolletInfo.endReceiveType === 'USD' &&
+        (!wolletInfo.receivingAmount ||
+          wolletInfo.receivingAmount < MIN_BTC_USD_AMOUNT_RECEIVEPAGE);
 
       const userAmount =
         wolletInfo.endReceiveType === 'BTC'
           ? wolletInfo.receivingAmount
-          : Math.max(
-              wolletInfo.receivingAmount,
-              MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
-            );
+          : wolletInfo.receivingAmount >= MIN_BTC_USD_AMOUNT_RECEIVEPAGE
+          ? wolletInfo.receivingAmount
+          : 0;
 
       const realAmount =
         wolletInfo.endReceiveType === 'BTC' || !isZeroAmountUSD

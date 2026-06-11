@@ -17,7 +17,7 @@ const CHAIN_TO_FLASHNET = {
   Optimism: 'optimism',
   Polygon: 'polygon',
   Tron: 'tron',
-  BNB: 'bsc',
+  BSC: 'bsc',
 };
 
 const USDT_SUPPORTED_CHAINS = new Set([
@@ -26,7 +26,7 @@ const USDT_SUPPORTED_CHAINS = new Set([
   'Optimism',
   'Tron',
   'Polygon',
-  'BNB',
+  'BSC',
 ]);
 
 const USDC_SUPPORTED_CHAINS = new Set([
@@ -35,7 +35,7 @@ const USDC_SUPPORTED_CHAINS = new Set([
   'Base',
   'Optimism',
   'Polygon',
-  'BNB',
+  'BSC',
 ]);
 
 const ASSETS = [

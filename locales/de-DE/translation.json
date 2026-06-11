@@ -131,7 +131,9 @@
     "transfer": "Übertragung",
     "details": "Details",
     "total": "Gesamt",
-    "stablecoinRefundReceived": "Stablecoin-Rückerstattung"
+    "stablecoinRefundReceived": "Stablecoin-Rückerstattung",
+    "payWith": "Bezahlen mit",
+    "receiveAs": "Empfangen als"
   },
   "languages": {
     "english": "English",
@@ -998,7 +1000,9 @@
       "tapToGenerate_lightning_btc": "BTC sofort empfangen",
       "tapToGenerate_lightning_usd": "USD sofort empfangen",
       "noAddedContactsTitle": "Keine hinzugefügten Kontakte",
+      "noAvailableContactsTitle": "Keine verfügbaren Kontakte",
       "noAddedContactsDesc": "Ihre Kontakte erscheinen hier, sobald Sie einen hinzufügen.",
+      "noAvailableContactsDescription": "Sie können nur Anfragen an Blitz-Kontakte senden; sie erscheinen hier, sobald Sie einen hinzufügen.",
       "payMe": "Schnell bezahlen",
       "createInvoice": "Rechnung erstellen",
       "invoiceDescription": "Erstellen Sie eine Rechnung und erhalten Sie sofort eine Zahlung.",
@@ -1027,6 +1031,7 @@
       "cashAppBack": "Zurück",
       "viewDetails": "Details anzeigen",
       "othersOptionTitle": "Methode auswählen",
+      "stablecoinSelectedTitle": "{{curr}} auf {{chain}}",
       "liquidDesc": "Empfangen Sie Liquid BTC direkt in Ihrer Wallet.",
       "roostockDesc": "Empfangen Sie Rootstock BTC direkt in Ihrer Wallet.",
       "sparkDesc": "Empfangen Sie BTC oder Token direkt in Ihrer Wallet.",
@@ -2160,7 +2165,8 @@
         "liquidWalletError": "Wallet-Informationen wurden nicht korrekt eingerichtet, bitte versuchen Sie es erneut.",
         "liquidWalletError2": "Wir konnten Ihre Wallet nicht einrichten. Bitte versuchen Sie es erneut.",
         "dbInitError1": "Wir konnten Ihre App nicht einrichten.",
-        "dbInitError2": "Bitte versuchen Sie es erneut. Wenn dieses Problem weiterhin besteht, können Sie Ihr Geld mithilfe Ihrer Wiederherstellungsphrase sicher zurückerhalten."
+        "dbInitError2": "Bitte versuchen Sie es erneut. Wenn dieses Problem weiterhin besteht, können Sie Ihr Geld mithilfe Ihrer Wiederherstellungsphrase sicher zurückerhalten.",
+        "initErrorTitle": "Etwas ist schiefgelaufen"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Um eine BTC-Zahlung zu empfangen, zahlen Sie eine On-Chain-Netzwerkgebühr. Diese variiert je nach aktuellen BTC-Netzwerkgebühren.",

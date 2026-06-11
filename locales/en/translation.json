@@ -131,7 +131,9 @@
     "details": "Details",
     "total": "Total",
     "scan": "Scan",
-    "stablecoinRefundReceived": "Stablecoin refund"
+    "stablecoinRefundReceived": "Stablecoin refund",
+    "payWith": "Pay with",
+    "receiveAs": "Receive as"
   },
   "languages": {
     "english": "English",
@@ -998,7 +1000,9 @@
       "tapToGenerate_lightning_btc": "Receive BTC instantly",
       "tapToGenerate_lightning_usd": "Receive USD instantly",
       "noAddedContactsTitle": "No Added Contacts",
+      "noAvailableContactsTitle": "No Available Contacts",
       "noAddedContactsDesc": "Your contacts will appear here once you add one",
+      "noAvailableContactsDescription": "You can only request from Blitz contacts, they will appear here once you add one",
       "payMe": "Quick Pay",
       "createInvoice": "Create Invoice",
       "invoiceDescription": "Create an invoice and get paid instantly.",
@@ -1012,7 +1016,7 @@
       "onChainBitcoin": "Deposit Bitcoin",
       "onChainBitcoinSubtitle": "Receive via on-chain address",
       "stablecoins": "Deposit Dollars",
-      "stablecoinsSubtitle": "Deposit Dollars into your wallet",
+      "stablecoinsSubtitle": "Receive Dollars into your wallet",
       "cashAppSubtitle": "Send from Cash App instantly",
       "sparkAddressSubtitle": "Receive to your Spark address",
       "otherBitcoin": "Other Deposit Options",
@@ -1027,6 +1031,7 @@
       "cashAppBack": "Back",
       "viewDetails": "View details",
       "othersOptionTitle": "Select Method",
+      "stablecoinSelectedTitle": "{{curr}} on {{chain}}",
       "liquidDesc": "Receive Liquid BTC to your wallet.",
       "roostockDesc": "Receive Rootstock BTC to your wallet.",
       "sparkDesc": "Receive BTC or tokens to your wallet.",
@@ -1815,11 +1820,11 @@
       "swapsFee": "{{poolFee}}% pool fee + {{blitzFee}}% Blitz fee",
       "sparkSwapType": "BTC <> USDB (Spark)",
       "chainSwapType": "BTC/USDB <> Stablecoin (cross-chain)",
-      "chainSwapFee": "0.5% Blitz fee + 0.1%+ platform fee",
+      "chainSwapFee": "0.5% Blitz fee + 0.1%+ Flashnet fee",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0.5% Blitz fee + network fees",
       "accumulationType": "Accumulation addresses",
-      "accumulationFee": "0.5% Blitz fee + 0.5% platform fee",
+      "accumulationFee": "0.5% Blitz fee + 0.5% Flashnet fee",
       "othersType": "All other",
       "othersFee": "Network Fees",
       "networkFeeLinkDesc": "Tap to see a breakdown of Spark network fees"
@@ -2160,7 +2165,8 @@
         "liquidWalletError": "Wallet information was not set properly. Please try again.",
         "liquidWalletError2": "We were unable to set up your wallet. Please try again.",
         "dbInitError1": "We’re unable to set up your app.",
-        "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your recovery phrase."
+        "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your recovery phrase.",
+        "initErrorTitle": "Something went wrong"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "To receive a Bitcoin payment, you'll pay an on-chain network fee. This fee varies based on current Bitcoin network fees.",

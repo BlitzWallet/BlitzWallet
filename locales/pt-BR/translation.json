@@ -131,7 +131,9 @@
     "transfer": "Transferir",
     "details": "Detalhes",
     "total": "Total",
-    "stablecoinRefundReceived": "Reembolso de Dólar digital"
+    "stablecoinRefundReceived": "Reembolso de Dólar digital",
+    "payWith": "Pagar com",
+    "receiveAs": "Receber em"
   },
   "languages": {
     "english": "English",
@@ -998,7 +1000,9 @@
       "tapToGenerate_lightning_btc": "Receber BTC instantaneamente",
       "tapToGenerate_lightning_usd": "Receber USD instantaneamente",
       "noAddedContactsTitle": "Nenhum contato adicionado",
+      "noAvailableContactsTitle": "Nenhum contato disponível",
       "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui",
+      "noAvailableContactsDescription": "Você só pode solicitar de contatos Blitz; eles aparecerão aqui quando você adicionar um.",
       "payMe": "Endereço Blitz",
       "createInvoice": "Criar Fatura",
       "invoiceDescription": "Escolha a moeda e quantia desejada",
@@ -1027,6 +1031,7 @@
       "cashAppBack": "Voltar",
       "viewDetails": "Ver detalhes",
       "othersOptionTitle": "Selecionar rede",
+      "stablecoinSelectedTitle": "{{curr}} na {{chain}}",
       "liquidDesc": "Receba BTC pela rede Liquid",
       "roostockDesc": "Receba BTC pela rede Rootstock",
       "sparkDesc": "Receba BTC ou tokens pela rede Spark",
@@ -1039,7 +1044,8 @@
       "depositQRInstruction_bitcoin": "Envie apenas Bitcoin para este endereço. Os fundos chegam após três confirmações na rede Bitcoin",
       "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
       "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
-      "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark"
+      "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark",
+      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço. Você receberá diretamente no seu saldo em dólares"
     },
     "payLinks": {
       "skip": "Pular",
@@ -1182,7 +1188,7 @@
         "title": "Meios de recebimento",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Receber diretamente via Spark irá expor seu saldo para a pessoa que está pagando e não é considerado privado.",
-        "swapWarning": "Os pagamentos {{swapType}} devem ser de pelo menos {{amount}}.",
+        "swapWarning": "Os pagamentos {{swapType}} devem ser de pelo menos {{amount}}",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
         "notUsingMainAccountWarning": "Aviso: Você não está usando a conta principal da sua carteira. Todas as transferências {{swapType}} recebidas serão enviadas para sua conta principal.",
@@ -1813,12 +1819,12 @@
       "stablecoinType": "BTC <> Dólar digital",
       "swapsFee": "{{poolFee}}% de taxa da Pool de Liquidez + {{blitzFee}}% de taxa da Blitz Wallet",
       "sparkSwapType": "Trocas BTC <> USDB (Spark)",
-      "chainSwapType": "BTC/USDB <> Dólar digital (cross-chain)",
-      "chainSwapFee": "0,5% de taxa da Blitz Wallet + 0,1%+ de taxa da plataforma",
+      "chainSwapType": "BTC/USDB <> Dólar digital (Entre diferentes redes)",
+      "chainSwapFee": "0,5% de taxa da Blitz Wallet + 0,1%+ de taxa da Flashnet",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5% de taxa da Blitz Wallet + taxas de rede",
-      "accumulationType": "Endereços de acumulação",
-      "accumulationFee": "0,5% de taxa da Blitz Wallet + 0,5% de taxa da plataforma",
+      "accumulationType": "Conversão automática",
+      "accumulationFee": "0,5% de taxa da Blitz Wallet + 0,5% de taxa da Flashnet",
       "othersType": "Outros",
       "othersFee": "Taxas de rede",
       "networkFeeLinkDesc": "Toque para ver a divisão das taxas da rede Spark"
@@ -2159,7 +2165,8 @@
         "liquidWalletError": "As informações da carteira não foram definidas corretamente. Tente novamente.",
         "liquidWalletError2": "Não foi possível configurar sua carteira. Tente novamente.",
         "dbInitError1": "Não foi possível configurar seu aplicativo.",
-        "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase de recuperação."
+        "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase de recuperação.",
+        "initErrorTitle": "Algo deu errado"
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Para receber pagamentos em endereços Bitcoin, você pagará uma taxa de rede. Essa taxa varia conforme as taxas atuais da rede Bitcoin.",

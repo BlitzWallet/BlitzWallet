@@ -24,6 +24,7 @@ export default function SelectPaymentMethod({
   selectedPaymentMethod,
   handleBackPressFunction,
   fromPage,
+  onSelectMethod,
 }) {
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -35,6 +36,11 @@ export default function SelectPaymentMethod({
   const { t } = useTranslation();
 
   const selectSendingBalance = term => {
+    if (onSelectMethod) {
+      onSelectMethod(term);
+      handleBackPressFunction();
+      return;
+    }
     if (fromPage === 'CreateGift') {
       handleBackPressFunction(() =>
         navigate.popTo(

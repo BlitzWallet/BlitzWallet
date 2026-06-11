@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, ICONS, SIZES } from '../../../../constants';
+import { CENTER, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
@@ -22,7 +22,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useProcessedContacts } from '../contacts/contactsPageComponents/hooks';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { AddContactOverlay } from '../contacts/addContactOverlay';
 import PoolCreationOverlay from '../pools/poolCreationOverlay';
@@ -32,6 +31,7 @@ import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import { useAppStatus } from '../../../../../context-store/appStatus';
+import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
 
 // ─── LNURL Banner ────────────────────────────────────────────────────────────
 
@@ -212,54 +212,19 @@ const LNURLQROverlay = ({ visible, onClose, lnurlAddress, navigate, t }) => {
 // ─── Contact Row ─────────────────────────────────────────────────────────────
 
 const ContactRow = ({
-  expandedContact,
   contact,
   cache,
   theme,
   darkModeType,
   backgroundOffset,
   backgroundColor,
-  onToggleExpand,
-  onSelectPaymentType,
-  textColor,
-  onRowLayout,
-  t,
+  onSelectContact,
 }) => {
-  const isExpanded = expandedContact === contact.uuid;
-
-  const expandHeight = useSharedValue(0);
-  const chevronRotation = useSharedValue(0);
-
-  useEffect(() => {
-    expandHeight.value = withTiming(isExpanded ? 1 : 0, {
-      duration: 200,
-    });
-    chevronRotation.value = withTiming(isExpanded ? 1 : 0, {
-      duration: 200,
-    });
-  }, [isExpanded]);
-
-  const expandedStyle = useAnimatedStyle(() => ({
-    height: expandHeight.value * 170,
-    opacity: expandHeight.value,
-  }));
-
-  const labelFadeStyle = useAnimatedStyle(() => ({
-    opacity: expandHeight.value,
-  }));
-
-  const chevronStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
-  }));
-
   return (
-    <View
-      style={styles.contactWrapper}
-      onLayout={e => onRowLayout(contact.uuid, e.nativeEvent.layout.y)}
-    >
+    <View style={styles.contactWrapper}>
       <TouchableOpacity
         style={styles.contactRowContainer}
-        onPress={() => onToggleExpand(contact.uuid)}
+        onPress={() => onSelectContact(contact)}
       >
         <View
           style={[
@@ -285,93 +250,9 @@ const ContactRow = ({
             styles={styles.contactName}
             content={formatDisplayName(contact) || contact.uniqueName || ''}
           />
-          <Animated.View style={labelFadeStyle}>
-            <ThemeText
-              styles={styles.chooseWhatToSendText}
-              content={t('wallet.halfModal.chooseWhatToReceive')}
-            />
-          </Animated.View>
         </View>
-        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
-          <ThemeIcon size={20} iconName={'ChevronDown'} />
-        </Animated.View>
+        <ThemeIcon size={20} iconName={'ChevronRight'} />
       </TouchableOpacity>
-
-      <Animated.View style={[styles.expandedContainer, expandedStyle]}>
-        <View style={styles.paymentOptionsRow}>
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-            onPress={() => onSelectPaymentType(contact, 'BTC')}
-          >
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundOffset
-                        : backgroundColor
-                      : COLORS.bitcoinOrange,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ width: 18, height: 18 }}
-                lightModeIcon={ICONS.bitcoinIcon}
-                darkModeIcon={ICONS.bitcoinIcon}
-                lightsOutIcon={ICONS.bitcoinIcon}
-              />
-            </View>
-            <ThemeText
-              styles={styles.paymentOptionText}
-              content={t('constants.bitcoin_upper')}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-            onPress={() => onSelectPaymentType(contact, 'USD')}
-          >
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? darkModeType
-                        ? backgroundOffset
-                        : backgroundColor
-                      : COLORS.dollarGreen,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={{ width: 18, height: 18 }}
-                lightModeIcon={ICONS.dollarIcon}
-                darkModeIcon={ICONS.dollarIcon}
-                lightsOutIcon={ICONS.dollarIcon}
-              />
-            </View>
-            <ThemeText
-              styles={styles.paymentOptionText}
-              content={t('constants.dollars_upper')}
-            />
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
     </View>
   );
 };
@@ -385,28 +266,24 @@ export default function HalfModalReceiveOptions({
   isScreenActive,
   setContentHeight,
   setBackNav,
+  selectedRequestMethod,
 }) {
-  const [expandedContact, setExpandedContact] = useState(null);
-  const [showAddContact, setShowAddContact] = useState(false);
-  const [showPoolCreation, setShowPoolCreation] = useState(false);
-  const [showLNURLQR, setShowLNURLQR] = useState(false);
-  const [showPayLinkCreation, setShowPayLinkCreation] = useState(false);
-  const scrollViewRef = useRef(null);
-  const rowLayoutsRef = useRef({});
-  const scrollOffsetRef = useRef(0);
-  const scrollViewHeightRef = useRef(0);
-  const previousExpandedRef = useRef(null);
+  // Single source of truth for the active secondary view. Enforcing one
+  // overlay at a time (instead of five independent booleans) prevents stacked
+  // overlays from rapid cross-button taps and keeps both the header back button
+  // and hardware back handling deterministic.
+  // null | { type: 'lnurlQR' | 'addContact' | 'pool' | 'payLink' | 'contact', ...payload }
+  const [overlay, setOverlay] = useState(null);
+  // Mirrors `overlay` synchronously so two taps dispatched in the same frame
+  // (before React re-renders) cannot both open an overlay.
+  const overlayRef = useRef(null);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
-  const { screenDimensions } = useAppStatus();
   const { decodedAddedContacts, contactsMessags, globalContactsInformation } =
     useGlobalContacts();
   const { t } = useTranslation();
-  const { backgroundColor, backgroundOffset, textColor, textInputBackground } =
-    GetThemeColors();
-
-  const iconColor = theme && darkModeType ? textColor : COLORS.primary;
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
 
   const lnurlAddress = `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`;
 
@@ -419,8 +296,29 @@ export default function HalfModalReceiveOptions({
   );
 
   // Any overlay being shown slides/fades the main list out
-  const anyOverlayVisible =
-    showAddContact || showPoolCreation || showLNURLQR || showPayLinkCreation;
+  const overlayType = overlay?.type ?? null;
+  const anyOverlayVisible = overlay !== null;
+  const contactOverlay = overlay?.type === 'contact' ? overlay : null;
+
+  // Opens an overlay only when none is active. The ref is set synchronously so
+  // a second tap in the same frame is ignored (idempotent, no stacking).
+  // `backNavConfig` is omitted for overlays that register their own header
+  // back step internally (pool, contact flow).
+  const openOverlay = useCallback(
+    (next, backNavConfig) => {
+      if (overlayRef.current) return;
+      overlayRef.current = next;
+      setOverlay(next);
+      if (backNavConfig !== undefined) setBackNav?.(backNavConfig);
+    },
+    [setBackNav],
+  );
+
+  const closeOverlay = useCallback(() => {
+    overlayRef.current = null;
+    setOverlay(null);
+    setBackNav?.(null);
+  }, [setBackNav]);
 
   useEffect(() => {
     if (anyOverlayVisible) {
@@ -448,30 +346,16 @@ export default function HalfModalReceiveOptions({
     [navigate],
   );
 
-  const handleToggleExpand = useCallback(contactUuid => {
-    setExpandedContact(prev => {
-      previousExpandedRef.current = prev;
-      return prev === contactUuid ? null : contactUuid;
-    });
-  }, []);
-
-  const handleSelectPaymentType = useCallback(
-    (contact, paymentType) => {
-      handleBackPressFunction(() => {
-        navigate.replace('SendAndRequestPage', {
-          selectedContact: contact,
-          paymentType: 'request',
-          imageData: cache[contact.uuid],
-          selectedRequestMethod: paymentType,
-        });
+  const handleSelectContact = useCallback(
+    contact => {
+      openOverlay({
+        type: 'contact',
+        selectedContact: contact,
+        imageData: cache[contact.uuid],
       });
     },
-    [navigate, cache, handleBackPressFunction],
+    [cache, openOverlay],
   );
-
-  const handleRowLayout = useCallback((uuid, y) => {
-    rowLayoutsRef.current[uuid] = y;
-  }, []);
 
   const sortedContacts = useMemo(() => {
     return contactInfoList
@@ -491,106 +375,52 @@ export default function HalfModalReceiveOptions({
       .filter(contact => !contact.isLNURL);
   }, [contactInfoList]);
 
-  useEffect(() => {
-    if (!expandedContact || !scrollViewRef.current) return;
-
-    const rowY = rowLayoutsRef.current[expandedContact];
-    if (rowY == null) return;
-
-    const contact = sortedContacts.find(c => c.uuid === expandedContact);
-    if (!contact) return;
-
-    const expandedPanelHeight = 160;
-    const collapsedRowHeight = 61;
-
-    let collapseShift = 0;
-    const prevExpanded = previousExpandedRef.current;
-    if (prevExpanded && prevExpanded !== expandedContact) {
-      const prevY = rowLayoutsRef.current[prevExpanded];
-      if (prevY != null && prevY < rowY) {
-        collapseShift = expandedPanelHeight;
-      }
-    }
-
-    const adjustedRowY = rowY - collapseShift;
-    const expandedBottomEdge =
-      adjustedRowY + collapsedRowHeight + expandedPanelHeight;
-    const visibleTop = scrollOffsetRef.current;
-    const visibleBottom = scrollOffsetRef.current + scrollViewHeightRef.current;
-
-    if (expandedBottomEdge > visibleBottom) {
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({
-          y: expandedBottomEdge - scrollViewHeightRef.current + 16,
-          animated: true,
-        });
-      }, 220);
-    } else if (adjustedRowY < visibleTop + 50) {
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({
-          y: Math.max(0, adjustedRowY - 35),
-          animated: true,
-        });
-      }, 220);
-    }
-  }, [expandedContact, sortedContacts]);
-
   const contactElements = useMemo(() => {
     return sortedContacts.map(contact => (
       <ContactRow
         key={contact.uuid}
-        expandedContact={expandedContact}
         contact={contact}
         cache={cache}
         theme={theme}
         darkModeType={darkModeType}
         backgroundOffset={backgroundOffset}
         backgroundColor={backgroundColor}
-        textColor={textColor}
-        onToggleExpand={handleToggleExpand}
-        onSelectPaymentType={handleSelectPaymentType}
-        onRowLayout={handleRowLayout}
-        t={t}
+        onSelectContact={handleSelectContact}
       />
     ));
   }, [
-    expandedContact,
     sortedContacts,
     cache,
     theme,
     darkModeType,
     backgroundOffset,
     backgroundColor,
-    textColor,
-    handleToggleExpand,
-    handleSelectPaymentType,
-    handleRowLayout,
-    t,
+    handleSelectContact,
   ]);
 
-  const handleLNURLClose = useCallback(() => {
-    setShowLNURLQR(false);
-    setBackNav(null);
-  }, [setShowLNURLQR, setBackNav]);
+  // All single-step overlays close the same way: clear the active overlay and
+  // reset the header back step. `closeOverlay` is idempotent so repeated back
+  // presses during the close cannot fire duplicate navigation.
+  const handleLNURLClose = closeOverlay;
+  const handleAddContactsClose = closeOverlay;
+  const handlePoolClose = closeOverlay;
+  const handlePaylinkClose = closeOverlay;
 
-  const handleAddContactsClose = useCallback(
-    () => setShowAddContact(false),
-    [setShowAddContact],
-  );
-
-  const handlePoolClose = useCallback(
-    () => setShowPoolCreation(false),
-    [setShowPoolCreation],
-  );
-
-  const handlePaylinkClose = useCallback(() => {
-    setShowPayLinkCreation(false);
-    setBackNav(null);
-  }, [setShowPayLinkCreation, setBackNav]);
+  const handleContactFlowClose = useCallback(() => {
+    // Reset the chosen currency so the next contact starts from its default.
+    navigate.setParams({ selectedRequestMethod: undefined });
+    closeOverlay();
+  }, [navigate, closeOverlay]);
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.mainContent, contentStyle]}>
+      <Animated.View
+        style={[styles.mainContent, contentStyle]}
+        // While an overlay is active the list is faded to opacity 0 but, in RN,
+        // a transparent view still receives touches. Disabling pointer events
+        // stops spam taps from hitting the hidden buttons / contact rows.
+        pointerEvents={anyOverlayVisible ? 'none' : 'auto'}
+      >
         {/* ── LNURL Banner ── */}
         <View
           style={{
@@ -607,18 +437,18 @@ export default function HalfModalReceiveOptions({
             backgroundColor={backgroundColor}
             backgroundOffset={backgroundOffset}
             textColor={textColor}
-            onQRPress={() => {
-              // setContentHeight(600);
-              setBackNav?.({
-                onPress: handleLNURLClose,
-                title: t('wallet.halfModal.payMe'),
-              });
-              setShowLNURLQR(true);
-            }}
+            onQRPress={() =>
+              openOverlay(
+                { type: 'lnurlQR' },
+                {
+                  onPress: handleLNURLClose,
+                  title: t('wallet.halfModal.payMe'),
+                },
+              )
+            }
           />
         </View>
         <ScrollView
-          ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
@@ -626,23 +456,16 @@ export default function HalfModalReceiveOptions({
             paddingBottom: bottomPadding,
           }}
           stickyHeaderIndices={[3]}
-          onScroll={e => {
-            scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
-          }}
           scrollEventThrottle={16}
-          onLayout={e => {
-            scrollViewHeightRef.current = e.nativeEvent.layout.height;
-          }}
         >
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => {
-              setBackNav?.({
-                onPress: handlePaylinkClose,
-                title: '',
-              });
-              setShowPayLinkCreation(true);
-            }}
+            onPress={() =>
+              openOverlay(
+                { type: 'payLink' },
+                { onPress: handlePaylinkClose, title: '' },
+              )
+            }
           >
             <View
               style={[
@@ -675,7 +498,7 @@ export default function HalfModalReceiveOptions({
 
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
-            onPress={() => setShowPoolCreation(true)}
+            onPress={() => openOverlay({ type: 'pool' })}
           >
             <View
               style={[
@@ -732,29 +555,40 @@ export default function HalfModalReceiveOptions({
           </View>
 
           {/* Address Book Section */}
-          {decodedAddedContacts.length > 0 ? (
+          {contactElements.length > 0 ? (
             contactElements
           ) : (
             <View style={styles.emptyContactsContainer}>
               <ThemeIcon iconName={'UsersRound'} />
               <ThemeText
                 styles={styles.emptyTitle}
-                content={t('wallet.halfModal.noAddedContactsTitle')}
+                content={t(
+                  `wallet.halfModal.${
+                    !decodedAddedContacts.length
+                      ? 'noAddedContactsTitle'
+                      : 'noAvailableContactsTitle'
+                  }`,
+                )}
               />
               <ThemeText
                 styles={styles.emptySubtext}
-                content={t('wallet.halfModal.noAddedContactsDesc')}
+                content={t(
+                  `wallet.halfModal.${
+                    !decodedAddedContacts.length
+                      ? 'noAddedContactsDesc'
+                      : 'noAvailableContactsDescription'
+                  }`,
+                )}
               />
               <CustomButton
                 buttonStyles={{ width: '100%' }}
                 textContent={t('contacts.editMyProfilePage.addContactBTN')}
-                actionFunction={() => {
-                  setBackNav?.({
-                    onPress: handleAddContactsClose,
-                    title: '',
-                  });
-                  setShowAddContact(true);
-                }}
+                actionFunction={() =>
+                  openOverlay(
+                    { type: 'addContact' },
+                    { onPress: handleAddContactsClose, title: '' },
+                  )
+                }
               />
             </View>
           )}
@@ -764,7 +598,7 @@ export default function HalfModalReceiveOptions({
       {/* ── Overlays ── */}
 
       <LNURLQROverlay
-        visible={showLNURLQR}
+        visible={overlayType === 'lnurlQR'}
         onClose={handleLNURLClose}
         lnurlAddress={lnurlAddress}
         t={t}
@@ -772,7 +606,7 @@ export default function HalfModalReceiveOptions({
       />
 
       <AddContactOverlay
-        visible={showAddContact}
+        visible={overlayType === 'addContact'}
         onClose={handleAddContactsClose}
         onContactAdded={handleContactAdded}
         isScreenActive={isScreenActive}
@@ -780,7 +614,7 @@ export default function HalfModalReceiveOptions({
       />
 
       <PoolCreationOverlay
-        visible={showPoolCreation}
+        visible={overlayType === 'pool'}
         onClose={handlePoolClose}
         theme={theme}
         darkModeType={darkModeType}
@@ -790,8 +624,24 @@ export default function HalfModalReceiveOptions({
       />
 
       <PayLinkCreationOverlay
-        visible={showPayLinkCreation}
+        visible={overlayType === 'payLink'}
         onClose={handlePaylinkClose}
+      />
+
+      <ContactPaymentOverlay
+        key={contactOverlay?.selectedContact?.uuid}
+        visible={overlayType === 'contact'}
+        onClose={handleContactFlowClose}
+        paymentType="request"
+        selectedContact={contactOverlay?.selectedContact}
+        imageData={contactOverlay?.imageData}
+        selectedMethod={selectedRequestMethod}
+        handleBackPressFunction={handleBackPressFunction}
+        setBackNav={setBackNav}
+        navigate={navigate}
+        theme={theme}
+        darkModeType={darkModeType}
+        setContentHeight={setContentHeight}
       />
     </View>
   );

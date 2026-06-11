@@ -1,12 +1,12 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
+import { PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useGlobalAppData } from '../../../context-store/appData';
-import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import { GlobalThemeView } from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { navigationRef } from '../../../navigation/navigationService';
@@ -24,6 +24,9 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { getCachedSparkTransactions } from '../../functions/spark';
 import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
 import { useAppStatus } from '../../../context-store/appStatus';
+import { initializeAllDatabases } from '../../functions/initializeAllDatabases';
+import openWebBrowser from '../../functions/openWebBrowser';
+import NoContentScreen from '../../functions/CustomElements/noContentScreen';
 
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
@@ -78,12 +81,16 @@ export default function ConnectingToNodeLoadingScreen() {
           }
         };
 
+        // initializeAllDatabases is awaited here (it's fired non-blocking from
+        // the splash screen) so every local table exists before connecting or
+        // reading cached data. Runs in parallel with key derivation/handshake.
         const [[privateKey, identityPubKey]] = await Promise.all([
           Promise.all([
             privateKeyFromSeedWords(accountMnemoinc),
             deriveSparkIdentityKey(accountMnemoinc),
           ]),
           waitForHandshake(),
+          initializeAllDatabases(),
         ]);
 
         // Start wallet connection after keys are derived — passes identityPubKey
@@ -160,7 +167,17 @@ export default function ConnectingToNodeLoadingScreen() {
         }
       } catch (err) {
         console.log('intializatiion error', err);
-        setHasError(err.message);
+        if (err.message === 'dbInitError') {
+          setHasError({
+            title: t('screens.inAccount.loadingScreen.dbInitError1'),
+            subtitle: t('screens.inAccount.loadingScreen.dbInitError2'),
+          });
+        } else {
+          setHasError({
+            title: t('screens.inAccount.loadingScreen.initErrorTitle'),
+            subtitle: err.message,
+          });
+        }
       }
     }
 
@@ -174,32 +191,39 @@ export default function ConnectingToNodeLoadingScreen() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={styles.globalContainer}>
-        {hasError && (
-          <TouchableOpacity
-            onPress={() =>
-              navigate.navigate('SettingsHome', { isDoomsday: true })
-            }
-            style={styles.doomsday}
-          >
-            <ThemeIcon iconName={'Settings'} />
-          </TouchableOpacity>
-        )}
-        <LottieView
-          source={transformedAnimation}
-          autoPlay
-          loop={true}
-          style={{
-            width: Math.min(screenDimensions.width * 0.4, 400),
-            height: Math.min(screenDimensions.width * 0.4, 400),
-          }}
-        />
-        {hasError && (
-          <ThemeText
-            styles={{
-              ...styles.waitingText,
-              color: theme ? COLORS.darkModeText : COLORS.primary,
+        {hasError ? (
+          <>
+            <TouchableOpacity
+              onPress={() =>
+                navigate.navigate('SettingsHome', { isDoomsday: true })
+              }
+              style={styles.doomsday}
+            >
+              <ThemeIcon iconName={'Settings'} />
+            </TouchableOpacity>
+            <NoContentScreen
+              iconName="TriangleAlert"
+              titleText={hasError.title}
+              subTitleText={hasError.subtitle}
+              showButton={true}
+              buttonText={t('constants.recover')}
+              buttonFunction={() =>
+                openWebBrowser({
+                  navigate,
+                  link: 'https://recover.blitzwalletapp.com/',
+                })
+              }
+            />
+          </>
+        ) : (
+          <LottieView
+            source={transformedAnimation}
+            autoPlay
+            loop={true}
+            style={{
+              width: Math.min(screenDimensions.width * 0.4, 400),
+              height: Math.min(screenDimensions.width * 0.4, 400),
             }}
-            content={hasError}
           />
         )}
       </View>
@@ -212,12 +236,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  waitingText: {
-    width: 300,
-    marginTop: 10,
-    textAlign: 'center',
-    color: COLORS.primary,
   },
   doomsday: {
     position: 'absolute',

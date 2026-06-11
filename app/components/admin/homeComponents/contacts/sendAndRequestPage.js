@@ -1,73 +1,33 @@
-import { StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  SATSPERBITCOIN,
-  USDB_TOKEN_ID,
-} from '../../../../constants';
+import { useCallback, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { publishMessage } from '../../../../functions/messaging/publishMessage';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
-import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
-import CustomButton from '../../../../functions/CustomElements/button';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import customUUID from '../../../../functions/customUUID';
-import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { useAppStatus } from '../../../../../context-store/appStatus';
-import { useKeysContext } from '../../../../../context-store/keys';
-import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
-import { useServerTimeOnly } from '../../../../../context-store/serverTime';
 import { useTranslation } from 'react-i18next';
-import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import GetThemeColors from '../../../../hooks/themeColors';
+
+import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
 import {
-  COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
   WINDOWWIDTH,
 } from '../../../../constants/theme';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import fetchBackend from '../../../../../db/handleBackend';
-import { getDataFromCollection } from '../../../../../db';
-import { Image } from 'expo-image';
-import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
-import giftCardPurchaseAmountTracker from '../../../../functions/apps/giftCardPurchaseTracker';
-import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import getReceiveAddressAndContactForContactsPayment from './internalComponents/getReceiveAddressAndKindForPayment';
-import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
-import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
-import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
-import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import {
-  dollarsToSats,
-  satsToDollars,
-  getLightningPaymentQuote,
-  USD_ASSET_ADDRESS,
-} from '../../../../functions/spark/flashnet';
-import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import CustomButton from '../../../../functions/CustomElements/button';
+import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
+import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
+import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import usePaymentValidation from '../sendBitcoin/functions/paymentValidation';
-import { InputTypes, parseInput } from 'bitcoin-address-parser';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import GetThemeColors from '../../../../hooks/themeColors';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
 import ContactProfileImage from './internalComponents/profileImage';
-import { getLNAddressForLiquidPayment } from '../sendBitcoin/functions/payments';
-import { useToast } from '../../../../../context-store/toastManager';
-import useDebounce from '../../../../hooks/useDebounce';
-import { useWebView } from '../../../../../context-store/webViewContext';
-import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
+import useContactPayment from './hooks/useContactPayment';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -75,785 +35,69 @@ export default function SendAndRequestPage(props) {
     selectedPaymentMethod = 'BTC',
     endReceiveType = 'BTC',
     selectedContact,
-    paymentType, // 'send' or 'request'
+    paymentType,
     imageData,
-    cardInfo: giftOption,
   } = props.route.params || {};
 
   const navigate = useNavigation();
-  const { dollarBalanceSat, dollarBalanceToken, bitcoinBalance } =
-    useUserBalanceContext();
-  const { poolInfoRef, swapLimits, swapUSDPriceDollars } = useFlashnet();
-  const { masterInfoObject } = useGlobalContextProvider();
-  const { sparkInformation } = useSparkWallet();
-  const { contactsPrivateKey, publicKey } = useKeysContext();
-  const { isConnectedToTheInternet } = useAppStatus();
-  const { fiatStats } = useNodeContext();
-  const { globalContactsInformation } = useGlobalContactsInfo();
-  const getServerTime = useServerTimeOnly();
-  const [amountValue, setAmountValue] = useState('');
-  const [isDescriptionFocused, setIsDescriptionFocused] = useState(false);
-  const [descriptionValue, setDescriptionValue] = useState(
-    giftOption?.memo || '',
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const { bottomPadding } = useGlobalInsets();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
-  const { sendWebViewRequest } = useWebView();
-  const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { showToast } = useToast();
-  const [lnFeeEstimate, setLnFeeEstimate] = useState(null);
-  const [swapQuote, setSwapQuote] = useState({});
-  const [lnInvoiceData, setLnInvoiceData] = useState(null);
-  const [prefetchedDoc, setPrefetchedDoc] = useState(null);
-  const lnurlParsedRef = useRef(null);
-  const quoteId = useRef(null);
-  const poolInfoRefSnapshotRef = useRef(poolInfoRef);
-  const prefSelectedPaymentInfo = useRef({
+  const [isDescriptionFocused, setIsDescriptionFocused] = useState(false);
+
+  const payment = useContactPayment({
+    selectedContact,
+    paymentType,
     selectedPaymentMethod,
     selectedRequestMethod,
-  });
-  const requiresContactDoc =
-    paymentType === 'send' &&
-    Boolean(selectedContact) &&
-    !selectedContact?.isLNURL;
-  const resolvedEndReceiveType = requiresContactDoc
-    ? prefetchedDoc?.lnurlReceiveCurrency?.toLowerCase() === 'usd'
-      ? 'USD'
-      : 'BTC'
-    : endReceiveType;
-
-  useEffect(() => {
-    if (typeof giftOption?.memo !== 'string') return;
-    setDescriptionValue(giftOption.memo);
-  }, [giftOption?.memo]);
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    if (!requiresContactDoc) {
-      setPrefetchedDoc(null);
-      return () => {
-        isCurrent = false;
-      };
-    }
-
-    setPrefetchedDoc(null);
-
-    const MAX_ATTEMPTS = 5;
-    const BASE_DELAY_MS = 375; // ~375, 750, 1500, 3000, 6000 → ~11.6 s worst case, well under 30 s
-
-    const fetchWithBackoff = async (attempt = 0) => {
-      try {
-        const doc = await getDataFromCollection(
-          'blitzWalletUsers',
-          selectedContact.uuid,
-        );
-        if (isCurrent) setPrefetchedDoc(doc ?? null);
-      } catch {
-        if (!isCurrent) return;
-
-        if (attempt < MAX_ATTEMPTS - 1) {
-          const delay = BASE_DELAY_MS * 2 ** attempt;
-          await new Promise(resolve => setTimeout(resolve, delay));
-          if (isCurrent) fetchWithBackoff(attempt + 1);
-        } else {
-          setPrefetchedDoc(null);
-        }
-      }
-    };
-
-    fetchWithBackoff();
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [requiresContactDoc, selectedContact?.uuid]);
-
-  const paymentMode =
-    paymentType === 'send' || paymentType === 'Gift'
-      ? selectedPaymentMethod
-      : selectedRequestMethod;
-
-  // Determine if we're in USD mode
-  const isUSDMode =
-    paymentType === 'send' || paymentType === 'Gift'
-      ? selectedPaymentMethod === 'USD'
-      : selectedRequestMethod === 'USD';
-
-  const [userSetInputDenomination, setUserSetInputDenomination] =
-    useState(null);
-
-  const inputDenomination = userSetInputDenomination
-    ? userSetInputDenomination
-    : paymentMode === 'USD'
-    ? 'fiat'
-    : masterInfoObject.userBalanceDenomination !== 'fiat'
-    ? 'sats'
-    : 'fiat';
-
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-    convertSatsToDisplay,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode,
-    inputDenomination,
-    fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
-    masterInfoObject,
-  });
-
-  const displayAmount =
-    paymentType !== 'Gift' ? amountValue : convertSatsToDisplay(amountValue);
-
-  // Calculate sat amount
-  const convertedSendAmount =
-    paymentType === 'Gift'
-      ? Number(amountValue)
-      : convertDisplayToSats(amountValue);
-
-  const min_usd_swap_amount = useMemo(() => {
-    return Math.round(
-      dollarsToSats(
-        swapLimits.usd,
-        poolInfoRefSnapshotRef.current.currentPriceAInB,
-      ),
-    );
-  }, [poolInfoRefSnapshotRef.current.currentPriceAInB, swapLimits]);
-
-  const estimateLNURLFee = useCallback(
-    async (amount, id) => {
-      if (quoteId.current !== id) return;
-      if (!selectedContact?.isLNURL || paymentType !== 'send' || !amount) {
-        setIsLoading(false);
-        return;
-      }
-
-      const balance =
-        selectedPaymentMethod === 'USD' ? dollarBalanceSat : bitcoinBalance;
-      const bufferAmount = amount * 1.1;
-
-      // Skip if balance easily covers the send + estimated fee buffer, or if
-      // already over balance (validation will catch it without needing a fee)
-      if (bufferAmount < balance || amount > balance) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        if (!lnurlParsedRef.current) {
-          lnurlParsedRef.current = await parseInput(
-            selectedContact.receiveAddress,
-          );
-        }
-        const lnurlInput = lnurlParsedRef.current;
-
-        const invoiceResponse = await getLNAddressForLiquidPayment(
-          lnurlInput,
-          amount,
-          '',
-        );
-        if (quoteId.current !== id) return;
-        if (!invoiceResponse.pr) throw new Error('No invoice received');
-        setLnInvoiceData(invoiceResponse);
-
-        if (selectedPaymentMethod === 'USD') {
-          const quote = await getLightningPaymentQuote(
-            currentWalletMnemoinc,
-            invoiceResponse.pr,
-            USD_ASSET_ADDRESS,
-            undefined,
-            undefined,
-            { amountSats: amount },
-          );
-          if (!quote.didWork)
-            throw new Error(quote.error || 'Fee quote failed');
-
-          if (quoteId.current !== id) return;
-          const estimatedAmmFeeSat = Math.round(
-            dollarsToSats(
-              quote.quote.estimatedAmmFee / Math.pow(10, 6),
-              poolInfoRef.currentPriceAInB,
-            ),
-          );
-          const dollarAmountRequired = quote.quote.tokenAmountRequired;
-          const userDollarBalance = dollarBalanceToken * Math.pow(10, 6);
-          const fee = quote.quote.estimatedLightningFee + estimatedAmmFeeSat;
-          if (dollarAmountRequired > userDollarBalance) {
-            showToast({
-              type: 'error',
-              title: t('errormessages.lightningAmountRequiredWarning', {
-                amount: displayCorrectDenomination({
-                  amount: parseFloat(
-                    formatTokensNumber(quote.quote.tokenAmountRequired, 6),
-                  ).toFixed(2),
-                  masterInfoObject: {
-                    ...masterInfoObject,
-                    userBalanceDenomination: 'fiat',
-                  },
-                  fiatStats,
-                  convertAmount: false,
-                  forceCurrency: 'USD',
-                }),
-              }),
-              duration: 6000,
-            });
-          }
-
-          setSwapQuote(quote.quote);
-          setLnFeeEstimate(fee);
-        } else {
-          const feeResult = await sparkPaymenWrapper({
-            getFee: true,
-            paymentType: 'lightning',
-            address: invoiceResponse.pr,
-            amountSats: amount,
-            masterInfoObject,
-            sparkInformation,
-            mnemonic: currentWalletMnemoinc,
-            sendWebViewRequest,
-          });
-          if (!feeResult.didWork) throw new Error('Fee estimation failed');
-          const fee = feeResult.fee;
-          if (quoteId.current !== id) return;
-          if (fee + amount > bitcoinBalance) {
-            showToast({
-              type: 'error',
-              title: t('errormessages.lightningAmountFeeWarning', {
-                amount: displayCorrectDenomination({
-                  amount: fee,
-                  masterInfoObject: {
-                    ...masterInfoObject,
-                    userBalanceDenomination: 'sats',
-                  },
-                  fiatStats,
-                }),
-              }),
-              duration: 6000,
-            });
-          }
-          setLnFeeEstimate(fee);
-        }
-      } catch {
-        showToast({
-          type: 'error',
-          title: t('wallet.sendPages.sendPaymentScreen.feeEstimateError'),
-        });
-      } finally {
-        if (quoteId.current === id) {
-          setIsLoading(false);
-        }
-      }
-    },
-    [
-      selectedContact?.isLNURL,
-      selectedContact?.receiveAddress,
-      paymentType,
-      selectedPaymentMethod,
-      currentWalletMnemoinc,
-      masterInfoObject,
-      sparkInformation,
-      sendWebViewRequest,
-      showToast,
-      t,
-      dollarBalanceToken,
-      dollarBalanceSat,
-      bitcoinBalance,
-    ],
-  );
-
-  const debouncedEstimateLNURLFee = useDebounce(estimateLNURLFee, 600);
-
-  const paymentValidation = usePaymentValidation({
-    paymentInfo: {
-      sendAmount: convertedSendAmount,
-      paymentNetwork:
-        giftOption || selectedContact?.isLNURL ? 'lightning' : 'spark',
-      isLNURLPayment: selectedContact?.isLNURL,
-      data: {
-        expectedReceive: resolvedEndReceiveType === 'BTC' ? 'sats' : 'tokens',
-        expectedToken: resolvedEndReceiveType === 'BTC' ? null : USDB_TOKEN_ID,
-      },
-      decodedInput: {
-        tpye:
-          giftOption || selectedContact?.isLNURL ? InputTypes.BOLT11 : 'spark',
-        data: { amountMsat: convertedSendAmount * 1000 },
-      },
-      swapPaymentQuote: Object.keys(swapQuote).length
-        ? swapQuote
-        : {
-            amountIn:
-              selectedPaymentMethod === 'BTC'
-                ? convertedSendAmount
-                : inputDenomination === 'fiat'
-                ? amountValue * Math.pow(10, 6)
-                : satsToDollars(
-                    convertedSendAmount,
-                    poolInfoRef.currentPriceAInB,
-                  )?.toFixed(2) * Math.pow(10, 6),
-          },
-    },
-    convertedSendAmount,
-    paymentFee: lnFeeEstimate ?? 0,
-    determinePaymentMethod: selectedPaymentMethod,
-    selectedPaymentMethod,
-
-    bitcoinBalance: bitcoinBalance,
-    dollarBalanceSat: dollarBalanceSat,
-    dollarBalanceToken: dollarBalanceToken,
-
-    min_usd_swap_amount: min_usd_swap_amount,
-    swapLimits: swapLimits,
-
-    isUsingLRC20: false,
-
-    canEditAmount: true,
-
+    endReceiveType,
+    imageData,
+    lockInitialPaymentMethod: true,
     t,
-
-    masterInfoObject,
-    fiatStats,
-    inputDenomination: primaryDisplay.denomination,
-    primaryDisplay,
-    conversionFiatStats,
-
-    sparkInformation,
-    poolInfoRef,
   });
 
   const handleSelectPaymentMethod = useCallback(() => {
-    if (paymentType === 'send' || paymentType === 'Gift') {
+    if (paymentType === 'send') {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'SelectPaymentMethod',
-        selectedPaymentMethod: selectedPaymentMethod,
+        selectedPaymentMethod: payment.paymentMethod,
         fromPage: 'SendAndRequestPage',
       });
     } else {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'SelectContactRequestCurrency',
-        selectedRecieveOption: selectedRequestMethod,
+        selectedRecieveOption: payment.paymentMethod,
       });
     }
-  }, [navigate, selectedPaymentMethod, selectedRequestMethod]);
-
-  useEffect(() => {
-    if (
-      prefSelectedPaymentInfo.current.selectedPaymentMethod !==
-        selectedPaymentMethod ||
-      prefSelectedPaymentInfo.current.selectedRequestMethod !==
-        selectedRequestMethod
-    ) {
-      setAmountValue('');
-      setUserSetInputDenomination(null);
-      prefSelectedPaymentInfo.current = {
-        selectedPaymentMethod,
-        selectedRequestMethod,
-      };
-    }
-  }, [selectedPaymentMethod, selectedRequestMethod]);
-
-  useEffect(() => {
-    if (!giftOption) {
-      setAmountValue('');
-      return;
-    }
-    const totalSats = Math.round(
-      giftOption.selectedDenomination * giftOption.satsPerDollar,
-    );
-    const localfiatSatsPerDollar =
-      (primaryDisplay.forceFiatStats?.value || fiatStats.value) /
-      SATSPERBITCOIN;
-    setAmountValue(
-      String(
-        primaryDisplay.denomination !== 'fiat'
-          ? totalSats
-          : Math.round(localfiatSatsPerDollar * totalSats),
-      ),
-    );
-  }, [giftOption]);
-
-  useEffect(() => {
-    lnurlParsedRef.current = null;
-    setLnFeeEstimate(null);
-  }, [selectedContact?.uuid]);
-
-  useEffect(() => {
-    if (!selectedContact?.isLNURL || paymentType !== 'send') return;
-    setLnFeeEstimate(null);
-    setSwapQuote({});
-    if (convertedSendAmount > 0) {
-      const id = customUUID();
-      quoteId.current = id;
-      setIsLoading(true);
-      debouncedEstimateLNURLFee(convertedSendAmount, id);
-    }
-  }, [convertedSendAmount, selectedContact?.isLNURL, paymentType]);
-
-  const canProceed =
-    paymentType === 'request' ? !!amountValue : paymentValidation.canProceed;
-  const canReview =
-    canProceed && (!requiresContactDoc || Boolean(prefetchedDoc));
-
-  const handleDenominationToggle = () => {
-    if (isDescriptionFocused) return;
-    if (paymentType === 'Gift') {
-      const nextDenom = getNextDenomination();
-      setUserSetInputDenomination(nextDenom);
-    } else {
-      const nextDenom = getNextDenomination();
-      setUserSetInputDenomination(nextDenom);
-      setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-    }
-  };
+  }, [navigate, payment.paymentMethod, paymentType]);
 
   const handleSubmit = useCallback(async () => {
-    try {
-      if (!canProceed) {
-        const error = paymentValidation.getErrorMessage(
-          paymentValidation.primaryError,
-        );
-        navigate.navigate('ErrorScreen', {
-          errorMessage: error,
-        });
-        return;
-      }
-      if (!isConnectedToTheInternet) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('errormessages.nointernet'),
-        });
-        return;
-      }
-      if (requiresContactDoc && !prefetchedDoc) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('errormessages.contactNotLoaded'),
-        });
-        return;
-      }
-      crashlyticsLogReport('Submitting send and request payment');
-      setIsLoading(true);
+    const result =
+      paymentType === 'send'
+        ? await payment.buildSendHandoff()
+        : await payment.submitRequest();
 
-      const sendingAmountMsat = convertedSendAmount * 1000;
-      const contactMessage = descriptionValue;
-      const isLNURL = selectedContact.isLNURL;
-      const contactName = isLNURL
-        ? selectedContact.name || selectedContact.receiveAddress.split('@')[0]
-        : selectedContact.name || selectedContact.uniqueName;
-
-      const myProfileMessage = !!descriptionValue
-        ? descriptionValue
-        : t('contacts.sendAndRequestPage.profileMessage', {
-            name: contactName,
-          });
-      const payingContactMessage = !!descriptionValue
-        ? descriptionValue
-        : {
-            usingTranslation: true,
-            type: 'paid',
-            name:
-              globalContactsInformation.myProfile.name ||
-              globalContactsInformation.myProfile.uniqueName,
-          };
-
-      const currentTime = getServerTime();
-      const UUID = customUUID();
-      let sendObject = {};
-
-      if (globalContactsInformation.myProfile.uniqueName) {
-        sendObject['senderProfileSnapshot'] = {
-          uniqueName: globalContactsInformation.myProfile.uniqueName,
-        };
-      }
-
-      if (giftOption) {
-        const retrivedContact = await getDataFromCollection(
-          'blitzWalletUsers',
-          selectedContact.uuid,
-        );
-        if (!retrivedContact) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'errormessages.fullDeeplinkError',
-          });
-          return;
-        }
-        if (!retrivedContact.enabledGiftCards) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t(
-              'contacts.sendAndRequestPage.giftCardappVersionError',
-            ),
-          });
-          return;
-        }
-
-        const postData = {
-          type: 'buyGiftCard',
-          productId: giftOption.id, //string
-          cardValue: giftOption.selectedDenomination, //number
-          quantity: Number(1), //number
-        };
-
-        const response = await fetchBackend(
-          'theBitcoinCompanyV3',
-          postData,
-          contactsPrivateKey,
-          publicKey,
-        );
-
-        if (response.result) {
-          const { amount, invoice, orderId, uuid } = response.result;
-          const fiatRates = await (fiatStats.coin?.toLowerCase() === 'usd'
-            ? Promise.resolve({ didWork: true, fiatRateResponse: fiatStats })
-            : loadNewFiatData(
-                'usd',
-                contactsPrivateKey,
-                publicKey,
-                masterInfoObject,
-              ));
-          const USDBTCValue = fiatRates.didWork
-            ? fiatRates.fiatRateResponse
-            : { coin: 'USD', value: 100_000 };
-
-          const sendingAmountSat = amount;
-          const isOverDailyLimit = await giftCardPurchaseAmountTracker({
-            sendingAmountSat: sendingAmountSat,
-            USDBTCValue: USDBTCValue,
-            testOnly: true,
-          });
-
-          if (isOverDailyLimit.shouldBlock) {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: isOverDailyLimit.reason,
-            });
-            return;
-          }
-
-          sendObject['amountMsat'] = amount;
-          sendObject['description'] = descriptionValue || '';
-          sendObject['uuid'] = UUID;
-          sendObject['isRequest'] = false;
-          sendObject['isRedeemed'] = null;
-          sendObject['wasSeen'] = null;
-          sendObject['didSend'] = null;
-          sendObject['giftCardInfo'] = {
-            amount,
-            invoice,
-            orderId,
-            uuid,
-            logo: giftOption.logo,
-            name: giftOption.name,
-          };
-
-          navigate.navigate('ConfirmPaymentScreen', {
-            btcAdress: invoice,
-            comingFromAccept: true,
-            enteredPaymentInfo: {
-              fromContacts: true,
-              amount: amount,
-              description:
-                descriptionValue ||
-                t('contacts.sendAndRequestPage.giftCardDescription', {
-                  name: contactName,
-                  giftCardName: giftOption.name,
-                }),
-            },
-            contactInfo: {
-              imageData,
-              name: contactName,
-              uniqueName: selectedContact.uniqueName,
-              uuid: selectedContact.uuid,
-            },
-            preSelectedPaymentMethod: selectedPaymentMethod,
-            selectedPaymentMethod: selectedPaymentMethod,
-            fromPage: 'contacts',
-            publishMessageFunc: () => {
-              giftCardPurchaseAmountTracker({
-                sendingAmountSat: sendingAmountSat,
-                USDBTCValue: USDBTCValue,
-              });
-              publishMessage({
-                toPubKey: selectedContact.uuid,
-                fromPubKey: globalContactsInformation.myProfile.uuid,
-                data: sendObject,
-                globalContactsInformation,
-                selectedContact,
-                isLNURLPayment: false,
-                privateKey: contactsPrivateKey,
-                retrivedContact,
-                currentTime,
-                masterInfoObject,
-              });
-            },
-          });
-        } else {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('contacts.sendAndRequestPage.cardDetailsError'),
-          });
-        }
-        return;
-      }
-
-      const {
-        receiveAddress,
-        retrivedContact,
-        didWork,
-        error,
-        formattedPayingContactMessage,
-      } = await getReceiveAddressAndContactForContactsPayment({
-        sendingAmountSat: convertedSendAmount,
-        selectedContact,
-        myProfileMessage,
-        payingContactMessage,
-        onlyGetContact: paymentType !== 'send',
-        prefetchedDoc,
-      });
-
-      if (!didWork) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: error,
-          useTranslationString: true,
-        });
-        return;
-      }
-
-      sendObject['amountMsat'] = sendingAmountMsat;
-      sendObject['uuid'] = UUID;
-      sendObject['wasSeen'] = null;
-      sendObject['didSend'] = null;
-      sendObject['isRedeemed'] = null;
-
-      if (paymentType === 'send') {
-        sendObject['description'] = contactMessage;
-        sendObject['isRequest'] = false;
-        sendObject['paymentDenomination'] = resolvedEndReceiveType;
-        sendObject['amountDollars'] =
-          resolvedEndReceiveType === 'USD'
-            ? satsToDollars(
-                convertedSendAmount,
-                poolInfoRefSnapshotRef.current.currentPriceAInB,
-              ).toFixed(2)
-            : null;
-
-        navigate.navigate('ConfirmPaymentScreen', {
-          btcAdress: receiveAddress,
-          comingFromAccept: true,
-          enteredPaymentInfo: {
-            fromContacts: true,
-            amount: convertedSendAmount,
-            description: myProfileMessage,
-            endReceiveType: resolvedEndReceiveType,
-            lnFeeEstimate: selectedContact?.isLNURL ? lnFeeEstimate : null,
-            swapQuote: Object.keys(swapQuote).length ? swapQuote : null,
-            lnInvoiceData: selectedContact?.isLNURL ? lnInvoiceData : null,
-          },
-          contactInfo: {
-            imageData,
-            name: contactName,
-            isLNURLPayment: selectedContact?.isLNURL,
-            payingContactMessage: formattedPayingContactMessage, //handles remote tx description
-            uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
-            uuid: selectedContact.uuid,
-          },
-          preSelectedPaymentMethod: selectedPaymentMethod,
-          selectedPaymentMethod: selectedPaymentMethod,
-          fromPage: 'contacts',
-          publishMessageFunc: txid =>
-            publishMessage({
-              toPubKey: selectedContact.uuid,
-              fromPubKey: globalContactsInformation.myProfile.uuid,
-              data: {
-                ...sendObject,
-                txid,
-                name:
-                  globalContactsInformation.myProfile.name ||
-                  globalContactsInformation.myProfile.uniqueName,
-              },
-              globalContactsInformation,
-              selectedContact,
-              isLNURLPayment: selectedContact?.isLNURL,
-              privateKey: contactsPrivateKey,
-              retrivedContact,
-              currentTime,
-              masterInfoObject,
-            }),
-        });
-      } else {
-        sendObject['amountDollars'] =
-          selectedRequestMethod === 'USD'
-            ? satsToDollars(
-                convertedSendAmount,
-                poolInfoRefSnapshotRef.current.currentPriceAInB,
-              ).toFixed(2)
-            : null;
-        sendObject['description'] = descriptionValue;
-        sendObject['isRequest'] = true;
-        sendObject['paymentDenomination'] = selectedRequestMethod;
-
-        await publishMessage({
-          toPubKey: selectedContact.uuid,
-          fromPubKey: globalContactsInformation.myProfile.uuid,
-          data: sendObject,
-          globalContactsInformation,
-          selectedContact,
-          isLNURLPayment: selectedContact?.isLNURL,
-          privateKey: contactsPrivateKey,
-          retrivedContact,
-          currentTime,
-          masterInfoObject,
-        });
-
-        navigate.goBack();
-      }
-    } catch (err) {
-      console.log(err, 'publishing message error');
+    if (!result.didWork) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: selectedContact.isLNURL
-          ? t('errormessages.contactInvoiceGenerationError')
-          : t('errormessages.invoiceRetrivalError'),
+        errorMessage: result.errorMessage,
+        useTranslationString: result.useTranslationString,
       });
-    } finally {
-      setIsLoading(false);
+      return;
     }
-  }, [
-    isConnectedToTheInternet,
-    convertedSendAmount,
-    canProceed,
-    selectedContact,
-    navigate,
-    contactsPrivateKey,
-    descriptionValue,
-    paymentType,
-    globalContactsInformation,
-    getServerTime,
-    giftOption,
-    masterInfoObject,
-    fiatStats,
-    imageData,
-    paymentValidation,
-    selectedPaymentMethod,
-    primaryDisplay,
-    isUSDMode,
-    inputDenomination,
-    resolvedEndReceiveType,
-    requiresContactDoc,
-    prefetchedDoc,
-    t,
-  ]);
 
-  const handleEmoji = newDescription => {
-    setDescriptionValue(newDescription);
-  };
+    if (paymentType === 'send') {
+      navigate.navigate('ConfirmPaymentScreen', result.params);
+    } else {
+      navigate.goBack();
+    }
+  }, [navigate, payment, paymentType]);
 
   const memorizedKeyboardStyle = useMemo(() => {
     return {
       paddingBottom: !isDescriptionFocused ? bottomPadding : 0,
     };
-  }, [isDescriptionFocused]);
+  }, [bottomPadding, isDescriptionFocused]);
 
   return (
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
@@ -883,7 +127,7 @@ export default function SendAndRequestPage(props) {
               navigate.navigate('AddFriendsToSplit', {
                 paymentType,
                 selectedContact,
-                paymentCurrency: isUSDMode ? 'USD' : 'BTC',
+                paymentCurrency: payment.paymentMethod,
               });
             }}
           >
@@ -902,7 +146,7 @@ export default function SendAndRequestPage(props) {
             </View>
 
             {!selectedContact?.isLNURL && (
-              <View style={[styles.splitPayIcon]}>
+              <View style={styles.splitPayIcon}>
                 <ThemeIcon size={25} iconName={'CirclePlus'} />
               </View>
             )}
@@ -932,210 +176,96 @@ export default function SendAndRequestPage(props) {
         >
           <TouchableOpacity
             activeOpacity={1}
-            onPress={handleDenominationToggle}
+            onPress={() => {
+              if (!isDescriptionFocused) payment.handleDenominationToggle();
+            }}
           >
             <FormattedBalanceInput
               maxWidth={0.9}
-              amountValue={displayAmount || 0}
-              inputDenomination={primaryDisplay.denomination}
-              forceCurrency={primaryDisplay.forceCurrency}
-              forceFiatStats={primaryDisplay.forceFiatStats}
+              amountValue={payment.amountValue || 0}
+              inputDenomination={payment.primaryDisplay.denomination}
+              forceCurrency={payment.primaryDisplay.forceCurrency}
+              forceFiatStats={payment.primaryDisplay.forceFiatStats}
             />
 
             <FormattedSatText
               containerStyles={{
                 ...styles.convertedAmount,
-                opacity: !amountValue ? HIDDEN_OPACITY : 1,
+                opacity: !payment.amountValue ? HIDDEN_OPACITY : 1,
               }}
               neverHideBalance={true}
-              globalBalanceDenomination={secondaryDisplay.denomination}
-              forceCurrency={secondaryDisplay.forceCurrency}
-              forceFiatStats={secondaryDisplay.forceFiatStats}
-              balance={convertedSendAmount}
+              globalBalanceDenomination={payment.secondaryDisplay.denomination}
+              forceCurrency={payment.secondaryDisplay.forceCurrency}
+              forceFiatStats={payment.secondaryDisplay.forceFiatStats}
+              balance={payment.convertedSendAmount}
             />
           </TouchableOpacity>
-
-          {giftOption && (
-            <>
-              <View style={styles.giftAmountContainer}>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigate.navigate('SelectGiftCardForContacts', {
-                      selectedContact,
-                      imageData,
-                    })
-                  }
-                  style={[
-                    styles.pill,
-                    {
-                      backgroundColor: theme
-                        ? backgroundOffset
-                        : COLORS.darkModeText,
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.logoContainer,
-                      {
-                        backgroundColor: theme
-                          ? COLORS.darkModeText
-                          : backgroundColor,
-                      },
-                    ]}
-                  >
-                    <Image
-                      style={styles.cardLogo}
-                      source={{ uri: giftOption.logo }}
-                      contentFit="contain"
-                    />
-                  </View>
-                  <ThemeText
-                    CustomNumberOfLines={1}
-                    styles={styles.pillText}
-                    content={t('contacts.sendAndRequestPage.giftCardText', {
-                      giftName: giftOption.name,
-                    })}
-                  />
-
-                  <View style={[styles.editButton]}>
-                    <ThemeIcon
-                      colorOverride={textColor}
-                      size={18}
-                      iconName={'SquarePen'}
-                    />
-                  </View>
-                </TouchableOpacity>
-
-                <View style={styles.memoSection}>
-                  <ThemeText
-                    styles={styles.memoLabel}
-                    content={t('contacts.sendAndRequestPage.giftMessage')}
-                  />
-                  <CustomSearchInput
-                    textInputMultiline={true}
-                    placeholderText={t(
-                      'contacts.sendAndRequestPage.giftMessagePlaceholder',
-                    )}
-                    onFocusFunction={() => setIsDescriptionFocused(true)}
-                    onBlurFunction={() => setIsDescriptionFocused(false)}
-                    inputText={descriptionValue}
-                    setInputText={setDescriptionValue}
-                    maxLength={500}
-                    textInputStyles={{ minHeight: 100 }}
-                    textAlignVertical="top"
-                  />
-                </View>
-
-                {paymentType === 'Gift' && (
-                  <View>
-                    <ThemeText
-                      styles={styles.memoLabel}
-                      content={t(
-                        'contacts.sendAndRequestPage.paymentSourceHeader',
-                      )}
-                    />
-
-                    <ChoosePaymentMethod
-                      theme={theme}
-                      darkModeType={darkModeType}
-                      determinePaymentMethod={
-                        paymentType === 'send' || paymentType === 'Gift'
-                          ? selectedPaymentMethod
-                          : selectedRequestMethod
-                      }
-                      handleSelectPaymentMethod={handleSelectPaymentMethod}
-                      bitcoinBalance={sparkInformation.balance}
-                      dollarBalanceToken={dollarBalanceToken}
-                      masterInfoObject={masterInfoObject}
-                      fiatStats={fiatStats}
-                      uiState={
-                        paymentType === 'send' || paymentType === 'Gift'
-                          ? 'SELECT_INLINE'
-                          : 'CONTACT_REQUEST'
-                      }
-                      t={t}
-                      selectedMethod={
-                        paymentType === 'send' || paymentType === 'Gift'
-                          ? selectedPaymentMethod
-                          : selectedRequestMethod
-                      }
-                      containerStyles={{ width: '100%', marginTop: 0 }}
-                    />
-                  </View>
-                )}
-              </View>
-            </>
-          )}
         </ScrollView>
-        {paymentType !== 'Gift' && (
-          <View style={styles.inputAndGiftContainer}>
-            <ChoosePaymentMethod
-              theme={theme}
-              darkModeType={darkModeType}
-              determinePaymentMethod={
-                paymentType === 'send' || paymentType === 'Gift'
-                  ? selectedPaymentMethod
-                  : selectedRequestMethod
-              }
-              handleSelectPaymentMethod={handleSelectPaymentMethod}
-              bitcoinBalance={sparkInformation.balance}
-              dollarBalanceToken={dollarBalanceToken}
-              masterInfoObject={masterInfoObject}
-              fiatStats={fiatStats}
-              uiState={
-                paymentType === 'send' || paymentType === 'Gift'
-                  ? 'SELECT_INLINE'
-                  : 'CONTACT_REQUEST'
-              }
-              t={t}
-              selectedMethod={
-                paymentType === 'send' || paymentType === 'Gift'
-                  ? selectedPaymentMethod
-                  : selectedRequestMethod
-              }
-              containerStyles={{ width: '100%', marginBottom: 8 }}
-            />
 
-            <CustomSearchInput
-              onFocusFunction={() => {
-                setIsDescriptionFocused(true);
-              }}
-              onBlurFunction={() => {
-                setIsDescriptionFocused(false);
-              }}
-              placeholderText={t('constants.paymentDescriptionPlaceholder')}
-              editable={paymentType === 'send' ? true : !!convertedSendAmount}
-              containerStyles={styles.descriptionInput}
-              setInputText={setDescriptionValue}
-              inputText={descriptionValue}
-              textInputMultiline={true}
-              textAlignVertical={'center'}
-              maxLength={149}
-            />
-          </View>
-        )}
+        <View style={styles.inputAndGiftContainer}>
+          <ThemeText
+            styles={{ opacity: HIDDEN_OPACITY }}
+            content={
+              paymentType === 'send'
+                ? t('constants.payWith')
+                : t('constants.receiveAs')
+            }
+          />
+          <ChoosePaymentMethod
+            theme={theme}
+            darkModeType={darkModeType}
+            determinePaymentMethod={payment.paymentMethod}
+            handleSelectPaymentMethod={handleSelectPaymentMethod}
+            bitcoinBalance={payment.balances.sparkBalance}
+            dollarBalanceToken={payment.balances.dollarBalanceToken}
+            masterInfoObject={payment.masterInfoObject}
+            fiatStats={payment.fiatStats}
+            uiState={
+              paymentType === 'send' ? 'SELECT_INLINE' : 'CONTACT_REQUEST'
+            }
+            t={t}
+            selectedMethod={payment.paymentMethod}
+            containerStyles={{ width: '100%', marginBottom: 8 }}
+          />
+
+          <CustomSearchInput
+            onFocusFunction={() => {
+              setIsDescriptionFocused(true);
+            }}
+            onBlurFunction={() => {
+              setIsDescriptionFocused(false);
+            }}
+            placeholderText={t('constants.paymentDescriptionPlaceholder')}
+            editable={
+              paymentType === 'send' ? true : !!payment.convertedSendAmount
+            }
+            containerStyles={styles.descriptionInput}
+            setInputText={payment.setDescriptionValue}
+            inputText={payment.descriptionValue}
+            textInputMultiline={true}
+            textAlignVertical={'center'}
+            maxLength={149}
+          />
+        </View>
 
         {!isDescriptionFocused && (
           <View>
-            {paymentType !== 'Gift' && (
-              <CustomNumberKeyboard
-                showDot={primaryDisplay.denomination === 'fiat'}
-                frompage="sendContactsPage"
-                setInputValue={setAmountValue}
-                usingForBalance={true}
-                fiatStats={conversionFiatStats}
-              />
-            )}
+            <CustomNumberKeyboard
+              showDot={payment.primaryDisplay.denomination === 'fiat'}
+              frompage="sendContactsPage"
+              setInputValue={payment.setAmountValue}
+              usingForBalance={true}
+              fiatStats={payment.conversionFiatStats}
+            />
             <CustomButton
               buttonStyles={{
                 ...styles.button,
-                opacity: canReview ? 1 : HIDDEN_OPACITY,
+                opacity: payment.canReview ? 1 : HIDDEN_OPACITY,
               }}
-              useLoading={isLoading}
+              useLoading={payment.isLoading}
               actionFunction={handleSubmit}
               textContent={
-                paymentType === 'send' || paymentType === 'Gift'
+                paymentType === 'send'
                   ? t('constants.review')
                   : t('constants.request')
               }
@@ -1146,8 +276,8 @@ export default function SendAndRequestPage(props) {
 
       {isDescriptionFocused && (
         <EmojiQuickBar
-          description={descriptionValue}
-          onEmojiSelect={handleEmoji}
+          description={payment.descriptionValue}
+          onEmojiSelect={payment.setDescriptionValue}
         />
       )}
     </CustomKeyboardAvoidingView>
@@ -1160,7 +290,6 @@ const styles = StyleSheet.create({
     width: WINDOWWIDTH,
     ...CENTER,
   },
-
   identityBadge: {
     alignItems: 'center',
     alignSelf: 'center',
@@ -1190,22 +319,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-
   identityTextContainer: {
     flexDirection: 'column',
     gap: 2,
   },
-
   contactName: {
     fontSize: SIZES.medium,
     includeFontPadding: false,
   },
-
   scrollViewContainer: {
     paddingTop: 5,
     paddingBottom: 20,
     alignItems: 'center',
-    // justifyContent: 'center',
     flexGrow: 1,
   },
   convertedAmount: {
@@ -1215,89 +340,9 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     alignSelf: 'center',
   },
-  giftAmountContainer: {
-    width: INSET_WINDOW_WIDTH,
-    marginTop: 20,
-    gap: 20,
-  },
-  giftAmountText: {
-    textAlign: 'center',
-  },
-  giftContainer: {
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-end',
-  },
-  giftText: {
-    marginRight: 8,
-    includeFontPadding: false,
-  },
   button: {
     width: 'auto',
     ...CENTER,
-  },
-  pill: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    borderRadius: 8,
-    gap: 16,
-    alignSelf: 'center',
-    position: 'relative',
-  },
-  logoContainer: {
-    width: 48,
-    aspectRatio: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLORS.darkModeText,
-    borderRadius: 12,
-    padding: 6,
-  },
-  cardLogo: {
-    width: '100%',
-    height: '100%',
-    maxWidth: 80,
-    maxHeight: 80,
-    borderRadius: 8,
-  },
-  pillText: {
-    flexShrink: 1,
-    includeFontPadding: false,
-    fontSize: SIZES.medium,
-    marginRight: 20,
-  },
-  editButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 'auto',
-  },
-  editIcon: {
-    width: 18,
-    height: 18,
-  },
-  memoSection: {},
-  memoLabel: {
-    marginBottom: 10,
-    opacity: 0.8,
-    fontSize: SIZES.smedium,
-  },
-  memoContainer: {
-    justifyContent: 'center',
-  },
-  memoText: {
-    lineHeight: 22,
-    letterSpacing: 0.3,
-    fontSize: SIZES.medium,
   },
   descriptionInput: {
     marginTop: 8,
