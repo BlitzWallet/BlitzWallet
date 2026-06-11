@@ -16,6 +16,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CreateAccumulationAddressDepositModal from '../accumulationAddresses/CreateAccumulationAddressDepositModal';
+import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { Image } from 'expo-image';
 import ICONS from '../../../../constants/icons';
@@ -167,7 +168,9 @@ export default function HalfModalDepositFunds({
         return option === 'stablecoins'
           ? t('wallet.halfModal.stablecoinSelectedTitle', {
               curr: qrConfig?.sourceAsset || '',
-              chain: capitalize(qrConfig?.sourceChain),
+              chain:
+                ACCUMULATION_CHAINS.find(c => c.id === qrConfig?.sourceChain)
+                  ?.label ?? capitalize(qrConfig?.sourceChain),
             })
           : option === 'spark' && qrConfig.fromStablecoin
           ? t('wallet.halfModal.stablecoinSelectedTitle', {

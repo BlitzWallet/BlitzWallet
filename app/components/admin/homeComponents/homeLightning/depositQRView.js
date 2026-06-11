@@ -30,6 +30,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 
 import { initializeAddressProcess } from '../../../../functions/receiveBitcoin/addressGeneration';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
+import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -88,6 +89,10 @@ export default function DepositQRView({
   });
 
   const option = config?.selectedRecieveOption?.toLowerCase();
+
+  const chainDisplayLabel =
+    ACCUMULATION_CHAINS.find(c => c.id === config?.sourceChain)?.label ??
+    capitalize(config?.sourceChain);
 
   const errorAnimation = useMemo(() => {
     return applyErrorAnimationTheme(
@@ -181,14 +186,14 @@ export default function DepositQRView({
 
   const title =
     option === 'stablecoins'
-      ? capitalize(config.sourceChain)
+      ? chainDisplayLabel
       : capitalize(config.selectedRecieveOption);
 
   const instruction =
     option === 'stablecoins'
       ? t('wallet.halfModal.depositQRInstruction_stablecoins', {
           asset: config.sourceAsset,
-          chain: capitalize(config.sourceChain),
+          chain: chainDisplayLabel,
         })
       : t(
           `wallet.halfModal.depositQRInstruction_${option}${

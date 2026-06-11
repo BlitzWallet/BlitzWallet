@@ -61,7 +61,7 @@ describe('handlePreSendPageParsing', () => {
       resolvedToken: {
         asset: 'USDC',
         chain: 'bsc',
-        chainLabel: 'BSC',
+        chainLabel: 'Binance',
       },
       prefillAmount: '12',
       unsupportedTokenAddress: null,

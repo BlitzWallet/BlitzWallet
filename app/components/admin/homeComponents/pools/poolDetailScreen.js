@@ -42,6 +42,7 @@ import { useTranslation } from 'react-i18next';
 import SectionCard from '../../../../screens/inAccount/settingsHub/components/SectionCard';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
+import { FieldValue, Timestamp } from '@react-native-firebase/firestore';
 const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 
 const MAX_VISIBLE_ACTIVITY = 3;
@@ -75,6 +76,13 @@ export default function PoolDetailScreen(props) {
   const pool = pools[poolId] || passedPool || null;
   // Read contributions from context (cache-first)
   const contributions = allContributions[poolId] || [];
+
+  console.log(
+    pool,
+    contributions,
+    Timestamp.now(),
+    FieldValue.serverTimestamp(),
+  );
 
   const isCreator = pool?.creatorUUID === masterInfoObject?.uuid;
   const isActive = pool?.status === 'active';

@@ -20,6 +20,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
+import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import { CENTER, COLORS } from '../../../../constants';
 import { createPdf } from 'react-native-pdf-from-image';
 import { shareFile } from '../../../../functions/handleShare';
@@ -42,6 +43,9 @@ export default function AccumulationAddressDetail() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
 
+  const chainLabel =
+    ACCUMULATION_CHAINS.find(c => c.id === address.sourceChain)?.label ??
+    address.sourceChain;
   const depositAddress = address.depositAddress ?? '';
   const shortAddress = `${depositAddress.slice(0, 8)}...${depositAddress.slice(
     -8,
@@ -106,7 +110,7 @@ export default function AccumulationAddressDetail() {
   return (
     <GlobalThemeView useStandardWidth>
       <CustomSettingsTopBar
-        label={`${address.sourceChain}`}
+        label={`${chainLabel}`}
         showLeftImage={true}
         leftImageStyles={{ height: 25 }}
         iconNew="Trash2"
@@ -143,7 +147,7 @@ export default function AccumulationAddressDetail() {
           <View style={styles.metaRow}>
             <MetaCell
               label={t('screens.accumulationAddresses.detail.chain')}
-              value={address.sourceChain}
+              value={chainLabel}
               textStyles={{ textTransform: 'capitalize' }}
             />
             <MetaCell
