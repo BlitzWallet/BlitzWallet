@@ -26,7 +26,7 @@ const EVM_CHAINS = [
   'Arbitrum',
   'Optimism',
   'Polygon',
-  'BSC',
+  'Binance',
 ];
 const TRON_ASSETS = [{ id: 'USDT', label: 'USDT', icon: ICONS.usdtLogo }];
 const SOLANA_ASSETS = [
