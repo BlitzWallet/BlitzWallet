@@ -310,6 +310,7 @@ export function AddContactContent({
       }
       return;
     }
+    setRemoteLoadingMessage(t('contacts.addContactsHalfModal.loadingMessage'));
 
     const newContact = {
       name: searchInput.split('@')[0],
