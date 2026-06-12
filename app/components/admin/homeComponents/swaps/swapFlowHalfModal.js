@@ -1328,7 +1328,7 @@ export default function SwapFlowHalfModal({
                               {
                                 backgroundColor:
                                   theme && darkModeType
-                                    ? backgroundOffset
+                                    ? backgroundColor
                                     : COLORS.bitcoinOrange,
                               },
                             ]}
@@ -1414,7 +1414,7 @@ export default function SwapFlowHalfModal({
                               {
                                 backgroundColor:
                                   theme && darkModeType
-                                    ? backgroundOffset
+                                    ? backgroundColor
                                     : COLORS.dollarGreen,
                               },
                             ]}
