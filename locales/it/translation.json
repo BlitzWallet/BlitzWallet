@@ -1805,7 +1805,11 @@
     },
     "fiatCurrency": {
       "title": "Valuta",
+      "halfModalTitle": "Scegli la valuta da visualizzare",
       "placeholderText": "Cerca valuta",
+      "yourCurrencies": "Le tue valute",
+      "moreCurrencies": "Altre valute",
+      "currencyCount": "{{count}}+ valute supportate",
       "saveCurrencyError": "Non siamo riusciti a salvare la valuta selezionata, riprova."
     },
     "feeInformation": {
