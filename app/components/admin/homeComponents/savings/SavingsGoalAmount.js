@@ -38,20 +38,14 @@ export default function SavingsGoalAmount(props) {
 
   const [inputDenomination, setInputDenomination] = useState('fiat');
 
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: 'USD',
-    inputDenomination,
-    fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
-    masterInfoObject,
-  });
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    usePaymentInputDisplay({
+      paymentMode: 'USD',
+      inputDenomination,
+      fiatStats,
+      usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+      masterInfoObject,
+    });
 
   const localSatAmount = convertDisplayToSats(amountValue);
 
@@ -59,39 +53,17 @@ export default function SavingsGoalAmount(props) {
     satsToDollars(localSatAmount, swapUSDPriceDollars) / 100
   ).toFixed(2);
 
-  const handleDenominationToggle = () => {
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
-
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={t('savings.goalAmount.screenTitle')} />
       <View style={styles.container}>
-        <TouchableOpacity
-          // style={{ marginTop: 'auto' }}
-          activeOpacity={1}
-          onPress={handleDenominationToggle}
-        >
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue}
-            inputDenomination={primaryDisplay.denomination}
-            forceCurrency={primaryDisplay.forceCurrency}
-            forceFiatStats={primaryDisplay.forceFiatStats}
-          />
-
-          <FormattedSatText
-            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-            neverHideBalance={true}
-            styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={secondaryDisplay.denomination}
-            forceCurrency={secondaryDisplay.forceCurrency}
-            forceFiatStats={secondaryDisplay.forceFiatStats}
-            balance={localSatAmount}
-          />
-        </TouchableOpacity>
+        <FormattedBalanceInput
+          maxWidth={0.9}
+          amountValue={amountValue}
+          inputDenomination={primaryDisplay.denomination}
+          forceCurrency={primaryDisplay.forceCurrency}
+          forceFiatStats={primaryDisplay.forceFiatStats}
+        />
       </View>
       <CustomNumberKeyboard
         showDot={false}

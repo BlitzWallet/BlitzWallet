@@ -25,7 +25,8 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import {
   dollarsToSats,
   satsToDollars,
@@ -39,10 +40,8 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
@@ -58,6 +57,8 @@ import {
 } from '../../../../functions/localStorage';
 import SkeletonPlaceholder from '../../../../functions/CustomElements/skeletonView';
 import { useAppStatus } from '../../../../../context-store/appStatus';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -184,14 +185,6 @@ export default function WithdrawFromSavingsHalfModal({
     return result.derivedMnemonic;
   }, [accountMnemoinc]);
 
-  const [inputDenomination, setInputDenomination] = useState(
-    selectedBalanceType !== 'interest'
-      ? 'fiat'
-      : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? 'sats'
-      : 'fiat',
-  );
-
   const fiatStats = globalFiatStats;
   const [selectedGoalId, setSelectedGoalId] = useState(selectedGoalUUID);
 
@@ -199,6 +192,19 @@ export default function WithdrawFromSavingsHalfModal({
 
   // Dollar destination → user types USD; Bitcoin destination → user types sats/fiat
   const paymentMode = selectedBalanceType !== 'interest' ? 'USD' : 'BTC';
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode,
+        masterInfoObject,
+        fiatStats,
+      }),
+    [paymentMode, masterInfoObject, fiatStats],
+  );
 
   // Interest balance (BTC sats held in savings wallet from payouts)
   const interestSats = walletBTCBalance ?? cachedBalance ?? 0;
@@ -209,20 +215,22 @@ export default function WithdrawFromSavingsHalfModal({
   const isInterestDisabled = interestSats <= 0;
   const isSavingsDisabled = savingsBalanceUsd <= 0;
 
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode,
-    inputDenomination,
-    fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
-    masterInfoObject,
-  });
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
 
   const handleSkeletonLayout = useCallback(event => {
     const { height, width } = event.nativeEvent.layout;
@@ -341,12 +349,6 @@ export default function WithdrawFromSavingsHalfModal({
     };
   }, [getSavingsWalletMnemonic]);
 
-  const handleDenominationToggle = () => {
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
-
   // Adjust modal height on step change
   useEffect(() => {
     if (setContentHeight && HEIGHT_FOR_PAGE[currentPage]) {
@@ -380,19 +382,29 @@ export default function WithdrawFromSavingsHalfModal({
 
   useHandleBackPressNew(handleBackPress);
 
-  // Register the chrome's back arrow whenever a previous step exists.
+  // Register the chrome's back arrow whenever a previous step exists, and the
+  // currency switch button while the amount step is active.
   useEffect(() => {
-    if (
-      step.length > 1 &&
-      currentPage !== 'loading' &&
-      currentPage !== 'success'
-    ) {
-      setBackNav?.({ onPress: handleBackPress, title: '' });
+    const showBack =
+      step.length > 1 && currentPage !== 'loading' && currentPage !== 'success';
+    const showCurrency = currentPage === 'amount';
+    if (showBack || showCurrency) {
+      setBackNav?.({
+        onPress: showBack ? handleBackPress : null,
+        title: '',
+      });
     } else {
       setBackNav?.(null);
     }
     return () => setBackNav?.(null);
-  }, [step, currentPage, handleBackPress, setBackNav]);
+  }, [
+    step,
+    currentPage,
+    handleBackPress,
+    setBackNav,
+    displayCurrency,
+    isLoadingRate,
+  ]);
 
   const parsedAmount = Number(amountValue || 0);
 
@@ -676,7 +688,7 @@ export default function WithdrawFromSavingsHalfModal({
                   if (isInterestDisabled || !balanceReady) return;
                   setSelectedBalanceType('interest');
                   setSelectedDestination('bitcoin');
-                  setInputDenomination('sats');
+                  setAmountValue('');
                   setStep(prev => [...prev, 'amount']);
                 }}
               >
@@ -778,7 +790,7 @@ export default function WithdrawFromSavingsHalfModal({
                 if (isSavingsDisabled) return;
                 setSelectedBalanceType('savings');
                 setSelectedDestination('dollar');
-                setInputDenomination('fiat');
+                setAmountValue('');
                 if (selectedGoalUUID && !savingsGoals.length) {
                   setStep(prev => [...prev, 'amount']);
                 } else {
@@ -836,7 +848,7 @@ export default function WithdrawFromSavingsHalfModal({
 
   if (currentPage === 'chooseGoal') {
     const shouldShowWithdrawlAll =
-      fromMicros(totalWithdrawMicros) != savingsBalance - totalGoalsBalance;
+      fromMicros(totalWithdrawMicros) !== savingsBalance - totalGoalsBalance;
 
     return (
       <View style={styles.container}>
@@ -1073,29 +1085,13 @@ export default function WithdrawFromSavingsHalfModal({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.amountScrollContainer}
         >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={handleDenominationToggle}
-          >
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={amountValue}
-              inputDenomination={primaryDisplay.denomination}
-              forceCurrency={primaryDisplay.forceCurrency}
-              forceFiatStats={primaryDisplay.forceFiatStats}
-            />
-            <FormattedSatText
-              containerStyles={{
-                opacity: !amountValue ? HIDDEN_OPACITY : 1,
-              }}
-              neverHideBalance={true}
-              styles={{ includeFontPadding: false, textAlign: 'center' }}
-              globalBalanceDenomination={secondaryDisplay.denomination}
-              forceCurrency={secondaryDisplay.forceCurrency}
-              forceFiatStats={secondaryDisplay.forceFiatStats}
-              balance={localSatAmount}
-            />
-          </TouchableOpacity>
+          <FormattedBalanceInput
+            maxWidth={0.9}
+            amountValue={amountValue}
+            inputDenomination={primaryDisplay.denomination}
+            forceCurrency={primaryDisplay.forceCurrency}
+            forceFiatStats={primaryDisplay.forceFiatStats}
+          />
 
           <ThemeText
             styles={styles.availableHintText}
