@@ -77,6 +77,7 @@ import SwapFlowHalfModal from '../../components/admin/homeComponents/swaps/swapF
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import OnlineListingsFilterHalfModal from '../../components/admin/homeComponents/apps/onlineListings/onlineListingsFilterHalfModal';
 import PayLinkCurrencySelect from '../../components/admin/homeComponents/payLinks/components/payLinkCurrencySelect';
+import DisplayCurrencySelect from '../../components/admin/homeComponents/currencyPicker/displayCurrencySelect';
 import LnurlReceiveCurrencySelect from '../../components/admin/homeComponents/receiveBitcoin/lnurlReceiveCurrencySelect';
 import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
@@ -662,6 +663,15 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
+      case 'displayCurrencySelect':
+        return (
+          <DisplayCurrencySelect
+            currentCurrency={props?.route?.params?.currentCurrency}
+            onSelectCurrency={props?.route?.params?.onSelectCurrency}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
       case 'lnurlReceiveCurrencySelect':
         return (
           <LnurlReceiveCurrencySelect
@@ -837,20 +847,27 @@ export default function CustomHalfModal(props) {
             <View style={styles.topBarContainer}>
               {backNav ? (
                 <View style={styles.headerRow}>
-                  <HalfModalBackButton
-                    onPress={backNav.onPress}
-                    backgroundOffset={backgroundOffset}
-                    btnType={backNav.btnType}
-                    theme={theme}
-                    darkModeType={darkModeType}
-                    backgroundColor={backgroundColor}
-                  />
+                  {typeof backNav.onPress === 'function' && (
+                    <HalfModalBackButton
+                      onPress={backNav.onPress}
+                      backgroundOffset={backgroundOffset}
+                      btnType={backNav.btnType}
+                      theme={theme}
+                      darkModeType={darkModeType}
+                      backgroundColor={backgroundColor}
+                    />
+                  )}
                   {!!backNav.title && (
                     <ThemeText
                       CustomNumberOfLines={1}
                       styles={styles.headerTitle}
                       content={backNav.title}
                     />
+                  )}
+                  {!!backNav.rightElement && (
+                    <View style={styles.headerRight}>
+                      {backNav.rightElement}
+                    </View>
                   )}
                 </View>
               ) : (
@@ -928,6 +945,14 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerRight: {
+    position: 'absolute',
+    right: 20,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    zIndex: 3,
   },
   contentContainer: {
     borderTopLeftRadius: 20,
