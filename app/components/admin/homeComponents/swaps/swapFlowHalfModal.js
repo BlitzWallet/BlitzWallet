@@ -1311,10 +1311,10 @@ export default function SwapFlowHalfModal({
                         style={[
                           styles.selectionCard,
                           {
-                            backgroundColor:
-                              theme && darkModeType
-                                ? backgroundColor
-                                : backgroundOffset,
+                            // backgroundColor:
+                            //   theme && darkModeType
+                            //     ? backgroundColor
+                            //     : backgroundOffset,
                             opacity: bitcoinBalanceIsAboveSwapLimit
                               ? 1
                               : HIDDEN_OPACITY,
@@ -1397,10 +1397,10 @@ export default function SwapFlowHalfModal({
                         style={[
                           styles.selectionCard,
                           {
-                            backgroundColor:
-                              theme && darkModeType
-                                ? backgroundColor
-                                : backgroundOffset,
+                            // backgroundColor:
+                            //   theme && darkModeType
+                            //     ? backgroundColor
+                            //     : backgroundOffset,
                             opacity: dollarBalanceIsAboveSwapLimit
                               ? 1
                               : HIDDEN_OPACITY,
@@ -2397,9 +2397,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderRadius: 12,
     // borderWidth: 2,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    marginBottom: 12,
+    paddingVertical: 10,
+    // paddingHorizontal: 12,
+    // marginBottom: 12,
   },
   selectionIconContainer: {
     width: 48,
