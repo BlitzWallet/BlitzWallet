@@ -461,10 +461,7 @@ export default function HalfModalReceiveOptions({
           <TouchableOpacity
             style={[styles.scanButton, { marginBottom: 0 }]}
             onPress={() =>
-              openOverlay(
-                { type: 'payLink' },
-                { onPress: handlePaylinkClose, title: '' },
-              )
+              openOverlay({ type: 'payLink' })
             }
           >
             <View
@@ -626,6 +623,7 @@ export default function HalfModalReceiveOptions({
       <PayLinkCreationOverlay
         visible={overlayType === 'payLink'}
         onClose={handlePaylinkClose}
+        setBackNav={setBackNav}
       />
 
       <ContactPaymentOverlay

@@ -19,7 +19,7 @@ import customUUID from '../../../../functions/customUUID';
  * @param {Boolean} visible - Controls overlay visibility
  * @param {Function} onClose - Callback when overlay should close
  */
-export default function PayLinkCreationOverlay({ visible, onClose }) {
+export default function PayLinkCreationOverlay({ visible, onClose, setBackNav }) {
   const { bottomPadding } = useGlobalInsets();
   const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
@@ -71,6 +71,8 @@ export default function PayLinkCreationOverlay({ visible, onClose }) {
           onContinue={amount => navigateToReceive(amount)}
           onSkip={() => navigateToReceive(undefined)}
           onBack={onClose}
+          setBackNav={setBackNav}
+          onHeaderBack={handleBackPress}
         />
       </View>
     </Animated.View>
