@@ -1,6 +1,6 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { FlatList, StyleSheet } from 'react-native';
+import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -18,9 +18,6 @@ import {
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
 } from '../../../../constants/theme';
-import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import CountryFlag from 'react-native-country-flag';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
@@ -29,62 +26,7 @@ import { useKeysContext } from '../../../../../context-store/keys';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-
-function currencyToCountryCode(currencyId) {
-  if (currencyId === 'XOF') return 'ne';
-  if (currencyId === 'ANG') return 'nl';
-  return currencyId.substring(0, 2);
-}
-
-const CurrencyItem = memo(
-  ({
-    currency,
-    isSelected,
-    onSelect,
-    theme,
-    darkModeType,
-    backgroundOffset,
-  }) => {
-    const countryCode = currencyToCountryCode(currency.id);
-    const borderColor =
-      theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
-
-    return (
-      <TouchableOpacity
-        style={[
-          styles.currencyRow,
-          {
-            borderColor: isSelected ? borderColor : 'transparent',
-            backgroundColor: backgroundOffset,
-          },
-        ]}
-        onPress={() => onSelect(currency.id)}
-      >
-        {countryCode ? (
-          <CountryFlag isoCode={countryCode} size={24} />
-        ) : (
-          <ThemeIcon iconName={'Globe'} size={24} />
-        )}
-        <View style={styles.currencyTextContainer}>
-          <ThemeText
-            styles={styles.currencyName}
-            content={currency.info.name}
-          />
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.currencyCode}
-            content={currency.id}
-          />
-        </View>
-        <CheckMarkCircle
-          switchDarkMode={true}
-          containerSize={20}
-          isActive={isSelected}
-        />
-      </TouchableOpacity>
-    );
-  },
-);
+import CurrencyRow from '../currencyPicker/currencyRow';
 
 export default function FiatCurrencyPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -93,7 +35,7 @@ export default function FiatCurrencyPage() {
   const { toggleFiatStats, fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const currencies = useMemo(() => {
-    return fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
+    return [...fiatCurrencies].sort((a, b) => a.id.localeCompare(b.id));
   }, []);
   const isGoingBackRef = useRef(false);
 
@@ -155,13 +97,14 @@ export default function FiatCurrencyPage() {
 
   const renderItem = useCallback(
     ({ item }) => (
-      <CurrencyItem
+      <CurrencyRow
         currency={item}
         isSelected={item.id?.toLowerCase() === currentCurrency?.toLowerCase()}
         onSelect={saveCurrencySettings}
         theme={theme}
         darkModeType={darkModeType}
         backgroundOffset={backgroundOffset}
+        iconBackground={backgroundColor}
       />
     ),
     [
@@ -170,6 +113,7 @@ export default function FiatCurrencyPage() {
       theme,
       darkModeType,
       backgroundOffset,
+      backgroundColor,
     ],
   );
 
@@ -267,31 +211,6 @@ const styles = StyleSheet.create({
   listContent: {
     flexGrow: 1,
     paddingTop: 20,
-  },
-  currencyRow: {
-    width: '90%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 14,
-    marginBottom: 8,
-    gap: 12,
-  },
-  currencyTextContainer: {
-    flex: 1,
-  },
-  currencyName: {
-    fontSize: SIZES.medium,
-    includeFontPadding: false,
-  },
-  currencyCode: {
-    fontSize: SIZES.small,
-    opacity: 0.6,
-    includeFontPadding: false,
-    marginTop: 2,
   },
   subtitleText: {
     fontSize: SIZES.smedium,
