@@ -140,8 +140,8 @@ const styles = StyleSheet.create({
     // paddingVertical: 8,
   },
   chainIconContainer: {
-    width: 45,
-    height: 45,
+    width: 48,
+    height: 48,
     borderRadius: 22.5,
     overflow: 'hidden',
     alignItems: 'center',
@@ -153,8 +153,8 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   assetIcon: {
-    width: 45,
-    height: 45,
+    width: 48,
+    height: 48,
   },
   assetOptionsContainer: {
     overflow: 'hidden',
