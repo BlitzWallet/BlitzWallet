@@ -12,6 +12,7 @@ import {
   normalizeDisplayCurrency,
   SATS_DISPLAY_CURRENCY,
 } from '../displayCurrency';
+import FullLoadingScreen from './loadingScreen';
 
 export default function CurrencySwitchButton({
   displayCurrency,
@@ -35,7 +36,7 @@ export default function CurrencySwitchButton({
         ]}
       >
         {disabled ? (
-          <ActivityIndicator size="small" color={COLORS.primary} />
+          <FullLoadingScreen showText={false} size="small" />
         ) : (
           <>
             <ThemeIcon iconName="RotateCw" size={25} />

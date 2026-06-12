@@ -13,6 +13,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import ContactAmountEntry from './internalComponents/contactAmountEntry';
 import useContactPayment from './hooks/useContactPayment';
 import { useAppStatus } from '../../../../../context-store/appStatus';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function ContactPaymentOverlay({
   visible,
@@ -59,18 +60,43 @@ export default function ContactPaymentOverlay({
     return true;
   }, [onClose, visible]);
 
+  const openCurrencyPicker = useCallback(
+    () =>
+      navigate.push('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: payment.displayCurrency,
+        onSelectCurrency: payment.handleDisplayCurrencySelect,
+      }),
+    [navigate, payment.displayCurrency, payment.handleDisplayCurrencySelect],
+  );
+
   useEffect(() => {
     if (!visible) return;
     setContentHeight(screenDimensions.height);
     setBackNav?.({
       onPress: handleBackPress,
       title: '',
+      rightElement: (
+        <CurrencySwitchButton
+          displayCurrency={payment.displayCurrency}
+          onPress={openCurrencyPicker}
+          disabled={payment.isLoadingRate}
+        />
+      ),
     });
     return () => {
       setBackNav?.(null);
       setContentHeight(Math.round(screenDimensions.height * 0.8));
     };
-  }, [handleBackPress, setBackNav, visible]);
+  }, [
+    handleBackPress,
+    setBackNav,
+    visible,
+    payment.displayCurrency,
+    payment.isLoadingRate,
+    openCurrencyPicker,
+  ]);
 
   useHandleBackPressNew(handleBackPress);
 
@@ -136,13 +162,10 @@ export default function ContactPaymentOverlay({
           amountValue={payment.amountValue}
           setAmountValue={payment.setAmountValue}
           primaryDisplay={payment.primaryDisplay}
-          secondaryDisplay={payment.secondaryDisplay}
           conversionFiatStats={payment.conversionFiatStats}
-          convertedSendAmount={payment.convertedSendAmount}
           canReview={payment.canReview}
           isLoading={payment.isLoading}
           onNext={handleSubmit}
-          onToggleDenomination={payment.handleDenominationToggle}
           paymentMethod={payment.paymentMethod}
           onSelectPaymentMethod={handleSelectPaymentMethod}
           bitcoinBalance={payment.balances.sparkBalance}
