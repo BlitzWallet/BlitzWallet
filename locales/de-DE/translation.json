@@ -83,7 +83,7 @@
     "to": "An",
     "from": "Von",
     "asset": "Asset",
-    "chain": "Chain",
+    "chain": "Netzwerk",
     "description": "Beschreibung",
     "regenerate": "Erneut generieren",
     "restore": "Wiederherstellen",
@@ -988,7 +988,7 @@
       "tapToGenerate_spark": "Tippen Sie, um eine Spark-Adresse zu erstellen.",
       "tapToGenerate_liquid": "Tippen Sie, um eine Liquid-Adresse zu erstellen.",
       "tapToGenerate_rootstock": "Tippen Sie, um eine Rootstock-Adresse zu erstellen.",
-      "chooseWhatToReceive": "Bitte wählen Sie aus, was Sie anfordern möchten.",
+      "chooseWhatToReceive": "Bitte wählen Sie aus, was Sie empfangen möchten.",
       "instantLowFees": "Sofort und mit niedrigen Gebühren.",
       "onChainTransaction": "On-Chain-Transaktion",
       "otherAddresses": "Weitere Optionen",
@@ -1016,7 +1016,7 @@
       "onChainBitcoin": "Bitcoin einzahlen",
       "onChainBitcoinSubtitle": "Über eine On-Chain-Adresse empfangen",
       "stablecoins": "Dollar einzahlen",
-      "stablecoinsSubtitle": "Zahlen Sie Dollar in Ihre Wallet ein",
+      "stablecoinsSubtitle": "Empfangen Sie Dollar direkt in Ihrer Wallet.",
       "cashAppSubtitle": "Sofort von Cash App senden",
       "sparkAddressSubtitle": "An Ihre Spark-Adresse empfangen",
       "otherBitcoin": "Weitere Einzahlungsoptionen",
@@ -1030,7 +1030,7 @@
       "cashAppOpen": "Cash App öffnen",
       "cashAppBack": "Zurück",
       "viewDetails": "Details anzeigen",
-      "othersOptionTitle": "Methode auswählen",
+      "othersOptionTitle": "Netzwerk auswählen",
       "stablecoinSelectedTitle": "{{curr}} auf {{chain}}",
       "liquidDesc": "Empfangen Sie Liquid BTC direkt in Ihrer Wallet.",
       "roostockDesc": "Empfangen Sie Rootstock BTC direkt in Ihrer Wallet.",
@@ -1044,7 +1044,7 @@
       "depositQRInstruction_bitcoin": "Senden Sie nur Bitcoin an diese Adresse. Das Geld kommt nach drei On-Chain-Bestätigungen an.",
       "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
-      "depositQRInstruction_spark": "Senden Sie Bitcoin oder Tokens an diese Adresse.",
+      "depositQRInstruction_spark": "Senden Sie Bitcoin oder Token an diese Adresse.",
       "depositQRInstruction_spark_dollars": "Senden Sie USDB an diese Adresse."
     },
     "payLinks": {
@@ -1191,8 +1191,8 @@
         "swapWarning": "{{swapType}}-Zahlungen müssen mindestens {{amount}} betragen.",
         "oneMinute": "ca. {{numMins}} Minute",
         "tenMinutes": "ca. {{numMins}} Minuten",
-        "notUsingMainAccountWarning": "Warnung: Sie nutzen nicht Ihr Hauptkonto. Alle {{swapType}}-Übertragungen werden an Ihr Hauptkonto gesendet.",
-        "sparkDesc": "Sofort, unterstützte Token",
+        "notUsingMainAccountWarning": "Warnung: Sie nutzen nicht Ihr Hauptkonto. Alle {{swapType}}-Zahlungen werden an Ihr Hauptkonto gesendet.",
+        "sparkDesc": "Sofortiger Empfang unterstützter Token",
         "sparkTitle": "Spark-Adresse",
         "bitcoinTitle": "BTC-On-Chain-Adresse",
         "lightningTitle": "Lightning-Rechnung",
@@ -1215,26 +1215,26 @@
         "decodingPayment": "Zahlungsinformationen werden dekodiert...",
         "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsmethode aus, um fortzufahren.",
         "swapRatesChangedTitle": "Wechselkurs aktualisiert",
-        "swapRatesChangedBody": "Der Wechselkurs für diesen Swap hat sich während Ihrer Überprüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
+        "swapRatesChangedBody": "Der Wechselkurs für diesen Swap hat sich während Ihrer Prüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
         "swapRatesChangedButton": "Betrag erneut eingeben",
         "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut",
         "brantaVerification": "Diese Zahlung ist von Branta verifiziert."
       },
       "selectPaymentMethod": {
-        "header": "Bitte wählen Sie aus, wie Sie Ihre Zahlung senden möchten (BTC oder USD)."
+        "header": "Wie möchten Sie diese Zahlung senden (BTC oder USD)?"
       },
       "handlingAddressErrors": {
         "invalidFormat": "Adressen sollten nur Text enthalten. Bitte überprüfen Sie und versuchen Sie es erneut.",
         "parseError": "Wir konnten den Zahlungstyp nicht erkennen. Bitte geben Sie eine gültige Spark-, On-Chain-, Blitz-Benutzernamen-, LNURL- oder BOLT11-Rechnung ein.",
         "paymentProcessingError": "Fehler bei der Verarbeitung der Zahlungsinformationen.",
-        "tooLowSendingAmount": "Der Sendebetrag ist zu niedrig, um die Zahlung und Gebühren zu decken. Maximaler Sendebetrag ist {{amount}}",
+        "tooLowSendingAmount": "Der Sendebetrag ist zu niedrig, um die Zahlung und die Gebühren zu decken. Der maximale Sendebetrag ist {{amount}}.",
         "processInputError": "Eingabe konnte nicht verarbeitet werden.",
-        "unkonwDecodeError": "Unbekannter Dekodierungsfehler aufgetreten.",
+        "unkonwDecodeError": "Ein unbekannter Dekodierungsfehler ist aufgetreten.",
         "invalidInputType": "Kein gültiger Adresstyp.",
         "expiredLightningInvoice": "Diese Lightning-Rechnung ist abgelaufen.",
         "lnurlAuthStartMeessage": "LNURL-Authentifizierung wird gestartet...",
         "lnurlFailedAuthMessage": "LNURL-Authentifizierung fehlgeschlagen",
-        "lnurlConfirmMessage": "LNURL erfolgreich authentifiziert",
+        "lnurlConfirmMessage": "LNURL-Authentifizierung erfolgreich",
         "lnurlPayInvoiceError": "Fehler beim Erstellen der Rechnung für die LNURL-Zahlung. Bitte versuchen Sie es erneut.",
         "lnurlPayNoInvoiceError": "Der Zahlungsdienst ist derzeit nicht erreichbar. Falls das Problem weiterhin besteht, kontaktieren Sie bitte den Anbieter.",
         "lnurlPayInvalidFormat": "Der Zahlungsdienst hat ungültige Daten zurückgegeben. Falls das Problem weiterhin besteht, kontaktieren Sie bitte den Anbieter.",
@@ -1268,7 +1268,7 @@
       "acceptButton": {
         "noSendAmountError": "Bitte geben Sie einen Betrag zum Senden ein.",
         "noSwapForBTCPaymentsError": "BTC-On-Chain-Zahlungen können nur mit BTC bezahlt werden, nicht mit USD. Swaps sind für On-Chain-Zahlungen nicht verfügbar.",
-        "balanceFragmentationError": "Ihr Guthaben ist auf BTC und USD aufgeteilt. Um diese Zahlung abzuschließen, konsolidieren Sie Ihre Mittel oder passen Sie die Zahlungsmethode an.",
+        "balanceFragmentationError": "Ihr Guthaben ist auf BTC und USD aufgeteilt. Um diese Zahlung abzuschließen, führen Sie Ihre Guthaben zusammen oder passen Sie die Zahlungsmethode an.",
         "liquidError": "{{overFlowType}} Liquid-Zahlungsbetrag beträgt {{amount}}",
         "onchainError": "BTC-On-Chain-Zahlungen erfordern einen Mindestbetrag von {{amount}}.",
         "lnurlPayError_minimum": "Der Zahlungsbetrag muss mindestens {{amount}} betragen",
@@ -1280,8 +1280,8 @@
       }
     },
     "switchOption": {
-      "lightning": "am besten für kleine Zahlungen",
-      "bitcoin": "am besten für größere Zahlungen"
+      "lightning": "Am besten für kleine Zahlungen",
+      "bitcoin": "Am besten für größere Zahlungen"
     },
     "homeLightning": {
       "home": {
@@ -1413,7 +1413,7 @@
       "deleteProfileImageError": "Profilbild konnte nicht gelöscht werden, bitte versuchen Sie es erneut.",
       "deleteWarning": "Möchten Sie diesen Kontakt wirklich löschen? Nachrichten, die älter als eine Woche sind, können nicht wiederhergestellt werden.",
       "receiveCurrencyPillTitle": "Empfangswährung",
-      "receiveCurrencyPillDesc": "Legen Sie fest, wie Sie über Ihre Lightning-Adresse Zahlungen empfangen",
+      "receiveCurrencyPillDesc": "Legen Sie fest, wie Sie Zahlungen über Ihre Lightning-Adresse empfangen möchten.",
       "invalidCharactersError": "Name und Biografie dürfen die Zeichen < > { } ` \\ nicht enthalten",
       "invalidReceiveAddressError": "Bitte geben Sie eine gültige Lightning-Adresse ein (z. B. benutzer@domain.com)",
       "aboutYou": "Über Sie",
@@ -1560,7 +1560,7 @@
       "licenseBody": "Blitz ist eine kostenlose und Open-Source-App unter der",
       "licenseLinkLabel": "Apache-Lizenz v2.0",
       "walletHeader": "Blitz Wallet",
-      "walletDescription": "Dies ist eine selbstverwaltete Bitcoin-Lightning-Wallet mit Spark-Unterstützung. Blitz hat keinen Zugriff auf Ihre Gelder. Wenn Sie Ihre Wiederherstellungsphrase (Seed-Phrase) verlieren, führt dies zum dauerhaften Verlust Ihrer Gelder.",
+      "walletDescription": "Dies ist eine selbstverwaltete Bitcoin- und Lightning-Wallet mit Spark-Unterstützung. Blitz hat keinen Zugriff auf Ihre Gelder. Wenn Sie Ihre Wiederherstellungsphrase (Seed-Phrase) verlieren, führt dies zum dauerhaften Verlust Ihrer Gelder.",
       "poweredByLabel": "Basiert auf",
       "poweredByBreez": "Breez Liquid SDK",
       "poweredBySpark": "Spark",
@@ -1721,7 +1721,7 @@
       "title": "Spark-Einstellungen",
       "sliderTitle_enabled": "BTKN aktiviert",
       "sliderTitle_disabled": "BTKN deaktiviert",
-      "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf BTC fokussierte Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die sie wollen.",
+      "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf Bitcoin ausgerichtete Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die sie wollen.",
       "selectTokenHeader": "Standard-Token",
       "selectTokenInformationPopup": "Bitte wählen Sie aus, welchen Token Sie zuerst für Zahlungen verwenden möchten. Keine Sorge – Sie können dies jederzeit auf der Zahlungsseite ändern."
     },
@@ -1756,7 +1756,7 @@
       "timeoutBHeight": "Timeout-Blockhöhe",
       "expAmount": "Erwarteter Betrag",
       "invoice": "Rechnung",
-      "refundSwap": "Übertragung erstatten",
+      "refundSwap": "Rückerstattung anfordern",
       "date": "Datum",
       "completed": "Abgeschlossen",
       "refunded": "Erstattet",
@@ -1775,11 +1775,11 @@
       "balance": "{{amount}} Liquid-Guthaben",
       "rescan": "Neu scannen",
       "totalBalance": "Gesamtguthaben",
-      "swapMessage": "Blitz Wallet versucht, Ihre Liquid-Gelder beim ersten App-Start oder beim Empfang von Liquid-Zahlungen nach Spark zu übertragen.\n\nIn manchen Fällen kann jedoch eine Übertragung verpasst werden. Um diese Gelder manuell nach Spark zu bewegen, tippen Sie unten auf den Button „Übertragen“.",
+      "swapMessage": "Blitz Wallet versucht, Ihre Liquid-Gelder beim ersten App-Start oder beim Empfang von Liquid-Zahlungen nach Spark zu übertragen.\n\nIn manchen Fällen kann jedoch eine Übertragung verpasst werden. Um diese Gelder manuell nach Spark zu übertragen, tippen Sie unten auf den Button „Übertragen“.",
       "swap": "Übertragen",
       "rescanning": "Scannen...",
       "autoClaimLabel": "Automatisch einlösen",
-      "autoClaimHelper": "Liquid-Guthaben automatisch in Lightning Umtauschen, sobald der Mindestbetrag erreicht ist."
+      "autoClaimHelper": "Liquid-Guthaben automatisch in Lightning umtauschen, sobald der Mindestbetrag erreicht ist."
     },
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",
@@ -1820,7 +1820,7 @@
       "stablecoinType": "BTC <> Stablecoin",
       "swapsFee": "{{poolFee}} % Sparpool-Gebühr + {{blitzFee}} % Blitz-Gebühr",
       "sparkSwapType": "BTC <> USDB-Umtausch (Spark)",
-      "chainSwapType": "BTC/USDB <> Stablecoin (Cross-Chain)",
+      "chainSwapType": "BTC/USDB <> Stablecoin (kettenübergreifend)",
       "chainSwapFee": "0,5 % Blitz-Gebühr + 0,1 % Plattformgebühr",
       "liquid": "Liquid <> BTC",
       "liquidFee": "0,5 % Blitz-Gebühr + Netzwerkgebühren",
@@ -1828,7 +1828,7 @@
       "accumulationFee": "0,5 % Blitz-Gebühr + 0,5 % Plattformgebühr",
       "othersType": "Alle anderen",
       "othersFee": "Netzwerkgebühren",
-      "networkFeeLinkDesc": "Tippen, um eine Aufschlüsselung der Spark-Netzwerkgebühren zu sehen"
+      "networkFeeLinkDesc": "Tippen Sie hier, um eine Aufschlüsselung der Spark-Netzwerkgebühren anzuzeigen."
     },
     "nip5": {
       "noNameError": "Name darf nicht leer sein.",
@@ -2001,7 +2001,7 @@
       "noPoolsMessage": "Sie haben noch keinen Sparpool erstellt. Tippen Sie, um Ihren ersten Sparpool zu erstellen.",
       "yourAccountsTitle": "Ihre Konten",
       "addAccountButton": "Konto hinzufügen",
-      "noActivePools": "Sie haben derzeit keine aktiven Pools. Tippen Sie, um Ihre Pools anzuzeigen."
+      "noActivePools": "Sie haben derzeit keine aktiven Sparpools. Tippen Sie hier, um Ihre Sparpools zu verwalten."
     },
     "hub": {
       "viewAll": "Alle anzeigen",
@@ -2109,7 +2109,7 @@
     "inAccount": {
       "tokens": {
         "yourTokens": "Ihre Token",
-        "noTokens": "Sie haben noch keine Tokens"
+        "noTokens": "Sie haben noch keine Token"
       },
       "appStore": {
         "soonMessage": "Wir freuen uns, dass Sie mehr Apps möchten. Schlagen Sie sie unten vor!",
@@ -2203,7 +2203,7 @@
         "header_liquid": "BTC über Liquid",
         "header_stablecoins": "BTC über {{chain}}",
         "header_rootstock": "BTC über Rootstock",
-        "selectReceiveAssetHead": "Bitte wählen Sie das Asset zum Empfangen aus.",
+        "selectReceiveAssetHead": "Bitte wählen Sie den Vermögenswert aus, den Sie empfangen möchten.",
         "usd_convert_warning": "Der endgültige Betrag, den Sie erhalten, kann sich aufgrund von Marktpreisänderungen während der Umwandlung ändern.",
         "editDescriptionHead": "Was möchten Sie sagen?",
         "editDescriptionPlaceholder": "Beschreibung hinzufügen",
@@ -2252,7 +2252,7 @@
       },
       "remotePayments": {
         "lnAddress": "Lightning-Adresse",
-        "lnurlPageDesc": "Ihre Lightning-Adresse ermöglicht es jedem, Sie zu bezahlen, ohne dass eine Rechnung nötig ist."
+        "lnurlPageDesc": "Ihre Lightning-Adresse ermöglicht es jedem, Sie zu bezahlen, ohne dass dafür eine Rechnung erforderlich ist."
       },
       "technicalTransactionDetails": {
         "txHash": "Transaktions-Hash",
@@ -2268,7 +2268,7 @@
         "quoteId": "Angebots-ID",
         "destinationAddress": "Zieladresse",
         "destinationAsset": "Ziel-Asset",
-        "destinationChain": "Ziel-Chain",
+        "destinationChain": "Zielnetzwerk",
         "transferIds": "Enthaltene Personen",
         "rootstockSwapId": "Rootstock-Swap-ID",
         "rootstockSwapStatus": "Rootstock-Swap-Status",
@@ -2309,7 +2309,7 @@
       },
       "lrc20TokenDataHalfModal": {
         "balance": "Guthaben",
-        "maxSupply": "Max. Supply",
+        "maxSupply": "Max. Gesamtmenge",
         "tokenTicker": "Token-Symbol",
         "tokenPubKey": "Öffentliche Token-Adresse",
         "tokenInfo": "Token-Informationen anzeigen"
@@ -2454,7 +2454,7 @@
         "noPoolsFoundError": "Kein Sparpool für {{tokenAAddress}}/{{tokenBAddress}} gefunden.",
         "highPriceImpact": "Hoher Preiseinfluss: {{priceImpact}}",
         "slippageError": "Der Preis hat sich zu stark verändert. Versuchen Sie, die Preisabweichungstoleranz zu erhöhen.",
-        "noLiquidity": "Nicht genügend Liquidität. Versuchen Sie einen kleineren Betrag oder einen anderen Pool.",
+        "noLiquidity": "Nicht genügend Liquidität. Versuchen Sie einen kleineren Betrag oder einen anderen Liquiditätspool.",
         "authenticationError": "Authentifizierung fehlgeschlagen. Bitte verbinden Sie sich erneut.",
         "noPoolError": "Der Sparpool existiert nicht.",
         "automaticRecovery": "Guthaben automatisch wiederhergestellt.",
@@ -2483,7 +2483,7 @@
         "min": "MIN",
         "half": "HALB",
         "max": "MAX",
-        "swappingMessageButton": "wird umgetauscht...",
+        "swappingMessageButton": "Wird umgetauscht...",
         "loadingMessageButton": "Lädt...",
         "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
         "swapDisclaimer": "Swap-Dienste werden über Drittanbieter-APIs bereitgestellt.",
@@ -2515,7 +2515,7 @@
           "details": "Details"
         },
         "chooseCurrencyTitle": "Wählen Sie die Währung, die Sie umtauschen möchten.",
-        "enterAmountTitle": "Geben Sie den Betrag ein, den Sie tauschen möchten",
+        "enterAmountTitle": "Geben Sie den Betrag ein, den Sie umtauschen möchten",
         "noContentTitle": "Kein Guthaben verfügbar",
         "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",
         "insufficientBTCToSwap": "Ein BTC-Guthaben von mindestens {{amount}} ist erforderlich, um von BTC zu tauschen.",
@@ -2553,7 +2553,7 @@
       "info": {
         "title": "Was ist das?",
         "whatAre": "Was ist das?",
-        "whatAreBody": "Dauerhafte Adressen, die eingehende USDC oder USDT automatisch in Bitcoin oder Dollar umwandeln und die Mittel an Ihre Wallet senden.",
+        "whatAreBody": "Dauerhafte Adressen, die eingehende Zahlungen in USDC oder USDT automatisch in Bitcoin oder Dollar umwandeln und die Mittel an Ihre Wallet senden.",
         "howItWorks": "So funktioniert es",
         "step1": "1. Teilen Sie Ihre Einzahlungsadresse mit einem Absender oder einer Börse.",
         "step2": "2. Die Mittel kommen on-chain an und werden automatisch in die von Ihnen gewählte Währung umgewandelt.",
@@ -2565,20 +2565,20 @@
         "deleteButton": "Adresse löschen",
         "deleteConfirmTitle": "Adresse löschen?",
         "deleteConfirmBody": "Das Löschen dieser Adresse verhindert zukünftige Weiterleitungen von Zahlungen und kann zu verlorenen Geldern führen. Stellen Sie sicher, dass alle wissen, dass sie nicht mehr aktiv ist, bevor Sie sie entfernen.",
-        "chain": "Chain",
+        "chain": "Netzwerk",
         "source": "Quelle",
         "Destination": "Ziel"
       },
       "create": {
         "pickAsset": "Zahlungswährung auswählen",
-        "pickChain": "Chain auswählen",
+        "pickChain": "Netzwerk auswählen",
         "pickDestination": "Ziel auswählen",
         "confirm": "Adresse bestätigen",
         "alreadyExists": "Sie haben bereits eine Adresse für diese Kombination",
         "convertDesc": "Ihre {{asset}} auf {{chain}} werden in {{receiveCurrency}} umgewandelt"
       },
       "summary": {
-        "chain": "Chain",
+        "chain": "Netzwerk",
         "paymentCurrency": "Zahlungswährung",
         "destination": "Ziel",
         "create": "Adresse erstellen"
@@ -2647,12 +2647,12 @@
     "retriveingPhotoesError": "Es gab einen Fehler beim Abrufen von Fotos, bitte versuchen Sie es erneut.",
     "clipboardContentError": "Keine Daten in der Zwischenablage vorhanden.",
     "userDataFetchError": "Benutzerdaten konnten nicht abgerufen werden.",
-    "updateContactMessageError": "Es gab ein Problem beim Aktualisieren dieser Nachricht, bitte versuchen Sie es erneut.",
-    "declinePaymentError": "Es gab ein Problem beim Ablehnen dieser Zahlung, bitte versuchen Sie es erneut.",
-    "payingContactError": "Die Adresse des Kontakts konnte nicht abgerufen werden, bitte versuchen Sie es erneut.",
+    "updateContactMessageError": "Es gab ein Problem beim Aktualisieren dieser Nachricht. Bitte versuchen Sie es erneut.",
+    "declinePaymentError": "Es gab ein Problem beim Ablehnen dieser Zahlung. Bitte versuchen Sie es erneut.",
+    "payingContactError": "Die Adresse des Kontakts konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
     "noUserFoundDeeplinkError": "Für diesen Benutzernamen konnte kein Benutzer gefunden werden.",
     "cannotAddSelfError": "Sie können sich nicht selbst als Kontakt hinzufügen.",
-    "fullDeeplinkError": "Kontaktinformationen konnten nicht abgerufen werden, bitte versuchen Sie es erneut.",
+    "fullDeeplinkError": "Kontaktinformationen konnten nicht abgerufen werden. Bitte versuchen Sie es erneut.",
     "contactNotLoaded": "Kontakt konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
     "lnurlLimitsLoading": "Die Zahlungslimits dieses Kontakts werden noch geladen. Bitte versuchen Sie es gleich erneut.",
     "processingDeepLinkError": "Der Link konnte nicht verarbeitet werden: {{error}}",
@@ -2682,7 +2682,7 @@
     "receivedRootstock": "Rootstock-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet.",
     "receivedLiquid": "Liquid-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet.",
     "invalidData": "Die eingegebenen Daten sind ungültig.",
-    "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App richtig und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
+    "paymentError": "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut. Wenn es weiterhin nicht funktioniert, schließen Sie die App vollständig und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "paymentFeeError": "Wir konnten die Zahlungsgebühr nicht abrufen. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, schließen Sie die App und öffnen Sie sie erneut, bevor Sie es noch einmal versuchen.",
     "priceImpact": "Bei dieser hohen Zahlung kann sich der endgültige Betrag in USD noch verändern.",
     "removingImageError": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut.",
@@ -2782,11 +2782,11 @@
     "conflict": "Die Ressource hat sich während der Verarbeitung Ihrer Anfrage geändert. Bitte versuchen Sie es erneut.",
     "quote_expired": "Dieses Angebot ist abgelaufen. Bitte fordern Sie ein neues an.",
     "not_found": "Die angeforderte Ressource wurde nicht gefunden.",
-    "amount_too_small_chain_fees": "Der Betrag ist zu klein, um die Netzwerkgebühren der Ziel-Chain zu decken",
+    "amount_too_small_chain_fees": "Der Betrag ist zu klein, um die Gebühren des Zielnetzwerks zu decken.",
     "amount_too_small_minimum": "Der Betrag ist zu klein. Das Minimum beträgt {{minimumSats}} Sats.",
     "amount_too_small": "Der Betrag liegt unter dem für diese Route zulässigen Minimum.",
     "amount_too_large": "Der Betrag ist für diese Route zu groß.",
-    "rate_limited": "Zu viele Anfragen. Bitte verlangsamen Sie und versuchen Sie es später erneut.",
+    "rate_limited": "Zu viele Anfragen. Bitte warten Sie einen Moment und versuchen Sie es später erneut.",
     "flashnet_error": "Die Operation ist bei der Simulation oder Ausführung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "price_impact_too_high": "Der Preiseinfluss ist zu hoch. Bitte passen Sie den Betrag an und versuchen Sie es erneut.",
     "internal_error": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
@@ -2803,8 +2803,8 @@
       "disclaimer": "Guthaben wird in USDB gehalten, einem USD-gedeckten Stablecoin von Brale. USDB ist 1:1 durch US-Staatsanleihen und Barmitteläquivalente bei regulierten Finanzinstituten vollständig gedeckt."
     },
     "preview": {
-      "title": "Gesamtersparnisse",
-      "earnInterest": "Verdienen Sie Zinsen, ausgezahlt in BTC"
+      "title": "Gesamte Ersparnisse",
+      "earnInterest": "Verdienen Sie Zinsen, die in BTC ausgezahlt werden."
     },
     "goalEmoji": {
       "screenTitle": "Emoji wählen",
@@ -2888,7 +2888,7 @@
       "pageDescription": "Übertragen Sie Geld von Ihrem {{fromBalance}}-Guthaben auf Ihr {{destination}}-Guthaben",
       "noSourceTitle": "Keine Finanzierungsquelle verfügbar",
       "noSourceSubtitle": "Fügen Sie Bitcoin oder USD zu Ihrer Wallet hinzu. Finanzierung mit Bitcoin erfordert mindestens {{amount}}.",
-      "noUSDInfoMessage": "Ein USD-Guthaben von mehr als {{amount}} ist erforderlich, um Ihre Ersparnisse zu finanzieren.",
+      "noUSDInfoMessage": "Ein USD-Guthaben von mindestens {{amount}} ist erforderlich, um Ihre Ersparnisse zu finanzieren.",
       "noBTCInfoMessage": "Ein Bitcoin-Guthaben über dem Mindest-Swap-Betrag von {{amount}} ist erforderlich, um Ihre Ersparnisse zu finanzieren."
     },
     "withdraw": {
@@ -2910,8 +2910,8 @@
       "availableHint": "Verfügbar: {{amount}}",
       "minHint": "Min.: {{amount}}",
       "confirmTitle": "Auszahlung bestätigen",
-      "confirmSubtitle_interestAll": "Zahlen Sie alle Bitcoin-Rewards auf Ihr {{destination}} aus",
-      "confirmSubtitle_interest": "Zahlen Sie Bitcoin-Rewards auf Ihr {{destination}} aus",
+      "confirmSubtitle_interestAll": "Zahlen Sie alle Bitcoin-Prämien auf Ihr {{destination}} aus",
+      "confirmSubtitle_interest": "Zahlen Sie Bitcoin-Prämien auf Ihr {{destination}} aus",
       "confirmSubtitle_goalAll": "Zahlen Sie alles aus {{goalName}} auf Ihr {{destination}} aus",
       "confirmSubtitle_goal": "Zahlen Sie aus {{goalName}} auf Ihr {{destination}} aus",
       "confirmSubtitle_generalAll": "Zahlen Sie den gesamten Zielsaldo auf Ihr {{destination}} aus",
@@ -2924,7 +2924,7 @@
       "processing": "Auszahlung wird verarbeitet...",
       "steps": {
         "processing": "Auszahlung wird verarbeitet...",
-        "withdrawing_savings": "Vom Sparkonto wird ausgezahlt...",
+        "withdrawing_savings": "Aus dem Sparkonto wird ausgezahlt...",
         "withdrawing_rewards": "Wird vom BTC-Sparkonto ausgezahlt...",
         "swapping": "Wird in BTC umgetauscht...",
         "complete": "Abgeschlossen."
@@ -2946,7 +2946,7 @@
       "disclaimerLegal": "Blitz Wallet ist keine Bank, kein Broker und kein Anlageberater. Die Zinssätze sind variabel und können sich jederzeit ändern. Siehe Nutzungsbedingungen für vollständige Risikohinweise.",
       "features": {
         "earnTitle": "Täglich Erträge erzielen",
-        "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – halten Sie einfach und verdienen Sie.",
+        "earnBody": "USDB sammelt automatisch Sparerträge an. Kein Staking, keine Sperrfristen – halten Sie USDB einfach und erzielen Sie Erträge.",
         "accessTitle": "Sofortiger Zugriff",
         "accessBody": "Sie können jederzeit in Sekunden auf Ihr Lightning-Wallet auszahlen. Ihr Geld ist nie gesperrt.",
         "backedTitle": "Vollständig gedeckt",
@@ -2990,7 +2990,7 @@
     "overBy": "Überschritten um",
     "preview": {
       "title": "Wallet-Analysen",
-      "subTitle": "Behalten Sie Ihre monatlichen Einnahmen, Ausgaben und Ihr Budget auf einen Blick."
+      "subTitle": "Behalten Sie Ihre monatlichen Einnahmen, Ausgaben und Ihr Budget jederzeit im Blick."
     },
     "home": {
       "title": "Analysen",
@@ -2999,14 +2999,14 @@
       "noPaymentsSent": "Noch keine Zahlungen gesendet",
       "budget": "Budget",
       "noBudgetTitle": "Kein Budget festgelegt",
-      "noBudgetSub": "Tippen, um ein monatliches Budget zu erstellen",
+      "noBudgetSub": "Tippen Sie hier, um ein monatliches Budget zu erstellen.",
       "leftToSpend": "{{amount}} zum Ausgeben übrig",
       "percentRemaining": "{{percent}}% verbleibend",
       "totalBalance": "Gesamtsaldo"
     },
     "breakdown": {
       "noReceivedTitle": "Keine eingegangenen Zahlungen",
-      "noReceivedSub": "Empfangen Sie eine Zahlung, um Aktivität zu sehen",
+      "noReceivedSub": "Empfangen Sie eine Zahlung, um hier Aktivität zu sehen",
       "noSentTitle": "Keine gesendeten Zahlungen",
       "noSentSub": "Senden Sie eine Zahlung, um Aktivität zu sehen"
     },
@@ -3021,8 +3021,8 @@
       "leftToSpend": "Verbleibend zum Ausgeben",
       "spentThisMonth": "Diesen Monat ausgegeben",
       "removeBudgetTitle": "Budget entfernen?",
-      "removeBudgetSub": "Das Entfernen dieses Budgets stoppt Warnungen und Tracking. Sie können es jederzeit erneut erstellen.",
-      "nearBudgetWarning": "Sie sind nahe an Ihrem monatlichen Ausgabenlimit",
+      "removeBudgetSub": "Wenn Sie dieses Budget entfernen, werden Warnungen und die Nachverfolgung deaktiviert. Sie können es jederzeit erneut erstellen.",
+      "nearBudgetWarning": "Sie nähern sich Ihrem monatlichen Ausgabenlimit.",
       "overBudgetWarning": "Sie haben Ihr monatliches Ausgabenlimit bereits erreicht",
       "willExceedBudgetWarning": "Diese Zahlung würde Ihr monatliches Ausgabenlimit überschreiten",
       "budgetWarningHeadsUp": "Hinweis"
