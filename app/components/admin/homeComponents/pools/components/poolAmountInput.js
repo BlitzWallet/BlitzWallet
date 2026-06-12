@@ -1,17 +1,19 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { CENTER } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import { useTranslation } from 'react-i18next';
 import FormattedBalanceInput from '../../../../../functions/CustomElements/formattedBalanceInput';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { HIDDEN_OPACITY } from '../../../../../constants/theme';
-import convertTextInputValue from '../../../../../functions/textInputConvertValue';
-import usePaymentInputDisplay from '../../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
+import { getDefaultDisplayCurrency } from '../../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../../functions/CustomElements/currencySwitchButton';
 
 /**
  * Pool Amount Input Sub-Component
@@ -20,40 +22,82 @@ import { useFlashnet } from '../../../../../../context-store/flashnetContext';
  * @param {Function} onContinue - Callback when user taps "Add Description" with amount
  * @param {Function} onBack - Callback when user cancels/goes back
  */
-export default function PoolAmountInput({ onContinue, onBack, from }) {
+export default function PoolAmountInput({
+  onContinue,
+  onBack,
+  from,
+  setBackNav,
+  onHeaderBack,
+}) {
+  const navigate = useNavigation();
   const { swapUSDPriceDollars } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
   const { t } = useTranslation();
-
-  const [inputDenomination, setInputDenomination] = useState(
-    masterInfoObject.userBalanceDenomination !== 'fiat' ? 'sats' : 'fiat',
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
   );
-
   const isInReceiveModal = from === 'halfModalReceiveOptions';
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: 'BTC',
-    inputDenomination,
-    fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
-    masterInfoObject,
-  });
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: 'BTC',
+        masterInfoObject,
+        fiatStats,
+      }),
+    [masterInfoObject, fiatStats],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
 
   const localSatAmount = convertDisplayToSats(amountValue);
 
-  const handleDenominationToggle = () => {
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
+  const openPicker = useCallback(
+    () =>
+      navigate.push('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: async code => {
+          const response = await selectCurrency(code);
+          if (response?.didWork) setAmountValue('');
+        },
+      }),
+    [navigate, displayCurrency, selectCurrency],
+  );
+
+  // While this amount step is mounted, own the half-modal header: the parent's
+  // back arrow (if any) on the left and the currency switch button on the right.
+  useEffect(() => {
+    if (!setBackNav) return;
+    setBackNav({
+      onPress: onHeaderBack ?? null,
+      title: '',
+      rightElement: (
+        <CurrencySwitchButton
+          displayCurrency={displayCurrency}
+          onPress={openPicker}
+          disabled={isLoadingRate}
+        />
+      ),
+    });
+    return () => setBackNav(null);
+  }, [setBackNav, onHeaderBack, displayCurrency, openPicker, isLoadingRate]);
 
   const handleNext = useCallback(() => {
     if (!localSatAmount || Number(localSatAmount) === 0) {
@@ -72,27 +116,13 @@ export default function PoolAmountInput({ onContinue, onBack, from }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.amountScrollContainer}
       >
-        <TouchableOpacity activeOpacity={1} onPress={handleDenominationToggle}>
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue}
-            inputDenomination={primaryDisplay.denomination}
-            forceCurrency={primaryDisplay.forceCurrency}
-            forceFiatStats={primaryDisplay.forceFiatStats}
-          />
-
-          <FormattedSatText
-            containerStyles={{
-              opacity: !amountValue ? HIDDEN_OPACITY : 1,
-            }}
-            neverHideBalance={true}
-            styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={secondaryDisplay.denomination}
-            forceCurrency={secondaryDisplay.forceCurrency}
-            forceFiatStats={secondaryDisplay.forceFiatStats}
-            balance={localSatAmount}
-          />
-        </TouchableOpacity>
+        <FormattedBalanceInput
+          maxWidth={0.9}
+          amountValue={amountValue}
+          inputDenomination={primaryDisplay.denomination}
+          forceCurrency={primaryDisplay.forceCurrency}
+          forceFiatStats={primaryDisplay.forceFiatStats}
+        />
       </ScrollView>
 
       <CustomNumberKeyboard
