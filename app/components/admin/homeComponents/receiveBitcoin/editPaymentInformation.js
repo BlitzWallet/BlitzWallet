@@ -1,12 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { CENTER, MIN_BTC_USD_AMOUNT_RECEIVEPAGE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useMemo, useState } from 'react';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import { useTranslation } from 'react-i18next';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
@@ -17,10 +16,12 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import customUUID from '../../../../functions/customUUID';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -41,24 +42,42 @@ export default function EditReceivePaymentInformation(props) {
   const userReceiveAmount = Number(props.route.params.userReceiveAmount) || 0;
 
   const isUSDReceiveMode = endReceiveType === 'USD';
-
-  const [inputDenomination, setInputDenomination] = useState(
-    isUSDReceiveMode ? 'fiat' : 'sats',
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: endReceiveType,
+        masterInfoObject,
+        fiatStats,
+      }),
+    [endReceiveType, masterInfoObject, fiatStats],
   );
 
   const {
+    displayCurrency,
+    currencyRates,
+    isLoadingRate,
+    selectCurrency,
+  } = useDisplayCurrencyController({
+    initialCurrency: initialDisplayCurrency,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+  });
+
+  const {
     primaryDisplay,
-    secondaryDisplay,
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: endReceiveType,
-    inputDenomination,
+  } = useCurrencyDisplay({
+    displayCurrency,
     fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    usdFiatStats,
+    currencyRates,
     masterInfoObject,
   });
 
@@ -87,14 +106,19 @@ export default function EditReceivePaymentInformation(props) {
     setPaymentDescription(newDescription);
   };
 
-  // Handle denomination toggle
-  const handleDenominationToggle = () => {
+  const openPicker = useCallback(() => {
     if (isKeyboardFocused) return;
 
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.9,
+      currentCurrency: displayCurrency,
+      onSelectCurrency: async code => {
+        const response = await selectCurrency(code);
+        if (response?.didWork) setAmountValue('');
+      },
+    });
+  }, [displayCurrency, isKeyboardFocused, navigate, selectCurrency]);
 
   const handleSubmit = useCallback(() => {
     const sendAmount = Number(requestedSatAmount) || 0;
@@ -168,6 +192,13 @@ export default function EditReceivePaymentInformation(props) {
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}
           label={t('wallet.receivePages.editPaymentInfo.editAmount')}
+          rightContent={
+            <CurrencySwitchButton
+              displayCurrency={displayCurrency}
+              onPress={openPicker}
+              disabled={isLoadingRate}
+            />
+          }
         />
 
         <ScrollView
@@ -177,31 +208,14 @@ export default function EditReceivePaymentInformation(props) {
             { opacity: isKeyboardFocused ? HIDDEN_OPACITY : 1 },
           ]}
         >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={handleDenominationToggle}
-          >
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={amountValue}
-              placeholderAmountValue={previousAmountDisplayValue}
-              inputDenomination={primaryDisplay.denomination}
-              forceCurrency={primaryDisplay.forceCurrency}
-              forceFiatStats={primaryDisplay.forceFiatStats}
-            />
-
-            <FormattedSatText
-              containerStyles={{
-                opacity: hasAmountInput ? 1 : HIDDEN_OPACITY,
-              }}
-              neverHideBalance={true}
-              styles={{ includeFontPadding: false, ...styles.satValue }}
-              globalBalanceDenomination={secondaryDisplay.denomination}
-              forceCurrency={secondaryDisplay.forceCurrency}
-              forceFiatStats={secondaryDisplay.forceFiatStats}
-              balance={hasAmountInput ? localSatAmount : userReceiveAmount}
-            />
-          </TouchableOpacity>
+          <FormattedBalanceInput
+            maxWidth={0.9}
+            amountValue={amountValue}
+            placeholderAmountValue={previousAmountDisplayValue}
+            inputDenomination={primaryDisplay.denomination}
+            forceCurrency={primaryDisplay.forceCurrency}
+            forceFiatStats={primaryDisplay.forceFiatStats}
+          />
         </ScrollView>
 
         <CustomSearchInput

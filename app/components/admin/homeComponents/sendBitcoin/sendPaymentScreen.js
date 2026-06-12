@@ -20,7 +20,6 @@ import decodeSendAddress from './functions/decodeSendAdress';
 import { useNavigation } from '@react-navigation/native';
 // import {useWebView} from '../../../../../context-store/webViewContext';
 import GetThemeColors from '../../../../hooks/themeColors';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import AcceptButtonSendPage from './components/acceptButton';
@@ -69,8 +68,8 @@ import {
   getLightningPaymentQuote,
   USD_ASSET_ADDRESS,
 } from '../../../../functions/spark/flashnet';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import normalizeLNURLAddress from '../../../../functions/lnurl/normalizeLNURLAddress';
 import { publishMessage } from '../../../../functions/messaging/publishMessage';
 import { useToast } from '../../../../../context-store/toastManager';
@@ -79,6 +78,8 @@ import customUUID from '../../../../functions/customUUID';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import { getLNAddressForLiquidPayment } from './functions/payments';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -161,18 +162,6 @@ export default function SendPaymentScreen(props) {
       ? 'USD'
       : 'BTC';
 
-  const [userSetInputDenomination, setUserSetInputDenomination] =
-    useState(null);
-
-  const inputDenomination = userSetInputDenomination
-    ? userSetInputDenomination
-    : paymentMode === 'USD'
-    ? 'fiat'
-    : masterInfoObject.userBalanceDenomination !== 'fiat'
-    ? 'sats'
-    : 'fiat';
-
-  const inputDenominationRef = useRef(inputDenomination);
   const [paymentDescription, setPaymentDescription] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(
     sparkInformation.didConnect
@@ -357,20 +346,33 @@ export default function SendPaymentScreen(props) {
     () => ({ coin: 'USD', value: swapUSDPriceDollars }),
     [swapUSDPriceDollars],
   );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: resolvedPaymentMethod || paymentMode,
+        masterInfoObject,
+        fiatStats,
+      }),
+    [resolvedPaymentMethod, paymentMode, masterInfoObject, fiatStats],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
 
   const {
     primaryDisplay,
-    secondaryDisplay,
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: resolvedPaymentMethod,
-    inputDenomination,
+  } = useCurrencyDisplay({
+    displayCurrency,
     fiatStats,
-    usdFiatStats: usdFiatStats,
+    usdFiatStats,
+    currencyRates,
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
   });
@@ -630,24 +632,6 @@ export default function SendPaymentScreen(props) {
   const debouncedEstimateFee = useDebounce(estimateLightningFee, 600);
 
   useEffect(() => {
-    inputDenominationRef.current = inputDenomination;
-  }, [inputDenomination]);
-
-  // When resolvedPaymentMethod auto-selects USD but the route params didn't
-  // initialize paymentMode as USD, seed the denomination to fiat so the user
-  // enters amounts in USD rather than sats. Only applies when the user hasn't
-  // already toggled the denomination themselves.
-  useEffect(() => {
-    if (
-      resolvedPaymentMethod === 'USD' &&
-      paymentMode !== 'USD' &&
-      !userSetInputDenomination
-    ) {
-      setUserSetInputDenomination('fiat');
-    }
-  }, [resolvedPaymentMethod, paymentMode, userSetInputDenomination]);
-
-  useEffect(() => {
     if (requiresUserMethodSelection && !didRequireChoiceRef.current) {
       didRequireChoiceRef.current = true;
     }
@@ -738,8 +722,11 @@ export default function SendPaymentScreen(props) {
       setPaymentInfo(prev => ({
         ...prev,
         sendAmount: '',
+        feeQuote: undefined,
+        swapPaymentQuote: undefined,
+        paymentFee: 0,
+        supportFee: 0,
       }));
-      setUserSetInputDenomination(null);
       prevSelectedPaymentInfo.current = {
         preSelectedPaymentMethod,
         enteredInfo: enteredPaymentInfo?.inputCurrency,
@@ -844,7 +831,6 @@ export default function SendPaymentScreen(props) {
       setPaymentDescription('');
       hasTriggeredFastPay.current = false;
       didRequireChoiceRef.current = false;
-      setUserSetInputDenomination(null);
       setLoadingMessage(
         sparkInformation.didConnect && sparkInformation.identityPubKey
           ? t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage')
@@ -948,7 +934,8 @@ export default function SendPaymentScreen(props) {
         liquidNodeInformation,
         masterInfoObject: {
           ...masterInfoObject,
-          userBalanceDenomination: inputDenominationRef.current,
+          userBalanceDenomination:
+            primaryDisplayRef.current?.denomination || 'sats',
         },
         // setWebViewArgs,
         // webViewRef,
@@ -1297,29 +1284,28 @@ export default function SendPaymentScreen(props) {
     setPaymentDescription(newDescription);
   };
 
-  const handleDenominationToggle = () => {
+  const openCurrencyPicker = () => {
     if (!isAmountFocused) return;
     if (isUsingLRC20) return;
-    if (!canEditAmount) {
-      // For fixed amounts, just change the display denomination
-      const nextDenom = getNextDenomination();
-      setUserSetInputDenomination(nextDenom);
-      // No need to convert sendingAmount - it stays in sats
-      // The display will automatically update via convertSatsToDisplay
-    } else {
-      // For editable amounts, convert the user-entered value
-      const nextDenom = getNextDenomination();
-      const convertedValue = convertForToggle(
-        sendingAmount,
-        convertTextInputValue,
-      );
 
-      setUserSetInputDenomination(nextDenom);
-      setPaymentInfo(prev => ({
-        ...prev,
-        sendAmount: convertedValue,
-      }));
-    }
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.6,
+      currentCurrency: displayCurrency,
+      onSelectCurrency: async code => {
+        const response = await selectCurrency(code);
+        if (!response?.didWork) return;
+        if (!canEditAmount) return;
+        setPaymentInfo(prev => ({
+          ...prev,
+          sendAmount: '',
+          feeQuote: undefined,
+          swapPaymentQuote: undefined,
+          paymentFee: 0,
+          supportFee: 0,
+        }));
+      },
+    });
   };
 
   const memorizedKeyboardStyle = useMemo(() => {
@@ -1369,14 +1355,20 @@ export default function SendPaymentScreen(props) {
           iconNew="BadgeCheck"
           leftImageStyles={{ height: 25 }}
           leftImageFunction={handleBrandaVerificationUrl}
+          rightContent={
+            !isUsingLRC20 ? (
+              <CurrencySwitchButton
+                displayCurrency={displayCurrency}
+                onPress={openCurrencyPicker}
+                disabled={isLoadingRate}
+              />
+            ) : null
+          }
         />
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={handleDenominationToggle}
-            >
+            <View>
               <FormattedBalanceInput
                 maxWidth={0.9}
                 amountValue={displayAmount}
@@ -1389,25 +1381,7 @@ export default function SendPaymentScreen(props) {
                 }
                 maxDecimals={isUsingLRC20 ? tokenDecimals : 2}
               />
-
-              {/* Alternate denomination display */}
-              {!isUsingLRC20 && (
-                <FormattedSatText
-                  containerStyles={{
-                    opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
-                  }}
-                  neverHideBalance={true}
-                  styles={{
-                    includeFontPadding: false,
-                    ...styles.satValue,
-                  }}
-                  globalBalanceDenomination={secondaryDisplay.denomination}
-                  forceCurrency={secondaryDisplay.forceCurrency}
-                  balance={convertedSendAmount}
-                  forceFiatStats={secondaryDisplay.forceFiatStats}
-                />
-              )}
-            </TouchableOpacity>
+            </View>
           )}
 
           {/* Send max button for edit mode */}
@@ -1537,7 +1511,7 @@ export default function SendPaymentScreen(props) {
                 fiatStats={conversionFiatStats}
                 selectedLRC20Asset={selectedLRC20Asset}
                 seletctedToken={seletctedToken}
-                inputDenomination={inputDenomination}
+                inputDenomination={primaryDisplay.denomination}
                 primaryDisplay={primaryDisplay}
               />
             )}
@@ -1568,7 +1542,7 @@ export default function SendPaymentScreen(props) {
                   poolInfoRef={poolInfoRef}
                   swapLimits={swapLimits}
                   min_usd_swap_amount={min_usd_swap_amount}
-                  inputDenomination={inputDenomination}
+                  inputDenomination={primaryDisplay.denomination}
                   paymentValidation={paymentValidation}
                   setDidSelectPaymentMethod={setDidSelectPaymentMethod}
                   conversionFiatStats={conversionFiatStats}
