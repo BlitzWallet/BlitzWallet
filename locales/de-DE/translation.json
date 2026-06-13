@@ -2515,6 +2515,7 @@
           "details": "Details"
         },
         "chooseCurrencyTitle": "Wählen Sie die Währung, die Sie umtauschen möchten.",
+        "availableToSwapInto": "Bis zu {{amount}} in {{asset}} tauschen.",
         "enterAmountTitle": "Geben Sie den Betrag ein, den Sie umtauschen möchten",
         "noContentTitle": "Kein Guthaben verfügbar",
         "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",

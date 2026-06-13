@@ -2515,6 +2515,7 @@
           "details": "Detaljer"
         },
         "chooseCurrencyTitle": "Välj valutan du vill växla från.",
+        "availableToSwapInto": "Växla upp till {{amount}} till {{asset}}.",
         "enterAmountTitle": "Ange beloppet du vill växla.",
         "noContentTitle": "Inget saldo tillgängligt",
         "noContentSubTittle": "Lägg till medel i din plånbok för att börja växla mellan dollar och Bitcoin.",

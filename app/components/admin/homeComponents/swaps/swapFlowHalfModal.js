@@ -332,6 +332,27 @@ export default function SwapFlowHalfModal({
       ? t('constants.dollars_upper')
       : t('constants.bitcoin_upper');
 
+  const formattedBitcoinSwapBalance = displayCorrectDenomination({
+    amount: btcBalance,
+    masterInfoObject: {
+      ...masterInfoObject,
+      userBalanceDenomination: 'sats',
+    },
+    fiatStats,
+    convertAmount: true,
+    forceCurrency: 'USD',
+  });
+
+  const formattedDollarSwapBalance = displayCorrectDenomination({
+    amount: formatBalanceAmount(dollarBalanceToken, false, masterInfoObject),
+    masterInfoObject: {
+      ...masterInfoObject,
+      userBalanceDenomination: 'fiat',
+    },
+    forceCurrency: 'USD',
+    convertAmount: false,
+  });
+
   const hasEnoughBalance =
     (fromAsset === 'BTC' && Number(fromAmount) <= Number(bitcoinBalance)) ||
     (fromAsset === 'USD' && Number(fromAmount) <= Number(dollarBalanceToken));
@@ -1343,20 +1364,18 @@ export default function SwapFlowHalfModal({
                           <View style={styles.selectionTextContainer}>
                             <ThemeText
                               styles={styles.selectionAssetName}
-                              content={t('constants.bitcoin_upper')}
+                              content={t('constants.sat_balance')}
                             />
                             <ThemeText
                               styles={styles.selectionBalance}
-                              content={displayCorrectDenomination({
-                                amount: btcBalance,
-                                masterInfoObject: {
-                                  ...masterInfoObject,
-                                  userBalanceDenomination: 'sats',
+                              content={t(
+                                'screens.inAccount.swapsPage.availableToSwapInto',
+                                {
+                                  amount: formattedBitcoinSwapBalance,
+                                  asset: t('constants.dollars_upper'),
                                 },
-                                fiatStats,
-                                convertAmount: true,
-                                forceCurrency: 'USD',
-                              })}
+                              )}
+                              CustomNumberOfLines={2}
                             />
                           </View>
                         </View>
@@ -1429,23 +1448,18 @@ export default function SwapFlowHalfModal({
                           <View style={styles.selectionTextContainer}>
                             <ThemeText
                               styles={styles.selectionAssetName}
-                              content={t('constants.dollars_upper')}
+                              content={t('constants.usd_balance')}
                             />
                             <ThemeText
                               styles={styles.selectionBalance}
-                              content={displayCorrectDenomination({
-                                amount: formatBalanceAmount(
-                                  dollarBalanceToken,
-                                  false,
-                                  masterInfoObject,
-                                ),
-                                masterInfoObject: {
-                                  ...masterInfoObject,
-                                  userBalanceDenomination: 'fiat',
+                              content={t(
+                                'screens.inAccount.swapsPage.availableToSwapInto',
+                                {
+                                  amount: formattedDollarSwapBalance,
+                                  asset: t('constants.bitcoin_upper'),
                                 },
-                                forceCurrency: 'USD',
-                                convertAmount: false,
-                              })}
+                              )}
+                              CustomNumberOfLines={2}
                             />
                           </View>
                         </View>
@@ -2386,7 +2400,7 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontWeight: '500',
     fontSize: SIZES.large,
-    marginBottom: 20,
+    marginBottom: 8,
     includeFontPadding: false,
   },
   // ── Step 1 selection cards ────────────────────────────────────────────────
@@ -2414,16 +2428,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   selectionTextContainer: {
+    flex: 1,
     marginLeft: 14,
+    marginRight: 8,
   },
   selectionAssetName: {
-    fontWeight: '500',
-    fontSize: SIZES.large,
+    fontSize: SIZES.medium,
+    marginBottom: 2,
     includeFontPadding: false,
   },
   selectionBalance: {
-    opacity: 0.7,
-    includeFontPadding: false,
+    fontSize: SIZES.small,
+    opacity: HIDDEN_OPACITY,
   },
   // ── Step 2 amount display ─────────────────────────────────────────────────
   amountDisplayCard: {

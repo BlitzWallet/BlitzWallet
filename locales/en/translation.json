@@ -2516,6 +2516,7 @@
           "details": "Details"
         },
         "chooseCurrencyTitle": "Choose the currency to swap from",
+        "availableToSwapInto": "Swap up to {{amount}} into {{asset}}.",
         "enterAmountTitle": "Enter the amount to swap.",
         "noContentTitle": "No balance available",
         "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin.",

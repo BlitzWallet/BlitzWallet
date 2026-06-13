@@ -2515,6 +2515,7 @@
           "details": "Dettagli"
         },
         "chooseCurrencyTitle": "Scegli la valuta da cui effettuare lo scambio.",
+        "availableToSwapInto": "Scambia fino a {{amount}} in {{asset}}.",
         "enterAmountTitle": "Inserisci l’importo da scambiare.",
         "noContentTitle": "Nessun saldo disponibile",
         "noContentSubTittle": "Aggiungi fondi al tuo wallet per iniziare a scambiare tra dollari e Bitcoin.",
