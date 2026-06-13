@@ -2521,10 +2521,10 @@
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas",
         "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para trocar bitcoins.",
         "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para trocar dólares.",
-        "belowSwapLimitTitle": "Saldo muito baixo para trocar",
-        "belowSwapLimitBitcoin": "Seu saldo de Bitcoin está abaixo do mínimo para trocar. Adicione pelo menos {{btcMin}} para começar a trocar.",
-        "belowSwapLimitDollar": "Seu saldo em dólares está abaixo do mínimo para trocar. Adicione pelo menos {{usdMin}} para começar a trocar.",
-        "belowSwapLimitBoth": "Seus saldos estão abaixo do mínimo para trocar. Você precisa de pelo menos {{btcMin}} em Bitcoin ou {{usdMin}} em dólares para começar a trocar.",
+        "belowSwapLimitTitle": "Saldo muito baixo para realizar trocas",
+        "belowSwapLimitBitcoin": "Seu saldo de Bitcoin está abaixo do mínimo para realizar trocas. Adicione pelo menos {{btcMin}}",
+        "belowSwapLimitDollar": "Seu saldo em dólares está abaixo do mínimo para realizar trocas. Adicione pelo menos {{usdMin}}",
+        "belowSwapLimitBoth": "Seus saldos estão abaixo do mínimo para realizar trocas. Você precisa de pelo menos {{btcMin}} em Bitcoin ou {{usdMin}} em dólares",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
