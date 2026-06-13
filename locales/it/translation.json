@@ -2521,6 +2521,10 @@
         "noContentSubTittle": "Aggiungi fondi al tuo wallet per iniziare a scambiare tra dollari e Bitcoin.",
         "insufficientBTCToSwap": "È necessario un saldo Bitcoin di almeno {{amount}} per scambiare da Bitcoin.",
         "insufficientUSDToSwap": "È necessario un saldo in dollari di almeno {{amount}} per scambiare da dollari.",
+        "belowSwapLimitTitle": "Saldo troppo basso per scambiare",
+        "belowSwapLimitBitcoin": "Il tuo saldo in Bitcoin è inferiore al minimo per scambiare. Aggiungi almeno {{btcMin}} per iniziare a scambiare.",
+        "belowSwapLimitDollar": "Il tuo saldo in dollari è inferiore al minimo per scambiare. Aggiungi almeno {{usdMin}} per iniziare a scambiare.",
+        "belowSwapLimitBoth": "I tuoi saldi sono inferiori al minimo per scambiare. Hai bisogno di almeno {{btcMin}} in Bitcoin o {{usdMin}} in dollari per iniziare a scambiare.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {

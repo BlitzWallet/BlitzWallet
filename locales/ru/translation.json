@@ -2528,7 +2528,11 @@
         "noContentTitle": "Нет доступного баланса",
         "noContentSubTittle": "Пополните свой кошелёк, чтобы начать обмен между долларами и Bitcoin.",
         "insufficientBTCToSwap": "Для обмена из Bitcoin необходим баланс не менее {{amount}}.",
-        "insufficientUSDToSwap": "Для обмена из долларов необходим баланс не менее {{amount}}."
+        "insufficientUSDToSwap": "Для обмена из долларов необходим баланс не менее {{amount}}.",
+        "belowSwapLimitTitle": "Слишком низкий баланс для обмена",
+        "belowSwapLimitBitcoin": "Ваш баланс в Bitcoin ниже минимума для обмена. Добавьте не менее {{btcMin}}, чтобы начать обмен.",
+        "belowSwapLimitDollar": "Ваш баланс в долларах ниже минимума для обмена. Добавьте не менее {{usdMin}}, чтобы начать обмен.",
+        "belowSwapLimitBoth": "Ваши балансы ниже минимума для обмена. Чтобы начать обмен, нужно не менее {{btcMin}} в Bitcoin или {{usdMin}} в долларах."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Не удалось загрузить историю обменов. Пожалуйста, попробуйте позже.",

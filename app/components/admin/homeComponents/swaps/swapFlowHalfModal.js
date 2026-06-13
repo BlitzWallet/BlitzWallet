@@ -1230,6 +1230,42 @@ export default function SwapFlowHalfModal({
   // ── Render ───────────────────────────────────────────────────────────────────
 
   const hasAnySwapBalance = !!dollarBalanceToken || !!bitcoinBalance;
+
+  // Subtitle shown when the user holds funds but every balance is below its
+  // swap minimum — names the minimum(s) for whichever balance(s) they actually have.
+  const formattedBitcoinSwapMin = displayCorrectDenomination({
+    amount: swapLimits.bitcoin,
+    masterInfoObject: {
+      ...masterInfoObject,
+      userBalanceDenomination: 'sats',
+    },
+    fiatStats,
+  });
+  const formattedDollarSwapMin = displayCorrectDenomination({
+    amount: formatBalanceAmount(swapLimits.usd, false, masterInfoObject),
+    masterInfoObject: {
+      ...masterInfoObject,
+      userBalanceDenomination: 'fiat',
+    },
+    forceCurrency: 'USD',
+    convertAmount: false,
+  });
+  const hasBitcoinSwapBalance = !!bitcoinBalance;
+  const hasDollarSwapBalance = !!dollarBalanceToken;
+  const belowSwapLimitSubtitle =
+    hasBitcoinSwapBalance && hasDollarSwapBalance
+      ? t('screens.inAccount.swapsPage.belowSwapLimitBoth', {
+          btcMin: formattedBitcoinSwapMin,
+          usdMin: formattedDollarSwapMin,
+        })
+      : hasBitcoinSwapBalance
+      ? t('screens.inAccount.swapsPage.belowSwapLimitBitcoin', {
+          btcMin: formattedBitcoinSwapMin,
+        })
+      : t('screens.inAccount.swapsPage.belowSwapLimitDollar', {
+          usdMin: formattedDollarSwapMin,
+        });
+
   const stepBackgroundStyle = {
     backgroundColor: theme && darkModeType ? backgroundOffset : backgroundColor,
   };
@@ -1288,11 +1324,9 @@ export default function SwapFlowHalfModal({
                     <NoContentSceen
                       iconName="Wallet"
                       titleText={t(
-                        'screens.inAccount.swapsPage.noContentTitle',
+                        'screens.inAccount.swapsPage.belowSwapLimitTitle',
                       )}
-                      subTitleText={t(
-                        'screens.inAccount.swapsPage.noContentSubTittle',
-                      )}
+                      subTitleText={belowSwapLimitSubtitle}
                     />
                   ) : (
                     <>

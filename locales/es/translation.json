@@ -2521,6 +2521,10 @@
         "noContentSubTittle": "Agrega fondos a tu billetera para comenzar a intercambiar entre dólares y Bitcoin.",
         "insufficientBTCToSwap": "Se requiere un saldo de Bitcoin de al menos {{amount}} para intercambiar desde Bitcoin.",
         "insufficientUSDToSwap": "Se requiere un saldo de dólares de al menos {{amount}} para intercambiar desde dólares.",
+        "belowSwapLimitTitle": "Saldo demasiado bajo para intercambiar",
+        "belowSwapLimitBitcoin": "Tu saldo de Bitcoin está por debajo del mínimo para intercambiar. Agrega al menos {{btcMin}} para comenzar a intercambiar.",
+        "belowSwapLimitDollar": "Tu saldo en dólares está por debajo del mínimo para intercambiar. Agrega al menos {{usdMin}} para comenzar a intercambiar.",
+        "belowSwapLimitBoth": "Tus saldos están por debajo del mínimo para intercambiar. Necesitas al menos {{btcMin}} en Bitcoin o {{usdMin}} en dólares para comenzar a intercambiar.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
