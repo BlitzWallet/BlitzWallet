@@ -2274,8 +2274,8 @@ const styles = StyleSheet.create({
   },
   stepContent: {
     flex: 1,
-    paddingHorizontal: 16,
-    // paddingTop: 16,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
   loadingContainer: {
     flex: 1,
@@ -2356,7 +2356,7 @@ const styles = StyleSheet.create({
   },
   historyList: {
     gap: 10,
-    paddingHorizontal: 16,
+    width: '100%',
     paddingBottom: 16,
   },
   emptyListContainer: {
@@ -2537,7 +2537,8 @@ const styles = StyleSheet.create({
   },
   reviewScroll: {
     flexGrow: 1,
-    paddingHorizontal: 16,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
     // paddingTop: 16,
   },
   reviewAssetRow: {
