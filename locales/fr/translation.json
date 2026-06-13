@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin",
       "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin.",
       "depositQRInstruction_spark": "Envoyez du Bitcoin ou des tokens à cette adresse.",
-      "depositQRInstruction_spark_dollars": "Envoyez de l'USDB à cette adresse."
+      "depositQRInstruction_spark_dollars": "Envoyez de l'USDB à cette adresse.",
+      "depositMinimumStablecoin": "Les paiements doivent être d’au moins {{amount}}"
     },
     "payLinks": {
       "skip": "Passer",

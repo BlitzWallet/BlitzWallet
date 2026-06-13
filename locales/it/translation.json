@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Invia solo Liquid Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin",
       "depositQRInstruction_rootstock": "Invia solo Rootstock Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin.",
       "depositQRInstruction_spark": "Invia Bitcoin o token a questo indirizzo.",
-      "depositQRInstruction_spark_dollars": "Invia USDB a questo indirizzo."
+      "depositQRInstruction_spark_dollars": "Invia USDB a questo indirizzo.",
+      "depositMinimumStablecoin": "I pagamenti devono essere di almeno {{amount}}"
     },
     "payLinks": {
       "skip": "Salta",

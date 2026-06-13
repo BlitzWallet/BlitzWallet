@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo",
       "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo.",
       "depositQRInstruction_spark": "Skicka Bitcoin eller tokens till denna adress.",
-      "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress."
+      "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress.",
+      "depositMinimumStablecoin": "Betalningar måste vara minst {{amount}}"
     },
     "payLinks": {
       "skip": "Hoppa över",

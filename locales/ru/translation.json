@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Отправляйте на этот адрес только Liquid Bitcoin. Средства поступят прямо на ваш баланс Bitcoin",
       "depositQRInstruction_rootstock": "Отправляйте на этот адрес только Rootstock Bitcoin. Средства поступят прямо на ваш баланс Bitcoin.",
       "depositQRInstruction_spark": "Отправляйте Bitcoin или токены на этот адрес.",
-      "depositQRInstruction_spark_dollars": "Отправляйте USDB на этот адрес."
+      "depositQRInstruction_spark_dollars": "Отправляйте USDB на этот адрес.",
+      "depositMinimumStablecoin": "Сумма платежа должна быть не менее {{amount}}"
     },
     "payLinks": {
       "skip": "Пропустить",
