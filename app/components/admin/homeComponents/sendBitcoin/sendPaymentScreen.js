@@ -97,6 +97,8 @@ export default function SendPaymentScreen(props) {
     preSelectedPaymentMethod,
     selectedContact,
     retrivedContact,
+    paymentDisplayCurrency,
+    paymentDisplayFiatStats,
   } = props.route.params;
 
   const paramsRef = useRef({
@@ -346,14 +348,31 @@ export default function SendPaymentScreen(props) {
     () => ({ coin: 'USD', value: swapUSDPriceDollars }),
     [swapUSDPriceDollars],
   );
+  // When arriving from a flow where the user already picked a display rate
+  // (e.g. a contact send), honor that currency instead of re-deriving the
+  // device-based default. Falls back to the legacy default otherwise.
   const initialDisplayCurrency = useMemo(
     () =>
+      paymentDisplayCurrency ||
       getDefaultDisplayCurrency({
         paymentMode: resolvedPaymentMethod || paymentMode,
         masterInfoObject,
         fiatStats,
       }),
-    [resolvedPaymentMethod, paymentMode, masterInfoObject, fiatStats],
+    [
+      paymentDisplayCurrency,
+      resolvedPaymentMethod,
+      paymentMode,
+      masterInfoObject,
+      fiatStats,
+    ],
+  );
+  const additionalRates = useMemo(
+    () =>
+      paymentDisplayCurrency && paymentDisplayFiatStats?.value
+        ? { [paymentDisplayCurrency]: paymentDisplayFiatStats }
+        : undefined,
+    [paymentDisplayCurrency, paymentDisplayFiatStats],
   );
   const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
     useDisplayCurrencyController({
@@ -361,6 +380,7 @@ export default function SendPaymentScreen(props) {
       fiatStats,
       usdFiatStats,
       masterInfoObject,
+      additionalRates,
     });
 
   const {
@@ -1287,6 +1307,7 @@ export default function SendPaymentScreen(props) {
   const openCurrencyPicker = () => {
     if (!isAmountFocused) return;
     if (isUsingLRC20) return;
+    if (isSendingPayment.current) return;
 
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'displayCurrencySelect',

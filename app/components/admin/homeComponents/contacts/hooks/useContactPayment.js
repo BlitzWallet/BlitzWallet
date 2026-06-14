@@ -688,6 +688,8 @@ export default function useContactPayment({
         params: {
           btcAdress: base.receiveAddress,
           comingFromAccept: true,
+          paymentDisplayCurrency: displayCurrency,
+          paymentDisplayFiatStats: conversionFiatStats,
           enteredPaymentInfo: {
             fromContacts: true,
             amount: convertedSendAmount,
@@ -743,8 +745,10 @@ export default function useContactPayment({
   }, [
     buildBasePaymentObjects,
     contactsPrivateKey,
+    conversionFiatStats,
     convertedSendAmount,
     descriptionValue,
+    displayCurrency,
     getValidationErrorResult,
     globalContactsInformation,
     imageData,
