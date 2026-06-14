@@ -40,7 +40,7 @@ export default function PayLinkCreationOverlay({ visible, onClose, setBackNav })
   }));
 
   const navigateToReceive = useCallback(
-    amount => {
+    (amount, currencyInfo) => {
       onClose();
       navigate.replace('ReceiveBTC', {
         from: 'homepage',
@@ -48,6 +48,12 @@ export default function PayLinkCreationOverlay({ visible, onClose, setBackNav })
           ? { initialReceiveType: 'BTC', selectedRecieveOption: 'lightning' }
           : { endReceiveType: 'USD', uuid: customUUID() }),
         ...(amount ? { receiveAmount: amount } : {}),
+        ...(currencyInfo?.displayCurrency
+          ? {
+              paymentDisplayCurrency: currencyInfo.displayCurrency,
+              paymentDisplayFiatStats: currencyInfo.displayFiatStats,
+            }
+          : {}),
       });
     },
     [onClose, navigate, currencyType],
@@ -68,7 +74,9 @@ export default function PayLinkCreationOverlay({ visible, onClose, setBackNav })
       <View style={[styles.stepContainer, { paddingBottom: bottomPadding }]}>
         <PayLinkAmountInput
           paymentMode={currencyType}
-          onContinue={amount => navigateToReceive(amount)}
+          onContinue={(amount, currencyInfo) =>
+            navigateToReceive(amount, currencyInfo)
+          }
           onSkip={() => navigateToReceive(undefined)}
           onBack={onClose}
           setBackNav={setBackNav}

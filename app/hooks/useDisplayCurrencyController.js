@@ -9,6 +9,7 @@ export default function useDisplayCurrencyController({
   fiatStats,
   usdFiatStats,
   masterInfoObject,
+  additionalRates,
 }) {
   const navigate = useNavigation();
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -21,8 +22,13 @@ export default function useDisplayCurrencyController({
     if (fiatStats?.coin) rates[fiatStats.coin.toUpperCase()] = fiatStats;
     if (usdFiatStats?.coin) rates.USD = usdFiatStats;
     else if (fiatStats?.coin?.toUpperCase() === 'USD') rates.USD = fiatStats;
+    if (additionalRates) {
+      for (const [code, rate] of Object.entries(additionalRates)) {
+        if (rate?.value) rates[code.toUpperCase()] = rate;
+      }
+    }
     return rates;
-  }, [fiatStats, usdFiatStats]);
+  }, [fiatStats, usdFiatStats, additionalRates]);
 
   const [displayCurrency, setDisplayCurrency] = useState(
     normalizedInitialCurrency,

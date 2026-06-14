@@ -40,20 +40,32 @@ export default function EditReceivePaymentInformation(props) {
 
   const endReceiveType = props.route.params.endReceiveType;
   const userReceiveAmount = Number(props.route.params.userReceiveAmount) || 0;
+  const incomingDisplayCurrency = props.route.params.paymentDisplayCurrency;
+  const incomingDisplayFiatStats = props.route.params.paymentDisplayFiatStats;
 
   const isUSDReceiveMode = endReceiveType === 'USD';
   const usdFiatStats = useMemo(
     () => ({ coin: 'USD', value: swapUSDPriceDollars }),
     [swapUSDPriceDollars],
   );
+  // Open the editor in the currency the amount was originally entered in (if
+  // one was passed through), otherwise fall back to the device-based default.
   const initialDisplayCurrency = useMemo(
     () =>
+      incomingDisplayCurrency ||
       getDefaultDisplayCurrency({
         paymentMode: endReceiveType,
         masterInfoObject,
         fiatStats,
       }),
-    [endReceiveType, masterInfoObject, fiatStats],
+    [incomingDisplayCurrency, endReceiveType, masterInfoObject, fiatStats],
+  );
+  const additionalRates = useMemo(
+    () =>
+      incomingDisplayCurrency && incomingDisplayFiatStats?.value
+        ? { [incomingDisplayCurrency]: incomingDisplayFiatStats }
+        : undefined,
+    [incomingDisplayCurrency, incomingDisplayFiatStats],
   );
 
   const {
@@ -66,6 +78,7 @@ export default function EditReceivePaymentInformation(props) {
     fiatStats,
     usdFiatStats,
     masterInfoObject,
+    additionalRates,
   });
 
   const {
@@ -153,6 +166,8 @@ export default function EditReceivePaymentInformation(props) {
         description: finalDescription,
         endReceiveType,
         uuid: customUUID(),
+        paymentDisplayCurrency: displayCurrency,
+        paymentDisplayFiatStats: conversionFiatStats,
       });
     } else {
       navigate.popTo(
@@ -162,6 +177,8 @@ export default function EditReceivePaymentInformation(props) {
           description: finalDescription,
           endReceiveType: endReceiveType,
           uuid: customUUID(),
+          paymentDisplayCurrency: displayCurrency,
+          paymentDisplayFiatStats: conversionFiatStats,
         },
         { merge: true },
       );
@@ -177,6 +194,7 @@ export default function EditReceivePaymentInformation(props) {
     endReceiveType,
     finalDescription,
     requestChanged,
+    displayCurrency,
     t,
   ]);
 

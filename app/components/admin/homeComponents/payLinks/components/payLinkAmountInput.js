@@ -126,7 +126,10 @@ export default function PayLinkAmountInput({
         return;
       }
     }
-    onContinue?.(Number(localSatAmount), amountValue);
+    onContinue?.(Number(localSatAmount), {
+      displayCurrency,
+      displayFiatStats: conversionFiatStats,
+    });
   }, [
     paymentMode,
     localSatAmount,
@@ -138,7 +141,7 @@ export default function PayLinkAmountInput({
     conversionFiatStats,
     onSkip,
     onContinue,
-    amountValue,
+    displayCurrency,
   ]);
 
   return (
