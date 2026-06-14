@@ -1020,7 +1020,7 @@
       "cashAppSubtitle": "Enviar pelo Cash App instantaneamente",
       "sparkAddressSubtitle": "Receber no seu endereço Spark",
       "otherBitcoin": "Outros Métodos",
-      "otherBitcoinSubtitle": "Bitcoin em outras redes",
+      "otherBitcoinSubtitle": "Bitcoin ou tokens em outras redes",
       "lightningInvoice": "Fatura Blitz",
       "lightningInvoiceSubtitle": "Receber BTC ou USD instantaneamente",
       "lightningUSDAmountRequired": "É necessário informar um valor para criar uma fatura Blitz em USD",
