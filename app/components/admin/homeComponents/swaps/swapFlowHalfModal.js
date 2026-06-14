@@ -293,6 +293,34 @@ export default function SwapFlowHalfModal({
   }, [currentStep, navigateToStep, isSwapping]);
   useHandleBackPressNew(handleBackPressAndroid);
 
+  // Derived state
+  const tokenInformation = sparkInformation?.tokens?.[USDB_TOKEN_ID];
+  const btcBalance = sparkInformation?.balance || 0;
+  const displayBalance =
+    fromAsset === 'BTC'
+      ? displayCorrectDenomination({
+          amount: btcBalance,
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'sats',
+          },
+          fiatStats,
+        })
+      : displayCorrectDenomination({
+          amount: formatBalanceAmount(
+            dollarBalanceToken,
+            false,
+            masterInfoObject,
+          ),
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'fiat',
+          },
+          fiatStats,
+          forceCurrency: 'USD',
+          convertAmount: false,
+        });
+
   // Register the chrome's back arrow on the steps that support stepping back.
   useEffect(() => {
     if (
@@ -305,22 +333,15 @@ export default function SwapFlowHalfModal({
         title:
           currentStep === 'historyExpanded'
             ? t('screens.inAccount.swapHistory.pageTitle')
+            : currentStep === 'amountInput'
+            ? displayBalance
             : '',
       });
     } else {
       setBackNav?.(null);
     }
     return () => setBackNav?.(null);
-  }, [currentStep, handleBackPressAndroid, setBackNav]);
-
-  // Derived state
-  const tokenInformation = sparkInformation?.tokens?.[USDB_TOKEN_ID];
-  const btcBalance = sparkInformation?.balance || 0;
-
-  const displayBalance =
-    fromAsset === 'BTC'
-      ? btcBalance
-      : formatBalanceAmount(dollarBalanceToken, false, masterInfoObject);
+  }, [currentStep, handleBackPressAndroid, setBackNav, displayBalance]);
 
   const fromAssetLabel =
     fromAsset === 'USD'
