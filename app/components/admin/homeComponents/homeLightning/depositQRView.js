@@ -130,7 +130,10 @@ export default function DepositQRView({
         currentWalletMnemoinc,
         sendWebViewRequest,
         sparkInformation,
-        endReceiveType: 'BTC',
+        endReceiveType:
+          config.selectedRecieveOption === 'spark' && config.fromStablecoin
+            ? 'USD'
+            : 'BTC',
         swapLimits,
         setInitialSendAmount: () => {},
         userReceiveAmount: 0,
@@ -302,9 +305,9 @@ export default function DepositQRView({
         </TouchableOpacity>
 
         <ThemeText
-          adjustsFontSizeToFit={true}
           styles={styles.addressText}
           content={addressSegments}
+          CustomNumberOfLines={4}
         />
 
         <View
