@@ -12,6 +12,10 @@ const PHONE_PAYMENT_PROVIDERS = {
     domain: 'bitzed.xyz',
     formatNumber: parsed => `0${parsed.nationalNumber}`,
   }, // 0977...
+  PH: {
+    domain: 'zapremit.com',
+    formatNumber: parsed => parsed.number.slice(1),
+  },
 };
 
 // Returns the provider lightning addresses the input is valid for, in
