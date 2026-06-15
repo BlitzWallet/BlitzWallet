@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   innerContainer: {
-    width: '85%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
 
     borderRadius: 8,

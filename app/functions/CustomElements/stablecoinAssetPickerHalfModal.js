@@ -4,10 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { ThemeText } from '.';
 import GetThemeColors from '../../hooks/themeColors';
-import { ICONS, SIZES } from '../../constants';
+import { CENTER, ICONS, SIZES } from '../../constants';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { ChevronRight } from 'lucide-react-native';
-import { HIDDEN_OPACITY } from '../../constants/theme';
+import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { useTranslation } from 'react-i18next';
 
 const CHAIN_TO_FLASHNET = {
@@ -148,7 +148,9 @@ export default function StablecoinAssetPickerHalfModal({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
     paddingBottom: 16,
     gap: 10,
   },

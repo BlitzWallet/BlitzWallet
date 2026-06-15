@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo",
       "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo.",
       "depositQRInstruction_spark": "Skicka Bitcoin eller tokens till denna adress.",
-      "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress."
+      "depositQRInstruction_spark_dollars": "Skicka USDB till denna adress.",
+      "depositMinimumStablecoin": "Betalningar måste vara minst {{amount}}"
     },
     "payLinks": {
       "skip": "Hoppa över",
@@ -2515,11 +2516,16 @@
           "details": "Detaljer"
         },
         "chooseCurrencyTitle": "Välj valutan du vill växla från.",
+        "availableToSwapInto": "Växla upp till {{amount}} till {{asset}}.",
         "enterAmountTitle": "Ange beloppet du vill växla.",
         "noContentTitle": "Inget saldo tillgängligt",
         "noContentSubTittle": "Lägg till medel i din plånbok för att börja växla mellan dollar och Bitcoin.",
         "insufficientBTCToSwap": "Ett Bitcoin-saldo på minst {{amount}} krävs för att växla från Bitcoin.",
         "insufficientUSDToSwap": "Ett dollarsaldo på minst {{amount}} krävs för att växla från dollar.",
+        "belowSwapLimitTitle": "Saldot är för lågt för att växla",
+        "belowSwapLimitBitcoin": "Ditt Bitcoin-saldo är under minimigränsen för växling. Lägg till minst {{btcMin}} för att börja växla.",
+        "belowSwapLimitDollar": "Ditt dollarsaldo är under minimigränsen för växling. Lägg till minst {{usdMin}} för att börja växla.",
+        "belowSwapLimitBoth": "Dina saldon är under minimigränsen för växling. Du behöver minst {{btcMin}} i Bitcoin eller {{usdMin}} i dollar för att börja växla.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {

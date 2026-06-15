@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin",
       "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin.",
       "depositQRInstruction_spark": "Envoyez du Bitcoin ou des tokens à cette adresse.",
-      "depositQRInstruction_spark_dollars": "Envoyez de l'USDB à cette adresse."
+      "depositQRInstruction_spark_dollars": "Envoyez de l'USDB à cette adresse.",
+      "depositMinimumStablecoin": "Les paiements doivent être d’au moins {{amount}}"
     },
     "payLinks": {
       "skip": "Passer",
@@ -2515,11 +2516,16 @@
           "details": "Détails"
         },
         "chooseCurrencyTitle": "Choisissez la devise à partir de laquelle échanger.",
+        "availableToSwapInto": "Échangez jusqu’à {{amount}} en {{asset}}.",
         "enterAmountTitle": "Entrez le montant à échanger.",
         "noContentTitle": "Aucun solde disponible",
         "noContentSubTittle": "Ajoutez des fonds à votre portefeuille pour commencer à échanger entre dollars et Bitcoin.",
         "insufficientBTCToSwap": "Un solde Bitcoin d'au moins {{amount}} est requis pour échanger depuis Bitcoin.",
         "insufficientUSDToSwap": "Un solde en dollars d'au moins {{amount}} est requis pour échanger depuis les dollars.",
+        "belowSwapLimitTitle": "Solde trop faible pour échanger",
+        "belowSwapLimitBitcoin": "Votre solde Bitcoin est inférieur au minimum requis pour échanger. Ajoutez au moins {{btcMin}} pour commencer à échanger.",
+        "belowSwapLimitDollar": "Votre solde en dollars est inférieur au minimum requis pour échanger. Ajoutez au moins {{usdMin}} pour commencer à échanger.",
+        "belowSwapLimitBoth": "Vos soldes sont inférieurs au minimum requis pour échanger. Vous avez besoin d'au moins {{btcMin}} en Bitcoin ou {{usdMin}} en dollars pour commencer à échanger.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {

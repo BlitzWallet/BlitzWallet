@@ -3,7 +3,11 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useRef, useState } from 'react';
 import { CENTER, KEYBOARDTIMEOUT } from '../../../../constants/styles';
-import { HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
@@ -142,7 +146,7 @@ export default function ManualEnterSendAddress(props) {
 const styles = StyleSheet.create({
   popupContainer: {
     flex: 1,
-    width: '90%',
+    width: INSET_WINDOW_WIDTH,
     justifyContent: 'center',
     ...CENTER,
   },

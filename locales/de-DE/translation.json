@@ -2520,6 +2520,10 @@
         "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",
         "insufficientBTCToSwap": "Ein BTC-Guthaben von mindestens {{amount}} ist erforderlich, um von BTC zu tauschen.",
         "insufficientUSDToSwap": "Ein USD-Guthaben von mindestens {{amount}} ist erforderlich, um von USD zu tauschen.",
+        "belowSwapLimitTitle": "Guthaben zu niedrig zum Tauschen",
+        "belowSwapLimitBitcoin": "Ihr Bitcoin-Guthaben liegt unter dem Mindestbetrag zum Tauschen. Fügen Sie mindestens {{btcMin}} hinzu, um mit dem Tauschen zu beginnen.",
+        "belowSwapLimitDollar": "Ihr Dollar-Guthaben liegt unter dem Mindestbetrag zum Tauschen. Fügen Sie mindestens {{usdMin}} hinzu, um mit dem Tauschen zu beginnen.",
+        "belowSwapLimitBoth": "Ihre Guthaben liegen unter dem Mindestbetrag zum Tauschen. Sie benötigen mindestens {{btcMin}} in Bitcoin oder {{usdMin}} in Dollar, um mit dem Tauschen zu beginnen.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {

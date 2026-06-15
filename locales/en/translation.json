@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Only send Liquid Bitcoin to this address, you will receive it directly to your Bitcoin balance",
       "depositQRInstruction_rootstock": "Only send Rootstock Bitcoin to this address, you will receive it directly to your Bitcoin balance.",
       "depositQRInstruction_spark": "Send Bitcoin or Tokens to this address.",
-      "depositQRInstruction_spark_dollars": "Send USDB to this address."
+      "depositQRInstruction_spark_dollars": "Send USDB to this address.",
+      "depositMinimumStablecoin": "Payments must be at least {{amount}}"
     },
     "payLinks": {
       "skip": "Skip",
@@ -2516,11 +2517,16 @@
           "details": "Details"
         },
         "chooseCurrencyTitle": "Choose the currency to swap from",
+        "availableToSwapInto": "Swap up to {{amount}} into {{asset}}.",
         "enterAmountTitle": "Enter the amount to swap.",
         "noContentTitle": "No balance available",
         "noContentSubTittle": "Add funds to your wallet to start swapping between Dollars and Bitcoin.",
         "insufficientBTCToSwap": "A Bitcoin balance of at least {{amount}} is required to swap from Bitcoin.",
-        "insufficientUSDToSwap": "A Dollar balance of at least {{amount}} is required to swap from Dollars."
+        "insufficientUSDToSwap": "A Dollar balance of at least {{amount}} is required to swap from Dollars.",
+        "belowSwapLimitTitle": "Balance too low to swap",
+        "belowSwapLimitBitcoin": "Your Bitcoin balance is below the swap minimum. Add at least {{btcMin}} to start swapping.",
+        "belowSwapLimitDollar": "Your Dollar balance is below the swap minimum. Add at least {{usdMin}} to start swapping.",
+        "belowSwapLimitBoth": "Your balances are below the swap minimum. You need at least {{btcMin}} in Bitcoin or {{usdMin}} in Dollars to start swapping."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Unable to load swap history. Please try again later.",
