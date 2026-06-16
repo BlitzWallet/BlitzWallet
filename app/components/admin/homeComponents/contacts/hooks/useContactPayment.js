@@ -111,37 +111,19 @@ export default function useContactPayment({
       return;
     }
 
-    const resolvedDefault = resolveContactPaymentDefault({
-      paymentType,
-      prefetchedDoc,
-      contactReceiveOption,
-      isLNURL: selectedContact?.isLNURL,
-      masterInfoObject,
-      dollarBalanceToken,
-    });
+    const resolvedDefault = resolveContactPaymentDefault();
 
     if (!userChangedPaymentMethodRef.current) {
       setPaymentMethod(prev => {
-        // The contact's preferred currency can resolve asynchronously (after the
-        // receive-option cache/doc loads). If that flips the method while the
-        // user has already typed an amount, clear it so a sats entry isn't
-        // silently reinterpreted as fiat (or vice versa).
+        // If the default flips while the user has already typed an amount, clear
+        // it so a sats entry isn't silently reinterpreted as fiat (or vice versa).
         if (prev !== resolvedDefault) {
           setAmountValue('');
         }
         return resolvedDefault;
       });
     }
-  }, [
-    dollarBalanceToken,
-    explicitPaymentMethod,
-    contactReceiveOption,
-    lockInitialPaymentMethod,
-    masterInfoObject,
-    paymentType,
-    prefetchedDoc,
-    selectedContact?.isLNURL,
-  ]);
+  }, [explicitPaymentMethod, lockInitialPaymentMethod]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -264,17 +246,13 @@ export default function useContactPayment({
       }),
     [paymentMethod, masterInfoObject, fiatStats],
   );
-  const {
-    displayCurrency,
-    currencyRates,
-    isLoadingRate,
-    selectCurrency,
-  } = useDisplayCurrencyController({
-    initialCurrency: initialDisplayCurrency,
-    fiatStats,
-    usdFiatStats,
-    masterInfoObject,
-  });
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
 
   const {
     primaryDisplay,
