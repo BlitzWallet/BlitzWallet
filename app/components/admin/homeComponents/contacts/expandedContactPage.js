@@ -194,21 +194,12 @@ export default function ExpandedContactsPage(props) {
                 });
                 return;
               }
-              if (selectedContact?.isLNURL) {
-                navigate.navigate('SendAndRequestPage', {
-                  selectedContact: selectedContact,
-                  paymentType: 'send',
-                  imageData,
-                  endReceiveType: 'BTC',
-                });
-              } else {
-                navigate.navigate('CustomHalfModal', {
-                  paymentType: 'send',
-                  wantedContent: 'SelectPaymentType',
-                  selectedContact: selectedContact,
-                  imageData,
-                });
-              }
+              navigate.navigate('SendAndRequestPage', {
+                selectedContact: selectedContact,
+                paymentType: 'send',
+                imageData,
+                endReceiveType: 'BTC',
+              });
             }}
             arrowColor={
               theme
@@ -239,8 +230,7 @@ export default function ExpandedContactsPage(props) {
                 });
                 return;
               }
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'SelectPaymentType',
+              navigate.navigate('SendAndRequestPage', {
                 selectedContact: selectedContact,
                 paymentType: 'request',
                 imageData,
