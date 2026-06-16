@@ -19,7 +19,6 @@ import CustomNumberKeyboard from '../../../../functions/CustomElements/customNum
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -28,6 +27,7 @@ import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
 import ContactProfileImage from './internalComponents/profileImage';
 import useContactPayment from './hooks/useContactPayment';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -71,6 +71,22 @@ export default function SendAndRequestPage(props) {
       });
     }
   }, [navigate, payment.paymentMethod, paymentType]);
+
+  const openCurrencyPicker = useCallback(() => {
+    if (isDescriptionFocused) return;
+
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.6,
+      currentCurrency: payment.displayCurrency,
+      onSelectCurrency: payment.handleDisplayCurrencySelect,
+    });
+  }, [
+    isDescriptionFocused,
+    navigate,
+    payment.displayCurrency,
+    payment.handleDisplayCurrencySelect,
+  ]);
 
   const handleSubmit = useCallback(async () => {
     const result =
@@ -116,6 +132,13 @@ export default function SendAndRequestPage(props) {
               : t('constants.request')
           }
           containerStyles={{ marginBottom: 0 }}
+          rightContent={
+            <CurrencySwitchButton
+              displayCurrency={payment.displayCurrency}
+              onPress={openCurrencyPicker}
+              disabled={payment.isLoadingRate}
+            />
+          }
         />
 
         <View style={styles.identityBadge}>
@@ -174,12 +197,7 @@ export default function SendAndRequestPage(props) {
             },
           ]}
         >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => {
-              if (!isDescriptionFocused) payment.handleDenominationToggle();
-            }}
-          >
+          <View>
             <FormattedBalanceInput
               maxWidth={0.9}
               amountValue={payment.amountValue || 0}
@@ -187,19 +205,7 @@ export default function SendAndRequestPage(props) {
               forceCurrency={payment.primaryDisplay.forceCurrency}
               forceFiatStats={payment.primaryDisplay.forceFiatStats}
             />
-
-            <FormattedSatText
-              containerStyles={{
-                ...styles.convertedAmount,
-                opacity: !payment.amountValue ? HIDDEN_OPACITY : 1,
-              }}
-              neverHideBalance={true}
-              globalBalanceDenomination={payment.secondaryDisplay.denomination}
-              forceCurrency={payment.secondaryDisplay.forceCurrency}
-              forceFiatStats={payment.secondaryDisplay.forceFiatStats}
-              balance={payment.convertedSendAmount}
-            />
-          </TouchableOpacity>
+          </View>
         </ScrollView>
 
         <View style={styles.inputAndGiftContainer}>

@@ -32,6 +32,7 @@ import { useNodeContext } from '../../../../../../../context-store/nodeContext';
 const PRESET_AMOUNTS = [2000, 5000, 10000, 25000, 50000];
 
 export default function ConfirmChatGPTPage(props) {
+  const { setBackNav } = props;
   const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -85,6 +86,13 @@ export default function ConfirmChatGPTPage(props) {
     }
     return false;
   }, [step, currentPage, clearAmountStates]);
+
+  useEffect(() => {
+    if (currentPage === 'custom') {
+      setBackNav({ title: '', onPress: handleBackPress });
+    }
+    return () => setBackNav?.(null);
+  }, [setBackNav, currentPage, handleBackPress]);
 
   useHandleBackPressNew(handleBackPress);
 
@@ -173,8 +181,6 @@ export default function ConfirmChatGPTPage(props) {
     });
   }, [invoiceInformation, selectedAmountSats]);
 
-  console.log(step, error, 'testing');
-
   const renderButton = item => {
     if (item.isCustomButton) {
       return (
@@ -228,7 +234,10 @@ export default function ConfirmChatGPTPage(props) {
           styles={styles.presetText}
           content={displayCorrectDenomination({
             amount: item.sats,
-            masterInfoObject,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: 'sats',
+            },
             fiatStats,
             convertAmount: true,
           })}
@@ -325,7 +334,10 @@ export default function ConfirmChatGPTPage(props) {
                   {
                     amount: displayCorrectDenomination({
                       amount: 2000,
-                      masterInfoObject,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'sats',
+                      },
                       fiatStats,
                     }),
                   },
@@ -339,7 +351,10 @@ export default function ConfirmChatGPTPage(props) {
                   {
                     amount: displayCorrectDenomination({
                       amount: 100000,
-                      masterInfoObject,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'sats',
+                      },
                       fiatStats,
                     }),
                   },

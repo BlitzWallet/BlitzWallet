@@ -1806,7 +1806,11 @@
     },
     "fiatCurrency": {
       "title": "Monnaie",
+      "halfModalTitle": "Choisissez la devise à afficher",
       "placeholderText": "Rechercher une devise",
+      "yourCurrencies": "Vos devises",
+      "moreCurrencies": "Plus de devises",
+      "currencyCount": "{{count}}+ prises en charge",
       "saveCurrencyError": "Nous n'avons pas pu enregistrer la devise sélectionnée, veuillez réessayer."
     },
     "feeInformation": {

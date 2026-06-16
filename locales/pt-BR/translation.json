@@ -1806,7 +1806,11 @@
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
+      "halfModalTitle": "Escolha a moeda para exibir",
       "placeholderText": "Procurar moeda",
+      "yourCurrencies": "Suas moedas",
+      "moreCurrencies": "Mais moedas",
+      "currencyCount": "{{count}}+ disponíveis",
       "saveCurrencyError": "Não foi possível salvar a moeda selecionada, tente novamente."
     },
     "feeInformation": {

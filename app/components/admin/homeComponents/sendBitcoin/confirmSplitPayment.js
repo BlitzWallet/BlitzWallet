@@ -13,7 +13,6 @@ import {
 import SendTransactionFeeInfo from './components/feeInfo';
 import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../hooks/themeColors';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import ErrorWithPayment from './components/errorScreen';
@@ -61,8 +60,11 @@ import {
 } from '../../../../functions/spark';
 import { validateSplitPayment } from '../../../../functions/payments/validateSplitPayment';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function ConfirmSplitPayment(props) {
   const navigate = useNavigation();
@@ -103,13 +105,6 @@ export default function ConfirmSplitPayment(props) {
   const [rateChangeDetected, setRateChangeDetected] = useState(false);
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
   const [isCalculatingFeeQuote, setIsCalculatingFeeQuote] = useState(false);
-  const [userSetInputDenomination, setUserSetInputDenomination] =
-    useState(null);
-  const inputDenomination = userSetInputDenomination
-    ? userSetInputDenomination
-    : isUSDSplit
-    ? 'fiat'
-    : 'sats';
 
   // ── Derived totals ──────────────────────────────────────────────────────────
 
@@ -130,34 +125,48 @@ export default function ConfirmSplitPayment(props) {
     return (cents || 0) / 100;
   }, [isUSDSplit, splitRecipients]);
 
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertSatsToDisplay,
-    convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: paymentCurrency,
-    inputDenomination,
-    fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
-    masterInfoObject,
-    isSendingPayment: isSendingPayment.current,
-  });
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: paymentCurrency,
+        masterInfoObject,
+        fiatStats,
+      }),
+    [paymentCurrency, masterInfoObject, fiatStats],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+
+  const { primaryDisplay, conversionFiatStats, convertSatsToDisplay } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+      isSendingPayment: isSendingPayment.current,
+    });
 
   const displayAmount = convertSatsToDisplay(totalSplitSats);
 
   const { shouldWarn } = useBudgetWarning(totalSplitSats);
 
-  const handleDenominationToggle = () => {
-    // For fixed amounts, just change the display denomination
-    const nextDenom = getNextDenomination();
-    setUserSetInputDenomination(nextDenom);
-    // No need to convert sendingAmount - it stays in sats
-    // The display will automatically update via convertSatsToDisplay
-  };
+  const openPicker = () =>
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.6,
+      currentCurrency: displayCurrency,
+      onSelectCurrency: selectCurrency,
+    });
 
   // ── Balance validation ──────────────────────────────────────────────────────
 
@@ -703,16 +712,20 @@ export default function ConfirmSplitPayment(props) {
         <CustomSettingsTopBar
           label={t('constants.send')}
           containerStyles={{ marginBottom: 0 }}
+          rightContent={
+            <CurrencySwitchButton
+              displayCurrency={displayCurrency}
+              onPress={openPicker}
+              disabled={isLoadingRate}
+            />
+          }
         />
         <ThemeText styles={styles.sectionTitle} content={sendingAsset} />
 
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display — always shown except during rate-change intercept */}
           {uiState !== 'SWAP_RATES_CHANGED' && (
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={handleDenominationToggle}
-            >
+            <View>
               <FormattedBalanceInput
                 maxWidth={0.9}
                 amountValue={displayAmount}
@@ -720,17 +733,7 @@ export default function ConfirmSplitPayment(props) {
                 forceCurrency={primaryDisplay.forceCurrency}
                 forceFiatStats={primaryDisplay.forceFiatStats}
               />
-              <FormattedSatText
-                neverHideBalance={true}
-                styles={{
-                  includeFontPadding: false,
-                }}
-                globalBalanceDenomination={secondaryDisplay.denomination}
-                forceCurrency={secondaryDisplay.forceCurrency}
-                balance={totalSplitSats}
-                forceFiatStats={secondaryDisplay.forceFiatStats}
-              />
-            </TouchableOpacity>
+            </View>
           )}
 
           {/* Fee info */}

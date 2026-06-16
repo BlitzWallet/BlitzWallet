@@ -1,72 +1,93 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { CENTER, SATSPERBITCOIN } from '../../constants';
 import FormattedBalanceInput from './formattedBalanceInput';
-import FormattedSatText from './satTextDisplay';
 import CustomNumberKeyboard from './customNumberKeyboard';
 import CustomButton from './button';
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import ThemeText from './textTheme';
 import { useTranslation } from 'react-i18next';
-import { HIDDEN_OPACITY } from '../../constants/theme';
 import { useFlashnet } from '../../../context-store/flashnetContext';
-import formatBalanceAmount from '../formatNumber';
 import { satsToDollars } from '../spark/flashnet';
+import CurrencySwitchButton from './currencySwitchButton';
+import { getDefaultDisplayCurrency } from '../displayCurrency';
+import useDisplayCurrencyController from '../../hooks/useDisplayCurrencyController';
+import useCurrencyDisplay from '../../hooks/useCurrencyDisplay';
 
 export default function CustomInputHalfModal(props) {
   const {
     handleBackPressFunction,
-    theme,
-    darkModeType,
-    slideHeight,
     setContentHeight,
     message,
     type,
     returnLocation,
-    passedParams,
     forceUSD,
+    setBackNav,
   } = props;
+  const { t } = useTranslation();
   const navigate = useNavigation();
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats: globalFiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
-  const initialValue = useRef(0);
-  const [inputDenomination, setInputDenomination] = useState(
-    forceUSD
-      ? 'fiat'
-      : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? 'sats'
-      : 'fiat',
+  const isUSDOnly = returnLocation === 'CreateSplitBill' && forceUSD;
+  const fiatStats = useMemo(
+    () =>
+      forceUSD ? { value: swapUSDPriceDollars, coin: 'USD' } : globalFiatStats,
+    [forceUSD, swapUSDPriceDollars, globalFiatStats],
   );
-  const fiatStats = forceUSD
-    ? { value: swapUSDPriceDollars, coin: 'USD' }
-    : globalFiatStats;
 
-  const { t } = useTranslation();
-  const localSatAmount =
-    inputDenomination === 'sats'
-      ? Number(amountValue)
-      : Math.round(SATSPERBITCOIN / (fiatStats?.value || 65000)) * amountValue;
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
 
-  const convertedValue = () =>
-    !amountValue
-      ? ''
-      : inputDenomination === 'fiat'
-      ? String(
-          Math.round(
-            (SATSPERBITCOIN / (fiatStats?.value || 65000)) *
-              Number(amountValue),
-          ),
-        )
-      : String(
-          (
-            ((fiatStats?.value || 65000) / SATSPERBITCOIN) *
-            Number(amountValue)
-          ).toFixed(2),
-        );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: isUSDOnly ? 'USD' : 'BTC',
+        masterInfoObject,
+        fiatStats: globalFiatStats,
+      }),
+    [masterInfoObject, globalFiatStats],
+  );
+
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
+
+  // Convert current keyboard input to sats (used only in custom step)
+  const localSatAmount = convertDisplayToSats(amountValue);
+
+  const openPicker = useCallback(
+    () =>
+      navigate.push('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: async code => {
+          const response = await selectCurrency(code);
+          if (response?.didWork) setAmountValue('');
+        },
+      }),
+    [displayCurrency, navigate, selectCurrency],
+  );
+
   const handleSubmit = () => {
     handleBackPressFunction(() => {
       if (props?.passedParams) {
@@ -81,7 +102,9 @@ export default function CustomInputHalfModal(props) {
           {
             amount: !amountValue ? 0 : localSatAmount,
             amountValue:
-              forceUSD && inputDenomination !== 'sats'
+              forceUSD &&
+              primaryDisplay.denomination === 'fiat' &&
+              primaryDisplay.forceCurrency === 'USD'
                 ? amountValue
                 : satsToDollars(
                     localSatAmount,
@@ -102,6 +125,31 @@ export default function CustomInputHalfModal(props) {
     setContentHeight(600);
   }, []);
 
+  useEffect(() => {
+    if (!setBackNav) return;
+    if (isUSDOnly) return;
+    setBackNav({
+      title: '',
+      rightElement:
+        returnLocation !== 'CreateSplitBill' ||
+        (returnLocation === 'CreateSplitBill' && !forceUSD) ? (
+          <CurrencySwitchButton
+            displayCurrency={displayCurrency}
+            onPress={openPicker}
+            disabled={isLoadingRate}
+          />
+        ) : null,
+    });
+    return () => setBackNav(null);
+  }, [
+    setBackNav,
+    displayCurrency,
+    openPicker,
+    isLoadingRate,
+    returnLocation,
+    forceUSD,
+  ]);
+
   return (
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
@@ -109,69 +157,29 @@ export default function CustomInputHalfModal(props) {
     >
       {message && (
         <ThemeText
-          styles={{ textAlign: 'center', width: '80%', ...CENTER }}
+          styles={{
+            textAlign: 'center',
+            width: '80%',
+            ...CENTER,
+            marginBottom: 10,
+          }}
           content={message}
         />
       )}
-      <TouchableOpacity
-        style={{ marginTop: 10 }}
-        activeOpacity={1}
-        onPress={() => {
-          setInputDenomination(prev => {
-            const newPrev = prev === 'sats' ? 'fiat' : 'sats';
+      <FormattedBalanceInput
+        maxWidth={0.9}
+        amountValue={amountValue}
+        inputDenomination={primaryDisplay.denomination}
+        forceCurrency={primaryDisplay.forceCurrency}
+        forceFiatStats={primaryDisplay.forceFiatStats}
+        customTextInputContainerStyles={{ marginTop: isUSDOnly ? 20 : 10 }}
+      />
 
-            return newPrev;
-          });
-          setAmountValue(convertedValue() || '');
-        }}
-      >
-        <FormattedBalanceInput
-          maxWidth={0.9}
-          amountValue={amountValue}
-          inputDenomination={inputDenomination}
-          forceCurrency={forceUSD ? 'USD' : ''}
-        />
-
-        {forceUSD ? (
-          <FormattedSatText
-            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-            neverHideBalance={true}
-            styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={
-              inputDenomination === 'sats' ? 'fiat' : 'sats'
-            }
-            balance={
-              inputDenomination === 'sats'
-                ? formatBalanceAmount(
-                    satsToDollars(
-                      localSatAmount,
-                      poolInfoRef.currentPriceAInB,
-                    ).toFixed(2),
-                    false,
-                    masterInfoObject,
-                  )
-                : localSatAmount
-            }
-            forceCurrency={'USD'}
-            useBalance={inputDenomination === 'sats'}
-          />
-        ) : (
-          <FormattedSatText
-            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-            neverHideBalance={true}
-            styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={
-              inputDenomination === 'sats' ? 'fiat' : 'sats'
-            }
-            balance={localSatAmount}
-          />
-        )}
-      </TouchableOpacity>
       <CustomNumberKeyboard
-        showDot={inputDenomination === 'fiat'}
+        showDot={primaryDisplay.denomination === 'fiat'}
         setInputValue={setAmountValue}
         usingForBalance={true}
-        fiatStats={fiatStats}
+        fiatStats={conversionFiatStats}
       />
       <CustomButton
         buttonStyles={{

@@ -251,20 +251,20 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   textInput: {
-    fontSize: 40,
+    fontSize: 45,
     includeFontPadding: false,
     pointerEvents: 'none',
     paddingVertical: 0,
     fontFamily: FONT.Title_Regular,
   },
   satText: {
-    fontSize: 40,
+    fontSize: 45,
     includeFontPadding: false,
   },
   hiddenText: {
     position: 'absolute',
     zIndex: -1,
-    fontSize: 40,
+    fontSize: 45,
     opacity: 0,
     includeFontPadding: false,
     fontFamily: FONT.Title_Regular,

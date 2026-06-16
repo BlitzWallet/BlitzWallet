@@ -74,16 +74,15 @@ export default function PoolCreationOverlay({
     }
   }, [visible, currentStep, setCurrentStep, onClose]);
 
+  // Register the header back button on the description step. The amount step's
+  // header (back arrow + currency switch button) is owned by PoolAmountInput.
   useEffect(() => {
     if (!visible || from !== 'halfModalReceiveOptions') return;
-    if (setBackNav) {
-      setBackNav({
-        onPress: handleBackPress,
-        title: '',
-      });
+    if (currentStep === 'description') {
+      setBackNav?.({ onPress: handleBackPress, title: '' });
+      return () => setBackNav?.(null);
     }
-    return () => setBackNav?.(null);
-  }, [setBackNav, visible, handleBackPress, from]);
+  }, [setBackNav, visible, handleBackPress, from, currentStep]);
 
   useHandleBackPressNew(handleBackPress);
 
@@ -107,6 +106,10 @@ export default function PoolCreationOverlay({
             }}
             onBack={onClose}
             from={from}
+            setBackNav={
+              from === 'halfModalReceiveOptions' ? setBackNav : undefined
+            }
+            onHeaderBack={handleBackPress}
           />
         </Animated.View>
       )}

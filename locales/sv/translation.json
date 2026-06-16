@@ -1806,7 +1806,11 @@
     },
     "fiatCurrency": {
       "title": "Valuta",
+      "halfModalTitle": "Välj valuta att visa",
       "placeholderText": "Sök valuta",
+      "yourCurrencies": "Dina valutor",
+      "moreCurrencies": "Fler valutor",
+      "currencyCount": "{{count}}+ stöds",
       "saveCurrencyError": "Vi kunde inte spara den valda valutan, vänligen försök igen."
     },
     "feeInformation": {

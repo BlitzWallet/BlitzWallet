@@ -67,28 +67,33 @@ jest.mock('../app/functions/displayCorrectDenomination', () =>
   jest.fn(({ amount }) => `${amount} sats`),
 );
 
-jest.mock('../app/hooks/usePaymentInputDisplay', () => {
-  return function usePaymentInputDisplay({ inputDenomination }) {
-    const secondaryDenomination =
-      inputDenomination === 'sats' ? 'fiat' : 'sats';
+jest.mock('../app/hooks/useDisplayCurrencyController', () => {
+  return function useDisplayCurrencyController({ initialCurrency }) {
+    return {
+      displayCurrency: initialCurrency,
+      currencyRates: {},
+      isLoadingRate: false,
+      selectCurrency: jest.fn(async () => ({ didWork: true })),
+    };
+  };
+});
+
+jest.mock('../app/hooks/useCurrencyDisplay', () => {
+  return function useCurrencyDisplay({ displayCurrency }) {
+    const denomination = displayCurrency === 'SATS' ? 'sats' : 'fiat';
 
     return {
       primaryDisplay: {
-        denomination: inputDenomination,
-        forceCurrency: null,
-        forceFiatStats: null,
-      },
-      secondaryDisplay: {
-        denomination: secondaryDenomination,
-        forceCurrency: null,
-        forceFiatStats: null,
+        denomination,
+        forceCurrency: displayCurrency === 'SATS' ? null : displayCurrency,
+        forceFiatStats:
+          displayCurrency === 'SATS'
+            ? null
+            : { coin: displayCurrency, value: 100000000 },
       },
       conversionFiatStats: { coin: 'USD', value: 100000000 },
       convertSatsToDisplay: amount => (amount ? String(amount) : ''),
       convertDisplayToSats: amount => Math.round(Number(amount) || 0),
-      getNextDenomination: () =>
-        inputDenomination === 'sats' ? 'fiat' : 'sats',
-      convertForToggle: amount => (amount === '' ? '' : String(amount)),
     };
   };
 });
@@ -153,6 +158,21 @@ jest.mock(
         Text,
         { testID: 'secondary-amount-display' },
         String(balance),
+      );
+    },
+);
+
+jest.mock(
+  '../app/functions/CustomElements/currencySwitchButton',
+  () =>
+    function MockCurrencySwitchButton({ displayCurrency, onPress }) {
+      const MockReact = require('react');
+      const { Text, TouchableOpacity } = require('react-native');
+
+      return MockReact.createElement(
+        TouchableOpacity,
+        { testID: 'currency-switch', onPress },
+        MockReact.createElement(Text, null, displayCurrency),
       );
     },
 );

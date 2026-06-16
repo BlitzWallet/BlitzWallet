@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
@@ -17,17 +17,18 @@ import {
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodContainer';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import {
   convertToDecimals,
   satsToDollars,
 } from '../../../../functions/spark/swapAmountUtils';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function CreateGift(props) {
   const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
@@ -40,29 +41,35 @@ export default function CreateGift(props) {
   const [amountValue, setAmountValue] = useState('');
   const determinePaymentMethod =
     props.route?.params?.selectedPaymentMethod || 'BTC';
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: determinePaymentMethod,
+        masterInfoObject,
+        fiatStats,
+      }),
+    [determinePaymentMethod, masterInfoObject, fiatStats],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
 
-  const [userInputDenomination, setUserInputDenomination] = useState(null);
-
-  const inputDenomination = userInputDenomination
-    ? userInputDenomination
-    : determinePaymentMethod === 'BTC'
-    ? 'sats'
-    : 'fiat';
-
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: determinePaymentMethod,
-    inputDenomination,
-    fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
-    masterInfoObject,
-  });
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
 
   const localSatAmount = convertDisplayToSats(amountValue);
   const dollarAmount = satsToDollars(
@@ -70,11 +77,16 @@ export default function CreateGift(props) {
     poolInfoRef.currentPriceAInB,
   );
 
-  const handleDenominationToggle = () => {
-    const nextDenom = getNextDenomination();
-    setUserInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
+  const openPicker = () =>
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.6,
+      currentCurrency: displayCurrency,
+      onSelectCurrency: async code => {
+        const response = await selectCurrency(code);
+        if (response?.didWork) setAmountValue('');
+      },
+    });
 
   const handleSelectPaymentMethod = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
@@ -88,6 +100,13 @@ export default function CreateGift(props) {
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={t('screens.inAccount.giftPages.createGift.header')}
+        rightContent={
+          <CurrencySwitchButton
+            displayCurrency={displayCurrency}
+            onPress={openPicker}
+            disabled={isLoadingRate}
+          />
+        }
       />
       <View style={{ width: INSET_WINDOW_WIDTH, ...CENTER }}>
         <ThemeText
@@ -101,25 +120,13 @@ export default function CreateGift(props) {
       </View>
 
       <View style={styles.container}>
-        <TouchableOpacity activeOpacity={1} onPress={handleDenominationToggle}>
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue}
-            inputDenomination={primaryDisplay.denomination}
-            forceCurrency={primaryDisplay.forceCurrency}
-            forceFiatStats={primaryDisplay.forceFiatStats}
-          />
-
-          <FormattedSatText
-            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-            neverHideBalance={true}
-            styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={secondaryDisplay.denomination}
-            forceCurrency={secondaryDisplay.forceCurrency}
-            forceFiatStats={secondaryDisplay.forceFiatStats}
-            balance={localSatAmount}
-          />
-        </TouchableOpacity>
+        <FormattedBalanceInput
+          maxWidth={0.9}
+          amountValue={amountValue}
+          inputDenomination={primaryDisplay.denomination}
+          forceCurrency={primaryDisplay.forceCurrency}
+          forceFiatStats={primaryDisplay.forceFiatStats}
+        />
       </View>
 
       <ChoosePaymentMethod
@@ -136,7 +143,7 @@ export default function CreateGift(props) {
       />
 
       <CustomNumberKeyboard
-        showDot={inputDenomination === 'fiat'}
+        showDot={primaryDisplay.denomination === 'fiat'}
         setInputValue={setAmountValue}
         usingForBalance={true}
         fiatStats={conversionFiatStats}

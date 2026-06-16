@@ -1807,7 +1807,11 @@
     },
     "fiatCurrency": {
       "title": "Валюта",
+      "halfModalTitle": "Выберите валюту для отображения",
       "placeholderText": "Поиск валюты",
+      "yourCurrencies": "Ваши валюты",
+      "moreCurrencies": "Другие валюты",
+      "currencyCount": "{{count}}+ поддерживаемых валют",
       "saveCurrencyError": "Не удалось сохранить валюту, попробуйте снова."
     },
     "feeInformation": {
