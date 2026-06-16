@@ -2520,7 +2520,7 @@
           "details": "Detalhes"
         },
         "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar",
-        "availableToSwapInto": "Troque até {{amount}} por {{asset}}.",
+        "availableToSwapInto": "Troque até {{amount}} por {{asset}}",
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas",
