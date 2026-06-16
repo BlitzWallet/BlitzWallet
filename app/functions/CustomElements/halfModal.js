@@ -320,7 +320,12 @@ export default function CustomHalfModal(props) {
           />
         );
       case 'chatGPT':
-        return <ConfirmChatGPTPage setContentHeight={setContentHeight} />;
+        return (
+          <ConfirmChatGPTPage
+            setContentHeight={setContentHeight}
+            setBackNav={setBackNav}
+          />
+        );
       case 'addContacts':
         return (
           <AddContactsHalfModal
