@@ -359,7 +359,7 @@ export default function ReceivePaymentHome(props) {
                   ...masterInfoObject,
                   userBalanceDenomination: 'fiat',
                 },
-                fiatStats,
+                fiatStats: { coin: 'USD', value: swapUSDPriceDollars },
                 forceCurrency: 'USD',
               }),
             })}

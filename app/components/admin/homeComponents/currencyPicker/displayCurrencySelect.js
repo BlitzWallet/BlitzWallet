@@ -126,7 +126,7 @@ export default function DisplayCurrencySelect({
         />
         <View style={styles.textContainer}>
           <ThemeText
-            CustomNumberOfLines={1}
+            CustomNumberOfLines={2}
             styles={styles.rowTitle}
             content={row.title}
           />
