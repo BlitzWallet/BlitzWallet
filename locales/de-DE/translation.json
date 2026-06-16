@@ -1045,8 +1045,7 @@
       "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_spark": "Senden Sie Bitcoin oder Token an diese Adresse.",
-      "depositQRInstruction_spark_dollars": "Senden Sie USDB an diese Adresse.",
-      "depositMinimumStablecoin": "Zahlungen müssen mindestens {{amount}} betragen"
+      "depositQRInstruction_spark_dollars": "Senden Sie USDB an diese Adresse."
     },
     "payLinks": {
       "skip": "Überspringen",
@@ -2520,7 +2519,6 @@
           "details": "Details"
         },
         "chooseCurrencyTitle": "Wählen Sie die Währung, die Sie umtauschen möchten.",
-        "availableToSwapInto": "Bis zu {{amount}} in {{asset}} tauschen.",
         "enterAmountTitle": "Geben Sie den Betrag ein, den Sie umtauschen möchten",
         "noContentTitle": "Kein Guthaben verfügbar",
         "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",
