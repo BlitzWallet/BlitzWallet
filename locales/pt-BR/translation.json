@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
       "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
       "depositQRInstruction_spark": "Envie apenas Bitcoin ou tokens na rede Spark",
-      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço. Você receberá diretamente no seu saldo em dólares"
+      "depositQRInstruction_spark_dollars": "Envie USDB para este endereço. Você receberá diretamente no seu saldo em dólares",
+      "depositMinimumStablecoin": "Os pagamentos devem ser de pelo menos {{amount}}"
     },
     "payLinks": {
       "skip": "Pular",
@@ -2519,11 +2520,16 @@
           "details": "Detalhes"
         },
         "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar",
+        "availableToSwapInto": "Troque até {{amount}} por {{asset}}.",
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas",
         "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para trocar bitcoins.",
         "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para trocar dólares.",
+        "belowSwapLimitTitle": "Saldo muito baixo para realizar trocas",
+        "belowSwapLimitBitcoin": "Seu saldo de Bitcoin está abaixo do mínimo para realizar trocas. Adicione pelo menos {{btcMin}}",
+        "belowSwapLimitDollar": "Seu saldo em dólares está abaixo do mínimo para realizar trocas. Adicione pelo menos {{usdMin}}",
+        "belowSwapLimitBoth": "Seus saldos estão abaixo do mínimo para realizar trocas. Você precisa de pelo menos {{btcMin}} em Bitcoin ou {{usdMin}} em dólares",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {

@@ -2,7 +2,11 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import { CENTER, SIZES } from '../../../../../../constants';
-import { COLORS, HIDDEN_OPACITY } from '../../../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../../../constants/theme';
 import FormattedBalanceInput from '../../../../../../functions/CustomElements/formattedBalanceInput';
 import CustomNumberKeyboard from '../../../../../../functions/CustomElements/customNumberKeyboard';
 import GetThemeColors from '../../../../../../hooks/themeColors';
@@ -402,7 +406,8 @@ export default function ConfirmChatGPTPage(props) {
 const styles = StyleSheet.create({
   stepContainer: {
     flex: 1,
-    paddingHorizontal: 16,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
   selectTitle: {
     fontSize: SIZES.xLarge,

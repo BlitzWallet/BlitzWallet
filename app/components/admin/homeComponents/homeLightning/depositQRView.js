@@ -130,7 +130,10 @@ export default function DepositQRView({
         currentWalletMnemoinc,
         sendWebViewRequest,
         sparkInformation,
-        endReceiveType: 'BTC',
+        endReceiveType:
+          config.selectedRecieveOption === 'spark' && config.fromStablecoin
+            ? 'USD'
+            : 'BTC',
         swapLimits,
         setInitialSendAmount: () => {},
         userReceiveAmount: 0,
@@ -161,6 +164,20 @@ export default function DepositQRView({
   }, [config]);
 
   const minimumDepositWarning = useMemo(() => {
+    if (option === 'stablecoins') {
+      return t('wallet.halfModal.depositMinimumStablecoin', {
+        amount: displayCorrectDenomination({
+          amount: Number(1).toFixed(2),
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'fiat',
+          },
+          fiatStats,
+          forceCurrency: 'USD',
+          convertAmount: false,
+        }),
+      });
+    }
     if (option !== 'liquid' && option !== 'rootstock') return null;
 
     const minSendAmount =
@@ -182,6 +199,21 @@ export default function DepositQRView({
     });
   }, [fiatStats, masterInfoObject, minMaxLiquidSwapAmounts, option, t]);
 
+  const address = addressState.generatedAddress || '';
+  const addressSegments = useMemo(() => {
+    return (address.match(/.{1,4}/g) || []).map((group, i, all) => (
+      <Text
+        key={i}
+        style={{
+          fontFamily: i % 2 === 0 ? FONT.Title_SemiBold : FONT.Title_Regular,
+        }}
+      >
+        {group}
+        {i < all.length - 1 ? ' ' : ''}
+      </Text>
+    ));
+  }, [address]);
+
   if (!config) return null;
 
   const title =
@@ -200,21 +232,6 @@ export default function DepositQRView({
             option === 'spark' && config.fromStablecoin ? '_dollars' : ''
           }`,
         );
-
-  const address = addressState.generatedAddress || '';
-  const addressSegments = (address.match(/.{1,4}/g) || []).map(
-    (group, i, all) => (
-      <Text
-        key={i}
-        style={{
-          fontFamily: i % 2 === 0 ? FONT.Title_SemiBold : FONT.Title_Regular,
-        }}
-      >
-        {group}
-        {i < all.length - 1 ? ' ' : ''}
-      </Text>
-    ),
-  );
 
   const handleCopy = () => {
     if (!address) return;
@@ -288,9 +305,9 @@ export default function DepositQRView({
         </TouchableOpacity>
 
         <ThemeText
-          adjustsFontSizeToFit={true}
           styles={styles.addressText}
           content={addressSegments}
+          CustomNumberOfLines={4}
         />
 
         <View

@@ -37,7 +37,6 @@ export default function ShowProfileQr() {
   const { theme, darkModeType } = useGlobalThemeContext();
   const navigate = useNavigation();
   const [activeType, setActiveType] = useState('blitz');
-  const [copied, setCopied] = useState(false);
 
   const name = globalContactsInformation.myProfile.name;
   const uniqueName = globalContactsInformation.myProfile.uniqueName;
@@ -56,8 +55,6 @@ export default function ShowProfileQr() {
 
   const handleCopy = () => {
     copyToClipboard(currentValue, showToast);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShare = () => {
@@ -274,15 +271,11 @@ export default function ShowProfileQr() {
             />
             <ThemeText
               styles={styles.copyText}
-              content={
-                copied
-                  ? t('contacts.showProfileQr.copyMessage')
-                  : t(
-                      `contacts.showProfileQr.${
-                        activeType === 'lnurl' ? 'lnurlCopy' : 'blitzCopy'
-                      }`,
-                    )
-              }
+              content={t(
+                `contacts.showProfileQr.${
+                  activeType === 'lnurl' ? 'lnurlCopy' : 'blitzCopy'
+                }`,
+              )}
             />
           </TouchableOpacity>
           <TouchableOpacity

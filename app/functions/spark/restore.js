@@ -1071,7 +1071,7 @@ async function processBitcoinTransactions(
         useTempId: true,
         tempId: txStateUpdate.sparkID,
         id: sparkResponse.transfer.sparkId,
-        paymentStatus: 'completed', // getSparkPaymentStatus(sparkResponse.status)
+        paymentStatus: getSparkPaymentStatus(sparkResponse.status),
         paymentType: 'bitcoin',
         accountId: txStateUpdate.accountId,
         details: {

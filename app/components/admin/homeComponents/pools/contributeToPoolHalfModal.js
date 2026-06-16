@@ -8,7 +8,10 @@ import Animated, {
 import { ThemeText } from '../../../../functions/CustomElements';
 import { CENTER, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { HIDDEN_OPACITY } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -652,19 +655,17 @@ export default function ContributeToPoolHalfModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
   stepContainer: {
     flex: 1,
-    paddingHorizontal: 16,
+    width: '100%',
   },
   selectTitle: {
-    fontSize: SIZES.xLarge,
+    fontSize: SIZES.large,
+    fontWeight: 500,
     marginBottom: 24,
-  },
-  selectedAmountText: {
-    fontSize: SIZES.xxLarge,
-    textAlign: 'center',
-    marginTop: 24,
   },
   continueButton: {
     ...CENTER,

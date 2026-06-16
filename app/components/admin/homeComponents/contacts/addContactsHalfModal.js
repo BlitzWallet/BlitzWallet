@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { CENTER } from '../../../../constants/styles';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
   COLORS,
@@ -521,7 +522,7 @@ function ContactListItem(props) {
 }
 
 const styles = StyleSheet.create({
-  innerContainer: { flex: 1, width: '90%', ...CENTER },
+  innerContainer: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
 
   titleContainer: {
     alignItems: 'center',

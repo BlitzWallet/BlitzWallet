@@ -27,9 +27,7 @@ export default function SelectOtherReceiveOptionHalfModal({ onShowQR }) {
           <ChainRow
             key={chain.id}
             chain={chain}
-            onSelectAsset={() =>
-              onShowQR({ selectedRecieveOption: chain.id })
-            }
+            onSelectAsset={() => onShowQR({ selectedRecieveOption: chain.id })}
             theme={theme}
             darkModeType={darkModeType}
             backgroundColor={backgroundColor}
@@ -115,8 +113,8 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   chainIconContainer: {
-    width: 45,
-    height: 45,
+    width: 48,
+    height: 48,
     borderRadius: 22.5,
     overflow: 'hidden',
     alignItems: 'center',

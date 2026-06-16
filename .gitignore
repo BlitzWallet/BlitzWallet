@@ -86,3 +86,4 @@ app/functions/spark/appStorePreviews.js
 .worktrees/
 .worktrees
 android/secrets.properties
+.superpowers/

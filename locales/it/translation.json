@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Invia solo Liquid Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin",
       "depositQRInstruction_rootstock": "Invia solo Rootstock Bitcoin a questo indirizzo. Lo riceverai direttamente nel tuo saldo Bitcoin.",
       "depositQRInstruction_spark": "Invia Bitcoin o token a questo indirizzo.",
-      "depositQRInstruction_spark_dollars": "Invia USDB a questo indirizzo."
+      "depositQRInstruction_spark_dollars": "Invia USDB a questo indirizzo.",
+      "depositMinimumStablecoin": "I pagamenti devono essere di almeno {{amount}}"
     },
     "payLinks": {
       "skip": "Salta",
@@ -2519,11 +2520,16 @@
           "details": "Dettagli"
         },
         "chooseCurrencyTitle": "Scegli la valuta da cui effettuare lo scambio.",
+        "availableToSwapInto": "Scambia fino a {{amount}} in {{asset}}.",
         "enterAmountTitle": "Inserisci l’importo da scambiare.",
         "noContentTitle": "Nessun saldo disponibile",
         "noContentSubTittle": "Aggiungi fondi al tuo wallet per iniziare a scambiare tra dollari e Bitcoin.",
         "insufficientBTCToSwap": "È necessario un saldo Bitcoin di almeno {{amount}} per scambiare da Bitcoin.",
         "insufficientUSDToSwap": "È necessario un saldo in dollari di almeno {{amount}} per scambiare da dollari.",
+        "belowSwapLimitTitle": "Saldo troppo basso per scambiare",
+        "belowSwapLimitBitcoin": "Il tuo saldo in Bitcoin è inferiore al minimo per scambiare. Aggiungi almeno {{btcMin}} per iniziare a scambiare.",
+        "belowSwapLimitDollar": "Il tuo saldo in dollari è inferiore al minimo per scambiare. Aggiungi almeno {{usdMin}} per iniziare a scambiare.",
+        "belowSwapLimitBoth": "I tuoi saldi sono inferiori al minimo per scambiare. Hai bisogno di almeno {{btcMin}} in Bitcoin o {{usdMin}} in dollari per iniziare a scambiare.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {

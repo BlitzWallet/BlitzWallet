@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Отправляйте на этот адрес только Liquid Bitcoin. Средства поступят прямо на ваш баланс Bitcoin",
       "depositQRInstruction_rootstock": "Отправляйте на этот адрес только Rootstock Bitcoin. Средства поступят прямо на ваш баланс Bitcoin.",
       "depositQRInstruction_spark": "Отправляйте Bitcoin или токены на этот адрес.",
-      "depositQRInstruction_spark_dollars": "Отправляйте USDB на этот адрес."
+      "depositQRInstruction_spark_dollars": "Отправляйте USDB на этот адрес.",
+      "depositMinimumStablecoin": "Сумма платежа должна быть не менее {{amount}}"
     },
     "payLinks": {
       "skip": "Пропустить",
@@ -2527,11 +2528,16 @@
           "details": "Детали"
         },
         "chooseCurrencyTitle": "Выберите валюту, из которой вы хотите обменять.",
+        "availableToSwapInto": "Обменять до {{amount}} на {{asset}}.",
         "enterAmountTitle": "Введите сумму для обмена.",
         "noContentTitle": "Нет доступного баланса",
         "noContentSubTittle": "Пополните свой кошелёк, чтобы начать обмен между долларами и Bitcoin.",
         "insufficientBTCToSwap": "Для обмена из Bitcoin необходим баланс не менее {{amount}}.",
-        "insufficientUSDToSwap": "Для обмена из долларов необходим баланс не менее {{amount}}."
+        "insufficientUSDToSwap": "Для обмена из долларов необходим баланс не менее {{amount}}.",
+        "belowSwapLimitTitle": "Слишком низкий баланс для обмена",
+        "belowSwapLimitBitcoin": "Ваш баланс в Bitcoin ниже минимума для обмена. Добавьте не менее {{btcMin}}, чтобы начать обмен.",
+        "belowSwapLimitDollar": "Ваш баланс в долларах ниже минимума для обмена. Добавьте не менее {{usdMin}}, чтобы начать обмен.",
+        "belowSwapLimitBoth": "Ваши балансы ниже минимума для обмена. Чтобы начать обмен, нужно не менее {{btcMin}} в Bitcoin или {{usdMin}} в долларах."
       },
       "swapHistory": {
         "loadingSwapHistoryError": "Не удалось загрузить историю обменов. Пожалуйста, попробуйте позже.",

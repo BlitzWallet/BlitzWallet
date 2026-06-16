@@ -760,8 +760,8 @@ const styles = StyleSheet.create({
   },
 
   scanIconContainer: {
-    width: 45,
-    height: 45,
+    width: 48,
+    height: 48,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',

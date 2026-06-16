@@ -1045,7 +1045,8 @@
       "depositQRInstruction_liquid": "Envía solo Liquid Bitcoin a esta dirección. Lo recibirás directamente en tu saldo de Bitcoin",
       "depositQRInstruction_rootstock": "Envía solo Rootstock Bitcoin a esta dirección. Lo recibirás directamente en tu saldo de Bitcoin.",
       "depositQRInstruction_spark": "Envía Bitcoin o tokens a esta dirección.",
-      "depositQRInstruction_spark_dollars": "Envía USDB a esta dirección."
+      "depositQRInstruction_spark_dollars": "Envía USDB a esta dirección.",
+      "depositMinimumStablecoin": "Los pagos deben ser de al menos {{amount}}"
     },
     "payLinks": {
       "skip": "Omitir",
@@ -2519,11 +2520,16 @@
           "details": "Detalles"
         },
         "chooseCurrencyTitle": "Elige la moneda desde la que deseas intercambiar.",
+        "availableToSwapInto": "Cambia hasta {{amount}} a {{asset}}.",
         "enterAmountTitle": "Ingresa la cantidad que deseas intercambiar.",
         "noContentTitle": "No hay saldo disponible",
         "noContentSubTittle": "Agrega fondos a tu billetera para comenzar a intercambiar entre dólares y Bitcoin.",
         "insufficientBTCToSwap": "Se requiere un saldo de Bitcoin de al menos {{amount}} para intercambiar desde Bitcoin.",
         "insufficientUSDToSwap": "Se requiere un saldo de dólares de al menos {{amount}} para intercambiar desde dólares.",
+        "belowSwapLimitTitle": "Saldo demasiado bajo para intercambiar",
+        "belowSwapLimitBitcoin": "Tu saldo de Bitcoin está por debajo del mínimo para intercambiar. Agrega al menos {{btcMin}} para comenzar a intercambiar.",
+        "belowSwapLimitDollar": "Tu saldo en dólares está por debajo del mínimo para intercambiar. Agrega al menos {{usdMin}} para comenzar a intercambiar.",
+        "belowSwapLimitBoth": "Tus saldos están por debajo del mínimo para intercambiar. Necesitas al menos {{btcMin}} en Bitcoin o {{usdMin}} en dólares para comenzar a intercambiar.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
