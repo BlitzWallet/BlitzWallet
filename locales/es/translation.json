@@ -2629,7 +2629,8 @@
       "addEmailDesc": "Guarda tu dirección de correo para pagar más rápido.",
       "textInputDescriptor": "CORREO ELECTRÓNICO",
       "emailplaceholder": "tu@ejemplo.com",
-      "emailError": "Ingresa una dirección de correo electrónico válida."
+      "emailError": "Ingresa una dirección de correo electrónico válida.",
+      "completePayment": "Completar pago"
     }
   },
   "toastmessages": {

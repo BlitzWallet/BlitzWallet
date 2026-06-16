@@ -2629,7 +2629,8 @@
       "addEmailDesc": "Salva il tuo indirizzo email per un checkout più rapido.",
       "textInputDescriptor": "EMAIL",
       "emailplaceholder": "tu@esempio.com",
-      "emailError": "Inserisci un indirizzo email valido."
+      "emailError": "Inserisci un indirizzo email valido.",
+      "completePayment": "Completa il pagamento"
     }
   },
   "toastmessages": {

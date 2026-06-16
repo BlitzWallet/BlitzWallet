@@ -2627,7 +2627,8 @@
       "addEmailDesc": "Speichern Sie Ihre E-Mail-Adresse für einen schnelleren Checkout.",
       "textInputDescriptor": "E-Mail",
       "emailplaceholder": "max.mustermann@beispiel.de",
-      "emailError": "Bitte geben Sie eine gültige E-Mail-Adresse ein."
+      "emailError": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+      "completePayment": "Zahlung abschließen"
     }
   },
   "toastmessages": {

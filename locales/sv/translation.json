@@ -2629,7 +2629,8 @@
       "addEmailDesc": "Spara din e-postadress för snabbare betalning.",
       "textInputDescriptor": "E-POST",
       "emailplaceholder": "du@exempel.se",
-      "emailError": "Ange en giltig e-postadress."
+      "emailError": "Ange en giltig e-postadress.",
+      "completePayment": "Slutför betalning"
     }
   },
   "toastmessages": {

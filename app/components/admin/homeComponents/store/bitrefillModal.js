@@ -15,7 +15,13 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import CustomButton from '../../../../functions/CustomElements/button';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { CENTER, COLORS, EMAIL_REGEX, SIZES } from '../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  EMAIL_REGEX,
+  SIZES,
+} from '../../../../constants';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { WINDOWWIDTH } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -74,6 +80,29 @@ const isSupportedLanguage = lang => {
   return languages.includes(normalized);
 };
 
+// Injected into the Bitrefill embed so it reports in-page navigation back to RN
+// over the existing postMessage channel. Lets us detect when the user leaves the
+// "waiting for payment" screen and clear the pending checkout.
+const WEBVIEW_NAV_LISTENER = `
+(function() {
+  if (window.__blitzNavPatched) return;
+  window.__blitzNavPatched = true;
+  function post(type) {
+    try {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({ event: 'embed_navigation', type: type, path: location.pathname }),
+      );
+    } catch (e) {}
+  }
+  var origPush = history.pushState;
+  history.pushState = function() { origPush.apply(this, arguments); post('push'); };
+  var origReplace = history.replaceState;
+  history.replaceState = function() { origReplace.apply(this, arguments); post('replace'); };
+  window.addEventListener('popstate', function() { post('pop'); });
+})();
+true;
+`;
+
 export default function BitrefillShopModal() {
   const naivgate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -92,6 +121,18 @@ export default function BitrefillShopModal() {
   const isSendingPayment = useRef(false);
   const paidPaymentUris = useRef(new Set());
   const initialLoadDone = useRef(false);
+  const pendingPaymentIntentRef = useRef(null);
+  const lastEmbedPathRef = useRef(null);
+  const isMounted = useRef(true);
+  const [pendingPaymentIntent, setPendingPaymentIntent] = useState(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const selectedLanguage = masterInfoObject?.userSelectedLanguage;
 
@@ -184,6 +225,162 @@ export default function BitrefillShopModal() {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
+  // Writes the latest pending intent to both the ref (source of truth for what
+  // gets paid) and state (drives the Repay button). Passing null clears both.
+  const setPendingIntent = useCallback(intent => {
+    pendingPaymentIntentRef.current = intent;
+    setPendingPaymentIntent(intent);
+  }, []);
+
+  // Pays the current latest pending intent with the user-chosen balance. Always
+  // reads from the ref so a newer intent supersedes any older one.
+  const payWithMethod = useCallback(
+    async method => {
+      const intent = pendingPaymentIntentRef.current;
+      if (!intent) return;
+      if (isSendingPayment.current) return;
+      if (paidPaymentUris.current.has(intent.paymentUri)) return;
+
+      isSendingPayment.current = true;
+      setIsProcessingPayment(true);
+
+      // Skip navigation/state updates if the screen unmounted while awaiting.
+      const navigateError = msg => {
+        if (isMounted.current) {
+          naivgate.navigate('ErrorScreen', { errorMessage: msg });
+        }
+      };
+
+      try {
+        const { invoiceAddress, amountSats, invoiceId } = intent;
+        let paymentFee = 0;
+        let swapPaymentQuote = null;
+
+        if (method === 'BTC') {
+          const btcFeeResult = await sparkPaymenWrapper({
+            getFee: true,
+            address: invoiceAddress,
+            amountSats,
+            paymentType: 'lightning',
+            masterInfoObject,
+            mnemonic: currentWalletMnemoinc,
+            sendWebViewRequest,
+          });
+
+          if (!btcFeeResult.didWork) {
+            navigateError(
+              btcFeeResult.error || t('screens.bitrefill.paymentFailed'),
+            );
+            return;
+          }
+
+          const fee = btcFeeResult.fee ?? 0;
+          if (bitcoinBalance < amountSats + fee) {
+            navigateError(t('screens.bitrefill.insufficientBalance'));
+            return;
+          }
+          paymentFee = fee;
+        } else {
+          const usdQuote = await getLightningPaymentQuote(
+            currentWalletMnemoinc,
+            invoiceAddress,
+            USD_ASSET_ADDRESS,
+            undefined,
+            undefined,
+            { amountSats: amountSats },
+          );
+
+          if (!usdQuote.didWork) {
+            navigateError(t('screens.bitrefill.paymentFailed'));
+            return;
+          }
+
+          const tokenAmountRequired = usdQuote.quote.tokenAmountRequired;
+          const userDollarBalance = dollarBalanceToken * Math.pow(10, 6);
+
+          if (userDollarBalance < tokenAmountRequired) {
+            navigateError(t('screens.bitrefill.insufficientBalance'));
+            return;
+          }
+
+          const estimatedAmmFeeSat = Math.round(
+            dollarsToSats(
+              usdQuote.quote.estimatedAmmFee / Math.pow(10, 6),
+              poolInfoRef.currentPriceAInB,
+            ),
+          );
+
+          paymentFee =
+            usdQuote.quote.estimatedLightningFee + estimatedAmmFeeSat;
+
+          swapPaymentQuote = {
+            ...usdQuote.quote,
+            bitcoinBalance,
+            dollarBalanceSat,
+          };
+        }
+
+        const paymentResponse = await sparkPaymenWrapper({
+          getFee: false,
+          address: invoiceAddress,
+          paymentType: 'lightning',
+          amountSats,
+          masterInfoObject,
+          memo: t('screens.bitrefill.paymentMemo'),
+          fee: paymentFee,
+          userBalance: bitcoinBalance,
+          sparkInformation,
+          mnemonic: currentWalletMnemoinc,
+          sendWebViewRequest,
+          usablePaymentMethod: method,
+          swapPaymentQuote,
+          fromMainSendScreen: false,
+          poolInfoRef,
+          extraDetails: {
+            bitrefillInvoiceId: invoiceId,
+          },
+        });
+
+        if (!paymentResponse.didWork) {
+          navigateError(
+            paymentResponse.error || t('screens.bitrefill.paymentFailed'),
+          );
+          return;
+        }
+
+        paidPaymentUris.current.add(intent.paymentUri);
+        if (isMounted.current) setPendingIntent(null);
+      } catch (err) {
+        console.error('Bitrefill payment error:', err);
+        navigateError(err.message || t('screens.bitrefill.paymentFailed'));
+      } finally {
+        isSendingPayment.current = false;
+        if (isMounted.current) setIsProcessingPayment(false);
+      }
+    },
+    [
+      masterInfoObject,
+      currentWalletMnemoinc,
+      sendWebViewRequest,
+      bitcoinBalance,
+      dollarBalanceToken,
+      dollarBalanceSat,
+      poolInfoRef,
+      sparkInformation,
+      naivgate,
+      t,
+      setPendingIntent,
+    ],
+  );
+
+  const openPaymentMethodSelection = useCallback(() => {
+    naivgate.navigate('CustomHalfModal', {
+      wantedContent: 'SelectPaymentMethod',
+      selectedPaymentMethod: null,
+      onSelectMethod: method => payWithMethod(method),
+    });
+  }, [naivgate, payWithMethod]);
+
   const handleMessage = async e => {
     let data;
     try {
@@ -197,139 +394,56 @@ export default function BitrefillShopModal() {
     switch (event) {
       case 'payment_intent': {
         if (!paymentUri) break;
-        if (isSendingPayment.current) break;
         if (paidPaymentUris.current.has(paymentUri)) break;
+        if (pendingPaymentIntentRef.current?.paymentUri === paymentUri) break;
 
-        isSendingPayment.current = true;
-
+        let parsedInvoice;
         try {
-          let parsedInvoice;
-          try {
-            parsedInvoice = await parseInput(paymentUri);
-          } catch (err) {
-            console.error('Failed to parse payment URI:', err);
-            naivgate.navigate('ErrorScreen', {
-              errorMessage: t('screens.bitrefill.invalidInvoice'),
-            });
-            break;
-          }
-
-          const invoiceAddress = parsedInvoice?.data?.address;
-          if (!invoiceAddress) {
-            naivgate.navigate('ErrorScreen', {
-              errorMessage: t('screens.bitrefill.invalidInvoice'),
-            });
-            break;
-          }
-
-          const amountSats = Math.round(
-            (parsedInvoice?.data?.amountMsat || 0) / 1000,
-          );
-
-          let usablePaymentMethod = null;
-          let paymentFee = 0;
-          let swapPaymentQuote = null;
-
-          const btcFeeResult = await sparkPaymenWrapper({
-            getFee: true,
-            address: invoiceAddress,
-            amountSats,
-            paymentType: 'lightning',
-            masterInfoObject,
-            mnemonic: currentWalletMnemoinc,
-            sendWebViewRequest,
-          });
-
-          if (btcFeeResult.didWork) {
-            const fee = btcFeeResult.fee ?? 0;
-            if (bitcoinBalance >= amountSats + fee) {
-              usablePaymentMethod = 'BTC';
-              paymentFee = fee;
-            }
-          }
-
-          if (!usablePaymentMethod) {
-            const usdQuote = await getLightningPaymentQuote(
-              currentWalletMnemoinc,
-              invoiceAddress,
-              USD_ASSET_ADDRESS,
-              undefined,
-              undefined,
-              { amountSats: amountSats },
-            );
-
-            if (usdQuote.didWork) {
-              const tokenAmountRequired = usdQuote.quote.tokenAmountRequired;
-              const userDollarBalance = dollarBalanceToken * Math.pow(10, 6);
-
-              if (userDollarBalance >= tokenAmountRequired) {
-                usablePaymentMethod = 'USD';
-
-                const estimatedAmmFeeSat = Math.round(
-                  dollarsToSats(
-                    usdQuote.quote.estimatedAmmFee / Math.pow(10, 6),
-                    poolInfoRef.currentPriceAInB,
-                  ),
-                );
-
-                paymentFee =
-                  usdQuote.quote.estimatedLightningFee + estimatedAmmFeeSat;
-
-                swapPaymentQuote = {
-                  ...usdQuote.quote,
-                  bitcoinBalance,
-                  dollarBalanceSat,
-                };
-              }
-            }
-          }
-
-          if (!usablePaymentMethod) {
-            naivgate.navigate('ErrorScreen', {
-              errorMessage: t('screens.bitrefill.insufficientBalance'),
-            });
-            break;
-          }
-
-          const paymentResponse = await sparkPaymenWrapper({
-            getFee: false,
-            address: invoiceAddress,
-            paymentType: 'lightning',
-            amountSats,
-            masterInfoObject,
-            memo: t('screens.bitrefill.paymentMemo'),
-            fee: paymentFee,
-            userBalance: bitcoinBalance,
-            sparkInformation,
-            mnemonic: currentWalletMnemoinc,
-            sendWebViewRequest,
-            usablePaymentMethod,
-            swapPaymentQuote,
-            fromMainSendScreen: false,
-            poolInfoRef,
-            extraDetails: {
-              bitrefillInvoiceId: invoiceId,
-            },
-          });
-
-          if (!paymentResponse.didWork) {
-            naivgate.navigate('ErrorScreen', {
-              errorMessage:
-                paymentResponse.error || t('screens.bitrefill.paymentFailed'),
-            });
-            break;
-          }
-
-          paidPaymentUris.current.add(paymentUri);
+          parsedInvoice = await parseInput(paymentUri);
         } catch (err) {
-          console.error('Bitrefill payment error:', err);
+          console.error('Failed to parse payment URI:', err);
           naivgate.navigate('ErrorScreen', {
-            errorMessage: err.message || t('screens.bitrefill.paymentFailed'),
+            errorMessage: t('screens.bitrefill.invalidInvoice'),
           });
-        } finally {
-          isSendingPayment.current = false;
+          break;
         }
 
+        const invoiceAddress = parsedInvoice?.data?.address;
+        if (!invoiceAddress) {
+          naivgate.navigate('ErrorScreen', {
+            errorMessage: t('screens.bitrefill.invalidInvoice'),
+          });
+          break;
+        }
+
+        const amountSats = Math.round(
+          (parsedInvoice?.data?.amountMsat || 0) / 1000,
+        );
+
+        setPendingIntent({
+          paymentUri,
+          invoiceId,
+          invoiceAddress,
+          amountSats,
+          paymentPath: lastEmbedPathRef.current,
+        });
+        openPaymentMethodSelection();
+        break;
+      }
+      case 'embed_navigation': {
+        lastEmbedPathRef.current = data.path;
+        // Drop the pending checkout + hide the Repay button once the user
+        // leaves the page the invoice was created on, so a stale intent can't
+        // be paid for an order that's no longer on screen. Never mid-payment.
+        // Fall back to the back-navigation ('pop') heuristic when we don't have
+        // a recorded path to compare against.
+        const intent = pendingPaymentIntentRef.current;
+        if (intent && !isSendingPayment.current) {
+          const leftPaymentPage = intent.paymentPath
+            ? data.path !== intent.paymentPath
+            : data.type === 'pop';
+          if (leftPaymentPage) setPendingIntent(null);
+        }
         break;
       }
       default:
@@ -404,6 +518,7 @@ export default function BitrefillShopModal() {
               }}
               startInLoadingState={true}
               onMessage={handleMessage}
+              injectedJavaScript={WEBVIEW_NAV_LISTENER}
               onShouldStartLoadWithRequest={request =>
                 request.url.startsWith('https://embed.bitrefill.com')
               }
@@ -414,6 +529,17 @@ export default function BitrefillShopModal() {
                 <FullLoadingScreen showText={false} />
               </View>
             )}
+
+            {pendingPaymentIntent &&
+              !isProcessingPayment &&
+              !showEmailScreen && (
+                <View style={styles.repayOverlay}>
+                  <CustomButton
+                    actionFunction={openPaymentMethodSelection}
+                    textContent={t('screens.bitrefill.completePayment')}
+                  />
+                </View>
+              )}
           </View>
         </Animated.View>
 
@@ -521,6 +647,10 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  repayOverlay: {
+    alignItems: 'center',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   editEmailRow: {
     flexDirection: 'row',
