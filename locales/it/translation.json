@@ -1806,7 +1806,11 @@
     },
     "fiatCurrency": {
       "title": "Valuta",
+      "halfModalTitle": "Scegli la valuta da visualizzare",
       "placeholderText": "Cerca valuta",
+      "yourCurrencies": "Le tue valute",
+      "moreCurrencies": "Altre valute",
+      "currencyCount": "{{count}}+ valute supportate",
       "saveCurrencyError": "Non siamo riusciti a salvare la valuta selezionata, riprova."
     },
     "feeInformation": {
@@ -2625,7 +2629,8 @@
       "addEmailDesc": "Salva il tuo indirizzo email per un checkout più rapido.",
       "textInputDescriptor": "EMAIL",
       "emailplaceholder": "tu@esempio.com",
-      "emailError": "Inserisci un indirizzo email valido."
+      "emailError": "Inserisci un indirizzo email valido.",
+      "completePayment": "Completa il pagamento"
     }
   },
   "toastmessages": {

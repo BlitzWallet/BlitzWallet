@@ -1,10 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { CENTER } from '../../../../constants';
 import { GlobalThemeView } from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
@@ -13,12 +13,13 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useTranslation } from 'react-i18next';
 import { numberConverter } from '../../../../functions';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function AnalyticsCreateBudgetPage() {
   const navigate = useNavigation();
@@ -40,32 +41,56 @@ export default function AnalyticsCreateBudgetPage() {
   const [amountValue, setAmountValue] = useState(
     existingBudget?.amount ? String(formattedPresetAmount) : '',
   );
-  const [inputDenomination, setInputDenomination] = useState(
-    userBalanceDenomination === 'fiat' ? 'fiat' : 'sats',
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: 'BTC',
+        masterInfoObject,
+        fiatStats,
+      }),
+    [masterInfoObject, fiatStats],
   );
 
   const {
+    displayCurrency,
+    currencyRates,
+    isLoadingRate,
+    selectCurrency,
+  } = useDisplayCurrencyController({
+    initialCurrency: initialDisplayCurrency,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+  });
+
+  const {
     primaryDisplay,
-    secondaryDisplay,
     conversionFiatStats,
     convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: 'BTC',
-    inputDenomination,
+  } = useCurrencyDisplay({
+    displayCurrency,
     fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    usdFiatStats,
+    currencyRates,
     masterInfoObject,
   });
 
   const localSatAmount = convertDisplayToSats(amountValue);
 
-  const handleDenominationToggle = () => {
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
+  const openPicker = () =>
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.9,
+      currentCurrency: displayCurrency,
+      onSelectCurrency: async code => {
+        const response = await selectCurrency(code);
+        if (response?.didWork) setAmountValue('');
+      },
+    });
 
   async function handleSave() {
     if (!localSatAmount || localSatAmount <= 0) {
@@ -87,39 +112,32 @@ export default function AnalyticsCreateBudgetPage() {
             ? t('analytics.budget.editBudget')
             : t('analytics.budget.createBudget')
         }
+        rightContent={
+          <CurrencySwitchButton
+            displayCurrency={displayCurrency}
+            onPress={openPicker}
+            disabled={isLoadingRate}
+          />
+        }
       />
 
       <View style={styles.contentContainer}>
         {/* Amount input */}
         <View style={styles.container}>
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={handleDenominationToggle}
-          >
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={amountValue}
-              inputDenomination={primaryDisplay.denomination}
-              forceCurrency={primaryDisplay.forceCurrency}
-              forceFiatStats={primaryDisplay.forceFiatStats}
-            />
-
-            <FormattedSatText
-              containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-              neverHideBalance={true}
-              styles={{ includeFontPadding: false, ...styles.satValue }}
-              globalBalanceDenomination={secondaryDisplay.denomination}
-              forceCurrency={secondaryDisplay.forceCurrency}
-              forceFiatStats={secondaryDisplay.forceFiatStats}
-              balance={localSatAmount}
-            />
-          </TouchableOpacity>
+          <FormattedBalanceInput
+            maxWidth={0.9}
+            amountValue={amountValue}
+            inputDenomination={primaryDisplay.denomination}
+            forceCurrency={primaryDisplay.forceCurrency}
+            forceFiatStats={primaryDisplay.forceFiatStats}
+          />
         </View>
         {/* Keyboard */}
         <CustomNumberKeyboard
           usingForBalance={true}
           setInputValue={setAmountValue}
           showDot={primaryDisplay.denomination === 'fiat'}
+          fiatStats={conversionFiatStats}
         />
         {/* Save button */}
         <CustomButton

@@ -1805,7 +1805,11 @@
     },
     "fiatCurrency": {
       "title": "Währungen",
+      "halfModalTitle": "Wählen Sie die anzuzeigende Währung",
       "placeholderText": "Standardwährung suchen...",
+      "yourCurrencies": "Ihre Währungen",
+      "moreCurrencies": "Weitere Währungen",
+      "currencyCount": "{{count}}+ unterstützte Währungen",
       "saveCurrencyError": "Wir konnten die ausgewählte Standardwährung nicht speichern, bitte versuchen Sie es erneut."
     },
     "feeInformation": {
@@ -2623,7 +2627,8 @@
       "addEmailDesc": "Speichern Sie Ihre E-Mail-Adresse für einen schnelleren Checkout.",
       "textInputDescriptor": "E-Mail",
       "emailplaceholder": "max.mustermann@beispiel.de",
-      "emailError": "Bitte geben Sie eine gültige E-Mail-Adresse ein."
+      "emailError": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+      "completePayment": "Zahlung abschließen"
     }
   },
   "toastmessages": {

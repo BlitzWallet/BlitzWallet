@@ -1806,7 +1806,11 @@
     },
     "fiatCurrency": {
       "title": "Valuta",
+      "halfModalTitle": "Välj valuta att visa",
       "placeholderText": "Sök valuta",
+      "yourCurrencies": "Dina valutor",
+      "moreCurrencies": "Fler valutor",
+      "currencyCount": "{{count}}+ stöds",
       "saveCurrencyError": "Vi kunde inte spara den valda valutan, vänligen försök igen."
     },
     "feeInformation": {
@@ -2625,7 +2629,8 @@
       "addEmailDesc": "Spara din e-postadress för snabbare betalning.",
       "textInputDescriptor": "E-POST",
       "emailplaceholder": "du@exempel.se",
-      "emailError": "Ange en giltig e-postadress."
+      "emailError": "Ange en giltig e-postadress.",
+      "completePayment": "Slutför betalning"
     }
   },
   "toastmessages": {

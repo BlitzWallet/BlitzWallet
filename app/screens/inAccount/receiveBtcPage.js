@@ -46,6 +46,10 @@ import ThemeImage from '../../functions/CustomElements/themeImage';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import usePaymentInputDisplay from '../../hooks/usePaymentInputDisplay';
 import useGuardedNavigation from '../../hooks/useGuardedNavigation';
+import {
+  SATS_DISPLAY_CURRENCY,
+  normalizeDisplayCurrency,
+} from '../../functions/displayCurrency';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -74,6 +78,8 @@ export default function ReceivePaymentHome(props) {
   const requestUUID = routeParams.uuid;
   const endReceiveType =
     routeParams.endReceiveType || routeParams.initialReceiveType || 'BTC';
+  const paymentDisplayCurrency = routeParams.paymentDisplayCurrency;
+  const paymentDisplayFiatStats = routeParams.paymentDisplayFiatStats;
 
   const userReceiveAmount = routeParams.receiveAmount || 0;
   const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
@@ -270,6 +276,8 @@ export default function ReceivePaymentHome(props) {
       endReceiveType,
       userReceiveAmount: displayedReceiveAmount,
       description: paymentDescription,
+      paymentDisplayCurrency,
+      paymentDisplayFiatStats,
     });
   };
 
@@ -310,6 +318,8 @@ export default function ReceivePaymentHome(props) {
             masterInfoObject={masterInfoObject}
             fiatStats={fiatStats}
             swapUSDPriceDollars={swapUSDPriceDollars}
+            paymentDisplayCurrency={paymentDisplayCurrency}
+            paymentDisplayFiatStats={paymentDisplayFiatStats}
           />
           <TouchableOpacity
             onPress={() => {
@@ -345,8 +355,12 @@ export default function ReceivePaymentHome(props) {
             content={t('screens.inAccount.receiveBtcPage.usdSwapMinNotice', {
               amount: displayCorrectDenomination({
                 amount: MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
-                masterInfoObject,
-                fiatStats,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: 'fiat',
+                },
+                fiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+                forceCurrency: 'USD',
               }),
             })}
           />
@@ -487,25 +501,46 @@ function AmountDisplay({
   masterInfoObject,
   fiatStats,
   swapUSDPriceDollars,
+  paymentDisplayCurrency,
+  paymentDisplayFiatStats,
 }) {
   const inputDenomination = endReceiveType === 'USD' ? 'fiat' : 'sats';
+  const usdFiatStats = { coin: 'USD', value: swapUSDPriceDollars };
   const { primaryDisplay, secondaryDisplay, conversionFiatStats } =
     usePaymentInputDisplay({
       paymentMode: endReceiveType,
       inputDenomination,
       fiatStats,
-      usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+      usdFiatStats,
       masterInfoObject,
     });
 
   if (!amountCardValue) return null;
 
   const primaryFiatStats = primaryDisplay.forceFiatStats || conversionFiatStats;
-  const secondaryFiatStats =
-    secondaryDisplay.forceFiatStats ||
-    (secondaryDisplay.forceCurrency === 'USD'
-      ? { coin: 'USD', value: swapUSDPriceDollars }
-      : fiatStats);
+
+  // When the user entered the amount in a currency other than what the primary
+  // line shows (e.g. entered EUR while device is USD), show that entered
+  // currency as the secondary line instead of the device-derived default.
+  const enteredCurrency = normalizeDisplayCurrency(paymentDisplayCurrency);
+  const primaryCurrencyCode =
+    endReceiveType === 'USD' ? 'USD' : SATS_DISPLAY_CURRENCY;
+  const overrideSecondary =
+    enteredCurrency !== SATS_DISPLAY_CURRENCY &&
+    enteredCurrency !== primaryCurrencyCode;
+
+  const effectiveSecondaryDisplay = overrideSecondary
+    ? {
+        denomination: 'fiat',
+        forceCurrency: enteredCurrency,
+      }
+    : secondaryDisplay;
+
+  const secondaryFiatStats = overrideSecondary
+    ? paymentDisplayFiatStats ||
+      (enteredCurrency === 'USD' ? usdFiatStats : fiatStats)
+    : secondaryDisplay.forceFiatStats ||
+      (secondaryDisplay.forceCurrency === 'USD' ? usdFiatStats : fiatStats);
 
   return (
     <View style={styles.amountContainer}>
@@ -532,10 +567,10 @@ function AmountDisplay({
           amount: amountCardValue,
           masterInfoObject: {
             ...masterInfoObject,
-            userBalanceDenomination: secondaryDisplay.denomination,
+            userBalanceDenomination: effectiveSecondaryDisplay.denomination,
           },
           fiatStats: secondaryFiatStats,
-          forceCurrency: secondaryDisplay.forceCurrency,
+          forceCurrency: effectiveSecondaryDisplay.forceCurrency,
         })}
       />
     </View>

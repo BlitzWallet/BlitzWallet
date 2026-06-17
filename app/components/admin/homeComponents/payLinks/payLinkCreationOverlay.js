@@ -19,7 +19,7 @@ import customUUID from '../../../../functions/customUUID';
  * @param {Boolean} visible - Controls overlay visibility
  * @param {Function} onClose - Callback when overlay should close
  */
-export default function PayLinkCreationOverlay({ visible, onClose }) {
+export default function PayLinkCreationOverlay({ visible, onClose, setBackNav }) {
   const { bottomPadding } = useGlobalInsets();
   const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
@@ -40,7 +40,7 @@ export default function PayLinkCreationOverlay({ visible, onClose }) {
   }));
 
   const navigateToReceive = useCallback(
-    amount => {
+    (amount, currencyInfo) => {
       onClose();
       navigate.replace('ReceiveBTC', {
         from: 'homepage',
@@ -48,6 +48,12 @@ export default function PayLinkCreationOverlay({ visible, onClose }) {
           ? { initialReceiveType: 'BTC', selectedRecieveOption: 'lightning' }
           : { endReceiveType: 'USD', uuid: customUUID() }),
         ...(amount ? { receiveAmount: amount } : {}),
+        ...(currencyInfo?.displayCurrency
+          ? {
+              paymentDisplayCurrency: currencyInfo.displayCurrency,
+              paymentDisplayFiatStats: currencyInfo.displayFiatStats,
+            }
+          : {}),
       });
     },
     [onClose, navigate, currencyType],
@@ -68,9 +74,13 @@ export default function PayLinkCreationOverlay({ visible, onClose }) {
       <View style={[styles.stepContainer, { paddingBottom: bottomPadding }]}>
         <PayLinkAmountInput
           paymentMode={currencyType}
-          onContinue={amount => navigateToReceive(amount)}
+          onContinue={(amount, currencyInfo) =>
+            navigateToReceive(amount, currencyInfo)
+          }
           onSkip={() => navigateToReceive(undefined)}
           onBack={onClose}
+          setBackNav={setBackNav}
+          onHeaderBack={handleBackPress}
         />
       </View>
     </Animated.View>

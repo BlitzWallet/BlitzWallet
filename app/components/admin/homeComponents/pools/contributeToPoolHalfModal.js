@@ -25,7 +25,6 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -46,9 +45,11 @@ import {
   satsToDollars,
   USD_ASSET_ADDRESS,
 } from '../../../../functions/spark/swapAmountUtils';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { simulateSwap } from '../../../../functions/spark/flashnet';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -79,9 +80,6 @@ export default function ContributeToPoolHalfModal({
   const [step, setStep] = useState(['select']);
   const [selectedAmountSats, setSelectedAmountSats] = useState(0);
   const [amountValue, setAmountValue] = useState('');
-  const [inputDenomination, setInputDenomination] = useState(
-    masterInfoObject.userBalanceDenomination !== 'fiat' ? 'sats' : 'fiat',
-  );
   // extract current page for easier handling
   const currentPage = step[step.length - 1];
   const previousPageRef = useRef(currentPage);
@@ -175,25 +173,37 @@ export default function ContributeToPoolHalfModal({
     transform: [{ translateX: successTranslateX.value }],
   }));
 
-  const normalizedInputDenomination = inputDenomination
-    ? inputDenomination
-    : masterInfoObject.userBalanceDenomination !== 'fiat'
-    ? 'sats'
-    : 'fiat';
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: 'BTC',
+        masterInfoObject,
+        fiatStats,
+      }),
+    [masterInfoObject, fiatStats],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
 
   const {
     primaryDisplay,
-    secondaryDisplay,
     conversionFiatStats,
     convertDisplayToSats,
     convertSatsToDisplay,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: 'BTC',
-    inputDenomination: normalizedInputDenomination,
+  } = useCurrencyDisplay({
+    displayCurrency,
     fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    usdFiatStats,
+    currencyRates,
     masterInfoObject,
   });
 
@@ -224,19 +234,39 @@ export default function ContributeToPoolHalfModal({
 
   useHandleBackPressNew(handleBackPress);
 
-  // Register the chrome's back arrow whenever a previous step exists.
+  // Register the chrome's back arrow whenever a previous step exists, and the
+  // currency switch button while the custom amount step is active.
   useEffect(() => {
     if (
       step.length > 1 &&
       currentPage !== 'loading' &&
       currentPage !== 'success'
     ) {
-      setBackNav?.({ onPress: handleBackPress, title: '' });
+      setBackNav?.({
+        onPress: handleBackPress,
+        title: '',
+        rightElement:
+          currentPage === 'custom' ? (
+            <CurrencySwitchButton
+              displayCurrency={displayCurrency}
+              onPress={openPicker}
+              disabled={isLoadingRate}
+            />
+          ) : null,
+      });
     } else {
       setBackNav?.(null);
     }
     return () => setBackNav?.(null);
-  }, [step, currentPage, handleBackPress, setBackNav]);
+  }, [
+    step,
+    currentPage,
+    handleBackPress,
+    setBackNav,
+    displayCurrency,
+    openPicker,
+    isLoadingRate,
+  ]);
 
   const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
 
@@ -250,11 +280,19 @@ export default function ContributeToPoolHalfModal({
     poolInfoRef.currentPriceAInB,
   );
 
-  const handleDenominationToggle = () => {
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
+  const openPicker = useCallback(
+    () =>
+      navigate.push('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: async code => {
+          const response = await selectCurrency(code);
+          if (response?.didWork) setAmountValue('');
+        },
+      }),
+    [displayCurrency, navigate, selectCurrency],
+  );
 
   useEffect(() => {
     setContentHeight(550);
@@ -311,7 +349,7 @@ export default function ContributeToPoolHalfModal({
                   10,
                 masterInfoObject: {
                   ...masterInfoObject,
-                  userBalanceDenomination: inputDenomination,
+                  userBalanceDenomination: primaryDisplay.denomination,
                 },
                 fiatStats: conversionFiatStats,
                 forceCurrency: primaryDisplay.forceCurrency,
@@ -501,11 +539,7 @@ export default function ContributeToPoolHalfModal({
         ]}
         pointerEvents={layerPointerEvents('custom')}
       >
-        <TouchableOpacity
-          style={{ marginTop: 10 }}
-          activeOpacity={1}
-          onPress={handleDenominationToggle}
-        >
+        <View style={{ marginTop: 10 }}>
           <FormattedBalanceInput
             maxWidth={0.9}
             amountValue={amountValue}
@@ -513,21 +547,12 @@ export default function ContributeToPoolHalfModal({
             forceCurrency={primaryDisplay.forceCurrency}
             forceFiatStats={primaryDisplay.forceFiatStats}
           />
-          <FormattedSatText
-            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-            neverHideBalance={true}
-            styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={secondaryDisplay.denomination}
-            forceCurrency={secondaryDisplay.forceCurrency}
-            forceFiatStats={secondaryDisplay.forceFiatStats}
-            balance={localSatAmount}
-          />
-        </TouchableOpacity>
+        </View>
         <CustomNumberKeyboard
-          showDot={inputDenomination === 'fiat'}
+          showDot={primaryDisplay.denomination === 'fiat'}
           setInputValue={setAmountValue}
           usingForBalance={true}
-          fiatStats={fiatStats}
+          fiatStats={conversionFiatStats}
         />
         <CustomButton
           buttonStyles={{ ...CENTER, marginTop: 10 }}

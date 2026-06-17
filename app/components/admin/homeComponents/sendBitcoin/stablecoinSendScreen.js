@@ -16,7 +16,6 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import ChoosePaymentMethod from './components/choosePaymentMethodContainer';
@@ -54,14 +53,16 @@ import {
   dollarsToSats,
 } from '../../../../functions/spark/flashnet';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
-import convertTextInputValue from '../../../../functions/textInputConvertValue';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import SendTransactionFeeInfo from './components/feeInfo';
 import { formatStablecoinAmount } from '../../../../functions/sendBitcoin';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { formatBalanceAmount } from '../../../../functions';
 import Animated, { FadeOutDown } from 'react-native-reanimated';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -114,7 +115,6 @@ export default function StablecoinSendScreen() {
   const [rawInput, setRawInput] = useState(
     prefillAmount != null ? String(prefillAmount) : '',
   );
-  const [inputDenomination, setInputDenomination] = useState('fiat');
   console.log(rawInput);
   const [description, setDescription] = useState('');
 
@@ -140,6 +140,29 @@ export default function StablecoinSendScreen() {
   balanceRef.current.dollarToken = dollarBalanceToken;
 
   const sourceMethod = selectedPaymentMethod || 'BTC';
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      sourceMethod === 'USD'
+        ? 'USD'
+        : getDefaultDisplayCurrency({
+            paymentMode: 'USD',
+            masterInfoObject,
+            fiatStats,
+          }),
+    [sourceMethod, masterInfoObject, fiatStats],
+  );
+
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
 
   useEffect(() => {
     isSendingPayment.current = sending;
@@ -147,20 +170,16 @@ export default function StablecoinSendScreen() {
 
   const {
     primaryDisplay,
-    secondaryDisplay,
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: 'USD',
-    inputDenomination,
+  } = useCurrencyDisplay({
+    displayCurrency: sourceMethod === 'USD' ? 'USD' : displayCurrency,
     fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    usdFiatStats,
+    currencyRates,
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
-    forceUSDMode: sourceMethod === 'BTC',
   });
 
   const convertedSendAmount = convertDisplayToSats(rawInput);
@@ -350,17 +369,19 @@ export default function StablecoinSendScreen() {
     return unsubscribe;
   }, [navigate, screenMode]);
 
-  const handleDenominationToggle = () => {
+  const openPicker = () => {
     if (!isAmountFocused) return;
-    if (!convertedSendAmount) {
-      setInputDenomination(prev => (prev === 'fiat' ? 'sats' : 'fiat'));
-      return;
-    }
-    const nextDenom = getNextDenomination();
-    const convertedValue = convertForToggle(rawInput, convertTextInputValue);
+    if (isConfirmMode || sourceMethod === 'USD') return;
 
-    setInputDenomination(nextDenom);
-    setRawInput(String(convertedValue));
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.6,
+      currentCurrency: displayCurrency,
+      onSelectCurrency: async code => {
+        const response = await selectCurrency(code);
+        if (response?.didWork) setRawInput('');
+      },
+    });
   };
 
   const handleMethodToggle = () => {
@@ -625,6 +646,15 @@ export default function StablecoinSendScreen() {
         <CustomSettingsTopBar
           label={`${t('constants.send')}`}
           containerStyles={{ marginBottom: 0 }}
+          rightContent={
+            <CurrencySwitchButton
+              displayCurrency={sourceMethod === 'USD' ? 'USD' : displayCurrency}
+              onPress={openPicker}
+              disabled={
+                isLoadingRate || isConfirmMode || sourceMethod === 'USD'
+              }
+            />
+          }
         />
         <ThemeText
           styles={styles.sectionTitle}
@@ -639,13 +669,7 @@ export default function StablecoinSendScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Amount display — tap to toggle denomination (edit mode only) */}
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={handleDenominationToggle}
-            style={CENTER}
-            disabled={!isAmountFocused || isConfirmMode}
-          >
+          <View style={CENTER}>
             <FormattedBalanceInput
               maxWidth={0.9}
               amountValue={rawInput}
@@ -654,18 +678,7 @@ export default function StablecoinSendScreen() {
               forceFiatStats={primaryDisplay.forceFiatStats}
               activeOpacity={!convertedSendAmount ? 0.5 : 1}
             />
-            <FormattedSatText
-              neverHideBalance={true}
-              containerStyles={{
-                opacity: !convertedSendAmount ? HIDDEN_OPACITY : 1,
-              }}
-              styles={{ includeFontPadding: false, ...styles.satValue }}
-              globalBalanceDenomination={secondaryDisplay.denomination}
-              forceCurrency={secondaryDisplay.forceCurrency}
-              balance={convertedSendAmount}
-              forceFiatStats={secondaryDisplay.forceFiatStats}
-            />
-          </TouchableOpacity>
+          </View>
 
           {/* Confirm mode: fee info */}
           {isConfirmMode && (
@@ -769,7 +782,7 @@ export default function StablecoinSendScreen() {
                       styles.quoteValue,
                       {
                         opacity:
-                          quote?.estimatedOut || 0 > 0 ? 1 : HIDDEN_OPACITY,
+                          (quote?.estimatedOut || 0) > 0 ? 1 : HIDDEN_OPACITY,
                       },
                     ]}
                     content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
@@ -812,7 +825,7 @@ export default function StablecoinSendScreen() {
         {!isConfirmMode && isAmountFocused && (
           <CustomNumberKeyboard
             setInputValue={setRawInput}
-            showDot={inputDenomination === 'fiat'}
+            showDot={primaryDisplay.denomination === 'fiat'}
             fiatStats={conversionFiatStats}
             usingForBalance={true}
           />

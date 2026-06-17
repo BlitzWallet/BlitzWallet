@@ -23,6 +23,7 @@ export default function CustomSettingsTopBar({
   iconNew = '',
   iconNewColor = undefined,
   badgeCount = 0,
+  rightContent,
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
@@ -56,57 +57,62 @@ export default function CustomSettingsTopBar({
           ...textStyles,
         }}
       />
-      {showLeftImage && (
-        <View style={{ position: 'absolute', right: 0, zIndex: 1 }}>
-          <TouchableOpacity onPress={leftImageFunction}>
-            {iconNew ? (
-              <ThemeIcon
-                colorOverride={iconNewColor}
-                size={leftImageStyles?.height}
-                iconName={iconNew}
-              />
-            ) : (
-              <ThemeImage
-                styles={{ ...leftImageStyles }}
-                lightsOutIcon={LeftImageDarkMode}
-                darkModeIcon={leftImageBlue}
-                lightModeIcon={leftImageBlue}
-              />
-            )}
-          </TouchableOpacity>
-          {badgeCount > 0 && (
-            <View
-              style={[
-                styles.badge,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                  borderColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                },
-              ]}
-              pointerEvents="none"
-            >
-              <ThemeText
-                adjustsFontSizeToFit={true}
-                allowFontScaling={true}
-                styles={[
-                  styles.badgeText,
-                  {
-                    color:
-                      theme && darkModeType
-                        ? COLORS.lightModeText
-                        : COLORS.darkModeText,
-                  },
-                ]}
-                content={badgeCount}
-              />
+      {(showLeftImage || rightContent) && (
+        <View style={styles.rightSlot}>
+          {showLeftImage && (
+            <View>
+              <TouchableOpacity onPress={leftImageFunction}>
+                {iconNew ? (
+                  <ThemeIcon
+                    colorOverride={iconNewColor}
+                    size={leftImageStyles?.height}
+                    iconName={iconNew}
+                  />
+                ) : (
+                  <ThemeImage
+                    styles={{ ...leftImageStyles }}
+                    lightsOutIcon={LeftImageDarkMode}
+                    darkModeIcon={leftImageBlue}
+                    lightModeIcon={leftImageBlue}
+                  />
+                )}
+              </TouchableOpacity>
+              {badgeCount > 0 && (
+                <View
+                  style={[
+                    styles.badge,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                      borderColor:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                    },
+                  ]}
+                  pointerEvents="none"
+                >
+                  <ThemeText
+                    adjustsFontSizeToFit={true}
+                    allowFontScaling={true}
+                    styles={[
+                      styles.badgeText,
+                      {
+                        color:
+                          theme && darkModeType
+                            ? COLORS.lightModeText
+                            : COLORS.darkModeText,
+                      },
+                    ]}
+                    content={badgeCount}
+                  />
+                </View>
+              )}
             </View>
           )}
+          {rightContent}
         </View>
       )}
     </View>
@@ -122,6 +128,15 @@ const styles = StyleSheet.create({
     minHeight: 30,
   },
   backArrow: { position: 'absolute', left: 0, zIndex: 1 },
+
+  rightSlot: {
+    position: 'absolute',
+    right: 0,
+    zIndex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
 
   topBarText: {
     fontSize: SIZES.large,

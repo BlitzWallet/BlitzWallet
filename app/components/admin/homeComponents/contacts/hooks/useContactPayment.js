@@ -16,7 +16,6 @@ import { useWebView } from '../../../../../../context-store/webViewContext';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { publishMessage } from '../../../../../functions/messaging/publishMessage';
 import customUUID from '../../../../../functions/customUUID';
-import convertTextInputValue from '../../../../../functions/textInputConvertValue';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 import {
@@ -28,10 +27,15 @@ import {
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { getLNAddressForLiquidPayment } from '../../sendBitcoin/functions/payments';
 import usePaymentValidation from '../../sendBitcoin/functions/paymentValidation';
-import usePaymentInputDisplay from '../../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import useDebounce from '../../../../../hooks/useDebounce';
 import getReceiveAddressAndContactForContactsPayment from '../internalComponents/getReceiveAddressAndKindForPayment';
 import { resolveContactPaymentDefault } from './resolveContactPaymentDefault';
+import {
+  getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
+} from '../../../../../functions/displayCurrency';
 
 export default function useContactPayment({
   selectedContact,
@@ -69,8 +73,6 @@ export default function useContactPayment({
   );
   const [amountValue, setAmountValue] = useState('');
   const [descriptionValue, setDescriptionValue] = useState(initialDescription);
-  const [userSetInputDenomination, setUserSetInputDenomination] =
-    useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lnFeeEstimate, setLnFeeEstimate] = useState(null);
   const [swapQuote, setSwapQuote] = useState({});
@@ -97,7 +99,6 @@ export default function useContactPayment({
     if (previousExplicitMethodRef.current === explicitPaymentMethod) return;
     previousExplicitMethodRef.current = explicitPaymentMethod;
     setAmountValue('');
-    setUserSetInputDenomination(null);
     if (explicitPaymentMethod) {
       userChangedPaymentMethodRef.current = true;
       setPaymentMethod(explicitPaymentMethod);
@@ -110,38 +111,19 @@ export default function useContactPayment({
       return;
     }
 
-    const resolvedDefault = resolveContactPaymentDefault({
-      paymentType,
-      prefetchedDoc,
-      contactReceiveOption,
-      isLNURL: selectedContact?.isLNURL,
-      masterInfoObject,
-      dollarBalanceToken,
-    });
+    const resolvedDefault = resolveContactPaymentDefault();
 
     if (!userChangedPaymentMethodRef.current) {
       setPaymentMethod(prev => {
-        // The contact's preferred currency can resolve asynchronously (after the
-        // receive-option cache/doc loads). If that flips the method while the
-        // user has already typed an amount, clear it so a sats entry isn't
-        // silently reinterpreted as fiat (or vice versa).
+        // If the default flips while the user has already typed an amount, clear
+        // it so a sats entry isn't silently reinterpreted as fiat (or vice versa).
         if (prev !== resolvedDefault) {
           setAmountValue('');
-          setUserSetInputDenomination(null);
         }
         return resolvedDefault;
       });
     }
-  }, [
-    dollarBalanceToken,
-    explicitPaymentMethod,
-    contactReceiveOption,
-    lockInitialPaymentMethod,
-    masterInfoObject,
-    paymentType,
-    prefetchedDoc,
-    selectedContact?.isLNURL,
-  ]);
+  }, [explicitPaymentMethod, lockInitialPaymentMethod]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -251,27 +233,37 @@ export default function useContactPayment({
         : endReceiveType || 'BTC'
       : paymentMethod;
 
-  const inputDenomination = userSetInputDenomination
-    ? userSetInputDenomination
-    : paymentMethod === 'USD'
-    ? 'fiat'
-    : masterInfoObject.userBalanceDenomination !== 'fiat'
-    ? 'sats'
-    : 'fiat';
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const initialDisplayCurrency = useMemo(
+    () =>
+      getDefaultDisplayCurrency({
+        paymentMode: paymentMethod,
+        masterInfoObject,
+        fiatStats,
+      }),
+    [paymentMethod, masterInfoObject, fiatStats],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
 
   const {
     primaryDisplay,
-    secondaryDisplay,
     conversionFiatStats,
     convertDisplayToSats,
     convertSatsToDisplay,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode: paymentMethod,
-    inputDenomination,
+  } = useCurrencyDisplay({
+    displayCurrency,
     fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+    usdFiatStats,
+    currencyRates,
     masterInfoObject,
   });
 
@@ -449,7 +441,7 @@ export default function useContactPayment({
             amountIn:
               paymentMethod === 'BTC'
                 ? convertedSendAmount
-                : inputDenomination === 'fiat'
+                : normalizeDisplayCurrency(displayCurrency) === 'USD'
                 ? amountValue * Math.pow(10, 6)
                 : satsToDollars(
                     convertedSendAmount,
@@ -511,18 +503,19 @@ export default function useContactPayment({
     lnurlBoundsReady &&
     (!requiresContactDoc || Boolean(contactReceiveOption || prefetchedDoc));
 
-  const handleDenominationToggle = useCallback(() => {
-    const nextDenom = getNextDenomination();
-    setUserSetInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  }, [amountValue, convertForToggle, getNextDenomination]);
+  const handleDisplayCurrencySelect = useCallback(
+    async code => {
+      const response = await selectCurrency(code);
+      if (response?.didWork) setAmountValue('');
+    },
+    [selectCurrency],
+  );
 
   const setSelectedPaymentMethod = useCallback(nextMethod => {
     userChangedPaymentMethodRef.current = true;
     setPaymentMethod(prev => {
       if (prev !== nextMethod) {
         setAmountValue('');
-        setUserSetInputDenomination(null);
       }
       return nextMethod;
     });
@@ -673,6 +666,8 @@ export default function useContactPayment({
         params: {
           btcAdress: base.receiveAddress,
           comingFromAccept: true,
+          paymentDisplayCurrency: displayCurrency,
+          paymentDisplayFiatStats: conversionFiatStats,
           enteredPaymentInfo: {
             fromContacts: true,
             amount: convertedSendAmount,
@@ -728,8 +723,10 @@ export default function useContactPayment({
   }, [
     buildBasePaymentObjects,
     contactsPrivateKey,
+    conversionFiatStats,
     convertedSendAmount,
     descriptionValue,
+    displayCurrency,
     getValidationErrorResult,
     globalContactsInformation,
     imageData,
@@ -807,10 +804,9 @@ export default function useContactPayment({
     setAmountValue,
     descriptionValue,
     setDescriptionValue,
-    inputDenomination,
-    userSetInputDenomination,
-    setUserSetInputDenomination,
-    handleDenominationToggle,
+    displayCurrency,
+    isLoadingRate,
+    handleDisplayCurrencySelect,
     paymentMethod,
     setSelectedPaymentMethod,
     resolvedEndReceiveType,
@@ -825,7 +821,6 @@ export default function useContactPayment({
     canProceed,
     canReview,
     primaryDisplay,
-    secondaryDisplay,
     conversionFiatStats,
     convertedSendAmount,
     convertSatsToDisplay,

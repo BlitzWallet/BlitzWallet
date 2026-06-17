@@ -1020,7 +1020,7 @@
       "cashAppSubtitle": "Enviar pelo Cash App instantaneamente",
       "sparkAddressSubtitle": "Receber no seu endereço Spark",
       "otherBitcoin": "Outros Métodos",
-      "otherBitcoinSubtitle": "Bitcoin em outras redes",
+      "otherBitcoinSubtitle": "Bitcoin ou tokens em outras redes",
       "lightningInvoice": "Fatura Blitz",
       "lightningInvoiceSubtitle": "Receber BTC ou USD instantaneamente",
       "lightningUSDAmountRequired": "É necessário informar um valor para criar uma fatura Blitz em USD",
@@ -1806,7 +1806,11 @@
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
+      "halfModalTitle": "Escolha a moeda para exibir",
       "placeholderText": "Procurar moeda",
+      "yourCurrencies": "Suas moedas",
+      "moreCurrencies": "Mais moedas",
+      "currencyCount": "{{count}}+ disponíveis",
       "saveCurrencyError": "Não foi possível salvar a moeda selecionada, tente novamente."
     },
     "feeInformation": {
@@ -2625,7 +2629,8 @@
       "addEmailDesc": "Salve seu endereço de e-mail para finalizar as compras mais rápido",
       "textInputDescriptor": "E-MAIL",
       "emailplaceholder": "Insira seu e-mail",
-      "emailError": "Insira um endereço de e-mail válido."
+      "emailError": "Insira um endereço de e-mail válido.",
+      "completePayment": "Concluir pagamento"
     }
   },
   "toastmessages": {

@@ -56,14 +56,14 @@ export default function CreatePoolFlow({
     }
   }, [currentStep, setCurrentStep, handleBackPressFunction]);
 
-  // Register the header back button in the half modal
+  // Register the header back button on the description step. The amount step's
+  // header (currency switch button) is owned by PoolAmountInput while mounted.
   useEffect(() => {
     if (currentStep === 'description') {
       setBackNav?.({ onPress: handleBackPress, title: '' });
-    } else {
-      setBackNav?.(null);
+      return () => setBackNav?.(null);
     }
-  }, [setBackNav, handleBackPress]);
+  }, [setBackNav, handleBackPress, currentStep]);
 
   useHandleBackPressNew(handleBackPress);
 
@@ -84,6 +84,7 @@ export default function CreatePoolFlow({
               setCurrentStep('description');
             }}
             onBack={handleBackPressFunction}
+            setBackNav={setBackNav}
           />
         </Animated.View>
       )}

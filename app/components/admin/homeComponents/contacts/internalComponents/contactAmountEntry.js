@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { CENTER } from '../../../../../constants';
 import {
@@ -10,7 +10,6 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import FormattedBalanceInput from '../../../../../functions/CustomElements/formattedBalanceInput';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import ContactProfileImage from './profileImage';
 import ChoosePaymentMethod from '../../sendBitcoin/components/choosePaymentMethodContainer';
 
@@ -20,13 +19,10 @@ export default function ContactAmountEntry({
   amountValue,
   setAmountValue,
   primaryDisplay,
-  secondaryDisplay,
   conversionFiatStats,
-  convertedSendAmount,
   canReview,
   isLoading,
   onNext,
-  onToggleDenomination,
   paymentMethod,
   onSelectPaymentMethod,
   bitcoinBalance,
@@ -71,11 +67,7 @@ export default function ContactAmountEntry({
           />
         </View>
 
-        <TouchableOpacity
-          style={{ marginBottom: 'auto' }}
-          activeOpacity={1}
-          onPress={onToggleDenomination}
-        >
+        <View style={{ marginBottom: 'auto' }}>
           <FormattedBalanceInput
             maxWidth={0.88}
             amountValue={amountValue || 0}
@@ -84,19 +76,7 @@ export default function ContactAmountEntry({
             forceFiatStats={primaryDisplay.forceFiatStats}
             customTextInputContainerStyles={styles.amountInputContainer}
           />
-
-          <FormattedSatText
-            containerStyles={{
-              ...styles.convertedAmount,
-              opacity: !amountValue ? HIDDEN_OPACITY : 1,
-            }}
-            neverHideBalance={true}
-            globalBalanceDenomination={secondaryDisplay.denomination}
-            forceCurrency={secondaryDisplay.forceCurrency}
-            forceFiatStats={secondaryDisplay.forceFiatStats}
-            balance={convertedSendAmount}
-          />
-        </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <View style={{ width: INSET_WINDOW_WIDTH }}>
@@ -177,8 +157,5 @@ const styles = StyleSheet.create({
   },
   amountInputContainer: {
     marginTop: 0,
-  },
-  convertedAmount: {
-    marginTop: 8,
   },
 });

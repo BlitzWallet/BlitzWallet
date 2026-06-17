@@ -119,20 +119,14 @@ export default function AddMoneyToSavingsHalfModal({
   const availableBalance =
     paymentMode === 'USD' ? dollarBalanceToken.toFixed(3) : bitcoinBalance;
 
-  const {
-    primaryDisplay,
-    secondaryDisplay,
-    conversionFiatStats,
-    convertDisplayToSats,
-    getNextDenomination,
-    convertForToggle,
-  } = usePaymentInputDisplay({
-    paymentMode,
-    inputDenomination,
-    fiatStats,
-    usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
-    masterInfoObject,
-  });
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    usePaymentInputDisplay({
+      paymentMode,
+      inputDenomination,
+      fiatStats,
+      usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+      masterInfoObject,
+    });
 
   const localSatAmount = convertDisplayToSats(amountValue);
 
@@ -171,12 +165,6 @@ export default function AddMoneyToSavingsHalfModal({
     currentWalletMnemoinc,
     poolInfoRef.lpPublicKey,
   ]);
-
-  const handleDenominationToggle = () => {
-    const nextDenom = getNextDenomination();
-    setInputDenomination(nextDenom);
-    setAmountValue(convertForToggle(amountValue, convertTextInputValue));
-  };
 
   const canContinue = Number(amountValue || 0) > 0;
 
@@ -658,29 +646,14 @@ export default function AddMoneyToSavingsHalfModal({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.amountScrollContainer}
         >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={handleDenominationToggle}
-          >
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={amountValue}
-              inputDenomination={primaryDisplay.denomination}
-              forceCurrency={primaryDisplay.forceCurrency}
-              forceFiatStats={primaryDisplay.forceFiatStats}
-            />
-            <FormattedSatText
-              containerStyles={{
-                opacity: !amountValue ? HIDDEN_OPACITY : 1,
-              }}
-              neverHideBalance={true}
-              styles={{ includeFontPadding: false, textAlign: 'center' }}
-              globalBalanceDenomination={secondaryDisplay.denomination}
-              forceCurrency={secondaryDisplay.forceCurrency}
-              forceFiatStats={secondaryDisplay.forceFiatStats}
-              balance={localSatAmount}
-            />
-          </TouchableOpacity>
+          <FormattedBalanceInput
+            maxWidth={0.9}
+            amountValue={amountValue}
+            inputDenomination={primaryDisplay.denomination}
+            forceCurrency={primaryDisplay.forceCurrency}
+            forceFiatStats={primaryDisplay.forceFiatStats}
+          />
+
           <ThemeText
             styles={styles.availableHintText}
             content={t('savings.withdraw.availableHint', {
