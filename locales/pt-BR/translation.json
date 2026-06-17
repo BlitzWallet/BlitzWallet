@@ -2911,7 +2911,7 @@
       "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para trocar por USD. Por favor, transfira para o seu saldo em Bitcoin",
       "loadingBalances": "Carregando saldos...",
       "loadingSteps": {
-        "connecting": "Conectando...",
+        "connecting": "Conectando nas Caixinhas...",
         "updating": "Atualizando saldo...",
         "finalizing": "Finalizando..."
       },
