@@ -25,7 +25,6 @@ import GetThemeColors from '../../hooks/themeColors';
 // import MyProfileQRCode from '../../components/admin/homeComponents/contacts/internalComponents/profilePageQrPopup';
 import ExpandedMessageHalfModal from '../../components/admin/homeComponents/contacts/expandedMessageHalfModal';
 // import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
-import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { KEYBOARDTIMEOUT } from '../../constants/styles';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -91,7 +90,6 @@ import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/se
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
   'addContacts',
-  'manualEnterSendAddress',
 ]);
 
 // Flip to 'arrow' for the plain app-standard back arrow, or 'circle' for the
@@ -354,14 +352,6 @@ export default function CustomHalfModal(props) {
           <CustomQrCode
             data={props.route.params?.data}
             setContentHeight={setContentHeight}
-          />
-        );
-      case 'manualEnterSendAddress':
-        return (
-          <ManualEnterSendAddress
-            setContentHeight={setContentHeight}
-            setIsKeyboardActive={setIsKeyboardActive}
-            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'addPOSItemsHalfModal':
@@ -820,7 +810,6 @@ export default function CustomHalfModal(props) {
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
             paddingBottom:
-              contentType === 'manualEnterSendAddress' ||
               contentType === 'switchGenerativeAiModel' ||
               contentType === 'addPOSItemsHalfModal' ||
               // contentType === 'editLNURLOnReceive' ||

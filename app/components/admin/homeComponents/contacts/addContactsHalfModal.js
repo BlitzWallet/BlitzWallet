@@ -294,7 +294,7 @@ export function AddContactContent({
         if (onContactAdded) {
           onContactAdded(userProfile);
         } else {
-          keyboardNavigate(() => {
+          handleBackPressFunction(() => {
             navigate.replace('ExpandedAddContactsPage', {
               newContact: userProfile,
             });
@@ -330,7 +330,7 @@ export function AddContactContent({
     if (onContactAdded) {
       onContactAdded(newContact);
     } else {
-      keyboardNavigate(() => {
+      handleBackPressFunction(() => {
         navigate.replace('ExpandedAddContactsPage', {
           newContact: newContact,
         });
@@ -441,6 +441,7 @@ export function AddContactContent({
                   theme={theme}
                   darkModeType={darkModeType}
                   onContactAdded={onContactAdded}
+                  handleBackPressFunction={handleBackPressFunction}
                 />
               )}
               keyExtractor={item => item?.uniqueName}
@@ -464,12 +465,18 @@ export function AddContactContent({
     </View>
   );
 }
-function ContactListItem(props) {
+function ContactListItem({
+  savedContact,
+  onContactAdded,
+  handleBackPressFunction,
+  darkModeType,
+  theme,
+}) {
   const { textColor, backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
 
   const newContact = {
-    ...props.savedContact,
+    ...savedContact,
     isFavorite: false,
     transactions: [],
     unlookedTransactions: 0,
@@ -477,14 +484,14 @@ function ContactListItem(props) {
   };
 
   const handleContactPress = () => {
-    if (props.onContactAdded) {
-      props.onContactAdded(newContact);
+    if (onContactAdded) {
+      onContactAdded(newContact);
     } else {
-      keyboardNavigate(() =>
+      handleBackPressFunction(() => {
         navigate.replace('ExpandedAddContactsPage', {
           newContact: newContact,
-        }),
-      );
+        });
+      });
     }
   };
 
@@ -502,8 +509,8 @@ function ContactListItem(props) {
           <ContactProfileImage
             updated={newContact.updated}
             uri={newContact.localUri}
-            darkModeType={props.darkModeType}
-            theme={props.theme}
+            darkModeType={darkModeType}
+            theme={theme}
           />
         </View>
         <View>
