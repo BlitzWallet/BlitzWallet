@@ -1806,7 +1806,7 @@
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
-      "halfModalTitle": "Escolha a moeda para exibir",
+      "halfModalTitle": "Inserir valores em",
       "placeholderText": "Procurar moeda",
       "yourCurrencies": "Suas moedas",
       "moreCurrencies": "Mais moedas",
