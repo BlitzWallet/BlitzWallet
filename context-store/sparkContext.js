@@ -76,6 +76,7 @@ import {
 } from '../app/functions/spark/optimization';
 import { isFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
 import { filterDisplayableTransactions } from '../app/functions/spark/filterTransactions';
+import { getCachedTokenImages } from '../app/functions/spark/tokenImageCache';
 import { useToastActions } from './toastManager';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
@@ -349,28 +350,9 @@ const SparkWalletProvider = ({ children }) => {
     if (!sparkInfoRef.current?.tokens) return;
 
     async function updateTokensImageCache() {
-      const availableAssets = Object.entries(sparkInfoRef.current.tokens);
-      const extensions = ['jpg', 'png'];
-      const newCache = {};
-
-      for (const [tokenId] of availableAssets) {
-        newCache[tokenId] = null;
-
-        for (const ext of extensions) {
-          const url = `https://tokens.sparkscan.io/${tokenId}.${ext}`;
-          try {
-            const response = await fetch(url, { method: 'HEAD' });
-            if (response.ok) {
-              newCache[tokenId] = url;
-              break;
-            }
-          } catch (err) {
-            console.log('Image fetch error:', tokenId, err);
-          }
-        }
-      }
-
-      setTokensImageCache(newCache);
+      const tokenIds = Object.keys(sparkInfoRef.current.tokens);
+      const newCache = await getCachedTokenImages(tokenIds);
+      setTokensImageCache(prev => ({ ...prev, ...newCache }));
     }
 
     updateTokensImageCache();
