@@ -2909,6 +2909,15 @@
       "savingsZeroHint": "Nothing saved yet",
       "interestBelowMinHint": "Your Bitcoin balance is below the minimum swap amount. Please withdraw to your Bitcoin balance.",
       "loadingBalances": "Loading balances...",
+      "loadingSteps": {
+        "connecting": "Connecting to savings wallet...",
+        "updating": "Updating balance...",
+        "finalizing": "Finalizing..."
+      },
+      "empty": {
+        "title": "Nothing to withdraw",
+        "subtitle": "You don't have any savings or Bitcoin rewards to withdraw yet."
+      },
       "balanceLoadError": "Unable to load wallet. Go back and try again.",
       "interestPaymentLabel": "Bitcoin rewards withdrawal",
       "chooseGoalTitle": "Withdraw money from",

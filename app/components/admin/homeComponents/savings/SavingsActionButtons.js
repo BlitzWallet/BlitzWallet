@@ -9,7 +9,6 @@ import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
 
 export default function SavingsActionButtons({
   savingsBalance,
-  walletBitcoinBalanceSats,
   selectedGoalUUID = null,
 }) {
   const navigate = useNavigation();
@@ -26,7 +25,6 @@ export default function SavingsActionButtons({
   const depositBg =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
   const buttonBg = theme ? backgroundOffset : COLORS.darkModeText;
-  const canWithdraw = savingsBalance > 0 || walletBitcoinBalanceSats > 0;
 
   return (
     <View
@@ -66,21 +64,18 @@ export default function SavingsActionButtons({
 
       {/* Withdraw */}
       <TouchableOpacity
-        onPress={() => {
-          if (!canWithdraw) return;
+        onPress={() =>
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'withdrawFromSavings',
             sliderHight: 0.5,
             currentBalance: savingsBalance,
             selectedGoalUUID,
-          });
-        }}
-        disabled={!canWithdraw}
+          })
+        }
         style={[
           styles.button,
           shouldStack ? styles.buttonStacked : styles.buttonColumn,
           { backgroundColor: buttonBg },
-          !canWithdraw && styles.disabled,
         ]}
       >
         <ThemeText
@@ -119,8 +114,5 @@ const styles = StyleSheet.create({
   },
   buttonStacked: {
     width: '100%',
-  },
-  disabled: {
-    opacity: 0.4,
   },
 });

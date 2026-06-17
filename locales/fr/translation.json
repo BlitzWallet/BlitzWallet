@@ -2910,6 +2910,15 @@
       "savingsZeroHint": "Aucune épargne pour le moment",
       "interestBelowMinHint": "Votre solde en Bitcoin est inférieur au montant minimum d’échange. Veuillez retirer vers votre solde Bitcoin.",
       "loadingBalances": "Chargement des soldes...",
+      "loadingSteps": {
+        "connecting": "Connexion au portefeuille d’épargne...",
+        "updating": "Mise à jour du solde...",
+        "finalizing": "Finalisation..."
+      },
+      "empty": {
+        "title": "Rien à retirer",
+        "subtitle": "Vous n’avez pas encore d’épargne ni de récompenses en Bitcoin à retirer."
+      },
       "balanceLoadError": "Impossible de charger le portefeuille. Revenez en arrière et réessayez.",
       "fromInterest": "Depuis vos intérêts",
       "fromSavings": "Depuis votre épargne",

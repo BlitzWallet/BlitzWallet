@@ -2910,6 +2910,15 @@
       "savingsZeroHint": "Aún no hay ahorros",
       "interestBelowMinHint": "Tu saldo de Bitcoin está por debajo del monto mínimo de intercambio. Por favor, retira a tu saldo de Bitcoin.",
       "loadingBalances": "Cargando saldos...",
+      "loadingSteps": {
+        "connecting": "Conectando a la billetera de ahorros...",
+        "updating": "Actualizando saldo...",
+        "finalizing": "Finalizando..."
+      },
+      "empty": {
+        "title": "Nada para retirar",
+        "subtitle": "Todavía no tienes ahorros ni recompensas en Bitcoin para retirar."
+      },
       "balanceLoadError": "No se pudo cargar la billetera. Regresa e inténtalo nuevamente.",
       "fromInterest": "De tus intereses",
       "fromSavings": "De tus ahorros",

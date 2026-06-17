@@ -2908,6 +2908,15 @@
       "savingsZeroHint": "Noch nichts gespart",
       "interestBelowMinHint": "Ihr BTC-Guthaben liegt unter dem Mindestbetrag für einen Swap. Bitte zahlen Sie auf Ihr BTC-Guthaben aus.",
       "loadingBalances": "Guthaben werden geladen...",
+      "loadingSteps": {
+        "connecting": "Verbindung zur Spar-Wallet wird hergestellt...",
+        "updating": "Kontostand wird aktualisiert...",
+        "finalizing": "Wird abgeschlossen..."
+      },
+      "empty": {
+        "title": "Nichts zum Auszahlen",
+        "subtitle": "Du hast noch keine Ersparnisse oder Bitcoin-Belohnungen zum Auszahlen."
+      },
       "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehen Sie zurück und versuchen Sie es erneut.",
       "fromInterest": "Aus Ihren Zinsen",
       "fromSavings": "Aus Ihren Ersparnissen",

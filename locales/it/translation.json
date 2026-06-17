@@ -2910,6 +2910,15 @@
       "savingsZeroHint": "Nessun risparmio ancora",
       "interestBelowMinHint": "Il tuo saldo in Bitcoin è inferiore all’importo minimo per lo scambio. Effettua il prelievo verso il tuo saldo Bitcoin.",
       "loadingBalances": "Caricamento saldi...",
+      "loadingSteps": {
+        "connecting": "Connessione al portafoglio risparmi...",
+        "updating": "Aggiornamento del saldo...",
+        "finalizing": "Finalizzazione..."
+      },
+      "empty": {
+        "title": "Niente da prelevare",
+        "subtitle": "Non hai ancora risparmi o ricompense in Bitcoin da prelevare."
+      },
       "balanceLoadError": "Impossibile caricare il wallet. Torna indietro e riprova.",
       "fromInterest": "Dai tuoi interessi",
       "fromSavings": "Dai tuoi risparmi",
