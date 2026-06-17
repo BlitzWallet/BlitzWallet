@@ -118,7 +118,9 @@ export default function ContactAmountEntry({
         useLoading={isLoading}
         actionFunction={onNext}
         textContent={
-          paymentType === 'send' ? t('constants.next') : t('constants.request')
+          paymentType === 'send'
+            ? t('constants.review')
+            : t('constants.request')
         }
       />
     </View>
