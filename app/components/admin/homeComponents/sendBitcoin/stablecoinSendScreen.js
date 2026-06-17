@@ -647,13 +647,15 @@ export default function StablecoinSendScreen() {
           label={`${t('constants.send')}`}
           containerStyles={{ marginBottom: 0 }}
           rightContent={
-            <CurrencySwitchButton
-              displayCurrency={sourceMethod === 'USD' ? 'USD' : displayCurrency}
-              onPress={openPicker}
-              disabled={
-                isLoadingRate || isConfirmMode || sourceMethod === 'USD'
-              }
-            />
+            !isConfirmMode ? (
+              <CurrencySwitchButton
+                displayCurrency={
+                  sourceMethod === 'USD' ? 'USD' : displayCurrency
+                }
+                onPress={openPicker}
+                disabled={isLoadingRate || sourceMethod === 'USD'}
+              />
+            ) : null
           }
         />
         <ThemeText

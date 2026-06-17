@@ -1377,7 +1377,7 @@ export default function SendPaymentScreen(props) {
           leftImageStyles={{ height: 25 }}
           leftImageFunction={handleBrandaVerificationUrl}
           rightContent={
-            !isUsingLRC20 ? (
+            !isUsingLRC20 && uiState !== 'CONFIRM_PAYMENT' ? (
               <CurrencySwitchButton
                 displayCurrency={displayCurrency}
                 onPress={openCurrencyPicker}

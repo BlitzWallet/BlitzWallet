@@ -712,15 +712,7 @@ export default function ConfirmSplitPayment(props) {
         <CustomSettingsTopBar
           label={t('constants.send')}
           containerStyles={{ marginBottom: 0 }}
-          rightContent={
-            <CurrencySwitchButton
-              displayCurrency={displayCurrency}
-              onPress={openPicker}
-              disabled={isLoadingRate}
-            />
-          }
         />
-        <ThemeText styles={styles.sectionTitle} content={sendingAsset} />
 
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display — always shown except during rate-change intercept */}
