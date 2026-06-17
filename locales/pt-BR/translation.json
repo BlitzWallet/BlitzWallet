@@ -2911,13 +2911,13 @@
       "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para trocar por USD. Por favor, transfira para o seu saldo em Bitcoin",
       "loadingBalances": "Carregando saldos...",
       "loadingSteps": {
-        "connecting": "Conectando à carteira de poupança...",
+        "connecting": "Conectando às Caixinhas...",
         "updating": "Atualizando saldo...",
         "finalizing": "Finalizando..."
       },
       "empty": {
-        "title": "Nada para sacar",
-        "subtitle": "Você ainda não tem poupança ou recompensas em Bitcoin para sacar."
+        "title": "Nada para resgatar",
+        "subtitle": "Você ainda não tem saldo nas Caixinhas ou recompensas em Bitcoin para resgatar."
       },
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
