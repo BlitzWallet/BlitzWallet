@@ -1521,7 +1521,6 @@ export default function SendPaymentScreen(props) {
               containerStyles={{
                 width: INSET_WINDOW_WIDTH,
                 marginTop: 10,
-                maxWidth: 350,
               }}
             />
 
