@@ -6,7 +6,7 @@ import {
 import { BLITZ_FEE_PERCET, BLITZ_FEE_SATS } from '../../constants/math';
 import { getLocalStorageItem } from '../localStorage';
 import { isNewDaySince } from '../rotateAddressDateChecker';
-import { getNoonChicagoUtcMs } from '../timeFormatter';
+import { getLastStatsUpdateUtcMs } from '../timeFormatter';
 
 const keys = [
   'homepageTxPreferance',
@@ -136,20 +136,20 @@ export function shouldLoadExploreData(savedExploreRawData, currentServerTime) {
       return true;
     }
 
-    // Compute today's noon in America/Chicago as a real UTC ms value.
-    // The GCF runs at 12:00 PM US Central (America/Chicago), which is
-    // 18:00 UTC in winter (CST/UTC-6) and 17:00 UTC in summer (CDT/UTC-5).
-    // getNoonChicagoUtcMs handles the DST boundary automatically.
-    const todayNoonChicagoUtcMs = getNoonChicagoUtcMs(currentServerTime);
-    console.log(todayNoonChicagoUtcMs, currentServerTime);
+    // The stats backend job (updateBlitzStatsJob) runs daily at 00:00 UTC.
+    // It takes up to ~1h to finish writing, so treat the day's data as
+    // available from 01:00 UTC onward to avoid fetching mid-run.
+    const STATS_JOB_RUNTIME_BUFFER_MS = 60 * 60 * 1000;
+    const todayUpdateBoundaryUtcMs = getLastStatsUpdateUtcMs(currentServerTime);
 
-    // Fetch only when: the server has already updated today (current UTC time
-    // is at or past Chicago noon) AND our cache pre-dates that update window.
-    // Both currentServerTime and lastUpdated are real UTC ms, so this
-    // comparison is in the same unit and timezone (UTC).
+    // Fetch only when: today's update window has completed (current UTC time
+    // is at least the buffer past 00:00 UTC) AND our cache pre-dates that
+    // update boundary. Both currentServerTime and lastUpdated are real UTC
+    // ms, so this comparison is in the same unit and timezone (UTC).
     if (
-      currentServerTime >= todayNoonChicagoUtcMs &&
-      savedExploreRawData.lastUpdated < todayNoonChicagoUtcMs
+      currentServerTime >=
+        todayUpdateBoundaryUtcMs + STATS_JOB_RUNTIME_BUFFER_MS &&
+      savedExploreRawData.lastUpdated < todayUpdateBoundaryUtcMs
     ) {
       shouldFetchUserCount = true;
     }

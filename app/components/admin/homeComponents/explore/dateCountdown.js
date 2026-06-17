@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import { InteractionManager, StyleSheet } from 'react-native';
 import { SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
-import { getNoonChicagoUtcMs } from '../../../../functions/timeFormatter';
+import { getNextStatsUpdateUtcMs } from '../../../../functions/timeFormatter';
 
 export default function DateCountdown({ getServerTime }) {
   const [minuteTick, setMinuteTick] = useState();
@@ -49,18 +49,9 @@ export default function DateCountdown({ getServerTime }) {
 function getFommattedTime(getServerTime) {
   const currentUtcMs = getServerTime();
 
-  // Compute today's 12:00 PM America/Chicago as real UTC ms.
-  // getNoonChicagoUtcMs uses Intl to handle CDT (UTC-5) vs CST (UTC-6)
-  // automatically, so the target shifts by 1 hour across DST boundaries.
-  const todayNoonChicagoUtcMs = getNoonChicagoUtcMs(currentUtcMs);
-
-  // If we're already past today's noon, target tomorrow's noon.
-  // Adding 25h guarantees we land in the next Chicago calendar day even
-  // across a DST "fall-back" (23-hour day) boundary.
-  const targetUtcMs =
-    currentUtcMs >= todayNoonChicagoUtcMs
-      ? getNoonChicagoUtcMs(currentUtcMs + 25 * 60 * 60 * 1000)
-      : todayNoonChicagoUtcMs;
+  // The stats backend job runs daily at 00:00 UTC, so count down to the
+  // next 00:00 UTC boundary — that's when fresh explore data lands.
+  const targetUtcMs = getNextStatsUpdateUtcMs(currentUtcMs);
 
   // Both values are real UTC ms, so the difference is the true wall-clock
   // duration remaining — no timezone shift applied to either side.
