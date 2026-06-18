@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { SATSPERBITCOIN } from '../constants';
-import { SATS_DISPLAY_CURRENCY, normalizeDisplayCurrency } from '../functions/displayCurrency';
+import {
+  SATS_DISPLAY_CURRENCY,
+  normalizeDisplayCurrency,
+} from '../functions/displayCurrency';
 
 export default function useCurrencyDisplay({
   displayCurrency,
@@ -12,11 +15,14 @@ export default function useCurrencyDisplay({
 }) {
   const lockedDisplayRef = useRef({
     primary: null,
+    secondary: null,
     conversionFiatStats: null,
   });
   const wasSendingPaymentRef = useRef(false);
 
-  const deviceCurrency = (masterInfoObject?.fiatCurrency || 'USD').toUpperCase();
+  const deviceCurrency = (
+    masterInfoObject?.fiatCurrency || 'USD'
+  ).toUpperCase();
   const isDeviceCurrencyUSD = deviceCurrency === 'USD';
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
 
@@ -50,6 +56,33 @@ export default function useCurrencyDisplay({
     };
   }, [normalizedDisplayCurrency, usdFiatStats, fiatStats, currencyRates]);
 
+  // SECONDARY DISPLAY - The converted amount shown below primary
+  const liveSecondaryDisplay = useMemo(() => {
+    if (normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY) {
+      // Primary is sats → secondary shows the device fiat currency
+      return {
+        denomination: 'fiat',
+        forceCurrency: isDeviceCurrencyUSD ? 'USD' : deviceCurrency,
+        forceFiatStats: isDeviceCurrencyUSD
+          ? usdFiatStats || fiatStats
+          : fiatStats,
+      };
+    }
+
+    // Primary is fiat → secondary shows sats
+    return {
+      denomination: 'sats',
+      forceCurrency: null,
+      forceFiatStats: null,
+    };
+  }, [
+    normalizedDisplayCurrency,
+    isDeviceCurrencyUSD,
+    deviceCurrency,
+    usdFiatStats,
+    fiatStats,
+  ]);
+
   const liveConversionFiatStats = useMemo(() => {
     const isDisplayingUSD =
       livePrimaryDisplay.denomination === 'fiat' &&
@@ -74,6 +107,7 @@ export default function useCurrencyDisplay({
     if (isSendingPayment && !wasSendingPaymentRef.current) {
       lockedDisplayRef.current = {
         primary: livePrimaryDisplay,
+        secondary: liveSecondaryDisplay,
         conversionFiatStats: liveConversionFiatStats,
       };
     }
@@ -81,17 +115,28 @@ export default function useCurrencyDisplay({
     if (!isSendingPayment && wasSendingPaymentRef.current) {
       lockedDisplayRef.current = {
         primary: null,
+        secondary: null,
         conversionFiatStats: null,
       };
     }
 
     wasSendingPaymentRef.current = isSendingPayment;
-  }, [isSendingPayment, livePrimaryDisplay, liveConversionFiatStats]);
+  }, [
+    isSendingPayment,
+    livePrimaryDisplay,
+    liveSecondaryDisplay,
+    liveConversionFiatStats,
+  ]);
 
   const primaryDisplay =
     isSendingPayment && lockedDisplayRef.current.primary
       ? lockedDisplayRef.current.primary
       : livePrimaryDisplay;
+
+  const secondaryDisplay =
+    isSendingPayment && lockedDisplayRef.current.secondary
+      ? lockedDisplayRef.current.secondary
+      : liveSecondaryDisplay;
 
   const conversionFiatStats =
     isSendingPayment && lockedDisplayRef.current.conversionFiatStats
@@ -139,6 +184,7 @@ export default function useCurrencyDisplay({
 
   return {
     primaryDisplay,
+    secondaryDisplay,
     conversionFiatStats,
     convertDisplayToSats,
     convertSatsToDisplay,

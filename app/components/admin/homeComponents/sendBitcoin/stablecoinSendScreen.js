@@ -63,6 +63,7 @@ import Animated, { FadeOutDown } from 'react-native-reanimated';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -170,6 +171,7 @@ export default function StablecoinSendScreen() {
 
   const {
     primaryDisplay,
+    secondaryDisplay,
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
@@ -181,6 +183,13 @@ export default function StablecoinSendScreen() {
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
   });
+
+  // Kept current so the success-page handoff reads the live display config
+  // rather than a stale value captured in the handleSend useCallback closure.
+  const primaryDisplayRef = useRef(primaryDisplay);
+  useEffect(() => {
+    primaryDisplayRef.current = primaryDisplay;
+  }, [primaryDisplay]);
 
   const convertedSendAmount = convertDisplayToSats(rawInput);
 
@@ -488,6 +497,7 @@ export default function StablecoinSendScreen() {
                 name: 'ConfirmTxPage',
                 params: {
                   transaction: pendingTx,
+                  paymentDisplay: primaryDisplayRef.current,
                 },
               },
             ],
@@ -680,6 +690,12 @@ export default function StablecoinSendScreen() {
               forceFiatStats={primaryDisplay.forceFiatStats}
               activeOpacity={!convertedSendAmount ? 0.5 : 1}
             />
+            {isConfirmMode && (
+              <SecondaryAmountDisplay
+                amountSats={convertedSendAmount}
+                secondaryDisplay={secondaryDisplay}
+              />
+            )}
           </View>
 
           {/* Confirm mode: fee info */}
