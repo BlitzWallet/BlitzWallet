@@ -149,7 +149,7 @@ export default function StablecoinSendScreen() {
       sourceMethod === 'USD'
         ? 'USD'
         : getDefaultDisplayCurrency({
-            paymentMode: 'USD',
+            paymentMode: sourceMethod,
             masterInfoObject,
             fiatStats,
           }),
