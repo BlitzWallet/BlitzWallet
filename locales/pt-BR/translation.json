@@ -988,7 +988,7 @@
       "tapToGenerate_spark": "Mostrar endereço Spark",
       "tapToGenerate_liquid": "Mostrar endereço Liquid",
       "tapToGenerate_rootstock": "Mostrar endereço Rootstock",
-      "chooseWhatToReceive": "Qual moeda você deseja receber?",
+      "chooseWhatToReceive": "seja receber?",
       "instantLowFees": "Instantâneo, taxas baixas",
       "onChainTransaction": "~ 10 minutos",
       "otherAddresses": "Outras opções",
@@ -1431,7 +1431,7 @@
       "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Qual moeda você deseja receber?"
+      "header": "Escolha a moeda que o valor solicitado será depositado"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
