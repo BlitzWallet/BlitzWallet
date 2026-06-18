@@ -55,6 +55,9 @@ export default function ConfirmTxPage(props) {
   const isBlitzAddress = isBlitzLNURLAddress(lnurlAddress);
   const lnurlUsername = lnurlAddress?.split('@')[0]?.toLowerCase();
   const blitzContactInfo = props.route.params?.blitzContactInfo;
+  // The display currency the user entered/reviewed the payment in (e.g. EUR),
+  // passed from the send screens so the success amount matches what they saw.
+  const paymentDisplay = props.route.params?.paymentDisplay;
 
   const didSucceed = !hasError || isLNURLAuth;
 
@@ -296,6 +299,21 @@ export default function ConfirmTxPage(props) {
             useCustomLabel={isLRC20Payment}
             customLabel={token?.tokenMetadata?.tokenTicker}
             useMillionDenomination={true}
+            globalBalanceDenomination={
+              paymentDisplay && !isLRC20Payment
+                ? paymentDisplay.denomination
+                : undefined
+            }
+            forceCurrency={
+              paymentDisplay && !isLRC20Payment
+                ? paymentDisplay.forceCurrency
+                : null
+            }
+            forceFiatStats={
+              paymentDisplay && !isLRC20Payment
+                ? paymentDisplay.forceFiatStats
+                : null
+            }
           />
           {/* {isLRC20Payment && formattedTokensBalance < 1 && (
             <FormattedSatText
