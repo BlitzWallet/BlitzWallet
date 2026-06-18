@@ -1,11 +1,5 @@
 import { useState, useCallback } from 'react';
-import {
-  Keyboard,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import {
