@@ -35,7 +35,7 @@ export const fiatCurrencies = [
   { info: { spacing: null, name: 'Peso Dominicano' }, id: 'DOP' },
   { info: { spacing: null, name: 'Peso Mexicano' }, id: 'MXN' },
   { info: { spacing: null, name: 'Peso Uruguayo' }, id: 'UYU' },
-  { info: { spacing: null, name: 'Piso' }, id: 'PHP' },
+  { info: { spacing: null, name: 'Philippine Peso' }, id: 'PHP' },
   { info: { spacing: null, name: 'Pound Sterling' }, id: 'GBP' },
   { info: { spacing: null, name: 'Quetzal' }, id: 'GTQ' },
   { info: { spacing: null, name: 'Rand' }, id: 'ZAR' },
