@@ -80,6 +80,7 @@ import { getLNAddressForLiquidPayment } from './functions/payments';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 import { lnurlCurrencyToRate } from '../../../../functions/sendBitcoin/lnurlCurrencyRate';
 import { PROVIDER_COUNTRY_CURRENCY } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
@@ -398,6 +399,7 @@ export default function SendPaymentScreen(props) {
 
   const {
     primaryDisplay,
+    secondaryDisplay,
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
@@ -1261,6 +1263,7 @@ export default function SendPaymentScreen(props) {
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
                     blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    paymentDisplay: primaryDisplayRef.current,
                   },
                 },
               ],
@@ -1289,6 +1292,7 @@ export default function SendPaymentScreen(props) {
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
                     blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    paymentDisplay: primaryDisplayRef.current,
                   },
                 },
               ],
@@ -1458,6 +1462,12 @@ export default function SendPaymentScreen(props) {
                 }
                 maxDecimals={isUsingLRC20 ? tokenDecimals : 2}
               />
+              {uiState === 'CONFIRM_PAYMENT' && !isUsingLRC20 && (
+                <SecondaryAmountDisplay
+                  amountSats={convertedSendAmount}
+                  secondaryDisplay={secondaryDisplay}
+                />
+              )}
             </View>
           )}
 
