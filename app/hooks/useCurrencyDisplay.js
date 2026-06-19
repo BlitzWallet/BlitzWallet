@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { SATSPERBITCOIN } from '../constants';
-import { SATS_DISPLAY_CURRENCY, normalizeDisplayCurrency } from '../functions/displayCurrency';
+import {
+  SATS_DISPLAY_CURRENCY,
+  normalizeDisplayCurrency,
+} from '../functions/displayCurrency';
 
 export default function useCurrencyDisplay({
   displayCurrency,
@@ -16,7 +19,9 @@ export default function useCurrencyDisplay({
   });
   const wasSendingPaymentRef = useRef(false);
 
-  const deviceCurrency = (masterInfoObject?.fiatCurrency || 'USD').toUpperCase();
+  const deviceCurrency = (
+    masterInfoObject?.fiatCurrency || 'USD'
+  ).toUpperCase();
   const isDeviceCurrencyUSD = deviceCurrency === 'USD';
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
 

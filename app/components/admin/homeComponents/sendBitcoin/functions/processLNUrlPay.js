@@ -14,6 +14,15 @@ import {
 } from '../../../../../functions/spark/flashnet';
 import { isBlitzLNURLAddress } from '../../../../../functions/lnurl';
 import normalizeLNURLAddress from '../../../../../functions/lnurl/normalizeLNURLAddress';
+import {
+  normalizeLNURLCurrency,
+  lnurlCurrencyToRate,
+} from '../../../../../functions/sendBitcoin/lnurlCurrencyRate';
+import {
+  getPhonePaymentCountry,
+  PROVIDER_COUNTRY_CURRENCY,
+} from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
+import loadNewFiatData from '../../../../../functions/saveAndUpdateFiatData';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -34,6 +43,8 @@ export default async function processLNUrlPay(input, context) {
     convertedSendAmount,
     min_usd_swap_amount,
     poolInfoRef,
+    contactsPrivateKey,
+    publicKey,
   } = context;
   crashlyticsLogReport('Beiging decode LNURL pay');
 
@@ -91,6 +102,29 @@ export default async function processLNUrlPay(input, context) {
   } catch {
     // malformed JSON, default stays []
   }
+
+  // Surface any LNURL-advertised currency + the phone-payment provider country so
+  // the send screen can default the amount input to the local fiat currency.
+  const lnurlCurrency = normalizeLNURLCurrency(input.data);
+  const phonePaymentCountry = getPhonePaymentCountry(input.data.address);
+
+  // For phone-number payments whose LNURL advertises no usable rate, the send
+  // screen switches the input to the provider country's local fiat currency and
+  // fetches that rate, surfacing a loading state on the input page. Warm the
+  // fiat-rate cache in parallel here (during decode, behind the decode spinner)
+  // so the screen's later fetch resolves from cache with no visible hitch.
+  const prefetchLocalRate =
+    phonePaymentCountry &&
+    contactsPrivateKey &&
+    publicKey &&
+    !lnurlCurrencyToRate(lnurlCurrency)
+      ? loadNewFiatData(
+          PROVIDER_COUNTRY_CURRENCY[phonePaymentCountry],
+          contactsPrivateKey,
+          publicKey,
+          masterInfoObject,
+        ).catch(() => {})
+      : null;
 
   const preEstimatedInvoiceData = enteredPaymentInfo?.lnInvoiceData ?? null;
   const preEstimatedSwapQuote = enteredPaymentInfo?.swapQuote ?? null;
@@ -293,6 +327,9 @@ export default async function processLNUrlPay(input, context) {
 
   const canEditPayment = !invoice;
 
+  // Make sure the local fiat rate is cached before the send screen reads it.
+  if (prefetchLocalRate) await prefetchLocalRate;
+
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredPaymentInfo.amount
@@ -320,5 +357,7 @@ export default async function processLNUrlPay(input, context) {
     sendAmount: enteredAmount ? `${displayAmount}` : '',
     canEditPayment,
     amountSat: amountSat,
+    lnurlCurrency,
+    phonePaymentCountry,
   };
 }
