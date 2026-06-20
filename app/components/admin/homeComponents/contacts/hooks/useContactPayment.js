@@ -36,6 +36,16 @@ import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
 } from '../../../../../functions/displayCurrency';
+import {
+  lnurlCurrencyToRate,
+  normalizeLNURLCurrency,
+} from '../../../../../functions/sendBitcoin/lnurlCurrencyRate';
+import {
+  getPhonePaymentCountry,
+  PROVIDER_COUNTRY_CURRENCY,
+} from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
+import { fiatCurrencies } from '../../../../../functions/currencyOptions';
+import { useNavigation } from '@react-navigation/native';
 
 export default function useContactPayment({
   selectedContact,
@@ -48,6 +58,7 @@ export default function useContactPayment({
   lockInitialPaymentMethod = false,
   t,
 }) {
+  const navigate = useNavigation();
   const { dollarBalanceSat, dollarBalanceToken, bitcoinBalance } =
     useUserBalanceContext();
   const { poolInfoRef, swapLimits, swapUSDPriceDollars } = useFlashnet();
@@ -78,9 +89,11 @@ export default function useContactPayment({
   const [swapQuote, setSwapQuote] = useState({});
   const [lnInvoiceData, setLnInvoiceData] = useState(null);
   const [lnurlPayData, setLnurlPayData] = useState(null);
+  const [isResolvingLnurlData, setIsResolvingLnurlData] = useState(false);
   const [prefetchedDoc, setPrefetchedDoc] = useState(null);
   const [contactReceiveOption, setContactReceiveOption] = useState(null);
   const lnurlParsedRef = useRef(null);
+  const appliedLocalCurrencyRef = useRef(null);
   const quoteId = useRef(null);
   const poolInfoRefSnapshotRef = useRef(poolInfoRef);
   const userChangedPaymentMethodRef = useRef(Boolean(explicitPaymentMethod));
@@ -189,12 +202,14 @@ export default function useContactPayment({
 
     if (!selectedContact?.isLNURL || paymentType !== 'send') {
       setLnurlPayData(null);
+      setIsResolvingLnurlData(false);
       return () => {
         isCurrent = false;
       };
     }
 
     setLnurlPayData(null);
+    setIsResolvingLnurlData(true);
 
     (async () => {
       try {
@@ -206,6 +221,8 @@ export default function useContactPayment({
       } catch {
         // Leave lnurlPayData null — review stays blocked with an explanatory
         // message until bounds are known.
+      } finally {
+        if (isCurrent) setIsResolvingLnurlData(false);
       }
     })();
 
@@ -246,13 +263,20 @@ export default function useContactPayment({
       }),
     [paymentMethod, masterInfoObject, fiatStats],
   );
-  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
-    useDisplayCurrencyController({
-      initialCurrency: initialDisplayCurrency,
-      fiatStats,
-      usdFiatStats,
-      masterInfoObject,
-    });
+  const {
+    displayCurrency,
+    currencyRates,
+    isLoadingRate,
+    selectCurrency,
+    injectRate,
+    loadAndSetCurrency,
+    hasUserSelectedDisplayCurrency,
+  } = useDisplayCurrencyController({
+    initialCurrency: initialDisplayCurrency,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+  });
 
   const {
     primaryDisplay,
@@ -269,6 +293,44 @@ export default function useContactPayment({
   });
 
   const convertedSendAmount = convertDisplayToSats(amountValue);
+
+  // Once the LNURL payRequest resolves, default the amount input to its
+  // advertised fiat currency (or the phone-provider country's currency). Always
+  // switches, runs once per address, and never overrides a manual selection.
+  useEffect(() => {
+    if (!lnurlPayData || paymentType !== 'send') return;
+    if (hasUserSelectedDisplayCurrency) return;
+    const address = selectedContact?.receiveAddress;
+    if (!address || appliedLocalCurrencyRef.current === address) return;
+
+    const descriptor = normalizeLNURLCurrency(lnurlPayData.data);
+    const country = getPhonePaymentCountry(address);
+    if (!descriptor && !country) return;
+
+    const code = (
+      descriptor?.code ||
+      (country ? PROVIDER_COUNTRY_CURRENCY[country] : '') ||
+      ''
+    ).toUpperCase();
+    if (!code || !fiatCurrencies.some(c => c.id === code)) return;
+
+    appliedLocalCurrencyRef.current = address;
+
+    const rate = lnurlCurrencyToRate(descriptor);
+    if (rate) {
+      injectRate(code, rate, { setAsDisplay: true });
+    } else {
+      // No usable LNURL rate (e.g. phone pay): fetch our internal rate and switch.
+      loadAndSetCurrency(code);
+    }
+  }, [
+    lnurlPayData,
+    paymentType,
+    selectedContact?.receiveAddress,
+    hasUserSelectedDisplayCurrency,
+    injectRate,
+    loadAndSetCurrency,
+  ]);
 
   const min_usd_swap_amount = useMemo(() => {
     return Math.round(
@@ -475,6 +537,7 @@ export default function useContactPayment({
 
   useEffect(() => {
     lnurlParsedRef.current = null;
+    appliedLocalCurrencyRef.current = null;
     setLnFeeEstimate(null);
     setLnurlPayData(null);
   }, [selectedContact?.uuid]);
@@ -808,6 +871,11 @@ export default function useContactPayment({
     t,
   ]);
 
+  // True while the external display rate is still being resolved: either an LNURL
+  // payRequest is being parsed (currency not yet known) or a fiat rate is being
+  // fetched. Drives the currency-switch spinner so the auto-switch is visible.
+  const isResolvingDisplayCurrency = isLoadingRate || isResolvingLnurlData;
+
   return {
     amountValue,
     setAmountValue,
@@ -815,6 +883,7 @@ export default function useContactPayment({
     setDescriptionValue,
     displayCurrency,
     isLoadingRate,
+    isResolvingDisplayCurrency,
     handleDisplayCurrencySelect,
     paymentMethod,
     setSelectedPaymentMethod,

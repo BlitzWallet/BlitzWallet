@@ -35,6 +35,7 @@ export default function ContactAmountEntry({
   backgroundOffset,
   t,
   paymentType,
+  isResolvingDisplayCurrency,
 }) {
   return (
     <View style={styles.container}>
@@ -110,6 +111,8 @@ export default function ContactAmountEntry({
         setInputValue={setAmountValue}
         usingForBalance={true}
         fiatStats={conversionFiatStats}
+        disabled={isResolvingDisplayCurrency}
+        disabledMessage={t('contacts.sendAndRequestPage.fiatRateLoading')}
       />
       <CustomButton
         buttonStyles={{

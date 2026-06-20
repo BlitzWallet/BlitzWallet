@@ -136,7 +136,7 @@ export default function SendAndRequestPage(props) {
             <CurrencySwitchButton
               displayCurrency={payment.displayCurrency}
               onPress={openCurrencyPicker}
-              disabled={payment.isLoadingRate}
+              disabled={payment.isResolvingDisplayCurrency}
             />
           }
         />
@@ -262,6 +262,8 @@ export default function SendAndRequestPage(props) {
               setInputValue={payment.setAmountValue}
               usingForBalance={true}
               fiatStats={payment.conversionFiatStats}
+              disabled={payment.isResolvingDisplayCurrency}
+              disabledMessage={t('contacts.sendAndRequestPage.fiatRateLoading')}
             />
             <CustomButton
               buttonStyles={{

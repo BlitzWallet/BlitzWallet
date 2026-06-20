@@ -1044,6 +1044,7 @@ export default function SendPaymentScreen(props) {
     const descriptor = paymentInfo?.lnurlCurrency || null;
 
     // Nothing to do for non-phone pays that don't advertise a currency.
+    if (paymentDisplayCurrency && paymentDisplayFiatStats) return;
     if (!country && !descriptor) return;
     if (hasUserSelectedDisplayCurrency) return;
 

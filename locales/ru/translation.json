@@ -1453,7 +1453,8 @@
       "giftMessage": "Сообщение",
       "recipientReceives": "{{contactName}} получит",
       "giftMessagePlaceholder": "Напишите сообщение для подарка здесь...",
-      "paymentSourceHeader": "Источник оплаты"
+      "paymentSourceHeader": "Источник оплаты",
+      "fiatRateLoading": "Загрузка курса валюты для Lightning-адреса"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Не удалось загрузить карту.",

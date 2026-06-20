@@ -1452,7 +1452,8 @@
       "giftMessage": "Messaggio regalo",
       "recipientReceives": "{{contactName}} riceverà",
       "giftMessagePlaceholder": "Scrivi qui il tuo messaggio regalo...",
-      "paymentSourceHeader": "Fonte di pagamento"
+      "paymentSourceHeader": "Fonte di pagamento",
+      "fiatRateLoading": "Caricamento del tasso di cambio della valuta dell'indirizzo Lightning"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Non siamo riusciti a caricare la tua gift card in questo momento. Per favore, riprova.",

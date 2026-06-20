@@ -1451,7 +1451,8 @@
       "sendDollars": "USD senden",
       "sendGift": "Geschenk senden",
       "requestBitcoin": "BTC anfordern",
-      "requestDollars": "USD anfordern"
+      "requestDollars": "USD anfordern",
+      "fiatRateLoading": "Wechselkurs für die Währung der Lightning-Adresse wird geladen"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Ihre Geschenkkarte konnte derzeit nicht geladen werden. Bitte versuchen Sie es erneut.",

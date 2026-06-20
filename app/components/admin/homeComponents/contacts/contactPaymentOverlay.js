@@ -81,7 +81,7 @@ export default function ContactPaymentOverlay({
         <CurrencySwitchButton
           displayCurrency={payment.displayCurrency}
           onPress={openCurrencyPicker}
-          disabled={payment.isLoadingRate}
+          disabled={payment.isResolvingDisplayCurrency}
         />
       ),
     });
@@ -94,7 +94,7 @@ export default function ContactPaymentOverlay({
     setBackNav,
     visible,
     payment.displayCurrency,
-    payment.isLoadingRate,
+    payment.isResolvingDisplayCurrency,
     openCurrencyPicker,
   ]);
 
@@ -178,6 +178,7 @@ export default function ContactPaymentOverlay({
           backgroundOffset={backgroundOffset}
           t={t}
           paymentType={paymentType}
+          isResolvingDisplayCurrency={payment.isResolvingDisplayCurrency}
         />
       </Animated.View>
     </Animated.View>

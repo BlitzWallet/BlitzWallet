@@ -1452,7 +1452,8 @@
       "giftMessage": "Gift Message",
       "recipientReceives": "{{contactName}} will receive",
       "giftMessagePlaceholder": "Write your gift message here...",
-      "paymentSourceHeader": "Payment Source"
+      "paymentSourceHeader": "Payment Source",
+      "fiatRateLoading": "Loading Lightning Address currency rate"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "We couldn't load your gift card right now. Please try again.",
