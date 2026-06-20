@@ -74,6 +74,7 @@ export function validateSplitPayment({
             value: swapUSDPriceDollars,
             coin: 'USD',
           },
+          forceCurrency: 'USD',
         }),
       });
     } else if (!isUSD && hasUsdForAmount && !aboveUsdSwapMin) {

@@ -1279,6 +1279,7 @@ export default function SendPaymentScreen(props) {
                         : undefined,
                     blitzContactInfo: paymentInfo?.blitzContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
+                    displayAmount,
                   },
                 },
               ],
@@ -1308,6 +1309,7 @@ export default function SendPaymentScreen(props) {
                         : undefined,
                     blitzContactInfo: paymentInfo?.blitzContactInfo,
                     paymentDisplay: primaryDisplayRef.current,
+                    displayAmount,
                   },
                 },
               ],
@@ -1346,6 +1348,7 @@ export default function SendPaymentScreen(props) {
     resolvedPaymentMethod,
     fiatValueConvertedSendAmount,
     paymentValidation,
+    displayAmount,
   ]);
 
   const handleSelectPaymentMethod = useCallback(

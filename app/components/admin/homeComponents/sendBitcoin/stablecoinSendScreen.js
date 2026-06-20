@@ -498,6 +498,7 @@ export default function StablecoinSendScreen() {
                 params: {
                   transaction: pendingTx,
                   paymentDisplay: primaryDisplayRef.current,
+                  displayAmount: rawInput,
                 },
               },
             ],
@@ -546,6 +547,7 @@ export default function StablecoinSendScreen() {
     publicKey,
     clearCountdown,
     t,
+    rawInput,
   ]);
 
   const handleEmoji = newDescription => {
