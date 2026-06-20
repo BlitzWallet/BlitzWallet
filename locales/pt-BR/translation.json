@@ -1179,7 +1179,7 @@
         "receive_amount": "receber quantia",
         "descriptionInputPlaceholder": "Descrição (opcional)",
         "editAmount": "Editar fatura",
-        "minUSDSwap": "Pagamentos convertidos para dólares exigem um valor mínimo de:\n{{amount}}"
+        "minUSDSwap": "Só é possível receber valores em dólares se a quantia solicitada for maior que:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Alterar método de recebimento",
@@ -2184,7 +2184,7 @@
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "copyInvoice": "Copiar fatura",
-        "usdSwapMinNotice": "Somente pagamentos acima de {{amount}} serão convertidos em dólares",
+        "usdSwapMinNotice": "Somente pagamentos acima de {{amount}} serão recebidos em dólares",
         "shareInvoice": "Compartilhar fatura",
         "walletNotConnected": "Carteira não conectada. Tente novamente.",
         "paylinkSaveError": "Falha ao salvar o link de pagamento",
