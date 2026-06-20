@@ -2700,7 +2700,8 @@
     "removingImageError": "Unable to remove image. Please try again.",
     "usdcUsdtTokensOnly": "Only USDT and USDC tokens are supported",
     "lightningAmountFeeWarning": "Your balance does not cover the amount and ≈{{amount}} fee.",
-    "lightningAmountRequiredWarning": "This payment requires ≈{{amount}}. Please lower the amount or add funds."
+    "lightningAmountRequiredWarning": "This payment requires ≈{{amount}}. Please lower the amount or add funds.",
+    "lnurlLimitsLoading": "Loading Lightning Address details"
   },
   "loadingScreen": {
     "message1": "Please don't close the app",
