@@ -105,6 +105,7 @@ export default function ViewAllTxPage() {
             poolInfoRef,
             t,
             swapLimits,
+            showFailedTransactions: true,
           });
 
           if (searchUUIDRef.current === currentFilter.searchUUID) {

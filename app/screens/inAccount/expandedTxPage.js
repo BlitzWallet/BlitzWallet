@@ -339,16 +339,10 @@ export default function ExpandedTx(props) {
 
     if (isFailedPayment) {
       return {
-        outer:
-          theme && darkModeType
-            ? COLORS.lightsOutBackgroundOffset
-            : COLORS.expandedTXLightModeFailed,
-        inner: theme && darkModeType ? COLORS.white : COLORS.cancelRed,
-        text: theme && darkModeType ? COLORS.white : COLORS.cancelRed,
-        bg:
-          theme && darkModeType
-            ? COLORS.lightsOutBackground
-            : COLORS.expandedTXLightModeFailed,
+        outer: !theme ? COLORS.expandedTXLightModeFailed : backgroundOffset,
+        inner: !theme ? COLORS.cancelRed : COLORS.white,
+        text: !theme ? COLORS.cancelRed : COLORS.white,
+        bg: !theme ? COLORS.expandedTXLightModeFailed : backgroundColor,
       };
     }
 

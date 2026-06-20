@@ -255,6 +255,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     t,
     hideSmallPaymentsHomepage,
     swapLimits,
+    showFailedTransactions = false,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -358,7 +359,11 @@ export default function getFormattedHomepageTxsForSpark(props) {
         continue;
       if (shownTxs.has(currentTransaction.sparkID)) continue;
       if (isLRC20Payment && !hasSavedTokenData) continue;
-      if (paymentStatus === TRANSACTION_CONSTANTS.FAILED) continue;
+      if (
+        !showFailedTransactions &&
+        paymentStatus === TRANSACTION_CONSTANTS.FAILED
+      )
+        continue;
       if (
         transactionPaymentType === TRANSACTION_CONSTANTS.LIGHTNING &&
         currentTransaction.status === TRANSACTION_CONSTANTS.LIGHTNING_INITIATED
@@ -634,9 +639,9 @@ export const UserTransaction = memo(function UserTransaction({
   const iconColor = isGrayMode
     ? textColor
     : isFailedPayment
-    ? theme && darkModeType
-      ? COLORS.darkModeText
-      : COLORS.cancelRed
+    ? !theme
+      ? COLORS.cancelRed
+      : COLORS.primary
     : COLORS.primary;
 
   const amountColor = textColor;
