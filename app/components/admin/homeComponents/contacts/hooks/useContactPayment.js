@@ -45,7 +45,6 @@ import {
   PROVIDER_COUNTRY_CURRENCY,
 } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { fiatCurrencies } from '../../../../../functions/currencyOptions';
-import { useNavigation } from '@react-navigation/native';
 
 export default function useContactPayment({
   selectedContact,
@@ -58,7 +57,6 @@ export default function useContactPayment({
   lockInitialPaymentMethod = false,
   t,
 }) {
-  const navigate = useNavigation();
   const { dollarBalanceSat, dollarBalanceToken, bitcoinBalance } =
     useUserBalanceContext();
   const { poolInfoRef, swapLimits, swapUSDPriceDollars } = useFlashnet();
