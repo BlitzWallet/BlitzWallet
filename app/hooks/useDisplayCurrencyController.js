@@ -53,10 +53,13 @@ export default function useDisplayCurrencyController({
     [],
   );
 
-  const selectCurrency = useCallback(
-    async code => {
+  // Shared fetch-and-set used by both the user-facing picker (selectCurrency) and
+  // the programmatic phone-payment default (loadAndSetCurrency). `isUserSelection`
+  // controls whether the choice is locked against the initialCurrency reset effect.
+  const fetchAndSetCurrency = useCallback(
+    async (code, isUserSelection) => {
       const normalizedCode = normalizeDisplayCurrency(code);
-      hasUserSelectedRef.current = true;
+      if (isUserSelection) hasUserSelectedRef.current = true;
 
       if (
         normalizedCode === SATS_DISPLAY_CURRENCY ||
@@ -87,9 +90,11 @@ export default function useDisplayCurrencyController({
         return response;
       } catch (err) {
         console.log(err);
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Unable to load currency rate',
-        });
+        if (isUserSelection) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Unable to load currency rate',
+          });
+        }
         return { didWork: false, error: err.message };
       } finally {
         setIsLoadingRate(false);
@@ -105,11 +110,45 @@ export default function useDisplayCurrencyController({
     ],
   );
 
+  const selectCurrency = useCallback(
+    code => fetchAndSetCurrency(code, true),
+    [fetchAndSetCurrency],
+  );
+
+  // Programmatic default (no navigation on failure). Loads the internal rate and
+  // sets it as the display currency, locking it so the initialCurrency reset
+  // effect can't stomp it; the user can still re-pick via the picker.
+  const loadAndSetCurrency = useCallback(
+    async code => {
+      const response = await fetchAndSetCurrency(code, false);
+      if (response.didWork) hasUserSelectedRef.current = true;
+      return response;
+    },
+    [fetchAndSetCurrency],
+  );
+
+  // Injects an externally-derived rate (e.g. from an LNURL multiplier) into the
+  // rate map without a backend fetch. When setAsDisplay is true and the user
+  // hasn't already overridden the currency, also switches the display to it and
+  // locks the choice.
+  const injectRate = useCallback((code, rate, { setAsDisplay = false } = {}) => {
+    const normalizedCode = normalizeDisplayCurrency(code);
+    if (rate?.value) {
+      setCurrencyRates(prev => ({ ...prev, [normalizedCode]: rate }));
+    }
+    if (setAsDisplay && !hasUserSelectedRef.current) {
+      setDisplayCurrency(normalizedCode);
+      hasUserSelectedRef.current = true;
+    }
+  }, []);
+
   return {
     displayCurrency,
     currencyRates,
     isLoadingRate,
     selectCurrency,
+    loadAndSetCurrency,
+    injectRate,
     resetDisplayCurrency,
     hasUserSelectedDisplayCurrency: hasUserSelectedRef.current,
   };

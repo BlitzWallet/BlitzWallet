@@ -352,5 +352,7 @@ export default async function processSparkAddress(input, context) {
     sendAmount: !amountMsat ? '' : isLRC20 ? amountMsat : `${displayAmount}`,
     canEditPayment,
     amountSat: amountSat,
+    enteredDisplayAmount: enteredPaymentInfo?.displayAmount ?? null,
+    enteredDisplayDenomination: enteredPaymentInfo?.displayDenomination ?? null,
   };
 }

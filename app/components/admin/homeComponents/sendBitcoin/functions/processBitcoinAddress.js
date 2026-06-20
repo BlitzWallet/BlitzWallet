@@ -118,5 +118,7 @@ export default async function processBitcoinAddress(input, context) {
     sendAmount: !amountSat ? '' : `${displayAmount}`,
     canEditPayment,
     amountSat: Math.round(Number(amountSat)),
+    enteredDisplayAmount: enteredPaymentInfo?.displayAmount ?? null,
+    enteredDisplayDenomination: enteredPaymentInfo?.displayDenomination ?? null,
   };
 }

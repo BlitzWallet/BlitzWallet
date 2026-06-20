@@ -62,6 +62,8 @@ export default async function decodeSendAddress(props) {
     min_usd_swap_amount,
     conversionFiatStats,
     primaryDisplay,
+    contactsPrivateKey,
+    publicKey,
   } = props;
 
   let paylinkPublishFunc = null;
@@ -330,6 +332,8 @@ export default async function decodeSendAddress(props) {
           swapLimits,
           // usd_multiplier_coefiicent,
           min_usd_swap_amount,
+          contactsPrivateKey,
+          publicKey,
         }),
         brantaVerificationPromise,
       ]);

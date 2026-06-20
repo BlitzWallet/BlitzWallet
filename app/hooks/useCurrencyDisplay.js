@@ -182,6 +182,18 @@ export default function useCurrencyDisplay({
     }
   };
 
+  const buildAmountSnapshot = enteredValue => {
+    return {
+      displayAmount: enteredValue == null ? '' : String(enteredValue),
+      displayDenomination: primaryDisplay.denomination,
+      displayCurrency:
+        primaryDisplay.denomination === 'fiat'
+          ? primaryDisplay.forceCurrency || deviceCurrency
+          : null,
+      sats: convertToSats(enteredValue),
+    };
+  };
+
   return {
     primaryDisplay,
     secondaryDisplay,
@@ -189,6 +201,7 @@ export default function useCurrencyDisplay({
     convertDisplayToSats,
     convertSatsToDisplay,
     convertToSats,
+    buildAmountSnapshot,
     showDot: primaryDisplay.denomination === 'fiat',
     deviceCurrency,
     isDeviceCurrencyUSD,
