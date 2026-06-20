@@ -1179,7 +1179,7 @@
         "receive_amount": "receber quantia",
         "descriptionInputPlaceholder": "Descrição (opcional)",
         "editAmount": "Editar fatura",
-        "minUSDSwap": "Só é possível receber valores em dólares se a quantia solicitada for maior que:\n{{amount}}"
+        "minUSDSwap": "Só é possível receber valores em dólares se a quantia solicitada for de pelo menos:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Alterar método de recebimento",
