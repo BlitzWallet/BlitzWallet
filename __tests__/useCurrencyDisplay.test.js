@@ -75,4 +75,41 @@ describe('useCurrencyDisplay', () => {
       Math.round((SATSPERBITCOIN / gbpStats.value) * 3.5),
     );
   });
+
+  test('buildAmountSnapshot captures fiat entry verbatim with integer sats', () => {
+    const display = renderHook({
+      displayCurrency: 'USD',
+      fiatStats,
+      usdFiatStats,
+      currencyRates: {},
+      masterInfoObject,
+    });
+
+    const snapshot = display.buildAmountSnapshot('10.00');
+
+    expect(snapshot.displayAmount).toBe('10.00'); // verbatim, not "10"
+    expect(snapshot.displayDenomination).toBe('fiat');
+    expect(snapshot.displayCurrency).toBe('USD');
+    expect(snapshot.sats).toBe(
+      Math.round((SATSPERBITCOIN / usdFiatStats.value) * 10),
+    );
+    expect(Number.isInteger(snapshot.sats)).toBe(true);
+  });
+
+  test('buildAmountSnapshot captures sats entry as literal integer sats', () => {
+    const display = renderHook({
+      displayCurrency: 'SATS',
+      fiatStats,
+      usdFiatStats,
+      currencyRates: {},
+      masterInfoObject,
+    });
+
+    const snapshot = display.buildAmountSnapshot('1234');
+
+    expect(snapshot.displayAmount).toBe('1234');
+    expect(snapshot.displayDenomination).toBe('sats');
+    expect(snapshot.displayCurrency).toBe(null);
+    expect(snapshot.sats).toBe(1234);
+  });
 });

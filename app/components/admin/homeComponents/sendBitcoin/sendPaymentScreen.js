@@ -403,6 +403,7 @@ export default function SendPaymentScreen(props) {
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
+    buildAmountSnapshot,
   } = useCurrencyDisplay({
     displayCurrency,
     fiatStats,
@@ -412,9 +413,22 @@ export default function SendPaymentScreen(props) {
     isSendingPayment: isSendingPayment.current,
   });
 
+  // Prefer the user's verbatim entered string (display-truth) when we carried it across
+  // the accept/contact handoff and it was entered in the denomination we're now showing.
+  // Only genuine fixed-from-invoice amounts (no entry) fall back to reconversion.
+  // Guard keys on denomination only (fiat vs sats), not the specific currency: the contact
+  // handoff pins paymentDisplayCurrency/paymentDisplayFiatStats and the confirm view hides the
+  // currency switcher, so a same-denomination/different-currency mismatch cannot occur here.
+  const hasEnteredDisplay =
+    paymentInfo?.enteredDisplayAmount != null &&
+    paymentInfo?.enteredDisplayAmount !== '' &&
+    paymentInfo?.enteredDisplayDenomination === primaryDisplay.denomination;
+
   const displayAmount = canEditAmount
-    ? sendingAmount // User is editing, so sendingAmount is in current display denomination
-    : convertSatsToDisplay(sendingAmount); // Fixed from invoice, convert sats to display
+    ? sendingAmount
+    : hasEnteredDisplay
+    ? paymentInfo.enteredDisplayAmount
+    : convertSatsToDisplay(sendingAmount);
 
   const convertedSendAmount = !isUsingLRC20
     ? canEditAmount
@@ -1634,6 +1648,7 @@ export default function SendPaymentScreen(props) {
                   conversionFiatStats={conversionFiatStats}
                   primaryDisplay={primaryDisplay}
                   enteredPaymentInfo={enteredPaymentInfo}
+                  enteredDisplaySnapshot={buildAmountSnapshot(sendingAmount)}
                 />
               )
             }

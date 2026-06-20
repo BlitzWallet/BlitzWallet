@@ -357,6 +357,8 @@ export default async function processLNUrlPay(input, context) {
     sendAmount: enteredAmount ? `${displayAmount}` : '',
     canEditPayment,
     amountSat: amountSat,
+    enteredDisplayAmount: enteredPaymentInfo?.displayAmount ?? null,
+    enteredDisplayDenomination: enteredPaymentInfo?.displayDenomination ?? null,
     lnurlCurrency,
     phonePaymentCountry,
   };

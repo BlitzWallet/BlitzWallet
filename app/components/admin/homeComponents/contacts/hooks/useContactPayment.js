@@ -259,6 +259,7 @@ export default function useContactPayment({
     conversionFiatStats,
     convertDisplayToSats,
     convertSatsToDisplay,
+    buildAmountSnapshot,
   } = useCurrencyDisplay({
     displayCurrency,
     fiatStats,
@@ -661,6 +662,8 @@ export default function useContactPayment({
             ).toFixed(2)
           : null;
 
+      const snapshot = buildAmountSnapshot(amountValue);
+
       return {
         didWork: true,
         params: {
@@ -671,6 +674,8 @@ export default function useContactPayment({
           enteredPaymentInfo: {
             fromContacts: true,
             amount: convertedSendAmount,
+            displayAmount: snapshot.displayAmount,
+            displayDenomination: snapshot.displayDenomination,
             description: base.myProfileMessage,
             endReceiveType: resolvedEndReceiveType,
             lnFeeEstimate: selectedContact?.isLNURL ? lnFeeEstimate : null,
@@ -720,7 +725,11 @@ export default function useContactPayment({
     } finally {
       setIsLoading(false);
     }
+    // buildAmountSnapshot is intentionally omitted from deps: it is recreated every
+    // render (not memoized). Its inputs are already listed below (amountValue +
+    // displayCurrency + conversionFiatStats), so the snapshot cannot go stale.
   }, [
+    amountValue,
     buildBasePaymentObjects,
     contactsPrivateKey,
     conversionFiatStats,
