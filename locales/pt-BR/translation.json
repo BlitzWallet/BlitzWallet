@@ -1431,7 +1431,7 @@
       "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Qual moeda você deseja receber?"
+      "header": "Escolha em qual moeda o valor solicitado será depositado"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
@@ -1806,7 +1806,7 @@
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
-      "halfModalTitle": "Escolha a moeda para exibir",
+      "halfModalTitle": "Inserir valores em",
       "placeholderText": "Procurar moeda",
       "yourCurrencies": "Suas moedas",
       "moreCurrencies": "Mais moedas",
@@ -2917,7 +2917,7 @@
       },
       "empty": {
         "title": "Nada para resgatar",
-        "subtitle": "Você ainda não tem saldo nas Caixinhas ou recompensas em Bitcoin para resgatar."
+        "subtitle": "Você não tem saldo nas Caixinhas ou recompensas em Bitcoin para resgatar"
       },
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
