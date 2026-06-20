@@ -47,7 +47,10 @@ import getReceiveAddressAndContactForContactsPayment from '../contacts/internalC
 import { hasStringAsync } from 'expo-clipboard';
 import { scheduleOnRN } from 'react-native-worklets';
 import { KeyboardController } from 'react-native-keyboard-controller';
-import { isPhonePaymentNumber } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
+import {
+  getPhonePaymentCandidates,
+  getPhonePaymentCountry,
+} from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
 
@@ -197,9 +200,14 @@ export default function HalfModalSendOptions({
     return inputText.startsWith('@') ? inputText.slice(1).trim() : '';
   }, [inputText]);
 
-  const isPhoneNumber = useMemo(
-    () => isPhonePaymentNumber(inputText),
+  const phonePaymentCandidates = useMemo(
+    () => getPhonePaymentCandidates(inputText),
     [inputText],
+  );
+  const isPhoneNumber = phonePaymentCandidates.length > 0;
+  const isGcashNumber = useMemo(
+    () => phonePaymentCandidates.some(c => getPhonePaymentCountry(c) === 'PH'),
+    [phonePaymentCandidates],
   );
 
   const contentOpacity = useSharedValue(1);
@@ -946,7 +954,11 @@ export default function HalfModalSendOptions({
                         styles.emptySubtext,
                         { fontSize: SIZES.smedium, marginBottom: 10 },
                       ]}
-                      content={t('wallet.halfModal.phonePaymentDesc')}
+                      content={t(
+                        isGcashNumber
+                          ? 'wallet.halfModal.phonePaymentDescGcash'
+                          : 'wallet.halfModal.phonePaymentDesc',
+                      )}
                     />
                     <ThemeText
                       styles={[

@@ -1011,6 +1011,7 @@
       "noContactDesc": "Fügen Sie {{username}} zu Ihren Kontakten hinzu, damit der Kontakt hier künftig angezeigt wird, oder fahren Sie fort, um jetzt eine Zahlung zu senden.",
       "phonePaymentTitle": "{{number}} bezahlen",
       "phonePaymentDesc": "Senden an Mobilnummer",
+      "phonePaymentDescGcash": "Senden an GCash-Nummer",
       "depositFunds": "Guthaben einzahlen",
       "depositFundsSubtitle": "Fügen Sie Ihrer Wallet Guthaben hinzu",
       "onChainBitcoin": "Bitcoin einzahlen",

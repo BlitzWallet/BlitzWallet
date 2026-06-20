@@ -1011,6 +1011,7 @@
       "noContactDesc": "Add {{username}} to your contacts to find them here in the future, or continue to send a payment now.",
       "phonePaymentTitle": "Pay {{number}}",
       "phonePaymentDesc": "Sending to mobile number",
+      "phonePaymentDescGcash": "Sending to GCash number",
       "depositFunds": "Deposit Funds",
       "depositFundsSubtitle": "Add funds to your wallet",
       "onChainBitcoin": "Deposit Bitcoin",

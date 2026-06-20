@@ -1011,6 +1011,7 @@
       "noContactDesc": "Добавьте {{username}} в свои контакты, чтобы находить здесь в будущем, или продолжите, чтобы отправить платёж сейчас.",
       "phonePaymentTitle": "Оплатить {{number}}",
       "phonePaymentDesc": "Отправка на мобильный номер",
+      "phonePaymentDescGcash": "Отправка на номер GCash",
       "depositFunds": "Пополнить баланс",
       "depositFundsSubtitle": "Добавьте средства в ваш кошелёк",
       "onChainBitcoin": "Пополнить Bitcoin",

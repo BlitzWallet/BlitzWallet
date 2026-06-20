@@ -1011,6 +1011,7 @@
       "noContactDesc": "Lägg till {{username}} i dina kontakter för att hitta dem här i framtiden, eller fortsätt för att skicka en betalning nu.",
       "phonePaymentTitle": "Betala {{number}}",
       "phonePaymentDesc": "Skickar till mobilnummer",
+      "phonePaymentDescGcash": "Skickar till GCash-nummer",
       "depositFunds": "Sätt in pengar",
       "depositFundsSubtitle": "Lägg till pengar i din plånbok",
       "onChainBitcoin": "Sätt in Bitcoin",
