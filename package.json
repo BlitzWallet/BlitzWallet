@@ -48,7 +48,7 @@
     "crypto-es": "^3.1.2",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
-    "ethers": "^6.15.0",
+    "ethers": "^6.17.0",
     "events": "^3.3.0",
     "expo": "~54.0.0",
     "expo-background-task": "~1.0.8",
