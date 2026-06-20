@@ -25,7 +25,7 @@ describe('orchestraLightning helpers', () => {
         amountIn: '2500000',
         estimatedOut: '2000',
         expiresAt,
-        fee: 12500,
+        quoteFees: 12500,
       },
       2000,
     );

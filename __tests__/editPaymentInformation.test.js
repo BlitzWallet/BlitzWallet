@@ -314,6 +314,10 @@ function expectReceivePageUpdate({ amount, description, method = 'popTo' }) {
     description,
     endReceiveType: 'BTC',
     uuid: 'test-uuid',
+    // Carried back so ReceiveBTC re-opens in the currency the amount was edited
+    // in. BTC mode defaults to SATS; conversionFiatStats is the mocked USD rate.
+    paymentDisplayCurrency: 'SATS',
+    paymentDisplayFiatStats: { coin: 'USD', value: 100000000 },
   };
 
   if (method === 'replace') {
@@ -631,6 +635,8 @@ describe('EditReceivePaymentInformation', () => {
           description: '',
           endReceiveType: 'USD',
           uuid: 'test-uuid',
+          paymentDisplayCurrency: 'USD',
+          paymentDisplayFiatStats: { coin: 'USD', value: 100000000 },
         },
         { merge: true },
       );
@@ -657,6 +663,8 @@ describe('EditReceivePaymentInformation', () => {
           description: '',
           endReceiveType: 'USD',
           uuid: 'test-uuid',
+          paymentDisplayCurrency: 'USD',
+          paymentDisplayFiatStats: { coin: 'USD', value: 100000000 },
         },
         { merge: true },
       );
