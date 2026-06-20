@@ -1390,7 +1390,7 @@
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente",
-      "requestLNURLError": "Só é possível solicitar dinheiro dos contatos Blitz",
+      "requestLNURLError": "Só é possível solicitar dinheiro de contatos Blitz",
       "noTransactions": "Envie ou solicite pagamentos para ver o histórico de transações"
     },
     "expandedMessageHalfModal": {
