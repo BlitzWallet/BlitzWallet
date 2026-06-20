@@ -209,20 +209,33 @@ export default function useContactPayment({
     setLnurlPayData(null);
     setIsResolvingLnurlData(true);
 
-    (async () => {
+    const MAX_ATTEMPTS = 5;
+    const BASE_DELAY_MS = 375;
+
+    const fetchWithBackoff = async (attempt = 0) => {
       try {
         const parsed = await parseInput(selectedContact.receiveAddress);
         if (!isCurrent) return;
         setLnurlPayData(parsed);
         // Seed the ref so estimateLNURLFee reuses it instead of re-parsing.
         lnurlParsedRef.current = parsed;
+        setIsResolvingLnurlData(false);
       } catch {
-        // Leave lnurlPayData null — review stays blocked with an explanatory
-        // message until bounds are known.
-      } finally {
-        if (isCurrent) setIsResolvingLnurlData(false);
+        if (!isCurrent) return;
+
+        if (attempt < MAX_ATTEMPTS - 1) {
+          const delay = BASE_DELAY_MS * 2 ** attempt;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          if (isCurrent) fetchWithBackoff(attempt + 1);
+        } else {
+          // Leave lnurlPayData null — review stays blocked with an explanatory
+          // message until bounds are known.
+          setIsResolvingLnurlData(false);
+        }
       }
-    })();
+    };
+
+    fetchWithBackoff();
 
     return () => {
       isCurrent = false;
