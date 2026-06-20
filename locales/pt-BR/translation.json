@@ -1011,7 +1011,6 @@
       "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora.",
       "phonePaymentTitle": "Pagar {{number}}",
       "phonePaymentDesc": "Enviando para número de celular",
-      "phonePaymentDescGcash": "Enviando para número GCash",
       "depositFunds": "Depositar fundos",
       "depositFundsSubtitle": "Adicione fundos na sua carteira",
       "onChainBitcoin": "Depositar Bitcoin",
@@ -1454,7 +1453,7 @@
       "recipientReceives": "{{contactName}} receberá",
       "giftMessagePlaceholder": "Escreva sua mensagem de presente aqui...",
       "paymentSourceHeader": "Pagar com",
-      "fiatRateLoading": "Carregando a taxa de câmbio da moeda do endereço Lightning"
+      "fiatRateLoading": "Carregando a cotação da moeda do endereço Lightning"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
