@@ -66,6 +66,7 @@ jest.mock('react-native-quick-crypto', () => {
     createDecipheriv: (...args) => nodeCrypto.createDecipheriv(...args),
     createHash: (...args) => nodeCrypto.createHash(...args),
     createHmac: (...args) => nodeCrypto.createHmac(...args),
+    pbkdf2: (...args) => nodeCrypto.pbkdf2(...args),
     pbkdf2Sync: (...args) => nodeCrypto.pbkdf2Sync(...args),
     argon2: (_variant, opts, cb) => {
       const msg =
