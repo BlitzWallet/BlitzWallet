@@ -27,7 +27,10 @@ export default function AddContactsPage({ selectedContact }) {
 
       {lnurl && (
         <View style={styles.infoContainer}>
-          <ThemeText styles={styles.infoLabel} content={'LNURL Address'} />
+          <ThemeText
+            styles={styles.infoLabel}
+            content={t('contacts.editMyProfilePage.lightningAddress')}
+          />
           <ThemeText styles={styles.infoValue} content={lnurl} />
         </View>
       )}
