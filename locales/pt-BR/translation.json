@@ -1453,7 +1453,7 @@
       "recipientReceives": "{{contactName}} receberá",
       "giftMessagePlaceholder": "Escreva sua mensagem de presente aqui...",
       "paymentSourceHeader": "Pagar com",
-      "fiatRateLoading": "Carregando a cotação da moeda do endereço Lightning"
+      "fiatRateLoading": "Carregando cotação da moeda"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
