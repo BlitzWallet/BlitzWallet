@@ -1431,7 +1431,7 @@
       "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Escolha em qual moeda o valor solicitado será depositado"
+      "header": "Escolha a moeda que será depositada na sua conta"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
