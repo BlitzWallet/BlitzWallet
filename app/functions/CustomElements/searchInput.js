@@ -148,6 +148,12 @@ export default function CustomSearchInput({
     pendingBlurRef.current = false;
     keyboardShownForCurrentFocusRef.current = false;
     isFocusedRef.current = true;
+    // If the keyboard is already up (focus transferred from another input),
+    // no keyboardDidShow fires for this focus session. Record that the keyboard
+    // is ours now so our own keyboardDidHide isn't discarded as stale.
+    if (keyboardVisibleRef.current || getKeyboardVisible()) {
+      keyboardShownForCurrentFocusRef.current = true;
+    }
     logSearchInputDiagnostic(diagnosticLabel, 'TextInput onFocus', {
       keyboardVisible: keyboardVisibleRef.current || getKeyboardVisible(),
     });
@@ -400,40 +406,45 @@ export default function CustomSearchInput({
     };
   }, [diagnosticLabel, inputRef, runBlurCallback, scheduleKeyboardHiddenBlur]);
 
-  // useEffect(() => {
-  //   const appStateListener = AppState.addEventListener('change', nextState => {
-  //     clearTimer(appStateTimerRef);
+  useEffect(() => {
+    const appStateListener = AppState.addEventListener('change', nextState => {
+      clearTimer(appStateTimerRef);
 
-  //     if (nextState !== 'active') return;
+      if (nextState !== 'active') return;
 
-  //     appStateTimerRef.current = setTimeout(() => {
-  //       appStateTimerRef.current = null;
+      appStateTimerRef.current = setTimeout(() => {
+        appStateTimerRef.current = null;
 
-  //       if (!isMountedRef.current) return;
+        if (!isMountedRef.current) return;
 
-  //       const keyboardVisible = getKeyboardVisible();
-  //       keyboardVisibleRef.current = keyboardVisible;
+        const keyboardVisible = getKeyboardVisible();
+        keyboardVisibleRef.current = keyboardVisible;
 
-  //       logSearchInputDiagnostic(diagnosticLabel, 'AppState active check', {
-  //         keyboardVisible,
-  //         isFocusedRef: isFocusedRef.current,
-  //         pendingBlur: pendingBlurRef.current,
-  //       });
+        logSearchInputDiagnostic(diagnosticLabel, 'AppState active check', {
+          keyboardVisible,
+          isFocusedRef: isFocusedRef.current,
+          pendingBlur: pendingBlurRef.current,
+        });
 
-  //       if (!pendingBlurRef.current && !isFocusedRef.current) return;
+        // Keyboard is genuinely back (or never hid) -> nothing to reconcile.
+        // Without this guard, the trustKeyboardVisible:false call below would
+        // fire a spurious blur even though the keyboard is still up.
+        if (keyboardVisible) return;
 
-  //       pendingBlurRef.current = true;
-  //       scheduleKeyboardHiddenBlur('AppState active with hidden keyboard', {
-  //         trustKeyboardVisible: false,
-  //       });
-  //     }, APP_ACTIVE_KEYBOARD_CHECK_DELAY_MS);
-  //   });
+        if (!pendingBlurRef.current && !isFocusedRef.current) return;
 
-  //   return () => {
-  //     clearTimer(appStateTimerRef);
-  //     appStateListener.remove();
-  //   };
-  // }, [diagnosticLabel, scheduleKeyboardHiddenBlur]);
+        pendingBlurRef.current = true;
+        scheduleKeyboardHiddenBlur('AppState active with hidden keyboard', {
+          trustKeyboardVisible: false,
+        });
+      }, APP_ACTIVE_KEYBOARD_CHECK_DELAY_MS);
+    });
+
+    return () => {
+      clearTimer(appStateTimerRef);
+      appStateListener.remove();
+    };
+  }, [diagnosticLabel, scheduleKeyboardHiddenBlur]);
 
   useEffect(() => {
     clearTimer(autoFocusTimerRef);
