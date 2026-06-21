@@ -1,4 +1,9 @@
-import { parsePhoneNumberWithError } from 'libphonenumber-js';
+// Use the mobile-aware metadata bundle: the default ("min") metadata is loose
+// enough that a Kenyan mobile (07…) also validates as a Zambian/Philippine
+// number, which produced spurious extra candidates (e.g. a KE number being
+// labelled a GCash/PH number). The /mobile metadata's isValid() only accepts
+// real mobile numbers, which these providers serve.
+import { parsePhoneNumberWithError } from 'libphonenumber-js/mobile';
 import getLNURLDetails from '../lnurl/getLNURLDetails';
 
 // country -> bitcoin payment provider; formatNumber emits the provider's
