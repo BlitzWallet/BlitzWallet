@@ -1,53 +1,48 @@
-import {
-  lnurlAuth,
-  LnUrlCallbackStatusVariant,
-} from '@breeztech/react-native-breez-sdk-liquid';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
-import {
-  ensureLiquidConnection,
-  isLiquidNodeConnected,
-} from '../../../../../functions/breezLiquid/liquidNodeManager';
+import { lnurlAuth } from '../../../../../functions/lnurl/lnurlAuth';
 
 export default async function processLNUrlAuth(input, context) {
   const { navigate, setLoadingMessage, t, accountMnemoinc } = context;
 
-  if (!isLiquidNodeConnected()) {
-    console.log('Liquid node not connected, waiting for connection...');
-    const resposne = await ensureLiquidConnection(accountMnemoinc);
-
-    if (!resposne) throw new Error(t('errormessages.tryAgain'));
-  }
-
-  crashlyticsLogReport('Hanlding LURL auth');
+  crashlyticsLogReport('Handling LNURL auth');
   setLoadingMessage(
     t('wallet.sendPages.handlingAddressErrors.lnurlAuthStartMeessage'),
   );
-  const result = await lnurlAuth(input.data);
-  if (result.type === LnUrlCallbackStatusVariant.OK) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        navigate.reset({
-          index: 0, // The top-level route index
-          routes: [
-            {
-              name: 'HomeAdmin', // Navigate to HomeAdmin
-              params: {
-                screen: 'Home',
-              },
-            },
-            {
-              name: 'ConfirmTxPage',
-              params: {
-                useLNURLAuth: true,
-              },
-            },
-          ],
-        });
-      });
+
+  try {
+    await lnurlAuth({
+      k1: input.data.k1,
+      callback: input.data.callback,
+      mnemonic: accountMnemoinc,
     });
-  } else {
+  } catch (err) {
+    console.log('LNURL auth error', err);
     throw new Error(
-      t('wallet.sendPages.handlingAddressErrors.lnurlFailedAuthMessage'),
+      err.isServiceRejection
+        ? t('wallet.sendPages.handlingAddressErrors.lnurlFailedAuthMessage')
+        : t('errormessages.tryAgain'),
     );
   }
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      navigate.reset({
+        index: 0, // The top-level route index
+        routes: [
+          {
+            name: 'HomeAdmin', // Navigate to HomeAdmin
+            params: {
+              screen: 'Home',
+            },
+          },
+          {
+            name: 'ConfirmTxPage',
+            params: {
+              useLNURLAuth: true,
+            },
+          },
+        ],
+      });
+    });
+  });
 }
