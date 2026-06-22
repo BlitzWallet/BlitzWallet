@@ -1011,7 +1011,7 @@
       "noContactDesc": "Fügen Sie {{username}} zu Ihren Kontakten hinzu, damit der Kontakt hier künftig angezeigt wird, oder fahren Sie fort, um jetzt eine Zahlung zu senden.",
       "phonePaymentTitle": "{{number}} bezahlen",
       "phonePaymentDesc": "Senden an Mobilnummer",
-      "phonePaymentDescGcash": "Senden an GCash-Nummer",
+      "phonePaymentDescGcash": "An eine GCash-Nummer senden",
       "depositFunds": "Guthaben einzahlen",
       "depositFundsSubtitle": "Fügen Sie Ihrer Wallet Guthaben hinzu",
       "onChainBitcoin": "Bitcoin einzahlen",
@@ -1453,7 +1453,7 @@
       "sendGift": "Geschenk senden",
       "requestBitcoin": "BTC anfordern",
       "requestDollars": "USD anfordern",
-      "fiatRateLoading": "Wechselkurs für die Währung der Lightning-Adresse wird geladen"
+      "fiatRateLoading": "Der Wechselkurs für die Währung der Lightning-Adresse wird geladen..."
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Ihre Geschenkkarte konnte derzeit nicht geladen werden. Bitte versuchen Sie es erneut.",
@@ -1807,7 +1807,7 @@
     },
     "fiatCurrency": {
       "title": "Währungen",
-      "halfModalTitle": "Wählen Sie die anzuzeigende Währung",
+      "halfModalTitle": "Wählen Sie die Währung aus, die angezeigt werden soll",
       "placeholderText": "Standardwährung suchen...",
       "yourCurrencies": "Ihre Währungen",
       "moreCurrencies": "Weitere Währungen",
@@ -2527,9 +2527,9 @@
         "insufficientBTCToSwap": "Ein BTC-Guthaben von mindestens {{amount}} ist erforderlich, um von BTC zu tauschen.",
         "insufficientUSDToSwap": "Ein USD-Guthaben von mindestens {{amount}} ist erforderlich, um von USD zu tauschen.",
         "belowSwapLimitTitle": "Guthaben zu niedrig zum Tauschen",
-        "belowSwapLimitBitcoin": "Ihr Bitcoin-Guthaben liegt unter dem Mindestbetrag zum Tauschen. Fügen Sie mindestens {{btcMin}} hinzu, um mit dem Tauschen zu beginnen.",
-        "belowSwapLimitDollar": "Ihr Dollar-Guthaben liegt unter dem Mindestbetrag zum Tauschen. Fügen Sie mindestens {{usdMin}} hinzu, um mit dem Tauschen zu beginnen.",
-        "belowSwapLimitBoth": "Ihre Guthaben liegen unter dem Mindestbetrag zum Tauschen. Sie benötigen mindestens {{btcMin}} in Bitcoin oder {{usdMin}} in Dollar, um mit dem Tauschen zu beginnen.",
+        "belowSwapLimitBitcoin": "Ihr Bitcoin-Guthaben liegt unter dem Mindestbetrag für einen Tausch. Fügen Sie mindestens {{btcMin}} hinzu, um einen Tausch zu starten.",
+        "belowSwapLimitDollar": "Ihr Dollar-Guthaben liegt unter dem Mindestbetrag für einen Tausch. Fügen Sie mindestens {{usdMin}} hinzu, um einen Tausch zu starten.",
+        "belowSwapLimitBoth": "Ihre Guthaben liegen unter dem Mindestbetrag für einen Tausch. Sie benötigen mindestens {{btcMin}} in Bitcoin oder {{usdMin}} in Dollar, um einen Tausch zu starten.",
         "COMMENT": "MAKE SURE check swap message matches the high price imact spelling and order exactly"
       },
       "swapHistory": {
@@ -2913,11 +2913,11 @@
       "loadingSteps": {
         "connecting": "Verbindung zur Spar-Wallet wird hergestellt...",
         "updating": "Kontostand wird aktualisiert...",
-        "finalizing": "Wird abgeschlossen..."
+        "finalizing": "Auszahlung wird abgeschlossen..."
       },
       "empty": {
         "title": "Nichts zum Auszahlen",
-        "subtitle": "Du hast noch keine Ersparnisse oder Bitcoin-Belohnungen zum Auszahlen."
+        "subtitle": "Sie haben noch keine Ersparnisse oder Bitcoin-Belohnungen zum Auszahlen."
       },
       "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehen Sie zurück und versuchen Sie es erneut.",
       "fromInterest": "Aus Ihren Zinsen",
