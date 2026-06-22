@@ -175,8 +175,12 @@ export default function HalfModalSendOptions({
   const hasCommittedRef = useRef(false);
   // Re-entrancy guard for the async manual-input submit (Enter/button spam).
   const isSubmittingRef = useRef(false);
-  // Dedupes contact-flow open across the keyboard-dismiss await.
-  const pendingContactOpenRef = useRef(false);
+  // Holds the contact whose payment overlay is open (or opening). Set
+  // synchronously on the first tap and held until the overlay closes, so any
+  // further tap — including one that lands during the overlay's entrance
+  // animation, before pointerEvents/native state catches up — is ignored and
+  // can't swap the active contact.
+  const activeContactRef = useRef(null);
   const navigate = useNavigation();
   const { cache } = useImageCache();
   const { bottomPadding } = useGlobalInsets();
@@ -544,10 +548,11 @@ export default function HalfModalSendOptions({
 
   const handleSelectContact = useCallback(
     async contact => {
-      // Ignore if we're already navigating away, or a contact open is mid-flight
-      // (dedupes rapid row taps across the keyboard-dismiss await below).
-      if (hasCommittedRef.current || pendingContactOpenRef.current) return;
-      pendingContactOpenRef.current = true;
+      // Ignore if we're navigating away, or a contact is already active. The
+      // latch is set synchronously and held until the overlay closes, so a
+      // second tap during the overlay's entrance animation is dropped here.
+      if (hasCommittedRef.current || activeContactRef.current) return;
+      activeContactRef.current = contact;
       try {
         await KeyboardController.dismiss();
         if (!isMountedRef.current) return;
@@ -558,8 +563,10 @@ export default function HalfModalSendOptions({
           selectedContact: contact,
           imageData: cache[contact.uuid],
         });
-      } finally {
-        pendingContactOpenRef.current = false;
+      } catch (err) {
+        // Open failed before the overlay mounted; release the latch so the row
+        // can be tapped again.
+        activeContactRef.current = null;
       }
     },
     [cache, navigate],
@@ -635,20 +642,16 @@ export default function HalfModalSendOptions({
   ]);
 
   const handleFilteredContactPress = useCallback(
-    async contact => {
-      if (hasCommittedRef.current || pendingContactOpenRef.current) return;
-      pendingContactOpenRef.current = true;
-      try {
-        KeyboardController.dismiss();
-        setIsKeyboardActive(false);
-        navigate.setParams({ selectedPaymentMethod: undefined });
-        setContactFlow({
-          selectedContact: contact,
-          imageData: cache[contact.uuid],
-        });
-      } finally {
-        pendingContactOpenRef.current = false;
-      }
+    contact => {
+      if (hasCommittedRef.current || activeContactRef.current) return;
+      activeContactRef.current = contact;
+      KeyboardController.dismiss();
+      setIsKeyboardActive(false);
+      navigate.setParams({ selectedPaymentMethod: undefined });
+      setContactFlow({
+        selectedContact: contact,
+        imageData: cache[contact.uuid],
+      });
     },
     [cache, navigate, setIsKeyboardActive],
   );
@@ -680,14 +683,17 @@ export default function HalfModalSendOptions({
     [],
   );
 
-  const handleContactsPaymentClose = useCallback(
-    () => setContactFlow(null),
-    [],
-  );
+  const handleContactsPaymentClose = useCallback(() => {
+    activeContactRef.current = null;
+    setContactFlow(null);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.mainContent, contentStyle]}>
+      <Animated.View
+        style={[styles.mainContent, contentStyle]}
+        pointerEvents={anyOverlayVisible ? 'none' : 'auto'}
+      >
         {/* Search Input with Clipboard Icon */}
         <View
           style={[
