@@ -2,6 +2,8 @@ import { StyleSheet, View } from 'react-native';
 import { CENTER, SATSPERBITCOIN } from '../../constants';
 import KeyForKeyboard from './key';
 import { useCallback, useMemo } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { HIDDEN_OPACITY } from '../../constants/theme';
 
 export default function CustomNumberKeyboard({
   setInputValue,
@@ -11,9 +13,18 @@ export default function CustomNumberKeyboard({
   fiatStats,
   useMaxBalance = true,
   customFunction,
+  disabled = false,
+  disabledMessage = '',
 }) {
+  const navigate = useNavigation();
   const addPin = useCallback(
     id => {
+      if (disabled) {
+        if (disabledMessage) {
+          navigate.navigate('ErrorScreen', { errorMessage: disabledMessage });
+        }
+        return;
+      }
       if (customFunction) {
         customFunction(id);
         return;
@@ -70,6 +81,8 @@ export default function CustomNumberKeyboard({
       fiatStats,
       useMaxBalance,
       customFunction,
+      disabled,
+      disabledMessage,
     ],
   );
 
@@ -82,8 +95,9 @@ export default function CustomNumberKeyboard({
             ? 0
             : 'auto',
       },
+      disabled && styles.disabledKeyboard,
     ],
-    [frompage],
+    [frompage, disabled],
   );
 
   const numbers = useMemo(
@@ -123,6 +137,7 @@ export default function CustomNumberKeyboard({
 
 const styles = StyleSheet.create({
   keyboardContainer: { width: '100%', maxWidth: 400, ...CENTER },
+  disabledKeyboard: { opacity: HIDDEN_OPACITY },
   keyboard_row: {
     width: '100%',
     flexDirection: 'row',

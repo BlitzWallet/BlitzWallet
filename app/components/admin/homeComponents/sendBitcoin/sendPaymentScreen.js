@@ -80,6 +80,10 @@ import { getLNAddressForLiquidPayment } from './functions/payments';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
+import { lnurlCurrencyToRate } from '../../../../functions/sendBitcoin/lnurlCurrencyRate';
+import { PROVIDER_COUNTRY_CURRENCY } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
+import { fiatCurrencies } from '../../../../functions/currencyOptions';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -111,7 +115,7 @@ export default function SendPaymentScreen(props) {
     useUserBalanceContext();
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { accountMnemoinc, contactsPrivateKey } = useKeysContext();
+  const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { sparkInformation, showTokensInformation, sparkInfoRef } =
     useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -135,6 +139,9 @@ export default function SendPaymentScreen(props) {
   const conversionFiatStatsRef = useRef(null);
   const quoteId = useRef(null);
   const isMountedRef = useRef(true);
+  // Tracks the decoded address we've already applied a local-currency default for,
+  // so the phone-payment currency default runs once per address (not every render).
+  const appliedLocalCurrencyRef = useRef(null);
 
   // Drives the SWAP_RATES_CHANGED uiState when Flashnet rate drift breaks swap viability.
   const [rateChangeDetected, setRateChangeDetected] = useState(false);
@@ -374,20 +381,29 @@ export default function SendPaymentScreen(props) {
         : undefined,
     [paymentDisplayCurrency, paymentDisplayFiatStats],
   );
-  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
-    useDisplayCurrencyController({
-      initialCurrency: initialDisplayCurrency,
-      fiatStats,
-      usdFiatStats,
-      masterInfoObject,
-      additionalRates,
-    });
+  const {
+    displayCurrency,
+    currencyRates,
+    isLoadingRate,
+    selectCurrency,
+    loadAndSetCurrency,
+    injectRate,
+    hasUserSelectedDisplayCurrency,
+  } = useDisplayCurrencyController({
+    initialCurrency: initialDisplayCurrency,
+    fiatStats,
+    usdFiatStats,
+    masterInfoObject,
+    additionalRates,
+  });
 
   const {
     primaryDisplay,
+    secondaryDisplay,
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
+    buildAmountSnapshot,
   } = useCurrencyDisplay({
     displayCurrency,
     fiatStats,
@@ -397,9 +413,22 @@ export default function SendPaymentScreen(props) {
     isSendingPayment: isSendingPayment.current,
   });
 
+  // Prefer the user's verbatim entered string (display-truth) when we carried it across
+  // the accept/contact handoff and it was entered in the denomination we're now showing.
+  // Only genuine fixed-from-invoice amounts (no entry) fall back to reconversion.
+  // Guard keys on denomination only (fiat vs sats), not the specific currency: the contact
+  // handoff pins paymentDisplayCurrency/paymentDisplayFiatStats and the confirm view hides the
+  // currency switcher, so a same-denomination/different-currency mismatch cannot occur here.
+  const hasEnteredDisplay =
+    paymentInfo?.enteredDisplayAmount != null &&
+    paymentInfo?.enteredDisplayAmount !== '' &&
+    paymentInfo?.enteredDisplayDenomination === primaryDisplay.denomination;
+
   const displayAmount = canEditAmount
-    ? sendingAmount // User is editing, so sendingAmount is in current display denomination
-    : convertSatsToDisplay(sendingAmount); // Fixed from invoice, convert sats to display
+    ? sendingAmount
+    : hasEnteredDisplay
+    ? paymentInfo.enteredDisplayAmount
+    : convertSatsToDisplay(sendingAmount);
 
   const convertedSendAmount = !isUsingLRC20
     ? canEditAmount
@@ -986,6 +1015,8 @@ export default function SendPaymentScreen(props) {
         min_usd_swap_amount,
         primaryDisplay: primaryDisplayRef.current,
         conversionFiatStats: conversionFiatStatsRef.current,
+        contactsPrivateKey,
+        publicKey,
       });
       setIsDecoding(false);
     }
@@ -1002,6 +1033,48 @@ export default function SendPaymentScreen(props) {
     sparkInformation.identityPubKey,
     refreshDecode,
     // selectedPaymentMethod,
+  ]);
+
+  // After an LNURL pay decode, default the amount input to the payment location's
+  // local fiat currency for phone-number payments, and seed any LNURL-advertised
+  // rate so a manual switch to that currency uses the provided rate. Runs once per
+  // decoded address and never overrides a manual currency selection.
+  useEffect(() => {
+    const country = paymentInfo?.phonePaymentCountry;
+    const descriptor = paymentInfo?.lnurlCurrency || null;
+
+    // Nothing to do for non-phone pays that don't advertise a currency.
+    if (paymentDisplayCurrency && paymentDisplayFiatStats) return;
+    if (!country && !descriptor) return;
+    if (hasUserSelectedDisplayCurrency) return;
+
+    const address = paymentInfo?.data?.address;
+    if (appliedLocalCurrencyRef.current === address) return;
+
+    const code = (
+      descriptor?.code ||
+      (country ? PROVIDER_COUNTRY_CURRENCY[country] : '') ||
+      ''
+    ).toUpperCase();
+    if (!code || !fiatCurrencies.some(c => c.id === code)) return;
+
+    appliedLocalCurrencyRef.current = address;
+
+    const rate = lnurlCurrencyToRate(descriptor);
+    if (rate) {
+      // Phone pay: seed the rate and switch to it. Non-phone: seed only, so the
+      // provided rate is used if the user manually switches to this currency.
+      injectRate(code, rate, { setAsDisplay: !!country });
+    } else if (country) {
+      // Phone pay with no usable LNURL rate: fall back to our internal rate. If
+      // that fails, the existing BTC/device-currency default stays.
+      loadAndSetCurrency(code);
+    }
+  }, [
+    paymentInfo,
+    hasUserSelectedDisplayCurrency,
+    injectRate,
+    loadAndSetCurrency,
   ]);
 
   // Fast pay auto-trigger
@@ -1205,6 +1278,8 @@ export default function SendPaymentScreen(props) {
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
                     blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    paymentDisplay: primaryDisplayRef.current,
+                    displayAmount,
                   },
                 },
               ],
@@ -1233,6 +1308,8 @@ export default function SendPaymentScreen(props) {
                         ? normalizeLNURLAddress(paymentInfo?.data?.address)
                         : undefined,
                     blitzContactInfo: paymentInfo?.blitzContactInfo,
+                    paymentDisplay: primaryDisplayRef.current,
+                    displayAmount,
                   },
                 },
               ],
@@ -1271,6 +1348,7 @@ export default function SendPaymentScreen(props) {
     resolvedPaymentMethod,
     fiatValueConvertedSendAmount,
     paymentValidation,
+    displayAmount,
   ]);
 
   const handleSelectPaymentMethod = useCallback(
@@ -1377,7 +1455,7 @@ export default function SendPaymentScreen(props) {
           leftImageStyles={{ height: 25 }}
           leftImageFunction={handleBrandaVerificationUrl}
           rightContent={
-            !isUsingLRC20 ? (
+            !isUsingLRC20 && uiState !== 'CONFIRM_PAYMENT' ? (
               <CurrencySwitchButton
                 displayCurrency={displayCurrency}
                 onPress={openCurrencyPicker}
@@ -1402,6 +1480,12 @@ export default function SendPaymentScreen(props) {
                 }
                 maxDecimals={isUsingLRC20 ? tokenDecimals : 2}
               />
+              {uiState === 'CONFIRM_PAYMENT' && !isUsingLRC20 && (
+                <SecondaryAmountDisplay
+                  amountSats={convertedSendAmount}
+                  secondaryDisplay={secondaryDisplay}
+                />
+              )}
             </View>
           )}
 
@@ -1521,7 +1605,6 @@ export default function SendPaymentScreen(props) {
               containerStyles={{
                 width: INSET_WINDOW_WIDTH,
                 marginTop: 10,
-                maxWidth: 350,
               }}
             />
 
@@ -1569,6 +1652,7 @@ export default function SendPaymentScreen(props) {
                   conversionFiatStats={conversionFiatStats}
                   primaryDisplay={primaryDisplay}
                   enteredPaymentInfo={enteredPaymentInfo}
+                  enteredDisplaySnapshot={buildAmountSnapshot(sendingAmount)}
                 />
               )
             }

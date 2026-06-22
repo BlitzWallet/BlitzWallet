@@ -63,6 +63,7 @@ import Animated, { FadeOutDown } from 'react-native-reanimated';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -149,7 +150,7 @@ export default function StablecoinSendScreen() {
       sourceMethod === 'USD'
         ? 'USD'
         : getDefaultDisplayCurrency({
-            paymentMode: 'USD',
+            paymentMode: sourceMethod,
             masterInfoObject,
             fiatStats,
           }),
@@ -170,6 +171,7 @@ export default function StablecoinSendScreen() {
 
   const {
     primaryDisplay,
+    secondaryDisplay,
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
@@ -181,6 +183,13 @@ export default function StablecoinSendScreen() {
     masterInfoObject,
     isSendingPayment: isSendingPayment.current,
   });
+
+  // Kept current so the success-page handoff reads the live display config
+  // rather than a stale value captured in the handleSend useCallback closure.
+  const primaryDisplayRef = useRef(primaryDisplay);
+  useEffect(() => {
+    primaryDisplayRef.current = primaryDisplay;
+  }, [primaryDisplay]);
 
   const convertedSendAmount = convertDisplayToSats(rawInput);
 
@@ -488,6 +497,8 @@ export default function StablecoinSendScreen() {
                 name: 'ConfirmTxPage',
                 params: {
                   transaction: pendingTx,
+                  paymentDisplay: primaryDisplayRef.current,
+                  displayAmount: rawInput,
                 },
               },
             ],
@@ -536,6 +547,7 @@ export default function StablecoinSendScreen() {
     publicKey,
     clearCountdown,
     t,
+    rawInput,
   ]);
 
   const handleEmoji = newDescription => {
@@ -647,13 +659,15 @@ export default function StablecoinSendScreen() {
           label={`${t('constants.send')}`}
           containerStyles={{ marginBottom: 0 }}
           rightContent={
-            <CurrencySwitchButton
-              displayCurrency={sourceMethod === 'USD' ? 'USD' : displayCurrency}
-              onPress={openPicker}
-              disabled={
-                isLoadingRate || isConfirmMode || sourceMethod === 'USD'
-              }
-            />
+            !isConfirmMode ? (
+              <CurrencySwitchButton
+                displayCurrency={
+                  sourceMethod === 'USD' ? 'USD' : displayCurrency
+                }
+                onPress={openPicker}
+                disabled={isLoadingRate || sourceMethod === 'USD'}
+              />
+            ) : null
           }
         />
         <ThemeText
@@ -678,6 +692,12 @@ export default function StablecoinSendScreen() {
               forceFiatStats={primaryDisplay.forceFiatStats}
               activeOpacity={!convertedSendAmount ? 0.5 : 1}
             />
+            {isConfirmMode && (
+              <SecondaryAmountDisplay
+                amountSats={convertedSendAmount}
+                secondaryDisplay={secondaryDisplay}
+              />
+            )}
           </View>
 
           {/* Confirm mode: fee info */}
@@ -738,7 +758,6 @@ export default function StablecoinSendScreen() {
             containerStyles={{
               width: INSET_WINDOW_WIDTH,
               marginTop: 10,
-              maxWidth: 350,
               ...CENTER,
             }}
           />

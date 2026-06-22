@@ -9,6 +9,7 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
   CENTER,
@@ -89,6 +90,15 @@ const SAVINGS_INTEREST_POLL_CACHE_KEY = 'savings_interest_poll_cache';
 
 const MIN_STEP_MS = 800;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+// Messages cycled on the full-screen loader while the savings wallet connects
+// and its Bitcoin balance settles via the poller.
+const LOADING_MESSAGE_KEYS = [
+  'savings.withdraw.loadingSteps.connecting',
+  'savings.withdraw.loadingSteps.updating',
+  'savings.withdraw.loadingSteps.finalizing',
+];
+const LOADING_MESSAGE_INTERVAL_MS = 2500;
 
 const HEIGHT_FOR_PAGE = {
   balanceType: 500,
@@ -189,6 +199,30 @@ export default function WithdrawFromSavingsHalfModal({
   const [selectedGoalId, setSelectedGoalId] = useState(selectedGoalUUID);
 
   const currentPage = step[step.length - 1];
+
+  // True while the balanceType page is still resolving balances — the wallet is
+  // initialising, or it's initialised but the Bitcoin balance poller hasn't
+  // settled yet. Drives the cycling full-screen loader below.
+  const isLoadingBalances =
+    currentPage === 'balanceType' &&
+    sparkInitStatus !== 'error' &&
+    (sparkInitStatus === 'idle' ||
+      sparkInitStatus === 'loading' ||
+      !balanceReady);
+
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  useEffect(() => {
+    if (!isLoadingBalances) {
+      setLoadingMessageIndex(0);
+      return;
+    }
+    const intervalId = setInterval(() => {
+      setLoadingMessageIndex(prev =>
+        Math.min(prev + 1, LOADING_MESSAGE_KEYS.length - 1),
+      );
+    }, LOADING_MESSAGE_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, [isLoadingBalances]);
 
   // Dollar destination → user types USD; Bitcoin destination → user types sats/fiat
   const paymentMode = selectedBalanceType !== 'interest' ? 'USD' : 'BTC';
@@ -338,6 +372,11 @@ export default function WithdrawFromSavingsHalfModal({
         );
 
         await poller.start();
+        // Safety net: the poller only fires onBalanceUpdate when the balance
+        // settles. If it exhausts its retries (e.g. balance calls keep failing)
+        // mark ready anyway so the UI never hangs on the loader — interestSats
+        // falls back to the cached value / 0.
+        if (!abortController.signal.aborted) setBalanceReady(true);
       } catch {
         if (!abortController.signal.aborted) setSparkInitStatus('error');
       }
@@ -648,9 +687,41 @@ export default function WithdrawFromSavingsHalfModal({
 
   // Choose between Interest or Savings balance
   if (currentPage === 'balanceType') {
-    // While wallet is initialising, show a full-screen spinner
-    if (sparkInitStatus === 'idle' || sparkInitStatus === 'loading') {
-      return <FullLoadingScreen text={t('savings.withdraw.loadingBalances')} />;
+    // While the wallet connects and the Bitcoin balance settles, cycle through
+    // status messages on a full-screen loader.
+    if (isLoadingBalances) {
+      return (
+        <FullLoadingScreen
+          text={t(LOADING_MESSAGE_KEYS[loadingMessageIndex])}
+        />
+      );
+    }
+
+    // Wallet failed to initialise — prompt the user to retry.
+    if (sparkInitStatus === 'error') {
+      return (
+        <View style={styles.container}>
+          <ThemeText
+            styles={styles.title}
+            content={t('savings.withdraw.balanceTypeTitle')}
+          />
+          <ThemeText
+            styles={styles.balanceLoadErrorText}
+            content={t('savings.withdraw.balanceLoadError')}
+          />
+        </View>
+      );
+    }
+
+    // Balances settled but there is nothing to withdraw — show an empty state.
+    if (isInterestDisabled && isSavingsDisabled) {
+      return (
+        <NoContentSceen
+          iconName="PiggyBank"
+          titleText={t('savings.withdraw.empty.title')}
+          subTitleText={t('savings.withdraw.empty.subtitle')}
+        />
+      );
     }
 
     return (
@@ -660,188 +731,179 @@ export default function WithdrawFromSavingsHalfModal({
           content={t('savings.withdraw.balanceTypeTitle')}
         />
 
-        {sparkInitStatus === 'error' ? (
-          <ThemeText
-            styles={styles.balanceLoadErrorText}
-            content={t('savings.withdraw.balanceLoadError')}
-          />
-        ) : (
-          <View style={styles.optionsList}>
-            {/* Interest option — BTC sats from savings payouts */}
-            <View>
-              <TouchableOpacity
-                activeOpacity={
-                  isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 0.7
-                }
-                style={[
-                  styles.optionRow,
-                  {
-                    backgroundColor:
-                      theme && darkModeType
-                        ? backgroundColor
-                        : backgroundOffset,
-                    opacity:
-                      isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 1,
-                  },
-                ]}
-                onPress={() => {
-                  if (isInterestDisabled || !balanceReady) return;
-                  setSelectedBalanceType('interest');
-                  setSelectedDestination('bitcoin');
-                  setAmountValue('');
-                  setStep(prev => [...prev, 'amount']);
-                }}
-              >
-                {balanceReady ? (
-                  <View style={styles.optionLeft}>
-                    <View
-                      style={[
-                        styles.iconContainer,
-                        {
-                          backgroundColor:
-                            theme && darkModeType
-                              ? backgroundOffset
-                              : COLORS.primary,
-                        },
-                      ]}
-                    >
-                      <ThemeIcon
-                        iconName="TrendingUp"
-                        size={22}
-                        colorOverride={COLORS.white}
-                      />
-                    </View>
-                    <View style={{ flexShrink: 1 }}>
-                      <ThemeText
-                        styles={styles.optionTitle}
-                        content={t('savings.withdraw.interestOption')}
-                      />
-
-                      {isInterestDisabled ? (
-                        <ThemeText
-                          styles={styles.optionSubtitle}
-                          content={t('savings.withdraw.interestZeroHint')}
-                        />
-                      ) : (
-                        <ThemeText
-                          styles={styles.optionSubtitle}
-                          content={
-                            isInterestDisabled
-                              ? t('savings.withdraw.interestZeroHint')
-                              : displayCorrectDenomination({
-                                  amount: interestSats,
-                                  masterInfoObject: {
-                                    ...masterInfoObject,
-                                    userBalanceDenomination: 'sats',
-                                  },
-                                  fiatStats,
-                                })
-                          }
-                        />
-                      )}
-                    </View>
-                  </View>
-                ) : (
-                  <SkeletonPlaceholder
-                    enabled={true}
-                    backgroundColor={COLORS.opaicityGray}
-                    highlightColor={
-                      theme
-                        ? darkModeType
-                          ? COLORS.lightsOutBackground
-                          : COLORS.darkModeBackground
-                        : COLORS.lightModeBackground
-                    }
-                  >
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        width: screenDimensions.width * 0.9 - 48,
-                        gap: 10,
-                      }}
-                    >
-                      <View style={SKELETON_STYLES.icon} />
-                      <View style={SKELETON_STYLES.content}>
-                        <View style={SKELETON_STYLES.line} />
-                        <View style={SKELETON_STYLES.lastLine} />
-                      </View>
-                    </View>
-                  </SkeletonPlaceholder>
-                )}
-                {!isInterestDisabled && balanceReady && (
-                  <ThemeIcon iconName="ChevronRight" size={16} />
-                )}
-              </TouchableOpacity>
-            </View>
-
-            {/* Savings option — USDB tokens from user deposits */}
+        <View style={styles.optionsList}>
+          {/* Interest option — BTC sats from savings payouts */}
+          <View>
             <TouchableOpacity
-              activeOpacity={isSavingsDisabled ? HIDDEN_OPACITY : 0.7}
+              activeOpacity={
+                isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 0.7
+              }
               style={[
                 styles.optionRow,
                 {
                   backgroundColor:
                     theme && darkModeType ? backgroundColor : backgroundOffset,
-                  opacity: isSavingsDisabled ? HIDDEN_OPACITY : 1,
+                  opacity:
+                    isInterestDisabled && balanceReady ? HIDDEN_OPACITY : 1,
                 },
               ]}
               onPress={() => {
-                if (isSavingsDisabled) return;
-                setSelectedBalanceType('savings');
-                setSelectedDestination('dollar');
+                if (isInterestDisabled || !balanceReady) return;
+                setSelectedBalanceType('interest');
+                setSelectedDestination('bitcoin');
                 setAmountValue('');
-                if (selectedGoalUUID && !savingsGoals.length) {
-                  setStep(prev => [...prev, 'amount']);
-                } else {
-                  setStep(prev => [...prev, 'chooseGoal']);
-                }
+                setStep(prev => [...prev, 'amount']);
               }}
             >
-              <View style={styles.optionLeft}>
-                <View
-                  style={[
-                    styles.iconContainer,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? backgroundOffset
-                          : backgroundColor,
-                    },
-                  ]}
+              {balanceReady ? (
+                <View style={styles.optionLeft}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? backgroundOffset
+                            : COLORS.primary,
+                      },
+                    ]}
+                  >
+                    <ThemeIcon
+                      iconName="TrendingUp"
+                      size={22}
+                      colorOverride={COLORS.white}
+                    />
+                  </View>
+                  <View style={{ flexShrink: 1 }}>
+                    <ThemeText
+                      styles={styles.optionTitle}
+                      content={t('savings.withdraw.interestOption')}
+                    />
+
+                    {isInterestDisabled ? (
+                      <ThemeText
+                        styles={styles.optionSubtitle}
+                        content={t('savings.withdraw.interestZeroHint')}
+                      />
+                    ) : (
+                      <ThemeText
+                        styles={styles.optionSubtitle}
+                        content={
+                          isInterestDisabled
+                            ? t('savings.withdraw.interestZeroHint')
+                            : displayCorrectDenomination({
+                                amount: interestSats,
+                                masterInfoObject: {
+                                  ...masterInfoObject,
+                                  userBalanceDenomination: 'sats',
+                                },
+                                fiatStats,
+                              })
+                        }
+                      />
+                    )}
+                  </View>
+                </View>
+              ) : (
+                <SkeletonPlaceholder
+                  enabled={true}
+                  backgroundColor={COLORS.opaicityGray}
+                  highlightColor={
+                    theme
+                      ? darkModeType
+                        ? COLORS.lightsOutBackground
+                        : COLORS.darkModeBackground
+                      : COLORS.lightModeBackground
+                  }
                 >
-                  <ThemeText styles={styles.emojiText} content="🏦" />
-                </View>
-                <View style={{ flexShrink: 1 }}>
-                  <ThemeText
-                    styles={styles.optionTitle}
-                    content={t('savings.withdraw.savingsOption')}
-                  />
-                  <ThemeText
-                    styles={styles.optionSubtitle}
-                    content={
-                      isSavingsDisabled
-                        ? t('savings.withdraw.savingsZeroHint')
-                        : displayCorrectDenomination({
-                            amount: savingsBalanceUsd,
-                            masterInfoObject: {
-                              ...masterInfoObject,
-                              userBalanceDenomination: 'fiat',
-                            },
-                            fiatStats,
-                            forceCurrency: 'USD',
-                            convertAmount: false,
-                          })
-                    }
-                  />
-                </View>
-              </View>
-              {!isSavingsDisabled && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      width: screenDimensions.width * 0.9 - 48,
+                      gap: 10,
+                    }}
+                  >
+                    <View style={SKELETON_STYLES.icon} />
+                    <View style={SKELETON_STYLES.content}>
+                      <View style={SKELETON_STYLES.line} />
+                      <View style={SKELETON_STYLES.lastLine} />
+                    </View>
+                  </View>
+                </SkeletonPlaceholder>
+              )}
+              {!isInterestDisabled && balanceReady && (
                 <ThemeIcon iconName="ChevronRight" size={16} />
               )}
             </TouchableOpacity>
           </View>
-        )}
+
+          {/* Savings option — USDB tokens from user deposits */}
+          <TouchableOpacity
+            activeOpacity={isSavingsDisabled ? HIDDEN_OPACITY : 0.7}
+            style={[
+              styles.optionRow,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+                opacity: isSavingsDisabled ? HIDDEN_OPACITY : 1,
+              },
+            ]}
+            onPress={() => {
+              if (isSavingsDisabled) return;
+              setSelectedBalanceType('savings');
+              setSelectedDestination('dollar');
+              setAmountValue('');
+              if (selectedGoalUUID && !savingsGoals.length) {
+                setStep(prev => [...prev, 'amount']);
+              } else {
+                setStep(prev => [...prev, 'chooseGoal']);
+              }
+            }}
+          >
+            <View style={styles.optionLeft}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundOffset
+                        : backgroundColor,
+                  },
+                ]}
+              >
+                <ThemeText styles={styles.emojiText} content="🏦" />
+              </View>
+              <View style={{ flexShrink: 1 }}>
+                <ThemeText
+                  styles={styles.optionTitle}
+                  content={t('savings.withdraw.savingsOption')}
+                />
+                <ThemeText
+                  styles={styles.optionSubtitle}
+                  content={
+                    isSavingsDisabled
+                      ? t('savings.withdraw.savingsZeroHint')
+                      : displayCorrectDenomination({
+                          amount: savingsBalanceUsd,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination: 'fiat',
+                          },
+                          fiatStats,
+                          forceCurrency: 'USD',
+                          convertAmount: false,
+                        })
+                  }
+                />
+              </View>
+            </View>
+            {!isSavingsDisabled && (
+              <ThemeIcon iconName="ChevronRight" size={16} />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }

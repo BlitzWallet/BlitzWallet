@@ -31,6 +31,44 @@ export function getNoonChicagoUtcMs(referenceUtcMs) {
   return noonUtcProbe + (12 - chicagoHourAtProbe) * 60 * 60 * 1000;
 }
 
+/**
+ * Returns the real UTC milliseconds of the next 00:00 UTC strictly after
+ * referenceUtcMs. The Blitz stats backend job (updateBlitzStatsJob,
+ * us-central1) runs once per day on the `0 0 * * *` UTC schedule, so this
+ * is when fresh explore data lands. Used to drive the explore-page
+ * "time left" countdown so it tracks the real update, not noon Chicago.
+ */
+export function getNextStatsUpdateUtcMs(referenceUtcMs) {
+  const date = new Date(referenceUtcMs);
+  return Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate() + 1,
+    0,
+    0,
+    0,
+    0,
+  );
+}
+
+/**
+ * Returns the real UTC milliseconds of the most recent 00:00 UTC at or
+ * before referenceUtcMs — i.e. the day's stats-update boundary. Pairs with
+ * getNextStatsUpdateUtcMs to gate explore-data cache refreshes.
+ */
+export function getLastStatsUpdateUtcMs(referenceUtcMs) {
+  const date = new Date(referenceUtcMs);
+  return Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    0,
+    0,
+    0,
+    0,
+  );
+}
+
 export function formatLocalTimeShort(date) {
   try {
     return date.toLocaleDateString(i18next.language, {

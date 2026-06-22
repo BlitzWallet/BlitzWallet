@@ -2,11 +2,9 @@ import {
   View,
   TextInput,
   StyleSheet,
-  Keyboard,
   ScrollView,
   Platform,
 } from 'react-native';
-import { Back_BTN } from '../../../components/login';
 import {
   CENTER,
   COLORS,
@@ -38,6 +36,10 @@ import { wordlist } from '@scure/bip39/wordlists/english';
 import { handleRestoreFromText } from '../../../functions/seed';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import CustomSettingsTopBar from '../../../functions/CustomElements/settingsTopBar';
+import {
+  KeyboardController,
+  KeyboardEvents,
+} from 'react-native-keyboard-controller';
 
 const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -316,17 +318,20 @@ export default function RestoreWallet({
   ]);
 
   useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener(
+    const keyboardDidHideListener = KeyboardEvents.addListener(
       'keyboardDidHide',
       () => {
         setCurrentFocused(null);
+        if (keyRefs.current[currentFocused]?.isFocused()) {
+          keyRefs.current[currentFocused]?.blur();
+        }
       },
     );
 
     return () => {
       keyboardDidHideListener.remove();
     };
-  }, []);
+  }, [currentFocused]);
 
   if (isValidating) {
     return <FullLoadingScreen text={t('constants.validating')} />;
@@ -334,7 +339,7 @@ export default function RestoreWallet({
 
   return (
     <CustomKeyboardAvoidingView
-      touchableWithoutFeedbackFunction={Keyboard.dismiss}
+      touchableWithoutFeedbackFunction={KeyboardController.dismiss}
       useLocalPadding={false}
       useTouchableWithoutFeedback={true}
     >

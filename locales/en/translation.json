@@ -1011,6 +1011,7 @@
       "noContactDesc": "Add {{username}} to your contacts to find them here in the future, or continue to send a payment now.",
       "phonePaymentTitle": "Pay {{number}}",
       "phonePaymentDesc": "Sending to mobile number",
+      "phonePaymentDescGcash": "Sending to GCash number",
       "depositFunds": "Deposit Funds",
       "depositFundsSubtitle": "Add funds to your wallet",
       "onChainBitcoin": "Deposit Bitcoin",
@@ -1179,7 +1180,7 @@
         "receive_amount": "receive amount",
         "descriptionInputPlaceholder": "Description...",
         "editAmount": "Edit invoice",
-        "minUSDSwap": "Payments converted to dollars require a minimum amount of:\n{{amount}}"
+        "minUSDSwap": "Payments received as dollars require a minimum amount of:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Change receive method",
@@ -1452,7 +1453,8 @@
       "giftMessage": "Gift Message",
       "recipientReceives": "{{contactName}} will receive",
       "giftMessagePlaceholder": "Write your gift message here...",
-      "paymentSourceHeader": "Payment Source"
+      "paymentSourceHeader": "Payment Source",
+      "fiatRateLoading": "Loading Lightning Address currency rate"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "We couldn't load your gift card right now. Please try again.",
@@ -2183,7 +2185,7 @@
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
         "copyInvoice": "Copy Invoice",
-        "usdSwapMinNotice": "Only payments over {{amount}} will be converted to dollars",
+        "usdSwapMinNotice": "Only payments over {{amount}} will be received to dollars",
         "shareInvoice": "Share Invoice",
         "walletNotConnected": "Wallet not connected. Please try again.",
         "paylinkSaveError": "Failed to save paylink",
@@ -2698,7 +2700,8 @@
     "removingImageError": "Unable to remove image. Please try again.",
     "usdcUsdtTokensOnly": "Only USDT and USDC tokens are supported",
     "lightningAmountFeeWarning": "Your balance does not cover the amount and ≈{{amount}} fee.",
-    "lightningAmountRequiredWarning": "This payment requires ≈{{amount}}. Please lower the amount or add funds."
+    "lightningAmountRequiredWarning": "This payment requires ≈{{amount}}. Please lower the amount or add funds.",
+    "lnurlLimitsLoading": "The payment limits for this contact are still loading. Please try again in a moment."
   },
   "loadingScreen": {
     "message1": "Please don't close the app",
@@ -2909,6 +2912,15 @@
       "savingsZeroHint": "Nothing saved yet",
       "interestBelowMinHint": "Your Bitcoin balance is below the minimum swap amount. Please withdraw to your Bitcoin balance.",
       "loadingBalances": "Loading balances...",
+      "loadingSteps": {
+        "connecting": "Connecting to savings wallet...",
+        "updating": "Updating balance...",
+        "finalizing": "Finalizing..."
+      },
+      "empty": {
+        "title": "Nothing to withdraw",
+        "subtitle": "You don't have any savings or Bitcoin rewards to withdraw yet."
+      },
       "balanceLoadError": "Unable to load wallet. Go back and try again.",
       "interestPaymentLabel": "Bitcoin rewards withdrawal",
       "chooseGoalTitle": "Withdraw money from",

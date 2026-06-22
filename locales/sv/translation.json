@@ -1011,6 +1011,7 @@
       "noContactDesc": "Lägg till {{username}} i dina kontakter för att hitta dem här i framtiden, eller fortsätt för att skicka en betalning nu.",
       "phonePaymentTitle": "Betala {{number}}",
       "phonePaymentDesc": "Skickar till mobilnummer",
+      "phonePaymentDescGcash": "Skickar till GCash-nummer",
       "depositFunds": "Sätt in pengar",
       "depositFundsSubtitle": "Lägg till pengar i din plånbok",
       "onChainBitcoin": "Sätt in Bitcoin",
@@ -1452,7 +1453,8 @@
       "giftMessage": "Gåvomeddelande",
       "recipientReceives": "{{contactName}} kommer att ta emot",
       "giftMessagePlaceholder": "Skriv ditt presentmeddelande här...",
-      "paymentSourceHeader": "Betalningskälla"
+      "paymentSourceHeader": "Betalningskälla",
+      "fiatRateLoading": "Laddar valutakurs för Lightning-adress"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Vi kunde inte ladda ditt presentkort just nu. Vänligen försök igen.",
@@ -2910,6 +2912,15 @@
       "savingsZeroHint": "Inget sparat ännu",
       "interestBelowMinHint": "Ditt Bitcoin-saldo är under minsta växlingsbelopp. Vänligen ta ut till ditt Bitcoin-saldo.",
       "loadingBalances": "Laddar saldon...",
+      "loadingSteps": {
+        "connecting": "Ansluter till sparkonto-plånbok...",
+        "updating": "Uppdaterar saldo...",
+        "finalizing": "Slutför..."
+      },
+      "empty": {
+        "title": "Inget att ta ut",
+        "subtitle": "Du har ännu inga besparingar eller Bitcoin-belöningar att ta ut."
+      },
       "balanceLoadError": "Det gick inte att ladda plånboken. Gå tillbaka och försök igen.",
       "fromInterest": "Från din ränta",
       "fromSavings": "Från ditt sparande",

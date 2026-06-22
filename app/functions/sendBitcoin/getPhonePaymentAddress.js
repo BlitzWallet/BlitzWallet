@@ -1,4 +1,9 @@
-import { parsePhoneNumberWithError } from 'libphonenumber-js';
+// Use the mobile-aware metadata bundle: the default ("min") metadata is loose
+// enough that a Kenyan mobile (07…) also validates as a Zambian/Philippine
+// number, which produced spurious extra candidates (e.g. a KE number being
+// labelled a GCash/PH number). The /mobile metadata's isValid() only accepts
+// real mobile numbers, which these providers serve.
+import { parsePhoneNumberWithError } from 'libphonenumber-js/mobile';
 import getLNURLDetails from '../lnurl/getLNURLDetails';
 
 // country -> bitcoin payment provider; formatNumber emits the provider's
@@ -17,6 +22,23 @@ const PHONE_PAYMENT_PROVIDERS = {
     formatNumber: parsed => parsed.number.slice(1),
   },
 };
+
+// Local fiat currency for each supported phone-payment provider country. Used to
+// default the send amount input to the payment location's currency.
+export const PROVIDER_COUNTRY_CURRENCY = { KE: 'KES', ZM: 'ZMW', PH: 'PHP' };
+
+// Given a provider lightning address (any form), returns the provider country
+// (KE/ZM/PH) by matching its domain, or null for non-provider addresses.
+export function getPhonePaymentCountry(address) {
+  if (typeof address !== 'string') return null;
+  const at = address.indexOf('@');
+  if (at === -1) return null;
+  const domain = address.slice(at + 1).toLowerCase();
+  const match = Object.entries(PHONE_PAYMENT_PROVIDERS).find(
+    ([, provider]) => provider.domain === domain,
+  );
+  return match ? match[0] : null;
+}
 
 // Returns the provider lightning addresses the input is valid for, in
 // PHONE_PAYMENT_PROVIDERS order (KE before ZM). Accepts national or

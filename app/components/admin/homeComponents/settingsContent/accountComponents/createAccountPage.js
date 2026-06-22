@@ -6,7 +6,6 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {
-  Keyboard,
   Platform,
   ScrollView,
   StyleSheet,
@@ -39,7 +38,10 @@ import getClipboardText from '../../../../../functions/getClipboardText';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
-import { KeyboardController } from 'react-native-keyboard-controller';
+import {
+  KeyboardController,
+  KeyboardEvents,
+} from 'react-native-keyboard-controller';
 const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
@@ -284,19 +286,23 @@ export default function CreateCustodyAccountPage(props) {
   ]);
 
   useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener(
+    if (!currentFocused) return;
+    const keyboardDidHideListener = KeyboardEvents.addListener(
       'keyboardDidHide',
       () => {
         setCurrentFocused(null);
         setIsKeyboardActive(false);
         KeyboardController.dismiss();
+        if (keyRefs.current[currentFocused]?.isFocused()) {
+          keyRefs.current[currentFocused]?.blur();
+        }
       },
     );
 
     return () => {
       keyboardDidHideListener.remove();
     };
-  }, []);
+  }, [currentFocused]);
 
   const memorizedKeyboardStyle = useMemo(() => {
     return {
@@ -364,6 +370,10 @@ export default function CreateCustodyAccountPage(props) {
           onFocusFunction={() => {
             setIsKeyboardActive(true);
             setCurrentFocused(null);
+          }}
+          onBlurFunction={() => {
+            setCurrentFocused(null);
+            setIsKeyboardActive(false);
           }}
         />
         <ThemeText

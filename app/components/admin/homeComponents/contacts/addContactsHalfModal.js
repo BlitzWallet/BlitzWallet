@@ -35,6 +35,9 @@ import { useImageCache } from '../../../../../context-store/imageCache';
 import { useTranslation } from 'react-i18next';
 import getDeepLinkUser from './internalComponents/getDeepLinkUser';
 import { isBlitzLNURLAddress } from '../../../../functions/lnurl';
+import getPhonePaymentAddress, {
+  isPhonePaymentNumber,
+} from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
@@ -79,6 +82,7 @@ export function AddContactContent({
 
   const isUsingLNURL =
     searchInput?.includes('@') && searchInput?.indexOf('@') !== 0;
+  const isPhoneNumber = isPhonePaymentNumber(searchInput);
 
   useEffect(() => {
     isFocused.current = true;
@@ -154,6 +158,13 @@ export function AddContactContent({
     handleSearchTrackerRef();
     if (isUsingLNURL) {
       searchTrackerRef.current = null;
+      setIsSearching(false);
+      return;
+    }
+
+    if (isPhonePaymentNumber(term)) {
+      searchTrackerRef.current = null;
+      setUsers([]);
       setIsSearching(false);
       return;
     }
@@ -294,7 +305,7 @@ export function AddContactContent({
         if (onContactAdded) {
           onContactAdded(userProfile);
         } else {
-          keyboardNavigate(() => {
+          handleBackPressFunction(() => {
             navigate.replace('ExpandedAddContactsPage', {
               newContact: userProfile,
             });
@@ -330,11 +341,69 @@ export function AddContactContent({
     if (onContactAdded) {
       onContactAdded(newContact);
     } else {
-      keyboardNavigate(() => {
+      handleBackPressFunction(() => {
         navigate.replace('ExpandedAddContactsPage', {
           newContact: newContact,
         });
       });
+    }
+  };
+
+  const clearHalfModalForPhone = async () => {
+    setIsSearching(true);
+    setRemoteLoadingMessage(t('contacts.addContactsHalfModal.loadingMessage'));
+    try {
+      const enteredNumber = searchInput.trim();
+      const receiveAddress = await getPhonePaymentAddress(enteredNumber);
+
+      if (!receiveAddress) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('contacts.addContactsHalfModal.noContactsMessage'),
+        });
+        return;
+      }
+
+      const newContact = {
+        name: enteredNumber,
+        bio: '',
+        uniqueName: '',
+        isFavorite: false,
+        transactions: [],
+        unlookedTransactions: 0,
+        receiveAddress,
+        isAdded: true,
+        isLNURL: true,
+        profileImage: '',
+        uuid: customUUID(),
+      };
+
+      if (!isFocused.current) return;
+
+      if (onContactAdded) {
+        onContactAdded(newContact);
+      } else {
+        handleBackPressFunction(() => {
+          navigate.replace('ExpandedAddContactsPage', {
+            newContact: newContact,
+          });
+        });
+      }
+    } catch (err) {
+      console.log('clearHalfModalForPhone error', err);
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('contacts.addContactsHalfModal.noContactsMessage'),
+      });
+    } finally {
+      setIsSearching(false);
+      setRemoteLoadingMessage('');
+    }
+  };
+
+  const handleAddPress = () => {
+    if (isPhoneNumber) {
+      clearHalfModalForPhone();
+    } else {
+      clearHalfModalForLNURL();
     }
   };
 
@@ -372,7 +441,7 @@ export function AddContactContent({
           marginBottom: CONTENT_KEYBOARD_OFFSET,
         }}
         textInputStyles={{ paddingRight: 45 }}
-        onSubmitEditingFunction={clearHalfModalForLNURL}
+        onSubmitEditingFunction={handleAddPress}
         buttonComponent={
           <TouchableOpacity
             onPress={() => {
@@ -403,7 +472,7 @@ export function AddContactContent({
         onBlurFunction={handleTextInputBlur}
       />
 
-      {isUsingLNURL ? (
+      {isUsingLNURL || isPhoneNumber ? (
         <ScrollView
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
@@ -424,7 +493,7 @@ export function AddContactContent({
               ...CENTER,
               marginTop: 'auto',
             }}
-            actionFunction={clearHalfModalForLNURL}
+            actionFunction={handleAddPress}
             textContent={t('constants.continue')}
           />
         </ScrollView>
@@ -441,6 +510,7 @@ export function AddContactContent({
                   theme={theme}
                   darkModeType={darkModeType}
                   onContactAdded={onContactAdded}
+                  handleBackPressFunction={handleBackPressFunction}
                 />
               )}
               keyExtractor={item => item?.uniqueName}
@@ -464,12 +534,18 @@ export function AddContactContent({
     </View>
   );
 }
-function ContactListItem(props) {
+function ContactListItem({
+  savedContact,
+  onContactAdded,
+  handleBackPressFunction,
+  darkModeType,
+  theme,
+}) {
   const { textColor, backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
 
   const newContact = {
-    ...props.savedContact,
+    ...savedContact,
     isFavorite: false,
     transactions: [],
     unlookedTransactions: 0,
@@ -477,14 +553,14 @@ function ContactListItem(props) {
   };
 
   const handleContactPress = () => {
-    if (props.onContactAdded) {
-      props.onContactAdded(newContact);
+    if (onContactAdded) {
+      onContactAdded(newContact);
     } else {
-      keyboardNavigate(() =>
+      handleBackPressFunction(() => {
         navigate.replace('ExpandedAddContactsPage', {
           newContact: newContact,
-        }),
-      );
+        });
+      });
     }
   };
 
@@ -502,8 +578,8 @@ function ContactListItem(props) {
           <ContactProfileImage
             updated={newContact.updated}
             uri={newContact.localUri}
-            darkModeType={props.darkModeType}
-            theme={props.theme}
+            darkModeType={darkModeType}
+            theme={theme}
           />
         </View>
         <View>

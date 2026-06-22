@@ -1011,6 +1011,7 @@
       "noContactDesc": "Добавьте {{username}} в свои контакты, чтобы находить здесь в будущем, или продолжите, чтобы отправить платёж сейчас.",
       "phonePaymentTitle": "Оплатить {{number}}",
       "phonePaymentDesc": "Отправка на мобильный номер",
+      "phonePaymentDescGcash": "Отправка на номер GCash",
       "depositFunds": "Пополнить баланс",
       "depositFundsSubtitle": "Добавьте средства в ваш кошелёк",
       "onChainBitcoin": "Пополнить Bitcoin",
@@ -1453,7 +1454,8 @@
       "giftMessage": "Сообщение",
       "recipientReceives": "{{contactName}} получит",
       "giftMessagePlaceholder": "Напишите сообщение для подарка здесь...",
-      "paymentSourceHeader": "Источник оплаты"
+      "paymentSourceHeader": "Источник оплаты",
+      "fiatRateLoading": "Загрузка курса валюты для Lightning-адреса"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Не удалось загрузить карту.",
@@ -2917,6 +2919,15 @@
       "savingsZeroHint": "Сбережений пока нет",
       "interestBelowMinHint": "Ваш баланс в биткоинах ниже минимальной суммы для обмена. Пожалуйста, выведите средства на свой биткоин-баланс.",
       "loadingBalances": "Загрузка балансов...",
+      "loadingSteps": {
+        "connecting": "Подключение к сберегательному кошельку...",
+        "updating": "Обновление баланса...",
+        "finalizing": "Завершение..."
+      },
+      "empty": {
+        "title": "Нечего выводить",
+        "subtitle": "У вас пока нет сбережений или вознаграждений в Bitcoin для вывода."
+      },
       "balanceLoadError": "Не удалось загрузить кошелёк. Вернитесь назад и попробуйте снова.",
       "fromInterest": "Из ваших процентов",
       "fromSavings": "Из ваших сбережений",

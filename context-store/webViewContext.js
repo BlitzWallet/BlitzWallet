@@ -332,12 +332,16 @@ export const WebViewProvider = ({ children }) => {
     // clear any qued requests
     if (queuedRequests.current.length) {
       console.log('[auth reset webview] clearing qued requests');
-      queuedRequests.current.forEach(({ reject }) => {
+      // Snapshot and clear BEFORE iterating: a reject handler can synchronously
+      // route back into a queue drain (see wrapped init resolve), so the array
+      // must already be empty to keep that re-entry from recursing infinitely.
+      const requestsToReject = queuedRequests.current;
+      queuedRequests.current = [];
+      requestsToReject.forEach(({ reject }) => {
         reject({
           error: 'Wallet initialization failed, using React Native',
         });
       });
-      queuedRequests.current = [];
     }
     blockAndResetWebview();
   }, [authResetkey]);
@@ -1038,12 +1042,18 @@ export const WebViewProvider = ({ children }) => {
                 //   count: prev.count + 1,
                 // }));
 
-                queuedRequests.current.forEach(({ reject }) => {
+                // Snapshot and clear BEFORE iterating. This forEach is the
+                // re-entrant frame in the crash: one of these rejects belongs to
+                // a re-queued init request whose reject calls THIS wrapped resolve
+                // again, which would re-enter this forEach on the same array.
+                // Clearing first makes that re-entry a no-op and breaks the loop.
+                const requestsToReject = queuedRequests.current;
+                queuedRequests.current = [];
+                requestsToReject.forEach(({ reject }) => {
                   reject({
                     error: 'Wallet initialization failed, using React Native',
                   });
                 });
-                queuedRequests.current = [];
               } else {
                 walletInitialized.current = true;
                 setChangeSparkConnectionState(prev => ({
@@ -1173,7 +1183,11 @@ export const WebViewProvider = ({ children }) => {
         state: blockReset ? null : true,
         count: prev.count + 1,
       }));
-      queuedRequests.current.forEach(({ reject }) => {
+      // Snapshot and clear BEFORE iterating (re-entrancy safety). This site also
+      // previously never cleared the queue, leaving zombie requests behind.
+      const requestsToReject = queuedRequests.current;
+      queuedRequests.current = [];
+      requestsToReject.forEach(({ reject }) => {
         reject({
           error: 'Failed to process method, try again',
         });
@@ -1280,12 +1294,14 @@ export const WebViewProvider = ({ children }) => {
           console.log('Error re-initializing wallet:', err);
           // forceReactNativeUse = true;
           // Reject all queued requests since WebView is now unusable
-          queuedRequests.current.forEach(({ reject }) => {
+          // Snapshot and clear BEFORE iterating (re-entrancy safety).
+          const requestsToReject = queuedRequests.current;
+          queuedRequests.current = [];
+          requestsToReject.forEach(({ reject }) => {
             reject({
               error: 'Wallet initialization failed, using React Native',
             });
           });
-          queuedRequests.current = [];
           return;
         }
       }

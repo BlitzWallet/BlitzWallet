@@ -213,5 +213,7 @@ export default async function processBolt11Invoice(input, context) {
     sendAmount: !amountMsat ? '' : `${displayAmount}`,
     canEditPayment,
     amountSat: amountSat,
+    enteredDisplayAmount: enteredPaymentInfo?.displayAmount ?? null,
+    enteredDisplayDenomination: enteredPaymentInfo?.displayDenomination ?? null,
   };
 }

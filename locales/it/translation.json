@@ -1011,6 +1011,7 @@
       "noContactDesc": "Aggiungi {{username}} ai tuoi contatti per trovarlo qui in futuro, oppure continua per inviare un pagamento adesso.",
       "phonePaymentTitle": "Paga {{number}}",
       "phonePaymentDesc": "Invio a un numero di cellulare",
+      "phonePaymentDescGcash": "Invio a un numero GCash",
       "depositFunds": "Deposita fondi",
       "depositFundsSubtitle": "Aggiungi fondi al tuo wallet",
       "onChainBitcoin": "Deposita Bitcoin",
@@ -1452,7 +1453,8 @@
       "giftMessage": "Messaggio regalo",
       "recipientReceives": "{{contactName}} riceverà",
       "giftMessagePlaceholder": "Scrivi qui il tuo messaggio regalo...",
-      "paymentSourceHeader": "Fonte di pagamento"
+      "paymentSourceHeader": "Fonte di pagamento",
+      "fiatRateLoading": "Caricamento del tasso di cambio della valuta dell'indirizzo Lightning"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Non siamo riusciti a caricare la tua gift card in questo momento. Per favore, riprova.",
@@ -2910,6 +2912,15 @@
       "savingsZeroHint": "Nessun risparmio ancora",
       "interestBelowMinHint": "Il tuo saldo in Bitcoin è inferiore all’importo minimo per lo scambio. Effettua il prelievo verso il tuo saldo Bitcoin.",
       "loadingBalances": "Caricamento saldi...",
+      "loadingSteps": {
+        "connecting": "Connessione al portafoglio risparmi...",
+        "updating": "Aggiornamento del saldo...",
+        "finalizing": "Finalizzazione..."
+      },
+      "empty": {
+        "title": "Niente da prelevare",
+        "subtitle": "Non hai ancora risparmi o ricompense in Bitcoin da prelevare."
+      },
       "balanceLoadError": "Impossibile caricare il wallet. Torna indietro e riprova.",
       "fromInterest": "Dai tuoi interessi",
       "fromSavings": "Dai tuoi risparmi",

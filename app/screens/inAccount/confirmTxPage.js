@@ -31,6 +31,7 @@ import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import normalizeLNURLAddress from '../../functions/lnurl/normalizeLNURLAddress';
 import { isBlitzLNURLAddress } from '../../functions/lnurl';
 import { canonicalizePhonePaymentAddress } from '../../functions/sendBitcoin/getPhonePaymentAddress';
+import FormattedBalanceInput from '../../functions/CustomElements/formattedBalanceInput';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
@@ -55,6 +56,10 @@ export default function ConfirmTxPage(props) {
   const isBlitzAddress = isBlitzLNURLAddress(lnurlAddress);
   const lnurlUsername = lnurlAddress?.split('@')[0]?.toLowerCase();
   const blitzContactInfo = props.route.params?.blitzContactInfo;
+  const displayAmount = props.route.params?.displayAmount;
+  // The display currency the user entered/reviewed the payment in (e.g. EUR),
+  // passed from the send screens so the success amount matches what they saw.
+  const paymentDisplay = props.route.params?.paymentDisplay;
 
   const didSucceed = !hasError || isLNURLAuth;
 
@@ -286,35 +291,46 @@ export default function ConfirmTxPage(props) {
 
       {didSucceed && !isLNURLAuth && (
         <View style={{ marginBottom: 10 }}>
-          <FormattedSatText
-            styles={{
-              fontSize: SIZES.huge,
-              includeFontPadding: false,
-            }}
-            neverHideBalance={true}
-            balance={isLRC20Payment ? formattedTokensBalance : amount}
-            useCustomLabel={isLRC20Payment}
-            customLabel={token?.tokenMetadata?.tokenTicker}
-            useMillionDenomination={true}
-          />
-          {/* {isLRC20Payment && formattedTokensBalance < 1 && (
+          {displayAmount && paymentDisplay ? (
+            <FormattedBalanceInput
+              maxWidth={0.7}
+              amountValue={displayAmount}
+              inputDenomination={paymentDisplay.denomination}
+              forceCurrency={paymentDisplay.forceCurrency}
+              forceFiatStats={paymentDisplay.forceFiatStats}
+              customCurrencyCode={token?.tokenMetadata?.tokenTicker}
+              maxDecimals={
+                isLRC20Payment ? token?.tokenMetadata?.decimals ?? 0 : 2
+              }
+            />
+          ) : (
             <FormattedSatText
-              containerStyles={{
-                ...CENTER,
-              }}
               styles={{
-                fontSize: SIZES.small,
+                fontSize: 45,
                 includeFontPadding: false,
               }}
               neverHideBalance={true}
-              balance={formatTokensNumber(
-                amount,
-                token?.tokenMetadata?.decimals,
-              )}
+              balance={isLRC20Payment ? formattedTokensBalance : amount}
               useCustomLabel={isLRC20Payment}
               customLabel={token?.tokenMetadata?.tokenTicker}
+              useMillionDenomination={true}
+              globalBalanceDenomination={
+                paymentDisplay && !isLRC20Payment
+                  ? paymentDisplay.denomination
+                  : undefined
+              }
+              forceCurrency={
+                paymentDisplay && !isLRC20Payment
+                  ? paymentDisplay.forceCurrency
+                  : null
+              }
+              forceFiatStats={
+                paymentDisplay && !isLRC20Payment
+                  ? paymentDisplay.forceFiatStats
+                  : null
+              }
             />
-          )} */}
+          )}
         </View>
       )}
 

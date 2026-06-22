@@ -1,7 +1,11 @@
 import { resolveContactPaymentDefault } from '../app/components/admin/homeComponents/contacts/hooks/resolveContactPaymentDefault';
 
+// The helper was intentionally reduced to always default to BTC (commit
+// "defualt to btc only"). It no longer derives a currency from the contact's
+// or user's preferences, so every path resolves to 'BTC'. These tests lock in
+// that contract across the scenarios that previously branched to USD.
 describe('resolveContactPaymentDefault', () => {
-  it('defaults non-LNURL USD-pref contact sends to USD', () => {
+  it('defaults a USD-pref contact send to BTC', () => {
     expect(
       resolveContactPaymentDefault({
         paymentType: 'send',
@@ -10,10 +14,10 @@ describe('resolveContactPaymentDefault', () => {
         masterInfoObject: {},
         dollarBalanceToken: 12,
       }),
-    ).toBe('USD');
+    ).toBe('BTC');
   });
 
-  it('uses cached contact receive option before prefetched doc', () => {
+  it('defaults a cached USD contact receive option to BTC', () => {
     expect(
       resolveContactPaymentDefault({
         paymentType: 'send',
@@ -22,18 +26,6 @@ describe('resolveContactPaymentDefault', () => {
         isLNURL: false,
         masterInfoObject: {},
         dollarBalanceToken: 12,
-      }),
-    ).toBe('USD');
-  });
-
-  it('falls back to BTC for USD-pref contact sends when dollar balance is empty', () => {
-    expect(
-      resolveContactPaymentDefault({
-        paymentType: 'send',
-        prefetchedDoc: { lnurlReceiveCurrency: 'usd' },
-        isLNURL: false,
-        masterInfoObject: {},
-        dollarBalanceToken: 0,
       }),
     ).toBe('BTC');
   });
@@ -50,7 +42,7 @@ describe('resolveContactPaymentDefault', () => {
     ).toBe('BTC');
   });
 
-  it('uses current user LNURL receive currency for requests', () => {
+  it('defaults requests to BTC even when the user LNURL currency is USD', () => {
     expect(
       resolveContactPaymentDefault({
         paymentType: 'request',
@@ -59,40 +51,6 @@ describe('resolveContactPaymentDefault', () => {
         masterInfoObject: { lnurlReceiveCurrency: 'usd' },
         dollarBalanceToken: 0,
       }),
-    ).toBe('USD');
-  });
-
-  it('keeps user-selected currency when async defaults resolve later', () => {
-    let selectedMethod = 'BTC';
-    let userChanged = false;
-
-    const applyDefault = nextDefault => {
-      if (!userChanged) selectedMethod = nextDefault;
-    };
-
-    applyDefault(
-      resolveContactPaymentDefault({
-        paymentType: 'send',
-        prefetchedDoc: null,
-        isLNURL: false,
-        masterInfoObject: {},
-        dollarBalanceToken: 20,
-      }),
-    );
-
-    userChanged = true;
-    selectedMethod = 'BTC';
-
-    applyDefault(
-      resolveContactPaymentDefault({
-        paymentType: 'send',
-        prefetchedDoc: { lnurlReceiveCurrency: 'usd' },
-        isLNURL: false,
-        masterInfoObject: {},
-        dollarBalanceToken: 20,
-      }),
-    );
-
-    expect(selectedMethod).toBe('BTC');
+    ).toBe('BTC');
   });
 });

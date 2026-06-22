@@ -1,17 +1,28 @@
-import { Keyboard, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { AppState, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { HIDDEN_OPACITY } from '../../constants/theme';
+import {
+  KeyboardController,
+  KeyboardEvents,
+} from 'react-native-keyboard-controller';
 
 const BLUR_DELAY_MS = 150;
 const ANDROID_BLUR_CONFIRMATION_MS = 80;
+const ANDROID_KEYBOARD_HIDDEN_CONFIRMATION_MS = 0;
+const APP_ACTIVE_KEYBOARD_CHECK_DELAY_MS = 120;
 const AUTO_FOCUS_DELAY_MS = 150;
 const ENABLE_SEARCH_INPUT_DIAGNOSTICS = __DEV__;
 
 function getKeyboardVisible() {
-  return Keyboard.isVisible?.() || false;
+  const keyboardState = KeyboardController.state?.();
+  return (
+    KeyboardController.isVisible?.() ||
+    (keyboardState?.height ?? 0) > 0 ||
+    false
+  );
 }
 
 function getFocusedInput() {
@@ -37,7 +48,7 @@ function logSearchInputDiagnostic(label, event, details = {}) {
 
   console.log('[CustomSearchInput]', event, {
     label,
-    keyboardValue: Keyboard.isVisible?.(),
+    keyboardValue: KeyboardController.isVisible?.(),
     ...details,
   });
 }
@@ -76,6 +87,7 @@ export default function CustomSearchInput({
   const blurConfirmationTimerRef = useRef(null);
   const keyboardHideTimerRef = useRef(null);
   const autoFocusTimerRef = useRef(null);
+  const appStateTimerRef = useRef(null);
   const onBlurFunctionRef = useRef(onBlurFunction);
   const internalRef = useRef(null);
   const inputRef = textInputRef || internalRef;
@@ -83,11 +95,11 @@ export default function CustomSearchInput({
   onBlurFunctionRef.current = onBlurFunction;
 
   const mutlilineValue = useMemo(() => {
-    return textInputMultiline != undefined ? textInputMultiline : false;
+    return textInputMultiline !== undefined ? textInputMultiline : false;
   }, [textInputMultiline]);
 
   const textAlignVerticalValue = useMemo(() => {
-    return textAlignVertical != undefined ? textAlignVertical : 'center';
+    return textAlignVertical !== undefined ? textAlignVertical : 'center';
   }, [textAlignVertical]);
 
   const memorizedStyles = useMemo(() => {
@@ -110,18 +122,18 @@ export default function CustomSearchInput({
   }, [theme]);
 
   const placeholderTextColorStyles = useMemo(() => {
-    if (placeholderTextColor != undefined) return placeholderTextColor;
+    if (placeholderTextColor !== undefined) return placeholderTextColor;
     return theme && !darkModeType
       ? COLORS.darkModePlaceholder
       : COLORS.lightModePlaceholder;
   }, [theme, darkModeType, placeholderTextColor]);
 
   const blurOnSubmitValue = useMemo(() => {
-    return blurOnSubmit != undefined ? blurOnSubmit : true;
+    return blurOnSubmit !== undefined ? blurOnSubmit : true;
   }, [blurOnSubmit]);
 
   const maxLenValue = useMemo(() => {
-    return maxLength != undefined ? maxLength : undefined;
+    return maxLength !== undefined ? maxLength : undefined;
   }, [maxLength]);
 
   const submitEditingFunction = useCallback(() => {
@@ -136,6 +148,12 @@ export default function CustomSearchInput({
     pendingBlurRef.current = false;
     keyboardShownForCurrentFocusRef.current = false;
     isFocusedRef.current = true;
+    // If the keyboard is already up (focus transferred from another input),
+    // no keyboardDidShow fires for this focus session. Record that the keyboard
+    // is ours now so our own keyboardDidHide isn't discarded as stale.
+    if (keyboardVisibleRef.current || getKeyboardVisible()) {
+      keyboardShownForCurrentFocusRef.current = true;
+    }
     logSearchInputDiagnostic(diagnosticLabel, 'TextInput onFocus', {
       keyboardVisible: keyboardVisibleRef.current || getKeyboardVisible(),
     });
@@ -176,7 +194,7 @@ export default function CustomSearchInput({
   );
 
   const scheduleKeyboardHiddenBlur = useCallback(
-    source => {
+    (source, options = {}) => {
       clearTimer(keyboardHideTimerRef);
 
       keyboardHideTimerRef.current = setTimeout(() => {
@@ -184,8 +202,17 @@ export default function CustomSearchInput({
 
         if (!isMountedRef.current) return;
 
+        const currentInput = inputRef.current;
+        const nativeInput = getNativeInputRef(currentInput);
+        const focusedInput = getFocusedInput();
+        const isCurrentInputFocused =
+          currentInput?.isFocused?.() ||
+          focusedInput === currentInput ||
+          focusedInput === nativeInput;
         const keyboardVisible =
-          keyboardVisibleRef.current || getKeyboardVisible();
+          options.trustKeyboardVisible !== false ? getKeyboardVisible() : false;
+        keyboardVisibleRef.current = keyboardVisible;
+
         logSearchInputDiagnostic(
           diagnosticLabel,
           'keyboard hidden confirmation',
@@ -194,9 +221,16 @@ export default function CustomSearchInput({
             keyboardVisible,
             isFocusedRef: isFocusedRef.current,
             pendingBlur: pendingBlurRef.current,
-            nativeFocused: inputRef.current?.isFocused?.() || false,
+            nativeFocused: currentInput?.isFocused?.() || false,
+            focusedInputMatchesCurrent: isCurrentInputFocused,
           },
         );
+
+        if (keyboardVisible && isCurrentInputFocused) {
+          pendingBlurRef.current = false;
+          isFocusedRef.current = true;
+          return;
+        }
 
         if (keyboardVisible) return;
 
@@ -214,7 +248,7 @@ export default function CustomSearchInput({
         }
 
         runBlurCallback(source);
-      }, ANDROID_BLUR_CONFIRMATION_MS);
+      }, ANDROID_KEYBOARD_HIDDEN_CONFIRMATION_MS);
     },
     [diagnosticLabel, inputRef, runBlurCallback],
   );
@@ -224,12 +258,17 @@ export default function CustomSearchInput({
     if (!onBlurFunctionRef.current) return;
 
     const keyboardVisible = keyboardVisibleRef.current || getKeyboardVisible();
+    const shouldConfirmAndroidBlur =
+      Platform.OS === 'android' &&
+      (keyboardVisible || keyboardShownForCurrentFocusRef.current);
+
     logSearchInputDiagnostic(diagnosticLabel, 'TextInput onBlur', {
       keyboardVisible,
+      keyboardShownForCurrentFocus: keyboardShownForCurrentFocusRef.current,
       nativeFocused: inputRef.current?.isFocused?.() || false,
     });
 
-    if (Platform.OS === 'android' && keyboardVisible) {
+    if (shouldConfirmAndroidBlur) {
       pendingBlurRef.current = true;
       clearTimer(blurConfirmationTimerRef);
 
@@ -246,8 +285,8 @@ export default function CustomSearchInput({
           focusedInput !== currentInput &&
           focusedInput !== nativeInput;
         const inputIsFocused = currentInput?.isFocused?.() || false;
-        const isKeyboardStillVisible =
-          keyboardVisibleRef.current || getKeyboardVisible();
+        const isKeyboardStillVisible = getKeyboardVisible();
+        keyboardVisibleRef.current = isKeyboardStillVisible;
 
         logSearchInputDiagnostic(diagnosticLabel, 'Android blur confirmation', {
           didFocusMoveToAnotherInput,
@@ -256,29 +295,31 @@ export default function CustomSearchInput({
           pendingBlur: pendingBlurRef.current,
         });
 
-        if (inputIsFocused) {
+        if (isKeyboardStillVisible && inputIsFocused) {
           pendingBlurRef.current = false;
+          isFocusedRef.current = true;
           return;
         }
 
-        if (didFocusMoveToAnotherInput || !isKeyboardStillVisible) {
-          runBlurCallback(
-            didFocusMoveToAnotherInput
-              ? 'focus moved to another input'
-              : 'keyboard hidden after Android blur',
-          );
+        if (didFocusMoveToAnotherInput) {
+          runBlurCallback('focus moved to another input');
+          return;
+        }
+
+        if (!isKeyboardStillVisible) {
+          scheduleKeyboardHiddenBlur('keyboard hidden after Android blur');
         }
       }, ANDROID_BLUR_CONFIRMATION_MS);
       return;
     }
 
     runBlurCallback('TextInput onBlur');
-  }, [diagnosticLabel, inputRef, runBlurCallback]);
+  }, [diagnosticLabel, inputRef, runBlurCallback, scheduleKeyboardHiddenBlur]);
 
   useEffect(() => {
     isMountedRef.current = true;
 
-    const keyboardDidShowListener = Keyboard.addListener(
+    const keyboardDidShowListener = KeyboardEvents.addListener(
       'keyboardDidShow',
       event => {
         keyboardVisibleRef.current = true;
@@ -294,7 +335,7 @@ export default function CustomSearchInput({
       },
     );
 
-    const keyboardWillShowListener = Keyboard.addListener(
+    const keyboardWillShowListener = KeyboardEvents.addListener(
       'keyboardWillShow',
       event => {
         logSearchInputDiagnostic(diagnosticLabel, 'keyboardWillShow', {
@@ -303,7 +344,7 @@ export default function CustomSearchInput({
       },
     );
 
-    const keyboardWillHideListener = Keyboard.addListener(
+    const keyboardWillHideListener = KeyboardEvents.addListener(
       'keyboardWillHide',
       event => {
         logSearchInputDiagnostic(diagnosticLabel, 'keyboardWillHide', {
@@ -313,7 +354,7 @@ export default function CustomSearchInput({
       },
     );
 
-    const keyboardDidHideListener = Keyboard.addListener(
+    const keyboardDidHideListener = KeyboardEvents.addListener(
       'keyboardDidHide',
       event => {
         keyboardVisibleRef.current = false;
@@ -356,6 +397,7 @@ export default function CustomSearchInput({
       clearTimer(blurConfirmationTimerRef);
       clearTimer(keyboardHideTimerRef);
       clearTimer(autoFocusTimerRef);
+      clearTimer(appStateTimerRef);
       keyboardDidShowListener.remove();
       keyboardWillShowListener.remove();
       keyboardWillHideListener.remove();
@@ -363,6 +405,46 @@ export default function CustomSearchInput({
       logSearchInputDiagnostic(diagnosticLabel, 'unmount');
     };
   }, [diagnosticLabel, inputRef, runBlurCallback, scheduleKeyboardHiddenBlur]);
+
+  useEffect(() => {
+    const appStateListener = AppState.addEventListener('change', nextState => {
+      clearTimer(appStateTimerRef);
+
+      if (nextState !== 'active') return;
+
+      appStateTimerRef.current = setTimeout(() => {
+        appStateTimerRef.current = null;
+
+        if (!isMountedRef.current) return;
+
+        const keyboardVisible = getKeyboardVisible();
+        keyboardVisibleRef.current = keyboardVisible;
+
+        logSearchInputDiagnostic(diagnosticLabel, 'AppState active check', {
+          keyboardVisible,
+          isFocusedRef: isFocusedRef.current,
+          pendingBlur: pendingBlurRef.current,
+        });
+
+        // Keyboard is genuinely back (or never hid) -> nothing to reconcile.
+        // Without this guard, the trustKeyboardVisible:false call below would
+        // fire a spurious blur even though the keyboard is still up.
+        if (keyboardVisible) return;
+
+        if (!pendingBlurRef.current && !isFocusedRef.current) return;
+
+        pendingBlurRef.current = true;
+        scheduleKeyboardHiddenBlur('AppState active with hidden keyboard', {
+          trustKeyboardVisible: false,
+        });
+      }, APP_ACTIVE_KEYBOARD_CHECK_DELAY_MS);
+    });
+
+    return () => {
+      clearTimer(appStateTimerRef);
+      appStateListener.remove();
+    };
+  }, [diagnosticLabel, scheduleKeyboardHiddenBlur]);
 
   useEffect(() => {
     clearTimer(autoFocusTimerRef);

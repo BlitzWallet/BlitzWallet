@@ -36,7 +36,6 @@ export default function SavingsHome() {
     initializeSavings,
     isInitializing,
     interestPayouts,
-    walletBitcoinBalanceSats,
   } = useSavings();
 
   useFocusEffect(
@@ -108,10 +107,7 @@ export default function SavingsHome() {
           />
         </View>
 
-        <SavingsActionButtons
-          savingsBalance={savingsBalance}
-          walletBitcoinBalanceSats={walletBitcoinBalanceSats}
-        />
+        <SavingsActionButtons savingsBalance={savingsBalance} />
 
         <View
           style={[styles.sectionCard, { backgroundColor: backgroundOffset }]}

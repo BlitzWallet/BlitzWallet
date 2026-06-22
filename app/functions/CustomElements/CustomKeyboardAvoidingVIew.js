@@ -1,4 +1,4 @@
-import { Keyboard, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import GlobalThemeView from './globalThemeView';
 import { CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import {

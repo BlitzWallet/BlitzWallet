@@ -1011,6 +1011,7 @@
       "noContactDesc": "Fügen Sie {{username}} zu Ihren Kontakten hinzu, damit der Kontakt hier künftig angezeigt wird, oder fahren Sie fort, um jetzt eine Zahlung zu senden.",
       "phonePaymentTitle": "{{number}} bezahlen",
       "phonePaymentDesc": "Senden an Mobilnummer",
+      "phonePaymentDescGcash": "Senden an GCash-Nummer",
       "depositFunds": "Guthaben einzahlen",
       "depositFundsSubtitle": "Fügen Sie Ihrer Wallet Guthaben hinzu",
       "onChainBitcoin": "Bitcoin einzahlen",
@@ -1451,7 +1452,8 @@
       "sendDollars": "USD senden",
       "sendGift": "Geschenk senden",
       "requestBitcoin": "BTC anfordern",
-      "requestDollars": "USD anfordern"
+      "requestDollars": "USD anfordern",
+      "fiatRateLoading": "Wechselkurs für die Währung der Lightning-Adresse wird geladen"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Ihre Geschenkkarte konnte derzeit nicht geladen werden. Bitte versuchen Sie es erneut.",
@@ -2908,6 +2910,15 @@
       "savingsZeroHint": "Noch nichts gespart",
       "interestBelowMinHint": "Ihr BTC-Guthaben liegt unter dem Mindestbetrag für einen Swap. Bitte zahlen Sie auf Ihr BTC-Guthaben aus.",
       "loadingBalances": "Guthaben werden geladen...",
+      "loadingSteps": {
+        "connecting": "Verbindung zur Spar-Wallet wird hergestellt...",
+        "updating": "Kontostand wird aktualisiert...",
+        "finalizing": "Wird abgeschlossen..."
+      },
+      "empty": {
+        "title": "Nichts zum Auszahlen",
+        "subtitle": "Du hast noch keine Ersparnisse oder Bitcoin-Belohnungen zum Auszahlen."
+      },
       "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehen Sie zurück und versuchen Sie es erneut.",
       "fromInterest": "Aus Ihren Zinsen",
       "fromSavings": "Aus Ihren Ersparnissen",

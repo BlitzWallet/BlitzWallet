@@ -2,6 +2,11 @@ jest.mock('../../../app/functions/handleEventEmitters', () => ({
   handleEventEmitterPost: jest.fn(),
 }));
 
+// NOTE: getBulkPaymentGroupTransferIds filters by isBulkPayment and pulls out the
+// array via SQLite `json_extract(details, '$.sparkTransferIds') as sparkTransferIds`.
+// These tests mock getAllAsync, so they exercise the JS-side row handling and must
+// supply rows in the post-extraction shape SQLite returns: a `sparkTransferIds`
+// column holding the JSON array string (or null when the field is absent).
 describe('getBulkPaymentGroupTransferIds', () => {
   let getBulkPaymentGroupTransferIds;
   let mockDb;
@@ -30,12 +35,8 @@ describe('getBulkPaymentGroupTransferIds', () => {
   });
 
   it('returns empty Set when no transactions have isBulkPayment', async () => {
-    mockDb.getAllAsync.mockResolvedValue([
-      {
-        sparkID: 'spark-abc',
-        details: JSON.stringify({ direction: 'OUTGOING', amount: 1000 }),
-      },
-    ]);
+    // The SQL WHERE filters out non-bulk rows, so getAllAsync yields nothing.
+    mockDb.getAllAsync.mockResolvedValue([]);
 
     const result = await getBulkPaymentGroupTransferIds('acc-1');
     expect(result.size).toBe(0);
@@ -43,13 +44,7 @@ describe('getBulkPaymentGroupTransferIds', () => {
 
   it('collects sparkTransferIds from BTC bulk payment records', async () => {
     mockDb.getAllAsync.mockResolvedValue([
-      {
-        sparkID: 'group-uuid-1',
-        details: JSON.stringify({
-          isBulkPayment: true,
-          sparkTransferIds: ['transfer-id-a', 'transfer-id-b'],
-        }),
-      },
+      { sparkTransferIds: JSON.stringify(['transfer-id-a', 'transfer-id-b']) },
     ]);
 
     const result = await getBulkPaymentGroupTransferIds('acc-1');
@@ -58,17 +53,9 @@ describe('getBulkPaymentGroupTransferIds', () => {
     expect(result.size).toBe(2);
   });
 
-  it('ignores USD bulk records that have no sparkTransferIds', async () => {
-    mockDb.getAllAsync.mockResolvedValue([
-      {
-        sparkID: 'tx-hash-hex-123',
-        details: JSON.stringify({
-          isBulkPayment: true,
-          isLRC20Payment: true,
-          // no sparkTransferIds field
-        }),
-      },
-    ]);
+  it('ignores bulk records that have no sparkTransferIds', async () => {
+    // json_extract of a missing field returns null for that column.
+    mockDb.getAllAsync.mockResolvedValue([{ sparkTransferIds: null }]);
 
     const result = await getBulkPaymentGroupTransferIds('acc-1');
     expect(result.size).toBe(0);
@@ -77,13 +64,7 @@ describe('getBulkPaymentGroupTransferIds', () => {
   it('skips null and empty-string IDs inside sparkTransferIds', async () => {
     // Note: undefined serializes to null in JSON arrays, so only null and '' can appear
     mockDb.getAllAsync.mockResolvedValue([
-      {
-        sparkID: 'group-uuid-2',
-        details: JSON.stringify({
-          isBulkPayment: true,
-          sparkTransferIds: ['valid-id', null, ''],
-        }),
-      },
+      { sparkTransferIds: JSON.stringify(['valid-id', null, '']) },
     ]);
 
     const result = await getBulkPaymentGroupTransferIds('acc-1');
@@ -93,20 +74,8 @@ describe('getBulkPaymentGroupTransferIds', () => {
 
   it('deduplicates IDs that appear in multiple group records', async () => {
     mockDb.getAllAsync.mockResolvedValue([
-      {
-        sparkID: 'group-a',
-        details: JSON.stringify({
-          isBulkPayment: true,
-          sparkTransferIds: ['shared-id', 'unique-a'],
-        }),
-      },
-      {
-        sparkID: 'group-b',
-        details: JSON.stringify({
-          isBulkPayment: true,
-          sparkTransferIds: ['shared-id', 'unique-b'],
-        }),
-      },
+      { sparkTransferIds: JSON.stringify(['shared-id', 'unique-a']) },
+      { sparkTransferIds: JSON.stringify(['shared-id', 'unique-b']) },
     ]);
 
     const result = await getBulkPaymentGroupTransferIds('acc-1');
@@ -116,16 +85,10 @@ describe('getBulkPaymentGroupTransferIds', () => {
     expect(result.has('unique-b')).toBe(true);
   });
 
-  it('tolerates malformed JSON in details without throwing', async () => {
+  it('tolerates malformed JSON in sparkTransferIds without throwing', async () => {
     mockDb.getAllAsync.mockResolvedValue([
-      { sparkID: 'bad-row', details: 'NOT JSON' },
-      {
-        sparkID: 'good-row',
-        details: JSON.stringify({
-          isBulkPayment: true,
-          sparkTransferIds: ['good-id'],
-        }),
-      },
+      { sparkTransferIds: 'NOT JSON' },
+      { sparkTransferIds: JSON.stringify(['good-id']) },
     ]);
 
     const result = await getBulkPaymentGroupTransferIds('acc-1');

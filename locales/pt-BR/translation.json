@@ -1179,7 +1179,7 @@
         "receive_amount": "receber quantia",
         "descriptionInputPlaceholder": "Descrição (opcional)",
         "editAmount": "Editar fatura",
-        "minUSDSwap": "Pagamentos convertidos para dólares exigem um valor mínimo de:\n{{amount}}"
+        "minUSDSwap": "Só é possível receber valores em dólares se a quantia solicitada for de pelo menos:\n{{amount}}"
       },
       "buttonContainer": {
         "format": "Alterar método de recebimento",
@@ -1390,7 +1390,7 @@
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente",
-      "requestLNURLError": "Só é possível solicitar dinheiro dos contatos Blitz",
+      "requestLNURLError": "Só é possível solicitar dinheiro de contatos Blitz",
       "noTransactions": "Envie ou solicite pagamentos para ver o histórico de transações"
     },
     "expandedMessageHalfModal": {
@@ -1431,7 +1431,7 @@
       "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Qual moeda você deseja receber?"
+      "header": "Escolha a moeda que será depositada na sua conta"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
@@ -1452,7 +1452,8 @@
       "giftMessage": "Mensagem",
       "recipientReceives": "{{contactName}} receberá",
       "giftMessagePlaceholder": "Escreva sua mensagem de presente aqui...",
-      "paymentSourceHeader": "Pagar com"
+      "paymentSourceHeader": "Pagar com",
+      "fiatRateLoading": "Carregando cotação da moeda"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
@@ -1806,7 +1807,7 @@
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
-      "halfModalTitle": "Escolha a moeda para exibir",
+      "halfModalTitle": "Inserir valores em",
       "placeholderText": "Procurar moeda",
       "yourCurrencies": "Suas moedas",
       "moreCurrencies": "Mais moedas",
@@ -2183,7 +2184,7 @@
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "copyInvoice": "Copiar fatura",
-        "usdSwapMinNotice": "Somente pagamentos acima de {{amount}} serão convertidos em dólares",
+        "usdSwapMinNotice": "Somente pagamentos acima de {{amount}} serão recebidos em dólares",
         "shareInvoice": "Compartilhar fatura",
         "walletNotConnected": "Carteira não conectada. Tente novamente.",
         "paylinkSaveError": "Falha ao salvar o link de pagamento",
@@ -2520,7 +2521,7 @@
           "details": "Detalhes"
         },
         "chooseCurrencyTitle": "Escolha a moeda que você deseja trocar",
-        "availableToSwapInto": "Troque até {{amount}} por {{asset}}.",
+        "availableToSwapInto": "Troque até {{amount}} por {{asset}}",
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas",
@@ -2910,6 +2911,15 @@
       "savingsZeroHint": "Nada salvo ainda",
       "interestBelowMinHint": "Seu saldo em recompensas Bitcoin está abaixo do valor mínimo necessário para trocar por USD. Por favor, transfira para o seu saldo em Bitcoin",
       "loadingBalances": "Carregando saldos...",
+      "loadingSteps": {
+        "connecting": "Conectando às Caixinhas...",
+        "updating": "Atualizando saldo...",
+        "finalizing": "Finalizando..."
+      },
+      "empty": {
+        "title": "Nada para resgatar",
+        "subtitle": "Você não tem saldo nas Caixinhas ou recompensas em Bitcoin para resgatar"
+      },
       "balanceLoadError": "Não foi possível carregar a carteira. Volte e tente novamente.",
       "fromInterest": "Das suas recompensas",
       "fromSavings": "Da sua Caixinha",

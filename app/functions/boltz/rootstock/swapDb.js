@@ -95,6 +95,17 @@ export async function updateSwap(id, newDetails) {
   }
 }
 
+// Parse a single DB row, skipping (rather than throwing on) corrupt JSON so one
+// bad row can't discard every valid swap.
+function parseSwapRow(swap) {
+  try {
+    return { id: swap.id, type: swap.type, data: JSON.parse(swap.data) };
+  } catch (error) {
+    console.error('Skipping corrupt rootstock swap row:', swap.id, error);
+    return null;
+  }
+}
+
 // Load all swaps
 export async function loadSwaps() {
   try {
@@ -102,13 +113,10 @@ export async function loadSwaps() {
     const result = await sqlLiteDB.getAllAsync(
       `SELECT * FROM ${ROOTSTOCK_TABLE_NAME}`,
     );
-    return result.map(swap => ({
-      id: swap.id,
-      type: swap.type,
-      data: JSON.parse(swap.data),
-    }));
+    return result.map(parseSwapRow).filter(Boolean);
   } catch (error) {
     console.error('Error fetching rootstock swaps:', error);
+    return [];
   }
 }
 
@@ -120,13 +128,10 @@ export async function getSwapById(id) {
       `SELECT * FROM ${ROOTSTOCK_TABLE_NAME} WHERE id = ?`,
       [id],
     );
-    return result.map(swap => ({
-      id: swap.id,
-      type: swap.type,
-      data: JSON.parse(swap.data),
-    }));
+    return result.map(parseSwapRow).filter(Boolean);
   } catch (error) {
     console.error('Error fetching single rootstock swaps:', error);
+    return [];
   }
 }
 

@@ -37,6 +37,7 @@ export default function AcceptButtonSendPage({
   conversionFiatStats,
   primaryDisplay,
   enteredPaymentInfo = {},
+  enteredDisplaySnapshot,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -77,6 +78,8 @@ export default function AcceptButtonSendPage({
           ...enteredPaymentInfo,
           amount: convertedSendAmount,
           description: paymentDescription,
+          displayAmount: enteredDisplaySnapshot?.displayAmount,
+          displayDenomination: enteredDisplaySnapshot?.displayDenomination,
           lnInvoiceData: paymentInfo?.data?.invoice
             ? {
                 pr: paymentInfo.data.invoice,

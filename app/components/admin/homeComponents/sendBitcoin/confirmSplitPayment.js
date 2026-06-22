@@ -65,6 +65,7 @@ import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyCo
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 
 export default function ConfirmSplitPayment(props) {
   const navigate = useNavigation();
@@ -146,15 +147,26 @@ export default function ConfirmSplitPayment(props) {
       masterInfoObject,
     });
 
-  const { primaryDisplay, conversionFiatStats, convertSatsToDisplay } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-      isSendingPayment: isSendingPayment.current,
-    });
+  const {
+    primaryDisplay,
+    secondaryDisplay,
+    conversionFiatStats,
+    convertSatsToDisplay,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+    isSendingPayment: isSendingPayment.current,
+  });
+
+  // Kept current so the success-page handoff reads the live display config
+  // rather than a stale value captured in the sendPayment useCallback closure.
+  const primaryDisplayRef = useRef(primaryDisplay);
+  useEffect(() => {
+    primaryDisplayRef.current = primaryDisplay;
+  }, [primaryDisplay]);
 
   const displayAmount = convertSatsToDisplay(totalSplitSats);
 
@@ -655,6 +667,7 @@ export default function ConfirmSplitPayment(props) {
                   transaction: result?.transaction,
                   isSplitPayment: true,
                   error: result.error,
+                  paymentDisplay: primaryDisplayRef.current,
                 },
               },
             ],
@@ -712,15 +725,7 @@ export default function ConfirmSplitPayment(props) {
         <CustomSettingsTopBar
           label={t('constants.send')}
           containerStyles={{ marginBottom: 0 }}
-          rightContent={
-            <CurrencySwitchButton
-              displayCurrency={displayCurrency}
-              onPress={openPicker}
-              disabled={isLoadingRate}
-            />
-          }
         />
-        <ThemeText styles={styles.sectionTitle} content={sendingAsset} />
 
         <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           {/* Amount display — always shown except during rate-change intercept */}
@@ -733,6 +738,12 @@ export default function ConfirmSplitPayment(props) {
                 forceCurrency={primaryDisplay.forceCurrency}
                 forceFiatStats={primaryDisplay.forceFiatStats}
               />
+              {uiState === 'CONFIRM_PAYMENT' && (
+                <SecondaryAmountDisplay
+                  amountSats={totalSplitSats}
+                  secondaryDisplay={secondaryDisplay}
+                />
+              )}
             </View>
           )}
 

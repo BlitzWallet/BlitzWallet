@@ -17,10 +17,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@adraffy/ens-normalize@npm:1.10.1":
-  version: 1.10.1
-  resolution: "@adraffy/ens-normalize@npm:1.10.1"
-  checksum: 0836f394ea256972ec19a0b5e78cb7f5bcdfd48d8a32c7478afc94dd53ae44c04d1aa2303d7f3077b4f3ac2323b1f557ab9188e8059978748fdcd83e04a80dcc
+"@adraffy/ens-normalize@npm:1.11.1":
+  version: 1.11.1
+  resolution: "@adraffy/ens-normalize@npm:1.11.1"
+  checksum: e8b17fcc730ccc45a956e1fbb09edfe42be41c291079512082e9964f8ef4287e67913183cdd02fff71d2e215340d5b98a9bbbd9be32c5d36fad4ba2c1ec33ff2
   languageName: node
   linkType: hard
 
@@ -4972,7 +4972,7 @@ __metadata:
     babel-preset-expo: ~54.0.0
     bech32: ^2.0.0
     bip21: ^3.0.0
-    bitcoin-address-parser: ^1.0.6
+    bitcoin-address-parser: ^1.0.7
     bolt11: ^1.4.1
     boltz-core: ^5.0.0
     crypto-es: ^3.1.2
@@ -4980,7 +4980,7 @@ __metadata:
     d3-shape: ^3.2.0
     eslint: ^8.19.0
     eslint-plugin-jest: ^29.15.1
-    ethers: ^6.15.0
+    ethers: ^6.17.0
     events: ^3.3.0
     expo: ~54.0.0
     expo-background-task: ~1.0.8
@@ -6032,9 +6032,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bitcoin-address-parser@npm:^1.0.6":
-  version: 1.0.6
-  resolution: "bitcoin-address-parser@npm:1.0.6"
+"bitcoin-address-parser@npm:^1.0.7":
+  version: 1.0.7
+  resolution: "bitcoin-address-parser@npm:1.0.7"
   dependencies:
     base58-js: ^3.0.2
     bech32: ^2.0.0
@@ -6042,7 +6042,7 @@ __metadata:
     bolt11: ^1.4.1
     js-lnurl: ^0.6.0
     sha256-uint8array: ^0.10.7
-  checksum: e3e728209e140fa339ada3819793d2754ca8ceb2fcd772104b04ea51a812d2226af84ba3d1fb2d28f8edb007376165b69767cb946b29c6d2390ce45d34504091
+  checksum: 7220882f0781c9574f6635b0e7f9347751c52cae7e57fabdd1939a76a6c9178d3d0cd466f635834acb83fbf3a77037fd318750df7d2ecb0c8bbb40322634e5f0
   languageName: node
   linkType: hard
 
@@ -7972,18 +7972,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^6.15.0":
-  version: 6.15.0
-  resolution: "ethers@npm:6.15.0"
+"ethers@npm:^6.17.0":
+  version: 6.17.0
+  resolution: "ethers@npm:6.17.0"
   dependencies:
-    "@adraffy/ens-normalize": 1.10.1
+    "@adraffy/ens-normalize": 1.11.1
     "@noble/curves": 1.2.0
     "@noble/hashes": 1.3.2
     "@types/node": 22.7.5
     aes-js: 4.0.0-beta.5
     tslib: 2.7.0
-    ws: 8.17.1
-  checksum: 3e8fb73b5cf2bef564433442adb68fe89a6da0d664c1ebe6e226fe5e7160da7010800334c3ecc53eef51ff8c10a3255fa99160e8d424f1241440043f6faa2ea1
+    ws: 8.21.0
+  checksum: 0ba314af2ae25622c60886caf83d825ce543262685961667d166b825c9dbfc66f905e0d7a2e3d8d4ccfa58b6ac20326e7f9a897b5580879efa758a50067ad082
   languageName: node
   linkType: hard
 
@@ -15658,9 +15658,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:8.17.1":
-  version: 8.17.1
-  resolution: "ws@npm:8.17.1"
+"ws@npm:8.21.0":
+  version: 8.21.0
+  resolution: "ws@npm:8.21.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -15669,7 +15669,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 442badcce1f1178ec87a0b5372ae2e9771e07c4929a3180321901f226127f252441e8689d765aa5cfba5f50ac60dd830954afc5aeae81609aefa11d3ddf5cecf
+  checksum: 83ff89ae011bc5c3c5605a45a0d50e12589143c7500ca4de83a8d43b3cd26e71f422cb3206fd1a9e6d541d666eeb66255c30d095d62d413b3c7afe5d2c5cb928
   languageName: node
   linkType: hard
 

@@ -465,7 +465,7 @@ describe('ReceivePaymentHome', () => {
 
       expect(mockInitializeAddressProcess).not.toHaveBeenCalled();
       expectText(renderer, 'alice-d60fbd@blitzwalletapp.com');
-      expectText(renderer, 'Minimum USD swap 2000 sats');
+      expectText(renderer, 'Minimum USD swap 2000 fiat USD');
       expect(queryText(renderer, '0 fiat USD')).toBe(false);
     });
 
@@ -601,7 +601,7 @@ describe('ReceivePaymentHome', () => {
 
       expect(mockInitializeAddressProcess).not.toHaveBeenCalled();
       expectText(renderer, 'alice-d60fbd@blitzwalletapp.com');
-      expectText(renderer, 'Minimum USD swap 2000 sats');
+      expectText(renderer, 'Minimum USD swap 2000 fiat USD');
       expect(queryText(renderer, '1999 fiat USD')).toBe(false);
     });
 
@@ -620,7 +620,7 @@ describe('ReceivePaymentHome', () => {
         }),
       );
       expect(queryText(renderer, '1999 fiat USD')).toBe(false);
-      expectText(renderer, 'Minimum USD swap 2000 sats');
+      expectText(renderer, 'Minimum USD swap 2000 fiat USD');
       expectText(renderer, 'Coffee');
       expectText(renderer, 'invoice-USD-0-Coffee');
     });
