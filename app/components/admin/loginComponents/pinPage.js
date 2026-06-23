@@ -6,7 +6,6 @@ import {
   setLocalStorageItem,
 } from '../../../functions';
 import {
-  LOGIN_SECUITY_MODE_KEY,
   PERSISTED_LOGIN_COUNT_KEY,
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
   SIZES,
@@ -24,12 +23,10 @@ import {
   decryptMnemonicWithPin,
   handleLoginSecuritySwitch,
 } from '../../../functions/handleMnemonic';
+import { useLoginContext } from '../../../../context-store/loginContext';
 
 export default function PinPage() {
   const [loginSettings, setLoginSettings] = useState({
-    isBiometricEnabled: null,
-    isPinEnabled: null,
-    isSecurityEnabled: null,
     enteredPin: [null, null, null, null],
     savedPin: '',
     enteredPinCount: 0,
@@ -38,6 +35,7 @@ export default function PinPage() {
   const [useRanomPinLayout, setUseRandomPinLayout] = useState(false);
   const numRetriesBiometric = useRef(0);
   const { setAccountMnemonic } = useKeysContext();
+  const { loginState } = useLoginContext();
   const { t } = useTranslation();
   const didNavigate = useRef(null);
 
@@ -88,7 +86,7 @@ export default function PinPage() {
       sha256Hash(JSON.stringify(loginSettings.enteredPin)),
       comparisonHash,
     );
-    if (loginSettings.isBiometricEnabled) return;
+    if (loginState?.isBiometricEnabled) return;
     if (
       comparisonHash === sha256Hash(JSON.stringify(loginSettings.enteredPin))
     ) {
@@ -142,7 +140,7 @@ export default function PinPage() {
         });
       }
     }
-  }, [loginSettings, navigate]);
+  }, [loginSettings, loginState, navigate]);
 
   useEffect(() => {
     const filteredPin = loginSettings.enteredPin.filter(pin => {
@@ -156,21 +154,14 @@ export default function PinPage() {
   useEffect(() => {
     async function loadPageInformation() {
       try {
-        const [
-          storedSettings,
-          storedPin,
-          ranomkeyboardLayout,
-          persistedPinEnterCount,
-        ] = await Promise.all([
-          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(data =>
-            JSON.parse(data),
-          ),
-          retrieveData('pinHash'),
-          getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(
-            JSON.parse,
-          ),
-          getLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY).then(JSON.parse),
-        ]);
+        const [storedPin, ranomkeyboardLayout, persistedPinEnterCount] =
+          await Promise.all([
+            retrieveData('pinHash'),
+            getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(
+              JSON.parse,
+            ),
+            getLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY).then(JSON.parse),
+          ]);
         setUseRandomPinLayout(ranomkeyboardLayout);
 
         let needsToBeMigrated;
@@ -183,7 +174,6 @@ export default function PinPage() {
         }
         setLoginSettings(prev => ({
           ...prev,
-          ...storedSettings,
           savedPin: storedPin.value,
           needsToBeMigrated,
           enteredPinCount: persistedPinEnterCount || 0,

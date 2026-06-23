@@ -1418,7 +1418,8 @@
       "invalidCharactersError": "O nome e a bio não podem conter os caracteres < > { } ` \\",
       "invalidReceiveAddressError": "Digite um endereço de pagamento válido (ex.: usuario@dominio.com)",
       "aboutYou": "Sobre você",
-      "lightningAddress": "Endereço Blitz"
+      "lightningAddress": "Endereço Blitz",
+      "addContactLightningAddress": "Endereço Blitz"
     },
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",

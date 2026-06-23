@@ -1419,7 +1419,8 @@
       "invalidCharactersError": "Namn och bio får inte innehålla tecknen < > { } ` \\",
       "invalidReceiveAddressError": "Ange en giltig Lightning-adress (t.ex. användare@domän.com)",
       "aboutYou": "Om dig",
-      "lightningAddress": "Lightning-adress"
+      "lightningAddress": "Lightning-adress",
+      "addContactLightningAddress": "Lightning-adress"
     },
     "remotePaymentCurrencySelect": {
       "title": "Mottagningsvaluta",
