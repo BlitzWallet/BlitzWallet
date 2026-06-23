@@ -1400,7 +1400,7 @@
     "editMyProfilePage": {
       "navTitle": "Editar",
       "nameInputDesc": "Nome",
-      "nameInputPlaceholder": "Digite seu nome",
+      "nameInputPlaceholder": "Adicione um nome para esse contato",
       "lnurlInputDesc": "Endereço Blitz",
       "lnurlInputPlaceholder": "Digite seu endereço Blitz",
       "uniqueNameInputDesc": "Perfil",
