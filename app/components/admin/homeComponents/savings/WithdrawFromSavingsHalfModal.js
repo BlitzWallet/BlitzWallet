@@ -137,6 +137,7 @@ export default function WithdrawFromSavingsHalfModal({
     savingsBalance,
     savingsWallet,
     interestPayouts,
+    walletBitcoinBalanceSats,
   } = useSavings();
   const { sparkInformation } = useSparkWallet();
   console.log(screenDimensions);
@@ -240,8 +241,12 @@ export default function WithdrawFromSavingsHalfModal({
     [paymentMode, masterInfoObject, fiatStats],
   );
 
-  // Interest balance (BTC sats held in savings wallet from payouts)
-  const interestSats = walletBTCBalance ?? cachedBalance ?? 0;
+  // Interest balance (BTC sats held in savings wallet from payouts).
+  // walletBTCBalance (poller, catches unsettled interest) takes priority;
+  // walletBitcoinBalanceSats (context, settled-only but reliable) is the floor
+  // so a real balance is never shown as 0 when the poller hasn't settled yet.
+  const interestSats =
+    walletBTCBalance ?? walletBitcoinBalanceSats ?? cachedBalance ?? 0;
 
   // Savings balance in USD (fromMicros of walletBalanceMicros)
   const savingsBalanceUsd = Number(savingsBalance || 0);
@@ -338,7 +343,7 @@ export default function WithdrawFromSavingsHalfModal({
 
         if (abortController.signal.aborted) return;
 
-        if (!initResponse) {
+        if (!initResponse?.isConnected) {
           setSparkInitStatus('error');
           return;
         }
@@ -468,7 +473,8 @@ export default function WithdrawFromSavingsHalfModal({
             maxRetries: 4,
           },
         );
-        if (!initResponse) throw new Error(t('savings.savingsWalletError'));
+        if (!initResponse?.isConnected)
+          throw new Error(t('savings.savingsWalletError'));
 
         const amountSats = isSendMax ? interestSats : localSatAmount;
 
@@ -562,7 +568,7 @@ export default function WithdrawFromSavingsHalfModal({
         maxRetries: 4,
       });
 
-      if (!initResponse) {
+      if (!initResponse?.isConnected) {
         throw new Error(t('savings.savingsWalletError'));
       }
 
