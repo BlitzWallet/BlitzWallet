@@ -26,7 +26,6 @@ import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { handleLoginSecuritySwitch } from '../../../../functions/handleMnemonic';
 import { useKeysContext } from '../../../../../context-store/keys';
-import { useLoginContext } from '../../../../../context-store/loginContext';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
@@ -62,7 +61,6 @@ export default function LoginSecurity({ extraData }) {
   const [isSwitching, setIsSwitching] = useState(false);
   const [showSecurityChoice, setShowSecurityChoice] = useState(false);
   const { accountMnemoinc } = useKeysContext();
-  const { loginState, refreshLoginState } = useLoginContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { theme } = useGlobalThemeContext();
@@ -74,28 +72,18 @@ export default function LoginSecurity({ extraData }) {
       LOGIN_SECUITY_MODE_KEY,
       JSON.stringify(newSettings),
     );
-    // Keep the global login source-of-truth in sync after a mode change.
-    refreshLoginState();
   };
 
-  // Reflect the keychain-authoritative login state in the UI. We no longer seed
-  // LOGIN_SECURITY_MODE in AsyncStorage on first launch, so reading it directly
-  // would show stale/empty toggles — loginState is the single source of truth.
   useEffect(() => {
-    if (!loginState) return;
-    setSecurityLoginSettings({
-      isSecurityEnabled: loginState.isSecurityEnabled,
-      isPinEnabled: loginState.isPinEnabled,
-      isBiometricEnabled: loginState.isBiometricEnabled,
-    });
-  }, [loginState]);
+    (async () => {
+      const [saved, currentLayoutSetting] = await Promise.all([
+        getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(JSON.parse),
+        getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(JSON.parse),
+      ]);
 
-  useEffect(() => {
-    // We need to refresh here to make usre that the security settings are being set to the latest state
-    refreshLoginState();
-    getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY)
-      .then(JSON.parse)
-      .then(setUseRandomPinLayout);
+      if (saved) setSecurityLoginSettings(saved);
+      setUseRandomPinLayout(currentLayoutSetting);
+    })();
   }, []);
 
   useEffect(() => {

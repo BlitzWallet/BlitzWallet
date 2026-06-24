@@ -182,12 +182,11 @@ export default function ConnectingToNodeLoadingScreen() {
     }
 
     if (preloadedUserData.isLoading && !preloadedUserData.data) return;
-    if (!accountMnemoinc) return;
     if (didRunConnectionRef.current) return;
     didRunConnectionRef.current = true;
 
     requestAnimationFrame(startConnectProcess);
-  }, [preloadedUserData, masterInfoObject, accountMnemoinc]);
+  }, [preloadedUserData, masterInfoObject]);
 
   return (
     <GlobalThemeView useStandardWidth={true}>

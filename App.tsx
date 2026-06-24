@@ -7,7 +7,14 @@
 
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { JSX, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { registerRootComponent } from 'expo';
 import {
   getLocalStorageItem,
@@ -30,6 +37,8 @@ import SplashScreen from './app/screens/splashScreen';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 import { CreateAccountHome } from './app/screens/createAccount';
+import { getLocales } from 'react-native-localize';
+import { supportedLanguagesList } from './locales/localeslist';
 import { GlobalAppDataProvider } from './context-store/appData';
 import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -40,6 +49,8 @@ import {
   GIFT_DEEPLINK_REGEX,
   POOL_DEEPLINK_REGEX,
   PAYLINK_DEEPLINK_REGEX,
+  LOGIN_SECUITY_MODE_KEY,
+  LOGIN_SECURITY_MODE_TYPE_KEY,
 } from './app/constants';
 import { LiquidEventProvider } from './context-store/liquidEventContext';
 import {
@@ -59,6 +70,10 @@ import {
 import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import { navigationRef } from './navigation/navigationService';
 import { ImageCacheProvider } from './context-store/imageCache';
+import {
+  runPinAndMnemoicMigration,
+  runSecureStoreMigrationV2,
+} from './app/functions/secureStore';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
@@ -82,10 +97,10 @@ import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { UserBalanceProvider } from './context-store/userBalanceContext';
 import { FlashnetProvider } from './context-store/flashnetContext';
+import { useTranslation } from 'react-i18next';
 import { AnalyticsNumbersProvider } from './context-store/analyticsContext';
 import { BTCMapProvider } from './context-store/btcMapContext';
 import { SpendAndReplaceProvider } from './context-store/spendAndReplaceContext';
-import { LoginProvider, useLoginContext } from './context-store/loginContext';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
@@ -125,11 +140,9 @@ function App(): JSX.Element {
                                                       <UserBalanceProvider>
                                                         <AnalyticsNumbersProvider>
                                                           <SpendAndReplaceProvider>
-                                                            <LoginProvider>
-                                                              {/* <Suspense
+                                                            {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                              <ResetStack />
-                                                            </LoginProvider>
+                                                            <ResetStack />
                                                           </SpendAndReplaceProvider>
                                                         </AnalyticsNumbersProvider>
                                                       </UserBalanceProvider>
@@ -163,6 +176,16 @@ function App(): JSX.Element {
 }
 
 function ResetStack(): JSX.Element | null {
+  const [initSettings, setInitSettings] = useState<{
+    isLoggedIn: boolean | null;
+    hasSecurityEnabled: boolean | null;
+    isLoaded: boolean | null;
+  }>({
+    isLoggedIn: null,
+    hasSecurityEnabled: null,
+    isLoaded: null,
+  });
+  const [securitySettings, setSecuritySettings] = useState<any>(null);
   const [pendingLinkData, setPendingLinkData] = useState<{
     url: string;
     timestamp: number | null;
@@ -171,10 +194,11 @@ function ResetStack(): JSX.Element | null {
     timestamp: null,
   });
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { isLoaded, loginRoute } = useLoginContext();
   const { didGetToHomepage, appState } = useAppStatus();
-  const { publicKey, setAccountMnemonic, accountMnemoinc } = useKeysContext();
+  const { publicKey, setAccountMnemonic } = useKeysContext();
+  const didInitializeSettings = useRef(false);
   const { backgroundColor } = GetThemeColors();
+  const { i18n } = useTranslation();
 
   const handleDeepLink = useCallback(
     async (event: { url: string }, isInitialLoad = false) => {
@@ -428,42 +452,103 @@ function ResetStack(): JSX.Element | null {
     };
   }, [handleDeepLink]);
 
-  // Cold-start deep link: the launch URL is only available via getInitialURL().
   useEffect(() => {
-    getInitialURL();
-  }, [getInitialURL]);
-
-  // Auto-enter accounts with login security disabled (NO_LOGIN). For the 'plain'
-  // storage mode the stored mnemonic is plaintext, so set it directly and let
-  // the loading screen take over. Re-runs whenever the mnemonic is cleared (e.g.
-  // KeysContext wipes it on a long-background resume) so the user isn't stranded
-  // on the loading screen after returning to the app.
-  useEffect(() => {
-    if (loginRoute !== 'NO_LOGIN') return;
-    if (accountMnemoinc) return;
     let cancelled = false;
-    (async () => {
-      // This secure-store read is the only thing that logs a no-security user
-      // in; a transient keychain failure here strands them on the loading
-      // screen, so retry a few times with backoff before giving up.
-      const MAX_ATTEMPTS = 5;
-      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-        if (cancelled) return;
-        const mnemonic = await retrieveData('encryptedMnemonic');
-        if (cancelled) return;
-        if (mnemonic.value) {
-          setAccountMnemonic(mnemonic.value);
-          return;
-        }
-        await new Promise(res => setTimeout(res, 300 * (attempt + 1)));
+    async function initWallet(skipURL = false) {
+      await runPinAndMnemoicMigration();
+      await runSecureStoreMigrationV2();
+      const [
+        initialURL,
+        loginModeType,
+        pin,
+        mnemonic,
+        securitySettings,
+        userSelectedLanguage,
+      ] = await Promise.all([
+        skipURL ? Promise.resolve() : getInitialURL(),
+        retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
+        retrieveData('pinHash'),
+        retrieveData('encryptedMnemonic'),
+        getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+        getLocalStorageItem('userSelectedLanguage').then(data => {
+          try {
+            return JSON.parse(data);
+          } catch {
+            return null;
+          }
+        }),
+      ]);
+
+      const storedSettings = JSON.parse(securitySettings);
+
+      const isPinFromMode = loginModeType?.value === 'pin';
+      const isBiometricFromMode = loginModeType?.value === 'biometric';
+
+      const parsedSettings = storedSettings ?? {
+        isSecurityEnabled: true,
+        isPinEnabled: isPinFromMode || (!isPinFromMode && !isBiometricFromMode),
+        isBiometricEnabled: isBiometricFromMode,
+      };
+      if (!storedSettings)
+        setLocalStorageItem(
+          LOGIN_SECUITY_MODE_KEY,
+          JSON.stringify(parsedSettings),
+        );
+
+      if (cancelled) return;
+
+      if (mnemonic.value && !parsedSettings.isSecurityEnabled) {
+        setAccountMnemonic(mnemonic.value);
       }
-      console.log('Failed to load NO_LOGIN mnemonic after retries');
-    })();
+
+      setSecuritySettings(parsedSettings);
+      setInitSettings(prev => {
+        return {
+          ...prev,
+          isLoggedIn: !!pin.value && !!mnemonic.value,
+          hasSecurityEnabled: parsedSettings.isSecurityEnabled,
+          // Settings are now resolved — unblock the render gate below. Until this
+          // is true the navigator stays unmounted so Home never mounts with the
+          // wrong (still-loading) component. This is the login race-condition fix.
+          isLoaded: true,
+        };
+      });
+
+      let resolvedLanguage = userSelectedLanguage;
+      if (!resolvedLanguage) {
+        const [{ languageTag = 'en' }] = getLocales();
+        const deviceShortId = languageTag.split('-')[0];
+        const matched = supportedLanguagesList.find(
+          l => l.shortId === deviceShortId,
+        );
+        resolvedLanguage = matched ? matched.id : 'en';
+        setLocalStorageItem(
+          'userSelectedLanguage',
+          JSON.stringify(resolvedLanguage),
+        );
+      }
+      i18n.changeLanguage(resolvedLanguage);
+    }
+
+    if (appState === 'background') return;
+
+    if (!didInitializeSettings.current) {
+      didInitializeSettings.current = true;
+      initWallet(false);
+    } else {
+      didInitializeSettings.current = true;
+      initWallet(true);
+    }
     return () => {
       cancelled = true;
     };
-  }, [loginRoute, accountMnemoinc, setAccountMnemonic]);
+  }, [appState]);
 
+  const handleAnimationFinish = () => {
+    setInitSettings(prev => {
+      return { ...prev, isLoaded: true };
+    });
+  };
   const navigationTheme = useMemo(
     () => ({
       ...DefaultTheme,
@@ -494,14 +579,19 @@ function ResetStack(): JSX.Element | null {
   }, []);
 
   const HomeComponent = useMemo(() => {
-    if (loginRoute === 'NO_ACCOUNT') return CreateAccountHome;
-    if (loginRoute === 'NO_LOGIN') return ConnectingToNodeLoadingScreen;
-    return AdminLogin;
-  }, [loginRoute]);
+    if (initSettings.isLoggedIn) {
+      return initSettings.hasSecurityEnabled
+        ? AdminLogin
+        : ConnectingToNodeLoadingScreen;
+    }
+    return CreateAccountHome;
+  }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
 
-  if (theme === null || darkModeType === null || !isLoaded) {
+  if (theme === null || darkModeType === null || !initSettings.isLoaded) {
     return null;
   }
+
+  if (appState === 'background' && !didInitializeSettings.current) return null;
 
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
@@ -514,6 +604,7 @@ function ResetStack(): JSX.Element | null {
           name="Splash"
           component={SplashScreen}
           options={{ animation: 'fade', gestureEnabled: false }}
+          // initialParams={{ onAnimationFinish: handleAnimationFinish }}
         />
         <Stack.Screen
           name="SplashReload"
@@ -523,6 +614,7 @@ function ResetStack(): JSX.Element | null {
         <Stack.Screen
           name="Home"
           component={HomeComponent}
+          initialParams={securitySettings}
           options={{
             animation: 'fade',
             gestureEnabled: false,
