@@ -29,7 +29,7 @@ export default function AddContactsPage({ selectedContact }) {
         <View style={styles.infoContainer}>
           <ThemeText
             styles={styles.infoLabel}
-            content={t('contacts.editMyProfilePage.lightningAddress')}
+            content={t('contacts.editMyProfilePage.addContactLightningAddress')}
           />
           <ThemeText styles={styles.infoValue} content={lnurl} />
         </View>

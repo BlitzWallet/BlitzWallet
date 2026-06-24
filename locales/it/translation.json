@@ -1419,7 +1419,8 @@
       "invalidCharactersError": "Nome e bio non possono contenere i caratteri < > { } ` \\",
       "invalidReceiveAddressError": "Inserisci un indirizzo Lightning valido (es. utente@dominio.com)",
       "aboutYou": "Su di te",
-      "lightningAddress": "Indirizzo Lightning"
+      "lightningAddress": "Indirizzo Lightning",
+      "addContactLightningAddress": "Indirizzo Lightning"
     },
     "remotePaymentCurrencySelect": {
       "title": "Valuta di ricezione",
