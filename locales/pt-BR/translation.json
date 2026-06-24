@@ -1419,7 +1419,7 @@
       "invalidReceiveAddressError": "Digite um endereço de pagamento válido (ex.: usuario@dominio.com)",
       "aboutYou": "Sobre você",
       "lightningAddress": "Endereço Blitz",
-      "addContactLightningAddress": "Endereço Blitz"
+      "addContactLightningAddress": "Endereço Lightning"
     },
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",
