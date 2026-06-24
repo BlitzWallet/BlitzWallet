@@ -183,9 +183,11 @@ export default async function decodeSendAddress(props) {
 
     if (isSupportedPNPQR(btcAdress)) {
       crashlyticsLogReport('Handling crypto qr code');
+      const myUniqueName = globalContactsInformation?.myProfile?.uniqueName;
       btcAdress = await handleCryptoQRAddress(
         btcAdress,
         getLNAddressForLiquidPayment,
+        myUniqueName ? `${myUniqueName}@blitzwalletapp.com` : undefined,
       );
     }
 

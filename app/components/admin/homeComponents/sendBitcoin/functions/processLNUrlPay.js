@@ -64,6 +64,15 @@ export default async function processLNUrlPay(input, context) {
     );
   }
 
+  // LUD-18: stamp the user's own Lightning Address onto the parsed data so the eventual
+  // callback fetch can pass it as a refund address when the service advertises payerData.
+  // This rides on `...input.data` in the return value, reaching the send screen / send-max
+  // invoice fetches without threading it through every call site.
+  const myUniqueName = globalContactsInformation?.myProfile?.uniqueName;
+  if (myUniqueName) {
+    input.data.refundLightningAddress = `${myUniqueName}@blitzwalletapp.com`;
+  }
+
   const enteredAmount = enteredPaymentInfo.amount
     ? enteredPaymentInfo.amount * 1000
     : convertedSendAmount * 1000;
