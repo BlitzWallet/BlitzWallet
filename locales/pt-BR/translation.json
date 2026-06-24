@@ -123,7 +123,7 @@
     "optionalFlag": "(Opcional)",
     "gift": "Cartão-presente",
     "bitcoin_upper": "Bitcoin",
-    "dollars_upper": "Dólar",
+    "dollars_upper": "Dólares",
     "rate": "Cotação",
     "swap": "Trocar",
     "paymentDescriptionPlaceholder": "Descrição (opcional)",
@@ -1400,7 +1400,7 @@
     "editMyProfilePage": {
       "navTitle": "Editar",
       "nameInputDesc": "Nome",
-      "nameInputPlaceholder": "Digite seu nome",
+      "nameInputPlaceholder": "Adicione um nome para esse contato",
       "lnurlInputDesc": "Endereço Blitz",
       "lnurlInputPlaceholder": "Digite seu endereço Blitz",
       "uniqueNameInputDesc": "Perfil",
@@ -1808,7 +1808,7 @@
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
-      "halfModalTitle": "Inserir valores em",
+      "halfModalTitle": "Inserir valor em",
       "placeholderText": "Procurar moeda",
       "yourCurrencies": "Suas moedas",
       "moreCurrencies": "Mais moedas",
