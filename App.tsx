@@ -507,6 +507,10 @@ function ResetStack(): JSX.Element | null {
           ...prev,
           isLoggedIn: !!pin.value && !!mnemonic.value,
           hasSecurityEnabled: parsedSettings.isSecurityEnabled,
+          // Settings are now resolved — unblock the render gate below. Until this
+          // is true the navigator stays unmounted so Home never mounts with the
+          // wrong (still-loading) component. This is the login race-condition fix.
+          isLoaded: true,
         };
       });
 
@@ -583,7 +587,7 @@ function ResetStack(): JSX.Element | null {
     return CreateAccountHome;
   }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
 
-  if (theme === null || darkModeType === null) {
+  if (theme === null || darkModeType === null || !initSettings.isLoaded) {
     return null;
   }
 

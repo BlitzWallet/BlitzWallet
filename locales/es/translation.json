@@ -1419,7 +1419,8 @@
       "invalidCharactersError": "El nombre y la biografía no pueden contener los caracteres < > { } ` \\",
       "invalidReceiveAddressError": "Introduce una dirección Lightning válida (p. ej., usuario@dominio.com)",
       "aboutYou": "Sobre ti",
-      "lightningAddress": "Dirección Lightning"
+      "lightningAddress": "Dirección Lightning",
+      "addContactLightningAddress": "Dirección Lightning"
     },
     "remotePaymentCurrencySelect": {
       "title": "Moneda de recepción",

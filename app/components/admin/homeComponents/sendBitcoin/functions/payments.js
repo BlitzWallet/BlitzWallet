@@ -23,6 +23,15 @@ export async function getLNAddressForLiquidPayment(
         url += `&comment=${comment}`;
       }
 
+      // LUD-18: when the service advertises a payerData record requesting an
+      // `identifier`, attach the user's Lightning Address as a refund destination
+      // (used by MoneyBadger / cryptoqr.net merchants to return failed/over-payments).
+      const refundLightningAddress = paymentInfo?.data?.refundLightningAddress;
+      if (paymentInfo?.data?.payerData?.identifier && refundLightningAddress) {
+        const payerData = { identifier: refundLightningAddress };
+        url += `&payerdata=${encodeURIComponent(JSON.stringify(payerData))}`;
+      }
+
       console.log('Generated URL:', url);
 
       if (!isHTTPS(url)) throw new Error('LNURL must use HTTPS');

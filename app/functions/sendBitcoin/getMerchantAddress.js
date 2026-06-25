@@ -175,6 +175,7 @@ export const convertMerchantQRToLightningAddress = ({ qrContent, network }) => {
 export const handleCryptoQRAddress = async (
   btcAddress,
   getLNAddressForLiquidPayment,
+  refundLightningAddress,
 ) => {
   console.log('Handling crypto qr code');
 
@@ -215,6 +216,12 @@ export const handleCryptoQRAddress = async (
       (!data.callback || !data.minSendable || !data.maxSendable)
     ) {
       throw new Error('Invalid Lightning Address response format');
+    }
+
+    // LUD-18: forward the user's Lightning Address as a refund destination when the
+    // merchant's payerData record requests an `identifier`.
+    if (refundLightningAddress) {
+      data.refundLightningAddress = refundLightningAddress;
     }
 
     const bolt11 = await getLNAddressForLiquidPayment(

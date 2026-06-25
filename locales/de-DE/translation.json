@@ -1418,7 +1418,8 @@
       "invalidCharactersError": "Name und Biografie dürfen die Zeichen < > { } ` \\ nicht enthalten",
       "invalidReceiveAddressError": "Bitte geben Sie eine gültige Lightning-Adresse ein (z. B. benutzer@domain.com)",
       "aboutYou": "Über Sie",
-      "lightningAddress": "Lightning-Adresse"
+      "lightningAddress": "Lightning-Adresse",
+      "addContactLightningAddress": "Lightning-Adresse"
     },
     "remotePaymentCurrencySelect": {
       "title": "Empfangswährung",

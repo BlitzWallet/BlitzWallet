@@ -1420,7 +1420,8 @@
       "invalidCharactersError": "Имя и био не могут содержать символы < > { } ` \\",
       "invalidReceiveAddressError": "Введите корректный адрес Молнии (например, user@domain.com)",
       "aboutYou": "О вас",
-      "lightningAddress": "Lightning-адрес"
+      "lightningAddress": "Lightning-адрес",
+      "addContactLightningAddress": "Lightning-адрес"
     },
     "remotePaymentCurrencySelect": {
       "title": "Валюта получения",

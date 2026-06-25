@@ -53,6 +53,14 @@ jest.mock('@react-native-firebase/storage', () => ({
   getStorage: jest.fn(() => ({})),
 }));
 
+// react-native-localize is a native module (RNLocalize) that throws at import
+// time under Jest. Provide a sensible English default; tests can override locally.
+jest.mock('react-native-localize', () => ({
+  getLocales: jest.fn(() => [
+    { languageCode: 'en', countryCode: 'US', languageTag: 'en-US', isRTL: false },
+  ]),
+}));
+
 // react-native-quick-crypto is a Nitro/Turbo native module that throws at import
 // time under Jest. Delegate to Node's crypto so modules in the encryption chain
 // (e.g. messaging/encodingAndDecodingMessages.js) load AND actually work.

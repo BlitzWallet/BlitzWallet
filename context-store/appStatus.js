@@ -178,10 +178,7 @@ const AppStatusProvider = ({ children }) => {
 
     (async () => {
       try {
-        const [
-          submarineSwapStats,
-          reverseSwapStats,
-        ] = await Promise.all([
+        const [submarineSwapStats, reverseSwapStats] = await Promise.all([
           getBoltzSwapPairInformation('submarine'),
           getBoltzSwapPairInformation('reverse'),
         ]);
