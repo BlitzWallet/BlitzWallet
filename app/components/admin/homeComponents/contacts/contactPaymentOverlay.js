@@ -9,7 +9,10 @@ import { useTranslation } from 'react-i18next';
 import LottieView from 'lottie-react-native';
 
 import { CENTER, SIZES } from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import GetThemeColors from '../../../../hooks/themeColors';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
@@ -282,17 +285,6 @@ export default function ContactPaymentOverlay({
             />
           )}
           <ThemeText
-            styles={styles.successTitle}
-            content={t('wallet.halfModal.requestSentTitle')}
-          />
-          <FormattedBalanceInput
-            maxWidth={0.8}
-            amountValue={successData?.amountValue || 0}
-            inputDenomination={successData?.denomination}
-            forceCurrency={successData?.forceCurrency}
-            forceFiatStats={successData?.forceFiatStats}
-          />
-          <ThemeText
             CustomNumberOfLines={2}
             styles={styles.successSubtitle}
             content={t('wallet.halfModal.requestSentSubtitle', {
@@ -333,29 +325,23 @@ const styles = StyleSheet.create({
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     alignItems: 'center',
-    justifyContent: 'center',
+    // justifyContent: 'center',
   },
   lottie: {
-    width: 130,
-    height: 130,
+    width: 200,
+    height: 200,
     marginBottom: 8,
   },
-  successTitle: {
-    fontSize: SIZES.xLarge,
-    fontWeight: 500,
-    textAlign: 'center',
-    marginBottom: 20,
-    includeFontPadding: false,
-  },
+
   successSubtitle: {
     fontSize: SIZES.medium,
-    opacity: 0.6,
+    // opacity: HIDDEN_OPACITY,
     textAlign: 'center',
-    marginTop: 20,
+    // marginTop: 20,
     includeFontPadding: false,
   },
   doneButton: {
-    width: INSET_WINDOW_WIDTH,
+    // width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
 });
