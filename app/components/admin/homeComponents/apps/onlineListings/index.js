@@ -199,8 +199,6 @@ export default function ViewOnlineListings({ removeUserLocal }) {
     });
   }, [currentFilter, debouncedSearch, preprocessedBusinesses]);
 
-  console.log(businesses, 'buisness list');
-
   const activeFilterCount =
     currentFilter.categories.length +
     (currentFilter.countryCode !== 'WW' ? 1 : 0);
