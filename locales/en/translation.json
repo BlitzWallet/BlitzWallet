@@ -1006,6 +1006,8 @@
       "payMe": "Quick Pay",
       "createInvoice": "Create Invoice",
       "invoiceDescription": "Create an invoice and get paid instantly.",
+      "requestSentTitle": "Request Sent",
+      "requestSentSubtitle": "{{name}} has been notified of your request",
       "poolsDescription": "Collect contributions from a group toward a shared goal.",
       "noContactHead": "{{username}} not found",
       "noContactDesc": "Add {{username}} to your contacts to find them here in the future, or continue to send a payment now.",
