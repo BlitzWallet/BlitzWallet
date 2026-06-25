@@ -199,6 +199,8 @@ export default function ViewOnlineListings({ removeUserLocal }) {
     });
   }, [currentFilter, debouncedSearch, preprocessedBusinesses]);
 
+  console.log(businesses, 'buisness list');
+
   const activeFilterCount =
     currentFilter.categories.length +
     (currentFilter.countryCode !== 'WW' ? 1 : 0);
@@ -335,6 +337,10 @@ const BusinessCard = React.memo(
     }, [websiteUrl]);
 
     const cardBackgroundColor = theme ? backgroundOffset : COLORS.darkModeText;
+    const countryName =
+      item.country.code == 'WW'
+        ? t('apps.onlineListings.filterWorldwide')
+        : item.country.name;
 
     return (
       <View
@@ -353,7 +359,7 @@ const BusinessCard = React.memo(
             </View>
             <View style={[styles.categoryContainer, { backgroundColor }]}>
               <ThemeText
-                content={item.country.name}
+                content={countryName}
                 styles={styles.countryLocation}
               />
             </View>
