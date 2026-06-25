@@ -1,12 +1,15 @@
-import { useCallback, useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
+import LottieView from 'lottie-react-native';
 
+import { CENTER, SIZES } from '../../../../constants';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import GetThemeColors from '../../../../hooks/themeColors';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
@@ -14,6 +17,12 @@ import ContactAmountEntry from './internalComponents/contactAmountEntry';
 import useContactPayment from './hooks/useContactPayment';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import { ThemeText } from '../../../../functions/CustomElements';
+import CustomButton from '../../../../functions/CustomElements/button';
+import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
+import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+
+const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 export default function ContactPaymentOverlay({
   visible,
@@ -43,22 +52,71 @@ export default function ContactPaymentOverlay({
     t,
   });
 
+  // Snapshot of the just-submitted request, captured at submit time so the
+  // confirmation view keeps showing the right amount even if the payment hook's
+  // state changes afterwards. null = still on the amount-entry step.
+  const [successData, setSuccessData] = useState(null);
+
   const overlayOpacity = useSharedValue(0);
+  const entryOpacity = useSharedValue(1);
+  const entryTranslateX = useSharedValue(0);
+  const successOpacity = useSharedValue(0);
+  const successTranslateX = useSharedValue(30);
 
   useEffect(() => {
     overlayOpacity.value = withTiming(visible ? 1 : 0, { duration: 250 });
   }, [visible]);
+
+  // Cross-fade between the amount-entry step and the confirmation step.
+  useEffect(() => {
+    const showingSuccess = successData !== null;
+    entryOpacity.value = withTiming(showingSuccess ? 0 : 1, { duration: 250 });
+    entryTranslateX.value = withTiming(showingSuccess ? -30 : 0, {
+      duration: 250,
+    });
+    successOpacity.value = withTiming(showingSuccess ? 1 : 0, {
+      duration: 250,
+    });
+    successTranslateX.value = withTiming(showingSuccess ? 0 : 30, {
+      duration: 250,
+    });
+  }, [successData]);
 
   const overlayStyle = useAnimatedStyle(() => ({
     opacity: overlayOpacity.value,
     pointerEvents: overlayOpacity.value > 0.5 ? 'auto' : 'none',
   }));
 
+  const entryStyle = useAnimatedStyle(() => ({
+    opacity: entryOpacity.value,
+    transform: [{ translateX: entryTranslateX.value }],
+  }));
+
+  const successStyle = useAnimatedStyle(() => ({
+    opacity: successOpacity.value,
+    transform: [{ translateX: successTranslateX.value }],
+  }));
+
+  const confirmAnimation = useMemo(
+    () =>
+      updateConfirmAnimation(
+        confirmTxAnimation,
+        theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+      ),
+    [theme, darkModeType],
+  );
+
   const handleBackPress = useCallback(() => {
     if (!visible) return false;
+    // Once the request has been sent there's nothing to step back to — close
+    // the whole modal, matching the Done button.
+    if (successData !== null) {
+      handleBackPressFunction();
+      return true;
+    }
     onClose();
     return true;
-  }, [onClose, visible]);
+  }, [onClose, visible, successData, handleBackPressFunction]);
 
   const openCurrencyPicker = useCallback(
     () =>
@@ -77,13 +135,15 @@ export default function ContactPaymentOverlay({
     setBackNav?.({
       onPress: handleBackPress,
       title: '',
-      rightElement: (
-        <CurrencySwitchButton
-          displayCurrency={payment.displayCurrency}
-          onPress={openCurrencyPicker}
-          disabled={payment.isResolvingDisplayCurrency}
-        />
-      ),
+      // The currency switcher is meaningless on the confirmation step.
+      rightElement:
+        successData !== null ? null : (
+          <CurrencySwitchButton
+            displayCurrency={payment.displayCurrency}
+            onPress={openCurrencyPicker}
+            disabled={payment.isResolvingDisplayCurrency}
+          />
+        ),
     });
     return () => {
       setBackNav?.(null);
@@ -93,6 +153,7 @@ export default function ContactPaymentOverlay({
     handleBackPress,
     setBackNav,
     visible,
+    successData,
     payment.displayCurrency,
     payment.isResolvingDisplayCurrency,
     openCurrencyPicker,
@@ -146,15 +207,35 @@ export default function ContactPaymentOverlay({
       });
       return;
     }
-    handleBackPressFunction();
-  }, [handleBackPressFunction, navigate, payment, paymentType]);
+    // Replace the entry screen with an in-place confirmation instead of closing
+    // straight to the homepage, so the user gets clear feedback the request
+    // actually went through.
+    setSuccessData({
+      amountValue: payment.amountValue,
+      denomination: payment.primaryDisplay.denomination,
+      forceCurrency: payment.primaryDisplay.forceCurrency,
+      forceFiatStats: payment.primaryDisplay.forceFiatStats,
+      contactName: selectedContact?.name || selectedContact?.uniqueName || '',
+    });
+  }, [
+    handleBackPressFunction,
+    navigate,
+    payment,
+    paymentType,
+    selectedContact,
+  ]);
 
   if (!visible) return null;
 
   return (
     <Animated.View style={[styles.container, overlayStyle]}>
       <Animated.View
-        style={[styles.stepContainer, { paddingBottom: bottomPadding }]}
+        style={[
+          styles.stepContainer,
+          entryStyle,
+          { paddingBottom: bottomPadding },
+        ]}
+        pointerEvents={successData !== null ? 'none' : 'auto'}
       >
         <ContactAmountEntry
           selectedContact={selectedContact}
@@ -181,6 +262,50 @@ export default function ContactPaymentOverlay({
           isResolvingDisplayCurrency={payment.isResolvingDisplayCurrency}
         />
       </Animated.View>
+
+      <Animated.View
+        style={[
+          styles.stepContainer,
+          styles.successContainer,
+          successStyle,
+          { paddingBottom: bottomPadding },
+        ]}
+        pointerEvents={successData !== null ? 'auto' : 'none'}
+      >
+        <View style={styles.successContent}>
+          {successData !== null && (
+            <LottieView
+              source={confirmAnimation}
+              loop={false}
+              autoPlay
+              style={styles.lottie}
+            />
+          )}
+          <ThemeText
+            styles={styles.successTitle}
+            content={t('wallet.halfModal.requestSentTitle')}
+          />
+          <FormattedBalanceInput
+            maxWidth={0.8}
+            amountValue={successData?.amountValue || 0}
+            inputDenomination={successData?.denomination}
+            forceCurrency={successData?.forceCurrency}
+            forceFiatStats={successData?.forceFiatStats}
+          />
+          <ThemeText
+            CustomNumberOfLines={2}
+            styles={styles.successSubtitle}
+            content={t('wallet.halfModal.requestSentSubtitle', {
+              name: successData?.contactName,
+            })}
+          />
+        </View>
+        <CustomButton
+          buttonStyles={styles.doneButton}
+          actionFunction={handleBackPressFunction}
+          textContent={t('constants.done')}
+        />
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -200,5 +325,37 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  successContainer: {
+    alignItems: 'center',
+  },
+  successContent: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lottie: {
+    width: 130,
+    height: 130,
+    marginBottom: 8,
+  },
+  successTitle: {
+    fontSize: SIZES.xLarge,
+    fontWeight: 500,
+    textAlign: 'center',
+    marginBottom: 20,
+    includeFontPadding: false,
+  },
+  successSubtitle: {
+    fontSize: SIZES.medium,
+    opacity: 0.6,
+    textAlign: 'center',
+    marginTop: 20,
+    includeFontPadding: false,
+  },
+  doneButton: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
 });

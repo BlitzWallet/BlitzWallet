@@ -1006,6 +1006,8 @@
       "payMe": "Pago rápido",
       "createInvoice": "Crear factura",
       "invoiceDescription": "Crea una factura y recibe el pago al instante.",
+      "requestSentTitle": "Solicitud enviada",
+      "requestSentSubtitle": "{{name}} ha sido notificado de tu solicitud",
       "poolsDescription": "Reúne contribuciones de un grupo para un objetivo compartido.",
       "noContactHead": "{{username}} no encontrado",
       "noContactDesc": "Agrega a {{username}} a tus contactos para encontrarlo aquí en el futuro, o continúa para enviar un pago ahora.",
