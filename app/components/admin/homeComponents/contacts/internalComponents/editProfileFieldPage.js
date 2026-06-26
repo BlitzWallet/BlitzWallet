@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
@@ -22,7 +22,9 @@ import { useGlobalContactsInfo } from '../../../../../../context-store/globalCon
 import { isValidUniqueName } from '../../../../../../db';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import { keyboardGoBack } from '../../../../../functions/customNavigation';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 
 const FIELD_CONFIG = {
   name: {
@@ -89,6 +91,24 @@ export default function EditProfileFieldPage(props) {
   const isValidContent =
     fieldKey === 'uniquename' || VALID_NAME_BIO_REGEX.test(value);
   const didEdit = initialValue !== value;
+
+  const handleHardwareBack = useCallback(() => {
+    if (isGoingBackRef.current) return true; // race guard
+
+    // Unsaved edits + keyboard open: keep current behavior — just close the keyboard.
+    if (didEdit && isKeyboardActive) {
+      setIsKeyboardActive(false);
+      return true;
+    }
+
+    // No edits (or keyboard already closed): close keyboard + navigate in one press.
+    isGoingBackRef.current = true;
+    keyboardGoBack(navigate);
+    setIsKeyboardActive(false);
+    return true;
+  }, [didEdit, isKeyboardActive, navigate]);
+
+  useHandleBackPressNew(handleHardwareBack);
 
   useEffect(() => {
     const timer = setTimeout(() => inputRef.current?.focus(), 300);
@@ -270,7 +290,7 @@ export default function EditProfileFieldPage(props) {
               maxLength={config.maxLength}
               textInputMultiline={config.multiline}
               textAlignVertical={config.multiline ? 'top' : 'center'}
-              onBlurFunction={() => setIsKeyboardActive(false)}
+              onBlurFunction={handleHardwareBack}
               onFocusFunction={() => setIsKeyboardActive(true)}
               textInputStyles={{ paddingRight: 20 }}
               placeholderText={
@@ -342,9 +362,10 @@ export default function EditProfileFieldPage(props) {
 
 const styles = StyleSheet.create({
   content: {
+    width: INSET_WINDOW_WIDTH,
     flex: 1,
-    paddingHorizontal: 16,
     justifyContent: 'space-between',
+    ...CENTER,
   },
   topSection: {
     flex: 1,
