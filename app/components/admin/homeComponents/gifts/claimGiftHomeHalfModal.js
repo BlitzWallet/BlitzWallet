@@ -147,7 +147,7 @@ export default function ClaimGiftHomeHalfModal({
               colorOverride={
                 theme && darkModeType ? textInputColor : COLORS.primary
               }
-              iconName={enteredLink ? 'X' : 'ScanQrCode'}
+              iconName={enteredLink ? 'X' : 'ScanLine'}
             />
           </TouchableOpacity>
         }

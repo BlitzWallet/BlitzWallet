@@ -791,7 +791,7 @@ export default function HalfModalSendOptions({
                           : COLORS.primary
                       }
                       size={24}
-                      iconName={'ScanQrCode'}
+                      iconName={'ScanLine'}
                     />
                   </View>
                   <View style={styles.scanTextContainer}>

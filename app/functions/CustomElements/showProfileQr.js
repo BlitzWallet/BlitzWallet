@@ -263,12 +263,6 @@ export default function ShowProfileQr() {
             ]}
             onPress={handleCopy}
           >
-            <ThemeIcon
-              colorOverride={COLORS.darkModeText}
-              size={20}
-              styles={{ marginRight: 5 }}
-              iconName={'Copy'}
-            />
             <ThemeText
               styles={styles.copyText}
               content={t(
@@ -292,12 +286,6 @@ export default function ShowProfileQr() {
               });
             }}
           >
-            <ThemeIcon
-              colorOverride={textColor}
-              size={20}
-              styles={{ marginRight: 5 }}
-              iconName={'ScanQrCode'}
-            />
             <ThemeText
               styles={{ includeFontPadding: false }}
               content={t('contacts.showProfileQr.scanProfile')}

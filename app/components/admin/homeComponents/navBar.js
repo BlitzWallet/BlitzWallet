@@ -27,7 +27,7 @@ export const NavBar = memo(function NavBar({
         activeOpacity={0.5}
         style={styles.iconButton}
       >
-        <ThemeIcon iconName={'ScanQrCode'} />
+        <ThemeIcon iconName={'ScanLine'} />
       </TouchableOpacity>
       {/* Center space for animated balance - invisible but takes up space */}
       <View style={styles.centerSpace} />
