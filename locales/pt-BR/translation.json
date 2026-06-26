@@ -958,7 +958,7 @@
       "filterCategoriesTitle": "Categorias",
       "filterCountryTitle": "País",
       "filterAllCategories": "Todas as categorias",
-      "filterWorldwide": "Mundial",
+      "filterWorldwide": "Global",
       "filterCountrySearchPlaceholder": "Buscar países...",
       "filterClear": "Limpar",
       "filterApply": "Aplicar",
@@ -1422,7 +1422,7 @@
       "invalidReceiveAddressError": "Digite um endereço de pagamento válido (ex.: usuario@dominio.com)",
       "aboutYou": "Sobre você",
       "lightningAddress": "Endereço Blitz",
-      "addContactLightningAddress": "Endereço Lightning"
+      "addContactLightningAddress": "Endereço de pagamento"
     },
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",
