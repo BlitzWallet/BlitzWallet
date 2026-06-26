@@ -2157,7 +2157,8 @@
         "splitPayment": "Aufteilen",
         "chainSwap_other": "Stablecoin",
         "chainSwap_lightning": "Lightning",
-        "contactSupport": "Support"
+        "contactSupport": "Support",
+        "viewProgress": "Fortschritt anzeigen"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",

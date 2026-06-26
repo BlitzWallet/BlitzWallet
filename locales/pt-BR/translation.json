@@ -2157,7 +2157,8 @@
         "splitPayment": "Dividir",
         "chainSwap_other": "Dólar digital",
         "chainSwap_lightning": "Lightning",
-        "contactSupport": "Suporte"
+        "contactSupport": "Suporte",
+        "viewProgress": "Ver progresso"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",
