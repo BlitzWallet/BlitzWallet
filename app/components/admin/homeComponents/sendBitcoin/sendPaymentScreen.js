@@ -1543,6 +1543,7 @@ export default function SendPaymentScreen(props) {
               fiatStats={fiatStats}
               uiState={uiState}
               t={t}
+              showPayWith={true}
             />
           )}
 
@@ -1591,6 +1592,7 @@ export default function SendPaymentScreen(props) {
                 uiState={uiState}
                 t={t}
                 showBitcoinCardOnly={isBTCOnlyPayment}
+                showPayWith={true}
               />
             )}
             <CustomSearchInput

@@ -28,6 +28,7 @@ export default function ChoosePaymentMethod({
   showBitcoinCardOnly = false,
   containerStyles = {},
   hideBalance = false,
+  showPayWith = false,
 }) {
   const { backgroundColor } = GetThemeColors();
   const icon =
@@ -75,6 +76,12 @@ export default function ChoosePaymentMethod({
         containerStyles,
       ]}
     >
+      {showPayWith && (
+        <ThemeText
+          styles={{ opacity: HIDDEN_OPACITY, marginBottom: 5 }}
+          content={t('constants.payWith')}
+        />
+      )}
       <TouchableOpacity
         onPress={() => !showBitcoinCardOnly && handleSelectPaymentMethod(false)}
         activeOpacity={showBitcoinCardOnly ? 1 : 0.2}
