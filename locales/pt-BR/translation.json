@@ -1403,6 +1403,7 @@
       "navTitle": "Editar",
       "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Adicione um nome para esse contato",
+      "addedContactnameInputPlaceholder": "Digite o nome",
       "lnurlInputDesc": "Endereço Blitz",
       "lnurlInputPlaceholder": "Digite seu endereço Blitz",
       "uniqueNameInputDesc": "Perfil",

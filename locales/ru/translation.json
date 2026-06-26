@@ -1405,6 +1405,7 @@
       "navTitle": "Редактировать профиль",
       "nameInputDesc": "Имя",
       "nameInputPlaceholder": "Введите имя",
+      "addedContactnameInputPlaceholder": "Введите имя",
       "lnurlInputDesc": "Адрес Молнии",
       "lnurlInputPlaceholder": "Введите адрес Молнии",
       "uniqueNameInputDesc": "Юзернейм",

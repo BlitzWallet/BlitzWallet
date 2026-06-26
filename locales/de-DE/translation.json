@@ -1403,6 +1403,7 @@
       "navTitle": "Profil bearbeiten",
       "nameInputDesc": "Name",
       "nameInputPlaceholder": "Geben Sie Ihren Namen ein.",
+      "addedContactnameInputPlaceholder": "Namen eingeben",
       "lnurlInputDesc": "LNURL-Adresse",
       "lnurlInputPlaceholder": "Geben Sie Ihre LNURL-Adresse ein.",
       "uniqueNameInputDesc": "Benutzername",

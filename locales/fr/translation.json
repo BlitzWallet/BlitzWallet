@@ -1405,6 +1405,7 @@
       "nameInputDesc": "Nom",
       "nameInputPlaceholder": "Entrez votre nom",
       "lnurlInputDesc": "LNURL Adresse",
+      "addedContactnameInputPlaceholder": "Saisissez son nom",
       "lnurlInputPlaceholder": "Entrez votre adresse LNURL",
       "uniqueNameInputDesc": "Nom d'utilisateur",
       "uniqueNameInputPlaceholder": "Entrez votre nom d'utilisateur",

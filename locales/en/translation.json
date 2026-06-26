@@ -1404,6 +1404,7 @@
       "navTitle": "Edit Profile",
       "nameInputDesc": "Name",
       "nameInputPlaceholder": "Enter your name",
+      "addedContactnameInputPlaceholder": "Enter thier name",
       "lnurlInputDesc": "Lightning Address",
       "lnurlInputPlaceholder": "Enter your Lightning address",
       "uniqueNameInputDesc": "Username",

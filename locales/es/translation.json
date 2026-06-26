@@ -1404,6 +1404,7 @@
       "navTitle": "Editar perfil",
       "nameInputDesc": "Nombre",
       "nameInputPlaceholder": "Introduce tu nombre",
+      "addedContactnameInputPlaceholder": "Introduce su nombre",
       "lnurlInputDesc": "Dirección LNURL",
       "lnurlInputPlaceholder": "Introduce tu dirección LNURL",
       "uniqueNameInputDesc": "Nombre de usuario",

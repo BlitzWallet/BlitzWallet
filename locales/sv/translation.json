@@ -1404,6 +1404,7 @@
       "navTitle": "Redigera profil",
       "nameInputDesc": "Namn",
       "nameInputPlaceholder": "Ange ditt namn",
+      "addedContactnameInputPlaceholder": "Ange personens namn",
       "lnurlInputDesc": "LNURL Adress",
       "lnurlInputPlaceholder": "Ange din LNURL-adress",
       "uniqueNameInputDesc": "Användarnamn",
