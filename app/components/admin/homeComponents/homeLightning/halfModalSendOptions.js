@@ -228,7 +228,7 @@ export default function HalfModalSendOptions({
 
   useEffect(() => {
     if (anyOverlayVisible) {
-      contentOpacity.value = withTiming(0, { duration: 0 });
+      contentOpacity.value = withTiming(0, { duration: 250 });
       contentTranslateX.value = withTiming(-30, { duration: 250 });
     } else {
       contentOpacity.value = withTiming(1, { duration: 250 });
