@@ -174,7 +174,13 @@ function ProfileInputFields({
     <>
       <EditProfileTextInput
         label={t('contacts.editMyProfilePage.nameInputDesc')}
-        placeholder={t('contacts.editMyProfilePage.nameInputPlaceholder')}
+        placeholder={t(
+          `contacts.editMyProfilePage.${
+            isEditingMyProfile
+              ? 'nameInputPlaceholder'
+              : 'addedContactnameInputPlaceholder'
+          }`,
+        )}
         value={inputs.name}
         onChangeText={text => changeInputText(text, 'name')}
         onFocus={() => setIsKeyboardActive(true)}

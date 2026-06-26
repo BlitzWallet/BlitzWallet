@@ -20,7 +20,10 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
-import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
+} from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function EditReceivePaymentInformation(props) {
@@ -42,6 +45,7 @@ export default function EditReceivePaymentInformation(props) {
   const userReceiveAmount = Number(props.route.params.userReceiveAmount) || 0;
   const incomingDisplayCurrency = props.route.params.paymentDisplayCurrency;
   const incomingDisplayFiatStats = props.route.params.paymentDisplayFiatStats;
+  const incomingDisplayAmount = props.route.params.paymentDisplayAmount;
 
   const isUSDReceiveMode = endReceiveType === 'USD';
   const usdFiatStats = useMemo(
@@ -102,9 +106,20 @@ export default function EditReceivePaymentInformation(props) {
     : userReceiveAmount;
   const amountChanged =
     hasAmountInput && requestedSatAmount !== userReceiveAmount;
-  const previousAmountDisplayValue = userReceiveAmount
-    ? convertSatsToDisplay(userReceiveAmount)
-    : '';
+  // Show the verbatim fiat amount the user originally typed as the placeholder
+  // (so it reads $100, not a sats-reconverted $100.1) whenever the editor is
+  // still in that same fiat currency. If they switch currencies the literal no
+  // longer applies, so fall back to converting the locked sats.
+  const placeholderMatchesEnteredCurrency =
+    !!incomingDisplayAmount &&
+    primaryDisplay.denomination === 'fiat' &&
+    normalizeDisplayCurrency(primaryDisplay.forceCurrency) ===
+      normalizeDisplayCurrency(incomingDisplayCurrency);
+  const previousAmountDisplayValue = !userReceiveAmount
+    ? ''
+    : placeholderMatchesEnteredCurrency
+    ? incomingDisplayAmount
+    : convertSatsToDisplay(userReceiveAmount);
   const descriptionChanged = paymentDescription !== initialDescription;
   const requestChanged = amountChanged || descriptionChanged;
   const finalDescription = paymentDescription;
@@ -160,14 +175,32 @@ export default function EditReceivePaymentInformation(props) {
       return;
     }
 
+    // When only the description changed, keep the original entry-time currency,
+    // rate, and the verbatim fiat amount so the receive page keeps showing what
+    // the user first typed (the live rate may have moved since then). When the
+    // amount changed, carry the new verbatim fiat value (only meaningful when the
+    // user typed in a fiat currency; sats entries have no fiat literal).
+    const enteredFiatLiteral =
+      primaryDisplay.denomination === 'fiat' ? amountValue : '';
+    const outgoingDisplayCurrency = amountChanged
+      ? displayCurrency
+      : incomingDisplayCurrency || displayCurrency;
+    const outgoingDisplayFiatStats = amountChanged
+      ? conversionFiatStats
+      : incomingDisplayFiatStats || conversionFiatStats;
+    const outgoingDisplayAmount = amountChanged
+      ? enteredFiatLiteral
+      : incomingDisplayAmount ?? enteredFiatLiteral;
+
     if (fromPage === 'homepage') {
       navigate.replace('ReceiveBTC', {
         receiveAmount: sendAmount,
         description: finalDescription,
         endReceiveType,
         uuid: customUUID(),
-        paymentDisplayCurrency: displayCurrency,
-        paymentDisplayFiatStats: conversionFiatStats,
+        paymentDisplayCurrency: outgoingDisplayCurrency,
+        paymentDisplayFiatStats: outgoingDisplayFiatStats,
+        paymentDisplayAmount: outgoingDisplayAmount,
       });
     } else {
       navigate.popTo(
@@ -177,8 +210,9 @@ export default function EditReceivePaymentInformation(props) {
           description: finalDescription,
           endReceiveType: endReceiveType,
           uuid: customUUID(),
-          paymentDisplayCurrency: displayCurrency,
-          paymentDisplayFiatStats: conversionFiatStats,
+          paymentDisplayCurrency: outgoingDisplayCurrency,
+          paymentDisplayFiatStats: outgoingDisplayFiatStats,
+          paymentDisplayAmount: outgoingDisplayAmount,
         },
         { merge: true },
       );
@@ -195,6 +229,11 @@ export default function EditReceivePaymentInformation(props) {
     finalDescription,
     requestChanged,
     displayCurrency,
+    amountChanged,
+    amountValue,
+    incomingDisplayCurrency,
+    incomingDisplayFiatStats,
+    incomingDisplayAmount,
     t,
   ]);
 
