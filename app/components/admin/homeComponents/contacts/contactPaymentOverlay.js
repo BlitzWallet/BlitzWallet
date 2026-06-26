@@ -111,12 +111,7 @@ export default function ContactPaymentOverlay({
 
   const handleBackPress = useCallback(() => {
     if (!visible) return false;
-    // Once the request has been sent there's nothing to step back to — close
-    // the whole modal, matching the Done button.
-    if (successData !== null) {
-      handleBackPressFunction();
-      return true;
-    }
+
     onClose();
     return true;
   }, [onClose, visible, successData, handleBackPressFunction]);
