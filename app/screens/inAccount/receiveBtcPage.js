@@ -6,6 +6,7 @@ import {
   ICONS,
   CONTENT_KEYBOARD_OFFSET,
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+  SATSPERBITCOIN,
 } from '../../constants';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -80,6 +81,9 @@ export default function ReceivePaymentHome(props) {
     routeParams.endReceiveType || routeParams.initialReceiveType || 'BTC';
   const paymentDisplayCurrency = routeParams.paymentDisplayCurrency;
   const paymentDisplayFiatStats = routeParams.paymentDisplayFiatStats;
+  // Verbatim fiat amount the user typed (e.g. "100"), kept so the display can
+  // show exactly what they entered instead of re-deriving it from sats.
+  const paymentDisplayAmount = routeParams.paymentDisplayAmount;
 
   const userReceiveAmount = routeParams.receiveAmount || 0;
   const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
@@ -278,6 +282,7 @@ export default function ReceivePaymentHome(props) {
       description: paymentDescription,
       paymentDisplayCurrency,
       paymentDisplayFiatStats,
+      paymentDisplayAmount,
     });
   };
 
@@ -319,7 +324,7 @@ export default function ReceivePaymentHome(props) {
             fiatStats={fiatStats}
             swapUSDPriceDollars={swapUSDPriceDollars}
             paymentDisplayCurrency={paymentDisplayCurrency}
-            paymentDisplayFiatStats={paymentDisplayFiatStats}
+            paymentDisplayAmount={paymentDisplayAmount}
           />
           <TouchableOpacity
             onPress={() => {
@@ -502,7 +507,7 @@ function AmountDisplay({
   fiatStats,
   swapUSDPriceDollars,
   paymentDisplayCurrency,
-  paymentDisplayFiatStats,
+  paymentDisplayAmount,
 }) {
   const inputDenomination = endReceiveType === 'USD' ? 'fiat' : 'sats';
   const usdFiatStats = { coin: 'USD', value: swapUSDPriceDollars };
@@ -517,12 +522,17 @@ function AmountDisplay({
 
   if (!amountCardValue) return null;
 
-  const primaryFiatStats = primaryDisplay.forceFiatStats || conversionFiatStats;
-
   // When the user entered the amount in a currency other than what the primary
   // line shows (e.g. entered EUR while device is USD), show that entered
   // currency as the secondary line instead of the device-derived default.
   const enteredCurrency = normalizeDisplayCurrency(paymentDisplayCurrency);
+  const hasFiatLiteral =
+    paymentDisplayAmount != null &&
+    paymentDisplayAmount !== '' &&
+    enteredCurrency !== SATS_DISPLAY_CURRENCY;
+
+  const primaryFiatStats = primaryDisplay.forceFiatStats || conversionFiatStats;
+
   const primaryCurrencyCode =
     endReceiveType === 'USD' ? 'USD' : SATS_DISPLAY_CURRENCY;
   const overrideSecondary =
@@ -537,10 +547,36 @@ function AmountDisplay({
     : secondaryDisplay;
 
   const secondaryFiatStats = overrideSecondary
-    ? paymentDisplayFiatStats ||
-      (enteredCurrency === 'USD' ? usdFiatStats : fiatStats)
+    ? enteredCurrency === 'USD'
+      ? usdFiatStats
+      : fiatStats
     : secondaryDisplay.forceFiatStats ||
       (secondaryDisplay.forceCurrency === 'USD' ? usdFiatStats : fiatStats);
+
+  // Render one amount line. The line that matches the fiat currency the user
+  // actually typed shows their verbatim entered value (so $100 always reads
+  // $100, never $100.1/$99.2 as the live rate ticks). The identity rate
+  // (value === SATSPERBITCOIN) lets displayCorrectDenomination format the
+  // literal through the normal fiat path without re-converting from sats. Every
+  // other line still derives live from the real invoice sats (amountCardValue).
+  const renderLine = (displayConfig, lineFiatStats) => {
+    const isEnteredFiatLine =
+      hasFiatLiteral &&
+      displayConfig.denomination === 'fiat' &&
+      normalizeDisplayCurrency(displayConfig.forceCurrency) === enteredCurrency;
+
+    return displayCorrectDenomination({
+      amount: isEnteredFiatLine ? paymentDisplayAmount : amountCardValue,
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: displayConfig.denomination,
+      },
+      fiatStats: isEnteredFiatLine
+        ? { coin: enteredCurrency, value: SATSPERBITCOIN }
+        : lineFiatStats,
+      forceCurrency: displayConfig.forceCurrency,
+    });
+  };
 
   return (
     <View style={styles.amountContainer}>
@@ -549,29 +585,13 @@ function AmountDisplay({
           styles.amountPrimary,
           !displayedReceiveAmount && { opacity: 0.4 },
         ]}
-        content={displayCorrectDenomination({
-          amount: amountCardValue,
-          masterInfoObject: {
-            ...masterInfoObject,
-            userBalanceDenomination: primaryDisplay.denomination,
-          },
-          fiatStats: primaryFiatStats,
-          forceCurrency: primaryDisplay.forceCurrency,
-        })}
+        content={renderLine(primaryDisplay, primaryFiatStats)}
         adjustsFontSizeToFit
         CustomNumberOfLines={1}
       />
       <ThemeText
         styles={styles.amountSecondary}
-        content={displayCorrectDenomination({
-          amount: amountCardValue,
-          masterInfoObject: {
-            ...masterInfoObject,
-            userBalanceDenomination: effectiveSecondaryDisplay.denomination,
-          },
-          fiatStats: secondaryFiatStats,
-          forceCurrency: effectiveSecondaryDisplay.forceCurrency,
-        })}
+        content={renderLine(effectiveSecondaryDisplay, secondaryFiatStats)}
       />
     </View>
   );

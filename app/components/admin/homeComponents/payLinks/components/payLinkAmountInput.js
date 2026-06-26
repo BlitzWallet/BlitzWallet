@@ -129,6 +129,10 @@ export default function PayLinkAmountInput({
     onContinue?.(Number(localSatAmount), {
       displayCurrency,
       displayFiatStats: conversionFiatStats,
+      // Carry the verbatim fiat value the user typed so the receive page shows
+      // exactly that (e.g. $100) rather than re-deriving it from sats. Only
+      // meaningful for fiat entries; sats entries have no fiat literal.
+      displayAmount: primaryDisplay.denomination === 'fiat' ? amountValue : '',
     });
   }, [
     paymentMode,
@@ -142,6 +146,7 @@ export default function PayLinkAmountInput({
     onSkip,
     onContinue,
     displayCurrency,
+    amountValue,
   ]);
 
   return (

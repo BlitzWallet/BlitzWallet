@@ -52,6 +52,7 @@ export default function PayLinkCreationOverlay({ visible, onClose, setBackNav })
           ? {
               paymentDisplayCurrency: currencyInfo.displayCurrency,
               paymentDisplayFiatStats: currencyInfo.displayFiatStats,
+              paymentDisplayAmount: currencyInfo.displayAmount,
             }
           : {}),
       });
