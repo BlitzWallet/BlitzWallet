@@ -1224,7 +1224,7 @@
         "brantaVerification": "Este pagamento foi verificado pela Branta"
       },
       "selectPaymentMethod": {
-        "header": "Escolha o saldo para realizar esse pagamento"
+        "header": "O pagamento será realizado usando o"
       },
       "handlingAddressErrors": {
         "invalidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
