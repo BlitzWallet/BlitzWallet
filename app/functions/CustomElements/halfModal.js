@@ -82,6 +82,8 @@ import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
+import BTCMapFilterContent from '../../screens/inAccount/btcMapFilter';
+import BTCMapListContent from '../../screens/inAccount/btcMapList';
 import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLightning/halfModalDepositFunds';
 import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/receiveBitcoin/shareInvoicePayLinkModal';
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
@@ -712,6 +714,26 @@ export default function CustomHalfModal(props) {
           <BTCMapMerchantContent
             handleBackPressFunction={handleBackPressFunction}
             placeId={props?.route?.params?.placeId}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'btcMapFilter':
+        return (
+          <BTCMapFilterContent
+            currentFilter={props?.route?.params?.currentFilter}
+            onSelectFilter={props?.route?.params?.onSelectFilter}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'btcMapList':
+        return (
+          <BTCMapListContent
+            bbox={props?.route?.params?.bbox}
+            categories={props?.route?.params?.categories}
+            distanceUnit={props?.route?.params?.distanceUnit}
+            userLocation={props?.route?.params?.userLocation}
+            handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
           />
         );
