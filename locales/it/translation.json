@@ -2617,7 +2617,8 @@
         "zoomIn": "Ingrandisci per vedere tutti gli esercenti",
         "findAPlace": "Trova un luogo",
         "placesHere": "{{count}} luoghi qui",
-        "noPlaces": "Nessun luogo trovato"
+        "noPlaces": "Nessun luogo trovato",
+        "hasMorePlaces": "Mostrando i {{num}} più vicini. Ingrandisci per vederne altri."
       },
       "merchant": {
         "noName": "Esercente sconosciuto",

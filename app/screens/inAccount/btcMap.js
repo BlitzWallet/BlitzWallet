@@ -387,9 +387,10 @@ export default function BTCMapScreen() {
       categories: filter.categories,
       distanceUnit: filter.distanceUnit,
       userLocation,
+      placeCount,
       sliderHight: 0.85,
     });
-  }, [navigate, filter, userLocation, SCREEN_ASPECT_RATIO]);
+  }, [navigate, filter, userLocation, SCREEN_ASPECT_RATIO, placeCount]);
 
   useFocusEffect(
     useCallback(() => {
@@ -510,10 +511,7 @@ export default function BTCMapScreen() {
         </View>
 
         {/* Floating pill navbar */}
-        <View
-          pointerEvents="box-none"
-          style={[styles.navbar, { top: topPadding }]}
-        >
+        <View style={[styles.navbar, { top: topPadding }]}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigate.goBack()}

@@ -2617,7 +2617,8 @@
         "zoomIn": "Zoomez pour voir tous les marchands",
         "findAPlace": "Trouver un lieu",
         "placesHere": "{{count}} lieux ici",
-        "noPlaces": "Aucun lieu trouvé"
+        "noPlaces": "Aucun lieu trouvé",
+        "hasMorePlaces": "Affichage des {{num}} lieux les plus proches. Zoomez pour en voir davantage."
       },
       "merchant": {
         "noName": "Marchand inconnu",

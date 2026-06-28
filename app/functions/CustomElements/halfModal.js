@@ -735,6 +735,7 @@ export default function CustomHalfModal(props) {
             userLocation={props?.route?.params?.userLocation}
             handleBackPressFunction={handleBackPressFunction}
             setContentHeight={setContentHeight}
+            placeCount={props?.route?.params?.placeCount}
           />
         );
       case 'depositFunds':

@@ -2617,7 +2617,8 @@
         "zoomIn": "Zoom in to see all merchants",
         "findAPlace": "Find a place",
         "placesHere": "{{count}} places here",
-        "noPlaces": "No places found"
+        "noPlaces": "No places found",
+        "hasMorePlaces": "Showing the nearest {{num}}. Zoom in for more."
       },
       "merchant": {
         "noName": "Unknown Merchant",

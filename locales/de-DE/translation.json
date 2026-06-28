@@ -2615,7 +2615,8 @@
         "zoomIn": "Hineinzoomen, um alle Händler zu sehen",
         "findAPlace": "Ort finden",
         "placesHere": "{{count}} Orte hier",
-        "noPlaces": "Keine Orte gefunden"
+        "noPlaces": "Keine Orte gefunden",
+        "hasMorePlaces": "Die nächsten {{num}} werden angezeigt. Zoomen Sie näher heran, um mehr zu sehen."
       },
       "merchant": {
         "noName": "Unbekannter Händler",

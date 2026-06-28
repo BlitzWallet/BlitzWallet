@@ -1201,6 +1201,36 @@ PODS:
   - breez_sdk_liquidFFI (0.11.13)
   - BreezSDKLiquid (0.11.13):
     - breez_sdk_liquidFFI (= 0.11.13)
+  - Clusterer (5.0.2):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - NitroModules
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - DoubleConversion (1.1.6)
   - EXApplication (7.0.7):
     - ExpoModulesCore
@@ -5089,6 +5119,7 @@ PODS:
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - "breez_sdk_liquid (from `../node_modules/@breeztech/react-native-breez-sdk-liquid`)"
+  - Clusterer (from `../node_modules/react-native-clusterer`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
@@ -5281,6 +5312,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   breez_sdk_liquid:
     :path: "../node_modules/@breeztech/react-native-breez-sdk-liquid"
+  Clusterer:
+    :path: "../node_modules/react-native-clusterer"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   EXApplication:
@@ -5556,6 +5589,7 @@ SPEC CHECKSUMS:
   breez_sdk_liquid: e05cd39b19b9e029ecf50195e4e7df0aefb745cd
   breez_sdk_liquidFFI: f05fadc0611126ade76d1fe6761ed8b020aabefb
   BreezSDKLiquid: ee6bf5a57f1b2533dc3c14c24c9773496f17b756
+  Clusterer: 6b8e946e6d4593644d04acd9c1fca686e8d4f5cb
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   EXApplication: 296622817d459f46b6c5fe8691f4aac44d2b79e7
   EXConstants: a95804601ee4a6aa7800645f9b070d753b1142b3

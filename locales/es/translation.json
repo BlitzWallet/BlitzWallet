@@ -2617,7 +2617,8 @@
         "zoomIn": "Acercar para ver todos los comercios",
         "findAPlace": "Buscar un lugar",
         "placesHere": "{{count}} lugares aquí",
-        "noPlaces": "No se encontraron lugares"
+        "noPlaces": "No se encontraron lugares",
+        "hasMorePlaces": "Mostrando los {{num}} más cercanos. Acércate para ver más."
       },
       "merchant": {
         "noName": "Comercio desconocido",

@@ -2617,7 +2617,8 @@
         "zoomIn": "Zooma in för att se alla handlare",
         "findAPlace": "Hitta en plats",
         "placesHere": "{{count}} platser här",
-        "noPlaces": "Inga platser hittades"
+        "noPlaces": "Inga platser hittades",
+        "hasMorePlaces": "Visar de närmaste {{num}} platserna. Zooma in för att se fler."
       },
       "merchant": {
         "noName": "Okänd handlare",

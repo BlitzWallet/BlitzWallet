@@ -22,7 +22,7 @@ import {
   formatDistance,
 } from '../../functions/btcMap/distance';
 
-const MAX_ROWS = 500;
+const MAX_ROWS = 60;
 
 export default function BTCMapListContent({
   bbox,
@@ -30,6 +30,7 @@ export default function BTCMapListContent({
   distanceUnit = 'auto',
   userLocation,
   setContentHeight,
+  placeCount,
 }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
@@ -93,6 +94,7 @@ export default function BTCMapListContent({
   const iconShellColor =
     theme && darkModeType ? backgroundColor : backgroundOffset;
   const iconColor = theme && darkModeType ? textColor : COLORS.primary;
+  const hasMoreRows = data?.length < placeCount;
 
   const renderItem = ({ item }) => {
     const category = getBtcMapCategory(item.icon);
@@ -146,7 +148,7 @@ export default function BTCMapListContent({
     <View style={styles.container}>
       <ThemeText
         styles={styles.header}
-        content={t('screens.btcMap.map.placesHere', { count: data.length })}
+        content={t('screens.btcMap.map.placesHere', { count: placeCount })}
       />
 
       <FlatList
@@ -154,13 +156,20 @@ export default function BTCMapListContent({
         renderItem={renderItem}
         keyExtractor={item => String(item.id)}
         showsVerticalScrollIndicator={false}
-        scrollIndicatorInsets={{ right: 1 }}
-        contentContainerStyle={{ paddingBottom: bottomPadding + 20 }}
+        contentContainerStyle={{ paddingBottom: bottomPadding }}
         ListEmptyComponent={
           <ThemeText
             styles={styles.empty}
             content={t('screens.btcMap.map.noPlaces')}
           />
+        }
+        ListFooterComponent={
+          hasMoreRows && (
+            <ThemeText
+              styles={styles.hasMoreMessage}
+              content={t('screens.btcMap.map.hasMorePlaces', { num: MAX_ROWS })}
+            />
+          )
         }
       />
     </View>
@@ -213,6 +222,12 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   empty: {
+    textAlign: 'center',
+    marginTop: 40,
+    opacity: 0.7,
+  },
+  hasMoreMessage: {
+    fontSize: SIZES.smedium,
     textAlign: 'center',
     marginTop: 40,
     opacity: 0.7,
