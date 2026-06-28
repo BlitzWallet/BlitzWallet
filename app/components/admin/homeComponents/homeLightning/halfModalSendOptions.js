@@ -10,7 +10,6 @@ import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import {
   navigateToSendUsingClipboard,
-  getQRImage,
   resolveExternalChainNavigation,
 } from '../../../../functions';
 import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
@@ -53,6 +52,7 @@ import {
 } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
+import MobileMoneySendOverlay from './mobileMoneySendOverlay';
 
 const ContactRow = ({
   contact,
@@ -161,6 +161,7 @@ export default function HalfModalSendOptions({
   const [inputError, setInputError] = useState('');
   const [showAddContact, setShowAddContact] = useState(false);
   const [contactFlow, setContactFlow] = useState(null);
+  const [showMobileMoney, setShowMobileMoney] = useState(false);
   const [noInputMounted, setNoInputMounted] = useState(true);
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
   const [showPasteButton, setShowPasteButton] = useState(true);
@@ -217,7 +218,7 @@ export default function HalfModalSendOptions({
   const contentOpacity = useSharedValue(1);
   const contentTranslateX = useSharedValue(0);
   const inputModeProgress = useSharedValue(0);
-  const anyOverlayVisible = showAddContact || !!contactFlow;
+  const anyOverlayVisible = showAddContact || !!contactFlow || showMobileMoney;
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -286,13 +287,19 @@ export default function HalfModalSendOptions({
   }, []);
 
   const handleInternalBackPress = useCallback(() => {
-    if (showAddContact || contactFlow) return false;
+    if (showAddContact || contactFlow || showMobileMoney) return false;
     if (isInputMode) {
       blurKeyboard();
       return true;
     }
     return false;
-  }, [blurKeyboard, contactFlow, isInputMode, showAddContact]);
+  }, [
+    blurKeyboard,
+    contactFlow,
+    isInputMode,
+    showAddContact,
+    showMobileMoney,
+  ]);
 
   useHandleBackPressNew(handleInternalBackPress);
 
@@ -480,39 +487,6 @@ export default function HalfModalSendOptions({
     handleBackPressFunction(() => navigate.replace('SendBTC'));
   }, [navigate, t, handleBackPressFunction]);
 
-  const handleImageScan = useCallback(async () => {
-    if (hasCommittedRef.current) return;
-    hasCommittedRef.current = true;
-    handleBackPressFunction(async () => {
-      navigate.goBack();
-      const response = await getQRImage();
-      if (response.error) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t(response.error),
-        });
-        return;
-      }
-
-      if (response.isExternalChain) {
-        const { method, screen, params } = resolveExternalChainNavigation(
-          response,
-          'notHome',
-        );
-        navigate['navigate'](screen, params);
-        return;
-      }
-
-      if (!response.didWork || !response.btcAdress) {
-        return;
-      }
-
-      navigate.navigate('ConfirmPaymentScreen', {
-        btcAdress: response.btcAdress,
-        fromPage: '',
-      });
-    });
-  }, [navigate, t, handleBackPressFunction]);
-
   const sortedContacts = useMemo(() => {
     // Copy before sorting: contactInfoList is memoized upstream and .sort()
     // mutates in place, which would corrupt the shared hook value.
@@ -579,6 +553,17 @@ export default function HalfModalSendOptions({
   const showAddContacts = useCallback(() => {
     if (hasCommittedRef.current) return;
     setShowAddContact(true);
+  }, []);
+
+  const showMobileMoneyFlow = useCallback(() => {
+    if (hasCommittedRef.current) return;
+    KeyboardController.dismiss();
+    setIsKeyboardActive(false);
+    setShowMobileMoney(true);
+  }, [setIsKeyboardActive]);
+
+  const hideMobileMoneyFlow = useCallback(() => {
+    setShowMobileMoney(false);
   }, []);
 
   const handleContactAdded = useCallback(
@@ -806,10 +791,10 @@ export default function HalfModalSendOptions({
                   </View>
                 </TouchableOpacity>
 
-                {/* Scan Image Button */}
+                {/* Mobile Money Button */}
                 <TouchableOpacity
                   style={styles.scanButton}
-                  onPress={handleImageScan}
+                  onPress={showMobileMoneyFlow}
                 >
                   <View
                     style={[
@@ -829,17 +814,17 @@ export default function HalfModalSendOptions({
                           : COLORS.primary
                       }
                       size={24}
-                      iconName={'Image'}
+                      iconName={'Smartphone'}
                     />
                   </View>
                   <View style={styles.scanTextContainer}>
                     <ThemeText
                       styles={styles.scanButtonText}
-                      content={t('wallet.halfModal.images')}
+                      content={t('wallet.halfModal.mobileMoneyTitle')}
                     />
                     <ThemeText
                       styles={styles.scanButtonSubtext}
-                      content={t('wallet.halfModal.tapToScan')}
+                      content={t('wallet.halfModal.mobileMoneySubtitle')}
                     />
                   </View>
                 </TouchableOpacity>
@@ -1038,6 +1023,15 @@ export default function HalfModalSendOptions({
         navigate={navigate}
         theme={theme}
         darkModeType={darkModeType}
+        setContentHeight={setContentHeight}
+      />
+
+      <MobileMoneySendOverlay
+        visible={showMobileMoney}
+        onClose={hideMobileMoneyFlow}
+        handleBackPressFunction={handleBackPressFunction}
+        navigate={navigate}
+        setBackNav={setBackNav}
         setContentHeight={setContentHeight}
       />
     </View>
