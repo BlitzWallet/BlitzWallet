@@ -2614,7 +2614,10 @@
         "title": "Paga con Bitcoin",
         "loadingMap": "Caricamento mappa...",
         "loadingMerchants": "Caricamento esercenti...",
-        "zoomIn": "Ingrandisci per vedere tutti gli esercenti"
+        "zoomIn": "Ingrandisci per vedere tutti gli esercenti",
+        "findAPlace": "Trova un luogo",
+        "placesHere": "{{count}} luoghi qui",
+        "noPlaces": "Nessun luogo trovato"
       },
       "merchant": {
         "noName": "Esercente sconosciuto",
@@ -2623,6 +2626,26 @@
         "lightning": "Lightning",
         "lightningMessage": "Accetta pagamenti in bitcoin istantaneamente tramite la rete Lightning",
         "dataMessage": "Dati da btcmap.org"
+      },
+      "filter": {
+        "categoriesTitle": "Categorie",
+        "distanceTitle": "Distanza",
+        "all": "Tutti",
+        "apply": "Applica",
+        "clear": "Cancella",
+        "auto": "Auto",
+        "km": "km",
+        "mi": "mi"
+      },
+      "categories": {
+        "food_drink": "Cibo e bevande",
+        "retail": "Vendita al dettaglio",
+        "lodging": "Alloggio",
+        "services": "Servizi",
+        "atm": "Bancomat Bitcoin",
+        "fuel": "Carburante",
+        "leisure": "Tempo libero",
+        "other": "Altro"
       }
     },
     "bitrefill": {

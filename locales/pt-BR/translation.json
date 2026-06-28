@@ -2613,7 +2613,10 @@
         "title": "Pagar com Blitz",
         "loadingMap": "Carregando mapa...",
         "loadingMerchants": "Carregando lista de lojas...",
-        "zoomIn": "Aproxime para ver todas as lojas"
+        "zoomIn": "Aproxime para ver todas as lojas",
+        "findAPlace": "Encontrar um lugar",
+        "placesHere": "{{count}} lugares aqui",
+        "noPlaces": "Nenhum lugar encontrado"
       },
       "merchant": {
         "noName": "Loja desconhecida",
@@ -2622,6 +2625,26 @@
         "lightning": "Blitz",
         "lightningMessage": "Aceita pagamentos Blitz",
         "dataMessage": "Dados do btcmap.org"
+      },
+      "filter": {
+        "categoriesTitle": "Categorias",
+        "distanceTitle": "Distância",
+        "all": "Todos",
+        "apply": "Aplicar",
+        "clear": "Limpar",
+        "auto": "Auto",
+        "km": "km",
+        "mi": "mi"
+      },
+      "categories": {
+        "food_drink": "Comida e bebida",
+        "retail": "Varejo",
+        "lodging": "Hospedagem",
+        "services": "Serviços",
+        "atm": "Caixas eletrônicos Bitcoin",
+        "fuel": "Combustível",
+        "leisure": "Lazer",
+        "other": "Outros"
       }
     },
     "bitrefill": {
