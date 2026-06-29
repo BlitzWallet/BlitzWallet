@@ -135,7 +135,7 @@ export default function DisplayCurrencySelect({
         <CheckMarkCircle
           isActive={normalizedCurrentCurrency === row.id}
           containerSize={25}
-          switchDarkMode={theme && darkModeType ? true : false}
+          switchDarkMode={theme && !darkModeType ? true : false}
         />
       </TouchableOpacity>
     );
@@ -180,7 +180,7 @@ export default function DisplayCurrencySelect({
           <CheckMarkCircle
             isActive={normalizedCurrentCurrency === item.id}
             containerSize={25}
-            switchDarkMode={theme && darkModeType ? true : false}
+            switchDarkMode={theme && !darkModeType ? true : false}
           />
         </TouchableOpacity>
       );
@@ -218,8 +218,7 @@ export default function DisplayCurrencySelect({
               style={[
                 styles.dot,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? textColor : COLORS.primary,
+                  backgroundColor: theme ? textColor : COLORS.primary,
                 },
               ]}
             />
@@ -227,8 +226,7 @@ export default function DisplayCurrencySelect({
               style={[
                 styles.dot,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? textColor : COLORS.primary,
+                  backgroundColor: theme ? textColor : COLORS.primary,
                 },
               ]}
             />
@@ -236,8 +234,7 @@ export default function DisplayCurrencySelect({
               style={[
                 styles.dot,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? textColor : COLORS.primary,
+                  backgroundColor: theme ? textColor : COLORS.primary,
                 },
               ]}
             />
@@ -245,8 +242,7 @@ export default function DisplayCurrencySelect({
               style={[
                 styles.dot,
                 {
-                  backgroundColor:
-                    theme && darkModeType ? textColor : COLORS.primary,
+                  backgroundColor: theme ? textColor : COLORS.primary,
                 },
               ]}
             />

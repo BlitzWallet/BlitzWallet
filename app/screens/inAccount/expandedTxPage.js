@@ -86,10 +86,8 @@ export default function ExpandedTx(props) {
   const contactSupportLabel = t(
     'screens.inAccount.expandedTxPage.contactSupport',
   );
+  const viewProgressLabel = t('screens.inAccount.expandedTxPage.viewProgress');
   const { showToast } = useToast();
-
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([techicalDetailsLabel, contactSupportLabel]);
 
   const [transaction, setTransaction] = useState(
     props.route.params.transaction,
@@ -99,6 +97,27 @@ export default function ExpandedTx(props) {
   const bulkPaymentGroup = transaction.details?.bulkPaymentGroup ?? [];
 
   const showLNOrchestraAsFailed = isOrchestraSwapFailed(transaction);
+
+  const isFailedPayment =
+    transaction.paymentStatus === 'failed' || showLNOrchestraAsFailed;
+  const isPending =
+    transaction.paymentStatus === 'pending' || transaction.isBalancePending;
+
+  const showViewProgress =
+    isPending &&
+    transaction.paymentType === 'bitcoin' &&
+    !!transaction.details?.onChainTxid;
+
+  const secondaryLabel = isFailedPayment
+    ? contactSupportLabel
+    : showViewProgress
+    ? viewProgressLabel
+    : null;
+
+  const { shouldStack, containerProps, getLabelProps } =
+    useAdaptiveButtonLayout(
+      [techicalDetailsLabel, secondaryLabel].filter(Boolean),
+    );
 
   // Contacts for ProfileImageRow — successful recipients only
   const bulkContacts = bulkPaymentGroup
@@ -167,10 +186,6 @@ export default function ExpandedTx(props) {
       ? t('screens.inAccount.expandedTxPage.gift')
       : transaction.paymentType;
 
-  const isFailedPayment =
-    transaction.paymentStatus === 'failed' || showLNOrchestraAsFailed;
-  const isPending =
-    transaction.paymentStatus === 'pending' || transaction.isBalancePending;
   const isSuccessful = !isFailedPayment && !isPending;
   const paymentDate = new Date(transaction.details.time);
   const amount = transaction?.details?.amount;
@@ -762,6 +777,34 @@ export default function ExpandedTx(props) {
                     }}
                     {...getLabelProps(1)}
                     content={contactSupportLabel}
+                  />
+                </TouchableOpacity>
+              )}
+              {showViewProgress && (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigate.navigate('CustomWebView', {
+                      webViewURL: `https://mempool.space/tx/${transaction.details.onChainTxid}`,
+                      headerText: viewProgressLabel,
+                    })
+                  }
+                  style={[
+                    styles.button,
+                    {
+                      backgroundColor: theme
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                    },
+                    shouldStack ? styles.buttonStacked : styles.buttonColumn,
+                  ]}
+                >
+                  <ThemeText
+                    styles={{
+                      includeFontPadding: false,
+                      color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+                    }}
+                    {...getLabelProps(1)}
+                    content={viewProgressLabel}
                   />
                 </TouchableOpacity>
               )}

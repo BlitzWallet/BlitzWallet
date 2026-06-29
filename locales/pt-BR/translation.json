@@ -958,7 +958,7 @@
       "filterCategoriesTitle": "Categorias",
       "filterCountryTitle": "País",
       "filterAllCategories": "Todas as categorias",
-      "filterWorldwide": "Mundial",
+      "filterWorldwide": "Global",
       "filterCountrySearchPlaceholder": "Buscar países...",
       "filterClear": "Limpar",
       "filterApply": "Aplicar",
@@ -1404,8 +1404,8 @@
       "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Adicione um nome para esse contato",
       "addedContactnameInputPlaceholder": "Digite o nome",
-      "lnurlInputDesc": "Endereço Blitz",
-      "lnurlInputPlaceholder": "Digite seu endereço Blitz",
+      "lnurlInputDesc": "Endereço de pagamento",
+      "lnurlInputPlaceholder": "Digite seu endereço de pagamento",
       "uniqueNameInputDesc": "Perfil",
       "uniqueNameInputPlaceholder": "Digite seu perfil",
       "bioInputDesc": "Bio",
@@ -1422,7 +1422,7 @@
       "invalidReceiveAddressError": "Digite um endereço de pagamento válido (ex.: usuario@dominio.com)",
       "aboutYou": "Sobre você",
       "lightningAddress": "Endereço Blitz",
-      "addContactLightningAddress": "Endereço Lightning"
+      "addContactLightningAddress": "Endereço de pagamento"
     },
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",
@@ -1435,7 +1435,7 @@
       "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Escolha a moeda que será depositada na sua conta"
+      "header": "Escolha em qual moeda o pagamento será recebido"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
@@ -2157,7 +2157,8 @@
         "splitPayment": "Dividir",
         "chainSwap_other": "Dólar digital",
         "chainSwap_lightning": "Lightning",
-        "contactSupport": "Suporte"
+        "contactSupport": "Suporte",
+        "viewProgress": "Ver progresso"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",

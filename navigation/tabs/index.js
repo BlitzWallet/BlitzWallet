@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -23,6 +24,71 @@ const TAB_BORDER_WIDTH = 1;
 const OVERLAY_HEIGHT = 50;
 const ICON_SIZE = 26;
 
+function renderIcon(label, focused, color) {
+  const props = {
+    size: ICON_SIZE,
+    color,
+    strokeWidth: focused ? 2.4 : 2,
+  };
+
+  switch (label) {
+    case 'Contacts':
+      return <Users2 {...props} />;
+    case 'Home':
+      return <Home {...props} />;
+    case 'App Store':
+      return <Store {...props} />;
+    default:
+      return <Gift {...props} />;
+  }
+}
+
+// Each tab renders two stacked icon layers: a base layer in the inactive
+// color that is ALWAYS visible, and an active layer (the focused color) whose
+// opacity is driven by `progress` so it fades in exactly as the selection pill
+// arrives under this tab. Because both the pill and this cross-fade read the
+// same `progress` value, an icon can never end up the same color as whatever
+// is behind it (which is what made icons "disappear" when the pill drifted off
+// the focused tab).
+function TabButton({
+  label,
+  index,
+  progress,
+  activeColor,
+  inactiveColor,
+  showUnread,
+  onPress,
+}) {
+  const activeIconStyle = useAnimatedStyle(() => ({
+    opacity: Math.max(0, 1 - Math.abs(progress.value - index)),
+  }));
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      style={styles.tabItemContainer}
+    >
+      <View style={styles.iconWrapper}>
+        {renderIcon(label, false, inactiveColor)}
+
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.iconOverlay, activeIconStyle]}
+        >
+          {renderIcon(label, true, activeColor)}
+        </Animated.View>
+
+        {showUnread && (
+          <View
+            style={[styles.unreadDot, { backgroundColor: inactiveColor }]}
+          />
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 function MyTabBar({ state, descriptors, navigation }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContactsMessages();
@@ -34,18 +100,22 @@ function MyTabBar({ state, descriptors, navigation }) {
   const containerWidth = tabCount * TAB_ITEM_WIDTH;
   const adjustedWidth = containerWidth - TAB_BORDER_WIDTH * 2;
   const tabWidth = adjustedWidth / tabCount;
-  const overlayOffset = selectedIndex * tabWidth;
 
-  const overlayTranslateX = useSharedValue(overlayOffset);
+  // Single source of truth for the selection on the UI thread. `targetIndex`
+  // is kept in sync with the navigator's focused index, and `progress`
+  // continuously animates toward it.
+  const targetIndex = useSharedValue(selectedIndex);
 
   useEffect(() => {
-    overlayTranslateX.value = withTiming(overlayOffset, {
-      duration: 150,
-    });
-  }, [overlayOffset, overlayTranslateX]);
+    targetIndex.value = selectedIndex;
+  }, [selectedIndex, targetIndex]);
+
+  const progress = useDerivedValue(() =>
+    withTiming(targetIndex.value, { duration: 150 }),
+  );
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: overlayTranslateX.value }],
+    transform: [{ translateX: progress.value * tabWidth }],
   }));
 
   const containerStyle = useMemo(
@@ -61,25 +131,6 @@ function MyTabBar({ state, descriptors, navigation }) {
 
   const inactiveColor =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
-
-  const renderIcon = (label, focused, color) => {
-    const props = {
-      size: ICON_SIZE,
-      color,
-      strokeWidth: focused ? 2.4 : 2,
-    };
-
-    switch (label) {
-      case 'Contacts':
-        return <Users2 {...props} />;
-      case 'Home':
-        return <Home {...props} />;
-      case 'App Store':
-        return <Store {...props} />;
-      default:
-        return <Gift {...props} />;
-    }
-  };
 
   return (
     <View style={containerStyle}>
@@ -144,27 +195,19 @@ function MyTabBar({ state, descriptors, navigation }) {
             }
           };
 
-          const iconColor = focused ? activeColor : inactiveColor;
-
           return (
-            <TouchableOpacity
+            <TabButton
               key={route.key}
+              label={label}
+              index={index}
+              progress={progress}
+              activeColor={activeColor}
+              inactiveColor={inactiveColor}
+              showUnread={
+                label === 'Contacts' && hasUnlookedTransactions && !focused
+              }
               onPress={onPress}
-              activeOpacity={0.7}
-              style={styles.tabItemContainer}
-            >
-              <View style={styles.iconWrapper}>
-                {renderIcon(label, focused, iconColor)}
-
-                {label === 'Contacts' &&
-                  hasUnlookedTransactions &&
-                  !focused && (
-                    <View
-                      style={[styles.unreadDot, { backgroundColor: iconColor }]}
-                    />
-                  )}
-              </View>
-            </TouchableOpacity>
+            />
           );
         })}
       </View>
@@ -230,6 +273,11 @@ const styles = StyleSheet.create({
   iconWrapper: {
     width: 44,
     height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconOverlay: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
   },

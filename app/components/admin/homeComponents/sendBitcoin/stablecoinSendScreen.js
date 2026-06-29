@@ -1,10 +1,4 @@
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -59,11 +53,9 @@ import SendTransactionFeeInfo from './components/feeInfo';
 import { formatStablecoinAmount } from '../../../../functions/sendBitcoin';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { formatBalanceAmount } from '../../../../functions';
-import Animated, { FadeOutDown } from 'react-native-reanimated';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
-import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -171,7 +163,6 @@ export default function StablecoinSendScreen() {
 
   const {
     primaryDisplay,
-    secondaryDisplay,
     conversionFiatStats,
     convertSatsToDisplay,
     convertDisplayToSats,
@@ -595,6 +586,11 @@ export default function StablecoinSendScreen() {
       return;
     }
 
+    if (quoteError) {
+      navigate.navigate('ErrorScreen', { errorMessage: quoteError });
+      return;
+    }
+
     if (!quote) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('wallet.stablecoinSend.noQuote'),
@@ -613,6 +609,7 @@ export default function StablecoinSendScreen() {
   }, [
     canConfirm,
     quote,
+    quoteError,
     clearCountdown,
     t,
     convertedSendAmount,
@@ -634,6 +631,16 @@ export default function StablecoinSendScreen() {
   }, [isAmountFocused]);
 
   const isConfirmMode = screenMode === 'CONFIRM_PAYMENT';
+
+  const receiveAmountContent = `${APPROXIMATE_SYMBOL}${formatBalanceAmount(
+    formatStablecoinAmount(
+      quote?.estimatedOut || 0,
+      2,
+      chain === 'bsc' ? 18 : 6,
+    ),
+    false,
+    masterInfoObject,
+  )} ${asset}`;
 
   useEffect(() => {
     if (
@@ -659,7 +666,23 @@ export default function StablecoinSendScreen() {
           label={`${t('constants.send')}`}
           containerStyles={{ marginBottom: 0 }}
           rightContent={
-            !isConfirmMode ? (
+            isConfirmMode ? (
+              countdown != null ? (
+                <ThemeText
+                  styles={[
+                    styles.countdownText,
+                    { backgroundColor: backgroundOffset },
+                    countdown < 30000 && {
+                      color:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.cancelRed,
+                    },
+                  ]}
+                  content={formatCountdown(countdown)}
+                />
+              ) : null
+            ) : (
               <CurrencySwitchButton
                 displayCurrency={
                   sourceMethod === 'USD' ? 'USD' : displayCurrency
@@ -667,7 +690,7 @@ export default function StablecoinSendScreen() {
                 onPress={openPicker}
                 disabled={isLoadingRate || sourceMethod === 'USD'}
               />
-            ) : null
+            )
           }
         />
         <ThemeText
@@ -692,12 +715,10 @@ export default function StablecoinSendScreen() {
               forceFiatStats={primaryDisplay.forceFiatStats}
               activeOpacity={!convertedSendAmount ? 0.5 : 1}
             />
-            {isConfirmMode && (
-              <SecondaryAmountDisplay
-                amountSats={convertedSendAmount}
-                secondaryDisplay={secondaryDisplay}
-              />
-            )}
+            <ThemeText
+              styles={styles.receiveAmount}
+              content={receiveAmountContent}
+            />
           </View>
 
           {/* Confirm mode: fee info */}
@@ -741,6 +762,7 @@ export default function StablecoinSendScreen() {
             uiState="EDIT_AMOUNT"
             t={t}
             containerStyles={{ marginTop: 5 }}
+            showPayWith={true}
           />
         )}
 
@@ -761,83 +783,6 @@ export default function StablecoinSendScreen() {
               ...CENTER,
             }}
           />
-        )}
-
-        {/* Quote summary */}
-        {!sending && (
-          <Animated.View
-            style={[styles.quoteBox, { backgroundColor: rowBg }]}
-            exiting={FadeOutDown.duration(300)}
-          >
-            {isQuoteLoading && (
-              <View style={styles.quoteLoadingRow}>
-                <ActivityIndicator
-                  size="small"
-                  color={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
-                />
-                <ThemeText
-                  styles={styles.quoteLoadingText}
-                  content={t('wallet.stablecoinSend.gettingQuote')}
-                />
-              </View>
-            )}
-            {!isQuoteLoading && quoteError && (
-              <ThemeText
-                styles={[styles.quoteErrorText]}
-                content={quoteError}
-              />
-            )}
-            {!isQuoteLoading && !quoteError && (
-              <>
-                <View style={styles.quoteRow}>
-                  <ThemeText
-                    styles={styles.quoteLabel}
-                    content={t('wallet.stablecoinSend.recipientGets')}
-                  />
-                  <ThemeText
-                    styles={[
-                      styles.quoteValue,
-                      {
-                        opacity:
-                          (quote?.estimatedOut || 0) > 0 ? 1 : HIDDEN_OPACITY,
-                      },
-                    ]}
-                    content={`${APPROXIMATE_SYMBOL}${formatBalanceAmount(
-                      formatStablecoinAmount(
-                        quote?.estimatedOut || 0,
-                        2,
-                        chain === 'bsc' ? 18 : 6,
-                      ),
-                      false,
-                      masterInfoObject,
-                    )} ${asset}`}
-                  />
-                </View>
-                {isConfirmMode && (
-                  <View style={styles.quoteRow}>
-                    <ThemeText
-                      styles={styles.quoteLabel}
-                      content={t('wallet.stablecoinSend.quoteExpiresIn')}
-                    />
-                    <ThemeText
-                      styles={[
-                        styles.quoteValue,
-                        countdown < 30000 && {
-                          color:
-                            theme && darkModeType
-                              ? COLORS.darkModeText
-                              : COLORS.cancelRed,
-                        },
-                      ]}
-                      content={formatCountdown(countdown)}
-                    />
-                  </View>
-                )}
-              </>
-            )}
-          </Animated.View>
         )}
 
         {/* EDIT_AMOUNT: keyboard + Review button */}
@@ -945,36 +890,16 @@ const styles = StyleSheet.create({
     ...CENTER,
     marginTop: 30,
   },
-  quoteBox: {
-    marginTop: 12,
-    marginHorizontal: 16,
-    padding: 12,
-    borderRadius: 8,
-    gap: 10,
+  receiveAmount: {
+    opacity: HIDDEN_OPACITY,
+    ...CENTER,
   },
-  quoteLoadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  quoteLoadingText: {
+  countdownText: {
     fontSize: SIZES.medium,
-    opacity: 0.65,
     includeFontPadding: false,
-  },
-  quoteErrorText: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
-  },
-  quoteRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  quoteLabel: {
-    fontSize: SIZES.medium,
-    opacity: 0.65,
-    includeFontPadding: false,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 20,
   },
   quoteValue: {
     fontSize: SIZES.medium,

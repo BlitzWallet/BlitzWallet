@@ -791,6 +791,7 @@ export default function ConfirmSplitPayment(props) {
               uiState={uiState}
               t={t}
               showBitcoinCardOnly={!canPayUSD}
+              showPayWith={true}
             />
           )}
 

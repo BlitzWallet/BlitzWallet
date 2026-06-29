@@ -2158,7 +2158,8 @@
         "splitPayment": "Dela",
         "chainSwap_other": "Stablecoin",
         "chainSwap_lightning": "Lightning",
-        "contactSupport": "Support"
+        "contactSupport": "Support",
+        "viewProgress": "Visa förlopp"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",

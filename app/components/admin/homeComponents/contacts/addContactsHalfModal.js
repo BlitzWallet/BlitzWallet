@@ -464,7 +464,7 @@ export function AddContactContent({
               colorOverride={
                 theme && darkModeType ? COLORS.lightModeText : COLORS.primary
               }
-              iconName={'ScanQrCode'}
+              iconName={'ScanLine'}
             />
           </TouchableOpacity>
         }
