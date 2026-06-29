@@ -38,6 +38,10 @@ async function fetchTxidsFromBlockstream(
       url: `https://mempool.space/api/address/${address}/txs`,
     },
     {
+      name: 'mempool.bullbitcoin',
+      url: `https://mempool.bullbitcoin.com/api/address/${address}/txs`,
+    },
+    {
       name: 'fbBLockstream',
     },
   ];
