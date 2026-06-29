@@ -1014,7 +1014,7 @@
       "phonePaymentTitle": "Pagar {{number}}",
       "phonePaymentDesc": "Enviando para número de celular",
       "mobileMoneyTitle": "Pagamentos Locais",
-      "mobileMoneySubtitle": "Métodos de pagamento por país ou região",
+      "mobileMoneySubtitle": "Métodos de pagamento por país",
       "mobileMoneyCountryTitle": "Selecione um país",
       "mobileMoneyCountrySubtitle": "Escolha o país da conta que você está pagando",
       "mobileMoneyPhoneTitle": "Digite o número de celular",
