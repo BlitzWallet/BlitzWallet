@@ -3,6 +3,8 @@ import getPhonePaymentAddress, {
   isPhonePaymentNumber,
   getPhonePaymentCountry,
   canonicalizePhonePaymentAddress,
+  getPhonePostProvider,
+  fetchPhonePaymentInvoice,
   PROVIDER_COUNTRY_CURRENCY,
 } from '../../../app/functions/sendBitcoin/getPhonePaymentAddress';
 import getLNURLDetails from '../../../app/functions/lnurl/getLNURLDetails';
@@ -225,6 +227,111 @@ describe('PROVIDER_COUNTRY_CURRENCY', () => {
       KE: 'KES',
       ZM: 'ZMW',
       PH: 'PHP',
+      BI: 'BIF',
     });
+  });
+});
+
+describe('getPhonePostProvider (Burundi POST provider)', () => {
+  it('resolves a Burundi number in international form', () => {
+    expect(getPhonePostProvider('+25779561234')).toMatchObject({
+      country: 'BI',
+      domain: 'exchanger.mysatoshis.bi',
+      invoiceURL: 'https://exchanger.mysatoshis.bi/api/sell-sats',
+      minSendableSats: 200,
+      phone: '25779561234',
+    });
+  });
+
+  it('resolves the bare-country-code (257) form', () => {
+    expect(getPhonePostProvider('25779561234')?.country).toBe('BI');
+  });
+
+  it('resolves the national form', () => {
+    expect(getPhonePostProvider('79561234')?.country).toBe('BI');
+  });
+
+  it('trims surrounding whitespace', () => {
+    expect(getPhonePostProvider('  +25779561234  ')?.country).toBe('BI');
+  });
+
+  it('returns null for LNURL-provider (KE/ZM/PH) numbers', () => {
+    expect(getPhonePostProvider('+254717252303')).toBe(null);
+    expect(getPhonePostProvider('0977123456')).toBe(null);
+    expect(getPhonePostProvider('09171234567')).toBe(null);
+  });
+
+  it('returns null for empty, garbage and unsupported numbers', () => {
+    expect(getPhonePostProvider('')).toBe(null);
+    expect(getPhonePostProvider('hello')).toBe(null);
+    expect(getPhonePostProvider(null)).toBe(null);
+    expect(getPhonePostProvider('+12025550123')).toBe(null);
+  });
+
+  it('does not produce LNURL candidates for a Burundi number', () => {
+    // POST providers must stay out of the LNURL candidate system.
+    expect(getPhonePaymentCandidates('+25779561234')).toEqual([]);
+  });
+});
+
+describe('getPhonePaymentCountry (POST provider domain)', () => {
+  it('maps the Burundi POST domain to its country', () => {
+    expect(getPhonePaymentCountry('25779561234@exchanger.mysatoshis.bi')).toBe(
+      'BI',
+    );
+  });
+});
+
+describe('fetchPhonePaymentInvoice', () => {
+  const args = {
+    invoiceURL: 'https://exchanger.mysatoshis.bi/api/sell-sats',
+    phone: '25779561234',
+    amountSats: 500,
+  };
+
+  afterEach(() => {
+    delete global.fetch;
+  });
+
+  it('POSTs amountSats/phone and returns the invoice as pr', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        invoice: 'lnbc500...',
+        orderId: 'order-1',
+      }),
+    });
+
+    const result = await fetchPhonePaymentInvoice(args);
+    expect(result).toEqual({ pr: 'lnbc500...', orderId: 'order-1' });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      args.invoiceURL,
+      expect.objectContaining({ method: 'POST' }),
+    );
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body).toEqual({ amountSats: 500, phone: 25779561234 });
+  });
+
+  it('throws on a non-ok response', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500 });
+    await expect(fetchPhonePaymentInvoice(args)).rejects.toThrow();
+  });
+
+  it('throws when the body is unsuccessful', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: false }),
+    });
+    await expect(fetchPhonePaymentInvoice(args)).rejects.toThrow();
+  });
+
+  it('throws when the invoice is missing', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true }),
+    });
+    await expect(fetchPhonePaymentInvoice(args)).rejects.toThrow();
   });
 });
