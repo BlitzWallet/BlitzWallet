@@ -1013,6 +1013,13 @@
       "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora.",
       "phonePaymentTitle": "Pagar {{number}}",
       "phonePaymentDesc": "Enviando para número de celular",
+      "mobileMoneyTitle": "Dinheiro móvel",
+      "mobileMoneySubtitle": "Pagar para uma conta de dinheiro móvel",
+      "mobileMoneyCountryTitle": "Selecione um país",
+      "mobileMoneyCountrySubtitle": "Escolha o país da conta de dinheiro móvel que você está pagando.",
+      "mobileMoneyPhoneTitle": "Digite o número de celular",
+      "mobileMoneyPhoneSubtitle": "Digite o número para o qual deseja pagar.",
+      "mobileMoneyInvalidPhone": "Digite um número de celular válido para o país selecionado.",
       "depositFunds": "Depositar fundos",
       "depositFundsSubtitle": "Adicione fundos na sua carteira",
       "onChainBitcoin": "Depositar Bitcoin",
@@ -1435,7 +1442,7 @@
       "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Escolha a moeda que será depositada na sua conta"
+      "header": "Escolha em qual moeda o pagamento será recebido"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
