@@ -1,5 +1,6 @@
 import { InputTypes } from 'bitcoin-address-parser';
 import { isHTTPS } from '../../../../../functions/lnurl/ishttps';
+import { fetchPhonePaymentInvoice } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 
 export async function getLNAddressForLiquidPayment(
   paymentInfo,
@@ -8,6 +9,15 @@ export async function getLNAddressForLiquidPayment(
 ) {
   let invoiceAddress = { pr: '', successAction: null };
   try {
+    // POST-based phone providers (e.g. Burundi) mint the invoice via a direct
+    // POST rather than an LNURL callback.
+    if (paymentInfo?.data?.postProvider) {
+      const { pr } = await fetchPhonePaymentInvoice({
+        ...paymentInfo.data.postProvider,
+        amountSats: sendingValue,
+      });
+      return { pr, successAction: null };
+    }
     if (paymentInfo.type === InputTypes.LNURL_PAY) {
       const callback = paymentInfo.data.callback;
 

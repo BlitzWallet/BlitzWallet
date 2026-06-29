@@ -23,20 +23,42 @@ const PHONE_PAYMENT_PROVIDERS = {
   },
 };
 
+// Phone-payment providers that mint a BOLT11 invoice via a direct POST instead
+// of LNURL (no lightning address). Kept separate from PHONE_PAYMENT_PROVIDERS so
+// the LNURL/contacts flows never treat these as lightning addresses. `domain` is
+// used only for country/currency lookup parity. `formatPhone` emits the value
+// sent in the POST body.
+const PHONE_POST_PROVIDERS = {
+  BI: {
+    domain: 'exchanger.mysatoshis.bi',
+    invoiceURL: 'https://exchanger.mysatoshis.bi/api/sell-sats',
+    minSendableSats: 200,
+    currency: 'BIF',
+    formatPhone: parsed => parsed.number.slice(1), // 257...
+  },
+};
+
 // Local fiat currency for each supported phone-payment provider country. Used to
 // default the send amount input to the payment location's currency.
-export const PROVIDER_COUNTRY_CURRENCY = { KE: 'KES', ZM: 'ZMW', PH: 'PHP' };
+export const PROVIDER_COUNTRY_CURRENCY = {
+  KE: 'KES',
+  ZM: 'ZMW',
+  PH: 'PHP',
+  BI: 'BIF',
+};
 
 // Given a provider lightning address (any form), returns the provider country
-// (KE/ZM/PH) by matching its domain, or null for non-provider addresses.
+// by matching its domain, or null for non-provider addresses. Matches both
+// LNURL and POST providers.
 export function getPhonePaymentCountry(address) {
   if (typeof address !== 'string') return null;
   const at = address.indexOf('@');
   if (at === -1) return null;
   const domain = address.slice(at + 1).toLowerCase();
-  const match = Object.entries(PHONE_PAYMENT_PROVIDERS).find(
-    ([, provider]) => provider.domain === domain,
-  );
+  const match = [
+    ...Object.entries(PHONE_PAYMENT_PROVIDERS),
+    ...Object.entries(PHONE_POST_PROVIDERS),
+  ].find(([, provider]) => provider.domain === domain);
   return match ? match[0] : null;
 }
 
@@ -108,4 +130,65 @@ export default async function getPhonePaymentAddress(input) {
     if (details && details.tag === 'payRequest') return candidates[i];
   }
   return candidates[candidates.length - 1];
+}
+
+// If the input is a valid mobile number for a POST-based provider (e.g. Burundi),
+// returns its provider config plus the formatted phone for the POST body;
+// otherwise null. Accepts national or international input, mirroring
+// getPhonePaymentCandidates.
+export function getPhonePostProvider(input) {
+  const stripped = (input || '').trim();
+  if (!stripped) return null;
+
+  const normalized = stripped.startsWith('+') ? stripped : `+${stripped}`;
+  const attempts = [
+    [normalized, undefined],
+    ...Object.keys(PHONE_POST_PROVIDERS).map(country => [stripped, country]),
+  ];
+
+  for (const [value, defaultCountry] of attempts) {
+    try {
+      const parsed = parsePhoneNumberWithError(value, defaultCountry);
+      const provider = PHONE_POST_PROVIDERS[parsed.country];
+      if (provider && parsed.isValid()) {
+        return {
+          country: parsed.country,
+          domain: provider.domain,
+          invoiceURL: provider.invoiceURL,
+          minSendableSats: provider.minSendableSats,
+          phone: provider.formatPhone(parsed),
+        };
+      }
+    } catch {}
+  }
+  return null;
+}
+
+// POSTs to a phone POST-provider's endpoint to mint a BOLT11 invoice for the
+// given amount. Throws on a non-ok response, an unsuccessful body, or a missing
+// invoice. Returns { pr } so callers can treat it like an LNURL pay response.
+export async function fetchPhonePaymentInvoice({
+  invoiceURL,
+  phone,
+  amountSats,
+}) {
+  const response = await fetch(invoiceURL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      amountSats: Number(amountSats),
+      phone: Number(phone),
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  if (!data.success || !data.invoice) {
+    throw new Error('No invoice in phone payment response');
+  }
+
+  return { pr: data.invoice, orderId: data.orderId };
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -23,6 +23,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {
   getPhonePaymentCandidates,
   getPhonePaymentCountry,
+  getPhonePostProvider,
 } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../context-store/appStatus';
@@ -34,9 +35,35 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 // `provider` is display-only. `example` is a valid national mobile number (no
 // trunk prefix) used to render a country-correct placeholder.
 const MOBILE_MONEY_COUNTRIES = [
-  { country: 'Kenya', isoCode: 'KE', cc: '+254', provider: 'Tando', example: '712123456' },
-  { country: 'Philippines', isoCode: 'PH', cc: '+63', provider: 'GCash', example: '9051234567' },
-  { country: 'Zambia', isoCode: 'ZM', cc: '+260', provider: 'Bitzed', example: '955123456' },
+  {
+    country: 'Kenya',
+    isoCode: 'KE',
+    cc: '+254',
+    provider: 'Tando',
+    example: '712123456',
+  },
+  {
+    country: 'Philippines',
+    isoCode: 'PH',
+    cc: '+63',
+    provider: 'GCash',
+    example: '9051234567',
+  },
+  {
+    country: 'Zambia',
+    isoCode: 'ZM',
+    cc: '+260',
+    provider: 'Bitzed',
+    example: '955123456',
+  },
+  // POST-based provider (exchanger.mysatoshis.bi) — no LNURL address.
+  {
+    country: 'Burundi',
+    isoCode: 'BI',
+    cc: '+257',
+    provider: 'MySatoshis',
+    example: '79561234',
+  },
 ];
 
 // Formats the national digits the way they appear after the country-code chip.
@@ -158,9 +185,11 @@ export default function MobileMoneySendOverlay({
     // Validate with the same logic the confirm pipeline uses to resolve the
     // provider address, guaranteeing a downstream match for the chosen country.
     const candidates = getPhonePaymentCandidates(intlNumber);
-    const isValid = candidates.some(
-      c => getPhonePaymentCountry(c) === selectedCountry.isoCode,
-    );
+    const isValid =
+      candidates.some(
+        c => getPhonePaymentCountry(c) === selectedCountry.isoCode,
+      ) ||
+      getPhonePostProvider(intlNumber)?.country === selectedCountry.isoCode;
     if (!isValid) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('wallet.halfModal.mobileMoneyInvalidPhone'),
@@ -176,6 +205,31 @@ export default function MobileMoneySendOverlay({
       });
     });
   }, [selectedCountry, phoneNumber, navigate, t, handleBackPressFunction]);
+
+  const CountryItem = useCallback(
+    ({ item }) => {
+      return (
+        <TouchableOpacity
+          key={item.isoCode}
+          onPress={() => handleSelectCountry(item)}
+          style={[styles.countryRow, { backgroundColor: backgroundOffset }]}
+        >
+          <View style={styles.flagContainer}>
+            <CountryFlag isoCode={item.isoCode} size={45} />
+          </View>
+          <View style={styles.countryTextContainer}>
+            <ThemeText styles={styles.countryName} content={item.country} />
+            <ThemeText
+              styles={styles.countryProvider}
+              content={item.provider}
+            />
+          </View>
+          <ThemeIcon iconName={'ChevronRight'} size={20} />
+        </TouchableOpacity>
+      );
+    },
+    [handleSelectCountry, backgroundOffset],
+  );
 
   if (!visible) return null;
 
@@ -196,25 +250,11 @@ export default function MobileMoneySendOverlay({
             content={t('wallet.halfModal.mobileMoneyCountrySubtitle')}
           />
 
-          {MOBILE_MONEY_COUNTRIES.map(item => (
-            <TouchableOpacity
-              key={item.isoCode}
-              onPress={() => handleSelectCountry(item)}
-              style={[styles.countryRow, { backgroundColor: backgroundOffset }]}
-            >
-              <View style={styles.flagContainer}>
-                <CountryFlag isoCode={item.isoCode} size={45} />
-              </View>
-              <View style={styles.countryTextContainer}>
-                <ThemeText styles={styles.countryName} content={item.country} />
-                <ThemeText
-                  styles={styles.countryProvider}
-                  content={item.provider}
-                />
-              </View>
-              <ThemeIcon iconName={'ChevronRight'} size={20} />
-            </TouchableOpacity>
-          ))}
+          <FlatList
+            data={MOBILE_MONEY_COUNTRIES}
+            renderItem={CountryItem}
+            showsVerticalScrollIndicator={false}
+          />
         </View>
       </Animated.View>
 
@@ -245,7 +285,10 @@ export default function MobileMoneySendOverlay({
               }}
               content={
                 phoneNumber.length === 0
-                  ? formatNationalDisplay(selectedCountry, selectedCountry?.example)
+                  ? formatNationalDisplay(
+                      selectedCountry,
+                      selectedCountry?.example,
+                    )
                   : formatNationalDisplay(selectedCountry, phoneNumber)
               }
             />
