@@ -3381,6 +3381,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mapbox/geo-viewport@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@mapbox/geo-viewport@npm:0.5.0"
+  dependencies:
+    "@mapbox/sphericalmercator": ^1.2.0
+  checksum: 9cb990e177226acbdf7658f3367ed3158d8a77350afb0e1de71fa432e682a8aed4afe2f80d36872eb79666b54432fe6219797d50f2ab4152c51811235b7520a0
+  languageName: node
+  linkType: hard
+
+"@mapbox/sphericalmercator@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@mapbox/sphericalmercator@npm:1.2.0"
+  bin:
+    bbox: bin/bbox.js
+    to4326: bin/to4326.js
+    to900913: bin/to900913.js
+    xyz: bin/xyz.js
+  checksum: 515cd9fcadc6626d6352001f6d9dba073fcd10433ceee37d13d4be7fc9a48930b4163b79f53151b71ff9a4410da77bd11c5ff62e3b9d6119bce9031c4d7dabc1
+  languageName: node
+  linkType: hard
+
 "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
   version: 5.1.1-v1
   resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
@@ -5016,6 +5037,7 @@ __metadata:
     react: 19.1.0
     react-i18next: ^16.0.0
     react-native: 0.81.4
+    react-native-clusterer: ^5.0.2
     react-native-context-menu-view: ^1.19.0
     react-native-country-flag: ^2.0.2
     react-native-country-picker-modal: ^2.0.0
@@ -12913,6 +12935,19 @@ __metadata:
   peerDependencies:
     react: ">=15.0.0"
   checksum: 3bb042bb7cd48909491a5f92b8e7b2fb0417d69ad24bf04dbe1ed7a308cc7dfe6e3c9b5550e7b9016ee6bef61829b92e7f3a355ed1b867affd251bd518bcdd90
+  languageName: node
+  linkType: hard
+
+"react-native-clusterer@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "react-native-clusterer@npm:5.0.2"
+  dependencies:
+    "@mapbox/geo-viewport": ^0.5.0
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-nitro-modules: ^0.31.5
+  checksum: 6f8efbc4c9e7e2e4598a7b2d3c138729f286c1cde3d0967f48837e8c3e194715f5e091423e03b26f8c1e4a1ebbe4cb183813122b8ad1ecf12f132035ce9336df
   languageName: node
   linkType: hard
 

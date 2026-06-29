@@ -17,6 +17,7 @@ import {
   upsertPlaces,
   deletePlaces,
   truncateAndInsertPlaces,
+  needsToResyncMapsData,
 } from '../app/functions/btcMap/btcMapStorage';
 import { clearBTCMapClusterCache } from '../app/functions/btcMap/btcMapClusterCache';
 import fetchBackend from '../db/handleBackend';
@@ -47,15 +48,24 @@ export function BTCMapProvider({ children }) {
   // Sync from Firebase — full on first launch, incremental afterward
   const syncPlaces = useCallback(async (privateKey, publicKey) => {
     if (!privateKey || !publicKey) return;
-    const lastSyncTime = await getLastSyncTime();
-    if (lastSyncTime && Date.now() - lastSyncTime < FOUR_HOURS_MS) return;
+    const [lastSyncTime, needsToResync] = await Promise.all([
+      getLastSyncTime(),
+      needsToResyncMapsData(),
+    ]);
+    if (
+      lastSyncTime &&
+      Date.now() - lastSyncTime < FOUR_HOURS_MS &&
+      !needsToResync
+    )
+      return;
     setIsLoading(true);
     setSyncError(null);
     try {
       const currentTs = await getLastModified();
-      const requestData = currentTs
-        ? { action: 'sync', updated_since: currentTs }
-        : { action: 'sync' };
+      const requestData =
+        currentTs && !needsToResync
+          ? { action: 'sync', updated_since: currentTs }
+          : { action: 'sync' };
 
       const result = await fetchBackend(
         'getBTCMapData',

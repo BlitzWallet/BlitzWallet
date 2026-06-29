@@ -2621,7 +2621,11 @@
         "title": "Pagar con Bitcoin",
         "loadingMap": "Cargando mapa...",
         "loadingMerchants": "Cargando comercios...",
-        "zoomIn": "Acercar para ver todos los comercios"
+        "zoomIn": "Acercar para ver todos los comercios",
+        "findAPlace": "Buscar un lugar",
+        "placesHere": "{{count}} lugares aquí",
+        "noPlaces": "No se encontraron lugares",
+        "hasMorePlaces": "Mostrando los {{num}} más cercanos. Acércate para ver más."
       },
       "merchant": {
         "noName": "Comercio desconocido",
@@ -2630,6 +2634,26 @@
         "lightning": "Lightning",
         "lightningMessage": "Acepta pagos en bitcoin instantáneamente a través de la red Lightning",
         "dataMessage": "Datos de btcmap.org"
+      },
+      "filter": {
+        "categoriesTitle": "Categorías",
+        "distanceTitle": "Distancia",
+        "all": "Todos",
+        "apply": "Aplicar",
+        "clear": "Borrar",
+        "auto": "Auto",
+        "km": "km",
+        "mi": "mi"
+      },
+      "categories": {
+        "food_drink": "Comida y bebida",
+        "retail": "Comercio",
+        "lodging": "Alojamiento",
+        "services": "Servicios",
+        "atm": "Cajeros Bitcoin",
+        "fuel": "Combustible",
+        "leisure": "Ocio",
+        "other": "Otros"
       }
     },
     "bitrefill": {

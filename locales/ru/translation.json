@@ -2628,7 +2628,11 @@
         "title": "Оплатить с Bitcoin",
         "loadingMap": "Загрузка карты...",
         "loadingMerchants": "Загрузка продавцов...",
-        "zoomIn": "Увеличьте масштаб, чтобы увидеть всех продавцов"
+        "zoomIn": "Увеличьте масштаб, чтобы увидеть всех продавцов",
+        "findAPlace": "Найти место",
+        "placesHere": "Здесь мест: {{count}}",
+        "noPlaces": "Места не найдены",
+        "hasMorePlaces": "Показаны ближайшие {{num}} мест. Увеличьте масштаб, чтобы увидеть больше."
       },
       "merchant": {
         "noName": "Неизвестный продавец",
@@ -2637,6 +2641,26 @@
         "lightning": "Lightning",
         "lightningMessage": "Принимает платежи в биткоинах мгновенно через сеть Lightning",
         "dataMessage": "Данные с btcmap.org"
+      },
+      "filter": {
+        "categoriesTitle": "Категории",
+        "distanceTitle": "Расстояние",
+        "all": "Все",
+        "apply": "Применить",
+        "clear": "Очистить",
+        "auto": "Авто",
+        "km": "км",
+        "mi": "ми"
+      },
+      "categories": {
+        "food_drink": "Еда и напитки",
+        "retail": "Розница",
+        "lodging": "Жильё",
+        "services": "Услуги",
+        "atm": "Биткоин-банкоматы",
+        "fuel": "Заправки",
+        "leisure": "Досуг",
+        "other": "Другое"
       }
     },
     "bitrefill": {

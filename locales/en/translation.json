@@ -2621,7 +2621,11 @@
         "title": "Pay with Bitcoin",
         "loadingMap": "Loading map...",
         "loadingMerchants": "Loading merchants...",
-        "zoomIn": "Zoom in to see all merchants"
+        "zoomIn": "Zoom in to see all merchants",
+        "findAPlace": "Find a place",
+        "placesHere": "{{count}} places here",
+        "noPlaces": "No places found",
+        "hasMorePlaces": "Showing the nearest {{num}}. Zoom in for more."
       },
       "merchant": {
         "noName": "Unknown Merchant",
@@ -2630,6 +2634,26 @@
         "lightning": "Lightning",
         "lightningMessage": "Accepts bitcoin payments instantly over the Lightning Network",
         "dataMessage": "Data from btcmap.org"
+      },
+      "filter": {
+        "categoriesTitle": "Categories",
+        "distanceTitle": "Distance",
+        "all": "All",
+        "apply": "Apply",
+        "clear": "Clear",
+        "auto": "Auto",
+        "km": "km",
+        "mi": "mi"
+      },
+      "categories": {
+        "food_drink": "Food & drink",
+        "retail": "Retail",
+        "lodging": "Lodging",
+        "services": "Services",
+        "atm": "Bitcoin ATMs",
+        "fuel": "Fuel",
+        "leisure": "Leisure",
+        "other": "Other"
       }
     },
     "bitrefill": {
