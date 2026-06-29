@@ -1048,7 +1048,8 @@
       "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_spark": "Senden Sie Bitcoin oder Token an diese Adresse.",
-      "depositQRInstruction_spark_dollars": "Senden Sie USDB an diese Adresse."
+      "depositQRInstruction_spark_dollars": "Senden Sie USDB an diese Adresse.",
+      "depositMinimumStablecoin": "Zahlungen müssen mindestens {{amount}} betragen"
     },
     "payLinks": {
       "skip": "Überspringen",
@@ -2526,6 +2527,7 @@
           "details": "Details"
         },
         "chooseCurrencyTitle": "Wählen Sie die Währung, die Sie umtauschen möchten.",
+        "availableToSwapInto": "Tauschen Sie bis zu {{amount}} in {{asset}} um.",
         "enterAmountTitle": "Geben Sie den Betrag ein, den Sie umtauschen möchten",
         "noContentTitle": "Kein Guthaben verfügbar",
         "noContentSubTittle": "Fügen Sie Ihrer Wallet Guthaben hinzu, um zwischen USD und BTC zu wechseln.",
@@ -2925,8 +2927,6 @@
         "subtitle": "Sie haben noch keine Ersparnisse oder Bitcoin-Belohnungen zum Auszahlen."
       },
       "balanceLoadError": "Wallet konnte nicht geladen werden. Bitte gehen Sie zurück und versuchen Sie es erneut.",
-      "fromInterest": "Aus Ihren Zinsen",
-      "fromSavings": "Aus Ihren Ersparnissen",
       "interestPaymentLabel": "Zinsauszahlung",
       "chooseGoalTitle": "Geld auszahlen von",
       "withdrawAll": "Alles auszahlen",
@@ -2941,9 +2941,6 @@
       "confirmSubtitle_goal": "Zahlen Sie aus {{goalName}} auf Ihr {{destination}} aus",
       "confirmSubtitle_generalAll": "Zahlen Sie den gesamten Zielsaldo auf Ihr {{destination}} aus",
       "confirmSubtitle_general": "Zahlen Sie den Zielsaldo auf Ihr {{destination}} aus",
-      "youAreWithdrawingAll": "Sie zahlen alle Ersparnisse aus",
-      "youAreWithdrawing": "Sie zahlen aus",
-      "toYourBalance": "auf Ihr {{destination}}",
       "estimatedSats": "≈ {{sats}} nach Umtausch",
       "confirmButton": "Bestätigen",
       "processing": "Auszahlung wird verarbeitet...",
