@@ -527,6 +527,7 @@ export default function BTCMapScreen() {
           <View style={[styles.navTitlePill, { backgroundColor }]}>
             <ThemeText
               CustomNumberOfLines={1}
+              adjustsFontSizeToFit={true}
               styles={styles.navTitle}
               content={t('screens.btcMap.map.title')}
             />
