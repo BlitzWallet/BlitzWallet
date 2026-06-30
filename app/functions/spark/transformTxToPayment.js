@@ -200,7 +200,15 @@ export async function transformTxToPaymentObject(
     }
     return {
       id: tx.id,
-      paymentStatus: 'completed',
+      // Outgoing spark sends settle immediately for the sender, so keep them
+      // completed to avoid send-flow flicker. Incoming transfers reflect their
+      // real claim status: an unclaimed transfer enumerated during restore is
+      // genuinely pending until claimed (the 10s updateSparkTxStatus interval
+      // flips it to completed once TRANSFER_STATUS_COMPLETED).
+      paymentStatus:
+        tx.transferDirection === 'OUTGOING'
+          ? 'completed'
+          : getSparkPaymentStatus(tx.status),
       paymentType: 'spark',
       accountId: accountId,
       details: {

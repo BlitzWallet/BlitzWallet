@@ -189,11 +189,8 @@ const SparkWalletProvider = ({ children }) => {
   const prevAppState = useRef(appState);
   const prevAccountId = useRef(null);
   const isSendingPaymentRef = useRef(false);
-  const balancePollingTimeoutRef = useRef(null);
-  const balancePollingAbortControllerRef = useRef(null);
   const txPollingTimeoutRef = useRef(null);
   const txPollingAbortControllerRef = useRef(null);
-  const currentPollingMnemonicRef = useRef(null);
   const isInitialRender = useRef(true);
   const authResetKeyRef = useRef(authResetkey);
   const balanceVersionRef = useRef(0);
@@ -204,22 +201,16 @@ const SparkWalletProvider = ({ children }) => {
   const uiLaneQueueRef = useRef(Promise.resolve());
   const queueDepthRef = useRef(0);
   const eventSequenceRef = useRef(0);
-  const preSendBoundaryRef = useRef(null);
 
-  const balanceEpochRef = useRef({
-    target: 0,
-    applied: 0,
-  });
-  const balanceSupervisorRunIdRef = useRef(0);
-  const forcedPendingBySparkIdRef = useRef(new Map());
-  const lastConfirmedTxBoundaryRef = useRef(null);
   const scrollPositionRef = useRef('total');
 
-  const isBalancePollerRunningRef = useRef(false);
-  const lastBalancePollEventRef = useRef({
-    updateType: null,
-    timestamp: 0,
-  });
+  // Single-flight guard for the balance reconcile read (see reconcileBalance).
+  // reconcileRunIdRef gives each run ownership so a read that parks across a
+  // background transition can't clear a newer run's lock when it finally settles.
+  const isReconcilingBalanceRef = useRef(false);
+  const reconcileBalanceAgainRef = useRef(false);
+  const reconcileRunIdRef = useRef(0);
+
   // Tracks whether the Spark event stream has dropped, so a later
   // stream:connected is recognized as a *re*connect (which warrants one
   // reconcile read) rather than the benign initial connect.
@@ -397,12 +388,6 @@ const SparkWalletProvider = ({ children }) => {
         txPollingAbortControllerRef.current.abort();
         txPollingAbortControllerRef.current = null;
       }
-      // Snapshot boundary before the send tx is written to DB
-      preSendBoundaryRef.current = getBoundaryFromTxs(
-        sparkInfoRef.current.transactions || [],
-      );
-    } else {
-      preSendBoundaryRef.current = null;
     }
     isSendingPaymentRef.current = isSending;
   }, []);
@@ -516,7 +501,7 @@ const SparkWalletProvider = ({ children }) => {
           1,
           undefined,
           unpaidContactInvoices,
-          currentPollingMnemonicRef.current,
+          currentMnemonicRef.current,
         );
 
         if (paymentObj) {
@@ -546,108 +531,6 @@ const SparkWalletProvider = ({ children }) => {
     [sendWebViewRequest],
   );
 
-  const getTxAddedAt = tx => {
-    try {
-      return Number(JSON.parse(tx.details)?.dateAddedToDb) || 0;
-    } catch {
-      return 0;
-    }
-  };
-
-  const getBoundaryFromTxs = transactions =>
-    (transactions || []).slice(0, 10).reduce((max, tx) => {
-      return Math.max(max, getTxAddedAt(tx));
-    }, 0);
-
-  const ensureConfirmedBoundary = transactions => {
-    if (lastConfirmedTxBoundaryRef.current != null) return;
-    const boundary = getBoundaryFromTxs(transactions);
-    lastConfirmedTxBoundaryRef.current = boundary || 0;
-  };
-
-  const registerForcedPendingForEpoch = (transactions, epoch) => {
-    if (!epoch || !transactions?.length) return;
-    ensureConfirmedBoundary(sparkInfoRef.current.transactions || transactions);
-
-    // Use pre-send boundary if available so the outgoing tx (written before
-    // paymentWrapperTx fires) lands above the watermark and gets registered.
-    const boundary =
-      preSendBoundaryRef.current ?? lastConfirmedTxBoundaryRef.current ?? 0;
-
-    let confirmedStreak = 0;
-    for (let index = 0; index < transactions.length; index++) {
-      const tx = transactions[index];
-      const addedAt = getTxAddedAt(tx);
-
-      if (addedAt > boundary) {
-        const existing = forcedPendingBySparkIdRef.current.get(tx.sparkID);
-        // Keep the first pending epoch for a tx. Re-bucketing the same tx
-        // into newer epochs causes sticky pending state during overlapping
-        // balance intents.
-        if (!existing) {
-          forcedPendingBySparkIdRef.current.set(tx.sparkID, {
-            epoch,
-            addedAt,
-          });
-        }
-        confirmedStreak = 0;
-      } else {
-        confirmedStreak += 1;
-        if (confirmedStreak > 25) break;
-      }
-    }
-  };
-
-  const releaseForcedPendingUpToEpoch = epoch => {
-    let maxReleasedBoundary = lastConfirmedTxBoundaryRef.current ?? 0;
-    for (const [sparkId, meta] of forcedPendingBySparkIdRef.current.entries()) {
-      if ((meta?.epoch || 0) <= epoch) {
-        maxReleasedBoundary = Math.max(maxReleasedBoundary, meta?.addedAt || 0);
-        forcedPendingBySparkIdRef.current.delete(sparkId);
-      }
-    }
-
-    // Safety valve: if a tx is at or behind the most recently confirmed
-    // boundary, it must not remain force-pending even if a later epoch
-    // was enqueued while polling.
-    for (const [sparkId, meta] of forcedPendingBySparkIdRef.current.entries()) {
-      if ((meta?.addedAt || 0) <= maxReleasedBoundary) {
-        forcedPendingBySparkIdRef.current.delete(sparkId);
-      }
-    }
-
-    lastConfirmedTxBoundaryRef.current = maxReleasedBoundary;
-  };
-
-  const releaseForcedPendingUpToBoundary = boundary => {
-    if (!Number.isFinite(boundary)) return;
-    const normalizedBoundary = Number(boundary) || 0;
-
-    for (const [sparkId, meta] of forcedPendingBySparkIdRef.current.entries()) {
-      if ((meta?.addedAt || 0) <= normalizedBoundary) {
-        forcedPendingBySparkIdRef.current.delete(sparkId);
-      }
-    }
-
-    lastConfirmedTxBoundaryRef.current = Math.max(
-      lastConfirmedTxBoundaryRef.current || 0,
-      normalizedBoundary,
-    );
-  };
-
-  const applyForcedPendingFlags = transactions => {
-    if (!transactions?.length) return transactions;
-    if (!forcedPendingBySparkIdRef.current.size) return transactions;
-
-    const appliedEpoch = balanceEpochRef.current.applied;
-    return transactions.map(tx => {
-      const pendingMeta = forcedPendingBySparkIdRef.current.get(tx.sparkID);
-      if (!pendingMeta || pendingMeta.epoch <= appliedEpoch) return tx;
-      if (tx.isBalancePending) return tx;
-      return { ...tx, isBalancePending: true };
-    });
-  };
-
   const filterAndSetTransactions = useCallback(
     freshTxs => {
       sparkInfoRef.current.transactions = freshTxs.slice(0, 50);
@@ -656,8 +539,6 @@ const SparkWalletProvider = ({ children }) => {
         scrollPosition: scrollPositionRef.current,
         enabledLRC20: showTokensInformation,
         tokens: sparkInfoRef.current.tokens,
-        forcedPendingMap: forcedPendingBySparkIdRef.current,
-        appliedEpoch: balanceEpochRef.current.applied,
         limit: homepageTxPreferance,
         hideSmallPaymentsHomepage,
       });
@@ -678,8 +559,6 @@ const SparkWalletProvider = ({ children }) => {
         scrollPosition: pos,
         enabledLRC20: showTokensInformation,
         tokens: sparkInfoRef.current.tokens,
-        forcedPendingMap: forcedPendingBySparkIdRef.current,
-        appliedEpoch: balanceEpochRef.current.applied,
         limit: homepageTxPreferance,
         hideSmallPaymentsHomepage,
       });
@@ -700,8 +579,6 @@ const SparkWalletProvider = ({ children }) => {
         scrollPosition: scrollPositionRef.current,
         enabledLRC20: showTokensInformation,
         tokens: sparkInfoRef.current.tokens,
-        forcedPendingMap: forcedPendingBySparkIdRef.current,
-        appliedEpoch: balanceEpochRef.current.applied,
         limit: num,
         hideSmallPaymentsHomepage:
           smallPaymentOverrides ?? hideSmallPaymentsHomepage,
@@ -772,13 +649,6 @@ const SparkWalletProvider = ({ children }) => {
         };
         const details = parsedTx.details || {};
         console.log(parsedTx, details, from, 'testing notifications');
-
-        if (parsedTx.isBalancePending) {
-          console.log(
-            'Payment balance is still being confimed, will be handled once balance pollar is done',
-          );
-          return;
-        }
 
         if (parsedTx.paymentStatus === 'pending') {
           // Run a tx status check. Will delay toast message
@@ -938,20 +808,12 @@ const SparkWalletProvider = ({ children }) => {
         accountId: identityPubKey,
       });
 
-      if (event.balanceEpoch) {
-        registerForcedPendingForEpoch(txs, event.balanceEpoch);
-      } else {
-        ensureConfirmedBoundary(txs);
-      }
-
-      const txListWithPendingFlags = applyForcedPendingFlags(txs);
-
       filterAndSetTransactions(txs);
 
       enqueueUiLane(event.updateType, () =>
         maybeHandleConfirmNavigation(
           event.updateType,
-          txListWithPendingFlags,
+          txs,
           'project transactions for event',
         ),
       );
@@ -959,249 +821,132 @@ const SparkWalletProvider = ({ children }) => {
     [enqueueUiLane, maybeHandleConfirmNavigation, filterAndSetTransactions],
   );
 
-  const applyConfirmedBalanceSnapshot = useCallback(
-    async (epoch, result) => {
-      const { identityPubKey } = sparkInfoRef.current;
+  // Applies the most recent balance:update value immediately, cancelling the
+  // debounce. Used as the balance:update debounce flush AND to sync the
+  // displayed balance with the incoming-payment toast: balance:update fires
+  // before transfer:claimed, so the new value is already staged in
+  // latestBalanceRef and we flush it in the same pass the toast is shown.
+  const flushBalanceNow = useCallback(() => {
+    if (balanceDebounceTimeoutRef.current) {
+      clearTimeout(balanceDebounceTimeoutRef.current);
+      balanceDebounceTimeoutRef.current = null;
+    }
+    if (balanceDebounceMaxWaitRef.current) {
+      clearTimeout(balanceDebounceMaxWaitRef.current);
+      balanceDebounceMaxWaitRef.current = null;
+    }
 
-      // Stamp the ordering guard at ENTRY (before the awaits below) so a
-      // concurrent incoming-payment snapshot that enters later can't be
-      // overwritten by this confirmed snapshot resolving after it. Shared with
-      // applyIncomingPaymentSnapshot, which also stamps at entry.
-      const myVersion = ++balanceVersionRef.current;
+    const nextBalance = latestBalanceRef.current;
+    if (!Number.isFinite(nextBalance)) return;
+    if (nextBalance === sparkInfoRef.current.balance) return;
 
-      balanceEpochRef.current.applied = Math.max(
-        balanceEpochRef.current.applied,
-        epoch,
-      );
+    // Ordering guard shared with reconcileBalance so a slow reconcile read
+    // can't overwrite this newer event value.
+    const myVersion = ++balanceVersionRef.current;
+    const { identityPubKey } = sparkInfoRef.current;
 
-      const numericBalance = Number(result?.balance);
-      saveAccountBalanceSnapshot(
-        identityPubKey,
-        Number.isFinite(numericBalance)
-          ? numericBalance
-          : sparkInfoRef.current.balance,
-        result?.didWork ? result.tokensObj : sparkInfoRef.current.tokens,
-      );
+    saveAccountBalanceSnapshot(
+      identityPubKey,
+      nextBalance,
+      sparkInfoRef.current.tokens,
+    );
 
-      const freshTxs = identityPubKey
-        ? await getAllSparkTransactions({
-            limit: null,
-            accountId: identityPubKey,
-          })
-        : sparkInfoRef.current.transactions || [];
+    setSparkInformation(prev => {
+      if (myVersion < balanceVersionRef.current) return prev;
+      if (prev.balance === nextBalance) return prev;
+      return { ...prev, balance: nextBalance };
+    });
+  }, []);
 
-      releaseForcedPendingUpToEpoch(epoch);
-      releaseForcedPendingUpToBoundary(getBoundaryFromTxs(freshTxs));
-      ensureConfirmedBoundary(freshTxs);
-      const projectedTxs = applyForcedPendingFlags(freshTxs);
-      await maybeHandleConfirmNavigation(
-        'afterBalancePoller',
-        projectedTxs,
-        'apply confimred balance snapshot',
-      );
-
-      filterAndSetTransactions(freshTxs);
-
-      setSparkInformation(prev => {
-        if (myVersion < balanceVersionRef.current) return prev;
-        return {
-          ...prev,
-          balance: Number.isFinite(numericBalance)
-            ? numericBalance
-            : prev.balance,
-          tokens: result?.didWork ? result.tokensObj : prev.tokens,
-        };
-      });
-    },
-    [
-      maybeHandleConfirmNavigation,
-      contactsPrivateKey,
-      publicKey,
-      filterAndSetTransactions,
-    ],
-  );
-
-  const runBalanceSupervisor = useCallback(async () => {
-    if (isBalancePollerRunningRef.current) return;
+  // One authoritative balance read, applied directly. The displayed balance is
+  // driven in real time by balance:update events; this read is a safety net to
+  // recover a balance whose event was missed (backgrounded / stream drop) and
+  // to land post-restore deposit claims. Single-flight: a request while a read
+  // is in flight sets a re-run flag instead of stacking reads. The version
+  // guard makes a live balance:update win over a slower reconcile read.
+  const reconcileBalance = useCallback(async () => {
     const mnemonic = currentMnemonicRef.current;
     if (!mnemonic) return;
 
-    isBalancePollerRunningRef.current = true;
-    const runId = ++balanceSupervisorRunIdRef.current;
-    currentPollingMnemonicRef.current = mnemonic;
+    if (isReconcilingBalanceRef.current) {
+      reconcileBalanceAgainRef.current = true;
+      return;
+    }
+
+    isReconcilingBalanceRef.current = true;
+    const runId = ++reconcileRunIdRef.current;
 
     try {
-      while (
-        balanceEpochRef.current.applied < balanceEpochRef.current.target &&
-        mnemonic === currentMnemonicRef.current
-      ) {
-        const epochToResolve = balanceEpochRef.current.target;
-        const abortController = new AbortController();
-        balancePollingAbortControllerRef.current = abortController;
+      do {
+        reconcileBalanceAgainRef.current = false;
+        const myVersion = ++balanceVersionRef.current;
+        const result = await getBalanceWithTimeout(mnemonic);
 
-        console.log(
-          `[BalanceLane] starting poll for epoch ${epochToResolve} (${
-            lastBalancePollEventRef.current.updateType || 'unknown'
-          })`,
-        );
-
-        // Single authoritative reconcile read. The displayed balance number is
-        // driven in real time by balance:update events (balanceUpdateHandler);
-        // this one-shot read exists only to reconcile transactions, release
-        // forced-pending flags, and recover a balance whose event was missed
-        // (e.g. while backgrounded). It replaces the old converge-by-polling
-        // loop (createBalancePoller) that issued up to ~24 reads per intent and
-        // could self-contend under load.
-        const balanceResult = await getBalanceWithTimeout(mnemonic);
-
-        if (runId !== balanceSupervisorRunIdRef.current) return;
-        if (abortController.signal.aborted) return;
+        // A background transition (or account switch) invalidates this run; the
+        // foreground effect bumps reconcileRunIdRef so a parked read can't apply
+        // a stale value or clear a newer run's lock.
+        if (runId !== reconcileRunIdRef.current) return;
         if (mnemonic !== currentMnemonicRef.current) return;
+        if (AppState.currentState !== 'active') return;
 
-        await applyConfirmedBalanceSnapshot(epochToResolve, balanceResult);
+        const numericBalance = Number(result?.balance);
+        const { identityPubKey } = sparkInfoRef.current;
 
-        balanceEpochRef.current.applied = Math.max(
-          balanceEpochRef.current.applied,
-          epochToResolve,
+        saveAccountBalanceSnapshot(
+          identityPubKey,
+          Number.isFinite(numericBalance)
+            ? numericBalance
+            : sparkInfoRef.current.balance,
+          result?.didWork ? result.tokensObj : sparkInfoRef.current.tokens,
         );
-        releaseForcedPendingUpToEpoch(balanceEpochRef.current.applied);
-      }
-    } catch (err) {
-      console.log('[BalanceLane] poller error', err);
-    } finally {
-      // Only release shared lane state if WE still own the lane. A newer run
-      // (e.g. started by applyIncomingPaymentSnapshot, which bumps the runId
-      // and clears the running flag) may have taken over while our awaits were
-      // parked; a stale run's finally must not clobber the newer run's running
-      // flag or null its abort controller.
-      if (runId === balanceSupervisorRunIdRef.current) {
-        isBalancePollerRunningRef.current = false;
-        balancePollingAbortControllerRef.current = null;
 
-        if (
-          balanceEpochRef.current.applied < balanceEpochRef.current.target &&
-          mnemonic === currentMnemonicRef.current
-        ) {
-          setTimeout(() => {
-            runBalanceSupervisor();
-          }, 60);
-        }
+        setSparkInformation(prev => {
+          if (myVersion < balanceVersionRef.current) return prev;
+          return {
+            ...prev,
+            balance: Number.isFinite(numericBalance)
+              ? numericBalance
+              : prev.balance,
+            tokens: result?.didWork ? result.tokensObj : prev.tokens,
+          };
+        });
+      } while (
+        reconcileBalanceAgainRef.current &&
+        runId === reconcileRunIdRef.current &&
+        mnemonic === currentMnemonicRef.current
+      );
+    } catch (err) {
+      console.log('[reconcileBalance] error', err);
+    } finally {
+      if (runId === reconcileRunIdRef.current) {
+        isReconcilingBalanceRef.current = false;
       }
     }
-  }, [applyConfirmedBalanceSnapshot]);
-
-  const requestBalanceReconcile = useCallback(
-    (updateType, options = {}) => {
-      const { shouldForcePending = true } = options;
-      const epoch = balanceEpochRef.current.target + 1;
-      balanceEpochRef.current.target = epoch;
-      lastBalancePollEventRef.current = {
-        updateType,
-        timestamp: Date.now(),
-      };
-
-      if (shouldForcePending) {
-        const currentTxs = sparkInfoRef.current.transactions || [];
-        registerForcedPendingForEpoch(currentTxs, epoch);
-        filterAndSetTransactions(sparkInfoRef.current.transactions || []);
-      }
-
-      runBalanceSupervisor();
-      return epoch;
-    },
-    [runBalanceSupervisor, filterAndSetTransactions],
-  );
-
-  const applyIncomingPaymentSnapshot = useCallback(
-    async passedBalance => {
-      const mnemonic = currentMnemonicRef.current;
-      const { identityPubKey } = sparkInfoRef.current;
-
-      // Stamp the ordering guard at ENTRY (before any await) so the
-      // most-recently-entered (newest) snapshot wins. Stamping after the awaits
-      // ordered writes by completion time, letting an older burst that resolved
-      // late overwrite a newer one and regress the displayed balance.
-      const myVersion = ++balanceVersionRef.current;
-
-      if (balancePollingAbortControllerRef.current) {
-        balancePollingAbortControllerRef.current.abort();
-        balancePollingAbortControllerRef.current = null;
-      }
-      balanceSupervisorRunIdRef.current += 1;
-      isBalancePollerRunningRef.current = false;
-
-      const settledEpoch = balanceEpochRef.current.target + 1;
-      balanceEpochRef.current.target = settledEpoch;
-      balanceEpochRef.current.applied = settledEpoch;
-      forcedPendingBySparkIdRef.current.clear();
-
-      const [balanceResponse, freshTxs] = await Promise.all([
-        getBalanceWithTimeout(mnemonic),
-        identityPubKey
-          ? getAllSparkTransactions({
-              limit: null,
-              accountId: identityPubKey,
-            })
-          : Promise.resolve([]),
-      ]);
-
-      const numericPassedBalance = Number(passedBalance);
-      saveAccountBalanceSnapshot(
-        identityPubKey,
-        Number.isFinite(numericPassedBalance)
-          ? numericPassedBalance
-          : sparkInfoRef.current.balance,
-        balanceResponse?.didWork
-          ? balanceResponse.tokensObj
-          : sparkInfoRef.current.tokens,
-      );
-
-      ensureConfirmedBoundary(freshTxs);
-      lastConfirmedTxBoundaryRef.current = Math.max(
-        lastConfirmedTxBoundaryRef.current || 0,
-        getBoundaryFromTxs(freshTxs),
-      );
-
-      filterAndSetTransactions(freshTxs);
-
-      setSparkInformation(prev => {
-        if (myVersion < balanceVersionRef.current) return prev;
-        return {
-          ...prev,
-          balance: Number.isFinite(numericPassedBalance)
-            ? numericPassedBalance
-            : prev.balance,
-          tokens: balanceResponse?.didWork
-            ? balanceResponse.tokensObj
-            : prev.tokens,
-        };
-      });
-    },
-    [contactsPrivateKey, publicKey, filterAndSetTransactions],
-  );
+  }, []);
 
   const handleUpdate = useCallback(
     (...args) => {
-      const [updateType = 'transactions', fee = 0, passedBalance = 0] = args;
+      const [updateType = 'transactions'] = args;
 
       const event = {
         seq: ++eventSequenceRef.current,
         updateType,
-        fee,
-        passedBalance,
-        balanceEpoch: null,
       };
 
+      // Balance is driven in real time by balance:update / token-balance:update.
+      // These update types mark a balance-changing DB action (restore
+      // completion, deposit claim, send wrapper); we fire one reconcile read as
+      // a safety net in case the matching event was missed.
       if (BALANCE_INTENT_UPDATE_TYPES.has(updateType)) {
-        event.balanceEpoch = requestBalanceReconcile(updateType, {
-          shouldForcePending: true,
-        });
+        reconcileBalance();
       }
 
+      // Apply the displayed balance in the same pass as the incoming toast.
+      // balance:update fires before transfer:claimed, so the new value is
+      // already staged in latestBalanceRef — flush it now so the number ticks
+      // up exactly when the "received" toast appears.
       if (updateType === 'incomingPayment') {
-        applyIncomingPaymentSnapshot(passedBalance).catch(err =>
-          console.log('[BalanceLane] incoming payment snapshot error', err),
-        );
+        flushBalanceNow();
       }
 
       if (!TX_REFRESH_UPDATE_TYPES.has(updateType)) {
@@ -1215,8 +960,8 @@ const SparkWalletProvider = ({ children }) => {
     [
       enqueueTxLane,
       projectTransactionsForEvent,
-      requestBalanceReconcile,
-      applyIncomingPaymentSnapshot,
+      reconcileBalance,
+      flushBalanceNow,
     ],
   );
 
@@ -1261,63 +1006,33 @@ const SparkWalletProvider = ({ children }) => {
   // the SDK's deprecated `balance` field). This is the single fast path that
   // makes sends/swaps/deposits reflect immediately — previously only inbound
   // claims had a push event and everything else waited on the poller.
-  const balanceUpdateHandler = useCallback(snapshot => {
-    const available = Number(snapshot?.available);
-    if (!Number.isFinite(available)) return;
-    // Value-gate: ignore no-op events so a burst of inbound transfers (each
-    // emitting balance:update) can't trigger a render / DB-write storm.
-    if (available === sparkInfoRef.current.balance) return;
+  const balanceUpdateHandler = useCallback(
+    snapshot => {
+      const available = Number(snapshot?.available);
+      console.log('hanlding balance update', available);
+      if (!Number.isFinite(available)) return;
+      // Value-gate: ignore no-op events so a burst of inbound transfers (each
+      // emitting balance:update) can't trigger a render / DB-write storm.
+      if (available === sparkInfoRef.current.balance) return;
 
-    // Always flush with the most recent value, even when the max-wait timer
-    // (set on the first event of the burst) fires.
-    latestBalanceRef.current = available;
+      // Always flush with the most recent value, even when the max-wait timer
+      // (set on the first event of the burst) fires.
+      latestBalanceRef.current = available;
 
-    const flush = () => {
-      if (balanceDebounceTimeoutRef.current) {
+      // Trailing debounce: flush 3s after the last event…
+      if (balanceDebounceTimeoutRef.current)
         clearTimeout(balanceDebounceTimeoutRef.current);
-        balanceDebounceTimeoutRef.current = null;
+      balanceDebounceTimeoutRef.current = setTimeout(flushBalanceNow, 3000);
+
+      // …but cap the wait at 10s so a sustained burst (events arriving faster
+      // than every 3s, which would perpetually reset the trailing timer and
+      // never flush) still applies the balance periodically.
+      if (!balanceDebounceMaxWaitRef.current) {
+        balanceDebounceMaxWaitRef.current = setTimeout(flushBalanceNow, 10000);
       }
-      if (balanceDebounceMaxWaitRef.current) {
-        clearTimeout(balanceDebounceMaxWaitRef.current);
-        balanceDebounceMaxWaitRef.current = null;
-      }
-
-      const nextBalance = latestBalanceRef.current;
-      if (!Number.isFinite(nextBalance)) return;
-      if (nextBalance === sparkInfoRef.current.balance) return;
-
-      // Entry-stamped ordering guard, shared with applyConfirmedBalanceSnapshot
-      // and applyIncomingPaymentSnapshot, so a late-resolving snapshot can't
-      // overwrite a newer event's value. Stamped at flush time so it orders
-      // correctly against other appliers running during the debounce window.
-      const myVersion = ++balanceVersionRef.current;
-      const { identityPubKey } = sparkInfoRef.current;
-
-      saveAccountBalanceSnapshot(
-        identityPubKey,
-        nextBalance,
-        sparkInfoRef.current.tokens,
-      );
-
-      setSparkInformation(prev => {
-        if (myVersion < balanceVersionRef.current) return prev;
-        if (prev.balance === nextBalance) return prev;
-        return { ...prev, balance: nextBalance };
-      });
-    };
-
-    // Trailing debounce: flush 500ms after the last event…
-    if (balanceDebounceTimeoutRef.current)
-      clearTimeout(balanceDebounceTimeoutRef.current);
-    balanceDebounceTimeoutRef.current = setTimeout(flush, 3000);
-
-    // …but cap the wait at 10s so a sustained burst (events arriving faster
-    // than every 500ms, which would perpetually reset the trailing timer and
-    // never flush) still applies the balance periodically.
-    if (!balanceDebounceMaxWaitRef.current) {
-      balanceDebounceMaxWaitRef.current = setTimeout(flush, 10000);
-    }
-  }, []);
+    },
+    [flushBalanceNow],
+  );
 
   // token-balance:update fires when a token tx finalizes and carries the full
   // current token-balance map (getTokenBalanceMap() in the SDK). We merge that
@@ -1349,7 +1064,7 @@ const SparkWalletProvider = ({ children }) => {
       if (mnemonic !== currentMnemonicRef.current) return;
       setSparkInformation(prev => ({ ...prev, tokens: merged }));
       // Persist tokens so a token-only change survives a cold start, matching
-      // applyConfirmedBalanceSnapshot / applyIncomingPaymentSnapshot.
+      // flushBalanceNow / reconcileBalance.
       saveAccountBalanceSnapshot(
         sparkInfoRef.current.identityPubKey,
         sparkInfoRef.current.balance,
@@ -1382,9 +1097,9 @@ const SparkWalletProvider = ({ children }) => {
       streamWasDisconnectedRef.current = false;
       if (AppState.currentState !== 'active') return;
       if (!sparkInfoRef.current.didConnect) return;
-      requestBalanceReconcile('streamReconnect', { shouldForcePending: false });
+      reconcileBalance();
     },
-    [requestBalanceReconcile],
+    [reconcileBalance],
   );
 
   useEffect(() => {
@@ -1640,10 +1355,7 @@ const SparkWalletProvider = ({ children }) => {
     }
   };
 
-  const removeListeners = async (
-    onlyClearIntervals = false,
-    abortBalanceLane = true,
-  ) => {
+  const removeListeners = async (onlyClearIntervals = false) => {
     console.log('Removing spark listeners');
 
     cleanStatusAndLRC20Intervals();
@@ -1719,18 +1431,6 @@ const SparkWalletProvider = ({ children }) => {
       clearInterval(updatePendingPaymentsIntervalRef.current);
       updatePendingPaymentsIntervalRef.current = null;
     }
-    // Clear balance polling lane — only when abandoning this account's session
-    // (background/account-switch/reset). A same-account foreground listener
-    // reconfigure (null->full) must NOT abort the foregroundRecovery poll it
-    // races with, or the foreground balance reconcile is silently killed.
-    if (abortBalanceLane) {
-      if (balancePollingAbortControllerRef.current) {
-        balancePollingAbortControllerRef.current.abort();
-        balancePollingAbortControllerRef.current = null;
-      }
-      balanceSupervisorRunIdRef.current += 1;
-      isBalancePollerRunningRef.current = false;
-    }
 
     if (txPollingTimeoutRef.current) {
       clearTimeout(txPollingTimeoutRef.current);
@@ -1740,7 +1440,6 @@ const SparkWalletProvider = ({ children }) => {
       txPollingAbortControllerRef.current.abort();
       txPollingAbortControllerRef.current = null;
     }
-    currentPollingMnemonicRef.current = null;
   };
 
   // optimizations for leaves and tokens
@@ -1806,14 +1505,8 @@ const SparkWalletProvider = ({ children }) => {
       prevAppState.current = 'active';
       prevAccountId.current = null;
       isSendingPaymentRef.current = false;
-      if (balancePollingAbortControllerRef.current) {
-        balancePollingAbortControllerRef.current.abort();
-      }
-      balancePollingTimeoutRef.current = null;
-      balancePollingAbortControllerRef.current = null;
       txPollingAbortControllerRef.current = null;
       txPollingTimeoutRef.current = null;
-      currentPollingMnemonicRef.current = null;
       didRunInitialRestore.current = false;
       hasRestoreCompleted.current = false;
       balanceVersionRef.current = 0;
@@ -1824,20 +1517,11 @@ const SparkWalletProvider = ({ children }) => {
       queueDepthRef.current = 0;
       eventSequenceRef.current = 0;
 
-      balanceEpochRef.current = {
-        target: 0,
-        applied: 0,
-      };
-      balanceSupervisorRunIdRef.current = 0;
-      forcedPendingBySparkIdRef.current.clear();
-      lastConfirmedTxBoundaryRef.current = null;
-
-      isBalancePollerRunningRef.current = false;
-      lastBalancePollEventRef.current = {
-        updateType: null,
-        timestamp: 0,
-      };
-      preSendBoundaryRef.current = null;
+      // Invalidate any in-flight reconcile read and release the single-flight
+      // lock so the next session starts clean.
+      reconcileRunIdRef.current += 1;
+      isReconcilingBalanceRef.current = false;
+      reconcileBalanceAgainRef.current = false;
 
       // Reset state variables
       setSparkConnectionError(null);
@@ -1913,12 +1597,7 @@ const SparkWalletProvider = ({ children }) => {
           prevId !== sparkInfoRef.current.identityPubKey) &&
         appState === 'active'
       ) {
-        // Only a genuine account switch (a prior account existed and differs)
-        // should tear down the balance lane; a same-account null->full
-        // foreground reconfigure must leave the foregroundRecovery poll alive.
-        const accountChanged =
-          !!prevId && prevId !== sparkInfoRef.current.identityPubKey;
-        await removeListeners(false, accountChanged);
+        await removeListeners(false);
         if (newType) await addListeners(newType);
         prevListenerType.current = newType;
         prevAccountId.current = sparkInfoRef.current.identityPubKey;
@@ -2273,33 +1952,31 @@ const SparkWalletProvider = ({ children }) => {
     if (hasRunInitBalancePoll.current) return;
 
     hasRunInitBalancePoll.current = true;
-    requestBalanceReconcile('initialConnect', {
-      shouldForcePending: false,
-    });
+    reconcileBalance();
   }, [
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
-    requestBalanceReconcile,
+    reconcileBalance,
   ]);
 
-  // Balance-lane lifecycle:
-  //  • On background: abort any in-flight poll and release the lane. A read
-  //    can't settle in the background (the WebView request timeout is neutered),
-  //    so its await would park and the supervisor's finally would never run,
-  //    wedging the lane for the rest of the session.
+  // Balance reconcile lifecycle:
+  //  • On background: a balance read can't settle (the WebView request timeout
+  //    is neutered), so a read issued before backgrounding would park. Bump the
+  //    run id and release the single-flight lock so the parked read can't apply
+  //    a stale value or hold the lock, and the foreground branch can issue a
+  //    fresh read. balanceVersionRef is bumped so the parked read loses the
+  //    ordering guard too.
   //  • On background→active: fire one authoritative reconcile. This lands
-  //    balance received while backgrounded (whose debounce may have been
-  //    throttled) and recovers a lane that was idled in the background.
+  //    balance received while backgrounded (whose event was missed) and recovers
+  //    the lane.
   useEffect(() => {
     const prev = foregroundReconcileAppStateRef.current;
     foregroundReconcileAppStateRef.current = appState;
     if (appState === 'background') {
-      if (balancePollingAbortControllerRef.current) {
-        balancePollingAbortControllerRef.current.abort();
-        balancePollingAbortControllerRef.current = null;
-      }
-      balanceSupervisorRunIdRef.current += 1;
-      isBalancePollerRunningRef.current = false;
+      reconcileRunIdRef.current += 1;
+      isReconcilingBalanceRef.current = false;
+      reconcileBalanceAgainRef.current = false;
+      balanceVersionRef.current += 1;
       return;
     }
 
@@ -2307,14 +1984,12 @@ const SparkWalletProvider = ({ children }) => {
     if (!sparkInformation.didConnect) return;
     if (!sparkInformation.identityPubKey) return;
 
-    requestBalanceReconcile('foregroundRecovery', {
-      shouldForcePending: false,
-    });
+    reconcileBalance();
   }, [
     appState,
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
-    requestBalanceReconcile,
+    reconcileBalance,
   ]);
 
   // This function connects to the spark node and sets the session up
