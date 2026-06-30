@@ -379,6 +379,17 @@ const SparkWalletProvider = ({ children }) => {
   const latestIncomingBalanceRef = useRef(null);
   const pendingTransferIds = useRef(new Set());
 
+  // Debounce refs for balance:update — a burst of inbound payments emits one
+  // balance:update each; we coalesce them into a single state write.
+  const balanceDebounceTimeoutRef = useRef(null);
+  const balanceDebounceMaxWaitRef = useRef(null);
+  const latestBalanceRef = useRef(null);
+
+  // Debounce refs for token-balance:update — same coalescing for token events.
+  const tokenDebounceTimeoutRef = useRef(null);
+  const tokenDebounceMaxWaitRef = useRef(null);
+  const latestTokensRef = useRef(null);
+
   const toggleIsSendingPayment = useCallback(isSending => {
     console.log('Setting is sending payment', isSending);
     if (isSending) {
@@ -1236,11 +1247,11 @@ const SparkWalletProvider = ({ children }) => {
     if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
     debounceTimeoutRef.current = setTimeout(flush, 500);
 
-    // …but cap the wait at 1.5s so a sustained burst (events arriving faster
+    // …but cap the wait at 10s so a sustained burst (events arriving faster
     // than every 500ms, which would perpetually reset the trailing timer and
     // never flush) still applies the balance periodically.
     if (!debounceMaxWaitRef.current) {
-      debounceMaxWaitRef.current = setTimeout(flush, 1500);
+      debounceMaxWaitRef.current = setTimeout(flush, 10000);
     }
   }, []);
 
@@ -1257,23 +1268,55 @@ const SparkWalletProvider = ({ children }) => {
     // emitting balance:update) can't trigger a render / DB-write storm.
     if (available === sparkInfoRef.current.balance) return;
 
-    // Entry-stamped ordering guard, shared with applyConfirmedBalanceSnapshot
-    // and applyIncomingPaymentSnapshot, so a late-resolving snapshot can't
-    // overwrite a newer event's value.
-    const myVersion = ++balanceVersionRef.current;
-    const { identityPubKey } = sparkInfoRef.current;
+    // Always flush with the most recent value, even when the max-wait timer
+    // (set on the first event of the burst) fires.
+    latestBalanceRef.current = available;
 
-    saveAccountBalanceSnapshot(
-      identityPubKey,
-      available,
-      sparkInfoRef.current.tokens,
-    );
+    const flush = () => {
+      if (balanceDebounceTimeoutRef.current) {
+        clearTimeout(balanceDebounceTimeoutRef.current);
+        balanceDebounceTimeoutRef.current = null;
+      }
+      if (balanceDebounceMaxWaitRef.current) {
+        clearTimeout(balanceDebounceMaxWaitRef.current);
+        balanceDebounceMaxWaitRef.current = null;
+      }
 
-    setSparkInformation(prev => {
-      if (myVersion < balanceVersionRef.current) return prev;
-      if (prev.balance === available) return prev;
-      return { ...prev, balance: available };
-    });
+      const nextBalance = latestBalanceRef.current;
+      if (!Number.isFinite(nextBalance)) return;
+      if (nextBalance === sparkInfoRef.current.balance) return;
+
+      // Entry-stamped ordering guard, shared with applyConfirmedBalanceSnapshot
+      // and applyIncomingPaymentSnapshot, so a late-resolving snapshot can't
+      // overwrite a newer event's value. Stamped at flush time so it orders
+      // correctly against other appliers running during the debounce window.
+      const myVersion = ++balanceVersionRef.current;
+      const { identityPubKey } = sparkInfoRef.current;
+
+      saveAccountBalanceSnapshot(
+        identityPubKey,
+        nextBalance,
+        sparkInfoRef.current.tokens,
+      );
+
+      setSparkInformation(prev => {
+        if (myVersion < balanceVersionRef.current) return prev;
+        if (prev.balance === nextBalance) return prev;
+        return { ...prev, balance: nextBalance };
+      });
+    };
+
+    // Trailing debounce: flush 500ms after the last event…
+    if (balanceDebounceTimeoutRef.current)
+      clearTimeout(balanceDebounceTimeoutRef.current);
+    balanceDebounceTimeoutRef.current = setTimeout(flush, 500);
+
+    // …but cap the wait at 10s so a sustained burst (events arriving faster
+    // than every 500ms, which would perpetually reset the trailing timer and
+    // never flush) still applies the balance periodically.
+    if (!balanceDebounceMaxWaitRef.current) {
+      balanceDebounceMaxWaitRef.current = setTimeout(flush, 10000);
+    }
   }, []);
 
   // token-balance:update fires when a token tx finalizes and carries the full
@@ -1282,19 +1325,47 @@ const SparkWalletProvider = ({ children }) => {
   // round-trip — same result, one fewer WebView read per event. The WebView
   // runtime delivers the already-normalized map; the native runtime delivers the
   // raw SDK Map and is normalized at registration (see addListeners).
-  const tokenBalanceUpdateHandler = useCallback(async tokensObject => {
-    const mnemonic = currentMnemonicRef.current;
-    if (!mnemonic) return;
-    const merged = await mergeAndCacheTokens(tokensObject ?? {}, mnemonic);
-    if (mnemonic !== currentMnemonicRef.current) return;
-    setSparkInformation(prev => ({ ...prev, tokens: merged }));
-    // Persist tokens so a token-only change survives a cold start, matching
-    // applyConfirmedBalanceSnapshot / applyIncomingPaymentSnapshot.
-    saveAccountBalanceSnapshot(
-      sparkInfoRef.current.identityPubKey,
-      sparkInfoRef.current.balance,
-      merged,
-    );
+  const tokenBalanceUpdateHandler = useCallback(tokensObject => {
+    // Each event carries the full current token-balance map, so only the latest
+    // payload matters during a burst.
+    latestTokensRef.current = tokensObject ?? {};
+
+    const flush = async () => {
+      if (tokenDebounceTimeoutRef.current) {
+        clearTimeout(tokenDebounceTimeoutRef.current);
+        tokenDebounceTimeoutRef.current = null;
+      }
+      if (tokenDebounceMaxWaitRef.current) {
+        clearTimeout(tokenDebounceMaxWaitRef.current);
+        tokenDebounceMaxWaitRef.current = null;
+      }
+
+      const mnemonic = currentMnemonicRef.current;
+      if (!mnemonic) return;
+      const merged = await mergeAndCacheTokens(
+        latestTokensRef.current,
+        mnemonic,
+      );
+      if (mnemonic !== currentMnemonicRef.current) return;
+      setSparkInformation(prev => ({ ...prev, tokens: merged }));
+      // Persist tokens so a token-only change survives a cold start, matching
+      // applyConfirmedBalanceSnapshot / applyIncomingPaymentSnapshot.
+      saveAccountBalanceSnapshot(
+        sparkInfoRef.current.identityPubKey,
+        sparkInfoRef.current.balance,
+        merged,
+      );
+    };
+
+    // Trailing debounce 500ms after the last event, capped at 10s so a
+    // sustained burst still flushes periodically (see balanceUpdateHandler).
+    if (tokenDebounceTimeoutRef.current)
+      clearTimeout(tokenDebounceTimeoutRef.current);
+    tokenDebounceTimeoutRef.current = setTimeout(flush, 500);
+
+    if (!tokenDebounceMaxWaitRef.current) {
+      tokenDebounceMaxWaitRef.current = setTimeout(flush, 10000);
+    }
   }, []);
 
   // Stream lifecycle. A connect after a drop means events may have been missed
@@ -1623,6 +1694,22 @@ const SparkWalletProvider = ({ children }) => {
     if (debounceMaxWaitRef.current) {
       clearTimeout(debounceMaxWaitRef.current);
       debounceMaxWaitRef.current = null;
+    }
+    if (balanceDebounceTimeoutRef.current) {
+      clearTimeout(balanceDebounceTimeoutRef.current);
+      balanceDebounceTimeoutRef.current = null;
+    }
+    if (balanceDebounceMaxWaitRef.current) {
+      clearTimeout(balanceDebounceMaxWaitRef.current);
+      balanceDebounceMaxWaitRef.current = null;
+    }
+    if (tokenDebounceTimeoutRef.current) {
+      clearTimeout(tokenDebounceTimeoutRef.current);
+      tokenDebounceTimeoutRef.current = null;
+    }
+    if (tokenDebounceMaxWaitRef.current) {
+      clearTimeout(tokenDebounceMaxWaitRef.current);
+      tokenDebounceMaxWaitRef.current = null;
     }
     // Clear pending transfer IDs
     pendingTransferIds.current.clear();
@@ -2293,6 +2380,18 @@ const SparkWalletProvider = ({ children }) => {
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
+      }
+      if (balanceDebounceTimeoutRef.current) {
+        clearTimeout(balanceDebounceTimeoutRef.current);
+      }
+      if (balanceDebounceMaxWaitRef.current) {
+        clearTimeout(balanceDebounceMaxWaitRef.current);
+      }
+      if (tokenDebounceTimeoutRef.current) {
+        clearTimeout(tokenDebounceTimeoutRef.current);
+      }
+      if (tokenDebounceMaxWaitRef.current) {
+        clearTimeout(tokenDebounceMaxWaitRef.current);
       }
       pendingTransferIds.current.clear();
     };
