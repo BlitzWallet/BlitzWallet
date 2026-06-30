@@ -56,6 +56,12 @@ import i18n from 'i18next';
 import {
   INCOMING_SPARK_TX_NAME,
   incomingSparkTransaction,
+  BALANCE_UPDATE_EVENT_NAME,
+  sparkBalanceUpdateEmitter,
+  TOKEN_BALANCE_UPDATE_EVENT_NAME,
+  sparkTokenBalanceUpdateEmitter,
+  STREAM_STATUS_EVENT_NAME,
+  sparkStreamStatusEmitter,
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
   useWebView,
@@ -63,7 +69,6 @@ import {
 import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
 import {
-  createBalancePoller,
   createRestorePoller,
   getBalanceWithTimeout,
 } from '../app/functions/pollingManager';
@@ -173,6 +178,7 @@ const SparkWalletProvider = ({ children }) => {
     identityPubKey: '',
     sparkAddress: '',
     transactions: [],
+    didConnect: false,
   });
   const sessionTimeRef = useRef(Date.now());
   const newestPaymentTimeRef = useRef(Date.now());
@@ -213,6 +219,10 @@ const SparkWalletProvider = ({ children }) => {
     updateType: null,
     timestamp: 0,
   });
+  // Tracks whether the Spark event stream has dropped, so a later
+  // stream:connected is recognized as a *re*connect (which warrants one
+  // reconcile read) rather than the benign initial connect.
+  const streamWasDisconnectedRef = useRef(false);
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const hideSmallPaymentsHomepage = masterInfoObject.hideSmallPaymentsHomepage;
 
@@ -273,12 +283,14 @@ const SparkWalletProvider = ({ children }) => {
       tokens: sparkInformation.tokens,
       identityPubKey: sparkInformation.identityPubKey,
       sparkAddress: sparkInformation.sparkAddress,
+      didConnect: sparkInformation.didConnect,
     };
   }, [
     sparkInformation.balance,
     sparkInformation.tokens,
     sparkInformation.identityPubKey,
     sparkInformation.sparkAddress,
+    sparkInformation.didConnect,
   ]);
 
   useEffect(() => {
@@ -1021,33 +1033,20 @@ const SparkWalletProvider = ({ children }) => {
           })`,
         );
 
-        const poller = createBalancePoller(
-          mnemonic,
-          currentMnemonicRef,
-          abortController,
-          async balanceResult => {
-            if (abortController.signal.aborted) return;
-            if (runId !== balanceSupervisorRunIdRef.current) return;
-            await applyConfirmedBalanceSnapshot(epochToResolve, balanceResult);
-          },
-          sparkInfoRef.current.balance,
-        );
-
-        balancePollingTimeoutRef.current = poller;
-        const response = await poller.start();
+        // Single authoritative reconcile read. The displayed balance number is
+        // driven in real time by balance:update events (balanceUpdateHandler);
+        // this one-shot read exists only to reconcile transactions, release
+        // forced-pending flags, and recover a balance whose event was missed
+        // (e.g. while backgrounded). It replaces the old converge-by-polling
+        // loop (createBalancePoller) that issued up to ~24 reads per intent and
+        // could self-contend under load.
+        const balanceResult = await getBalanceWithTimeout(mnemonic);
 
         if (runId !== balanceSupervisorRunIdRef.current) return;
         if (abortController.signal.aborted) return;
         if (mnemonic !== currentMnemonicRef.current) return;
-        if (response.reason === 'aborted') return;
 
-        if (response.reason === 'max_retries') {
-          const fallbackResult =
-            response.result?.didWork === true
-              ? response.result
-              : await getBalanceWithTimeout(mnemonic);
-          await applyConfirmedBalanceSnapshot(epochToResolve, fallbackResult);
-        }
+        await applyConfirmedBalanceSnapshot(epochToResolve, balanceResult);
 
         balanceEpochRef.current.applied = Math.max(
           balanceEpochRef.current.applied,
@@ -1244,6 +1243,78 @@ const SparkWalletProvider = ({ children }) => {
     }
   }, []);
 
+  // Authoritative writer for the displayed sats balance. balance:update fires on
+  // every balance change (deposits, transfers, swaps, claims) with the real
+  // current { available, owned, incoming }; we display `available` (parity with
+  // the SDK's deprecated `balance` field). This is the single fast path that
+  // makes sends/swaps/deposits reflect immediately — previously only inbound
+  // claims had a push event and everything else waited on the poller.
+  const balanceUpdateHandler = useCallback(snapshot => {
+    const available = Number(snapshot?.available);
+    console.log(`Balance updated ${available}`);
+    if (!Number.isFinite(available)) return;
+    // Value-gate: ignore no-op events so a burst of inbound transfers (each
+    // emitting balance:update) can't trigger a render / DB-write storm.
+    if (available === sparkInfoRef.current.balance) return;
+
+    // Entry-stamped ordering guard, shared with applyConfirmedBalanceSnapshot
+    // and applyIncomingPaymentSnapshot, so a late-resolving snapshot can't
+    // overwrite a newer event's value.
+    const myVersion = ++balanceVersionRef.current;
+    const { identityPubKey } = sparkInfoRef.current;
+
+    saveAccountBalanceSnapshot(
+      identityPubKey,
+      available,
+      sparkInfoRef.current.tokens,
+    );
+
+    setSparkInformation(prev => {
+      if (myVersion < balanceVersionRef.current) return prev;
+      if (prev.balance === available) return prev;
+      return { ...prev, balance: available };
+    });
+  }, []);
+
+  // token-balance:update fires when a token tx finalizes. It carries only the
+  // affected token balances, so we re-read through the canonical getSparkBalance
+  // path (which preserves the cache-merge of tokens that left the live set) and
+  // update just the token map.
+  const tokenBalanceUpdateHandler = useCallback(async () => {
+    const mnemonic = currentMnemonicRef.current;
+    if (!mnemonic) return;
+    const result = await getBalanceWithTimeout(mnemonic);
+    if (!result?.didWork) return;
+    if (mnemonic !== currentMnemonicRef.current) return;
+    setSparkInformation(prev => ({ ...prev, tokens: result.tokensObj }));
+    // Persist tokens so a token-only change survives a cold start, matching
+    // applyConfirmedBalanceSnapshot / applyIncomingPaymentSnapshot.
+    saveAccountBalanceSnapshot(
+      sparkInfoRef.current.identityPubKey,
+      sparkInfoRef.current.balance,
+      result.tokensObj,
+    );
+  }, []);
+
+  // Stream lifecycle. A connect after a drop means events may have been missed
+  // while the stream was down, so fire one reconcile read. The initial connect
+  // is benign and skipped.
+  const streamStatusHandler = useCallback(
+    status => {
+      if (status === 'disconnected' || status === 'reconnecting') {
+        streamWasDisconnectedRef.current = true;
+        return;
+      }
+      if (status !== 'connected') return;
+      if (!streamWasDisconnectedRef.current) return;
+      streamWasDisconnectedRef.current = false;
+      if (AppState.currentState !== 'active') return;
+      if (!sparkInfoRef.current.didConnect) return;
+      requestBalanceReconcile('streamReconnect', { shouldForcePending: false });
+    },
+    [requestBalanceReconcile],
+  );
+
   useEffect(() => {
     if (!sparkInformation.identityPubKey) {
       console.log('Skipping listener setup - no identity pub key yet');
@@ -1254,6 +1325,15 @@ const SparkWalletProvider = ({ children }) => {
 
     sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
     incomingSparkTransaction.on(INCOMING_SPARK_TX_NAME, transferHandler);
+    sparkBalanceUpdateEmitter.on(
+      BALANCE_UPDATE_EVENT_NAME,
+      balanceUpdateHandler,
+    );
+    sparkTokenBalanceUpdateEmitter.on(
+      TOKEN_BALANCE_UPDATE_EVENT_NAME,
+      tokenBalanceUpdateHandler,
+    );
+    sparkStreamStatusEmitter.on(STREAM_STATUS_EVENT_NAME, streamStatusHandler);
 
     return () => {
       console.log('Cleaning up spark event listeners');
@@ -1265,8 +1345,27 @@ const SparkWalletProvider = ({ children }) => {
         INCOMING_SPARK_TX_NAME,
         transferHandler,
       );
+      sparkBalanceUpdateEmitter.removeListener(
+        BALANCE_UPDATE_EVENT_NAME,
+        balanceUpdateHandler,
+      );
+      sparkTokenBalanceUpdateEmitter.removeListener(
+        TOKEN_BALANCE_UPDATE_EVENT_NAME,
+        tokenBalanceUpdateHandler,
+      );
+      sparkStreamStatusEmitter.removeListener(
+        STREAM_STATUS_EVENT_NAME,
+        streamStatusHandler,
+      );
     };
-  }, [sparkInformation.identityPubKey, handleUpdate, transferHandler]);
+  }, [
+    sparkInformation.identityPubKey,
+    handleUpdate,
+    transferHandler,
+    balanceUpdateHandler,
+    tokenBalanceUpdateHandler,
+    streamStatusHandler,
+  ]);
 
   const addListeners = async mode => {
     console.log('Adding Spark listeners...');
@@ -1286,8 +1385,35 @@ const SparkWalletProvider = ({ children }) => {
 
       if (mode === 'full') {
         if (runtime === 'native') {
-          if (!sparkWallet[walletHash]?.listenerCount('transfer:claimed')) {
-            sparkWallet[walletHash]?.on('transfer:claimed', transferHandler);
+          const nativeWallet = sparkWallet[walletHash];
+          if (nativeWallet) {
+            if (!nativeWallet.listenerCount('transfer:claimed')) {
+              nativeWallet.on('transfer:claimed', transferHandler);
+            }
+            if (!nativeWallet.listenerCount('balance:update')) {
+              nativeWallet.on('balance:update', balanceUpdateHandler);
+            }
+            if (!nativeWallet.listenerCount('token-balance:update')) {
+              nativeWallet.on(
+                'token-balance:update',
+                tokenBalanceUpdateHandler,
+              );
+            }
+            if (!nativeWallet.listenerCount('stream:connected')) {
+              nativeWallet.on('stream:connected', () =>
+                streamStatusHandler('connected'),
+              );
+            }
+            if (!nativeWallet.listenerCount('stream:disconnected')) {
+              nativeWallet.on('stream:disconnected', () =>
+                streamStatusHandler('disconnected'),
+              );
+            }
+            if (!nativeWallet.listenerCount('stream:reconnecting')) {
+              nativeWallet.on('stream:reconnecting', () =>
+                streamStatusHandler('reconnecting'),
+              );
+            }
           }
         } else {
           await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
@@ -1450,11 +1576,26 @@ const SparkWalletProvider = ({ children }) => {
       const hashedMnemonic = sha256Hash(prevAccountMnemoincRef.current);
 
       if (runtime === 'native') {
-        if (
-          prevAccountMnemoincRef.current &&
-          sparkWallet[hashedMnemonic]?.listenerCount('transfer:claimed')
-        ) {
-          sparkWallet[hashedMnemonic]?.removeAllListeners('transfer:claimed');
+        const nativeWallet = sparkWallet[hashedMnemonic];
+        if (prevAccountMnemoincRef.current && nativeWallet) {
+          if (nativeWallet.listenerCount('transfer:claimed')) {
+            nativeWallet.removeAllListeners('transfer:claimed');
+          }
+          if (nativeWallet.listenerCount('balance:update')) {
+            nativeWallet.removeAllListeners('balance:update');
+          }
+          if (nativeWallet.listenerCount('token-balance:update')) {
+            nativeWallet.removeAllListeners('token-balance:update');
+          }
+          if (nativeWallet.listenerCount('stream:connected')) {
+            nativeWallet.removeAllListeners('stream:connected');
+          }
+          if (nativeWallet.listenerCount('stream:disconnected')) {
+            nativeWallet.removeAllListeners('stream:disconnected');
+          }
+          if (nativeWallet.listenerCount('stream:reconnecting')) {
+            nativeWallet.removeAllListeners('stream:reconnecting');
+          }
         }
       } else {
         await sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
@@ -1560,8 +1701,10 @@ const SparkWalletProvider = ({ children }) => {
         identityPubKey: '',
         sparkAddress: '',
         transactions: [],
+        didConnect: false,
       };
       handledTransfers.current = new Set();
+      streamWasDisconnectedRef.current = false;
       prevListenerType.current = null;
       prevAppState.current = 'active';
       prevAccountId.current = null;

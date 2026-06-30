@@ -160,6 +160,15 @@ const rejectIfNotConnectedToInternet = [
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
+
+export const BALANCE_UPDATE_EVENT_NAME = 'SPARK_BALANCE_UPDATE';
+export const sparkBalanceUpdateEmitter = new EventEmitter();
+
+export const TOKEN_BALANCE_UPDATE_EVENT_NAME = 'SPARK_TOKEN_BALANCE_UPDATE';
+export const sparkTokenBalanceUpdateEmitter = new EventEmitter();
+
+export const STREAM_STATUS_EVENT_NAME = 'SPARK_STREAM_STATUS';
+export const sparkStreamStatusEmitter = new EventEmitter();
 const WASM_ERRORS = [
   'WASM',
   'WebAssembly',
@@ -750,6 +759,23 @@ export const WebViewProvider = ({ children }) => {
             INCOMING_SPARK_TX_NAME,
             data.transferId,
             data.balance,
+          );
+        }
+        if (content.balanceUpdate) {
+          const data = JSON.parse(content.result);
+          sparkBalanceUpdateEmitter.emit(BALANCE_UPDATE_EVENT_NAME, data);
+        }
+        if (content.tokenBalanceUpdate) {
+          const data = JSON.parse(content.result);
+          sparkTokenBalanceUpdateEmitter.emit(
+            TOKEN_BALANCE_UPDATE_EVENT_NAME,
+            data.tokensObject,
+          );
+        }
+        if (content.streamStatus) {
+          sparkStreamStatusEmitter.emit(
+            STREAM_STATUS_EVENT_NAME,
+            content.streamStatus,
           );
         }
         if (content.isResponse && content.id) {
