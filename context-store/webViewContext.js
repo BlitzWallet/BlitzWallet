@@ -650,28 +650,6 @@ export const WebViewProvider = ({ children }) => {
   const handleWebViewResponse = useCallback(
     event => {
       try {
-        const now = Date.now();
-        const windowDuration = now - messageRateLimiter.current.windowStart;
-        if (windowDuration > 1000) {
-          // Reset window
-          messageRateLimiter.current.count = 0;
-          messageRateLimiter.current.windowStart = now;
-        }
-        messageRateLimiter.current.count++;
-
-        if (
-          messageRateLimiter.current.count >
-          messageRateLimiter.current.maxPerSecond
-        ) {
-          console.error(
-            `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
-          );
-
-          resetWebViewState(true, true);
-          forceNativeMode('rate limit exceeded');
-          return;
-        }
-
         const message = JSON.parse(event.nativeEvent.data);
 
         if (message.type === 'handshake:reply' && message.pubW) {
@@ -749,6 +727,41 @@ export const WebViewProvider = ({ children }) => {
           resetWebViewState(true, true);
           forceNativeMode('CSP violation');
           return;
+        }
+
+        // Unsolicited SDK push events (incoming payment, balance/token balance,
+        // stream status) are not request/response traffic and must not count
+        // toward the flood limiter. A burst of legitimate inbound payments would
+        // otherwise trip it and force the one-way native fallback.
+        const isSdkPushEvent = !!(
+          content.incomingPayment ||
+          content.balanceUpdate ||
+          content.tokenBalanceUpdate ||
+          content.streamStatus
+        );
+
+        if (!isSdkPushEvent) {
+          const now = Date.now();
+          const windowDuration = now - messageRateLimiter.current.windowStart;
+          if (windowDuration > 1000) {
+            // Reset window
+            messageRateLimiter.current.count = 0;
+            messageRateLimiter.current.windowStart = now;
+          }
+          messageRateLimiter.current.count++;
+
+          if (
+            messageRateLimiter.current.count >
+            messageRateLimiter.current.maxPerSecond
+          ) {
+            console.error(
+              `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
+            );
+
+            resetWebViewState(true, true);
+            forceNativeMode('rate limit exceeded');
+            return;
+          }
         }
 
         if (content.error) throw new Error(content.error);

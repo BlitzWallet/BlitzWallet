@@ -74,6 +74,7 @@ import {
 } from '../app/functions/pollingManager';
 import { USDB_TOKEN_ID } from '../app/constants';
 import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
+import { mergeAndCacheTokens } from '../app/functions/lrc20/cachedTokens';
 import {
   cleanupOptimization,
   checkIfOptimizationNeeded,
@@ -1139,7 +1140,7 @@ const SparkWalletProvider = ({ children }) => {
         Number.isFinite(numericPassedBalance)
           ? numericPassedBalance
           : sparkInfoRef.current.balance,
-        balanceResponse.didWork
+        balanceResponse?.didWork
           ? balanceResponse.tokensObj
           : sparkInfoRef.current.tokens,
       );
@@ -1159,7 +1160,7 @@ const SparkWalletProvider = ({ children }) => {
           balance: Number.isFinite(numericPassedBalance)
             ? numericPassedBalance
             : prev.balance,
-          tokens: balanceResponse.didWork
+          tokens: balanceResponse?.didWork
             ? balanceResponse.tokensObj
             : prev.tokens,
         };
@@ -1276,23 +1277,28 @@ const SparkWalletProvider = ({ children }) => {
     });
   }, []);
 
-  // token-balance:update fires when a token tx finalizes. It carries only the
-  // affected token balances, so we re-read through the canonical getSparkBalance
-  // path (which preserves the cache-merge of tokens that left the live set) and
-  // update just the token map.
-  const tokenBalanceUpdateHandler = useCallback(async () => {
+  // token-balance:update fires when a token tx finalizes and carries the full
+  // current token-balance map (getTokenBalanceMap() in the SDK). We merge that
+  // payload straight into the cache instead of issuing another getSparkBalance
+  // round-trip — same result, one fewer WebView read per event. The WebView
+  // runtime delivers the already-normalized map; the native runtime delivers the
+  // raw SDK Map and is normalized at registration (see addListeners).
+  const tokenBalanceUpdateHandler = useCallback(async tokensObject => {
     const mnemonic = currentMnemonicRef.current;
     if (!mnemonic) return;
-    const result = await getBalanceWithTimeout(mnemonic);
-    if (!result?.didWork) return;
+    // A genuinely empty map ({}) is valid — the user spent their last token, so
+    // the merge zeroes it. But a null/undefined payload means missing data; skip
+    // it rather than zero every cached token balance.
+    if (tokensObject == null) return;
+    const merged = await mergeAndCacheTokens(tokensObject, mnemonic);
     if (mnemonic !== currentMnemonicRef.current) return;
-    setSparkInformation(prev => ({ ...prev, tokens: result.tokensObj }));
+    setSparkInformation(prev => ({ ...prev, tokens: merged }));
     // Persist tokens so a token-only change survives a cold start, matching
     // applyConfirmedBalanceSnapshot / applyIncomingPaymentSnapshot.
     saveAccountBalanceSnapshot(
       sparkInfoRef.current.identityPubKey,
       sparkInfoRef.current.balance,
-      result.tokensObj,
+      merged,
     );
   }, []);
 
@@ -1394,10 +1400,19 @@ const SparkWalletProvider = ({ children }) => {
               nativeWallet.on('balance:update', balanceUpdateHandler);
             }
             if (!nativeWallet.listenerCount('token-balance:update')) {
-              nativeWallet.on(
-                'token-balance:update',
-                tokenBalanceUpdateHandler,
-              );
+              // Native delivers the raw SDK event ({ tokenBalances: Map });
+              // normalize it to the same token map the WebView runtime posts so
+              // tokenBalanceUpdateHandler can stay runtime-agnostic.
+              nativeWallet.on('token-balance:update', event => {
+                const tokensObject = {};
+                for (const [id, data] of event?.tokenBalances ?? []) {
+                  tokensObject[id] = {
+                    ...data,
+                    balance: data.availableToSendBalance,
+                  };
+                }
+                tokenBalanceUpdateHandler(tokensObject);
+              });
             }
             if (!nativeWallet.listenerCount('stream:connected')) {
               nativeWallet.on('stream:connected', () =>

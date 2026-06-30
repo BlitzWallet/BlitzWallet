@@ -23,6 +23,7 @@ export const getBalanceWithTimeout = async (mnemonic, timeoutMs = 15000) => {
     ]);
   } catch (err) {
     console.log('err', err);
+    return { didWork: false };
   } finally {
     if (timer) clearTimeout(timer);
   }

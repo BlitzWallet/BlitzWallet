@@ -38,4 +38,14 @@ describe('getBalanceWithTimeout', () => {
 
     await expect(promise).resolves.toEqual({ didWork: false });
   });
+
+  it('resolves to didWork:false when the read rejects', async () => {
+    // getSparkBalance swallows its own errors today, but if a throw ever
+    // escapes the race the wrapper must still honor its {didWork} contract so
+    // callers (e.g. applyIncomingPaymentSnapshot) never dereference undefined.
+    getSparkBalance.mockRejectedValue(new Error('boom'));
+    await expect(getBalanceWithTimeout('mnemonic', 1000)).resolves.toEqual({
+      didWork: false,
+    });
+  });
 });
