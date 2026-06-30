@@ -1018,7 +1018,7 @@
       "mobileMoneyCountryTitle": "Selecione um país",
       "mobileMoneyCountrySubtitle": "Escolha o país da conta que você está pagando",
       "mobileMoneyPhoneTitle": "Digite o número de celular",
-      "mobileMoneyPhoneSubtitle": "Digite o número para o qual deseja pagar",
+      "mobileMoneyPhoneSubtitle": "Digite o número que irá receber o pagamento",
       "mobileMoneyInvalidPhone": "Digite um número de celular válido para o país selecionado",
       "depositFunds": "Depositar fundos",
       "depositFundsSubtitle": "Adicione fundos na sua carteira",
