@@ -39,7 +39,7 @@ const MOBILE_MONEY_COUNTRIES = [
     country: 'Kenya',
     isoCode: 'KE',
     cc: '+254',
-    provider: 'Tando',
+    provider: 'M-Pesa',
     example: '712123456',
   },
   {
@@ -53,7 +53,7 @@ const MOBILE_MONEY_COUNTRIES = [
     country: 'Zambia',
     isoCode: 'ZM',
     cc: '+260',
-    provider: 'Bitzed',
+    provider: 'Airtel, MTN, or Zamtel',
     example: '955123456',
   },
   // POST-based provider (exchanger.mysatoshis.bi) — no LNURL address.
@@ -61,7 +61,7 @@ const MOBILE_MONEY_COUNTRIES = [
     country: 'Burundi',
     isoCode: 'BI',
     cc: '+257',
-    provider: 'MySatoshis',
+    provider: 'Lumicash',
     example: '79561234',
   },
 ];
