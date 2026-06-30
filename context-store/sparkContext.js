@@ -1309,7 +1309,7 @@ const SparkWalletProvider = ({ children }) => {
     // Trailing debounce: flush 500ms after the last event…
     if (balanceDebounceTimeoutRef.current)
       clearTimeout(balanceDebounceTimeoutRef.current);
-    balanceDebounceTimeoutRef.current = setTimeout(flush, 500);
+    balanceDebounceTimeoutRef.current = setTimeout(flush, 3000);
 
     // …but cap the wait at 10s so a sustained burst (events arriving faster
     // than every 500ms, which would perpetually reset the trailing timer and
@@ -1361,7 +1361,7 @@ const SparkWalletProvider = ({ children }) => {
     // sustained burst still flushes periodically (see balanceUpdateHandler).
     if (tokenDebounceTimeoutRef.current)
       clearTimeout(tokenDebounceTimeoutRef.current);
-    tokenDebounceTimeoutRef.current = setTimeout(flush, 500);
+    tokenDebounceTimeoutRef.current = setTimeout(flush, 3000);
 
     if (!tokenDebounceMaxWaitRef.current) {
       tokenDebounceMaxWaitRef.current = setTimeout(flush, 10000);
