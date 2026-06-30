@@ -357,7 +357,7 @@ export const WebViewProvider = ({ children }) => {
   const messageRateLimiter = useRef({
     count: 0,
     windowStart: Date.now(),
-    maxPerSecond: 20,
+    maxPerSecond: 50,
   });
 
   const blockAndResetWebview = useCallback(
@@ -1322,8 +1322,8 @@ export const WebViewProvider = ({ children }) => {
       const requests = [...queuedRequests.current];
       queuedRequests.current = [];
 
-      // Process sequentially to avoid triggering the rate limiter (20 msgs/sec).
-      // Parallel dispatch via Promise.allSettled could fire 21+ messages at once,
+      // Process sequentially to avoid triggering the rate limiter (50 msgs/sec).
+      // Parallel dispatch via Promise.allSettled could fire 51+ messages at once,
       // permanently killing the WebView.
       for (const { action, args, encrypt, resolve, reject } of requests) {
         try {
