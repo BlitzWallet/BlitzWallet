@@ -1442,7 +1442,7 @@
       "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Escolha a moeda que o pagamento será creditado"
+      "header": "Escolha a moeda que o pagamento será recebido"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
@@ -2630,8 +2630,8 @@
         "noName": "Loja desconhecida",
         "directions": "Direções",
         "pay": "Pagar",
-        "lightning": "Blitz",
-        "lightningMessage": "Aceita pagamentos Blitz",
+        "lightning": "Lightning",
+        "lightningMessage": "Aceita pagamentos Bitcoin",
         "dataMessage": "Dados do btcmap.org"
       },
       "filter": {
