@@ -1252,7 +1252,6 @@ const SparkWalletProvider = ({ children }) => {
   // claims had a push event and everything else waited on the poller.
   const balanceUpdateHandler = useCallback(snapshot => {
     const available = Number(snapshot?.available);
-    console.log(`Balance updated ${available}`);
     if (!Number.isFinite(available)) return;
     // Value-gate: ignore no-op events so a burst of inbound transfers (each
     // emitting balance:update) can't trigger a render / DB-write storm.
@@ -1286,11 +1285,7 @@ const SparkWalletProvider = ({ children }) => {
   const tokenBalanceUpdateHandler = useCallback(async tokensObject => {
     const mnemonic = currentMnemonicRef.current;
     if (!mnemonic) return;
-    // A genuinely empty map ({}) is valid — the user spent their last token, so
-    // the merge zeroes it. But a null/undefined payload means missing data; skip
-    // it rather than zero every cached token balance.
-    if (tokensObject == null) return;
-    const merged = await mergeAndCacheTokens(tokensObject, mnemonic);
+    const merged = await mergeAndCacheTokens(tokensObject ?? {}, mnemonic);
     if (mnemonic !== currentMnemonicRef.current) return;
     setSparkInformation(prev => ({ ...prev, tokens: merged }));
     // Persist tokens so a token-only change survives a cold start, matching
