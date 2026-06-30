@@ -458,7 +458,7 @@ const SparkWalletProvider = ({ children }) => {
       try {
         const idSet = new Set(transferIdsToProcess);
         const { transfers = [] } = await getSparkTransactions(
-          Math.max(100, transferIdsToProcess.length),
+          Math.max(50, transferIdsToProcess.length),
           undefined,
           currentMnemonicRef.current,
         );
