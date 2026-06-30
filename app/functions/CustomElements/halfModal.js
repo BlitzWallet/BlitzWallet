@@ -841,14 +841,16 @@ export default function CustomHalfModal(props) {
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
               contentType === 'createPoolFlow' ||
-              contentType === 'ClaimGiftHomeHalfModal'
+              contentType === 'ClaimGiftHomeHalfModal' ||
+              contentType === 'btcMapList'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
                     contentType === 'addContacts' ||
                     contentType === 'sendOptions' ||
                     contentType === 'createPoolFlow' ||
-                    contentType === 'SelectLRC20Token'
+                    contentType === 'SelectLRC20Token' ||
+                    contentType === 'btcMapList'
                   ? 0
                   : contentType === 'receiveOptions'
                   ? 0

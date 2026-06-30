@@ -166,7 +166,10 @@ export default function BTCMapListContent({
         ListFooterComponent={
           hasMoreRows && (
             <ThemeText
-              styles={styles.hasMoreMessage}
+              styles={[
+                styles.hasMoreMessage,
+                { marginTop: bottomPadding - 10 },
+              ]}
               content={t('screens.btcMap.map.hasMorePlaces', { num: MAX_ROWS })}
             />
           )
