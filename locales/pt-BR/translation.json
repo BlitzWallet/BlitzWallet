@@ -2613,11 +2613,11 @@
     },
     "btcMap": {
       "mapPreview": {
-        "header": "Aceitam Bitcoin",
-        "subHeader": "Perto e longe de você"
+        "header": "Compre com Bitcoin",
+        "subHeader": "No comércio ao seu redor"
       },
       "map": {
-        "title": "Pagar com Blitz",
+        "title": "Pagar com Bitcoin",
         "loadingMap": "Carregando mapa...",
         "loadingMerchants": "Carregando lista de lojas...",
         "zoomIn": "Aproxime para ver todas as lojas",
