@@ -302,7 +302,7 @@
       "VPN": "VPN",
       "VPNDescription": "Navegue com segurança e proteja sua privacidade",
       "onlineListings": "Lojas virtuais",
-      "onlineListingsDescription": "Empresas online que aceitam Blitz",
+      "onlineListingsDescription": "Empresas online que aceitam Bitcoin",
       "shop": "Compre na Bitrefill",
       "shopDescription": "Cartões-presente, eSIMs e mais",
       "Soon": "Em breve",
@@ -1013,13 +1013,13 @@
       "noContactDesc": "Adicione {{username}} aos seus contatos para encontrá-lo aqui no futuro, ou continue para enviar um pagamento agora.",
       "phonePaymentTitle": "Pagar {{number}}",
       "phonePaymentDesc": "Enviando para número de celular",
-      "mobileMoneyTitle": "Dinheiro móvel",
-      "mobileMoneySubtitle": "Pagar para uma conta de dinheiro móvel",
+      "mobileMoneyTitle": "Pagamentos Locais",
+      "mobileMoneySubtitle": "Métodos de pagamento por país",
       "mobileMoneyCountryTitle": "Selecione um país",
-      "mobileMoneyCountrySubtitle": "Escolha o país da conta de dinheiro móvel que você está pagando.",
+      "mobileMoneyCountrySubtitle": "Escolha o país da conta que você está pagando",
       "mobileMoneyPhoneTitle": "Digite o número de celular",
-      "mobileMoneyPhoneSubtitle": "Digite o número para o qual deseja pagar.",
-      "mobileMoneyInvalidPhone": "Digite um número de celular válido para o país selecionado.",
+      "mobileMoneyPhoneSubtitle": "Digite o número que irá receber o pagamento",
+      "mobileMoneyInvalidPhone": "Digite um número de celular válido para o país selecionado",
       "depositFunds": "Depositar fundos",
       "depositFundsSubtitle": "Adicione fundos na sua carteira",
       "onChainBitcoin": "Depositar Bitcoin",
@@ -1442,7 +1442,7 @@
       "header": "O que você deseja enviar?"
     },
     "selectCurrencyToRequest": {
-      "header": "Escolha em qual moeda o pagamento será recebido"
+      "header": "Escolha a moeda que o pagamento será creditado"
     },
     "sendAndRequestPage": {
       "sendBitcoin": "Enviar Bitcoin para",
@@ -2613,11 +2613,11 @@
     },
     "btcMap": {
       "mapPreview": {
-        "header": "Mapa Blitz",
-        "subHeader": "Compre no comércio local"
+        "header": "Compre com Bitcoin",
+        "subHeader": "Comércio ao seu redor"
       },
       "map": {
-        "title": "Pagar com Blitz",
+        "title": "Pagar com Bitcoin",
         "loadingMap": "Carregando mapa...",
         "loadingMerchants": "Carregando lista de lojas...",
         "zoomIn": "Aproxime para ver todas as lojas",
