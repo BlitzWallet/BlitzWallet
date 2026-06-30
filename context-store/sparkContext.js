@@ -12,7 +12,7 @@ import {
   clearMnemonicCache,
   getCachedSparkTransactions,
   getSingleTxDetails,
-  getSparkBalance,
+  getSparkTransactions,
   getSparkStaticBitcoinL1AddressQuote,
   getUtxosForDepositAddress,
   initializeFlashnet,
@@ -56,6 +56,12 @@ import i18n from 'i18next';
 import {
   INCOMING_SPARK_TX_NAME,
   incomingSparkTransaction,
+  BALANCE_UPDATE_EVENT_NAME,
+  sparkBalanceUpdateEmitter,
+  TOKEN_BALANCE_UPDATE_EVENT_NAME,
+  sparkTokenBalanceUpdateEmitter,
+  STREAM_STATUS_EVENT_NAME,
+  sparkStreamStatusEmitter,
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
   useWebView,
@@ -63,11 +69,12 @@ import {
 import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
 import {
-  createBalancePoller,
   createRestorePoller,
+  getBalanceWithTimeout,
 } from '../app/functions/pollingManager';
 import { USDB_TOKEN_ID } from '../app/constants';
 import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
+import { mergeAndCacheTokens } from '../app/functions/lrc20/cachedTokens';
 import {
   cleanupOptimization,
   checkIfOptimizationNeeded,
@@ -172,6 +179,7 @@ const SparkWalletProvider = ({ children }) => {
     identityPubKey: '',
     sparkAddress: '',
     transactions: [],
+    didConnect: false,
   });
   const sessionTimeRef = useRef(Date.now());
   const newestPaymentTimeRef = useRef(Date.now());
@@ -190,6 +198,7 @@ const SparkWalletProvider = ({ children }) => {
   const authResetKeyRef = useRef(authResetkey);
   const balanceVersionRef = useRef(0);
   const hasRunInitBalancePoll = useRef(false);
+  const foregroundReconcileAppStateRef = useRef(appState);
 
   const txLaneQueueRef = useRef(Promise.resolve());
   const uiLaneQueueRef = useRef(Promise.resolve());
@@ -211,6 +220,10 @@ const SparkWalletProvider = ({ children }) => {
     updateType: null,
     timestamp: 0,
   });
+  // Tracks whether the Spark event stream has dropped, so a later
+  // stream:connected is recognized as a *re*connect (which warrants one
+  // reconcile read) rather than the benign initial connect.
+  const streamWasDisconnectedRef = useRef(false);
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const hideSmallPaymentsHomepage = masterInfoObject.hideSmallPaymentsHomepage;
 
@@ -271,12 +284,14 @@ const SparkWalletProvider = ({ children }) => {
       tokens: sparkInformation.tokens,
       identityPubKey: sparkInformation.identityPubKey,
       sparkAddress: sparkInformation.sparkAddress,
+      didConnect: sparkInformation.didConnect,
     };
   }, [
     sparkInformation.balance,
     sparkInformation.tokens,
     sparkInformation.identityPubKey,
     sparkInformation.sparkAddress,
+    sparkInformation.didConnect,
   ]);
 
   useEffect(() => {
@@ -360,6 +375,8 @@ const SparkWalletProvider = ({ children }) => {
 
   // Debounce refs
   const debounceTimeoutRef = useRef(null);
+  const debounceMaxWaitRef = useRef(null);
+  const latestIncomingBalanceRef = useRef(null);
   const pendingTransferIds = useRef(new Set());
 
   const toggleIsSendingPayment = useCallback(isSending => {
@@ -434,25 +451,34 @@ const SparkWalletProvider = ({ children }) => {
         console.error('Error writing placeholder transactions:', error);
       }
 
-      // ─── Step 2: Fetch full tx details (blocked untill app is foregrounded)
+      // ─── Step 2: Fetch tx details in a SINGLE batched call (one WebView
+      //     message) instead of one round-trip per transfer.
       let cachedTransfers = [];
 
-      for (const transferId of transferIdsToProcess) {
-        try {
+      try {
+        const idSet = new Set(transferIdsToProcess);
+        const { transfers = [] } = await getSparkTransactions(
+          Math.max(50, transferIdsToProcess.length),
+          undefined,
+          currentMnemonicRef.current,
+        );
+        cachedTransfers = transfers.filter(transfer => idSet.has(transfer.id));
+
+        // Fallback only for ids NOT in the batch window (e.g. an older transfer
+        // that settled while many newer transfers arrived in the same burst).
+        // Normal load hits zero of these, so the single-message goal holds; this
+        // just stops a dropped id from being stuck as a pending placeholder.
+        const foundIds = new Set(cachedTransfers.map(transfer => transfer.id));
+        const missingIds = transferIdsToProcess.filter(id => !foundIds.has(id));
+        for (const transferId of missingIds) {
           const transfer = await getSingleTxDetails(
             currentMnemonicRef.current,
             transferId,
           );
-
-          if (!transfer) continue;
-          cachedTransfers.push(transfer);
-        } catch (error) {
-          console.error(
-            'Error processing incoming payment:',
-            transferId,
-            error,
-          );
+          if (transfer) cachedTransfers.push(transfer);
         }
+      } catch (error) {
+        console.error('Error fetching batched incoming payments:', error);
       }
 
       const paymentObjects = [];
@@ -926,6 +952,12 @@ const SparkWalletProvider = ({ children }) => {
     async (epoch, result) => {
       const { identityPubKey } = sparkInfoRef.current;
 
+      // Stamp the ordering guard at ENTRY (before the awaits below) so a
+      // concurrent incoming-payment snapshot that enters later can't be
+      // overwritten by this confirmed snapshot resolving after it. Shared with
+      // applyIncomingPaymentSnapshot, which also stamps at entry.
+      const myVersion = ++balanceVersionRef.current;
+
       balanceEpochRef.current.applied = Math.max(
         balanceEpochRef.current.applied,
         epoch,
@@ -959,7 +991,6 @@ const SparkWalletProvider = ({ children }) => {
 
       filterAndSetTransactions(freshTxs);
 
-      const myVersion = ++balanceVersionRef.current;
       setSparkInformation(prev => {
         if (myVersion < balanceVersionRef.current) return prev;
         return {
@@ -1003,33 +1034,20 @@ const SparkWalletProvider = ({ children }) => {
           })`,
         );
 
-        const poller = createBalancePoller(
-          mnemonic,
-          currentMnemonicRef,
-          abortController,
-          async balanceResult => {
-            if (abortController.signal.aborted) return;
-            if (runId !== balanceSupervisorRunIdRef.current) return;
-            await applyConfirmedBalanceSnapshot(epochToResolve, balanceResult);
-          },
-          sparkInfoRef.current.balance,
-        );
-
-        balancePollingTimeoutRef.current = poller;
-        const response = await poller.start();
+        // Single authoritative reconcile read. The displayed balance number is
+        // driven in real time by balance:update events (balanceUpdateHandler);
+        // this one-shot read exists only to reconcile transactions, release
+        // forced-pending flags, and recover a balance whose event was missed
+        // (e.g. while backgrounded). It replaces the old converge-by-polling
+        // loop (createBalancePoller) that issued up to ~24 reads per intent and
+        // could self-contend under load.
+        const balanceResult = await getBalanceWithTimeout(mnemonic);
 
         if (runId !== balanceSupervisorRunIdRef.current) return;
         if (abortController.signal.aborted) return;
         if (mnemonic !== currentMnemonicRef.current) return;
-        if (response.reason === 'aborted') return;
 
-        if (response.reason === 'max_retries') {
-          const fallbackResult =
-            response.result?.didWork === true
-              ? response.result
-              : await getSparkBalance(mnemonic);
-          await applyConfirmedBalanceSnapshot(epochToResolve, fallbackResult);
-        }
+        await applyConfirmedBalanceSnapshot(epochToResolve, balanceResult);
 
         balanceEpochRef.current.applied = Math.max(
           balanceEpochRef.current.applied,
@@ -1040,16 +1058,23 @@ const SparkWalletProvider = ({ children }) => {
     } catch (err) {
       console.log('[BalanceLane] poller error', err);
     } finally {
-      isBalancePollerRunningRef.current = false;
-      balancePollingAbortControllerRef.current = null;
+      // Only release shared lane state if WE still own the lane. A newer run
+      // (e.g. started by applyIncomingPaymentSnapshot, which bumps the runId
+      // and clears the running flag) may have taken over while our awaits were
+      // parked; a stale run's finally must not clobber the newer run's running
+      // flag or null its abort controller.
+      if (runId === balanceSupervisorRunIdRef.current) {
+        isBalancePollerRunningRef.current = false;
+        balancePollingAbortControllerRef.current = null;
 
-      if (
-        balanceEpochRef.current.applied < balanceEpochRef.current.target &&
-        mnemonic === currentMnemonicRef.current
-      ) {
-        setTimeout(() => {
-          runBalanceSupervisor();
-        }, 60);
+        if (
+          balanceEpochRef.current.applied < balanceEpochRef.current.target &&
+          mnemonic === currentMnemonicRef.current
+        ) {
+          setTimeout(() => {
+            runBalanceSupervisor();
+          }, 60);
+        }
       }
     }
   }, [applyConfirmedBalanceSnapshot]);
@@ -1081,6 +1106,12 @@ const SparkWalletProvider = ({ children }) => {
       const mnemonic = currentMnemonicRef.current;
       const { identityPubKey } = sparkInfoRef.current;
 
+      // Stamp the ordering guard at ENTRY (before any await) so the
+      // most-recently-entered (newest) snapshot wins. Stamping after the awaits
+      // ordered writes by completion time, letting an older burst that resolved
+      // late overwrite a newer one and regress the displayed balance.
+      const myVersion = ++balanceVersionRef.current;
+
       if (balancePollingAbortControllerRef.current) {
         balancePollingAbortControllerRef.current.abort();
         balancePollingAbortControllerRef.current = null;
@@ -1094,7 +1125,7 @@ const SparkWalletProvider = ({ children }) => {
       forcedPendingBySparkIdRef.current.clear();
 
       const [balanceResponse, freshTxs] = await Promise.all([
-        getSparkBalance(mnemonic),
+        getBalanceWithTimeout(mnemonic),
         identityPubKey
           ? getAllSparkTransactions({
               limit: null,
@@ -1109,7 +1140,7 @@ const SparkWalletProvider = ({ children }) => {
         Number.isFinite(numericPassedBalance)
           ? numericPassedBalance
           : sparkInfoRef.current.balance,
-        balanceResponse.didWork
+        balanceResponse?.didWork
           ? balanceResponse.tokensObj
           : sparkInfoRef.current.tokens,
       );
@@ -1122,7 +1153,6 @@ const SparkWalletProvider = ({ children }) => {
 
       filterAndSetTransactions(freshTxs);
 
-      const myVersion = ++balanceVersionRef.current;
       setSparkInformation(prev => {
         if (myVersion < balanceVersionRef.current) return prev;
         return {
@@ -1130,7 +1160,7 @@ const SparkWalletProvider = ({ children }) => {
           balance: Number.isFinite(numericPassedBalance)
             ? numericPassedBalance
             : prev.balance,
-          tokens: balanceResponse.didWork
+          tokens: balanceResponse?.didWork
             ? balanceResponse.tokensObj
             : prev.tokens,
         };
@@ -1186,17 +1216,105 @@ const SparkWalletProvider = ({ children }) => {
 
     // Add transferId to pending set
     pendingTransferIds.current.add(transferId);
+    // Always flush with the most recent balance, even when the max-wait timer
+    // (set on the first event of the burst) fires.
+    latestIncomingBalanceRef.current = balance;
 
-    // Clear existing timeout if any
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
+    const flush = () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+        debounceTimeoutRef.current = null;
+      }
+      if (debounceMaxWaitRef.current) {
+        clearTimeout(debounceMaxWaitRef.current);
+        debounceMaxWaitRef.current = null;
+      }
+      debouncedHandleIncomingPayment(latestIncomingBalanceRef.current);
+    };
+
+    // Trailing debounce: flush 500ms after the last event…
+    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+    debounceTimeoutRef.current = setTimeout(flush, 500);
+
+    // …but cap the wait at 1.5s so a sustained burst (events arriving faster
+    // than every 500ms, which would perpetually reset the trailing timer and
+    // never flush) still applies the balance periodically.
+    if (!debounceMaxWaitRef.current) {
+      debounceMaxWaitRef.current = setTimeout(flush, 1500);
     }
-
-    // Set new timeout for debounced execution (500ms delay)
-    debounceTimeoutRef.current = setTimeout(() => {
-      debouncedHandleIncomingPayment(balance);
-    }, 500);
   }, []);
+
+  // Authoritative writer for the displayed sats balance. balance:update fires on
+  // every balance change (deposits, transfers, swaps, claims) with the real
+  // current { available, owned, incoming }; we display `available` (parity with
+  // the SDK's deprecated `balance` field). This is the single fast path that
+  // makes sends/swaps/deposits reflect immediately — previously only inbound
+  // claims had a push event and everything else waited on the poller.
+  const balanceUpdateHandler = useCallback(snapshot => {
+    const available = Number(snapshot?.available);
+    if (!Number.isFinite(available)) return;
+    // Value-gate: ignore no-op events so a burst of inbound transfers (each
+    // emitting balance:update) can't trigger a render / DB-write storm.
+    if (available === sparkInfoRef.current.balance) return;
+
+    // Entry-stamped ordering guard, shared with applyConfirmedBalanceSnapshot
+    // and applyIncomingPaymentSnapshot, so a late-resolving snapshot can't
+    // overwrite a newer event's value.
+    const myVersion = ++balanceVersionRef.current;
+    const { identityPubKey } = sparkInfoRef.current;
+
+    saveAccountBalanceSnapshot(
+      identityPubKey,
+      available,
+      sparkInfoRef.current.tokens,
+    );
+
+    setSparkInformation(prev => {
+      if (myVersion < balanceVersionRef.current) return prev;
+      if (prev.balance === available) return prev;
+      return { ...prev, balance: available };
+    });
+  }, []);
+
+  // token-balance:update fires when a token tx finalizes and carries the full
+  // current token-balance map (getTokenBalanceMap() in the SDK). We merge that
+  // payload straight into the cache instead of issuing another getSparkBalance
+  // round-trip — same result, one fewer WebView read per event. The WebView
+  // runtime delivers the already-normalized map; the native runtime delivers the
+  // raw SDK Map and is normalized at registration (see addListeners).
+  const tokenBalanceUpdateHandler = useCallback(async tokensObject => {
+    const mnemonic = currentMnemonicRef.current;
+    if (!mnemonic) return;
+    const merged = await mergeAndCacheTokens(tokensObject ?? {}, mnemonic);
+    if (mnemonic !== currentMnemonicRef.current) return;
+    setSparkInformation(prev => ({ ...prev, tokens: merged }));
+    // Persist tokens so a token-only change survives a cold start, matching
+    // applyConfirmedBalanceSnapshot / applyIncomingPaymentSnapshot.
+    saveAccountBalanceSnapshot(
+      sparkInfoRef.current.identityPubKey,
+      sparkInfoRef.current.balance,
+      merged,
+    );
+  }, []);
+
+  // Stream lifecycle. A connect after a drop means events may have been missed
+  // while the stream was down, so fire one reconcile read. The initial connect
+  // is benign and skipped.
+  const streamStatusHandler = useCallback(
+    status => {
+      if (status === 'disconnected' || status === 'reconnecting') {
+        streamWasDisconnectedRef.current = true;
+        return;
+      }
+      if (status !== 'connected') return;
+      if (!streamWasDisconnectedRef.current) return;
+      streamWasDisconnectedRef.current = false;
+      if (AppState.currentState !== 'active') return;
+      if (!sparkInfoRef.current.didConnect) return;
+      requestBalanceReconcile('streamReconnect', { shouldForcePending: false });
+    },
+    [requestBalanceReconcile],
+  );
 
   useEffect(() => {
     if (!sparkInformation.identityPubKey) {
@@ -1208,6 +1326,15 @@ const SparkWalletProvider = ({ children }) => {
 
     sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
     incomingSparkTransaction.on(INCOMING_SPARK_TX_NAME, transferHandler);
+    sparkBalanceUpdateEmitter.on(
+      BALANCE_UPDATE_EVENT_NAME,
+      balanceUpdateHandler,
+    );
+    sparkTokenBalanceUpdateEmitter.on(
+      TOKEN_BALANCE_UPDATE_EVENT_NAME,
+      tokenBalanceUpdateHandler,
+    );
+    sparkStreamStatusEmitter.on(STREAM_STATUS_EVENT_NAME, streamStatusHandler);
 
     return () => {
       console.log('Cleaning up spark event listeners');
@@ -1219,8 +1346,27 @@ const SparkWalletProvider = ({ children }) => {
         INCOMING_SPARK_TX_NAME,
         transferHandler,
       );
+      sparkBalanceUpdateEmitter.removeListener(
+        BALANCE_UPDATE_EVENT_NAME,
+        balanceUpdateHandler,
+      );
+      sparkTokenBalanceUpdateEmitter.removeListener(
+        TOKEN_BALANCE_UPDATE_EVENT_NAME,
+        tokenBalanceUpdateHandler,
+      );
+      sparkStreamStatusEmitter.removeListener(
+        STREAM_STATUS_EVENT_NAME,
+        streamStatusHandler,
+      );
     };
-  }, [sparkInformation.identityPubKey, handleUpdate, transferHandler]);
+  }, [
+    sparkInformation.identityPubKey,
+    handleUpdate,
+    transferHandler,
+    balanceUpdateHandler,
+    tokenBalanceUpdateHandler,
+    streamStatusHandler,
+  ]);
 
   const addListeners = async mode => {
     console.log('Adding Spark listeners...');
@@ -1240,8 +1386,44 @@ const SparkWalletProvider = ({ children }) => {
 
       if (mode === 'full') {
         if (runtime === 'native') {
-          if (!sparkWallet[walletHash]?.listenerCount('transfer:claimed')) {
-            sparkWallet[walletHash]?.on('transfer:claimed', transferHandler);
+          const nativeWallet = sparkWallet[walletHash];
+          if (nativeWallet) {
+            if (!nativeWallet.listenerCount('transfer:claimed')) {
+              nativeWallet.on('transfer:claimed', transferHandler);
+            }
+            if (!nativeWallet.listenerCount('balance:update')) {
+              nativeWallet.on('balance:update', balanceUpdateHandler);
+            }
+            if (!nativeWallet.listenerCount('token-balance:update')) {
+              // Native delivers the raw SDK event ({ tokenBalances: Map });
+              // normalize it to the same token map the WebView runtime posts so
+              // tokenBalanceUpdateHandler can stay runtime-agnostic.
+              nativeWallet.on('token-balance:update', event => {
+                const tokensObject = {};
+                for (const [id, data] of event?.tokenBalances ?? []) {
+                  tokensObject[id] = {
+                    ...data,
+                    balance: data.availableToSendBalance,
+                  };
+                }
+                tokenBalanceUpdateHandler(tokensObject);
+              });
+            }
+            if (!nativeWallet.listenerCount('stream:connected')) {
+              nativeWallet.on('stream:connected', () =>
+                streamStatusHandler('connected'),
+              );
+            }
+            if (!nativeWallet.listenerCount('stream:disconnected')) {
+              nativeWallet.on('stream:disconnected', () =>
+                streamStatusHandler('disconnected'),
+              );
+            }
+            if (!nativeWallet.listenerCount('stream:reconnecting')) {
+              nativeWallet.on('stream:reconnecting', () =>
+                streamStatusHandler('reconnecting'),
+              );
+            }
           }
         } else {
           await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
@@ -1387,7 +1569,10 @@ const SparkWalletProvider = ({ children }) => {
     }
   };
 
-  const removeListeners = async (onlyClearIntervals = false) => {
+  const removeListeners = async (
+    onlyClearIntervals = false,
+    abortBalanceLane = true,
+  ) => {
     console.log('Removing spark listeners');
 
     cleanStatusAndLRC20Intervals();
@@ -1401,11 +1586,26 @@ const SparkWalletProvider = ({ children }) => {
       const hashedMnemonic = sha256Hash(prevAccountMnemoincRef.current);
 
       if (runtime === 'native') {
-        if (
-          prevAccountMnemoincRef.current &&
-          sparkWallet[hashedMnemonic]?.listenerCount('transfer:claimed')
-        ) {
-          sparkWallet[hashedMnemonic]?.removeAllListeners('transfer:claimed');
+        const nativeWallet = sparkWallet[hashedMnemonic];
+        if (prevAccountMnemoincRef.current && nativeWallet) {
+          if (nativeWallet.listenerCount('transfer:claimed')) {
+            nativeWallet.removeAllListeners('transfer:claimed');
+          }
+          if (nativeWallet.listenerCount('balance:update')) {
+            nativeWallet.removeAllListeners('balance:update');
+          }
+          if (nativeWallet.listenerCount('token-balance:update')) {
+            nativeWallet.removeAllListeners('token-balance:update');
+          }
+          if (nativeWallet.listenerCount('stream:connected')) {
+            nativeWallet.removeAllListeners('stream:connected');
+          }
+          if (nativeWallet.listenerCount('stream:disconnected')) {
+            nativeWallet.removeAllListeners('stream:disconnected');
+          }
+          if (nativeWallet.listenerCount('stream:reconnecting')) {
+            nativeWallet.removeAllListeners('stream:reconnecting');
+          }
         }
       } else {
         await sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
@@ -1420,6 +1620,10 @@ const SparkWalletProvider = ({ children }) => {
       clearTimeout(debounceTimeoutRef.current);
       debounceTimeoutRef.current = null;
     }
+    if (debounceMaxWaitRef.current) {
+      clearTimeout(debounceMaxWaitRef.current);
+      debounceMaxWaitRef.current = null;
+    }
     // Clear pending transfer IDs
     pendingTransferIds.current.clear();
 
@@ -1428,13 +1632,18 @@ const SparkWalletProvider = ({ children }) => {
       clearInterval(updatePendingPaymentsIntervalRef.current);
       updatePendingPaymentsIntervalRef.current = null;
     }
-    // Clear balance polling lane
-    if (balancePollingAbortControllerRef.current) {
-      balancePollingAbortControllerRef.current.abort();
-      balancePollingAbortControllerRef.current = null;
+    // Clear balance polling lane — only when abandoning this account's session
+    // (background/account-switch/reset). A same-account foreground listener
+    // reconfigure (null->full) must NOT abort the foregroundRecovery poll it
+    // races with, or the foreground balance reconcile is silently killed.
+    if (abortBalanceLane) {
+      if (balancePollingAbortControllerRef.current) {
+        balancePollingAbortControllerRef.current.abort();
+        balancePollingAbortControllerRef.current = null;
+      }
+      balanceSupervisorRunIdRef.current += 1;
+      isBalancePollerRunningRef.current = false;
     }
-    balanceSupervisorRunIdRef.current += 1;
-    isBalancePollerRunningRef.current = false;
 
     if (txPollingTimeoutRef.current) {
       clearTimeout(txPollingTimeoutRef.current);
@@ -1502,8 +1711,10 @@ const SparkWalletProvider = ({ children }) => {
         identityPubKey: '',
         sparkAddress: '',
         transactions: [],
+        didConnect: false,
       };
       handledTransfers.current = new Set();
+      streamWasDisconnectedRef.current = false;
       prevListenerType.current = null;
       prevAppState.current = 'active';
       prevAccountId.current = null;
@@ -1615,7 +1826,12 @@ const SparkWalletProvider = ({ children }) => {
           prevId !== sparkInfoRef.current.identityPubKey) &&
         appState === 'active'
       ) {
-        await removeListeners();
+        // Only a genuine account switch (a prior account existed and differs)
+        // should tear down the balance lane; a same-account null->full
+        // foreground reconfigure must leave the foregroundRecovery poll alive.
+        const accountChanged =
+          !!prevId && prevId !== sparkInfoRef.current.identityPubKey;
+        await removeListeners(false, accountChanged);
         if (newType) await addListeners(newType);
         prevListenerType.current = newType;
         prevAccountId.current = sparkInfoRef.current.identityPubKey;
@@ -1974,6 +2190,41 @@ const SparkWalletProvider = ({ children }) => {
       shouldForcePending: false,
     });
   }, [
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    requestBalanceReconcile,
+  ]);
+
+  // Balance-lane lifecycle:
+  //  • On background: abort any in-flight poll and release the lane. A read
+  //    can't settle in the background (the WebView request timeout is neutered),
+  //    so its await would park and the supervisor's finally would never run,
+  //    wedging the lane for the rest of the session.
+  //  • On background→active: fire one authoritative reconcile. This lands
+  //    balance received while backgrounded (whose debounce may have been
+  //    throttled) and recovers a lane that was idled in the background.
+  useEffect(() => {
+    const prev = foregroundReconcileAppStateRef.current;
+    foregroundReconcileAppStateRef.current = appState;
+    if (appState === 'background') {
+      if (balancePollingAbortControllerRef.current) {
+        balancePollingAbortControllerRef.current.abort();
+        balancePollingAbortControllerRef.current = null;
+      }
+      balanceSupervisorRunIdRef.current += 1;
+      isBalancePollerRunningRef.current = false;
+      return;
+    }
+
+    if (appState !== 'active' || prev === 'active') return;
+    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
+
+    requestBalanceReconcile('foregroundRecovery', {
+      shouldForcePending: false,
+    });
+  }, [
+    appState,
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     requestBalanceReconcile,

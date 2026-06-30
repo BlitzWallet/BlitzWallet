@@ -160,6 +160,15 @@ const rejectIfNotConnectedToInternet = [
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
+
+export const BALANCE_UPDATE_EVENT_NAME = 'SPARK_BALANCE_UPDATE';
+export const sparkBalanceUpdateEmitter = new EventEmitter();
+
+export const TOKEN_BALANCE_UPDATE_EVENT_NAME = 'SPARK_TOKEN_BALANCE_UPDATE';
+export const sparkTokenBalanceUpdateEmitter = new EventEmitter();
+
+export const STREAM_STATUS_EVENT_NAME = 'SPARK_STREAM_STATUS';
+export const sparkStreamStatusEmitter = new EventEmitter();
 const WASM_ERRORS = [
   'WASM',
   'WebAssembly',
@@ -357,7 +366,7 @@ export const WebViewProvider = ({ children }) => {
   const messageRateLimiter = useRef({
     count: 0,
     windowStart: Date.now(),
-    maxPerSecond: 20,
+    maxPerSecond: 50,
   });
 
   const blockAndResetWebview = useCallback(
@@ -641,28 +650,6 @@ export const WebViewProvider = ({ children }) => {
   const handleWebViewResponse = useCallback(
     event => {
       try {
-        const now = Date.now();
-        const windowDuration = now - messageRateLimiter.current.windowStart;
-        if (windowDuration > 1000) {
-          // Reset window
-          messageRateLimiter.current.count = 0;
-          messageRateLimiter.current.windowStart = now;
-        }
-        messageRateLimiter.current.count++;
-
-        if (
-          messageRateLimiter.current.count >
-          messageRateLimiter.current.maxPerSecond
-        ) {
-          console.error(
-            `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
-          );
-
-          resetWebViewState(true, true);
-          forceNativeMode('rate limit exceeded');
-          return;
-        }
-
         const message = JSON.parse(event.nativeEvent.data);
 
         if (message.type === 'handshake:reply' && message.pubW) {
@@ -742,6 +729,41 @@ export const WebViewProvider = ({ children }) => {
           return;
         }
 
+        // Unsolicited SDK push events (incoming payment, balance/token balance,
+        // stream status) are not request/response traffic and must not count
+        // toward the flood limiter. A burst of legitimate inbound payments would
+        // otherwise trip it and force the one-way native fallback.
+        const isSdkPushEvent = !!(
+          content.incomingPayment ||
+          content.balanceUpdate ||
+          content.tokenBalanceUpdate ||
+          content.streamStatus
+        );
+
+        if (!isSdkPushEvent) {
+          const now = Date.now();
+          const windowDuration = now - messageRateLimiter.current.windowStart;
+          if (windowDuration > 1000) {
+            // Reset window
+            messageRateLimiter.current.count = 0;
+            messageRateLimiter.current.windowStart = now;
+          }
+          messageRateLimiter.current.count++;
+
+          if (
+            messageRateLimiter.current.count >
+            messageRateLimiter.current.maxPerSecond
+          ) {
+            console.error(
+              `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
+            );
+
+            resetWebViewState(true, true);
+            forceNativeMode('rate limit exceeded');
+            return;
+          }
+        }
+
         if (content.error) throw new Error(content.error);
 
         if (content.incomingPayment) {
@@ -750,6 +772,23 @@ export const WebViewProvider = ({ children }) => {
             INCOMING_SPARK_TX_NAME,
             data.transferId,
             data.balance,
+          );
+        }
+        if (content.balanceUpdate) {
+          const data = JSON.parse(content.result);
+          sparkBalanceUpdateEmitter.emit(BALANCE_UPDATE_EVENT_NAME, data);
+        }
+        if (content.tokenBalanceUpdate) {
+          const data = JSON.parse(content.result);
+          sparkTokenBalanceUpdateEmitter.emit(
+            TOKEN_BALANCE_UPDATE_EVENT_NAME,
+            data.tokensObject,
+          );
+        }
+        if (content.streamStatus) {
+          sparkStreamStatusEmitter.emit(
+            STREAM_STATUS_EVENT_NAME,
+            content.streamStatus,
           );
         }
         if (content.isResponse && content.id) {
@@ -1322,8 +1361,8 @@ export const WebViewProvider = ({ children }) => {
       const requests = [...queuedRequests.current];
       queuedRequests.current = [];
 
-      // Process sequentially to avoid triggering the rate limiter (20 msgs/sec).
-      // Parallel dispatch via Promise.allSettled could fire 21+ messages at once,
+      // Process sequentially to avoid triggering the rate limiter (50 msgs/sec).
+      // Parallel dispatch via Promise.allSettled could fire 51+ messages at once,
       // permanently killing the WebView.
       for (const { action, args, encrypt, resolve, reject } of requests) {
         try {

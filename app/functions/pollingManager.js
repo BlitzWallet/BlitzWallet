@@ -2,6 +2,34 @@ import { getSparkBalance } from './spark';
 import { fullRestoreSparkState } from './spark/restore';
 
 /**
+ * Reads the balance with a hard timeout. getSparkBalance can hang indefinitely
+ * when the underlying WebView request's timeout is neutered (it returns early
+ * without settling while the app is backgrounded). An unsettled read parks the
+ * supervisor's await forever and wedges the whole balance lane, so we race the
+ * read against a timer that resolves to a benign {didWork:false}.
+ * @param {string} mnemonic
+ * @param {number} timeoutMs
+ * @returns {Promise<{didWork: boolean, balance?: number, tokensObj?: object}>}
+ */
+export const getBalanceWithTimeout = async (mnemonic, timeoutMs = 15000) => {
+  let timer = null;
+  console.log('getting balance with timeout');
+  try {
+    return await Promise.race([
+      getSparkBalance(mnemonic),
+      new Promise(resolve => {
+        timer = setTimeout(() => resolve({ didWork: false }), timeoutMs);
+      }),
+    ]);
+  } catch (err) {
+    console.log('err', err);
+    return { didWork: false };
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+};
+
+/**
  * Generic polling utility with exponential backoff
  * @param {Object} config - Configuration object
  * @param {Function} config.pollFn - Async function to poll (receives delayIndex)
@@ -153,7 +181,7 @@ export const createBalancePoller = (
 
   return createPollingManager({
     pollFn: async () => {
-      return await getSparkBalance(mnemonic);
+      return await getBalanceWithTimeout(mnemonic);
     },
     shouldContinue: () => mnemonic === currentMnemonicRef.current,
     validateResult: (newResult, previousResult) => {

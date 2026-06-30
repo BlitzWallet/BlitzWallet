@@ -76,3 +76,18 @@ export const mergeTokensWithCache = (currentTokens, cachedTokens, mnemonic) => {
 
   return { ...cachedTokens, [hashedMnemoinc]: merged };
 };
+
+// Merges a fresh full token-balance map into the on-disk cache and returns the
+// merged token map for this mnemonic. Mirrors the cache step getSparkBalance
+// runs, so a caller already holding a live token map (e.g. the
+// token-balance:update event payload) can update without a second balance read.
+export const mergeAndCacheTokens = async (currentTokens, mnemonic) => {
+  const cachedTokens = await migrateCachedTokens(mnemonic);
+  const allTokens = mergeTokensWithCache(
+    currentTokens ?? {},
+    cachedTokens,
+    mnemonic,
+  );
+  await saveCachedTokens(allTokens);
+  return allTokens[sha256Hash(mnemonic)];
+};

@@ -2,13 +2,25 @@ import { ensureSparkDatabaseReady } from './transactions';
 
 const TABLE = 'account_balance_snapshots';
 
+// Token maps coming from the native runtime can carry BigInt fields in their
+// metadata (the merge only down-converts balance/maxSupply). JSON.stringify
+// throws on BigInt, which would otherwise drop the entire snapshot row, so
+// serialize BigInt as its decimal string.
+const bigIntSafeReplacer = (_key, value) =>
+  typeof value === 'bigint' ? value.toString() : value;
+
 export async function saveAccountBalanceSnapshot(identityPubKey, balance, tokensObj) {
   try {
     const db = await ensureSparkDatabaseReady();
     await db.runAsync(
       `INSERT OR REPLACE INTO ${TABLE} (identityPubKey, balance, tokens, updatedAt)
        VALUES (?, ?, ?, ?)`,
-      [identityPubKey, balance, JSON.stringify(tokensObj ?? {}), Date.now()],
+      [
+        identityPubKey,
+        balance,
+        JSON.stringify(tokensObj ?? {}, bigIntSafeReplacer),
+        Date.now(),
+      ],
     );
   } catch (err) {
     console.log('Error saving account balance snapshot', err);

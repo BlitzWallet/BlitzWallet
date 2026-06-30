@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   chainIconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 22.5,
+    borderRadius: 44,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
