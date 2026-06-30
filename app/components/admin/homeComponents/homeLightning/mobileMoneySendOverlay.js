@@ -308,7 +308,7 @@ export default function MobileMoneySendOverlay({
             styles.button,
             { opacity: phoneNumber.length ? 1 : HIDDEN_OPACITY },
           ]}
-          textContent={t('constants.pay')}
+          textContent={t('constants.review')}
           actionFunction={handlePay}
         />
       </Animated.View>
