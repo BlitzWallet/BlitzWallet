@@ -2630,7 +2630,7 @@
         "noName": "Loja desconhecida",
         "directions": "Direções",
         "pay": "Pagar",
-        "lightning": "Lightning",
+        "lightning": "Bitcoin",
         "lightningMessage": "Aceita pagamentos Bitcoin",
         "dataMessage": "Dados do btcmap.org"
       },
