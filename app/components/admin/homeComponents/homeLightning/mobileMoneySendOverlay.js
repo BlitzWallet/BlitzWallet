@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   countryProvider: {
-    fontSize: SIZES.smedium,
+    fontSize: SIZES.small,
     opacity: 0.6,
     marginTop: 2,
     includeFontPadding: false,
