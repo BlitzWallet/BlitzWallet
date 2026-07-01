@@ -9,6 +9,7 @@ import {
 } from './spark';
 import { cleanStalePendingSparkLightningTransactions } from './spark/transactions';
 import { getAccountBalanceSnapshot } from './spark/balanceSnapshots';
+import { getBalanceWithTimeout } from './pollingManager';
 
 export async function initWallet({
   setSparkInformation,
@@ -87,7 +88,7 @@ export async function initializeSparkSession({
         : null;
 
     const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
-      getSparkBalance(mnemonic),
+      getBalanceWithTimeout(mnemonic),
       getSparkAddress(mnemonic),
       cachedIdentityPubKey
         ? Promise.resolve(cachedIdentityPubKey)
