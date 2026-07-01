@@ -1821,7 +1821,8 @@
       "yourCurrencies": "Tus monedas",
       "moreCurrencies": "Más monedas",
       "currencyCount": "{{count}}+ admitidas",
-      "saveCurrencyError": "No pudimos guardar la moneda seleccionada, por favor intenta de nuevo."
+      "saveCurrencyError": "No pudimos guardar la moneda seleccionada, por favor intenta de nuevo.",
+      "loadingCurrencyRate": "Cargando el tipo de cambio actual"
     },
     "feeInformation": {
       "title": "",

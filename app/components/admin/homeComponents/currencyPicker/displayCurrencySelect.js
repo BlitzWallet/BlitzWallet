@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +21,9 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
+import { useKeysContext } from '../../../../../context-store/keys';
 
 export default function DisplayCurrencySelect({
   currentCurrency,
@@ -33,11 +36,15 @@ export default function DisplayCurrencySelect({
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { screenDimensions } = useAppStatus();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const normalizedCurrentCurrency = normalizeDisplayCurrency(currentCurrency);
   const deviceCurrency = (
     masterInfoObject?.fiatCurrency || 'USD'
   ).toUpperCase();
+  const [isLoadingNewRate, setIsLoadingNewRate] = useState(false);
+  const isMounted = useRef(false);
+  const hasSelected = useRef(false);
 
   const cardBackground =
     theme && darkModeType ? backgroundColor : backgroundOffset;
@@ -45,17 +52,42 @@ export default function DisplayCurrencySelect({
     theme && darkModeType ? backgroundOffset : backgroundColor;
 
   useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
     setContentHeight(screenDimensions.height * 0.6);
   }, [setContentHeight, screenDimensions.height]);
 
   const onSelect = useCallback(
-    currency => {
+    async currency => {
+      if (hasSelected.current) return;
+      hasSelected.current = true;
+      setIsLoadingNewRate(true);
+      const normalizedCode = normalizeDisplayCurrency(currency);
+      await loadNewFiatData(
+        normalizedCode,
+        contactsPrivateKey,
+        publicKey,
+        masterInfoObject,
+      );
+      if (!isMounted.current) return;
       handleBackPressFunction(() => {
         navigate.goBack();
         onSelectCurrency?.(currency);
       });
     },
-    [handleBackPressFunction, navigate, onSelectCurrency],
+    [
+      handleBackPressFunction,
+      navigate,
+      onSelectCurrency,
+      contactsPrivateKey,
+      publicKey,
+      masterInfoObject,
+    ],
   );
 
   const pinnedRows = useMemo(() => {
@@ -272,6 +304,15 @@ export default function DisplayCurrencySelect({
       {expanded && <View style={styles.listSpacer} />}
     </>
   );
+
+  if (isLoadingNewRate) {
+    return (
+      <FullLoadingScreen
+        textStyles={{ textAlign: 'center' }}
+        text={t('settings.fiatCurrency.loadingCurrencyRate')}
+      />
+    );
+  }
 
   return (
     <FlatList
