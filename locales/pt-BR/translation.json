@@ -1824,7 +1824,7 @@
       "moreCurrencies": "Mais moedas",
       "currencyCount": "{{count}}+ disponíveis",
       "saveCurrencyError": "Não foi possível salvar a moeda selecionada, tente novamente.",
-      "loadingCurrencyRate": "Carregando a cotação atual da moeda fiduciária"
+      "loadingCurrencyRate": "Carregando a cotação atual da moeda estatal"
     },
     "feeInformation": {
       "title": "",
