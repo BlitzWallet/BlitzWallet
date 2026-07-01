@@ -2614,8 +2614,8 @@
     },
     "btcMap": {
       "mapPreview": {
-        "header": "Compre com Bitcoin",
-        "subHeader": "Comércio ao seu redor"
+        "header": "Gaste seus Bitcoins",
+        "subHeader": "Comércios próximos a você"
       },
       "map": {
         "title": "Pagar com Bitcoin",
