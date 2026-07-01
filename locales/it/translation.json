@@ -1014,6 +1014,13 @@
       "phonePaymentTitle": "Paga {{number}}",
       "phonePaymentDesc": "Invio a un numero di cellulare",
       "phonePaymentDescGcash": "Invio a un numero GCash",
+      "mobileMoneyTitle": "Mobile Money",
+      "mobileMoneySubtitle": "Paga su un conto Mobile Money",
+      "mobileMoneyCountryTitle": "Seleziona un paese",
+      "mobileMoneyCountrySubtitle": "Scegli il paese del conto Mobile Money che desideri pagare.",
+      "mobileMoneyPhoneTitle": "Inserisci il numero di cellulare",
+      "mobileMoneyPhoneSubtitle": "Inserisci il numero a cui desideri inviare il pagamento.",
+      "mobileMoneyInvalidPhone": "Inserisci un numero di cellulare valido per il paese selezionato.",
       "depositFunds": "Deposita fondi",
       "depositFundsSubtitle": "Aggiungi fondi al tuo wallet",
       "onChainBitcoin": "Deposita Bitcoin",
@@ -2614,7 +2621,11 @@
         "title": "Paga con Bitcoin",
         "loadingMap": "Caricamento mappa...",
         "loadingMerchants": "Caricamento esercenti...",
-        "zoomIn": "Ingrandisci per vedere tutti gli esercenti"
+        "zoomIn": "Ingrandisci per vedere tutti gli esercenti",
+        "findAPlace": "Trova un luogo",
+        "placesHere": "{{count}} luoghi qui",
+        "noPlaces": "Nessun luogo trovato",
+        "hasMorePlaces": "Mostrando i {{num}} più vicini. Ingrandisci per vederne altri."
       },
       "merchant": {
         "noName": "Esercente sconosciuto",
@@ -2623,6 +2634,26 @@
         "lightning": "Lightning",
         "lightningMessage": "Accetta pagamenti in bitcoin istantaneamente tramite la rete Lightning",
         "dataMessage": "Dati da btcmap.org"
+      },
+      "filter": {
+        "categoriesTitle": "Categorie",
+        "distanceTitle": "Distanza",
+        "all": "Tutti",
+        "apply": "Applica",
+        "clear": "Cancella",
+        "auto": "Auto",
+        "km": "km",
+        "mi": "mi"
+      },
+      "categories": {
+        "food_drink": "Cibo e bevande",
+        "retail": "Vendita al dettaglio",
+        "lodging": "Alloggio",
+        "services": "Servizi",
+        "atm": "Bancomat Bitcoin",
+        "fuel": "Carburante",
+        "leisure": "Tempo libero",
+        "other": "Altro"
       }
     },
     "bitrefill": {

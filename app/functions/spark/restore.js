@@ -309,6 +309,17 @@ const restoreSparkTxState = async (
   }
 };
 
+/**
+ * Resolve a single transfer's details, preferring a pre-fetched batch cache so we
+ * don't fire one getSingleTxDetails request per pending tx. Falls back to
+ * getSingleTxDetails when the id isn't in the batch window (or no cache was built).
+ */
+async function resolveTransferDetails(id, mnemonic, transferCache) {
+  const cached = transferCache?.get(id);
+  if (cached) return cached;
+  return await getSingleTxDetails(mnemonic, id);
+}
+
 // Helper function to split array into chunks
 function chunkArray(array, chunkSize) {
   const chunks = [];
@@ -672,6 +683,26 @@ export const updateSparkTxStatus = async (
 
     console.log('pending tx list', savedTxs);
 
+    // For large pending sets, fetch the recent transfers once and look ids up
+    // locally instead of one getSingleTxDetails request per pending tx. Only
+    // 25 transfers since this runs every ~10s and each transfer is encrypted.
+    let transferCache = null;
+    if (savedTxs.length > 5) {
+      try {
+        const { transfers = [] } = await getSparkTransactions(
+          25,
+          undefined,
+          mnemoninc,
+        );
+        transferCache = new Map(transfers.map(t => [t.id, t]));
+      } catch (err) {
+        console.error(
+          'Error prefetching transfers for batch tx status update:',
+          err,
+        );
+      }
+    }
+
     // Process different transaction types in parallel
     const [lightningUpdates, bitcoinUpdates, sparkUpdates] = await Promise.all([
       processLightningTransactions(
@@ -680,6 +711,7 @@ export const updateSparkTxStatus = async (
         mnemoninc,
         accountId,
         sendWebViewRequest,
+        transferCache,
       ),
       processBitcoinTransactions(
         txsByType.bitcoin,
@@ -687,6 +719,7 @@ export const updateSparkTxStatus = async (
         sendWebViewRequest,
         accountId,
         forceRefresh,
+        transferCache,
       ),
       processSparkTransactions(
         txsByType.spark,
@@ -694,6 +727,7 @@ export const updateSparkTxStatus = async (
         sendWebViewRequest,
         contactsPrivateKey,
         publicKey,
+        transferCache,
       ),
     ]);
 
@@ -725,6 +759,7 @@ async function processLightningTransactions(
   mnemonic,
   accountId,
   sendWebViewRequest,
+  transferCache,
 ) {
   const CONCURRENCY_LIMIT = 5;
   const updatedTxs = [];
@@ -739,6 +774,7 @@ async function processLightningTransactions(
         unpaidInvoicesByAmount,
         mnemonic,
         sendWebViewRequest,
+        transferCache,
       ).catch(err => {
         console.error('Error processing lightning tx:', tx.sparkID, err);
         return null;
@@ -758,7 +794,11 @@ async function processLightningTransactions(
       continue;
     }
 
-    const findTxResponse = await getSingleTxDetails(mnemonic, result.id);
+    const findTxResponse = await resolveTransferDetails(
+      result.id,
+      mnemonic,
+      transferCache,
+    );
 
     if (!findTxResponse) {
       // If no transaction is found just call it completed
@@ -812,6 +852,7 @@ async function processLightningTransaction(
   unpaidInvoicesByAmount,
   mnemonic,
   sendWebViewRequest,
+  transferCache,
 ) {
   const details = JSON.parse(txStateUpdate.details);
   const possibleOptions = unpaidInvoicesByAmount.get(details.amount) || [];
@@ -838,7 +879,11 @@ async function processLightningTransaction(
 
   if (!IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID)) {
     // Process invoice matching with retry logic
-    const tx = await getSingleTxDetails(mnemonic, txStateUpdate.sparkID);
+    const tx = await resolveTransferDetails(
+      txStateUpdate.sparkID,
+      mnemonic,
+      transferCache,
+    );
 
     if (!tx) return false;
 
@@ -948,6 +993,7 @@ async function processBitcoinTransactions(
   sendWebViewRequest,
   accountId,
   forceRefresh,
+  transferCache,
 ) {
   const lastRun = await getLocalStorageItem('lastRunBitcoinTxUpdate');
 
@@ -1012,9 +1058,10 @@ async function processBitcoinTransactions(
         continue;
       }
 
-      const transfer = await getSingleTxDetails(
-        mnemonic,
+      const transfer = await resolveTransferDetails(
         txStateUpdate.sparkID,
+        mnemonic,
+        transferCache,
       );
 
       if (!transfer) continue;
@@ -1091,6 +1138,7 @@ async function processSparkTransactions(
   sendWebViewRequest,
   contactsPrivateKey = null,
   publicKey = null,
+  transferCache,
 ) {
   let includesGift = false;
   let updatedTxs = [];
@@ -1113,9 +1161,10 @@ async function processSparkTransactions(
     if (IS_SPARK_ID.test(txStateUpdate.sparkID)) {
       // This means the placeholder tx is created and we should defer this action to the debouceHandlIncomePayment function
       if (txStateUpdate.paymentType === 'unknown' && !details.amount) continue;
-      const findTxResponse = await getSingleTxDetails(
-        mnemonic,
+      const findTxResponse = await resolveTransferDetails(
         txStateUpdate.sparkID,
+        mnemonic,
+        transferCache,
       );
 
       if (!findTxResponse) continue;

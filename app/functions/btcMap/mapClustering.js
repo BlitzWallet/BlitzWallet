@@ -1,4 +1,4 @@
-import Supercluster from 'supercluster';
+import Supercluster from 'react-native-clusterer';
 
 export class ClusterManager {
   constructor(options = {}) {

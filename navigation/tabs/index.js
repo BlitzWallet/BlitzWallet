@@ -2,7 +2,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -20,7 +19,6 @@ const Tab = createBottomTabNavigator();
 
 export const TAB_ITEM_HEIGHT = 60;
 const TAB_ITEM_WIDTH = 70;
-const TAB_BORDER_WIDTH = 1;
 const OVERLAY_HEIGHT = 50;
 const ICON_SIZE = 26;
 
@@ -43,24 +41,35 @@ function renderIcon(label, focused, color) {
   }
 }
 
-// Each tab renders two stacked icon layers: a base layer in the inactive
-// color that is ALWAYS visible, and an active layer (the focused color) whose
-// opacity is driven by `progress` so it fades in exactly as the selection pill
-// arrives under this tab. Because both the pill and this cross-fade read the
-// same `progress` value, an icon can never end up the same color as whatever
-// is behind it (which is what made icons "disappear" when the pill drifted off
-// the focused tab).
+// Each tab owns its OWN selection pill, rendered as a background layer inside
+// this tab's subtree (declared before the icon). Because the icon is always
+// drawn above its own pill within the same parent, the pill can never cover
+// the icon — which is what made icons "disappear" on Android, where the old
+// single global pill's sibling `zIndex` was unreliable and let it draw on top.
+//
+// Each tab fades its own pill/icon toward `focused ? 1 : 0` independently. Only
+// the previously-focused and newly-focused tabs animate, so jumping between
+// non-adjacent tabs no longer sweeps a value through the tabs in between (which
+// used to flash their pill). Since the pill lives in the correct tab's subtree,
+// a lagging update (after navigation.reset / resume / a blocked JS thread) can
+// only mistime the fade — it can never hide the focused icon.
 function TabButton({
   label,
-  index,
-  progress,
+  focused,
   activeColor,
   inactiveColor,
+  pillColor,
   showUnread,
   onPress,
 }) {
-  const activeIconStyle = useAnimatedStyle(() => ({
-    opacity: Math.max(0, 1 - Math.abs(progress.value - index)),
+  const active = useSharedValue(focused ? 1 : 0);
+
+  useEffect(() => {
+    active.value = withTiming(focused ? 1 : 0, { duration: 150 });
+  }, [focused, active]);
+
+  const selectionStyle = useAnimatedStyle(() => ({
+    opacity: active.value,
   }));
 
   return (
@@ -69,12 +78,17 @@ function TabButton({
       activeOpacity={0.7}
       style={styles.tabItemContainer}
     >
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.tabPill, { backgroundColor: pillColor }, selectionStyle]}
+      />
+
       <View style={styles.iconWrapper}>
         {renderIcon(label, false, inactiveColor)}
 
         <Animated.View
           pointerEvents="none"
-          style={[styles.iconOverlay, activeIconStyle]}
+          style={[styles.iconOverlay, selectionStyle]}
         >
           {renderIcon(label, true, activeColor)}
         </Animated.View>
@@ -96,27 +110,7 @@ function MyTabBar({ state, descriptors, navigation }) {
   const { bottomPadding } = useGlobalInsets();
 
   const tabCount = state.routes.length || 1;
-  const selectedIndex = Math.min(state.index, tabCount - 1);
   const containerWidth = tabCount * TAB_ITEM_WIDTH;
-  const adjustedWidth = containerWidth - TAB_BORDER_WIDTH * 2;
-  const tabWidth = adjustedWidth / tabCount;
-
-  // Single source of truth for the selection on the UI thread. `targetIndex`
-  // is kept in sync with the navigator's focused index, and `progress`
-  // continuously animates toward it.
-  const targetIndex = useSharedValue(selectedIndex);
-
-  useEffect(() => {
-    targetIndex.value = selectedIndex;
-  }, [selectedIndex, targetIndex]);
-
-  const progress = useDerivedValue(() =>
-    withTiming(targetIndex.value, { duration: 150 }),
-  );
-
-  const overlayAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: progress.value * tabWidth }],
-  }));
 
   const containerStyle = useMemo(
     () => ({
@@ -130,6 +124,9 @@ function MyTabBar({ state, descriptors, navigation }) {
     theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
 
   const inactiveColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+
+  const pillColor =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
 
   return (
@@ -153,26 +150,6 @@ function MyTabBar({ state, descriptors, navigation }) {
           },
         ]}
       >
-        {/* Animated selection overlay */}
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.overlayContainer,
-            overlayAnimatedStyle,
-            { width: tabWidth },
-          ]}
-        >
-          <View
-            style={[
-              styles.overlay,
-              {
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-            ]}
-          />
-        </Animated.View>
-
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
 
@@ -199,10 +176,10 @@ function MyTabBar({ state, descriptors, navigation }) {
             <TabButton
               key={route.key}
               label={label}
-              index={index}
-              progress={progress}
+              focused={focused}
               activeColor={activeColor}
               inactiveColor={inactiveColor}
+              pillColor={pillColor}
               showUnread={
                 label === 'Contacts' && hasUnlookedTransactions && !focused
               }
@@ -250,15 +227,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...CENTER,
   },
-  overlayContainer: {
+  tabPill: {
     position: 'absolute',
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 0,
-  },
-  overlay: {
     width: '80%',
     height: OVERLAY_HEIGHT,
     borderRadius: 25,
@@ -268,7 +238,6 @@ const styles = StyleSheet.create({
     minHeight: TAB_ITEM_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1,
   },
   iconWrapper: {
     width: 44,

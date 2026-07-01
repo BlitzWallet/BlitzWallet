@@ -25,6 +25,7 @@ import { handleBrantaVerification } from '../../../../../functions/branta/index'
 import { Image as ExpoImage } from 'expo-image';
 import getPhonePaymentAddress, {
   getPhonePaymentCandidates,
+  getPhonePostProvider,
 } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 
 export default async function decodeSendAddress(props) {
@@ -117,6 +118,23 @@ export default async function decodeSendAddress(props) {
           'blitzPaylinks',
           payLinkId,
         );
+      };
+    }
+
+    // POST-based phone providers (e.g. Burundi) have no LNURL/lightning address;
+    // they mint a BOLT11 invoice via a direct POST. Synthesize an LNURL_PAY-shaped
+    // input so the rest of the pipeline (amount entry, fiat default, fee estimate,
+    // send) is reused; the invoice fetch is overridden via data.postProvider.
+    const postProvider = getPhonePostProvider(btcAdress);
+    if (postProvider) {
+      parsedInvoice = {
+        type: InputTypes.LNURL_PAY,
+        data: {
+          address: `${postProvider.phone}@${postProvider.domain}`,
+          minSendable: postProvider.minSendableSats * 1000,
+          maxSendable: 100_000_000 * 1000, // effective cap is the user's balance
+          postProvider,
+        },
       };
     }
 

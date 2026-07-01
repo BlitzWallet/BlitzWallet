@@ -31,8 +31,6 @@ export function filterDisplayableTransactions({
   scrollPosition,
   enabledLRC20,
   tokens,
-  forcedPendingMap,
-  appliedEpoch = 0,
   limit = 25,
   hideSmallPaymentsHomepage,
 }) {
@@ -120,17 +118,7 @@ export function filterDisplayableTransactions({
 
     shownTxs.add(tx.sparkID);
 
-    // Apply pending flag
-    const pendingMeta = forcedPendingMap?.get(tx.sparkID);
-    if (
-      pendingMeta &&
-      pendingMeta.epoch > appliedEpoch &&
-      !tx.isBalancePending
-    ) {
-      result.push({ ...tx, isBalancePending: true });
-    } else {
-      result.push(tx);
-    }
+    result.push(tx);
   }
 
   return result;

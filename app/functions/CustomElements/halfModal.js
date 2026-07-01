@@ -82,6 +82,8 @@ import StablecoinAssetPickerHalfModal from './stablecoinAssetPickerHalfModal';
 import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analytics/removeBudgetHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
+import BTCMapFilterContent from '../../screens/inAccount/btcMapFilter';
+import BTCMapListContent from '../../screens/inAccount/btcMapList';
 import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLightning/halfModalDepositFunds';
 import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/receiveBitcoin/shareInvoicePayLinkModal';
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
@@ -715,6 +717,27 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
+      case 'btcMapFilter':
+        return (
+          <BTCMapFilterContent
+            currentFilter={props?.route?.params?.currentFilter}
+            onSelectFilter={props?.route?.params?.onSelectFilter}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+          />
+        );
+      case 'btcMapList':
+        return (
+          <BTCMapListContent
+            bbox={props?.route?.params?.bbox}
+            categories={props?.route?.params?.categories}
+            distanceUnit={props?.route?.params?.distanceUnit}
+            userLocation={props?.route?.params?.userLocation}
+            handleBackPressFunction={handleBackPressFunction}
+            setContentHeight={setContentHeight}
+            placeCount={props?.route?.params?.placeCount}
+          />
+        );
       case 'depositFunds':
         return (
           <HalfModalDepositFunds
@@ -818,14 +841,16 @@ export default function CustomHalfModal(props) {
               contentType === 'sendOptions' ||
               contentType === 'receiveOptions' ||
               contentType === 'createPoolFlow' ||
-              contentType === 'ClaimGiftHomeHalfModal'
+              contentType === 'ClaimGiftHomeHalfModal' ||
+              contentType === 'btcMapList'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
                     contentType === 'addContacts' ||
                     contentType === 'sendOptions' ||
                     contentType === 'createPoolFlow' ||
-                    contentType === 'SelectLRC20Token'
+                    contentType === 'SelectLRC20Token' ||
+                    contentType === 'btcMapList'
                   ? 0
                   : contentType === 'receiveOptions'
                   ? 0

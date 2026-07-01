@@ -615,7 +615,6 @@ export const UserTransaction = memo(function UserTransaction({
 
   const showPendingTransactionStatusIcon =
     transaction.paymentStatus === TRANSACTION_CONSTANTS.PENDING ||
-    transaction.isBalancePending ||
     showSwapConversion;
 
   const isReceive =

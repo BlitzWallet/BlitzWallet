@@ -100,8 +100,7 @@ export default function ExpandedTx(props) {
 
   const isFailedPayment =
     transaction.paymentStatus === 'failed' || showLNOrchestraAsFailed;
-  const isPending =
-    transaction.paymentStatus === 'pending' || transaction.isBalancePending;
+  const isPending = transaction.paymentStatus === 'pending';
 
   const showViewProgress =
     isPending &&
@@ -137,10 +136,7 @@ export default function ExpandedTx(props) {
         if (!txFromDB) return;
 
         setTransaction(prev => {
-          if (
-            prev.paymentStatus !== txFromDB.paymentStatus ||
-            prev.isBalancePending !== txFromDB.isBalancePending
-          ) {
+          if (prev.paymentStatus !== txFromDB.paymentStatus) {
             return txFromDB; // details already parsed
           }
           return prev;

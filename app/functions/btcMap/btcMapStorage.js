@@ -18,7 +18,8 @@ async function openDB() {
         id   INTEGER PRIMARY KEY,
         lat  REAL    NOT NULL,
         lon  REAL    NOT NULL,
-        icon TEXT    DEFAULT ''
+        icon TEXT    DEFAULT '',
+        name TEXT    DEFAULT ''
       );
       CREATE INDEX IF NOT EXISTS idx_lat ON ${PLACES_TABLE}(lat);
       CREATE INDEX IF NOT EXISTS idx_lon ON ${PLACES_TABLE}(lon);
@@ -28,6 +29,12 @@ async function openDB() {
         value TEXT NOT NULL
       );
     `);
+    // Migrate existing installs that predate the `name` column.
+    try {
+      await db.execAsync(`ALTER TABLE ${PLACES_TABLE} ADD COLUMN name TEXT`);
+    } catch (_) {
+      // Column already exists — ignore "duplicate column name" error.
+    }
     return db;
   })();
   initPromise.catch(() => {
@@ -78,14 +85,40 @@ export async function upsertPlaces(places) {
   await db.withTransactionAsync(async () => {
     for (let i = 0; i < places.length; i += BATCH_SIZE) {
       const batch = places.slice(i, i + BATCH_SIZE);
-      const placeholders = batch.map(() => '(?,?,?,?)').join(',');
-      const values = batch.flatMap(p => [p.id, p.lat, p.lon, p.icon || '']);
+      const placeholders = batch.map(() => '(?,?,?,?,?)').join(',');
+      const values = batch.flatMap(p => [
+        p.id,
+        p.lat,
+        p.lon,
+        p.icon || '',
+        p.name || '',
+      ]);
       await db.runAsync(
-        `INSERT OR REPLACE INTO ${PLACES_TABLE} (id, lat, lon, icon) VALUES ${placeholders}`,
+        `INSERT OR REPLACE INTO ${PLACES_TABLE} (id, lat, lon, icon, name) VALUES ${placeholders}`,
         values,
       );
     }
   });
+}
+
+export async function needsToResyncMapsData() {
+  try {
+    await openDB();
+
+    const row = await db.getFirstAsync(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM ${PLACES_TABLE}
+        WHERE name IS NULL OR name = ''
+      ) AS missing
+    `);
+
+    console.log(row); // inspect actual result shape
+    return Boolean(row?.missing);
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 }
 
 export async function deletePlaces(ids) {
@@ -109,25 +142,26 @@ export async function truncateAndInsertPlaces(places) {
     await db.runAsync(`DELETE FROM ${PLACES_TABLE}`);
     for (let i = 0; i < places.length; i += BATCH_SIZE) {
       const batch = places.slice(i, i + BATCH_SIZE);
-      const placeholders = batch.map(() => '(?,?,?,?)').join(',');
-      const values = batch.flatMap(p => [p.id, p.lat, p.lon, p.icon || '']);
+      const placeholders = batch.map(() => '(?,?,?,?,?)').join(',');
+      const values = batch.flatMap(p => [
+        p.id,
+        p.lat,
+        p.lon,
+        p.icon || '',
+        p.name || '',
+      ]);
       await db.runAsync(
-        `INSERT INTO ${PLACES_TABLE} (id, lat, lon, icon) VALUES ${placeholders}`,
+        `INSERT INTO ${PLACES_TABLE} (id, lat, lon, icon, name) VALUES ${placeholders}`,
         values,
       );
     }
   });
 }
 
-export async function getAllPlaces() {
-  await openDB();
-  return db.getAllAsync(`SELECT id, lat, lon, icon FROM ${PLACES_TABLE}`);
-}
-
 export async function getPlacesInBbox(minLat, maxLat, minLon, maxLon) {
   await openDB();
   return db.getAllAsync(
-    `SELECT id, lat, lon, icon FROM ${PLACES_TABLE}
+    `SELECT id, lat, lon, icon, name FROM ${PLACES_TABLE}
      WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?`,
     [minLat, maxLat, minLon, maxLon],
   );

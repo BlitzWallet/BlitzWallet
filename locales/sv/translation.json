@@ -1014,6 +1014,13 @@
       "phonePaymentTitle": "Betala {{number}}",
       "phonePaymentDesc": "Skickar till mobilnummer",
       "phonePaymentDescGcash": "Skickar till GCash-nummer",
+      "mobileMoneyTitle": "Mobila pengar",
+      "mobileMoneySubtitle": "Betala till ett Mobile Money-konto",
+      "mobileMoneyCountryTitle": "Välj ett land",
+      "mobileMoneyCountrySubtitle": "Välj landet för Mobile Money-kontot du betalar till.",
+      "mobileMoneyPhoneTitle": "Ange mobilnummer",
+      "mobileMoneyPhoneSubtitle": "Ange numret du vill betala till.",
+      "mobileMoneyInvalidPhone": "Ange ett giltigt mobilnummer för det valda landet.",
       "depositFunds": "Sätt in pengar",
       "depositFundsSubtitle": "Lägg till pengar i din plånbok",
       "onChainBitcoin": "Sätt in Bitcoin",
@@ -2614,7 +2621,11 @@
         "title": "Betala med Bitcoin",
         "loadingMap": "Laddar karta...",
         "loadingMerchants": "Laddar handlare...",
-        "zoomIn": "Zooma in för att se alla handlare"
+        "zoomIn": "Zooma in för att se alla handlare",
+        "findAPlace": "Hitta en plats",
+        "placesHere": "{{count}} platser här",
+        "noPlaces": "Inga platser hittades",
+        "hasMorePlaces": "Visar de närmaste {{num}} platserna. Zooma in för att se fler."
       },
       "merchant": {
         "noName": "Okänd handlare",
@@ -2623,6 +2634,26 @@
         "lightning": "Lightning",
         "lightningMessage": "Tar emot bitcoinbetalningar direkt via Lightning-nätverket",
         "dataMessage": "Data från btcmap.org"
+      },
+      "filter": {
+        "categoriesTitle": "Kategorier",
+        "distanceTitle": "Avstånd",
+        "all": "Alla",
+        "apply": "Tillämpa",
+        "clear": "Rensa",
+        "auto": "Auto",
+        "km": "km",
+        "mi": "mi"
+      },
+      "categories": {
+        "food_drink": "Mat & dryck",
+        "retail": "Detaljhandel",
+        "lodging": "Boende",
+        "services": "Tjänster",
+        "atm": "Bitcoin-uttagsautomater",
+        "fuel": "Bränsle",
+        "leisure": "Fritid",
+        "other": "Övrigt"
       }
     },
     "bitrefill": {
