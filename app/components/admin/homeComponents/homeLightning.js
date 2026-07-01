@@ -324,21 +324,6 @@ export default function HomeLightning({ navigation }) {
         return;
       startLiquidEventListener(6);
       startRootstockEventListener({ intervalMs: 60000 });
-
-      const response = await fullRestoreSparkState({
-        sparkAddress: sparkInformation.sparkAddress,
-        batchSize: 2,
-        isSendingPayment: isSendingPaymentRef.current,
-        mnemonic: currentWalletMnemoinc,
-        identityPubKey: sparkInformation.identityPubKey,
-        isInitialRestore: false,
-      });
-      if (!response) {
-        sparkTransactionsEventEmitter.emit(
-          SPARK_TX_UPDATE_ENVENT_NAME,
-          'fullUpdate-waitBalance',
-        );
-      }
     } catch (err) {
       console.log('error refreshing on homepage', err);
     } finally {
