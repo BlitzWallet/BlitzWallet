@@ -1218,6 +1218,12 @@ export default function SendPaymentScreen(props) {
         paymentInfo,
         fiatValueConvertedSendAmount,
         poolInfoRef,
+        extraDetails: paymentInfo?.isUsingBranta
+          ? {
+              brantaMerchantName: paymentInfo.brantaMerchantName,
+              brantaMerchantLogo: paymentInfo.brantaMerchantLogo,
+            }
+          : {},
       };
 
       const paymentResponse = await sparkPaymenWrapper(paymentObject);
