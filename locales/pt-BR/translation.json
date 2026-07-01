@@ -1276,7 +1276,7 @@
         "sendMaxShort": "Máx"
       },
       "acceptButton": {
-        "noSendAmountError": "Insira uma quantia para envio.",
+        "noSendAmountError": "Insira uma quantia para envio",
         "noSwapForBTCPaymentsError": "Pagamentos para endereços Bitcoin só podem ser feitos com BTC, não USD. Trocas não estão disponíveis para endereços Bitcoin.",
         "balanceFragmentationError": "Seu saldo está distribuído entre BTC e USD. Para concluir este pagamento, consolide seus fundos ou ajuste o método de pagamento.",
         "liquidError": "A quantia {{overFlowType}} para envio é {{amount}}",
