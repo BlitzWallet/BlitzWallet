@@ -1276,7 +1276,7 @@
         "sendMaxShort": "Máx"
       },
       "acceptButton": {
-        "noSendAmountError": "Insira uma quantia para envio.",
+        "noSendAmountError": "Insira uma quantia para envio",
         "noSwapForBTCPaymentsError": "Pagamentos para endereços Bitcoin só podem ser feitos com BTC, não USD. Trocas não estão disponíveis para endereços Bitcoin.",
         "balanceFragmentationError": "Seu saldo está distribuído entre BTC e USD. Para concluir este pagamento, consolide seus fundos ou ajuste o método de pagamento.",
         "liquidError": "A quantia {{overFlowType}} para envio é {{amount}}",
@@ -1797,7 +1797,7 @@
     "notifications": {
       "mainToggle_enabled": "Notificações",
       "mainToggle_disabled": "Notificações",
-      "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
+      "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
       "contactDesc": "Pagamentos recebidos dos seus contatos salvos",
@@ -1824,7 +1824,7 @@
       "moreCurrencies": "Mais moedas",
       "currencyCount": "{{count}}+ disponíveis",
       "saveCurrencyError": "Não foi possível salvar a moeda selecionada, tente novamente.",
-      "loadingCurrencyRate": "Carregando a cotação atual da moeda fiduciária"
+      "loadingCurrencyRate": "Carregando a cotação atual da moeda estatal"
     },
     "feeInformation": {
       "title": "",
@@ -2538,8 +2538,8 @@
         "enterAmountTitle": "Insira a quantia que deseja trocar",
         "noContentTitle": "Saldo indisponível",
         "noContentSubTittle": "Adicione fundos na sua carteira para realizar trocas entre moedas",
-        "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para trocar bitcoins.",
-        "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para trocar dólares.",
+        "insufficientBTCToSwap": "É necessário um saldo de Bitcoin de pelo menos {{amount}} para realizar trocas",
+        "insufficientUSDToSwap": "É necessário um saldo em dólares de pelo menos {{amount}} para realizar trocas",
         "belowSwapLimitTitle": "Saldo muito baixo para realizar trocas",
         "belowSwapLimitBitcoin": "Seu saldo de Bitcoin está abaixo do mínimo para realizar trocas. Adicione pelo menos {{btcMin}}",
         "belowSwapLimitDollar": "Seu saldo em dólares está abaixo do mínimo para realizar trocas. Adicione pelo menos {{usdMin}}",
@@ -2614,8 +2614,8 @@
     },
     "btcMap": {
       "mapPreview": {
-        "header": "Compre com Bitcoin",
-        "subHeader": "Comércio ao seu redor"
+        "header": "Gaste seus Bitcoins",
+        "subHeader": "Lojas perto de mim"
       },
       "map": {
         "title": "Pagar com Bitcoin",
