@@ -27,7 +27,10 @@ import {
   convertToDecimals,
   satsToDollars,
 } from '../../../../functions/spark/swapAmountUtils';
-import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  resolveUsdFiatStats,
+} from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function CreateGift(props) {
@@ -42,8 +45,8 @@ export default function CreateGift(props) {
   const determinePaymentMethod =
     props.route?.params?.selectedPaymentMethod || 'BTC';
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
   );
   const initialDisplayCurrency = useMemo(
     () =>

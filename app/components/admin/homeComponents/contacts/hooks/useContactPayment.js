@@ -35,6 +35,7 @@ import { resolveContactPaymentDefault } from './resolveContactPaymentDefault';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
+  resolveUsdFiatStats,
 } from '../../../../../functions/displayCurrency';
 import {
   lnurlCurrencyToRate,
@@ -262,8 +263,8 @@ export default function useContactPayment({
       : paymentMethod;
 
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
   );
   const initialDisplayCurrency = useMemo(
     () =>

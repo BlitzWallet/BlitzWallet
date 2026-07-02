@@ -68,7 +68,6 @@ export default function DisplayCurrencySelect({
       hasSelected.current = true;
       setIsLoadingNewRate(true);
       const normalizedCode = normalizeDisplayCurrency(currency);
-      console.log(currency, normalizedCode);
       currency !== 'SATS' &&
         (await loadNewFiatData(
           normalizedCode,

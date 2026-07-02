@@ -23,6 +23,7 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
+  resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
@@ -49,8 +50,8 @@ export default function EditReceivePaymentInformation(props) {
 
   const isUSDReceiveMode = endReceiveType === 'USD';
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
   );
   // Open the editor in the currency the amount was originally entered in (if
   // one was passed through), otherwise fall back to the device-based default.

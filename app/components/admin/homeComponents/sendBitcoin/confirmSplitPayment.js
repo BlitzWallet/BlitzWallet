@@ -63,7 +63,10 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
-import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  resolveUsdFiatStats,
+} from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 
@@ -127,8 +130,8 @@ export default function ConfirmSplitPayment(props) {
   }, [isUSDSplit, splitRecipients]);
 
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
   );
   const initialDisplayCurrency = useMemo(
     () =>

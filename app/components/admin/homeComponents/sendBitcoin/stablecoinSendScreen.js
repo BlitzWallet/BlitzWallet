@@ -54,7 +54,10 @@ import { formatStablecoinAmount } from '../../../../functions/sendBitcoin';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { formatBalanceAmount } from '../../../../functions';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
-import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  resolveUsdFiatStats,
+} from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 const QUOTE_TTL_MS = 115_000;
@@ -134,8 +137,8 @@ export default function StablecoinSendScreen() {
 
   const sourceMethod = selectedPaymentMethod || 'BTC';
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
   );
   const initialDisplayCurrency = useMemo(
     () =>
