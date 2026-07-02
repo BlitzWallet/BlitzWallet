@@ -18,7 +18,10 @@ import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useTranslation } from 'react-i18next';
 import { numberConverter } from '../../../../functions';
-import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  resolveUsdFiatStats,
+} from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 
 export default function AnalyticsCreateBudgetPage() {
@@ -42,8 +45,8 @@ export default function AnalyticsCreateBudgetPage() {
     existingBudget?.amount ? String(formattedPresetAmount) : '',
   );
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
   );
   const initialDisplayCurrency = useMemo(
     () =>

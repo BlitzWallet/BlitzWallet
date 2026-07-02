@@ -12,7 +12,10 @@ import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { satsToDollars } from '../spark/flashnet';
 import CurrencySwitchButton from './currencySwitchButton';
-import { getDefaultDisplayCurrency } from '../displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  resolveUsdFiatStats,
+} from '../displayCurrency';
 import useDisplayCurrencyController from '../../hooks/useDisplayCurrencyController';
 import useCurrencyDisplay from '../../hooks/useCurrencyDisplay';
 
@@ -35,13 +38,15 @@ export default function CustomInputHalfModal(props) {
   const isUSDOnly = returnLocation === 'CreateSplitBill' && forceUSD;
   const fiatStats = useMemo(
     () =>
-      forceUSD ? { value: swapUSDPriceDollars, coin: 'USD' } : globalFiatStats,
+      forceUSD
+        ? resolveUsdFiatStats(globalFiatStats, swapUSDPriceDollars)
+        : globalFiatStats,
     [forceUSD, swapUSDPriceDollars, globalFiatStats],
   );
 
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(globalFiatStats, swapUSDPriceDollars),
+    [globalFiatStats, swapUSDPriceDollars],
   );
 
   const initialDisplayCurrency = useMemo(
