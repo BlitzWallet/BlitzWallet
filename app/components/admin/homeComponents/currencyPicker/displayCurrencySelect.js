@@ -68,12 +68,14 @@ export default function DisplayCurrencySelect({
       hasSelected.current = true;
       setIsLoadingNewRate(true);
       const normalizedCode = normalizeDisplayCurrency(currency);
-      await loadNewFiatData(
-        normalizedCode,
-        contactsPrivateKey,
-        publicKey,
-        masterInfoObject,
-      );
+      console.log(currency, normalizedCode);
+      currency !== 'SATS' &&
+        (await loadNewFiatData(
+          normalizedCode,
+          contactsPrivateKey,
+          publicKey,
+          masterInfoObject,
+        ));
       if (!isMounted.current) return;
       handleBackPressFunction(() => {
         navigate.goBack();
