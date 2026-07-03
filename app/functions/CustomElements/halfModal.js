@@ -50,6 +50,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
@@ -217,6 +218,8 @@ export default function CustomHalfModal(props) {
         clearTimeout(closeTimerRef.current);
         closeTimerRef.current = null;
       }
+      cancelAnimation(translateY);
+      cancelAnimation(animatedHeight);
     };
   }, [shouldDismissKeyboardOnMount, slideIn]);
 

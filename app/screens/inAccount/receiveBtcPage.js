@@ -30,6 +30,7 @@ import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -427,6 +428,10 @@ function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
     );
   }, [endReceiveType, pillWidth]);
 
+  useEffect(() => {
+    return () => cancelAnimation(thumbX);
+  }, []);
+
   const thumbAnimStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: thumbX.value }],
   }));
@@ -669,6 +674,13 @@ function QrCode({ addressState, qrContainerSize, qrInnerSize, isUsingLnurl }) {
     addressState.isGeneratingInvoice,
     addressState.errorMessageText,
   ]);
+
+  useEffect(() => {
+    return () => {
+      cancelAnimation(qrOpacity);
+      cancelAnimation(loadingOpacity);
+    };
+  }, []);
 
   const handleFadeOutComplete = newAddress => {
     if (newAddress) {

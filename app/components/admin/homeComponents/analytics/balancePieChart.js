@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedProps,
   withTiming,
   Easing,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import { COLORS, SIZES } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -67,7 +68,10 @@ export default function BalancePieChart({ isBalanceHidden }) {
         easing: Easing.out(Easing.cubic),
       });
     }, delay);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      cancelAnimation(animatedPct);
+    };
   }, [btcPct]);
 
   const animatedProps = useAnimatedProps(() => ({

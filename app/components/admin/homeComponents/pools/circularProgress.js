@@ -11,6 +11,7 @@ import Animated, {
   useAnimatedProps,
   withTiming,
   Easing,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
@@ -71,8 +72,9 @@ export default function CircularProgress({
   const trackColor = useAltBackground ? backgroundColor : backgroundOffset;
 
   useEffect(() => {
+    let timer;
     if (useFillAnimation) {
-      setTimeout(
+      timer = setTimeout(
         () => {
           animatedPercentage.value = withTiming(percentage, {
             duration: 600,
@@ -85,6 +87,10 @@ export default function CircularProgress({
     } else {
       animatedPercentage.value = percentage;
     }
+    return () => {
+      clearTimeout(timer);
+      cancelAnimation(animatedPercentage);
+    };
   }, [percentage]);
 
   const animatedProps = useAnimatedProps(() => {

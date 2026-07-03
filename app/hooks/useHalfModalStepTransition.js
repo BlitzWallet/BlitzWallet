@@ -3,6 +3,7 @@ import {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -46,6 +47,13 @@ export default function useHalfModalStepTransition(page, order) {
       },
     );
   }, [page]);
+
+  useEffect(() => {
+    return () => {
+      cancelAnimation(opacity);
+      cancelAnimation(translateX);
+    };
+  }, []);
 
   const pageAnimatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

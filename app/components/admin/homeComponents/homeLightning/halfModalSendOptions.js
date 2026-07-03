@@ -33,6 +33,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import {
   useProcessedContacts,
@@ -224,6 +225,9 @@ export default function HalfModalSendOptions({
     isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
+      cancelAnimation(contentOpacity);
+      cancelAnimation(contentTranslateX);
+      cancelAnimation(inputModeProgress);
     };
   }, []);
 
