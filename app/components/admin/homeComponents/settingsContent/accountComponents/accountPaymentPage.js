@@ -18,7 +18,6 @@ import {
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
-  SATSPERBITCOIN,
 } from '../../../../../constants';
 import { useTranslation } from 'react-i18next';
 import useDebounce from '../../../../../hooks/useDebounce';
@@ -45,6 +44,7 @@ import { updateConfirmAnimation } from '../../../../../functions/lottieViewColor
 import LottieView from 'lottie-react-native';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import SectionCard from '../../../../../screens/inAccount/settingsHub/components/SectionCard';
+import numberConverter from '../../../../../functions/numberConverter';
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function AccountPaymentPage(props) {
@@ -77,10 +77,17 @@ export default function AccountPaymentPage(props) {
   const toAccount =
     custodyAccountsList.find(item => item.uuid === to)?.name || '';
 
-  const convertedSendAmount =
-    masterInfoObject.userBalanceDenomination != 'fiat'
-      ? Math.round(Number(sendingAmount))
-      : Math.round((SATSPERBITCOIN / fiatStats.value) * Number(sendingAmount));
+  // The customInputText modal now returns the amount already in sats.
+  const convertedSendAmount = Math.round(Number(sendingAmount));
+
+  // FormattedBalanceInput renders its value raw, so convert the sats amount into
+  // the user's display denomination for the hero.
+  const heroDisplayAmount = numberConverter(
+    sendingAmount,
+    masterInfoObject.userBalanceDenomination,
+    masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
+    fiatStats,
+  );
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -122,7 +129,7 @@ export default function AccountPaymentPage(props) {
     fromAccount &&
     toAccount &&
     !transferInfo.isCalculatingFee &&
-    convertedSendAmount <= transferInfo.paymentFee + fromBalance;
+    convertedSendAmount + transferInfo.paymentFee <= fromBalance;
 
   const handlePayment = useCallback(async () => {
     try {
@@ -154,7 +161,7 @@ export default function AccountPaymentPage(props) {
         );
       }
 
-      if (convertedSendAmount > transferInfo.paymentFee + fromBalance) {
+      if (convertedSendAmount + transferInfo.paymentFee > fromBalance) {
         throw new Error(
           t('settings.accountComponents.accountPaymentPage.balanceError'),
         );
@@ -307,26 +314,8 @@ export default function AccountPaymentPage(props) {
         >
           <FormattedBalanceInput
             maxWidth={0.85}
-            amountValue={sendingAmount}
+            amountValue={heroDisplayAmount}
             inputDenomination={masterInfoObject.userBalanceDenomination}
-          />
-          <FormattedSatText
-            containerStyles={{
-              opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
-              marginTop: 4,
-            }}
-            neverHideBalance={true}
-            styles={{
-              includeFontPadding: false,
-              fontSize: SIZES.smedium,
-            }}
-            globalBalanceDenomination={
-              masterInfoObject.userBalanceDenomination === 'sats' ||
-              masterInfoObject.userBalanceDenomination === 'hidden'
-                ? 'fiat'
-                : 'sats'
-            }
-            balance={convertedSendAmount}
           />
         </TouchableOpacity>
 
