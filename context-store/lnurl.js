@@ -11,22 +11,24 @@ import { batchDeleteLnurlPayments } from '../db';
 // import {getBitcoinKeyPair, getSharedKey} from '../app/functions/lnurl';
 import { useSparkWallet } from './sparkContext';
 // import {retrieveData} from '../app/functions';
-import { addSingleUnpaidSparkLightningTransaction } from '../app/functions/spark/transactions';
+import {
+  addBulkUnpaidSparkLightningTransactions,
+  bulkUpdateSparkTransactions,
+  getBulkSparkTransactions,
+} from '../app/functions/spark/transactions';
 import i18next from 'i18next';
 
 export default function HandleLNURLPayments() {
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const sparkAddress = sparkInformation?.sparkAddress;
+  const identityPubKey = sparkInformation?.identityPubKey;
 
   // Initialize refs
   const loadListener = useRef(false); // Changed to boolean for clarity
-  const timeoutRef = useRef(null);
   const isProcessingRef = useRef(false);
 
   const paymentQueueRef = useRef([]);
-
-  const deleteActiveLNURLPaymentsRef = useRef([]);
 
   const parseDescription = message => {
     try {
@@ -107,10 +109,21 @@ export default function HandleLNURLPayments() {
     };
   }, [sparkAddress, masterInfoObject.uuid]);
 
-  // Process payment queue
+  // Process payment queue.
+  //
+  // A lnurlPayments doc now arrives AFTER the payment is confirmed, so the
+  // matching spark transaction may already exist. On cold start the backlog can
+  // be large, so the whole queue is drained with a fixed, small number of bulk
+  // SQL statements rather than one call per payment:
+  //   1. one bulk exists-check (getBulkSparkTransactions)
+  //   2. one bulk description patch for payments already received (updateOnly =>
+  //      never inserts a phantom row)
+  //   3. one bulk insert of unpaid invoices for payments not yet received (so
+  //      the description attaches when they settle, matched by sparkID)
+  //   4. one Firestore batch delete of the processed docs
   const processQueue = useCallback(async () => {
     if (!masterInfoObject?.uuid) return;
-    if (!sparkAddress) return;
+    if (!sparkAddress || !identityPubKey) return;
     if (isProcessingRef.current) return;
 
     isProcessingRef.current = true;
@@ -120,73 +133,90 @@ export default function HandleLNURLPayments() {
       console.log(`Processing ${currentQueue.length} LNURL payments`);
       if (currentQueue.length === 0) return;
 
-      const newQueue = [];
-      const processedIds = [];
-
-      for (const payment of currentQueue) {
-        console.log(`Processing LNURL payment ${payment.id}`, payment);
-
+      // Only items with a sparkID can be matched/attached.
+      const processable = currentQueue.filter(payment => {
         if (!payment.sparkID) {
           console.warn(`Skipping payment ${payment.id} - missing sparkID`);
-          continue;
+          return false;
+        }
+        return true;
+      });
+
+      const processedIds = currentQueue.map(payment => payment.id);
+
+      if (processable.length > 0) {
+        const sparkIDs = processable.map(payment => payment.sparkID);
+
+        // One query: which of these payments already have a spark transaction
+        // row (settled or pending placeholder) that just needs its description.
+        const existing = await getBulkSparkTransactions(sparkIDs);
+
+        const patchTxs = [];
+        const unpaidTxs = [];
+
+        for (const payment of processable) {
+          const description = parseDescription(payment.description) || '';
+
+          if (existing.has(payment.sparkID)) {
+            // Payment already received — patch the description onto it.
+            patchTxs.push({
+              id: payment.sparkID,
+              accountId: identityPubKey,
+              details: { description },
+              updateOnly: true,
+            });
+          } else {
+            // Not received yet — pre-create the unpaid invoice so the
+            // description attaches when the payment settles.
+            unpaidTxs.push({
+              id: payment.sparkID,
+              amount: payment.amountSats,
+              expiration: payment.expiredTime,
+              description,
+              shouldNavigate: false,
+              details: {
+                sendingUUID: payment.senderUUID,
+                isBlitzContactPayment: payment.isBlitzContactPayment,
+                createdTime: payment.createdAt,
+                sharedPublicKey: payment.sharedPublicKey || '',
+                sparkPubKey: payment.sparkPubKey || '',
+                isLNURL: true,
+              },
+            });
+          }
         }
 
-        try {
-          await addSingleUnpaidSparkLightningTransaction({
-            id: payment.sparkID,
-            amount: payment.amountSats,
-            expiration: payment.expiredTime,
-            description: parseDescription(payment.description) || '',
-            shouldNavigate: payment.shouldNavigate,
-            details: {
-              sendingUUID: payment.senderUUID,
-              isBlitzContactPayment: payment.isBlitzContactPayment,
-              createdTime: payment.createdAt,
-              sharedPublicKey: payment.sharedPublicKey || '',
-              sparkPubKey: payment.sparkPubKey || '',
-              isLNURL: true,
-            },
-          });
-          processedIds.push(payment.id);
-          deleteActiveLNURLPaymentsRef.current.push(payment.id);
-        } catch (error) {
-          console.error(`Error processing payment ${payment.id}:`, error);
-          // Don't add to processedIds so it can be retried
-        }
-      }
-
-      // Update queue and clean up processed payments
-      paymentQueueRef.current = paymentQueueRef.current
-        .filter(
-          item =>
-            !processedIds.includes(item.id) &&
-            !currentQueue.some(processed => processed.id === item.id),
-        )
-        .concat(newQueue);
-
-      if (deleteActiveLNURLPaymentsRef.current.length > 0) {
-        try {
-          await batchDeleteLnurlPayments(
-            masterInfoObject.uuid,
-            deleteActiveLNURLPaymentsRef.current,
+        if (patchTxs.length > 0) {
+          await bulkUpdateSparkTransactions(
+            patchTxs,
+            'transactions',
+            0,
+            0,
+            true, // shouldUpdateDescription
           );
-          deleteActiveLNURLPaymentsRef.current = [];
-        } catch (error) {
-          console.error('Error deleting processed payments:', error);
+        }
+
+        if (unpaidTxs.length > 0) {
+          await addBulkUnpaidSparkLightningTransactions(unpaidTxs);
         }
       }
 
-      if (newQueue.length > 0) {
-        timeoutRef.current = setTimeout(() => {
-          processQueue();
-        }, 10000);
+      // Drop processed items from the in-memory queue.
+      paymentQueueRef.current = paymentQueueRef.current.filter(
+        item => !processedIds.includes(item.id),
+      );
+
+      // One Firestore batch delete for the whole processed set.
+      if (processedIds.length > 0) {
+        await batchDeleteLnurlPayments(masterInfoObject.uuid, processedIds);
       }
     } catch (error) {
       console.error('Error in processQueue:', error);
+      // Leave items in the queue; the next snapshot/tick retries the batch.
     } finally {
       isProcessingRef.current = false;
     }
-  }, [sparkAddress, masterInfoObject.uuid]);
+  }, [sparkAddress, identityPubKey, masterInfoObject.uuid]);
 
   return null;
 }

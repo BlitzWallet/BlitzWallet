@@ -13,7 +13,10 @@ import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrenc
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import { useNavigation } from '@react-navigation/native';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
-import { getDefaultDisplayCurrency } from '../../../../../functions/displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  resolveUsdFiatStats,
+} from '../../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../../functions/CustomElements/currencySwitchButton';
 
 /**
@@ -38,8 +41,8 @@ export default function PayLinkAmountInput({
   const [amountValue, setAmountValue] = useState('');
   const { t } = useTranslation();
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
   );
   const initialDisplayCurrency = useMemo(
     () =>

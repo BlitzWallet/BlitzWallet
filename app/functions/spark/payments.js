@@ -609,13 +609,13 @@ export const sparkPaymenWrapper = async ({
       sparkInformation.identityPubKey,
     );
     // Only save immediately if we have identityPubKey (otherwise the tx will not show up)
+    if (extraDetails && Object.keys(extraDetails).length > 0) {
+      response = {
+        ...response,
+        details: { ...response.details, ...extraDetails },
+      };
+    }
     if (sparkInformation.identityPubKey) {
-      if (extraDetails && Object.keys(extraDetails).length > 0) {
-        response = {
-          ...response,
-          details: { ...response.details, ...extraDetails },
-        };
-      }
       await bulkUpdateSparkTransactions([response], 'paymentWrapperTx', 0);
     }
 

@@ -1825,7 +1825,8 @@
       "yourCurrencies": "Ваши валюты",
       "moreCurrencies": "Другие валюты",
       "currencyCount": "{{count}}+ поддерживаемых валют",
-      "saveCurrencyError": "Не удалось сохранить валюту, попробуйте снова."
+      "saveCurrencyError": "Не удалось сохранить валюту, попробуйте снова.",
+      "loadingCurrencyRate": "Загрузка текущего обменного курса фиатной валюты"
     },
     "feeInformation": {
       "title": "",

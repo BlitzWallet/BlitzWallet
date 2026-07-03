@@ -1824,7 +1824,8 @@
       "yourCurrencies": "Dina valutor",
       "moreCurrencies": "Fler valutor",
       "currencyCount": "{{count}}+ stöds",
-      "saveCurrencyError": "Vi kunde inte spara den valda valutan, vänligen försök igen."
+      "saveCurrencyError": "Vi kunde inte spara den valda valutan, vänligen försök igen.",
+      "loadingCurrencyRate": "Laddar aktuell valutakurs"
     },
     "feeInformation": {
       "title": "",

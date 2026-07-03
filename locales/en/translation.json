@@ -1824,7 +1824,8 @@
       "yourCurrencies": "Your currencies",
       "moreCurrencies": "More currencies",
       "currencyCount": "{{count}}+ supported",
-      "saveCurrencyError": "We were unable to save the selected currency, please try again."
+      "saveCurrencyError": "We were unable to save the selected currency, please try again.",
+      "loadingCurrencyRate": "Loading the current fiat rate"
     },
     "feeInformation": {
       "title": "",

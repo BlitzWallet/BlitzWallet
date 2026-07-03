@@ -440,6 +440,27 @@ export default function ExpandedTx(props) {
   };
 
   const renderContactRow = () => {
+    const brantaMerchantName = transaction.details?.brantaMerchantName;
+    if (brantaMerchantName) {
+      return (
+        <View style={styles.contactRow}>
+          <View style={[styles.profileImage, { backgroundColor }]}>
+            <ContactProfileImage
+              updated={undefined}
+              uri={transaction.details?.brantaMerchantLogo}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+          <ThemeText
+            styles={styles.addressText}
+            CustomNumberOfLines={1}
+            content={brantaMerchantName}
+          />
+        </View>
+      );
+    }
+
     if (isBulkPayment) {
       return <ProfileImageRow contacts={bulkContacts} />;
     }

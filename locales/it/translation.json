@@ -1824,7 +1824,8 @@
       "yourCurrencies": "Le tue valute",
       "moreCurrencies": "Altre valute",
       "currencyCount": "{{count}}+ valute supportate",
-      "saveCurrencyError": "Non siamo riusciti a salvare la valuta selezionata, riprova."
+      "saveCurrencyError": "Non siamo riusciti a salvare la valuta selezionata, riprova.",
+      "loadingCurrencyRate": "Caricamento del tasso di cambio attuale"
     },
     "feeInformation": {
       "title": "",

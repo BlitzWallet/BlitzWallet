@@ -883,6 +883,57 @@ export const addSingleUnpaidSparkLightningTransaction = async tx => {
     return false;
   }
 };
+// Bulk version of addSingleUnpaidSparkLightningTransaction: inserts many unpaid
+// lightning invoices in a single multi-row INSERT. Used when draining a large
+// lnurlPayments backlog on cold start so we don't run N sequential writes.
+export const addBulkUnpaidSparkLightningTransactions = async transactions => {
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    return { success: false, added: 0, failed: 0 };
+  }
+
+  const validTransactions = transactions.filter(tx => tx && tx.id);
+
+  if (validTransactions.length === 0) {
+    console.error('No valid unpaid lightning transactions to add');
+    return { success: false, added: 0, failed: transactions.length };
+  }
+
+  try {
+    await ensureSparkDatabaseReady();
+    const placeholders = validTransactions
+      .map(() => '(?, ?, ?, ?, ?, ?)')
+      .join(', ');
+
+    const values = validTransactions.flatMap(tx => [
+      tx.id,
+      Number(tx.amount),
+      tx.expiration,
+      tx.description,
+      tx.shouldNavigate !== undefined ? (tx.shouldNavigate ? 0 : 1) : 0,
+      JSON.stringify(tx.details),
+    ]);
+
+    await sqlLiteDB.runAsync(
+      `INSERT INTO ${LIGHTNING_REQUEST_IDS_TABLE_NAME}
+       (sparkID, amount, expiration, description, shouldNavigate, details)
+       VALUES ${placeholders}`,
+      values,
+    );
+
+    console.log(
+      `Successfully added ${validTransactions.length} unpaid lightning invoices`,
+    );
+    return {
+      success: true,
+      added: validTransactions.length,
+      failed: transactions.length - validTransactions.length,
+    };
+  } catch (error) {
+    console.error('Error adding bulk unpaid lightning transactions:', error);
+    return { success: false, added: 0, failed: transactions.length };
+  }
+};
+
 export const getSingleSparkLightningRequest = async sparkRequestID => {
   if (!sparkRequestID) {
     console.error('Invalid sparkRequestID provided');

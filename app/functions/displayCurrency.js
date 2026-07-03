@@ -27,6 +27,16 @@ export function getDefaultDisplayCurrency({
   return SATS_DISPLAY_CURRENCY;
 }
 
+// Resolves the fiat stats object used for USD display/entry. When the user's
+// selected currency is already USD, `fiatStats` is the market USD price that the
+// rest of the app (and transaction history) uses — prefer it so entered amounts
+// don't float against what's later displayed. Otherwise fall back to the Flashnet
+// pool price, which is the only always-USD reference available for non-USD users.
+export function resolveUsdFiatStats(fiatStats, swapUSDPriceDollars) {
+  if (fiatStats?.coin?.toUpperCase() === 'USD') return fiatStats;
+  return { coin: 'USD', value: swapUSDPriceDollars };
+}
+
 export function normalizeDisplayCurrency(currency) {
   if (!currency) return SATS_DISPLAY_CURRENCY;
   const normalized = String(currency).toUpperCase();

@@ -1824,7 +1824,8 @@
       "yourCurrencies": "Ihre Währungen",
       "moreCurrencies": "Weitere Währungen",
       "currencyCount": "{{count}}+ unterstützte Währungen",
-      "saveCurrencyError": "Wir konnten die ausgewählte Standardwährung nicht speichern, bitte versuchen Sie es erneut."
+      "saveCurrencyError": "Wir konnten die ausgewählte Standardwährung nicht speichern, bitte versuchen Sie es erneut.",
+      "loadingCurrencyRate": "Aktueller Fiat-Wechselkurs wird geladen"
     },
     "feeInformation": {
       "title": "",

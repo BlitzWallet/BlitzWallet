@@ -50,6 +50,7 @@ import useGuardedNavigation from '../../hooks/useGuardedNavigation';
 import {
   SATS_DISPLAY_CURRENCY,
   normalizeDisplayCurrency,
+  resolveUsdFiatStats,
 } from '../../functions/displayCurrency';
 
 export default function ReceivePaymentHome(props) {
@@ -364,7 +365,7 @@ export default function ReceivePaymentHome(props) {
                   ...masterInfoObject,
                   userBalanceDenomination: 'fiat',
                 },
-                fiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+                fiatStats: resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
                 forceCurrency: 'USD',
               }),
             })}
@@ -510,7 +511,7 @@ function AmountDisplay({
   paymentDisplayAmount,
 }) {
   const inputDenomination = endReceiveType === 'USD' ? 'fiat' : 'sats';
-  const usdFiatStats = { coin: 'USD', value: swapUSDPriceDollars };
+  const usdFiatStats = resolveUsdFiatStats(fiatStats, swapUSDPriceDollars);
   const { primaryDisplay, secondaryDisplay, conversionFiatStats } =
     usePaymentInputDisplay({
       paymentMode: endReceiveType,

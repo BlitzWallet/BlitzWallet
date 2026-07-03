@@ -78,7 +78,10 @@ import customUUID from '../../../../functions/customUUID';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import { getLNAddressForLiquidPayment } from './functions/payments';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
-import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  resolveUsdFiatStats,
+} from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
 import SecondaryAmountDisplay from './components/secondaryAmountDisplay';
 import { lnurlCurrencyToRate } from '../../../../functions/sendBitcoin/lnurlCurrencyRate';
@@ -352,8 +355,8 @@ export default function SendPaymentScreen(props) {
       : paymentFee;
 
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
-    [swapUSDPriceDollars],
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
   );
   // When arriving from a flow where the user already picked a display rate
   // (e.g. a contact send), honor that currency instead of re-deriving the
@@ -1218,6 +1221,12 @@ export default function SendPaymentScreen(props) {
         paymentInfo,
         fiatValueConvertedSendAmount,
         poolInfoRef,
+        extraDetails: paymentInfo?.isUsingBranta
+          ? {
+              brantaMerchantName: paymentInfo.brantaMerchantName,
+              brantaMerchantLogo: paymentInfo.brantaMerchantLogo,
+            }
+          : {},
       };
 
       const paymentResponse = await sparkPaymenWrapper(paymentObject);
