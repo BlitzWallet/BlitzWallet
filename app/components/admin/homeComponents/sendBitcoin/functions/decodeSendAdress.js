@@ -149,7 +149,7 @@ export default async function decodeSendAddress(props) {
     if (
       !isPhonePayment &&
       (btcAdress.startsWith('@') ||
-        btcAdress.length <= 30 ||
+        (!btcAdress.includes('@') && btcAdress.length <= 30) ||
         isBlitzLNURLAddress(btcAdress))
     ) {
       let username = '';
@@ -179,7 +179,11 @@ export default async function decodeSendAddress(props) {
       const endReceiveType =
         results?.lnurlReceiveCurrency?.toLowerCase() === 'usd' ? 'USD' : 'BTC';
 
-      if (!sparkAddress && btcAdress.startsWith('@')) {
+      if (
+        !sparkAddress &&
+        (btcAdress.startsWith('@') ||
+          (!btcAdress.includes('@') && btcAdress.length <= 30))
+      ) {
         return goBackFunction(t('errormessages.legacyContactError'));
       }
       if (sparkAddress) {
