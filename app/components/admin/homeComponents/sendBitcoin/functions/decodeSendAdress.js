@@ -168,15 +168,19 @@ export default async function decodeSendAddress(props) {
         );
       }
       const [results] = await getSingleContact(username);
+
+      if (!results)
+        return goBackFunction(
+          t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
+        );
+
       const profile = results?.contacts?.myProfile;
       const sparkAddress = profile?.sparkAddress;
       const endReceiveType =
         results?.lnurlReceiveCurrency?.toLowerCase() === 'usd' ? 'USD' : 'BTC';
 
       if (!sparkAddress && btcAdress.startsWith('@')) {
-        return goBackFunction(
-          t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
-        );
+        return goBackFunction(t('errormessages.legacyContactError'));
       }
       if (sparkAddress) {
         btcAdress = sparkAddress;
