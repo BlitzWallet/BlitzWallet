@@ -72,13 +72,12 @@ export async function initializeSparkSession({
     // Fire immediately — never blocks the critical path
     cleanStalePendingSparkLightningTransactions();
 
-    // Always fetch a live balance on connect. The cached snapshot is already
-    // painted by the loading screen for instant first-paint, but returning
-    // users must still get an authoritative read so a stale snapshot can never
-    // persist until a manual pull-to-refresh.
-    let balanceSnapshot = false;
+    // Skip getSparkBalance if a snapshot already exists for this account
+    // (loading screen applied it; the balanceUpdateHandler will update it)
+    let skipBalanceFetch = false;
     if (cachedIdentityPubKey) {
-      balanceSnapshot = await getAccountBalanceSnapshot(cachedIdentityPubKey);
+      const snapshot = await getAccountBalanceSnapshot(cachedIdentityPubKey);
+      skipBalanceFetch = snapshot !== null;
     }
     // Only fetch fresh txs when restoring — returning users keep prev.transactions
     const needsFreshTxs = !hasRestoreCompleted;
@@ -88,7 +87,9 @@ export async function initializeSparkSession({
         : null;
 
     const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
-      getBalanceWithTimeout(mnemonic),
+      skipBalanceFetch
+        ? Promise.resolve({ didWork: false })
+        : getBalanceWithTimeout(mnemonic),
       getSparkAddress(mnemonic),
       cachedIdentityPubKey
         ? Promise.resolve(cachedIdentityPubKey)
@@ -113,7 +114,6 @@ export async function initializeSparkSession({
       const storageObject = {
         identityPubKey,
         sparkAddress: sparkAddress.response,
-        ...(balanceSnapshot ?? {}),
         didConnect: true,
       };
       setSparkInformation(prev => ({
