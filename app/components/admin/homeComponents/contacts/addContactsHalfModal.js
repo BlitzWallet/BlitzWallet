@@ -76,6 +76,7 @@ export function AddContactContent({
   const navigate = useNavigation();
   const { refreshCacheObject } = useImageCache();
   const searchTrackerRef = useRef(null);
+  const searchCacheRef = useRef(new Map()); // normalizedTerm -> resolved users[]
   const didClickCamera = useRef(null);
   const { t } = useTranslation();
   const isFocused = useRef(false);
@@ -99,6 +100,8 @@ export function AddContactContent({
     searchTrackerRef.current = requestUUID; // Simply store the latest UUID
     return requestUUID;
   };
+
+  const getSearchCacheKey = term => term.replace(/@/g, '').trim().toLowerCase();
 
   const handleTextInputBlur = () => {
     if (setIsKeyboardActive) setIsKeyboardActive(false);
@@ -146,6 +149,7 @@ export function AddContactContent({
       ).filter(Boolean);
 
       refreshCacheObject();
+      searchCacheRef.current.set(getSearchCacheKey(term), newUsers);
       setIsSearching(false);
       setUsers(newUsers);
     } else {
@@ -172,6 +176,14 @@ export function AddContactContent({
     if (term.length === 0 || term === '@') {
       searchTrackerRef.current = null;
       setUsers([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const cacheKey = getSearchCacheKey(term);
+    if (cacheKey && searchCacheRef.current.has(cacheKey)) {
+      searchTrackerRef.current = null; // cancel any in-flight/pending search
+      setUsers(searchCacheRef.current.get(cacheKey));
       setIsSearching(false);
       return;
     }
