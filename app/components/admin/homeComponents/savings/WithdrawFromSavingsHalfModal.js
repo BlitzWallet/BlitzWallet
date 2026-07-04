@@ -91,6 +91,12 @@ const SAVINGS_INTEREST_POLL_CACHE_KEY = 'savings_interest_poll_cache';
 const MIN_STEP_MS = 800;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+// Reveal the balanceType page once the balance has held steady for
+// BALANCE_STABILIZE_MS (no further inbound claims), or after
+// BALANCE_STABILIZE_MAX_MS as an absolute cap — whichever comes first.
+const BALANCE_STABILIZE_MS = 3000;
+const BALANCE_STABILIZE_MAX_MS = 30000;
+
 const HEIGHT_FOR_PAGE = {
   balanceType: 500,
   chooseGoal: 500,
@@ -293,14 +299,18 @@ export default function WithdrawFromSavingsHalfModal({
   const balanceUsd = availableBalanceMicros / 1_000_000;
 
   // ─── BACKGROUND INIT EFFECT ───────────────────────────────────────────────
-  // Fires once when the balanceType page first mounts. The page renders
-  // immediately — the interest balance shows a skeleton shimmer until the first
-  // balance read lands.
+  // Fires once when the balanceType page first mounts. A full-screen loader
+  // shows until the balance has stabilized, so the user never watches it climb.
   //
   //  1. initializeSparkWallet   — full init needed before any send can execute.
-  //  2. subscribeToSparkBalance — immediate read reveals the settled interest
-  //                               right away, then live balance:update events
-  //                               refine it while the modal is open (no polling).
+  //  2. subscribeToSparkBalance — immediate read, then live balance:update
+  //                               events refine it while the modal is open (no
+  //                               polling). The page is revealed only once the
+  //                               balance holds steady for BALANCE_STABILIZE_MS
+  //                               (no more inbound claims), or after the
+  //                               BALANCE_STABILIZE_MAX_MS cap — whichever first.
+  //                               Updates that land after reveal still refine the
+  //                               balance live without re-blocking the UI.
   // On unmount the subscription is torn down and the savings wallet session is
   // disposed (safe: savingsContext reads via a separate read-only viewer).
   // ─────────────────────────────────────────────────────────────────────────
@@ -309,9 +319,23 @@ export default function WithdrawFromSavingsHalfModal({
     didInitSparkRef.current = true;
 
     let cancelled = false;
-    // Safety net: never hang on the loader if the first balance read fails or
-    // stalls — reveal the UI anyway (interestSats falls back to cache / 0).
-    let readyFallbackTimer = null;
+    // Trailing debounce: reveal the page once the balance holds steady.
+    let stabilizeTimer = null;
+    // Absolute cap: reveal even if inbound claims never stop (or the first read
+    // stalls) — interestSats falls back to cache / 0.
+    let hardCapTimer = null;
+    // Value-gate so a no-op re-read doesn't defer the reveal.
+    let lastSeenBalance = null;
+    // Once the page is shown we stop gating the UI; balance keeps updating live.
+    let revealed = false;
+
+    const revealPage = () => {
+      if (cancelled || revealed) return;
+      revealed = true;
+      if (stabilizeTimer) clearTimeout(stabilizeTimer);
+      if (hardCapTimer) clearTimeout(hardCapTimer);
+      setBalanceReady(true);
+    };
 
     const initWallet = async () => {
       setSparkInitStatus('loading');
@@ -339,26 +363,42 @@ export default function WithdrawFromSavingsHalfModal({
 
         setSparkInitStatus('ready');
 
-        readyFallbackTimer = setTimeout(() => {
-          if (!cancelled) setBalanceReady(true);
-        }, 15000);
+        hardCapTimer = setTimeout(revealPage, BALANCE_STABILIZE_MAX_MS);
 
         balanceSubscriptionRef.current = subscribeToSparkBalance({
           mnemonic: savingsMnemonic,
           onUpdate: result => {
             if (cancelled) return;
-            setBalanceReady(true);
-            if (!result?.didWork) return;
-            const newBalance = Number(result.balance);
-            setWalletBTCBalance(newBalance);
-            // Persist so future opens can show a value instantly.
-            setLocalStorageItem(
-              SAVINGS_INTEREST_POLL_CACHE_KEY,
-              JSON.stringify({
-                pollTimestamp: Date.now(),
-                balance: newBalance,
-              }),
-            );
+
+            // Always apply the balance — live updates continue even after the
+            // page is revealed (e.g. a claim that lands past the 30s cap).
+            if (result?.didWork) {
+              const newBalance = Number(result.balance);
+              setWalletBTCBalance(newBalance);
+              // Persist so future opens can show a value instantly.
+              setLocalStorageItem(
+                SAVINGS_INTEREST_POLL_CACHE_KEY,
+                JSON.stringify({
+                  pollTimestamp: Date.now(),
+                  balance: newBalance,
+                }),
+              );
+            }
+
+            // Page already shown → stop gating the UI; balance keeps flowing.
+            if (revealed) return;
+
+            // Value-gate: only a real change means claims are still landing.
+            if (result?.didWork) {
+              const newBalance = Number(result.balance);
+              if (newBalance === lastSeenBalance) return;
+              lastSeenBalance = newBalance;
+            }
+
+            // Trailing debounce: reveal once the balance holds steady for
+            // BALANCE_STABILIZE_MS; hardCapTimer bounds the total wait at 30s.
+            if (stabilizeTimer) clearTimeout(stabilizeTimer);
+            stabilizeTimer = setTimeout(revealPage, BALANCE_STABILIZE_MS);
           },
         });
       } catch {
@@ -369,7 +409,8 @@ export default function WithdrawFromSavingsHalfModal({
     initWallet();
     return () => {
       cancelled = true;
-      if (readyFallbackTimer) clearTimeout(readyFallbackTimer);
+      if (stabilizeTimer) clearTimeout(stabilizeTimer);
+      if (hardCapTimer) clearTimeout(hardCapTimer);
       balanceSubscriptionRef.current?.unsubscribe();
       balanceSubscriptionRef.current = null;
       // Close the savings wallet session/listeners on unmount.
