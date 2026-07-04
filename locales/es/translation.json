@@ -1095,7 +1095,6 @@
       "creating": "Creando...",
       "creatingPool": "Creando fondo...",
       "gettingBalance": "Obteniendo saldo del fondo...",
-      "checkingBalance": "Comprobando saldo… ({{attempt}} de {{total}})",
       "preparingTransfer": "Preparando transferencia...",
       "connectingToPool": "Conectando al fondo...",
       "unableToConnect": "No se pudo conectar al fondo. Inténtalo de nuevo.",
@@ -2461,10 +2460,7 @@
           "confirmMessage": "Tu regalo ha sido reclamado; recibirás tus fondos en breve",
           "defaultDesc": "Regalo Blitz",
           "claimingGiftMessage1": "Preparando el regalo...",
-          "giftBalanceMessage_0": "Un momento mientras preparamos todo...",
-          "giftBalanceMessage_1": "Estamos recopilando la información de tu regalo...",
-          "giftBalanceMessage_2": "Ya casi—por favor mantén la app abierta...",
-          "giftBalanceMessage_3": "Terminando los últimos pasos...",
+          "giftBalanceMessage": "Confirmando el saldo de tu regalo...",
           "claimingGiftMessage4": "Reclamando el regalo..."
         }
       },
@@ -2951,8 +2947,7 @@
       "loadingBalances": "Cargando saldos...",
       "loadingSteps": {
         "connecting": "Conectando a la billetera de ahorros...",
-        "updating": "Actualizando saldo...",
-        "finalizing": "Finalizando..."
+        "loadingBalance": "Cargando tu saldo..."
       },
       "empty": {
         "title": "Nada para retirar",

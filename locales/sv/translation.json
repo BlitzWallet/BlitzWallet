@@ -1095,7 +1095,6 @@
       "creating": "Skapar...",
       "creatingPool": "Skapar pool...",
       "gettingBalance": "Hämtar poolsaldo...",
-      "checkingBalance": "Kontrollerar saldo… ({{attempt}} av {{total}})",
       "preparingTransfer": "Förbereder överföring...",
       "connectingToPool": "Ansluter till pool...",
       "unableToConnect": "Kunde inte ansluta till poolen. Försök igen.",
@@ -2461,10 +2460,7 @@
           "confirmMessage": "Din gåva har tagits emot och du kommer att få dina pengar inom kort",
           "defaultDesc": "Blixtgåva",
           "claimingGiftMessage1": "Förbereder gåva...",
-          "giftBalanceMessage_0": "Ett ögonblick bara, medan vi gör i ordning...",
-          "giftBalanceMessage_1": "Vi samlar in din gåvoinformation...",
-          "giftBalanceMessage_2": "Nästan där - håll appen öppen...",
-          "giftBalanceMessage_3": "Avslutar de sista stegen...",
+          "giftBalanceMessage": "Bekräftar din gåvas saldo...",
           "claimingGiftMessage4": "Anspråk på gåva..."
         }
       },
@@ -2951,8 +2947,7 @@
       "loadingBalances": "Laddar saldon...",
       "loadingSteps": {
         "connecting": "Ansluter till sparkonto-plånbok...",
-        "updating": "Uppdaterar saldo...",
-        "finalizing": "Slutför..."
+        "loadingBalance": "Läser in ditt saldo..."
       },
       "empty": {
         "title": "Inget att ta ut",

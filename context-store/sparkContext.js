@@ -234,6 +234,14 @@ const SparkWalletProvider = ({ children }) => {
   const shouldRunNormalConnection =
     didRunNormalConnection || normalConnectionTimeout;
   const currentMnemonicRef = useRef(currentWalletMnemoinc);
+  // Hash of the active main wallet mnemonic. Push events (balance/token/transfer)
+  // are tagged with a walletId (mnemonic hash) so derived gift/pool/savings
+  // wallets sharing the WebView bridge can be told apart from the main wallet.
+  // We ignore any event whose walletId isn't this one. Cached here so we don't
+  // re-hash on every event.
+  const mainWalletHashRef = useRef(
+    currentWalletMnemoinc ? sha256Hash(currentWalletMnemoinc) : null,
+  );
 
   const cleanStatusAndLRC20Intervals = () => {
     try {
@@ -287,6 +295,9 @@ const SparkWalletProvider = ({ children }) => {
 
   useEffect(() => {
     currentMnemonicRef.current = currentWalletMnemoinc;
+    mainWalletHashRef.current = currentWalletMnemoinc
+      ? sha256Hash(currentWalletMnemoinc)
+      : null;
   }, [currentWalletMnemoinc]);
 
   useEffect(() => {
@@ -965,7 +976,10 @@ const SparkWalletProvider = ({ children }) => {
     ],
   );
 
-  const transferHandler = useCallback((transferId, balance) => {
+  const transferHandler = useCallback((transferId, balance, walletId) => {
+    // Ignore events from derived wallets (gift/pool/savings). Undefined walletId
+    // = pre-tagging bundle → treat as main wallet (backward compatible).
+    if (walletId && walletId !== mainWalletHashRef.current) return;
     if (handledTransfers.current.has(transferId)) return;
     handledTransfers.current.add(transferId);
     console.log(`Transfer ${transferId} claimed. New balance: ${balance}`);
@@ -1007,7 +1021,10 @@ const SparkWalletProvider = ({ children }) => {
   // makes sends/swaps/deposits reflect immediately — previously only inbound
   // claims had a push event and everything else waited on the poller.
   const balanceUpdateHandler = useCallback(
-    snapshot => {
+    (snapshot, walletId) => {
+      // Ignore events from derived wallets (gift/pool/savings). Undefined
+      // walletId = pre-tagging bundle → treat as main wallet (backward compatible).
+      if (walletId && walletId !== mainWalletHashRef.current) return;
       const available = Number(snapshot?.available);
       console.log('hanlding balance update', available);
       if (!Number.isFinite(available)) return;
@@ -1040,7 +1057,10 @@ const SparkWalletProvider = ({ children }) => {
   // round-trip — same result, one fewer WebView read per event. The WebView
   // runtime delivers the already-normalized map; the native runtime delivers the
   // raw SDK Map and is normalized at registration (see addListeners).
-  const tokenBalanceUpdateHandler = useCallback(tokensObject => {
+  const tokenBalanceUpdateHandler = useCallback((tokensObject, walletId) => {
+    // Ignore events from derived wallets (gift/pool/savings). Undefined walletId
+    // = pre-tagging bundle → treat as main wallet (backward compatible).
+    if (walletId && walletId !== mainWalletHashRef.current) return;
     // Each event carries the full current token-balance map, so only the latest
     // payload matters during a burst.
     latestTokensRef.current = tokensObject ?? {};
@@ -1174,11 +1194,17 @@ const SparkWalletProvider = ({ children }) => {
         if (runtime === 'native') {
           const nativeWallet = sparkWallet[walletHash];
           if (nativeWallet) {
+            // This native wallet is the main wallet — tag its events with
+            // walletHash so the handlers' walletId guard passes.
             if (!nativeWallet.listenerCount('transfer:claimed')) {
-              nativeWallet.on('transfer:claimed', transferHandler);
+              nativeWallet.on('transfer:claimed', (transferId, balance) =>
+                transferHandler(transferId, balance, walletHash),
+              );
             }
             if (!nativeWallet.listenerCount('balance:update')) {
-              nativeWallet.on('balance:update', balanceUpdateHandler);
+              nativeWallet.on('balance:update', balance =>
+                balanceUpdateHandler(balance, walletHash),
+              );
             }
             if (!nativeWallet.listenerCount('token-balance:update')) {
               // Native delivers the raw SDK event ({ tokenBalances: Map });
@@ -1192,7 +1218,7 @@ const SparkWalletProvider = ({ children }) => {
                     balance: data.availableToSendBalance,
                   };
                 }
-                tokenBalanceUpdateHandler(tokensObject);
+                tokenBalanceUpdateHandler(tokensObject, walletHash);
               });
             }
             if (!nativeWallet.listenerCount('stream:connected')) {

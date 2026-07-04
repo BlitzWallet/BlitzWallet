@@ -10,11 +10,12 @@ import { useActiveCustodyAccount } from '../../../../../context-store/activeAcco
 import { updatePoolLocal } from '../../../../functions/pools/poolsStorage';
 import { derivePoolWallet } from '../../../../functions/pools/derivePoolWallet';
 import {
-  getSparkBalance,
   sendSparkPayment,
   getSparkAddress,
   initializeSparkWallet,
+  disposeSparkWallet,
 } from '../../../../functions/spark';
+import { awaitSparkBalance } from '../../../../functions/spark/awaitBalanceChange';
 import { updatePoolInDatabase } from '../../../../../db';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -44,44 +45,11 @@ export default function ClosePoolConfirmation({
     };
   }, []);
 
-  const getBalanceWithRetry = useCallback(async poolMnemonic => {
-    const delays = [5000, 7000, 8000, 8000];
-    let attempt = 0;
-
-    setLoadingMessage(t('wallet.pools.gettingBalance'));
-
-    const isCorrectBalance = result => {
-      if (!result?.didWork) return false;
-      const balance = Number(result.balance);
-      return autoStart ? balance > 0 : balance >= pool.currentAmount;
-    };
-
-    let result = await getSparkBalance(poolMnemonic);
-    if (isCorrectBalance(result)) {
-      return result;
-    }
-
-    for (const delay of delays) {
-      if (!isMounted.current) break;
-      attempt++;
-      setLoadingMessage(
-        t('wallet.pools.checkingBalance', { attempt, total: delays.length }),
-      );
-
-      await new Promise(res => setTimeout(res, delay));
-
-      result = await getSparkBalance(poolMnemonic);
-
-      if (isCorrectBalance(result)) {
-        return result;
-      }
-    }
-
-    return result;
-  }, []);
-
   const handleClosePool = useCallback(async () => {
     if (!pool) return;
+
+    // Declared outside the try so the finally can dispose the pool wallet.
+    let poolMnemonic = null;
 
     try {
       setIsLoading(true);
@@ -92,7 +60,7 @@ export default function ClosePoolConfirmation({
         accountMnemoinc,
         pool.derivationIndex,
       );
-      const poolMnemonic = derivedWallet.mnemonic;
+      poolMnemonic = derivedWallet.mnemonic;
 
       // 2. Initialize the pool wallet
       setLoadingMessage(t('wallet.pools.connectingToPool'));
@@ -104,8 +72,17 @@ export default function ClosePoolConfirmation({
         throw new Error(t('wallet.pools.unableToConnect'));
       }
 
-      // 3. Get pool wallet balance with retry logic
-      const balanceResponse = await getBalanceWithRetry(poolMnemonic);
+      // 3. Wait for the pool balance to settle via real-time balance events
+      //    (immediate read first, then listen up to 30s).
+      const balanceResponse = await awaitSparkBalance({
+        mnemonic: poolMnemonic,
+        predicate: result => {
+          if (!result?.didWork) return false;
+          const balance = Number(result.balance);
+          return autoStart ? balance > 0 : balance >= pool.currentAmount;
+        },
+        onStatus: () => setLoadingMessage(t('wallet.pools.gettingBalance')),
+      });
 
       if (!isMounted.current) return;
 
@@ -225,13 +202,15 @@ export default function ClosePoolConfirmation({
       setIsLoading(false);
       setLoadingMessage('');
       navigate.navigate('ErrorScreen', { errorMessage: err.message });
+    } finally {
+      // Tear down the pool wallet session/listeners once we're done with it.
+      if (poolMnemonic) await disposeSparkWallet(poolMnemonic);
     }
   }, [
     pool,
     accountMnemoinc,
     currentWalletMnemoinc,
     navigate,
-    getBalanceWithRetry,
     sparkInformation,
   ]);
 

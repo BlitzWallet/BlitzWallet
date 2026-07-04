@@ -23,12 +23,13 @@ import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import {
-  getSparkBalance,
   getSparkPaymentFeeEstimate,
   initializeSparkWallet,
   sendSparkPayment,
   sendSparkTokens,
+  disposeSparkWallet,
 } from '../../../../functions/spark';
+import { awaitSparkBalance } from '../../../../functions/spark/awaitBalanceChange';
 import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../../../../context-store/keys';
 import {
@@ -190,47 +191,36 @@ export default function ClaimGiftScreen({
 
   const getBalanceWithStatusRetry = useCallback(
     async (seed, expectedAmount, shouldEnforceAmount = false) => {
-      const delays = [5000, 7000, 8000];
-      let attempt = 0;
-
       setClaimStatus(
-        t('screens.inAccount.giftPages.claimPage.giftBalanceMessage_0'),
+        t('screens.inAccount.giftPages.claimPage.giftBalanceMessage'),
       );
-
-      let result = await getSparkBalance(seed);
 
       const handleBalanceCheck = result => {
         if (!result?.didWork) return false;
 
-        const bitcoinCheck = Number(result.balance) >= expectedAmount * 0.97;
+        const bitcoinBalance = Number(result.balance);
+        const dollarBalance = Number(
+          result.tokensObj?.[USDB_TOKEN_ID]?.balance,
+        );
+
+        // Expert mode has no expected amount — resolve as soon as any funds land.
+        if (expectedAmount === undefined) {
+          return bitcoinBalance > 0 || dollarBalance > 0;
+        }
+
+        const bitcoinCheck = bitcoinBalance >= expectedAmount * 0.97;
         const dollarCheck =
-          Number(result.tokensObj?.[USDB_TOKEN_ID]?.balance) >=
-          expectedAmount * Math.pow(10, 6) * 0.97;
+          dollarBalance >= expectedAmount * Math.pow(10, 6) * 0.97;
 
         return denomination === 'BTC' ? bitcoinCheck : dollarCheck;
       };
 
-      if (handleBalanceCheck(result)) {
-        return result;
-      }
-
-      for (const delay of delays) {
-        attempt++;
-        setClaimStatus(
-          t('screens.inAccount.giftPages.claimPage.giftBalanceMessage', {
-            context: attempt,
-          }),
-        );
-
-        await new Promise(res => setTimeout(res, delay));
-
-        result = await getSparkBalance(seed);
-        if (!result?.didWork) continue;
-
-        if (handleBalanceCheck(result)) {
-          return result;
-        }
-      }
+      // Immediate read first, then listen for the gift wallet's balance events
+      // (up to 30s) instead of fixed-delay polling.
+      const result = await awaitSparkBalance({
+        mnemonic: seed,
+        predicate: handleBalanceCheck,
+      });
 
       if (
         shouldEnforceAmount &&
@@ -484,6 +474,8 @@ export default function ClaimGiftScreen({
       navigate.goBack();
       handleError(err.message || 'Failed to claim gift');
     } finally {
+      // Tear down the gift wallet session/listeners once the claim is done.
+      if (giftDetails.giftSeed) await disposeSparkWallet(giftDetails.giftSeed);
       setIsClaiming(false);
       isClaimingRef.current = false;
     }

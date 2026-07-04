@@ -1094,7 +1094,6 @@
       "creating": "Criando...",
       "creatingPool": "Criando Vaquinha...",
       "gettingBalance": "Obtendo saldo da Vaquinha...",
-      "checkingBalance": "Verificando saldo… ({{attempt}} de {{total}})",
       "preparingTransfer": "Preparando transferência...",
       "connectingToPool": "Carregando informações...",
       "unableToConnect": "Não foi possível conectar à Vaquinha. Tente novamente.",
@@ -2460,10 +2459,7 @@
           "confirmMessage": "O Vale-Blitz foi resgatado com sucesso",
           "defaultDesc": "Vale-Blitz",
           "claimingGiftMessage1": "Preparando o Vale-Blitz...",
-          "giftBalanceMessage_0": "Só um instante enquanto preparamos tudo...",
-          "giftBalanceMessage_1": "Estamos buscando as informações do Vale-Blitz...",
-          "giftBalanceMessage_2": "Quase lá—por favor mantenha o app aberto...",
-          "giftBalanceMessage_3": "Finalizando os últimos passos...",
+          "giftBalanceMessage": "Confirmando o saldo do Vale-Blitz...",
           "claimingGiftMessage4": "Resgatando o Vale-Blitz..."
         }
       },
@@ -2950,8 +2946,7 @@
       "loadingBalances": "Carregando saldos...",
       "loadingSteps": {
         "connecting": "Conectando às Caixinhas...",
-        "updating": "Atualizando saldo...",
-        "finalizing": "Finalizando..."
+        "loadingBalance": "Carregando seu saldo..."
       },
       "empty": {
         "title": "Nada para resgatar",
