@@ -297,13 +297,7 @@ export default function HalfModalSendOptions({
       return true;
     }
     return false;
-  }, [
-    blurKeyboard,
-    contactFlow,
-    isInputMode,
-    showAddContact,
-    showMobileMoney,
-  ]);
+  }, [blurKeyboard, contactFlow, isInputMode, showAddContact, showMobileMoney]);
 
   useHandleBackPressNew(handleInternalBackPress);
 
@@ -314,17 +308,20 @@ export default function HalfModalSendOptions({
     if (isSubmittingRef.current || hasCommittedRef.current) return;
     isSubmittingRef.current = true;
     const input = inputText.trim();
+    const isContact = input.startsWith('@');
 
-    const normalized = input.startsWith('@')
+    const normalized = isContact
       ? input.slice(1).toLowerCase()
       : input.toLowerCase();
     if (!normalized) {
       isSubmittingRef.current = false;
       return;
     }
-    const matchedContact = decodedAddedContacts.find(
-      c => c.uniqueName?.toLowerCase() === normalized,
-    );
+    const matchedContact = isContact
+      ? decodedAddedContacts.find(
+          c => c.uniqueName?.toLowerCase() === normalized,
+        )
+      : undefined;
 
     if (matchedContact) {
       const senderName =
