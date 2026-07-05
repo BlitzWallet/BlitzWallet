@@ -61,7 +61,7 @@ export default function ReceivePaymentHome(props) {
   const { sendWebViewRequest } = useWebView();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
-  const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
+  const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { screenDimensions } = useAppStatus();
@@ -142,7 +142,6 @@ export default function ReceivePaymentHome(props) {
   useEffect(() => {
     async function runAddressInit() {
       crashlyticsLogReport('Begining adddress initialization');
-      toggleNewestPaymentTimestamp();
 
       if (
         prevRequstInfo.current &&

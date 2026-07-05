@@ -177,8 +177,6 @@ const SparkWalletProvider = ({ children }) => {
     didConnectToFlashnet: null,
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
-  const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
-    useState(0);
 
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
@@ -194,7 +192,6 @@ const SparkWalletProvider = ({ children }) => {
     didConnect: false,
   });
   const sessionTimeRef = useRef(Date.now());
-  const newestPaymentTimeRef = useRef(Date.now());
   const handledTransfers = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
@@ -315,10 +312,6 @@ const SparkWalletProvider = ({ children }) => {
   }, [currentWalletMnemoinc, authResetkey]);
 
   useEffect(() => {
-    newestPaymentTimeRef.current = Date.now();
-  }, [reloadNewestPaymentTimestamp]);
-
-  useEffect(() => {
     if (!didGetToHomepage) return;
     const timer = setTimeout(() => {
       setNormalConnectionTimeout(true);
@@ -411,10 +404,6 @@ const SparkWalletProvider = ({ children }) => {
     }
     isSendingPaymentRef.current = isSending;
   }, []);
-
-  const toggleNewestPaymentTimestamp = () => {
-    setReloadNewestPaymentTimestamp(prev => prev + 1);
-  };
 
   useEffect(() => {
     if (
@@ -2048,7 +2037,6 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       tokensImageCache,
       showTokensInformation,
-      toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
       updateHomepageScrollPosition,
@@ -2066,7 +2054,6 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       tokensImageCache,
       showTokensInformation,
-      toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
       updateHomepageScrollPosition,
