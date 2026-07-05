@@ -129,6 +129,23 @@ const SKIP_CONFIRM_NAV_UPDATE_TYPES = new Set([
   'incrementalRestore',
 ]);
 
+// Send screens where an incoming-payment toast would obscure the send UI. Keyed
+// by the route names registered in navigation/screens.js.
+const BLOCKED_TOAST_ROUTE_NAMES = new Set([
+  'ConfirmPaymentScreen', // sendPaymentScreen.js
+  'ConfirmSplitPayment', // confirmSplitPayment.js
+  'StablecoinSendScreen', // stablecoinSendScreen.js
+]);
+
+function isOnSendScreen() {
+  try {
+    if (!navigationRef.isReady()) return false;
+    return BLOCKED_TOAST_ROUTE_NAMES.has(navigationRef.getCurrentRoute()?.name);
+  } catch {
+    return false;
+  }
+}
+
 // Initiate context
 const SparkWalletManager = createContext(null);
 
@@ -742,6 +759,11 @@ const SparkWalletProvider = ({ children }) => {
           return;
         }
         handledNavigatedTxs.current.add(parsedTx.sparkID);
+
+        if (isOnSendScreen()) {
+          console.log('On a send screen — suppressing incoming payment toast');
+          return;
+        }
 
         // const isOnReceivePage =
         //   navigationRef
@@ -1857,11 +1879,13 @@ const SparkWalletProvider = ({ children }) => {
             if (updatedTx.details) {
               if (handledNavigatedTxs.current.has(updatedTx.id)) continue;
               handledNavigatedTxs.current.add(updatedTx.id);
-              showToast({
-                amount: updatedTx.details.amount,
-                duration: 7000,
-                type: 'confirmTx',
-              });
+              if (!isOnSendScreen()) {
+                showToast({
+                  amount: updatedTx.details.amount,
+                  duration: 7000,
+                  type: 'confirmTx',
+                });
+              }
             }
           }
         }
