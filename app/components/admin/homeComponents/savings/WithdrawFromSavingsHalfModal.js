@@ -47,11 +47,11 @@ import CustomNumberKeyboard from '../../../../functions/CustomElements/customNum
 import CustomButton from '../../../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
 import {
-  getSparkBalance,
   initializeSparkWallet,
+  disposeSparkWallet,
 } from '../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
-import { createBalancePoller } from '../../../../functions/pollingManager';
+import { subscribeToSparkBalance } from '../../../../functions/spark/awaitBalanceChange';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
@@ -91,14 +91,11 @@ const SAVINGS_INTEREST_POLL_CACHE_KEY = 'savings_interest_poll_cache';
 const MIN_STEP_MS = 800;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-// Messages cycled on the full-screen loader while the savings wallet connects
-// and its Bitcoin balance settles via the poller.
-const LOADING_MESSAGE_KEYS = [
-  'savings.withdraw.loadingSteps.connecting',
-  'savings.withdraw.loadingSteps.updating',
-  'savings.withdraw.loadingSteps.finalizing',
-];
-const LOADING_MESSAGE_INTERVAL_MS = 2500;
+// Reveal the balanceType page once the balance has held steady for
+// BALANCE_STABILIZE_MS (no further inbound claims), or after
+// BALANCE_STABILIZE_MAX_MS as an absolute cap — whichever comes first.
+const BALANCE_STABILIZE_MS = 3000;
+const BALANCE_STABILIZE_MAX_MS = 30000;
 
 const HEIGHT_FOR_PAGE = {
   balanceType: 500,
@@ -178,7 +175,7 @@ export default function WithdrawFromSavingsHalfModal({
   });
 
   const didInitSparkRef = useRef(false);
-  const pollerAbortRef = useRef(null);
+  const balanceSubscriptionRef = useRef(null);
 
   // Cached savings wallet mnemonic — derived lazily on first use
   const savingsWalletMnemonicRef = useRef(null);
@@ -202,8 +199,8 @@ export default function WithdrawFromSavingsHalfModal({
   const currentPage = step[step.length - 1];
 
   // True while the balanceType page is still resolving balances — the wallet is
-  // initialising, or it's initialised but the Bitcoin balance poller hasn't
-  // settled yet. Drives the cycling full-screen loader below.
+  // initialising, or it's initialised but the first balance event hasn't landed
+  // yet. Drives the full-screen loader below.
   const isLoadingBalances =
     currentPage === 'balanceType' &&
     sparkInitStatus !== 'error' &&
@@ -211,19 +208,12 @@ export default function WithdrawFromSavingsHalfModal({
       sparkInitStatus === 'loading' ||
       !balanceReady);
 
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
-  useEffect(() => {
-    if (!isLoadingBalances) {
-      setLoadingMessageIndex(0);
-      return;
-    }
-    const intervalId = setInterval(() => {
-      setLoadingMessageIndex(prev =>
-        Math.min(prev + 1, LOADING_MESSAGE_KEYS.length - 1),
-      );
-    }, LOADING_MESSAGE_INTERVAL_MS);
-    return () => clearInterval(intervalId);
-  }, [isLoadingBalances]);
+  // State-driven loader copy: connecting while the wallet initialises, then
+  // loading while we wait for the first balance event to settle the balance.
+  const loadingBalancesMessage =
+    sparkInitStatus === 'ready'
+      ? t('savings.withdraw.loadingSteps.loadingBalance')
+      : t('savings.withdraw.loadingSteps.connecting');
 
   // Dollar destination → user types USD; Bitcoin destination → user types sats/fiat
   const paymentMode = selectedBalanceType !== 'interest' ? 'USD' : 'BTC';
@@ -309,20 +299,43 @@ export default function WithdrawFromSavingsHalfModal({
   const balanceUsd = availableBalanceMicros / 1_000_000;
 
   // ─── BACKGROUND INIT EFFECT ───────────────────────────────────────────────
-  // Fires once when the balanceType page first mounts. The page renders
-  // immediately — the interest balance shows a skeleton shimmer until the
-  // balance poller settles on a confirmed value.
+  // Fires once when the balanceType page first mounts. A full-screen loader
+  // shows until the balance has stabilized, so the user never watches it climb.
   //
-  //  1. initializeSparkWallet — full init needed before any send can execute.
-  //  2. createBalancePoller   — polls getSparkBalance until it stabilises,
-  //                             then sets walletBTCBalance and balanceReady.
+  //  1. initializeSparkWallet   — full init needed before any send can execute.
+  //  2. subscribeToSparkBalance — immediate read, then live balance:update
+  //                               events refine it while the modal is open (no
+  //                               polling). The page is revealed only once the
+  //                               balance holds steady for BALANCE_STABILIZE_MS
+  //                               (no more inbound claims), or after the
+  //                               BALANCE_STABILIZE_MAX_MS cap — whichever first.
+  //                               Updates that land after reveal still refine the
+  //                               balance live without re-blocking the UI.
+  // On unmount the subscription is torn down and the savings wallet session is
+  // disposed (safe: savingsContext reads via a separate read-only viewer).
   // ─────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (didInitSparkRef.current) return;
     didInitSparkRef.current = true;
 
-    const abortController = new AbortController();
-    pollerAbortRef.current = abortController;
+    let cancelled = false;
+    // Trailing debounce: reveal the page once the balance holds steady.
+    let stabilizeTimer = null;
+    // Absolute cap: reveal even if inbound claims never stop (or the first read
+    // stalls) — interestSats falls back to cache / 0.
+    let hardCapTimer = null;
+    // Value-gate so a no-op re-read doesn't defer the reveal.
+    let lastSeenBalance = null;
+    // Once the page is shown we stop gating the UI; balance keeps updating live.
+    let revealed = false;
+
+    const revealPage = () => {
+      if (cancelled || revealed) return;
+      revealed = true;
+      if (stabilizeTimer) clearTimeout(stabilizeTimer);
+      if (hardCapTimer) clearTimeout(hardCapTimer);
+      setBalanceReady(true);
+    };
 
     const initWallet = async () => {
       setSparkInitStatus('loading');
@@ -341,55 +354,69 @@ export default function WithdrawFromSavingsHalfModal({
           { maxRetries: 4 },
         );
 
-        if (abortController.signal.aborted) return;
+        if (cancelled) return;
 
         if (!initResponse?.isConnected) {
           setSparkInitStatus('error');
           return;
         }
 
-        // const sparkBalance = await getSparkBalance(savingsMnemonic);
-
         setSparkInitStatus('ready');
 
-        // Now poll until the balance stabilises so we show a confirmed number.
-        const mnemonicRef = { current: savingsMnemonic };
-        const poller = createBalancePoller(
-          savingsMnemonic,
-          mnemonicRef,
-          abortController,
-          async balanceResult => {
-            const newBalance = Number(balanceResult.balance);
-            setWalletBTCBalance(newBalance);
-            setBalanceReady(true);
-            // Persist poll result so future opens can skip the poller when
-            // no new interest payment has arrived.
-            setLocalStorageItem(
-              SAVINGS_INTEREST_POLL_CACHE_KEY,
-              JSON.stringify({
-                pollTimestamp: Date.now(),
-                balance: newBalance,
-              }),
-            );
-          },
-          null, // no initial balance — let poller establish the baseline
-          2,
-        );
+        hardCapTimer = setTimeout(revealPage, BALANCE_STABILIZE_MAX_MS);
 
-        await poller.start();
-        // Safety net: the poller only fires onBalanceUpdate when the balance
-        // settles. If it exhausts its retries (e.g. balance calls keep failing)
-        // mark ready anyway so the UI never hangs on the loader — interestSats
-        // falls back to the cached value / 0.
-        if (!abortController.signal.aborted) setBalanceReady(true);
+        balanceSubscriptionRef.current = subscribeToSparkBalance({
+          mnemonic: savingsMnemonic,
+          onUpdate: result => {
+            if (cancelled) return;
+
+            // Always apply the balance — live updates continue even after the
+            // page is revealed (e.g. a claim that lands past the 30s cap).
+            if (result?.didWork) {
+              const newBalance = Number(result.balance);
+              setWalletBTCBalance(newBalance);
+              // Persist so future opens can show a value instantly.
+              setLocalStorageItem(
+                SAVINGS_INTEREST_POLL_CACHE_KEY,
+                JSON.stringify({
+                  pollTimestamp: Date.now(),
+                  balance: newBalance,
+                }),
+              );
+            }
+
+            // Page already shown → stop gating the UI; balance keeps flowing.
+            if (revealed) return;
+
+            // Value-gate: only a real change means claims are still landing.
+            if (result?.didWork) {
+              const newBalance = Number(result.balance);
+              if (newBalance === lastSeenBalance) return;
+              lastSeenBalance = newBalance;
+            }
+
+            // Trailing debounce: reveal once the balance holds steady for
+            // BALANCE_STABILIZE_MS; hardCapTimer bounds the total wait at 30s.
+            if (stabilizeTimer) clearTimeout(stabilizeTimer);
+            stabilizeTimer = setTimeout(revealPage, BALANCE_STABILIZE_MS);
+          },
+        });
       } catch {
-        if (!abortController.signal.aborted) setSparkInitStatus('error');
+        if (!cancelled) setSparkInitStatus('error');
       }
     };
 
     initWallet();
     return () => {
-      abortController.abort();
+      cancelled = true;
+      if (stabilizeTimer) clearTimeout(stabilizeTimer);
+      if (hardCapTimer) clearTimeout(hardCapTimer);
+      balanceSubscriptionRef.current?.unsubscribe();
+      balanceSubscriptionRef.current = null;
+      // Close the savings wallet session/listeners on unmount.
+      if (savingsWalletMnemonicRef.current) {
+        disposeSparkWallet(savingsWalletMnemonicRef.current);
+      }
     };
   }, [getSavingsWalletMnemonic]);
 
@@ -693,14 +720,10 @@ export default function WithdrawFromSavingsHalfModal({
 
   // Choose between Interest or Savings balance
   if (currentPage === 'balanceType') {
-    // While the wallet connects and the Bitcoin balance settles, cycle through
-    // status messages on a full-screen loader.
+    // While the wallet connects and the first balance event settles, show a
+    // full-screen loader with state-driven status copy.
     if (isLoadingBalances) {
-      return (
-        <FullLoadingScreen
-          text={t(LOADING_MESSAGE_KEYS[loadingMessageIndex])}
-        />
-      );
+      return <FullLoadingScreen text={loadingBalancesMessage} />;
     }
 
     // Wallet failed to initialise — prompt the user to retry.

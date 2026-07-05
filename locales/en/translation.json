@@ -1095,7 +1095,6 @@
       "creating": "Creating...",
       "creatingPool": "Creating pool...",
       "gettingBalance": "Getting pool balance...",
-      "checkingBalance": "Checking pool balance… ({{attempt}} of {{total}})",
       "preparingTransfer": "Preparing transfer...",
       "connectingToPool": "Connecting to pool...",
       "unableToConnect": "Unable to connect to the pool, please try again,",
@@ -2461,10 +2460,7 @@
           "confirmMessage": "Your gift has been claimed, and you will receive your funds shortly",
           "defaultDesc": "Blitz Gift",
           "claimingGiftMessage1": "Preparing Gift...",
-          "giftBalanceMessage_0": "Just a moment while we get things ready...",
-          "giftBalanceMessage_1": "We’re gathering your gift information...",
-          "giftBalanceMessage_2": "Almost there—please keep the app open...",
-          "giftBalanceMessage_3": "Finishing up the last steps...",
+          "giftBalanceMessage": "Confirming your gift balance...",
           "claimingGiftMessage4": "Claiming Gift..."
         }
       },
@@ -2951,8 +2947,7 @@
       "loadingBalances": "Loading balances...",
       "loadingSteps": {
         "connecting": "Connecting to savings wallet...",
-        "updating": "Updating balance...",
-        "finalizing": "Finalizing..."
+        "loadingBalance": "Loading your balance..."
       },
       "empty": {
         "title": "Nothing to withdraw",

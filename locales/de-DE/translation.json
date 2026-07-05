@@ -1095,7 +1095,6 @@
       "creating": "Wird erstellt...",
       "creatingPool": "Sparpool wird erstellt...",
       "gettingBalance": "Sparpool-Guthaben wird abgerufen...",
-      "checkingBalance": "Sparpool-Guthaben wird geprüft... ({{attempt}} von {{total}})",
       "preparingTransfer": "Übertragung wird vorbereitet...",
       "connectingToPool": "Verbindung zum Sparpool wird hergestellt...",
       "unableToConnect": "Verbindung zum Sparpool nicht möglich. Bitte versuchen Sie es erneut.",
@@ -2461,10 +2460,7 @@
           "confirmMessage": "Ihr Geschenk wurde eingelöst; Sie erhalten Ihre Gelder in Kürze.",
           "defaultDesc": "Blitz-Geschenk",
           "claimingGiftMessage1": "Geschenk wird vorbereitet...",
-          "giftBalanceMessage_0": "Einen Moment, wir bereiten alles vor...",
-          "giftBalanceMessage_1": "Wir sammeln die Informationen zu Ihrem Geschenk...",
-          "giftBalanceMessage_2": "Gleich geschafft - bitte lassen Sie die App geöffnet...",
-          "giftBalanceMessage_3": "Wir schließen die letzten Schritte ab...",
+          "giftBalanceMessage": "Geschenk-Guthaben wird bestätigt...",
           "claimingGiftMessage4": "Geschenk wird eingelöst..."
         }
       },
@@ -2951,8 +2947,7 @@
       "loadingBalances": "Guthaben werden geladen...",
       "loadingSteps": {
         "connecting": "Verbindung zur Spar-Wallet wird hergestellt...",
-        "updating": "Kontostand wird aktualisiert...",
-        "finalizing": "Auszahlung wird abgeschlossen..."
+        "loadingBalance": "Kontostand wird geladen..."
       },
       "empty": {
         "title": "Nichts zum Auszahlen",

@@ -56,6 +56,7 @@ export const OPERATION_TYPES = {
   getTokenTransactions: 'getSparkTokenTransactions',
   addListeners: 'addWalletEventListener',
   removeListeners: 'removeWalletEventListener',
+  disposeWallet: 'disposeSparkWallet',
   setPrivacyEnabled: 'setPrivacyEnabled',
   getSingleTxDetails: 'getSingleTxDetails',
   createSatsInvoice: 'createSatsInvoice',
@@ -772,17 +773,23 @@ export const WebViewProvider = ({ children }) => {
             INCOMING_SPARK_TX_NAME,
             data.transferId,
             data.balance,
+            content.walletId,
           );
         }
         if (content.balanceUpdate) {
           const data = JSON.parse(content.result);
-          sparkBalanceUpdateEmitter.emit(BALANCE_UPDATE_EVENT_NAME, data);
+          sparkBalanceUpdateEmitter.emit(
+            BALANCE_UPDATE_EVENT_NAME,
+            data,
+            content.walletId,
+          );
         }
         if (content.tokenBalanceUpdate) {
           const data = JSON.parse(content.result);
           sparkTokenBalanceUpdateEmitter.emit(
             TOKEN_BALANCE_UPDATE_EVENT_NAME,
             data.tokensObject,
+            content.walletId,
           );
         }
         if (content.streamStatus) {

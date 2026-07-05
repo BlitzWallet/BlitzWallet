@@ -121,6 +121,49 @@ export const clearMnemonicCache = () => {
   Object.keys(sparkWallet).forEach(key => delete sparkWallet[key]);
 };
 
+/**
+ * Tears down a short-lived derived wallet (gift/pool/savings) after a flow
+ * completes: removes its event listeners, closes SDK connections/streams, and
+ * drops the reference so no stale session or foreign push events linger.
+ * Only ever call this with a DERIVED mnemonic — never the main wallet.
+ * @param {string} mnemonic - derived wallet mnemonic
+ * @returns {Promise<{didWork: boolean, error?: string}>}
+ */
+export const disposeSparkWallet = async mnemonic => {
+  try {
+    // Don't create a native wallet just to dispose one that isn't there.
+    const runtime = await selectSparkRuntime(mnemonic, false, undefined, false);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.disposeWallet,
+        { mnemonic },
+      );
+      return response || { didWork: true };
+    }
+
+    const hash = getMnemonicHash(mnemonic);
+    const wallet = sparkWallet[hash];
+    if (!wallet) return { didWork: true };
+
+    try {
+      wallet.removeAllListeners?.('transfer:claimed');
+      wallet.removeAllListeners?.('balance:update');
+      wallet.removeAllListeners?.('token-balance:update');
+      wallet.removeAllListeners?.('stream:connected');
+      wallet.removeAllListeners?.('stream:disconnected');
+      wallet.removeAllListeners?.('stream:reconnecting');
+      await wallet.cleanupConnections?.();
+    } finally {
+      delete sparkWallet[hash];
+      delete flashnetClients[hash];
+    }
+    return { didWork: true };
+  } catch (err) {
+    console.log('Dispose spark wallet error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
 export const initializeSparkWallet = async (
   mnemonic,
   isInitialLoad = true,

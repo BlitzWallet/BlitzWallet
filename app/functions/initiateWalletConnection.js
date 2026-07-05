@@ -2,7 +2,6 @@ import { crashlyticsLogReport } from './crashlyticsLogs';
 import {
   getCachedSparkTransactions,
   getSparkAddress,
-  getSparkBalance,
   getSparkIdentityPubKey,
   initializeSparkWallet,
   setPrivacyEnabled,
