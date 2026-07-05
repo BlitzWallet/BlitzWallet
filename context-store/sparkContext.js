@@ -1995,20 +1995,6 @@ const SparkWalletProvider = ({ children }) => {
     fetchTransactions();
   }, [restoreCompleted]);
 
-  // Run an initial balance reconciliation once per wallet session.
-  useEffect(() => {
-    if (!sparkInformation.didConnect) return;
-    if (!sparkInformation.identityPubKey) return;
-    if (hasRunInitBalancePoll.current) return;
-
-    hasRunInitBalancePoll.current = true;
-    reconcileBalance();
-  }, [
-    sparkInformation.didConnect,
-    sparkInformation.identityPubKey,
-    reconcileBalance,
-  ]);
-
   // Balance reconcile lifecycle:
   //  • On background: a balance read can't settle (the WebView request timeout
   //    is neutered), so a read issued before backgrounding would park. Bump the
