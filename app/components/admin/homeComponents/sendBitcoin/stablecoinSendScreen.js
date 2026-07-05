@@ -460,7 +460,7 @@ export default function StablecoinSendScreen() {
 
       await bulkUpdateSparkTransactions([pendingTx], 'fullUpdate');
 
-      await fetchBackend(
+      fetchBackend(
         'submitFlashnetStablecoinOrder',
         {
           quoteId: quote.quoteId,

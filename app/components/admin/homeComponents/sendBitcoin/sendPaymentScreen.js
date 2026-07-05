@@ -116,6 +116,21 @@ export default function SendPaymentScreen(props) {
   const { t } = useTranslation();
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
     useUserBalanceContext();
+
+  // Latest-value ref for balances (same pattern as stablecoinSendScreen). The
+  // send-decision memos/effects read balance through this ref instead of the
+  // reactive context values, so balance is dropped from their dependency
+  // arrays. A burst of incoming payments then can't recompute the payment
+  // method, flip uiState, or refire fee estimation mid-send. The actual send
+  // still validates against live balance via sparkInfoRef.current.
+  const balanceRef = useRef({
+    bitcoinBalance,
+    dollarBalanceSat,
+    dollarBalanceToken,
+  });
+  balanceRef.current.bitcoinBalance = bitcoinBalance;
+  balanceRef.current.dollarBalanceSat = dollarBalanceSat;
+  balanceRef.current.dollarBalanceToken = dollarBalanceToken;
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
@@ -264,6 +279,9 @@ export default function SendPaymentScreen(props) {
     (isLightningPayment && paymentInfo?.usingZeroAmountInvoice);
 
   const resolvedPaymentMethod = useMemo(() => {
+    // eslint-disable-next-line no-shadow -- read frozen balance, decoupled from live deps
+    const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
+      balanceRef.current;
     if (!paymentInfo || !Object.keys(paymentInfo || {}).length)
       return undefined;
 
@@ -328,9 +346,6 @@ export default function SendPaymentScreen(props) {
     enteredPaymentInfo?.inputCurrency,
     userPaymentMethod,
     paymentInfo,
-    dollarBalanceSat,
-    dollarBalanceToken,
-    bitcoinBalance,
     isBitcoinPayment,
     isUsingLRC20,
     isSparkPayment,
@@ -449,6 +464,8 @@ export default function SendPaymentScreen(props) {
   );
 
   const requiresUserMethodSelection = useMemo(() => {
+    // eslint-disable-next-line no-shadow -- read frozen balance, decoupled from live deps
+    const { bitcoinBalance, dollarBalanceSat } = balanceRef.current;
     if (resolvedPaymentMethod === undefined) return false;
     if (
       !!preSelectedPaymentMethod ||
@@ -492,8 +509,6 @@ export default function SendPaymentScreen(props) {
     didSelectPaymentMethod,
     sparkInformation?.didConnectToFlashnet,
     paymentInfo?.data?.expectedReceive,
-    bitcoinBalance,
-    dollarBalanceSat,
     amountViableForSwap,
     resolvedPaymentMethod,
     receiverExpectsCurrency,
@@ -522,6 +537,9 @@ export default function SendPaymentScreen(props) {
 
   const estimateLightningFee = useCallback(
     async (amount, id) => {
+      // eslint-disable-next-line no-shadow -- read frozen balance, decoupled from live deps
+      const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
+        balanceRef.current;
       if (!amount || !isLightningPayment || !canEditAmount) {
         setIsEstimatingFee(false);
         return;
@@ -667,9 +685,6 @@ export default function SendPaymentScreen(props) {
       isLightningPayment,
       canEditAmount,
       resolvedPaymentMethod,
-      dollarBalanceToken,
-      dollarBalanceSat,
-      bitcoinBalance,
       paymentInfo,
       currentWalletMnemoinc,
       masterInfoObject,
