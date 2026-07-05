@@ -374,11 +374,6 @@ export default function AccountPaymentPage(props) {
             <ThemeIcon size={18} iconName={'ChevronRight'} />
           </TouchableOpacity>
 
-          {/* Directional arrow divider */}
-          <View style={styles.arrowDivider}>
-            <ThemeIcon iconName={'ArrowDown'} size={16} />
-          </View>
-
           {/* To row */}
           <TouchableOpacity
             activeOpacity={0.5}
@@ -449,7 +444,7 @@ export default function AccountPaymentPage(props) {
                 neverHideBalance={true}
                 styles={{
                   includeFontPadding: false,
-                  fontSize: SIZES.small,
+                  // fontSize: SIZES.small,
                 }}
                 balance={transferInfo.paymentFee}
               />
@@ -459,6 +454,11 @@ export default function AccountPaymentPage(props) {
           {/* Description row — editable */}
           <View style={styles.descriptionRow}>
             <ThemeIcon size={20} iconName={'SquarePen'} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={[styles.rowLabel, { flex: 0 }]}
+              content={t('transactionLabelText.memo')}
+            />
             <CustomSearchInput
               inputText={memo}
               setInputText={setMemo}
@@ -517,29 +517,25 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     flex: 1,
-    fontSize: SIZES.medium,
+    fontSize: SIZES.smedium,
     marginLeft: 12,
     includeFontPadding: false,
   },
   rowLabelInner: {
-    fontSize: SIZES.medium,
+    fontSize: SIZES.smedium,
     includeFontPadding: false,
   },
   rowSubLabel: {
-    fontSize: SIZES.small,
+    fontSize: SIZES.smedium,
     opacity: 0.6,
     includeFontPadding: false,
     marginTop: 2,
   },
   rowInlineValue: {
-    fontSize: SIZES.small,
+    fontSize: SIZES.smedium,
     opacity: 0.5,
     marginRight: 8,
     includeFontPadding: false,
-  },
-  arrowDivider: {
-    alignItems: 'center',
-    paddingVertical: 4,
   },
   receiptIcon: {
     width: 20,
@@ -560,34 +556,10 @@ const styles = StyleSheet.create({
   descriptionInput: {
     backgroundColor: 'transparent',
     padding: 0,
-    fontSize: SIZES.medium,
+    fontSize: SIZES.smedium,
+    textAlign: 'right',
   },
-  summaryContainer: {
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  summaryLabel: {
-    fontSize: SIZES.small,
-    opacity: 0.5,
-    includeFontPadding: false,
-  },
-  summaryTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: 8,
-  },
-  summaryTotal: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Medium,
-    includeFontPadding: false,
-  },
+
   animationContainer: {
     alignItems: 'center',
     justifyContent: 'center',
