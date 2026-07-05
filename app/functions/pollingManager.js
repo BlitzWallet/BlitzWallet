@@ -259,7 +259,7 @@ export const createRestorePoller = (
     pollFn: async delayIndex => {
       const result = await fullRestoreSparkState({
         sparkAddress: sparkInfo.sparkAddress,
-        batchSize: 2,
+        batchSize: 5,
         isSendingPayment: isSendingPayment,
         mnemonic,
         identityPubKey: sparkInfo.identityPubKey,
@@ -279,6 +279,6 @@ export const createRestorePoller = (
       onRestoreComplete(result);
     },
     abortController,
-    delays: [0, 2000, 5000],
+    delays: [500, 2500],
   });
 };

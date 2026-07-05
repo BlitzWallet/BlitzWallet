@@ -10,7 +10,6 @@ import {
 import {
   claimnSparkStaticDepositAddress,
   clearMnemonicCache,
-  getCachedSparkTransactions,
   getSingleTxDetails,
   getSparkTransactions,
   getSparkStaticBitcoinL1AddressQuote,
@@ -33,7 +32,6 @@ import {
 import { useAppStatus } from './appStatus';
 import {
   checkHodlInvoicePaymentStatuses,
-  fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
 import { useGlobalContactsInfo } from './globalContacts';
@@ -179,15 +177,12 @@ const SparkWalletProvider = ({ children }) => {
     didConnectToFlashnet: null,
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
-  const [restoreCompleted, setRestoreCompleted] = useState(false);
-  const hasRestoreCompleted = useRef(false);
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
     useState(0);
 
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
-  const isInitialRestore = useRef(true);
   const isInitialLRC20Run = useRef(true);
   const initialBitcoinIntervalRun = useRef(null);
   const sparkInfoRef = useRef({
@@ -201,7 +196,6 @@ const SparkWalletProvider = ({ children }) => {
   const sessionTimeRef = useRef(Date.now());
   const newestPaymentTimeRef = useRef(Date.now());
   const handledTransfers = useRef(new Set());
-  const usedSavedTxIds = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
   const prevAccountId = useRef(null);
@@ -241,8 +235,6 @@ const SparkWalletProvider = ({ children }) => {
           token => token !== USDB_TOKEN_ID,
         ).length
       : masterInfoObject.enabledBTKNTokens;
-
-  const didRunInitialRestore = useRef(false);
 
   const handledNavigatedTxs = useRef(new Set());
 
@@ -1286,26 +1278,28 @@ const SparkWalletProvider = ({ children }) => {
             mnemonic: currentMnemonicRef.current,
           });
         }
-        if (!isInitialRestore.current) {
-          if (txPollingAbortControllerRef.current) {
-            txPollingAbortControllerRef.current.abort();
-          }
-
-          txPollingAbortControllerRef.current = new AbortController();
-          const restorePoller = createRestorePoller(
-            currentMnemonicRef.current,
-            isSendingPaymentRef.current,
-            currentMnemonicRef,
-            txPollingAbortControllerRef.current,
-            result => {
-              console.log('RESTORE COMPLETE');
-            },
-            sparkInfoRef.current,
-            sendWebViewRequest,
-          );
-
-          restorePoller.start();
+        // Single restore path for every connect (initial + subsequent). The
+        // poller writes txs via bulkUpdateSparkTransactions, whose SPARK_TX
+        // update event drives the UI/balance refresh; isRestoringState guards
+        // against overlap.
+        if (txPollingAbortControllerRef.current) {
+          txPollingAbortControllerRef.current.abort();
         }
+
+        txPollingAbortControllerRef.current = new AbortController();
+        const restorePoller = createRestorePoller(
+          currentMnemonicRef.current,
+          isSendingPaymentRef.current,
+          currentMnemonicRef,
+          txPollingAbortControllerRef.current,
+          result => {
+            console.log('RESTORE COMPLETE');
+          },
+          sparkInfoRef.current,
+          sendWebViewRequest,
+        );
+
+        restorePoller.start();
 
         updateSparkTxStatus(
           currentMnemonicRef.current,
@@ -1388,10 +1382,6 @@ const SparkWalletProvider = ({ children }) => {
             console.error('Error during periodic restore:', err);
           }
         }, 10 * 1000);
-
-        if (isInitialRestore.current) {
-          isInitialRestore.current = false;
-        }
 
         updatePendingPaymentsIntervalRef.current = intervalId;
         intervalTracker.set(walletHash, intervalId);
@@ -1492,41 +1482,6 @@ const SparkWalletProvider = ({ children }) => {
     }
   };
 
-  // optimizations for leaves and tokens
-  useEffect(() => {
-    if (!sparkInformation.didConnect) return;
-    if (!sparkInformation.identityPubKey) return;
-    if (!didGetToHomepage) return;
-    if (AppState.currentState !== 'active') return;
-
-    const runInitialOptimizationCheck = async () => {
-      if (!sparkInfoRef.current.identityPubKey) return;
-      if (AppState.currentState !== 'active') return;
-
-      const needed = await checkIfOptimizationNeeded(
-        currentMnemonicRef.current,
-      );
-
-      if (needed) {
-        console.log('Running initial optimization check...');
-        await runLeafOptimization(
-          currentMnemonicRef.current,
-          sparkInfoRef.current.identityPubKey,
-        );
-        await runTokenOptimization(
-          currentMnemonicRef.current,
-          sparkInfoRef.current.identityPubKey,
-        );
-      }
-    };
-
-    runInitialOptimizationCheck();
-  }, [
-    sparkInformation.didConnect,
-    sparkInformation.identityPubKey,
-    didGetToHomepage,
-  ]);
-
   const resetSparkState = useCallback(
     async (internalRefresh = false, shouldClearMnemonicCache = true) => {
       // Reset refs to initial values
@@ -1557,8 +1512,6 @@ const SparkWalletProvider = ({ children }) => {
       isSendingPaymentRef.current = false;
       txPollingAbortControllerRef.current = null;
       txPollingTimeoutRef.current = null;
-      didRunInitialRestore.current = false;
-      hasRestoreCompleted.current = false;
       balanceVersionRef.current = 0;
       hasRunInitBalancePoll.current = false;
 
@@ -1955,48 +1908,6 @@ const SparkWalletProvider = ({ children }) => {
     showToast,
   ]);
 
-  // Run fullRestore when didConnect becomes true
-  useEffect(() => {
-    if (!sparkInformation.didConnect) return;
-    if (!sparkInformation.identityPubKey) return;
-    if (didRunInitialRestore.current) return;
-    didRunInitialRestore.current = true;
-
-    async function runRestore() {
-      const restoreResponse = await fullRestoreSparkState({
-        sparkAddress: sparkInfoRef.current.sparkAddress,
-        batchSize: isInitialRestore.current ? 5 : 2,
-        isSendingPayment: isSendingPaymentRef.current,
-        mnemonic: currentMnemonicRef.current,
-        identityPubKey: sparkInfoRef.current.identityPubKey,
-        sendWebViewRequest,
-        isInitialRestore: isInitialRestore.current,
-      });
-
-      if (!restoreResponse) {
-        setRestoreCompleted(true); // This will get the transactions for the session
-      }
-    }
-
-    runRestore();
-  }, [sparkInformation.didConnect, sparkInformation.identityPubKey]);
-
-  // Run transactions after BOTH restore completes
-  useEffect(() => {
-    if (!restoreCompleted) return;
-
-    async function fetchTransactions() {
-      const transactions = await getCachedSparkTransactions(
-        null,
-        sparkInfoRef.current.identityPubKey,
-      );
-      filterAndSetTransactions(transactions);
-      hasRestoreCompleted.current = true;
-    }
-
-    fetchTransactions();
-  }, [restoreCompleted]);
-
   // Balance reconcile lifecycle:
   //  • On background: a balance read can't settle (the WebView request timeout
   //    is neutered), so a read issued before backgrounding would park. Bump the
@@ -2044,7 +1955,10 @@ const SparkWalletProvider = ({ children }) => {
         // globalContactsInformation,
         mnemonic: accountMnemoinc,
         sendWebViewRequest,
-        hasRestoreCompleted: hasRestoreCompleted.current,
+        // Restore now runs solely via createRestorePoller in addListeners, so
+        // always load cached txs on connect (the poller's SPARK_TX events layer
+        // in any newly restored txs afterward).
+        hasRestoreCompleted: false,
         identityPubKey,
       });
       setDidRunNormalConnection(true);
