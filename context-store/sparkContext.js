@@ -1079,51 +1079,71 @@ const SparkWalletProvider = ({ children }) => {
   // round-trip — same result, one fewer WebView read per event. The WebView
   // runtime delivers the already-normalized map; the native runtime delivers the
   // raw SDK Map and is normalized at registration (see addListeners).
-  const tokenBalanceUpdateHandler = useCallback((tokensObject, walletId) => {
-    // Ignore events from derived wallets (gift/pool/savings). Undefined walletId
-    // = pre-tagging bundle → treat as main wallet (backward compatible).
-    if (walletId && walletId !== mainWalletHashRef.current) return;
-    // Each event carries the full current token-balance map, so only the latest
-    // payload matters during a burst.
-    latestTokensRef.current = tokensObject ?? {};
-
-    const flush = async () => {
-      if (tokenDebounceTimeoutRef.current) {
-        clearTimeout(tokenDebounceTimeoutRef.current);
-        tokenDebounceTimeoutRef.current = null;
-      }
-      if (tokenDebounceMaxWaitRef.current) {
-        clearTimeout(tokenDebounceMaxWaitRef.current);
-        tokenDebounceMaxWaitRef.current = null;
-      }
-
-      const mnemonic = currentMnemonicRef.current;
-      if (!mnemonic) return;
-      const merged = await mergeAndCacheTokens(
-        latestTokensRef.current,
-        mnemonic,
-      );
-      if (mnemonic !== currentMnemonicRef.current) return;
-      setSparkInformation(prev => ({ ...prev, tokens: merged }));
-      // Persist tokens so a token-only change survives a cold start, matching
-      // flushBalanceNow / reconcileBalance.
-      saveAccountBalanceSnapshot(
-        sparkInfoRef.current.identityPubKey,
-        sparkInfoRef.current.balance,
-        merged,
-      );
-    };
-
-    // Trailing debounce 500ms after the last event, capped at 10s so a
-    // sustained burst still flushes periodically (see balanceUpdateHandler).
-    if (tokenDebounceTimeoutRef.current)
-      clearTimeout(tokenDebounceTimeoutRef.current);
-    tokenDebounceTimeoutRef.current = setTimeout(flush, 3000);
-
-    if (!tokenDebounceMaxWaitRef.current) {
-      tokenDebounceMaxWaitRef.current = setTimeout(flush, 10000);
-    }
+  // Token analog of debouncedHandleIncomingPayment / reconcileBalance: builds token
+  // (LRC20) transaction history. Driven by token-balance:update events, a one-time
+  // startup fetch, and the reconnect/foreground reconcile — replacing the old 10s poll.
+  const reconcileTokenTransactions = useCallback((isInitialRun = false) => {
+    if (isSendingPaymentRef.current) return;
+    const mnemonic = currentMnemonicRef.current;
+    if (!mnemonic) return;
+    getLRC20Transactions({
+      ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
+      sparkAddress: sparkInfoRef.current.sparkAddress,
+      isInitialRun,
+      mnemonic,
+    });
   }, []);
+
+  const tokenBalanceUpdateHandler = useCallback(
+    (tokensObject, walletId) => {
+      // Ignore events from derived wallets (gift/pool/savings). Undefined walletId
+      // = pre-tagging bundle → treat as main wallet (backward compatible).
+      if (walletId && walletId !== mainWalletHashRef.current) return;
+      // Each event carries the full current token-balance map, so only the latest
+      // payload matters during a burst.
+      latestTokensRef.current = tokensObject ?? {};
+
+      const flush = async () => {
+        if (tokenDebounceTimeoutRef.current) {
+          clearTimeout(tokenDebounceTimeoutRef.current);
+          tokenDebounceTimeoutRef.current = null;
+        }
+        if (tokenDebounceMaxWaitRef.current) {
+          clearTimeout(tokenDebounceMaxWaitRef.current);
+          tokenDebounceMaxWaitRef.current = null;
+        }
+
+        const mnemonic = currentMnemonicRef.current;
+        if (!mnemonic) return;
+        const merged = await mergeAndCacheTokens(
+          latestTokensRef.current,
+          mnemonic,
+        );
+        if (mnemonic !== currentMnemonicRef.current) return;
+        setSparkInformation(prev => ({ ...prev, tokens: merged }));
+        // Persist tokens so a token-only change survives a cold start, matching
+        // flushBalanceNow / reconcileBalance.
+        saveAccountBalanceSnapshot(
+          sparkInfoRef.current.identityPubKey,
+          sparkInfoRef.current.balance,
+          merged,
+        );
+        // A token balance change means a token tx finalized — fetch its history now
+        reconcileTokenTransactions(false);
+      };
+
+      // Trailing debounce 500ms after the last event, capped at 10s so a
+      // sustained burst still flushes periodically (see balanceUpdateHandler).
+      if (tokenDebounceTimeoutRef.current)
+        clearTimeout(tokenDebounceTimeoutRef.current);
+      tokenDebounceTimeoutRef.current = setTimeout(flush, 3000);
+
+      if (!tokenDebounceMaxWaitRef.current) {
+        tokenDebounceMaxWaitRef.current = setTimeout(flush, 10000);
+      }
+    },
+    [reconcileTokenTransactions],
+  );
 
   // Stream lifecycle. A connect after a drop means events may have been missed
   // while the stream was down, so fire one reconcile read. The initial connect
@@ -1140,8 +1160,10 @@ const SparkWalletProvider = ({ children }) => {
       if (AppState.currentState !== 'active') return;
       if (!sparkInfoRef.current.didConnect) return;
       reconcileBalance();
+      // Recover token txs whose token-balance:update fired while the stream was down.
+      reconcileTokenTransactions(false);
     },
-    [reconcileBalance],
+    [reconcileBalance, reconcileTokenTransactions],
   );
 
   useEffect(() => {
@@ -1294,6 +1316,12 @@ const SparkWalletProvider = ({ children }) => {
           publicKey,
         );
 
+        // One-time startup token history fetch (token analog of
+        // restorePoller.start()) — catches token txs received while the app was
+        // closed. Live updates thereafter come from token-balance:update.
+        reconcileTokenTransactions(isInitialLRC20Run.current);
+        if (isInitialLRC20Run.current) isInitialLRC20Run.current = false;
+
         if (updatePendingPaymentsIntervalRef.current) {
           console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
           clearInterval(updatePendingPaymentsIntervalRef.current);
@@ -1350,32 +1378,6 @@ const SparkWalletProvider = ({ children }) => {
                   'transactions',
                 );
               }
-            }
-
-            if (
-              capturedAuthKey !== authResetKeyRef.current ||
-              capturedMnemonic !== currentMnemonicRef.current
-            ) {
-              console.log(
-                'Context changed during updateSparkTxStatus. Aborting getLRC20Transactions.',
-              );
-              clearInterval(intervalId);
-              intervalTracker.delete(capturedWalletHash);
-              allIntervalIds.delete(intervalId);
-              return;
-            }
-
-            if (!isSendingPaymentRef.current) {
-              await getLRC20Transactions({
-                ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
-                sparkAddress: sparkInfoRef.current.sparkAddress,
-                isInitialRun: isInitialLRC20Run.current,
-                mnemonic: currentMnemonicRef.current,
-                sendWebViewRequest,
-              });
-            }
-            if (isInitialLRC20Run.current) {
-              isInitialLRC20Run.current = false;
             }
 
             // await checkHodlInvoicePaymentStatuses(
@@ -2021,11 +2023,14 @@ const SparkWalletProvider = ({ children }) => {
     if (!sparkInformation.identityPubKey) return;
 
     reconcileBalance();
+    // Recover token txs whose token-balance:update fired while backgrounded.
+    reconcileTokenTransactions(false);
   }, [
     appState,
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     reconcileBalance,
+    reconcileTokenTransactions,
   ]);
 
   // This function connects to the spark node and sets the session up
