@@ -717,6 +717,7 @@ export default function CustomHalfModal(props) {
           <BTCMapMerchantContent
             handleBackPressFunction={handleBackPressFunction}
             placeId={props?.route?.params?.placeId}
+            source={props?.route?.params?.source}
             setContentHeight={setContentHeight}
           />
         );

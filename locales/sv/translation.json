@@ -2630,7 +2630,7 @@
         "pay": "Betala",
         "lightning": "Lightning",
         "lightningMessage": "Tar emot bitcoinbetalningar direkt via Lightning-nätverket",
-        "dataMessage": "Data från btcmap.org"
+        "dataMessage": "Data från {{source}}"
       },
       "filter": {
         "categoriesTitle": "Kategorier",

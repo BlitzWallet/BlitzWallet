@@ -2629,7 +2629,7 @@
         "pay": "Pagar",
         "lightning": "Bitcoin",
         "lightningMessage": "Aceita pagamentos Bitcoin",
-        "dataMessage": "Dados do btcmap.org"
+        "dataMessage": "Dados do {{source}}"
       },
       "filter": {
         "categoriesTitle": "Categorias",
