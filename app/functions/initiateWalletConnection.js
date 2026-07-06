@@ -75,9 +75,11 @@ export async function initializeSparkSession({
     // painted by the loading screen for instant first-paint, but returning
     // users must still get an authoritative read so a stale snapshot can never
     // persist until a manual pull-to-refresh.
-    let balanceSnapshot = false;
+    let skipBalanceFetch = false;
+    let balanceSnapshot = {};
     if (cachedIdentityPubKey) {
       balanceSnapshot = await getAccountBalanceSnapshot(cachedIdentityPubKey);
+      skipBalanceFetch = balanceSnapshot !== null;
     }
     // Only fetch fresh txs when restoring — returning users keep prev.transactions
     const needsFreshTxs = !hasRestoreCompleted;
@@ -87,7 +89,9 @@ export async function initializeSparkSession({
         : null;
 
     const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
-      getBalanceWithTimeout(mnemonic, 10000),
+      skipBalanceFetch
+        ? Promise.resolve({ didWork: false })
+        : getSparkBalance(mnemonic),
       getSparkAddress(mnemonic),
       cachedIdentityPubKey
         ? Promise.resolve(cachedIdentityPubKey)
