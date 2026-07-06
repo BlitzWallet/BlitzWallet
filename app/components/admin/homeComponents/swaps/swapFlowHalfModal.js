@@ -1748,9 +1748,13 @@ export default function SwapFlowHalfModal({
         ]}
         pointerEvents={currentStep === 'amountInput' ? 'auto' : 'none'}
       >
-        <View style={styles.stepContent}>
+        <View style={[styles.stepContent, { width: '100%' }]}>
           <ScrollView
-            contentContainerStyle={{ paddingBottom: 20 }}
+            contentContainerStyle={{
+              paddingBottom: 20,
+              width: INSET_WINDOW_WIDTH,
+              ...CENTER,
+            }}
             showsVerticalScrollIndicator={false}
           >
             {/* Amount display card — from row + divider + to row */}
@@ -1969,8 +1973,6 @@ export default function SwapFlowHalfModal({
               ))}
             </View>
           </ScrollView>
-
-          <View style={{ marginTop: 'auto' }} />
 
           {currentStep === 'amountInput' && (
             <HandleKeyboardRender
