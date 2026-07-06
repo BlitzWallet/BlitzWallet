@@ -1068,6 +1068,9 @@ async function processBitcoinTransactions(
 
       if (!transfer) continue;
 
+      const newPaymentStatus = getSparkPaymentStatus(transfer.status);
+      if (txStateUpdate.paymentStatus === newPaymentStatus) continue;
+
       updatedTxs.push({
         id: txStateUpdate.sparkID,
         paymentStatus: getSparkPaymentStatus(transfer.status),
