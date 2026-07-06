@@ -1463,7 +1463,8 @@
       "recipientReceives": "{{contactName}} receberá",
       "giftMessagePlaceholder": "Escreva sua mensagem de presente aqui...",
       "paymentSourceHeader": "Pagar com",
-      "fiatRateLoading": "Carregando cotação da moeda"
+      "fiatRateLoading": "Carregando cotação da moeda",
+      "fiatRateLoadFailed": "Não foi possível carregar a cotação da moeda"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
