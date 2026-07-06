@@ -1029,7 +1029,11 @@ const SparkWalletProvider = ({ children }) => {
       // walletId = pre-tagging bundle → treat as main wallet (backward compatible).
       if (walletId && walletId !== mainWalletHashRef.current) return;
       const available = Number(snapshot?.available);
-      console.log('hanlding balance update', available);
+
+      console.log('hanlding balance update before send block', available);
+      // blocking send screen changes to not affect payments
+      if (isOnSendScreen() && available <= sparkInfoRef.current.balance) return;
+
       if (!Number.isFinite(available)) return;
       // Value-gate: ignore no-op events so a burst of inbound transfers (each
       // emitting balance:update) can't trigger a render / DB-write storm.
