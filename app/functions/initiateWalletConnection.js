@@ -89,9 +89,7 @@ export async function initializeSparkSession({
         : null;
 
     const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
-      skipBalanceFetch
-        ? Promise.resolve({ didWork: false })
-        : getBalanceWithTimeout(mnemonic, 10000),
+      getBalanceWithTimeout(mnemonic, 10000),
       getSparkAddress(mnemonic),
       cachedIdentityPubKey
         ? Promise.resolve(cachedIdentityPubKey)
