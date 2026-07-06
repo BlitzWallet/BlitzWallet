@@ -1464,7 +1464,8 @@
       "recipientReceives": "{{contactName}} kommer att ta emot",
       "giftMessagePlaceholder": "Skriv ditt presentmeddelande här...",
       "paymentSourceHeader": "Betalningskälla",
-      "fiatRateLoading": "Laddar valutakurs för Lightning-adress"
+      "fiatRateLoading": "Laddar valutakurs för Lightning-adress",
+      "fiatRateLoadFailed": "Det gick inte att ladda valutakursen"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Vi kunde inte ladda ditt presentkort just nu. Vänligen försök igen.",

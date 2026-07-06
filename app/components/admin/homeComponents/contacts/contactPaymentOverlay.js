@@ -24,6 +24,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -135,7 +136,7 @@ export default function ContactPaymentOverlay({
       title: '',
       // The currency switcher is meaningless on the confirmation step.
       rightElement:
-        successData !== null ? null : (
+        successData !== null || payment.isAutoResolvingCurrency ? null : (
           <CurrencySwitchButton
             displayCurrency={payment.displayCurrency}
             onPress={openCurrencyPicker}
@@ -154,6 +155,7 @@ export default function ContactPaymentOverlay({
     successData,
     payment.displayCurrency,
     payment.isResolvingDisplayCurrency,
+    payment.isAutoResolvingCurrency,
     openCurrencyPicker,
   ]);
 
@@ -227,72 +229,78 @@ export default function ContactPaymentOverlay({
 
   return (
     <Animated.View style={[styles.container, overlayStyle]}>
-      <Animated.View
-        style={[
-          styles.stepContainer,
-          entryStyle,
-          { paddingBottom: bottomPadding },
-        ]}
-        pointerEvents={successData !== null ? 'none' : 'auto'}
-      >
-        <ContactAmountEntry
-          selectedContact={selectedContact}
-          imageData={imageData}
-          amountValue={payment.amountValue}
-          setAmountValue={payment.setAmountValue}
-          primaryDisplay={payment.primaryDisplay}
-          conversionFiatStats={payment.conversionFiatStats}
-          canReview={payment.canReview}
-          isLoading={payment.isLoading}
-          onNext={handleSubmit}
-          paymentMethod={payment.paymentMethod}
-          onSelectPaymentMethod={handleSelectPaymentMethod}
-          bitcoinBalance={payment.balances.sparkBalance}
-          dollarBalanceToken={payment.balances.dollarBalanceToken}
-          masterInfoObject={payment.masterInfoObject}
-          fiatStats={payment.fiatStats}
-          theme={theme}
-          darkModeType={darkModeType}
-          backgroundColor={backgroundColor}
-          backgroundOffset={backgroundOffset}
-          t={t}
-          paymentType={paymentType}
-          isResolvingDisplayCurrency={payment.isResolvingDisplayCurrency}
-        />
-      </Animated.View>
-
-      <Animated.View
-        style={[
-          styles.stepContainer,
-          styles.successContainer,
-          successStyle,
-          { paddingBottom: bottomPadding },
-        ]}
-        pointerEvents={successData !== null ? 'auto' : 'none'}
-      >
-        <View style={styles.successContent}>
-          {successData !== null && (
-            <LottieView
-              source={confirmAnimation}
-              loop={false}
-              autoPlay
-              style={styles.lottie}
+      {payment.isAutoResolvingCurrency ? (
+        <FullLoadingScreen />
+      ) : (
+        <>
+          <Animated.View
+            style={[
+              styles.stepContainer,
+              entryStyle,
+              { paddingBottom: bottomPadding },
+            ]}
+            pointerEvents={successData !== null ? 'none' : 'auto'}
+          >
+            <ContactAmountEntry
+              selectedContact={selectedContact}
+              imageData={imageData}
+              amountValue={payment.amountValue}
+              setAmountValue={payment.setAmountValue}
+              primaryDisplay={payment.primaryDisplay}
+              conversionFiatStats={payment.conversionFiatStats}
+              canReview={payment.canReview}
+              isLoading={payment.isLoading}
+              onNext={handleSubmit}
+              paymentMethod={payment.paymentMethod}
+              onSelectPaymentMethod={handleSelectPaymentMethod}
+              bitcoinBalance={payment.balances.sparkBalance}
+              dollarBalanceToken={payment.balances.dollarBalanceToken}
+              masterInfoObject={payment.masterInfoObject}
+              fiatStats={payment.fiatStats}
+              theme={theme}
+              darkModeType={darkModeType}
+              backgroundColor={backgroundColor}
+              backgroundOffset={backgroundOffset}
+              t={t}
+              paymentType={paymentType}
+              isResolvingDisplayCurrency={payment.isResolvingDisplayCurrency}
             />
-          )}
-          <ThemeText
-            CustomNumberOfLines={2}
-            styles={styles.successSubtitle}
-            content={t('wallet.halfModal.requestSentSubtitle', {
-              name: successData?.contactName,
-            })}
-          />
-        </View>
-        <CustomButton
-          buttonStyles={styles.doneButton}
-          actionFunction={handleBackPressFunction}
-          textContent={t('constants.done')}
-        />
-      </Animated.View>
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.stepContainer,
+              styles.successContainer,
+              successStyle,
+              { paddingBottom: bottomPadding },
+            ]}
+            pointerEvents={successData !== null ? 'auto' : 'none'}
+          >
+            <View style={styles.successContent}>
+              {successData !== null && (
+                <LottieView
+                  source={confirmAnimation}
+                  loop={false}
+                  autoPlay
+                  style={styles.lottie}
+                />
+              )}
+              <ThemeText
+                CustomNumberOfLines={2}
+                styles={styles.successSubtitle}
+                content={t('wallet.halfModal.requestSentSubtitle', {
+                  name: successData?.contactName,
+                })}
+              />
+            </View>
+            <CustomButton
+              buttonStyles={styles.doneButton}
+              actionFunction={handleBackPressFunction}
+              textContent={t('constants.done')}
+            />
+          </Animated.View>
+        </>
+      )}
     </Animated.View>
   );
 }
