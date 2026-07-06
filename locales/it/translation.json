@@ -2630,7 +2630,7 @@
         "pay": "Paga",
         "lightning": "Lightning",
         "lightningMessage": "Accetta pagamenti in bitcoin istantaneamente tramite la rete Lightning",
-        "dataMessage": "Dati da btcmap.org"
+        "dataMessage": "Dati da {{source}}"
       },
       "filter": {
         "categoriesTitle": "Categorie",

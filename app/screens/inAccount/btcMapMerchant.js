@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 
 export default function BTCMapMerchantContent({
   placeId,
+  source,
   setContentHeight,
   handleBackPressFunction,
 }) {
@@ -55,10 +56,10 @@ export default function BTCMapMerchantContent({
   useEffect(() => {
     if (!placeId) return;
     setDetailLoading(true);
-    getPlaceDetail(placeId, privateKey, publicKey)
+    getPlaceDetail(placeId, source, privateKey, publicKey)
       .then(detail => setPlace(detail))
       .finally(() => setDetailLoading(false));
-  }, [placeId, getPlaceDetail, privateKey, publicKey]);
+  }, [placeId, source, getPlaceDetail, privateKey, publicKey]);
 
   const handleDirections = useCallback(() => {
     if (!lat || !lon) return;
@@ -252,7 +253,7 @@ export default function BTCMapMerchantContent({
       </View>
 
       <ThemeText
-        content={t('screens.btcMap.merchant.dataMessage')}
+        content={t('screens.btcMap.merchant.dataMessage', { source })}
         styles={styles.attribution}
       />
     </View>

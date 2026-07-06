@@ -19,7 +19,7 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { COLORS, SHADOWS } from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import { cameraToBbox } from '../../functions/btcMap/mapClustering';
-import { getBtcMapCategory } from '../../functions/btcMap/iconCategory';
+import { resolvePlaceCategory } from '../../functions/btcMap/iconCategory';
 import {
   clearBTCMapClusterCache,
   getOrBuildBTCMapClusterManager,
@@ -199,7 +199,7 @@ export default function BTCMapScreen() {
 
     if (filter.categories.length) {
       const categorySet = new Set(filter.categories);
-      points = points.filter(p => categorySet.has(getBtcMapCategory(p.icon)));
+      points = points.filter(p => categorySet.has(resolvePlaceCategory(p)));
     }
 
     if (!points.length) {
@@ -310,6 +310,7 @@ export default function BTCMapScreen() {
         navigate.navigate('CustomHalfModal', {
           wantedContent: 'btcMapMerchant',
           placeId: data.placeId,
+          source: data.source,
         });
       }
     },

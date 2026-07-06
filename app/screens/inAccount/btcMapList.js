@@ -15,7 +15,7 @@ import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../constants/theme';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import {
   CATEGORY_META,
-  getBtcMapCategory,
+  resolvePlaceCategory,
 } from '../../functions/btcMap/iconCategory';
 import {
   distanceMeters,
@@ -72,7 +72,7 @@ export default function BTCMapListContent({
     const categorySet = categories.length ? new Set(categories) : null;
     let rows = places;
     if (categorySet) {
-      rows = rows.filter(p => categorySet.has(getBtcMapCategory(p.icon)));
+      rows = rows.filter(p => categorySet.has(resolvePlaceCategory(p)));
     }
     rows = rows.map(p => ({
       ...p,
@@ -97,7 +97,7 @@ export default function BTCMapListContent({
   const hasMoreRows = data?.length < placeCount;
 
   const renderItem = ({ item }) => {
-    const category = getBtcMapCategory(item.icon);
+    const category = resolvePlaceCategory(item);
     return (
       <TouchableOpacity
         activeOpacity={0.6}
@@ -106,6 +106,7 @@ export default function BTCMapListContent({
           navigate.push('CustomHalfModal', {
             wantedContent: 'btcMapMerchant',
             placeId: item.id,
+            source: item.source,
           })
         }
       >
@@ -154,7 +155,7 @@ export default function BTCMapListContent({
       <FlatList
         data={data}
         renderItem={renderItem}
-        keyExtractor={item => String(item.id)}
+        keyExtractor={item => `${item.source}-${item.id}`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: bottomPadding }}
         ListEmptyComponent={

@@ -2637,7 +2637,7 @@
         "pay": "Оплатить",
         "lightning": "Lightning",
         "lightningMessage": "Принимает платежи в биткоинах мгновенно через сеть Lightning",
-        "dataMessage": "Данные с btcmap.org"
+        "dataMessage": "Данные с {{source}}"
       },
       "filter": {
         "categoriesTitle": "Категории",
