@@ -880,15 +880,18 @@ const SparkWalletProvider = ({ children }) => {
   // guard makes a live balance:update win over a slower reconcile read.
   const reconcileBalance = useCallback(async () => {
     const mnemonic = currentMnemonicRef.current;
-    if (!mnemonic) return;
+    if (!mnemonic) return false;
 
     if (isReconcilingBalanceRef.current) {
       reconcileBalanceAgainRef.current = true;
-      return;
+      return false;
     }
 
     isReconcilingBalanceRef.current = true;
     const runId = ++reconcileRunIdRef.current;
+    // Whether this run landed an authoritative (finite) balance read. Returned
+    // so callers like the post-connect timeout retry know when to stop.
+    let didApplyFinite = false;
 
     try {
       do {
@@ -899,11 +902,12 @@ const SparkWalletProvider = ({ children }) => {
         // A background transition (or account switch) invalidates this run; the
         // foreground effect bumps reconcileRunIdRef so a parked read can't apply
         // a stale value or clear a newer run's lock.
-        if (runId !== reconcileRunIdRef.current) return;
-        if (mnemonic !== currentMnemonicRef.current) return;
-        if (AppState.currentState !== 'active') return;
+        if (runId !== reconcileRunIdRef.current) return didApplyFinite;
+        if (mnemonic !== currentMnemonicRef.current) return didApplyFinite;
+        if (AppState.currentState !== 'active') return didApplyFinite;
 
         const numericBalance = Number(result?.balance);
+        if (Number.isFinite(numericBalance)) didApplyFinite = true;
         const { identityPubKey } = sparkInfoRef.current;
 
         saveAccountBalanceSnapshot(
@@ -936,7 +940,28 @@ const SparkWalletProvider = ({ children }) => {
         isReconcilingBalanceRef.current = false;
       }
     }
+    return didApplyFinite;
   }, []);
+
+  // After a cold connect where the init balance read timed out, the stale
+  // snapshot is on screen and the connect-time balance:update was missed (the
+  // listeners attach only after connect). Retry a bounded, backing-off reconcile
+  // so a payment received while backgrounded still lands, independent of whether
+  // the restore poller surfaces a tx delta. Stops on the first finite read.
+  const retryBalanceAfterTimeout = useCallback(async () => {
+    const mnemonic = currentMnemonicRef.current;
+    const delays = [0, 3000, 6000];
+    for (const delay of delays) {
+      await new Promise(res => setTimeout(res, delay));
+      if (mnemonic !== currentMnemonicRef.current) return;
+      if (AppState.currentState !== 'active') return;
+      // Don't read a balance while leaves are locked for a send — it would read
+      // the transient 0. The send's own reconcile lands the settled value.
+      if (isSendingPaymentRef.current) continue;
+      const didApply = await reconcileBalance();
+      if (didApply) return;
+    }
+  }, [reconcileBalance]);
 
   const handleUpdate = useCallback(
     (...args) => {
@@ -1949,7 +1974,7 @@ const SparkWalletProvider = ({ children }) => {
 
   const connectToSparkWallet = useCallback(
     async identityPubKey => {
-      const { didWork, error } = await initWallet({
+      const { didWork, error, balanceTimedOut } = await initWallet({
         setSparkInformation,
         filterAndSetTransactions,
         // toggleGlobalContactsInformation,
@@ -1970,8 +1995,12 @@ const SparkWalletProvider = ({ children }) => {
         console.log('Error connecting to spark wallet:', error);
         return;
       }
+      // The init balance read timed out and painted the stale snapshot — recover
+      // the real balance out-of-band so it can't stay stale until a foreground
+      // cycle or manual refresh.
+      if (balanceTimedOut) retryBalanceAfterTimeout();
     },
-    [accountMnemoinc, sendWebViewRequest],
+    [accountMnemoinc, sendWebViewRequest, retryBalanceAfterTimeout],
   );
 
   // Function to update db when all reqiured information is loaded
