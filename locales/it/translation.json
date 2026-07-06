@@ -1095,7 +1095,6 @@
       "creating": "Creazione...",
       "creatingPool": "Creazione pool...",
       "gettingBalance": "Recupero saldo del pool...",
-      "checkingBalance": "Controllo saldo… ({{attempt}} di {{total}})",
       "preparingTransfer": "Preparazione trasferimento...",
       "connectingToPool": "Connessione al pool...",
       "unableToConnect": "Impossibile connettersi al pool. Riprova.",
@@ -2461,10 +2460,7 @@
           "confirmMessage": "Il tuo regalo è stato riscattato; riceverai i tuoi fondi a breve",
           "defaultDesc": "Regalo Blitz",
           "claimingGiftMessage1": "Preparazione del regalo...",
-          "giftBalanceMessage_0": "Un momento mentre prepariamo tutto...",
-          "giftBalanceMessage_1": "Stiamo recuperando le informazioni del tuo regalo...",
-          "giftBalanceMessage_2": "Quasi fatto—per favore tieni l’app aperta...",
-          "giftBalanceMessage_3": "Stiamo completando gli ultimi passaggi...",
+          "giftBalanceMessage": "Conferma del saldo del tuo regalo...",
           "claimingGiftMessage4": "Riscatto del regalo..."
         }
       },
@@ -2951,8 +2947,7 @@
       "loadingBalances": "Caricamento saldi...",
       "loadingSteps": {
         "connecting": "Connessione al portafoglio risparmi...",
-        "updating": "Aggiornamento del saldo...",
-        "finalizing": "Finalizzazione..."
+        "loadingBalance": "Caricamento del saldo..."
       },
       "empty": {
         "title": "Niente da prelevare",

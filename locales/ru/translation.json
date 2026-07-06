@@ -1095,7 +1095,6 @@
       "creating": "Создание...",
       "creatingPool": "Создание пула...",
       "gettingBalance": "Получение баланса пула...",
-      "checkingBalance": "Проверка баланса… ({{attempt}} из {{total}})",
       "preparingTransfer": "Подготовка перевода...",
       "connectingToPool": "Подключение к пулу...",
       "unableToConnect": "Не удалось подключиться к пулу. Попробуйте снова.",
@@ -2468,10 +2467,7 @@
           "confirmMessage": "Подарок получен, средства скоро поступят",
           "defaultDesc": "Подарок Blitz",
           "claimingGiftMessage1": "Подготовка...",
-          "giftBalanceMessage_0": "Минутку...",
-          "giftBalanceMessage_1": "Сбор информации...",
-          "giftBalanceMessage_2": "Почти готово...",
-          "giftBalanceMessage_3": "Завершение...",
+          "giftBalanceMessage": "Подтверждение баланса подарка...",
           "claimingGiftMessage4": "Получение..."
         }
       },
@@ -2958,8 +2954,7 @@
       "loadingBalances": "Загрузка балансов...",
       "loadingSteps": {
         "connecting": "Подключение к сберегательному кошельку...",
-        "updating": "Обновление баланса...",
-        "finalizing": "Завершение..."
+        "loadingBalance": "Загрузка баланса..."
       },
       "empty": {
         "title": "Нечего выводить",

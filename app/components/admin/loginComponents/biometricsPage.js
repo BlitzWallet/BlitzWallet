@@ -28,9 +28,16 @@ export default function BiometricsLogin() {
   const navigate = useNavigation();
   const didNavigate = useRef(null);
   const numRetriesBiometric = useRef(0);
-  const isInitialRender = useRef(true);
+  // Tracks whether a biometric attempt is currently in flight. We guard
+  // re-entry on this ref (not the isAuthenticating state) so a stale render
+  // closure can't slip a second concurrent attempt through.
+  const isAuthenticatingRef = useRef(false);
   const authTimeoutRef = useRef(null);
-  const [isAuthenticating, setIsAuthenticating] = useState(true);
+  // Drives only the button's in-flight visual/disabled state. It starts false
+  // so the button is always tappable as a manual fallback — a stuck focus
+  // signal (Android blur/focus is unreliable) can never leave the user with a
+  // disabled button and no prompt.
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const isFocused = useIsFocused();
 
@@ -60,9 +67,14 @@ export default function BiometricsLogin() {
         'App fully focused (appState + isFocused + isAppFocused), starting 500ms timer...',
       );
 
+      // Fresh set of retries each time the screen comes to the foreground so
+      // background/foreground churn can't silently march the user toward the
+      // factory-reset confirmation.
+      numRetriesBiometric.current = 0;
+
       authTimeoutRef.current = setTimeout(() => {
         console.log('500ms elapsed, triggering authentication');
-        loadPageInformation();
+        runAuthentication();
       }, 500);
     } else {
       console.log(
@@ -79,76 +91,60 @@ export default function BiometricsLogin() {
     };
   }, [appState, isFocused, isAppFocused]);
 
-  async function loadPageInformation() {
-    try {
-      const [storedPin] = await Promise.all([retrieveData('pinHash')]);
-
-      let needsToBeMigrated;
-      try {
-        JSON.parse(storedPin.value);
-        needsToBeMigrated = true;
-      } catch (err) {
-        console.log('comparison value error', err);
-        needsToBeMigrated = false;
-      }
-
-      if (needsToBeMigrated) {
-        console.log('before login security switch');
-        if (didNavigate.current) return;
-
-        setIsAuthenticating(true);
-
-        const savedMnemonic = await retrieveData('encryptedMnemonic');
-        const migrationResponse = await handleLoginSecuritySwitch(
-          savedMnemonic.value,
-          '',
-          'biometric',
-        );
-        console.log('after login security switch');
-
-        if (migrationResponse) {
-          storeData('pinHash', sha256Hash(storedPin.value));
-          setAccountMnemonic(savedMnemonic.value);
-          didNavigate.current = true;
-          navigate.replace('ConnectingToNodeLoadingScreen');
-        } else {
-          setIsAuthenticating(false);
-          navigate.navigate('ConfirmActionPage', {
-            confirmMessage: t(
-              'adminLogin.pinPage.isBiometricEnabledConfirmAction',
-            ),
-            confirmFunction: async () => {
-              const deleted = await factoryResetWallet();
-              if (deleted) {
-                RNRestart.restart();
-              } else {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t('errormessages.deleteAccount'),
-                });
-              }
-            },
-          });
-        }
-        return;
-      }
-
-      handleFaceID();
-    } catch (err) {
-      console.log('Load pin page information error', err);
-      setIsAuthenticating(false);
-    }
-  }
-
-  const handleFaceID = async () => {
-    if (isAuthenticating && !isInitialRender.current) {
+  // Single guarded entry point for both the auto-trigger and the manual
+  // button. isAuthenticatingRef is set synchronously, so it is the one guard
+  // against a second concurrent attempt / double biometric prompt; the finally
+  // always clears the in-flight flag so the button can't get stuck disabled.
+  const runAuthentication = async () => {
+    if (isAuthenticatingRef.current) {
       console.log('Already authenticating, ignoring duplicate call');
       return;
     }
     if (didNavigate.current) return;
-    isInitialRender.current = false;
+
+    isAuthenticatingRef.current = true;
+    setIsAuthenticating(true);
 
     try {
-      if (numRetriesBiometric.current >= 3) {
+      await loadPageInformation();
+    } catch (err) {
+      console.log('run authentication error', err);
+    } finally {
+      isAuthenticatingRef.current = false;
+      setIsAuthenticating(false);
+    }
+  };
+
+  async function loadPageInformation() {
+    const [storedPin] = await Promise.all([retrieveData('pinHash')]);
+
+    let needsToBeMigrated;
+    try {
+      JSON.parse(storedPin.value);
+      needsToBeMigrated = true;
+    } catch (err) {
+      console.log('comparison value error', err);
+      needsToBeMigrated = false;
+    }
+
+    if (needsToBeMigrated) {
+      console.log('before login security switch');
+      if (didNavigate.current) return;
+
+      const savedMnemonic = await retrieveData('encryptedMnemonic');
+      const migrationResponse = await handleLoginSecuritySwitch(
+        savedMnemonic.value,
+        '',
+        'biometric',
+      );
+      console.log('after login security switch');
+
+      if (migrationResponse) {
+        storeData('pinHash', sha256Hash(storedPin.value));
+        setAccountMnemonic(savedMnemonic.value);
+        didNavigate.current = true;
+        navigate.replace('ConnectingToNodeLoadingScreen');
+      } else {
         navigate.navigate('ConfirmActionPage', {
           confirmMessage: t(
             'adminLogin.pinPage.isBiometricEnabledConfirmAction',
@@ -163,30 +159,48 @@ export default function BiometricsLogin() {
               });
             }
           },
-          cancelFunction: () => {
-            numRetriesBiometric.current = 0;
-          },
         });
-        return;
       }
+      return;
+    }
 
-      setIsAuthenticating(true);
+    await handleFaceID();
+  }
+
+  const handleFaceID = async () => {
+    if (didNavigate.current) return;
+
+    if (numRetriesBiometric.current >= 3) {
+      navigate.navigate('ConfirmActionPage', {
+        confirmMessage: t('adminLogin.pinPage.isBiometricEnabledConfirmAction'),
+        confirmFunction: async () => {
+          const deleted = await factoryResetWallet();
+          if (deleted) {
+            RNRestart.restart();
+          } else {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('errormessages.deleteAccount'),
+            });
+          }
+        },
+        cancelFunction: () => {
+          numRetriesBiometric.current = 0;
+        },
+      });
+      return;
+    }
+
+    console.log('Starting biometric authentication...');
+
+    const decryptResponse = await decryptMnemonicWithBiometrics();
+
+    if (decryptResponse) {
+      setAccountMnemonic(decryptResponse);
+      didNavigate.current = true;
+      navigate.replace('ConnectingToNodeLoadingScreen');
+    } else {
+      // Genuine failure/cancel — count it toward the retry limit.
       numRetriesBiometric.current++;
-
-      console.log('Starting biometric authentication...');
-
-      const decryptResponse = await decryptMnemonicWithBiometrics();
-
-      if (decryptResponse) {
-        setAccountMnemonic(decryptResponse);
-        didNavigate.current = true;
-        navigate.replace('ConnectingToNodeLoadingScreen');
-      } else {
-        setIsAuthenticating(false);
-      }
-    } catch (err) {
-      console.log('error handling faceid', err);
-      setIsAuthenticating(false);
     }
   };
 
@@ -206,7 +220,7 @@ export default function BiometricsLogin() {
 
       <View style={styles.bottomSection}>
         <CustomButton
-          actionFunction={handleFaceID}
+          actionFunction={runAuthentication}
           buttonStyles={[
             styles.faceIdButton,
             {

@@ -10,7 +10,6 @@ import {
 import {
   claimnSparkStaticDepositAddress,
   clearMnemonicCache,
-  getCachedSparkTransactions,
   getSingleTxDetails,
   getSparkTransactions,
   getSparkStaticBitcoinL1AddressQuote,
@@ -33,7 +32,6 @@ import {
 import { useAppStatus } from './appStatus';
 import {
   checkHodlInvoicePaymentStatuses,
-  fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
 import { useGlobalContactsInfo } from './globalContacts';
@@ -129,6 +127,23 @@ const SKIP_CONFIRM_NAV_UPDATE_TYPES = new Set([
   'incrementalRestore',
 ]);
 
+// Send screens where an incoming-payment toast would obscure the send UI. Keyed
+// by the route names registered in navigation/screens.js.
+const BLOCKED_TOAST_ROUTE_NAMES = new Set([
+  'ConfirmPaymentScreen', // sendPaymentScreen.js
+  'ConfirmSplitPayment', // confirmSplitPayment.js
+  'StablecoinSendScreen', // stablecoinSendScreen.js
+]);
+
+function isOnSendScreen() {
+  try {
+    if (!navigationRef.isReady()) return false;
+    return BLOCKED_TOAST_ROUTE_NAMES.has(navigationRef.getCurrentRoute()?.name);
+  } catch {
+    return false;
+  }
+}
+
 // Initiate context
 const SparkWalletManager = createContext(null);
 
@@ -162,15 +177,10 @@ const SparkWalletProvider = ({ children }) => {
     didConnectToFlashnet: null,
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
-  const [restoreCompleted, setRestoreCompleted] = useState(false);
-  const hasRestoreCompleted = useRef(false);
-  const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
-    useState(0);
 
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
-  const isInitialRestore = useRef(true);
   const isInitialLRC20Run = useRef(true);
   const initialBitcoinIntervalRun = useRef(null);
   const sparkInfoRef = useRef({
@@ -182,9 +192,7 @@ const SparkWalletProvider = ({ children }) => {
     didConnect: false,
   });
   const sessionTimeRef = useRef(Date.now());
-  const newestPaymentTimeRef = useRef(Date.now());
   const handledTransfers = useRef(new Set());
-  const usedSavedTxIds = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
   const prevAccountId = useRef(null);
@@ -225,8 +233,6 @@ const SparkWalletProvider = ({ children }) => {
         ).length
       : masterInfoObject.enabledBTKNTokens;
 
-  const didRunInitialRestore = useRef(false);
-
   const handledNavigatedTxs = useRef(new Set());
 
   const [didRunNormalConnection, setDidRunNormalConnection] = useState(false);
@@ -234,6 +240,14 @@ const SparkWalletProvider = ({ children }) => {
   const shouldRunNormalConnection =
     didRunNormalConnection || normalConnectionTimeout;
   const currentMnemonicRef = useRef(currentWalletMnemoinc);
+  // Hash of the active main wallet mnemonic. Push events (balance/token/transfer)
+  // are tagged with a walletId (mnemonic hash) so derived gift/pool/savings
+  // wallets sharing the WebView bridge can be told apart from the main wallet.
+  // We ignore any event whose walletId isn't this one. Cached here so we don't
+  // re-hash on every event.
+  const mainWalletHashRef = useRef(
+    currentWalletMnemoinc ? sha256Hash(currentWalletMnemoinc) : null,
+  );
 
   const cleanStatusAndLRC20Intervals = () => {
     try {
@@ -287,16 +301,15 @@ const SparkWalletProvider = ({ children }) => {
 
   useEffect(() => {
     currentMnemonicRef.current = currentWalletMnemoinc;
+    mainWalletHashRef.current = currentWalletMnemoinc
+      ? sha256Hash(currentWalletMnemoinc)
+      : null;
   }, [currentWalletMnemoinc]);
 
   useEffect(() => {
     // Fixing race condition with new preloaded txs
     sessionTimeRef.current = Date.now() + 5 * 1000;
   }, [currentWalletMnemoinc, authResetkey]);
-
-  useEffect(() => {
-    newestPaymentTimeRef.current = Date.now();
-  }, [reloadNewestPaymentTimestamp]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
@@ -391,10 +404,6 @@ const SparkWalletProvider = ({ children }) => {
     }
     isSendingPaymentRef.current = isSending;
   }, []);
-
-  const toggleNewestPaymentTimestamp = () => {
-    setReloadNewestPaymentTimestamp(prev => prev + 1);
-  };
 
   useEffect(() => {
     if (
@@ -732,6 +741,11 @@ const SparkWalletProvider = ({ children }) => {
         }
         handledNavigatedTxs.current.add(parsedTx.sparkID);
 
+        if (isOnSendScreen()) {
+          console.log('On a send screen — suppressing incoming payment toast');
+          return;
+        }
+
         // const isOnReceivePage =
         //   navigationRef
         //     .getRootState()
@@ -965,7 +979,10 @@ const SparkWalletProvider = ({ children }) => {
     ],
   );
 
-  const transferHandler = useCallback((transferId, balance) => {
+  const transferHandler = useCallback((transferId, balance, walletId) => {
+    // Ignore events from derived wallets (gift/pool/savings). Undefined walletId
+    // = pre-tagging bundle → treat as main wallet (backward compatible).
+    if (walletId && walletId !== mainWalletHashRef.current) return;
     if (handledTransfers.current.has(transferId)) return;
     handledTransfers.current.add(transferId);
     console.log(`Transfer ${transferId} claimed. New balance: ${balance}`);
@@ -1007,7 +1024,10 @@ const SparkWalletProvider = ({ children }) => {
   // makes sends/swaps/deposits reflect immediately — previously only inbound
   // claims had a push event and everything else waited on the poller.
   const balanceUpdateHandler = useCallback(
-    snapshot => {
+    (snapshot, walletId) => {
+      // Ignore events from derived wallets (gift/pool/savings). Undefined
+      // walletId = pre-tagging bundle → treat as main wallet (backward compatible).
+      if (walletId && walletId !== mainWalletHashRef.current) return;
       const available = Number(snapshot?.available);
       console.log('hanlding balance update', available);
       if (!Number.isFinite(available)) return;
@@ -1040,48 +1060,71 @@ const SparkWalletProvider = ({ children }) => {
   // round-trip — same result, one fewer WebView read per event. The WebView
   // runtime delivers the already-normalized map; the native runtime delivers the
   // raw SDK Map and is normalized at registration (see addListeners).
-  const tokenBalanceUpdateHandler = useCallback(tokensObject => {
-    // Each event carries the full current token-balance map, so only the latest
-    // payload matters during a burst.
-    latestTokensRef.current = tokensObject ?? {};
-
-    const flush = async () => {
-      if (tokenDebounceTimeoutRef.current) {
-        clearTimeout(tokenDebounceTimeoutRef.current);
-        tokenDebounceTimeoutRef.current = null;
-      }
-      if (tokenDebounceMaxWaitRef.current) {
-        clearTimeout(tokenDebounceMaxWaitRef.current);
-        tokenDebounceMaxWaitRef.current = null;
-      }
-
-      const mnemonic = currentMnemonicRef.current;
-      if (!mnemonic) return;
-      const merged = await mergeAndCacheTokens(
-        latestTokensRef.current,
-        mnemonic,
-      );
-      if (mnemonic !== currentMnemonicRef.current) return;
-      setSparkInformation(prev => ({ ...prev, tokens: merged }));
-      // Persist tokens so a token-only change survives a cold start, matching
-      // flushBalanceNow / reconcileBalance.
-      saveAccountBalanceSnapshot(
-        sparkInfoRef.current.identityPubKey,
-        sparkInfoRef.current.balance,
-        merged,
-      );
-    };
-
-    // Trailing debounce 500ms after the last event, capped at 10s so a
-    // sustained burst still flushes periodically (see balanceUpdateHandler).
-    if (tokenDebounceTimeoutRef.current)
-      clearTimeout(tokenDebounceTimeoutRef.current);
-    tokenDebounceTimeoutRef.current = setTimeout(flush, 3000);
-
-    if (!tokenDebounceMaxWaitRef.current) {
-      tokenDebounceMaxWaitRef.current = setTimeout(flush, 10000);
-    }
+  // Token analog of debouncedHandleIncomingPayment / reconcileBalance: builds token
+  // (LRC20) transaction history. Driven by token-balance:update events, a one-time
+  // startup fetch, and the reconnect/foreground reconcile — replacing the old 10s poll.
+  const reconcileTokenTransactions = useCallback((isInitialRun = false) => {
+    if (isSendingPaymentRef.current) return;
+    const mnemonic = currentMnemonicRef.current;
+    if (!mnemonic) return;
+    getLRC20Transactions({
+      ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
+      sparkAddress: sparkInfoRef.current.sparkAddress,
+      isInitialRun,
+      mnemonic,
+    });
   }, []);
+
+  const tokenBalanceUpdateHandler = useCallback(
+    (tokensObject, walletId) => {
+      // Ignore events from derived wallets (gift/pool/savings). Undefined walletId
+      // = pre-tagging bundle → treat as main wallet (backward compatible).
+      if (walletId && walletId !== mainWalletHashRef.current) return;
+      // Each event carries the full current token-balance map, so only the latest
+      // payload matters during a burst.
+      latestTokensRef.current = tokensObject ?? {};
+
+      const flush = async () => {
+        if (tokenDebounceTimeoutRef.current) {
+          clearTimeout(tokenDebounceTimeoutRef.current);
+          tokenDebounceTimeoutRef.current = null;
+        }
+        if (tokenDebounceMaxWaitRef.current) {
+          clearTimeout(tokenDebounceMaxWaitRef.current);
+          tokenDebounceMaxWaitRef.current = null;
+        }
+
+        const mnemonic = currentMnemonicRef.current;
+        if (!mnemonic) return;
+        const merged = await mergeAndCacheTokens(
+          latestTokensRef.current,
+          mnemonic,
+        );
+        if (mnemonic !== currentMnemonicRef.current) return;
+        setSparkInformation(prev => ({ ...prev, tokens: merged }));
+        // Persist tokens so a token-only change survives a cold start, matching
+        // flushBalanceNow / reconcileBalance.
+        saveAccountBalanceSnapshot(
+          sparkInfoRef.current.identityPubKey,
+          sparkInfoRef.current.balance,
+          merged,
+        );
+        // A token balance change means a token tx finalized — fetch its history now
+        reconcileTokenTransactions(false);
+      };
+
+      // Trailing debounce 500ms after the last event, capped at 10s so a
+      // sustained burst still flushes periodically (see balanceUpdateHandler).
+      if (tokenDebounceTimeoutRef.current)
+        clearTimeout(tokenDebounceTimeoutRef.current);
+      tokenDebounceTimeoutRef.current = setTimeout(flush, 3000);
+
+      if (!tokenDebounceMaxWaitRef.current) {
+        tokenDebounceMaxWaitRef.current = setTimeout(flush, 10000);
+      }
+    },
+    [reconcileTokenTransactions],
+  );
 
   // Stream lifecycle. A connect after a drop means events may have been missed
   // while the stream was down, so fire one reconcile read. The initial connect
@@ -1098,8 +1141,10 @@ const SparkWalletProvider = ({ children }) => {
       if (AppState.currentState !== 'active') return;
       if (!sparkInfoRef.current.didConnect) return;
       reconcileBalance();
+      // Recover token txs whose token-balance:update fired while the stream was down.
+      reconcileTokenTransactions(false);
     },
-    [reconcileBalance],
+    [reconcileBalance, reconcileTokenTransactions],
   );
 
   useEffect(() => {
@@ -1174,11 +1219,17 @@ const SparkWalletProvider = ({ children }) => {
         if (runtime === 'native') {
           const nativeWallet = sparkWallet[walletHash];
           if (nativeWallet) {
+            // This native wallet is the main wallet — tag its events with
+            // walletHash so the handlers' walletId guard passes.
             if (!nativeWallet.listenerCount('transfer:claimed')) {
-              nativeWallet.on('transfer:claimed', transferHandler);
+              nativeWallet.on('transfer:claimed', (transferId, balance) =>
+                transferHandler(transferId, balance, walletHash),
+              );
             }
             if (!nativeWallet.listenerCount('balance:update')) {
-              nativeWallet.on('balance:update', balanceUpdateHandler);
+              nativeWallet.on('balance:update', balance =>
+                balanceUpdateHandler(balance, walletHash),
+              );
             }
             if (!nativeWallet.listenerCount('token-balance:update')) {
               // Native delivers the raw SDK event ({ tokenBalances: Map });
@@ -1192,7 +1243,7 @@ const SparkWalletProvider = ({ children }) => {
                     balance: data.availableToSendBalance,
                   };
                 }
-                tokenBalanceUpdateHandler(tokensObject);
+                tokenBalanceUpdateHandler(tokensObject, walletHash);
               });
             }
             if (!nativeWallet.listenerCount('stream:connected')) {
@@ -1216,26 +1267,28 @@ const SparkWalletProvider = ({ children }) => {
             mnemonic: currentMnemonicRef.current,
           });
         }
-        if (!isInitialRestore.current) {
-          if (txPollingAbortControllerRef.current) {
-            txPollingAbortControllerRef.current.abort();
-          }
-
-          txPollingAbortControllerRef.current = new AbortController();
-          const restorePoller = createRestorePoller(
-            currentMnemonicRef.current,
-            isSendingPaymentRef.current,
-            currentMnemonicRef,
-            txPollingAbortControllerRef.current,
-            result => {
-              console.log('RESTORE COMPLETE');
-            },
-            sparkInfoRef.current,
-            sendWebViewRequest,
-          );
-
-          restorePoller.start();
+        // Single restore path for every connect (initial + subsequent). The
+        // poller writes txs via bulkUpdateSparkTransactions, whose SPARK_TX
+        // update event drives the UI/balance refresh; isRestoringState guards
+        // against overlap.
+        if (txPollingAbortControllerRef.current) {
+          txPollingAbortControllerRef.current.abort();
         }
+
+        txPollingAbortControllerRef.current = new AbortController();
+        const restorePoller = createRestorePoller(
+          currentMnemonicRef.current,
+          isSendingPaymentRef.current,
+          currentMnemonicRef,
+          txPollingAbortControllerRef.current,
+          result => {
+            console.log('RESTORE COMPLETE');
+          },
+          sparkInfoRef.current,
+          sendWebViewRequest,
+        );
+
+        restorePoller.start();
 
         updateSparkTxStatus(
           currentMnemonicRef.current,
@@ -1245,6 +1298,12 @@ const SparkWalletProvider = ({ children }) => {
           contactsPrivateKey,
           publicKey,
         );
+
+        // One-time startup token history fetch (token analog of
+        // restorePoller.start()) — catches token txs received while the app was
+        // closed. Live updates thereafter come from token-balance:update.
+        reconcileTokenTransactions(isInitialLRC20Run.current);
+        if (isInitialLRC20Run.current) isInitialLRC20Run.current = false;
 
         if (updatePendingPaymentsIntervalRef.current) {
           console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
@@ -1304,32 +1363,6 @@ const SparkWalletProvider = ({ children }) => {
               }
             }
 
-            if (
-              capturedAuthKey !== authResetKeyRef.current ||
-              capturedMnemonic !== currentMnemonicRef.current
-            ) {
-              console.log(
-                'Context changed during updateSparkTxStatus. Aborting getLRC20Transactions.',
-              );
-              clearInterval(intervalId);
-              intervalTracker.delete(capturedWalletHash);
-              allIntervalIds.delete(intervalId);
-              return;
-            }
-
-            if (!isSendingPaymentRef.current) {
-              await getLRC20Transactions({
-                ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
-                sparkAddress: sparkInfoRef.current.sparkAddress,
-                isInitialRun: isInitialLRC20Run.current,
-                mnemonic: currentMnemonicRef.current,
-                sendWebViewRequest,
-              });
-            }
-            if (isInitialLRC20Run.current) {
-              isInitialLRC20Run.current = false;
-            }
-
             // await checkHodlInvoicePaymentStatuses(
             //   currentMnemonicRef.current,
             //   sparkInfoRef.current.identityPubKey,
@@ -1338,10 +1371,6 @@ const SparkWalletProvider = ({ children }) => {
             console.error('Error during periodic restore:', err);
           }
         }, 10 * 1000);
-
-        if (isInitialRestore.current) {
-          isInitialRestore.current = false;
-        }
 
         updatePendingPaymentsIntervalRef.current = intervalId;
         intervalTracker.set(walletHash, intervalId);
@@ -1442,41 +1471,6 @@ const SparkWalletProvider = ({ children }) => {
     }
   };
 
-  // optimizations for leaves and tokens
-  useEffect(() => {
-    if (!sparkInformation.didConnect) return;
-    if (!sparkInformation.identityPubKey) return;
-    if (!didGetToHomepage) return;
-    if (AppState.currentState !== 'active') return;
-
-    const runInitialOptimizationCheck = async () => {
-      if (!sparkInfoRef.current.identityPubKey) return;
-      if (AppState.currentState !== 'active') return;
-
-      const needed = await checkIfOptimizationNeeded(
-        currentMnemonicRef.current,
-      );
-
-      if (needed) {
-        console.log('Running initial optimization check...');
-        await runLeafOptimization(
-          currentMnemonicRef.current,
-          sparkInfoRef.current.identityPubKey,
-        );
-        await runTokenOptimization(
-          currentMnemonicRef.current,
-          sparkInfoRef.current.identityPubKey,
-        );
-      }
-    };
-
-    runInitialOptimizationCheck();
-  }, [
-    sparkInformation.didConnect,
-    sparkInformation.identityPubKey,
-    didGetToHomepage,
-  ]);
-
   const resetSparkState = useCallback(
     async (internalRefresh = false, shouldClearMnemonicCache = true) => {
       // Reset refs to initial values
@@ -1507,8 +1501,6 @@ const SparkWalletProvider = ({ children }) => {
       isSendingPaymentRef.current = false;
       txPollingAbortControllerRef.current = null;
       txPollingTimeoutRef.current = null;
-      didRunInitialRestore.current = false;
-      hasRestoreCompleted.current = false;
       balanceVersionRef.current = 0;
       hasRunInitBalancePoll.current = false;
 
@@ -1831,11 +1823,13 @@ const SparkWalletProvider = ({ children }) => {
             if (updatedTx.details) {
               if (handledNavigatedTxs.current.has(updatedTx.id)) continue;
               handledNavigatedTxs.current.add(updatedTx.id);
-              showToast({
-                amount: updatedTx.details.amount,
-                duration: 7000,
-                type: 'confirmTx',
-              });
+              if (!isOnSendScreen()) {
+                showToast({
+                  amount: updatedTx.details.amount,
+                  duration: 7000,
+                  type: 'confirmTx',
+                });
+              }
             }
           }
         }
@@ -1903,62 +1897,6 @@ const SparkWalletProvider = ({ children }) => {
     showToast,
   ]);
 
-  // Run fullRestore when didConnect becomes true
-  useEffect(() => {
-    if (!sparkInformation.didConnect) return;
-    if (!sparkInformation.identityPubKey) return;
-    if (didRunInitialRestore.current) return;
-    didRunInitialRestore.current = true;
-
-    async function runRestore() {
-      const restoreResponse = await fullRestoreSparkState({
-        sparkAddress: sparkInfoRef.current.sparkAddress,
-        batchSize: isInitialRestore.current ? 5 : 2,
-        isSendingPayment: isSendingPaymentRef.current,
-        mnemonic: currentMnemonicRef.current,
-        identityPubKey: sparkInfoRef.current.identityPubKey,
-        sendWebViewRequest,
-        isInitialRestore: isInitialRestore.current,
-      });
-
-      if (!restoreResponse) {
-        setRestoreCompleted(true); // This will get the transactions for the session
-      }
-    }
-
-    runRestore();
-  }, [sparkInformation.didConnect, sparkInformation.identityPubKey]);
-
-  // Run transactions after BOTH restore completes
-  useEffect(() => {
-    if (!restoreCompleted) return;
-
-    async function fetchTransactions() {
-      const transactions = await getCachedSparkTransactions(
-        null,
-        sparkInfoRef.current.identityPubKey,
-      );
-      filterAndSetTransactions(transactions);
-      hasRestoreCompleted.current = true;
-    }
-
-    fetchTransactions();
-  }, [restoreCompleted]);
-
-  // Run an initial balance reconciliation once per wallet session.
-  useEffect(() => {
-    if (!sparkInformation.didConnect) return;
-    if (!sparkInformation.identityPubKey) return;
-    if (hasRunInitBalancePoll.current) return;
-
-    hasRunInitBalancePoll.current = true;
-    reconcileBalance();
-  }, [
-    sparkInformation.didConnect,
-    sparkInformation.identityPubKey,
-    reconcileBalance,
-  ]);
-
   // Balance reconcile lifecycle:
   //  • On background: a balance read can't settle (the WebView request timeout
   //    is neutered), so a read issued before backgrounding would park. Bump the
@@ -1985,11 +1923,14 @@ const SparkWalletProvider = ({ children }) => {
     if (!sparkInformation.identityPubKey) return;
 
     reconcileBalance();
+    // Recover token txs whose token-balance:update fired while backgrounded.
+    reconcileTokenTransactions(false);
   }, [
     appState,
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     reconcileBalance,
+    reconcileTokenTransactions,
   ]);
 
   // This function connects to the spark node and sets the session up
@@ -2003,7 +1944,10 @@ const SparkWalletProvider = ({ children }) => {
         // globalContactsInformation,
         mnemonic: accountMnemoinc,
         sendWebViewRequest,
-        hasRestoreCompleted: hasRestoreCompleted.current,
+        // Restore now runs solely via createRestorePoller in addListeners, so
+        // always load cached txs on connect (the poller's SPARK_TX events layer
+        // in any newly restored txs afterward).
+        hasRestoreCompleted: false,
         identityPubKey,
       });
       setDidRunNormalConnection(true);
@@ -2093,7 +2037,6 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       tokensImageCache,
       showTokensInformation,
-      toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
       updateHomepageScrollPosition,
@@ -2111,7 +2054,6 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       tokensImageCache,
       showTokensInformation,
-      toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
       updateHomepageScrollPosition,

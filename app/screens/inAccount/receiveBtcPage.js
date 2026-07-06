@@ -30,6 +30,7 @@ import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -60,7 +61,7 @@ export default function ReceivePaymentHome(props) {
   const { sendWebViewRequest } = useWebView();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
-  const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
+  const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { screenDimensions } = useAppStatus();
@@ -141,7 +142,6 @@ export default function ReceivePaymentHome(props) {
   useEffect(() => {
     async function runAddressInit() {
       crashlyticsLogReport('Begining adddress initialization');
-      toggleNewestPaymentTimestamp();
 
       if (
         prevRequstInfo.current &&
@@ -427,6 +427,10 @@ function BtcUsdToggle({ endReceiveType, onToggle, theme, darkModeType }) {
     );
   }, [endReceiveType, pillWidth]);
 
+  useEffect(() => {
+    return () => cancelAnimation(thumbX);
+  }, []);
+
   const thumbAnimStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: thumbX.value }],
   }));
@@ -669,6 +673,13 @@ function QrCode({ addressState, qrContainerSize, qrInnerSize, isUsingLnurl }) {
     addressState.isGeneratingInvoice,
     addressState.errorMessageText,
   ]);
+
+  useEffect(() => {
+    return () => {
+      cancelAnimation(qrOpacity);
+      cancelAnimation(loadingOpacity);
+    };
+  }, []);
 
   const handleFadeOutComplete = newAddress => {
     if (newAddress) {

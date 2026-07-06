@@ -3,6 +3,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { COLORS } from '../../../../constants/theme';
@@ -33,6 +34,7 @@ export default function AnalyticsToggle({ denomination, onToggle }) {
         duration: 200,
       },
     );
+    return () => cancelAnimation(slideX);
   }, [isFiat]);
 
   const thumbStyle = useAnimatedStyle(() => ({

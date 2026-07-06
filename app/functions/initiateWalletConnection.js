@@ -2,7 +2,6 @@ import { crashlyticsLogReport } from './crashlyticsLogs';
 import {
   getCachedSparkTransactions,
   getSparkAddress,
-  getSparkBalance,
   getSparkIdentityPubKey,
   initializeSparkWallet,
   setPrivacyEnabled,
@@ -88,7 +87,7 @@ export async function initializeSparkSession({
         : null;
 
     const [balance, sparkAddress, freshIdentityPubKey] = await Promise.all([
-      getBalanceWithTimeout(mnemonic),
+      getBalanceWithTimeout(mnemonic, 10000),
       getSparkAddress(mnemonic),
       cachedIdentityPubKey
         ? Promise.resolve(cachedIdentityPubKey)

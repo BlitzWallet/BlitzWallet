@@ -1095,7 +1095,6 @@
       "creating": "Création...",
       "creatingPool": "Création de la cagnotte...",
       "gettingBalance": "Récupération du solde...",
-      "checkingBalance": "Vérification du solde… ({{attempt}} sur {{total}})",
       "preparingTransfer": "Préparation du transfert...",
       "connectingToPool": "Connexion à la cagnotte...",
       "unableToConnect": "Impossible de se connecter à la cagnotte. Veuillez réessayer.",
@@ -2461,10 +2460,7 @@
           "confirmMessage": "Votre don a été réclamé, vous recevrez vos fonds sous peu.",
           "defaultDesc": "Cadeau éclair",
           "claimingGiftMessage1": "Préparer le cadeau...",
-          "giftBalanceMessage_0": "Un instant, le temps que nous préparions les choses...",
-          "giftBalanceMessage_1": "Nous recueillons vos informations sur les dons...",
-          "giftBalanceMessage_2": "Nous y sommes presque - veuillez garder l'application ouverte...",
-          "giftBalanceMessage_3": "Finir les dernières étapes...",
+          "giftBalanceMessage": "Confirmation du solde de votre cadeau...",
           "claimingGiftMessage4": "Réclamer un cadeau..."
         }
       },
@@ -2951,8 +2947,7 @@
       "loadingBalances": "Chargement des soldes...",
       "loadingSteps": {
         "connecting": "Connexion au portefeuille d’épargne...",
-        "updating": "Mise à jour du solde...",
-        "finalizing": "Finalisation..."
+        "loadingBalance": "Chargement de votre solde..."
       },
       "empty": {
         "title": "Rien à retirer",

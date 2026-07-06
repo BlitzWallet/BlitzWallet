@@ -19,10 +19,10 @@ export async function getLRC20Transactions({
   isInitialRun,
   mnemonic,
 }) {
+  if (isRunning) return;
+  if (AppState.currentState !== 'active') return;
+  isRunning = true;
   try {
-    if (isRunning) throw new Error('process is already running');
-    isRunning = true;
-    if (AppState.currentState !== 'active') return;
     const ownerPubKey = ownerPublicKeys[0];
     const lastSavedTransactionId = await getLatestSavedLRC20TransactionId(
       ownerPubKey,

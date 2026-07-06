@@ -18,7 +18,6 @@ import {
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
-  SATSPERBITCOIN,
 } from '../../../../../constants';
 import { useTranslation } from 'react-i18next';
 import useDebounce from '../../../../../hooks/useDebounce';
@@ -45,6 +44,7 @@ import { updateConfirmAnimation } from '../../../../../functions/lottieViewColor
 import LottieView from 'lottie-react-native';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import SectionCard from '../../../../../screens/inAccount/settingsHub/components/SectionCard';
+import numberConverter from '../../../../../functions/numberConverter';
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function AccountPaymentPage(props) {
@@ -77,10 +77,17 @@ export default function AccountPaymentPage(props) {
   const toAccount =
     custodyAccountsList.find(item => item.uuid === to)?.name || '';
 
-  const convertedSendAmount =
-    masterInfoObject.userBalanceDenomination != 'fiat'
-      ? Math.round(Number(sendingAmount))
-      : Math.round((SATSPERBITCOIN / fiatStats.value) * Number(sendingAmount));
+  // The customInputText modal now returns the amount already in sats.
+  const convertedSendAmount = Math.round(Number(sendingAmount));
+
+  // FormattedBalanceInput renders its value raw, so convert the sats amount into
+  // the user's display denomination for the hero.
+  const heroDisplayAmount = numberConverter(
+    sendingAmount,
+    masterInfoObject.userBalanceDenomination,
+    masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
+    fiatStats,
+  );
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -122,7 +129,7 @@ export default function AccountPaymentPage(props) {
     fromAccount &&
     toAccount &&
     !transferInfo.isCalculatingFee &&
-    convertedSendAmount <= transferInfo.paymentFee + fromBalance;
+    convertedSendAmount + transferInfo.paymentFee <= fromBalance;
 
   const handlePayment = useCallback(async () => {
     try {
@@ -154,7 +161,7 @@ export default function AccountPaymentPage(props) {
         );
       }
 
-      if (convertedSendAmount > transferInfo.paymentFee + fromBalance) {
+      if (convertedSendAmount + transferInfo.paymentFee > fromBalance) {
         throw new Error(
           t('settings.accountComponents.accountPaymentPage.balanceError'),
         );
@@ -307,26 +314,8 @@ export default function AccountPaymentPage(props) {
         >
           <FormattedBalanceInput
             maxWidth={0.85}
-            amountValue={sendingAmount}
+            amountValue={heroDisplayAmount}
             inputDenomination={masterInfoObject.userBalanceDenomination}
-          />
-          <FormattedSatText
-            containerStyles={{
-              opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
-              marginTop: 4,
-            }}
-            neverHideBalance={true}
-            styles={{
-              includeFontPadding: false,
-              fontSize: SIZES.smedium,
-            }}
-            globalBalanceDenomination={
-              masterInfoObject.userBalanceDenomination === 'sats' ||
-              masterInfoObject.userBalanceDenomination === 'hidden'
-                ? 'fiat'
-                : 'sats'
-            }
-            balance={convertedSendAmount}
           />
         </TouchableOpacity>
 
@@ -384,11 +373,6 @@ export default function AccountPaymentPage(props) {
             )}
             <ThemeIcon size={18} iconName={'ChevronRight'} />
           </TouchableOpacity>
-
-          {/* Directional arrow divider */}
-          <View style={styles.arrowDivider}>
-            <ThemeIcon iconName={'ArrowDown'} size={16} />
-          </View>
 
           {/* To row */}
           <TouchableOpacity
@@ -460,7 +444,7 @@ export default function AccountPaymentPage(props) {
                 neverHideBalance={true}
                 styles={{
                   includeFontPadding: false,
-                  fontSize: SIZES.small,
+                  // fontSize: SIZES.small,
                 }}
                 balance={transferInfo.paymentFee}
               />
@@ -470,6 +454,11 @@ export default function AccountPaymentPage(props) {
           {/* Description row — editable */}
           <View style={styles.descriptionRow}>
             <ThemeIcon size={20} iconName={'SquarePen'} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={[styles.rowLabel, { flex: 0 }]}
+              content={t('transactionLabelText.memo')}
+            />
             <CustomSearchInput
               inputText={memo}
               setInputText={setMemo}
@@ -528,29 +517,25 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     flex: 1,
-    fontSize: SIZES.medium,
+    fontSize: SIZES.smedium,
     marginLeft: 12,
     includeFontPadding: false,
   },
   rowLabelInner: {
-    fontSize: SIZES.medium,
+    fontSize: SIZES.smedium,
     includeFontPadding: false,
   },
   rowSubLabel: {
-    fontSize: SIZES.small,
+    fontSize: SIZES.smedium,
     opacity: 0.6,
     includeFontPadding: false,
     marginTop: 2,
   },
   rowInlineValue: {
-    fontSize: SIZES.small,
+    fontSize: SIZES.smedium,
     opacity: 0.5,
     marginRight: 8,
     includeFontPadding: false,
-  },
-  arrowDivider: {
-    alignItems: 'center',
-    paddingVertical: 4,
   },
   receiptIcon: {
     width: 20,
@@ -571,34 +556,10 @@ const styles = StyleSheet.create({
   descriptionInput: {
     backgroundColor: 'transparent',
     padding: 0,
-    fontSize: SIZES.medium,
+    fontSize: SIZES.smedium,
+    textAlign: 'right',
   },
-  summaryContainer: {
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  summaryLabel: {
-    fontSize: SIZES.small,
-    opacity: 0.5,
-    includeFontPadding: false,
-  },
-  summaryTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: 8,
-  },
-  summaryTotal: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Medium,
-    includeFontPadding: false,
-  },
+
   animationContainer: {
     alignItems: 'center',
     justifyContent: 'center',

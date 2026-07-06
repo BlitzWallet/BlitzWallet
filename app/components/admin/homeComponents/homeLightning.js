@@ -40,11 +40,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
 import { useActiveCustodyAccount } from '../../../../context-store/activeAccount';
-import { fullRestoreSparkState } from '../../../functions/spark/restore';
-import {
-  SPARK_TX_UPDATE_ENVENT_NAME,
-  sparkTransactionsEventEmitter,
-} from '../../../functions/spark/transactions';
 import { BalanceDots } from './homeLightning/balanceDots';
 import { useUserBalanceContext } from '../../../../context-store/userBalanceContext';
 import { useFlashnet } from '../../../../context-store/flashnetContext';

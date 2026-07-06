@@ -87,6 +87,22 @@ export default function ConfirmSplitPayment(props) {
   const { t } = useTranslation();
   const { bitcoinBalance, dollarBalanceSat, dollarBalanceToken } =
     useUserBalanceContext();
+
+  // Latest-value ref for balances. The can-pay memo and swap-fee effect read
+  // balance through this ref instead of the reactive context values so balance
+  // is dropped from their dependency arrays. A burst of incoming payments then
+  // can't recompute payment viability or refire simulateSwap mid-send; the
+  // effect still reads the current balance whenever it legitimately re-runs.
+  // The actual send validates live balance at send time.
+  const balanceRef = useRef({
+    bitcoinBalance,
+    dollarBalanceSat,
+    dollarBalanceToken,
+  });
+  balanceRef.current.bitcoinBalance = bitcoinBalance;
+  balanceRef.current.dollarBalanceSat = dollarBalanceSat;
+  balanceRef.current.dollarBalanceToken = dollarBalanceToken;
+
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { contactsPrivateKey } = useKeysContext();
   const { sparkInformation } = useSparkWallet();
@@ -186,6 +202,8 @@ export default function ConfirmSplitPayment(props) {
   // ── Balance validation ──────────────────────────────────────────────────────
 
   const { canPayBTC, canPayUSD } = useMemo(() => {
+    // eslint-disable-next-line no-shadow -- read frozen balance, decoupled from live deps
+    const { bitcoinBalance, dollarBalanceSat } = balanceRef.current;
     const price = poolInfoRef.currentPriceAInB;
     return validateSplitPayment({
       totalSats: totalSplitSats,
@@ -202,8 +220,6 @@ export default function ConfirmSplitPayment(props) {
   }, [
     totalSplitSats,
     paymentCurrency,
-    bitcoinBalance,
-    dollarBalanceSat,
     swapLimits,
     masterInfoObject,
     swapUSDPriceDollars,
@@ -270,6 +286,8 @@ export default function ConfirmSplitPayment(props) {
 
   useEffect(() => {
     let cancelled = false;
+    // eslint-disable-next-line no-shadow -- read frozen balance, decoupled from live deps
+    const { bitcoinBalance, dollarBalanceSat } = balanceRef.current;
 
     const clearSwapFee = () => {
       swapFeeKeyRef.current = null;
@@ -405,8 +423,6 @@ export default function ConfirmSplitPayment(props) {
     poolInfoRef,
     totalSplitSats,
     totalSplitDollars,
-    bitcoinBalance,
-    dollarBalanceSat,
     min_usd_swap_amount,
     swapLimits.bitcoin,
     currentWalletMnemoinc,
