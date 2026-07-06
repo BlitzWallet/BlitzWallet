@@ -1144,7 +1144,10 @@ const SparkWalletProvider = ({ children }) => {
       streamWasDisconnectedRef.current = false;
       if (AppState.currentState !== 'active') return;
       if (!sparkInfoRef.current.didConnect) return;
-      reconcileBalance();
+      // Skip the balance reconcile while a send is in flight — a mid-send read
+      // returns the locked 0/partial; the send's paymentWrapperTx reconcile
+      // lands the settled balance at settlement.
+      if (!isSendingPaymentRef.current) reconcileBalance();
       // Recover token txs whose token-balance:update fired while the stream was down.
       reconcileTokenTransactions(false);
     },
@@ -1926,7 +1929,12 @@ const SparkWalletProvider = ({ children }) => {
     if (!sparkInformation.didConnect) return;
     if (!sparkInformation.identityPubKey) return;
 
-    reconcileBalance();
+    // Skip the balance reconcile while a send is in flight — the leaves are
+    // locked so this read would return a transient 0/partial. The send's own
+    // paymentWrapperTx → reconcileBalance lands the settled balance instead.
+    if (!isSendingPaymentRef.current) {
+      reconcileBalance();
+    }
     // Recover token txs whose token-balance:update fired while backgrounded.
     reconcileTokenTransactions(false);
   }, [
