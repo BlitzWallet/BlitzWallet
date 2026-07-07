@@ -170,3 +170,13 @@ assign('leisure', [
 export function getBtcMapCategory(materialIconName) {
   return CATEGORY_BY_ICON[materialIconName] ?? 'other';
 }
+
+// Category bucket for a merged viewport place, source-aware: BTC Map derives it
+// from the Material icon name; aux providers (bitcoinjungle/moneybadger) carry a
+// pre-resolved bucket in `category`.
+export function resolvePlaceCategory(place) {
+  if (place?.source && place.source !== 'btcmap') {
+    return BTC_MAP_CATEGORIES.includes(place.category) ? place.category : 'other';
+  }
+  return getBtcMapCategory(place?.icon);
+}

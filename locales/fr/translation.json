@@ -1464,7 +1464,8 @@
       "recipientReceives": "{{contactName}} recevra",
       "giftMessagePlaceholder": "Écrivez votre message cadeau ici...",
       "paymentSourceHeader": "Source de paiement",
-      "fiatRateLoading": "Chargement du taux de change de la devise de l’adresse Lightning"
+      "fiatRateLoading": "Chargement du taux de change de la devise de l’adresse Lightning",
+      "fiatRateLoadFailed": "Impossible de charger le taux de change de la devise"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "Nous n'avons pas pu charger votre carte cadeau pour le moment. Veuillez réessayer.",
@@ -2630,7 +2631,7 @@
         "pay": "Payer",
         "lightning": "Lightning",
         "lightningMessage": "Accepte les paiements en bitcoin instantanément via le réseau Lightning",
-        "dataMessage": "Données de btcmap.org"
+        "dataMessage": "Données de {{source}}"
       },
       "filter": {
         "categoriesTitle": "Catégories",

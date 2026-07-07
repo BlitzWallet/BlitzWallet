@@ -34,7 +34,11 @@ import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
-import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import {
+  isSendingPayingEventEmiiter,
+  SENDING_PAYMENT_EVENT_NAME,
+  useSparkWallet,
+} from '../../../../../context-store/sparkContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -406,6 +410,7 @@ export default function StablecoinSendScreen() {
     }
 
     setSending(true);
+    isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
     clearCountdown();
 
     try {
@@ -525,6 +530,8 @@ export default function StablecoinSendScreen() {
           });
         });
       });
+    } finally {
+      isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
     }
   }, [
     quote,

@@ -24,6 +24,7 @@ export async function initWallet({
     crashlyticsLogReport('Trying to connect to nodes');
     const didConnectToSpark = await initializeSparkWallet(mnemonic);
 
+    let balanceTimedOut = false;
     if (didConnectToSpark.isConnected) {
       crashlyticsLogReport('Loading node balances for session');
       setSparkInformation(prev => ({
@@ -46,13 +47,14 @@ export async function initWallet({
         throw new Error(
           'We were unable to connect to the spark node. Please try again.',
         );
+      balanceTimedOut = !!didSetSpark.balanceTimedOut;
     } else {
       throw new Error(
         didConnectToSpark.error ||
           'We were unable to connect to the spark node. Please try again.',
       );
     }
-    return { didWork: true };
+    return { didWork: true, balanceTimedOut };
   } catch (err) {
     console.log('initialize spark wallet error main', err);
     return { didWork: false, error: err.message };
@@ -75,9 +77,11 @@ export async function initializeSparkSession({
     // painted by the loading screen for instant first-paint, but returning
     // users must still get an authoritative read so a stale snapshot can never
     // persist until a manual pull-to-refresh.
-    let balanceSnapshot = false;
+    let skipBalanceFetch = false;
+    let balanceSnapshot = {};
     if (cachedIdentityPubKey) {
       balanceSnapshot = await getAccountBalanceSnapshot(cachedIdentityPubKey);
+      skipBalanceFetch = balanceSnapshot !== null;
     }
     // Only fetch fresh txs when restoring — returning users keep prev.transactions
     const needsFreshTxs = !hasRestoreCompleted;
@@ -122,7 +126,9 @@ export async function initializeSparkSession({
       const txToUse = transactions ?? [];
       if (txToUse.length && filterAndSetTransactions)
         filterAndSetTransactions(txToUse);
-      return storageObject;
+      // Signal the timeout so the caller can retry the balance out-of-band. Not
+      // spread into state — only the clean storageObject above is.
+      return { ...storageObject, balanceTimedOut: true };
     }
 
     const storageObject = {

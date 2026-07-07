@@ -47,6 +47,10 @@ import {
 } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { fiatCurrencies } from '../../../../../functions/currencyOptions';
 
+// Minimum time the auto-resolve loading screen stays up once shown, so a fast
+// (e.g. cached) rate resolution doesn't cause a jarring one-frame flash.
+const AUTO_RESOLVE_MIN_LOADING_MS = 500;
+
 export default function useContactPayment({
   selectedContact,
   paymentType,
@@ -91,8 +95,26 @@ export default function useContactPayment({
   const [isResolvingLnurlData, setIsResolvingLnurlData] = useState(false);
   const [prefetchedDoc, setPrefetchedDoc] = useState(null);
   const [contactReceiveOption, setContactReceiveOption] = useState(null);
+  // True while an *automatic* currency switch is determining/loading the display
+  // currency (phone-pay or LNURL-advertised), so the page can show a loading
+  // screen. Lazily seeded true for phone-pay contacts (currency known instantly
+  // from the address) so the very first render already shows the loading screen —
+  // never set for manual picks, so those reveal instantly.
+  const [isAutoResolvingCurrency, setIsAutoResolvingCurrency] = useState(() => {
+    if (paymentType !== 'send') return false;
+    const country = getPhonePaymentCountry(selectedContact?.receiveAddress);
+    const code = country
+      ? (PROVIDER_COUNTRY_CURRENCY[country] || '').toUpperCase()
+      : '';
+    return !!code && fiatCurrencies.some(c => c.id === code);
+  });
   const lnurlParsedRef = useRef(null);
   const appliedLocalCurrencyRef = useRef(null);
+  // Monotonic token guarding the auto-resolve loading flag. The resolving fetch
+  // itself mutates currencyRates/hasUserSelected mid-flight (re-running the
+  // effects), so a per-run cancellation flag would wrongly suppress the final
+  // clear; only the latest token clears the loading state.
+  const autoResolveTokenRef = useRef(0);
   const quoteId = useRef(null);
   const poolInfoRefSnapshotRef = useRef(poolInfoRef);
   const userChangedPaymentMethodRef = useRef(Boolean(explicitPaymentMethod));
@@ -290,6 +312,11 @@ export default function useContactPayment({
     masterInfoObject,
   });
 
+  // True while the external display rate is still being resolved: either an LNURL
+  // payRequest is being parsed (currency not yet known) or a fiat rate is being
+  // fetched. Drives the number-pad disabled state during the LNURL bounds parse.
+  const isResolvingDisplayCurrency = isLoadingRate || isResolvingLnurlData;
+
   const {
     primaryDisplay,
     conversionFiatStats,
@@ -306,9 +333,49 @@ export default function useContactPayment({
 
   const convertedSendAmount = convertDisplayToSats(amountValue);
 
-  // Once the LNURL payRequest resolves, default the amount input to its
-  // advertised fiat currency (or the phone-provider country's currency). Always
-  // switches, runs once per address, and never overrides a manual selection.
+  // Phone-number payments encode the destination currency in the address domain
+  // (e.g. @bitcoin.co.ke → KES), so we can switch immediately without waiting for
+  // the LNURL bounds fetch. Runs once per address, never overrides a manual pick.
+  // Drives the loading screen (isAutoResolvingCurrency) while the rate loads.
+  useEffect(() => {
+    if (paymentType !== 'send' || hasUserSelectedDisplayCurrency) return;
+    const address = selectedContact?.receiveAddress;
+    if (!address || appliedLocalCurrencyRef.current === address) return;
+
+    const country = getPhonePaymentCountry(address);
+    const code = country
+      ? (PROVIDER_COUNTRY_CURRENCY[country] || '').toUpperCase()
+      : '';
+    if (!code || !fiatCurrencies.some(c => c.id === code)) {
+      setIsAutoResolvingCurrency(false);
+      return;
+    }
+
+    appliedLocalCurrencyRef.current = address;
+    const token = ++autoResolveTokenRef.current;
+    const startedAt = Date.now();
+    setIsAutoResolvingCurrency(true);
+    loadAndSetCurrency(code).finally(() => {
+      const remaining = Math.max(
+        0,
+        AUTO_RESOLVE_MIN_LOADING_MS - (Date.now() - startedAt),
+      );
+      setTimeout(() => {
+        if (autoResolveTokenRef.current === token) {
+          setIsAutoResolvingCurrency(false);
+        }
+      }, remaining);
+    });
+  }, [
+    paymentType,
+    selectedContact?.receiveAddress,
+    hasUserSelectedDisplayCurrency,
+    loadAndSetCurrency,
+  ]);
+
+  // Once the LNURL payRequest resolves, if it advertises a fiat currency (LUD-21),
+  // default the input to it. Phone-pay currencies are handled synchronously above.
+  // Runs once per address, never overrides a manual pick.
   useEffect(() => {
     if (!lnurlPayData || paymentType !== 'send') return;
     if (hasUserSelectedDisplayCurrency) return;
@@ -316,25 +383,34 @@ export default function useContactPayment({
     if (!address || appliedLocalCurrencyRef.current === address) return;
 
     const descriptor = normalizeLNURLCurrency(lnurlPayData.data);
-    const country = getPhonePaymentCountry(address);
-    if (!descriptor && !country) return;
+    if (!descriptor) return;
 
-    const code = (
-      descriptor?.code ||
-      (country ? PROVIDER_COUNTRY_CURRENCY[country] : '') ||
-      ''
-    ).toUpperCase();
+    const code = (descriptor.code || '').toUpperCase();
     if (!code || !fiatCurrencies.some(c => c.id === code)) return;
 
     appliedLocalCurrencyRef.current = address;
 
     const rate = lnurlCurrencyToRate(descriptor);
     if (rate) {
+      // Advertised rate is known → switch instantly, no loading screen.
       injectRate(code, rate, { setAsDisplay: true });
-    } else {
-      // No usable LNURL rate (e.g. phone pay): fetch our internal rate and switch.
-      loadAndSetCurrency(code);
+      return;
     }
+
+    const token = ++autoResolveTokenRef.current;
+    const startedAt = Date.now();
+    setIsAutoResolvingCurrency(true);
+    loadAndSetCurrency(code).finally(() => {
+      const remaining = Math.max(
+        0,
+        AUTO_RESOLVE_MIN_LOADING_MS - (Date.now() - startedAt),
+      );
+      setTimeout(() => {
+        if (autoResolveTokenRef.current === token) {
+          setIsAutoResolvingCurrency(false);
+        }
+      }, remaining);
+    });
   }, [
     lnurlPayData,
     paymentType,
@@ -883,11 +959,6 @@ export default function useContactPayment({
     t,
   ]);
 
-  // True while the external display rate is still being resolved: either an LNURL
-  // payRequest is being parsed (currency not yet known) or a fiat rate is being
-  // fetched. Drives the currency-switch spinner so the auto-switch is visible.
-  const isResolvingDisplayCurrency = isLoadingRate || isResolvingLnurlData;
-
   return {
     amountValue,
     setAmountValue,
@@ -896,6 +967,7 @@ export default function useContactPayment({
     displayCurrency,
     isLoadingRate,
     isResolvingDisplayCurrency,
+    isAutoResolvingCurrency,
     handleDisplayCurrencySelect,
     paymentMethod,
     setSelectedPaymentMethod,

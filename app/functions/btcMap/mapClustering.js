@@ -15,7 +15,11 @@ export class ClusterManager {
   load(points) {
     const features = points.map(p => ({
       type: 'Feature',
-      properties: { pointId: p.id, icon: p.icon },
+      properties: {
+        pointId: p.id,
+        icon: p.icon,
+        source: p.source || 'btcmap',
+      },
       geometry: { type: 'Point', coordinates: [p.lon, p.lat] },
     }));
     this._cluster.load(features);
@@ -43,12 +47,13 @@ export class ClusterManager {
         };
       }
       return {
-        id: `point-${props.pointId}`,
+        id: `point-${props.source || 'btcmap'}-${props.pointId}`,
         type: 'single',
         latitude: lat,
         longitude: lon,
         count: 1,
         placeId: props.pointId,
+        source: props.source || 'btcmap',
       };
     });
   }

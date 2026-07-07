@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../context-store/keys';
+import { useToast } from '../../context-store/toastManager';
 import loadNewFiatData from '../functions/saveAndUpdateFiatData';
-import { SATS_DISPLAY_CURRENCY, normalizeDisplayCurrency } from '../functions/displayCurrency';
+import {
+  SATS_DISPLAY_CURRENCY,
+  normalizeDisplayCurrency,
+} from '../functions/displayCurrency';
 
 export default function useDisplayCurrencyController({
   initialCurrency,
@@ -12,9 +17,13 @@ export default function useDisplayCurrencyController({
   additionalRates,
 }) {
   const navigate = useNavigation();
+  const { t } = useTranslation();
+  const { showToast } = useToast();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const normalizedInitialCurrency = normalizeDisplayCurrency(initialCurrency);
-  const deviceCurrency = (masterInfoObject?.fiatCurrency || 'USD').toUpperCase();
+  const deviceCurrency = (
+    masterInfoObject?.fiatCurrency || 'USD'
+  ).toUpperCase();
   const hasUserSelectedRef = useRef(false);
 
   const seededRates = useMemo(() => {
@@ -45,13 +54,10 @@ export default function useDisplayCurrencyController({
     setDisplayCurrency(normalizedInitialCurrency);
   }, [normalizedInitialCurrency]);
 
-  const resetDisplayCurrency = useCallback(
-    nextCurrency => {
-      hasUserSelectedRef.current = false;
-      setDisplayCurrency(normalizeDisplayCurrency(nextCurrency));
-    },
-    [],
-  );
+  const resetDisplayCurrency = useCallback(nextCurrency => {
+    hasUserSelectedRef.current = false;
+    setDisplayCurrency(normalizeDisplayCurrency(nextCurrency));
+  }, []);
 
   // Shared fetch-and-set used by both the user-facing picker (selectCurrency) and
   // the programmatic phone-payment default (loadAndSetCurrency). `isUserSelection`
@@ -115,32 +121,43 @@ export default function useDisplayCurrencyController({
     [fetchAndSetCurrency],
   );
 
-  // Programmatic default (no navigation on failure). Loads the internal rate and
-  // sets it as the display currency, locking it so the initialCurrency reset
-  // effect can't stomp it; the user can still re-pick via the picker.
+  // Programmatic default (no navigation on failure). Fetches the internal rate and
+  // only then switches the display currency, locking it so the initialCurrency
+  // reset effect can't stomp it; the user can still re-pick via the picker. On
+  // failure the currency stays on its previous value and a toast is shown.
   const loadAndSetCurrency = useCallback(
     async code => {
       const response = await fetchAndSetCurrency(code, false);
-      if (response.didWork) hasUserSelectedRef.current = true;
+      if (response.didWork) {
+        hasUserSelectedRef.current = true;
+        return response;
+      }
+      showToast({
+        type: 'error',
+        title: t('contacts.sendAndRequestPage.fiatRateLoadFailed'),
+      });
       return response;
     },
-    [fetchAndSetCurrency],
+    [fetchAndSetCurrency, showToast, t],
   );
 
   // Injects an externally-derived rate (e.g. from an LNURL multiplier) into the
   // rate map without a backend fetch. When setAsDisplay is true and the user
   // hasn't already overridden the currency, also switches the display to it and
   // locks the choice.
-  const injectRate = useCallback((code, rate, { setAsDisplay = false } = {}) => {
-    const normalizedCode = normalizeDisplayCurrency(code);
-    if (rate?.value) {
-      setCurrencyRates(prev => ({ ...prev, [normalizedCode]: rate }));
-    }
-    if (setAsDisplay && !hasUserSelectedRef.current) {
-      setDisplayCurrency(normalizedCode);
-      hasUserSelectedRef.current = true;
-    }
-  }, []);
+  const injectRate = useCallback(
+    (code, rate, { setAsDisplay = false } = {}) => {
+      const normalizedCode = normalizeDisplayCurrency(code);
+      if (rate?.value) {
+        setCurrencyRates(prev => ({ ...prev, [normalizedCode]: rate }));
+      }
+      if (setAsDisplay && !hasUserSelectedRef.current) {
+        setDisplayCurrency(normalizedCode);
+        hasUserSelectedRef.current = true;
+      }
+    },
+    [],
+  );
 
   return {
     displayCurrency,

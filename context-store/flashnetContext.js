@@ -649,7 +649,7 @@ export function FlashnetProvider({ children }) {
           return;
         }
         runRefundMonitor();
-      }, 1500);
+      }, 10_000);
 
       startRefundMonitor();
     } else {

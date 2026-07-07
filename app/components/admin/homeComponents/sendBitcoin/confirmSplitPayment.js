@@ -517,6 +517,7 @@ export default function ConfirmSplitPayment(props) {
     if (isSendingPayment.current) return;
 
     isSendingPayment.current = true;
+    isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
     setShowProgressAnimation(true);
 
     try {
@@ -696,6 +697,7 @@ export default function ConfirmSplitPayment(props) {
     } catch (error) {
       console.error('ConfirmSplitPayment sendPayment error:', error);
       isSendingPayment.current = false;
+      isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
       setShowProgressAnimation(false);
       errorMessageNavigation(error.message);
     }

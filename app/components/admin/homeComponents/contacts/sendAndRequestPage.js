@@ -28,6 +28,7 @@ import ChoosePaymentMethod from '../sendBitcoin/components/choosePaymentMethodCo
 import ContactProfileImage from './internalComponents/profileImage';
 import useContactPayment from './hooks/useContactPayment';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -115,6 +116,33 @@ export default function SendAndRequestPage(props) {
     };
   }, [bottomPadding, isDescriptionFocused]);
 
+  if (payment.isAutoResolvingCurrency) {
+    return (
+      <CustomKeyboardAvoidingView
+        globalThemeViewStyles={memorizedKeyboardStyle}
+      >
+        <View
+          style={[
+            styles.replacementContainer,
+            isDescriptionFocused ? { flexShrink: 1 } : { flexGrow: 1 },
+          ]}
+        >
+          <CustomSettingsTopBar
+            label={
+              paymentType === 'Gift'
+                ? t('constants.gift')
+                : paymentType === 'send'
+                ? t('constants.send')
+                : t('constants.request')
+            }
+            containerStyles={{ marginBottom: 0 }}
+          />
+          <FullLoadingScreen />
+        </View>
+      </CustomKeyboardAvoidingView>
+    );
+  }
+
   return (
     <CustomKeyboardAvoidingView globalThemeViewStyles={memorizedKeyboardStyle}>
       <View
@@ -133,11 +161,13 @@ export default function SendAndRequestPage(props) {
           }
           containerStyles={{ marginBottom: 0 }}
           rightContent={
-            <CurrencySwitchButton
-              displayCurrency={payment.displayCurrency}
-              onPress={openCurrencyPicker}
-              disabled={payment.isResolvingDisplayCurrency}
-            />
+            !payment.isAutoResolvingCurrency && (
+              <CurrencySwitchButton
+                displayCurrency={payment.displayCurrency}
+                onPress={openCurrencyPicker}
+                disabled={payment.isResolvingDisplayCurrency}
+              />
+            )
           }
         />
 
