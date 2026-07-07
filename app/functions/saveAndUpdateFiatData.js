@@ -1,6 +1,21 @@
-import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
+import { getLocalStorageItem, setLocalStorageItem } from './localStorage';
 import getFiatPrice from './getFiatPrice';
-import {isMoreThan40MinOld} from './rotateAddressDateChecker';
+import { isMoreThan40MinOld } from './rotateAddressDateChecker';
+
+export async function getCachedFiatRate(selectedCurrency) {
+  try {
+    const cacheKey = `fiatRate_${selectedCurrency.toLowerCase()}`;
+    const cached = JSON.parse(await getLocalStorageItem(cacheKey));
+    if (
+      cached?.fiatRate?.coin?.toLowerCase() === selectedCurrency.toLowerCase()
+    ) {
+      return cached; // { lastFetched, fiatRate: { coin, value } }
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+}
 
 export default async function loadNewFiatData(
   selectedCurrency,
@@ -11,17 +26,12 @@ export default async function loadNewFiatData(
   try {
     // Use currency-specific cache key
     const cacheKey = `fiatRate_${selectedCurrency.toLowerCase()}`;
-    const cachedResponse = JSON.parse(await getLocalStorageItem(cacheKey));
+    const cachedResponse = await getCachedFiatRate(selectedCurrency);
     const isMainCurrency =
       selectedCurrency.toLowerCase() ===
       (masterInfoObject.fiatCurrency?.toLowerCase() || 'usd');
 
-    if (
-      cachedResponse &&
-      cachedResponse.fiatRate?.coin?.toLowerCase() ===
-        selectedCurrency.toLowerCase() &&
-      !isMoreThan40MinOld(cachedResponse.lastFetched)
-    ) {
+    if (cachedResponse && !isMoreThan40MinOld(cachedResponse.lastFetched)) {
       if (isMainCurrency) await updateMainCurrency(cachedResponse.fiatRate);
       return {
         didWork: true,
@@ -30,11 +40,15 @@ export default async function loadNewFiatData(
       };
     }
 
-    const fiatRateResponse = await getFiatPrice(
-      selectedCurrency,
-      contactsPrivateKey,
-      publicKey,
-    );
+    let fiatRateResponse = false;
+    for (let attempt = 0; attempt < 3 && !fiatRateResponse; attempt++) {
+      if (attempt > 0) await new Promise(res => setTimeout(res, 1000));
+      fiatRateResponse = await getFiatPrice(
+        selectedCurrency,
+        contactsPrivateKey,
+        publicKey,
+      );
+    }
 
     if (!fiatRateResponse) throw new Error('error loading fiat rates');
 
@@ -50,10 +64,10 @@ export default async function loadNewFiatData(
       await updateMainCurrency(fiatRateResponse);
     }
 
-    return {didWork: true, fiatRateResponse, usingCache: false};
+    return { didWork: true, fiatRateResponse, usingCache: false };
   } catch (err) {
     console.log('error loading fiat rates', err);
-    return {didWork: false, error: err.message, usingCache: false};
+    return { didWork: false, error: err.message, usingCache: false };
   }
 }
 

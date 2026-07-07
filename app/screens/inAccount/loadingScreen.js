@@ -27,6 +27,8 @@ import { useAppStatus } from '../../../context-store/appStatus';
 import { initializeAllDatabases } from '../../functions/initializeAllDatabases';
 import openWebBrowser from '../../functions/openWebBrowser';
 import NoContentScreen from '../../functions/CustomElements/noContentScreen';
+import { useNodeContext } from '../../../context-store/nodeContext';
+import { getCachedFiatRate } from '../../functions/saveAndUpdateFiatData';
 
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
@@ -46,6 +48,7 @@ export default function ConnectingToNodeLoadingScreen() {
   const { toggleGlobalContactsInformation } = useGlobalContactsInfo();
   const { toggleGlobalAppDataInformation } = useGlobalAppData();
   const { screenDimensions } = useAppStatus();
+  const { toggleFiatStats } = useNodeContext();
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
   const didRunConnectionRef = useRef(null);
@@ -145,6 +148,12 @@ export default function ConnectingToNodeLoadingScreen() {
           transactions: placeholderTxs,
           ...(balanceSnapshot ?? {}),
         }));
+
+        // Seed the fiat rate from cache so Home paints with a real rate
+        // instead of the placeholder while nodeContext fetches a fresh one.
+        const currency = masterInfoObject?.fiatCurrency || 'USD';
+        const cachedRate = await getCachedFiatRate(currency);
+        if (cachedRate?.fiatRate) toggleFiatStats(cachedRate.fiatRate);
 
         // ── Phase 4: Minimum perceived loading time then navigate ─────────
         const elapsed = Date.now() - startTime;
