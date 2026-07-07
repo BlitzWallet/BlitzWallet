@@ -54,6 +54,7 @@ import {
 import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
 import MobileMoneySendOverlay from './mobileMoneySendOverlay';
+import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
 
 const ContactRow = ({
   contact,
@@ -191,6 +192,17 @@ export default function HalfModalSendOptions({
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const isContactInputMode = inputText.startsWith('@');
+  const { shouldStack, containerProps, getLabelProps } =
+    useAdaptiveButtonLayout([t('constants.paste'), t('constants.scan')]);
+  // Shared surface/accent tokens for the redesigned input card + action row so
+  // the light-only mockup maps onto the app's light/dark/lights-out themes.
+  const raisedSurface = theme
+    ? darkModeType
+      ? backgroundColor
+      : backgroundOffset
+    : COLORS.darkModeText;
+  const accentColor =
+    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
 
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
@@ -680,58 +692,99 @@ export default function HalfModalSendOptions({
         style={[styles.mainContent, contentStyle]}
         pointerEvents={anyOverlayVisible ? 'none' : 'auto'}
       >
-        {/* Search Input with Clipboard Icon */}
-        <View
-          style={[
-            styles.searchContainer,
-            {
-              backgroundColor: backgroundColor,
-              maxHeight: Math.round(scrollViewHeight - 50),
-            },
-          ]}
-        >
-          <CustomSearchInput
-            textInputRef={textInputRef}
-            placeholderText={t('wallet.halfModal.inputPlaceholder')}
-            textInputMultiline={true}
-            inputText={inputText}
-            setInputText={setInputText}
-            onBlurFunction={onBlurFunction}
-            onFocusFunction={onFocusFunction}
-            textInputStyles={{
-              paddingRight: showPasteButton || inputText.trim() ? 40 : 10,
-            }}
-            returnKeyType="go"
-            onSubmitEditingFunction={handleManualInputSubmit}
-          />
-          {inputText.trim() ? (
+        {/* Large input card */}
+        <CustomSearchInput
+          textInputRef={textInputRef}
+          placeholderText={t('wallet.halfModal.inputPlaceholder')}
+          textInputMultiline={true}
+          inputText={inputText}
+          setInputText={setInputText}
+          onBlurFunction={onBlurFunction}
+          onFocusFunction={onFocusFunction}
+          containerStyles={{
+            ...styles.inputCard,
+            backgroundColor: raisedSurface,
+            maxHeight: scrollViewHeight
+              ? Math.round(scrollViewHeight - 50)
+              : undefined,
+          }}
+          textInputStyles={{
+            ...styles.inputCardText,
+            paddingRight: inputText.trim() ? 40 : 12,
+          }}
+          returnKeyType="go"
+          onSubmitEditingFunction={handleManualInputSubmit}
+          buttonComponent={
+            inputText.trim() ? (
+              <TouchableOpacity
+                onPress={onTrimFunction}
+                style={styles.clearButton}
+              >
+                <ThemeIcon
+                  colorOverride={accentColor}
+                  size={30}
+                  iconName={'X'}
+                />
+              </TouchableOpacity>
+            ) : null
+          }
+        />
+
+        {/* Paste + Scan buttons (hidden while typing) */}
+        {!isInputMode && (
+          <View
+            {...containerProps}
+            style={[
+              styles.actionRow,
+              shouldStack
+                ? styles.buttonContainerStacked
+                : styles.buttonContainerColumns,
+            ]}
+          >
             <TouchableOpacity
-              onPress={onTrimFunction}
-              style={styles.clipboardButton}
-            >
-              <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
-                size={20}
-                iconName={'X'}
-              />
-            </TouchableOpacity>
-          ) : showPasteButton ? (
-            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                {
+                  backgroundColor: raisedSurface,
+                  opacity: showPasteButton ? 1 : HIDDEN_OPACITY,
+                },
+                shouldStack ? styles.buttonStacked : styles.buttonColumn,
+              ]}
               onPress={handleClipboardPaste}
-              style={styles.clipboardButton}
+              disabled={!showPasteButton}
             >
               <ThemeIcon
-                colorOverride={
-                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
-                }
+                colorOverride={accentColor}
                 size={20}
                 iconName={'Clipboard'}
               />
+              <ThemeText
+                styles={styles.actionButtonText}
+                content={t('constants.paste')}
+                {...getLabelProps(0)}
+              />
             </TouchableOpacity>
-          ) : null}
-        </View>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                { backgroundColor: raisedSurface },
+                shouldStack ? styles.buttonStacked : styles.buttonColumn,
+              ]}
+              onPress={handleCameraScan}
+            >
+              <ThemeIcon
+                colorOverride={accentColor}
+                size={20}
+                iconName={'ScanLine'}
+              />
+              <ThemeText
+                styles={styles.actionButtonText}
+                content={t('constants.scan')}
+                {...getLabelProps(1)}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={styles.pageContainer}>
           {/* Page: No Input */}
@@ -747,51 +800,12 @@ export default function HalfModalSendOptions({
                   ...styles.innerContainer,
                   paddingBottom: bottomPadding,
                 }}
-                stickyHeaderIndices={[3]}
                 scrollEventThrottle={16}
                 onLayout={e => {
                   const h = e.nativeEvent.layout.height;
                   setScrollViewHeight(h);
                 }}
               >
-                {/* Scan QR Code Button */}
-                <TouchableOpacity
-                  style={[styles.scanButton, { marginBottom: 0 }]}
-                  onPress={handleCameraScan}
-                >
-                  <View
-                    style={[
-                      styles.scanIconContainer,
-                      {
-                        backgroundColor:
-                          theme && darkModeType
-                            ? backgroundColor
-                            : backgroundOffset,
-                      },
-                    ]}
-                  >
-                    <ThemeIcon
-                      colorOverride={
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary
-                      }
-                      size={24}
-                      iconName={'ScanLine'}
-                    />
-                  </View>
-                  <View style={styles.scanTextContainer}>
-                    <ThemeText
-                      styles={styles.scanButtonText}
-                      content={t('wallet.halfModal.scanQrCode')}
-                    />
-                    <ThemeText
-                      styles={styles.scanButtonSubtext}
-                      content={t('wallet.halfModal.tapToScanQr')}
-                    />
-                  </View>
-                </TouchableOpacity>
-
                 {/* Mobile Money Button */}
                 <TouchableOpacity
                   style={styles.scanButton}
@@ -1092,25 +1106,61 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  searchContainer: {
+  inputCard: {
     width: INSET_WINDOW_WIDTH,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 15,
+    minHeight: 120,
+    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    marginBottom: 14,
     ...CENTER,
   },
-  searchInputContainer: {
+  inputCardText: {
+    backgroundColor: 'transparent',
+    minHeight: 84,
+  },
+  clearButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 4,
+    zIndex: 99,
+  },
+  actionRow: {
+    width: INSET_WINDOW_WIDTH,
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
+    ...CENTER,
+  },
+  buttonContainerColumns: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  buttonContainerStacked: {
+    flexDirection: 'column',
     justifyContent: 'flex-start',
   },
-  clipboardButton: {
-    width: 45,
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
+  actionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    right: 0,
-    zIndex: 99,
+    gap: 8,
+    minHeight: 50,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+  },
+  buttonColumn: {
+    flex: 1,
+  },
+  buttonStacked: {
+    width: '100%',
+  },
+  actionButtonText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
+    flexShrink: 1,
   },
 
   scanButton: {
@@ -1157,13 +1207,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 1,
     borderTopWidth: 1,
-    marginVertical: 20,
+    marginVertical: 10,
   },
 
   sectionHeader: {
     fontSize: SIZES.small,
     textTransform: 'uppercase',
     opacity: 0.6,
+    marginTop: 10,
     marginBottom: 10,
     width: '100%',
     letterSpacing: 0.5,
