@@ -1158,9 +1158,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   actionButtonText: {
-    fontSize: SIZES.medium,
     includeFontPadding: false,
-    flexShrink: 1,
   },
 
   scanButton: {
