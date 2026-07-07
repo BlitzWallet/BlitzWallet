@@ -14,7 +14,7 @@ import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
-import useAdaptiveButtonLayout from '../../hooks/useAdaptiveButtonLayout';
+import AdaptiveButtonRow from '../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../functions/CustomElements/button';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { useKeysContext } from '../../../context-store/keys';
@@ -83,8 +83,6 @@ export default function BTCMapMerchantContent({
   const directionsBTN = t('screens.btcMap.merchant.directions');
   const payBTN = t('screens.btcMap.merchant.pay');
 
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([directionsBTN, payBTN]);
 
   if (detailLoading) {
     return <FullLoadingScreen showText={false} />;
@@ -204,53 +202,50 @@ export default function BTCMapMerchantContent({
           </View>
         </View>
       </ScrollView>
-      <View
-        {...containerProps}
-        style={[
-          styles.actionRow,
-          shouldStack
-            ? styles.buttonContainerStacked
-            : styles.buttonContainerColumns,
-        ]}
+      <AdaptiveButtonRow
+        labels={[directionsBTN, payBTN]}
+        containerStyle={styles.actionRow}
       >
-        <CustomButton
-          buttonStyles={[
-            styles.actionBtn,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
-            shouldStack ? styles.buttonStacked : styles.buttonColumn,
-          ]}
-          textStyles={{
-            color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-          }}
-          enableElipsis={false}
-          {...getLabelProps(0)}
-          textContent={directionsBTN}
-          actionFunction={handleDirections}
-        />
-        <CustomButton
-          buttonStyles={[
-            styles.actionBtn,
-            {
-              backgroundColor:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-            },
-            shouldStack ? styles.buttonStacked : styles.buttonColumn,
-          ]}
-          textStyles={{
-            color:
-              theme && darkModeType
-                ? COLORS.lightModeText
-                : COLORS.darkModeText,
-          }}
-          enableElipsis={false}
-          {...getLabelProps(1)}
-          textContent={payBTN}
-          actionFunction={handlePay}
-        />
-      </View>
+        {({ buttonStyle }) => (
+          <>
+            <CustomButton
+              buttonStyles={[
+                styles.actionBtn,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+                buttonStyle,
+              ]}
+              textStyles={{
+                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+              }}
+              enableElipsis={false}
+              textContent={directionsBTN}
+              actionFunction={handleDirections}
+            />
+            <CustomButton
+              buttonStyles={[
+                styles.actionBtn,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+                },
+                buttonStyle,
+              ]}
+              textStyles={{
+                color:
+                  theme && darkModeType
+                    ? COLORS.lightModeText
+                    : COLORS.darkModeText,
+              }}
+              enableElipsis={false}
+              textContent={payBTN}
+              actionFunction={handlePay}
+            />
+          </>
+        )}
+      </AdaptiveButtonRow>
 
       <ThemeText
         content={t('screens.btcMap.merchant.dataMessage', { source })}
@@ -311,12 +306,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     lineHeight: 18,
   },
-  actionRow: { width: '100%', gap: 10, alignItems: 'center', marginBottom: 15 },
-  buttonContainerColumns: { flexDirection: 'row', justifyContent: 'center' },
-  buttonContainerStacked: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
+  actionRow: { width: '100%', marginBottom: 15 },
   actionBtn: {
     flex: 1,
     height: 52,
@@ -324,8 +314,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonColumn: { flex: 1 },
-  buttonStacked: { width: '100%' },
   attribution: {
     fontSize: SIZES.xSmall,
     textAlign: 'center',

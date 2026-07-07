@@ -54,7 +54,7 @@ import {
 import IconActionCircle from '../../../../functions/CustomElements/actionCircleContainer';
 import ContactPaymentOverlay from '../contacts/contactPaymentOverlay';
 import MobileMoneySendOverlay from './mobileMoneySendOverlay';
-import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
+import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 
 const ContactRow = ({
   contact,
@@ -192,8 +192,8 @@ export default function HalfModalSendOptions({
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset } = GetThemeColors();
   const isContactInputMode = inputText.startsWith('@');
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([t('constants.paste'), t('constants.scan')]);
+  const pasteLabel = t('constants.paste');
+  const scanLabel = t('constants.scan');
   // Shared surface/accent tokens for the redesigned input card + action row so
   // the light-only mockup maps onto the app's light/dark/lights-out themes.
   const raisedSurface = theme
@@ -732,58 +732,57 @@ export default function HalfModalSendOptions({
 
         {/* Paste + Scan buttons (hidden while typing) */}
         {!isInputMode && (
-          <View
-            {...containerProps}
-            style={[
-              styles.actionRow,
-              shouldStack
-                ? styles.buttonContainerStacked
-                : styles.buttonContainerColumns,
-            ]}
+          <AdaptiveButtonRow
+            labels={[pasteLabel, scanLabel]}
+            containerStyle={styles.actionRow}
+            gap={12}
+            buttonHorizontalPadding={44}
           >
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                {
-                  backgroundColor: raisedSurface,
-                  opacity: showPasteButton ? 1 : HIDDEN_OPACITY,
-                },
-                shouldStack ? styles.buttonStacked : styles.buttonColumn,
-              ]}
-              onPress={handleClipboardPaste}
-              disabled={!showPasteButton}
-            >
-              <ThemeIcon
-                colorOverride={accentColor}
-                size={20}
-                iconName={'Clipboard'}
-              />
-              <ThemeText
-                styles={styles.actionButtonText}
-                content={t('constants.paste')}
-                {...getLabelProps(0)}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                { backgroundColor: raisedSurface },
-                shouldStack ? styles.buttonStacked : styles.buttonColumn,
-              ]}
-              onPress={handleCameraScan}
-            >
-              <ThemeIcon
-                colorOverride={accentColor}
-                size={20}
-                iconName={'ScanLine'}
-              />
-              <ThemeText
-                styles={styles.actionButtonText}
-                content={t('constants.scan')}
-                {...getLabelProps(1)}
-              />
-            </TouchableOpacity>
-          </View>
+            {({ buttonStyle }) => (
+              <>
+                <TouchableOpacity
+                  style={[
+                    styles.actionButton,
+                    {
+                      backgroundColor: raisedSurface,
+                      opacity: showPasteButton ? 1 : HIDDEN_OPACITY,
+                    },
+                    buttonStyle,
+                  ]}
+                  onPress={handleClipboardPaste}
+                  disabled={!showPasteButton}
+                >
+                  <ThemeIcon
+                    colorOverride={accentColor}
+                    size={20}
+                    iconName={'Clipboard'}
+                  />
+                  <ThemeText
+                    styles={styles.actionButtonText}
+                    content={pasteLabel}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.actionButton,
+                    { backgroundColor: raisedSurface },
+                    buttonStyle,
+                  ]}
+                  onPress={handleCameraScan}
+                >
+                  <ThemeIcon
+                    colorOverride={accentColor}
+                    size={20}
+                    iconName={'ScanLine'}
+                  />
+                  <ThemeText
+                    styles={styles.actionButtonText}
+                    content={scanLabel}
+                  />
+                </TouchableOpacity>
+              </>
+            )}
+          </AdaptiveButtonRow>
         )}
 
         <View style={styles.pageContainer}>
@@ -1108,7 +1107,7 @@ const styles = StyleSheet.create({
 
   inputCard: {
     width: INSET_WINDOW_WIDTH,
-    minHeight: 120,
+    minHeight: 110,
     borderRadius: 12,
     paddingVertical: 6,
     paddingHorizontal: 8,
@@ -1128,18 +1127,8 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     width: INSET_WINDOW_WIDTH,
-    flexDirection: 'row',
-    gap: 12,
     marginBottom: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
-  },
-  buttonContainerColumns: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  buttonContainerStacked: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
   },
   actionButton: {
     flexDirection: 'row',
@@ -1150,12 +1139,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderRadius: 12,
-  },
-  buttonColumn: {
-    flex: 1,
-  },
-  buttonStacked: {
-    width: '100%',
   },
   actionButtonText: {
     includeFontPadding: false,

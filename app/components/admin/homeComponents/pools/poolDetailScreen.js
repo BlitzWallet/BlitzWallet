@@ -41,7 +41,7 @@ import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
 import SectionCard from '../../../../screens/inAccount/settingsHub/components/SectionCard';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
+import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 
 const MAX_VISIBLE_ACTIVITY = 3;
@@ -87,8 +87,6 @@ export default function PoolDetailScreen(props) {
   const contributeLabel = t('wallet.pools.contribute');
   const shareLabel = t('wallet.pools.share');
 
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([contributeLabel, shareLabel]);
 
   const formatAmount = useCallback(
     amount => {
@@ -406,41 +404,37 @@ export default function PoolDetailScreen(props) {
                 actionFunction={handleClosePool}
               />
             ) : (
-              <View
-                {...containerProps}
-                style={[
-                  styles.actionsRow,
-                  shouldStack ? styles.containerStacked : styles.containerRow,
-                ]}
+              <AdaptiveButtonRow
+                labels={[contributeLabel, shareLabel]}
+                containerStyle={styles.actionsRow}
               >
-                <CustomButton
-                  buttonStyles={[
-                    styles.actionButton,
-                    shouldStack ? styles.buttonStacked : styles.buttonColumn,
-                  ]}
-                  enableElipsis={false}
-                  {...getLabelProps(0)}
-                  textContent={t('wallet.pools.contribute')}
-                  actionFunction={handleContribute}
-                />
-                <CustomButton
-                  buttonStyles={[
-                    styles.actionButton,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? COLORS.lightModeText
-                          : COLORS.primary,
-                    },
-                    shouldStack ? styles.buttonStacked : styles.buttonColumn,
-                  ]}
-                  {...getLabelProps(1)}
-                  enableElipsis={false}
-                  textStyles={{ color: COLORS.darkModeText }}
-                  textContent={t('wallet.pools.share')}
-                  actionFunction={handleShare}
-                />
-              </View>
+                {({ buttonStyle }) => (
+                  <>
+                    <CustomButton
+                      buttonStyles={[styles.actionButton, buttonStyle]}
+                      enableElipsis={false}
+                      textContent={t('wallet.pools.contribute')}
+                      actionFunction={handleContribute}
+                    />
+                    <CustomButton
+                      buttonStyles={[
+                        styles.actionButton,
+                        {
+                          backgroundColor:
+                            theme && darkModeType
+                              ? COLORS.lightModeText
+                              : COLORS.primary,
+                        },
+                        buttonStyle,
+                      ]}
+                      enableElipsis={false}
+                      textStyles={{ color: COLORS.darkModeText }}
+                      textContent={t('wallet.pools.share')}
+                      actionFunction={handleShare}
+                    />
+                  </>
+                )}
+              </AdaptiveButtonRow>
             )}
           </View>
         )}
@@ -568,22 +562,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   actionsRow: {
-    gap: 10,
     width: '100%',
-  },
-  containerRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  containerStacked: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
-  buttonStacked: {
-    width: '100%',
-  },
-  buttonColumn: {
-    flex: 1,
   },
   actionButton: {
     flexGrow: 1,

@@ -21,7 +21,7 @@ import { getLocalStorageItem, copyToClipboard } from '../../../../../functions';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import useAdaptiveButtonLayout from '../../../../../hooks/useAdaptiveButtonLayout';
+import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useToast } from '../../../../../../context-store/toastManager';
@@ -58,8 +58,6 @@ export default function SMSMessagingHome() {
   const sendLabel = t('constants.send');
   const receiveLabel = t('constants.receive');
 
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([sendLabel, receiveLabel]);
 
   const saveMessagesToDB = useCallback(
     async nextMessages => {
@@ -375,51 +373,52 @@ export default function SMSMessagingHome() {
         )}
       </View>
 
-      <View
-        {...containerProps}
-        style={[
-          styles.buttonContainer,
-          shouldStack
-            ? styles.buttonContainerStacked
-            : styles.buttonContainerColumns,
-        ]}
+      <AdaptiveButtonRow
+        labels={[sendLabel, receiveLabel]}
+        containerStyle={styles.buttonContainer}
       >
-        <CustomButton
-          buttonStyles={[
-            styles.actionButton,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            },
-            shouldStack ? styles.buttonStacked : styles.buttonColumn,
-          ]}
-          textStyles={{
-            color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-          }}
-          enableElipsis={false}
-          {...getLabelProps(0)}
-          textContent={sendLabel}
-          actionFunction={() => navigate.navigate('SMSMessagingSendPage')}
-        />
+        {({ buttonStyle }) => (
+          <>
+            <CustomButton
+              buttonStyles={[
+                styles.actionButton,
+                {
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+                buttonStyle,
+              ]}
+              textStyles={{
+                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+              }}
+              enableElipsis={false}
+              textContent={sendLabel}
+              actionFunction={() => navigate.navigate('SMSMessagingSendPage')}
+            />
 
-        <CustomButton
-          buttonStyles={[
-            styles.actionButton,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            },
-            shouldStack ? styles.buttonStacked : styles.buttonColumn,
-          ]}
-          textStyles={{
-            color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-          }}
-          enableElipsis={false}
-          {...getLabelProps(1)}
-          textContent={receiveLabel}
-          actionFunction={() =>
-            navigate.navigate('SMSMessagingReceiveCountryPage')
-          }
-        />
-      </View>
+            <CustomButton
+              buttonStyles={[
+                styles.actionButton,
+                {
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+                buttonStyle,
+              ]}
+              textStyles={{
+                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+              }}
+              enableElipsis={false}
+              textContent={receiveLabel}
+              actionFunction={() =>
+                navigate.navigate('SMSMessagingReceiveCountryPage')
+              }
+            />
+          </>
+        )}
+      </AdaptiveButtonRow>
     </GlobalThemeView>
   );
 }
@@ -637,18 +636,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: WINDOWWIDTH,
-    gap: 10,
-    alignItems: 'center',
     marginTop: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
-  },
-  buttonContainerColumns: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  buttonContainerStacked: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
   },
   actionButton: {
     minHeight: 50,
@@ -656,12 +645,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  buttonColumn: {
-    flex: 1,
-  },
-  buttonStacked: {
-    width: '100%',
   },
 
   contentContainer: {

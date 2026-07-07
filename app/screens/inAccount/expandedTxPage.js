@@ -55,7 +55,7 @@ import {
 import { useKeysContext } from '../../../context-store/keys';
 import { decryptMessage } from '../../functions/messaging/encodingAndDecodingMessages';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
-import useAdaptiveButtonLayout from '../../hooks/useAdaptiveButtonLayout';
+import AdaptiveButtonRow from '../../functions/CustomElements/adaptiveButtonRow';
 import { useNavigateToContact } from '../../components/admin/homeComponents/contacts/utils/navigateToExpandedContact';
 import { INSET_WINDOW_WIDTH, WINDOWWIDTH } from '../../constants/theme';
 import ProfileImageRow from '../../components/admin/homeComponents/contacts/internalComponents/profileImageRow';
@@ -113,10 +113,7 @@ export default function ExpandedTx(props) {
     ? viewProgressLabel
     : null;
 
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout(
-      [techicalDetailsLabel, secondaryLabel].filter(Boolean),
-    );
+  const buttonLabels = [techicalDetailsLabel, secondaryLabel].filter(Boolean);
 
   // Contacts for ProfileImageRow — successful recipients only
   const bulkContacts = bulkPaymentGroup
@@ -738,94 +735,96 @@ export default function ExpandedTx(props) {
             {/* Description */}
             {renderDescription()}
 
-            <View
-              {...containerProps}
-              style={[
-                styles.actionContainer,
-                shouldStack
-                  ? styles.actionContainerStacked
-                  : styles.actionContainerRow,
-              ]}
+            <AdaptiveButtonRow
+              labels={buttonLabels}
+              containerStyle={styles.actionContainer}
             >
-              <TouchableOpacity
-                onPress={() => {
-                  keyboardNavigate(() => {
-                    navigate.navigate('TechnicalTransactionDetails', {
-                      transaction: transaction,
-                    });
-                  });
-                }}
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor: theme
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                  },
-                  shouldStack ? styles.buttonStacked : styles.buttonColumn,
-                ]}
-              >
-                <ThemeText
-                  styles={{
-                    includeFontPadding: false,
-                    color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-                  }}
-                  {...getLabelProps(0)}
-                  content={techicalDetailsLabel}
-                />
-              </TouchableOpacity>
-              {isFailedPayment && (
-                <TouchableOpacity
-                  onPress={handleContactSupport}
-                  style={[
-                    styles.button,
-                    {
-                      backgroundColor: theme
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
-                    },
-                    shouldStack ? styles.buttonStacked : styles.buttonColumn,
-                  ]}
-                >
-                  <ThemeText
-                    styles={{
-                      includeFontPadding: false,
-                      color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+              {({ buttonStyle }) => (
+                <>
+                  <TouchableOpacity
+                    onPress={() => {
+                      keyboardNavigate(() => {
+                        navigate.navigate('TechnicalTransactionDetails', {
+                          transaction: transaction,
+                        });
+                      });
                     }}
-                    {...getLabelProps(1)}
-                    content={contactSupportLabel}
-                  />
-                </TouchableOpacity>
+                    style={[
+                      styles.button,
+                      {
+                        backgroundColor: theme
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                      },
+                      buttonStyle,
+                    ]}
+                  >
+                    <ThemeText
+                      styles={{
+                        includeFontPadding: false,
+                        color: theme
+                          ? COLORS.lightModeText
+                          : COLORS.darkModeText,
+                      }}
+                      content={techicalDetailsLabel}
+                    />
+                  </TouchableOpacity>
+                  {isFailedPayment && (
+                    <TouchableOpacity
+                      onPress={handleContactSupport}
+                      style={[
+                        styles.button,
+                        {
+                          backgroundColor: theme
+                            ? COLORS.darkModeText
+                            : COLORS.primary,
+                        },
+                        buttonStyle,
+                      ]}
+                    >
+                      <ThemeText
+                        styles={{
+                          includeFontPadding: false,
+                          color: theme
+                            ? COLORS.lightModeText
+                            : COLORS.darkModeText,
+                        }}
+                        content={contactSupportLabel}
+                      />
+                    </TouchableOpacity>
+                  )}
+                  {showViewProgress && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigate.navigate('CustomWebView', {
+                          webViewURL: `https://mempool.space/tx/${transaction.details.onChainTxid}`,
+                          headerText: viewProgressLabel,
+                        })
+                      }
+                      style={[
+                        styles.button,
+                        {
+                          backgroundColor: theme
+                            ? COLORS.darkModeText
+                            : COLORS.primary,
+                        },
+                        buttonStyle,
+                      ]}
+                    >
+                      <ThemeText
+                        styles={{
+                          includeFontPadding: false,
+                          color: theme
+                            ? COLORS.lightModeText
+                            : COLORS.darkModeText,
+                        }}
+                        content={viewProgressLabel}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </>
               )}
-              {showViewProgress && (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigate.navigate('CustomWebView', {
-                      webViewURL: `https://mempool.space/tx/${transaction.details.onChainTxid}`,
-                      headerText: viewProgressLabel,
-                    })
-                  }
-                  style={[
-                    styles.button,
-                    {
-                      backgroundColor: theme
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
-                    },
-                    shouldStack ? styles.buttonStacked : styles.buttonColumn,
-                  ]}
-                >
-                  <ThemeText
-                    styles={{
-                      includeFontPadding: false,
-                      color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-                    }}
-                    {...getLabelProps(1)}
-                    content={viewProgressLabel}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
+            </AdaptiveButtonRow>
 
             {/* Receipt Dots */}
             <ReceiptDots screenDimensions={screenDimensions} />
@@ -1224,17 +1223,7 @@ const styles = StyleSheet.create({
 
   actionContainer: {
     width: '100%',
-    gap: 10,
-    alignItems: 'center',
     marginVertical: 20,
-  },
-  actionContainerRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  actionContainerStacked: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
   },
   button: {
     minHeight: 50,
@@ -1242,12 +1231,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  buttonColumn: {
-    flex: 1,
-  },
-  buttonStacked: {
-    width: '100%',
   },
   disabled: {
     opacity: 0.4,
