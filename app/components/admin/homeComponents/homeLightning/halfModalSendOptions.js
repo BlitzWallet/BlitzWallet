@@ -729,62 +729,6 @@ export default function HalfModalSendOptions({
             ) : null
           }
         />
-
-        {/* Paste + Scan buttons (hidden while typing) */}
-        {!isInputMode && (
-          <AdaptiveButtonRow
-            labels={[pasteLabel, scanLabel]}
-            containerStyle={styles.actionRow}
-            gap={12}
-            buttonHorizontalPadding={44}
-          >
-            {({ buttonStyle }) => (
-              <>
-                <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    {
-                      backgroundColor: raisedSurface,
-                      opacity: showPasteButton ? 1 : HIDDEN_OPACITY,
-                    },
-                    buttonStyle,
-                  ]}
-                  onPress={handleClipboardPaste}
-                  disabled={!showPasteButton}
-                >
-                  <ThemeIcon
-                    colorOverride={accentColor}
-                    size={20}
-                    iconName={'Clipboard'}
-                  />
-                  <ThemeText
-                    styles={styles.actionButtonText}
-                    content={pasteLabel}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    { backgroundColor: raisedSurface },
-                    buttonStyle,
-                  ]}
-                  onPress={handleCameraScan}
-                >
-                  <ThemeIcon
-                    colorOverride={accentColor}
-                    size={20}
-                    iconName={'ScanLine'}
-                  />
-                  <ThemeText
-                    styles={styles.actionButtonText}
-                    content={scanLabel}
-                  />
-                </TouchableOpacity>
-              </>
-            )}
-          </AdaptiveButtonRow>
-        )}
-
         <View style={styles.pageContainer}>
           {/* Page: No Input */}
           {noInputMounted && (
@@ -799,12 +743,65 @@ export default function HalfModalSendOptions({
                   ...styles.innerContainer,
                   paddingBottom: bottomPadding,
                 }}
+                stickyHeaderIndices={[3]}
                 scrollEventThrottle={16}
                 onLayout={e => {
                   const h = e.nativeEvent.layout.height;
                   setScrollViewHeight(h);
                 }}
               >
+                {/* Paste + Scan buttons*/}
+                <AdaptiveButtonRow
+                  labels={[pasteLabel, scanLabel]}
+                  containerStyle={styles.actionRow}
+                  gap={12}
+                  buttonHorizontalPadding={44}
+                >
+                  {({ buttonStyle }) => (
+                    <>
+                      <TouchableOpacity
+                        style={[
+                          styles.actionButton,
+                          {
+                            backgroundColor: raisedSurface,
+                            opacity: showPasteButton ? 1 : HIDDEN_OPACITY,
+                          },
+                          buttonStyle,
+                        ]}
+                        onPress={handleClipboardPaste}
+                        disabled={!showPasteButton}
+                      >
+                        <ThemeIcon
+                          colorOverride={accentColor}
+                          size={20}
+                          iconName={'Clipboard'}
+                        />
+                        <ThemeText
+                          styles={styles.actionButtonText}
+                          content={pasteLabel}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          styles.actionButton,
+                          { backgroundColor: raisedSurface },
+                          buttonStyle,
+                        ]}
+                        onPress={handleCameraScan}
+                      >
+                        <ThemeIcon
+                          colorOverride={accentColor}
+                          size={20}
+                          iconName={'ScanLine'}
+                        />
+                        <ThemeText
+                          styles={styles.actionButtonText}
+                          content={scanLabel}
+                        />
+                      </TouchableOpacity>
+                    </>
+                  )}
+                </AdaptiveButtonRow>
                 {/* Mobile Money Button */}
                 <TouchableOpacity
                   style={styles.scanButton}
@@ -1126,7 +1123,7 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   actionRow: {
-    width: INSET_WINDOW_WIDTH,
+    width: '100%',
     marginBottom: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
   },
