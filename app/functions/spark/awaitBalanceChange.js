@@ -78,7 +78,9 @@ export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
     if (cancelled) return;
 
     if (runtime === 'webview') {
-      await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, { mnemonic });
+      await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
+        mnemonic,
+      });
       if (cancelled) return;
       sparkBalanceUpdateEmitter.on(BALANCE_UPDATE_EVENT_NAME, onBalanceEvent);
       sparkTokenBalanceUpdateEmitter.on(
@@ -124,14 +126,14 @@ export const subscribeToSparkBalance = ({ mnemonic, onUpdate }) => {
  * @param {Object} params
  * @param {string} params.mnemonic
  * @param {(result: object) => boolean} params.predicate
- * @param {number} [params.timeoutMs=30000]
+ * @param {number} [params.timeoutMs=60000]
  * @param {() => void} [params.onStatus] - optional hook to drive a loading message
  * @returns {Promise<object>} the balance result the flow resolved/fell back to
  */
 export const awaitSparkBalance = ({
   mnemonic,
   predicate,
-  timeoutMs = 30000,
+  timeoutMs = 60000,
   onStatus,
 }) => {
   return new Promise(resolve => {

@@ -73,7 +73,7 @@ export default function ClosePoolConfirmation({
       }
 
       // 3. Wait for the pool balance to settle via real-time balance events
-      //    (immediate read first, then listen up to 30s).
+      //    (immediate read first, then listen up to 60s).
       const balanceResponse = await awaitSparkBalance({
         mnemonic: poolMnemonic,
         predicate: result => {
