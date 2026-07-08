@@ -2308,6 +2308,14 @@
           "warningTitle": "Endast en session.",
           "warningBody": "Din plånbok är låst tills utträdet är klart, så avsätt tillräckligt med tid innan du börjar.",
           "openBlink": "Öppna utträdesverktyget"
+        },
+        "progress": {
+          "title": "Exporterar säkerhetskopia",
+          "gathering": "Samlar in dina plånboksblad…",
+          "saving": "Sparar en lokal säkerhetskopia…",
+          "exit": "Hämtar utträdesdata…",
+          "building": "Skapar din säkerhetskopia…",
+          "sharing": "Öppnar delningsmenyn…"
         }
       },
       "remotePayments": {

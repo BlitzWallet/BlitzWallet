@@ -2308,6 +2308,14 @@
           "warningTitle": "Una sola sesión.",
           "warningBody": "Tu billetera permanecerá bloqueada hasta que finalice la salida, así que reserva tiempo antes de comenzar.",
           "openBlink": "Abrir la herramienta de salida"
+        },
+        "progress": {
+          "title": "Exportando respaldo",
+          "gathering": "Recopilando las hojas de tu billetera…",
+          "saving": "Guardando un respaldo local…",
+          "exit": "Obteniendo datos de salida…",
+          "building": "Creando el archivo de respaldo…",
+          "sharing": "Abriendo el menú para compartir…"
         }
       },
       "remotePayments": {

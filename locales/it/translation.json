@@ -2308,6 +2308,14 @@
           "warningTitle": "Una sola sessione.",
           "warningBody": "Il tuo portafoglio resterà bloccato fino al completamento dell'uscita. Assicurati di avere tempo sufficiente prima di iniziare.",
           "openBlink": "Apri lo strumento di uscita"
+        },
+        "progress": {
+          "title": "Esportazione del backup",
+          "gathering": "Raccolta delle foglie del portafoglio…",
+          "saving": "Salvataggio di un backup locale…",
+          "exit": "Recupero dei dati di uscita…",
+          "building": "Creazione del file di backup…",
+          "sharing": "Apertura del menu di condivisione…"
         }
       },
       "remotePayments": {

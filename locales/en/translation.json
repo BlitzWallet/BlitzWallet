@@ -2308,6 +2308,14 @@
           "warningTitle": "One session only.",
           "warningBody": "Your wallet is locked until the exit finishes, so set aside time before you start.",
           "openBlink": "Open the exit tool"
+        },
+        "progress": {
+          "title": "Exporting backup",
+          "gathering": "Gathering your wallet leaves…",
+          "saving": "Saving a local backup…",
+          "exit": "Fetching exit data…",
+          "building": "Building your backup file…",
+          "sharing": "Opening the share sheet…"
         }
       },
       "remotePayments": {

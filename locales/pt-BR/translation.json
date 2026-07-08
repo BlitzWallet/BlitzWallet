@@ -2307,6 +2307,14 @@
           "warningTitle": "Apenas uma sessão.",
           "warningBody": "Sua carteira ficará bloqueada até que a saída seja concluída. Reserve tempo suficiente antes de começar.",
           "openBlink": "Abrir a ferramenta de saída"
+        },
+        "progress": {
+          "title": "Exportando backup",
+          "gathering": "Coletando as folhas da sua carteira…",
+          "saving": "Salvando um backup local…",
+          "exit": "Obtendo os dados de saída…",
+          "building": "Criando o arquivo de backup…",
+          "sharing": "Abrindo a folha de compartilhamento…"
         }
       },
       "remotePayments": {

@@ -44,6 +44,7 @@ export const OPERATION_TYPES = {
   sendSparkPayment: 'sendSparkPayment',
   sendTokenPayment: 'sendSparkTokens',
   getSparkLeaves: 'getSparkLeaves',
+  getSparkLeafExitNodes: 'getSparkLeafExitNodes',
   getLightningFee: 'getSparkLightningPaymentFeeEstimate',
   getBitcoinPaymentRequest: 'getSparkBitcoinPaymentRequest',
   getBitcoinPaymentFee: 'getSparkBitcoinPaymentFeeEstimate',
@@ -118,6 +119,7 @@ const longOperations = [
   OPERATION_TYPES.fufillSparkInvoices,
   OPERATION_TYPES.batchTransferTokens,
   OPERATION_TYPES.getSparkLeaves,
+  OPERATION_TYPES.getSparkLeafExitNodes,
 ];
 
 const mediumOperations = [

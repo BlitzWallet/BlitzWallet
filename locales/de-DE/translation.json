@@ -2308,6 +2308,14 @@
           "warningTitle": "Nur eine Sitzung.",
           "warningBody": "Ihre Wallet ist gesperrt, bis der Ausstieg abgeschlossen ist. Planen Sie daher genügend Zeit ein.",
           "openBlink": "Ausstiegs-Tool öffnen"
+        },
+        "progress": {
+          "title": "Backup wird exportiert",
+          "gathering": "Wallet-Blätter werden gesammelt…",
+          "saving": "Lokales Backup wird gespeichert…",
+          "exit": "Ausstiegsdaten werden abgerufen…",
+          "building": "Backup-Datei wird erstellt…",
+          "sharing": "Freigabemenü wird geöffnet…"
         }
       },
       "remotePayments": {
