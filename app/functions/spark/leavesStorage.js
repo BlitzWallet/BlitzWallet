@@ -18,6 +18,9 @@ let sqlLiteDB = null;
 let initPromise = null;
 let isInitialized = false;
 
+// Serializes replaceAllLeaves calls.
+let replaceAllLeavesQueue = Promise.resolve();
+
 async function openDBConnection() {
   if (!initPromise) {
     initPromise = (async () => {
@@ -107,7 +110,8 @@ function bytesToHex(value) {
 function bytesToUint8(value) {
   if (value == null) return new Uint8Array(0);
   if (value instanceof Uint8Array) return value;
-  if (typeof value === 'string') return Uint8Array.from(Buffer.from(value, 'hex'));
+  if (typeof value === 'string')
+    return Uint8Array.from(Buffer.from(value, 'hex'));
   if (Array.isArray(value)) return Uint8Array.from(value);
   if (typeof value === 'object') return Uint8Array.from(Object.values(value));
   return new Uint8Array(0);
@@ -237,7 +241,16 @@ export function normalizeLeaf(raw) {
  * @param {Array<object>} rawTreeNodes leaves as returned by getSparkLeaves
  * @returns {Promise<number>} number of leaves stored
  */
-export async function replaceAllLeaves(rawTreeNodes) {
+export function replaceAllLeaves(rawTreeNodes) {
+  // Queue behind any in-flight replace so transactions never overlap.
+  const result = replaceAllLeavesQueue.then(() =>
+    replaceAllLeavesInternal(rawTreeNodes),
+  );
+  replaceAllLeavesQueue = result.catch(() => {});
+  return result;
+}
+
+async function replaceAllLeavesInternal(rawTreeNodes) {
   const db = await getDatabase();
   const leaves = Array.isArray(rawTreeNodes) ? rawTreeNodes : [];
   const now = Date.now();
