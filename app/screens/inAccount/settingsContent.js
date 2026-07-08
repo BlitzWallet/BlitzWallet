@@ -16,6 +16,7 @@ import {
   NotificationPreferances,
   BlitzFeeInformation,
   ViewSwapsHome,
+  WalletLeaves,
 } from '../../components/admin/homeComponents/settingsContent';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../functions/CustomElements';
@@ -46,7 +47,8 @@ export default function SettingsContentIndex(props) {
       selectedPage?.toLowerCase() === 'point-of-sale' ||
       selectedPage?.toLowerCase() === 'edit contact profile' ||
       selectedPage?.toLowerCase() === 'accounts' ||
-      selectedPage?.toLowerCase() === 'viewallswaps' ? (
+      selectedPage?.toLowerCase() === 'viewallswaps' ||
+      selectedPage?.toLowerCase() === 'wallet leaves' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
@@ -66,6 +68,7 @@ export default function SettingsContentIndex(props) {
               swapType={props?.route?.params?.swapType}
             />
           )}
+          {selectedPage?.toLowerCase() === 'wallet leaves' && <WalletLeaves />}
         </>
       ) : (
         <GlobalThemeView styles={styles.globalContainer}>
