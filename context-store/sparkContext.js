@@ -37,7 +37,7 @@ import {
 import { useGlobalContactsInfo } from './globalContacts';
 import { initWallet } from '../app/functions/initiateWalletConnection';
 // import { useNodeContext } from './nodeContext';
-import { AppState } from 'react-native';
+import { AppState, InteractionManager } from 'react-native';
 import getDepositAddressTxIds from '../app/functions/spark/getDepositAdressTxIds';
 import { useKeysContext } from './keys';
 import {
@@ -69,7 +69,12 @@ import { useAuthContext } from './authContext';
 import {
   createRestorePoller,
   getBalanceWithTimeout,
+  getSparkLeavesWithTimeout,
 } from '../app/functions/pollingManager';
+import {
+  replaceAllLeaves,
+  getGlobalLeafStats,
+} from '../app/functions/spark/leavesStorage';
 import { USDB_TOKEN_ID } from '../app/constants';
 import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
 import { mergeAndCacheTokens } from '../app/functions/lrc20/cachedTokens';
@@ -175,6 +180,10 @@ const SparkWalletProvider = ({ children }) => {
     sparkAddress: '',
     didConnect: null,
     didConnectToFlashnet: null,
+    // Lightweight summary of the local leaves store (full leaf detail lives in
+    // SQLite; the Wallet Leaves page reads it directly). Kept small on purpose —
+    // the full leaf array must never live in context state.
+    leaves: { count: 0, totalValue: 0, lastSyncedAt: 0 },
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
 
@@ -218,6 +227,14 @@ const SparkWalletProvider = ({ children }) => {
   const isReconcilingBalanceRef = useRef(false);
   const reconcileBalanceAgainRef = useRef(false);
   const reconcileRunIdRef = useRef(0);
+
+  // Single-flight + throttle for the leaves sync. Leaves change far less often
+  // than balance and syncing them is heavier (map + serialize + bulk insert of a
+  // potentially large set), so we skip a sync that ran within the throttle window.
+  const isReconcilingLeavesRef = useRef(false);
+  const lastLeavesSyncRef = useRef(0);
+  const hydratedLeavesForRef = useRef(null);
+  const LEAVES_SYNC_THROTTLE_MS = 10000;
 
   // Tracks whether the Spark event stream has dropped, so a later
   // stream:connected is recognized as a *re*connect (which warrants one
@@ -865,12 +882,14 @@ const SparkWalletProvider = ({ children }) => {
       sparkInfoRef.current.tokens,
     );
 
+    reconcileLeaves();
+
     setSparkInformation(prev => {
       if (myVersion < balanceVersionRef.current) return prev;
       if (prev.balance === nextBalance) return prev;
       return { ...prev, balance: nextBalance };
     });
-  }, []);
+  }, [reconcileLeaves]);
 
   // One authoritative balance read, applied directly. The displayed balance is
   // driven in real time by balance:update events; this read is a safety net to
@@ -963,6 +982,56 @@ const SparkWalletProvider = ({ children }) => {
     }
   }, [reconcileBalance]);
 
+  // Refreshes the local leaves store from a live getLeaves() snapshot, then
+  // updates the small in-context summary. Single-flight + throttled; the heavy
+  // map/serialize/insert work is deferred behind InteractionManager so it never
+  // competes with navigation or gestures. The fetch uses the fast coordinator
+  // path (isBalanceCheck=true) — the export flow forces a full getLeaves(false).
+  const reconcileLeaves = useCallback(async (force = false) => {
+    const mnemonic = currentMnemonicRef.current;
+    if (!mnemonic) return;
+    if (isReconcilingLeavesRef.current) return;
+    if (
+      !force &&
+      Date.now() - lastLeavesSyncRef.current < LEAVES_SYNC_THROTTLE_MS
+    )
+      return;
+
+    isReconcilingLeavesRef.current = true;
+    try {
+      const rawLeaves = await getSparkLeavesWithTimeout(mnemonic, true);
+      // A null result means the read timed out / errored — keep the store as-is.
+      if (!Array.isArray(rawLeaves)) return;
+      if (mnemonic !== currentMnemonicRef.current) return;
+
+      await new Promise((resolve, reject) => {
+        InteractionManager.runAfterInteractions(async () => {
+          try {
+            await replaceAllLeaves(rawLeaves);
+            const stats = await getGlobalLeafStats();
+            setSparkInformation(prev => ({
+              ...prev,
+              leaves: {
+                count: stats.totalLeaves,
+                totalValue: stats.totalValue,
+                lastSyncedAt: stats.lastSyncedAt,
+              },
+            }));
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+      });
+
+      lastLeavesSyncRef.current = Date.now();
+    } catch (err) {
+      console.log('[reconcileLeaves] error', err);
+    } finally {
+      isReconcilingLeavesRef.current = false;
+    }
+  }, []);
+
   const handleUpdate = useCallback(
     (...args) => {
       const [updateType = 'transactions'] = args;
@@ -978,6 +1047,9 @@ const SparkWalletProvider = ({ children }) => {
       // a safety net in case the matching event was missed.
       if (BALANCE_INTENT_UPDATE_TYPES.has(updateType)) {
         reconcileBalance();
+        // Leaves changed alongside the balance — refresh the local store too
+        // (throttled, so a burst of intents won't trigger repeated full syncs).
+        reconcileLeaves();
       }
 
       // Apply the displayed balance in the same pass as the incoming toast.
@@ -1000,6 +1072,7 @@ const SparkWalletProvider = ({ children }) => {
       enqueueTxLane,
       projectTransactionsForEvent,
       reconcileBalance,
+      reconcileLeaves,
       flushBalanceNow,
     ],
   );
@@ -1173,10 +1246,13 @@ const SparkWalletProvider = ({ children }) => {
       // returns the locked 0/partial; the send's paymentWrapperTx reconcile
       // lands the settled balance at settlement.
       if (!isSendingPaymentRef.current) reconcileBalance();
+      // Events (including leaf changes) may have been missed while the stream
+      // was down — refresh the local leaves store too.
+      reconcileLeaves();
       // Recover token txs whose token-balance:update fired while the stream was down.
       reconcileTokenTransactions(false);
     },
-    [reconcileBalance, reconcileTokenTransactions],
+    [reconcileBalance, reconcileLeaves, reconcileTokenTransactions],
   );
 
   useEffect(() => {
@@ -1960,6 +2036,8 @@ const SparkWalletProvider = ({ children }) => {
     if (!isSendingPaymentRef.current) {
       reconcileBalance();
     }
+    // Refresh the local leaves store on foreground (throttled).
+    reconcileLeaves();
     // Recover token txs whose token-balance:update fired while backgrounded.
     reconcileTokenTransactions(false);
   }, [
@@ -1967,7 +2045,40 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     reconcileBalance,
+    reconcileLeaves,
     reconcileTokenTransactions,
+  ]);
+
+  // On the first successful connect for an account: hydrate the leaves summary
+  // from the local SQLite store (so the Wallet Leaves page has cached totals
+  // immediately, even offline), then kick off one forced sync to freshen it.
+  useEffect(() => {
+    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
+    if (hydratedLeavesForRef.current === sparkInformation.identityPubKey)
+      return;
+    hydratedLeavesForRef.current = sparkInformation.identityPubKey;
+
+    (async () => {
+      try {
+        const stats = await getGlobalLeafStats();
+        setSparkInformation(prev => ({
+          ...prev,
+          leaves: {
+            count: stats.totalLeaves,
+            totalValue: stats.totalValue,
+            lastSyncedAt: stats.lastSyncedAt,
+          },
+        }));
+      } catch (err) {
+        console.log('hydrate leaves summary error', err);
+      }
+      reconcileLeaves(true);
+    })();
+  }, [
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    reconcileLeaves,
   ]);
 
   // This function connects to the spark node and sets the session up
@@ -2083,6 +2194,7 @@ const SparkWalletProvider = ({ children }) => {
       updateHomepageScrollPosition,
       filterAndSetTransactions,
       updateHomepageTxPreferance,
+      reconcileLeaves,
     }),
     [
       sparkInformation,
@@ -2100,6 +2212,7 @@ const SparkWalletProvider = ({ children }) => {
       updateHomepageScrollPosition,
       filterAndSetTransactions,
       updateHomepageTxPreferance,
+      reconcileLeaves,
     ],
   );
 
