@@ -4,6 +4,8 @@ import {
   isValidSparkAddress,
   getNetworkFromSparkAddress,
   decodeSparkAddress,
+  buildUnilateralExitChain,
+  Network,
 } from '@buildonspark/spark-sdk';
 import {
   LightningSendRequestStatus,
@@ -472,13 +474,88 @@ export const getSparkLeaves = async (mnemonic, isBalanceCheck = true) => {
         OPERATION_TYPES.getSparkLeaves,
         { mnemonic, isBalanceCheck },
       );
-      return validateWebViewResponse(response, 'Not able to query wallet leaves');
+      return validateWebViewResponse(
+        response,
+        'Not able to query wallet leaves',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       return wallet.getLeaves(isBalanceCheck);
     }
   } catch (err) {
     console.log('get spark leaves error', err);
+  }
+};
+
+// Fetches the ancestor TreeNodes (each leaf's chain from tree root down to, but
+// excluding, the leaf itself) so an exported bundle can drive an OFFLINE
+// multi-level unilateral exit. getLeaves alone is includeParents:false, so the
+// bundle's `nodes` array is otherwise empty and the recovery tooling can only
+// exit single-level leaves without live operators.
+//
+// Native runtime only for now — the WebView (WASM) path runs the SDK behind the
+// encrypted bridge and would need its own operation type. Returns [] on the
+// WebView path, on any missing SDK surface, or on failure, so the caller falls
+// back to a leaves-only bundle. Requires Spark operators to be online at export
+// (parents are fetched via query_nodes includeParents:true).
+export const getSparkLeafExitNodes = async (mnemonic, rawLeaves) => {
+  const runtime = await selectSparkRuntime(mnemonic);
+  try {
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getSparkLeafExitNodes,
+        { mnemonic, rawLeaves },
+      );
+
+      return validateWebViewResponse(
+        response,
+        'Not abler to generate bitcoin l1 daddress',
+      );
+    } else {
+      if (!Array.isArray(rawLeaves) || rawLeaves.length === 0) return [];
+
+      if (typeof buildUnilateralExitChain !== 'function') return [];
+
+      const wallet = await getWallet(mnemonic);
+      const coordinatorAddress = wallet?.config?.getCoordinatorAddress?.();
+      const createSparkClient = wallet?.connectionManager?.createSparkClient;
+      if (!coordinatorAddress || typeof createSparkClient !== 'function')
+        return [];
+
+      const sparkClient = await wallet.connectionManager.createSparkClient(
+        coordinatorAddress,
+      );
+
+      // Shared cache: ancestors common to multiple leaves are fetched once, and
+      // buildUnilateralExitChain reads parents from here before hitting operators.
+      const nodeMap = new Map(rawLeaves.map(leaf => [leaf.id, leaf]));
+      const leafIds = new Set(rawLeaves.map(leaf => leaf.id));
+      const ancestors = new Map();
+
+      for (const leaf of rawLeaves) {
+        try {
+          const chain = await buildUnilateralExitChain(
+            leaf,
+            nodeMap,
+            sparkClient,
+            Network.MAINNET,
+          );
+          for (const node of chain) {
+            if (!node?.id || leafIds.has(node.id) || ancestors.has(node.id)) {
+              continue;
+            }
+            ancestors.set(node.id, node);
+          }
+        } catch (err) {
+          console.log('build exit chain error for leaf', leaf?.id, err);
+        }
+      }
+
+      return Array.from(ancestors.values());
+    }
+  } catch (err) {
+    console.log('get spark leaf exit nodes error', err);
+    return [];
   }
 };
 
