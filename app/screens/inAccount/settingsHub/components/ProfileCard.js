@@ -8,7 +8,7 @@ import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import ContactRingAvatar from '../../../../components/admin/homeComponents/contacts/internalComponents/contactsRingAvatar';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
+import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../../../functions/CustomElements/button';
 
 export default function ProfileCard({
@@ -47,9 +47,6 @@ export default function ProfileCard({
   );
 
   const [infoMessageHeight, setInfoMessageHeight] = useState(0);
-
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([editProfileLabel, showQrLabel]);
 
   console.log(infoMessageHeight, 'info message height');
 
@@ -129,43 +126,48 @@ export default function ProfileCard({
         )}
       </Animated.View>
 
-      <View
-        {...containerProps}
-        style={[
-          styles.buttonContainer,
-          shouldStack
-            ? styles.buttonContainerStacked
-            : styles.buttonContainerColumns,
-        ]}
+      <AdaptiveButtonRow
+        labels={[editProfileLabel, showQrLabel]}
+        containerStyle={styles.buttonContainer}
       >
-        <CustomButton
-          buttonStyles={[
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-            shouldStack ? styles.buttonStacked : styles.buttonColumn,
-          ]}
-          textStyles={{
-            color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-          }}
-          enableElipsis={false}
-          {...getLabelProps(0)}
-          textContent={editProfileLabel}
-          actionFunction={onEditPress}
-        />
+        {({ buttonStyle }) => (
+          <>
+            <CustomButton
+              buttonStyles={[
+                {
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+                buttonStyle,
+              ]}
+              textStyles={{
+                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+              }}
+              enableElipsis={false}
+              textContent={editProfileLabel}
+              actionFunction={onEditPress}
+            />
 
-        <CustomButton
-          buttonStyles={[
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-            shouldStack ? styles.buttonStacked : styles.buttonColumn,
-          ]}
-          textStyles={{
-            color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-          }}
-          enableElipsis={false}
-          {...getLabelProps(1)}
-          textContent={showQrLabel}
-          actionFunction={onShowQRPress}
-        />
-      </View>
+            <CustomButton
+              buttonStyles={[
+                {
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+                buttonStyle,
+              ]}
+              textStyles={{
+                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+              }}
+              enableElipsis={false}
+              textContent={showQrLabel}
+              actionFunction={onShowQRPress}
+            />
+          </>
+        )}
+      </AdaptiveButtonRow>
     </View>
   );
 }
@@ -173,23 +175,7 @@ export default function ProfileCard({
 const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
-    gap: 10,
-    alignItems: 'center',
     marginBottom: 15,
-  },
-  buttonContainerColumns: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  buttonContainerStacked: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
-  buttonColumn: {
-    flex: 1,
-  },
-  buttonStacked: {
-    width: '100%',
   },
   profileImage: {
     width: '100%',

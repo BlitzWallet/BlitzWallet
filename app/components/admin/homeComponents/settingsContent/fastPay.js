@@ -23,7 +23,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
+import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 const SettingsSection = ({ title, children, style }) => (
@@ -135,9 +135,6 @@ export default function FastPay() {
   const cancelLabel = t('constants.cancel');
   const saveLabel = t('constants.save');
 
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([cancelLabel, saveLabel]);
-
   return (
     <View style={styles.outerContainer}>
       <ScrollView
@@ -223,47 +220,44 @@ export default function FastPay() {
       )}
 
       {isEditing && (
-        <View
-          {...containerProps}
-          style={[
-            styles.buttonRow,
-            shouldStack ? styles.containerStacked : styles.containerRow,
-          ]}
+        <AdaptiveButtonRow
+          labels={[cancelLabel, saveLabel]}
+          containerStyle={styles.buttonRow}
         >
-          <CustomButton
-            buttonStyles={[
-              styles.actionButton,
-              shouldStack ? styles.buttonStacked : styles.buttonColumn,
-            ]}
-            enableElipsis={false}
-            {...getLabelProps(0)}
-            textContent={t('constants.cancel')}
-            actionFunction={cancelEditing}
-          />
+          {({ buttonStyle }) => (
+            <>
+              <CustomButton
+                buttonStyles={[styles.actionButton, buttonStyle]}
+                enableElipsis={false}
+                textContent={t('constants.cancel')}
+                actionFunction={cancelEditing}
+              />
 
-          <CustomButton
-            buttonStyles={[
-              {
-                flex: 1,
-                opacity: canSubmit ? 1 : HIDDEN_OPACITY,
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-
-              shouldStack ? styles.buttonStacked : styles.buttonColumn,
-            ]}
-            textStyles={{
-              color:
-                theme && darkModeType
-                  ? COLORS.lightModeText
-                  : COLORS.darkModeText,
-            }}
-            {...getLabelProps(1)}
-            enableElipsis={false}
-            textContent={t('constants.save')}
-            actionFunction={handleSave}
-          />
-        </View>
+              <CustomButton
+                buttonStyles={[
+                  {
+                    flex: 1,
+                    opacity: canSubmit ? 1 : HIDDEN_OPACITY,
+                    backgroundColor:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  },
+                  buttonStyle,
+                ]}
+                textStyles={{
+                  color:
+                    theme && darkModeType
+                      ? COLORS.lightModeText
+                      : COLORS.darkModeText,
+                }}
+                enableElipsis={false}
+                textContent={t('constants.save')}
+                actionFunction={handleSave}
+              />
+            </>
+          )}
+        </AdaptiveButtonRow>
       )}
     </View>
   );
@@ -368,8 +362,6 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   buttonRow: {
-    flexDirection: 'row',
-    gap: 10,
     marginTop: CONTENT_KEYBOARD_OFFSET,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
@@ -384,19 +376,5 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontFamily: FONT.Title_Medium,
     includeFontPadding: false,
-  },
-  containerRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  containerStacked: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
-  buttonStacked: {
-    width: '100%',
-  },
-  buttonColumn: {
-    flex: 1,
   },
 });

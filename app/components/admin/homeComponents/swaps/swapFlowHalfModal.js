@@ -74,7 +74,6 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { getTimeDisplay } from '../../../../functions/contacts';
-import useAdaptiveButtonLayout from '../../../../hooks/useAdaptiveButtonLayout';
 import NoContentSceen from '../../../../functions/CustomElements/noContentScreen';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
@@ -736,11 +735,7 @@ export default function SwapFlowHalfModal({
     }
   };
 
-  const backLabel = t('constants.back');
   const confirmLabel = t('constants.confirm');
-
-  const { shouldStack, containerProps, getLabelProps } =
-    useAdaptiveButtonLayout([backLabel, confirmLabel]);
 
   const getAmountFontSize = amount => {
     if (!amount) return SIZES.large;
@@ -2135,13 +2130,7 @@ export default function SwapFlowHalfModal({
             </View>
           </View>
         </ScrollView>
-        <View
-          {...containerProps}
-          style={[
-            styles.buttonRow,
-            shouldStack ? styles.containerStacked : styles.containerRow,
-          ]}
-        >
+        <View style={styles.buttonRow}>
           <CustomButton
             useLoading={isSwapping}
             actionFunction={handleAcceptReview}
@@ -2633,19 +2622,5 @@ const styles = StyleSheet.create({
     marginTop: CONTENT_KEYBOARD_OFFSET,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-  },
-  containerRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  containerStacked: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
-  buttonStacked: {
-    width: '100%',
-  },
-  buttonColumn: {
-    flex: 1,
   },
 });

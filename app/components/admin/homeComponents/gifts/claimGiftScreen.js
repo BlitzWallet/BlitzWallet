@@ -216,7 +216,7 @@ export default function ClaimGiftScreen({
       };
 
       // Immediate read first, then listen for the gift wallet's balance events
-      // (up to 30s) instead of fixed-delay polling.
+      // (up to 60s) instead of fixed-delay polling.
       const result = await awaitSparkBalance({
         mnemonic: seed,
         predicate: handleBalanceCheck,
