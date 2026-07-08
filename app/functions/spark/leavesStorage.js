@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { TreeNode } from '@buildonspark/spark-sdk/proto/spark';
 
 export const LEAVES_DATABASE = 'WALLET_LEAVES';
 const LEAVES_TABLE = 'wallet_leaves';
@@ -100,6 +101,79 @@ function bytesToHex(value) {
   return null;
 }
 
+// Accepts the same shapes as bytesToHex and returns a Uint8Array. The TreeNode
+// protobuf encoder reads `.length` on every bytes field, so callers must never
+// hand it undefined — empty bytes default to a zero-length array.
+function bytesToUint8(value) {
+  if (value == null) return new Uint8Array(0);
+  if (value instanceof Uint8Array) return value;
+  if (typeof value === 'string') return Uint8Array.from(Buffer.from(value, 'hex'));
+  if (Array.isArray(value)) return Uint8Array.from(value);
+  if (typeof value === 'object') return Uint8Array.from(Object.values(value));
+  return new Uint8Array(0);
+}
+
+// Converts an ISO string / Date / epoch-ms into a Date (or undefined) for the
+// protobuf Timestamp encoder, which calls `.getTime()` on it.
+function toDateOrUndefined(value) {
+  if (value == null) return undefined;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+function signingKeyshareForProto(keyshare) {
+  if (!keyshare || typeof keyshare !== 'object') return undefined;
+  const publicShares = {};
+  if (keyshare.publicShares && typeof keyshare.publicShares === 'object') {
+    for (const [id, share] of Object.entries(keyshare.publicShares)) {
+      publicShares[id] = bytesToUint8(share);
+    }
+  }
+  return {
+    ownerIdentifiers: keyshare.ownerIdentifiers ?? [],
+    threshold: Number(keyshare.threshold || 0),
+    publicKey: bytesToUint8(keyshare.publicKey),
+    publicShares,
+    updatedTime: toDateOrUndefined(keyshare.updatedTime),
+  };
+}
+
+// Encodes a raw SDK leaf into the single protobuf-hex string
+// (`treeNodeHex`) that the spark-unilateral-exit tooling consumes for recovery.
+// Computed from the raw leaf (before lossy normalization) so it is byte-faithful
+// regardless of runtime path (native returns Uint8Array; webview returns hex or
+// {"0":n,...} maps). Returns null on failure so one bad leaf can't abort a
+// snapshot.
+export function treeNodeHexFromRaw(raw) {
+  try {
+    const message = {
+      id: raw.id ?? '',
+      treeId: raw.treeId ?? '',
+      value: Number(raw.value || 0),
+      parentNodeId: raw.parentNodeId ?? undefined,
+      nodeTx: bytesToUint8(raw.nodeTx),
+      refundTx: bytesToUint8(raw.refundTx),
+      vout: Number(raw.vout || 0),
+      verifyingPublicKey: bytesToUint8(raw.verifyingPublicKey),
+      ownerIdentityPublicKey: bytesToUint8(raw.ownerIdentityPublicKey),
+      signingKeyshare: signingKeyshareForProto(raw.signingKeyshare),
+      status: raw.status ?? '',
+      network: Number(raw.network || 0),
+      createdTime: toDateOrUndefined(raw.createdTime),
+      updatedTime: toDateOrUndefined(raw.updatedTime),
+      ownerSigningPublicKey: bytesToUint8(raw.ownerSigningPublicKey),
+      directTx: bytesToUint8(raw.directTx),
+      directRefundTx: bytesToUint8(raw.directRefundTx),
+      directFromCpfpRefundTx: bytesToUint8(raw.directFromCpfpRefundTx),
+      treenodeStatus: Number(raw.treenodeStatus || 0),
+    };
+    return Buffer.from(TreeNode.encode(message).finish()).toString('hex');
+  } catch (err) {
+    console.log('treeNodeHexFromRaw error', err);
+    return null;
+  }
+}
+
 const TX_FIELDS = [
   'nodeTx',
   'refundTx',
@@ -135,6 +209,8 @@ export function normalizeLeaf(raw) {
     id: raw.id,
     treeId: raw.treeId,
     value: Number(raw.value || 0),
+    // Canonical alias the spark-unilateral-exit tooling reads.
+    valueSats: Number(raw.value || 0),
     status: raw.status ?? 'UNKNOWN',
     parentNodeId: raw.parentNodeId ?? null,
     vout: raw.vout ?? 0,
@@ -143,6 +219,8 @@ export function normalizeLeaf(raw) {
     updatedTime: raw.updatedTime ?? null,
     treenodeStatus: raw.treenodeStatus ?? null,
     signingKeyshare: normalizeSigningKeyshare(raw.signingKeyshare),
+    // Single protobuf-encoded TreeNode the recovery tooling decodes.
+    treeNodeHex: treeNodeHexFromRaw(raw),
   };
   for (const field of TX_FIELDS) {
     if (raw[field] != null) normalized[field] = bytesToHex(raw[field]);
@@ -259,7 +337,7 @@ export async function getLeavesForTree(treeId, limit = 100, offset = 0) {
 
 /**
  * Header totals in a single query.
- * @returns {Promise<{totalLeaves, totalValue, exitEligible, treeCount, lastSyncedAt}>}
+ * @returns {Promise<{totalLeaves, totalValue, exitEligible, exitEligibleValue, treeCount, lastSyncedAt}>}
  */
 export async function getGlobalLeafStats() {
   const db = await getDatabase();
@@ -267,15 +345,17 @@ export async function getGlobalLeafStats() {
     `SELECT COUNT(*) AS totalLeaves,
             COALESCE(SUM(value), 0) AS totalValue,
             COALESCE(SUM(CASE WHEN value >= ? THEN 1 ELSE 0 END), 0) AS exitEligible,
+            COALESCE(SUM(CASE WHEN value >= ? THEN value ELSE 0 END), 0) AS exitEligibleValue,
             COUNT(DISTINCT treeId) AS treeCount,
             COALESCE(MAX(updatedAt), 0) AS lastSyncedAt
      FROM ${LEAVES_TABLE}`,
-    [EXIT_MIN_SATS],
+    [EXIT_MIN_SATS, EXIT_MIN_SATS],
   );
   return {
     totalLeaves: Number(row?.totalLeaves || 0),
     totalValue: Number(row?.totalValue || 0),
     exitEligible: Number(row?.exitEligible || 0),
+    exitEligibleValue: Number(row?.exitEligibleValue || 0),
     treeCount: Number(row?.treeCount || 0),
     lastSyncedAt: Number(row?.lastSyncedAt || 0),
   };
