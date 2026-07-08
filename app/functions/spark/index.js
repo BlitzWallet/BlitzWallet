@@ -464,6 +464,24 @@ export const getSparkBalance = async mnemonic => {
   }
 };
 
+export const getSparkLeaves = async (mnemonic, isBalanceCheck = true) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getSparkLeaves,
+        { mnemonic, isBalanceCheck },
+      );
+      return validateWebViewResponse(response, 'Not able to query wallet leaves');
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return wallet.getLeaves(isBalanceCheck);
+    }
+  } catch (err) {
+    console.log('get spark leaves error', err);
+  }
+};
+
 export const getSparkStaticBitcoinL1Address = async mnemonic => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
