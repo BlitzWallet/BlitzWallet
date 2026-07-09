@@ -9,6 +9,7 @@ import {
   replaceAllLeaves,
   getAllLeavesStream,
   getAllExitNodesStream,
+  EXIT_MIN_SATS,
 } from '../../../../../functions/spark/leavesStorage';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
@@ -95,7 +96,10 @@ export default function ExportLeavesProgress({ onExported }) {
           // no-op on the WebView path / when offline, leaving whatever is cached.
           setStep('exit');
           try {
-            await reconcileExitNodes(rawLeaves, true);
+            const availableLeafsForExit = rawLeaves?.filter(
+              leaf => leaf.value >= EXIT_MIN_SATS,
+            );
+            await reconcileExitNodes(availableLeafsForExit, true);
           } catch (err) {
             console.log('export exit nodes refresh error', err);
           }
@@ -174,7 +178,6 @@ export default function ExportLeavesProgress({ onExported }) {
           finishWithError(response.error);
           return;
         }
-        navigate.goBack();
       } catch (err) {
         console.log('export leaves error', err);
         finishWithError('screens.inAccount.walletLeaves.exportError');

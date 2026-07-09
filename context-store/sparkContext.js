@@ -1031,22 +1031,27 @@ const SparkWalletProvider = ({ children }) => {
         if (AppState.currentState !== 'active') break;
         if (mnemonic !== currentMnemonicRef.current) break;
 
-        pendingIds = await getPendingExitNodeLeafIds(
-          identityPubKey,
-          EXIT_NODES_BATCH_SIZE,
-        );
+        let batchLeaves;
 
-        if (!pendingIds.length) break;
+        if (force) {
+          // Process the provided leaves directly once.
+          batchLeaves = rawLeaves;
+        } else {
+          pendingIds = await getPendingExitNodeLeafIds(
+            identityPubKey,
+            EXIT_NODES_BATCH_SIZE,
+          );
 
-        // Only process pending ids present in this snapshot; a missing id will
-        // be supplied (and retried) by a later reconcile's rawLeaves.
-        const batchLeaves = [];
-        for (const id of pendingIds) {
-          const leaf = leafById.get(id);
-          if (leaf) batchLeaves.push(leaf);
+          if (!pendingIds.length) break;
+
+          batchLeaves = [];
+          for (const id of pendingIds) {
+            const leaf = leafById.get(id);
+            if (leaf) batchLeaves.push(leaf);
+          }
+
+          if (!batchLeaves.length) break;
         }
-
-        if (!batchLeaves.length) break;
 
         const exitNodesMap = await getSparkExitNodesForLeavesWithTimeout(
           mnemonic,
@@ -1068,16 +1073,18 @@ const SparkWalletProvider = ({ children }) => {
           if (didMark) markedThisBatch++;
         }
 
-        // Anti-spin guard: pending ids are ordered value DESC, so a persistently
-        // failing high-value leaf would otherwise head every batch forever. If a
-        // batch marks nothing complete, end the run — those leaves stay pending
-        // and are retried on the next reconcile, not in a tight loop.
+        if (force) {
+          // Only process the supplied leaves once.
+          break;
+        }
+
         if (markedThisBatch === 0) break;
 
         // Yield between batches so the operator round-trips never starve frames.
         await new Promise(resolve => setTimeout(resolve, 0));
       }
-      if (rawLeaves?.length > 0 && pendingIds?.length)
+
+      if (!force && rawLeaves?.length > 0 && pendingIds?.length)
         lastExitNodesSyncRef.current = Date.now();
 
       // Reflect backfill progress into the in-context summary for the UI.
