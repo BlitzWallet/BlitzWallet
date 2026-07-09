@@ -246,6 +246,10 @@ const SparkWalletProvider = ({ children }) => {
   // every wallet event.
   const isReconcilingExitNodesRef = useRef(false);
   const lastExitNodesSyncRef = useRef(0);
+  // Promise for the exit-node run currently in flight (or null). A forced
+  // refresh (export) awaits this so it can never be silently dropped by the
+  // single-flight guard when a background backfill happens to be running.
+  const exitNodesRunRef = useRef(null);
   const EXIT_NODES_SYNC_THROTTLE_MS = 60000;
   // How many pending leaves we fetch ancestors for per operator round-trip.
   const EXIT_NODES_BATCH_SIZE = 6;
@@ -1013,97 +1017,112 @@ const SparkWalletProvider = ({ children }) => {
     const mnemonic = currentMnemonicRef.current;
     if (!identityPubKey || !mnemonic) return;
     if (!Array.isArray(rawLeaves)) return;
-    if (isReconcilingExitNodesRef.current) return;
+
+    if (isReconcilingExitNodesRef.current) {
+      // A run is already in flight. Background calls stay single-flight and are
+      // dropped. A forced refresh (export) must not be silently skipped: wait
+      // for the in-flight run to finish, then run our forced pass so the export
+      // bundle is built from freshly fetched ancestor chains.
+      if (!force) return;
+      try {
+        await exitNodesRunRef.current;
+      } catch {}
+    }
+
     if (
       !force &&
       Date.now() - lastExitNodesSyncRef.current < EXIT_NODES_SYNC_THROTTLE_MS
     )
       return;
 
-    isReconcilingExitNodesRef.current = true;
-    try {
-      const leafById = new Map(
-        rawLeaves.filter(leaf => leaf?.id).map(leaf => [leaf.id, leaf]),
-      );
-      let pendingIds;
+    const run = (async () => {
+      isReconcilingExitNodesRef.current = true;
+      try {
+        const leafById = new Map(
+          rawLeaves.filter(leaf => leaf?.id).map(leaf => [leaf.id, leaf]),
+        );
+        let pendingIds;
 
-      while (true) {
-        if (AppState.currentState !== 'active') break;
-        if (mnemonic !== currentMnemonicRef.current) break;
+        while (true) {
+          if (AppState.currentState !== 'active') break;
+          if (mnemonic !== currentMnemonicRef.current) break;
 
-        let batchLeaves;
+          let batchLeaves;
 
-        if (force) {
-          // Process the provided leaves directly once.
-          batchLeaves = rawLeaves;
-        } else {
-          pendingIds = await getPendingExitNodeLeafIds(
-            identityPubKey,
-            EXIT_NODES_BATCH_SIZE,
-          );
+          if (force) {
+            // Process the provided leaves directly once.
+            batchLeaves = rawLeaves;
+          } else {
+            pendingIds = await getPendingExitNodeLeafIds(
+              identityPubKey,
+              EXIT_NODES_BATCH_SIZE,
+            );
 
-          if (!pendingIds.length) break;
+            if (!pendingIds.length) break;
 
-          batchLeaves = [];
-          for (const id of pendingIds) {
-            const leaf = leafById.get(id);
-            if (leaf) batchLeaves.push(leaf);
+            batchLeaves = [];
+            for (const id of pendingIds) {
+              const leaf = leafById.get(id);
+              if (leaf) batchLeaves.push(leaf);
+            }
+
+            if (!batchLeaves.length) break;
           }
 
-          if (!batchLeaves.length) break;
-        }
-
-        const exitNodesMap = await getSparkExitNodesForLeavesWithTimeout(
-          mnemonic,
-          batchLeaves,
-        );
-
-        if (mnemonic !== currentMnemonicRef.current) break;
-
-        // Persist every leaf the fetch succeeded on (present in the map).
-        // Leaves absent from the map stay pending and are retried later.
-        let markedThisBatch = 0;
-        for (const leaf of batchLeaves) {
-          if (!(leaf.id in exitNodesMap)) continue;
-          const didMark = await saveExitNodesForLeaf(
-            identityPubKey,
-            leaf.id,
-            exitNodesMap[leaf.id],
+          const exitNodesMap = await getSparkExitNodesForLeavesWithTimeout(
+            mnemonic,
+            batchLeaves,
           );
-          if (didMark) markedThisBatch++;
+
+          if (mnemonic !== currentMnemonicRef.current) break;
+
+          // Persist every leaf the fetch succeeded on (present in the map).
+          // Leaves absent from the map stay pending and are retried later.
+          let markedThisBatch = 0;
+          for (const leaf of batchLeaves) {
+            if (!(leaf.id in exitNodesMap)) continue;
+            const didMark = await saveExitNodesForLeaf(
+              identityPubKey,
+              leaf.id,
+              exitNodesMap[leaf.id],
+            );
+            if (didMark) markedThisBatch++;
+          }
+
+          if (force) {
+            // Only process the supplied leaves once.
+            break;
+          }
+
+          if (markedThisBatch === 0) break;
+
+          // Yield between batches so the operator round-trips never starve frames.
+          await new Promise(resolve => setTimeout(resolve, 0));
         }
 
-        if (force) {
-          // Only process the supplied leaves once.
-          break;
+        if (!force && rawLeaves?.length > 0 && pendingIds?.length)
+          lastExitNodesSyncRef.current = Date.now();
+
+        // Reflect backfill progress into the in-context summary for the UI.
+        const progress = await getExitNodeSyncProgress(identityPubKey);
+        if (identityPubKey === sparkInfoRef.current.identityPubKey) {
+          setSparkInformation(prev => ({
+            ...prev,
+            leaves: {
+              ...(prev.leaves || {}),
+              exitNodesPending: progress.pending,
+              exitNodesComplete: progress.complete,
+            },
+          }));
         }
-
-        if (markedThisBatch === 0) break;
-
-        // Yield between batches so the operator round-trips never starve frames.
-        await new Promise(resolve => setTimeout(resolve, 0));
+      } catch (err) {
+        console.log('[reconcileExitNodes] error', err);
+      } finally {
+        isReconcilingExitNodesRef.current = false;
       }
-
-      if (!force && rawLeaves?.length > 0 && pendingIds?.length)
-        lastExitNodesSyncRef.current = Date.now();
-
-      // Reflect backfill progress into the in-context summary for the UI.
-      const progress = await getExitNodeSyncProgress(identityPubKey);
-      if (identityPubKey === sparkInfoRef.current.identityPubKey) {
-        setSparkInformation(prev => ({
-          ...prev,
-          leaves: {
-            ...(prev.leaves || {}),
-            exitNodesPending: progress.pending,
-            exitNodesComplete: progress.complete,
-          },
-        }));
-      }
-    } catch (err) {
-      console.log('[reconcileExitNodes] error', err);
-    } finally {
-      isReconcilingExitNodesRef.current = false;
-    }
+    })();
+    exitNodesRunRef.current = run;
+    return run;
   }, []);
 
   const reconcileLeaves = useCallback(

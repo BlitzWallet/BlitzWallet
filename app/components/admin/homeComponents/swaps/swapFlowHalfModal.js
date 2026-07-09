@@ -735,8 +735,6 @@ export default function SwapFlowHalfModal({
     }
   };
 
-  const confirmLabel = t('constants.confirm');
-
   const getAmountFontSize = amount => {
     if (!amount) return SIZES.large;
     const length = amount.toString().length;
@@ -2130,13 +2128,14 @@ export default function SwapFlowHalfModal({
             </View>
           </View>
         </ScrollView>
-        <View style={styles.buttonRow}>
-          <CustomButton
-            useLoading={isSwapping}
-            actionFunction={handleAcceptReview}
-            textContent={confirmLabel}
-          />
-        </View>
+
+        <CustomButton
+          buttonStyles={{ ...CENTER }}
+          useLoading={isSwapping}
+          actionFunction={handleAcceptReview}
+          textContent={t('constants.confirm')}
+        />
+
         <ThemeText
           styles={styles.disclaimer}
           content={t('screens.inAccount.swapsPage.swapDisclaimer')}
