@@ -90,6 +90,11 @@ const TECHNICAL_ROWS = [
     displayName: 'screens.inAccount.settingsContent.view all swaps',
     iconName: 'SendToBack',
   },
+  {
+    name: 'Wallet Leaves',
+    displayName: 'screens.inAccount.settingsContent.wallet leaves',
+    iconName: 'DatabaseBackup',
+  },
 ];
 
 const OTHER_ROWS = [

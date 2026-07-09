@@ -1,4 +1,8 @@
-import { getSparkBalance } from './spark';
+import {
+  getSparkBalance,
+  getSparkLeaves,
+  getSparkExitNodesForLeaves,
+} from './spark';
 import { fullRestoreSparkState } from './spark/restore';
 
 /**
@@ -24,6 +28,68 @@ export const getBalanceWithTimeout = async (mnemonic, timeoutMs = 15000) => {
   } catch (err) {
     console.log('err', err);
     return { didWork: false };
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+};
+
+/**
+ * Reads the wallet leaves with a hard timeout, mirroring getBalanceWithTimeout.
+ * getSparkLeaves can hang if the underlying request never settles (e.g. while
+ * backgrounded), so we race it against a timer that resolves to null. A null
+ * result means "no snapshot this time" and the caller leaves the store as-is.
+ * @param {string} mnemonic
+ * @param {boolean} isBalanceCheck coordinator-only (fast) vs full cross-operator
+ * @param {number} timeoutMs
+ * @returns {Promise<Array<object>|null>}
+ */
+export const getSparkLeavesWithTimeout = async (
+  mnemonic,
+  isBalanceCheck = true,
+  timeoutMs = 15000,
+) => {
+  let timer = null;
+  try {
+    return await Promise.race([
+      getSparkLeaves(mnemonic, isBalanceCheck),
+      new Promise(resolve => {
+        timer = setTimeout(() => resolve(null), timeoutMs);
+      }),
+    ]);
+  } catch (err) {
+    console.log('getSparkLeavesWithTimeout err', err);
+    return null;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+};
+
+/**
+ * Fetches a batch of leaves' exit-node ancestors with a hard timeout, mirroring
+ * getSparkLeavesWithTimeout. A hung operator query can't wedge the backfill loop:
+ * on timeout we resolve to {} (no leaf marked complete), leaving those leaves
+ * pending for a later pass.
+ * @param {string} mnemonic
+ * @param {Array<object>} leaves batch of raw leaves to fetch ancestors for
+ * @param {number} timeoutMs
+ * @returns {Promise<Object<string, object[]>>} per-leaf ancestor map
+ */
+export const getSparkExitNodesForLeavesWithTimeout = async (
+  mnemonic,
+  leaves,
+  timeoutMs = 20000,
+) => {
+  let timer = null;
+  try {
+    return await Promise.race([
+      getSparkExitNodesForLeaves(mnemonic, leaves),
+      new Promise(resolve => {
+        timer = setTimeout(() => resolve({}), timeoutMs);
+      }),
+    ]);
+  } catch (err) {
+    console.log('getSparkExitNodesForLeavesWithTimeout err', err);
+    return {};
   } finally {
     if (timer) clearTimeout(timer);
   }

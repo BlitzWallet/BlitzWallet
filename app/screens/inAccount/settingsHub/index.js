@@ -56,6 +56,11 @@ const DOOMSDAY_ROW = [
     iconName: 'Lock',
   },
   {
+    name: 'Wallet Leaves',
+    displayName: 'screens.inAccount.settingsContent.wallet leaves',
+    iconName: 'DatabaseBackup',
+  },
+  {
     name: 'Delete Wallet',
     displayName: 'screens.inAccount.settingsContent.delete wallet',
     iconName: 'Trash2',

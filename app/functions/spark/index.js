@@ -4,6 +4,8 @@ import {
   isValidSparkAddress,
   getNetworkFromSparkAddress,
   decodeSparkAddress,
+  buildUnilateralExitChain,
+  Network,
 } from '@buildonspark/spark-sdk';
 import {
   LightningSendRequestStatus,
@@ -461,6 +463,104 @@ export const getSparkBalance = async mnemonic => {
   } catch (err) {
     console.log('Get spark balance error', err);
     return { didWork: false };
+  }
+};
+
+export const getSparkLeaves = async (mnemonic, isBalanceCheck = true) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getSparkLeaves,
+        { mnemonic, isBalanceCheck },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to query wallet leaves',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return wallet.getLeaves(isBalanceCheck);
+    }
+  } catch (err) {
+    console.log('get spark leaves error', err);
+  }
+};
+
+// Fetches ancestor TreeNodes for a SMALL BATCH of leaves, returning a per-leaf
+// map { [leafId]: node[] } so the caller can cache each leaf's chain
+// independently. Reuses one spark client and one cross-leaf ancestor cache for
+// the whole batch (ancestors shared between leaves are fetched once).
+//
+// A leaf whose chain builds successfully is present in the map — with an empty
+// array when it is a root-level leaf (genuinely no ancestors, still a success).
+// A leaf whose chain throws is OMITTED from the map, which is the caller's
+// fetch-failed signal so it stays pending and is retried later.
+//
+// Native runtime only. Returns {} on the WebView path, on any missing SDK
+// surface, or on failure (WebView installs stay leaves-only, unchanged).
+export const getSparkExitNodesForLeaves = async (mnemonic, leaves) => {
+  const runtime = await selectSparkRuntime(mnemonic);
+  try {
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getSparkLeafExitNodes,
+        { mnemonic, leaves },
+      );
+
+      return validateWebViewResponse(
+        response,
+        'Not abler to generate bitcoin l1 daddress',
+      );
+    } else {
+      if (!Array.isArray(leaves) || leaves.length === 0) return {};
+      if (typeof buildUnilateralExitChain !== 'function') return {};
+
+      const wallet = await getWallet(mnemonic);
+      const coordinatorAddress = wallet?.config?.getCoordinatorAddress?.();
+      const createSparkClient = wallet?.connectionManager?.createSparkClient;
+      if (!coordinatorAddress || typeof createSparkClient !== 'function')
+        return {};
+
+      const sparkClient = await wallet.connectionManager.createSparkClient(
+        coordinatorAddress,
+      );
+
+      // nodeMap seeds buildUnilateralExitChain with locally-known nodes so shared
+      // ancestors between leaves in this batch are only fetched from operators once.
+      const nodeMap = new Map(leaves.map(leaf => [leaf.id, leaf]));
+      const leafIds = new Set(leaves.map(leaf => leaf.id));
+      const result = {};
+
+      for (const leaf of leaves) {
+        try {
+          const chain = await buildUnilateralExitChain(
+            leaf,
+            nodeMap,
+            sparkClient,
+            Network.MAINNET,
+          );
+          // Keep only true ancestors (drop the leaf itself and dedup within chain).
+          const seen = new Set();
+          const ancestors = [];
+          for (const node of chain) {
+            if (!node?.id || leafIds.has(node.id) || seen.has(node.id))
+              continue;
+            seen.add(node.id);
+            ancestors.push(node);
+          }
+          result[leaf.id] = ancestors;
+        } catch (err) {
+          // Omit this leaf so the caller leaves it pending and retries later.
+          console.log('build exit chain error for leaf', leaf?.id, err);
+        }
+      }
+
+      return result;
+    }
+  } catch (err) {
+    console.log('get spark exit nodes for leaves error', err);
+    return {};
   }
 };
 

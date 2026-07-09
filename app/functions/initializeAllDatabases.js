@@ -6,6 +6,7 @@ import { initRootstockSwapDB } from './boltz/rootstock/swapDb';
 import { initGiftDb } from './gift/giftsStorage';
 import { initPoolDb } from './pools/poolsStorage';
 import { initSavingsDb } from './savings/savingsStorage';
+import { initLeavesDb } from './spark/leavesStorage';
 
 let initPromise = null;
 
@@ -25,6 +26,7 @@ export function initializeAllDatabases() {
         initGiftDb(),
         initPoolDb(),
         initSavingsDb(),
+        initLeavesDb(),
       ]);
       if (results.some(result => !result)) {
         initPromise = null; // allow a later retry to re-attempt

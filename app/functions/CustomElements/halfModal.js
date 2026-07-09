@@ -89,6 +89,7 @@ import HalfModalDepositFunds from '../../components/admin/homeComponents/homeLig
 import ShareInvoicePayLinkModal from '../../components/admin/homeComponents/receiveBitcoin/shareInvoicePayLinkModal';
 import RootstockSwapInfo from '../../components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import SelectSwapNetworkHalfModal from '../../components/admin/homeComponents/settingsContent/swapsComponents/selectSwapNetworkHalfModal';
+import ExportLeavesProgress from '../../components/admin/homeComponents/settingsContent/leaves/exportLeavesProgress';
 
 const CONTENT_TYPES_WITH_MOUNT_FOCUS = new Set([
   'AddMessageReceivePage',
@@ -784,6 +785,13 @@ export default function CustomHalfModal(props) {
       case 'selectSwapNetwork':
         return (
           <SelectSwapNetworkHalfModal
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'exportLeavesProgress':
+        return (
+          <ExportLeavesProgress
+            onExported={props?.route?.params?.onExported}
             handleBackPressFunction={handleBackPressFunction}
           />
         );
