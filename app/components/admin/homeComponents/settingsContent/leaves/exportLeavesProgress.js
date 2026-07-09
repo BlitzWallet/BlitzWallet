@@ -39,7 +39,10 @@ const STEP_MESSAGES = {
 // the user can still export their last known copy. The half modal stays
 // dismissible; if the user leaves mid-export, `mountedRef` suppresses the share
 // sheet and any navigation.
-export default function ExportLeavesProgress({ onExported }) {
+export default function ExportLeavesProgress({
+  onExported,
+  handleBackPressFunction,
+}) {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -167,6 +170,7 @@ export default function ExportLeavesProgress({ onExported }) {
           `"_recoveryNotes":${JSON.stringify(recoveryNotes)}}`;
 
         setStep('sharing');
+        handleBackPressFunction();
         const response = await writeAndShareFileToFilesystem(
           fileData,
           'BlitzWallet-leaves-backup.json',
@@ -193,6 +197,7 @@ export default function ExportLeavesProgress({ onExported }) {
     reconcileExitNodes,
     onExported,
     navigate,
+    handleBackPressFunction,
   ]);
 
   return (

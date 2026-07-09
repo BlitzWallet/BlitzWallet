@@ -790,7 +790,10 @@ export default function CustomHalfModal(props) {
         );
       case 'exportLeavesProgress':
         return (
-          <ExportLeavesProgress onExported={props?.route?.params?.onExported} />
+          <ExportLeavesProgress
+            onExported={props?.route?.params?.onExported}
+            handleBackPressFunction={handleBackPressFunction}
+          />
         );
       default:
         return <ThemeText content={'TST'} />;
