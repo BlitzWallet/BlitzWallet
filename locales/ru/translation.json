@@ -2270,7 +2270,7 @@
         "point-of-sale": "Терминал (POS)",
         "pools": "Пулы",
         "show seed phrase": "Резервное копирование кошелька",
-        "wallet leaves": "Резервная копия кошелька"
+        "wallet leaves": "Данные кошелька"
       },
       "walletLeaves": {
         "sats": "сат.",

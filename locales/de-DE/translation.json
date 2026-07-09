@@ -2269,7 +2269,7 @@
         "point-of-sale": "Zahlungsterminal (POS)",
         "pools": "Sparpools",
         "show seed phrase": "Seed-Phrase sichern",
-        "wallet leaves": "Wallet-Backup"
+        "wallet leaves": "Wallet-Daten"
       },
       "walletLeaves": {
         "sats": "Sats",

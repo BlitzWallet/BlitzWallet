@@ -2269,7 +2269,7 @@
         "point-of-sale": "Terminale POS",
         "pools": "Pools",
         "show seed phrase": "Backup portafoglio",
-        "wallet leaves": "Backup del portafoglio"
+        "wallet leaves": "Dati del portafoglio"
       },
       "walletLeaves": {
         "sats": "sats",
