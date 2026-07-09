@@ -28,6 +28,7 @@ import {
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 // The three mobile-money providers we support. `isoCode`/`cc` must stay aligned
 // with the providers in getPhonePaymentAddress.js (KE=bitcoin.co.ke,
@@ -87,7 +88,8 @@ export default function MobileMoneySendOverlay({
 }) {
   const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
-  const { backgroundOffset } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { screenDimensions } = useAppStatus();
   const { fiatStats } = useNodeContext();
 
@@ -212,7 +214,13 @@ export default function MobileMoneySendOverlay({
         <TouchableOpacity
           key={item.isoCode}
           onPress={() => handleSelectCountry(item)}
-          style={[styles.countryRow, { backgroundColor: backgroundOffset }]}
+          style={[
+            styles.countryRow,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
         >
           <View style={styles.flagContainer}>
             <CountryFlag isoCode={item.isoCode} size={45} />
@@ -228,7 +236,13 @@ export default function MobileMoneySendOverlay({
         </TouchableOpacity>
       );
     },
-    [handleSelectCountry, backgroundOffset],
+    [
+      handleSelectCountry,
+      backgroundOffset,
+      theme,
+      darkModeType,
+      backgroundColor,
+    ],
   );
 
   if (!visible) return null;
