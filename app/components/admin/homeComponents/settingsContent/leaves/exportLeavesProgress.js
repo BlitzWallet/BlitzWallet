@@ -4,14 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import DeviceInfo from 'react-native-device-info';
 import writeAndShareFileToFilesystem from '../../../../../functions/writeFileToFilesystem';
-import {
-  getSparkLeaves,
-  getSparkLeafExitNodes,
-} from '../../../../../functions/spark';
+import { getSparkLeaves } from '../../../../../functions/spark';
 import {
   replaceAllLeaves,
   getAllLeavesStream,
-  normalizeLeaf,
+  getAllExitNodesStream,
 } from '../../../../../functions/spark/leavesStorage';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
@@ -45,7 +42,7 @@ export default function ExportLeavesProgress({ onExported }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { sparkInformation } = useSparkWallet();
+  const { sparkInformation, reconcileExitNodes } = useSparkWallet();
   const [step, setStep] = useState('gathering');
   const mountedRef = useRef(true);
   const hasRunRef = useRef(false);
@@ -66,6 +63,7 @@ export default function ExportLeavesProgress({ onExported }) {
       }, 300);
     };
 
+    const identityPubKey = sparkInformation.identityPubKey;
     (async () => {
       try {
         setStep('gathering');
@@ -83,45 +81,44 @@ export default function ExportLeavesProgress({ onExported }) {
           return;
         }
 
-        // Only refresh the local store and fetch ancestor chains when we have a
-        // fresh raw snapshot. On a failed fetch we fall back to whatever is
-        // already stored locally.
-        let nodeParts = [];
+        // Only refresh the local store and backfill ancestor chains when we have
+        // a fresh raw snapshot. On a failed fetch we fall back to whatever is
+        // already stored locally (offline doomsday copy).
         if (hasFreshLeaves) {
           setStep('saving');
-          await replaceAllLeaves(rawLeaves);
+          await replaceAllLeaves(identityPubKey, rawLeaves);
           if (onExported) onExported();
           if (!mountedRef.current) return;
 
-          // Fetch each leaf's ancestor chain from Spark operators so multi-level
-          // trees can be exited offline. Native runtime only; returns [] on the
-          // WebView path or on failure, leaving a valid leaves-only bundle.
+          // Best-effort online refresh of the exit-node cache so multi-level
+          // trees can be exited offline. Bounded by the per-batch timeouts; a
+          // no-op on the WebView path / when offline, leaving whatever is cached.
           setStep('exit');
           try {
-            const exitNodes = await getSparkLeafExitNodes(
-              currentWalletMnemoinc,
-              rawLeaves,
-            );
-            for (const node of exitNodes) {
-              const normalized = normalizeLeaf(node);
-              if (normalized?.treeNodeHex) {
-                nodeParts.push(JSON.stringify(normalized));
-              }
-            }
+            await reconcileExitNodes(rawLeaves, true);
           } catch (err) {
-            console.log('export exit nodes error', err);
+            console.log('export exit nodes refresh error', err);
           }
           if (!mountedRef.current) return;
         }
+
+        // Assemble the file from the cached leaves + cached exit nodes in
+        // yielding batches. Works fully offline from cache — no dependency on
+        // operators being reachable at export time.
+        setStep('building');
+        const nodeParts = [];
+        await getAllExitNodesStream(identityPubKey, batch => {
+          for (const node of batch) {
+            if (node?.treeNodeHex) nodeParts.push(JSON.stringify(node));
+          }
+        });
+        if (!mountedRef.current) return;
         const hasAncestors = nodeParts.length > 0;
 
-        // Assemble the file from the stored leaves in yielding batches. Works
-        // for both the fresh snapshot (just stored) and the local fallback.
-        setStep('building');
         const parts = [];
         let btcSats = 0n;
         let networkInt = null;
-        await getAllLeavesStream(batch => {
+        await getAllLeavesStream(identityPubKey, batch => {
           for (const leaf of batch) {
             parts.push(JSON.stringify(leaf));
             btcSats += BigInt(leaf.value || 0);
@@ -190,6 +187,7 @@ export default function ExportLeavesProgress({ onExported }) {
   }, [
     currentWalletMnemoinc,
     sparkInformation.identityPubKey,
+    reconcileExitNodes,
     onExported,
     navigate,
   ]);

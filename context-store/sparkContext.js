@@ -70,10 +70,14 @@ import {
   createRestorePoller,
   getBalanceWithTimeout,
   getSparkLeavesWithTimeout,
+  getSparkExitNodesForLeavesWithTimeout,
 } from '../app/functions/pollingManager';
 import {
   replaceAllLeaves,
   getGlobalLeafStats,
+  getPendingExitNodeLeafIds,
+  saveExitNodesForLeaf,
+  getExitNodeSyncProgress,
 } from '../app/functions/spark/leavesStorage';
 import { USDB_TOKEN_ID } from '../app/constants';
 import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
@@ -234,7 +238,17 @@ const SparkWalletProvider = ({ children }) => {
   const isReconcilingLeavesRef = useRef(false);
   const lastLeavesSyncRef = useRef(0);
   const hydratedLeavesForRef = useRef(null);
-  const LEAVES_SYNC_THROTTLE_MS = 10000;
+  const LEAVES_SYNC_THROTTLE_MS = 30000;
+
+  // Single-flight + throttle for the exit-node backfill. Heavier than a leaves
+  // sync (each pending leaf hits Spark operators for its ancestor chain), so it
+  // runs on a longer window and piggybacks leaves syncs rather than firing on
+  // every wallet event.
+  const isReconcilingExitNodesRef = useRef(false);
+  const lastExitNodesSyncRef = useRef(0);
+  const EXIT_NODES_SYNC_THROTTLE_MS = 60000;
+  // How many pending leaves we fetch ancestors for per operator round-trip.
+  const EXIT_NODES_BATCH_SIZE = 6;
 
   // Tracks whether the Spark event stream has dropped, so a later
   // stream:connected is recognized as a *re*connect (which warrants one
@@ -987,50 +1001,156 @@ const SparkWalletProvider = ({ children }) => {
   // map/serialize/insert work is deferred behind InteractionManager so it never
   // competes with navigation or gestures. The fetch uses the fast coordinator
   // path (isBalanceCheck=true) — the export flow forces a full getLeaves(false).
-  const reconcileLeaves = useCallback(async (force = false) => {
+  // Incrementally caches each exit-eligible leaf's ancestor TreeNodes so the
+  // local export bundle can drive an OFFLINE multi-level unilateral exit. Driven
+  // purely by DB `pending` flags, so it is automatically resumable: any leaf left
+  // pending (fetch failed/timed out, app backgrounded, account switched, or leaf
+  // missing from this snapshot) is retried on a later reconcile. Single-flight +
+  // throttled (longer window than leaves). Scoped to the captured account, so an
+  // account switch mid-run can only no-op against the old account.
+  const reconcileExitNodes = useCallback(async (rawLeaves, force = false) => {
+    const identityPubKey = sparkInfoRef.current.identityPubKey;
     const mnemonic = currentMnemonicRef.current;
-    if (!mnemonic) return;
-    if (isReconcilingLeavesRef.current) return;
+    if (!identityPubKey || !mnemonic) return;
+    if (!Array.isArray(rawLeaves)) return;
+    if (isReconcilingExitNodesRef.current) return;
     if (
       !force &&
-      Date.now() - lastLeavesSyncRef.current < LEAVES_SYNC_THROTTLE_MS
+      Date.now() - lastExitNodesSyncRef.current < EXIT_NODES_SYNC_THROTTLE_MS
     )
       return;
 
-    isReconcilingLeavesRef.current = true;
+    isReconcilingExitNodesRef.current = true;
     try {
-      const rawLeaves = await getSparkLeavesWithTimeout(mnemonic, true);
-      // A null result means the read timed out / errored — keep the store as-is.
-      if (!Array.isArray(rawLeaves)) return;
-      if (mnemonic !== currentMnemonicRef.current) return;
+      const leafById = new Map(
+        rawLeaves.filter(leaf => leaf?.id).map(leaf => [leaf.id, leaf]),
+      );
+      let pendingIds;
 
-      await new Promise((resolve, reject) => {
-        InteractionManager.runAfterInteractions(async () => {
-          try {
-            await replaceAllLeaves(rawLeaves);
-            const stats = await getGlobalLeafStats();
-            setSparkInformation(prev => ({
-              ...prev,
-              leaves: {
-                count: stats.totalLeaves,
-                totalValue: stats.totalValue,
-                lastSyncedAt: stats.lastSyncedAt,
-              },
-            }));
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        });
-      });
+      while (true) {
+        if (AppState.currentState !== 'active') break;
+        if (mnemonic !== currentMnemonicRef.current) break;
 
-      lastLeavesSyncRef.current = Date.now();
+        pendingIds = await getPendingExitNodeLeafIds(
+          identityPubKey,
+          EXIT_NODES_BATCH_SIZE,
+        );
+
+        if (!pendingIds.length) break;
+
+        // Only process pending ids present in this snapshot; a missing id will
+        // be supplied (and retried) by a later reconcile's rawLeaves.
+        const batchLeaves = [];
+        for (const id of pendingIds) {
+          const leaf = leafById.get(id);
+          if (leaf) batchLeaves.push(leaf);
+        }
+
+        if (!batchLeaves.length) break;
+
+        const exitNodesMap = await getSparkExitNodesForLeavesWithTimeout(
+          mnemonic,
+          batchLeaves,
+        );
+
+        if (mnemonic !== currentMnemonicRef.current) break;
+
+        // Persist every leaf the fetch succeeded on (present in the map).
+        // Leaves absent from the map stay pending and are retried later.
+        let markedThisBatch = 0;
+        for (const leaf of batchLeaves) {
+          if (!(leaf.id in exitNodesMap)) continue;
+          const didMark = await saveExitNodesForLeaf(
+            identityPubKey,
+            leaf.id,
+            exitNodesMap[leaf.id],
+          );
+          if (didMark) markedThisBatch++;
+        }
+
+        // Anti-spin guard: pending ids are ordered value DESC, so a persistently
+        // failing high-value leaf would otherwise head every batch forever. If a
+        // batch marks nothing complete, end the run — those leaves stay pending
+        // and are retried on the next reconcile, not in a tight loop.
+        if (markedThisBatch === 0) break;
+
+        // Yield between batches so the operator round-trips never starve frames.
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      if (rawLeaves?.length > 0 && pendingIds?.length)
+        lastExitNodesSyncRef.current = Date.now();
+
+      // Reflect backfill progress into the in-context summary for the UI.
+      const progress = await getExitNodeSyncProgress(identityPubKey);
+      if (identityPubKey === sparkInfoRef.current.identityPubKey) {
+        setSparkInformation(prev => ({
+          ...prev,
+          leaves: {
+            ...(prev.leaves || {}),
+            exitNodesPending: progress.pending,
+            exitNodesComplete: progress.complete,
+          },
+        }));
+      }
     } catch (err) {
-      console.log('[reconcileLeaves] error', err);
+      console.log('[reconcileExitNodes] error', err);
     } finally {
-      isReconcilingLeavesRef.current = false;
+      isReconcilingExitNodesRef.current = false;
     }
   }, []);
+
+  const reconcileLeaves = useCallback(
+    async (force = false) => {
+      const mnemonic = currentMnemonicRef.current;
+      if (!mnemonic) return;
+      const identityPubKey = sparkInfoRef.current.identityPubKey;
+      if (!identityPubKey) return;
+      if (isReconcilingLeavesRef.current) return;
+      if (
+        !force &&
+        Date.now() - lastLeavesSyncRef.current < LEAVES_SYNC_THROTTLE_MS
+      )
+        return;
+
+      isReconcilingLeavesRef.current = true;
+      try {
+        const rawLeaves = await getSparkLeavesWithTimeout(mnemonic, true);
+        // A null result means the read timed out / errored — keep store as-is.
+        if (!Array.isArray(rawLeaves)) return;
+        if (mnemonic !== currentMnemonicRef.current) return;
+
+        await new Promise((resolve, reject) => {
+          InteractionManager.runAfterInteractions(async () => {
+            try {
+              await replaceAllLeaves(identityPubKey, rawLeaves);
+              const stats = await getGlobalLeafStats(identityPubKey);
+              setSparkInformation(prev => ({
+                ...prev,
+                leaves: {
+                  ...(prev.leaves || {}),
+                  count: stats.totalLeaves,
+                  totalValue: stats.totalValue,
+                  lastSyncedAt: stats.lastSyncedAt,
+                },
+              }));
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          });
+        });
+        if (rawLeaves?.length) lastLeavesSyncRef.current = Date.now();
+        // Backfill the exit-node ancestors for this fresh snapshot (background,
+        // not awaited — it self-throttles and single-flights).
+        reconcileExitNodes(rawLeaves);
+      } catch (err) {
+        console.log('[reconcileLeaves] error', err);
+      } finally {
+        isReconcilingLeavesRef.current = false;
+      }
+    },
+    [reconcileExitNodes],
+  );
 
   const handleUpdate = useCallback(
     (...args) => {
@@ -2059,12 +2179,14 @@ const SparkWalletProvider = ({ children }) => {
       return;
     hydratedLeavesForRef.current = sparkInformation.identityPubKey;
 
+    const identityPubKey = sparkInformation.identityPubKey;
     (async () => {
       try {
-        const stats = await getGlobalLeafStats();
+        const stats = await getGlobalLeafStats(identityPubKey);
         setSparkInformation(prev => ({
           ...prev,
           leaves: {
+            ...(prev.leaves || {}),
             count: stats.totalLeaves,
             totalValue: stats.totalValue,
             lastSyncedAt: stats.lastSyncedAt,
@@ -2195,6 +2317,7 @@ const SparkWalletProvider = ({ children }) => {
       filterAndSetTransactions,
       updateHomepageTxPreferance,
       reconcileLeaves,
+      reconcileExitNodes,
     }),
     [
       sparkInformation,
@@ -2213,6 +2336,7 @@ const SparkWalletProvider = ({ children }) => {
       filterAndSetTransactions,
       updateHomepageTxPreferance,
       reconcileLeaves,
+      reconcileExitNodes,
     ],
   );
 

@@ -1,4 +1,8 @@
-import { getSparkBalance, getSparkLeaves } from './spark';
+import {
+  getSparkBalance,
+  getSparkLeaves,
+  getSparkExitNodesForLeaves,
+} from './spark';
 import { fullRestoreSparkState } from './spark/restore';
 
 /**
@@ -55,6 +59,37 @@ export const getSparkLeavesWithTimeout = async (
   } catch (err) {
     console.log('getSparkLeavesWithTimeout err', err);
     return null;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+};
+
+/**
+ * Fetches a batch of leaves' exit-node ancestors with a hard timeout, mirroring
+ * getSparkLeavesWithTimeout. A hung operator query can't wedge the backfill loop:
+ * on timeout we resolve to {} (no leaf marked complete), leaving those leaves
+ * pending for a later pass.
+ * @param {string} mnemonic
+ * @param {Array<object>} leaves batch of raw leaves to fetch ancestors for
+ * @param {number} timeoutMs
+ * @returns {Promise<Object<string, object[]>>} per-leaf ancestor map
+ */
+export const getSparkExitNodesForLeavesWithTimeout = async (
+  mnemonic,
+  leaves,
+  timeoutMs = 20000,
+) => {
+  let timer = null;
+  try {
+    return await Promise.race([
+      getSparkExitNodesForLeaves(mnemonic, leaves),
+      new Promise(resolve => {
+        timer = setTimeout(() => resolve({}), timeoutMs);
+      }),
+    ]);
+  } catch (err) {
+    console.log('getSparkExitNodesForLeavesWithTimeout err', err);
+    return {};
   } finally {
     if (timer) clearTimeout(timer);
   }

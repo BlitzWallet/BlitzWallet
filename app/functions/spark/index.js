@@ -487,24 +487,25 @@ export const getSparkLeaves = async (mnemonic, isBalanceCheck = true) => {
   }
 };
 
-// Fetches the ancestor TreeNodes (each leaf's chain from tree root down to, but
-// excluding, the leaf itself) so an exported bundle can drive an OFFLINE
-// multi-level unilateral exit. getLeaves alone is includeParents:false, so the
-// bundle's `nodes` array is otherwise empty and the recovery tooling can only
-// exit single-level leaves without live operators.
+// Fetches ancestor TreeNodes for a SMALL BATCH of leaves, returning a per-leaf
+// map { [leafId]: node[] } so the caller can cache each leaf's chain
+// independently. Reuses one spark client and one cross-leaf ancestor cache for
+// the whole batch (ancestors shared between leaves are fetched once).
 //
-// Native runtime only for now — the WebView (WASM) path runs the SDK behind the
-// encrypted bridge and would need its own operation type. Returns [] on the
-// WebView path, on any missing SDK surface, or on failure, so the caller falls
-// back to a leaves-only bundle. Requires Spark operators to be online at export
-// (parents are fetched via query_nodes includeParents:true).
-export const getSparkLeafExitNodes = async (mnemonic, rawLeaves) => {
+// A leaf whose chain builds successfully is present in the map — with an empty
+// array when it is a root-level leaf (genuinely no ancestors, still a success).
+// A leaf whose chain throws is OMITTED from the map, which is the caller's
+// fetch-failed signal so it stays pending and is retried later.
+//
+// Native runtime only. Returns {} on the WebView path, on any missing SDK
+// surface, or on failure (WebView installs stay leaves-only, unchanged).
+export const getSparkExitNodesForLeaves = async (mnemonic, leaves) => {
   const runtime = await selectSparkRuntime(mnemonic);
   try {
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.getSparkLeafExitNodes,
-        { mnemonic, rawLeaves },
+        { mnemonic, leaves },
       );
 
       return validateWebViewResponse(
@@ -512,27 +513,26 @@ export const getSparkLeafExitNodes = async (mnemonic, rawLeaves) => {
         'Not abler to generate bitcoin l1 daddress',
       );
     } else {
-      if (!Array.isArray(rawLeaves) || rawLeaves.length === 0) return [];
-
-      if (typeof buildUnilateralExitChain !== 'function') return [];
+      if (!Array.isArray(leaves) || leaves.length === 0) return {};
+      if (typeof buildUnilateralExitChain !== 'function') return {};
 
       const wallet = await getWallet(mnemonic);
       const coordinatorAddress = wallet?.config?.getCoordinatorAddress?.();
       const createSparkClient = wallet?.connectionManager?.createSparkClient;
       if (!coordinatorAddress || typeof createSparkClient !== 'function')
-        return [];
+        return {};
 
       const sparkClient = await wallet.connectionManager.createSparkClient(
         coordinatorAddress,
       );
 
-      // Shared cache: ancestors common to multiple leaves are fetched once, and
-      // buildUnilateralExitChain reads parents from here before hitting operators.
-      const nodeMap = new Map(rawLeaves.map(leaf => [leaf.id, leaf]));
-      const leafIds = new Set(rawLeaves.map(leaf => leaf.id));
-      const ancestors = new Map();
+      // nodeMap seeds buildUnilateralExitChain with locally-known nodes so shared
+      // ancestors between leaves in this batch are only fetched from operators once.
+      const nodeMap = new Map(leaves.map(leaf => [leaf.id, leaf]));
+      const leafIds = new Set(leaves.map(leaf => leaf.id));
+      const result = {};
 
-      for (const leaf of rawLeaves) {
+      for (const leaf of leaves) {
         try {
           const chain = await buildUnilateralExitChain(
             leaf,
@@ -540,22 +540,27 @@ export const getSparkLeafExitNodes = async (mnemonic, rawLeaves) => {
             sparkClient,
             Network.MAINNET,
           );
+          // Keep only true ancestors (drop the leaf itself and dedup within chain).
+          const seen = new Set();
+          const ancestors = [];
           for (const node of chain) {
-            if (!node?.id || leafIds.has(node.id) || ancestors.has(node.id)) {
+            if (!node?.id || leafIds.has(node.id) || seen.has(node.id))
               continue;
-            }
-            ancestors.set(node.id, node);
+            seen.add(node.id);
+            ancestors.push(node);
           }
+          result[leaf.id] = ancestors;
         } catch (err) {
+          // Omit this leaf so the caller leaves it pending and retries later.
           console.log('build exit chain error for leaf', leaf?.id, err);
         }
       }
 
-      return Array.from(ancestors.values());
+      return result;
     }
   } catch (err) {
-    console.log('get spark leaf exit nodes error', err);
-    return [];
+    console.log('get spark exit nodes for leaves error', err);
+    return {};
   }
 };
 

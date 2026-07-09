@@ -3,6 +3,13 @@ import { TreeNode } from '@buildonspark/spark-sdk/proto/spark';
 
 export const LEAVES_DATABASE = 'WALLET_LEAVES';
 const LEAVES_TABLE = 'wallet_leaves';
+const EXIT_NODES_TABLE = 'wallet_leaf_exit_nodes';
+const LEAVES_META_TABLE = 'leaves_meta';
+
+// exitNodesStatus values on wallet_leaves.
+const EXIT_STATUS_PENDING = 0; // ancestors not yet cached
+const EXIT_STATUS_COMPLETE = 1; // ancestors cached (or none needed)
+const EXIT_STATUS_SKIPPED = 2; // below EXIT_MIN_SATS, never needs a backup
 
 // Leaves below this value cannot be unilaterally exited economically (fees
 // exceed value). Mirrors the Spark unilateral-exit minimum.
@@ -18,8 +25,18 @@ let sqlLiteDB = null;
 let initPromise = null;
 let isInitialized = false;
 
-// Serializes replaceAllLeaves calls.
-let replaceAllLeavesQueue = Promise.resolve();
+// Serializes every writer that opens a manual transaction on the single shared
+// connection (replaceAllLeaves + saveExitNodesForLeaf). expo-sqlite interleaves
+// statements from concurrent async callers, so without this two overlapping
+// BEGINs would throw "cannot start a transaction within a transaction". Failures
+// are swallowed for the chain (each caller still sees its own rejection) so one
+// bad run can't wedge every subsequent call.
+let writeQueue = Promise.resolve();
+function enqueueWrite(fn) {
+  const result = writeQueue.then(fn);
+  writeQueue = result.catch(() => {});
+  return result;
+}
 
 async function openDBConnection() {
   if (!initPromise) {
@@ -57,8 +74,11 @@ export async function initLeavesDb() {
   try {
     await ensureLeavesDatabaseReady();
 
+    // foreign_keys is a per-connection pragma; it must be set here so the
+    // exit-node ON DELETE CASCADE actually fires when a leaf leaves a snapshot.
     await sqlLiteDB.execAsync(`
       PRAGMA journal_mode = WAL;
+      PRAGMA foreign_keys = ON;
 
       CREATE TABLE IF NOT EXISTS ${LEAVES_TABLE} (
         id TEXT PRIMARY KEY NOT NULL,
@@ -67,11 +87,58 @@ export async function initLeavesDb() {
         status TEXT NOT NULL,
         parentNodeId TEXT,
         data TEXT NOT NULL,
-        updatedAt INTEGER NOT NULL
+        updatedAt INTEGER NOT NULL,
+        ownerIdentityPubKey TEXT,
+        snapshotVersion INTEGER NOT NULL DEFAULT 0,
+        exitNodesStatus INTEGER NOT NULL DEFAULT 0
       );
 
       CREATE INDEX IF NOT EXISTS idx_wallet_leaves_tree ON ${LEAVES_TABLE}(treeId);
+
+      CREATE TABLE IF NOT EXISTS ${EXIT_NODES_TABLE} (
+        ownerIdentityPubKey TEXT,
+        leafId TEXT NOT NULL,
+        id TEXT NOT NULL,
+        treeId TEXT,
+        value INTEGER,
+        status TEXT,
+        data TEXT NOT NULL,
+        snapshotVersion INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        PRIMARY KEY (leafId, id),
+        FOREIGN KEY (leafId) REFERENCES ${LEAVES_TABLE}(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_exit_nodes_leaf ON ${EXIT_NODES_TABLE}(leafId);
+      CREATE INDEX IF NOT EXISTS idx_exit_nodes_owner ON ${EXIT_NODES_TABLE}(ownerIdentityPubKey);
+
+      CREATE TABLE IF NOT EXISTS ${LEAVES_META_TABLE} (
+        ownerIdentityPubKey TEXT PRIMARY KEY,
+        snapshotVersion INTEGER
+      );
     `);
+
+    // Migrate DBs created before per-account scoping existed. The three columns
+    // are added when absent; legacy rows predate scoping (pre-release branch) so
+    // we wipe the table once — the next per-account reconcile repopulates it.
+    const columns = await sqlLiteDB.getAllAsync(
+      `PRAGMA table_info(${LEAVES_TABLE});`,
+    );
+    const hasOwnerColumn = columns.some(
+      col => col.name === 'ownerIdentityPubKey',
+    );
+    if (!hasOwnerColumn) {
+      await sqlLiteDB.execAsync(`
+        ALTER TABLE ${LEAVES_TABLE} ADD COLUMN ownerIdentityPubKey TEXT;
+        ALTER TABLE ${LEAVES_TABLE} ADD COLUMN snapshotVersion INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE ${LEAVES_TABLE} ADD COLUMN exitNodesStatus INTEGER NOT NULL DEFAULT 0;
+        DELETE FROM ${LEAVES_TABLE};
+      `);
+    }
+
+    await sqlLiteDB.execAsync(
+      `CREATE INDEX IF NOT EXISTS idx_wallet_leaves_owner ON ${LEAVES_TABLE}(ownerIdentityPubKey);`,
+    );
 
     isInitialized = true;
     return true;
@@ -236,26 +303,43 @@ export function normalizeLeaf(raw) {
 }
 
 /**
- * Replaces the entire leaves store with a fresh snapshot. Processes in batches,
- * yielding between them, so a large leaf set never blocks the JS thread.
+ * Merges a fresh leaf snapshot into this account's store using a snapshot
+ * version so surviving leaves keep their already-cached exit nodes (leaf ids are
+ * UUIDs, so a surviving id has the same ancestor chain — no re-fetch). New
+ * exit-eligible leaves are flagged pending; leaves that left the snapshot are
+ * stale-swept and their exit nodes cascade away. Processes in batches, yielding
+ * between them, so a large leaf set never blocks the JS thread. Scoped to one
+ * account — never touches another account's rows.
+ * @param {string} identityPubKey account this snapshot belongs to
  * @param {Array<object>} rawTreeNodes leaves as returned by getSparkLeaves
  * @returns {Promise<number>} number of leaves stored
  */
-export function replaceAllLeaves(rawTreeNodes) {
-  // Queue behind any in-flight replace so transactions never overlap.
-  const result = replaceAllLeavesQueue.then(() =>
-    replaceAllLeavesInternal(rawTreeNodes),
+export function replaceAllLeaves(identityPubKey, rawTreeNodes) {
+  // Queue behind any in-flight writer so transactions never overlap.
+  return enqueueWrite(() =>
+    replaceAllLeavesInternal(identityPubKey, rawTreeNodes),
   );
-  replaceAllLeavesQueue = result.catch(() => {});
-  return result;
 }
 
-async function replaceAllLeavesInternal(rawTreeNodes) {
+async function replaceAllLeavesInternal(identityPubKey, rawTreeNodes) {
+  if (!identityPubKey) return 0;
   const db = await getDatabase();
   const leaves = Array.isArray(rawTreeNodes) ? rawTreeNodes : [];
   const now = Date.now();
 
-  await db.execAsync(`DELETE FROM ${LEAVES_TABLE};`);
+  // Bump this account's snapshot version. Every leaf in the new snapshot is
+  // stamped with it; anything left on an older version is stale and swept below.
+  const metaRow = await db.getFirstAsync(
+    `SELECT snapshotVersion FROM ${LEAVES_META_TABLE} WHERE ownerIdentityPubKey = ?`,
+    [identityPubKey],
+  );
+  const newVersion = Number(metaRow?.snapshotVersion || 0) + 1;
+  await db.runAsync(
+    `INSERT INTO ${LEAVES_META_TABLE} (ownerIdentityPubKey, snapshotVersion)
+     VALUES (?, ?)
+     ON CONFLICT(ownerIdentityPubKey) DO UPDATE SET snapshotVersion = excluded.snapshotVersion`,
+    [identityPubKey, newVersion],
+  );
 
   let stored = 0;
   for (let i = 0; i < leaves.length; i += BATCH_SIZE) {
@@ -266,17 +350,44 @@ async function replaceAllLeavesInternal(rawTreeNodes) {
       for (const raw of batch) {
         if (!raw?.id) continue;
         const normalized = normalizeLeaf(raw);
+        // Exit status a NEW (or changed) leaf gets: pending if exit-eligible,
+        // else skipped.
+        const initialExitStatus =
+          normalized.value >= EXIT_MIN_SATS
+            ? EXIT_STATUS_PENDING
+            : EXIT_STATUS_SKIPPED;
         await db.runAsync(
           `INSERT INTO ${LEAVES_TABLE}
-             (id, treeId, value, status, parentNodeId, data, updatedAt)
-           VALUES (?, ?, ?, ?, ?, ?, ?)
+             (id, treeId, value, status, parentNodeId, data, updatedAt,
+              ownerIdentityPubKey, snapshotVersion, exitNodesStatus)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(id) DO UPDATE SET
              treeId = excluded.treeId,
              value = excluded.value,
              status = excluded.status,
              parentNodeId = excluded.parentNodeId,
              data = excluded.data,
-             updatedAt = excluded.updatedAt`,
+             updatedAt = excluded.updatedAt,
+             ownerIdentityPubKey = excluded.ownerIdentityPubKey,
+             snapshotVersion = excluded.snapshotVersion,
+             -- A leaf whose exit-relevant state is unchanged keeps its
+             -- cached-ancestor status; a changed one is re-derived (re-pending /
+             -- re-skipped) so reconcileExitNodes refetches its ancestors instead
+             -- of exporting a stale exit path. We compare only stable fields
+             -- (value/status/treenodeStatus/updatedTime), NOT the whole data
+             -- blob, which re-serializes with reordered arrays (e.g.
+             -- signingKeyshare.ownerIdentifiers) on an otherwise-identical leaf.
+             -- IS is null-safe so an absent updatedTime isn't seen as a change.
+             exitNodesStatus = CASE
+               WHEN ${LEAVES_TABLE}.value IS excluded.value
+                AND ${LEAVES_TABLE}.status IS excluded.status
+                AND json_extract(${LEAVES_TABLE}.data, '$.treenodeStatus')
+                    IS json_extract(excluded.data, '$.treenodeStatus')
+                AND json_extract(${LEAVES_TABLE}.data, '$.updatedTime')
+                    IS json_extract(excluded.data, '$.updatedTime')
+                 THEN ${LEAVES_TABLE}.exitNodesStatus
+               ELSE excluded.exitNodesStatus
+             END`,
           [
             normalized.id,
             normalized.treeId,
@@ -285,6 +396,9 @@ async function replaceAllLeavesInternal(rawTreeNodes) {
             normalized.parentNodeId,
             JSON.stringify(normalized),
             now,
+            identityPubKey,
+            newVersion,
+            initialExitStatus,
           ],
         );
         stored++;
@@ -298,7 +412,141 @@ async function replaceAllLeavesInternal(rawTreeNodes) {
     await yieldToEventLoop();
   }
 
+  // Stale-sweep, scoped to this account: drop any leaf that wasn't in the new
+  // snapshot. FK cascade removes the exit nodes of any leaf that left.
+  await db.runAsync(
+    `DELETE FROM ${LEAVES_TABLE}
+     WHERE ownerIdentityPubKey = ? AND snapshotVersion != ?`,
+    [identityPubKey, newVersion],
+  );
+
   return stored;
+}
+
+/**
+ * Leaf ids still needing their exit-node ancestors cached, highest-value first.
+ * @param {string} identityPubKey
+ * @param {number} limit
+ * @returns {Promise<string[]>}
+ */
+export async function getPendingExitNodeLeafIds(identityPubKey, limit = 8) {
+  if (!identityPubKey) return [];
+  const db = await getDatabase();
+  const rows = await db.getAllAsync(
+    `SELECT id FROM ${LEAVES_TABLE}
+     WHERE ownerIdentityPubKey = ? AND exitNodesStatus = ?
+     ORDER BY value DESC
+     LIMIT ?`,
+    [identityPubKey, EXIT_STATUS_PENDING, limit],
+  );
+  return rows.map(row => String(row.id));
+}
+
+/**
+ * Caches one leaf's exit-node ancestors, race-safe: if the leaf no longer exists
+ * for this account (a newer snapshot / account switch removed it) the write is
+ * skipped rather than inserting an FK orphan. Only call for leaves the fetch
+ * succeeded on (present in the returned map); a genuinely-empty chain still marks
+ * the leaf complete with zero rows.
+ * @param {string} identityPubKey
+ * @param {string} leafId
+ * @param {Array<object>} rawNodes ancestor TreeNodes as returned by Spark
+ * @returns {Promise<boolean>} whether the leaf was marked complete
+ */
+export function saveExitNodesForLeaf(identityPubKey, leafId, rawNodes) {
+  if (!identityPubKey || !leafId) return Promise.resolve(false);
+  // Queue behind any in-flight writer so this transaction never overlaps a
+  // replaceAllLeaves snapshot on the shared connection.
+  return enqueueWrite(async () => {
+    const db = await getDatabase();
+    const nodes = Array.isArray(rawNodes) ? rawNodes : [];
+    const now = Date.now();
+
+    await db.execAsync('BEGIN TRANSACTION;');
+    try {
+      const leafRow = await db.getFirstAsync(
+        `SELECT snapshotVersion FROM ${LEAVES_TABLE}
+         WHERE id = ? AND ownerIdentityPubKey = ?`,
+        [leafId, identityPubKey],
+      );
+      if (!leafRow) {
+        // Leaf gone (newer snapshot / account switch) — never insert an orphan.
+        await db.execAsync('ROLLBACK;');
+        return false;
+      }
+      const snapshotVersion = Number(leafRow.snapshotVersion || 0);
+
+      await db.runAsync(`DELETE FROM ${EXIT_NODES_TABLE} WHERE leafId = ?`, [
+        leafId,
+      ]);
+
+      for (const raw of nodes) {
+        const normalized = normalizeLeaf(raw);
+        if (!normalized?.id || !normalized?.treeNodeHex) continue;
+        await db.runAsync(
+          `INSERT INTO ${EXIT_NODES_TABLE}
+             (ownerIdentityPubKey, leafId, id, treeId, value, status, data,
+              snapshotVersion, updatedAt)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(leafId, id) DO UPDATE SET
+             ownerIdentityPubKey = excluded.ownerIdentityPubKey,
+             treeId = excluded.treeId,
+             value = excluded.value,
+             status = excluded.status,
+             data = excluded.data,
+             snapshotVersion = excluded.snapshotVersion,
+             updatedAt = excluded.updatedAt`,
+          [
+            identityPubKey,
+            leafId,
+            normalized.id,
+            normalized.treeId,
+            normalized.value,
+            normalized.status,
+            JSON.stringify(normalized),
+            snapshotVersion,
+            now,
+          ],
+        );
+      }
+
+      await db.runAsync(
+        `UPDATE ${LEAVES_TABLE} SET exitNodesStatus = ?
+         WHERE id = ? AND ownerIdentityPubKey = ?`,
+        [EXIT_STATUS_COMPLETE, leafId, identityPubKey],
+      );
+
+      await db.execAsync('COMMIT;');
+      return true;
+    } catch (err) {
+      await db.execAsync('ROLLBACK;');
+      console.error('saveExitNodesForLeaf error:', err);
+      return false;
+    }
+  });
+}
+
+/**
+ * Backfill progress for one account: how many exit-eligible leaves still need
+ * their ancestors cached vs. how many are done.
+ * @param {string} identityPubKey
+ * @returns {Promise<{pending: number, complete: number}>}
+ */
+export async function getExitNodeSyncProgress(identityPubKey) {
+  if (!identityPubKey) return { pending: 0, complete: 0 };
+  const db = await getDatabase();
+  const row = await db.getFirstAsync(
+    `SELECT
+       COALESCE(SUM(CASE WHEN exitNodesStatus = ? THEN 1 ELSE 0 END), 0) AS pending,
+       COALESCE(SUM(CASE WHEN exitNodesStatus = ? THEN 1 ELSE 0 END), 0) AS complete
+     FROM ${LEAVES_TABLE}
+     WHERE ownerIdentityPubKey = ?`,
+    [EXIT_STATUS_PENDING, EXIT_STATUS_COMPLETE, identityPubKey],
+  );
+  return {
+    pending: Number(row?.pending || 0),
+    complete: Number(row?.complete || 0),
+  };
 }
 
 /**
@@ -306,7 +554,7 @@ async function replaceAllLeavesInternal(rawTreeNodes) {
  * JS side never iterates the full leaf array.
  * @returns {Promise<Array<{treeId, leafCount, totalValue, exitEligibleCount}>>}
  */
-export async function getTreeSummaries() {
+export async function getTreeSummaries(identityPubKey) {
   const db = await getDatabase();
   const rows = await db.getAllAsync(
     `SELECT treeId,
@@ -314,9 +562,10 @@ export async function getTreeSummaries() {
             COALESCE(SUM(value), 0) AS totalValue,
             COALESCE(SUM(CASE WHEN value >= ? THEN 1 ELSE 0 END), 0) AS exitEligibleCount
      FROM ${LEAVES_TABLE}
+     WHERE ownerIdentityPubKey = ?
      GROUP BY treeId
      ORDER BY totalValue DESC`,
-    [EXIT_MIN_SATS],
+    [EXIT_MIN_SATS, identityPubKey],
   );
   return rows.map(row => ({
     treeId: String(row.treeId),
@@ -330,15 +579,20 @@ export async function getTreeSummaries() {
  * Clear-column leaf rows for one tree, paginated. Never reads/parses `data`.
  * @returns {Promise<Array<{id, value, status, parentNodeId}>>}
  */
-export async function getLeavesForTree(treeId, limit = 100, offset = 0) {
+export async function getLeavesForTree(
+  identityPubKey,
+  treeId,
+  limit = 100,
+  offset = 0,
+) {
   const db = await getDatabase();
   const rows = await db.getAllAsync(
     `SELECT id, value, status, parentNodeId
      FROM ${LEAVES_TABLE}
-     WHERE treeId = ?
+     WHERE treeId = ? AND ownerIdentityPubKey = ?
      ORDER BY value DESC
      LIMIT ? OFFSET ?`,
-    [treeId, limit, offset],
+    [treeId, identityPubKey, limit, offset],
   );
   return rows.map(row => ({
     id: String(row.id),
@@ -352,7 +606,7 @@ export async function getLeavesForTree(treeId, limit = 100, offset = 0) {
  * Header totals in a single query.
  * @returns {Promise<{totalLeaves, totalValue, exitEligible, exitEligibleValue, treeCount, lastSyncedAt}>}
  */
-export async function getGlobalLeafStats() {
+export async function getGlobalLeafStats(identityPubKey) {
   const db = await getDatabase();
   const row = await db.getFirstAsync(
     `SELECT COUNT(*) AS totalLeaves,
@@ -361,8 +615,9 @@ export async function getGlobalLeafStats() {
             COALESCE(SUM(CASE WHEN value >= ? THEN value ELSE 0 END), 0) AS exitEligibleValue,
             COUNT(DISTINCT treeId) AS treeCount,
             COALESCE(MAX(updatedAt), 0) AS lastSyncedAt
-     FROM ${LEAVES_TABLE}`,
-    [EXIT_MIN_SATS, EXIT_MIN_SATS],
+     FROM ${LEAVES_TABLE}
+     WHERE ownerIdentityPubKey = ?`,
+    [EXIT_MIN_SATS, EXIT_MIN_SATS, identityPubKey],
   );
   return {
     totalLeaves: Number(row?.totalLeaves || 0),
@@ -380,13 +635,15 @@ export async function getGlobalLeafStats() {
  * set is never materialized at once.
  * @param {(leaves: object[]) => (void|Promise<void>)} onBatch
  */
-export async function getAllLeavesStream(onBatch) {
+export async function getAllLeavesStream(identityPubKey, onBatch) {
   const db = await getDatabase();
   let offset = 0;
   while (true) {
     const rows = await db.getAllAsync(
-      `SELECT data FROM ${LEAVES_TABLE} ORDER BY treeId, id LIMIT ? OFFSET ?`,
-      [BATCH_SIZE, offset],
+      `SELECT data FROM ${LEAVES_TABLE}
+       WHERE ownerIdentityPubKey = ?
+       ORDER BY treeId, id LIMIT ? OFFSET ?`,
+      [identityPubKey, BATCH_SIZE, offset],
     );
     if (!rows.length) break;
 
@@ -407,13 +664,53 @@ export async function getAllLeavesStream(onBatch) {
 }
 
 /**
+ * Streams this account's distinct cached exit-node ancestors for export. The
+ * same ancestor can back many leaves, so we dedup by node id (GROUP BY id) and
+ * hand each yielding batch to `onBatch`.
+ * @param {string} identityPubKey
+ * @param {(nodes: object[]) => (void|Promise<void>)} onBatch
+ */
+export async function getAllExitNodesStream(identityPubKey, onBatch) {
+  const db = await getDatabase();
+  let offset = 0;
+  while (true) {
+    const rows = await db.getAllAsync(
+      `SELECT data FROM ${EXIT_NODES_TABLE}
+       WHERE ownerIdentityPubKey = ?
+       GROUP BY id
+       ORDER BY id LIMIT ? OFFSET ?`,
+      [identityPubKey, BATCH_SIZE, offset],
+    );
+    if (!rows.length) break;
+
+    const parsed = [];
+    for (const row of rows) {
+      try {
+        parsed.push(JSON.parse(row.data));
+      } catch (err) {
+        console.log('getAllExitNodesStream parse error', err);
+      }
+    }
+    await onBatch(parsed);
+
+    offset += rows.length;
+    if (rows.length < BATCH_SIZE) break;
+    await yieldToEventLoop();
+  }
+}
+
+/**
  * Teardown for wallet delete.
  * @returns {Promise<boolean>}
  */
 export async function deleteLeavesTable() {
   try {
     const db = await getDatabase();
-    await db.execAsync(`DROP TABLE IF EXISTS ${LEAVES_TABLE};`);
+    await db.execAsync(`
+      DROP TABLE IF EXISTS ${EXIT_NODES_TABLE};
+      DROP TABLE IF EXISTS ${LEAVES_META_TABLE};
+      DROP TABLE IF EXISTS ${LEAVES_TABLE};
+    `);
     isInitialized = false;
     return true;
   } catch (err) {

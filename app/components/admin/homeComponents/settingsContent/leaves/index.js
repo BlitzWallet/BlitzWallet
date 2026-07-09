@@ -37,15 +37,10 @@ import openWebBrowser from '../../../../../functions/openWebBrowser';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 
-// Soft chip backgrounds behind the tinted bucket/learn icons.
-const READY_TINT = 'rgba(41, 196, 103, 0.15)';
-const BELOW_TINT = 'rgba(255, 172, 48, 0.18)';
-const LEARN_TINT = 'rgba(3, 117, 246, 0.12)';
-
 export default function WalletLeaves() {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { reconcileLeaves } = useSparkWallet();
+  const { reconcileLeaves, sparkInformation } = useSparkWallet();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -56,9 +51,9 @@ export default function WalletLeaves() {
   const [refreshing, setRefreshing] = useState(false);
 
   const loadFromStore = useCallback(async () => {
-    const nextStats = await getGlobalLeafStats();
+    const nextStats = await getGlobalLeafStats(sparkInformation.identityPubKey);
     setStats(nextStats);
-  }, []);
+  }, [sparkInformation.identityPubKey, sparkInformation.leaves]);
 
   useFocusEffect(
     useCallback(() => {
