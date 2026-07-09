@@ -977,7 +977,7 @@
       "clipboard": "Área de transferência",
       "manual": "Digitar",
       "contacts": "Contatos",
-      "inputPlaceholder": "@PERFIL / BITCOIN / USDT / USDC...",
+      "inputPlaceholder": "Insira @Perfil, Bitcoin, Usdt, Usdc...",
       "scanImage": "Carregar imagem",
       "tapToScan": "Obter endereço a partir de uma imagem",
       "chooseWhatToSend": "Escolha o saldo para o pagamento",
