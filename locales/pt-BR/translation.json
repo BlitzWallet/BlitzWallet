@@ -2268,7 +2268,7 @@
         "point-of-sale": "Ponto de venda",
         "pools": "Vaquinhas",
         "show seed phrase": "Fazer backup da carteira",
-        "wallet leaves": "Folhas da carteira"
+        "wallet leaves": "Backup da carteira"
       },
       "walletLeaves": {
         "sats": "sats",

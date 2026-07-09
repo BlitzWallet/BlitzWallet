@@ -86,14 +86,14 @@ const TECHNICAL_ROWS = [
     iconName: 'ShieldCheck',
   },
   {
-    name: 'Wallet Leaves',
-    displayName: 'screens.inAccount.settingsContent.wallet leaves',
-    iconName: 'Network',
-  },
-  {
     name: 'ViewAllSwaps',
     displayName: 'screens.inAccount.settingsContent.view all swaps',
     iconName: 'SendToBack',
+  },
+  {
+    name: 'Wallet Leaves',
+    displayName: 'screens.inAccount.settingsContent.wallet leaves',
+    iconName: 'DatabaseBackup',
   },
 ];
 
