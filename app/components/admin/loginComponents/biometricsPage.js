@@ -143,7 +143,9 @@ export default function BiometricsLogin() {
         storeData('pinHash', sha256Hash(storedPin.value));
         setAccountMnemonic(savedMnemonic.value);
         didNavigate.current = true;
-        navigate.replace('ConnectingToNodeLoadingScreen');
+        navigate.replace('ConnectingToNodeLoadingScreen', {
+          expectedMnemonicHash: sha256Hash(savedMnemonic.value),
+        });
       } else {
         navigate.navigate('ConfirmActionPage', {
           confirmMessage: t(
@@ -197,7 +199,9 @@ export default function BiometricsLogin() {
     if (decryptResponse) {
       setAccountMnemonic(decryptResponse);
       didNavigate.current = true;
-      navigate.replace('ConnectingToNodeLoadingScreen');
+      navigate.replace('ConnectingToNodeLoadingScreen', {
+        expectedMnemonicHash: sha256Hash(decryptResponse),
+      });
     } else {
       // Genuine failure/cancel — count it toward the retry limit.
       numRetriesBiometric.current++;

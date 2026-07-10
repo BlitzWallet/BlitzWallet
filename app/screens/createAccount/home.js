@@ -13,12 +13,7 @@ import { CENTER, COLORS, SIZES } from '../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
-import { createAccountMnemonic } from '../../functions';
-import {
-  crashlyticsLogReport,
-  crashlyticsRecordErrorReport,
-} from '../../functions/crashlyticsLogs';
-import { useKeysContext } from '../../../context-store/keys';
+import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import {
   FONT,
   HIDDEN_OPACITY,
@@ -96,7 +91,6 @@ const easeOut = Easing.out(Easing.cubic);
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function CreateAccountHome({ navigation: { navigate } }) {
   const { t } = useTranslation();
-  const { setAccountMnemonic } = useKeysContext();
   const { screenDimensions } = useAppStatus();
 
   // Shared values
@@ -146,18 +140,6 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
       1000,
       withTiming(1, { duration: 400, easing: easeOut }),
     );
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        crashlyticsLogReport('Creating account mnemonic');
-        const mnemonic = await createAccountMnemonic();
-        setAccountMnemonic(mnemonic);
-      } catch (err) {
-        crashlyticsRecordErrorReport(err.message);
-      }
-    })();
   }, []);
 
   const go = (page, nextPage) => {
