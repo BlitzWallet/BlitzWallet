@@ -86,6 +86,19 @@ const SLIPPAGE_DROPDOWN_OPTIONS = [
   { label: '5%', value: '5' },
 ];
 
+// The five wizard steps, in visual order. The single source of truth for step
+// visibility — `applyStepVisibility` iterates this so exactly one step is ever
+// shown, regardless of whether the entrance animation ran to completion.
+const STEP_KEYS = [
+  'routeSelection',
+  'historyExpanded',
+  'amountInput',
+  'review',
+  'confirmation',
+];
+const STEP_OFFSCREEN_X = 30;
+const STEP_ANIM_DURATION = 250;
+
 export default function SwapFlowHalfModal({
   setContentHeight,
   handleBackPressFunction,
@@ -101,7 +114,7 @@ export default function SwapFlowHalfModal({
   const { dollarBalanceToken, bitcoinBalance } = useUserBalanceContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
-  const { screenDimensions } = useAppStatus();
+  const { screenDimensions, appState } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -157,52 +170,53 @@ export default function SwapFlowHalfModal({
   const lastSimulatedAmount = useRef(null);
   const isPillPressRef = useRef(false);
 
-  const animateStepValue = useCallback(
-    (step, opacityValue, translateValue) => {
-      const isActive = currentStep === step;
-      opacityValue.value = withTiming(isActive ? 1 : 0, { duration: 250 });
-      translateValue.value = withTiming(
-        isActive ? 0 : dirRef.current === 'forward' ? -30 : 30,
-        { duration: 250 },
-      );
-    },
-    [currentStep],
+  // Shared values keyed by step name.
+  const stepAnims = useMemo(
+    () => ({
+      routeSelection: {
+        opacity: routeSelectionOpacity,
+        translateX: routeSelectionTranslateX,
+      },
+      historyExpanded: {
+        opacity: historyOpacity,
+        translateX: historyTranslateX,
+      },
+      amountInput: { opacity: amountOpacity, translateX: amountTranslateX },
+      review: { opacity: reviewOpacity, translateX: reviewTranslateX },
+      confirmation: {
+        opacity: confirmationOpacity,
+        translateX: confirmationTranslateX,
+      },
+    }),
+    [],
   );
 
-  const getStepAnimationValues = useCallback(
-    step => {
-      switch (step) {
-        case 'historyExpanded':
-          return { opacity: historyOpacity, translateX: historyTranslateX };
-        case 'amountInput':
-          return { opacity: amountOpacity, translateX: amountTranslateX };
-        case 'review':
-          return { opacity: reviewOpacity, translateX: reviewTranslateX };
-        case 'confirmation':
-          return {
-            opacity: confirmationOpacity,
-            translateX: confirmationTranslateX,
-          };
-        case 'routeSelection':
-        default:
-          return {
-            opacity: routeSelectionOpacity,
-            translateX: routeSelectionTranslateX,
-          };
-      }
+  // Single source of truth for "which step is visible".
+  const applyStepVisibility = useCallback(
+    (step, dir, animated) => {
+      STEP_KEYS.forEach(key => {
+        const { opacity, translateX } = stepAnims[key];
+        const isActive = key === step;
+        const targetOpacity = isActive ? 1 : 0;
+        const targetX = isActive
+          ? 0
+          : dir === 'forward'
+          ? -STEP_OFFSCREEN_X
+          : STEP_OFFSCREEN_X;
+        if (animated) {
+          opacity.value = withTiming(targetOpacity, {
+            duration: STEP_ANIM_DURATION,
+          });
+          translateX.value = withTiming(targetX, {
+            duration: STEP_ANIM_DURATION,
+          });
+        } else {
+          opacity.value = targetOpacity;
+          translateX.value = targetX;
+        }
+      });
     },
-    [
-      amountOpacity,
-      amountTranslateX,
-      confirmationOpacity,
-      confirmationTranslateX,
-      historyOpacity,
-      historyTranslateX,
-      reviewOpacity,
-      reviewTranslateX,
-      routeSelectionOpacity,
-      routeSelectionTranslateX,
-    ],
+    [stepAnims],
   );
 
   const routeSelectionAnimatedStyle = useAnimatedStyle(() => ({
@@ -246,32 +260,52 @@ export default function SwapFlowHalfModal({
     if (setContentHeight) {
       setContentHeight(HEIGHT_FOR_STEP[currentStep]);
     }
-    animateStepValue(
-      'routeSelection',
-      routeSelectionOpacity,
-      routeSelectionTranslateX,
-    );
-    animateStepValue('historyExpanded', historyOpacity, historyTranslateX);
-    animateStepValue('amountInput', amountOpacity, amountTranslateX);
-    animateStepValue('review', reviewOpacity, reviewTranslateX);
-    animateStepValue(
-      'confirmation',
-      confirmationOpacity,
-      confirmationTranslateX,
-    );
-  }, [currentStep, animateStepValue, setContentHeight, HEIGHT_FOR_STEP]);
+    applyStepVisibility(currentStep, dirRef.current, true);
+  }, [currentStep, applyStepVisibility, setContentHeight, HEIGHT_FOR_STEP]);
+
+  // Recover from an interrupted step animation (e.g. the app was backgrounded
+  // mid-transition and reanimated dropped the timing that would have brought the
+  // incoming step to opacity 1, leaving the modal blank). On return to the
+  // foreground, snap all steps to their terminal state for the current step.
+  const prevAppStateRef = useRef(appState);
+  useEffect(() => {
+    const wasActive = prevAppStateRef.current === 'active';
+    prevAppStateRef.current = appState;
+    if (appState === 'active' && !wasActive) {
+      applyStepVisibility(currentStep, dirRef.current, false);
+      if (setContentHeight) {
+        setContentHeight(HEIGHT_FOR_STEP[currentStep]);
+      }
+    }
+  }, [
+    appState,
+    currentStep,
+    applyStepVisibility,
+    setContentHeight,
+    HEIGHT_FOR_STEP,
+  ]);
 
   // Navigate between steps with slide direction
   const navigateToStep = useCallback(
     (newStep, dir = 'forward') => {
       dirRef.current = dir;
-      const { opacity, translateX } = getStepAnimationValues(newStep);
+      // Seed the incoming step off-screen so the step-change effect can slide it
+      // in; the effect handles the terminal targets for every step.
+      const { opacity, translateX } = stepAnims[newStep];
       opacity.value = 0;
-      translateX.value = dir === 'forward' ? 30 : -30;
+      translateX.value =
+        dir === 'forward' ? STEP_OFFSCREEN_X : -STEP_OFFSCREEN_X;
       setCurrentStep(newStep);
     },
-    [getStepAnimationValues],
+    [stepAnims],
   );
+
+  // Mirror of currentStep readable inside async handlers, so a swap/simulation
+  // that resolves after the user has navigated away doesn't force a step change.
+  const currentStepRef = useRef(currentStep);
+  useEffect(() => {
+    currentStepRef.current = currentStep;
+  }, [currentStep]);
 
   // Android hardware back press — intercepts step-level navigation
   const handleBackPressAndroid = useCallback(() => {
@@ -735,8 +769,6 @@ export default function SwapFlowHalfModal({
     }
   };
 
-  const confirmLabel = t('constants.confirm');
-
   const getAmountFontSize = amount => {
     if (!amount) return SIZES.large;
     const length = amount.toString().length;
@@ -786,7 +818,7 @@ export default function SwapFlowHalfModal({
 
   const executeSwapAction = async () => {
     if (!fromAmount) {
-      navigateToStep('routeSelection', 'backwards');
+      navigateToStep('routeSelection', 'backward');
       return;
     }
     if (!poolInfo || !fromAmount || parseFloat(fromAmount) <= 0) {
@@ -919,6 +951,8 @@ export default function SwapFlowHalfModal({
           }
 
           setIsSimulating(false);
+
+          if (currentStepRef.current !== 'amountInput') return;
           navigateToStep('review', 'forward');
         } else {
           const errorInfo = handleFlashnetError({
@@ -1005,7 +1039,10 @@ export default function SwapFlowHalfModal({
         );
 
         setConfirmedSwap({ ...result.swap, realReceivedAmount, realFeeAmount });
-        navigateToStep('confirmation', 'forward');
+
+        if (currentStepRef.current === 'review') {
+          navigateToStep('confirmation', 'forward');
+        }
 
         const userSwaps = await getUserSwapHistory(currentWalletMnemoinc, 5);
         const swap = userSwaps.swaps.find(
@@ -2130,13 +2167,14 @@ export default function SwapFlowHalfModal({
             </View>
           </View>
         </ScrollView>
-        <View style={styles.buttonRow}>
-          <CustomButton
-            useLoading={isSwapping}
-            actionFunction={handleAcceptReview}
-            textContent={confirmLabel}
-          />
-        </View>
+
+        <CustomButton
+          buttonStyles={{ ...CENTER }}
+          useLoading={isSwapping}
+          actionFunction={handleAcceptReview}
+          textContent={t('constants.confirm')}
+        />
+
         <ThemeText
           styles={styles.disclaimer}
           content={t('screens.inAccount.swapsPage.swapDisclaimer')}

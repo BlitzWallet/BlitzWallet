@@ -37,7 +37,7 @@ import {
 import { useGlobalContactsInfo } from './globalContacts';
 import { initWallet } from '../app/functions/initiateWalletConnection';
 // import { useNodeContext } from './nodeContext';
-import { AppState } from 'react-native';
+import { AppState, InteractionManager } from 'react-native';
 import getDepositAddressTxIds from '../app/functions/spark/getDepositAdressTxIds';
 import { useKeysContext } from './keys';
 import {
@@ -69,7 +69,16 @@ import { useAuthContext } from './authContext';
 import {
   createRestorePoller,
   getBalanceWithTimeout,
+  getSparkLeavesWithTimeout,
+  getSparkExitNodesForLeavesWithTimeout,
 } from '../app/functions/pollingManager';
+import {
+  replaceAllLeaves,
+  getGlobalLeafStats,
+  getPendingExitNodeLeafIds,
+  saveExitNodesForLeaf,
+  getExitNodeSyncProgress,
+} from '../app/functions/spark/leavesStorage';
 import { USDB_TOKEN_ID } from '../app/constants';
 import { saveAccountBalanceSnapshot } from '../app/functions/spark/balanceSnapshots';
 import { mergeAndCacheTokens } from '../app/functions/lrc20/cachedTokens';
@@ -175,6 +184,10 @@ const SparkWalletProvider = ({ children }) => {
     sparkAddress: '',
     didConnect: null,
     didConnectToFlashnet: null,
+    // Lightweight summary of the local leaves store (full leaf detail lives in
+    // SQLite; the Wallet Leaves page reads it directly). Kept small on purpose —
+    // the full leaf array must never live in context state.
+    leaves: { count: 0, totalValue: 0, lastSyncedAt: 0 },
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
 
@@ -218,6 +231,28 @@ const SparkWalletProvider = ({ children }) => {
   const isReconcilingBalanceRef = useRef(false);
   const reconcileBalanceAgainRef = useRef(false);
   const reconcileRunIdRef = useRef(0);
+
+  // Single-flight + throttle for the leaves sync. Leaves change far less often
+  // than balance and syncing them is heavier (map + serialize + bulk insert of a
+  // potentially large set), so we skip a sync that ran within the throttle window.
+  const isReconcilingLeavesRef = useRef(false);
+  const lastLeavesSyncRef = useRef(0);
+  const hydratedLeavesForRef = useRef(null);
+  const LEAVES_SYNC_THROTTLE_MS = 30000;
+
+  // Single-flight + throttle for the exit-node backfill. Heavier than a leaves
+  // sync (each pending leaf hits Spark operators for its ancestor chain), so it
+  // runs on a longer window and piggybacks leaves syncs rather than firing on
+  // every wallet event.
+  const isReconcilingExitNodesRef = useRef(false);
+  const lastExitNodesSyncRef = useRef(0);
+  // Promise for the exit-node run currently in flight (or null). A forced
+  // refresh (export) awaits this so it can never be silently dropped by the
+  // single-flight guard when a background backfill happens to be running.
+  const exitNodesRunRef = useRef(null);
+  const EXIT_NODES_SYNC_THROTTLE_MS = 60000;
+  // How many pending leaves we fetch ancestors for per operator round-trip.
+  const EXIT_NODES_BATCH_SIZE = 6;
 
   // Tracks whether the Spark event stream has dropped, so a later
   // stream:connected is recognized as a *re*connect (which warrants one
@@ -865,12 +900,14 @@ const SparkWalletProvider = ({ children }) => {
       sparkInfoRef.current.tokens,
     );
 
+    reconcileLeaves();
+
     setSparkInformation(prev => {
       if (myVersion < balanceVersionRef.current) return prev;
       if (prev.balance === nextBalance) return prev;
       return { ...prev, balance: nextBalance };
     });
-  }, []);
+  }, [reconcileLeaves]);
 
   // One authoritative balance read, applied directly. The displayed balance is
   // driven in real time by balance:update events; this read is a safety net to
@@ -963,6 +1000,184 @@ const SparkWalletProvider = ({ children }) => {
     }
   }, [reconcileBalance]);
 
+  // Refreshes the local leaves store from a live getLeaves() snapshot, then
+  // updates the small in-context summary. Single-flight + throttled; the heavy
+  // map/serialize/insert work is deferred behind InteractionManager so it never
+  // competes with navigation or gestures. The fetch uses the fast coordinator
+  // path (isBalanceCheck=true) — the export flow forces a full getLeaves(false).
+  // Incrementally caches each exit-eligible leaf's ancestor TreeNodes so the
+  // local export bundle can drive an OFFLINE multi-level unilateral exit. Driven
+  // purely by DB `pending` flags, so it is automatically resumable: any leaf left
+  // pending (fetch failed/timed out, app backgrounded, account switched, or leaf
+  // missing from this snapshot) is retried on a later reconcile. Single-flight +
+  // throttled (longer window than leaves). Scoped to the captured account, so an
+  // account switch mid-run can only no-op against the old account.
+  const reconcileExitNodes = useCallback(async (rawLeaves, force = false) => {
+    const identityPubKey = sparkInfoRef.current.identityPubKey;
+    const mnemonic = currentMnemonicRef.current;
+    if (!identityPubKey || !mnemonic) return;
+    if (!Array.isArray(rawLeaves)) return;
+
+    if (isReconcilingExitNodesRef.current) {
+      // A run is already in flight. Background calls stay single-flight and are
+      // dropped. A forced refresh (export) must not be silently skipped: wait
+      // for the in-flight run to finish, then run our forced pass so the export
+      // bundle is built from freshly fetched ancestor chains.
+      if (!force) return;
+      try {
+        await exitNodesRunRef.current;
+      } catch {}
+    }
+
+    if (
+      !force &&
+      Date.now() - lastExitNodesSyncRef.current < EXIT_NODES_SYNC_THROTTLE_MS
+    )
+      return;
+
+    const run = (async () => {
+      isReconcilingExitNodesRef.current = true;
+      try {
+        const leafById = new Map(
+          rawLeaves.filter(leaf => leaf?.id).map(leaf => [leaf.id, leaf]),
+        );
+        let pendingIds;
+
+        while (true) {
+          if (AppState.currentState !== 'active') break;
+          if (mnemonic !== currentMnemonicRef.current) break;
+
+          let batchLeaves;
+
+          if (force) {
+            // Process the provided leaves directly once.
+            batchLeaves = rawLeaves;
+          } else {
+            pendingIds = await getPendingExitNodeLeafIds(
+              identityPubKey,
+              EXIT_NODES_BATCH_SIZE,
+            );
+
+            if (!pendingIds.length) break;
+
+            batchLeaves = [];
+            for (const id of pendingIds) {
+              const leaf = leafById.get(id);
+              if (leaf) batchLeaves.push(leaf);
+            }
+
+            if (!batchLeaves.length) break;
+          }
+
+          const exitNodesMap = await getSparkExitNodesForLeavesWithTimeout(
+            mnemonic,
+            batchLeaves,
+          );
+
+          if (mnemonic !== currentMnemonicRef.current) break;
+
+          // Persist every leaf the fetch succeeded on (present in the map).
+          // Leaves absent from the map stay pending and are retried later.
+          let markedThisBatch = 0;
+          for (const leaf of batchLeaves) {
+            if (!(leaf.id in exitNodesMap)) continue;
+            const didMark = await saveExitNodesForLeaf(
+              identityPubKey,
+              leaf.id,
+              exitNodesMap[leaf.id],
+            );
+            if (didMark) markedThisBatch++;
+          }
+
+          if (force) {
+            // Only process the supplied leaves once.
+            break;
+          }
+
+          if (markedThisBatch === 0) break;
+
+          // Yield between batches so the operator round-trips never starve frames.
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+
+        if (!force && rawLeaves?.length > 0 && pendingIds?.length)
+          lastExitNodesSyncRef.current = Date.now();
+
+        // Reflect backfill progress into the in-context summary for the UI.
+        const progress = await getExitNodeSyncProgress(identityPubKey);
+        if (identityPubKey === sparkInfoRef.current.identityPubKey) {
+          setSparkInformation(prev => ({
+            ...prev,
+            leaves: {
+              ...(prev.leaves || {}),
+              exitNodesPending: progress.pending,
+              exitNodesComplete: progress.complete,
+            },
+          }));
+        }
+      } catch (err) {
+        console.log('[reconcileExitNodes] error', err);
+      } finally {
+        isReconcilingExitNodesRef.current = false;
+      }
+    })();
+    exitNodesRunRef.current = run;
+    return run;
+  }, []);
+
+  const reconcileLeaves = useCallback(
+    async (force = false) => {
+      const mnemonic = currentMnemonicRef.current;
+      if (!mnemonic) return;
+      const identityPubKey = sparkInfoRef.current.identityPubKey;
+      if (!identityPubKey) return;
+      if (isReconcilingLeavesRef.current) return;
+      if (
+        !force &&
+        Date.now() - lastLeavesSyncRef.current < LEAVES_SYNC_THROTTLE_MS
+      )
+        return;
+
+      isReconcilingLeavesRef.current = true;
+      try {
+        const rawLeaves = await getSparkLeavesWithTimeout(mnemonic, true);
+        // A null result means the read timed out / errored — keep store as-is.
+        if (!Array.isArray(rawLeaves)) return;
+        if (mnemonic !== currentMnemonicRef.current) return;
+
+        await new Promise((resolve, reject) => {
+          InteractionManager.runAfterInteractions(async () => {
+            try {
+              await replaceAllLeaves(identityPubKey, rawLeaves);
+              const stats = await getGlobalLeafStats(identityPubKey);
+              setSparkInformation(prev => ({
+                ...prev,
+                leaves: {
+                  ...(prev.leaves || {}),
+                  count: stats.totalLeaves,
+                  totalValue: stats.totalValue,
+                  lastSyncedAt: stats.lastSyncedAt,
+                },
+              }));
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          });
+        });
+        if (rawLeaves?.length) lastLeavesSyncRef.current = Date.now();
+        // Backfill the exit-node ancestors for this fresh snapshot (background,
+        // not awaited — it self-throttles and single-flights).
+        reconcileExitNodes(rawLeaves);
+      } catch (err) {
+        console.log('[reconcileLeaves] error', err);
+      } finally {
+        isReconcilingLeavesRef.current = false;
+      }
+    },
+    [reconcileExitNodes],
+  );
+
   const handleUpdate = useCallback(
     (...args) => {
       const [updateType = 'transactions'] = args;
@@ -978,6 +1193,9 @@ const SparkWalletProvider = ({ children }) => {
       // a safety net in case the matching event was missed.
       if (BALANCE_INTENT_UPDATE_TYPES.has(updateType)) {
         reconcileBalance();
+        // Leaves changed alongside the balance — refresh the local store too
+        // (throttled, so a burst of intents won't trigger repeated full syncs).
+        reconcileLeaves();
       }
 
       // Apply the displayed balance in the same pass as the incoming toast.
@@ -1000,6 +1218,7 @@ const SparkWalletProvider = ({ children }) => {
       enqueueTxLane,
       projectTransactionsForEvent,
       reconcileBalance,
+      reconcileLeaves,
       flushBalanceNow,
     ],
   );
@@ -1173,10 +1392,13 @@ const SparkWalletProvider = ({ children }) => {
       // returns the locked 0/partial; the send's paymentWrapperTx reconcile
       // lands the settled balance at settlement.
       if (!isSendingPaymentRef.current) reconcileBalance();
+      // Events (including leaf changes) may have been missed while the stream
+      // was down — refresh the local leaves store too.
+      reconcileLeaves();
       // Recover token txs whose token-balance:update fired while the stream was down.
       reconcileTokenTransactions(false);
     },
-    [reconcileBalance, reconcileTokenTransactions],
+    [reconcileBalance, reconcileLeaves, reconcileTokenTransactions],
   );
 
   useEffect(() => {
@@ -1960,6 +2182,8 @@ const SparkWalletProvider = ({ children }) => {
     if (!isSendingPaymentRef.current) {
       reconcileBalance();
     }
+    // Refresh the local leaves store on foreground (throttled).
+    reconcileLeaves();
     // Recover token txs whose token-balance:update fired while backgrounded.
     reconcileTokenTransactions(false);
   }, [
@@ -1967,7 +2191,42 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     reconcileBalance,
+    reconcileLeaves,
     reconcileTokenTransactions,
+  ]);
+
+  // On the first successful connect for an account: hydrate the leaves summary
+  // from the local SQLite store (so the Wallet Leaves page has cached totals
+  // immediately, even offline), then kick off one forced sync to freshen it.
+  useEffect(() => {
+    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
+    if (hydratedLeavesForRef.current === sparkInformation.identityPubKey)
+      return;
+    hydratedLeavesForRef.current = sparkInformation.identityPubKey;
+
+    const identityPubKey = sparkInformation.identityPubKey;
+    (async () => {
+      try {
+        const stats = await getGlobalLeafStats(identityPubKey);
+        setSparkInformation(prev => ({
+          ...prev,
+          leaves: {
+            ...(prev.leaves || {}),
+            count: stats.totalLeaves,
+            totalValue: stats.totalValue,
+            lastSyncedAt: stats.lastSyncedAt,
+          },
+        }));
+      } catch (err) {
+        console.log('hydrate leaves summary error', err);
+      }
+      reconcileLeaves(true);
+    })();
+  }, [
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    reconcileLeaves,
   ]);
 
   // This function connects to the spark node and sets the session up
@@ -2083,6 +2342,8 @@ const SparkWalletProvider = ({ children }) => {
       updateHomepageScrollPosition,
       filterAndSetTransactions,
       updateHomepageTxPreferance,
+      reconcileLeaves,
+      reconcileExitNodes,
     }),
     [
       sparkInformation,
@@ -2100,6 +2361,8 @@ const SparkWalletProvider = ({ children }) => {
       updateHomepageScrollPosition,
       filterAndSetTransactions,
       updateHomepageTxPreferance,
+      reconcileLeaves,
+      reconcileExitNodes,
     ],
   );
 

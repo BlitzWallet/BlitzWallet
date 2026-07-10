@@ -7,6 +7,8 @@ const esModules = [
   '@react-navigation',
   '@react-native-firebase',
   '@noble',
+  '@buildonspark/spark-sdk',
+  '@bufbuild/protobuf',
 ].join('|');
 
 module.exports = {

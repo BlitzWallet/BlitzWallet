@@ -19,6 +19,7 @@ import BlitzFeeInformation from './feeInformation';
 import CreateCustodyAccounts from './accounts';
 import ViewSwapsHome from './viewAllSwapsHome';
 import SpendAndReplace from './spendAndReplace';
+import WalletLeaves from './leaves';
 
 export {
   AboutPage,
@@ -42,4 +43,5 @@ export {
   NotificationPreferances,
   BlitzFeeInformation,
   SpendAndReplace,
+  WalletLeaves,
 };

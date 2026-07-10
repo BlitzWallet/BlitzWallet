@@ -20,6 +20,7 @@ import {
   deleteSavingsTransactionsTable,
 } from './savings/savingsStorage';
 import { deleteBtcMapTable } from './btcMap/btcMapStorage';
+import { deleteLeavesTable } from './spark/leavesStorage';
 
 export default async function factoryResetWallet() {
   try {
@@ -39,6 +40,7 @@ export default async function factoryResetWallet() {
     await deleteSavingsTransactionsTable();
     await deleteSavingsPayoutsTable();
     await deleteBtcMapTable();
+    await deleteLeavesTable();
 
     try {
       await signOut(firebaseAuth);
