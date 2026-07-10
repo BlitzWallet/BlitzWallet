@@ -2269,7 +2269,7 @@
         "point-of-sale": "Zahlungsterminal (POS)",
         "pools": "Sparpools",
         "show seed phrase": "Seed-Phrase sichern",
-        "wallet leaves": "Wallet-Daten"
+        "wallet leaves": "Wallet-Backup"
       },
       "walletLeaves": {
         "sats": "Sats",
@@ -2284,14 +2284,14 @@
         "notReadyTitle": "Nicht bereit zum Ausstieg",
         "readyTitle": "Bereit zum Ausstieg",
         "verdictSuffix": "/ {{total}} Blätter",
-        "verdictBodyNotReady": "Ihr Geld ist sicher. Keines Ihrer Blätter ist jedoch groß genug, um allein auszusteigen – jedes muss mindestens {{min}} Sats enthalten, damit sich die On-Chain-Gebühren lohnen.",
-        "verdictBodyReady": "Sie haben Blätter, die groß genug sind, um allein auszusteigen. Jedes ausstiegsbereite Blatt überschreitet die {{min}} Sats, die nötig sind, um die On-Chain-Gebühren zu decken.",
+        "verdictBodyNotReady": "Ihr Geld ist sicher. Keines Ihrer Blätter ist jedoch groß genug, um allein auszusteigen. Jedes Blatt muss mindestens {{min}} Sats enthalten, damit sich die On-Chain-Gebühren lohnen.",
+        "verdictBodyReady": "Sie haben Blätter, die groß genug sind, um allein auszusteigen. Jedes ausstiegsbereite Blatt enthält mehr als die {{min}} Sats, die nötig sind, um die On-Chain-Gebühren zu decken.",
         "bucketReadyTitle": "Bereit zum Ausstieg",
         "bucketReadySub": "Über {{min}} Sats",
         "bucketBelowTitle": "Unter Schwellenwert",
         "bucketBelowSub": "Zu klein für einen alleinigen Ausstieg",
         "exportTitle": "Recovery-Tool öffnen",
-        "exportSubTitle": "Stellen Sie Ihre Guthaben ohne Spark wieder her",
+        "exportSubTitle": "Stellen Sie Ihre Gelder ohne Spark wieder her",
         "learnTitle": "Was ist ein einseitiger Ausstieg?",
         "learnSubtitle": "Bitcoin ohne Spark zurückholen",
         "guide": {
@@ -2301,9 +2301,9 @@
           "howSubtitle": "Direkt auf Bitcoin auszahlen – ohne Genehmigung.",
           "rootLabel": "WURZEL",
           "leafLabel": "BLATT",
-          "diagramCaption": "Von oben nach unten übertragen, der Reihenfolge nach",
+          "diagramCaption": "Von oben nach unten senden, in der richtigen Reihenfolge",
           "step1": "Wählen Sie ein Blatt mit mehr als {{min}} Sats.",
-          "step2": "Übertragen Sie die Transaktionen in einer Sitzung von der Wurzel bis zum Blatt.",
+          "step2": "Senden Sie die Transaktionen in einer Sitzung in der Reihenfolge von der Wurzel bis zum Blatt.",
           "step3": "Die Gelder werden in Ihrer On-Chain-Bitcoin-Wallet gutgeschrieben.",
           "warningTitle": "Nur eine Sitzung.",
           "warningBody": "Ihre Wallet ist gesperrt, bis der Ausstieg abgeschlossen ist. Planen Sie daher genügend Zeit ein.",
