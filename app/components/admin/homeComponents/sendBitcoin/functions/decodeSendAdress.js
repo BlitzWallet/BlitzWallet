@@ -27,7 +27,10 @@ import getPhonePaymentAddress, {
   getPhonePaymentCandidates,
   getPhonePostProvider,
 } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
-import { BTC_USD_SUFFIX_REGEX } from '../../../../../constants';
+import {
+  BTC_SUFFIX_REGEX,
+  BTC_USD_SUFFIX_REGEX,
+} from '../../../../../constants';
 
 export default async function decodeSendAddress(props) {
   let {
@@ -163,7 +166,7 @@ export default async function decodeSendAddress(props) {
 
       if (
         !BTC_USD_SUFFIX_REGEX.test(username) ||
-        BTC_USD_SUFFIX_REGEX.test(username)
+        BTC_SUFFIX_REGEX.test(username)
       ) {
         if (!username) {
           return goBackFunction(
