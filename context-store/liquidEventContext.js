@@ -44,10 +44,11 @@ export function LiquidEventProvider({ children }) {
 
   useEffect(() => {
     if (!liquidNodeInformation.didConnectToNode) return;
+    if (!accountMnemoinc) return;
     if (initialLiquidRun.current) return;
     initialLiquidRun.current = true;
     startLiquidEventListener(6);
-  }, [liquidNodeInformation.didConnectToNode]);
+  }, [liquidNodeInformation.didConnectToNode, accountMnemoinc]);
 
   useEffect(() => {
     if (isInitialRender.current) {

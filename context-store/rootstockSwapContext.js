@@ -308,10 +308,11 @@ export const RootstockSwapProvider = ({ children }) => {
 
   useEffect(() => {
     if (!sparkInformation.identityPubKey) return;
+    if (!accountMnemoinc) return;
     if (didRunSignerCreation.current) return;
     didRunSignerCreation.current = true;
     createSigner();
-  }, [sparkInformation.identityPubKey]);
+  }, [sparkInformation.identityPubKey, accountMnemoinc]);
 
   useEffect(() => {
     if (!signer) return;

@@ -14,6 +14,7 @@ import {
 } from '../../../constants';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
+import sha256Hash from '../../../functions/hash';
 import { useTranslation } from 'react-i18next';
 import {
   CustomKeyboardAvoidingView,
@@ -188,8 +189,16 @@ export default function RestoreWallet({
       if (!hasAccount)
         throw new Error(t('createAccount.restoreWallet.home.error2'));
       else {
-        setAccountMnemonic(mnemonic.join(' '));
-        navigate.navigate('PinSetup', { didRestoreWallet: true });
+        const restoredSeed = mnemonic.join(' ');
+        setAccountMnemonic(restoredSeed);
+        // Thread the hash of the seed the user actually entered through to the
+        // loading screen (via PinSetup). This is the source of truth for the
+        // account identity — immune to any later clobber of the shared
+        // accountMnemoinc context.
+        navigate.navigate('PinSetup', {
+          didRestoreWallet: true,
+          expectedMnemonicHash: sha256Hash(restoredSeed),
+        });
       }
     } catch (err) {
       console.log('key validation error', err);

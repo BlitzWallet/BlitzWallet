@@ -8,7 +8,11 @@ import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useGlobalAppData } from '../../../context-store/appData';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
-import { StackActions, useNavigation } from '@react-navigation/native';
+import {
+  StackActions,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import { navigationRef } from '../../../navigation/navigationService';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useKeysContext } from '../../../context-store/keys';
@@ -23,6 +27,7 @@ import { useWebView } from '../../../context-store/webViewContext';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { getCachedSparkTransactions } from '../../functions/spark';
 import { deriveSparkIdentityKey } from '../../functions/gift/deriveGiftWallet';
+import sha256Hash from '../../functions/hash';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { initializeAllDatabases } from '../../functions/initializeAllDatabases';
 import openWebBrowser from '../../functions/openWebBrowser';
@@ -34,6 +39,13 @@ const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen() {
   const navigate = useNavigation();
+  const route = useRoute();
+  // Hash of the exact seed the caller intends this account to load. Threaded in
+  // from every entry point (create/restore via pin.js, relogin via pin/biometric,
+  // no-security via App.tsx initialParams). We refuse to derive the account
+  // identity until the in-context accountMnemoinc hashes to this value — see the
+  // gate in the connect effect below.
+  const expectedMnemonicHash = route.params?.expectedMnemonicHash;
   const {
     toggleMasterInfoObject,
     masterInfoObject,
@@ -190,12 +202,47 @@ export default function ConnectingToNodeLoadingScreen() {
       }
     }
 
-    if (preloadedUserData.isLoading && !preloadedUserData.data) return;
     if (didRunConnectionRef.current) return;
+    if (preloadedUserData.isLoading && !preloadedUserData.data) return;
+
+    // ── Seed gate ─────────────────────────────────────────────────────────
+    // The account identity (UUID + spark identity) is derived from
+    // accountMnemoinc below. Under the restore/login navigation race this
+    // effect can run while accountMnemoinc is still empty/stale — deriving the
+    // identity from the wrong seed while the wallet connects with the correct
+    // one (real funds, wrong account). Latch the derivation only once the
+    // in-context seed is exactly the seed the caller intended. We do NOT set
+    // didRunConnectionRef here, so the effect re-runs (accountMnemoinc is a dep)
+    // and latches the instant the seed converges.
+    if (!accountMnemoinc) return;
+    if (expectedMnemonicHash) {
+      if (sha256Hash(accountMnemoinc) !== expectedMnemonicHash) return;
+    }
+
     didRunConnectionRef.current = true;
 
     requestAnimationFrame(startConnectProcess);
-  }, [preloadedUserData, masterInfoObject]);
+  }, [
+    preloadedUserData,
+    masterInfoObject,
+    accountMnemoinc,
+    expectedMnemonicHash,
+  ]);
+
+  // Safety valve for the seed gate: if the in-context seed never converges to
+  // the expected one (should not happen once the eager restore-path generation
+  // is fixed), surface the recoverable error UI instead of spinning forever.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!didRunConnectionRef.current) {
+        setHasError({
+          title: t('screens.inAccount.loadingScreen.initErrorTitle'),
+          subtitle: t('screens.inAccount.loadingScreen.userSettingsError'),
+        });
+      }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [t]);
 
   return (
     <GlobalThemeView useStandardWidth={true}>

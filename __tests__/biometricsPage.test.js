@@ -234,6 +234,7 @@ describe('BiometricsLogin - never deadlocks (RC1)', () => {
     expect(mockSetAccountMnemonic).toHaveBeenCalledWith('seed words');
     expect(mockNavigate.replace).toHaveBeenCalledWith(
       'ConnectingToNodeLoadingScreen',
+      { expectedMnemonicHash: 'HASHED' },
     );
   });
 });
@@ -252,6 +253,7 @@ describe('BiometricsLogin - auto-trigger', () => {
     expect(mockNavigate.replace).toHaveBeenCalledTimes(1);
     expect(mockNavigate.replace).toHaveBeenCalledWith(
       'ConnectingToNodeLoadingScreen',
+      { expectedMnemonicHash: 'HASHED' },
     );
   });
 
@@ -398,6 +400,7 @@ describe('BiometricsLogin - legacy migration', () => {
     expect(mockSetAccountMnemonic).toHaveBeenCalledWith('LEGACY_MNEMONIC');
     expect(mockNavigate.replace).toHaveBeenCalledWith(
       'ConnectingToNodeLoadingScreen',
+      { expectedMnemonicHash: 'HASHED' },
     );
   });
 
