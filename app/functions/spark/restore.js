@@ -34,6 +34,7 @@ import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
 import fetchBackend from '../../../db/handleBackend';
 import i18next from 'i18next';
+import { getBalanceWithTimeout } from '../pollingManager';
 
 const RESTORE_STATE_KEY = 'spark_tx_restore_state';
 const MAX_BATCH_SIZE = 400;
@@ -226,7 +227,7 @@ const restoreSparkTxState = async (
         // the restore complete on a wallet that clearly has history.
         const noTxsDiscovered = savedIds.size === 0 && !restoredTxs.length;
         if (noTxsDiscovered) {
-          const { didWork, balance } = await getSparkBalance(mnemonic);
+          const { didWork, balance } = await getBalanceWithTimeout(mnemonic);
           if (didWork && BigInt(balance || 0) > 0n) {
             throw new Error(
               'Restore returned 0 transactions but wallet has a balance; retrying',
