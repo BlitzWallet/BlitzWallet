@@ -2303,7 +2303,7 @@
           "diagramCaption": "Transmita de cima para baixo, em ordem",
           "step1": "Escolha uma folha com mais de {{min}} sats.",
           "step2": "Transmita as transações da raiz até a folha em uma única sessão.",
-          "step3": "Os fundos chegarão à sua carteira Bitcoin on-chain.",
+          "step3": "Os fundos chegarão à sua carteira Bitcoin.",
           "warningTitle": "Apenas uma sessão.",
           "warningBody": "Sua carteira ficará bloqueada até que a saída seja concluída. Reserve tempo suficiente antes de começar.",
           "openBlink": "Abrir a ferramenta de saída"
