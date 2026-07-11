@@ -1419,8 +1419,9 @@ export const getSparkTransactions = async (
 ) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
+    let response;
     if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal(
+      const webViewResponse = await sendWebViewRequestGlobal(
         OPERATION_TYPES.getTransactions,
         {
           mnemonic,
@@ -1428,17 +1429,28 @@ export const getSparkTransactions = async (
           offsetIndex,
         },
       );
-      return validateWebViewResponse(
-        response,
+
+      if (webViewResponse.offset === undefined)
+        throw new Error('Failed to get transfers');
+
+      response = validateWebViewResponse(
+        webViewResponse,
         'Not able to send spark transactions',
       );
     } else {
       const wallet = await getWallet(mnemonic);
-      return await wallet.getTransfers(transferCount, offsetIndex);
+      response = await wallet.getTransfers(transferCount, offsetIndex);
     }
+    // success:true marks a genuine reply from Spark (an empty transfers array
+    // here means the wallet truly has no more transactions). Callers use this to
+    // tell a real "no transactions" from a failed fetch below, which are
+    // otherwise indistinguishable at the .transfers level.
+    return { ...response, transfers: response?.transfers || [], success: true };
   } catch (err) {
     console.log('get spark transactions error', err);
-    return { transfers: [] };
+    // success:false — the fetch itself failed (network/WebView error). Callers
+    // MUST NOT treat this as "no transactions" or persist a restore-complete flag.
+    return { transfers: [], success: false };
   }
 };
 

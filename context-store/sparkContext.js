@@ -215,6 +215,8 @@ const SparkWalletProvider = ({ children }) => {
   const isInitialRender = useRef(true);
   const authResetKeyRef = useRef(authResetkey);
   const balanceVersionRef = useRef(0);
+  // One-shot latch: has the post-connect authoritative balance reconcile run for
+  // this session yet? Reset in resetSparkState so an account switch re-arms it.
   const hasRunInitBalancePoll = useRef(false);
   const foregroundReconcileAppStateRef = useRef(appState);
 
@@ -1280,8 +1282,20 @@ const SparkWalletProvider = ({ children }) => {
 
       if (!Number.isFinite(available)) return;
       // Value-gate: ignore no-op events so a burst of inbound transfers (each
-      // emitting balance:update) can't trigger a render / DB-write storm.
-      if (available === sparkInfoRef.current.balance) return;
+      // emitting balance:update) can't trigger a render / DB-write storm. When a
+      // flush is still pending, compare against the last STAGED value
+      // (latestBalanceRef) rather than the committed balance. sparkInfoRef.balance
+      // lags committed state by a render/effect cycle and holds the pre-burst
+      // value mid-debounce, so comparing against it would drop a legitimate
+      // return-to-baseline event (X→Y→X within the debounce) and leave the stale
+      // intermediate Y staged to flush — an overstated balance / over-send risk.
+      const hasPendingFlush =
+        balanceDebounceTimeoutRef.current !== null ||
+        balanceDebounceMaxWaitRef.current !== null;
+      const currentTarget = hasPendingFlush
+        ? latestBalanceRef.current
+        : sparkInfoRef.current.balance;
+      if (available === currentTarget) return;
 
       // Always flush with the most recent value, even when the max-wait timer
       // (set on the first event of the burst) fires.
@@ -2257,7 +2271,7 @@ const SparkWalletProvider = ({ children }) => {
       // The init balance read timed out and painted the stale snapshot — recover
       // the real balance out-of-band so it can't stay stale until a foreground
       // cycle or manual refresh.
-      if (balanceTimedOut) retryBalanceAfterTimeout();
+      retryBalanceAfterTimeout();
     },
     [accountMnemoinc, sendWebViewRequest, retryBalanceAfterTimeout],
   );

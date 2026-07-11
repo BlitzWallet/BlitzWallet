@@ -3,6 +3,7 @@ import {
   getSparkBitcoinPaymentRequest,
   getSparkLightningPaymentStatus,
   getSparkLightningSendRequest,
+  getSparkBalance,
   getSparkPaymentStatus,
   getSparkTransactions,
   querySparkHodlLightningPayments,
@@ -33,6 +34,7 @@ import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
 import fetchBackend from '../../../db/handleBackend';
 import i18next from 'i18next';
+import { getBalanceWithTimeout } from '../pollingManager';
 
 const RESTORE_STATE_KEY = 'spark_tx_restore_state';
 const MAX_BATCH_SIZE = 400;
@@ -204,9 +206,34 @@ const restoreSparkTxState = async (
     while (true) {
       const txs = await getSparkTransactions(localBatchSize, offset, mnemonic);
 
+      if (!txs.success) {
+        // The fetch failed (network/WebView error). This is indistinguishable
+        // from an empty wallet at the .transfers level, so we must NOT fall
+        // through to markRestoreComplete — doing so would persist
+        // isFullyRestored:true and stop the restore poller from ever
+        // re-scanning this session. Throw so the outer catch reports the run as
+        // incomplete and the caller retries.
+        throw new Error('Failed to fetch transactions during restore');
+      }
+
       const batchTxs = txs.transfers || [];
 
       if (!batchTxs.length) {
+        // A successful, empty batch normally means we've reached the end of
+        // history. But if we've discovered zero transactions in total and the
+        // wallet still reports a positive balance, the empty result is almost
+        // certainly a bad/incomplete fetch — you cannot hold a balance with no
+        // transactions. Treat that as a failure and retry rather than marking
+        // the restore complete on a wallet that clearly has history.
+        const noTxsDiscovered = savedIds.size === 0 && !restoredTxs.length;
+        if (noTxsDiscovered) {
+          const { didWork, balance } = await getBalanceWithTimeout(mnemonic);
+          if (didWork && BigInt(balance || 0) > 0n) {
+            throw new Error(
+              'Restore returned 0 transactions but wallet has a balance; retrying',
+            );
+          }
+        }
         console.log('No more transactions found, ending restore.');
         await markRestoreComplete(accountId);
         break;
