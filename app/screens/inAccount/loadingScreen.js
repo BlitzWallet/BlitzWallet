@@ -171,7 +171,7 @@ export default function ConnectingToNodeLoadingScreen() {
         const elapsed = Date.now() - startTime;
         const minDuration = hasSavedInfo ? 500 : 1500;
         await new Promise(resolve =>
-          setTimeout(resolve, Math.max(60, minDuration - elapsed)),
+          setTimeout(resolve, Math.round(minDuration - elapsed)),
         );
 
         // Idempotent + dispatched through the container (not this instance's
