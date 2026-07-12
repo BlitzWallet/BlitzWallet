@@ -277,6 +277,7 @@ export default function RestoreWallet({
               textContentType="none"
               importantForAutofill="no"
               keyboardType="visible-password"
+              disableFullscreenUI={true}
               keyboardAppearance={theme ? 'dark' : 'light'}
               ref={ref => (keyRefs.current[item1] = ref)}
               value={inputedKey[`key${item1}`]}
@@ -305,6 +306,7 @@ export default function RestoreWallet({
               textContentType="none"
               importantForAutofill="no"
               keyboardType="visible-password"
+              disableFullscreenUI={true}
               keyboardAppearance={theme ? 'dark' : 'light'}
               ref={ref => (keyRefs.current[item2] = ref)}
               value={inputedKey[`key${item2}`]}
