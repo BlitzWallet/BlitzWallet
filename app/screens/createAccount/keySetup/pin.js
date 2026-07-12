@@ -14,6 +14,7 @@ import { storeMnemonicWithPinSecurity } from '../../../functions/handleMnemonic'
 import { privateKeyFromSeedWords } from '../../../functions/nostrCompatability';
 import { getPublicKey } from 'nostr-tools';
 import { initializeFirebase } from '../../../../db/initializeFirebase';
+import sha256Hash from '../../../functions/hash';
 
 export default function PinPage(props) {
   const { accountMnemoinc } = useKeysContext();
@@ -27,6 +28,9 @@ export default function PinPage(props) {
   const didNavigate = useRef(null);
   // const fromGiftPath = props.route.params?.from === 'giftPath';
   const didRestoreWallet = props.route.params?.didRestoreWallet;
+  // For restore this is the hash of the seed the user typed (source of truth).
+  // For create it's undefined and we hash the committed context seed below.
+  const restoreExpectedHash = props.route.params?.expectedMnemonicHash;
 
   useEffect(() => {
     // begin initializing firebase to speed up loading time
@@ -83,6 +87,13 @@ export default function PinPage(props) {
           routes: [
             {
               name: 'ConnectingToNodeLoadingScreen',
+              params: {
+                // Pin the loading screen's identity derivation to the exact seed
+                // just stored, so it can't derive from a stale/empty context seed
+                // during the navigation race.
+                expectedMnemonicHash:
+                  restoreExpectedHash || sha256Hash(accountMnemoinc),
+              },
             },
           ],
         });

@@ -32,14 +32,12 @@ import {
   getAllLocalKeys,
   getMultipleItems,
 } from '../app/functions/localStorage';
-import { useSparkWallet } from './sparkContext';
 const FILE_DIR = cacheDirectory + 'profile_images/';
 const ImageCacheContext = createContext();
 
 export function ImageCacheProvider({ children }) {
-  const { sparkInformation } = useSparkWallet();
   const [cache, setCache] = useState({});
-  const { didGetToHomepage } = useAppStatus();
+  const { didGetToHomepage, appState } = useAppStatus();
   const { decodedAddedContacts } = useGlobalContactsInfo();
   const { masterInfoObject } = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(false);
@@ -50,6 +48,11 @@ export function ImageCacheProvider({ children }) {
   }, [cache]);
 
   const inFlightRequests = useRef(new Map());
+  // Per-uuid timestamp of the last automatic (non user-driven) download attempt.
+  // Bounds cost: an image that can never load won't be re-fetched more than once
+  // per cooldown window, even across component remounts / navigation storms.
+  const autoHealCooldownRef = useRef(new Map());
+  const AUTO_HEAL_COOLDOWN_MS = 60 * 1000;
 
   const refreshCacheObject = useCallback(async () => {
     try {
@@ -66,7 +69,44 @@ export function ImageCacheProvider({ children }) {
           initialCache[uuid] = parsed;
         }
       });
-      setCache(initialCache);
+
+      // Reconcile pointers against the actual files. The OS can purge the
+      // cache directory while the AsyncStorage pointer survives, leaving a
+      // localUri whose file no longer exists. Drop those entries so the UI
+      // falls back to the identicon and the freshness pass re-downloads them,
+      // rather than trying to load a dead path forever. Entries with a null
+      // localUri (an intentionally deleted image) are kept as-is. Processed in
+      // small batches so a large contact list doesn't block the JS thread.
+      const entries = Object.entries(initialCache);
+      const validatedCache = {};
+      const BATCH_SIZE = 10;
+      for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+        const batch = entries.slice(i, i + BATCH_SIZE);
+        await Promise.all(
+          batch.map(async ([uuid, entry]) => {
+            if (!entry?.localUri) {
+              validatedCache[uuid] = entry;
+              return;
+            }
+            try {
+              const fileInfo = await getInfoAsync(entry.localUri);
+              if (fileInfo.exists) {
+                validatedCache[uuid] = entry;
+              } else {
+                console.log(
+                  'Dropping stale image pointer (file missing)',
+                  uuid,
+                );
+              }
+            } catch (err) {
+              // If we can't stat the file, keep the pointer rather than lose it.
+              validatedCache[uuid] = entry;
+            }
+          }),
+        );
+      }
+
+      setCache(validatedCache);
     } catch (e) {
       console.error('Error loading image cache from storage', e);
     }
@@ -81,6 +121,26 @@ export function ImageCacheProvider({ children }) {
       if (inFlightRequests.current.has(uuid)) {
         return inFlightRequests.current.get(uuid);
       }
+
+      // Automatic heals (hasDownloadURL falsy) are rate-limited per uuid, but
+      // only after a *failed* attempt — a permanently-broken image (deleted
+      // server-side, 404) can't drive repeated downloads across remounts, while
+      // a transient purge that re-downloads successfully still heals right away.
+      // Explicit user-driven calls (upload/save) always run.
+      if (!hasDownloadURL) {
+        const lastFailedAttempt = autoHealCooldownRef.current.get(uuid);
+        if (
+          lastFailedAttempt &&
+          Date.now() - lastFailedAttempt < AUTO_HEAL_COOLDOWN_MS
+        ) {
+          console.log(
+            'Auto-heal cooldown active (recent failure), skipping refresh for',
+            uuid,
+          );
+          return cacheRef.current[uuid];
+        }
+      }
+
       const requestPromise = (async () => {
         try {
           console.log('Refreshing image for', uuid);
@@ -100,7 +160,10 @@ export function ImageCacheProvider({ children }) {
             const cached = cacheRef.current[uuid];
             if (cached && cached.updated === updated) {
               const fileInfo = await getInfoAsync(cached.localUri);
-              if (fileInfo.exists) return cached;
+              if (fileInfo.exists) {
+                autoHealCooldownRef.current.delete(uuid);
+                return cached;
+              }
             }
 
             url = await getDownloadURL(reference);
@@ -115,10 +178,22 @@ export function ImageCacheProvider({ children }) {
 
           if (VALID_URL_REGEX.test(url)) {
             console.log('Downloading image from', url, 'to', localUri);
-            await downloadAsync(url, localUri);
+            const downloadResult = await downloadAsync(url, localUri);
+            if (!downloadResult || downloadResult.status !== 200) {
+              throw new Error(
+                `Image download failed with status ${downloadResult?.status}`,
+              );
+            }
           } else {
             console.log('Copying image from', url, 'to', localUri);
             await copyAsync({ from: url, to: localUri });
+          }
+
+          // Never persist a pointer to a partial/empty file — a bad write here
+          // would look like a valid cache entry but fail to render.
+          const writtenInfo = await getInfoAsync(localUri);
+          if (!writtenInfo.exists || !writtenInfo.size) {
+            throw new Error('Saved image is missing or empty');
           }
 
           const newEntry = {
@@ -133,9 +208,16 @@ export function ImageCacheProvider({ children }) {
             setCache(prev => ({ ...prev, [uuid]: newEntry }));
           }
 
+          // Successful download — clear any prior failure cooldown.
+          autoHealCooldownRef.current.delete(uuid);
           return newEntry;
         } catch (err) {
           console.log('Error refreshing image cache', err);
+          // Arm the cooldown only for automatic heals so a failing image isn't
+          // re-fetched on every remount. User-driven calls are never throttled.
+          if (!hasDownloadURL) {
+            autoHealCooldownRef.current.set(uuid, Date.now());
+          }
           throw err;
         } finally {
           inFlightRequests.current.delete(uuid);
@@ -157,7 +239,7 @@ export function ImageCacheProvider({ children }) {
       const newEntry = {
         uri: null,
         localUri: null,
-        updated: new Date().getTime(),
+        updated: new Date().toISOString(),
       };
 
       await setLocalStorageItem(key, JSON.stringify(newEntry));
@@ -168,36 +250,43 @@ export function ImageCacheProvider({ children }) {
     }
   }, []);
 
+  const lastFreshnessPassRef = useRef(0);
+
+  const runFreshnessPass = useCallback(() => {
+    if (!masterInfoObject?.uuid) return;
+    const now = Date.now();
+    if (now - lastFreshnessPassRef.current < 30 * 1000) return;
+    lastFreshnessPassRef.current = now;
+
+    // Always check every image; refreshCache returns the cached copy when it's
+    // already current, so this only downloads what's stale or missing. This is
+    // intentionally independent of the Spark wallet — profile images don't need
+    // it, and gating on it stranded images on degraded-wallet devices.
+    const validContacts = [
+      ...decodedAddedContacts.filter(c => !c.isLNURL),
+      { uuid: masterInfoObject.uuid },
+    ];
+    console.log('valid contacts', validContacts);
+
+    validContacts.forEach(contact => {
+      refreshCache(contact.uuid, null, false) // skipCacheUpdate = false → streams in
+        .catch(err => {
+          console.log(`Image refresh failed for ${contact.uuid}`, err);
+        });
+    });
+  }, [decodedAddedContacts, masterInfoObject?.uuid, refreshCache]);
+
+  // Initial pass shortly after reaching the homepage.
   useEffect(() => {
     if (!didGetToHomepage) return;
     if (didRunContextCacheCheck.current) return;
-    if (!masterInfoObject.uuid) return;
-    if (!sparkInformation.identityPubKey) return;
+    if (!masterInfoObject?.uuid) return;
     didRunContextCacheCheck.current = true;
-    function refreshContactsImages() {
-      // allways check all images, will return cahced image if its already cached. But this prevents against stale images
-      const validContacts = [
-        ...decodedAddedContacts.filter(c => !c.isLNURL),
-        { uuid: masterInfoObject.uuid },
-      ];
-
-      validContacts.forEach(contact => {
-        refreshCache(contact.uuid, null, false) // skipCacheUpdate = false → streams in
-          .catch(err => {
-            console.log(`Image refresh failed for ${contact.uuid}`, err);
-          });
-      });
-    }
-    setTimeout(() => {
-      refreshContactsImages();
+    const timer = setTimeout(() => {
+      runFreshnessPass();
     }, 5000); //delay to allow homepage to settle
-  }, [
-    decodedAddedContacts,
-    didGetToHomepage,
-    masterInfoObject?.uuid,
-    sparkInformation.identityPubKey,
-    refreshCache,
-  ]);
+    return () => clearTimeout(timer);
+  }, [didGetToHomepage, masterInfoObject?.uuid, runFreshnessPass]);
 
   const contextValue = useMemo(
     () => ({

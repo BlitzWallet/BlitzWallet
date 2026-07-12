@@ -27,6 +27,10 @@ import getPhonePaymentAddress, {
   getPhonePaymentCandidates,
   getPhonePostProvider,
 } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
+import {
+  BTC_SUFFIX_REGEX,
+  BTC_USD_SUFFIX_REGEX,
+} from '../../../../../constants';
 
 export default async function decodeSendAddress(props) {
   let {
@@ -160,44 +164,52 @@ export default async function decodeSendAddress(props) {
           : btcAdress.trim();
       }
 
-      if (!username) {
-        return goBackFunction(
-          t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
-        );
-      }
-      const [results] = await getSingleContact(username);
+      if (
+        !BTC_USD_SUFFIX_REGEX.test(username) ||
+        BTC_SUFFIX_REGEX.test(username)
+      ) {
+        if (!username) {
+          return goBackFunction(
+            t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
+          );
+        }
+        const formatted = username.replace('-e40605', '');
+        const [results] = await getSingleContact(formatted);
 
-      if (!results)
-        return goBackFunction(
-          t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
-        );
+        if (!results)
+          return goBackFunction(
+            t('wallet.sendPages.handlingAddressErrors.blitzUserNotFound'),
+          );
 
-      const profile = results?.contacts?.myProfile;
-      const sparkAddress = profile?.sparkAddress;
-      const endReceiveType =
-        results?.lnurlReceiveCurrency?.toLowerCase() === 'usd' ? 'USD' : 'BTC';
+        const profile = results?.contacts?.myProfile;
+        const sparkAddress = profile?.sparkAddress;
+        const endReceiveType =
+          results?.lnurlReceiveCurrency?.toLowerCase() === 'usd'
+            ? 'USD'
+            : 'BTC';
 
-      if (!sparkAddress && btcAdress.startsWith('@')) {
-        return goBackFunction(t('errormessages.legacyContactError'));
-      }
-      if (sparkAddress) {
-        btcAdress = sparkAddress;
-        const imageData = await getCachedProfileImage(profile.uuid).catch(
-          () => null,
-        );
-        comingFromAccept = true;
-        enteredPaymentInfo = {
-          ...enteredPaymentInfo,
-          fromContacts: true,
-          endReceiveType,
-        };
-        resolvedBlitzContact = {
-          name: profile.name || profile.uniqueName || '',
-          uniqueName: profile.uniqueName || '',
-          bio: profile.bio || '',
-          uuid: profile.uuid,
-          imageData,
-        };
+        if (!sparkAddress && btcAdress.startsWith('@')) {
+          return goBackFunction(t('errormessages.legacyContactError'));
+        }
+        if (sparkAddress) {
+          btcAdress = sparkAddress;
+          const imageData = await getCachedProfileImage(profile.uuid).catch(
+            () => null,
+          );
+          comingFromAccept = true;
+          enteredPaymentInfo = {
+            ...enteredPaymentInfo,
+            fromContacts: true,
+            endReceiveType,
+          };
+          resolvedBlitzContact = {
+            name: profile.name || profile.uniqueName || '',
+            uniqueName: profile.uniqueName || '',
+            bio: profile.bio || '',
+            uuid: profile.uuid,
+            imageData,
+          };
+        }
       }
     }
 

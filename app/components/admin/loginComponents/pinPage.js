@@ -102,7 +102,9 @@ export default function PinPage() {
         if (migrationResponse) {
           setAccountMnemonic(savedMnemonic.value);
           didNavigate.current = true;
-          navigate.replace('ConnectingToNodeLoadingScreen');
+          navigate.replace('ConnectingToNodeLoadingScreen', {
+            expectedMnemonicHash: sha256Hash(savedMnemonic.value),
+          });
         } else
           navigate.navigate('ErrorScreen', {
             errorMessage: t('errormessages.failedToDecryptPin'),
@@ -115,7 +117,9 @@ export default function PinPage() {
         setAccountMnemonic(mnemonicPlain);
 
         didNavigate.current = true;
-        navigate.replace('ConnectingToNodeLoadingScreen');
+        navigate.replace('ConnectingToNodeLoadingScreen', {
+          expectedMnemonicHash: sha256Hash(mnemonicPlain),
+        });
       }
     } else {
       if (loginSettings.enteredPinCount >= 7) {

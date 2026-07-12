@@ -34,6 +34,7 @@ import { WebViewProvider } from './context-store/webViewContext';
 import { Linking, Platform, NativeModules } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
+import sha256Hash from './app/functions/hash';
 import { GlobalContactsList } from './context-store/globalContacts';
 
 import { CreateAccountHome } from './app/screens/createAccount';
@@ -497,11 +498,20 @@ function ResetStack(): JSX.Element | null {
 
       if (cancelled) return;
 
-      if (mnemonic.value && !parsedSettings.isSecurityEnabled) {
+      const isNoSecurityLogin =
+        mnemonic.value && !parsedSettings.isSecurityEnabled;
+      if (isNoSecurityLogin) {
         setAccountMnemonic(mnemonic.value);
       }
 
-      setSecuritySettings(parsedSettings);
+      // For the no-security path the loading screen renders directly as Home, so
+      // thread the intended seed's hash through its initialParams (kept out of the
+      // persisted security-settings object) to gate its identity derivation.
+      setSecuritySettings(
+        isNoSecurityLogin
+          ? { ...parsedSettings, expectedMnemonicHash: sha256Hash(mnemonic.value) }
+          : parsedSettings,
+      );
       setInitSettings(prev => {
         return {
           ...prev,

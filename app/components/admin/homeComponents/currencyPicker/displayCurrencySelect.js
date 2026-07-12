@@ -309,6 +309,7 @@ export default function DisplayCurrencySelect({
   if (isLoadingNewRate) {
     return (
       <FullLoadingScreen
+        containerStyles={styles.list}
         textStyles={{ textAlign: 'center' }}
         text={t('settings.fiatCurrency.loadingCurrencyRate')}
       />

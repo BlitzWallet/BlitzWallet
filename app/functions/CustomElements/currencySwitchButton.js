@@ -36,7 +36,13 @@ export default function CurrencySwitchButton({
         ]}
       >
         {disabled ? (
-          <FullLoadingScreen showText={false} size="small" />
+          <FullLoadingScreen
+            loadingColor={
+              theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+            }
+            showText={false}
+            size="small"
+          />
         ) : (
           <>
             <ThemeIcon iconName="RotateCw" size={25} />

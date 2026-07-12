@@ -38,6 +38,10 @@ const FLASHNET_REFUND_REGEX = /via transfer ([\da-fA-F\-]+)/;
 
 const BASIC_ACCOUNT_NAME_REGEX = /^account\s+\d+$/i;
 
+const BTC_USD_SUFFIX_REGEX = /(?:-d60fbd|-e40605)$/;
+const USD_SUFFIX_REGEX = /-d60fbd$/;
+const BTC_SUFFIX_REGEX = /-e40605$/;
+
 const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
 const NOSTR_RELAY_URL = 'wss://relay.getalbypro.com/blitz';
 
@@ -249,4 +253,7 @@ export {
   SMALL_BTC_PAYMENT_LIMIT,
   SMALL_USD_PAYMENT_LIMIT,
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+  BTC_USD_SUFFIX_REGEX,
+  USD_SUFFIX_REGEX,
+  BTC_SUFFIX_REGEX,
 };
