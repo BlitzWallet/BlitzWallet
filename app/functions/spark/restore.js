@@ -250,16 +250,6 @@ const restoreSparkTxState = async (
         // certainly a bad/incomplete fetch — you cannot hold a balance with no
         // transactions. Treat that as a retryable failure rather than marking
         // the restore complete on a wallet that clearly has history.
-        const noTxsDiscovered = savedIds.size === 0 && !restoredTxs.length;
-        if (noTxsDiscovered) {
-          const { didWork, balance } = await getBalanceWithTimeout(mnemonic);
-          if (didWork && BigInt(balance || 0) > 0n) {
-            await handleRetryableFailure(
-              'empty batch but wallet has a balance',
-            );
-            continue;
-          }
-        }
         console.log('No more transactions found, ending restore.');
         await markRestoreComplete(accountId);
         break;
