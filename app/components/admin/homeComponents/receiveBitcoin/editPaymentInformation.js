@@ -145,6 +145,7 @@ export default function EditReceivePaymentInformation(props) {
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
         if (response?.didWork) setAmountValue('');
+        return response;
       },
     });
   }, [displayCurrency, isKeyboardFocused, navigate, selectCurrency]);

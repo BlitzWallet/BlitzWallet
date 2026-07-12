@@ -659,6 +659,7 @@ export default function useContactPayment({
     async code => {
       const response = await selectCurrency(code);
       if (response?.didWork) setAmountValue('');
+      return response;
     },
     [selectCurrency],
   );

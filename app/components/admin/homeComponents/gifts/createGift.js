@@ -88,6 +88,7 @@ export default function CreateGift(props) {
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
         if (response?.didWork) setAmountValue('');
+        return response;
       },
     });
 

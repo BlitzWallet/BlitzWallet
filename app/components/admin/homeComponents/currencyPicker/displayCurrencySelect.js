@@ -22,8 +22,6 @@ import {
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
-import { useKeysContext } from '../../../../../context-store/keys';
 
 export default function DisplayCurrencySelect({
   currentCurrency,
@@ -36,7 +34,6 @@ export default function DisplayCurrencySelect({
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { screenDimensions } = useAppStatus();
-  const { contactsPrivateKey, publicKey } = useKeysContext();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const normalizedCurrentCurrency = normalizeDisplayCurrency(currentCurrency);
   const deviceCurrency = (
@@ -67,28 +64,28 @@ export default function DisplayCurrencySelect({
       if (hasSelected.current) return;
       hasSelected.current = true;
       setIsLoadingNewRate(true);
-      const normalizedCode = normalizeDisplayCurrency(currency);
-      currency !== 'SATS' &&
-        (await loadNewFiatData(
-          normalizedCode,
-          contactsPrivateKey,
-          publicKey,
-          masterInfoObject,
-        ));
+
+      // The parent (useDisplayCurrencyController.selectCurrency) owns the single
+      // fetch, its hard timeout, rate caching, and ErrorScreen navigation on
+      // failure. We just reflect its result. Because the timeout lives in the hook,
+      // the hook stops loading at the same moment this await resolves — no state
+      // mismatch where the picker gives up but the hook keeps loading.
+      const response = await onSelectCurrency?.(currency);
+
       if (!isMounted.current) return;
-      handleBackPressFunction(() => {
-        navigate.goBack();
-        onSelectCurrency?.(currency);
-      });
+
+      // Failure or timeout: clear the loader and reset so the picker returns to an
+      // interactive state instead of relying on unmount to hide the loader.
+      if (!response || response.didWork === false) {
+        hasSelected.current = false;
+        setIsLoadingNewRate(false);
+        return;
+      }
+
+      // Success: dismiss the picker.
+      handleBackPressFunction(() => navigate.goBack());
     },
-    [
-      handleBackPressFunction,
-      navigate,
-      onSelectCurrency,
-      contactsPrivateKey,
-      publicKey,
-      masterInfoObject,
-    ],
+    [handleBackPressFunction, navigate, onSelectCurrency],
   );
 
   const pinnedRows = useMemo(() => {
