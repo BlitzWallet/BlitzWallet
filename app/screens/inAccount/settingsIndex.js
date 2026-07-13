@@ -75,12 +75,6 @@ const TECHNICAL_ROWS = [
     iconName: 'Link',
   },
   {
-    name: 'Blitz Fee Details',
-    displayName: 'screens.inAccount.settingsContent.blitz fee details',
-    iconImage: ICONS.receiptIcon,
-    iconImageWhite: ICONS.receiptWhite,
-  },
-  {
     name: 'Crash Reports',
     displayName: 'screens.inAccount.settingsContent.crash reports',
     iconName: 'ShieldCheck',
@@ -102,6 +96,12 @@ const OTHER_ROWS = [
     name: 'About',
     displayName: 'screens.inAccount.settingsContent.about',
     iconName: 'Info',
+  },
+  {
+    name: 'Blitz Fee Details',
+    displayName: 'screens.inAccount.settingsContent.blitz fee details',
+    iconImage: ICONS.receiptIcon,
+    iconImageWhite: ICONS.receiptWhite,
   },
   {
     name: 'Blitz Stats',
