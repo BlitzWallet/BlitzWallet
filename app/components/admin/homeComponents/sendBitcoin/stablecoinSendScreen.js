@@ -387,6 +387,7 @@ export default function StablecoinSendScreen() {
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
         if (response?.didWork) setRawInput('');
+        return response;
       },
     });
   };

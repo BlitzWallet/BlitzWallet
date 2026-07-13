@@ -375,8 +375,12 @@ export function AddContactContent({
         return;
       }
 
+      const name = isUsingLNURL
+        ? searchInput.split('@')?.[0] || ''
+        : enteredNumber;
+
       const newContact = {
-        name: enteredNumber,
+        name,
         bio: '',
         uniqueName: '',
         isFavorite: false,

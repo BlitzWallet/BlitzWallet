@@ -92,6 +92,7 @@ export default function AnalyticsCreateBudgetPage() {
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
         if (response?.didWork) setAmountValue('');
+        return response;
       },
     });
 

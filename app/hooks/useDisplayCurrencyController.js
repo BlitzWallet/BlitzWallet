@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../context-store/keys';
 import { useToast } from '../../context-store/toastManager';
@@ -8,6 +8,9 @@ import {
   SATS_DISPLAY_CURRENCY,
   normalizeDisplayCurrency,
 } from '../functions/displayCurrency';
+
+// Hard cap on a single rate fetch, well under loadNewFiatData's ~3 min retry budget.
+const CURRENCY_RATE_TIMEOUT_MS = 30000;
 
 export default function useDisplayCurrencyController({
   initialCurrency,
@@ -79,12 +82,29 @@ export default function useDisplayCurrencyController({
 
       try {
         setIsLoadingRate(true);
-        const response = await loadNewFiatData(
-          normalizedCode,
-          contactsPrivateKey,
-          publicKey,
-          masterInfoObject,
-        );
+
+        // Hard-bound the fetch so isLoadingRate (and the currency picker that
+        // awaits this call) can never stay up for loadNewFiatData's full retry
+        // budget (~3 min). On timeout we take the same failure path and clear the
+        // loader here; the abandoned fetch may still warm the rate cache in the
+        // background. Keeping the timeout in the hook keeps the picker and the hook
+        // in sync — they resolve from the same bounded promise, no state mismatch.
+        let timeoutId;
+        const response = await Promise.race([
+          loadNewFiatData(
+            normalizedCode,
+            contactsPrivateKey,
+            publicKey,
+            masterInfoObject,
+          ),
+          new Promise(resolve => {
+            timeoutId = setTimeout(
+              () => resolve({ didWork: false }),
+              CURRENCY_RATE_TIMEOUT_MS,
+            );
+          }),
+        ]);
+        clearTimeout(timeoutId);
 
         if (!response.didWork) throw new Error('error loading fiat data');
 

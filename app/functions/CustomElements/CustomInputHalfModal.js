@@ -88,6 +88,7 @@ export default function CustomInputHalfModal(props) {
         onSelectCurrency: async code => {
           const response = await selectCurrency(code);
           if (response?.didWork) setAmountValue('');
+          return response;
         },
       }),
     [displayCurrency, navigate, selectCurrency],

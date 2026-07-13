@@ -34,12 +34,16 @@ import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
 import fetchBackend from '../../../db/handleBackend';
 import i18next from 'i18next';
-import { getBalanceWithTimeout } from '../pollingManager';
+import { getBalanceWithTimeout } from './timeoutHelpers';
 
 const RESTORE_STATE_KEY = 'spark_tx_restore_state';
 const MAX_BATCH_SIZE = 400;
 const DEFAULT_BATCH_SIZE = 5;
 const INCREMENTAL_SAVE_THRESHOLD = 200;
+// Max consecutive failed/suspicious page fetches before a restore run gives up.
+const MAX_RESTORE_FETCH_RETRIES = 5;
+// Base backoff between retries, scaled by the current consecutive-failure count.
+const RESTORE_RETRY_DELAY_MS = 1500;
 
 /**
  * Get the current restore state for an account
@@ -203,6 +207,26 @@ const restoreSparkTxState = async (
     let batchCounter = 0;
     let foundOverlap = false;
 
+    // Track consecutive failed/suspicious fetches so a single transient error
+    // doesn't discard the whole run. We retry the SAME offset with a short
+    // backoff and only give up (throw) after MAX_RESTORE_FETCH_RETRIES in a row,
+    // keeping the loop bounded so it can't hang.
+    let consecutiveFailures = 0;
+    const handleRetryableFailure = async reason => {
+      consecutiveFailures++;
+      if (consecutiveFailures >= MAX_RESTORE_FETCH_RETRIES) {
+        // Give up. Throw (NOT markRestoreComplete) so isFullyRestored stays
+        // false and the restore re-runs on the next connect/launch — same
+        // safety as before.
+        throw new Error(
+          `Failed to fetch transactions during restore after ${consecutiveFailures} attempts: ${reason}`,
+        );
+      }
+      await new Promise(r =>
+        setTimeout(r, RESTORE_RETRY_DELAY_MS * consecutiveFailures),
+      );
+    };
+
     while (true) {
       const txs = await getSparkTransactions(localBatchSize, offset, mnemonic);
 
@@ -211,9 +235,10 @@ const restoreSparkTxState = async (
         // from an empty wallet at the .transfers level, so we must NOT fall
         // through to markRestoreComplete — doing so would persist
         // isFullyRestored:true and stop the restore poller from ever
-        // re-scanning this session. Throw so the outer catch reports the run as
-        // incomplete and the caller retries.
-        throw new Error('Failed to fetch transactions during restore');
+        // re-scanning this session. Retry the same offset rather than aborting
+        // the whole run on the first transient failure.
+        await handleRetryableFailure('fetch failed');
+        continue;
       }
 
       const batchTxs = txs.transfers || [];
@@ -223,21 +248,16 @@ const restoreSparkTxState = async (
         // history. But if we've discovered zero transactions in total and the
         // wallet still reports a positive balance, the empty result is almost
         // certainly a bad/incomplete fetch — you cannot hold a balance with no
-        // transactions. Treat that as a failure and retry rather than marking
+        // transactions. Treat that as a retryable failure rather than marking
         // the restore complete on a wallet that clearly has history.
-        const noTxsDiscovered = savedIds.size === 0 && !restoredTxs.length;
-        if (noTxsDiscovered) {
-          const { didWork, balance } = await getBalanceWithTimeout(mnemonic);
-          if (didWork && BigInt(balance || 0) > 0n) {
-            throw new Error(
-              'Restore returned 0 transactions but wallet has a balance; retrying',
-            );
-          }
-        }
         console.log('No more transactions found, ending restore.');
         await markRestoreComplete(accountId);
         break;
       }
+
+      // Genuine batch of transfers — reset the consecutive-failure streak so the
+      // cap only ever counts failures that happen back-to-back.
+      consecutiveFailures = 0;
 
       // Process batch and check for overlap simultaneously
       const newBatchTxs = [];

@@ -1417,16 +1417,18 @@ export default function SendPaymentScreen(props) {
       currentCurrency: displayCurrency,
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
-        if (!response?.didWork) return;
-        if (!canEditAmount) return;
-        setPaymentInfo(prev => ({
-          ...prev,
-          sendAmount: '',
-          feeQuote: undefined,
-          swapPaymentQuote: undefined,
-          paymentFee: 0,
-          supportFee: 0,
-        }));
+        if (!response?.didWork) return response;
+        if (canEditAmount) {
+          setPaymentInfo(prev => ({
+            ...prev,
+            sendAmount: '',
+            feeQuote: undefined,
+            swapPaymentQuote: undefined,
+            paymentFee: 0,
+            supportFee: 0,
+          }));
+        }
+        return response;
       },
     });
   };

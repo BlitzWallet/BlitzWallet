@@ -289,6 +289,7 @@ export default function ContributeToPoolHalfModal({
         onSelectCurrency: async code => {
           const response = await selectCurrency(code);
           if (response?.didWork) setAmountValue('');
+          return response;
         },
       }),
     [displayCurrency, navigate, selectCurrency],
