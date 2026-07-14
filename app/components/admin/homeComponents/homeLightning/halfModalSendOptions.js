@@ -201,6 +201,11 @@ export default function HalfModalSendOptions({
       ? backgroundColor
       : backgroundOffset
     : COLORS.darkModeText;
+  const textColor = theme
+    ? darkModeType
+      ? COLORS.darkModeText
+      : COLORS.darkModeText
+    : COLORS.lightModeText;
   const accentColor =
     theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
 
@@ -710,6 +715,7 @@ export default function HalfModalSendOptions({
           }}
           textInputStyles={{
             ...styles.inputCardText,
+            color: textColor,
             paddingRight: inputText.trim() ? 40 : 12,
           }}
           returnKeyType="go"
