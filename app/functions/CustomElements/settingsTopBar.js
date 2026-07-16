@@ -29,11 +29,14 @@ export default function CustomSettingsTopBar({
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const hasNavigatedRef = useRef(null);
+  const lastBackPressRef = useRef(0);
 
   const handleBackPress = useCallback(() => {
-    if (hasNavigatedRef.current) return;
-    hasNavigatedRef.current = true;
+    // Ignore rapid double-taps (600ms window, matching useGuardedNavigation)
+    // without permanently latching: multi-mode screens intercept back via a
+    // beforeRemove/customBackFunction and need it to fire again on a later press.
+    if (Date.now() - lastBackPressRef.current < 500) return;
+    lastBackPressRef.current = Date.now();
 
     if (customBackFunction) {
       customBackFunction();
