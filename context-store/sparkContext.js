@@ -18,6 +18,7 @@ import {
   queryAllStaticDepositAddresses,
   selectSparkRuntime,
   sparkWallet,
+  isOptimizationInProgress,
 } from '../app/functions/spark';
 import {
   bulkUpdateSparkTransactions,
@@ -556,10 +557,14 @@ const SparkWalletProvider = ({ children }) => {
       }
 
       if (!paymentObjects.length) {
-        setSparkInformation(prev => ({
-          ...prev,
-          balance: balance,
-        }));
+        // Authoritative claim balance; apply upward-only (a claim never reduces
+        // available) and coerce — the webview path delivers it as a string.
+        const claimedBalance = Number(balance);
+        setSparkInformation(prev =>
+          Number.isFinite(claimedBalance) && claimedBalance > prev.balance
+            ? { ...prev, balance: claimedBalance }
+            : prev,
+        );
         return;
       }
 
@@ -891,24 +896,57 @@ const SparkWalletProvider = ({ children }) => {
     if (!Number.isFinite(nextBalance)) return;
     if (nextBalance === sparkInfoRef.current.balance) return;
 
-    // Ordering guard shared with reconcileBalance so a slow reconcile read
-    // can't overwrite this newer event value.
-    const myVersion = ++balanceVersionRef.current;
-    const { identityPubKey } = sparkInfoRef.current;
+    const commit = value => {
+      // Ordering guard shared with reconcileBalance so a slow reconcile read
+      // can't overwrite this newer event value.
+      const myVersion = ++balanceVersionRef.current;
+      const { identityPubKey } = sparkInfoRef.current;
 
-    saveAccountBalanceSnapshot(
-      identityPubKey,
-      nextBalance,
-      sparkInfoRef.current.tokens,
-    );
+      saveAccountBalanceSnapshot(
+        identityPubKey,
+        value,
+        sparkInfoRef.current.tokens,
+      );
 
-    reconcileLeaves();
+      reconcileLeaves();
 
-    setSparkInformation(prev => {
-      if (myVersion < balanceVersionRef.current) return prev;
-      if (prev.balance === nextBalance) return prev;
-      return { ...prev, balance: nextBalance };
-    });
+      setSparkInformation(prev => {
+        if (myVersion < balanceVersionRef.current) return prev;
+        if (prev.balance === value) return prev;
+        return { ...prev, balance: value };
+      });
+    };
+
+    // A decrease can be a real spend OR a transient dip while the SDK optimizes
+    // leaves (available drops below owned mid-swap, then settles back). Don't
+    // commit an optimization dip — hold the displayed balance; the optimization's
+    // settle event re-arms a flush at the true value, and the reconcile safety
+    // net backstops it. Skip the check during a send: that decrease is real and
+    // must land. Runs at most once per debounce window (not per event), so it
+    // can't storm the WebView rate limiter.
+    if (
+      nextBalance < sparkInfoRef.current.balance &&
+      !isSendingPaymentRef.current
+    ) {
+      isOptimizationInProgress({ mnemonic: currentMnemonicRef.current })
+        .then(res => {
+          if (res?.isOptimizing) return; // hold — dip is an optimization artifact
+          // A newer event superseded this value while we awaited; its own flush
+          // handles it.
+          if (latestBalanceRef.current !== nextBalance) return;
+          if (nextBalance === sparkInfoRef.current.balance) return;
+          commit(nextBalance);
+        })
+        // ponytail: on check failure land the decrease rather than strand a real
+        // spend; the 10s WebView-bridge timeout caps the wait and reconcile
+        // corrects any rare false drop.
+        .catch(() => {
+          if (latestBalanceRef.current === nextBalance) commit(nextBalance);
+        });
+      return;
+    }
+
+    commit(nextBalance);
   }, [reconcileLeaves]);
 
   // One authoritative balance read, applied directly. The displayed balance is
@@ -1205,6 +1243,35 @@ const SparkWalletProvider = ({ children }) => {
       // already staged in latestBalanceRef — flush it now so the number ticks
       // up exactly when the "received" toast appears.
       if (updateType === 'incomingPayment') {
+        // Authoritative post-claim balance from transfer:claimed (args[2]).
+        // While the SDK optimizes leaves after a claim, balance:update reports a
+        // suppressed `available`, so flushBalanceNow holds the pre-claim number.
+        // Apply the claim snapshot in that window so the balance ticks up with
+        // the toast. Upward-only + optimization-gated: a normal send cancels
+        // optimization, so its decrease is never masked by a stale higher
+        // snapshot (no over-send). The balanceVersionRef guard in
+        // flushBalanceNow lets a newer balance:update win.
+        const claimedBalance = Number(args[2]);
+        if (
+          Number.isFinite(claimedBalance) &&
+          claimedBalance > sparkInfoRef.current.balance
+        ) {
+          isOptimizationInProgress({ mnemonic: currentMnemonicRef.current })
+            .then(res => {
+              if (
+                res?.isOptimizing &&
+                claimedBalance > sparkInfoRef.current.balance
+              ) {
+                // Stage above any pending balance:update value, then commit
+                // through the shared version-guarded path.
+                if (claimedBalance > (latestBalanceRef.current ?? 0)) {
+                  latestBalanceRef.current = claimedBalance;
+                }
+                flushBalanceNow();
+              }
+            })
+            .catch(() => {}); // reconcile safety-net backstops a failed check
+        }
         flushBalanceNow();
       }
 

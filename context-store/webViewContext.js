@@ -68,6 +68,7 @@ export const OPERATION_TYPES = {
   claimSparkHodlLightningPayment: 'claimSparkHodlLightningPayment',
   receiveSparkHodlLightningPayment: 'receiveSparkHodlLightningPayment',
   querySparkHodlLightningPayments: 'querySparkHodlLightningPayments',
+  isOptimizationInProgress: 'isOptimizationInProgress',
 
   // Flashnet
   initializeFlashnet: 'initializeFlashnet',
@@ -148,6 +149,7 @@ const mediumOperations = [
   OPERATION_TYPES.getUserSwapHistory,
   OPERATION_TYPES.checkClawbackEligibility,
   OPERATION_TYPES.checkClawbackStatus,
+  OPERATION_TYPES.isOptimizationInProgress,
 ];
 
 const rejectIfNotConnectedToInternet = [
