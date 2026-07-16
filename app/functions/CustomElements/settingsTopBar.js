@@ -7,6 +7,7 @@ import { keyboardGoBack } from '../customNavigation';
 import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from './themeIcon';
 import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useCallback, useRef } from 'react';
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -28,23 +29,26 @@ export default function CustomSettingsTopBar({
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const hasNavigatedRef = useRef(null);
+
+  const handleBackPress = useCallback(() => {
+    if (hasNavigatedRef.current) return;
+    hasNavigatedRef.current = true;
+
+    if (customBackFunction) {
+      customBackFunction();
+      return;
+    }
+    if (shouldDismissKeyboard) {
+      keyboardGoBack(navigate);
+      return;
+    }
+    navigate.goBack();
+  }, [customBackFunction, shouldDismissKeyboard, navigate]);
 
   return (
     <View style={{ ...styles.topbar, ...containerStyles }}>
-      <TouchableOpacity
-        style={styles.backArrow}
-        onPress={() => {
-          if (customBackFunction) {
-            customBackFunction();
-            return;
-          }
-          if (shouldDismissKeyboard) {
-            keyboardGoBack(navigate);
-            return;
-          }
-          navigate.goBack();
-        }}
-      >
+      <TouchableOpacity style={styles.backArrow} onPress={handleBackPress}>
         <ThemeIcon colorOverride={customBackColor} iconName={'ArrowLeft'} />
       </TouchableOpacity>
       <ThemeText
