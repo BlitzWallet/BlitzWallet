@@ -149,4 +149,26 @@ describe('buildFilterQuery', () => {
     const inClause = query.match(/IN \(([^)]+)\)/)?.[1] ?? '';
     expect(inClause.split('?').length - 1).toBe(2);
   });
+
+  it('searchTerm adds a case-insensitive LIKE on description with %term% param', () => {
+    const { query, params } = buildFilterQuery(
+      { directions: [], dateRange: null, types: [], searchTerm: 'Coffee' },
+      ACC,
+    );
+    expect(query).toContain(
+      "LOWER(json_extract(details, '$.description')) LIKE ?",
+    );
+    expect(params).toEqual([ACC, '%coffee%']);
+  });
+
+  it('empty or whitespace searchTerm adds no LIKE clause', () => {
+    for (const searchTerm of ['', '   ', undefined]) {
+      const { query, params } = buildFilterQuery(
+        { directions: [], dateRange: null, types: [], searchTerm },
+        ACC,
+      );
+      expect(query).not.toContain('LIKE ?');
+      expect(params).toEqual([ACC]);
+    }
+  });
 });
