@@ -774,6 +774,7 @@ export default function ConfirmSplitPayment(props) {
               paymentFee={paymentFee}
               isSparkPayment={true}
               isDecoding={isCalculatingFeeQuote}
+              display={primaryDisplay}
             />
           )}
 

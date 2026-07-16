@@ -14,6 +14,7 @@ export default function SendTransactionFeeInfo({
   isBitcoinPayment,
   isSparkPayment,
   isDecoding,
+  display = null, // { denomination, forceCurrency, forceFiatStats }
 }) {
   const [layout, setlayout] = useState({ height: 45, width: 87 });
   const { backgroundColor } = GetThemeColors();
@@ -47,6 +48,9 @@ export default function SendTransactionFeeInfo({
             })}
             neverHideBalance={true}
             styles={{ includeFontPadding: false }}
+            globalBalanceDenomination={display?.denomination}
+            forceCurrency={display?.forceCurrency}
+            forceFiatStats={display?.forceFiatStats}
             balance={isDecoding ? 0 : paymentFee}
           />
         </View>

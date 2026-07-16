@@ -733,6 +733,7 @@ export default function StablecoinSendScreen() {
               paymentFee={quote?.fee}
               isLightningPayment={true}
               isDecoding={isQuoteLoading}
+              display={primaryDisplay}
             />
           )}
 

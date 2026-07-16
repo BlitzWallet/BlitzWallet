@@ -171,8 +171,18 @@ export default function ConfirmTxPage(props) {
             <ThemeText
               content={displayCorrectDenomination({
                 amount: paymentFee,
-                masterInfoObject,
-                fiatStats,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: paymentDisplay?.denomination
+                    ? paymentDisplay.denomination
+                    : masterInfoObject.userBalanceDenomination,
+                },
+                fiatStats: paymentDisplay?.paymentDisplay
+                  ? paymentDisplay.forceFiatStats
+                  : fiatStats,
+                forceCurrency: paymentDisplay?.forceCurrency
+                  ? paymentDisplay.forceCurrency
+                  : undefined,
               })}
             />
           </View>
@@ -372,8 +382,18 @@ export default function ConfirmTxPage(props) {
             <ThemeText
               content={displayCorrectDenomination({
                 amount: paymentFee,
-                masterInfoObject,
-                fiatStats,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: paymentDisplay?.denomination
+                    ? paymentDisplay.denomination
+                    : masterInfoObject.userBalanceDenomination,
+                },
+                fiatStats: paymentDisplay?.paymentDisplay
+                  ? paymentDisplay.forceFiatStats
+                  : fiatStats,
+                forceCurrency: paymentDisplay?.forceCurrency
+                  ? paymentDisplay.forceCurrency
+                  : undefined,
               })}
             />
           </View>
