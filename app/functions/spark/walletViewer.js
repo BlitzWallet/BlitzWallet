@@ -29,7 +29,6 @@ export async function getTokensBalance(sparkAddress) {
     const balance = await walletViewer.getTokenBalance(sparkAddress);
     let currentTokensObj = {};
     for (const [tokensIdentifier, tokensData] of balance) {
-      console.log(tokensIdentifier, tokensData);
       currentTokensObj[tokensIdentifier] = {
         ...tokensData,
         balance: tokensData.availableToSendBalance,

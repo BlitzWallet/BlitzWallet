@@ -98,7 +98,7 @@ export const OPERATION_TYPES = {
   runTokenOptimization: 'runTokenOptimization',
 };
 
-const longOperations = [
+const longOperations = new Set([
   OPERATION_TYPES.claimStaticDepositAddress,
   OPERATION_TYPES.sendSparkPayment,
   OPERATION_TYPES.sendTokenPayment,
@@ -121,9 +121,9 @@ const longOperations = [
   OPERATION_TYPES.batchTransferTokens,
   OPERATION_TYPES.getSparkLeaves,
   OPERATION_TYPES.getSparkLeafExitNodes,
-];
+]);
 
-const mediumOperations = [
+const mediumOperations = new Set([
   OPERATION_TYPES.getBalance,
   OPERATION_TYPES.queryStaticL1Address,
   OPERATION_TYPES.getUtxosForDepositAddress,
@@ -150,9 +150,9 @@ const mediumOperations = [
   OPERATION_TYPES.checkClawbackEligibility,
   OPERATION_TYPES.checkClawbackStatus,
   OPERATION_TYPES.isOptimizationInProgress,
-];
+]);
 
-const rejectIfNotConnectedToInternet = [
+const rejectIfNotConnectedToInternet = new Set([
   OPERATION_TYPES.claimStaticDepositAddress,
   OPERATION_TYPES.sendSparkPayment,
   OPERATION_TYPES.sendTokenPayment,
@@ -162,8 +162,11 @@ const rejectIfNotConnectedToInternet = [
   OPERATION_TYPES.sendBitcoinPayment,
   OPERATION_TYPES.receiveLightningPayment,
   OPERATION_TYPES.getL1Address,
+  // The quote action matched getL1Address under the old substring matching;
+  // listed explicitly so exact matching keeps rejecting it offline.
+  OPERATION_TYPES.getL1AddressQuote,
   OPERATION_TYPES.getSparkAddress,
-];
+]);
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
@@ -185,8 +188,18 @@ const WASM_ERRORS = [
 let handshakeComplete = false;
 let forceReactNativeUse = null;
 let globalSendWebViewRequest = null;
+let globalPendingRequests = null;
 let webviewFailureCount = 0;
 const MAX_WEBVIEW_FAILURES = 2;
+const MAX_QUEUED_REQUESTS = 50;
+const QUEUED_REQUEST_TTL_MS = 5 * 60 * 1000;
+
+// These two return fresh data per call, so concurrent identical calls are
+// legitimate and must never be deduped/coalesced in the queue.
+const QUEUE_DEDUPE_EXEMPT = [
+  OPERATION_TYPES.getSingleTxDetails,
+  OPERATION_TYPES.getUserSwapHistory,
+];
 
 const WV_STATES = {
   UNLOADED: 'unloaded',
@@ -198,9 +211,15 @@ const WV_STATES = {
   ERROR: 'error',
 };
 
+// A reset can arrive in any state, so every state may transition to UNLOADED
+// (including UNLOADED itself — e.g. an auth reset before verification).
 const VALID_TRANSITIONS = {
-  [WV_STATES.UNLOADED]: [WV_STATES.VERIFYING],
-  [WV_STATES.VERIFYING]: [WV_STATES.LOADING, WV_STATES.ERROR],
+  [WV_STATES.UNLOADED]: [WV_STATES.VERIFYING, WV_STATES.UNLOADED],
+  [WV_STATES.VERIFYING]: [
+    WV_STATES.LOADING,
+    WV_STATES.ERROR,
+    WV_STATES.UNLOADED,
+  ],
   [WV_STATES.LOADING]: [WV_STATES.LOADED, WV_STATES.ERROR, WV_STATES.UNLOADED],
   [WV_STATES.LOADED]: [
     WV_STATES.HANDSHAKING,
@@ -238,6 +257,19 @@ const setHandshakeComplete = value => {
   handshakeComplete = value;
 };
 
+// On startup/loading routes a handshake failure must not emit a reconnect
+// (state: true) — the login flow handles connection itself; emitting would
+// race it. Shared by the reload-verification and handshake failure paths.
+const isOnStartupRoute = () => {
+  const currentRoutes = navigationRef.getRootState().routes?.map(r => r.name);
+  return (
+    currentRoutes?.includes('Splash') ||
+    currentRoutes?.includes('SplashReload') ||
+    currentRoutes?.includes('Home') ||
+    currentRoutes?.includes('ConnectingToNodeLoadingScreen')
+  );
+};
+
 export const setForceReactNative = (value, reason = 'unknown') => {
   if (value === true) {
     console.warn(`forceReactNativeUse set to true. Reason: ${reason}`);
@@ -269,6 +301,12 @@ export const getHandshakeComplete = () => {
   }
   return handshakeComplete;
 };
+
+// Test seam: exposes the in-flight request ids so the harness can assert that
+// interrupted requests are settled AND removed (no zombie hangs). Prod code never
+// reads this — it mirrors the existing globalSendWebViewRequest wiring below.
+export const __getPendingRequestIdsForTest = () =>
+  globalPendingRequests ? Object.keys(globalPendingRequests.current) : [];
 
 export const WebViewProvider = ({ children }) => {
   const { authResetkey } = useAuthContext();
@@ -302,9 +340,6 @@ export const WebViewProvider = ({ children }) => {
     state: null,
     count: 0,
   });
-  const webViewLoadState = useRef('unloaded');
-  const onLoadEndCalledRef = useRef(false);
-  const lastLoadEndTimeRef = useRef(0);
   const wvState = useRef(WV_STATES.UNLOADED);
 
   const transitionWvState = useCallback((newState, reason = '') => {
@@ -376,33 +411,74 @@ export const WebViewProvider = ({ children }) => {
     maxPerSecond: 50,
   });
 
-  const blockAndResetWebview = useCallback(
-    shouldClearPending => {
-      didRunInit.current = true; // Block handshakes during reload
-
-      resetWebViewState(false, false, shouldClearPending);
-      reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
-    },
-    [resetWebViewState, reloadWebViewSecurely],
-  );
-
   const getNextSequence = useCallback(() => {
     const current = expectedSequenceRef.current;
     expectedSequenceRef.current = current + 1;
     return current;
   }, []);
 
-  const isDuplicate = (queue, action, args) => {
-    return queue.some(
-      req =>
-        ![
-          OPERATION_TYPES.getSingleTxDetails,
-          OPERATION_TYPES.getUserSwapHistory,
-        ].includes(req.action) &&
-        req.action === action &&
-        JSON.stringify(req.args) === JSON.stringify(args),
-    );
-  };
+  // Settle-and-remove queued entries older than the TTL. Runs on every queue
+  // push AND at drain time: a stale read just refetches, but a stale send
+  // (e.g. a payment queued before a long background) must never execute
+  // minutes later.
+  const evictExpiredQueuedRequests = useCallback(() => {
+    const queue = queuedRequests.current;
+    const now = Date.now();
+    for (let i = queue.length - 1; i >= 0; i--) {
+      if (now - queue[i].queuedAt > QUEUED_REQUEST_TTL_MS) {
+        const [expired] = queue.splice(i, 1);
+        if (typeof expired.resolve === 'function') {
+          expired.resolve({ error: 'Request expired while queued' });
+        }
+      }
+    }
+  }, []);
+
+  // Single entry point for deferring a request ({id, action, args, encrypt,
+  // resolve, reject}) into queuedRequests. Owns the queue policy:
+  //   - expired entries are settled and evicted first (TTL),
+  //   - an identical queued request coalesces — both callers settle with the
+  //     same outcome from one message,
+  //   - a full queue rejects the newcomer instead of growing unbounded.
+  const queueRequest = useCallback(
+    entry => {
+      const queue = queuedRequests.current;
+      const now = Date.now();
+
+      evictExpiredQueuedRequests();
+
+      const existing =
+        !QUEUE_DEDUPE_EXEMPT.includes(entry.action) &&
+        queue.find(
+          req =>
+            req.action === entry.action &&
+            JSON.stringify(req.args) === JSON.stringify(entry.args),
+        );
+      if (existing) {
+        console.log('Coalescing duplicate queued request:', entry.action);
+        const prevResolve = existing.resolve;
+        const prevReject = existing.reject;
+        existing.resolve = result => {
+          if (typeof prevResolve === 'function') prevResolve(result);
+          if (typeof entry.resolve === 'function') entry.resolve(result);
+        };
+        existing.reject = error => {
+          if (typeof prevReject === 'function') prevReject(error);
+          if (typeof entry.reject === 'function') entry.reject(error);
+        };
+        return;
+      }
+
+      if (queue.length >= MAX_QUEUED_REQUESTS) {
+        console.warn('Request queue full, rejecting:', entry.action);
+        entry.reject(new Error('Request queue full'));
+        return;
+      }
+
+      queue.push({ ...entry, queuedAt: now });
+    },
+    [evictExpiredQueuedRequests],
+  );
 
   const resetWebViewState = useCallback(
     (
@@ -415,11 +491,10 @@ export const WebViewProvider = ({ children }) => {
         sparkConnectionState,
         shouldClearPending,
       });
-      // Transition to UNLOADED — this also sets isWebViewReady(false) via derived state.
-      // Allow transition from any state during reset.
-      wvState.current = WV_STATES.UNLOADED;
+      // Transition to UNLOADED — this also sets isWebViewReady(false) via
+      // derived state (every state allows the reset transition).
+      transitionWvState(WV_STATES.UNLOADED, 'reset');
       isResetting.current = true;
-      setIsWebViewReady(false);
       // setVerifiedPath('');
 
       Object.entries(activeTimeoutsRef.current).forEach(([id, timeoutInfo]) => {
@@ -435,23 +510,22 @@ export const WebViewProvider = ({ children }) => {
 
             console.log(`Re-queueing interrupted request: ${action}`);
 
-            // Add to queue if not already there
-            // IMPORTANT: We pass the original resolve function so the promise chain is preserved
-            if (!isDuplicate(queuedRequests.current, action, args)) {
-              queuedRequests.current.push({
-                id, // Keep original ID for tracking
-                action,
-                args,
-                encrypt,
-                resolve: originalResolve,
-                reject: error => {
-                  // Reject using the original resolve function (which handles both resolve/reject)
-                  if (typeof originalResolve === 'function') {
-                    originalResolve({ error: error.message || error });
-                  }
-                },
-              });
-            }
+            // IMPORTANT: We pass the original resolve function so the promise
+            // chain is preserved; a queue duplicate coalesces onto the existing
+            // entry so this promise still settles.
+            queueRequest({
+              id, // Keep original ID for tracking
+              action,
+              args,
+              encrypt,
+              resolve: originalResolve,
+              reject: error => {
+                // Reject using the original resolve function (which handles both resolve/reject)
+                if (typeof originalResolve === 'function') {
+                  originalResolve({ error: error.message || error });
+                }
+              },
+            });
 
             // Remove from pendingRequests since it's now queued
             delete pendingRequests.current[id];
@@ -475,27 +549,52 @@ export const WebViewProvider = ({ children }) => {
         count: prev.count + 1,
       }));
 
-      if (shouldClearPending) {
-        Object.entries(pendingRequests.current).forEach(([id, resolve]) => {
-          // Call the resolve to trigger timeout cleanup
-          if (typeof resolve === 'function') {
-            resolve({
-              error: 'Unable to finish action, request got cleaned up.',
-            });
-          }
-        });
-        pendingRequests.current = {};
-      }
-      // Note: We already removed re-queued items from pendingRequests in the loop above,
-      // so no additional cleanup needed in the else branch
+      // Settle everything still pending. When shouldClearPending is false the
+      // re-queued ids were already removed inside the loop above, so this only
+      // sweeps entries that could not be re-queued (handshake:init, lost
+      // bookkeeping) — leaving them would strand their promises forever.
+      // Resolving a pending handshake:init with a plain {error} makes
+      // initHandshake's await return (it does NOT throw), so its
+      // forceNativeMode catch intentionally does not run here.
+      Object.entries(pendingRequests.current).forEach(([id, resolve]) => {
+        if (typeof resolve === 'function') {
+          resolve({
+            error: 'Unable to finish action, request got cleaned up.',
+          });
+        }
+      });
+      pendingRequests.current = {};
 
       sessionKeyRef.current = null;
       expectedSequenceRef.current = 0;
       aesKeyRef.current = null;
       nonceVerified.current = false;
     },
-    [],
+    [queueRequest, transitionWvState],
   );
+
+  // App-state / connectivity transitions clear per-request timers but leave the
+  // pending promise in place. For every in-flight request, either revive it or
+  // settle it so it can never hang forever:
+  //   - bookkeeping still present  -> re-arm the timer from the preserved entry
+  //     (fields already carry handler/duration) so it settles via handleTimeout.
+  //   - bookkeeping already wiped   -> orphan; settle it now via the stored
+  //     resolver (which does not self-delete from pendingRequests) and remove it.
+  const rearmOrSweepPendingRequests = useCallback(() => {
+    Object.keys(pendingRequests.current).forEach(id => {
+      const entry = activeTimeoutsRef.current[id];
+      if (entry) {
+        clearTimeout(entry.timeoutId);
+        entry.timeoutId = setTimeout(entry.handler, entry.duration);
+      } else {
+        const resolve = pendingRequests.current[id];
+        if (typeof resolve === 'function') {
+          resolve({ error: 'Request interrupted by app state change' });
+        }
+        delete pendingRequests.current[id];
+      }
+    });
+  }, []);
 
   const reloadWebViewSecurely = useCallback(async () => {
     try {
@@ -523,15 +622,7 @@ export const WebViewProvider = ({ children }) => {
       // On verification failure, force React Native mode
       forceNativeMode('bundle verification failed');
       setHandshakeComplete(false);
-      const currentRoutes = navigationRef
-        .getRootState()
-        .routes?.map(r => r.name);
-
-      const blockReset =
-        currentRoutes?.includes('Splash') ||
-        currentRoutes?.includes('SplashReload') ||
-        currentRoutes?.includes('Home') ||
-        currentRoutes?.includes('ConnectingToNodeLoadingScreen');
+      const blockReset = isOnStartupRoute();
 
       setChangeSparkConnectionState(prev => ({
         state: blockReset ? null : true,
@@ -540,92 +631,15 @@ export const WebViewProvider = ({ children }) => {
     }
   }, []);
 
-  // Handle app state changes
-  useEffect(() => {
-    const appStateChanged = previousAppState.current !== appState;
-    const connectionChanged =
-      prevConnectionStatus.current !== isConnectedToTheInternet;
+  const blockAndResetWebview = useCallback(
+    shouldClearPending => {
+      didRunInit.current = true; // Block handshakes during reload
 
-    if ((!appStateChanged && !connectionChanged) || forceReactNativeUse) {
-      return; // Nothing changed
-    }
-
-    if (appState === 'background') {
-      console.log(
-        'App going to background - clearing all timeouts and pending requests',
-      );
-      Object.values(activeTimeoutsRef.current).forEach(t =>
-        clearTimeout(t.timeoutId),
-      );
-      activeTimeoutsRef.current = {};
-
-      previousAppState.current = appState;
-      prevConnectionStatus.current = isConnectedToTheInternet;
-    } else if (appState === 'active') {
-      console.log('App returned to foreground');
-      // clear any active timeouts to prevent timeout from switching to rn
-      Object.values(activeTimeoutsRef.current).forEach(t =>
-        clearTimeout(t.timeoutId),
-      );
-
-      // Wait for internet connection before proceeding
-      if (!isConnectedToTheInternet) {
-        console.log('Waiting for internet connection before processing...');
-        // Update refs so we can detect when connection comes back
-        previousAppState.current = appState;
-        prevConnectionStatus.current = isConnectedToTheInternet;
-
-        return;
-      }
-
-      // Only execute if we actually transitioned to active OR connection just came back
-      const justBecameActive =
-        appStateChanged &&
-        (previousAppState.current === 'background' ||
-          previousAppState.current === 'inactive');
-      const connectionJustRestored =
-        connectionChanged && isConnectedToTheInternet;
-
-      if (justBecameActive || connectionJustRestored) {
-        if (!nonceVerified.current && !isResetting.current) {
-          console.log(
-            'App became active or connection restored and webview is not varified and not resetting - reloading WebView',
-          );
-          if (didGetToHomepageRef.current) {
-            blockAndResetWebview();
-          }
-        } else {
-          // sometimes the webview becomes stale, if internet connection goes away make sure to reset webview but dont clear pending events so they are handled once webview is active again
-          if (connectionJustRestored) {
-            blockAndResetWebview(false);
-          } else {
-            // Make sure to handle any events that happen during background and are within the three minute refresh timeout
-            if (!didGetToHomepageRef.current) {
-              // we need to make sure this doesn't double run before getting to the hompage otherwise we will send multiple init requests
-              console.log(
-                'Did not get to homepage yet, blocking duplicate request created by biometric login popup',
-              );
-            } else {
-              setTimeout(() => {
-                processQueuedRequests(connectionJustRestored);
-              }, 100);
-            }
-          }
-        }
-      }
-
-      previousAppState.current = appState;
-      prevConnectionStatus.current = isConnectedToTheInternet;
-    } else {
-      previousAppState.current = appState;
-      prevConnectionStatus.current = isConnectedToTheInternet;
-    }
-  }, [
-    appState,
-    isConnectedToTheInternet,
-    blockAndResetWebview,
-    processQueuedRequests,
-  ]);
+      resetWebViewState(false, false, shouldClearPending);
+      reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
+    },
+    [resetWebViewState, reloadWebViewSecurely],
+  );
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -653,199 +667,6 @@ export const WebViewProvider = ({ children }) => {
     decrypted += decipher.final('utf8');
     return decrypted;
   }, []);
-
-  const handleWebViewResponse = useCallback(
-    event => {
-      try {
-        const message = JSON.parse(event.nativeEvent.data);
-
-        if (message.type === 'handshake:reply' && message.pubW) {
-          const resolve = pendingRequests.current[message.id];
-          if (!resolve) {
-            // no need to handle anything here, will be handled with timeout
-            console.error('Timeout: backend is unresponsive');
-            return;
-          }
-          if (!sessionKeyRef.current) {
-            // no need to handle anything here, will be handled with timeout
-            console.error(
-              'SECURITY: Received handshake reply without active session key',
-            );
-            return;
-          }
-
-          const shared = getSharedSecret(
-            Buffer.from(sessionKeyRef.current.privateKey),
-            Buffer.from(message.pubW, 'hex'),
-            true,
-          );
-          const sharedX = shared.slice(1, 33);
-          aesKeyRef.current = deriveAesKeyFromSharedX(
-            sharedX,
-            expectedNonceRef.current,
-          );
-
-          shared.fill(0);
-          sharedX.fill(0);
-
-          if (sessionKeyRef.current?.privateKey) {
-            sessionKeyRef.current.privateKey.fill(0);
-          }
-          sessionKeyRef.current = null;
-
-          const decodedNonce = decryptMessage(message.runtimeNonce);
-          if (expectedNonceRef.current !== decodedNonce) {
-            // no need to handle anything here, will be handled with timeout
-            console.log('Invalid runtime nonce, something went wrong');
-            aesKeyRef.current = null;
-            return;
-          }
-          nonceVerified.current = true;
-          webviewFailureCount = 0;
-          console.log('Handshake complete. Got backend public key.');
-          transitionWvState(WV_STATES.READY, 'handshake complete');
-          setHandshakeComplete(true);
-          // resolve requset to avoid timeout
-          resolve({ didComplete: true });
-          delete pendingRequests.current[message.id];
-
-          setTimeout(() => {
-            processQueuedRequests();
-          }, 100);
-          return;
-        }
-
-        let content = message;
-
-        if (message.encrypted && aesKeyRef.current) {
-          const decrypted = decryptMessage(message.encrypted);
-
-          try {
-            content = JSON.parse(decrypted);
-          } catch (err) {
-            content = decrypted;
-          }
-        }
-        console.log('receiving message from webview', content);
-
-        if (content.type === 'security:csp-violation') {
-          console.error('CSP VIOLATION DETECTED:', content);
-
-          resetWebViewState(true, true);
-          forceNativeMode('CSP violation');
-          return;
-        }
-
-        // Unsolicited SDK push events (incoming payment, balance/token balance,
-        // stream status) are not request/response traffic and must not count
-        // toward the flood limiter. A burst of legitimate inbound payments would
-        // otherwise trip it and force the one-way native fallback.
-        const isSdkPushEvent = !!(
-          content.incomingPayment ||
-          content.balanceUpdate ||
-          content.tokenBalanceUpdate ||
-          content.streamStatus
-        );
-
-        if (!isSdkPushEvent) {
-          const now = Date.now();
-          const windowDuration = now - messageRateLimiter.current.windowStart;
-          if (windowDuration > 1000) {
-            // Reset window
-            messageRateLimiter.current.count = 0;
-            messageRateLimiter.current.windowStart = now;
-          }
-          messageRateLimiter.current.count++;
-
-          if (
-            messageRateLimiter.current.count >
-            messageRateLimiter.current.maxPerSecond
-          ) {
-            console.error(
-              `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
-            );
-
-            resetWebViewState(true, true);
-            forceNativeMode('rate limit exceeded');
-            return;
-          }
-        }
-
-        if (content.error) throw new Error(content.error);
-
-        if (content.incomingPayment) {
-          const data = JSON.parse(content.result);
-          incomingSparkTransaction.emit(
-            INCOMING_SPARK_TX_NAME,
-            data.transferId,
-            data.balance,
-            content.walletId,
-          );
-        }
-        if (content.balanceUpdate) {
-          const data = JSON.parse(content.result);
-          sparkBalanceUpdateEmitter.emit(
-            BALANCE_UPDATE_EVENT_NAME,
-            data,
-            content.walletId,
-          );
-        }
-        if (content.tokenBalanceUpdate) {
-          const data = JSON.parse(content.result);
-          sparkTokenBalanceUpdateEmitter.emit(
-            TOKEN_BALANCE_UPDATE_EVENT_NAME,
-            data.tokensObject,
-            content.walletId,
-          );
-        }
-        if (content.streamStatus) {
-          sparkStreamStatusEmitter.emit(
-            STREAM_STATUS_EVENT_NAME,
-            content.streamStatus,
-          );
-        }
-        if (content.isResponse && content.id) {
-          const resolve = pendingRequests.current[content.id];
-          if (resolve) {
-            const result = JSON.parse(content.result || null);
-            // Check for WASM errors
-            if (
-              result?.error &&
-              typeof result.error === 'string' &&
-              WASM_ERRORS.some(errMsg => result.error.includes(errMsg))
-            ) {
-              console.warn(
-                'WASM failed, switching to React Native implementation:',
-                result.error,
-              );
-
-              resetWebViewState(true, true);
-              forceNativeMode('WASM error');
-
-              setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
-            }
-            webviewFailureCount = 0; // Reset on successful response
-            resolve(result);
-
-            delete pendingRequests.current[content.id];
-          }
-        }
-      } catch (err) {
-        console.error('Error handling WebView message:', err);
-        if (
-          typeof err.message === 'string' &&
-          err.message === 'Rejected stale message'
-        )
-          return;
-        webviewFailureCount++;
-        if (webviewFailureCount >= MAX_WEBVIEW_FAILURES) {
-          forceNativeMode('repeated WebView errors');
-        }
-        resetWebViewState(true, true);
-      }
-    },
-    [decryptMessage, resetWebViewState],
-  );
 
   const sendWebViewRequestInternal = useCallback(
     (action, args = {}, encrypt = true) => {
@@ -882,19 +703,7 @@ export const WebViewProvider = ({ children }) => {
               'WebView is resetting or in the background, queueing message:',
               action,
             );
-            if (!isDuplicate(queuedRequests.current, action, args)) {
-              queuedRequests.current.push({
-                id,
-                action,
-                args,
-                encrypt,
-                resolve,
-                reject,
-              });
-            } else {
-              console.log('Duplicate request ignored:', action, args);
-              reject('Duplicate request ignored');
-            }
+            queueRequest({ id, action, args, encrypt, resolve, reject });
             return;
           }
 
@@ -908,27 +717,11 @@ export const WebViewProvider = ({ children }) => {
               'App is not connected to the internet, queueing message:',
               action,
             );
-            if (
-              rejectIfNotConnectedToInternet.some(op =>
-                action.toLowerCase().includes(op.toLowerCase()),
-              )
-            ) {
+            if (rejectIfNotConnectedToInternet.has(action)) {
               reject(new Error(`App is not connected to the internet`));
             } else if (action !== OPERATION_TYPES.initWallet) {
               //don't add init wallet, this will be added during webview reset
-              if (!isDuplicate(queuedRequests.current, action, args)) {
-                queuedRequests.current.push({
-                  id,
-                  action,
-                  args,
-                  encrypt,
-                  resolve,
-                  reject,
-                });
-              } else {
-                console.log('Duplicate request ignored:', action, args);
-                reject('Duplicate request ignored');
-              }
+              queueRequest({ id, action, args, encrypt, resolve, reject });
             }
             return;
           }
@@ -940,38 +733,18 @@ export const WebViewProvider = ({ children }) => {
               webViewRef.current,
               isWebviewReadyRef.current,
             );
-            if (!isDuplicate(queuedRequests.current, action, args)) {
-              queuedRequests.current.push({
-                id,
-                action,
-                args,
-                encrypt,
-                resolve,
-                reject,
-              });
-            } else {
-              console.log('Duplicate request ignored:', action, args);
-              reject('Duplicate request ignored');
-            }
+            queueRequest({ id, action, args, encrypt, resolve, reject });
             return;
           }
 
           const getTimeoutDuration = action => {
             if (action === 'handshake:init') return 4000;
 
-            if (
-              longOperations.some(op =>
-                action.toLowerCase().includes(op.toLowerCase()),
-              )
-            ) {
+            if (longOperations.has(action)) {
               return 90000; // 90 seconds for payment operations
             }
 
-            if (
-              mediumOperations.some(op =>
-                action.toLowerCase().includes(op.toLowerCase()),
-              )
-            ) {
+            if (mediumOperations.has(action)) {
               return 30000; // 30 seconds
             }
 
@@ -986,6 +759,13 @@ export const WebViewProvider = ({ children }) => {
               console.log(
                 `Skipping timeout for ${action} because app is not active (${AppState.currentState})`,
               );
+              // Timers can still fire in iOS 'inactive'; killing the request here
+              // would leave it in pendingRequests forever. Re-arm so the entry
+              // survives until an active-state firing settles it.
+              const entry = activeTimeoutsRef.current[id];
+              if (entry) {
+                entry.timeoutId = setTimeout(handleTimeout, timeoutDuration);
+              }
               return;
             }
 
@@ -1047,10 +827,6 @@ export const WebViewProvider = ({ children }) => {
             delete activeTimeoutsRef.current[id];
             originalResolve(result);
           };
-
-          if (args.mnemonic && action !== 'initializeSparkWallet') {
-            args.mnemonic = sha256Hash(args.mnemonic);
-          }
 
           // Handle initializeSparkWallet specially
           if (action === 'initializeSparkWallet') {
@@ -1125,30 +901,23 @@ export const WebViewProvider = ({ children }) => {
                 action,
               );
 
-              // Queue the request instead of blocking
-              if (!isDuplicate(queuedRequests.current, action, args)) {
-                queuedRequests.current.push({
-                  id,
-                  action,
-                  args,
-                  encrypt,
-                  resolve,
-                  reject,
-                });
-
-                // Clean up timeout since we're queueing
-                if (timeoutId) clearTimeout(timeoutId);
-                delete activeTimeoutsRef.current[id];
-
-                return;
-              } else {
-                console.log('Duplicate request ignored:', action);
-                if (timeoutId) clearTimeout(timeoutId);
-                delete pendingRequests.current[id];
-                delete activeTimeoutsRef.current[id];
-                return reject(new Error('Duplicate request ignored'));
-              }
+              // Queue the request instead of blocking. Ownership of the promise
+              // moves to the queue entry, so drop the timeout AND the
+              // pendingRequests entry (leaving it would let a later sweep
+              // settle the caller prematurely).
+              if (timeoutId) clearTimeout(timeoutId);
+              delete pendingRequests.current[id];
+              delete activeTimeoutsRef.current[id];
+              queueRequest({ id, action, args, encrypt, resolve, reject });
+              return;
             }
+          }
+
+          // Hash into a copy, and only after every queue/store branch above:
+          // originalRequest and queued entries must hold the pre-hash args so a
+          // replay through this function hashes exactly once.
+          if (args.mnemonic && action !== 'initializeSparkWallet') {
+            args = { ...args, mnemonic: sha256Hash(args.mnemonic) };
           }
 
           const sequence = getNextSequence();
@@ -1167,6 +936,11 @@ export const WebViewProvider = ({ children }) => {
             if (encrypt && aesKeyRef.current) {
               const encrypted = encryptMessage(JSON.stringify(payload));
               payload = { type: 'secure:msg', encrypted };
+            } else if (encrypt && action !== 'handshake:init') {
+              // Fail closed: encryption was requested but no session key exists
+              // (pre-handshake or mid-reset race). Never downgrade the payload
+              // to plaintext.
+              throw new Error('Encryption required but AES key unavailable');
             }
             webViewRef.current.postMessage(JSON.stringify(payload));
           } catch (err) {
@@ -1195,14 +969,436 @@ export const WebViewProvider = ({ children }) => {
       execute();
       return promise;
     },
+    [encryptMessage, resetWebViewState, getNextSequence],
+  );
+
+  const processQueuedRequests = useCallback(
+    async connectionJustRestored => {
+      // Never execute work that expired while waiting (see helper).
+      evictExpiredQueuedRequests();
+
+      // After a soft reset, the WebView's internal state is cleared
+      // We must reinitialize the wallet before processing any queued requests
+      if (
+        (handshakeComplete &&
+          !walletInitialized.current &&
+          currentWalletMnemoincRef.current) ||
+        (currentWalletMnemoincRef.current && connectionJustRestored)
+      ) {
+        console.log('Re-initializing wallet before processing queue');
+        try {
+          // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
+          const response = await sendWebViewRequestInternal(
+            OPERATION_TYPES.initWallet,
+            { mnemonic: currentWalletMnemoincRef.current },
+            true,
+          );
+          if (!response?.isConnected) throw new Error('Wallet init failed');
+        } catch (err) {
+          console.log('Error re-initializing wallet:', err);
+          // forceReactNativeUse = true;
+          // Reject all queued requests since WebView is now unusable
+          // Snapshot and clear BEFORE iterating (re-entrancy safety).
+          const requestsToReject = queuedRequests.current;
+          queuedRequests.current = [];
+          requestsToReject.forEach(({ reject }) => {
+            reject({
+              error: 'Wallet initialization failed, using React Native',
+            });
+          });
+          return;
+        }
+      }
+      isResetting.current = false;
+
+      console.log(
+        `Processing ${queuedRequests.current.length} queued requests`,
+      );
+
+      if (
+        queuedRequests.current.length === 0 ||
+        !currentWalletMnemoincRef.current
+      ) {
+        isResetting.current = false;
+        return;
+      }
+
+      const requests = [...queuedRequests.current];
+      queuedRequests.current = [];
+
+      // Process sequentially to avoid triggering the rate limiter (50 msgs/sec).
+      // Parallel dispatch via Promise.allSettled could fire 51+ messages at once,
+      // permanently killing the WebView.
+      for (const { action, args, encrypt, resolve, reject } of requests) {
+        try {
+          const result = await sendWebViewRequestInternal(
+            action,
+            args,
+            encrypt,
+          );
+          if (typeof resolve === 'function') {
+            resolve(result);
+          }
+        } catch (error) {
+          if (typeof reject === 'function') {
+            reject(error);
+          }
+        }
+      }
+
+      isResetting.current = false;
+    },
+    [sendWebViewRequestInternal, evictExpiredQueuedRequests],
+  );
+
+  const handleWebViewResponse = useCallback(
+    event => {
+      try {
+        const message = JSON.parse(event.nativeEvent.data);
+
+        if (message.type === 'handshake:reply' && message.pubW) {
+          const resolve = pendingRequests.current[message.id];
+          if (!resolve) {
+            // no need to handle anything here, will be handled with timeout
+            console.error('Timeout: backend is unresponsive');
+            return;
+          }
+          if (!sessionKeyRef.current) {
+            // no need to handle anything here, will be handled with timeout
+            console.error(
+              'SECURITY: Received handshake reply without active session key',
+            );
+            return;
+          }
+
+          const shared = getSharedSecret(
+            Buffer.from(sessionKeyRef.current.privateKey),
+            Buffer.from(message.pubW, 'hex'),
+            true,
+          );
+          const sharedX = shared.slice(1, 33);
+          aesKeyRef.current = deriveAesKeyFromSharedX(
+            sharedX,
+            expectedNonceRef.current,
+          );
+
+          shared.fill(0);
+          sharedX.fill(0);
+
+          if (sessionKeyRef.current?.privateKey) {
+            sessionKeyRef.current.privateKey.fill(0);
+          }
+          sessionKeyRef.current = null;
+
+          const decodedNonce = decryptMessage(message.runtimeNonce);
+          if (expectedNonceRef.current !== decodedNonce) {
+            // no need to handle anything here, will be handled with timeout
+            console.log('Invalid runtime nonce, something went wrong');
+            aesKeyRef.current = null;
+            return;
+          }
+          nonceVerified.current = true;
+          webviewFailureCount = 0;
+          console.log('Handshake complete. Got backend public key.');
+          transitionWvState(WV_STATES.READY, 'handshake complete');
+          setHandshakeComplete(true);
+          // resolve requset to avoid timeout
+          resolve({ didComplete: true });
+          delete pendingRequests.current[message.id];
+
+          setTimeout(() => {
+            processQueuedRequests();
+          }, 100);
+          return;
+        }
+
+        let content = message;
+
+        if (message.encrypted && aesKeyRef.current) {
+          const decrypted = decryptMessage(message.encrypted);
+
+          try {
+            content = JSON.parse(decrypted);
+          } catch (err) {
+            content = decrypted;
+          }
+        } else if (nonceVerified.current) {
+          // Once the handshake completed, every legitimate webview message is
+          // encrypted (the bundle only posts errors/CSP reports once sharedKey
+          // exists). Accepting plaintext here would let an unauthenticated
+          // message bypass GCM verification, e.g. to spoof a response.
+          console.warn('Dropping plaintext message received post-handshake');
+          return;
+        }
+        console.log('receiving message from webview', content);
+
+        if (content.type === 'security:csp-violation') {
+          console.error('CSP VIOLATION DETECTED:', content);
+
+          resetWebViewState(true, true);
+          forceNativeMode('CSP violation');
+          return;
+        }
+
+        // Unsolicited SDK push events (incoming payment, balance/token balance,
+        // stream status) are not request/response traffic and must not count
+        // toward the flood limiter. A burst of legitimate inbound payments would
+        // otherwise trip it and force the one-way native fallback.
+        const isSdkPushEvent = !!(
+          content.incomingPayment ||
+          content.balanceUpdate ||
+          content.tokenBalanceUpdate ||
+          content.streamStatus
+        );
+
+        if (!isSdkPushEvent) {
+          const now = Date.now();
+          const windowDuration = now - messageRateLimiter.current.windowStart;
+          if (windowDuration > 1000) {
+            // Reset window
+            messageRateLimiter.current.count = 0;
+            messageRateLimiter.current.windowStart = now;
+          }
+          messageRateLimiter.current.count++;
+
+          if (
+            messageRateLimiter.current.count >
+            messageRateLimiter.current.maxPerSecond
+          ) {
+            console.error(
+              `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
+            );
+
+            resetWebViewState(true, true);
+            forceNativeMode('rate limit exceeded');
+            return;
+          }
+        }
+
+        if (content.error) {
+          // An error tied to a request id is a request-level resolution, not a
+          // bridge failure — settle just that request and leave the bridge (and
+          // every other in-flight request) alone. An error whose id no longer
+          // matches (e.g. the timeout already settled it) is dropped like the
+          // isResponse path drops stale ids. Only an id-less top-level error
+          // keeps the reset/failure-count behavior via the outer catch.
+          if (content.id) {
+            const resolve = pendingRequests.current[content.id];
+            if (typeof resolve === 'function') {
+              resolve({ error: content.error });
+              delete pendingRequests.current[content.id];
+            } else {
+              console.warn(
+                'Dropping error for unknown/settled request:',
+                content.id,
+                content.error,
+              );
+            }
+            return;
+          }
+          throw new Error(content.error);
+        }
+
+        // Push events are unsolicited SDK traffic. One malformed event (or one
+        // throwing listener) must be logged and dropped, never routed to the
+        // outer catch — that would reset the bridge and wipe every in-flight
+        // request over a single bad message.
+        if (content.incomingPayment) {
+          try {
+            const data = JSON.parse(content.result);
+            incomingSparkTransaction.emit(
+              INCOMING_SPARK_TX_NAME,
+              data.transferId,
+              data.balance,
+              content.walletId,
+            );
+          } catch (err) {
+            console.error('Dropping malformed incomingPayment event:', err);
+          }
+        }
+        if (content.balanceUpdate) {
+          try {
+            const data = JSON.parse(content.result);
+            sparkBalanceUpdateEmitter.emit(
+              BALANCE_UPDATE_EVENT_NAME,
+              data,
+              content.walletId,
+            );
+          } catch (err) {
+            console.error('Dropping malformed balanceUpdate event:', err);
+          }
+        }
+        if (content.tokenBalanceUpdate) {
+          try {
+            const data = JSON.parse(content.result);
+            sparkTokenBalanceUpdateEmitter.emit(
+              TOKEN_BALANCE_UPDATE_EVENT_NAME,
+              data.tokensObject,
+              content.walletId,
+            );
+          } catch (err) {
+            console.error('Dropping malformed tokenBalanceUpdate event:', err);
+          }
+        }
+        if (content.streamStatus) {
+          try {
+            sparkStreamStatusEmitter.emit(
+              STREAM_STATUS_EVENT_NAME,
+              content.streamStatus,
+            );
+          } catch (err) {
+            console.error('Dropping failed streamStatus emit:', err);
+          }
+        }
+        if (content.isResponse && content.id) {
+          const resolve = pendingRequests.current[content.id];
+          if (resolve) {
+            const result = JSON.parse(content.result || null);
+            // Check for WASM errors
+            if (
+              result?.error &&
+              typeof result.error === 'string' &&
+              WASM_ERRORS.some(errMsg => result.error.includes(errMsg))
+            ) {
+              console.warn(
+                'WASM failed, switching to React Native implementation:',
+                result.error,
+              );
+
+              resetWebViewState(true, true);
+              forceNativeMode('WASM error');
+
+              setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
+            }
+            webviewFailureCount = 0; // Reset on successful response
+            resolve(result);
+
+            delete pendingRequests.current[content.id];
+          }
+        }
+      } catch (err) {
+        console.error('Error handling WebView message:', err);
+        if (
+          typeof err.message === 'string' &&
+          // The webview reports these as e.g.
+          // "SECURITY: Rejected stale message: 5000ms old" — routine after a
+          // long background, so never spend a teardown/failure strike on it.
+          err.message.includes('Rejected stale message')
+        )
+          return;
+        webviewFailureCount++;
+        if (webviewFailureCount >= MAX_WEBVIEW_FAILURES) {
+          forceNativeMode('repeated WebView errors');
+        }
+        resetWebViewState(true, true);
+      }
+    },
     [
-      encryptMessage,
+      decryptMessage,
       resetWebViewState,
-      getNextSequence,
-      appState,
-      isConnectedToTheInternet,
+      processQueuedRequests,
+      transitionWvState,
     ],
   );
+
+  // Handle app state changes
+  useEffect(() => {
+    const appStateChanged = previousAppState.current !== appState;
+    const connectionChanged =
+      prevConnectionStatus.current !== isConnectedToTheInternet;
+
+    if ((!appStateChanged && !connectionChanged) || forceReactNativeUse) {
+      return; // Nothing changed
+    }
+
+    if (appState === 'background') {
+      console.log(
+        'App going to background - pausing timers (keeping bookkeeping so foreground can re-arm)',
+      );
+      // Clear live timers so an accumulated/stale timer can't fire a spurious
+      // timeout on resume, but KEEP each entry (handler/duration/originalRequest)
+      // so rearmOrSweepPendingRequests re-arms the in-flight request on foreground
+      // instead of sweeping it as an orphan. Wiping this map was the cause of
+      // "Request interrupted by app state change" on a background→foreground send.
+      Object.values(activeTimeoutsRef.current).forEach(t => {
+        clearTimeout(t.timeoutId);
+        t.timeoutId = null;
+      });
+
+      previousAppState.current = appState;
+      prevConnectionStatus.current = isConnectedToTheInternet;
+    } else if (appState === 'active') {
+      console.log('App returned to foreground');
+      // clear any active timeouts to prevent timeout from switching to rn
+      Object.values(activeTimeoutsRef.current).forEach(t =>
+        clearTimeout(t.timeoutId),
+      );
+
+      // The loop above cleared every timer but left the pending promises intact.
+      // Re-arm each request (or sweep orphans whose bookkeeping was wiped on
+      // background) so nothing hangs forever. This runs before the offline return
+      // and the reset paths below, covering all of them uniformly.
+      rearmOrSweepPendingRequests();
+
+      // Wait for internet connection before proceeding
+      if (!isConnectedToTheInternet) {
+        console.log('Waiting for internet connection before processing...');
+        // Update refs so we can detect when connection comes back
+        previousAppState.current = appState;
+        prevConnectionStatus.current = isConnectedToTheInternet;
+
+        return;
+      }
+
+      // Only execute if we actually transitioned to active OR connection just came back
+      const justBecameActive =
+        appStateChanged &&
+        (previousAppState.current === 'background' ||
+          previousAppState.current === 'inactive');
+      const connectionJustRestored =
+        connectionChanged && isConnectedToTheInternet;
+
+      if (justBecameActive || connectionJustRestored) {
+        if (!nonceVerified.current && !isResetting.current) {
+          console.log(
+            'App became active or connection restored and webview is not varified and not resetting - reloading WebView',
+          );
+          if (didGetToHomepageRef.current) {
+            blockAndResetWebview();
+          }
+        } else {
+          // sometimes the webview becomes stale, if internet connection goes away make sure to reset webview but dont clear pending events so they are handled once webview is active again
+          if (connectionJustRestored) {
+            blockAndResetWebview(false);
+          } else {
+            // Make sure to handle any events that happen during background and are within the three minute refresh timeout
+            if (!didGetToHomepageRef.current) {
+              // we need to make sure this doesn't double run before getting to the hompage otherwise we will send multiple init requests
+              console.log(
+                'Did not get to homepage yet, blocking duplicate request created by biometric login popup',
+              );
+            } else {
+              setTimeout(() => {
+                processQueuedRequests(connectionJustRestored);
+              }, 100);
+            }
+          }
+        }
+      }
+
+      previousAppState.current = appState;
+      prevConnectionStatus.current = isConnectedToTheInternet;
+    } else {
+      previousAppState.current = appState;
+      prevConnectionStatus.current = isConnectedToTheInternet;
+    }
+  }, [
+    appState,
+    isConnectedToTheInternet,
+    blockAndResetWebview,
+    processQueuedRequests,
+    rearmOrSweepPendingRequests,
+  ]);
 
   const initHandshake = useCallback(async () => {
     try {
@@ -1221,15 +1417,7 @@ export const WebViewProvider = ({ children }) => {
     } catch (error) {
       console.warn('Handshake failed or timed out:', error.message);
       forceNativeMode('handshake failed');
-      const currentRoutes = navigationRef
-        .getRootState()
-        .routes?.map(r => r.name);
-
-      const blockReset =
-        currentRoutes?.includes('Splash') ||
-        currentRoutes?.includes('SplashReload') ||
-        currentRoutes?.includes('Home') ||
-        currentRoutes?.includes('ConnectingToNodeLoadingScreen');
+      const blockReset = isOnStartupRoute();
 
       setChangeSparkConnectionState(prev => ({
         state: blockReset ? null : true,
@@ -1315,89 +1503,8 @@ export const WebViewProvider = ({ children }) => {
 
   useEffect(() => {
     globalSendWebViewRequest = sendWebViewRequestInternal;
+    globalPendingRequests = pendingRequests;
   }, [sendWebViewRequestInternal]);
-
-  useEffect(() => {
-    webViewLoadState.current = 'unloaded';
-    onLoadEndCalledRef.current = false;
-    lastLoadEndTimeRef.current = 0;
-  }, [reloadKey, verifiedPath]);
-
-  const processQueuedRequests = useCallback(
-    async connectionJustRestored => {
-      // After a soft reset, the WebView's internal state is cleared
-      // We must reinitialize the wallet before processing any queued requests
-      if (
-        (handshakeComplete &&
-          !walletInitialized.current &&
-          currentWalletMnemoincRef.current) ||
-        (currentWalletMnemoincRef.current && connectionJustRestored)
-      ) {
-        console.log('Re-initializing wallet before processing queue');
-        try {
-          // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
-          const response = await sendWebViewRequestInternal(
-            OPERATION_TYPES.initWallet,
-            { mnemonic: currentWalletMnemoincRef.current },
-            true,
-          );
-          if (!response?.isConnected) throw new Error('Wallet init failed');
-        } catch (err) {
-          console.log('Error re-initializing wallet:', err);
-          // forceReactNativeUse = true;
-          // Reject all queued requests since WebView is now unusable
-          // Snapshot and clear BEFORE iterating (re-entrancy safety).
-          const requestsToReject = queuedRequests.current;
-          queuedRequests.current = [];
-          requestsToReject.forEach(({ reject }) => {
-            reject({
-              error: 'Wallet initialization failed, using React Native',
-            });
-          });
-          return;
-        }
-      }
-      isResetting.current = false;
-
-      console.log(
-        `Processing ${queuedRequests.current.length} queued requests`,
-      );
-
-      if (
-        queuedRequests.current.length === 0 ||
-        !currentWalletMnemoincRef.current
-      ) {
-        isResetting.current = false;
-        return;
-      }
-
-      const requests = [...queuedRequests.current];
-      queuedRequests.current = [];
-
-      // Process sequentially to avoid triggering the rate limiter (50 msgs/sec).
-      // Parallel dispatch via Promise.allSettled could fire 51+ messages at once,
-      // permanently killing the WebView.
-      for (const { action, args, encrypt, resolve, reject } of requests) {
-        try {
-          const result = await sendWebViewRequestInternal(
-            action,
-            args,
-            encrypt,
-          );
-          if (typeof resolve === 'function') {
-            resolve(result);
-          }
-        } catch (error) {
-          if (typeof reject === 'function') {
-            reject(error);
-          }
-        }
-      }
-
-      isResetting.current = false;
-    },
-    [sendWebViewRequestInternal],
-  );
 
   const getCustomUserAgent = useCallback(() => {
     const deviceModel = getModel();
@@ -1467,8 +1574,8 @@ export const WebViewProvider = ({ children }) => {
           allowFileAccess={true}
           allowFileAccessFromFileURLs={false}
           allowUniversalAccessFromFileURLs={false}
-          thirdPartyCookiesEnabled={true}
-          sharedCookiesEnabled={true}
+          thirdPartyCookiesEnabled={false}
+          sharedCookiesEnabled={false}
           incognito={false}
           userAgent={getCustomUserAgent()}
           webviewDebuggingEnabled={false}
@@ -1485,8 +1592,6 @@ export const WebViewProvider = ({ children }) => {
           onMessage={handleWebViewResponse}
           onLoadStart={() => {
             transitionWvState(WV_STATES.LOADING, 'onLoadStart');
-            webViewLoadState.current = 'loading';
-            onLoadEndCalledRef.current = false;
             didRunHandshakeRef.current = false;
           }}
           onLoadProgress={({ nativeEvent }) => {
@@ -1495,7 +1600,6 @@ export const WebViewProvider = ({ children }) => {
               wvState.current === WV_STATES.LOADING
             ) {
               transitionWvState(WV_STATES.LOADED, 'progress 100%');
-              webViewLoadState.current = 'loaded';
             }
           }}
           onLoadEnd={() => {
@@ -1503,7 +1607,6 @@ export const WebViewProvider = ({ children }) => {
             // (onLoadProgress might have already handled it)
             if (wvState.current === WV_STATES.LOADING) {
               transitionWvState(WV_STATES.LOADED, 'onLoadEnd');
-              webViewLoadState.current = 'loaded';
             }
           }}
           onContentProcessDidTerminate={() =>

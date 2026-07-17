@@ -408,7 +408,6 @@ export const getSparkBalance = async mnemonic => {
       for (const [tokensIdentifier, tokensData] of Object.entries(
         tokensObject,
       )) {
-        console.log(tokensIdentifier, tokensData);
         convertedTokensObj[tokensIdentifier] = {
           ...tokensData,
           balance: BigInt(tokensData.balance),
