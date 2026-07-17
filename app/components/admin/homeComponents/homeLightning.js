@@ -12,7 +12,6 @@ import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import { NavBar } from './navBar';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useUpdateHomepageTransactions } from '../../../hooks/updateHomepageTransactions';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
@@ -168,7 +167,6 @@ export default function HomeLightning({ navigation }) {
   const scrollViewRef = useRef(null);
   const { bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
-  const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const screenWidth = screenDimensions?.width ?? 0;
@@ -268,7 +266,6 @@ export default function HomeLightning({ navigation }) {
   const flatListDataForSpark = useMemo(() => {
     return (
       getFormattedHomepageTxsForSpark({
-        currentTime,
         sparkInformation,
         homepageTxPreferance,
         navigate,
@@ -297,7 +294,6 @@ export default function HomeLightning({ navigation }) {
       }) || []
     );
   }, [
-    currentTime,
     sparkInformation.transactions,
     sparkInformation.didConnect,
     homepageTxPreferance,
