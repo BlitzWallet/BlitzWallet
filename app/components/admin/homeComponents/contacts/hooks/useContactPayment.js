@@ -92,22 +92,17 @@ export default function useContactPayment({
   const [swapQuote, setSwapQuote] = useState({});
   const [lnInvoiceData, setLnInvoiceData] = useState(null);
   const [lnurlPayData, setLnurlPayData] = useState(null);
-  const [isResolvingLnurlData, setIsResolvingLnurlData] = useState(false);
+  const [isResolvingLnurlData, setIsResolvingLnurlData] = useState(
+    () => paymentType === 'send' && !!selectedContact?.isLNURL,
+  );
   const [prefetchedDoc, setPrefetchedDoc] = useState(null);
   const [contactReceiveOption, setContactReceiveOption] = useState(null);
-  // True while an *automatic* currency switch is determining/loading the display
-  // currency (phone-pay or LNURL-advertised), so the page can show a loading
-  // screen. Lazily seeded true for phone-pay contacts (currency known instantly
-  // from the address) so the very first render already shows the loading screen —
-  // never set for manual picks, so those reveal instantly.
-  const [isAutoResolvingCurrency, setIsAutoResolvingCurrency] = useState(() => {
-    if (paymentType !== 'send') return false;
-    const country = getPhonePaymentCountry(selectedContact?.receiveAddress);
-    const code = country
-      ? (PROVIDER_COUNTRY_CURRENCY[country] || '').toUpperCase()
-      : '';
-    return !!code && fiatCurrencies.some(c => c.id === code);
-  });
+  // True while an *automatic* fiat-rate fetch is in flight (phone-pay or
+  // LNURL-advertised currency). Token-guarded + min-loading debounced below.
+  // The bounds-fetch portion of the loading screen is folded into the derived
+  // isAutoResolvingCurrency below, so this only tracks the rate fetch.
+  const [isLoadingAutoCurrencyRate, setIsLoadingAutoCurrencyRate] =
+    useState(false);
   const lnurlParsedRef = useRef(null);
   const appliedLocalCurrencyRef = useRef(null);
   // Monotonic token guarding the auto-resolve loading flag. The resolving fetch
@@ -317,6 +312,15 @@ export default function useContactPayment({
   // fetched. Drives the number-pad disabled state during the LNURL bounds parse.
   const isResolvingDisplayCurrency = isLoadingRate || isResolvingLnurlData;
 
+  // Full-screen loader while auto-resolving an LNURL contact's display currency —
+  // both the bounds fetch (currency not yet known) and any advertised-fiat rate
+  // load — so LNURL and phone-LNURL behave identically instead of a dead keyboard.
+  const isAutoResolvingCurrency =
+    isLoadingAutoCurrencyRate ||
+    (paymentType === 'send' &&
+      !!selectedContact?.isLNURL &&
+      isResolvingLnurlData);
+
   const {
     primaryDisplay,
     conversionFiatStats,
@@ -347,14 +351,14 @@ export default function useContactPayment({
       ? (PROVIDER_COUNTRY_CURRENCY[country] || '').toUpperCase()
       : '';
     if (!code || !fiatCurrencies.some(c => c.id === code)) {
-      setIsAutoResolvingCurrency(false);
+      setIsLoadingAutoCurrencyRate(false);
       return;
     }
 
     appliedLocalCurrencyRef.current = address;
     const token = ++autoResolveTokenRef.current;
     const startedAt = Date.now();
-    setIsAutoResolvingCurrency(true);
+    setIsLoadingAutoCurrencyRate(true);
     loadAndSetCurrency(code).finally(() => {
       const remaining = Math.max(
         0,
@@ -362,7 +366,7 @@ export default function useContactPayment({
       );
       setTimeout(() => {
         if (autoResolveTokenRef.current === token) {
-          setIsAutoResolvingCurrency(false);
+          setIsLoadingAutoCurrencyRate(false);
         }
       }, remaining);
     });
@@ -399,7 +403,7 @@ export default function useContactPayment({
 
     const token = ++autoResolveTokenRef.current;
     const startedAt = Date.now();
-    setIsAutoResolvingCurrency(true);
+    setIsLoadingAutoCurrencyRate(true);
     loadAndSetCurrency(code).finally(() => {
       const remaining = Math.max(
         0,
@@ -407,7 +411,7 @@ export default function useContactPayment({
       );
       setTimeout(() => {
         if (autoResolveTokenRef.current === token) {
-          setIsAutoResolvingCurrency(false);
+          setIsLoadingAutoCurrencyRate(false);
         }
       }, remaining);
     });
