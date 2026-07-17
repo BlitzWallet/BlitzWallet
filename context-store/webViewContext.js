@@ -1313,12 +1313,17 @@ export const WebViewProvider = ({ children }) => {
 
     if (appState === 'background') {
       console.log(
-        'App going to background - clearing all timeouts and pending requests',
+        'App going to background - pausing timers (keeping bookkeeping so foreground can re-arm)',
       );
-      Object.values(activeTimeoutsRef.current).forEach(t =>
-        clearTimeout(t.timeoutId),
-      );
-      activeTimeoutsRef.current = {};
+      // Clear live timers so an accumulated/stale timer can't fire a spurious
+      // timeout on resume, but KEEP each entry (handler/duration/originalRequest)
+      // so rearmOrSweepPendingRequests re-arms the in-flight request on foreground
+      // instead of sweeping it as an orphan. Wiping this map was the cause of
+      // "Request interrupted by app state change" on a background→foreground send.
+      Object.values(activeTimeoutsRef.current).forEach(t => {
+        clearTimeout(t.timeoutId);
+        t.timeoutId = null;
+      });
 
       previousAppState.current = appState;
       prevConnectionStatus.current = isConnectedToTheInternet;
