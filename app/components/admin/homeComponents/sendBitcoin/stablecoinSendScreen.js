@@ -21,6 +21,7 @@ import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
+  ICONS,
   SIZES,
   USDB_TOKEN_ID,
 } from '../../../../constants';
@@ -63,6 +64,7 @@ import {
   resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import { Image } from 'expo-image';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -704,13 +706,6 @@ export default function StablecoinSendScreen() {
             )
           }
         />
-        <ThemeText
-          styles={styles.sectionTitle}
-          content={`${t('wallet.stablecoinSend.networkLabel', {
-            currency: asset,
-            chain: chainLabel || capitalizeChain(chain),
-          })}`}
-        />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -738,6 +733,7 @@ export default function StablecoinSendScreen() {
               paymentFee={quote?.fee}
               isLightningPayment={true}
               isDecoding={isQuoteLoading}
+              display={primaryDisplay}
             />
           )}
 
@@ -751,6 +747,32 @@ export default function StablecoinSendScreen() {
               }
               style={[styles.destinationBox, { backgroundColor: rowBg }]}
             >
+              <View style={styles.confirmIconWrapper}>
+                <View
+                  style={[
+                    styles.confirmChainCircle,
+                    { backgroundColor: backgroundOffset },
+                  ]}
+                >
+                  <Image
+                    style={styles.confirmChainIcon}
+                    source={ICONS[`chain_${chainLabel?.toLowerCase()}`]}
+                    contentFit="contain"
+                  />
+                </View>
+                <View
+                  style={[
+                    styles.confirmCurrencyBadge,
+                    { borderColor: backgroundColor },
+                  ]}
+                >
+                  <Image
+                    style={styles.confirmCurrencyIcon}
+                    source={ICONS[`${asset?.toLowerCase()}Logo`]}
+                    contentFit="contain"
+                  />
+                </View>
+              </View>
               <ThemeText
                 styles={styles.quoteValue}
                 content={`${truncateAddress(address)}`}
@@ -894,6 +916,7 @@ const styles = StyleSheet.create({
   },
   destinationBox: {
     width: '80%',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
@@ -920,5 +943,35 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     paddingVertical: 10,
+  },
+  confirmIconWrapper: {
+    position: 'relative',
+    marginRight: 10,
+  },
+  confirmChainCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  confirmChainIcon: {
+    width: 40,
+    height: 40,
+  },
+  confirmCurrencyBadge: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderRadius: 15,
+    bottom: -4,
+    right: -4,
+    borderWidth: 2,
+    overflow: 'hidden',
+  },
+  confirmCurrencyIcon: {
+    width: '100%',
+    height: '100%',
   },
 });

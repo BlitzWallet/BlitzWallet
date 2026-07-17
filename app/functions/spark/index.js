@@ -268,6 +268,7 @@ const initializeWallet = async mnemonic => {
       network: 'MAINNET',
       optimizationOptions: {
         multiplicity: 2,
+        auto: true,
       },
     },
   });
@@ -838,6 +839,31 @@ export const getSparkLightningPaymentFeeEstimate = async (
     }
   } catch (err) {
     console.log('Get lightning payment fee error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const isOptimizationInProgress = async ({ mnemonic }) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.isOptimizationInProgress,
+        {
+          mnemonic,
+        },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to get spark lightning fee estimate',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.isOptimizationInProgress();
+      return { didWork: true, isOptimizing: response };
+    }
+  } catch (err) {
+    console.log('Check clawback status error', err);
     return { didWork: false, error: err.message };
   }
 };

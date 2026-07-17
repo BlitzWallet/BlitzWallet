@@ -7,6 +7,7 @@ import { keyboardGoBack } from '../customNavigation';
 import { useAppStatus } from '../../../context-store/appStatus';
 import ThemeIcon from './themeIcon';
 import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useCallback, useRef } from 'react';
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -28,23 +29,29 @@ export default function CustomSettingsTopBar({
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const lastBackPressRef = useRef(0);
+
+  const handleBackPress = useCallback(() => {
+    // Ignore rapid double-taps (600ms window, matching useGuardedNavigation)
+    // without permanently latching: multi-mode screens intercept back via a
+    // beforeRemove/customBackFunction and need it to fire again on a later press.
+    if (Date.now() - lastBackPressRef.current < 500) return;
+    lastBackPressRef.current = Date.now();
+
+    if (customBackFunction) {
+      customBackFunction();
+      return;
+    }
+    if (shouldDismissKeyboard) {
+      keyboardGoBack(navigate);
+      return;
+    }
+    navigate.goBack();
+  }, [customBackFunction, shouldDismissKeyboard, navigate]);
 
   return (
     <View style={{ ...styles.topbar, ...containerStyles }}>
-      <TouchableOpacity
-        style={styles.backArrow}
-        onPress={() => {
-          if (customBackFunction) {
-            customBackFunction();
-            return;
-          }
-          if (shouldDismissKeyboard) {
-            keyboardGoBack(navigate);
-            return;
-          }
-          navigate.goBack();
-        }}
-      >
+      <TouchableOpacity style={styles.backArrow} onPress={handleBackPress}>
         <ThemeIcon colorOverride={customBackColor} iconName={'ArrowLeft'} />
       </TouchableOpacity>
       <ThemeText

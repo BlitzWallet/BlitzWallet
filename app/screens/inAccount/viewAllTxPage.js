@@ -1,7 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
-import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -11,9 +14,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import getFormattedHomepageTxsForSpark from '../../functions/combinedTransactionsSpark';
 import { useSparkWallet } from '../../../context-store/sparkContext';
-import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useFlashnet } from '../../../context-store/flashnetContext';
-import GetThemeColors from '../../hooks/themeColors';
 import {
   getAllSparkTransactions,
   getFilteredTransactions,
@@ -27,7 +28,8 @@ import {
   INSET_WINDOW_WIDTH,
   WINDOWWIDTH,
 } from '../../constants/theme';
-import CustomButton from '../../functions/CustomElements/button';
+import CustomSearchInput from '../../functions/CustomElements/searchInput';
+import { keyboardNavigate } from '../../functions/customNavigation';
 
 const FILTER_DEBOUNCE_MS = 500;
 
@@ -37,8 +39,10 @@ export default function ViewAllTxPage() {
     directions: [],
     dateRange: null,
     types: [],
+    searchTerm: '',
     searchUUID: '',
   });
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [isLoadingNewTxs, setIsLoadingNewTxs] = useState(false);
   const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { poolInfoRef, swapLimits } = useFlashnet();
@@ -49,10 +53,8 @@ export default function ViewAllTxPage() {
   const isInitialLoad = useRef(true);
   const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const enabledLRC20 = showTokensInformation;
-  const { bottomPadding } = useGlobalInsets();
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -61,7 +63,8 @@ export default function ViewAllTxPage() {
           const hasActiveFilters =
             currentFilter.directions.length > 0 ||
             currentFilter.dateRange !== null ||
-            currentFilter.types.length > 0;
+            currentFilter.types.length > 0 ||
+            currentFilter.searchTerm.trim().length > 0;
 
           let transactions;
           if (!hasActiveFilters) {
@@ -76,6 +79,7 @@ export default function ViewAllTxPage() {
                 directions: currentFilter.directions,
                 dateRange: currentFilter.dateRange,
                 types: currentFilter.types,
+                searchTerm: currentFilter.searchTerm,
               },
               { accountId: sparkInformation.identityPubKey },
             );
@@ -140,7 +144,21 @@ export default function ViewAllTxPage() {
   const handleFilterApply = useCallback(filters => {
     searchUUIDRef.current = customUUID();
     setIsLoadingNewTxs(true);
-    setCurrentFilter({ ...filters, searchUUID: searchUUIDRef.current });
+    setCurrentFilter(prev => ({
+      ...filters,
+      searchTerm: prev.searchTerm,
+      searchUUID: searchUUIDRef.current,
+    }));
+  }, []);
+
+  const handleSearchChange = useCallback(text => {
+    searchUUIDRef.current = customUUID();
+    setIsLoadingNewTxs(true);
+    setCurrentFilter(prev => ({
+      ...prev,
+      searchTerm: text,
+      searchUUID: searchUUIDRef.current,
+    }));
   }, []);
 
   const doesNotHaveTransactions = txs.length === 1 && txs[0].key === 'noTx';
@@ -150,8 +168,17 @@ export default function ViewAllTxPage() {
     (currentFilter.dateRange ? 1 : 0) +
     currentFilter.types.length;
 
+  const hasActiveFilters =
+    badgeCount > 0 || currentFilter.searchTerm.trim().length > 0;
+
   return (
-    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
+    <CustomKeyboardAvoidingView
+      useTouchableWithoutFeedback={true}
+      useStandardWidth={true}
+      styles={styles.globalContainer}
+      isKeyboardActive={isKeyboardActive}
+      useLocalPadding={true}
+    >
       <View style={styles.contentContainer}>
         <CustomSettingsTopBar
           showLeftImage={true}
@@ -170,7 +197,20 @@ export default function ViewAllTxPage() {
               onSelectFilter: filters => handleFilterApply(filters),
             });
           }}
+          shouldDismissKeyboard={true}
         />
+
+        <View style={styles.searchContainer}>
+          <CustomSearchInput
+            inputText={currentFilter.searchTerm}
+            setInputText={handleSearchChange}
+            placeholderText={t(
+              'screens.inAccount.viewAllTxPage.searchPlaceholder',
+            )}
+            onFocusFunction={() => setIsKeyboardActive(true)}
+            onBlurFunction={() => setIsKeyboardActive(false)}
+          />
+        </View>
 
         <View style={{ flex: 1 }}>
           {!txs.length || isLoadingNewTxs ? (
@@ -178,8 +218,16 @@ export default function ViewAllTxPage() {
           ) : doesNotHaveTransactions ? (
             <NoContentSceen
               iconName="Clock"
-              titleText={t('screens.inAccount.viewAllTxPage.noTxHistoryTitle')}
-              subTitleText={t('screens.inAccount.viewAllTxPage.noTxHistorySub')}
+              titleText={t(
+                hasActiveFilters
+                  ? 'screens.inAccount.viewAllTxPage.noFilterResultsTitle'
+                  : 'screens.inAccount.viewAllTxPage.noTxHistoryTitle',
+              )}
+              subTitleText={t(
+                hasActiveFilters
+                  ? 'screens.inAccount.viewAllTxPage.noFilterResultsSub'
+                  : 'screens.inAccount.viewAllTxPage.noTxHistorySub',
+              )}
             />
           ) : (
             <FlatList
@@ -197,9 +245,11 @@ export default function ViewAllTxPage() {
       <TouchableOpacity
         style={styles.exportButton}
         onPress={() => {
-          navigate.navigate('CustomHalfModal', {
-            wantedContent: 'exportTransactions',
-            sliderHight: 0.5,
+          keyboardNavigate(() => {
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'exportTransactions',
+              sliderHight: 0.5,
+            });
           });
         }}
       >
@@ -217,11 +267,11 @@ export default function ViewAllTxPage() {
           />
         </View>
       </TouchableOpacity>
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
 }
 const styles = StyleSheet.create({
-  globalContainer: { width: '100%' },
+  globalContainer: { width: '100%', height: 100 },
   contentContainer: {
     width: WINDOWWIDTH,
     flex: 1,
@@ -230,6 +280,9 @@ const styles = StyleSheet.create({
   filterName: {
     textAlign: 'center',
     opacity: HIDDEN_OPACITY,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
+  },
+  searchContainer: {
     marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   exportButton: {

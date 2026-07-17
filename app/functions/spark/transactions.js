@@ -454,7 +454,8 @@ const EXCLUDE_SAVINGS_TRANSFER_SQL = `
  * @returns {{ query: string, params: Array }}
  */
 export function buildFilterQuery(filters, accountId, now = Date.now()) {
-  const { directions = [], dateRange = null, types = [] } = filters;
+  const { directions = [], dateRange = null, types = [], searchTerm = '' } =
+    filters;
   const conditions = [`accountId = ?`];
   const params = [String(accountId)];
 
@@ -492,6 +493,14 @@ export function buildFilterQuery(filters, accountId, now = Date.now()) {
     }
   }
 
+  // ponytail: LIKE wildcards in user input (%/_) aren't escaped — fine for a
+  // description search box; add ESCAPE only if it ever matters.
+  const trimmedSearch = typeof searchTerm === 'string' ? searchTerm.trim() : '';
+  if (trimmedSearch) {
+    conditions.push(`LOWER(json_extract(details, '$.description')) LIKE ?`);
+    params.push(`%${trimmedSearch.toLowerCase()}%`);
+  }
+
   const query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
     WHERE ${conditions.join(' AND ')}
     ORDER BY json_extract(details, '$.time') DESC`;
@@ -508,9 +517,13 @@ export function buildFilterQuery(filters, accountId, now = Date.now()) {
  */
 export const getFilteredTransactions = async (filters, options = {}) => {
   const { accountId } = options;
-  const { directions = [], dateRange = null, types = [] } = filters;
+  const { directions = [], dateRange = null, types = [], searchTerm = '' } =
+    filters;
   const hasActiveFilters =
-    directions.length > 0 || dateRange !== null || types.length > 0;
+    directions.length > 0 ||
+    dateRange !== null ||
+    types.length > 0 ||
+    (typeof searchTerm === 'string' && searchTerm.trim().length > 0);
 
   if (!hasActiveFilters) {
     return getAllSparkTransactions({ accountId });

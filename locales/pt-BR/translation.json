@@ -2355,6 +2355,9 @@
         "filterPools": "Vaquinhas",
         "noTxHistoryTitle": "Sem histórico de transações",
         "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta.",
+        "searchPlaceholder": "Pesquisar descrições",
+        "noFilterResultsTitle": "Nenhuma transação correspondente",
+        "noFilterResultsSub": "Nenhuma transação corresponde aos filtros atuais. Tente ajustá-los ou removê-los.",
         "filterModalTitle": "Filtrar transações",
         "exportButton": "Exportar",
         "filterDirectionTitle": "Direção",
@@ -2660,7 +2663,7 @@
     "btcMap": {
       "mapPreview": {
         "header": "Gaste seus Bitcoins",
-        "subHeader": "Lojas perto de mim"
+        "subHeader": "Lojas perto de você"
       },
       "map": {
         "title": "Pagar com Bitcoin",

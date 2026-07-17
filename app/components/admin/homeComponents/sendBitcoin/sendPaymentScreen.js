@@ -1541,6 +1541,7 @@ export default function SendPaymentScreen(props) {
               isBitcoinPayment={isBitcoinPayment}
               isSparkPayment={isSparkPayment}
               isDecoding={isDecoding}
+              display={primaryDisplay}
             />
           )}
 
