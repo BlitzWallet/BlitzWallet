@@ -57,6 +57,13 @@ import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 const FlashnetContext = createContext(null);
 const MAX_SWAP_RETRIES = 10;
 
+// Only these pool fields are consumed anywhere in the app; ignore the rest
+// (updatedAt/reserves/tvl/volume change every poll and would force needless
+// re-renders of all ~30 consumers).
+const POOL_WATCHED_KEYS = ['lpPublicKey', 'currentPriceAInB', 'lpFeeBps'];
+const poolInfoChanged = (next, prev) =>
+  POOL_WATCHED_KEYS.some(k => next?.[k] !== prev?.[k]);
+
 export function FlashnetProvider({ children }) {
   const { showToast } = useToast();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -114,7 +121,11 @@ export function FlashnetProvider({ children }) {
       USD_ASSET_ADDRESS,
     );
 
-    if (result?.didWork && result.pool) {
+    if (
+      result?.didWork &&
+      result.pool &&
+      poolInfoChanged(result.pool, poolInfoRef.current)
+    ) {
       setLocalStorageItem('swapPoolInfo', JSON.stringify(result.pool));
       setPoolInfo(result.pool);
     }
