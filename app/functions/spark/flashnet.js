@@ -1787,7 +1787,6 @@ export const requestBatchClawback = async (mnemonic, transferIds, poolId) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
 
-    console.log(runtime, mnemonic, transferIds, poolId);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.requestBatchClawback,

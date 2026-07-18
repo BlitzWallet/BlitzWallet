@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { KeyContainer } from '../../../login';
 import { useState } from 'react';
 import { COLORS, FONT, SIZES, CENTER } from '../../../../constants';
@@ -11,13 +11,10 @@ import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../../../../context-store/keys';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import calculateSeedQR from './seedQR';
-import { copyToClipboard } from '../../../../functions';
-import { useToast } from '../../../../../context-store/toastManager';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 
 export default function SeedPhrasePage({ extraData, route }) {
-  const { showToast } = useToast();
   const { accountMnemoinc: contextMnemonic } = useKeysContext();
 
   const paramMnemonic =
@@ -38,8 +35,6 @@ export default function SeedPhrasePage({ extraData, route }) {
     theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed;
   const warningAccentColor =
     theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed;
-  const copyColor =
-    theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
 
   return (
     <View style={styles.globalContainer}>
@@ -112,24 +107,6 @@ export default function SeedPhrasePage({ extraData, route }) {
           }
           containerStyle={{ marginTop: 'auto' }}
         />
-
-        {/* Copy (text-only, secondary) */}
-        <TouchableOpacity
-          style={styles.copyButton}
-          onPress={() =>
-            copyToClipboard(
-              selectedDisplayOption === 'words' ? mnemonicString : qrValue,
-              showToast,
-            )
-          }
-          activeOpacity={0.7}
-        >
-          <ThemeIcon iconName="Copy" size={16} colorOverride={copyColor} />
-          <ThemeText
-            styles={[styles.copyButtonText, { color: copyColor }]}
-            content={t('constants.copy')}
-          />
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -182,18 +159,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
-  },
-
-  copyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    marginTop: 10,
-    gap: 6,
-  },
-  copyButtonText: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Medium,
   },
 });
