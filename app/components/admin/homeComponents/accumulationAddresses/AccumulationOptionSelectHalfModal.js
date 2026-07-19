@@ -3,7 +3,10 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
+import {
+  ACCUMULATION_CHAINS,
+  getPairKey,
+} from '../../../../constants/accumulationAddresses';
 import { CENTER, ICONS, SIZES } from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
@@ -46,7 +49,7 @@ export default function AccumulationOptionSelectHalfModal({
 
           return (
             <TouchableOpacity
-              key={`${option.sourceChain}:${option.sourceAsset}:${option.destinationAsset}`}
+              key={getPairKey(option)}
               activeOpacity={0.7}
               style={styles.row}
               onPress={() => handleSelect(option)}
