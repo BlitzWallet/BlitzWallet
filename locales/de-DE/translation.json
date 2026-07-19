@@ -1228,7 +1228,8 @@
         "swapRatesChangedBody": "Der Wechselkurs für diesen Swap hat sich während Ihrer Prüfung geändert. Bitte geben Sie den Betrag erneut ein, um fortzufahren.",
         "swapRatesChangedButton": "Betrag erneut eingeben",
         "feeEstimateError": "Gebühr konnte nicht geschätzt werden, bitte versuchen Sie es erneut",
-        "brantaVerification": "Diese Zahlung ist von Branta verifiziert."
+        "brantaVerification": "Diese Zahlung ist von Branta verifiziert.",
+        "lightningPayment": "Lightning-Zahlung"
       },
       "selectPaymentMethod": {
         "header": "Wie möchten Sie diese Zahlung senden (BTC oder USD)?"

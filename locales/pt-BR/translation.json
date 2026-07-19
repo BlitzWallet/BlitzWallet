@@ -1227,7 +1227,8 @@
         "swapRatesChangedBody": "A cotação para esta troca mudou enquanto você estava revisando. Insira o valor novamente para continuar.",
         "swapRatesChangedButton": "Inserir valor novamente",
         "feeEstimateError": "Não foi possível estimar a taxa, tente novamente",
-        "brantaVerification": "Este pagamento foi verificado pela Branta"
+        "brantaVerification": "Este pagamento foi verificado pela Branta",
+        "lightningPayment": "Pagamento Lightning"
       },
       "selectPaymentMethod": {
         "header": "Escolha o saldo para realizar esse pagamento"
