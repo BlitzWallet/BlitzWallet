@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -53,6 +53,15 @@ export default function AccumulationAddressDetail() {
   const selected =
     groupAddresses.find(a => a.accumulationAddressId === selectedId) ??
     groupAddresses[0];
+
+  // Leave the screen if the viewed option is emptied externally (e.g. another
+  // device's masterInfoObject sync). Ref latch avoids firing on the transient
+  // pre-hydration mount where addresses is briefly empty.
+  const hasHadAddressesRef = useRef(false);
+  useEffect(() => {
+    if (groupAddresses.length > 0) hasHadAddressesRef.current = true;
+    else if (hasHadAddressesRef.current && !isDeleting) navigate.goBack();
+  }, [groupAddresses.length, isDeleting, navigate]);
 
   const options = useMemo(() => {
     const byKey = new Map();
