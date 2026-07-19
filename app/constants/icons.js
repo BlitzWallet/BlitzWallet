@@ -39,6 +39,17 @@ import ios_maps_dark from '../assets/apple_maps_dark.png';
 import android_maps_light from '../assets/google_maps_light.png';
 import android_maps_dark from '../assets/google_maps_dark.png';
 import bankIcon from '../assets/icons/bank.png';
+import aqua from '../assets/social_logos/aqua.png';
+import blink from '../assets/social_logos/blink.png';
+import breez from '../assets/social_logos/breez.png';
+import cake from '../assets/social_logos/cake.png';
+import coinos from '../assets/social_logos/coinos.png';
+import mannabitcoin from '../assets/social_logos/manna.png';
+import cluborange from '../assets/social_logos/orangePillApp.png';
+import strike from '../assets/social_logos/strike.png';
+import tether from '../assets/social_logos/tether.png';
+import walletofsatoshi from '../assets/social_logos/walletofsatoshi.png';
+import zeuspay from '../assets/social_logos/zeus.png';
 
 export default {
   logoIcon,
@@ -100,4 +111,17 @@ export default {
   android_maps_dark,
 
   bankIcon,
+
+  // LNURL Providers
+  aqua,
+  blink,
+  breez,
+  cake,
+  coinos,
+  mannabitcoin,
+  cluborange,
+  strike,
+  tether,
+  walletofsatoshi,
+  zeuspay,
 };
