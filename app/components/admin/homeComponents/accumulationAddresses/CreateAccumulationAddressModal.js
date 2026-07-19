@@ -17,6 +17,7 @@ import {
   ACCUMULATION_CHAINS,
   ACCUMULATION_DESTINATIONS,
   getChainExpandHeight,
+  getAccumulationAddressLimit,
 } from '../../../../constants/accumulationAddresses';
 import { CENTER, ICONS } from '../../../../constants';
 import { Image } from 'expo-image';
@@ -31,6 +32,7 @@ import Animated, {
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import ChainRow from './chainRow';
 import useExpandAutoScroll from '../../../../hooks/useExpandAutoScroll';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 // Steps: 'chain' | 'destination' | 'confirm'
 const STEPS = ['chain', 'destination', 'confirm'];
@@ -46,6 +48,7 @@ export default function CreateAccumulationAddressModal({
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { addresses, createAddress } = useAccumulationAddresses();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { bottomPadding } = useGlobalInsets();
 
   const [step, setStep] = useState('chain');
@@ -58,15 +61,15 @@ export default function CreateAccumulationAddressModal({
   const [isCreating, setIsCreating] = useState(false);
   const [mountedSteps, setMountedSteps] = useState(() => new Set(['chain']));
 
-  const isPairTaken = useCallback(
+  const isPairAtCap = useCallback(
     (chainId, asset, dest) =>
-      addresses.some(
+      addresses.filter(
         a =>
           a.sourceChain === chainId &&
           a.sourceAsset === asset &&
           a.destinationAsset === dest,
-      ),
-    [addresses],
+      ).length >= getAccumulationAddressLimit(masterInfoObject),
+    [addresses, masterInfoObject],
   );
 
   const { scrollViewRef, handleRowLayout, onScroll, onLayout } =
@@ -182,10 +185,15 @@ export default function CreateAccumulationAddressModal({
       sourceChain: selectedChain.id,
       sourceAsset: selectedAsset,
       destinationAsset: selectedDestination,
+      forceNew: true,
     });
     setIsCreating(false);
-    if (result?.address || result?.error === 'already_exists') {
+    if (result?.address) {
       handleBackPressFunction();
+    } else if (result?.error === 'limit_reached') {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.accumulationAddresses.create.limitReached'),
+      });
     } else {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('screens.accumulationAddresses.errors.createFailed'),
@@ -239,13 +247,13 @@ export default function CreateAccumulationAddressModal({
                 }}
                 isAssetTaken={
                   forcedDestination
-                    ? asset => isPairTaken(chain.id, asset, forcedDestination)
+                    ? asset => isPairAtCap(chain.id, asset, forcedDestination)
                     : () => false
                 }
                 onDisabledAssetPress={() =>
                   navigate.navigate('ErrorScreen', {
                     errorMessage: t(
-                      'screens.accumulationAddresses.create.alreadyExists',
+                      'screens.accumulationAddresses.create.limitReached',
                     ),
                   })
                 }
@@ -269,20 +277,20 @@ export default function CreateAccumulationAddressModal({
           pointerEvents={step === 'destination' ? 'auto' : 'none'}
         >
           {ACCUMULATION_DESTINATIONS.map(dest => {
-            const taken = isPairTaken(selectedChain?.id, selectedAsset, dest);
+            const atCap = isPairAtCap(selectedChain?.id, selectedAsset, dest);
             return (
               <TouchableOpacity
                 key={dest}
-                activeOpacity={taken ? HIDDEN_OPACITY : 0.2}
+                activeOpacity={atCap ? HIDDEN_OPACITY : 0.2}
                 style={[
                   styles.optionRow,
-                  { opacity: taken ? HIDDEN_OPACITY : 1 },
+                  { opacity: atCap ? HIDDEN_OPACITY : 1 },
                 ]}
                 onPress={() => {
-                  if (taken) {
+                  if (atCap) {
                     navigate.navigate('ErrorScreen', {
                       errorMessage: t(
-                        'screens.accumulationAddresses.create.alreadyExists',
+                        'screens.accumulationAddresses.create.limitReached',
                       ),
                     });
                     return;
