@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -20,7 +20,10 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
-import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
+import {
+  ACCUMULATION_CHAINS,
+  getPairKey,
+} from '../../../../constants/accumulationAddresses';
 import { CENTER, COLORS } from '../../../../constants';
 import { createPdf } from 'react-native-pdf-from-image';
 import { shareFile } from '../../../../functions/handleShare';
@@ -35,18 +38,40 @@ function normalizeFileUri(uri) {
 export default function AccumulationAddressDetail() {
   const navigate = useNavigation();
   const route = useRoute();
-  const { address } = route.params;
+  const { sourceChain, sourceAsset, destinationAsset } = route.params;
+  const triple = { sourceChain, sourceAsset, destinationAsset };
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const { deleteAddress } = useAccumulationAddresses();
+  const { addresses, addressesForOption, deleteAddress } =
+    useAccumulationAddresses();
   const viewShotRef = useRef(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const groupAddresses = addressesForOption(triple);
+  const selected =
+    groupAddresses.find(a => a.accumulationAddressId === selectedId) ??
+    groupAddresses[0];
+
+  const options = useMemo(() => {
+    const byKey = new Map();
+    for (const a of addresses) {
+      const key = getPairKey(a);
+      if (!byKey.has(key))
+        byKey.set(key, {
+          sourceChain: a.sourceChain,
+          sourceAsset: a.sourceAsset,
+          destinationAsset: a.destinationAsset,
+        });
+    }
+    return Array.from(byKey.values());
+  }, [addresses]);
 
   const chainLabel =
-    ACCUMULATION_CHAINS.find(c => c.id === address.sourceChain)?.label ??
-    address.sourceChain;
-  const depositAddress = address.depositAddress ?? '';
+    ACCUMULATION_CHAINS.find(c => c.id === selected?.sourceChain)?.label ??
+    selected?.sourceChain;
+  const depositAddress = selected?.depositAddress ?? '';
   const shortAddress = `${depositAddress.slice(0, 8)}...${depositAddress.slice(
     -8,
   )}`;
@@ -55,11 +80,37 @@ export default function AccumulationAddressDetail() {
     copyToClipboard(depositAddress, showToast);
   }, [depositAddress, showToast]);
 
+  const handleSelectAddress = useCallback(() => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'accumulationAddressSelect',
+      sliderHight: 0.5,
+      addresses: groupAddresses,
+      selectedId: selected.accumulationAddressId,
+      onSelect: addr => setSelectedId(addr.accumulationAddressId),
+    });
+  }, [navigate, groupAddresses, selected]);
+
+  const handleSelectOption = useCallback(() => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'accumulationOptionSelect',
+      sliderHight: 0.5,
+      options,
+      onSelect: option => {
+        navigate.setParams({
+          sourceChain: option.sourceChain,
+          sourceAsset: option.sourceAsset,
+          destinationAsset: option.destinationAsset,
+        });
+        setSelectedId(null);
+      },
+    });
+  }, [navigate, options]);
+
   const handlePrint = useCallback(async () => {
     try {
       setIsPrinting(true);
       const imageURI = await viewShotRef.current.capture();
-      const pdfName = `accumulation-address-${address.accumulationAddressId}.pdf`;
+      const pdfName = `accumulation-address-${selected.accumulationAddressId}.pdf`;
       const response = await createPdf({
         imagePaths: [imageURI],
         name: pdfName,
@@ -79,7 +130,7 @@ export default function AccumulationAddressDetail() {
     } finally {
       setIsPrinting(false);
     }
-  }, [address.accumulationAddressId, t]);
+  }, [selected, t]);
 
   const handleDelete = useCallback(() => {
     navigate.navigate('ConfirmActionPage', {
@@ -88,10 +139,17 @@ export default function AccumulationAddressDetail() {
       ),
       confirmFunction: async () => {
         setIsDeleting(true);
-        const ok = await deleteAddress(address.accumulationAddressId);
+        const ok = await deleteAddress(selected.accumulationAddressId);
         setIsDeleting(false);
         if (ok) {
-          navigate.goBack();
+          if (groupAddresses.length <= 1) {
+            navigate.goBack();
+          } else {
+            const next = groupAddresses.find(
+              a => a.accumulationAddressId !== selected.accumulationAddressId,
+            );
+            setSelectedId(next?.accumulationAddressId ?? null);
+          }
         } else {
           navigate.navigate('ErrorScreen', {
             errorMessage: t(
@@ -101,9 +159,9 @@ export default function AccumulationAddressDetail() {
         }
       },
     });
-  }, [address, deleteAddress, navigate, t]);
+  }, [selected, groupAddresses, deleteAddress, navigate, t]);
 
-  if (isDeleting) {
+  if (isDeleting || !selected) {
     return <FullLoadingScreen />;
   }
 
@@ -116,6 +174,13 @@ export default function AccumulationAddressDetail() {
         iconNew="Trash2"
         leftImageFunction={handleDelete}
         textStyles={{ textTransform: 'capitalize' }}
+        rightContent={
+          groupAddresses.length > 1 ? (
+            <TouchableOpacity onPress={handleSelectAddress}>
+              <ThemeIcon iconName="List" size={22} />
+            </TouchableOpacity>
+          ) : null
+        }
       />
       <View style={styles.innerContainer}>
         <ScrollView
@@ -152,18 +217,26 @@ export default function AccumulationAddressDetail() {
             />
             <MetaCell
               label={t('screens.accumulationAddresses.detail.source')}
-              value={address.sourceAsset}
+              value={selected.sourceAsset}
             />
             <MetaCell
               label={t('screens.accumulationAddresses.detail.Destination')}
               value={
-                address.destinationAsset === 'BTC'
+                selected.destinationAsset === 'BTC'
                   ? t('constants.bitcoin_upper')
                   : t('constants.dollars_upper')
               }
             />
           </View>
         </ScrollView>
+        {/* Select another option */}
+        <CustomButton
+          buttonStyles={styles.optionBtn}
+          textContent={t(
+            'screens.accumulationAddresses.detail.selectAnotherOption',
+          )}
+          actionFunction={handleSelectOption}
+        />
         {/* Print button */}
         <CustomButton
           buttonStyles={styles.printBtn}
@@ -221,6 +294,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   printBtn: { width: '100%' },
+  optionBtn: { width: '100%', marginBottom: 10 },
   deleteBtn: {
     width: '100%',
     backgroundColor: COLORS.cancelRed,
