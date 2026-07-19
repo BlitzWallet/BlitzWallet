@@ -32,3 +32,11 @@ export const getAccumulationAddressLimit = masterInfoObject =>
 // Stable key identifying one option.
 export const getPairKey = a =>
   `${a.sourceChain}:${a.sourceAsset}:${a.destinationAsset}`;
+
+// Pure decision logic for createAddress (reuse vs cap vs mint).
+export const resolveCreateAddressAction = ({ matching, forceNew, limit }) => {
+  if (!forceNew && matching.length)
+    return { type: 'reuse', address: matching[0].depositAddress };
+  if (matching.length >= limit) return { type: 'limit_reached' };
+  return { type: 'mint' };
+};

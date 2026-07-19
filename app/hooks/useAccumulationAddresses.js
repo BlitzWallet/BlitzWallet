@@ -10,6 +10,10 @@ import {
   deriveSparkAddress,
   deriveSparkIdentityKey,
 } from '../functions/gift/deriveGiftWallet';
+import {
+  getAccumulationAddressLimit,
+  resolveCreateAddressAction,
+} from '../constants/accumulationAddresses';
 
 export function useAccumulationAddresses() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -46,19 +50,37 @@ export function useAccumulationAddresses() {
     [contactsPrivateKey, publicKey, toggleMasterInfoObject],
   );
 
+  // Addresses matching a given (sourceChain, sourceAsset, destinationAsset) option.
+  const addressesForOption = useCallback(
+    ({ sourceChain, sourceAsset, destinationAsset }) =>
+      addresses.filter(
+        addr =>
+          addr?.sourceChain === sourceChain &&
+          addr?.sourceAsset === sourceAsset &&
+          addr?.destinationAsset === destinationAsset,
+      ),
+    [addresses],
+  );
+
   // Create a new address
   const createAddress = useCallback(
-    async ({ sourceChain, sourceAsset, destinationAsset }) => {
+    async ({ sourceChain, sourceAsset, destinationAsset, forceNew = false }) => {
       if (!contactsPrivateKey || !publicKey) return { error: 'no_keys' };
       try {
-        const alreadySaved = addresses.find(
-          addr =>
-            addr?.sourceAsset === sourceAsset &&
-            addr?.sourceChain === sourceChain &&
-            addr?.destinationAsset === destinationAsset,
-        );
+        const matching = addressesForOption({
+          sourceChain,
+          sourceAsset,
+          destinationAsset,
+        });
 
-        if (alreadySaved) return { address: alreadySaved?.depositAddress };
+        const action = resolveCreateAddressAction({
+          matching,
+          forceNew,
+          limit: getAccumulationAddressLimit(masterInfoObject),
+        });
+
+        if (action.type === 'reuse') return { address: action.address };
+        if (action.type === 'limit_reached') return { error: 'limit_reached' };
 
         const identityKey = await deriveSparkIdentityKey(accountMnemoinc, 1);
         const sparkAddress = await deriveSparkAddress(identityKey.publicKey);
@@ -85,7 +107,15 @@ export function useAccumulationAddresses() {
         return { error: 'create_failed' };
       }
     },
-    [contactsPrivateKey, publicKey, addresses, persistAddresses],
+    [
+      contactsPrivateKey,
+      publicKey,
+      addresses,
+      addressesForOption,
+      masterInfoObject,
+      accountMnemoinc,
+      persistAddresses,
+    ],
   );
 
   // Delete an address
@@ -112,5 +142,5 @@ export function useAccumulationAddresses() {
     [contactsPrivateKey, publicKey, addresses, persistAddresses],
   );
 
-  return { addresses, createAddress, deleteAddress };
+  return { addresses, addressesForOption, createAddress, deleteAddress };
 }
