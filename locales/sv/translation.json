@@ -2624,6 +2624,7 @@
         "subtitle": "Skapa en adress för att automatiskt konvertera insättningar till Bitcoin eller dollar"
       },
       "createButton": "Skapa adress",
+      "addressCount": "{{count}} addresses",
       "info": {
         "title": "Vad är de?",
         "whatAre": "Vad är de?",
@@ -2641,7 +2642,9 @@
         "deleteConfirmBody": "Att ta bort denna adress stoppar omdirigering av framtida betalningar och kan leda till förlorade medel. Se till att alla vet att den inte längre är aktiv innan du tar bort den.",
         "chain": "Kedja",
         "source": "Källa",
-        "Destination": "Destination"
+        "Destination": "Destination",
+        "selectAnotherOption": "Select Another Option",
+        "selectAddress": "Select Address"
       },
       "create": {
         "pickAsset": "Välj betalningsvaluta",
@@ -2649,7 +2652,9 @@
         "pickDestination": "Välj destination",
         "confirm": "Bekräfta adress",
         "alreadyExists": "Du har redan en adress för denna kombination",
-        "convertDesc": "Din {{asset}} på {{chain}} kommer att konverteras till {{receiveCurrency}}"
+        "convertDesc": "Din {{asset}} på {{chain}} kommer att konverteras till {{receiveCurrency}}",
+        "createNewAddress": "Create New Address",
+        "limitReached": "You've reached the maximum number of addresses for this option."
       },
       "summary": {
         "chain": "Kedja",

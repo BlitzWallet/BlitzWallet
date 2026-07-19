@@ -2624,6 +2624,7 @@
         "subtitle": "Create an address to auto-convert deposits into Bitcoin or Dollars"
       },
       "createButton": "Create Address",
+      "addressCount": "{{count}} addresses",
       "info": {
         "title": "What are they?",
         "whatAre": "What are they?",
@@ -2641,7 +2642,9 @@
         "deleteConfirmBody": "Deleting this address stops future payments from being redirected and may result in lost funds. Make sure everyone knows it’s no longer active before removing it.",
         "chain": "Chain",
         "source": "Source",
-        "Destination": "Destination"
+        "Destination": "Destination",
+        "selectAnotherOption": "Select Another Option",
+        "selectAddress": "Select Address"
       },
       "create": {
         "pickAsset": "Select Payment Currency",
@@ -2649,7 +2652,9 @@
         "pickDestination": "Select Destination",
         "confirm": "Confirm Address",
         "alreadyExists": "You already have an address for this combination",
-        "convertDesc": "Your {{chain}} {{asset}} will be converted into {{receiveCurrency}}"
+        "convertDesc": "Your {{chain}} {{asset}} will be converted into {{receiveCurrency}}",
+        "createNewAddress": "Create New Address",
+        "limitReached": "You've reached the maximum number of addresses for this option."
       },
       "summary": {
         "chain": "Chain",

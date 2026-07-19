@@ -2623,6 +2623,7 @@
         "subtitle": "Crie endereços USDT ou USDC em que os depósitos recebidos são convertidos automaticamente em bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
+      "addressCount": "{{count}} addresses",
       "info": {
         "title": "Para que serve?",
         "whatAre": "Para que serve?",
@@ -2640,7 +2641,9 @@
         "deleteConfirmBody": "Excluir este endereço impede o redirecionamento de pagamentos futuros e pode resultar na perda de fundos. Certifique-se de que todos saibam que este endereço não está mais ativo antes de removê-lo.",
         "chain": "Rede",
         "source": "Origem",
-        "Destination": "Destino"
+        "Destination": "Destino",
+        "selectAnotherOption": "Select Another Option",
+        "selectAddress": "Select Address"
       },
       "create": {
         "pickAsset": "Selecionar moeda",
@@ -2648,7 +2651,9 @@
         "pickDestination": "Selecionar destino",
         "confirm": "Confirmar endereço",
         "alreadyExists": "Você já tem um endereço para esta combinação",
-        "convertDesc": "Seu {{asset}} na rede {{chain}} será convertido em {{receiveCurrency}}"
+        "convertDesc": "Seu {{asset}} na rede {{chain}} será convertido em {{receiveCurrency}}",
+        "createNewAddress": "Create New Address",
+        "limitReached": "You've reached the maximum number of addresses for this option."
       },
       "summary": {
         "chain": "Rede",

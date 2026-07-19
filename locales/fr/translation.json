@@ -2624,6 +2624,7 @@
         "subtitle": "Créez une adresse pour convertir automatiquement les dépôts en Bitcoin ou en dollars"
       },
       "createButton": "Créer une adresse",
+      "addressCount": "{{count}} addresses",
       "info": {
         "title": "Que sont-elles ?",
         "whatAre": "Que sont-elles ?",
@@ -2641,7 +2642,9 @@
         "deleteConfirmBody": "La suppression de cette adresse empêche la redirection des paiements futurs et peut entraîner une perte de fonds. Assurez-vous que tout le monde sait qu’elle n’est plus active avant de la supprimer.",
         "chain": "Réseau",
         "source": "Source",
-        "Destination": "Destination"
+        "Destination": "Destination",
+        "selectAnotherOption": "Select Another Option",
+        "selectAddress": "Select Address"
       },
       "create": {
         "pickAsset": "Sélectionner la devise de paiement",
@@ -2649,7 +2652,9 @@
         "pickDestination": "Sélectionner la destination",
         "confirm": "Confirmer l’adresse",
         "alreadyExists": "Vous avez déjà une adresse pour cette combinaison",
-        "convertDesc": "Votre {{asset}} sur {{chain}} sera converti en {{receiveCurrency}}"
+        "convertDesc": "Votre {{asset}} sur {{chain}} sera converti en {{receiveCurrency}}",
+        "createNewAddress": "Create New Address",
+        "limitReached": "You've reached the maximum number of addresses for this option."
       },
       "summary": {
         "chain": "Réseau",
