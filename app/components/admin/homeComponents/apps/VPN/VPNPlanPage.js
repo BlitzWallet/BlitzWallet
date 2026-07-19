@@ -19,7 +19,7 @@ import { useActiveCustodyAccount } from '../../../../../../context-store/activeA
 import { useTranslation } from 'react-i18next';
 import CountryFlag from 'react-native-country-flag';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { decode } from 'bolt11';
+import { decode } from '../../../../../functions/decodeBolt11';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function VPNPlanPage({ vpnInformation }) {

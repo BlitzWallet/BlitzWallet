@@ -2,7 +2,7 @@ import { Contract, Signature } from 'ethers';
 import EtherSwapArtifact from 'boltz-core/out/EtherSwap.sol/EtherSwap.json';
 import { rootstockEnvironment, satoshisToWei } from '.';
 import { updateSwap } from './swapDb';
-import bolt11 from 'bolt11';
+import bolt11 from '../../decodeBolt11';
 import { getBoltzApiUrl } from '../boltzEndpoitns';
 
 async function persistRefundError(id, message) {

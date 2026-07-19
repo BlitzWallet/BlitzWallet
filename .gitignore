@@ -87,3 +87,4 @@ app/functions/spark/appStorePreviews.js
 .worktrees
 android/secrets.properties
 .superpowers/
+CVE_AUDIT_REPORT.md
