@@ -24,6 +24,7 @@ import { useAppStatus } from '../../../../../context-store/appStatus';
 import SelectOtherReceiveOptionHalfModal from './halfModalOtherOptions';
 import AddFundsFromBankHalfModal from './halfModalBank';
 import DepositQRView from './depositQRView';
+import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
 
 const capitalize = value =>
   value ? value[0].toUpperCase() + value.slice(1) : '';
@@ -45,6 +46,7 @@ export default function HalfModalDepositFunds({
   const { t } = useTranslation();
   const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const { bottomPadding, screenDimensions } = useAppStatus();
+  const { addressesForOption } = useAccumulationAddresses();
 
   // Fix 1: Separate shared values per subview so exit animation can play
   const stablecoinsOpacity = useSharedValue(0);
@@ -143,6 +145,32 @@ export default function HalfModalDepositFunds({
     [showView],
   );
 
+  // Addresses for the current qr option (only populated for the stablecoins subview).
+  const qrGroupAddresses = useMemo(() => {
+    if (activeView !== 'qr') return [];
+    const option = qrConfig?.selectedRecieveOption?.toLowerCase();
+    if (option !== 'stablecoins') return [];
+    return addressesForOption({
+      sourceChain: qrConfig.sourceChain,
+      sourceAsset: qrConfig.sourceAsset,
+      destinationAsset: qrConfig.destinationAsset,
+    });
+  }, [activeView, qrConfig, addressesForOption]);
+
+  const openAddressSelector = useCallback(() => {
+    const currentId = qrGroupAddresses.find(
+      a => a.depositAddress === qrConfig?.depositAddress,
+    )?.accumulationAddressId;
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'accumulationAddressSelect',
+      sliderHight: 0.5,
+      addresses: qrGroupAddresses,
+      selectedId: currentId,
+      onSelect: addr =>
+        handleShowQR({ ...qrConfig, depositAddress: addr.depositAddress }),
+    });
+  }, [navigate, qrGroupAddresses, qrConfig, handleShowQR]);
+
   const handleStepBack = useCallback(() => {
     if (activeView === 'options') return false;
     if (activeView === 'stablecoins' && expandedChain) {
@@ -193,10 +221,26 @@ export default function HalfModalDepositFunds({
     if (activeView === 'options') {
       setBackNav?.(null);
     } else {
-      setBackNav?.({ onPress: handleStepBack, title: headerTitle });
+      setBackNav?.({
+        onPress: handleStepBack,
+        title: headerTitle,
+        rightElement:
+          activeView === 'qr' && qrGroupAddresses.length > 1 ? (
+            <TouchableOpacity onPress={openAddressSelector}>
+              <ThemeIcon iconName="List" size={22} />
+            </TouchableOpacity>
+          ) : undefined,
+      });
     }
     return () => setBackNav?.(null);
-  }, [activeView, headerTitle, handleStepBack, setBackNav]);
+  }, [
+    activeView,
+    headerTitle,
+    handleStepBack,
+    setBackNav,
+    qrGroupAddresses,
+    openAddressSelector,
+  ]);
 
   return (
     <View style={styles.container}>
