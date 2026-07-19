@@ -18,3 +18,17 @@ export const getChainExpandHeight = chainId => {
   if (!chain) return null;
   return chain.assets.length * CHAIN_ASSET_ROW_HEIGHT + CHAIN_EXPAND_PADDING;
 };
+
+export const MAX_ADDRESSES_PER_OPTION_FREE = 5;
+export const MAX_ADDRESSES_PER_OPTION_PREMIUM = 20;
+
+// ponytail: premium flag not built yet; reads a future masterInfoObject field.
+// When premium ships, only this function changes.
+export const getAccumulationAddressLimit = masterInfoObject =>
+  masterInfoObject?.isPremium
+    ? MAX_ADDRESSES_PER_OPTION_PREMIUM
+    : MAX_ADDRESSES_PER_OPTION_FREE;
+
+// Stable key identifying one option.
+export const getPairKey = a =>
+  `${a.sourceChain}:${a.sourceAsset}:${a.destinationAsset}`;
