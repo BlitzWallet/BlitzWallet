@@ -1228,7 +1228,8 @@
         "swapRatesChangedBody": "Växelkursen för denna växling ändrades medan du granskade den. Ange beloppet igen för att fortsätta.",
         "swapRatesChangedButton": "Ange belopp igen",
         "feeEstimateError": "Kunde inte uppskatta avgiften, försök igen",
-        "brantaVerification": "Denna betalning har verifierats av Branta"
+        "brantaVerification": "Denna betalning har verifierats av Branta",
+        "lightningPayment": "Lightning-betalning"
       },
       "selectPaymentMethod": {
         "header": "Välj hur du vill finansiera din betalning."

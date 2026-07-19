@@ -64,6 +64,7 @@ import {
   resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
 import CurrencySwitchButton from '../../../../functions/CustomElements/currencySwitchButton';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { Image } from 'expo-image';
 
 const QUOTE_TTL_MS = 115_000;
@@ -747,35 +748,42 @@ export default function StablecoinSendScreen() {
               }
               style={[styles.destinationBox, { backgroundColor: rowBg }]}
             >
-              <View style={styles.confirmIconWrapper}>
-                <View
-                  style={[
-                    styles.confirmChainCircle,
-                    { backgroundColor: backgroundOffset },
-                  ]}
-                >
-                  <Image
-                    style={styles.confirmChainIcon}
-                    source={ICONS[`chain_${chainLabel?.toLowerCase()}`]}
-                    contentFit="contain"
-                  />
+              <View style={styles.destinationContent}>
+                <View style={styles.confirmIconWrapper}>
+                  <View
+                    style={[
+                      styles.confirmChainCircle,
+                      { backgroundColor: backgroundOffset },
+                    ]}
+                  >
+                    <Image
+                      style={styles.confirmChainIcon}
+                      source={ICONS[`chain_${chainLabel?.toLowerCase()}`]}
+                      contentFit="contain"
+                    />
+                  </View>
+                  <View
+                    style={[
+                      styles.confirmCurrencyBadge,
+                      { borderColor: backgroundColor },
+                    ]}
+                  >
+                    <Image
+                      style={styles.confirmCurrencyIcon}
+                      source={ICONS[`${asset?.toLowerCase()}Logo`]}
+                      contentFit="contain"
+                    />
+                  </View>
                 </View>
-                <View
-                  style={[
-                    styles.confirmCurrencyBadge,
-                    { borderColor: backgroundColor },
-                  ]}
-                >
-                  <Image
-                    style={styles.confirmCurrencyIcon}
-                    source={ICONS[`${asset?.toLowerCase()}Logo`]}
-                    contentFit="contain"
-                  />
-                </View>
+                <ThemeText
+                  styles={styles.quoteValue}
+                  content={`${truncateAddress(address)}`}
+                />
               </View>
-              <ThemeText
-                styles={styles.quoteValue}
-                content={`${truncateAddress(address)}`}
+              <ThemeIcon
+                iconName="ChevronRight"
+                size={20}
+                styles={styles.destinationChevron}
               />
             </TouchableOpacity>
           )}
@@ -918,11 +926,20 @@ const styles = StyleSheet.create({
     width: '80%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8,
-    borderRadius: 8,
+    justifyContent: 'space-between',
+    padding: 12,
+    borderRadius: 16,
     ...CENTER,
     marginTop: 30,
+  },
+  destinationContent: {
+    flexShrink: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  destinationChevron: {
+    opacity: 0.8,
+    marginLeft: 8,
   },
   receiveAmount: {
     opacity: HIDDEN_OPACITY,
