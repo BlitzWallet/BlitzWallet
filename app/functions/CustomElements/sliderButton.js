@@ -29,11 +29,11 @@ const containerStyles = StyleSheet.create({
     ...CENTER,
   },
   title: {
-    alignSelf: 'center',
+    textAlign: 'center',
     position: 'absolute',
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    fontSize: 17,
+    fontSize: SIZES.medium,
   },
 });
 
@@ -229,12 +229,18 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
         <>
           <Animated.Text
             maxFontSizeMultiplier={1}
-            ellipsizeMode="tail"
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
             numberOfLines={1}
             importantForAccessibility={
               screenReaderEnabled ? 'no-hide-descendants' : ''
             }
-            style={[containerStyles.title, textStyle, titleDynamicStyles]}
+            style={[
+              containerStyles.title,
+              { left: height + 10, right: height + 10 },
+              textStyle,
+              titleDynamicStyles,
+            ]}
           >
             {titleText}
           </Animated.Text>

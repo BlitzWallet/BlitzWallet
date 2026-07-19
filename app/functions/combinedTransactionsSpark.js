@@ -27,6 +27,7 @@ import { satsToDollars } from './spark/flashnet';
 import ThemeIcon from './CustomElements/themeIcon';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../constants/theme';
 import { isOrchestraSwapFailed } from './spark/orchestraLightning';
+import { useRelativeTimeTick } from '../hooks/useRelativeTimeTick';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -231,7 +232,6 @@ const getTxIconName = (
 
 export default function getFormattedHomepageTxsForSpark(props) {
   const {
-    currentTime,
     sparkInformation,
     homepageTxPreferance = 25,
     navigate,
@@ -425,7 +425,6 @@ export default function getFormattedHomepageTxsForSpark(props) {
         <UserTransaction
           key={uniuqeIDFromTx}
           tx={{ ...currentTransaction, details: paymentDetails }}
-          currentTime={currentTime}
           navigate={navigate}
           transactionPaymentType={transactionPaymentType}
           paymentDate={paymentDate}
@@ -570,7 +569,6 @@ export default function getFormattedHomepageTxsForSpark(props) {
 
 export const UserTransaction = memo(function UserTransaction({
   tx: transaction,
-  currentTime,
   paymentDate,
   transactionPaymentType,
   id,
@@ -591,9 +589,12 @@ export const UserTransaction = memo(function UserTransaction({
   const { t } = useTranslation();
   const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
 
+  // Row-local relative-time refresh: one shared 10s ticker updates the "x ago"
+  // label without the parent rebuilding the animated list every 10s.
+  const tick = useRelativeTimeTick();
   const timeDifference = useMemo(
-    () => calculateTimeDifference(currentTime, paymentDate),
-    [currentTime, paymentDate],
+    () => calculateTimeDifference(tick * 10000, paymentDate),
+    [tick, paymentDate],
   );
 
   const token = useMemo(

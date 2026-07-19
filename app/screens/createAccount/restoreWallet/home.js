@@ -29,7 +29,6 @@ import {
   WINDOWWIDTH,
 } from '../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
-import getClipboardText from '../../../functions/getClipboardText';
 import { useNavigation } from '@react-navigation/native';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 import { useKeysContext } from '../../../../context-store/keys';
@@ -48,13 +47,10 @@ const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   return acc;
 }, {});
 
-export default function RestoreWallet({
-  navigation: { reset },
-  route: { params },
-}) {
+export default function RestoreWallet({ navigation: { reset } }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
+  const { setAccountMnemonic } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { bottomPadding } = useGlobalInsets();
   const [isValidating, setIsValidating] = useState(false);
@@ -107,67 +103,6 @@ export default function RestoreWallet({
     },
     [keyRefs],
   );
-
-  const handleSeedFromClipboard = useCallback(async () => {
-    try {
-      crashlyticsLogReport('Starting paste seed from clipboard');
-      const response = await getClipboardText();
-      if (!response.didWork) throw new Error(t(response.reason));
-
-      const data = response.data;
-
-      const restoredSeed = handleRestoreFromText(data);
-
-      if (!restoredSeed.didWork || !restoredSeed?.seed?.length) {
-        const QRSeedResponse = handleCameraScan(data);
-        if (QRSeedResponse) return;
-        throw new Error(t('createAccount.restoreWallet.home.noSeedInString'));
-      }
-
-      const splitSeed = restoredSeed.seed;
-
-      if (!splitSeed.every(word => word.trim().length > 0))
-        throw new Error(t('createAccount.restoreWallet.home.invalidWordLen'));
-
-      if (splitSeed.length != 12)
-        throw new Error(
-          t('createAccount.restoreWallet.home.cannotFind12Words'),
-        );
-
-      const newKeys = {};
-      NUMARRAY.forEach((num, index) => {
-        newKeys[`key${num}`] = splitSeed[index];
-      });
-      setInputedKey(newKeys);
-    } catch (err) {
-      console.log('Error getting data from clipbarod', err);
-      navigateToError(err.message);
-    }
-  }, [navigateToError]);
-
-  const didEnterCorrectSeed = useCallback(async () => {
-    crashlyticsLogReport('Starting seed check');
-    try {
-      const keys = accountMnemoinc;
-      const didEnterAllKeys =
-        Object.keys(inputedKey).filter(value => inputedKey[value]).length ===
-        12;
-
-      if (!didEnterAllKeys)
-        throw new Error(t('createAccount.restoreWallet.home.error1'));
-      const enteredMnemonic = Object.values(inputedKey).map(val =>
-        val.trim().toLowerCase(),
-      );
-      const savedMnemonic = keys.split(' ').filter(item => item);
-
-      if (JSON.stringify(savedMnemonic) === JSON.stringify(enteredMnemonic)) {
-        navigate.navigate('PinSetup', { didRestoreWallet: true });
-      } else throw new Error(t('createAccount.restoreWallet.home.error3'));
-    } catch (err) {
-      console.log('did enter correct seed error', err);
-      navigateToError(err.message);
-    }
-  }, [inputedKey, navigateToError]);
 
   const keyValidation = useCallback(async () => {
     crashlyticsLogReport('Starting past seed validation');
@@ -392,18 +327,6 @@ export default function RestoreWallet({
             <View style={styles.secondaryButtonRow}>
               <CustomButton
                 buttonStyles={styles.secondaryButton}
-                textStyles={{ color: COLORS.lightModeText }}
-                textContent={
-                  params ? t('constants.skip') : t('constants.paste')
-                }
-                actionFunction={() =>
-                  params
-                    ? navigate.navigate('PinSetup', { didRestoreWallet: false })
-                    : handleSeedFromClipboard()
-                }
-              />
-              <CustomButton
-                buttonStyles={styles.secondaryButton}
                 textContent={t('createAccount.restoreWallet.home.scanQr')}
                 actionFunction={() =>
                   navigate.navigate('CameraModal', {
@@ -505,7 +428,6 @@ const styles = StyleSheet.create({
   secondaryButtonRow: {
     width: '100%',
     flexDirection: 'row',
-    columnGap: 10,
     marginBottom: 10,
   },
   secondaryButton: {

@@ -182,7 +182,8 @@ const restoreSparkTxState = async (
               const details = JSON.parse(item.details);
               return (
                 tx.transferDirection === details.direction &&
-                details?.createdAt - new Date(tx.createdTime) < 1000 * 30
+                details?.createdAt - new Date(tx.createdTime) < 1000 * 30 &&
+                details.amount === tx.totalValue
               );
             });
             if (duplicate) continue;
@@ -305,7 +306,8 @@ const restoreSparkTxState = async (
             const details = JSON.parse(item.details);
             return (
               tx.transferDirection === details.direction &&
-              details?.createdAt - new Date(tx.createdTime) < 1000 * 30
+              details?.createdAt - new Date(tx.createdTime) < 1000 * 30 &&
+              details.amount === txs.totalValue
             );
           });
 

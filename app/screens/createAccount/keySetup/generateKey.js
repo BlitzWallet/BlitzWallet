@@ -5,18 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import LoginNavbar from '../../../components/login/navBar';
 import CustomButton from '../../../functions/CustomElements/button';
-import { copyToClipboard } from '../../../functions';
 import { useNavigation } from '@react-navigation/native';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import { crashlyticsRecordErrorReport } from '../../../functions/crashlyticsLogs';
 import { useKeysContext } from '../../../../context-store/keys';
-import { useToast } from '../../../../context-store/toastManager';
 import { useState } from 'react';
 import GetThemeColors from '../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../constants/theme';
 
 export default function GenerateKey() {
-  const { showToast } = useToast();
   const { accountMnemoinc } = useKeysContext();
   const mnemonic = accountMnemoinc.split(' ');
   const [showSeed, setShowSeed] = useState(false);
@@ -47,19 +43,6 @@ export default function GenerateKey() {
 
   const handleWarningMessageLayout = e => {
     setWarningViewDimensions(e.nativeEvent.layout);
-  };
-
-  const handleCopyPress = () => {
-    if (mnemonic.length !== 12) {
-      crashlyticsRecordErrorReport(
-        'Not able to generate valid seed on create account path',
-      );
-      hookNavigate.navigate('ErrorScreen', {
-        errorMessage: 'createAccount.keySetup.generateKey.invalidSeedError',
-      });
-      return;
-    }
-    copyToClipboard(mnemonic.join(' '), showToast);
   };
 
   const handleNextPress = () => {
@@ -154,14 +137,6 @@ export default function GenerateKey() {
         </View>
 
         <View style={styles.buttonsContainer}>
-          <CustomButton
-            buttonStyles={{
-              ...styles.actionButton,
-              opacity: isValidMnemonic ? 1 : HIDDEN_OPACITY,
-            }}
-            textContent={t('constants.copy')}
-            actionFunction={handleCopyPress}
-          />
           <CustomButton
             buttonStyles={{
               ...styles.actionButton,

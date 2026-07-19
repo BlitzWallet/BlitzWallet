@@ -118,7 +118,7 @@
     "text-encoding": "^0.7.0",
     "tldts": "^7.0.28",
     "unique-names-generator": "^4.7.1",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",

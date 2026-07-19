@@ -40,7 +40,7 @@ export const UserBalanceProvider = ({ children }) => {
       });
       return 0;
     }
-  }, [usdbTokenInfo]);
+  }, [usdbTokenInfo?.balance, usdbTokenInfo?.tokenMetadata?.decimals]);
 
   const bitcoinBalance = useMemo(() => {
     try {
@@ -62,7 +62,7 @@ export const UserBalanceProvider = ({ children }) => {
       console.error('Error processing bitcoin balance:', error);
       return 0;
     }
-  }, [sparkInformation]);
+  }, [sparkInformation?.balance]);
 
   const dollarBalanceSat = useMemo(() => {
     try {
@@ -80,7 +80,7 @@ export const UserBalanceProvider = ({ children }) => {
       });
       return 0;
     }
-  }, [dollarBalanceToken, poolInfo]);
+  }, [dollarBalanceToken, poolInfo?.currentPriceAInB]);
 
   const totalSatValue = useMemo(() => {
     try {
@@ -96,17 +96,15 @@ export const UserBalanceProvider = ({ children }) => {
     if (!usdbTokenInfo?.balance) return;
     try {
       const numberTokenBalance = Number(usdbTokenInfo?.balance);
-      console.log('USDB token balance number', numberTokenBalance);
       if (isNaN(numberTokenBalance)) return;
       setDollarBalanceToken(numberTokenBalance);
     } catch {}
-  }, [usdbTokenInfo]);
+  }, [usdbTokenInfo?.balance]);
 
   useEffect(() => {
     if (!bitcoinBalance) return;
     try {
       const numberBitcoinBalance = Number(bitcoinBalance);
-      console.log('USDB token balance number', numberBitcoinBalance);
       if (isNaN(numberBitcoinBalance)) return;
       setBitcoinBalance(numberBitcoinBalance);
     } catch {}
