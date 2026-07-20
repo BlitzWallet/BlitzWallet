@@ -1051,6 +1051,7 @@
       "depositQRError": "Un problème est survenu lors de la génération de votre adresse {{addressType}}",
       "changeReceiveCurrency": "Changer la devise de réception",
       "depositQRInstruction_stablecoins": "Envoyez uniquement {{asset}} sur {{chain}} à cette adresse. Vous le recevrez directement dans votre solde en dollars",
+      "depositQRInstruction_accumulation_bitcoin": "Envoyez uniquement {{asset}} sur {{chain}} à cette adresse. Vous le recevrez directement dans votre solde en bitcoin",
       "depositQRInstruction_bitcoin": "Envoyez uniquement du Bitcoin à cette adresse. Les fonds arrivent après trois confirmations on-chain.",
       "depositQRInstruction_liquid": "Envoyez uniquement du Liquid Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin",
       "depositQRInstruction_rootstock": "Envoyez uniquement du Rootstock Bitcoin à cette adresse. Vous le recevrez directement dans votre solde Bitcoin.",

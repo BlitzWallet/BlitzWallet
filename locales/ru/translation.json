@@ -1051,6 +1051,7 @@
       "depositQRError": "Возникла проблема при создании вашего адреса {{addressType}}",
       "changeReceiveCurrency": "Изменить валюту получения",
       "depositQRInstruction_stablecoins": "Отправляйте на этот адрес только {{asset}} в сети {{chain}}. Средства поступят прямо на ваш долларовый баланс",
+      "depositQRInstruction_accumulation_bitcoin": "Отправляйте на этот адрес только {{asset}} в сети {{chain}}. вы получите средства непосредственно на свой баланс в биткоинах.",
       "depositQRInstruction_bitcoin": "Отправляйте на этот адрес только Bitcoin. Средства поступят после трёх подтверждений в сети.",
       "depositQRInstruction_liquid": "Отправляйте на этот адрес только Liquid Bitcoin. Средства поступят прямо на ваш баланс Bitcoin",
       "depositQRInstruction_rootstock": "Отправляйте на этот адрес только Rootstock Bitcoin. Средства поступят прямо на ваш баланс Bitcoin.",

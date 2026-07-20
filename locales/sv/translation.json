@@ -1051,6 +1051,7 @@
       "depositQRError": "Vi stötte på ett problem när din {{addressType}}-adress skulle genereras",
       "changeReceiveCurrency": "Byt mottagningsvaluta",
       "depositQRInstruction_stablecoins": "Skicka bara {{asset}} på {{chain}} till den här adressen. Du får det direkt till ditt dollarsaldo",
+      "depositQRInstruction_accumulation_bitcoin": "Skicka bara {{asset}} på {{chain}} till den här adressen. Du får det direkt till ditt bitcoin",
       "depositQRInstruction_bitcoin": "Skicka bara Bitcoin till den här adressen. Pengarna kommer efter tre bekräftelser på kedjan.",
       "depositQRInstruction_liquid": "Skicka bara Liquid Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo",
       "depositQRInstruction_rootstock": "Skicka bara Rootstock Bitcoin till den här adressen. Du får det direkt till ditt Bitcoin-saldo.",

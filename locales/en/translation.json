@@ -1051,6 +1051,7 @@
       "depositQRError": "We ran into a problem when generating your {{addressType}} address",
       "changeReceiveCurrency": "Change receive currency",
       "depositQRInstruction_stablecoins": "Only send {{asset}} on {{chain}} to this address, you will receive it directly to your Dollar balance",
+      "depositQRInstruction_accumulation_bitcoin": "Only send {{asset}} on {{chain}} to this address, you will receive it directly to your Bitcoin balance",
       "depositQRInstruction_bitcoin": "Only send Bitcoin to this address. Funds arrive after three on-chain confirmations.",
       "depositQRInstruction_liquid": "Only send Liquid Bitcoin to this address, you will receive it directly to your Bitcoin balance",
       "depositQRInstruction_rootstock": "Only send Rootstock Bitcoin to this address, you will receive it directly to your Bitcoin balance.",

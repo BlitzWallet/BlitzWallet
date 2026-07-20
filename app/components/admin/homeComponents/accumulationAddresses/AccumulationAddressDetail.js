@@ -25,10 +25,19 @@ import {
   ACCUMULATION_CHAINS,
   getPairKey,
 } from '../../../../constants/accumulationAddresses';
-import { CENTER, COLORS, ICONS } from '../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+  SIZES,
+} from '../../../../constants';
 import { createPdf } from 'react-native-pdf-from-image';
 import { shareFile } from '../../../../functions/handleShare';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -90,6 +99,17 @@ export default function AccumulationAddressDetail() {
   const shortAddress = `${depositAddress.slice(0, 8)}...${depositAddress.slice(
     -8,
   )}`;
+
+  const disclaimer =
+    selected?.destinationAsset === 'BTC'
+      ? t('wallet.halfModal.depositQRInstruction_accumulation_bitcoin', {
+          asset: selected?.sourceAsset,
+          chain: chainLabel,
+        })
+      : t('wallet.halfModal.depositQRInstruction_stablecoins', {
+          asset: selected?.sourceAsset,
+          chain: chainLabel,
+        });
 
   const handleCopy = useCallback(() => {
     copyToClipboard(depositAddress, showToast);
@@ -223,7 +243,7 @@ export default function AccumulationAddressDetail() {
                 ]}
               >
                 <Image
-                  style={[styles.confirmChainIcon, { width: 35, height: 35 }]}
+                  style={[styles.confirmChainIcon, { width: 30, height: 30 }]}
                   source={
                     ICONS[
                       selected.destinationAsset === 'BTC'
@@ -274,6 +294,8 @@ export default function AccumulationAddressDetail() {
             actionFunction={handleSelectAddress}
           />
         )}
+        {/* Disclaimer */}
+        <ThemeText styles={styles.disclaimer} content={disclaimer} />
       </View>
     </GlobalThemeView>
   );
@@ -299,32 +321,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 20,
     marginTop: 20,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 50,
   },
+  disclaimer: {
+    fontSize: SIZES.small,
+    opacity: HIDDEN_OPACITY,
+    textAlign: 'center',
+    marginTop: 12,
+    includeFontPadding: false,
+  },
   assetRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 20,
+    marginVertical: 10,
   },
   confirmIconWrapper: {
     position: 'relative',
   },
   confirmChainCircle: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 45,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   confirmChainIcon: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
   },
   confirmCurrencyBadge: {
     position: 'absolute',
@@ -340,7 +368,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  printBtn: { width: '100%' },
+  printBtn: { width: '100%', marginTop: CONTENT_KEYBOARD_OFFSET },
   viewAllBtn: { backgroundColor: 'transparent' },
   optionBtn: { width: '100%', marginBottom: 10 },
   deleteBtn: {
