@@ -1786,16 +1786,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bufbuild/protobuf@npm:^2.0.0, @bufbuild/protobuf@npm:^2.2.5":
+"@bufbuild/protobuf@npm:^2.2.5":
   version: 2.10.1
   resolution: "@bufbuild/protobuf@npm:2.10.1"
   checksum: e6f665787d5d7c131dc3694794fad6db0ca37f998b844418e8ccdccdd378118e71b6b59836982ac7efe90371d7fb04431bf23b9435eb9d09ce2b2a7e8e637fab
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.8.5":
-  version: 0.8.5
-  resolution: "@buildonspark/spark-sdk@npm:0.8.5"
+"@buildonspark/spark-sdk@npm:^0.8.8":
+  version: 0.8.8
+  resolution: "@buildonspark/spark-sdk@npm:0.8.8"
   dependencies:
     "@bufbuild/protobuf": ^2.2.5
     "@lightsparkdev/core": ^1.5.0
@@ -1818,7 +1818,6 @@ __metadata:
     nice-grpc-client-middleware-retry: ^3.1.10
     nice-grpc-common: ^2.0.2
     nice-grpc-web: ^3.3.7
-    ts-proto: 2.8.3
     ua-parser-js: ^2.0.6
     uuidv7: ^1.0.2
   peerDependencies:
@@ -1832,7 +1831,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 7adf52ac8e57ee0746e76600b62c18d3ecf6a01355844737e61e90103c18eb90524006df0a934aaada79cf08a8b0ef8d05097bab245bdd7311b846c9417cb649
+  checksum: 79a733cda84f71bd87c8f0251dc2a42fe19a5e494df3fdc7c3ede258be6470eda8dc467548c5bfaf1e72852e1719cfcb41a516dee65d26b8d35dd74bf1f47132
   languageName: node
   linkType: hard
 
@@ -4949,7 +4948,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@branta-ops/branta": ^3.1.2
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.13
-    "@buildonspark/spark-sdk": ^0.8.5
+    "@buildonspark/spark-sdk": ^0.8.8
     "@craftzdog/react-native-buffer": ^6.1.0
     "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^1.8.0
@@ -5058,7 +5057,7 @@ __metadata:
     react-native-worklets: ^0.8.3
     react-test-renderer: 19.1.0
     rn-qr-generator: ^2.0.0
-    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#e8e7dc63c62545426ef45993160f5a8c70319ff0"
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git#447632a56bc191d9a886780daa103efe388c769e"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     typescript: ^5.8.3
@@ -6326,13 +6325,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"case-anything@npm:^2.1.13":
-  version: 2.1.13
-  resolution: "case-anything@npm:2.1.13"
-  checksum: c39c69d7e418337b6006a9692f13c2b257e907e867149a102e9beb7e9d2d52da14e754da1f4e4ce82a866d86d93047e522f64360bda54e7d7c308f4cdd736c3d
-  languageName: node
-  linkType: hard
-
 "chalk@npm:^2.0.1, chalk@npm:^2.4.2":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
@@ -7067,15 +7059,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"detect-libc@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "detect-libc@npm:1.0.3"
-  bin:
-    detect-libc: ./bin/detect-libc.js
-  checksum: daaaed925ffa7889bd91d56e9624e6c8033911bb60f3a50a74a87500680652969dbaab9526d1e200a4c94acf80fc862a22131841145a0a8482d60a99c24f4a3e
-  languageName: node
-  linkType: hard
-
 "detect-libc@npm:^2.0.3":
   version: 2.1.1
   resolution: "detect-libc@npm:2.1.1"
@@ -7189,15 +7172,6 @@ __metadata:
   version: 16.4.7
   resolution: "dotenv@npm:16.4.7"
   checksum: c27419b5875a44addcc56cc69b7dc5b0e6587826ca85d5b355da9303c6fc317fc9989f1f18366a16378c9fdd9532d14117a1abe6029cc719cdbbef6eaef2cea4
-  languageName: node
-  linkType: hard
-
-"dprint-node@npm:^1.0.8":
-  version: 1.0.8
-  resolution: "dprint-node@npm:1.0.8"
-  dependencies:
-    detect-libc: ^1.0.3
-  checksum: ac53b71296d155664319877f0e8c9fe94e084457ce9aae68081b9dd7165916f2829222923c59b1399d95680362f18a8da5994e7f76a8f52035e02bbd14ba76bc
   languageName: node
   linkType: hard
 
@@ -13938,16 +13912,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#e8e7dc63c62545426ef45993160f5a8c70319ff0":
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git#447632a56bc191d9a886780daa103efe388c769e":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=e8e7dc63c62545426ef45993160f5a8c70319ff0"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=447632a56bc191d9a886780daa103efe388c769e"
   dependencies:
-    "@buildonspark/spark-sdk": ^0.8.5
+    "@buildonspark/spark-sdk": ^0.8.8
     "@ecies/ciphers": ^0.2.4
     "@flashnet/sdk": ^0.5.7
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: bac733457ab408c05c201eabbed089cef8439dbb3371deb67adce91e7d07328a6bf2f097aee83599a1dc281b5b9f84d5124131825b90abf82fbacd8897322273
+  checksum: a64e3bfbec41ce0b59c3bde37bdaa5356f6308c440ce89943f1bf00989845d90e5f705204fa5b0595bd2077824d17f8766a4fc495d6add5f3d35feb5dbf09922
   languageName: node
   linkType: hard
 
@@ -14551,38 +14525,6 @@ __metadata:
   version: 0.1.13
   resolution: "ts-interface-checker@npm:0.1.13"
   checksum: 20c29189c2dd6067a8775e07823ddf8d59a33e2ffc47a1bd59a5cb28bb0121a2969a816d5e77eda2ed85b18171aa5d1c4005a6b88ae8499ec7cc49f78571cb5e
-  languageName: node
-  linkType: hard
-
-"ts-poet@npm:^6.12.0":
-  version: 6.12.0
-  resolution: "ts-poet@npm:6.12.0"
-  dependencies:
-    dprint-node: ^1.0.8
-  checksum: 05fec86d188a0727433ae2deea950161c43ee433526702b75cc19858b90a20642b075d99e1029efcafccb59d9e98492c8e41fbbc945615bbff0e58922f820e1c
-  languageName: node
-  linkType: hard
-
-"ts-proto-descriptors@npm:2.0.0":
-  version: 2.0.0
-  resolution: "ts-proto-descriptors@npm:2.0.0"
-  dependencies:
-    "@bufbuild/protobuf": ^2.0.0
-  checksum: 7b268c0bdab7b24236aecb125c33502575790f69f4f384cad3423ff05a7999abe381bd1331e1ab2793dbcac687eb8411ae7d73676e8adcff26666cc4a1cece99
-  languageName: node
-  linkType: hard
-
-"ts-proto@npm:2.8.3":
-  version: 2.8.3
-  resolution: "ts-proto@npm:2.8.3"
-  dependencies:
-    "@bufbuild/protobuf": ^2.0.0
-    case-anything: ^2.1.13
-    ts-poet: ^6.12.0
-    ts-proto-descriptors: 2.0.0
-  bin:
-    protoc-gen-ts_proto: protoc-gen-ts_proto
-  checksum: 5593628b2e22016dc52df5350bf4852366341bf184d6a90900c246d83038af65ee08156233aa77149800b8139fd9efe73568ce8d866fad49ffec33e222af9d28
   languageName: node
   linkType: hard
 
