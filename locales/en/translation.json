@@ -1051,6 +1051,7 @@
       "depositQRError": "We ran into a problem when generating your {{addressType}} address",
       "changeReceiveCurrency": "Change receive currency",
       "depositQRInstruction_stablecoins": "Only send {{asset}} on {{chain}} to this address, you will receive it directly to your Dollar balance",
+      "depositQRInstruction_accumulation_bitcoin": "Only send {{asset}} on {{chain}} to this address, you will receive it directly to your Bitcoin balance",
       "depositQRInstruction_bitcoin": "Only send Bitcoin to this address. Funds arrive after three on-chain confirmations.",
       "depositQRInstruction_liquid": "Only send Liquid Bitcoin to this address, you will receive it directly to your Bitcoin balance",
       "depositQRInstruction_rootstock": "Only send Rootstock Bitcoin to this address, you will receive it directly to your Bitcoin balance.",
@@ -2624,6 +2625,7 @@
         "subtitle": "Create an address to auto-convert deposits into Bitcoin or Dollars"
       },
       "createButton": "Create Address",
+      "addressCount": "{{count}} addresses",
       "info": {
         "title": "What are they?",
         "whatAre": "What are they?",
@@ -2635,13 +2637,21 @@
       },
       "detail": {
         "copyAddress": "Copy Address",
+        "reindex": "Check balance",
+        "reindexThrottled": "Already checked this address. Try again in {{minutes}} min.",
+        "reindexFundsFound": "Funds found, they'll arrive in your wallet shortly.",
+        "reindexNoFunds": "No new funds found for this address.",
+        "reindexError": "Couldn't check this address. Please try again later.",
         "printQR": "Print QR",
         "deleteButton": "Delete Address",
         "deleteConfirmTitle": "Delete Address?",
         "deleteConfirmBody": "Deleting this address stops future payments from being redirected and may result in lost funds. Make sure everyone knows it’s no longer active before removing it.",
         "chain": "Chain",
         "source": "Source",
-        "Destination": "Destination"
+        "Destination": "Destination",
+        "selectAnotherOption": "Select Another Option",
+        "selectAddress": "Select Address",
+        "viewAll": "View All Addresses"
       },
       "create": {
         "pickAsset": "Select Payment Currency",
@@ -2649,7 +2659,9 @@
         "pickDestination": "Select Destination",
         "confirm": "Confirm Address",
         "alreadyExists": "You already have an address for this combination",
-        "convertDesc": "Your {{chain}} {{asset}} will be converted into {{receiveCurrency}}"
+        "convertDesc": "Your {{chain}} {{asset}} will be converted into {{receiveCurrency}}",
+        "createNewAddress": "Create New Address",
+        "limitReached": "You've reached the maximum number of addresses for this option."
       },
       "summary": {
         "chain": "Chain",

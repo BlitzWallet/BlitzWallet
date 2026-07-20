@@ -1051,6 +1051,7 @@
       "depositQRError": "Beim Erstellen Ihrer {{addressType}}-Adresse ist ein Problem aufgetreten.",
       "changeReceiveCurrency": "Empfangswährung ändern",
       "depositQRInstruction_stablecoins": "Senden Sie nur {{asset}} über {{chain}} an diese Adresse. Der Betrag wird direkt Ihrem Dollar-Guthaben gutgeschrieben.",
+      "depositQRInstruction_accumulation_bitcoin": "Senden Sie nur {{asset}} über {{chain}} an diese Adresse. Der Betrag wird direkt Ihrem BTC-Guthaben gutgeschrieben.",
       "depositQRInstruction_bitcoin": "Senden Sie nur Bitcoin an diese Adresse. Das Geld kommt nach drei On-Chain-Bestätigungen an.",
       "depositQRInstruction_liquid": "Senden Sie nur Liquid Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
       "depositQRInstruction_rootstock": "Senden Sie nur Rootstock Bitcoin an diese Adresse. Der Betrag wird direkt Ihrem Bitcoin-Guthaben gutgeschrieben.",
@@ -2624,6 +2625,7 @@
         "subtitle": "Erstellen Sie eine Adresse, um Stablecoin-Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
       },
       "createButton": "Adresse erstellen",
+      "addressCount": "{{count}} Adressen",
       "info": {
         "title": "Was ist das?",
         "whatAre": "Was ist das?",
@@ -2635,13 +2637,21 @@
       },
       "detail": {
         "copyAddress": "Adresse kopieren",
+        "reindex": "Kontostand prüfen",
+        "reindexThrottled": "Diese Adresse wurde bereits geprüft. Versuchen Sie es in {{minutes}} Min. erneut.",
+        "reindexFundsFound": "Guthaben gefunden, es wird in Kürze Ihrer Wallet gutgeschrieben.",
+        "reindexNoFunds": "Für diese Adresse wurden keine neuen Guthaben gefunden.",
+        "reindexError": "Diese Adresse konnte nicht geprüft werden. Bitte versuchen Sie es später erneut.",
         "printQR": "QR-Code drucken",
         "deleteButton": "Adresse löschen",
         "deleteConfirmTitle": "Adresse löschen?",
         "deleteConfirmBody": "Das Löschen dieser Adresse verhindert zukünftige Weiterleitungen von Zahlungen und kann zu verlorenen Geldern führen. Stellen Sie sicher, dass alle wissen, dass sie nicht mehr aktiv ist, bevor Sie sie entfernen.",
         "chain": "Netzwerk",
         "source": "Quelle",
-        "Destination": "Ziel"
+        "Destination": "Ziel",
+        "selectAnotherOption": "Andere Option auswählen",
+        "selectAddress": "Adresse auswählen",
+        "viewAll": "Alle Adressen anzeigen"
       },
       "create": {
         "pickAsset": "Zahlungswährung auswählen",
@@ -2649,7 +2659,9 @@
         "pickDestination": "Ziel auswählen",
         "confirm": "Adresse bestätigen",
         "alreadyExists": "Sie haben bereits eine Adresse für diese Kombination",
-        "convertDesc": "Ihre {{asset}} auf {{chain}} werden in {{receiveCurrency}} umgewandelt"
+        "convertDesc": "Ihre {{asset}} auf {{chain}} werden in {{receiveCurrency}} umgewandelt",
+        "createNewAddress": "Neue Adresse erstellen",
+        "limitReached": "Sie haben die maximale Anzahl an Adressen für diese Option erreicht."
       },
       "summary": {
         "chain": "Netzwerk",

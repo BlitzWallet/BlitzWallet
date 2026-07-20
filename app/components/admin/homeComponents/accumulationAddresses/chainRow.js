@@ -89,7 +89,7 @@ export default function ChainRow({
         </View>
         <ThemeText styles={styles.optionLabel} content={chain.label} />
 
-        <Animated.View style={[{ opacity: HIDDEN_OPACITY }, chevronStyle]}>
+        <Animated.View style={[chevronStyle]}>
           <ThemeIcon
             iconName={disableExpand ? 'ChevronRight' : 'ChevronDown'}
             size={18}

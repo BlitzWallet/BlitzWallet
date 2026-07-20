@@ -1051,6 +1051,7 @@
       "depositQRError": "Hubo un problema al generar tu dirección de {{addressType}}",
       "changeReceiveCurrency": "Cambiar moneda de recepción",
       "depositQRInstruction_stablecoins": "Envía solo {{asset}} en {{chain}} a esta dirección. Lo recibirás directamente en tu saldo en dólares",
+      "depositQRInstruction_accumulation_bitcoin": "Envía solo {{asset}} en {{chain}} a esta dirección. Lo recibirás directamente en tu saldo en bitcoin",
       "depositQRInstruction_bitcoin": "Envía solo Bitcoin a esta dirección. Los fondos llegan después de tres confirmaciones en la cadena.",
       "depositQRInstruction_liquid": "Envía solo Liquid Bitcoin a esta dirección. Lo recibirás directamente en tu saldo de Bitcoin",
       "depositQRInstruction_rootstock": "Envía solo Rootstock Bitcoin a esta dirección. Lo recibirás directamente en tu saldo de Bitcoin.",
@@ -2624,6 +2625,7 @@
         "subtitle": "Crea una dirección para convertir automáticamente depósitos en Bitcoin o dólares"
       },
       "createButton": "Crear dirección",
+      "addressCount": "{{count}} direcciones",
       "info": {
         "title": "¿Qué son?",
         "whatAre": "¿Qué son?",
@@ -2635,13 +2637,21 @@
       },
       "detail": {
         "copyAddress": "Copiar dirección",
+        "reindex": "Comprobar saldo",
+        "reindexThrottled": "Esta dirección ya se comprobó. Inténtalo de nuevo en {{minutes}} min.",
+        "reindexFundsFound": "Se encontraron fondos. Llegarán a tu billetera en breve.",
+        "reindexNoFunds": "No se encontraron fondos nuevos para esta dirección.",
+        "reindexError": "No se pudo comprobar esta dirección. Inténtalo de nuevo más tarde.",
         "printQR": "Imprimir QR",
         "deleteButton": "Eliminar dirección",
         "deleteConfirmTitle": "¿Eliminar dirección?",
         "deleteConfirmBody": "Eliminar esta dirección detiene la redirección de futuros pagos y puede resultar en pérdida de fondos. Asegúrate de que todos sepan que ya no está activa antes de eliminarla.",
         "chain": "Red",
         "source": "Origen",
-        "Destination": "Destino"
+        "Destination": "Destino",
+        "selectAnotherOption": "Seleccionar otra opción",
+        "selectAddress": "Seleccionar dirección",
+        "viewAll": "Ver todas las direcciones"
       },
       "create": {
         "pickAsset": "Seleccionar moneda de pago",
@@ -2649,7 +2659,9 @@
         "pickDestination": "Seleccionar destino",
         "confirm": "Confirmar dirección",
         "alreadyExists": "Ya tienes una dirección para esta combinación",
-        "convertDesc": "Tu {{asset}} en {{chain}} se convertirá en {{receiveCurrency}}"
+        "convertDesc": "Tu {{asset}} en {{chain}} se convertirá en {{receiveCurrency}}",
+        "createNewAddress": "Crear nueva dirección",
+        "limitReached": "Has alcanzado el número máximo de direcciones para esta opción."
       },
       "summary": {
         "chain": "Red",

@@ -1050,6 +1050,7 @@
       "depositQRError": "Encontramos um problema ao gerar seu endereço {{addressType}}",
       "changeReceiveCurrency": "Alterar moeda de recebimento",
       "depositQRInstruction_stablecoins": "Envie apenas {{asset}} na rede {{chain}} para este endereço. Você receberá diretamente no seu saldo em dólares",
+      "depositQRInstruction_accumulation_bitcoin": "Envie apenas {{asset}} na rede {{chain}} para este endereço. Você receberá diretamente no seu saldo em bitcoin",
       "depositQRInstruction_bitcoin": "Envie apenas Bitcoin para este endereço. Os fundos chegam após três confirmações na rede Bitcoin",
       "depositQRInstruction_liquid": "Envie apenas Liquid Bitcoin para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
       "depositQRInstruction_rootstock": "Envie apenas Bitcoin na rede Rootstock para este endereço. Você receberá diretamente no seu saldo em Bitcoin",
@@ -2623,6 +2624,7 @@
         "subtitle": "Crie endereços USDT ou USDC em que os depósitos recebidos são convertidos automaticamente em bitcoin ou dólares"
       },
       "createButton": "Criar endereço",
+      "addressCount": "{{count}} endereços",
       "info": {
         "title": "Para que serve?",
         "whatAre": "Para que serve?",
@@ -2634,13 +2636,21 @@
       },
       "detail": {
         "copyAddress": "Copiar endereço",
+        "reindex": "Verificar saldo",
+        "reindexThrottled": "Este endereço já foi verificado. Tente novamente em {{minutes}} min.",
+        "reindexFundsFound": "Fundos encontrados, eles chegarão à sua carteira em instantes.",
+        "reindexNoFunds": "Nenhum novo fundo encontrado para este endereço.",
+        "reindexError": "Não foi possível verificar este endereço. Tente novamente mais tarde.",
         "printQR": "Imprimir QR",
         "deleteButton": "Excluir endereço",
         "deleteConfirmTitle": "Excluir endereço?",
         "deleteConfirmBody": "Excluir este endereço impede o redirecionamento de pagamentos futuros e pode resultar na perda de fundos. Certifique-se de que todos saibam que este endereço não está mais ativo antes de removê-lo.",
         "chain": "Rede",
         "source": "Origem",
-        "Destination": "Destino"
+        "Destination": "Destino",
+        "selectAnotherOption": "Selecionar outra opção",
+        "selectAddress": "Selecionar endereço",
+        "viewAll": "Ver todos os endereços"
       },
       "create": {
         "pickAsset": "Selecionar moeda",
@@ -2648,7 +2658,9 @@
         "pickDestination": "Selecionar destino",
         "confirm": "Confirmar endereço",
         "alreadyExists": "Você já tem um endereço para esta combinação",
-        "convertDesc": "Seu {{asset}} na rede {{chain}} será convertido em {{receiveCurrency}}"
+        "convertDesc": "Seu {{asset}} na rede {{chain}} será convertido em {{receiveCurrency}}",
+        "createNewAddress": "Criar novo endereço",
+        "limitReached": "Você atingiu o número máximo de endereços para esta opção."
       },
       "summary": {
         "chain": "Rede",
