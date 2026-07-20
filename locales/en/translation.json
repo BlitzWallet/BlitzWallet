@@ -1228,7 +1228,8 @@
         "swapRatesChangedBody": "The exchange rate for this swap changed while you were reviewing. Please re-enter your amount to continue.",
         "swapRatesChangedButton": "Re-enter Amount",
         "feeEstimateError": "Unable to estimate fee, please try again",
-        "brantaVerification": "This payment has been verified by Branta"
+        "brantaVerification": "This payment has been verified by Branta",
+        "lightningPayment": "Lightning payment"
       },
       "selectPaymentMethod": {
         "header": "How do you want to fund your payment?"

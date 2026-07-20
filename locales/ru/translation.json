@@ -1229,7 +1229,8 @@
         "swapRatesChangedBody": "Курс обмена для этой операции изменился во время проверки. Пожалуйста, введите сумму заново, чтобы продолжить.",
         "swapRatesChangedButton": "Ввести сумму снова",
         "feeEstimateError": "Не удалось оценить комиссию, попробуйте снова",
-        "brantaVerification": "Этот платёж был подтверждён Branta"
+        "brantaVerification": "Этот платёж был подтверждён Branta",
+        "lightningPayment": "Платёж Lightning"
       },
       "selectPaymentMethod": {
         "header": "Выберите источник средств."
