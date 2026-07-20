@@ -93,9 +93,7 @@ function ChainRow({
         />
       </View>
 
-      <View style={{ opacity: HIDDEN_OPACITY }}>
-        <ThemeIcon iconName="ChevronRight" size={18} />
-      </View>
+      <ThemeIcon iconName="ChevronRight" size={18} />
     </TouchableOpacity>
   );
 }
