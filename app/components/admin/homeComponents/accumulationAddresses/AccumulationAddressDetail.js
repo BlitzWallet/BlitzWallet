@@ -89,20 +89,6 @@ export default function AccumulationAddressDetail() {
     else if (hasHadAddressesRef.current && !isDeleting) navigate.goBack();
   }, [groupAddresses.length, isDeleting, navigate]);
 
-  const options = useMemo(() => {
-    const byKey = new Map();
-    for (const a of addresses) {
-      const key = getPairKey(a);
-      if (!byKey.has(key))
-        byKey.set(key, {
-          sourceChain: a.sourceChain,
-          sourceAsset: a.sourceAsset,
-          destinationAsset: a.destinationAsset,
-        });
-    }
-    return Array.from(byKey.values());
-  }, [addresses]);
-
   const chainLabel =
     ACCUMULATION_CHAINS.find(c => c.id === selected?.sourceChain)?.label ??
     selected?.sourceChain;
@@ -234,9 +220,7 @@ export default function AccumulationAddressDetail() {
         const ok = await deleteAddress(selected.accumulationAddressId);
         setIsDeleting(false);
         if (ok) {
-          if (groupAddresses.length <= 1) {
-            navigate.goBack();
-          } else {
+          if (groupAddresses.length > 1) {
             const next = groupAddresses.find(
               a => a.accumulationAddressId !== selected.accumulationAddressId,
             );
@@ -267,7 +251,7 @@ export default function AccumulationAddressDetail() {
         leftImageFunction={handleDelete}
         textStyles={{ textTransform: 'capitalize' }}
         rightContent={
-          groupAddresses.length > 1 ? (
+          groupAddresses.length >= 1 ? (
             <TouchableOpacity
               style={{ width: 22, height: 22 }}
               onPress={handlePrint}

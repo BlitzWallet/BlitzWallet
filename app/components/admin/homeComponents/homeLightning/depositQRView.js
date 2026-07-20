@@ -105,7 +105,7 @@ export default function DepositQRView({
     if (isActive) setContentHeight(700);
   }, [isActive]);
 
-  const handleCreateNew = async () => {
+  const handleCreateNew = async cancelled => {
     const triple = {
       sourceChain: config.sourceChain,
       sourceAsset: config.sourceAsset,
@@ -139,6 +139,7 @@ export default function DepositQRView({
           }));
           return;
         }
+        if (cancelled) return;
         setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
         navigate.navigate('ErrorScreen', {
           errorMessage: t('screens.accumulationAddresses.create.limitReached'),
@@ -149,6 +150,7 @@ export default function DepositQRView({
       if (result?.error) {
         const saved = addressesForOption(triple)[0]?.depositAddress;
         if (saved) {
+          if (cancelled) return;
           setAddressState(prev => ({
             ...prev,
             generatedAddress: saved,
@@ -156,6 +158,7 @@ export default function DepositQRView({
           }));
           return;
         }
+        if (cancelled) return;
         setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
         navigate.navigate('ErrorScreen', {
           errorMessage: t('screens.accumulationAddresses.errors.createFailed'),
@@ -167,25 +170,26 @@ export default function DepositQRView({
         typeof result.address === 'string'
           ? result.address
           : result.address?.depositAddress;
+      if (cancelled) return;
       setAddressState(prev => ({
         ...prev,
         generatedAddress: newAddress || '',
         isGeneratingInvoice: false,
       }));
     } catch {
+      if (cancelled) return;
       setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
     }
   };
 
   useEffect(() => {
     if (!config) return;
+    let cancelled = false;
 
     if (config.selectedRecieveOption?.toLowerCase() === 'stablecoins') {
-      handleCreateNew();
+      handleCreateNew(cancelled);
       return; // skip initializeAddressProcess; a specific address was picked from the selector
     }
-
-    let cancelled = false;
 
     setAddressState({
       generatedAddress: '',
