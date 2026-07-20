@@ -1,6 +1,6 @@
 import { Contract } from 'ethers';
 import EtherSwapArtifact from 'boltz-core/out/EtherSwap.sol/EtherSwap.json';
-import bolt11 from 'bolt11';
+import bolt11 from '../../decodeBolt11';
 import { getBoltzApiUrl } from '../boltzEndpoitns';
 import { rootstockEnvironment, satoshiWeiFactor } from '.';
 import { deleteSwapById, updateSwap } from './swapDb';

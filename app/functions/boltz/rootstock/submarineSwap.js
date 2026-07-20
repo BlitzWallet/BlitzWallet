@@ -1,4 +1,4 @@
-import bolt11 from 'bolt11';
+import bolt11 from '../../decodeBolt11';
 import EtherSwapArtifact from 'boltz-core/out/EtherSwap.sol/EtherSwap.json';
 import { Contract } from 'ethers';
 import { getBoltzApiUrl } from '../boltzEndpoitns';
