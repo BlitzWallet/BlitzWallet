@@ -23,8 +23,15 @@ import { copyToClipboard } from '../../../../functions';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
 import {
   ACCUMULATION_CHAINS,
+  classifyReindexResponse,
   getPairKey,
+  getReindexThrottle,
+  REINDEX_TIMES_KEY,
 } from '../../../../constants/accumulationAddresses';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '../../../../functions/localStorage';
 import {
   CENTER,
   COLORS,
@@ -42,6 +49,8 @@ import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import fetchBackend from '../../../../../db/handleBackend';
+import { useKeysContext } from '../../../../../context-store/keys';
 
 function normalizeFileUri(uri) {
   return uri.startsWith('file://') ? uri : `file://${uri}`;
@@ -54,6 +63,7 @@ export default function AccumulationAddressDetail() {
   const triple = { sourceChain, sourceAsset, destinationAsset };
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
 
   const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -62,6 +72,7 @@ export default function AccumulationAddressDetail() {
   const viewShotRef = useRef(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
   const groupAddresses = addressesForOption(triple);
@@ -151,6 +162,68 @@ export default function AccumulationAddressDetail() {
     }
   }, [selected, t]);
 
+  const handleAddressReindex = useCallback(async () => {
+    if (!depositAddress) return;
+    const showError = () =>
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.accumulationAddresses.detail.reindexError'),
+      });
+    try {
+      const now = Date.now();
+      const map =
+        JSON.parse(await getLocalStorageItem(REINDEX_TIMES_KEY)) || {};
+      const { throttled, remainingMs } = getReindexThrottle(
+        map,
+        depositAddress,
+        now,
+      );
+      if (throttled) {
+        showToast({
+          type: 'error',
+          title: t('screens.accumulationAddresses.detail.reindexThrottled', {
+            minutes: Math.ceil(remainingMs / 60000),
+          }),
+        });
+        return;
+      }
+
+      setIsCheckingBalance(true);
+      const reindexResponse = await fetchBackend(
+        'reindexAccumulationAddress',
+        {
+          depositAddress,
+          requset_time: now,
+        },
+        contactsPrivateKey,
+        publicKey,
+      );
+
+      const outcome = classifyReindexResponse(reindexResponse);
+
+      if (outcome === 'error') {
+        // Don't burn the 15m window on failure — allow immediate retry.
+        showError();
+        return;
+      }
+
+      map[depositAddress] = now;
+      await setLocalStorageItem(REINDEX_TIMES_KEY, JSON.stringify(map));
+      showToast({
+        type: 'error',
+        title: t(
+          outcome === 'funds'
+            ? 'screens.accumulationAddresses.detail.reindexFundsFound'
+            : 'screens.accumulationAddresses.detail.reindexNoFunds',
+        ),
+      });
+    } catch (err) {
+      console.log('reindex error', err);
+      showError();
+    } finally {
+      setIsCheckingBalance(false);
+    }
+  }, [depositAddress, t, contactsPrivateKey, publicKey, showToast, navigate]);
+
   const handleDelete = useCallback(() => {
     navigate.navigate('ConfirmActionPage', {
       confirmMessage: t(
@@ -193,6 +266,26 @@ export default function AccumulationAddressDetail() {
         iconNew="Trash2"
         leftImageFunction={handleDelete}
         textStyles={{ textTransform: 'capitalize' }}
+        rightContent={
+          groupAddresses.length > 1 ? (
+            <TouchableOpacity
+              style={{ width: 22, height: 22 }}
+              onPress={handlePrint}
+            >
+              {isPrinting ? (
+                <FullLoadingScreen
+                  loadingColor={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
+                  size="small"
+                  showText={false}
+                />
+              ) : (
+                <ThemeIcon iconName="Printer" size={22} />
+              )}
+            </TouchableOpacity>
+          ) : null
+        }
       />
       <View style={styles.innerContainer}>
         <ScrollView
@@ -281,9 +374,9 @@ export default function AccumulationAddressDetail() {
         {/* Print button */}
         <CustomButton
           buttonStyles={styles.printBtn}
-          textContent={t('screens.accumulationAddresses.detail.printQR')}
-          actionFunction={handlePrint}
-          useLoading={isPrinting}
+          textContent={t('screens.accumulationAddresses.detail.reindex')}
+          actionFunction={handleAddressReindex}
+          useLoading={isCheckingBalance}
         />
         {/* View all address button*/}
         {groupAddresses.length > 1 && (

@@ -2637,6 +2637,11 @@
       },
       "detail": {
         "copyAddress": "Copiar dirección",
+        "reindex": "Comprobar saldo",
+        "reindexThrottled": "Esta dirección ya se comprobó. Inténtalo de nuevo en {{minutes}} min.",
+        "reindexFundsFound": "Se encontraron fondos. Llegarán a tu billetera en breve.",
+        "reindexNoFunds": "No se encontraron fondos nuevos para esta dirección.",
+        "reindexError": "No se pudo comprobar esta dirección. Inténtalo de nuevo más tarde.",
         "printQR": "Imprimir QR",
         "deleteButton": "Eliminar dirección",
         "deleteConfirmTitle": "¿Eliminar dirección?",

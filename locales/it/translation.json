@@ -2637,6 +2637,11 @@
       },
       "detail": {
         "copyAddress": "Copia indirizzo",
+        "reindex": "Controlla saldo",
+        "reindexThrottled": "Questo indirizzo è già stato controllato. Riprova tra {{minutes}} min.",
+        "reindexFundsFound": "Fondi trovati: arriveranno nel tuo portafoglio a breve.",
+        "reindexNoFunds": "Nessun nuovo fondo trovato per questo indirizzo.",
+        "reindexError": "Impossibile controllare questo indirizzo. Riprova più tardi.",
         "printQR": "Stampa QR",
         "deleteButton": "Elimina indirizzo",
         "deleteConfirmTitle": "Eliminare indirizzo?",

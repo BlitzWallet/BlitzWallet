@@ -2637,6 +2637,11 @@
       },
       "detail": {
         "copyAddress": "Copier l’adresse",
+        "reindex": "Vérifier le solde",
+        "reindexThrottled": "Cette adresse a déjà été vérifiée. Réessayez dans {{minutes}} min.",
+        "reindexFundsFound": "Des fonds ont été trouvés. Ils arriveront bientôt dans votre portefeuille.",
+        "reindexNoFunds": "Aucun nouveau fonds trouvé pour cette adresse.",
+        "reindexError": "Impossible de vérifier cette adresse. Veuillez réessayer plus tard.",
         "printQR": "Imprimer le QR",
         "deleteButton": "Supprimer l’adresse",
         "deleteConfirmTitle": "Supprimer l’adresse ?",

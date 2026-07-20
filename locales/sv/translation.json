@@ -2637,6 +2637,11 @@
       },
       "detail": {
         "copyAddress": "Kopiera adress",
+        "reindex": "Kontrollera saldo",
+        "reindexThrottled": "Den här adressen har redan kontrollerats. Försök igen om {{minutes}} min.",
+        "reindexFundsFound": "Medel hittades, de kommer snart till din plånbok.",
+        "reindexNoFunds": "Inga nya medel hittades för den här adressen.",
+        "reindexError": "Det gick inte att kontrollera den här adressen. Försök igen senare.",
         "printQR": "Skriv ut QR",
         "deleteButton": "Ta bort adress",
         "deleteConfirmTitle": "Ta bort adress?",

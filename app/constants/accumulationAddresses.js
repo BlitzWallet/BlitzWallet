@@ -40,3 +40,37 @@ export const resolveCreateAddressAction = ({ matching, forceNew, limit }) => {
   if (matching.length >= limit) return { type: 'limit_reached' };
   return { type: 'mint' };
 };
+
+// Reindex throttle: one rescan per address per 15 min so a user tapping the
+// button repeatedly can't spam FlashNet.
+export const REINDEX_WINDOW_MS = 15 * 60 * 1000;
+export const REINDEX_TIMES_KEY = 'ACCUMULATION_REINDEX_TIMES';
+
+// map: { [depositAddress]: windowStartMs }
+export const getReindexThrottle = (map, address, now) => {
+  const last = map?.[address];
+  if (!last) return { throttled: false, remainingMs: 0 };
+  const remainingMs = REINDEX_WINDOW_MS - (now - last);
+  return remainingMs > 0
+    ? { throttled: true, remainingMs }
+    : { throttled: false, remainingMs: 0 };
+};
+
+// Robust to FlashNet's unknown `success`/`ok` shape: key off the currency
+// arrays + explicit error fields rather than trusting `success` alone.
+export const classifyReindexResponse = response => {
+  if (
+    !response ||
+    response.error ||
+    response.errorCode ||
+    response.errorMessage
+  )
+    return 'error';
+  if (
+    Array.isArray(response.triggeredCurrencies) &&
+    response.triggeredCurrencies.length
+  )
+    return 'funds';
+  if (response.checkedCurrencies) return 'no_funds';
+  return 'error'; // unknown shape → treat as error, don't burn the window
+};

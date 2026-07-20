@@ -2637,6 +2637,11 @@
       },
       "detail": {
         "copyAddress": "Copy Address",
+        "reindex": "Check balance",
+        "reindexThrottled": "Already checked this address. Try again in {{minutes}} min.",
+        "reindexFundsFound": "Funds found, they'll arrive in your wallet shortly.",
+        "reindexNoFunds": "No new funds found for this address.",
+        "reindexError": "Couldn't check this address. Please try again later.",
         "printQR": "Print QR",
         "deleteButton": "Delete Address",
         "deleteConfirmTitle": "Delete Address?",

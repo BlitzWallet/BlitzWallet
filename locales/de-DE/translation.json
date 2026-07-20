@@ -2637,6 +2637,11 @@
       },
       "detail": {
         "copyAddress": "Adresse kopieren",
+        "reindex": "Kontostand prüfen",
+        "reindexThrottled": "Diese Adresse wurde bereits geprüft. Versuchen Sie es in {{minutes}} Min. erneut.",
+        "reindexFundsFound": "Guthaben gefunden, es wird in Kürze Ihrer Wallet gutgeschrieben.",
+        "reindexNoFunds": "Für diese Adresse wurden keine neuen Guthaben gefunden.",
+        "reindexError": "Diese Adresse konnte nicht geprüft werden. Bitte versuchen Sie es später erneut.",
         "printQR": "QR-Code drucken",
         "deleteButton": "Adresse löschen",
         "deleteConfirmTitle": "Adresse löschen?",
