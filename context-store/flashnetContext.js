@@ -49,7 +49,6 @@ import {
   setFlashnetTransfer,
 } from '../app/functions/spark/handleFlashnetTransferIds';
 import { useToast } from './toastManager';
-import { decode } from 'bolt11';
 import { useAuthContext } from './authContext';
 import { listClawbackableTransfers } from '../app/functions/spark/flashnet';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';

@@ -18,7 +18,7 @@ import {
   nwcWallet,
   sendNWCSparkLightningPayment,
 } from './wallet';
-import bolt11 from 'bolt11';
+import bolt11 from '../decodeBolt11';
 import { getSparkPaymentStatus, sparkPaymentType } from '../spark';
 import { pushInstantNotification } from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';

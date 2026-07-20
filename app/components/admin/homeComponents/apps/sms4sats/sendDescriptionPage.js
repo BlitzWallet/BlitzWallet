@@ -26,7 +26,7 @@ import { useGlobalAppData } from '../../../../../../context-store/appData';
 import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import sendStorePayment from '../../../../../functions/apps/payments';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
-import { decode } from 'bolt11';
+import { decode } from '../../../../../functions/decodeBolt11';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { SMS_SEND_MAX_LENGTH } from './utils';
 import { GlobalThemeView } from '../../../../../functions/CustomElements';
