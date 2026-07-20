@@ -328,7 +328,7 @@ export default function AccumulationAddressDetail() {
                   {
                     backgroundColor:
                       theme && darkModeType
-                        ? backgroundColor
+                        ? backgroundOffset
                         : selected.destinationAsset === 'BTC'
                         ? COLORS.bitcoinOrange
                         : COLORS.dollarGreen,
