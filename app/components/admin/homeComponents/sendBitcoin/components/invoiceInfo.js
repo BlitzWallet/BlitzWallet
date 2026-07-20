@@ -280,7 +280,6 @@ const styles = StyleSheet.create({
   },
   providerLogoCircle: {
     backgroundColor: COLORS.white,
-    borderWidth: StyleSheet.hairlineWidth,
     borderColor: COLORS.gray,
   },
   providerLogo: {
