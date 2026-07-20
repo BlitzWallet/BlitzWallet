@@ -88,3 +88,4 @@ app/functions/spark/appStorePreviews.js
 android/secrets.properties
 .superpowers/
 CVE_AUDIT_REPORT.md
+app/assets/social_logos/normalize.py
