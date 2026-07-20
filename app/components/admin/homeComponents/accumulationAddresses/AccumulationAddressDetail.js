@@ -192,7 +192,7 @@ export default function AccumulationAddressDetail() {
         'reindexAccumulationAddress',
         {
           depositAddress,
-          requset_time: now,
+          requsetTime: now,
         },
         contactsPrivateKey,
         publicKey,
