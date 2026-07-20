@@ -403,55 +403,6 @@ export default function CreateCustodyAccountPage(props) {
               )}
             />
             {inputKeys}
-
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                marginTop: 10,
-                columnGap: 10,
-                rowGap: 10,
-              }}
-            >
-              <CustomButton
-                buttonStyles={{
-                  flex: 1,
-                }}
-                actionFunction={async () => {
-                  const response = await getClipboardText();
-                  if (!response.didWork) throw new Error(t(response.reason));
-
-                  const data = response.data;
-
-                  const restoredSeed = handleRestoreFromText(data);
-
-                  const splitSeed = restoredSeed.seed;
-
-                  if (!splitSeed.every(word => word.trim().length > 0)) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t(
-                        'errormessages.invalidSeedWordLengthErorr',
-                      ),
-                    });
-                    return;
-                  }
-
-                  if (splitSeed.length != 12) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('errormessages.invalidSeedLengthError'),
-                    });
-                  }
-
-                  const newKeys = {};
-                  NUMARRAY.forEach((num, index) => {
-                    newKeys[`key${num}`] = splitSeed[index];
-                  });
-                  setInputedKey(newKeys);
-                }}
-                textContent={t('constants.paste')}
-              />
-            </View>
           </>
         )}
       </ScrollView>
