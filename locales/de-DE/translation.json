@@ -2624,7 +2624,7 @@
         "subtitle": "Erstellen Sie eine Adresse, um Stablecoin-Einzahlungen automatisch in Bitcoin oder Dollar umzuwandeln"
       },
       "createButton": "Adresse erstellen",
-      "addressCount": "{{count}} addresses",
+      "addressCount": "{{count}} Adressen",
       "info": {
         "title": "Was ist das?",
         "whatAre": "Was ist das?",
@@ -2643,8 +2643,9 @@
         "chain": "Netzwerk",
         "source": "Quelle",
         "Destination": "Ziel",
-        "selectAnotherOption": "Select Another Option",
-        "selectAddress": "Select Address"
+        "selectAnotherOption": "Andere Option auswählen",
+        "selectAddress": "Adresse auswählen",
+        "viewAll": "Alle Adressen anzeigen"
       },
       "create": {
         "pickAsset": "Zahlungswährung auswählen",
@@ -2653,8 +2654,8 @@
         "confirm": "Adresse bestätigen",
         "alreadyExists": "Sie haben bereits eine Adresse für diese Kombination",
         "convertDesc": "Ihre {{asset}} auf {{chain}} werden in {{receiveCurrency}} umgewandelt",
-        "createNewAddress": "Create New Address",
-        "limitReached": "You've reached the maximum number of addresses for this option."
+        "createNewAddress": "Neue Adresse erstellen",
+        "limitReached": "Sie haben die maximale Anzahl an Adressen für diese Option erreicht."
       },
       "summary": {
         "chain": "Netzwerk",

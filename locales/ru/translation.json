@@ -2631,7 +2631,7 @@
         "subtitle": "Создайте адрес, чтобы автоматически конвертировать депозиты в Bitcoin или доллары"
       },
       "createButton": "Создать адрес",
-      "addressCount": "{{count}} addresses",
+      "addressCount": "{{count}} адресов",
       "info": {
         "title": "Что это?",
         "whatAre": "Что это?",
@@ -2650,8 +2650,9 @@
         "source": "Источник",
         "Destination": "Назначение",
         "chain": "Сеть",
-        "selectAnotherOption": "Select Another Option",
-        "selectAddress": "Select Address"
+        "selectAnotherOption": "Выбрать другой вариант",
+        "selectAddress": "Выбрать адрес",
+        "viewAll": "Показать все адреса"
       },
       "create": {
         "pickAsset": "Выберите валюту платежа",
@@ -2660,8 +2661,8 @@
         "confirm": "Подтвердить адрес",
         "alreadyExists": "У вас уже есть адрес для этой комбинации",
         "convertDesc": "Ваш {{asset}} в сети {{chain}} будет конвертирован в {{receiveCurrency}}",
-        "createNewAddress": "Create New Address",
-        "limitReached": "You've reached the maximum number of addresses for this option."
+        "createNewAddress": "Создать новый адрес",
+        "limitReached": "Вы достигли максимального количества адресов для этого варианта."
       },
       "summary": {
         "chain": "Сеть",

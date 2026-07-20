@@ -2644,7 +2644,8 @@
         "source": "Source",
         "Destination": "Destination",
         "selectAnotherOption": "Select Another Option",
-        "selectAddress": "Select Address"
+        "selectAddress": "Select Address",
+        "viewAll": "View All Addresses"
       },
       "create": {
         "pickAsset": "Select Payment Currency",

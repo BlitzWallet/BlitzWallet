@@ -2624,7 +2624,7 @@
         "subtitle": "Crea un indirizzo per convertire automaticamente i depositi in Bitcoin o dollari"
       },
       "createButton": "Crea indirizzo",
-      "addressCount": "{{count}} addresses",
+      "addressCount": "{{count}} indirizzi",
       "info": {
         "title": "Cosa sono?",
         "whatAre": "Cosa sono?",
@@ -2643,8 +2643,9 @@
         "chain": "Rete",
         "source": "Origine",
         "Destination": "Destinazione",
-        "selectAnotherOption": "Select Another Option",
-        "selectAddress": "Select Address"
+        "selectAnotherOption": "Seleziona un'altra opzione",
+        "selectAddress": "Seleziona indirizzo",
+        "viewAll": "Visualizza tutti gli indirizzi"
       },
       "create": {
         "pickAsset": "Seleziona valuta di pagamento",
@@ -2653,8 +2654,8 @@
         "confirm": "Conferma indirizzo",
         "alreadyExists": "Hai già un indirizzo per questa combinazione",
         "convertDesc": "Il tuo {{asset}} su {{chain}} verrà convertito in {{receiveCurrency}}",
-        "createNewAddress": "Create New Address",
-        "limitReached": "You've reached the maximum number of addresses for this option."
+        "createNewAddress": "Crea nuovo indirizzo",
+        "limitReached": "Hai raggiunto il numero massimo di indirizzi per questa opzione."
       },
       "summary": {
         "chain": "Rete",
