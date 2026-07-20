@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { Image } from 'expo-image';
 import ViewShot from 'react-native-view-shot';
 import * as FileSystem from 'expo-file-system/legacy';
 import {
@@ -24,12 +25,14 @@ import {
   ACCUMULATION_CHAINS,
   getPairKey,
 } from '../../../../constants/accumulationAddresses';
-import { CENTER, COLORS } from '../../../../constants';
+import { CENTER, COLORS, ICONS } from '../../../../constants';
 import { createPdf } from 'react-native-pdf-from-image';
 import { shareFile } from '../../../../functions/handleShare';
-import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import GetThemeColors from '../../../../hooks/themeColors';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 function normalizeFileUri(uri) {
   return uri.startsWith('file://') ? uri : `file://${uri}`;
@@ -42,6 +45,9 @@ export default function AccumulationAddressDetail() {
   const triple = { sourceChain, sourceAsset, destinationAsset };
   const { t } = useTranslation();
   const { showToast } = useToast();
+
+  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { addresses, addressesForOption, deleteAddress } =
     useAccumulationAddresses();
   const viewShotRef = useRef(null);
@@ -98,22 +104,6 @@ export default function AccumulationAddressDetail() {
       onSelect: addr => setSelectedId(addr.accumulationAddressId),
     });
   }, [navigate, groupAddresses, selected]);
-
-  const handleSelectOption = useCallback(() => {
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'accumulationOptionSelect',
-      sliderHight: 0.5,
-      options,
-      onSelect: option => {
-        navigate.setParams({
-          sourceChain: option.sourceChain,
-          sourceAsset: option.sourceAsset,
-          destinationAsset: option.destinationAsset,
-        });
-        setSelectedId(null);
-      },
-    });
-  }, [navigate, options]);
 
   const handlePrint = useCallback(async () => {
     try {
@@ -183,19 +173,70 @@ export default function AccumulationAddressDetail() {
         iconNew="Trash2"
         leftImageFunction={handleDelete}
         textStyles={{ textTransform: 'capitalize' }}
-        rightContent={
-          groupAddresses.length > 1 ? (
-            <TouchableOpacity onPress={handleSelectAddress}>
-              <ThemeIcon iconName="List" size={22} />
-            </TouchableOpacity>
-          ) : null
-        }
       />
       <View style={styles.innerContainer}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* Asset flow */}
+          <View style={styles.assetRow}>
+            <View style={styles.confirmIconWrapper}>
+              <View
+                style={[
+                  styles.confirmChainCircle,
+                  { backgroundColor: backgroundOffset },
+                ]}
+              >
+                <Image
+                  style={styles.confirmChainIcon}
+                  source={ICONS[`chain_${chainLabel.toLowerCase()}`]}
+                  contentFit="contain"
+                />
+              </View>
+              <View
+                style={[
+                  styles.confirmCurrencyBadge,
+                  { borderColor: backgroundColor },
+                ]}
+              >
+                <Image
+                  style={styles.confirmCurrencyIcon}
+                  source={ICONS[`${selected.sourceAsset.toLowerCase()}Logo`]}
+                  contentFit="contain"
+                />
+              </View>
+            </View>
+            <ThemeIcon styles={{ opacity: 0.7 }} iconName={'ArrowRight'} />
+            <View style={styles.confirmIconWrapper}>
+              <View
+                style={[
+                  styles.confirmChainCircle,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : selected.destinationAsset === 'BTC'
+                        ? COLORS.bitcoinOrange
+                        : COLORS.dollarGreen,
+                  },
+                ]}
+              >
+                <Image
+                  style={[styles.confirmChainIcon, { width: 35, height: 35 }]}
+                  source={
+                    ICONS[
+                      selected.destinationAsset === 'BTC'
+                        ? 'bitcoinIcon'
+                        : 'dollarIcon'
+                    ]
+                  }
+                  contentFit="contain"
+                />
+              </View>
+            </View>
+          </View>
+
           {/* QR Code */}
           <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }}>
             <QrCodeWrapper
@@ -210,42 +251,13 @@ export default function AccumulationAddressDetail() {
           {/* Address display */}
           <TouchableOpacity
             activeOpacity={0.7}
-            style={styles.addressRow}
+            style={[styles.addressRow, { backgroundColor: backgroundOffset }]}
             onPress={handleCopy}
           >
             <ThemeText content={shortAddress} />
             <ThemeIcon iconName="Copy" size={18} />
           </TouchableOpacity>
-
-          {/* Metadata */}
-          <View style={styles.metaRow}>
-            <MetaCell
-              label={t('screens.accumulationAddresses.detail.chain')}
-              value={chainLabel}
-              textStyles={{ textTransform: 'capitalize' }}
-            />
-            <MetaCell
-              label={t('screens.accumulationAddresses.detail.source')}
-              value={selected.sourceAsset}
-            />
-            <MetaCell
-              label={t('screens.accumulationAddresses.detail.Destination')}
-              value={
-                selected.destinationAsset === 'BTC'
-                  ? t('constants.bitcoin_upper')
-                  : t('constants.dollars_upper')
-              }
-            />
-          </View>
         </ScrollView>
-        {/* Select another option */}
-        <CustomButton
-          buttonStyles={styles.optionBtn}
-          textContent={t(
-            'screens.accumulationAddresses.detail.selectAnotherOption',
-          )}
-          actionFunction={handleSelectOption}
-        />
         {/* Print button */}
         <CustomButton
           buttonStyles={styles.printBtn}
@@ -253,17 +265,17 @@ export default function AccumulationAddressDetail() {
           actionFunction={handlePrint}
           useLoading={isPrinting}
         />
+        {/* View all address button*/}
+        {groupAddresses.length > 1 && (
+          <CustomButton
+            buttonStyles={styles.viewAllBtn}
+            textStyles={{ color: textColor }}
+            textContent={t('screens.accumulationAddresses.detail.viewAll')}
+            actionFunction={handleSelectAddress}
+          />
+        )}
       </View>
     </GlobalThemeView>
-  );
-}
-
-function MetaCell({ label, value, textStyles = {} }) {
-  return (
-    <View style={styles.metaCell}>
-      <ThemeText styles={styles.metaLabel} content={label} />
-      <ThemeText styles={[styles.metaValue, textStyles]} content={value} />
-    </View>
   );
 }
 
@@ -289,20 +301,47 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 20,
     marginTop: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 50,
   },
-  metaRow: {
+  assetRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 24,
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 20,
   },
-  metaCell: { alignItems: 'center' },
-  metaLabel: { fontSize: SIZES.small, opacity: 0.6, marginBottom: 2 },
-  metaValue: {
-    fontSize: SIZES.smedium,
-    includeFontPadding: false,
+  confirmIconWrapper: {
+    position: 'relative',
+  },
+  confirmChainCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  confirmChainIcon: {
+    width: 60,
+    height: 60,
+  },
+  confirmCurrencyBadge: {
+    position: 'absolute',
+    width: 25,
+    height: 25,
+    borderRadius: 15,
+    bottom: -4,
+    right: -4,
+    borderWidth: 2,
+    overflow: 'hidden',
+  },
+  confirmCurrencyIcon: {
+    width: '100%',
+    height: '100%',
   },
   printBtn: { width: '100%' },
+  viewAllBtn: { backgroundColor: 'transparent' },
   optionBtn: { width: '100%', marginBottom: 10 },
   deleteBtn: {
     width: '100%',

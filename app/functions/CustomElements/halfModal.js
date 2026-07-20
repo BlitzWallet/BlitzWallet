@@ -45,7 +45,6 @@ import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/vie
 import ViewAllTokensHalfModal from '../../components/admin/homeComponents/homeLightning/viewAllTokensHalfModal';
 import CreateAccumulationAddressModal from '../../components/admin/homeComponents/accumulationAddresses/CreateAccumulationAddressModal';
 import AccumulationAddressSelectHalfModal from '../../components/admin/homeComponents/accumulationAddresses/AccumulationAddressSelectHalfModal';
-import AccumulationOptionSelectHalfModal from '../../components/admin/homeComponents/accumulationAddresses/AccumulationOptionSelectHalfModal';
 
 import Animated, {
   useSharedValue,
@@ -710,15 +709,7 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
-      case 'accumulationOptionSelect':
-        return (
-          <AccumulationOptionSelectHalfModal
-            options={props?.route?.params?.options}
-            onSelect={props?.route?.params?.onSelect}
-            handleBackPressFunction={handleBackPressFunction}
-            setContentHeight={setContentHeight}
-          />
-        );
+
       case 'RemoveBudgetHalfModal':
         return (
           <RemoveBudgetHalfModal
