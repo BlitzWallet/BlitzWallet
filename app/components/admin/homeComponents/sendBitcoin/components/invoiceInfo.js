@@ -238,9 +238,9 @@ export default function InvoiceInfo({
       ) : (
         paymentContent
       )}
-      {isClickable && (
+      {/* {isClickable && (
         <ThemeIcon iconName="ChevronRight" size={20} styles={styles.chevron} />
-      )}
+      )} */}
     </Container>
   );
 }
@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   chevron: {
     opacity: 0.8,
