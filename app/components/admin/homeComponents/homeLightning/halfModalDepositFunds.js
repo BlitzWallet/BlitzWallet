@@ -161,11 +161,11 @@ export default function HalfModalDepositFunds({
     const currentId = qrGroupAddresses.find(
       a => a.depositAddress === qrConfig?.depositAddress,
     )?.accumulationAddressId;
-    navigate.navigate('CustomHalfModal', {
+    navigate.push('CustomHalfModal', {
       wantedContent: 'accumulationAddressSelect',
       sliderHight: 0.5,
       addresses: qrGroupAddresses,
-      selectedId: currentId,
+      selectedId: currentId || qrGroupAddresses[0]?.accumulationAddressId,
       onSelect: addr =>
         handleShowQR({ ...qrConfig, depositAddress: addr.depositAddress }),
     });
@@ -226,8 +226,17 @@ export default function HalfModalDepositFunds({
         title: headerTitle,
         rightElement:
           activeView === 'qr' && qrGroupAddresses.length > 1 ? (
-            <TouchableOpacity onPress={openAddressSelector}>
-              <ThemeIcon iconName="List" size={22} />
+            <TouchableOpacity
+              style={[
+                styles.backButtonCircle,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+              onPress={openAddressSelector}
+            >
+              <ThemeIcon iconName="Menu" size={22} />
             </TouchableOpacity>
           ) : undefined,
       });
@@ -293,9 +302,8 @@ export default function HalfModalDepositFunds({
                   content={t('wallet.halfModal.lightningInvoiceSubtitle')}
                 />
               </View>
-              <View style={{ opacity: HIDDEN_OPACITY }}>
-                <ThemeIcon iconName={'ChevronRight'} size={18} />
-              </View>
+
+              <ThemeIcon iconName={'ChevronRight'} size={18} />
             </TouchableOpacity>
           )}
 
@@ -330,9 +338,8 @@ export default function HalfModalDepositFunds({
                 content={t('wallet.halfModal.onChainBitcoinSubtitle')}
               />
             </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
-              <ThemeIcon iconName={'ChevronRight'} size={18} />
-            </View>
+
+            <ThemeIcon iconName={'ChevronRight'} size={18} />
           </TouchableOpacity>
 
           {/* Stablecoins */}
@@ -366,9 +373,8 @@ export default function HalfModalDepositFunds({
                 content={t('wallet.halfModal.stablecoinsSubtitle')}
               />
             </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
-              <ThemeIcon iconName={'ChevronRight'} size={18} />
-            </View>
+
+            <ThemeIcon iconName={'ChevronRight'} size={18} />
           </TouchableOpacity>
 
           {/* Other Bitcoin */}
@@ -401,9 +407,8 @@ export default function HalfModalDepositFunds({
                 content={t('wallet.halfModal.otherBitcoinSubtitle')}
               />
             </View>
-            <View style={{ opacity: HIDDEN_OPACITY }}>
-              <ThemeIcon iconName={'ChevronRight'} size={18} />
-            </View>
+
+            <ThemeIcon iconName={'ChevronRight'} size={18} />
           </TouchableOpacity>
         </ScrollView>
       </Animated.View>
@@ -498,6 +503,13 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
     flex: 1,
+  },
+  backButtonCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   animatedContainer: {
     flex: 1,

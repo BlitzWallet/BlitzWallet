@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { CENTER, SIZES } from '../../../../constants';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
-import { useToast } from '../../../../../context-store/toastManager';
-import { copyToClipboard } from '../../../../functions';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function AccumulationAddressSelectHalfModal({
   addresses,
@@ -15,8 +15,9 @@ export default function AccumulationAddressSelectHalfModal({
   handleBackPressFunction,
   setContentHeight,
 }) {
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const { t } = useTranslation();
-  const { showToast } = useToast();
 
   useEffect(() => {
     setContentHeight(450);
@@ -43,22 +44,28 @@ export default function AccumulationAddressSelectHalfModal({
           const isSelected = addr.accumulationAddressId === selectedId;
           return (
             <TouchableOpacity
+              disabled={isSelected}
               key={addr.accumulationAddressId}
               activeOpacity={0.7}
-              style={styles.row}
+              style={[
+                styles.row,
+                {
+                  backgroundColor: isSelected
+                    ? theme && darkModeType
+                      ? backgroundColor
+                      : backgroundOffset
+                    : 'transparent',
+                  borderWidth: isSelected ? 1 : 0,
+                  borderColor:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
+                },
+              ]}
               onPress={() => handleSelect(addr)}
             >
               <ThemeText styles={styles.addressText} content={shortAddress} />
-              <View style={styles.rightSection}>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => copyToClipboard(depositAddress, showToast)}
-                  style={styles.copyButton}
-                >
-                  <ThemeIcon iconName="Copy" size={18} />
-                </TouchableOpacity>
-                {isSelected && <ThemeIcon iconName="Check" size={18} />}
-              </View>
+              {!isSelected && <ThemeIcon size={20} iconName={'ChevronRight'} />}
             </TouchableOpacity>
           );
         })}
@@ -75,15 +82,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: SIZES.large,
-    textAlign: 'center',
-    marginBottom: 20,
+    fontWeight: 500,
+    marginBottom: 10,
     includeFontPadding: false,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 55,
+    minHeight: 50,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
   },
   addressText: {
     includeFontPadding: false,

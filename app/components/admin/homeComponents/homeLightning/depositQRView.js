@@ -118,6 +118,14 @@ export default function DepositQRView({
       fee: 0,
     });
     try {
+      if (config.depositAddress) {
+        setAddressState(prev => ({
+          ...prev,
+          generatedAddress: config.depositAddress,
+          isGeneratingInvoice: false,
+        }));
+        return;
+      }
       const result = await createAddress({ ...triple, forceNew: true });
 
       // At the cap: fall back to an already-saved address instead of erroring.
