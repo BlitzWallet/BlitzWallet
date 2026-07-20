@@ -30,10 +30,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 
 import { initializeAddressProcess } from '../../../../functions/receiveBitcoin/addressGeneration';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
-import {
-  ACCUMULATION_CHAINS,
-  getAccumulationAddressLimit,
-} from '../../../../constants/accumulationAddresses';
+import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -90,7 +87,6 @@ export default function DepositQRView({
     errorMessageText: { type: '', text: '' },
     fee: 0,
   });
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
 
   const option = config?.selectedRecieveOption?.toLowerCase();
 
@@ -109,16 +105,75 @@ export default function DepositQRView({
     if (isActive) setContentHeight(700);
   }, [isActive]);
 
+  const handleCreateNew = async () => {
+    const triple = {
+      sourceChain: config.sourceChain,
+      sourceAsset: config.sourceAsset,
+      destinationAsset: config.destinationAsset,
+    };
+    setAddressState({
+      generatedAddress: '',
+      isGeneratingInvoice: true,
+      errorMessageText: { type: null, text: '' },
+      fee: 0,
+    });
+    try {
+      const result = await createAddress({ ...triple, forceNew: true });
+
+      // At the cap: fall back to an already-saved address instead of erroring.
+      if (result?.error === 'limit_reached') {
+        const saved = addressesForOption(triple)[0]?.depositAddress;
+        if (saved) {
+          setAddressState(prev => ({
+            ...prev,
+            generatedAddress: saved,
+            isGeneratingInvoice: false,
+          }));
+          return;
+        }
+        setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('screens.accumulationAddresses.create.limitReached'),
+        });
+        return;
+      }
+
+      if (result?.error) {
+        const saved = addressesForOption(triple)[0]?.depositAddress;
+        if (saved) {
+          setAddressState(prev => ({
+            ...prev,
+            generatedAddress: saved,
+            isGeneratingInvoice: false,
+          }));
+          return;
+        }
+        setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('screens.accumulationAddresses.errors.createFailed'),
+        });
+        return;
+      }
+
+      const newAddress =
+        typeof result.address === 'string'
+          ? result.address
+          : result.address?.depositAddress;
+      setAddressState(prev => ({
+        ...prev,
+        generatedAddress: newAddress || '',
+        isGeneratingInvoice: false,
+      }));
+    } catch {
+      setAddressState(prev => ({ ...prev, isGeneratingInvoice: false }));
+    }
+  };
+
   useEffect(() => {
     if (!config) return;
 
-    if (config.depositAddress) {
-      setAddressState({
-        generatedAddress: config.depositAddress,
-        isGeneratingInvoice: false,
-        errorMessageText: { type: null, text: '' },
-        fee: 0,
-      });
+    if (config.selectedRecieveOption?.toLowerCase() === 'stablecoins') {
+      handleCreateNew();
       return; // skip initializeAddressProcess; a specific address was picked from the selector
     }
 
@@ -252,41 +307,6 @@ export default function DepositQRView({
     copyToClipboard(address, showToast);
   };
 
-  const stablecoinTriple = {
-    sourceChain: config.sourceChain,
-    sourceAsset: config.sourceAsset,
-    destinationAsset: config.destinationAsset,
-  };
-  const canCreateMore =
-    option === 'stablecoins' &&
-    addressesForOption(stablecoinTriple).length <
-      getAccumulationAddressLimit(masterInfoObject);
-
-  const handleCreateNew = async () => {
-    setIsCreatingNew(true);
-    const result = await createAddress({ ...stablecoinTriple, forceNew: true });
-    setIsCreatingNew(false);
-    if (result?.error === 'limit_reached') {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('screens.accumulationAddresses.create.limitReached'),
-      });
-      return;
-    }
-    if (result?.error) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('screens.accumulationAddresses.errors.createFailed'),
-      });
-      return;
-    }
-    const newAddress =
-      typeof result.address === 'string'
-        ? result.address
-        : result.address?.depositAddress;
-    if (newAddress) {
-      setAddressState(prev => ({ ...prev, generatedAddress: newAddress }));
-    }
-  };
-
   if (addressState.isGeneratingInvoice) {
     return (
       <View style={styles.centerContent}>
@@ -387,19 +407,6 @@ export default function DepositQRView({
         actionFunction={handleCopy}
         textContent={t('wallet.halfModal.copyAddress')}
       />
-      {canCreateMore && (
-        <CustomButton
-          buttonStyles={{
-            width: '100%',
-            marginBottom: bottomPadding,
-            ...CENTER,
-            marginTop: CONTENT_KEYBOARD_OFFSET,
-          }}
-          actionFunction={handleCreateNew}
-          useLoading={isCreatingNew}
-          textContent={t('screens.accumulationAddresses.create.createNewAddress')}
-        />
-      )}
     </View>
   );
 }

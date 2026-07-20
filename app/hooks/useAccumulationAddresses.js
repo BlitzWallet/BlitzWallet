@@ -68,7 +68,12 @@ export function useAccumulationAddresses() {
 
   // Create a new address
   const createAddress = useCallback(
-    async ({ sourceChain, sourceAsset, destinationAsset, forceNew = false }) => {
+    async ({
+      sourceChain,
+      sourceAsset,
+      destinationAsset,
+      forceNew = false,
+    }) => {
       if (!contactsPrivateKey || !publicKey) return { error: 'no_keys' };
       try {
         const matching = addressesForOption({
