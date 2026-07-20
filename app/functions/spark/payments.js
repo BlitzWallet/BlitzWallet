@@ -238,7 +238,6 @@ export const sparkPaymenWrapper = async ({
               'Error when sending lightning payment',
           );
 
-        console.log(lightningPayResponse, 'lightniing pay response');
         const data = lightningPayResponse.paymentResponse;
 
         // check if lightning payment used LN or handled over spark
@@ -340,7 +339,6 @@ export const sparkPaymenWrapper = async ({
           onChainPayResponse.error || 'Error when sending bitcoin payment',
         );
 
-      console.log(onChainPayResponse, 'on-chain pay response');
       const data = onChainPayResponse.response;
 
       const tx = {

@@ -730,8 +730,6 @@ export const updateSparkTxStatus = async (
       unpaidInvoicesByAmount.get(amount).push(invoice);
     });
 
-    console.log('pending tx list', savedTxs);
-
     // For large pending sets, fetch the recent transfers once and look ids up
     // locally instead of one getSingleTxDetails request per pending tx. Only
     // 25 transfers since this runs every ~10s and each transfer is encrypted.
@@ -792,7 +790,6 @@ export const updateSparkTxStatus = async (
       updatedTxs,
       sparkUpdates.includesGift ? 'fullUpdate-waitBalance' : 'txStatusUpdate',
     );
-    console.log(`Updated transactions:`, updatedTxs);
     return { updated: updatedTxs, shouldCheck: false };
   } catch (error) {
     console.error('Error in spark restore:', error);

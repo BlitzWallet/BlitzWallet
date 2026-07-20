@@ -58,7 +58,6 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
       );
       const refundData = await refundRes.json();
 
-      console.log(refundData, 'boltz refund data');
       if (refundData.error) {
         await persistRefundError(id, refundData.error);
         return false;

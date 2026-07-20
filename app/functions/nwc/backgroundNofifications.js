@@ -635,7 +635,6 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     await filteredEvents.forEach(async (event, index) => {
       const selectedNWCAccount = nwcAccounts[event.pubkey];
-      console.log(selectedNWCAccount, 'SELECTED NWC ACCOUNT');
       if (!selectedNWCAccount) return null;
 
       try {
