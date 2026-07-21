@@ -377,7 +377,7 @@
         "bestValue": "Best Value",
         "feature1": "Access the latest AI models",
         "feature2": "No subscriptions — pay as you go",
-        "feature3": "Private, Lightning-powered payments",
+        "feature3": "Private, fast powered payments",
         "feature4": "Choose your plan size",
         "feature5": "Simple, one-time purchases",
         "description": "In order to use the latest generative AI models, you must purchase credits. Choose an option below to begin.",
@@ -1152,9 +1152,6 @@
       "noPoolsTitle": "No Created Pools",
       "noPoolsSubTitle": "Once you create a pool, it’ll show up here as active or inactive."
     },
-    "manualInputPage": {
-      "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"
-    },
     "cameraModal": {
       "noCamera": "No access to camera",
       "settingsText": "Go to settings to let Blitz Wallet access your camera",
@@ -1206,13 +1203,8 @@
         "sparkDesc": "Instant, Supports Tokens",
         "sparkTitle": "Spark Address",
         "bitcoinTitle": "Bitcoin Address",
-        "lightningTitle": "Lightning Invoice",
         "liquidTitle": "Liquid Address",
         "rootstockTitle": "Rootstock Address"
-      },
-      "editLNURLContact": {
-        "informationMessage": "Changing your username updates how others find you in Blitz Contacts and your Lightning address (username @blitzwalletapp.com).\n\nA Lightning address lets others easily send you Bitcoin. Just share your address (username@blitzwalletapp.com) to get paid.",
-        "usernameInputDesc": "Edit Username"
       }
     },
     "sendPages": {
@@ -1243,15 +1235,15 @@
         "processInputError": "Unable to process input",
         "unkonwDecodeError": "Unknown decoding error occurred",
         "invalidInputType": "Not a valid address type",
-        "expiredLightningInvoice": "This Lightning invoice has expired",
-        "lnurlAuthStartMeessage": "Starting Lightning login",
-        "lnurlFailedAuthMessage": "Failed to authenticate using Lightning",
+        "expiredLightningInvoice": "This invoice has expired",
+        "lnurlAuthStartMeessage": "Starting the login process",
+        "lnurlFailedAuthMessage": "Failed to authenticate",
         "lnurlConfirmMessage": "Login successfull",
-        "lnurlPayInvoiceError": "Failed to generate invoice for this Lightning address payment. Please try again.",
+        "lnurlPayInvoiceError": "Failed to generate invoice for this payment. Please try again.",
         "lnurlPayNoInvoiceError": "The service you are trying to pay is currently offline. If the issue persists, contact the company you are trying to pay about the problem.",
         "lnurlPayInvalidFormat": "The service you are trying to pay did not return the correct data. If the issue persists, contact the company you are trying to pay about the problem.",
         "lnurlWithdrawlStart": "Generating invoice for withdrawal",
-        "lnurlWithdrawlInvoiceError": "Unable to generate invoice for Lightning withdrawal",
+        "lnurlWithdrawlInvoiceError": "Unable to generate invoice for this withdrawal",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
         "invoiceDetails": "Loading details",
@@ -1314,10 +1306,6 @@
         "noTokensText": "You have no tokens",
         "noTokensFoundText": "No tokens found"
       },
-      "manualEnterSendAddress": {
-        "title": "Enter in destination",
-        "paymentTypesDesc": "Blitz Wallet can send to Spark addresses, Bitcoin addresses, and Lightning addresses/invoices"
-      },
       "sparkErrorScreen": {
         "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your recovery phrase keeps your funds safe.",
         "retry": "We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your recovery phrase."
@@ -1353,7 +1341,6 @@
       "recipientGets": "Recipient gets",
       "youSend": "You send",
       "quoteExpiresIn": "Quote expires in",
-      "payWithLightning": "Pay with Lightning",
       "payWithUSDb": "Pay with USDb",
       "chainNotSupportedForAsset": "Not available on this network",
       "swapInProgress": "Payment in Progress",
@@ -1466,7 +1453,7 @@
       "recipientReceives": "{{contactName}} will receive",
       "giftMessagePlaceholder": "Write your gift message here...",
       "paymentSourceHeader": "Payment Source",
-      "fiatRateLoading": "Loading Lightning Address currency rate",
+      "fiatRateLoading": "Loading currency rate",
       "fiatRateLoadFailed": "Couldn't load the currency rate"
     },
     "viewGiftCardCode": {
@@ -1795,7 +1782,7 @@
       "swap": "Transfer",
       "rescanning": "Scanning…",
       "autoClaimLabel": "Auto-Claim",
-      "autoClaimHelper": "Automatically swap Liquid funds to Lightning when the minimum threshold is reached."
+      "autoClaimHelper": "Automatically swap Liquid funds to your wallet when the minimum threshold is reached."
     },
     "notifications": {
       "mainToggle_enabled": "Enabled notifications",
@@ -2195,7 +2182,7 @@
         "onchainFeeMessage": "To receive a Bitcoin payment, you'll pay an on-chain network fee. This fee varies based on current Bitcoin network fees.",
         "liquidFeeMessage": "To receive a Liquid payment, you'll pay a lockup fee of ~{{fee}}, a claim fee of ~{{claimFee}}, and a 0.1% Boltz service fee.",
         "rootstockFeeMessage": "To receive a Rootstock payment, you'll pay a lockup fee of ~{{fee}} and a 0.1% Boltz service fee.",
-        "lightningConvertMessage": "Receiving dollars from Lightning requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is:\n{{satExchangeRate}}.",
+        "lightningConvertMessage": "Receiving dollars requires converting Bitcoin to USD. A {{convertFee}}% fee applies, and the current exchange rate is:\n{{satExchangeRate}}.",
         "stablecoinsFeeMessage": "To receive stablecoins, a 0.5% Blitz fee and a 0.05% Flashnet fee apply.",
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
@@ -2693,8 +2680,6 @@
         "noName": "Unknown Merchant",
         "directions": "Directions",
         "pay": "Pay",
-        "lightning": "Lightning",
-        "lightningMessage": "Accepts bitcoin payments instantly over the Lightning Network",
         "dataMessage": "Data from {{source}}"
       },
       "filter": {
@@ -2767,7 +2752,7 @@
     "contactNotLoaded": "Contact not loaded. Please try again.",
     "processingDeepLinkError": "Failed to process link: {{error}}",
     "legacyContactError": "Contact has not updated their wallet yet. Please ask them to update their wallet to send this.",
-    "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid Lightning address.",
+    "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid address.",
     "explorePagenoDataError": "We were unable to retrieve Blitz user count.",
     "savingFileError": "Error saving file to document",
     "savingFilePermissionsError": "Error getting permissions",
@@ -2786,7 +2771,7 @@
     "liquidInvoiceError": "There was a problem generating your Liquid address. Please try again.",
     "bitcoinInvoiceError": "There was a problem generating your Bitcoin address. Please try again.",
     "sparkInvoiceError": "There was a problem generating your Spark address. Please try again.",
-    "lightningInvoiceError": "There was a problem generating your Lightning invoice. Please try again.",
+    "lightningInvoiceError": "There was a problem generating your invoice. Please try again.",
     "sparkConnectionError": "Spark connection failed. Please try again.",
     "giftCardExpiration": "Gift cards can only be recovered for 7 days after they are sent. If this app is deleted or local storage is cleared after that time, your gift cards will be lost. Be sure to save the claim links or gift card codes in a safe place.",
     "receivedRootstock": "Rootstock payment received — your swap is starting. It may take up to a minute, so please keep the app open.",
@@ -3062,7 +3047,7 @@
         "earnTitle": "Earn daily rewards",
         "earnBody": "USDB accrues savings rewards automatically. No staking, no lock-ups — just hold and earn.",
         "accessTitle": "Instant access",
-        "accessBody": "Withdraw to your Lightning wallet in seconds, any time. Your funds are never locked.",
+        "accessBody": "Withdraw to your wallet in seconds, any time. Your funds are never locked.",
         "backedTitle": "Fully backed",
         "backedBody": "Every USDB is backed 1:1 by USD held in segregated, audited reserve accounts.",
         "goalTitle": "Set a savings goal",
