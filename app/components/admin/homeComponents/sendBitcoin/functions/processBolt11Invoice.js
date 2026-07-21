@@ -35,7 +35,7 @@ export default async function processBolt11Invoice(input, context) {
   const currentTime = Math.floor(Date.now() / 1000);
   const useDefaultExpiry = !input.data.expiry;
   const expirationTime = useDefaultExpiry
-    ? 3600
+    ? input.data.timestamp + 3600
     : input.data.timestamp + input.data.expiry;
 
   const isExpired = currentTime > expirationTime;
