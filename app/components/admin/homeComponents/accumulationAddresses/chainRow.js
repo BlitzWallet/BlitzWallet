@@ -73,14 +73,14 @@ export default function ChainRow({
             style={[
               styles.assetIcon,
               isSpark && {
-                width: 20,
-                height: 20,
+                width: '100%',
+                height: '100%',
               },
             ]}
             source={
               ICONS[
                 isSpark
-                  ? 'sparkAsteriskWhite'
+                  ? 'sparkLogoLight'
                   : `chain_${chain.label.toLowerCase()}`
               ]
             }
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   chainIconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 22.5,
+    borderRadius: 25,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',

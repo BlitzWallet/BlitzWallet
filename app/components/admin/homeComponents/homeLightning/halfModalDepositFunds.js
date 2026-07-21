@@ -387,12 +387,12 @@ export default function HalfModalDepositFunds({
                 styles.scanIconContainer,
                 {
                   backgroundColor:
-                    theme && darkModeType ? backgroundColor : COLORS.primary,
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
                 },
               ]}
             >
               <ThemeIcon
-                colorOverride={COLORS.darkModeText}
+                // colorOverride={COLORS.darkModeText}
                 size={20}
                 iconName={'Ellipsis'}
               />

@@ -14,10 +14,10 @@ import telegramWhite from '../assets/icons/telegramWhite.png';
 import userWhite from '../assets/icons/user_white.png';
 import flashlightNoFillWhite from '../assets/icons/flashlightNoFillWhite.png';
 import logoWithPadding from '../assets/B_padding.png';
-import sparkAsteriskWhite from '../assets/icons/SparkAsteriskWhite.png';
 import lightningReceiveIcon from '../assets/icons/lightningReceiveIcon.png';
 import rootstockLogo from '../assets/icons/rootstockLogo.png';
-import blockstreamLiquid from '../assets/icons/blockstreamLiquid.png';
+import sparkLogoLight from '../assets/icons/sparkLogoLight.png';
+import liquidLogo from '../assets/icons/liquidLogo.png';
 import dollarIcon from '../assets/icons/dollarIcon.png';
 import bitcoinIcon from '../assets/icons/bitcoinIcon.png';
 import giftCardIcon from '../assets/icons/giftCardIcon.png';
@@ -78,13 +78,13 @@ export default {
 
   logoWithPadding,
 
-  sparkAsteriskWhite,
+  sparkLogoLight,
 
   lightningReceiveIcon,
 
   rootstockLogo,
 
-  blockstreamLiquid,
+  liquidLogo,
 
   dollarIcon,
   bitcoinIcon,
